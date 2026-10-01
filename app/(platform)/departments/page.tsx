@@ -14,8 +14,10 @@ import { NAV, TITLES } from '@/components/departments/constants';
 import { CreateDepartmentModal } from '@/components/departments/CreateDepartmentModal';
 import { DashboardView } from '@/components/departments/DashboardView';
 import { DetailView } from '@/components/departments/DetailView';
+import { EmployeesView } from '@/components/departments/EmployeesView';
 import { HeadsView } from '@/components/departments/HeadsView';
 import { ListView } from '@/components/departments/ListView';
+import { PositionsView } from '@/components/departments/PositionsView';
 import { StructureView } from '@/components/departments/StructureView';
 import { TreeView } from '@/components/departments/TreeView';
 import type { Nav } from '@/components/departments/types';
@@ -81,6 +83,8 @@ export default function DepartmentsPage() {
       {nav.view === 'structure' && <StructureView onSelect={handleSelect} />}
       {nav.view === 'tree' && <TreeView onSelect={handleSelect} />}
       {nav.view === 'heads' && <HeadsView />}
+      {nav.view === 'employees' && <EmployeesView />}
+      {nav.view === 'positions' && <PositionsView />}
       {nav.view === 'detail' && (
         <DetailView deptId={nav.selectedId} onBack={handleBack} />
       )}

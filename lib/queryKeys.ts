@@ -191,6 +191,12 @@ export const queryKeys = {
     comparative: () => [...queryKeys.departments.all, 'comparative'] as const,
     heads: () => [...queryKeys.departments.all, 'heads'] as const,
     headsHistory: () => [...queryKeys.departments.all, 'heads', 'history'] as const,
+    employees: (params: Record<string, unknown>) =>
+      [...queryKeys.departments.all, 'employees', params] as const,
+    positions: (params: Record<string, unknown>) =>
+      [...queryKeys.departments.all, 'positions', params] as const,
+    positionDetail: (id: number) =>
+      [...queryKeys.departments.all, 'positions', 'detail', id] as const,
   },
 
   competencies: {
