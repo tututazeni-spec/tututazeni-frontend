@@ -1,6 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import {
+  Award,
+  BookOpen,
+  CircleCheck,
+  ClipboardList,
+  FileBarChart,
+  GraduationCap,
+  Layers,
+  LayoutDashboard,
+  Tags,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { AdminDashboardView } from '@/components/courses/AdminDashboardView';
 import { CatalogView } from '@/components/courses/CatalogView';
 import { CertificatesView } from '@/components/courses/CertificatesView';
@@ -21,6 +35,23 @@ import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/providers/ToastProvider';
 
+// Ícone e subtítulo de cada aba, indexados pelo `id` definido em NAV
+// (components/courses/constants). O título continua a vir de `n.label`.
+// Se algum id não estiver aqui, a aba usa um ícone genérico e fica sem
+// subtítulo.
+const NAV_META: Record<string, { icon: LucideIcon; hint: string }> = {
+  dashboard: { icon: LayoutDashboard, hint: 'Resumo da formação' },
+  catalog: { icon: BookOpen, hint: 'Catálogo de cursos' },
+  categorias: { icon: Tags, hint: 'Organização por área' },
+  inscricoes: { icon: ClipboardList, hint: 'Matrículas e pedidos' },
+  progresso: { icon: TrendingUp, hint: 'Evolução dos formandos' },
+  turmas: { icon: Users, hint: 'Grupos de formação' },
+  'my-courses': { icon: GraduationCap, hint: 'Em curso e concluídos' },
+  certificates: { icon: Award, hint: 'Certificações obtidas' },
+  relatorios: { icon: FileBarChart, hint: 'Análises e exportações' },
+  modulos: { icon: Layers, hint: 'Módulos e lições' },
+};
+
 export default function CoursesPage() {
   const notify = useToast();
   const role = useCurrentRole();
@@ -32,7 +63,7 @@ export default function CoursesPage() {
     (n) => !n.roles || (!!role && n.roles.includes(role)),
   );
 
-  const [nav, setNav] = useState<Nav>({ view: 'catalog' });
+   const [nav, setNav] = useState<Nav>({ view: 'dashboard' });
   const [showCreate, setShowCreate] = useState(false);
   // Curso pré-seleccionado ao entrar na aba "Módulos & Lições" — via
   // "Gerir módulos" na aba Cursos (handleManageModules), "Ver inscrições"
@@ -86,27 +117,70 @@ export default function CoursesPage() {
         )}
       </div>
 
-      {/* Tabs — formato de "cartão": cada botão é um cartão independente
-          (borda + fundo branco + rounded), sem o fundo/pill de grupo
-          anterior. Alinhadas horizontal e verticalmente (justify-center +
-          items-center no wrapper). Estado activo usa a mesma condição
-          `nav.view === n.id` de sempre para aplicar destaque azul
-          (borda/fundo/texto primary). */}
+           {/* Abas em "glassmorphism": contentor translúcido com desfoque
+          (backdrop-blur) e botões em forma de pílula com ícone, título e
+          subtítulo. A aba activa usa a mesma condição `nav.view === n.id`
+          de sempre para ganhar gradiente azul, sombra e um visto à
+          direita. As manchas desfocadas atrás existem só para o efeito de
+          vidro ser visível sobre o fundo claro. Escondida na vista de
+          detalhe, como antes. */}
       {nav.view !== 'detail' && (
-        <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
-          {visibleNav.map((n) => (
-            <button
-              key={n.id}
-              onClick={() => setNav({ view: n.id })}
-              className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors ${
-                nav.view === n.id
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border bg-white text-ink-muted hover:text-ink'
-              }`}
-            >
-              {n.label}
-            </button>
-          ))}
+        <div className="relative mb-6">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl"
+          >
+            <div className="absolute -left-16 top-0 h-40 w-72 rounded-full bg-primary/20 blur-3xl" />
+            <div className="absolute -right-10 bottom-0 h-40 w-72 rounded-full bg-primary/15 blur-3xl" />
+          </div>
+
+          <div className="relative rounded-3xl border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {visibleNav.map((n) => {
+                const meta = NAV_META[n.id];
+                const Icon = meta?.icon ?? BookOpen;
+                const active = nav.view === n.id;
+                return (
+                  <button
+                    key={n.id}
+                    onClick={() => setNav({ view: n.id })}
+                    className={`flex items-center gap-3 whitespace-nowrap rounded-full border py-2 pl-2 pr-4 text-left backdrop-blur transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
+                      active
+                        ? 'border-transparent bg-gradient-to-r from-primary to-primary/70 text-white shadow-lg'
+                        : 'border-white/70 bg-white/60 text-ink shadow-sm hover:bg-white/80'
+                    }`}
+                  >
+                    <span
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                        active
+                          ? 'bg-white/20 text-white'
+                          : 'bg-white/70 text-ink/70'
+                      }`}
+                    >
+                      <Icon size={16} strokeWidth={1.75} />
+                    </span>
+                    <span className="flex flex-col items-start leading-tight">
+                      <span className="text-sm font-semibold">{n.label}</span>
+                      {meta?.hint && (
+                        <span
+                          className={`text-xs ${active ? 'opacity-85' : 'opacity-70'}`}
+                        >
+                          {meta.hint}
+                        </span>
+                      )}
+                    </span>
+                    {active && (
+                      <CircleCheck
+                        size={16}
+                        strokeWidth={2}
+                        className="shrink-0"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
 
