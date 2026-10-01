@@ -7,25 +7,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Users2 } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, Plus, Users2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
 import { useCourseOptions } from '@/components/enrollments/enrollData';
 import { CohortDetailModal } from './CohortDetailModal';
 import { CreateCohortModal } from './CreateCohortModal';
@@ -40,6 +33,18 @@ const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> =
     CLOSED: { label: 'Encerrada', cls: 'bg-surface-sunken text-ink-faint' },
     CANCELLED: { label: 'Cancelada', cls: 'bg-danger-subtle text-danger-ink' },
   };
+
+const GRID =
+  'min-w-[1000px] grid-cols-[1.3fr_1.4fr_1.4fr_1.1fr_1fr_170px]';
+const PANEL = 'rounded-xl border border-border/60 bg-surface-sunken/40 p-3';
+
+const STATUS_ACCENT: Record<string, string> = {
+  DRAFT: 'border-l-amber-400',
+  OPEN: 'border-l-blue-500',
+  ACTIVE: 'border-l-emerald-500',
+  CLOSED: 'border-l-slate-400',
+  CANCELLED: 'border-l-rose-500',
+};
 
 function fmtDate(d: string | null) {
   if (!d) return '—';
@@ -118,55 +123,101 @@ export function TurmasView() {
       )}
 
       {courseId && !isLoading && data.length > 0 && (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>Turma</TableHeaderCell>
-              <TableHeaderCell>Formador</TableHeaderCell>
-              <TableHeaderCell>Local / Sala</TableHeaderCell>
-              <TableHeaderCell>Datas</TableHeaderCell>
-              <TableHeaderCell>Horário</TableHeaderCell>
-              <TableHeaderCell>Inscritos</TableHeaderCell>
-              <TableHeaderCell>Vagas</TableHeaderCell>
-              <TableHeaderCell>Estado</TableHeaderCell>
-              <TableHeaderCell></TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.map((c) => (
-              <TableRow
-                key={c.id}
-                className="cursor-pointer"
-                onClick={() => setDetailId(c.id)}
-              >
-                <TableCell className="font-medium text-ink">{c.name}</TableCell>
-                <TableCell className="text-ink-muted">
-                  {c.instructor?.fullName ?? '—'}
-                </TableCell>
-                <TableCell className="text-ink-muted">
-                  {[c.location, c.room].filter(Boolean).join(' · ') || '—'}
-                </TableCell>
-                <TableCell className="text-ink-muted">
-                  {fmtDate(c.startDate)} — {fmtDate(c.endDate)}
-                </TableCell>
-                <TableCell className="text-ink-muted">
-                  {c.schedule ?? '—'}
-                </TableCell>
-                <TableCell className="text-ink-muted">
-                  {c.enrolled}/{c.capacity}
-                </TableCell>
-                <TableCell className="text-ink-muted">
-                  {c.availableSlots}
-                </TableCell>
-                <TableCell>
-                  <StatusBadge
-                    value={c.status}
-                    map={COHORT_STATUS_MAP}
-                    variant="dot"
-                  />
-                </TableCell>
-                <TableCell onClick={(e) => e.stopPropagation()}>
-                  <div className="flex justify-end gap-1">
+        <div className="overflow-x-auto">
+          {/* Cabeçalho agrupado */}
+          <div className={`grid ${GRID} gap-3 px-4 pb-2 text-xs font-medium uppercase tracking-wide text-ink-faint`}>
+            <div>Turma</div>
+            <div>Formador &amp; Local / Sala</div>
+            <div>Datas &amp; Horário</div>
+            <div>Inscritos &amp; Vagas</div>
+            <div>Estado</div>
+            <div />
+          </div>
+
+          <div className="space-y-3">
+            {data.map((c) => {
+              const place = [c.location, c.room].filter(Boolean).join(' · ');
+              const pct =
+                c.capacity > 0
+                  ? Math.min(100, Math.round((c.enrolled / c.capacity) * 100))
+                  : 0;
+              return (
+                <div
+                  key={c.id}
+                  onClick={() => setDetailId(c.id)}
+                  className={`grid ${GRID} cursor-pointer items-stretch gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-3 shadow-sm backdrop-blur-md hover:bg-surface ${STATUS_ACCENT[c.status] ?? ''}`}
+                >
+                  {/* 1. Turma */}
+                  <div className="flex min-w-0 flex-col justify-center">
+                    <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
+                      {c.name}
+                    </div>
+                  </div>
+
+                  {/* 2. Formador & Local / Sala */}
+                  <div className={`${PANEL} flex min-w-0 flex-col items-center justify-center gap-1`}>
+                    {c.instructor ? (
+                      <>
+                        <Avatar
+                          name={c.instructor.fullName}
+                          url={c.instructor.avatarUrl ?? undefined}
+                          size="sm"
+                        />
+                        <span className="max-w-full truncate text-xs font-medium text-ink">
+                          {c.instructor.fullName}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-xs text-ink-faint">Sem formador</span>
+                    )}
+                    <span className="flex max-w-full items-center gap-1 text-xs text-ink-faint">
+                      <MapPin size={12} strokeWidth={1.75} className="shrink-0" />
+                      <span className="truncate">{place || '—'}</span>
+                    </span>
+                  </div>
+
+                  {/* 3. Datas & Horário */}
+                  <div className={`${PANEL} flex flex-col items-center justify-center gap-1.5`}>
+                    <span className="flex items-center gap-1 text-xs text-ink">
+                      <CalendarDays size={12} strokeWidth={1.75} />
+                      {fmtDate(c.startDate)} — {fmtDate(c.endDate)}
+                    </span>
+                    <span className="flex items-center gap-1 text-xs text-ink-muted">
+                      <Clock size={12} strokeWidth={1.75} />
+                      {c.schedule ?? '—'}
+                    </span>
+                  </div>
+
+                  {/* 4. Inscritos & Vagas */}
+                  <div className={`${PANEL} flex flex-col items-center justify-center gap-1.5`}>
+                    <span className="font-mono text-sm font-semibold text-ink">
+                      {c.enrolled}/{c.capacity}
+                    </span>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
+                      <div
+                        className={`h-full rounded-full ${pct >= 90 ? 'bg-orange-400' : 'bg-blue-500'}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-ink-muted">
+                      Vagas: <span className="font-mono">{c.availableSlots}</span>
+                    </span>
+                  </div>
+
+                  {/* 5. Estado */}
+                  <div className={`${PANEL} flex items-center`}>
+                    <StatusBadge
+                      value={c.status}
+                      map={COHORT_STATUS_MAP}
+                      variant="dot"
+                    />
+                  </div>
+
+                  {/* 6. Acções */}
+                  <div
+                    className="flex items-center justify-end gap-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Button
                       size="sm"
                       intent="ghost"
@@ -184,11 +235,11 @@ export function TurmasView() {
                       </Button>
                     )}
                   </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {showCreate && courseId && (
