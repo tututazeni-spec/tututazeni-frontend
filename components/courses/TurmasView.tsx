@@ -7,7 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CalendarDays, Clock, MapPin, Plus, Users2 } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, Plus, Trash2, Users2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -35,7 +35,7 @@ const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> =
   };
 
 const GRID =
-  'min-w-[1000px] grid-cols-[1.3fr_1.4fr_1.4fr_1.1fr_1fr_170px]';
+  'min-w-[1000px] grid-cols-[1.3fr_1.4fr_1.4fr_1.1fr_1fr_200px]';
 const PANEL = 'rounded-xl border border-border/60 bg-surface-sunken/40 p-3';
 
 const STATUS_ACCENT: Record<string, string> = {
@@ -73,6 +73,25 @@ export function TurmasView() {
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
+
+  const remove = useApiMutation(
+    (id: number) => apiClient.delete(`/courses/cohorts/${id}`),
+    {
+      invalidateKeys: [queryKeys.courses.cohorts(Number(courseId))],
+      onSuccess: () => toast({ title: 'Turma eliminada', intent: 'success' }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  async function onDelete(cohort: Cohort) {
+    const ok = await confirm({
+      title: `Eliminar a turma "${cohort.name}"?`,
+      message: `Os ${cohort.enrolled} participante(s) inscritos nesta turma serão removidos. Esta acção não pode ser desfeita.`,
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) remove.mutate(cohort.id);
+  }
 
   async function onClose(cohort: Cohort) {
     const ok = await confirm({
@@ -224,6 +243,15 @@ export function TurmasView() {
                       onClick={() => setDetailId(c.id)}
                     >
                       <Users2 size={14} strokeWidth={1.75} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      intent="ghost"
+                      aria-label={`Eliminar turma ${c.name}`}
+                      title="Eliminar turma"
+                      onClick={() => onDelete(c)}
+                    >
+                      <Trash2 size={14} strokeWidth={1.75} className="text-danger-ink" />
                     </Button>
                     {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
                       <Button
