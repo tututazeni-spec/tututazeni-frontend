@@ -113,6 +113,74 @@ export function DistributionList({
 }
 
 /**
+ * Ranking de taxas (0-100%) como barras de progresso horizontais: nome do curso
+ * e percentagem numa linha, barra de largura total por baixo. Uma só cor por
+ * card (`tone`) — o valor fica sempre visível em texto. Cada linha abre o curso.
+ */
+export function CourseProgressList({
+  title,
+  items,
+  tone,
+  onSelect,
+}: {
+  title: string;
+  items: Array<{ id: number; title: string; value: number }>;
+  tone: 'green' | 'red';
+  onSelect: (id: number) => void;
+}) {
+  const barClass = tone === 'green' ? 'bg-emerald-500' : 'bg-rose-500';
+  return (
+    <Card className="p-4">
+      <div className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
+        {title}
+      </div>
+      {items.length === 0 ? (
+        <p className="text-xs text-ink-faint">Sem dados</p>
+      ) : (
+        <div className="space-y-3">
+          {items.slice(0, 6).map((c) => {
+            const pct = Math.min(100, Math.max(0, c.value));
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => onSelect(c.id)}
+                className="block w-full rounded-md text-left hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <span
+                    className="truncate text-xs font-medium text-ink"
+                    title={c.title}
+                  >
+                    {c.title}
+                  </span>
+                  <span className="flex-shrink-0 font-data text-xs text-ink">
+                    {c.value}%
+                  </span>
+                </div>
+                <div
+                  className="h-2.5 w-full overflow-hidden rounded-full bg-surface-sunken"
+                  role="progressbar"
+                  aria-valuenow={pct}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={c.title}
+                >
+                  <div
+                    className={`h-full rounded-full ${barClass}`}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/**
  * Ranking de cursos no mesmo design. `percent` fixa a escala em 0-100 (taxas);
  * sem ele a escala é o máximo da lista (contagens). Cada linha abre o curso.
  */

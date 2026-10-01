@@ -21,7 +21,11 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { LucideIcon } from 'lucide-react';
-import { CourseBarList, DistributionList } from './relatoriosBarLists';
+import {
+  CourseBarList,
+  CourseProgressList,
+  DistributionList,
+} from './relatoriosBarLists';
 import { fmtDuration, Skeleton } from './shared';
 import type { CourseReports } from './types';
 
@@ -398,26 +402,24 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
           suffix=" formandos"
           onSelect={onSelect}
         />
-        <CourseBarList
+        <CourseProgressList
           title="Maior taxa de conclusão"
           items={data.bestCompletion.map((c) => ({
             id: c.id,
             title: c.title,
             value: c.rate,
           }))}
-          suffix="%"
-          percent
+          tone="green"
           onSelect={onSelect}
         />
-        <CourseBarList
+        <CourseProgressList
           title="Menor taxa de conclusão"
           items={data.worstCompletion.map((c) => ({
             id: c.id,
             title: c.title,
             value: c.rate,
           }))}
-          suffix="%"
-          percent
+          tone="red"
           onSelect={onSelect}
         />
       </div>
