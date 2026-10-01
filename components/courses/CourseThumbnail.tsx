@@ -34,7 +34,7 @@ export function CourseThumbnail({
           src={src}
           alt={alt}
           className={cn(
-            'absolute inset-0 h-full w-full object-cover',
+            'absolute inset-0 h-full w-full object-contain',
             className,
           )}
         />
