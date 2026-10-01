@@ -36,12 +36,15 @@ import { IconButton } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { AlertsPanel } from '@/components/executive-reports/AlertsPanel';
+import { CustomReportsPanel } from '@/components/executive-reports/CustomReportsPanel';
 import { DepartmentsPanel } from '@/components/executive-reports/DepartmentsPanel';
 import { ExecutiveFiltersBar } from '@/components/executive-reports/ExecutiveFiltersBar';
 import { HistoryPanel } from '@/components/executive-reports/HistoryPanel';
 import { OverviewPanel } from '@/components/executive-reports/OverviewPanel';
 import { PendingPhasePanel } from '@/components/executive-reports/PendingPhasePanel';
 import { RisksPanel } from '@/components/executive-reports/RisksPanel';
+import { SchedulesPanel } from '@/components/executive-reports/SchedulesPanel';
 import { StrategicPanel } from '@/components/executive-reports/StrategicPanel';
 import type {
   ExecutiveFilters,
@@ -71,6 +74,8 @@ const IMPLEMENTED: ExecutiveTabId[] = [
   'strategic',
   'departments',
   'risks',
+  'custom',
+  'scheduled',
   'history',
 ];
 
@@ -94,7 +99,8 @@ export default function ExecutiveReportsPage() {
   const ActiveIcon = active ? TAB_ICONS[active.id] : FileText;
   const restrictedScope = role === 'GESTOR' || role === 'LIDER';
   // O histórico lista relatórios guardados — não depende dos filtros globais.
-  const showFilters = !!active && active.id !== 'history';
+  const showFilters =
+    !!active && active.id !== 'history' && active.id !== 'scheduled';
 
   return (
     <div className="min-h-screen bg-surface">
@@ -208,10 +214,22 @@ export default function ExecutiveReportsPage() {
               <StrategicPanel filters={filters} />
             </TabsContent>
             <TabsContent value="departments">
-              <DepartmentsPanel filters={filters} onFiltersChange={setFilters} />
+              <DepartmentsPanel
+                filters={filters}
+                onFiltersChange={setFilters}
+              />
             </TabsContent>
             <TabsContent value="risks">
-              <RisksPanel filters={filters} onFiltersChange={setFilters} />
+              <div className="space-y-8">
+                <AlertsPanel />
+                <RisksPanel filters={filters} onFiltersChange={setFilters} />
+              </div>
+            </TabsContent>
+            <TabsContent value="custom">
+              <CustomReportsPanel filters={filters} />
+            </TabsContent>
+            <TabsContent value="scheduled">
+              <SchedulesPanel />
             </TabsContent>
             <TabsContent value="history">
               <HistoryPanel />

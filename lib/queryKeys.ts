@@ -886,6 +886,17 @@ export const queryKeys = {
       [...queryKeys.executiveReports.all, 'sources', params] as const,
     filterOptions: () =>
       [...queryKeys.executiveReports.all, 'filter-options'] as const,
+    reportTemplates: () =>
+      [...queryKeys.executiveReports.all, 'report-templates'] as const,
+    builderCatalog: () =>
+      [...queryKeys.executiveReports.all, 'builder-catalog'] as const,
+    archive: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'archive', params] as const,
+    schedules: () => [...queryKeys.executiveReports.all, 'schedules'] as const,
+    alerts: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'alerts', params] as const,
+    alertRules: () =>
+      [...queryKeys.executiveReports.all, 'alert-rules'] as const,
   },
 
   instructor: {

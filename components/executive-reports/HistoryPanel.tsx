@@ -11,17 +11,47 @@ import { Button } from '@/components/ui/Button';
 import { TITLES } from './constants';
 import { DetailView } from './DetailView';
 import { GenerateView } from './GenerateView';
+import { ArchivePanel } from './ArchivePanel';
 import { ListView } from './ListView';
 import type { Nav } from './types';
 
 export function HistoryPanel() {
+  const [mode, setMode] = useState<'reports' | 'archive'>('reports');
   const [nav, setNav] = useState<Nav>({ view: 'list' });
 
   const handleBack = () => setNav({ view: 'list' });
   const openDetail = (id: number) => setNav({ view: 'detail', selectedId: id });
 
+  const modeSwitch = (
+    <div className="mb-5 flex gap-2">
+      <Button
+        size="sm"
+        intent={mode === 'reports' ? 'primary' : 'ghost'}
+        onClick={() => setMode('reports')}
+      >
+        Relatórios
+      </Button>
+      <Button
+        size="sm"
+        intent={mode === 'archive' ? 'primary' : 'ghost'}
+        onClick={() => setMode('archive')}
+      >
+        Arquivo e versões
+      </Button>
+    </div>
+  );
+
+  if (mode === 'archive')
+    return (
+      <div>
+        {modeSwitch}
+        <ArchivePanel />
+      </div>
+    );
+
   return (
     <div>
+      {modeSwitch}
       <div className="mb-5 flex items-center justify-between">
         <h2 className="font-display text-lg font-semibold text-ink">
           {TITLES[nav.view]}
