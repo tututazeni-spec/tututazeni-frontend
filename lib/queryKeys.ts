@@ -197,6 +197,12 @@ export const queryKeys = {
       [...queryKeys.departments.all, 'positions', params] as const,
     positionDetail: (id: number) =>
       [...queryKeys.departments.all, 'positions', 'detail', id] as const,
+    hierarchy: (params: Record<string, unknown>) =>
+      [...queryKeys.departments.all, 'hierarchy', params] as const,
+    history: (params: Record<string, unknown>) =>
+      [...queryKeys.departments.all, 'history', params] as const,
+    reports: (params: Record<string, unknown>) =>
+      [...queryKeys.departments.all, 'reports', params] as const,
   },
 
   competencies: {

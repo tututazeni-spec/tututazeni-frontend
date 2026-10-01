@@ -16,8 +16,11 @@ import { DashboardView } from '@/components/departments/DashboardView';
 import { DetailView } from '@/components/departments/DetailView';
 import { EmployeesView } from '@/components/departments/EmployeesView';
 import { HeadsView } from '@/components/departments/HeadsView';
+import { HierarchyView } from '@/components/departments/HierarchyView';
+import { HistoryView } from '@/components/departments/HistoryView';
 import { ListView } from '@/components/departments/ListView';
 import { PositionsView } from '@/components/departments/PositionsView';
+import { ReportsView } from '@/components/departments/ReportsView';
 import { StructureView } from '@/components/departments/StructureView';
 import { TreeView } from '@/components/departments/TreeView';
 import type { Nav } from '@/components/departments/types';
@@ -85,6 +88,9 @@ export default function DepartmentsPage() {
       {nav.view === 'heads' && <HeadsView />}
       {nav.view === 'employees' && <EmployeesView />}
       {nav.view === 'positions' && <PositionsView />}
+      {nav.view === 'hierarquia' && <HierarchyView />}
+      {nav.view === 'historico' && <HistoryView />}
+      {nav.view === 'relatorios' && <ReportsView />}
       {nav.view === 'detail' && (
         <DetailView deptId={nav.selectedId} onBack={handleBack} />
       )}

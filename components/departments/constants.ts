@@ -13,6 +13,9 @@ export const NAV: Array<{ id: Exclude<View, 'detail'>; label: string }> = [
   { id: 'heads', label: 'Responsáveis' },
   { id: 'employees', label: 'Colaboradores' },
   { id: 'positions', label: 'Cargos & Funções' },
+  { id: 'hierarquia', label: 'Hierarquia' },
+  { id: 'historico', label: 'Histórico' },
+  { id: 'relatorios', label: 'Relatórios' },
   { id: 'dashboard', label: 'Dashboard' },
 ];
 
@@ -23,6 +26,9 @@ export const TITLES: Record<View, string> = {
   heads: 'Responsáveis',
   employees: 'Colaboradores',
   positions: 'Cargos & Funções',
+  hierarquia: 'Hierarquia',
+  historico: 'Histórico',
+  relatorios: 'Relatórios',
   detail: 'Detalhe do Departamento',
   dashboard: 'Dashboard Organizacional',
 };

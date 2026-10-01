@@ -212,6 +212,85 @@ export interface PositionDetail {
   }>;
 }
 
+// GET /departments/hierarchy (docs/modulo_departments.md Ponto 7 — Hierarquia)
+export interface HierarchyRow {
+  id: number;
+  fullName: string;
+  avatarUrl: string | null;
+  active: boolean;
+  position: { id: number; name: string } | null;
+  department: { id: number; name: string } | null;
+  subdepartment: string | null;
+  manager: { id: number; fullName: string } | null;
+  level: number;
+  directReportsCount: number;
+  indirectReportsCount: number;
+  reportingChain: string[];
+}
+
+export interface PaginatedHierarchy {
+  data: HierarchyRow[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+// GET /departments/history (docs/modulo_departments.md Ponto 8 — Histórico)
+export interface HistoryEntry {
+  id: string;
+  date: string;
+  type: string;
+  department: { id: number; name: string; code: string } | null;
+  field: string | null;
+  before: unknown;
+  after: unknown;
+  changedBy: { id: number; fullName: string } | null;
+  reason: string | null;
+}
+
+export interface PaginatedHistory {
+  data: HistoryEntry[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+// GET /departments/reports (docs/modulo_departments.md Ponto 9 — Relatórios)
+export interface ReportsData {
+  period: { from: string; to: string };
+  headcountByDepartment: Array<{
+    id: number;
+    name: string;
+    code: string;
+    actual: number;
+    expected: number | null;
+    max: number | null;
+  }>;
+  headcountByUnit: Array<{ id: number; name: string; actual: number; expected: number; max: number }>;
+  headcountByPosition: Array<{
+    id: number;
+    name: string;
+    department: { id: number; name: string } | null;
+    planned: number;
+    occupied: number;
+    vacancies: number;
+  }>;
+  positionsOccupiedVsVacant: { planned: number; occupied: number; vacancies: number };
+  employeeDistribution: {
+    total: number;
+    active: number;
+    inactive: number;
+    byLocation: CountBucket[];
+    byContractType: CountBucket[];
+  };
+  admissions: { total: number; byMonth: Array<{ month: string; count: number }> };
+  exits: { total: number; byMonth: Array<{ month: string; count: number }> };
+  turnoverRate: number;
+  seniority: { avgYears: number; buckets: CountBucket[] };
+}
+
 export type View =
   | 'list'
   | 'tree'
@@ -219,6 +298,9 @@ export type View =
   | 'heads'
   | 'employees'
   | 'positions'
+  | 'hierarquia'
+  | 'historico'
+  | 'relatorios'
   | 'detail'
   | 'dashboard';
 
