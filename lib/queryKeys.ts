@@ -871,6 +871,11 @@ export const queryKeys = {
     detail: (id: number) =>
       [...queryKeys.executiveReports.all, 'detail', id] as const,
     templates: () => [...queryKeys.executiveReports.all, 'templates'] as const,
+    tabs: () => [...queryKeys.executiveReports.all, 'tabs'] as const,
+    overview: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'overview', params] as const,
+    kpis: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'kpis', params] as const,
   },
 
   instructor: {
