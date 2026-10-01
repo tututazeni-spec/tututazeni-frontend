@@ -20,17 +20,13 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
 import { Textarea } from '@/components/ui/Textarea';
 import { Skeleton } from './shared';
 import type { CourseCategoryManaged } from './types';
+
+const GRID = 'min-w-[800px] grid-cols-[1.2fr_2fr_1fr_1fr_100px]';
+const PANEL =
+  'rounded-xl border border-border/60 bg-surface-sunken/40 p-3';
 
 interface CategoryFormState {
   name: string;
@@ -70,8 +66,14 @@ function CategoryModal({
   );
 
   const update = useApiMutation(
-    (vars: { name: string; description?: string }) =>
-      apiClient.patch(`/courses/categories/${category!.id}`, vars),
+    ({
+      id,
+      ...body
+    }: {
+      id: number;
+      name: string;
+      description?: string;
+    }) => apiClient.patch(`/courses/categories/${id}`, body),
     {
       invalidateKeys,
       onSuccess: () => {
@@ -94,7 +96,7 @@ function CategoryModal({
       name: form.name.trim(),
       description: form.description.trim() || undefined,
     };
-    if (category) update.mutate(vars);
+    if (category) update.mutate({ id: category.id, ...vars });
     else create.mutate(vars);
   }
 
@@ -217,29 +219,41 @@ export function CategoriasView() {
           description="Cria a primeira categoria para organizar o catálogo de cursos."
         />
       ) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>Categoria</TableHeaderCell>
-              <TableHeaderCell>Descrição</TableHeaderCell>
-              <TableHeaderCell>Cursos associados</TableHeaderCell>
-              <TableHeaderCell>Estado</TableHeaderCell>
-              <TableHeaderCell></TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+        <div className="overflow-x-auto">
+          {/* Cabeçalho */}
+          <div className={`grid ${GRID} gap-3 px-4 pb-2 text-xs font-medium uppercase tracking-wide text-ink-faint`}>
+            <div>Categoria</div>
+            <div>Descrição</div>
+            <div>Cursos associados</div>
+            <div>Estado</div>
+            <div />
+          </div>
+
+          <div className="space-y-3">
             {data.map((cat) => (
-              <TableRow key={cat.id}>
-                <TableCell className="font-medium text-ink">
-                  {cat.name}
-                </TableCell>
-                <TableCell className="text-ink-muted">
-                  {cat.description || '—'}
-                </TableCell>
-                <TableCell className="text-ink-muted">
-                  {cat.courseCount}
-                </TableCell>
-                <TableCell>
+              <div
+                key={cat.id}
+                className={`grid ${GRID} items-stretch gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-3 shadow-sm backdrop-blur-md hover:bg-surface ${cat.isActive ? 'border-l-emerald-500' : 'border-l-slate-400'}`}
+              >
+                <div className="flex min-w-0 flex-col justify-center">
+                  <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
+                    {cat.name}
+                  </div>
+                </div>
+                <div className={`${PANEL} flex min-w-0 items-center`}>
+                  <span className="line-clamp-3 text-xs text-ink-muted">
+                    {cat.description || '—'}
+                  </span>
+                </div>
+                <div className={`${PANEL} flex flex-col items-center justify-center gap-1`}>
+                  <span className="font-mono text-lg font-semibold text-ink">
+                    {cat.courseCount}
+                  </span>
+                  <span className="text-xs text-ink-faint">
+                    {cat.courseCount === 1 ? 'curso' : 'cursos'}
+                  </span>
+                </div>
+                <div className={`${PANEL} flex items-center`}>
                   <button
                     onClick={() =>
                       toggleActive.mutate({
@@ -250,6 +264,7 @@ export function CategoriasView() {
                   >
                     <StatusBadge
                       value={cat.isActive ? 'ACTIVE' : 'INACTIVE'}
+                      variant="dot"
                       map={{
                         ACTIVE: {
                           label: 'Activa',
@@ -262,29 +277,27 @@ export function CategoriasView() {
                       }}
                     />
                   </button>
-                </TableCell>
-                <TableCell>
-                  <div className="flex justify-end gap-1">
-                    <Button
-                      size="sm"
-                      intent="ghost"
-                      onClick={() => setModalFor(cat)}
-                    >
-                      <Pencil size={14} strokeWidth={1.75} />
-                    </Button>
-                    <Button
-                      size="sm"
-                      intent="ghost"
-                      onClick={() => onDelete(cat)}
-                    >
-                      <Trash2 size={14} strokeWidth={1.75} />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
+                </div>
+                <div className="flex items-center justify-end gap-1">
+                  <Button
+                    size="sm"
+                    intent="ghost"
+                    onClick={() => setModalFor(cat)}
+                  >
+                    <Pencil size={14} strokeWidth={1.75} />
+                  </Button>
+                  <Button
+                    size="sm"
+                    intent="ghost"
+                    onClick={() => onDelete(cat)}
+                  >
+                    <Trash2 size={14} strokeWidth={1.75} />
+                  </Button>
+                </div>
+              </div>
             ))}
-          </TableBody>
-        </Table>
+          </div>
+        </div>
       )}
 
       {modalFor && (
