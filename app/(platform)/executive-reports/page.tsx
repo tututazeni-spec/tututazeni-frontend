@@ -184,14 +184,14 @@ export default function ExecutiveReportsPage() {
             </div>
 
             <div className="relative mx-auto max-w-7xl rounded-3xl border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
-              <TabsList className="flex h-auto w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0">
+              <TabsList className="grid h-auto w-full grid-cols-1 gap-2 border-b-0 bg-transparent p-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {tabs.map((t) => {
                   const Icon = TAB_ICONS[t.id];
                   return (
                     <TabsTrigger
                       key={t.id}
                       value={t.id}
-                      className="group flex h-auto items-center gap-3 whitespace-nowrap rounded-full border border-white/70 bg-white/60 py-2 pl-2 pr-4 text-left text-ink shadow-sm backdrop-blur transition-all
+                      className="group flex h-auto w-full min-w-0 items-center gap-3 rounded-full border border-white/70 bg-white/60 py-2 pl-2 pr-4 text-left text-ink shadow-sm backdrop-blur transition-all
                                hover:bg-white/80
                                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40
                                data-[state=active]:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/70 data-[state=active]:text-white data-[state=active]:shadow-lg"
@@ -199,9 +199,9 @@ export default function ExecutiveReportsPage() {
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/70 text-ink/70 group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
                         <Icon size={16} strokeWidth={1.75} />
                       </span>
-                      <span className="flex flex-col items-start leading-tight">
-                        <span className="text-sm font-semibold">{t.label}</span>
-                        <span className="text-xs opacity-70 group-data-[state=active]:opacity-85">
+                      <span className="flex min-w-0 flex-1 flex-col items-start leading-tight">
+                        <span className="w-full truncate text-sm font-semibold">{t.label}</span>
+                        <span className="w-full truncate text-xs opacity-70 group-data-[state=active]:opacity-85">
                           {t.hint}
                         </span>
                       </span>

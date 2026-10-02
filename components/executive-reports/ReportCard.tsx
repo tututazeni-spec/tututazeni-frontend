@@ -10,6 +10,7 @@ import { cn } from '@/lib/cn';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { DeleteReportButton } from './DeleteReportButton';
 import { STATUS_CFG, TYPE_CFG } from './constants';
 import type { Report } from './types';
 
@@ -84,7 +85,10 @@ export function ReportCard({ report, onClick }: ReportCardProps) {
           />
           <span>{report.generatedBy.fullName}</span>
         </div>
-        <span>{fmtDate(report.createdAt)}</span>
+        <div className="flex items-center gap-2">
+          <span>{fmtDate(report.createdAt)}</span>
+          <DeleteReportButton reportId={report.id} status={report.status} />
+        </div>
       </div>
     </Card>
   );

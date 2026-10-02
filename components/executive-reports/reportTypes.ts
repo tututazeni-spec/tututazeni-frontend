@@ -90,6 +90,7 @@ export interface ReportSchedule {
 }
 
 export interface ArchiveRow {
+  status: string;
   id: number;
   title: string;
   templateCode: string | null;

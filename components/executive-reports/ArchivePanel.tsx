@@ -16,6 +16,7 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { DeleteReportButton } from './DeleteReportButton';
 import { ExportButtons } from './ExportButtons';
 import { SectionTables } from './SectionTable';
 import type {
@@ -135,6 +136,11 @@ export function ArchivePanel() {
                 {openId === r.id ? 'Fechar' : 'Ver conteúdo'}
               </Button>
               <ExportButtons reportId={r.id} />
+              <DeleteReportButton
+                reportId={r.id}
+                status={r.status}
+                onDeleted={() => setOpenId(null)}
+              />
             </div>
           </div>
           {openId === r.id && (
