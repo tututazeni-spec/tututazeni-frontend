@@ -200,8 +200,8 @@ export default function ExecutiveReportsPage() {
                         <Icon size={16} strokeWidth={1.75} />
                       </span>
                       <span className="flex min-w-0 flex-1 flex-col items-start leading-tight">
-                        <span className="w-full truncate text-sm font-semibold">{t.label}</span>
-                        <span className="w-full truncate text-xs opacity-70 group-data-[state=active]:opacity-85">
+                        <span className="w-full break-words text-sm font-semibold">{t.label}</span>
+                        <span className="w-full break-words text-xs opacity-70 group-data-[state=active]:opacity-85">
                           {t.hint}
                         </span>
                       </span>
