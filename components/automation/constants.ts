@@ -37,6 +37,8 @@ export const TRIGGER_LABEL: Record<string, string> = {
   'course.completed': 'Curso Concluído',
   'course.not_completed': 'Curso Não Concluído',
   'course.enrolled': 'Inscrição em Curso',
+  'avatar_training.session_completed': 'Sessão com Avatar Concluída',
+  'avatar_training.session_failed': 'Sessão com Avatar Não Aprovada',
   'pdi.created': 'PDI Criado',
   'pdi.approved': 'PDI Aprovado',
   'pdi.at_risk': 'PDI Em Risco',

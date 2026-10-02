@@ -41,6 +41,7 @@ import type {
   AvatarProgram,
   AvatarProgramDetail,
   CertificationStatus,
+  ProgramLinks,
   TrainingAvatar,
 } from './types';
 
@@ -507,6 +508,12 @@ function ProgramSheetModal({
     { enabled: data?.status === 'PUBLISHED' && !!data?.certificateEnabled, staleTime: 0 },
   );
 
+  const links = useApiQuery<ProgramLinks>(
+    [...queryKeys.avatarTraining.program(programId), 'links'],
+    `/avatar-training/programs/${programId}/links`,
+    { enabled: canEdit && !!data?.courseId, staleTime: 0 },
+  );
+
   return (
     <Modal open onOpenChange={(o) => !o && onClose()}>
       <ModalContent
@@ -564,6 +571,30 @@ function ProgramSheetModal({
                       }${data.certificateRequireAllSessions ? ' · todas as sessões obrigatórias' : ''}`
                     : 'Não emite certificado'}
                 </Row>
+                {links.data && links.data.trainings.length > 0 && (
+                  <Row label="Formações ligadas (Trainings)">
+                    <ul className="list-disc pl-4">
+                      {links.data.trainings.map((t) => (
+                        <li key={t.id}>
+                          {t.title}
+                          {t.trainingPlanId ? ` · plano #${t.trainingPlanId}` : ''}
+                        </li>
+                      ))}
+                    </ul>
+                  </Row>
+                )}
+                {links.data && links.data.learningPaths.length > 0 && (
+                  <Row label="Percursos de aprendizagem">
+                    <ul className="list-disc pl-4">
+                      {links.data.learningPaths.map((l) => (
+                        <li key={l.id}>
+                          {l.title}
+                          {l.mandatory ? ' · obrigatório' : ''}
+                        </li>
+                      ))}
+                    </ul>
+                  </Row>
+                )}
                 {cert.data?.enabled && (
                   <Row label="A minha elegibilidade">
                     {cert.data.eligible ? (

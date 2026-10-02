@@ -20,6 +20,10 @@ const REASON_LABEL: Record<string, string> = {
   COMPETENCY_GAP: 'Lacuna de competência',
   PDI_ACTION: 'Acção de PDI',
   ONBOARDING_TASK: 'Onboarding',
+  PERFORMANCE_REVIEW: 'Avaliação de desempenho / 360',
+  CAREER_GOAL: 'Plano de carreira',
+  LEARNING_PATH: 'Percurso de aprendizagem',
+  TRAINING: 'Plano de formação',
 };
 
 export function CompetenciesTab() {

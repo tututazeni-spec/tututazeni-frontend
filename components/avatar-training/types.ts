@@ -125,6 +125,17 @@ export interface CertificationStatus {
   requireAllSessions?: boolean;
 }
 
+export interface CertificateRequestResult {
+  status: 'ISSUED' | 'ALREADY_ISSUED' | 'REQUESTED' | 'ALREADY_REQUESTED';
+  certificate: { id: number; validationCode: string } | null;
+}
+
+export interface ProgramLinks {
+  courseId: number | null;
+  trainings: { id: number; title: string; status: string; trainingPlanId: number | null }[];
+  learningPaths: { id: number; title: string; mandatory: boolean; required: boolean }[];
+}
+
 export interface MyAssignment {
   id: number;
   sessionId: number;
@@ -153,6 +164,29 @@ export interface StepQuestion {
   options?: string[];
 }
 
+/** Reforço devolvido após uma resposta errada (docs/Avatar_Training.md §7). */
+export interface StepReinforcementPayload {
+  message: string | null;
+  reviewStepKey: string | null;
+  reviewStepTitle: string | null;
+  resourceUrl: string | null;
+  retry: boolean;
+  retriesLeft: number;
+}
+
+export interface FailureReinforcement {
+  message: string | null;
+  resourceUrl: string | null;
+  recommendSessionId: number | null;
+  weakSteps: {
+    stepKey: string;
+    title: string;
+    message: string | null;
+    reviewStepKey: string | null;
+    resourceUrl: string | null;
+  }[];
+}
+
 export interface RoomStep {
   key: string;
   title: string;
@@ -178,7 +212,11 @@ export interface RoomInteraction {
     | 'SYSTEM';
   stepKey: string | null;
   content: string;
-  metadata?: { aiMessageId?: number } | null;
+  metadata?: {
+    aiMessageId?: number;
+    explanation?: string | null;
+    reinforcement?: StepReinforcementPayload | null;
+  } | null;
   createdAt: string;
 }
 
@@ -235,6 +273,7 @@ export interface CompleteResult {
   score: number | null;
   passed: boolean | null;
   passingScore: number | null;
+  reinforcement?: FailureReinforcement | null;
 }
 
 export interface Indicator {
@@ -351,6 +390,18 @@ export interface StepBranches {
   byOption?: Record<string, string>;
 }
 
+export interface StepReinforcement {
+  message?: string;
+  reviewStepKey?: string;
+  resourceUrl?: string;
+  retryOnIncorrect?: boolean;
+  maxRetries?: number;
+}
+
+export interface SessionRules {
+  onFail?: { message?: string; resourceUrl?: string; recommendSessionId?: number };
+}
+
 export interface BuilderStep {
   key: string;
   title: string;
@@ -359,6 +410,7 @@ export interface BuilderStep {
   resourceUrl?: string;
   question?: BuilderQuestion;
   branches?: StepBranches;
+  reinforcement?: StepReinforcement;
   mandatory?: boolean;
 }
 
@@ -400,6 +452,7 @@ export interface SessionDetail extends SessionListItem {
   durationMinutes: number | null;
   mandatory: boolean;
   steps: BuilderStep[];
+  rules?: SessionRules;
   assessment: SessionAssessment | null;
   knowledgeSources: KnowledgeSource[];
 }

@@ -37,12 +37,15 @@ import { Textarea } from '@/components/ui/Textarea';
 import { ASSIGNMENT_STATUS, EXPERIENCE_LABEL } from './constants';
 import { useDictation, useRoomVoice, type RoomVoice } from './useRoomVoice';
 import type {
+  CertificateRequestResult,
   CertificationStatus,
   CompleteResult,
+  FailureReinforcement,
   ExperienceType,
   MyAssignment,
   Room,
   RoomStep,
+  StepReinforcementPayload,
 } from './types';
 
 const BUBBLE: Record<string, string> = {
@@ -52,6 +55,80 @@ const BUBBLE: Record<string, string> = {
   USER_ANSWER: 'bg-surface-sunken text-ink self-end',
   HELP_REQUEST: 'bg-surface-sunken text-ink self-end',
 };
+
+/** Reforço após uma resposta errada (§7): mensagem, etapa a rever e conteúdo complementar. */
+function ReinforcementNote({ reinforcement }: { reinforcement: StepReinforcementPayload }) {
+  return (
+    <div className="mt-2 space-y-1 border-t border-border pt-2 text-xs">
+      {reinforcement.message && <p>{reinforcement.message}</p>}
+      {reinforcement.reviewStepTitle && <p>Reveja a etapa «{reinforcement.reviewStepTitle}».</p>}
+      {reinforcement.resourceUrl && (
+        <a
+          href={reinforcement.resourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          Abrir conteúdo complementar
+        </a>
+      )}
+      {reinforcement.retry && (
+        <p className="font-medium">
+          Tente de novo para avançar ({reinforcement.retriesLeft}{' '}
+          {reinforcement.retriesLeft === 1 ? 'tentativa restante' : 'tentativas restantes'}).
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Conteúdo complementar quando a nota fica abaixo da mínima. */
+function FailureReinforcementNote({ data }: { data: FailureReinforcement }) {
+  return (
+    <div className="mt-2 space-y-1 rounded-card bg-surface-sunken p-3 text-xs text-ink">
+      {data.message && <p>{data.message}</p>}
+      {data.weakSteps.length > 0 && (
+        <div>
+          <p className="font-medium">Etapas a reforçar:</p>
+          <ul className="list-disc pl-4">
+            {data.weakSteps.map((w) => (
+              <li key={w.stepKey}>
+                {w.title}
+                {w.message ? ` — ${w.message}` : ''}
+                {w.resourceUrl && (
+                  <>
+                    {' '}
+                    <a
+                      href={w.resourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      conteúdo
+                    </a>
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {data.resourceUrl && (
+        <a
+          href={data.resourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          Abrir conteúdo complementar
+        </a>
+      )}
+      {data.recommendSessionId && (
+        <p>Sessão complementar recomendada (id {data.recommendSessionId}).</p>
+      )}
+    </div>
+  );
+}
 
 const IMAGE_RE = /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i;
 const VIDEO_RE = /\.(mp4|webm|ogg)(\?.*)?$/i;
@@ -387,6 +464,27 @@ function RoomView({
         }),
     },
   );
+  const requestCertificate = useApiMutation(
+    () =>
+      apiClient.post<CertificateRequestResult>(
+        `/avatar-training/programs/${room?.session.program.id}/certificate-request`,
+      ),
+    {
+      onSuccess: (r) =>
+        notify({
+          title:
+            r.status === 'ISSUED' || r.status === 'ALREADY_ISSUED'
+              ? 'Certificado emitido'
+              : 'Pedido de certificado registado',
+          description:
+            r.status === 'REQUESTED' || r.status === 'ALREADY_REQUESTED'
+              ? 'O responsável pela formação foi avisado.'
+              : undefined,
+          intent: 'success',
+        }),
+      onError,
+    },
+  );
   const complete = useApiMutation(
     () => apiClient.post<CompleteResult>(`${base}/complete`),
     {
@@ -551,12 +649,24 @@ function RoomView({
                 ` (mínimo ${result.passingScore})`}
             </p>
           )}
+          {result.reinforcement && <FailureReinforcementNote data={result.reinforcement} />}
           {certification.data?.enabled && (
             <p className="mt-1 text-ink-muted">
               {certification.data.eligible
                 ? 'Cumpre as regras para pedir o certificado desta formação.'
                 : `Certificado ainda não disponível: ${certification.data.reasons.join('; ')}.`}
             </p>
+          )}
+          {certification.data?.enabled && certification.data.eligible && (
+            <Button
+              size="sm"
+              className="mt-2"
+              loading={requestCertificate.isPending}
+              disabled={requestCertificate.isSuccess}
+              onClick={() => requestCertificate.mutate(undefined)}
+            >
+              Pedir certificado
+            </Button>
           )}
           <p className="mt-1 text-xs text-ink-faint">
             Concluir a sessão não conclui automaticamente o curso.
@@ -576,6 +686,9 @@ function RoomView({
               className={`max-w-[85%] whitespace-pre-wrap rounded-card px-3 py-2 font-body text-sm ${BUBBLE[i.interactionType]}`}
             >
               {i.content}
+              {i.metadata?.reinforcement && (
+                <ReinforcementNote reinforcement={i.metadata.reinforcement} />
+              )}
             </div>
           ))}
       </div>

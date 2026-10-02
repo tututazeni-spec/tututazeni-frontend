@@ -82,6 +82,8 @@ const TRIGGER_ITEMS: { value: string; label: string }[] = [
   { value: 'pdi.completed', label: 'PDI concluído' },
   { value: 'course.completed', label: 'Curso concluído' },
   { value: 'course.not_completed', label: 'Curso não concluído' },
+  { value: 'avatar_training.session_completed', label: 'Sessão com avatar concluída' },
+  { value: 'avatar_training.session_failed', label: 'Sessão com avatar não aprovada' },
   { value: 'certification.expiring', label: 'Certificação a expirar' },
   { value: 'leave.approved', label: 'Férias aprovadas' },
   { value: 'absence.registered', label: 'Ausência registada' },
