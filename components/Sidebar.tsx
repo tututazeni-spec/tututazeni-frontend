@@ -17,6 +17,7 @@ import {
   Bell,
   Shield,
   Bot,
+  Presentation,
   GraduationCap,
   Calendar,
   UserCheck,
@@ -107,6 +108,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
       { href: '/live-classes', icon: Play, label: 'Aulas ao Vivo' },
       { href: '/content-library', icon: Library, label: 'Biblioteca' },
       { href: '/ai-tutor', icon: Bot, label: 'Tutor de IA' },
+      { href: '/avatar-training', icon: Presentation, label: 'Avatar Training' },
     ],
   },
   {
