@@ -99,4 +99,52 @@ export interface Dashboard {
   instances: { inProgress: number; completed: number };
   compliance: { overdueSteps: number; slaComplianceRate: number | null };
   recentInstances: ProcessInstance[];
+  // Visão Geral (docs/Modulo_Processes.md §3)
+  alerts: Array<{ level: 'danger' | 'warning' | 'info'; message: string; count: number }>;
+  kpis: {
+    total: number;
+    running: number;
+    overdue: number;
+    completed: number;
+    pendingApprovals: number;
+    avgDurationHours: number | null;
+    onTimeRate: number | null;
+  };
+  charts: {
+    byStatus: Array<{ label: string; count: number }>;
+    createdVsCompleted: Array<{ month: string; created: number; completed: number }>;
+    bySourceModule: Array<{ label: string; count: number }>;
+    byDepartment: Array<{ label: string; count: number }>;
+    avgDurationByType: Array<{ label: string; hours: number }>;
+    onTimeRateByMonth: Array<{ month: string; rate: number | null }>;
+    mostDelayedSteps: Array<{ title: string; count: number }>;
+    workloadByResponsible: Array<{ label: string; count: number }>;
+  };
+  definitions: Record<string, string>;
+  truncated: boolean;
+  filterOptions: {
+    departments: Array<{ id: number; name: string }>;
+    units: Array<{ id: number; name: string }>;
+    categories: string[];
+    responsibles: Array<{ id: number; fullName: string }>;
+  };
 }
+
+export type TabKey =
+  | 'overview'
+  | 'all'
+  | 'templates'
+  | 'tasks'
+  | 'approvals'
+  | 'workflows'
+  | 'automations'
+  | 'calendar'
+  | 'documents'
+  | 'reports'
+  | 'history'
+  | 'settings';
+
+export type Nav =
+  | { view: TabKey }
+  | { view: 'viewer'; processId: number }
+  | { view: 'runner'; instanceId: number; processId: number | null };

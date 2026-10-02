@@ -88,6 +88,7 @@ export function ProcessViewer({
     (targetUserId: number) =>
       apiClient.post<ProcessInstance>(`/processes/${processId}/start`, {
         targetUserId,
+        sourceModule: 'Processes',
       }),
     {
       onSuccess: (inst) => onStartInstance(inst.id),

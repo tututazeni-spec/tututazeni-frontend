@@ -10,6 +10,7 @@ import type {
   ProcessStatus,
   RiskLevel,
   StepType,
+  TabKey,
 } from './types';
 
 export function fmtDuration(minutes: number | null): string {
@@ -54,3 +55,40 @@ export const STEP_TYPE_MAP: StatusBadgeMap<StepType> = {
   GATEWAY: { label: 'Gateway', cls: 'bg-warning-subtle text-warning-ink' },
   REVIEW: { label: 'Revisão', cls: 'bg-accent-subtle text-accent' },
 };
+
+// Abas do módulo (docs/Modulo_Processes.md §2). `ready` marca as já
+// implementadas; as restantes mostram um estado vazio até à fase respectiva.
+// `description` é dinâmica por aba — o título principal do módulo não muda
+// (§21).
+export const NAV: Array<{
+  id: TabKey;
+  label: string;
+  description: string;
+  ready: boolean;
+}> = [
+  { id: 'overview', label: 'Visão Geral', description: 'Indicadores, alertas e resumo dos processos.', ready: true },
+  { id: 'all', label: 'Todos os Processos', description: 'Lista centralizada dos processos existentes.', ready: true },
+  { id: 'templates', label: 'Modelos de Processos', description: 'Criação e gestão de modelos reutilizáveis.', ready: false },
+  { id: 'tasks', label: 'Tarefas e Etapas', description: 'Execução, atribuição e acompanhamento das tarefas.', ready: true },
+  { id: 'approvals', label: 'Aprovações', description: 'Pedidos pendentes de validação ou decisão.', ready: false },
+  { id: 'workflows', label: 'Fluxos de Trabalho', description: 'Desenho das etapas, regras e transições.', ready: false },
+  { id: 'automations', label: 'Automações', description: 'Regras automáticas, condições e ações.', ready: false },
+  { id: 'calendar', label: 'Calendário e Prazos', description: 'Datas-limite, vencimentos e tarefas agendadas.', ready: false },
+  { id: 'documents', label: 'Documentos', description: 'Documentos, formulários e anexos associados.', ready: false },
+  { id: 'reports', label: 'Indicadores e Relatórios', description: 'Tempos, volumes, atrasos e níveis de cumprimento.', ready: false },
+  { id: 'history', label: 'Histórico e Auditoria', description: 'Registo cronológico das alterações e decisões.', ready: false },
+  { id: 'settings', label: 'Configurações', description: 'Permissões, prioridades, estados e regras gerais.', ready: false },
+];
+
+export const INSTANCE_STATUS_LABEL: Record<string, string> = {
+  IN_PROGRESS: 'Em execução',
+  COMPLETED: 'Concluído',
+  CANCELLED: 'Cancelado',
+  ON_HOLD: 'Suspenso',
+};
+
+export function fmtHours(hours: number | null): string {
+  if (hours === null) return '—';
+  if (hours < 48) return `${hours}h`;
+  return `${Math.round((hours / 24) * 10) / 10}d`;
+}

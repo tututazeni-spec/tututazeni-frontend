@@ -811,7 +811,8 @@ export const queryKeys = {
     instance: (id: number) =>
       [...queryKeys.processes.all, 'instance', id] as const,
     myTasks: () => [...queryKeys.processes.all, 'my-tasks'] as const,
-    dashboard: () => [...queryKeys.processes.all, 'dashboard'] as const,
+    dashboard: (params: Record<string, unknown> = {}) =>
+      [...queryKeys.processes.all, 'dashboard', params] as const,
   },
 
   leadership: {
