@@ -1094,8 +1094,8 @@ export const queryKeys = {
     progress: (params: Record<string, unknown>) =>
       [...queryKeys.avatarTraining.all, 'progress', params] as const,
     history: () => [...queryKeys.avatarTraining.all, 'history'] as const,
-    reports: (type: string) =>
-      [...queryKeys.avatarTraining.all, 'reports', type] as const,
+    reports: (type: string, filters?: Record<string, unknown>) =>
+      [...queryKeys.avatarTraining.all, 'reports', type, filters ?? {}] as const,
     reportCatalog: () =>
       [...queryKeys.avatarTraining.all, 'report-catalog'] as const,
     providers: () => [...queryKeys.avatarTraining.all, 'providers'] as const,

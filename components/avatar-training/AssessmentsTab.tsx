@@ -10,6 +10,7 @@ import { ClipboardCheck, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
+import { formatDateTime } from '@/lib/format';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -55,6 +56,26 @@ function AssessmentForm({ session }: { session: SessionDetail }) {
         }),
     },
   );
+
+  const validate = useApiMutation(
+    () =>
+      apiClient.post(
+        `/avatar-training/sessions/${session.id}/assessment/validate-rubric`,
+        {},
+      ),
+    {
+      invalidateKeys: [queryKeys.avatarTraining.session(session.id)],
+      onSuccess: () => notify({ title: 'Rubrica validada', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: 'Não foi possível validar a rubrica',
+          description: e.message,
+          intent: 'danger',
+        }),
+    },
+  );
+  const savedRubric = a?.rubricConfig ?? [];
+  const validatedAt = a?.rubricValidatedAt;
 
   const setCrit = (i: number, patch: Partial<RubricCriterion>) =>
     setRubric((r) => r.map((c, idx) => (idx === i ? { ...c, ...patch } : c)));
@@ -158,6 +179,25 @@ function AssessmentForm({ session }: { session: SessionDetail }) {
           >
             Soma dos pesos: {total}% {rubricOk ? '' : '— tem de ser 100%'}
           </p>
+        )}
+        {savedRubric.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3 border-t border-border pt-3">
+            <p className="font-body text-xs text-ink-muted">
+              {validatedAt
+                ? `Rubrica validada pelo responsável pedagógico em ${formatDateTime(validatedAt)}.`
+                : 'Rubrica por validar — o responsável pedagógico tem de a validar antes de a formação ser publicada. Guardar alterações invalida a validação.'}
+            </p>
+            {!validatedAt && (
+              <Button
+                size="sm"
+                intent="secondary"
+                loading={validate.isPending}
+                onClick={() => validate.mutate(undefined)}
+              >
+                Validar rubrica
+              </Button>
+            )}
+          </div>
         )}
       </div>
 

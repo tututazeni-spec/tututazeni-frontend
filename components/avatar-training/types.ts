@@ -434,6 +434,8 @@ export interface SessionAssessment {
   requireFormalAssessment: boolean;
   assessmentId: number | null;
   rubricConfig?: RubricCriterion[];
+  rubricValidatedById?: number | null;
+  rubricValidatedAt?: string | null;
 }
 
 export interface SessionListItem {

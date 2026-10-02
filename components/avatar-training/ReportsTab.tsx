@@ -6,11 +6,15 @@
 'use client';
 
 import { useState } from 'react';
-import { BarChart2 } from 'lucide-react';
+import { BarChart2, Download } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
+import { API_URL } from '@/lib/apiClient';
+import { useToast } from '@/providers/ToastProvider';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -22,11 +26,40 @@ function cell(v: unknown): string {
   return String(v);
 }
 
-function ReportView({ type }: { type: string }) {
+interface Period {
+  from: string;
+  to: string;
+}
+
+/** Exporta o relatório em CSV (o cookie httpOnly segue com credentials: include). */
+async function downloadCsv(type: string, period: Period) {
+  const qs = new URLSearchParams({ type });
+  if (period.from) qs.set('from', new Date(period.from).toISOString());
+  if (period.to) qs.set('to', new Date(period.to + 'T23:59:59').toISOString());
+  const res = await fetch(`${API_URL}/avatar-training/reports/export?${qs}`, {
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('Falha ao exportar o relatório');
+  const disposition = res.headers.get('Content-Disposition') ?? '';
+  const name = /filename="([^"]+)"/.exec(disposition)?.[1] ?? `${type}.csv`;
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function ReportView({ type, period }: { type: string; period: Period }) {
+  const params = {
+    type,
+    from: period.from ? new Date(period.from).toISOString() : undefined,
+    to: period.to ? new Date(period.to + 'T23:59:59').toISOString() : undefined,
+  };
   const { data, isLoading, error, refetch } = useApiQuery<Report>(
-    queryKeys.avatarTraining.reports(type),
+    queryKeys.avatarTraining.reports(type, params),
     '/avatar-training/reports',
-    { params: { type }, staleTime: STALE_TIME.DYNAMIC },
+    { params, staleTime: STALE_TIME.DYNAMIC },
   );
 
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
@@ -82,7 +115,10 @@ function ReportView({ type }: { type: string }) {
 }
 
 export function ReportsTab() {
+  const notify = useToast();
   const [type, setType] = useState<string | null>(null);
+  const [period, setPeriod] = useState<Period>({ from: '', to: '' });
+  const [exporting, setExporting] = useState(false);
   const { data, isLoading, error, refetch } = useApiQuery<ReportCatalogItem[]>(
     queryKeys.avatarTraining.reportCatalog(),
     '/avatar-training/reports',
@@ -124,7 +160,49 @@ export function ReportsTab() {
           </button>
         ))}
       </div>
-      <ReportView key={active} type={active} />
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="font-body text-xs text-ink-muted">
+          De
+          <Input
+            type="date"
+            value={period.from}
+            onChange={(e) => setPeriod((p) => ({ ...p, from: e.target.value }))}
+          />
+        </label>
+        <label className="font-body text-xs text-ink-muted">
+          Até
+          <Input
+            type="date"
+            value={period.to}
+            onChange={(e) => setPeriod((p) => ({ ...p, to: e.target.value }))}
+          />
+        </label>
+        <Button
+          size="sm"
+          intent="secondary"
+          loading={exporting}
+          onClick={async () => {
+            setExporting(true);
+            try {
+              await downloadCsv(active, period);
+            } catch (e) {
+              notify({
+                title: 'Não foi possível exportar',
+                description: e instanceof Error ? e.message : undefined,
+                intent: 'danger',
+              });
+            } finally {
+              setExporting(false);
+            }
+          }}
+        >
+          <Download size={14} /> Exportar CSV
+        </Button>
+        <span className="font-body text-xs text-ink-faint">
+          Período por omissão: últimos 30 dias
+        </span>
+      </div>
+      <ReportView key={active} type={active} period={period} />
     </div>
   );
 }
