@@ -13,6 +13,7 @@ import { formatDate } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { DIFFICULTY_LABEL, LEVEL_FIT_LABEL } from './constants';
 import type { CompetencyResult, Recommendation } from './types';
 
 const REASON_LABEL: Record<string, string> = {
@@ -110,6 +111,10 @@ export function CompetenciesTab() {
             >
               <div className="font-display text-sm font-semibold text-ink">
                 {r.title}
+              </div>
+              <div className="font-body text-xs text-ink-faint">
+                {DIFFICULTY_LABEL[r.difficulty] ?? r.difficulty} ·{' '}
+                {LEVEL_FIT_LABEL[r.levelFit]}
               </div>
               <ul className="mt-1 space-y-0.5 font-body text-xs text-ink-muted">
                 {r.reasons.map((x, i) => (

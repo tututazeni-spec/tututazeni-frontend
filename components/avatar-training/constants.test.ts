@@ -17,7 +17,6 @@ describe('avatar-training tabs por papel', () => {
       'programs',
       'simulations',
       'competencies',
-      'avatars',
       'progress',
       'history',
     ]);
@@ -30,6 +29,11 @@ describe('avatar-training tabs por papel', () => {
       expect(visibleFor('INSTRUCTOR')).toContain(id);
       expect(visibleFor('RH')).toContain(id);
     }
+  });
+
+  it('Avatares (gestão) só para autoria', () => {
+    expect(visibleFor('COLABORADOR')).not.toContain('avatars');
+    expect(visibleFor('INSTRUCTOR')).toContain('avatars');
   });
 
   it('Relatórios exige papéis de progresso; Configurações exige autoria', () => {

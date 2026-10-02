@@ -50,6 +50,10 @@ export interface AvatarProgram {
   status: ProgramStatus;
   version: number;
   durationMinutes: number | null;
+  language?: string;
+  targetDepartmentIds?: number[];
+  targetRoleNames?: string[];
+  certificateEnabled?: boolean;
   avatar: { id: number; name: string; imageUrl: string | null } | null;
   course: { id: number; title: string } | null;
   _count?: { sessions: number };
@@ -317,6 +321,8 @@ export interface CompetencyResult {
 export interface Recommendation {
   programId: number;
   title: string;
+  difficulty: string;
+  levelFit: 'MATCH' | 'EASIER' | 'HARDER';
   sessions: { id: number; title: string }[];
   reasons: { type: string; detail: string }[];
 }

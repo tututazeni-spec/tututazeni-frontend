@@ -32,7 +32,7 @@ export const TABS: { id: TabId; label: string; roles?: readonly Role[] }[] = [
   { id: 'knowledge', label: 'Base de Conhecimento', roles: AUTHOR_ROLES },
   { id: 'assessments', label: 'Avaliações', roles: AUTHOR_ROLES },
   { id: 'competencies', label: 'Competências' },
-  { id: 'avatars', label: 'Avatares' },
+  { id: 'avatars', label: 'Avatares', roles: AUTHOR_ROLES },
   { id: 'progress', label: 'Progresso dos Formandos' },
   { id: 'reports', label: 'Relatórios', roles: PROGRESS_ROLES },
   { id: 'settings', label: 'Configurações', roles: AUTHOR_ROLES },
@@ -83,3 +83,16 @@ export const SIMULATION_TYPES: readonly ExperienceType[] = [
   'ROLE_PLAY',
   'PRACTICAL_ASSESSMENT',
 ];
+
+export const DIFFICULTY_LABEL: Record<string, string> = {
+  BEGINNER: 'Iniciante',
+  INTERMEDIATE: 'Intermédio',
+  ADVANCED: 'Avançado',
+  EXPERT: 'Especialista',
+};
+
+export const LEVEL_FIT_LABEL = {
+  MATCH: 'Adequada ao seu nível',
+  EASIER: 'Abaixo do seu nível (revisão)',
+  HARDER: 'Acima do seu nível',
+} as const;
