@@ -1071,15 +1071,35 @@ export const queryKeys = {
 
   avatarTraining: {
     all: ['avatar-training'] as const,
-    recommended: () =>
-      [...queryKeys.avatarTraining.all, 'recommended'] as const,
-    myHistory: (limit: number) =>
-      [...queryKeys.avatarTraining.all, 'my-history', limit] as const,
-    scenarios: (params: Record<string, unknown>) =>
-      [...queryKeys.avatarTraining.all, 'scenarios', params] as const,
-    leaderboard: () =>
-      [...queryKeys.avatarTraining.all, 'leaderboard'] as const,
-    analytics: () => [...queryKeys.avatarTraining.all, 'analytics'] as const,
+    overview: (params: Record<string, unknown>) =>
+      [...queryKeys.avatarTraining.all, 'overview', params] as const,
+    avatars: () => [...queryKeys.avatarTraining.all, 'avatars'] as const,
+    programs: (params: Record<string, unknown>) =>
+      [...queryKeys.avatarTraining.all, 'programs', params] as const,
+    program: (id: number) =>
+      [...queryKeys.avatarTraining.all, 'program', id] as const,
+    sessions: () => [...queryKeys.avatarTraining.all, 'sessions'] as const,
+    session: (id: number) =>
+      [...queryKeys.avatarTraining.all, 'session', id] as const,
+    competencies: () =>
+      [...queryKeys.avatarTraining.all, 'competencies'] as const,
+    recommendations: () =>
+      [...queryKeys.avatarTraining.all, 'recommendations'] as const,
+    myAssignments: () =>
+      [...queryKeys.avatarTraining.all, 'my-assignments'] as const,
+    room: (attemptId: number) =>
+      [...queryKeys.avatarTraining.all, 'room', attemptId] as const,
+    results: (attemptId: number) =>
+      [...queryKeys.avatarTraining.all, 'results', attemptId] as const,
+    progress: (params: Record<string, unknown>) =>
+      [...queryKeys.avatarTraining.all, 'progress', params] as const,
+    history: () => [...queryKeys.avatarTraining.all, 'history'] as const,
+    reports: (type: string) =>
+      [...queryKeys.avatarTraining.all, 'reports', type] as const,
+    reportCatalog: () =>
+      [...queryKeys.avatarTraining.all, 'report-catalog'] as const,
+    providers: () => [...queryKeys.avatarTraining.all, 'providers'] as const,
+    usage: () => [...queryKeys.avatarTraining.all, 'usage'] as const,
   },
 
   engagement: {
