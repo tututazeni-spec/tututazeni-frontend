@@ -82,6 +82,7 @@ const IMPLEMENTED: ExecutiveTabId[] = [
   'training',
   'performance',
   'attendance',
+  'projects',
   'costs',
   'custom',
   'scheduled',
@@ -94,6 +95,7 @@ const DOMAIN_TABS: [ExecutiveTabId, ExecutiveDomain][] = [
   ['training', 'training'],
   ['performance', 'performance'],
   ['attendance', 'attendance'],
+  ['projects', 'projects'],
   ['costs', 'costs'],
 ];
 

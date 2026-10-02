@@ -32,6 +32,7 @@ export type ExecutiveDomain =
   | 'training'
   | 'performance'
   | 'attendance'
+  | 'projects'
   | 'costs';
 
 const KPI_ICONS: Record<string, LucideIcon> = {
