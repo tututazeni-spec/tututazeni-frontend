@@ -29,6 +29,7 @@ import type {
   BuilderStep,
   ExperienceType,
   SessionDetail,
+  StepBranches,
 } from './types';
 
 const STEP_TYPES: { value: BuilderStep['type']; label: string }[] = [
@@ -44,10 +45,96 @@ const KINDS: { value: BuilderQuestion['kind']; label: string }[] = [
   { value: 'SHORT', label: 'Resposta curta' },
 ];
 
+const NEXT = 'NEXT';
+
+/** Ramificações (role-play): para onde segue o formando conforme a resposta. */
+function BranchEditor({
+  step,
+  index,
+  later,
+  onChange,
+}: {
+  step: BuilderStep;
+  index: number;
+  /** Só etapas posteriores — o backend recusa saltos para trás. */
+  later: { key: string; title: string }[];
+  onChange: (branches: StepBranches | undefined) => void;
+}) {
+  const q = step.question;
+  if (!q) return null;
+  const options = q.kind === 'TRUE_FALSE' ? ['Verdadeiro', 'Falso'] : (q.options ?? []);
+  const graded = !!q.correctAnswer;
+  const b = step.branches ?? {};
+  const items = [
+    { value: NEXT, label: 'Seguir em sequência' },
+    ...later.map((l) => ({ value: l.key, label: l.title || l.key })),
+  ];
+  if (later.length === 0 || (options.length === 0 && !graded)) return null;
+
+  const clean = (next: StepBranches) => {
+    const byOption = Object.fromEntries(
+      Object.entries(next.byOption ?? {}).filter(([, v]) => v),
+    );
+    const out: StepBranches = {
+      ...(next.onCorrect ? { onCorrect: next.onCorrect } : {}),
+      ...(next.onIncorrect ? { onIncorrect: next.onIncorrect } : {}),
+      ...(Object.keys(byOption).length ? { byOption } : {}),
+    };
+    onChange(Object.keys(out).length ? out : undefined);
+  };
+  const pick = (v: string) => (v === NEXT ? undefined : v);
+
+  return (
+    <fieldset className="space-y-2 rounded-card bg-surface-sunken p-3">
+      <legend className="px-1 font-body text-sm font-medium text-ink">
+        Ramificações (opcional)
+      </legend>
+      <p className="font-body text-xs text-ink-faint">
+        Escolha a etapa seguinte conforme a resposta. As etapas saltadas deixam de ser
+        exigidas e não contam para a nota.
+      </p>
+      {graded && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <FormField label="Se acertar, ir para" htmlFor={`br-ok-${index}`}>
+            <Select
+              value={b.onCorrect ?? NEXT}
+              onValueChange={(v) => clean({ ...b, onCorrect: pick(v) })}
+              items={items}
+            />
+          </FormField>
+          <FormField label="Se errar, ir para" htmlFor={`br-ko-${index}`}>
+            <Select
+              value={b.onIncorrect ?? NEXT}
+              onValueChange={(v) => clean({ ...b, onIncorrect: pick(v) })}
+              items={items}
+            />
+          </FormField>
+        </div>
+      )}
+      {options.length > 0 && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {options.map((o) => (
+            <FormField key={o} label={`Se escolher «${o}», ir para`} htmlFor={`br-${index}-${o}`}>
+              <Select
+                value={b.byOption?.[o] ?? NEXT}
+                onValueChange={(v) =>
+                  clean({ ...b, byOption: { ...b.byOption, [o]: pick(v) ?? '' } })
+                }
+                items={items}
+              />
+            </FormField>
+          ))}
+        </div>
+      )}
+    </fieldset>
+  );
+}
+
 function StepEditor({
   step,
   index,
   total,
+  later,
   onChange,
   onMove,
   onRemove,
@@ -55,6 +142,7 @@ function StepEditor({
   step: BuilderStep;
   index: number;
   total: number;
+  later: { key: string; title: string }[];
   onChange: (patch: Partial<BuilderStep>) => void;
   onMove: (dir: -1 | 1) => void;
   onRemove: () => void;
@@ -114,7 +202,10 @@ function StepEditor({
               onChange({
                 type: v as BuilderStep['type'],
                 question:
-                  v === 'QUESTION' ? (q ?? { kind: 'SHORT' }) : undefined,
+                  v === 'QUESTION' || v === 'SCENARIO'
+                    ? (q ?? { kind: v === 'SCENARIO' ? 'SINGLE' : 'SHORT' })
+                    : undefined,
+                branches: v === 'QUESTION' || v === 'SCENARIO' ? step.branches : undefined,
               })
             }
             items={STEP_TYPES}
@@ -145,7 +236,7 @@ function StepEditor({
         />
       </FormField>
 
-      {step.type === 'QUESTION' && q && (
+      {(step.type === 'QUESTION' || step.type === 'SCENARIO') && q && (
         <div className="space-y-3 rounded-card bg-surface-sunken p-3">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormField label="Formato" htmlFor={`st-k-${index}`}>
@@ -208,6 +299,14 @@ function StepEditor({
             </FormField>
           </div>
         </div>
+      )}
+      {(step.type === 'QUESTION' || step.type === 'SCENARIO') && (
+        <BranchEditor
+          step={step}
+          index={index}
+          later={later}
+          onChange={(branches) => onChange({ branches })}
+        />
       )}
     </div>
   );
@@ -290,6 +389,23 @@ function AssignBox({ sessionId }: { sessionId: number }) {
   );
 }
 
+/** Ao remover/mover uma etapa, retira as ramificações que apontavam para ela. */
+function dropBranchesTo(steps: BuilderStep[], key: string): BuilderStep[] {
+  return steps.map((s) => {
+    const b = s.branches;
+    if (!b) return s;
+    const byOption = Object.fromEntries(
+      Object.entries(b.byOption ?? {}).filter(([, v]) => v !== key),
+    );
+    const next: StepBranches = {
+      ...(b.onCorrect && b.onCorrect !== key ? { onCorrect: b.onCorrect } : {}),
+      ...(b.onIncorrect && b.onIncorrect !== key ? { onIncorrect: b.onIncorrect } : {}),
+      ...(Object.keys(byOption).length ? { byOption } : {}),
+    };
+    return { ...s, branches: Object.keys(next).length ? next : undefined };
+  });
+}
+
 function SessionForm({ session }: { session: SessionDetail }) {
   const notify = useToast();
   const [title, setTitle] = useState(session.title);
@@ -308,7 +424,20 @@ function SessionForm({ session }: { session: SessionDetail }) {
     setSteps((s) => {
       const next = [...s];
       [next[i], next[i + dir]] = [next[i + dir], next[i]];
-      return next;
+      // Mover pode deixar ramificações a apontar para trás: retiram-se as que passam a ser inválidas.
+      return next.map((st, idx) => {
+        if (!st.branches) return st;
+        const later = new Set(next.slice(idx + 1).map((x) => x.key));
+        let out = st;
+        for (const k of [
+          st.branches.onCorrect,
+          st.branches.onIncorrect,
+          ...Object.values(st.branches.byOption ?? {}),
+        ]) {
+          if (k && !later.has(k)) out = dropBranchesTo([out], k)[0];
+        }
+        return out;
+      });
     });
   const nextKey = () => {
     let n = steps.length + 1;
@@ -390,9 +519,10 @@ function SessionForm({ session }: { session: SessionDetail }) {
             step={s}
             index={i}
             total={steps.length}
+            later={steps.slice(i + 1).map((x) => ({ key: x.key, title: x.title }))}
             onChange={(p) => patch(i, p)}
             onMove={(d) => move(i, d)}
-            onRemove={() => setSteps((x) => x.filter((_, idx) => idx !== i))}
+            onRemove={() => setSteps((x) => dropBranchesTo(x, x[i].key).filter((_, idx) => idx !== i))}
           />
         ))}
         <Button

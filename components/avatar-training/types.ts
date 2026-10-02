@@ -345,6 +345,12 @@ export interface BuilderQuestion {
   weight?: number;
 }
 
+export interface StepBranches {
+  onCorrect?: string;
+  onIncorrect?: string;
+  byOption?: Record<string, string>;
+}
+
 export interface BuilderStep {
   key: string;
   title: string;
@@ -352,6 +358,7 @@ export interface BuilderStep {
   content?: string;
   resourceUrl?: string;
   question?: BuilderQuestion;
+  branches?: StepBranches;
   mandatory?: boolean;
 }
 
