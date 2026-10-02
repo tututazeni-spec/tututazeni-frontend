@@ -3,6 +3,8 @@
 // globais, KPIs e visão executiva. Espelham as respostas de
 // GET /executive-reports/{tabs,overview,kpis}.
 
+import type { OmittedSection, ReportSection } from './reportTypes';
+
 export type ExecutiveTabId =
   | 'overview'
   | 'strategic'
@@ -260,4 +262,15 @@ export interface SourcesResponse {
   };
   sources: SourceEntry[];
   checkedAt: string;
+}
+
+// GET /executive-reports/{workforce,training,performance,attendance,organization,costs}
+export interface DomainResponse {
+  domain: string;
+  title: string;
+  context: ExecutiveContext;
+  kpis: ExecutiveKpi[];
+  sections: ReportSection[];
+  omitted: OmittedSection[];
+  sourceModules: string[];
 }

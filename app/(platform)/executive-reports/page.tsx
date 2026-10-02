@@ -39,6 +39,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { AlertsPanel } from '@/components/executive-reports/AlertsPanel';
 import { CustomReportsPanel } from '@/components/executive-reports/CustomReportsPanel';
 import { DepartmentsPanel } from '@/components/executive-reports/DepartmentsPanel';
+import {
+  DomainPanel,
+  type ExecutiveDomain,
+} from '@/components/executive-reports/DomainPanel';
 import { ExecutiveFiltersBar } from '@/components/executive-reports/ExecutiveFiltersBar';
 import { HistoryPanel } from '@/components/executive-reports/HistoryPanel';
 import { OverviewPanel } from '@/components/executive-reports/OverviewPanel';
@@ -74,9 +78,23 @@ const IMPLEMENTED: ExecutiveTabId[] = [
   'strategic',
   'departments',
   'risks',
+  'hr',
+  'training',
+  'performance',
+  'attendance',
+  'costs',
   'custom',
   'scheduled',
   'history',
+];
+
+// Separadores por domínio → endpoint GET /executive-reports/:domain
+const DOMAIN_TABS: [ExecutiveTabId, ExecutiveDomain][] = [
+  ['hr', 'workforce'],
+  ['training', 'training'],
+  ['performance', 'performance'],
+  ['attendance', 'attendance'],
+  ['costs', 'costs'],
 ];
 
 const DEFAULT_FILTERS: ExecutiveFilters = {
@@ -213,6 +231,11 @@ export default function ExecutiveReportsPage() {
             <TabsContent value="strategic">
               <StrategicPanel filters={filters} />
             </TabsContent>
+            {DOMAIN_TABS.map(([tab, domain]) => (
+              <TabsContent key={tab} value={tab}>
+                <DomainPanel domain={domain} filters={filters} />
+              </TabsContent>
+            ))}
             <TabsContent value="departments">
               <DepartmentsPanel
                 filters={filters}

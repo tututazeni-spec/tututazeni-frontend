@@ -876,6 +876,8 @@ export const queryKeys = {
       [...queryKeys.executiveReports.all, 'overview', params] as const,
     kpis: (params: Record<string, unknown>) =>
       [...queryKeys.executiveReports.all, 'kpis', params] as const,
+    domain: (domain: string, params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'domain', domain, params] as const,
     chartsDepartments: (params: Record<string, unknown>) =>
       [...queryKeys.executiveReports.all, 'charts-departments', params] as const,
     chartsGoals: (params: Record<string, unknown>) =>
