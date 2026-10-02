@@ -27,6 +27,7 @@ import type { DepartmentNode } from '@/components/departments/types';
 import { RISK_LEVEL_MAP, STEP_TYPE_MAP } from './constants';
 import { SOURCE_MODULES } from './StartProcessModal';
 import { UserPicker } from './UserPicker';
+import { stepExtras } from './workflow-model';
 import type { Process, RiskLevel, StepType } from './types';
 
 export interface CreateProcessModalProps {
@@ -69,6 +70,8 @@ interface StepDraft {
   /** Preservados tal como vieram do servidor (não editáveis aqui). */
   formSchema: string | null;
   exitConditions: string | null;
+  /** Campos do construtor de fluxos (§8), preservados ao guardar. */
+  extras: Record<string, unknown>;
 }
 
 const emptyStep = (): StepDraft => ({
@@ -85,6 +88,7 @@ const emptyStep = (): StepDraft => ({
   dependsOnOrders: [],
   formSchema: null,
   exitConditions: null,
+  extras: {},
 });
 
 const toDateInput = (iso: string | null | undefined) => (iso ? iso.slice(0, 10) : '');
@@ -157,6 +161,7 @@ export function CreateProcessModal({ initial, onClose }: CreateProcessModalProps
             dependsOnOrders: s.dependsOnOrders ?? [],
             formSchema: s.formSchema ?? null,
             exitConditions: s.exitConditions ?? null,
+            extras: stepExtras(s),
           }))
       : [emptyStep()],
   );
@@ -261,6 +266,7 @@ export function CreateProcessModal({ initial, onClose }: CreateProcessModalProps
         dependsOnOrders: s.dependsOnOrders,
         formSchema: parseJson(s.formSchema),
         exitConditions: parseJson(s.exitConditions),
+        ...s.extras,
       })),
     });
   };

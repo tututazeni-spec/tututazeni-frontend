@@ -23,6 +23,9 @@ import { StartProcessModal } from '@/components/processes/StartProcessModal';
 import { TasksView } from '@/components/processes/TasksView';
 import { ProcessViewer } from '@/components/processes/ProcessViewer';
 import { TaskRunner } from '@/components/processes/TaskRunner';
+import { ApprovalsView } from '@/components/processes/ApprovalsView';
+import { WorkflowsView } from '@/components/processes/WorkflowsView';
+import { AutomationsView } from '@/components/processes/AutomationsView';
 import { NAV } from '@/components/processes/constants';
 import type { Nav } from '@/components/processes/types';
 
@@ -32,12 +35,15 @@ const OVERVIEW_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 // Espelha @Roles(ADMIN, RH, GESTOR) em POST /processes/:id/start e nas
 // acções de gestão de instâncias/tarefas.
 const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+// Espelha @Roles(ADMIN, RH) nas rotas /processes/automations.
+const AUTOMATION_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 
 export default function ProcessesPage() {
   const role = useCurrentRole();
   const canCreate = !!role && ADMIN_ROLES.includes(role);
   const canSeeOverview = !!role && OVERVIEW_ROLES.includes(role);
   const canManage = !!role && MANAGE_ROLES.includes(role);
+  const canAutomate = !!role && AUTOMATION_ROLES.includes(role);
 
   const [nav, setNav] = useState<Nav>({ view: 'all' });
   const [showCreate, setShowCreate] = useState(false);
@@ -51,7 +57,11 @@ export default function ProcessesPage() {
     setNav({ view: 'overview' });
   }
 
-  const tabs = NAV.filter((n) => n.id !== 'overview' || canSeeOverview);
+  const tabs = NAV.filter(
+    (n) =>
+      (n.id !== 'overview' || canSeeOverview) &&
+      (n.id !== 'automations' || canAutomate),
+  );
   const activeTab = tabs.find((n) => n.id === nav.view);
 
   const handleStartInstance = (instanceId: number) => {
@@ -132,6 +142,11 @@ export default function ProcessesPage() {
         />
       )}
       {nav.view === 'tasks' && <TasksView canManage={canManage} />}
+      {nav.view === 'approvals' && <ApprovalsView canManage={canManage} />}
+      {nav.view === 'workflows' && <WorkflowsView canEdit={canCreate} />}
+      {nav.view === 'automations' && canAutomate && (
+        <AutomationsView canManage={canAutomate} />
+      )}
       {nav.view === 'viewer' && (
         <ProcessViewer
           processId={nav.processId}

@@ -825,6 +825,18 @@ export const queryKeys = {
       [...queryKeys.processes.all, 'instance-history', id] as const,
     versions: (id: number) =>
       [...queryKeys.processes.all, 'versions', id] as const,
+    approvals: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'approvals', params] as const,
+    approval: (id: number) =>
+      [...queryKeys.processes.all, 'approval', id] as const,
+    automations: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'automations', params] as const,
+    automation: (id: number) =>
+      [...queryKeys.processes.all, 'automation', id] as const,
+    automationCatalog: () =>
+      [...queryKeys.processes.all, 'automation-catalog'] as const,
+    templateOptions: () =>
+      [...queryKeys.processes.all, 'template-options'] as const,
   },
 
   leadership: {

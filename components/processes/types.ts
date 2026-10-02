@@ -5,7 +5,23 @@
 export type ProcessStatus = 'DRAFT' | 'IN_REVIEW' | 'ACTIVE' | 'ARCHIVED';
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type StepType =
-  'START' | 'END' | 'TASK' | 'DECISION' | 'GATEWAY' | 'REVIEW';
+  | 'START'
+  | 'END'
+  | 'TASK'
+  | 'DECISION'
+  | 'GATEWAY'
+  | 'REVIEW'
+  | 'FORM'
+  | 'PARALLEL'
+  | 'WAIT_EVENT'
+  | 'TIMER'
+  | 'INTEGRATION'
+  | 'AUTO_ACTION'
+  | 'NOTIFICATION'
+  | 'DOCUMENT';
+
+export type ApprovalMode = 'SEQUENTIAL' | 'PARALLEL' | 'ANY';
+export type RejectionRule = 'HOLD' | 'CANCEL' | 'RETURN' | 'BRANCH';
 export type InstanceStatus =
   'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD';
 export type TaskStatus =
@@ -29,6 +45,23 @@ export interface ProcessStep {
   reviewer?: { id: number; fullName: string } | null;
   formSchema?: string | null;
   exitConditions?: string | null;
+  // §7/§8 — valores guardados pelo servidor (JSON como texto)
+  config?: string | null;
+  entryConditions?: string | null;
+  requiredData?: string[];
+  approverIds?: number[];
+  approvalMode?: ApprovalMode;
+  allowDelegation?: boolean;
+  onReject?: RejectionRule;
+  maxReturns?: number | null;
+  successActions?: string | null;
+  failureActions?: string | null;
+  escalationAfterHours?: number | null;
+  escalationToId?: number | null;
+  escalationToRole?: string | null;
+  calendarMode?: 'CALENDAR' | 'BUSINESS_DAYS';
+  posX?: number | null;
+  posY?: number | null;
 }
 
 export interface Process {
@@ -305,4 +338,27 @@ export interface TemplateVersionRow {
   current: boolean;
   status: string | null;
   createdAt: string;
+}
+
+// ─── §8 Simulação de fluxos ──────────────────────────────────────────────────
+export interface FlowSimulation {
+  processId: number;
+  code: string;
+  version: string;
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  trace: Array<{
+    wave: number;
+    steps: Array<{
+      order: number;
+      title: string;
+      type: StepType;
+      outcome: 'EXECUTED' | 'AUTOMATIC' | 'SKIPPED';
+      result: string | null;
+    }>;
+  }>;
+  reachedEnd: boolean;
+  executed: number;
+  skipped: number;
 }

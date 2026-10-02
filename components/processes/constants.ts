@@ -5,6 +5,8 @@
 // semânticos da fundação de design (Fase A).
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
+import type { ApprovalStatus } from './approval-types';
+import type { ExecutionStatus } from './automation-types';
 import type {
   DeadlineSituation,
   InstanceStatus,
@@ -53,10 +55,37 @@ export const INSTANCE_STATUS_MAP: StatusBadgeMap<InstanceStatus> = {
 export const STEP_TYPE_MAP: StatusBadgeMap<StepType> = {
   START: { label: 'Início', cls: 'bg-success-subtle text-success-ink' },
   END: { label: 'Fim', cls: 'bg-surface-sunken text-ink-muted' },
-  TASK: { label: 'Tarefa', cls: 'bg-info-subtle text-info-ink' },
-  DECISION: { label: 'Decisão', cls: 'bg-primary-subtle text-primary' },
-  GATEWAY: { label: 'Gateway', cls: 'bg-warning-subtle text-warning-ink' },
-  REVIEW: { label: 'Revisão', cls: 'bg-accent-subtle text-accent' },
+  TASK: { label: 'Tarefa manual', cls: 'bg-info-subtle text-info-ink' },
+  DECISION: { label: 'Condição lógica', cls: 'bg-primary-subtle text-primary' },
+  GATEWAY: { label: 'Ramificação', cls: 'bg-warning-subtle text-warning-ink' },
+  REVIEW: { label: 'Aprovação', cls: 'bg-accent-subtle text-accent' },
+  FORM: { label: 'Formulário de entrada', cls: 'bg-info-subtle text-info-ink' },
+  PARALLEL: { label: 'Tarefas paralelas', cls: 'bg-warning-subtle text-warning-ink' },
+  WAIT_EVENT: { label: 'Espera por evento', cls: 'bg-surface-sunken text-ink-muted' },
+  TIMER: { label: 'Temporizador', cls: 'bg-surface-sunken text-ink-muted' },
+  INTEGRATION: { label: 'Integração', cls: 'bg-primary-subtle text-primary' },
+  AUTO_ACTION: { label: 'Acção automática', cls: 'bg-primary-subtle text-primary' },
+  NOTIFICATION: { label: 'Notificação', cls: 'bg-info-subtle text-info-ink' },
+  DOCUMENT: { label: 'Geração de documento', cls: 'bg-accent-subtle text-accent' },
+};
+
+export const APPROVAL_STATUS_MAP: StatusBadgeMap<ApprovalStatus> = {
+  WAITING: { label: 'Em espera', cls: 'bg-surface-sunken text-ink-faint' },
+  PENDING: { label: 'Pendente', cls: 'bg-info-subtle text-info-ink' },
+  INFO_REQUESTED: { label: 'Informação pedida', cls: 'bg-warning-subtle text-warning-ink' },
+  ESCALATED: { label: 'Escalada', cls: 'bg-danger-subtle text-danger-ink' },
+  APPROVED: { label: 'Aprovada', cls: 'bg-success-subtle text-success-ink' },
+  REJECTED: { label: 'Rejeitada', cls: 'bg-danger-subtle text-danger-ink' },
+  RETURNED: { label: 'Devolvida', cls: 'bg-warning-subtle text-warning-ink' },
+  CANCELLED: { label: 'Cancelada', cls: 'bg-surface-sunken text-ink-faint' },
+};
+
+export const EXECUTION_STATUS_MAP: StatusBadgeMap<ExecutionStatus> = {
+  PENDING: { label: 'Pendente', cls: 'bg-surface-sunken text-ink-muted' },
+  RUNNING: { label: 'A correr', cls: 'bg-info-subtle text-info-ink' },
+  SUCCESS: { label: 'Sucesso', cls: 'bg-success-subtle text-success-ink' },
+  FAILED: { label: 'Falhou', cls: 'bg-danger-subtle text-danger-ink' },
+  SKIPPED: { label: 'Ignorada', cls: 'bg-surface-sunken text-ink-faint' },
 };
 
 // Abas do módulo (docs/Modulo_Processes.md §2). `ready` marca as já
@@ -73,9 +102,9 @@ export const NAV: Array<{
   { id: 'all', label: 'Todos os Processos', description: 'Lista centralizada dos processos existentes.', ready: true },
   { id: 'templates', label: 'Modelos de Processos', description: 'Criação e gestão de modelos reutilizáveis.', ready: true },
   { id: 'tasks', label: 'Tarefas e Etapas', description: 'Execução, atribuição e acompanhamento das tarefas.', ready: true },
-  { id: 'approvals', label: 'Aprovações', description: 'Pedidos pendentes de validação ou decisão.', ready: false },
-  { id: 'workflows', label: 'Fluxos de Trabalho', description: 'Desenho das etapas, regras e transições.', ready: false },
-  { id: 'automations', label: 'Automações', description: 'Regras automáticas, condições e ações.', ready: false },
+  { id: 'approvals', label: 'Aprovações', description: 'Pedidos pendentes de validação ou decisão.', ready: true },
+  { id: 'workflows', label: 'Fluxos de Trabalho', description: 'Desenho das etapas, regras e transições.', ready: true },
+  { id: 'automations', label: 'Automações', description: 'Regras automáticas, condições e ações.', ready: true },
   { id: 'calendar', label: 'Calendário e Prazos', description: 'Datas-limite, vencimentos e tarefas agendadas.', ready: false },
   { id: 'documents', label: 'Documentos', description: 'Documentos, formulários e anexos associados.', ready: false },
   { id: 'reports', label: 'Indicadores e Relatórios', description: 'Tempos, volumes, atrasos e níveis de cumprimento.', ready: false },
