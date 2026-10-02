@@ -126,7 +126,7 @@ describe('AdminDashboardView — cobre docs/06-modulo-courses.md "Dashboard Admi
     expect(screen.getByText('Módulos')).toBeInTheDocument();
     expect(screen.getByText('Lições')).toBeInTheDocument();
     expect(screen.getByText('Certificados emitidos')).toBeInTheDocument();
-    expect(screen.getByText('Taxa de aprovação')).toBeInTheDocument();
+    expect(screen.getByText('Taxa de Aprovação')).toBeInTheDocument();
     expect(screen.getByText('Nota média')).toBeInTheDocument();
   });
 

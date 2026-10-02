@@ -457,7 +457,98 @@ export function GestaoView({
 
             {/* 6. Acções — cola aqui o <DropdownMenu>…</DropdownMenu> existente, sem alterações */}
             <div className="flex items-center">
-              {/* <DropdownMenu> ... </DropdownMenu> */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        className="rounded-control p-1.5 text-ink-muted hover:bg-surface-sunken hover:text-ink"
+                        disabled={rowBusy(c.id)}
+                      >
+                        <MoreHorizontal size={16} strokeWidth={1.75} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => onSelect(c.id)}>
+                        Ver
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => setEditCourseId(c.id)}>
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => duplicate.mutate(c.id)}>
+                        Duplicar
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {c.status === 'DRAFT' && (
+                        <DropdownMenuItem
+                          disabled={noModules}
+                          onSelect={() => publish.mutate(c.id)}
+                        >
+                          Publicar
+                        </DropdownMenuItem>
+                      )}
+                      {c.status === 'PUBLISHED' && (
+                        <DropdownMenuItem onSelect={() => pause.mutate(c.id)}>
+                          Despublicar
+                        </DropdownMenuItem>
+                      )}
+                      {c.status === 'PAUSED' && (
+                        <DropdownMenuItem onSelect={() => resume.mutate(c.id)}>
+                          Retomar
+                        </DropdownMenuItem>
+                      )}
+                      {c.status === 'ARCHIVED' ? (
+                        <DropdownMenuItem onSelect={() => restore.mutate(c.id)}>
+                          Repor rascunho
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem onSelect={() => onArchive(c)}>
+                          Arquivar
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onSelect={() => setEnrollFor(c.id)}>
+                        Inscrever colaboradores
+                      </DropdownMenuItem>
+                      {onViewEnrollments && (
+                        <DropdownMenuItem
+                          onSelect={() => onViewEnrollments(c.id)}
+                        >
+                          Ver inscrições / progresso
+                        </DropdownMenuItem>
+                      )}
+                      {onManageModules && (
+                        <DropdownMenuItem
+                          onSelect={() => onManageModules(c.id)}
+                        >
+                          Gerir módulos
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem onSelect={() => setAddModuleFor(c.id)}>
+                        <Plus
+                          size={14}
+                          strokeWidth={1.75}
+                          className="mr-1 inline"
+                        />
+                        Adicionar módulo
+                      </DropdownMenuItem>
+                      {c.requiresApproval && (
+                        <DropdownMenuItem onSelect={() => setPendingFor(c)}>
+                          Pedidos de inscrição
+                        </DropdownMenuItem>
+                      )}
+                      {(c.status === 'DRAFT' || c.status === 'ARCHIVED') && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-danger-ink"
+                            onSelect={() => onDelete(c)}
+                          >
+                            Eliminar
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
             </div>
           </div>
         );

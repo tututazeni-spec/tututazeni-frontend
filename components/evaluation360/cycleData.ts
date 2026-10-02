@@ -28,7 +28,7 @@ export function useDepartmentOptions(enabled = true) {
     '/departments',
     { params, staleTime: STALE_TIME.STATIC, enabled },
   );
-  const options: Option[] = (query.data ?? []).map((d) => ({
+  const options: Option[] = (query.data?.data ?? []).map((d) => ({
     value: String(d.id),
     label: d.name,
   }));

@@ -32,7 +32,7 @@ export function useDepartmentOptions(enabled = true) {
     '/departments',
     { params, staleTime: STALE_TIME.STATIC, enabled },
   );
-  const options: Option[] = (query.data ?? []).map((d) => ({
+  const options: Option[] = (query.data?.data ?? []).map((d) => ({
     value: String(d.id),
     label: d.name,
   }));
@@ -48,7 +48,7 @@ export function useCompetencyOptions(enabled = true) {
     '/competencies',
     { params, staleTime: STALE_TIME.SEMI_STATIC, enabled },
   );
-  const options: Option[] = (query.data ?? []).map((c) => ({
+  const options: Option[] = (query.data?.data ?? []).map((c) => ({
     value: String(c.id),
     label: c.name,
   }));
@@ -84,7 +84,7 @@ export function useSubDepartmentOptions(departmentId?: number, enabled = true) {
       enabled: enabled && !!departmentId,
     },
   );
-  const options: Option[] = (query.data ?? []).map((d) => ({
+  const options: Option[] = (query.data?.data ?? []).map((d) => ({
     value: String(d.id),
     label: d.name,
   }));
