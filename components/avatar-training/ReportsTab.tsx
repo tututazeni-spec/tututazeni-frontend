@@ -31,9 +31,9 @@ interface Period {
   to: string;
 }
 
-/** Exporta o relatório em CSV (o cookie httpOnly segue com credentials: include). */
-async function downloadCsv(type: string, period: Period) {
-  const qs = new URLSearchParams({ type });
+/** Exporta o relatório em CSV ou PDF (o cookie httpOnly segue com credentials: include). */
+async function downloadReport(type: string, period: Period, format: 'csv' | 'pdf') {
+  const qs = new URLSearchParams({ type, format });
   if (period.from) qs.set('from', new Date(period.from).toISOString());
   if (period.to) qs.set('to', new Date(period.to + 'T23:59:59').toISOString());
   const res = await fetch(`${API_URL}/avatar-training/reports/export?${qs}`, {
@@ -41,7 +41,7 @@ async function downloadCsv(type: string, period: Period) {
   });
   if (!res.ok) throw new Error('Falha ao exportar o relatório');
   const disposition = res.headers.get('Content-Disposition') ?? '';
-  const name = /filename="([^"]+)"/.exec(disposition)?.[1] ?? `${type}.csv`;
+  const name = /filename="([^"]+)"/.exec(disposition)?.[1] ?? `${type}.${format}`;
   const url = URL.createObjectURL(await res.blob());
   const a = document.createElement('a');
   a.href = url;
@@ -118,7 +118,7 @@ export function ReportsTab() {
   const notify = useToast();
   const [type, setType] = useState<string | null>(null);
   const [period, setPeriod] = useState<Period>({ from: '', to: '' });
-  const [exporting, setExporting] = useState(false);
+  const [exporting, setExporting] = useState<'csv' | 'pdf' | null>(null);
   const { data, isLoading, error, refetch } = useApiQuery<ReportCatalogItem[]>(
     queryKeys.avatarTraining.reportCatalog(),
     '/avatar-training/reports',
@@ -177,27 +177,31 @@ export function ReportsTab() {
             onChange={(e) => setPeriod((p) => ({ ...p, to: e.target.value }))}
           />
         </label>
-        <Button
-          size="sm"
-          intent="secondary"
-          loading={exporting}
-          onClick={async () => {
-            setExporting(true);
-            try {
-              await downloadCsv(active, period);
-            } catch (e) {
-              notify({
-                title: 'Não foi possível exportar',
-                description: e instanceof Error ? e.message : undefined,
-                intent: 'danger',
-              });
-            } finally {
-              setExporting(false);
-            }
-          }}
-        >
-          <Download size={14} /> Exportar CSV
-        </Button>
+        {(['csv', 'pdf'] as const).map((format) => (
+          <Button
+            key={format}
+            size="sm"
+            intent="secondary"
+            loading={exporting === format}
+            disabled={exporting !== null}
+            onClick={async () => {
+              setExporting(format);
+              try {
+                await downloadReport(active, period, format);
+              } catch (e) {
+                notify({
+                  title: 'Não foi possível exportar',
+                  description: e instanceof Error ? e.message : undefined,
+                  intent: 'danger',
+                });
+              } finally {
+                setExporting(null);
+              }
+            }}
+          >
+            <Download size={14} /> Exportar {format.toUpperCase()}
+          </Button>
+        ))}
         <span className="font-body text-xs text-ink-faint">
           Período por omissão: últimos 30 dias
         </span>
