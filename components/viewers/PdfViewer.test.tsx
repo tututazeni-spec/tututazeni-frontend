@@ -37,8 +37,8 @@ describe('PdfViewer', () => {
 
     await waitFor(() => {
       expect(document.querySelector('canvas')).not.toHaveClass('hidden');
+      expect(getPage).toHaveBeenCalledWith(1);
     });
-    expect(getPage).toHaveBeenCalledWith(1);
   });
 
   test('mostra aviso de erro se o documento não carrega', async () => {
