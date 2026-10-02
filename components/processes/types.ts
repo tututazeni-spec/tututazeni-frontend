@@ -23,6 +23,12 @@ export interface ProcessStep {
   requiresUpload: boolean;
   checklist: string[];
   responsible: { id: number; fullName: string } | null;
+  // §5/§6
+  dependsOnOrders: number[];
+  parallel: boolean;
+  reviewer?: { id: number; fullName: string } | null;
+  formSchema?: string | null;
+  exitConditions?: string | null;
 }
 
 export interface Process {
@@ -41,6 +47,16 @@ export interface Process {
   estimatedMinutes: number | null;
   nextReviewDate: string | null;
   publishedAt: string | null;
+  // §5 Modelos
+  involvedModules: string[];
+  effectiveFrom: string | null;
+  reviewPolicy: string | null;
+  confidentiality: string;
+  accessRoles: string[];
+  requiredDocuments: string[];
+  approvalRules: string | null;
+  startConditions: string | null;
+  completionConditions: string | null;
   createdAt: string;
   updatedAt: string;
   owner: { id: number; fullName: string };
@@ -148,3 +164,145 @@ export type Nav =
   | { view: TabKey }
   | { view: 'viewer'; processId: number }
   | { view: 'runner'; instanceId: number; processId: number | null };
+
+// ─── §4 Todos os Processos ───────────────────────────────────────────────────
+export type ProcessPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
+export type DeadlineSituation = 'ON_TIME' | 'AT_RISK' | 'OVERDUE' | 'NONE';
+
+export interface PersonRef {
+  id: number;
+  fullName: string;
+}
+
+export interface InstanceRow {
+  id: number;
+  code: string;
+  name: string;
+  description: string | null;
+  type: string | null;
+  template: { id: number; code: string; title: string; version: string };
+  sourceModule: string | null;
+  entity: { type: string | null; id: string | null; target: PersonRef };
+  unit: { id: number; name: string } | null;
+  department: { id: number; name: string } | null;
+  requester: PersonRef;
+  currentResponsible: PersonRef | null;
+  currentStep: { title: string; type: StepType } | null;
+  priority: ProcessPriority;
+  status: InstanceStatus;
+  archived: boolean;
+  progress: number;
+  createdAt: string;
+  startedAt: string;
+  dueAt: string | null;
+  updatedAt: string;
+  completedAt: string | null;
+  elapsedHours: number;
+  remainingHours: number | null;
+  deadlineSituation: DeadlineSituation;
+}
+
+export interface PaginatedInstances {
+  data: InstanceRow[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface InstanceFilterOptions {
+  sourceModules: string[];
+  categories: string[];
+  templates: Array<{ id: number; code: string; title: string }>;
+  departments: Array<{ id: number; name: string }>;
+  units: Array<{ id: number; name: string }>;
+}
+
+// ─── §6 Tarefas e Etapas ─────────────────────────────────────────────────────
+export type TaskState =
+  | 'WAITING'
+  | 'PENDING'
+  | 'IN_PROGRESS'
+  | 'BLOCKED'
+  | 'COMPLETED'
+  | 'REJECTED'
+  | 'ESCALATED'
+  | 'SKIPPED'
+  | 'CANCELLED';
+
+export interface TaskView {
+  instanceId: number;
+  stepId: number;
+  code: string;
+  name: string;
+  type: StepType;
+  description: string | null;
+  stage: number;
+  process: {
+    id: number;
+    code: string;
+    title: string;
+    instanceCode: string | null;
+    instanceTitle: string;
+    priority: ProcessPriority;
+    target: PersonRef;
+  };
+  assignee: PersonRef | null;
+  reviewer: PersonRef | null;
+  assignedAt: string | null;
+  startedAt: string | null;
+  dueAt: string | null;
+  status: TaskState;
+  isOverdue: boolean;
+  dependencies: Array<{ order: number; title: string; status: TaskState; done: boolean }>;
+  evidenceIds: number[];
+  requiresUpload: boolean;
+  result: string | null;
+  notes: string | null;
+  completedAt: string | null;
+  completedBy: PersonRef | null;
+  blockedReason: string | null;
+  returnCount: number;
+  returnReason: string | null;
+  checklist: { items: string[]; done: string[] };
+  permissions: { canAct: boolean; canReview: boolean; canManage: boolean };
+}
+
+export interface StepComment {
+  id: number;
+  kind: 'COMMENT' | 'CLARIFICATION' | 'SYSTEM';
+  body: string;
+  createdAt: string;
+  author: PersonRef;
+}
+
+export interface TaskDetail extends TaskView {
+  comments: StepComment[];
+  events: Array<{ id: number; action: string; createdAt: string; user: PersonRef }>;
+}
+
+export interface PaginatedTasks {
+  data: TaskView[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  scope: 'mine' | 'all';
+}
+
+// ─── §5 Modelos ──────────────────────────────────────────────────────────────
+export interface TemplateValidation {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  simulation: Array<{ wave: number; steps: string[] }>;
+  code: string;
+  version: string;
+}
+
+export interface TemplateVersionRow {
+  version: string;
+  current: boolean;
+  status: string | null;
+  createdAt: string;
+}

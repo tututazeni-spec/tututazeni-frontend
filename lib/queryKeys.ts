@@ -813,6 +813,18 @@ export const queryKeys = {
     myTasks: () => [...queryKeys.processes.all, 'my-tasks'] as const,
     dashboard: (params: Record<string, unknown> = {}) =>
       [...queryKeys.processes.all, 'dashboard', params] as const,
+    instances: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'instances', params] as const,
+    instanceFilters: () =>
+      [...queryKeys.processes.all, 'instance-filters'] as const,
+    tasks: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'tasks', params] as const,
+    task: (instanceId: number, stepId: number) =>
+      [...queryKeys.processes.all, 'task', instanceId, stepId] as const,
+    instanceHistory: (id: number) =>
+      [...queryKeys.processes.all, 'instance-history', id] as const,
+    versions: (id: number) =>
+      [...queryKeys.processes.all, 'versions', id] as const,
   },
 
   leadership: {

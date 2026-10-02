@@ -18,7 +18,9 @@ import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import { CreateProcessModal } from '@/components/processes/CreateProcessModal';
 import { DashboardView } from '@/components/processes/DashboardView';
 import { LibraryView } from '@/components/processes/LibraryView';
-import { MyTasksView } from '@/components/processes/MyTasksView';
+import { InstancesView } from '@/components/processes/InstancesView';
+import { StartProcessModal } from '@/components/processes/StartProcessModal';
+import { TasksView } from '@/components/processes/TasksView';
 import { ProcessViewer } from '@/components/processes/ProcessViewer';
 import { TaskRunner } from '@/components/processes/TaskRunner';
 import { NAV } from '@/components/processes/constants';
@@ -27,14 +29,19 @@ import type { Nav } from '@/components/processes/types';
 // Espelha @Roles(ADMIN, RH, GESTOR) em GET /processes/dashboard
 // (src/process-standard/process-standard.controller.ts).
 const OVERVIEW_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+// Espelha @Roles(ADMIN, RH, GESTOR) em POST /processes/:id/start e nas
+// acções de gestão de instâncias/tarefas.
+const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 
 export default function ProcessesPage() {
   const role = useCurrentRole();
   const canCreate = !!role && ADMIN_ROLES.includes(role);
   const canSeeOverview = !!role && OVERVIEW_ROLES.includes(role);
+  const canManage = !!role && MANAGE_ROLES.includes(role);
 
   const [nav, setNav] = useState<Nav>({ view: 'all' });
   const [showCreate, setShowCreate] = useState(false);
+  const [showStart, setShowStart] = useState(false);
 
   // Visão Geral é a aba inicial para quem pode vê-la; antes de o role
   // carregar, ou para os restantes, arranca em "Todos os Processos".
@@ -59,7 +66,7 @@ export default function ProcessesPage() {
     if (nav.view === 'runner' && nav.processId !== null) {
       setNav({ view: 'viewer', processId: nav.processId });
     } else {
-      setNav({ view: 'all' });
+      setNav({ view: 'templates' });
     }
   };
 
@@ -80,10 +87,16 @@ export default function ProcessesPage() {
             </p>
           )}
         </div>
-        {nav.view === 'all' && canCreate && (
-          <Button onClick={() => setShowCreate(true)}>
+        {nav.view === 'all' && canManage && (
+          <Button onClick={() => setShowStart(true)}>
             <Plus size={16} strokeWidth={1.75} />
             Novo processo
+          </Button>
+        )}
+        {nav.view === 'templates' && canCreate && (
+          <Button onClick={() => setShowCreate(true)}>
+            <Plus size={16} strokeWidth={1.75} />
+            Novo modelo
           </Button>
         )}
       </div>
@@ -111,16 +124,22 @@ export default function ProcessesPage() {
         <DashboardView onOpenInstance={openInstance} />
       )}
       {nav.view === 'all' && (
+        <InstancesView canManage={canManage} onOpenInstance={openInstance} />
+      )}
+      {nav.view === 'templates' && (
         <LibraryView
           onSelect={(id) => setNav({ view: 'viewer', processId: id })}
         />
       )}
-      {nav.view === 'tasks' && <MyTasksView onOpenInstance={openInstance} />}
+      {nav.view === 'tasks' && <TasksView canManage={canManage} />}
       {nav.view === 'viewer' && (
         <ProcessViewer
           processId={nav.processId}
+          canEdit={canCreate}
+          canStart={canManage}
           onBack={handleBack}
           onStartInstance={handleStartInstance}
+          onOpenTemplate={(id) => setNav({ view: 'viewer', processId: id })}
         />
       )}
       {nav.view === 'runner' && (
@@ -137,6 +156,15 @@ export default function ProcessesPage() {
 
       {showCreate && (
         <CreateProcessModal onClose={() => setShowCreate(false)} />
+      )}
+      {showStart && (
+        <StartProcessModal
+          onClose={() => setShowStart(false)}
+          onCreated={(id) => {
+            setShowStart(false);
+            openInstance(id);
+          }}
+        />
       )}
     </div>
   );

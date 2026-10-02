@@ -6,8 +6,11 @@
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
+  DeadlineSituation,
   InstanceStatus,
+  ProcessPriority,
   ProcessStatus,
+  TaskState,
   RiskLevel,
   StepType,
   TabKey,
@@ -68,7 +71,7 @@ export const NAV: Array<{
 }> = [
   { id: 'overview', label: 'Visão Geral', description: 'Indicadores, alertas e resumo dos processos.', ready: true },
   { id: 'all', label: 'Todos os Processos', description: 'Lista centralizada dos processos existentes.', ready: true },
-  { id: 'templates', label: 'Modelos de Processos', description: 'Criação e gestão de modelos reutilizáveis.', ready: false },
+  { id: 'templates', label: 'Modelos de Processos', description: 'Criação e gestão de modelos reutilizáveis.', ready: true },
   { id: 'tasks', label: 'Tarefas e Etapas', description: 'Execução, atribuição e acompanhamento das tarefas.', ready: true },
   { id: 'approvals', label: 'Aprovações', description: 'Pedidos pendentes de validação ou decisão.', ready: false },
   { id: 'workflows', label: 'Fluxos de Trabalho', description: 'Desenho das etapas, regras e transições.', ready: false },
@@ -91,4 +94,37 @@ export function fmtHours(hours: number | null): string {
   if (hours === null) return '—';
   if (hours < 48) return `${hours}h`;
   return `${Math.round((hours / 24) * 10) / 10}d`;
+}
+
+export const PRIORITY_MAP: StatusBadgeMap<ProcessPriority> = {
+  LOW: { label: 'Baixa', cls: 'bg-surface-sunken text-ink-muted' },
+  NORMAL: { label: 'Normal', cls: 'bg-info-subtle text-info-ink' },
+  HIGH: { label: 'Alta', cls: 'bg-warning-subtle text-warning-ink' },
+  URGENT: { label: 'Urgente', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+export const DEADLINE_MAP: StatusBadgeMap<DeadlineSituation> = {
+  ON_TIME: { label: 'Dentro do prazo', cls: 'bg-success-subtle text-success-ink' },
+  AT_RISK: { label: 'Em risco', cls: 'bg-warning-subtle text-warning-ink' },
+  OVERDUE: { label: 'Atrasado', cls: 'bg-danger-subtle text-danger-ink' },
+  NONE: { label: 'Sem prazo', cls: 'bg-surface-sunken text-ink-faint' },
+};
+
+export const TASK_STATE_MAP: StatusBadgeMap<TaskState> = {
+  WAITING: { label: 'Em espera', cls: 'bg-surface-sunken text-ink-faint' },
+  PENDING: { label: 'Pendente', cls: 'bg-info-subtle text-info-ink' },
+  IN_PROGRESS: { label: 'Em curso', cls: 'bg-primary-subtle text-primary' },
+  BLOCKED: { label: 'Bloqueada', cls: 'bg-warning-subtle text-warning-ink' },
+  COMPLETED: { label: 'Concluída', cls: 'bg-success-subtle text-success-ink' },
+  REJECTED: { label: 'Rejeitada', cls: 'bg-danger-subtle text-danger-ink' },
+  ESCALATED: { label: 'Escalada', cls: 'bg-danger-subtle text-danger-ink' },
+  SKIPPED: { label: 'Ignorada', cls: 'bg-surface-sunken text-ink-muted' },
+  CANCELLED: { label: 'Cancelada', cls: 'bg-surface-sunken text-ink-faint' },
+};
+
+export function fmtElapsed(hours: number | null): string {
+  if (hours === null) return '—';
+  if (hours < 1) return '<1h';
+  if (hours < 48) return `${Math.round(hours)}h`;
+  return `${Math.round(hours / 24)}d`;
 }
