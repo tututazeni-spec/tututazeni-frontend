@@ -1078,6 +1078,13 @@ export const queryKeys = {
       [...queryKeys.avatarTraining.all, 'programs', params] as const,
     program: (id: number) =>
       [...queryKeys.avatarTraining.all, 'program', id] as const,
+    sessions: () => [...queryKeys.avatarTraining.all, 'sessions'] as const,
+    session: (id: number) =>
+      [...queryKeys.avatarTraining.all, 'session', id] as const,
+    competencies: () =>
+      [...queryKeys.avatarTraining.all, 'competencies'] as const,
+    recommendations: () =>
+      [...queryKeys.avatarTraining.all, 'recommendations'] as const,
     myAssignments: () =>
       [...queryKeys.avatarTraining.all, 'my-assignments'] as const,
     room: (attemptId: number) =>

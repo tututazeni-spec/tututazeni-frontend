@@ -22,7 +22,13 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { ASSIGNMENT_STATUS, EXPERIENCE_LABEL } from './constants';
-import type { CompleteResult, MyAssignment, Room, RoomStep } from './types';
+import type {
+  CompleteResult,
+  ExperienceType,
+  MyAssignment,
+  Room,
+  RoomStep,
+} from './types';
 
 const BUBBLE: Record<string, string> = {
   AVATAR_MESSAGE: 'bg-primary-subtle text-ink self-start',
@@ -345,7 +351,14 @@ function RoomView({
   );
 }
 
-export function RoomTab() {
+export function RoomTab({
+  only,
+  emptyTitle = 'Sem sessões atribuídas',
+}: {
+  /** Restringe a lista a certos tipos de experiência (ex.: Simulações). */
+  only?: readonly ExperienceType[];
+  emptyTitle?: string;
+} = {}) {
   const notify = useToast();
   const [attemptId, setAttemptId] = useState<number | null>(null);
   const { data, isLoading, error, refetch } = useApiQuery<MyAssignment[]>(
@@ -379,18 +392,21 @@ export function RoomTab() {
         itemClassName="h-20 rounded-card bg-surface-sunken animate-pulse"
       />
     );
-  if (data.length === 0)
+  const list = only
+    ? data.filter((a) => only.includes(a.session.experienceType))
+    : data;
+  if (list.length === 0)
     return (
       <EmptyState
         icon={Bot}
-        title="Sem sessões atribuídas"
+        title={emptyTitle}
         description="Quando lhe for atribuída uma formação com avatar, ela aparece aqui."
       />
     );
 
   return (
     <div className="space-y-3">
-      {data.map((a) => {
+      {list.map((a) => {
         const last = a.attempts[0];
         const done = a.status === 'COMPLETED';
         const resuming =

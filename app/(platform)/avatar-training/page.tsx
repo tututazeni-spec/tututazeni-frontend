@@ -3,9 +3,7 @@
 
 // Container do módulo Avatar Training (docs/Avatar_Training.md). As abas são
 // filtradas por papel (espelha @Roles em src/avatar-training); a autorização
-// real continua no backend. Abas do §2 ainda sem UI (Simulações, Construtor de
-// Sessões, Base de Conhecimento, Avaliações, Competências) usam a API
-// directamente por agora.
+// real continua no backend. As 13 abas do §2 estão cobertas.
 
 import { useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
@@ -16,6 +14,11 @@ import { OverviewTab } from '@/components/avatar-training/OverviewTab';
 import { ProgramsTab } from '@/components/avatar-training/ProgramsTab';
 import { ProgressTab } from '@/components/avatar-training/ProgressTab';
 import { ReportsTab } from '@/components/avatar-training/ReportsTab';
+import { AssessmentsTab } from '@/components/avatar-training/AssessmentsTab';
+import { BuilderTab } from '@/components/avatar-training/BuilderTab';
+import { CompetenciesTab } from '@/components/avatar-training/CompetenciesTab';
+import { KnowledgeTab } from '@/components/avatar-training/KnowledgeTab';
+import { SIMULATION_TYPES } from '@/components/avatar-training/constants';
 import { RoomTab } from '@/components/avatar-training/RoomTab';
 import { SettingsTab } from '@/components/avatar-training/SettingsTab';
 import type { TabId } from '@/components/avatar-training/types';
@@ -57,6 +60,13 @@ export default function AvatarTrainingPage() {
       {current === 'overview' && <OverviewTab />}
       {current === 'room' && <RoomTab />}
       {current === 'programs' && <ProgramsTab />}
+      {current === 'simulations' && (
+        <RoomTab only={SIMULATION_TYPES} emptyTitle="Sem simulações atribuídas" />
+      )}
+      {current === 'builder' && <BuilderTab />}
+      {current === 'knowledge' && <KnowledgeTab />}
+      {current === 'assessments' && <AssessmentsTab />}
+      {current === 'competencies' && <CompetenciesTab />}
       {current === 'avatars' && <AvatarsTab />}
       {current === 'progress' && <ProgressTab />}
       {current === 'reports' && <ReportsTab />}

@@ -27,6 +27,11 @@ export const TABS: { id: TabId; label: string; roles?: readonly Role[] }[] = [
   { id: 'overview', label: 'Visão Geral' },
   { id: 'room', label: 'Sala de Formação Virtual' },
   { id: 'programs', label: 'Formações com Avatar' },
+  { id: 'simulations', label: 'Simulações' },
+  { id: 'builder', label: 'Construtor de Sessões', roles: AUTHOR_ROLES },
+  { id: 'knowledge', label: 'Base de Conhecimento', roles: AUTHOR_ROLES },
+  { id: 'assessments', label: 'Avaliações', roles: AUTHOR_ROLES },
+  { id: 'competencies', label: 'Competências' },
   { id: 'avatars', label: 'Avatares' },
   { id: 'progress', label: 'Progresso dos Formandos' },
   { id: 'reports', label: 'Relatórios', roles: PROGRESS_ROLES },
@@ -73,3 +78,8 @@ export const ATTEMPT_STATUS: StatusBadgeMap<AttemptStatus> = {
   FAILED: { label: 'Reprovada', cls: 'bg-danger-subtle text-danger-ink' },
   ABANDONED: { label: 'Abandonada', cls: 'bg-surface-sunken text-ink-faint' },
 };
+
+export const SIMULATION_TYPES: readonly ExperienceType[] = [
+  'ROLE_PLAY',
+  'PRACTICAL_ASSESSMENT',
+];

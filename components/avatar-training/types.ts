@@ -226,9 +226,97 @@ export interface ProviderHealth {
 export type TabId =
   | 'overview'
   | 'room'
+  | 'simulations'
   | 'programs'
+  | 'builder'
+  | 'knowledge'
+  | 'assessments'
+  | 'competencies'
   | 'avatars'
   | 'progress'
   | 'reports'
   | 'settings'
   | 'history';
+
+export type SourceType = 'COURSE' | 'LESSON' | 'DOCUMENT' | 'LIBRARY_ITEM';
+
+export interface BuilderQuestion {
+  kind: 'SINGLE' | 'TRUE_FALSE' | 'SHORT';
+  prompt?: string;
+  options?: string[];
+  correctAnswer?: string;
+  explanation?: string;
+  weight?: number;
+}
+
+export interface BuilderStep {
+  key: string;
+  title: string;
+  type: 'CONTENT' | 'QUESTION' | 'SCENARIO' | 'EXERCISE';
+  content?: string;
+  resourceUrl?: string;
+  question?: BuilderQuestion;
+  mandatory?: boolean;
+}
+
+export interface KnowledgeSource {
+  id: number;
+  sourceType: SourceType;
+  sourceId: string;
+  title: string | null;
+  status: string;
+}
+
+export interface RubricCriterion {
+  key: string;
+  label: string;
+  weight: number;
+}
+
+export interface SessionAssessment {
+  passingScore: number;
+  maxAttempts: number;
+  requireFormalAssessment: boolean;
+  assessmentId: number | null;
+  rubricConfig?: RubricCriterion[];
+}
+
+export interface SessionListItem {
+  id: number;
+  programId: number;
+  title: string;
+  status: ProgramStatus;
+  experienceType: ExperienceType;
+  version: number;
+  program: { id: number; title: string; courseId: number | null };
+}
+
+export interface SessionDetail extends SessionListItem {
+  objectives: string[];
+  welcomeMessage: string | null;
+  durationMinutes: number | null;
+  mandatory: boolean;
+  steps: BuilderStep[];
+  assessment: SessionAssessment | null;
+  knowledgeSources: KnowledgeSource[];
+}
+
+export interface CompetencyResult {
+  id: number;
+  attemptId: number;
+  competencyId: number;
+  competencyName: string | null;
+  score: number;
+  levelBefore: number | null;
+  levelAfter: number | null;
+  applied: boolean;
+  evidence: string | null;
+  assessedAt: string;
+}
+
+export interface Recommendation {
+  programId: number;
+  title: string;
+  sessions: { id: number; title: string }[];
+  reasons: { type: string; detail: string }[];
+}

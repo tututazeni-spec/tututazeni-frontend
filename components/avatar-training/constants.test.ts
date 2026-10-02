@@ -15,10 +15,21 @@ describe('avatar-training tabs por papel', () => {
       'overview',
       'room',
       'programs',
+      'simulations',
+      'competencies',
       'avatars',
       'progress',
       'history',
     ]);
+  });
+
+  it('abas de autoria só para ADMIN/RH/INSTRUCTOR', () => {
+    for (const id of ['builder', 'knowledge', 'assessments']) {
+      expect(visibleFor('COLABORADOR')).not.toContain(id);
+      expect(visibleFor('GESTOR')).not.toContain(id);
+      expect(visibleFor('INSTRUCTOR')).toContain(id);
+      expect(visibleFor('RH')).toContain(id);
+    }
   });
 
   it('Relatórios exige papéis de progresso; Configurações exige autoria', () => {
