@@ -20,8 +20,12 @@ import {
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Card } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import type { LucideIcon } from 'lucide-react';
+import {
+  CourseBarList,
+  CourseProgressList,
+  DistributionList,
+} from './relatoriosBarLists';
 import { fmtDuration, Skeleton } from './shared';
 import type { CourseReports } from './types';
 
@@ -29,91 +33,300 @@ interface RelatoriosViewProps {
   onSelect: (id: number) => void;
 }
 
-function DistributionList({
-  title,
-  items,
+type Tone = 'blue' | 'green' | 'gold' | 'red';
+
+const TONES: Record<
+  Tone,
+  { bar: string; text: string; stroke: string; track: string }
+> = {
+  blue: {
+    bar: 'bg-[#2B6CC4]',
+    text: 'text-[#2B6CC4]',
+    stroke: '#2B6CC4',
+    track: '#DBEAFE',
+  },
+  green: {
+    bar: 'bg-[#2E8B3E]',
+    text: 'text-[#2E8B3E]',
+    stroke: '#2E8B3E',
+    track: '#DCFCE7',
+  },
+  gold: {
+    bar: 'bg-[#C9A227]',
+    text: 'text-[#B8912A]',
+    stroke: '#C9A227',
+    track: '#FEF3C7',
+  },
+  red: {
+    bar: 'bg-[#C0453F]',
+    text: 'text-[#C0453F]',
+    stroke: '#C0453F',
+    track: '#FEE2E2',
+  },
+};
+
+function TopBarKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  tone,
 }: {
-  title: string;
-  items: Array<{ label: string; count: number }>;
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  tone: Tone;
 }) {
-  const max = Math.max(1, ...items.map((i) => i.count));
+  const t = TONES[tone];
   return (
-    <Card className="p-4">
-      <div className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
-        {title}
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
+        {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
       </div>
-      {items.length === 0 ? (
-        <p className="text-xs text-ink-faint">Sem dados</p>
-      ) : (
-        <div className="space-y-2">
-          {items.slice(0, 8).map((item, i) => (
-            <div key={i}>
-              <div className="mb-0.5 flex items-center justify-between text-xs">
-                <span className="truncate pr-2 text-ink-muted">
-                  {item.label}
-                </span>
-                <span className="flex-shrink-0 font-data text-ink-faint">
-                  {item.count}
-                </span>
-              </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-surface-sunken">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${(item.count / max) * 100}%` }}
-                />
-              </div>
+    </div>
+  );
+}
+
+function GaugeKpiCard({
+  icon: Icon,
+  label,
+  value,
+  percent,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  percent: number;
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  const clamped = Math.max(0, Math.min(100, percent));
+  const radius = 30;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (clamped / 100) * circumference;
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="flex items-center gap-3 p-5 pt-6">
+        <div className="relative h-16 w-16 shrink-0">
+          <svg viewBox="0 0 72 72" className="h-full w-full -rotate-90">
+            <circle
+              cx="36"
+              cy="36"
+              r={radius}
+              fill="none"
+              stroke={t.track}
+              strokeWidth="8"
+            />
+            <circle
+              cx="36"
+              cy="36"
+              r={radius}
+              fill="none"
+              stroke={t.stroke}
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Icon size={18} strokeWidth={1.75} className={t.text} />
+          </div>
+        </div>
+        <div className="min-w-0">
+          <p className={`font-display text-2xl font-bold ${t.text}`}>{value}</p>
+          <p className="mt-0.5 font-body text-xs font-medium text-ink-muted">
+            {label}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// TODO: substituir por dados reais quando soubermos o campo da API (ex.:
+// data.abandonmentTrend) com o histórico mensal da taxa de abandono.
+const MOCK_ABANDONMENT_TREND = [18, 21, 19, 24, 22, 20];
+
+function TrendKpiCard({
+  icon: Icon,
+  label,
+  value,
+  trendData,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  trendData: number[];
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  const width = 100;
+  const height = 28;
+  const max = Math.max(...trendData, 1);
+  const min = Math.min(...trendData, 0);
+  const range = max - min || 1;
+  const points = trendData
+    .map((v, i) => {
+      const x = (i / Math.max(trendData.length - 1, 1)) * width;
+      const y = height - ((v - min) / range) * height;
+      return `${x},${y}`;
+    })
+    .join(' ');
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-2xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="mt-2 h-7 w-full"
+          preserveAspectRatio="none"
+        >
+          <polyline
+            points={points}
+            fill="none"
+            stroke={t.stroke}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+// TODO: ajustar para um alvo real vindo da API (ex.: meta institucional de
+// progresso médio), caso exista. Por agora, usa-se um valor de referência.
+const PROGRESS_TARGET = 75;
+
+function BulletKpiCard({
+  icon: Icon,
+  label,
+  value,
+  percent,
+  target,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  percent: number;
+  target: number;
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  const clamped = Math.max(0, Math.min(100, percent));
+  const targetClamped = Math.max(0, Math.min(100, target));
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-2xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
+        <div className="relative mt-3 h-3 w-full overflow-hidden rounded-full bg-[#E3E8EF]">
+          <div
+            className={`h-full rounded-full ${t.bar}`}
+            style={{ width: `${clamped}%` }}
+          />
+          <div
+            className="absolute top-0 h-full w-0.5 bg-ink"
+            style={{ left: `${targetClamped}%` }}
+            title={`Meta: ${target}%`}
+          />
+        </div>
+        <p className="mt-1 font-body text-[10px] text-ink-faint">
+          Meta: {target}%
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// TODO: substituir por dados reais quando soubermos o campo da API (ex.:
+// data.evaluationResults.distribution) com a distribuição de notas por
+// faixa. Por agora, estima-se um histograma de 5 faixas a partir da média.
+function scoreHistogramBins(avgScore: number) {
+  const bins = [20, 40, 60, 80, 100];
+  return bins.map((max) => {
+    const distance = Math.abs(avgScore - max + 10);
+    const height = Math.max(10, 100 - distance * 2.5);
+    return { label: `${max - 19}-${max}`, height };
+  });
+}
+
+function HistogramKpiCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  bins,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub?: string;
+  bins: { label: string; height: number }[];
+  tone: Tone;
+}) {
+  const t = TONES[tone];
+  return (
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+      <div className={`h-1.5 w-full ${t.bar}`} />
+      <div className="p-5 pt-6">
+        <Icon size={22} strokeWidth={1.75} className={t.text} />
+        <p className={`mt-3 font-display text-2xl font-bold ${t.text}`}>
+          {value}
+        </p>
+        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
+          {label}
+        </p>
+        {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
+        <div className="mt-3 flex h-10 items-end gap-1">
+          {bins.map((b) => (
+            <div
+              key={b.label}
+              className="flex flex-1 flex-col items-center gap-1"
+            >
+              <div
+                className={`w-full rounded-t ${t.bar}`}
+                style={{ height: `${b.height}%`, opacity: 0.85 }}
+              />
             </div>
           ))}
         </div>
-      )}
-    </Card>
-  );
-}
-
-function CourseRankList({
-  title,
-  items,
-  suffix,
-  onSelect,
-}: {
-  title: string;
-  items: Array<{ id: number; title: string; value: number }>;
-  suffix: string;
-  onSelect: (id: number) => void;
-}) {
-  return (
-    <Card className="overflow-hidden">
-      <div className="border-b border-border px-4 py-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
-        {title}
       </div>
-      {items.length === 0 ? (
-        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
-      ) : (
-        items.map((c, idx) => (
-          <div
-            key={c.id}
-            className="flex cursor-pointer items-center gap-3 border-b border-border px-4 py-2.5 last:border-0 hover:bg-surface-sunken"
-            onClick={() => onSelect(c.id)}
-          >
-            <span className="w-5 text-center font-mono text-sm font-bold text-ink-faint">
-              {idx + 1}
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-xs font-medium text-ink">
-                {c.title}
-              </div>
-            </div>
-            <div className="flex-shrink-0 text-xs text-ink-muted">
-              {c.value}
-              {suffix}
-            </div>
-          </div>
-        ))
-      )}
-    </Card>
+    </div>
   );
 }
-
 export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
   const { data, isLoading } = useApiQuery<CourseReports>(
     queryKeys.courses.reports(),
@@ -125,56 +338,61 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-4">
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <TopBarKpiCard
           icon={Users}
           label="Formandos por curso"
           value={data.topCourses.length}
           sub="cursos com inscrições"
-          intent="primary"
+          tone="blue"
         />
-        <KpiCard
+        <GaugeKpiCard
           icon={CheckCircle2}
           label="Taxa de aprovação"
           value={`${data.approvalRate}%`}
-          intent="success"
+          percent={data.approvalRate}
+          tone="green"
         />
-        <KpiCard
+        <TrendKpiCard
           icon={TrendingDown}
           label="Taxa de abandono"
           value={`${data.abandonmentRate}%`}
-          intent={data.abandonmentRate > 20 ? 'danger' : 'warning'}
+          trendData={MOCK_ABANDONMENT_TREND}
+          tone={data.abandonmentRate > 20 ? 'red' : 'gold'}
         />
-        <KpiCard
+        <BulletKpiCard
           icon={TrendingUp}
           label="Progresso médio"
           value={`${data.avgProgress}%`}
-          intent="info"
+          percent={data.avgProgress}
+          target={PROGRESS_TARGET}
+          tone="blue"
         />
-        <KpiCard
+        <TopBarKpiCard
           icon={Clock}
           label="Horas de formação"
           value={fmtDuration(data.totalLearningHours)}
-          intent="primary"
+          tone="blue"
         />
-        <KpiCard
+        <HistogramKpiCard
           icon={Award}
           label="Resultados das avaliações"
           value={`${data.evaluationResults.avgScore}%`}
           sub={`${data.evaluationResults.passRate}% aprovação · ${data.evaluationResults.totalAttempts} tentativas`}
-          intent="success"
+          bins={scoreHistogramBins(data.evaluationResults.avgScore)}
+          tone="green"
         />
-        <KpiCard
+        <TopBarKpiCard
           icon={BookOpen}
           label="Formação obrigatória pendente"
           value={data.mandatoryPending.count}
           sub={`${data.mandatoryPending.courses.length} curso(s)`}
-          intent={data.mandatoryPending.count > 0 ? 'warning' : 'primary'}
+          tone={data.mandatoryPending.count > 0 ? 'gold' : 'green'}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <CourseRankList
+        <CourseBarList
           title="Cursos mais frequentados"
           items={data.topCourses.map((c) => ({
             id: c.id,
@@ -184,29 +402,29 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
           suffix=" formandos"
           onSelect={onSelect}
         />
-        <CourseRankList
+        <CourseProgressList
           title="Maior taxa de conclusão"
           items={data.bestCompletion.map((c) => ({
             id: c.id,
             title: c.title,
             value: c.rate,
           }))}
-          suffix="%"
+          tone="green"
           onSelect={onSelect}
         />
-        <CourseRankList
+        <CourseProgressList
           title="Menor taxa de conclusão"
           items={data.worstCompletion.map((c) => ({
             id: c.id,
             title: c.title,
             value: c.rate,
           }))}
-          suffix="%"
+          tone="red"
           onSelect={onSelect}
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <DistributionList
           title="Formação por departamento"
           items={data.byDepartment.map((d) => ({
@@ -218,29 +436,19 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
           title="Formação por unidade"
           items={data.byUnit.map((u) => ({ label: u.unit, count: u.count }))}
         />
+        {data.mandatoryPending.courses.length > 0 && (
+          <CourseBarList
+            title="Formação obrigatória pendente — por curso"
+            items={data.mandatoryPending.courses.map((c) => ({
+              id: c.id,
+              title: c.title,
+              value: c.pending,
+            }))}
+            suffix=" por concluir"
+            onSelect={onSelect}
+          />
+        )}
       </div>
-
-      {data.mandatoryPending.courses.length > 0 && (
-        <Card className="overflow-hidden">
-          <div className="border-b border-border px-4 py-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
-            Formação obrigatória pendente — por curso
-          </div>
-          {data.mandatoryPending.courses.map((c) => (
-            <div
-              key={c.id}
-              className="flex cursor-pointer items-center justify-between border-b border-border px-4 py-2.5 last:border-0 hover:bg-surface-sunken"
-              onClick={() => onSelect(c.id)}
-            >
-              <span className="truncate text-xs font-medium text-ink">
-                {c.title}
-              </span>
-              <span className="flex-shrink-0 text-xs text-warning-ink">
-                {c.pending} formando(s) por concluir
-              </span>
-            </div>
-          ))}
-        </Card>
-      )}
     </div>
   );
 }

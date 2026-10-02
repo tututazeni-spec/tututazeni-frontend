@@ -5,6 +5,8 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { TopBarCard } from '@/components/ui/TopBarCard';
+import { AlertTriangle, CalendarClock, CircleCheck, UserPlus, Users } from 'lucide-react';
 import {
   DistributionList,
   ListSkeleton,
@@ -58,31 +60,36 @@ export function DashboardView({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <SummaryCard
+           <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+        <TopBarCard
           label="Total"
-          value={String(totals.total)}
-          color="text-ink"
+          value={totals.total}
+          tone="blue"
+          icon={<Users className="h-6 w-6" />}
         />
-        <SummaryCard
+        <TopBarCard
           label="Novos este mês"
-          value={String(totals.newThisMonth)}
-          color="text-primary"
+          value={totals.newThisMonth}
+          tone="blue"
+          icon={<UserPlus className="h-6 w-6" />}
         />
-        <SummaryCard
+        <TopBarCard
           label="Activos"
-          value={String(totals.active)}
-          color="text-success-ink"
+          value={totals.active}
+          tone="green"
+          icon={<CircleCheck className="h-6 w-6" />}
         />
-        <SummaryCard
+        <TopBarCard
           label="Follow-ups a 30 dias"
-          value={String(totals.pendingFollowUps)}
-          color="text-warning-ink"
+          value={totals.pendingFollowUps}
+          tone="gold"
+          icon={<CalendarClock className="h-6 w-6" />}
         />
-        <SummaryCard
+        <TopBarCard
           label="Necessidades em aberto"
-          value={String(totals.openNeeds)}
-          color="text-danger-ink"
+          value={totals.openNeeds}
+          tone="red"
+          icon={<AlertTriangle className="h-6 w-6" />}
         />
       </div>
 

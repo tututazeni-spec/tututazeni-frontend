@@ -8,7 +8,7 @@
 
 'use client';
 
-import { AlertTriangle, Hourglass, MoreHorizontal } from 'lucide-react';
+import { AlertTriangle, CalendarDays, Hourglass, MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
@@ -25,7 +25,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { Input } from '@/components/ui/Input';
-import { ProgressBar } from '@/components/ui/ProgressBar';
+import { PANEL, PILL, ProgressRing } from '@/components/courses/cardStyles';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -51,6 +51,15 @@ const MANDATORY_ITEMS = [
   { value: 'true', label: 'Apenas obrigatórios' },
   { value: 'false', label: 'Apenas opcionais' },
 ];
+
+const STATUS_ACCENT: Record<string, string> = {
+  NOT_STARTED: 'border-l-blue-400',
+  IN_PROGRESS: 'border-l-orange-400',
+  COMPLETED: 'border-l-emerald-500',
+  OVERDUE: 'border-l-red-500',
+  CANCELLED: 'border-l-slate-400',
+  EXPIRED: 'border-l-slate-400',
+};
 
 interface AdminViewProps {
   /** Pré-filtra por curso — usado pela acção "Ver inscrições" da aba Cursos. */
@@ -198,13 +207,15 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
 
   return (
     <div>
-      {/* Filtros */}
-      <div className="mb-5 flex flex-wrap items-center gap-3">
+      {/* Filtros — grid de largura uniforme (mesmo padrão da aba "Cursos",
+          ver components/courses/GestaoView.tsx): todos os campos com
+          w-full em vez de larguras w-* ad-hoc, alinhados em colunas. */}
+      <div className="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <Select
           items={STATUS_ITEMS}
           value={filters.status || 'ALL'}
           onValueChange={(v) => updateFilters({ status: v === 'ALL' ? '' : v })}
-          className="w-44"
+          className="w-full"
         />
         <Select
           items={[{ value: 'ALL', label: 'Todos os cursos' }, ...courseOptions]}
@@ -212,7 +223,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
           onValueChange={(v) =>
             updateFilters({ courseId: v === 'ALL' ? '' : v })
           }
-          className="w-52"
+          className="w-full"
         />
         <Select
           items={[
@@ -223,7 +234,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
           onValueChange={(v) =>
             updateFilters({ departmentId: v === 'ALL' ? '' : v })
           }
-          className="w-52"
+          className="w-full"
         />
         <Select
           items={MANDATORY_ITEMS}
@@ -231,9 +242,9 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
           onValueChange={(v) =>
             updateFilters({ mandatory: v === 'ALL' ? '' : v })
           }
-          className="w-52"
+          className="w-full"
         />
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-muted">
+        <label className="flex w-full cursor-pointer items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] text-sm text-ink-muted">
           <input
             type="checkbox"
             checked={!!filters.overdue}
@@ -244,7 +255,9 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
           />
           Apenas atrasados
         </label>
-        <span className="ml-auto text-sm text-ink-faint">
+      </div>
+      <div className="mb-5 flex justify-end">
+        <span className="text-sm text-ink-faint">
           {data?.total ?? 0} matrículas
         </span>
       </div>
@@ -277,153 +290,166 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
         </div>
       )}
 
-      {/* Tabela */}
-      <div className="overflow-x-auto rounded-card border border-border bg-surface">
-        <div className="grid min-w-[1080px] grid-cols-[32px_1.4fr_110px_120px_90px_100px_90px_90px_100px_90px_40px] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-ink-faint">
-          <div />
-          <div>Colaborador / Curso</div>
-          <div>Departamento</div>
-          <div>Estado</div>
-          <div>Progresso</div>
-          <div>Nota</div>
-          <div>Origem</div>
-          <div>Inscrição</div>
-          <div>Conclusão</div>
-          <div>Deadline</div>
-          <div />
-        </div>
+      {/* Tabela em cartões */}
+<div className="overflow-x-auto">
+  <div className="grid min-w-[1100px] grid-cols-[32px_1.5fr_1fr_1fr_120px_1.1fr_40px] gap-3 px-4 pb-2 text-xs font-medium uppercase tracking-wide text-ink-faint">
+    <div />
+    <div>Colaborador / Curso</div>
+    <div>Departamento &amp; Origem</div>
+    <div>Estado &amp; Nota</div>
+    <div>Progresso</div>
+    <div>Inscrição, Conclusão &amp; Deadline</div>
+    <div />
+  </div>
 
-        {loading && (
-          <div className="p-4">
-            <Skeleton
-              rows={4}
-              wrapperClassName="space-y-2 animate-pulse"
-              itemClassName="h-12 rounded-card bg-surface-sunken"
+  {loading && (
+    <Skeleton
+      rows={4}
+      wrapperClassName="space-y-3 animate-pulse"
+      itemClassName="h-24 rounded-2xl bg-surface-sunken"
+    />
+  )}
+
+  <div className="space-y-3">
+    {!loading &&
+      data?.data?.map((e) => (
+        <div
+          key={e.id}
+          className={`grid min-w-[1100px] grid-cols-[32px_1.5fr_1fr_1fr_120px_1.1fr_40px] items-stretch gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-3 shadow-sm backdrop-blur-md hover:bg-surface ${STATUS_ACCENT[e.status] ?? ''}`}
+        >
+          {/* Checkbox */}
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              checked={selected.includes(e.id)}
+              onChange={() => toggleSelect(e.id)}
+              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
           </div>
-        )}
 
-        {!loading &&
-          data?.data?.map((e) => (
-            <div
-              key={e.id}
-              className="grid min-w-[1080px] grid-cols-[32px_1.4fr_110px_120px_90px_100px_90px_90px_100px_90px_40px] items-center gap-3 border-b border-border px-4 py-3 last:border-0 hover:bg-surface-sunken"
-            >
-              <input
-                type="checkbox"
-                checked={selected.includes(e.id)}
-                onChange={() => toggleSelect(e.id)}
-                className="h-4 w-4 rounded border-border-strong accent-primary"
+          {/* 1. Colaborador / Curso */}
+          <div className="flex min-w-0 flex-col justify-center gap-2">
+            <div className="flex items-center gap-2">
+              <Avatar
+                name={e.user?.fullName ?? ''}
+                url={e.user?.avatarUrl ?? undefined}
+                size="sm"
               />
-              <div className="flex flex-col gap-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <Avatar
-                    name={e.user?.fullName ?? ''}
-                    url={e.user?.avatarUrl ?? undefined}
-                    size="sm"
-                  />
-                  <div className="min-w-0">
-                    <div className="truncate text-xs font-medium text-ink">
-                      {e.user?.fullName}
-                    </div>
-                    <div className="truncate text-xs text-ink-faint">
-                      {e.user?.email}
-                    </div>
-                  </div>
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold text-ink">
+                  {e.user?.fullName}
                 </div>
-                <div className="truncate pl-10 text-xs text-ink-muted">
-                  {e.course?.title}
+                <div className="truncate text-xs text-ink-faint">
+                  {e.user?.email}
                 </div>
-              </div>
-              <div className="truncate text-xs text-ink-muted">
-                {e.user.department?.name ?? '—'}
-                {e.user.unit?.name ? (
-                  <span className="text-ink-faint"> · {e.user.unit.name}</span>
-                ) : null}
-              </div>
-              <div>
-                <StatusBadge value={e.status} map={STATUS_CFG} variant="dot" />
-              </div>
-              <div>
-                <ProgressBar value={e.progressPercent ?? 0} />
-              </div>
-              <div className="font-mono text-xs text-ink-muted">
-                {e.certificate?.score != null ? `${e.certificate.score}%` : '—'}
-              </div>
-              <div>
-                <span className="text-xs text-ink-faint">
-                  {ORIGIN_LABELS[e.origin]}
-                </span>
-              </div>
-              <div className="text-xs text-ink-faint">
-                {new Date(e.enrolledAt).toLocaleDateString('pt')}
-              </div>
-              <div className="text-xs text-ink-faint">
-                {e.completedAt
-                  ? new Date(e.completedAt).toLocaleDateString('pt')
-                  : '—'}
-              </div>
-              <div className="text-xs">
-                {e.deadline ? (
-                  <Badge intent={deadlineIntent(e.deadline, e.isOverdue)}>
-                    {e.isOverdue ? (
-                      <AlertTriangle
-                        size={12}
-                        strokeWidth={1.75}
-                        className="inline mr-1"
-                      />
-                    ) : (
-                      <Hourglass
-                        size={12}
-                        strokeWidth={1.75}
-                        className="inline mr-1"
-                      />
-                    )}
-                    {deadlineCountdown(e.deadline)}
-                  </Badge>
-                ) : (
-                  <span className="text-ink-faint">—</span>
-                )}
-              </div>
-              <div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className="rounded-control p-1.5 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-                      disabled={rowBusy(e.id)}
-                    >
-                      <MoreHorizontal size={16} strokeWidth={1.75} />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={() => remind.mutate(e.id)}>
-                      Enviar lembrete
-                    </DropdownMenuItem>
-                    {(e.status === 'CANCELLED' || e.status === 'EXPIRED') && (
-                      <DropdownMenuItem onSelect={() => reenroll.mutate(e.id)}>
-                        Reinscrever
-                      </DropdownMenuItem>
-                    )}
-                    {e.status !== 'CANCELLED' && (
-                      <DropdownMenuItem onSelect={() => onResetProgress(e)}>
-                        Reiniciar progresso
-                      </DropdownMenuItem>
-                    )}
-                    {e.status !== 'COMPLETED' && e.status !== 'CANCELLED' && (
-                      <DropdownMenuItem
-                        className="text-danger-ink"
-                        onSelect={() => onRemove(e)}
-                      >
-                        Remover inscrição
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
             </div>
-          ))}
-      </div>
+            <span className={`${PILL} w-fit bg-blue-500/20 text-blue-700`}>
+              {e.course?.title}
+            </span>
+          </div>
+
+          {/* 2. Departamento & Origem */}
+          <div className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1.5`}>
+            <span className={`${PILL} bg-fuchsia-500/20 text-fuchsia-700`}>
+              {e.user.department?.name ?? '—'}
+            </span>
+            {e.user.unit?.name && (
+              <span className="max-w-full truncate text-xs text-ink-faint">
+                {e.user.unit.name}
+              </span>
+            )}
+            <span className={`${PILL} bg-violet-500/20 text-violet-700`}>
+              {ORIGIN_LABELS[e.origin]}
+            </span>
+          </div>
+
+          {/* 3. Estado & Nota */}
+          <div className={`${PANEL} flex flex-col items-start justify-center gap-1.5`}>
+            <StatusBadge value={e.status} map={STATUS_CFG} variant="dot" />
+            <span className="text-xs text-ink-muted">
+              Nota:{' '}
+              <span className="font-mono">
+                {e.certificate?.score != null ? `${e.certificate.score}%` : '—'}
+              </span>
+            </span>
+          </div>
+
+          {/* 4. Progresso */}
+          <div className={`${PANEL} flex items-center justify-center`}>
+            <ProgressRing value={e.progressPercent ?? 0} />
+          </div>
+
+          {/* 5. Inscrição, Conclusão & Deadline */}
+          <div className={`${PANEL} flex min-w-0 flex-col justify-center gap-1`}>
+            <span className="flex items-center gap-1 text-xs text-ink-faint">
+              <CalendarDays size={12} strokeWidth={1.75} />
+              Inscrição: {new Date(e.enrolledAt).toLocaleDateString('pt')}
+            </span>
+            <span className="flex items-center gap-1 text-xs text-ink-faint">
+              <CalendarDays size={12} strokeWidth={1.75} />
+              Conclusão:{' '}
+              {e.completedAt
+                ? new Date(e.completedAt).toLocaleDateString('pt')
+                : '—'}
+            </span>
+            <div className="text-xs">
+              {e.deadline ? (
+                <Badge intent={deadlineIntent(e.deadline, e.isOverdue)}>
+                  {e.isOverdue ? (
+                    <AlertTriangle size={12} strokeWidth={1.75} className="mr-1 inline" />
+                  ) : (
+                    <Hourglass size={12} strokeWidth={1.75} className="mr-1 inline" />
+                  )}
+                  {deadlineCountdown(e.deadline)}
+                </Badge>
+              ) : (
+                <span className="text-ink-faint">Deadline: —</span>
+              )}
+            </div>
+          </div>
+
+          {/* 6. Acções (igual ao que já tinhas) */}
+          <div className="flex items-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="rounded-control p-1.5 text-ink-muted hover:bg-surface-sunken hover:text-ink"
+                  disabled={rowBusy(e.id)}
+                >
+                  <MoreHorizontal size={16} strokeWidth={1.75} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => remind.mutate(e.id)}>
+                  Enviar lembrete
+                </DropdownMenuItem>
+                {(e.status === 'CANCELLED' || e.status === 'EXPIRED') && (
+                  <DropdownMenuItem onSelect={() => reenroll.mutate(e.id)}>
+                    Reinscrever
+                  </DropdownMenuItem>
+                )}
+                {e.status !== 'CANCELLED' && (
+                  <DropdownMenuItem onSelect={() => onResetProgress(e)}>
+                    Reiniciar progresso
+                  </DropdownMenuItem>
+                )}
+                {e.status !== 'COMPLETED' && e.status !== 'CANCELLED' && (
+                  <DropdownMenuItem
+                    className="text-danger-ink"
+                    onSelect={() => onRemove(e)}
+                  >
+                    Remover inscrição
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      ))}
+  </div>
+</div>
 
       {/* Paginação */}
       {data && data.totalPages > 1 && (

@@ -39,7 +39,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { cn } from '@/lib/cn';
 import { useToast } from '@/providers/ToastProvider';
 import type { DepartmentNode } from '@/components/departments/types';
-import type { Position } from '@/components/organization/types';
+import type { Position } from '@/components/departments/types';
 import {
   CATEGORY_CFG,
   PHASE_LABELS,
@@ -164,10 +164,10 @@ export function TemplateFormModal({
     '/departments/tree',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const { data: positionsResp } = useApiQuery<{ data: Position[] }>(
-    queryKeys.organization.positions(''),
-    '/organization/positions',
-    { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
+  const { data: positionsResp } = useApiQuery<Position[]>(
+    queryKeys.positions.list(),
+    '/positions',
+    { staleTime: STALE_TIME.SEMI_STATIC },
   );
   const { options: unitOptions } = useUnitOptions();
 
@@ -177,7 +177,7 @@ export function TemplateFormModal({
   ];
   const positionItems = [
     { value: NO_POSITION, label: 'Sem cargo/função' },
-    ...(positionsResp?.data ?? []).map((p) => ({
+    ...(positionsResp ?? []).map((p) => ({
       value: String(p.id),
       label: p.name,
     })),

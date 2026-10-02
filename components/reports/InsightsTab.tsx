@@ -10,38 +10,25 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Badge, type BadgeProps } from '@/components/ui/Badge';
-import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { defaultRange } from './utils';
 import type { InsightsData } from './types';
 
+type Tone = 'red' | 'gold' | 'green';
+
+const TONES: Record<Tone, { bar: string; text: string }> = {
+  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
+  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+};
+
 const SEV_CONFIG: Record<
   string,
-  {
-    textClass: string;
-    cardClass: string;
-    intent: BadgeProps['intent'];
-    icon: LucideIcon;
-  }
+  { tone: Tone; intent: BadgeProps['intent']; icon: LucideIcon }
 > = {
-  HIGH: {
-    textClass: 'text-black',
-    cardClass: 'border-black bg-white',
-    intent: 'danger',
-    icon: AlertTriangle,
-  },
-  MEDIUM: {
-    textClass: 'text-black',
-    cardClass: 'border-black bg-white',
-    intent: 'warning',
-    icon: Clock,
-  },
-  LOW: {
-    textClass: 'text-black',
-    cardClass: 'border-black bg-white',
-    intent: 'success',
-    icon: CheckCircle,
-  },
+  HIGH: { tone: 'red', intent: 'danger', icon: AlertTriangle },
+  MEDIUM: { tone: 'gold', intent: 'warning', icon: Clock },
+  LOW: { tone: 'green', intent: 'success', icon: CheckCircle },
 };
 
 // Rótulos apenas para exibição — as chaves (ins.severity, ins.type) devem
@@ -107,18 +94,23 @@ export function InsightsTab() {
       {(data?.insights ?? []).map((ins, i) => {
         const conf = SEV_CONFIG[ins.severity] ?? SEV_CONFIG.LOW;
         const Icon = conf.icon;
-        return (
-          <Card key={i} className={conf.cardClass}>
-            <CardBody className="flex items-start gap-3">
+        const t = TONES[conf.tone];
+                return (
+          <div
+            key={i}
+            className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting"
+          >
+            <div className={`h-1.5 w-full ${t.bar}`} />
+            <div className="flex items-start gap-3 p-5">
               <Icon
-                size={16}
+                size={18}
                 strokeWidth={1.75}
-                className={`mt-0.5 shrink-0 ${conf.textClass}`}
+                className={`mt-0.5 shrink-0 ${t.text}`}
               />
               <div className="flex-1">
                 <div className="mb-1 flex items-center gap-2">
                   <span
-                    className={`font-body text-[10px] font-bold uppercase tracking-wide ${conf.textClass}`}
+                    className={`font-body text-[10px] font-bold uppercase tracking-wide ${t.text}`}
                   >
                     {TYPE_LABEL[ins.type] ?? ins.type}
                   </span>
@@ -126,9 +118,7 @@ export function InsightsTab() {
                     {SEV_LABEL[ins.severity] ?? ins.severity}
                   </Badge>
                 </div>
-                <p
-                  className={`mb-1 font-body text-sm font-medium ${conf.textClass}`}
-                >
+                <p className="mb-1 font-body text-sm font-medium text-ink">
                   {ins.message}
                 </p>
                 {ins.recommendation && (
@@ -143,8 +133,8 @@ export function InsightsTab() {
                   </p>
                 )}
               </div>
-            </CardBody>
-          </Card>
+            </div>
+          </div>
         );
       })}
     </div>

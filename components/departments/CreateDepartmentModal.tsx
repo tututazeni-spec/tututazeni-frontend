@@ -1,15 +1,7 @@
 // components/departments/CreateDepartmentModal.tsx
-// Modal "Novo departamento" — partilhado pelo módulo Departamentos
-// (app/(platform)/departments) e pelo separador Departamentos do Organograma
-// (app/(platform)/organization). A página só monta o componente quando está
+// Modal "Novo departamento" — usado pelo módulo Departamentos
+// (app/(platform)/departments). A página só monta o componente quando está
 // aberto, por isso o Modal fica sempre `open` e delega o fecho em `onClose`.
-//
-// Os dois módulos têm endpoints distintos (`/departments` vs
-// `/organization/departments`) mas operam sobre a mesma tabela `department`
-// e ambos os DTOs de criação (CreateDepartmentDto / CreateOrgDepartmentDto)
-// foram mantidos com o mesmo conjunto de campos opcionais — o ValidationPipe
-// global usa `forbidNonWhitelisted`, por isso um campo aceite só num dos dois
-// DTOs faria o outro endpoint rebentar com 400 ao reutilizar este formulário.
 //
 // Backend: POST exige @Roles(ADMIN, RH) nos dois módulos. Código único →
 // 409 (mostrado inline). A lista de pais vem de /departments/tree e a de
@@ -39,7 +31,7 @@ import { useUnits, type DirectoryUser } from './departmentFormData';
 export interface CreateDepartmentModalProps {
   onClose: () => void;
   /** Endpoint de criação — difere entre os dois módulos. */
-  endpoint: '/departments' | '/organization/departments';
+  endpoint: '/departments';
   /** Keys a invalidar após criar (lista/árvore de cada módulo). */
   invalidateKeys: QueryKey[];
   /**

@@ -1,8 +1,10 @@
 // components/crm/beneficiaries/BeneficiariesListView.tsx
 
 import Link from 'next/link';
+import { UserPlus } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
+import { BeneficiariesNav, NewBeneficiaryButton } from './BeneficiariesNav';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -64,8 +66,8 @@ export function BeneficiariesListView({
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+           {/* Header: título à esquerda, acção principal à direita */}
+      <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-ink">
             Beneficiários
@@ -74,21 +76,11 @@ export function BeneficiariesListView({
             {total} beneficiários registados
           </p>
         </div>
-        <div className="flex gap-2">
-          <Link href="/crm/beneficiaries/dashboard">
-            <Button intent="secondary">Dashboard</Button>
-          </Link>
-          <Link href="/crm/beneficiaries/follow-ups">
-            <Button intent="secondary">Follow-ups</Button>
-          </Link>
-          <Link href="/crm/beneficiaries/report">
-            <Button intent="secondary">Relatório</Button>
-          </Link>
-          <Link href="/crm/beneficiaries/novo">
-            <Button>+ Novo Beneficiário</Button>
-          </Link>
-        </div>
+        <NewBeneficiaryButton />
       </div>
+
+      {/* Navegação */}
+      <BeneficiariesNav />
 
       {/* Filtros */}
       <div className="flex gap-4 flex-wrap items-center">
@@ -248,3 +240,4 @@ export function BeneficiariesListView({
     </div>
   );
 }
+

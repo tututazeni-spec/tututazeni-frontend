@@ -14,7 +14,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { DirectoryUser } from '@/components/users/types';
-import type { Position } from '@/components/organization/types';
+import type { Position } from '@/components/departments/types';
 import type { OnboardingTemplate } from './types';
 
 export type { DirectoryUser };
@@ -72,12 +72,12 @@ export function useUnitOptions(enabled = true) {
 
 /** Cargos/funções para o filtro "Onboardings" (docs/onboarding.md ponto 2). */
 export function usePositionOptions(enabled = true) {
-  const query = useApiQuery<{ data: Position[] }>(
-    queryKeys.organization.positions(''),
-    '/organization/positions',
+  const query = useApiQuery<Position[]>(
+    queryKeys.positions.list(),
+    '/positions',
     { staleTime: STALE_TIME.STATIC, enabled },
   );
-  const options: Option[] = (query.data?.data ?? []).map((p) => ({
+  const options: Option[] = (query.data ?? []).map((p) => ({
     value: String(p.id),
     label: p.name,
   }));

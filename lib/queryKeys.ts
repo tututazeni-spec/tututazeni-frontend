@@ -189,6 +189,20 @@ export const queryKeys = {
     metrics: (id: number) =>
       [...queryKeys.departments.all, 'metrics', id] as const,
     comparative: () => [...queryKeys.departments.all, 'comparative'] as const,
+    heads: () => [...queryKeys.departments.all, 'heads'] as const,
+    headsHistory: () => [...queryKeys.departments.all, 'heads', 'history'] as const,
+    employees: (params: Record<string, unknown>) =>
+      [...queryKeys.departments.all, 'employees', params] as const,
+    positions: (params: Record<string, unknown>) =>
+      [...queryKeys.departments.all, 'positions', params] as const,
+    positionDetail: (id: number) =>
+      [...queryKeys.departments.all, 'positions', 'detail', id] as const,
+    hierarchy: (params: Record<string, unknown>) =>
+      [...queryKeys.departments.all, 'hierarchy', params] as const,
+    history: (params: Record<string, unknown>) =>
+      [...queryKeys.departments.all, 'history', params] as const,
+    reports: (params: Record<string, unknown>) =>
+      [...queryKeys.departments.all, 'reports', params] as const,
   },
 
   competencies: {
@@ -831,17 +845,9 @@ export const queryKeys = {
       [...queryKeys.leadership.all, 'program', id, 'costs'] as const,
   },
 
-  organization: {
-    all: ['organization'] as const,
-    stats: () => [...queryKeys.organization.all, 'stats'] as const,
-    headcount: () => [...queryKeys.organization.all, 'headcount'] as const,
-    chart: (depth: number) =>
-      [...queryKeys.organization.all, 'chart', depth] as const,
-    departments: (search: string) =>
-      [...queryKeys.organization.all, 'departments', search] as const,
-    positions: (level: string) =>
-      [...queryKeys.organization.all, 'positions', level] as const,
-    timeline: () => [...queryKeys.organization.all, 'timeline'] as const,
+  positions: {
+    all: ['positions'] as const,
+    list: () => [...queryKeys.positions.all, 'list'] as const,
   },
 
   developmentPlans: {
@@ -865,6 +871,34 @@ export const queryKeys = {
     detail: (id: number) =>
       [...queryKeys.executiveReports.all, 'detail', id] as const,
     templates: () => [...queryKeys.executiveReports.all, 'templates'] as const,
+    tabs: () => [...queryKeys.executiveReports.all, 'tabs'] as const,
+    overview: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'overview', params] as const,
+    kpis: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'kpis', params] as const,
+    domain: (domain: string, params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'domain', domain, params] as const,
+    chartsDepartments: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'charts-departments', params] as const,
+    chartsGoals: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'charts-goals', params] as const,
+    chartsRisks: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'charts-risks', params] as const,
+    sources: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'sources', params] as const,
+    filterOptions: () =>
+      [...queryKeys.executiveReports.all, 'filter-options'] as const,
+    reportTemplates: () =>
+      [...queryKeys.executiveReports.all, 'report-templates'] as const,
+    builderCatalog: () =>
+      [...queryKeys.executiveReports.all, 'builder-catalog'] as const,
+    archive: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'archive', params] as const,
+    schedules: () => [...queryKeys.executiveReports.all, 'schedules'] as const,
+    alerts: (params: Record<string, unknown>) =>
+      [...queryKeys.executiveReports.all, 'alerts', params] as const,
+    alertRules: () =>
+      [...queryKeys.executiveReports.all, 'alert-rules'] as const,
   },
 
   instructor: {

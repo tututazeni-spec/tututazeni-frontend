@@ -32,8 +32,8 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
-import { Button } from '@/components/ui/Button';
+import { TopBarCard } from '@/components/ui/TopBarCard';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { Skeleton, fmtDuration } from './shared';
 import type { AdminDashboard, TopLevelView } from './types';
 
@@ -53,6 +53,16 @@ const ALERT_CLASS = {
   danger: 'bg-danger-subtle text-danger-ink',
   info: 'bg-info-subtle text-info-ink',
 } as const;
+
+/** Cores das barras, alinhadas com os tons dos cards (azul, verde, dourado, vermelho). */
+const BAR_COLORS = [
+  'bg-blue-500',
+  'bg-emerald-500',
+  'bg-amber-500',
+  'bg-rose-500',
+  'bg-violet-500',
+  'bg-cyan-500',
+] as const;
 
 /** Lista de distribuição — barra horizontal proporcional ao máximo + contagem
  * sempre visível em texto (nunca só cor, ver skill dataviz "never color alone"). */
@@ -74,22 +84,23 @@ function DistributionList({
       ) : (
         <div className="space-y-2">
           {items.slice(0, 6).map((item, i) => (
-            <div key={i}>
-              <div className="flex items-center justify-between text-xs mb-0.5">
-                <span className="text-ink-muted truncate pr-2">
-                  {item.label}
-                </span>
-                <span className="font-data text-ink-faint flex-shrink-0">
-                  {item.count}
-                </span>
-              </div>
-              <div className="h-1.5 rounded-full bg-surface-sunken overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full"
-                  style={{ width: `${(item.count / max) * 100}%` }}
-                />
-              </div>
-            </div>
+            <div key={i} className="flex items-center gap-3">
+  <span
+    className="w-28 flex-shrink-0 truncate text-xs text-ink-muted"
+    title={item.label}
+  >
+    {item.label}
+  </span>
+  <div className="h-5 flex-1 overflow-hidden rounded-md bg-surface-sunken">
+    <div
+            className={`h-full rounded-md ${BAR_COLORS[i % BAR_COLORS.length]}`}
+      style={{ width: `${(item.count / max) * 100}%` }}
+    />
+  </div>
+  <span className="w-8 flex-shrink-0 text-right font-data text-xs text-ink">
+    {item.count}
+  </span>
+</div>
           ))}
         </div>
       )}
@@ -141,6 +152,61 @@ function CourseRankList({
   );
 }
 
+function CourseLollipopList({
+  title,
+  items,
+  suffix,
+  onSelect,
+}: {
+  title: string;
+  items: Array<{ id: number; title: string; value: number }>;
+  suffix: string;
+  onSelect: (id: number) => void;
+}) {
+  return (
+    <Card className="overflow-hidden">
+      <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+        {title}
+      </div>
+      {items.length === 0 ? (
+        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+      ) : (
+        items.map((c) => {
+          const pct = Math.min(100, Math.max(0, c.value));
+          return (
+            <div
+              key={c.id}
+              className="px-4 py-2.5 border-b border-border last:border-0 cursor-pointer hover:bg-surface-sunken"
+              onClick={() => onSelect(c.id)}
+            >
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <span className="text-xs font-medium text-ink truncate">
+                  {c.title}
+                </span>
+                <span className="text-xs font-data text-ink-muted flex-shrink-0">
+                  {c.value}
+                  {suffix}
+                </span>
+              </div>
+              <div className="relative h-4">
+                <div className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-border" />
+                <div
+                  className="absolute left-0 top-1/2 h-0.5 -translate-y-1/2 rounded-full bg-primary"
+                  style={{ width: `${pct}%` }}
+                />
+                <div
+                  className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-primary shadow-resting"
+                  style={{ left: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })
+      )}
+    </Card>
+  );
+}
+
 const SHORTCUTS: Array<{
   icon: typeof PlusCircle;
   label: string;
@@ -186,15 +252,15 @@ export function AdminDashboardView({
       {/* Atalhos */}
       <div className="flex flex-wrap gap-2">
         {SHORTCUTS.map((s) => (
-          <Button
-            key={s.label}
-            intent="secondary"
-            size="sm"
-            onClick={() => s.action(onNavigate, onCreateCourse)}
-          >
-            <s.icon size={14} strokeWidth={1.75} />
-            {s.label}
-          </Button>
+         <button
+  key={s.label}
+  type="button"
+  onClick={() => s.action(onNavigate, onCreateCourse)}
+  className="inline-flex h-11 items-center gap-2.5 rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 active:bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
+>
+  <s.icon size={16} strokeWidth={1.75} />
+  {s.label}
+</button>
         ))}
       </div>
 
@@ -218,124 +284,111 @@ export function AdminDashboardView({
 
       {/* KPIs principais */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <KpiCard
-          icon={BookOpen}
+                <TopBarCard
           label="Total de cursos"
           value={counts.total}
-          intent="primary"
-          className="w-full"
+          tone="blue"
+          icon={<BookOpen className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={Check}
+        <TopBarCard
           label="Publicados"
           value={counts.published}
-          intent="success"
-          className="w-full"
+          tone="green"
+          icon={<Check className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={FileEdit}
+        <TopBarCard
           label="Rascunhos"
           value={counts.draft}
-          intent="info"
-          className="w-full"
+          tone="gold"
+          icon={<FileEdit className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={Pause}
+        <TopBarCard
           label="Em pausa"
           value={counts.paused}
-          intent="warning"
-          className="w-full"
+          tone="gold"
+          icon={<Pause className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={Archive}
+        <TopBarCard
           label="Arquivados"
           value={counts.archived}
-          intent="accent"
-          className="w-full"
+          tone="red"
+          icon={<Archive className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={Layers}
+        <TopBarCard
           label="Módulos"
           value={counts.totalModules}
-          intent="primary"
-          className="w-full"
+          tone="blue"
+          icon={<Layers className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={ListChecks}
+        <TopBarCard
           label="Lições"
           value={counts.totalLessons}
-          intent="primary"
-          className="w-full"
+          tone="blue"
+          icon={<ListChecks className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={Users}
+        <TopBarCard
           label="Inscritos"
           value={counts.totalEnrollments}
-          intent="primary"
-          className="w-full"
+          tone="blue"
+          icon={<Users className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={Users}
+        <TopBarCard
           label="Formandos"
           value={counts.totalLearners}
-          intent="primary"
-          className="w-full"
+          tone="blue"
+          icon={<Users className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={CheckCircle2}
+        <TopBarCard
           label="Conclusões"
           value={counts.completions}
-          intent="success"
-          className="w-full"
+          tone="green"
+          icon={<CheckCircle2 className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={Clock}
+        <TopBarCard
           label="Inscrições pendentes"
           value={counts.pendingEnrollments}
-          intent={counts.pendingEnrollments > 0 ? 'warning' : 'primary'}
-          className="w-full"
+          tone={counts.pendingEnrollments > 0 ? 'gold' : 'blue'}
+          icon={<Clock className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={Award}
+        <TopBarCard
           label="Certificados emitidos"
           value={counts.certificatesIssued}
-          intent="success"
-          className="w-full"
+          tone="green"
+          icon={<Award className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={BookOpen}
+        <TopBarCard
           label="Obrigatórios / opcionais"
           value={`${counts.mandatoryCourses}/${counts.optionalCourses}`}
-          intent="primary"
-          className="w-full"
+          tone="blue"
+          icon={<BookOpen className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={TrendingUp}
-          label="Taxa de conclusão"
-          value={`${rates.avgCompletionRate}%`}
-          intent="success"
-          className="w-full"
-        />
-        <KpiCard
-          icon={CheckCircle2}
-          label="Taxa de aprovação"
-          value={`${rates.avgPassRate}%`}
-          intent="success"
-          className="w-full"
-        />
-        <KpiCard
-          icon={Star}
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+          <GaugeChart
+            value={rates.avgCompletionRate}
+            label="Taxa de Conclusão"
+            thresholds={{ warning: 50, danger: 25 }}
+            size={110}
+          />
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+          <GaugeChart
+            value={rates.avgPassRate}
+            label="Taxa de Aprovação"
+            thresholds={{ warning: 50, danger: 25 }}
+            size={110}
+          />
+        </div>
+        <TopBarCard
           label="Nota média"
           value={rates.avgRating || '—'}
-          intent="warning"
-          className="w-full"
+          tone="gold"
+          icon={<Star className="h-6 w-6" />}
         />
-        <KpiCard
-          icon={Timer}
+        <TopBarCard
           label="Horas de aprendizagem"
           value={fmtDuration(rates.totalLearningHours)}
-          intent="primary"
-          className="w-full"
+          tone="blue"
+          icon={<Timer className="h-6 w-6" />}
         />
       </div>
 
@@ -351,7 +404,7 @@ export function AdminDashboardView({
           suffix=" matrículas"
           onSelect={onSelect}
         />
-        <CourseRankList
+        <CourseLollipopList
           title="Maior taxa de conclusão"
           items={data.bestCompletion.map((c) => ({
             id: c.id,
@@ -361,7 +414,7 @@ export function AdminDashboardView({
           suffix="%"
           onSelect={onSelect}
         />
-        <CourseRankList
+        <CourseLollipopList
           title="Menor taxa de conclusão / maior abandono"
           items={data.worstCompletion.map((c) => ({
             id: c.id,

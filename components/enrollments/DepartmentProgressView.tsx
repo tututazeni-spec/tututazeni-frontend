@@ -8,11 +8,17 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { ProgressBar } from '@/components/ui/ProgressBar';
+import { PANEL, PILL, ProgressRing } from '@/components/courses/cardStyles';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentProgressRow, ProgressByDepartment } from './types';
+
+function progressAccent(r: DepartmentProgressRow) {
+  if (r.overdue > 0) return 'border-l-red-500';
+  if (r.completionRate >= 75) return 'border-l-emerald-500';
+  if (r.completionRate >= 40) return 'border-l-orange-400';
+  return 'border-l-blue-400';
+}
 
 function ProgressTable({
   title,
@@ -22,49 +28,64 @@ function ProgressTable({
   rows: DepartmentProgressRow[];
 }) {
   return (
-    <Card className="overflow-hidden">
-      <div className="border-b border-border px-4 py-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
+    <div>
+      <span className={`${PILL} mb-3 bg-blue-500/20 text-blue-700`}>
         {title}
-      </div>
+      </span>
+
       {rows.length === 0 ? (
         <p className="p-4 text-xs text-ink-faint">Sem inscrições registadas</p>
       ) : (
-        <>
-          <div className="grid grid-cols-[1fr_70px_70px_70px_160px] gap-3 border-b border-border px-4 py-2 text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="overflow-x-auto">
+          {/* Cabeçalho agrupado */}
+          <div className="grid min-w-[640px] grid-cols-[1.4fr_2fr_120px] gap-3 px-4 pb-2 text-xs font-medium uppercase tracking-wide text-ink-faint">
             <div>Nome</div>
-            <div>Total</div>
-            <div>Concluídas</div>
-            <div>Atrasadas</div>
-            <div>Taxa de conclusão</div>
-          </div>
-          {rows.map((r) => (
-            <div
-              key={r.id}
-              className="grid grid-cols-[1fr_70px_70px_70px_160px] items-center gap-3 border-b border-border px-4 py-2.5 last:border-0"
-            >
-              <div className="truncate text-sm text-ink">{r.name}</div>
-              <div className="font-mono text-sm text-ink-muted">{r.total}</div>
-              <div className="font-mono text-sm text-success-ink">
-                {r.completed}
-              </div>
-              <div
-                className={`font-mono text-sm ${r.overdue > 0 ? 'font-semibold text-danger-ink' : 'text-ink-faint'}`}
-              >
-                {r.overdue}
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex-1">
-                  <ProgressBar value={r.completionRate} />
-                </div>
-                <span className="w-8 font-mono text-xs text-ink-muted">
-                  {r.completionRate}%
-                </span>
-              </div>
+            <div className="grid grid-cols-3 text-center">
+              <div>Total</div>
+              <div>Concluídas</div>
+              <div>Atrasadas</div>
             </div>
-          ))}
-        </>
+            <div className="text-center">Taxa de conclusão</div>
+          </div>
+
+          <div className="space-y-3">
+            {rows.map((r) => (
+              <div
+                key={r.id}
+                className={`grid min-w-[640px] grid-cols-[1.4fr_2fr_120px] items-stretch gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-3 shadow-sm backdrop-blur-md hover:bg-surface ${progressAccent(r)}`}
+              >
+                {/* 1. Nome */}
+                <div className="flex min-w-0 items-center">
+                  <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
+                    {r.name}
+                  </div>
+                </div>
+
+                {/* 2. Total, Concluídas & Atrasadas */}
+                <div className={`${PANEL} grid grid-cols-3 items-center text-center`}>
+                  <div className="font-mono text-sm text-ink-muted">
+                    {r.total}
+                  </div>
+                  <div className="font-mono text-sm text-success-ink">
+                    {r.completed}
+                  </div>
+                  <div
+                    className={`font-mono text-sm ${r.overdue > 0 ? 'font-semibold text-danger-ink' : 'text-ink-faint'}`}
+                  >
+                    {r.overdue}
+                  </div>
+                </div>
+
+                {/* 3. Taxa de conclusão */}
+                <div className={`${PANEL} flex items-center justify-center`}>
+                  <ProgressRing value={r.completionRate} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
-    </Card>
+    </div>
   );
 }
 
@@ -80,7 +101,7 @@ export function DepartmentProgressView() {
       <Skeleton
         rows={4}
         wrapperClassName="space-y-2 animate-pulse"
-        itemClassName="h-16 rounded-card bg-surface-sunken"
+        itemClassName="h-20 rounded-2xl bg-surface-sunken"
       />
     );
 
