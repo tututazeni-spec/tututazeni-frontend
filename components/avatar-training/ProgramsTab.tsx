@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { GraduationCap, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
@@ -26,14 +26,23 @@ import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
+import { formatDate } from '@/lib/format';
 import {
   ADMIN_ROLES,
   AUTHOR_ROLES,
   DIFFICULTY_LABEL,
   EXPERIENCE_LABEL,
+  LANGUAGE_ITEMS,
   PROGRAM_STATUS,
+  SOURCE_LABEL,
 } from './constants';
-import type { AvatarProgram } from './types';
+import { NO_USER, useUserOptions } from './useUserOptions';
+import type {
+  AvatarProgram,
+  AvatarProgramDetail,
+  CertificationStatus,
+  TrainingAvatar,
+} from './types';
 
 const ALL = 'ALL';
 
@@ -45,12 +54,6 @@ const EXPERIENCE_ITEMS = Object.entries(EXPERIENCE_LABEL).map(([value, label]) =
   value,
   label,
 }));
-const LANGUAGE_ITEMS = [
-  { value: 'pt', label: 'Português' },
-  { value: 'en', label: 'Inglês' },
-  { value: 'es', label: 'Espanhol' },
-  { value: 'fr', label: 'Francês' },
-];
 
 function CheckList({
   legend,
@@ -105,28 +108,63 @@ const lines = (v: string) =>
     .map((x) => x.trim())
     .filter(Boolean);
 
-function CreateProgramModal({
+function ProgramFormModal({
+  program,
   onClose,
-  onCreated,
+  onSaved,
 }: {
+  /** Presente = edição (ficha completa); ausente = criação. */
+  program?: AvatarProgramDetail;
   onClose: () => void;
-  onCreated: () => void;
+  onSaved: () => void;
 }) {
   const notify = useToast();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [objectives, setObjectives] = useState('');
-  const [category, setCategory] = useState('');
-  const [difficulty, setDifficulty] = useState('BEGINNER');
-  const [experienceType, setExperienceType] = useState('GUIDED_LESSON');
-  const [language, setLanguage] = useState('pt');
-  const [duration, setDuration] = useState('');
-  const [courseId, setCourseId] = useState(ALL);
-  const [prerequisites, setPrerequisites] = useState<number[]>([]);
-  const [departments, setDepartments] = useState<number[]>([]);
-  const [roleNames, setRoleNames] = useState('');
-  const [competencies, setCompetencies] = useState<number[]>([]);
-  const [certificate, setCertificate] = useState(false);
+  const users = useUserOptions();
+  const [title, setTitle] = useState(program?.title ?? '');
+  const [description, setDescription] = useState(program?.description ?? '');
+  const [objectives, setObjectives] = useState((program?.objectives ?? []).join('\n'));
+  const [category, setCategory] = useState(program?.category ?? '');
+  const [difficulty, setDifficulty] = useState(program?.difficulty ?? 'BEGINNER');
+  const [experienceType, setExperienceType] = useState<string>(
+    program?.experienceType ?? 'GUIDED_LESSON',
+  );
+  const [language, setLanguage] = useState(program?.language ?? 'pt');
+  const [variant, setVariant] = useState(program?.languageVariant ?? '');
+  const [duration, setDuration] = useState(
+    program?.durationMinutes ? String(program.durationMinutes) : '',
+  );
+  const [courseId, setCourseId] = useState(program?.courseId ? String(program.courseId) : ALL);
+  const [moduleId, setModuleId] = useState(program?.moduleId ? String(program.moduleId) : ALL);
+  const [avatarId, setAvatarId] = useState(program?.avatarId ? String(program.avatarId) : ALL);
+  const [responsible, setResponsible] = useState(
+    program?.responsibleId ? String(program.responsibleId) : NO_USER,
+  );
+  const [prerequisites, setPrerequisites] = useState<number[]>(
+    program?.prerequisiteCourseIds ?? [],
+  );
+  const [departments, setDepartments] = useState<number[]>(program?.targetDepartmentIds ?? []);
+  const [roleNames, setRoleNames] = useState((program?.targetRoleNames ?? []).join(', '));
+  const [competencies, setCompetencies] = useState<number[]>(program?.competencyIds ?? []);
+  const [certificate, setCertificate] = useState(program?.certificateEnabled ?? false);
+  const [minScore, setMinScore] = useState(
+    program?.certificateMinScore != null ? String(program.certificateMinScore) : '',
+  );
+  const [allSessions, setAllSessions] = useState(
+    program?.certificateRequireAllSessions ?? true,
+  );
+
+  const avatars = useApiQuery<TrainingAvatar[]>(
+    queryKeys.avatarTraining.avatars(),
+    '/avatar-training/avatars',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  // Módulos do curso escolhido (o detalhe do curso traz-os).
+  const courseDetail = useApiQuery<{ modules?: { id: number; title: string }[] }>(
+    ['avatar-training', 'course-modules', courseId],
+    `/courses/${courseId}`,
+    { enabled: courseId !== ALL, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const moduleOptions = courseId === ALL ? [] : (courseDetail.data?.modules ?? []);
 
   const courseParams = { limit: 100 };
   const courses = useApiQuery<{ data: { id: number; title: string }[] }>(
@@ -151,8 +189,8 @@ function CreateProgramModal({
   }));
 
   const create = useApiMutation(
-    () =>
-      apiClient.post('/avatar-training/programs', {
+    () => {
+      const body = {
         title: title.trim(),
         description: description.trim() || undefined,
         objectives: lines(objectives),
@@ -160,8 +198,12 @@ function CreateProgramModal({
         difficulty,
         experienceType,
         language,
+        languageVariant: variant.trim() || undefined,
         durationMinutes: duration ? Number(duration) : undefined,
         courseId: courseId === ALL ? undefined : Number(courseId),
+        moduleId: moduleId === ALL ? undefined : Number(moduleId),
+        avatarId: avatarId === ALL ? undefined : Number(avatarId),
+        responsibleId: responsible === NO_USER ? undefined : Number(responsible),
         prerequisiteCourseIds: prerequisites,
         targetDepartmentIds: departments,
         targetRoleNames: roleNames
@@ -170,21 +212,35 @@ function CreateProgramModal({
           .filter(Boolean),
         competencyIds: competencies,
         certificateEnabled: certificate,
-      }),
+        certificateMinScore: certificate && minScore !== '' ? Number(minScore) : undefined,
+        certificateRequireAllSessions: allSessions,
+      };
+      return program
+        ? apiClient.patch(`/avatar-training/programs/${program.id}`, body)
+        : apiClient.post('/avatar-training/programs', body);
+    },
     {
+      invalidateKeys: [queryKeys.avatarTraining.all],
       onSuccess: () => {
-        notify({ title: 'Formação criada', intent: 'success' });
-        onCreated();
+        notify({
+          title: program ? 'Formação actualizada' : 'Formação criada',
+          intent: 'success',
+        });
+        onSaved();
         onClose();
       },
       onError: (e) =>
         notify({
-          title: 'Não foi possível criar a formação',
+          title: 'Não foi possível guardar a formação',
           description: e.message,
           intent: 'danger',
         }),
     },
   );
+
+  const minScoreInvalid =
+    minScore !== '' &&
+    (!Number.isInteger(Number(minScore)) || Number(minScore) < 0 || Number(minScore) > 100);
 
   const durationInvalid =
     duration !== '' &&
@@ -195,8 +251,12 @@ function CreateProgramModal({
   return (
     <Modal open onOpenChange={(o) => !o && onClose()}>
       <ModalContent
-        title="Nova formação com avatar"
-        description="Fica em rascunho até ser revista e publicada."
+        title={program ? 'Editar formação com avatar' : 'Nova formação com avatar'}
+        description={
+          program?.status === 'IN_REVIEW'
+            ? 'Editar uma formação em revisão devolve-a a rascunho.'
+            : 'Fica em rascunho até ser revista e publicada.'
+        }
       >
         <div className="mt-4 max-h-[70vh] space-y-3 overflow-y-auto pr-1">
           <FormField label="Título" htmlFor="ap-title">
@@ -270,10 +330,21 @@ function CreateProgramModal({
                 onChange={(e) => setDuration(e.target.value)}
               />
             </FormField>
+            <FormField label="Variante do idioma" htmlFor="ap-variant" hint="Ex.: PT-AO, PT-PT.">
+              <Input
+                id="ap-variant"
+                value={variant}
+                maxLength={20}
+                onChange={(e) => setVariant(e.target.value)}
+              />
+            </FormField>
             <FormField label="Curso associado" htmlFor="ap-course">
               <Combobox
                 value={courseId}
-                onValueChange={setCourseId}
+                onValueChange={(v) => {
+                  setCourseId(v);
+                  setModuleId(ALL);
+                }}
                 placeholder="Sem curso"
                 items={[
                   { value: ALL, label: 'Sem curso' },
@@ -283,6 +354,32 @@ function CreateProgramModal({
                   })),
                 ]}
               />
+            </FormField>
+            <FormField label="Módulo do curso" htmlFor="ap-module">
+              <Select
+                value={moduleId}
+                onValueChange={setModuleId}
+                disabled={courseId === ALL}
+                items={[
+                  { value: ALL, label: 'Curso inteiro' },
+                  ...moduleOptions.map((m) => ({ value: String(m.id), label: m.title })),
+                ]}
+              />
+            </FormField>
+            <FormField label="Avatar (instrutor virtual)" htmlFor="ap-avatar">
+              <Select
+                value={avatarId}
+                onValueChange={setAvatarId}
+                items={[
+                  { value: ALL, label: 'Sem avatar por defeito' },
+                  ...(avatars.data ?? [])
+                    .filter((a) => a.status === 'ACTIVE' || String(a.id) === avatarId)
+                    .map((a) => ({ value: String(a.id), label: a.name })),
+                ]}
+              />
+            </FormField>
+            <FormField label="Formador responsável" htmlFor="ap-resp">
+              <Select value={responsible} onValueChange={setResponsible} items={users} />
             </FormField>
           </div>
           <CheckList
@@ -331,6 +428,33 @@ function CreateProgramModal({
             />
             Permitir pedido de certificado ao concluir
           </label>
+          {certificate && (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <FormField
+                label="Nota média mínima (0-100)"
+                htmlFor="ap-minscore"
+                hint="Vazio = sem nota mínima."
+                error={minScoreInvalid ? 'Entre 0 e 100' : undefined}
+              >
+                <Input
+                  id="ap-minscore"
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={minScore}
+                  onChange={(e) => setMinScore(e.target.value)}
+                />
+              </FormField>
+              <label className="flex items-center gap-2 self-end pb-2 font-body text-sm text-ink">
+                <input
+                  type="checkbox"
+                  checked={allSessions}
+                  onChange={(e) => setAllSessions(e.target.checked)}
+                />
+                Exigir todas as sessões obrigatórias concluídas
+              </label>
+            </div>
+          )}
         </div>
         <div className="flex justify-end gap-2 pt-3">
           <Button intent="ghost" size="sm" onClick={onClose}>
@@ -339,10 +463,171 @@ function CreateProgramModal({
           <Button
             size="sm"
             loading={create.isPending}
-            disabled={!title.trim() || durationInvalid}
+            disabled={!title.trim() || durationInvalid || minScoreInvalid}
             onClick={() => create.mutate(undefined)}
           >
-            Criar
+            {program ? 'Guardar' : 'Criar'}
+          </Button>
+        </div>
+      </ModalContent>
+    </Modal>
+  );
+}
+
+function Row({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="grid grid-cols-3 gap-2 font-body text-sm">
+      <dt className="text-ink-muted">{label}</dt>
+      <dd className="col-span-2 text-ink">{children}</dd>
+    </div>
+  );
+}
+
+// Ficha da formação (§4): identificação, responsáveis, aprovação, avaliação,
+// fontes aprovadas e regras de certificação num só sítio.
+function ProgramSheetModal({
+  programId,
+  canEdit,
+  onClose,
+  onEdit,
+}: {
+  programId: number;
+  canEdit: boolean;
+  onClose: () => void;
+  onEdit: (p: AvatarProgramDetail) => void;
+}) {
+  const { data, error, refetch } = useApiQuery<AvatarProgramDetail>(
+    queryKeys.avatarTraining.program(programId),
+    `/avatar-training/programs/${programId}`,
+    { staleTime: 0 },
+  );
+  const cert = useApiQuery<CertificationStatus>(
+    [...queryKeys.avatarTraining.program(programId), 'certification'],
+    `/avatar-training/programs/${programId}/certification`,
+    { enabled: data?.status === 'PUBLISHED' && !!data?.certificateEnabled, staleTime: 0 },
+  );
+
+  return (
+    <Modal open onOpenChange={(o) => !o && onClose()}>
+      <ModalContent
+        title={data ? `${data.code} — ${data.title}` : 'Ficha da formação'}
+        description="Ficha completa da formação virtual."
+      >
+        <div className="mt-4 max-h-[70vh] space-y-3 overflow-y-auto pr-1">
+          {error ? (
+            <QueryError error={error} onRetry={() => refetch()} />
+          ) : !data ? (
+            <Skeleton rows={4} itemClassName="h-6 rounded bg-surface-sunken animate-pulse" />
+          ) : (
+            <>
+              <dl className="space-y-2">
+                <Row label="Estado">
+                  <StatusBadge value={data.status} map={PROGRAM_STATUS} variant="dot" /> · v
+                  {data.version}
+                </Row>
+                {data.description && <Row label="Descrição">{data.description}</Row>}
+                {data.objectives.length > 0 && (
+                  <Row label="Objectivos">
+                    <ul className="list-disc pl-4">
+                      {data.objectives.map((o) => (
+                        <li key={o}>{o}</li>
+                      ))}
+                    </ul>
+                  </Row>
+                )}
+                <Row label="Categoria e nível">
+                  {data.category ?? '—'} · {DIFFICULTY_LABEL[data.difficulty] ?? data.difficulty}
+                </Row>
+                <Row label="Experiência">{EXPERIENCE_LABEL[data.experienceType]}</Row>
+                <Row label="Idioma e duração">
+                  {(data.language ?? 'pt').toUpperCase()}
+                  {data.languageVariant ? ` (${data.languageVariant})` : ''}
+                  {data.durationMinutes ? ` · ${data.durationMinutes} min` : ''}
+                </Row>
+                <Row label="Avatar">{data.avatar?.name ?? 'Sem avatar por defeito'}</Row>
+                <Row label="Formador responsável">{data.responsibleName ?? '—'}</Row>
+                <Row label="Curso associado">
+                  {data.course?.title ?? '—'}
+                  {data.moduleId ? ` · módulo #${data.moduleId}` : ''}
+                </Row>
+                <Row label="Aprovação">
+                  {data.approvedAt
+                    ? `${data.approvedByName ?? 'Responsável'} em ${formatDate(data.approvedAt)}`
+                    : 'Ainda não aprovada'}
+                </Row>
+                <Row label="Certificação">
+                  {data.certificateEnabled
+                    ? `Sim${
+                        data.certificateMinScore != null
+                          ? ` · nota média mínima ${data.certificateMinScore}`
+                          : ''
+                      }${data.certificateRequireAllSessions ? ' · todas as sessões obrigatórias' : ''}`
+                    : 'Não emite certificado'}
+                </Row>
+                {cert.data?.enabled && (
+                  <Row label="A minha elegibilidade">
+                    {cert.data.eligible ? (
+                      'Elegível ao certificado'
+                    ) : (
+                      <ul className="list-disc pl-4">
+                        {cert.data.reasons.map((r) => (
+                          <li key={r}>{r}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </Row>
+                )}
+              </dl>
+
+              <section>
+                <h3 className="mb-1 font-display text-sm font-semibold text-ink">
+                  Sessões, avaliação e fontes aprovadas
+                </h3>
+                {data.sessions.length === 0 ? (
+                  <p className="font-body text-xs text-ink-faint">Sem sessões.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {data.sessions.map((s) => (
+                      <div
+                        key={s.id}
+                        className="rounded-card border border-border bg-surface p-2 font-body text-xs"
+                      >
+                        <div className="text-sm font-medium text-ink">
+                          {s.position}. {s.title}
+                          {s.mandatory ? ' · obrigatória' : ''}
+                        </div>
+                        <div className="text-ink-muted">
+                          {s.assessment
+                            ? `Avaliação: nota mínima ${s.assessment.passingScore}, ${
+                                s.assessment.maxAttempts
+                                  ? `${s.assessment.maxAttempts} tentativa(s)`
+                                  : 'tentativas ilimitadas'
+                              }${s.assessment.requireFormalAssessment ? ', avaliação formal' : ''}`
+                            : 'Sem avaliação configurada'}
+                        </div>
+                        <div className="text-ink-faint">
+                          {s.knowledgeSources.length
+                            ? `Fontes: ${s.knowledgeSources
+                                .map((k) => k.title ?? `${SOURCE_LABEL[k.sourceType]} ${k.id}`)
+                                .join('; ')}`
+                            : 'Sem fontes aprovadas'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+        </div>
+        <div className="flex justify-end gap-2 pt-3">
+          {canEdit && data && data.status !== 'ARCHIVED' && (
+            <Button size="sm" intent="secondary" onClick={() => onEdit(data)}>
+              Editar
+            </Button>
+          )}
+          <Button size="sm" intent="ghost" onClick={onClose}>
+            Fechar
           </Button>
         </div>
       </ModalContent>
@@ -356,6 +641,8 @@ export function ProgramsTab() {
   const isAuthor = !!role && AUTHOR_ROLES.includes(role);
   const isAdmin = !!role && ADMIN_ROLES.includes(role);
   const [showCreate, setShowCreate] = useState(false);
+  const [sheetId, setSheetId] = useState<number | null>(null);
+  const [editing, setEditing] = useState<AvatarProgramDetail | null>(null);
   const [mode, setMode] = useState<'catalog' | 'manage'>('catalog');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
@@ -507,6 +794,9 @@ export function ProgramsTab() {
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <StatusBadge value={p.status} map={PROGRAM_STATUS} variant="dot" />
+                <Button size="sm" intent="ghost" onClick={() => setSheetId(p.id)}>
+                  Ficha
+                </Button>
                 {manage && p.status === 'DRAFT' && (
                   <Button
                     size="sm"
@@ -540,9 +830,25 @@ export function ProgramsTab() {
       )}
 
       {showCreate && (
-        <CreateProgramModal
-          onClose={() => setShowCreate(false)}
-          onCreated={() => refetch()}
+        <ProgramFormModal onClose={() => setShowCreate(false)} onSaved={() => refetch()} />
+      )}
+      {editing && (
+        <ProgramFormModal
+          key={editing.id}
+          program={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => refetch()}
+        />
+      )}
+      {sheetId !== null && !editing && (
+        <ProgramSheetModal
+          programId={sheetId}
+          canEdit={isAuthor && mode === 'manage'}
+          onClose={() => setSheetId(null)}
+          onEdit={(p) => {
+            setSheetId(null);
+            setEditing(p);
+          }}
         />
       )}
     </div>

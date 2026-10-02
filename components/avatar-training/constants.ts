@@ -5,8 +5,10 @@ import type {
   AssignmentStatus,
   AttemptStatus,
   AvatarStatus,
+  AvatarType,
   ExperienceType,
   ProgramStatus,
+  SourceType,
   TabId,
 } from './types';
 
@@ -96,3 +98,30 @@ export const LEVEL_FIT_LABEL = {
   EASIER: 'Abaixo do seu nível (revisão)',
   HARDER: 'Acima do seu nível',
 } as const;
+
+export const AVATAR_TYPE_LABEL: Record<AvatarType, string> = {
+  IMAGE: 'Imagem',
+  AVATAR_2D: 'Avatar 2D',
+  AVATAR_3D: 'Avatar 3D',
+  VIDEO: 'Vídeo',
+};
+
+export const SOURCE_LABEL: Record<SourceType, string> = {
+  COURSE: 'Curso',
+  LESSON: 'Lição',
+  DOCUMENT: 'Documento',
+  LIBRARY_ITEM: 'Item da biblioteca',
+};
+
+export const LANGUAGE_ITEMS = [
+  { value: 'pt', label: 'Português' },
+  { value: 'en', label: 'Inglês' },
+  { value: 'es', label: 'Espanhol' },
+  { value: 'fr', label: 'Francês' },
+];
+
+export const AUDIT_ACTION_LABEL: Record<string, string> = {
+  CREATE: 'Criado',
+  UPDATE: 'Alterado',
+  TEST: 'Testado',
+};
