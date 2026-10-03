@@ -362,3 +362,286 @@ export interface FlowSimulation {
   executed: number;
   skipped: number;
 }
+
+// ─── §10 Calendário e Prazos ─────────────────────────────────────────────────
+export type CalendarKind = 'TASK' | 'PROCESS';
+
+export interface CalendarDependency {
+  order: number;
+  title: string;
+  status: string;
+  done: boolean;
+}
+
+export interface CalendarItem {
+  key: string;
+  kind: CalendarKind;
+  instanceId: number;
+  stepId: number | null;
+  code: string;
+  title: string;
+  processTitle: string;
+  processCode: string;
+  assignee: PersonRef | null;
+  department: { id: number; name: string } | null;
+  startAt: string | null;
+  dueAt: string | null;
+  durationHours: number | null;
+  status: string;
+  priority: ProcessPriority;
+  dependencies: CalendarDependency[];
+  approvalDueAt: string | null;
+  completedAt: string | null;
+  isOverdue: boolean;
+  isDueSoon: boolean;
+  hasConflict: boolean;
+}
+
+export interface CalendarConflict {
+  assigneeId: number;
+  assigneeName: string;
+  day: string;
+  totalHours: number;
+  capacityHours: number;
+  itemKeys: string[];
+}
+
+export interface CalendarResponse {
+  range: { from: string; to: string };
+  scope: 'mine' | 'all';
+  truncated: boolean;
+  data: CalendarItem[];
+  conflicts: CalendarConflict[];
+  summary: { total: number; overdue: number; dueSoon: number; conflicts: number };
+}
+
+export interface DeadlineChange {
+  id: number;
+  at: string;
+  author: PersonRef;
+  previousDueAt: string | null;
+  newDueAt: string | null;
+  reason: string | null;
+}
+
+// ─── §11 Documentos ──────────────────────────────────────────────────────────
+export type DocValidation = 'REQUESTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
+export type DocEffectiveStatus = DocValidation | 'EXPIRED';
+export type DocConfidentiality = 'PUBLIC' | 'INTERNAL' | 'CONFIDENTIAL' | 'RESTRICTED';
+
+export interface ProcessDocumentRow {
+  id: number;
+  instance: {
+    id: number;
+    code: string;
+    title: string;
+    status: InstanceStatus;
+    process: { id: number; code: string; title: string };
+  };
+  stepId: number | null;
+  name: string;
+  docType: string;
+  origin: 'ATTACHED' | 'GENERATED' | 'REQUESTED';
+  relatedEntity: { type: string | null; id: string | null } | null;
+  source:
+    | {
+        kind: 'REPOSITORY';
+        id: number;
+        code: string | null;
+        title: string;
+        fileName: string | null;
+        mimeType: string;
+      }
+    | { kind: 'LIBRARY'; id: string; title: string }
+    | null;
+  fileUrl: string | null;
+  fileRestricted: boolean;
+  generated: boolean;
+  version: string;
+  author: PersonRef | null;
+  addedBy: PersonRef | null;
+  issuedAt: string | null;
+  validUntil: string | null;
+  expired: boolean;
+  expiringSoon: boolean;
+  daysLeft: number | null;
+  validationStatus: DocValidation;
+  effectiveStatus: DocEffectiveStatus;
+  required: boolean;
+  approver: PersonRef | null;
+  decidedAt: string | null;
+  decidedBy: PersonRef | null;
+  decisionNote: string | null;
+  confidentiality: DocConfidentiality;
+  viewRoles: string[];
+  viewerIds: number[];
+  signatureRequired: boolean;
+  signatureStatus: 'PENDING' | 'SIGNED' | null;
+  signedAt: string | null;
+  signedBy: PersonRef | null;
+  requestedFrom: PersonRef | null;
+  requestedBy: PersonRef | null;
+  requestedAt: string | null;
+  requestNote: string | null;
+  retentionUntil: string | null;
+  archivedAt: string | null;
+  archiveReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+  permissions: { canManage: boolean; canDecide: boolean };
+}
+
+export interface PaginatedProcessDocuments {
+  data: ProcessDocumentRow[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  summary: { requested: number; pending: number; expiring: number; expired: number };
+}
+
+export type RequirementState = 'OK' | 'MISSING' | 'REQUESTED' | 'PENDING' | 'REJECTED' | 'EXPIRED';
+
+export interface DocRequirement {
+  name: string;
+  state: RequirementState;
+  documentId: number | null;
+}
+
+export interface InstanceDocuments {
+  instance: { id: number; code: string | null; title: string };
+  documents: ProcessDocumentRow[];
+  requirements: DocRequirement[];
+  missing: number;
+}
+
+export interface DocumentVersions {
+  current: string;
+  versions: Array<{
+    id: number;
+    version: string;
+    documentId: number | null;
+    note: string | null;
+    validUntil: string | null;
+    createdAt: string;
+    author: PersonRef;
+  }>;
+  repository: Array<{
+    versionNumber: number;
+    changeDescription: string;
+    createdAt: string;
+    uploadedBy: PersonRef;
+  }>;
+}
+
+export interface DocumentSources {
+  repository: Array<{
+    id: number;
+    title: string;
+    documentCode: string | null;
+    category: string;
+    version: string;
+    sensitivity: string;
+    expiresAt: string | null;
+  }>;
+  library: Array<{ id: string; title: string; code: string; type: string; version: string }>;
+}
+
+export interface DocumentTemplate {
+  id: number;
+  name: string;
+  description: string | null;
+  type: string;
+}
+
+// ─── §12 Indicadores e Relatórios ────────────────────────────────────────────
+export type ReportGroupBy =
+  | 'department'
+  | 'template'
+  | 'category'
+  | 'sourceModule'
+  | 'responsible'
+  | 'priority'
+  | 'month';
+
+export type ReportRecordIndicator =
+  | 'total'
+  | 'completed'
+  | 'onTime'
+  | 'late'
+  | 'returned'
+  | 'rejected'
+  | 'reopened'
+  | 'overdue'
+  | 'backlogInstances'
+  | 'backlogTasks'
+  | 'pendingApprovals'
+  | 'workload'
+  | 'automationFailures';
+
+export interface RateIndicator {
+  value: number | null;
+  numerator: number;
+  denominator: number;
+}
+
+export interface ReportGroupRow {
+  key: string;
+  label: string;
+  total: number;
+  completed: number;
+  overdue: number;
+  cancelled: number;
+  completionRate: number | null;
+  onTimeRate: number | null;
+  avgHours: number | null;
+}
+
+export interface ProcessReport {
+  range: { from: string; to: string };
+  truncated: boolean;
+  indicators: {
+    completionRate: RateIndicator;
+    onTimeRate: RateIndicator;
+    avgCompletionHours: { value: number | null; samples: number };
+    avgHoursByStep: Array<{ stepTitle: string; hours: number; samples: number }>;
+    rejectionRate: RateIndicator;
+    returnRate: RateIndicator;
+    volume: { value: number; byMonth: Array<{ month: string; count: number }> };
+    reopenRate: RateIndicator;
+  };
+  snapshot: {
+    backlogInstances: number;
+    backlogTasks: number;
+    overdueInstances: number;
+    overdueTasks: number;
+    pendingApprovals: number;
+  };
+  workload: Array<{ assigneeId: number; fullName: string; open: number; overdue: number }>;
+  automation: { total: number; failed: number; failureRate: number | null };
+  groupBy: ReportGroupBy;
+  groups: ReportGroupRow[];
+  definitions: Record<string, string>;
+}
+
+export interface ReportRecord {
+  kind: 'INSTANCE' | 'TASK' | 'APPROVAL' | 'EXECUTION';
+  id: string;
+  code: string;
+  title: string;
+  status: string;
+  owner: string | null;
+  startedAt: string | null;
+  dueAt: string | null;
+  completedAt: string | null;
+  instanceId: number | null;
+  detail: string | null;
+}
+
+export interface PaginatedReportRecords {
+  data: ReportRecord[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

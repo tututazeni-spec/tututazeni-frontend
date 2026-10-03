@@ -9,6 +9,9 @@ import type { ApprovalStatus } from './approval-types';
 import type { ExecutionStatus } from './automation-types';
 import type {
   DeadlineSituation,
+  DocConfidentiality,
+  DocEffectiveStatus,
+  RequirementState,
   InstanceStatus,
   ProcessPriority,
   ProcessStatus,
@@ -105,9 +108,9 @@ export const NAV: Array<{
   { id: 'approvals', label: 'Aprovações', description: 'Pedidos pendentes de validação ou decisão.', ready: true },
   { id: 'workflows', label: 'Fluxos de Trabalho', description: 'Desenho das etapas, regras e transições.', ready: true },
   { id: 'automations', label: 'Automações', description: 'Regras automáticas, condições e ações.', ready: true },
-  { id: 'calendar', label: 'Calendário e Prazos', description: 'Datas-limite, vencimentos e tarefas agendadas.', ready: false },
-  { id: 'documents', label: 'Documentos', description: 'Documentos, formulários e anexos associados.', ready: false },
-  { id: 'reports', label: 'Indicadores e Relatórios', description: 'Tempos, volumes, atrasos e níveis de cumprimento.', ready: false },
+  { id: 'calendar', label: 'Calendário e Prazos', description: 'Datas-limite, vencimentos e tarefas agendadas.', ready: true },
+  { id: 'documents', label: 'Documentos', description: 'Documentos, formulários e anexos associados.', ready: true },
+  { id: 'reports', label: 'Indicadores e Relatórios', description: 'Tempos, volumes, atrasos e níveis de cumprimento.', ready: true },
   { id: 'history', label: 'Histórico e Auditoria', description: 'Registo cronológico das alterações e decisões.', ready: false },
   { id: 'settings', label: 'Configurações', description: 'Permissões, prioridades, estados e regras gerais.', ready: false },
 ];
@@ -157,3 +160,27 @@ export function fmtElapsed(hours: number | null): string {
   if (hours < 48) return `${Math.round(hours)}h`;
   return `${Math.round(hours / 24)}d`;
 }
+
+export const DOC_STATUS_MAP: StatusBadgeMap<DocEffectiveStatus> = {
+  REQUESTED: { label: 'Pedido', cls: 'bg-warning-subtle text-warning-ink' },
+  PENDING: { label: 'Por validar', cls: 'bg-info-subtle text-info-ink' },
+  APPROVED: { label: 'Validado', cls: 'bg-success-subtle text-success-ink' },
+  REJECTED: { label: 'Rejeitado', cls: 'bg-danger-subtle text-danger-ink' },
+  EXPIRED: { label: 'Expirado', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+export const CONFIDENTIALITY_MAP: StatusBadgeMap<DocConfidentiality> = {
+  PUBLIC: { label: 'Público', cls: 'bg-surface-sunken text-ink-muted' },
+  INTERNAL: { label: 'Interno', cls: 'bg-info-subtle text-info-ink' },
+  CONFIDENTIAL: { label: 'Confidencial', cls: 'bg-warning-subtle text-warning-ink' },
+  RESTRICTED: { label: 'Restrito', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+export const REQUIREMENT_MAP: StatusBadgeMap<RequirementState> = {
+  OK: { label: 'Validado', cls: 'bg-success-subtle text-success-ink' },
+  MISSING: { label: 'Em falta', cls: 'bg-danger-subtle text-danger-ink' },
+  REQUESTED: { label: 'Pedido', cls: 'bg-warning-subtle text-warning-ink' },
+  PENDING: { label: 'Por validar', cls: 'bg-info-subtle text-info-ink' },
+  REJECTED: { label: 'Rejeitado', cls: 'bg-danger-subtle text-danger-ink' },
+  EXPIRED: { label: 'Expirado', cls: 'bg-danger-subtle text-danger-ink' },
+};

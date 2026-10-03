@@ -837,6 +837,29 @@ export const queryKeys = {
       [...queryKeys.processes.all, 'automation-catalog'] as const,
     templateOptions: () =>
       [...queryKeys.processes.all, 'template-options'] as const,
+    calendar: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'calendar', params] as const,
+    deadlineHistory: (instanceId: number, stepId: number | null) =>
+      [
+        ...queryKeys.processes.all,
+        'deadline-history',
+        instanceId,
+        stepId,
+      ] as const,
+    documents: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'documents', params] as const,
+    instanceDocuments: (instanceId: number) =>
+      [...queryKeys.processes.all, 'instance-documents', instanceId] as const,
+    documentVersions: (id: number) =>
+      [...queryKeys.processes.all, 'document-versions', id] as const,
+    documentSources: (search: string) =>
+      [...queryKeys.processes.all, 'document-sources', search] as const,
+    documentTemplates: () =>
+      [...queryKeys.processes.all, 'document-templates'] as const,
+    report: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'report', params] as const,
+    reportRecords: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'report-records', params] as const,
   },
 
   leadership: {

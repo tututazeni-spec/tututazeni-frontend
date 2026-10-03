@@ -26,6 +26,9 @@ import { TaskRunner } from '@/components/processes/TaskRunner';
 import { ApprovalsView } from '@/components/processes/ApprovalsView';
 import { WorkflowsView } from '@/components/processes/WorkflowsView';
 import { AutomationsView } from '@/components/processes/AutomationsView';
+import { CalendarView } from '@/components/processes/CalendarView';
+import { DocumentsView } from '@/components/processes/DocumentsView';
+import { ReportsView } from '@/components/processes/ReportsView';
 import { NAV } from '@/components/processes/constants';
 import type { Nav } from '@/components/processes/types';
 
@@ -37,6 +40,9 @@ const OVERVIEW_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 // Espelha @Roles(ADMIN, RH) nas rotas /processes/automations.
 const AUTOMATION_ROLES: readonly Role[] = ['ADMIN', 'RH'];
+// Espelha @Roles em GET /processes/reports (ver) e /reports/export (exportar).
+const REPORT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR', 'AUDITOR'];
+const REPORT_EXPORT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 
 export default function ProcessesPage() {
   const role = useCurrentRole();
@@ -44,6 +50,8 @@ export default function ProcessesPage() {
   const canSeeOverview = !!role && OVERVIEW_ROLES.includes(role);
   const canManage = !!role && MANAGE_ROLES.includes(role);
   const canAutomate = !!role && AUTOMATION_ROLES.includes(role);
+  const canSeeReports = !!role && REPORT_ROLES.includes(role);
+  const canExportReports = !!role && REPORT_EXPORT_ROLES.includes(role);
 
   const [nav, setNav] = useState<Nav>({ view: 'all' });
   const [showCreate, setShowCreate] = useState(false);
@@ -60,7 +68,8 @@ export default function ProcessesPage() {
   const tabs = NAV.filter(
     (n) =>
       (n.id !== 'overview' || canSeeOverview) &&
-      (n.id !== 'automations' || canAutomate),
+      (n.id !== 'automations' || canAutomate) &&
+      (n.id !== 'reports' || canSeeReports),
   );
   const activeTab = tabs.find((n) => n.id === nav.view);
 
@@ -146,6 +155,18 @@ export default function ProcessesPage() {
       {nav.view === 'workflows' && <WorkflowsView canEdit={canCreate} />}
       {nav.view === 'automations' && canAutomate && (
         <AutomationsView canManage={canAutomate} />
+      )}
+      {nav.view === 'calendar' && (
+        <CalendarView canManage={canManage} onOpenInstance={openInstance} />
+      )}
+      {nav.view === 'documents' && (
+        <DocumentsView canManage={canManage} onOpenInstance={openInstance} />
+      )}
+      {nav.view === 'reports' && canSeeReports && (
+        <ReportsView
+          canExport={canExportReports}
+          onOpenInstance={openInstance}
+        />
       )}
       {nav.view === 'viewer' && (
         <ProcessViewer
