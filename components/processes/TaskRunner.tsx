@@ -19,22 +19,35 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { Textarea } from '@/components/ui/Textarea';
 import {
   isOverdue,
   INSTANCE_STATUS_MAP,
+  PRIORITY_MAP,
   RISK_LEVEL_MAP,
   STEP_TYPE_MAP,
 } from './constants';
+import {
+  InstanceApprovalsTab,
+  InstanceDocumentsTab,
+  InstanceHistoryTab,
+  InstanceTasksTab,
+} from './InstanceTabs';
 import { Skeleton } from './Skeleton';
 import type { ProcessInstance, StepProgress } from './types';
 
 export interface TaskRunnerProps {
   instanceId: number;
   onBack: () => void;
+  /** Perfis de supervisão (ADMIN, RH, GESTOR, AUDITOR) vêem todas as aprovações da instância. */
+  canViewAll?: boolean;
 }
 
-export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
+type DetailTab = 'summary' | 'steps' | 'tasks' | 'approvals' | 'documents' | 'history';
+
+export function TaskRunner({ instanceId, onBack, canViewAll = false }: TaskRunnerProps) {
+  const [tab, setTab] = useState<DetailTab>('summary');
   const notify = useToast();
   const [activeStep, setActiveStep] = useState<StepProgress | null>(null);
   const [notes, setNotes] = useState('');
@@ -182,7 +195,77 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
         </div>
       </Card>
 
-      <div className="grid grid-cols-[280px_1fr] gap-5">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as DetailTab)}>
+        <TabsList className="mb-5 w-fit max-w-full overflow-x-auto">
+          <TabsTrigger value="summary">Resumo</TabsTrigger>
+          <TabsTrigger value="steps">Etapas</TabsTrigger>
+          <TabsTrigger value="tasks">Tarefas</TabsTrigger>
+          <TabsTrigger value="approvals">Aprovações</TabsTrigger>
+          <TabsTrigger value="documents">Documentos</TabsTrigger>
+          <TabsTrigger value="history">Histórico</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="summary">
+          <Card className="p-5">
+            <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+              {[
+                ['Nome', instance.title ?? instance.process.title],
+                ['Código', instance.code ?? '—'],
+                ['Modelo', `${instance.process.title} (v${instance.processVersion})`],
+                ['Módulo de origem', instance.sourceModule ?? '—'],
+                [
+                  'Entidade de origem',
+                  instance.sourceEntityType
+                    ? `${instance.sourceEntityType} ${instance.sourceEntityId ?? ''}`.trim()
+                    : '—',
+                ],
+                ['Responsável actual', instance.currentResponsible?.fullName ?? '—'],
+                ['Solicitante', instance.initiatedBy.fullName],
+                ['Colaborador', instance.targetUser.fullName],
+                ['Início', fmtDate(instance.startedAt)],
+                ['Prazo', instance.slaDeadline ? fmtDate(instance.slaDeadline) : '—'],
+              ].map(([label, value]) => (
+                <div key={label}>
+                  <dt className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                    {label}
+                  </dt>
+                  <dd className="mt-0.5 font-body text-sm text-ink">{value}</dd>
+                </div>
+              ))}
+              {instance.priority && (
+                <div>
+                  <dt className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                    Prioridade
+                  </dt>
+                  <dd className="mt-0.5">
+                    <StatusBadge value={instance.priority} map={PRIORITY_MAP} />
+                  </dd>
+                </div>
+              )}
+            </dl>
+            {instance.description && (
+              <p className="mt-4 border-t border-border pt-4 font-body text-sm text-ink-muted">
+                {instance.description}
+              </p>
+            )}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="tasks">
+          <InstanceTasksTab instanceId={instanceId} />
+        </TabsContent>
+        <TabsContent value="approvals">
+          <InstanceApprovalsTab instanceId={instanceId} canViewAll={canViewAll} />
+        </TabsContent>
+        <TabsContent value="documents">
+          <InstanceDocumentsTab instanceId={instanceId} />
+        </TabsContent>
+        <TabsContent value="history">
+          <InstanceHistoryTab instanceId={instanceId} />
+        </TabsContent>
+
+        <TabsContent value="steps">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-[280px_1fr]">
         {/* Timeline */}
         <div className="overflow-hidden rounded-card border border-border bg-surface">
           <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
@@ -370,6 +453,8 @@ export function TaskRunner({ instanceId, onBack }: TaskRunnerProps) {
           ) : null}
         </div>
       </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

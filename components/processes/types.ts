@@ -125,6 +125,15 @@ export interface ProcessInstance {
   targetUser: { id: number; fullName: string };
   stepProgress: StepProgress[];
   _count?: { stepProgress: number };
+  // §17/§21: dados do resumo da instância (devolvidos por GET /processes/instances/:id)
+  code?: string | null;
+  title?: string | null;
+  description?: string | null;
+  priority?: ProcessPriority;
+  sourceModule?: string | null;
+  sourceEntityType?: string | null;
+  sourceEntityId?: string | null;
+  currentResponsible?: { id: number; fullName: string } | null;
 }
 
 export interface MyTask extends StepProgress {

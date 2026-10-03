@@ -40,6 +40,16 @@ const OVERVIEW_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 // Espelha @Roles(ADMIN, RH, GESTOR) em POST /processes/:id/start e nas
 // acções de gestão de instâncias/tarefas.
 const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+// Espelha @Roles de POST /processes/:id/start (§20): gestão, ou pedidos próprios
+// em modelos abertos à função (AUDITOR e INSTRUCTOR não iniciam processos).
+const START_ROLES: readonly Role[] = [
+  'ADMIN',
+  'RH',
+  'GESTOR',
+  'DIRECTOR',
+  'LIDER',
+  'COLABORADOR',
+];
 // Espelha @Roles(ADMIN, RH) nas rotas /processes/automations.
 const AUTOMATION_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 // Espelha @Roles em GET /processes/reports (ver) e /reports/export (exportar).
@@ -58,6 +68,7 @@ export default function ProcessesPage() {
   const canCreate = !!role && ADMIN_ROLES.includes(role);
   const canSeeOverview = !!role && OVERVIEW_ROLES.includes(role);
   const canManage = !!role && MANAGE_ROLES.includes(role);
+  const canStart = !!role && START_ROLES.includes(role);
   const canAutomate = !!role && AUTOMATION_ROLES.includes(role);
   const canSeeReports = !!role && REPORT_ROLES.includes(role);
   const canExportReports = !!role && REPORT_EXPORT_ROLES.includes(role);
@@ -121,7 +132,7 @@ export default function ProcessesPage() {
             </p>
           )}
         </div>
-        {nav.view === 'all' && canManage && (
+        {nav.view === 'all' && canStart && (
           <Button onClick={() => setShowStart(true)}>
             <Plus size={16} strokeWidth={1.75} />
             Novo processo
@@ -204,7 +215,11 @@ export default function ProcessesPage() {
         />
       )}
       {nav.view === 'runner' && (
-        <TaskRunner instanceId={nav.instanceId} onBack={handleBack} />
+        <TaskRunner
+          instanceId={nav.instanceId}
+          onBack={handleBack}
+          canViewAll={canSeeReports}
+        />
       )}
       {activeTab && !activeTab.ready && (
         <EmptyState

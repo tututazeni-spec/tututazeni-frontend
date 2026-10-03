@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useToast } from '@/providers/ToastProvider';
 import { PRIORITY_MAP } from './constants';
 import { UserPicker } from './UserPicker';
@@ -26,6 +27,12 @@ import type {
   PaginatedProcesses,
   ProcessPriority,
 } from './types';
+
+/** Dados específicos exigidos pelo modelo/módulo (GET /processes/:id/start-requirements). */
+interface StartRequirements {
+  collaborator: boolean;
+  entityType: string | null;
+}
 
 export interface StartProcessModalProps {
   /** Modelo pré-seleccionado (ex.: a partir do detalhe do modelo). */
@@ -63,6 +70,9 @@ export function StartProcessModal({
   onCreated,
 }: StartProcessModalProps) {
   const notify = useToast();
+  const role = useCurrentRole();
+  // §20: só a gestão inicia em nome de outro colaborador; os restantes, em nome próprio.
+  const canPickCollaborator = role === 'ADMIN' || role === 'RH' || role === 'GESTOR';
 
   const [name, setName] = useState('');
   const [template, setTemplate] = useState(templateId ? String(templateId) : '');
@@ -89,6 +99,19 @@ export function StartProcessModal({
   }));
   const chosen = templates?.data.find((t) => String(t.id) === template);
 
+  // §19: campos específicos do modelo conforme o módulo de origem escolhido.
+  const { data: req } = useApiQuery<StartRequirements>(
+    [...queryKeys.processes.all, 'start-requirements', template, sourceModule],
+    `/processes/${template}/start-requirements`,
+    {
+      params: { sourceModule },
+      enabled: template !== '',
+      staleTime: STALE_TIME.SEMI_STATIC,
+    },
+  );
+  const entityRequired = !!req?.entityType;
+  const collaboratorRequired = !!req?.collaborator && canPickCollaborator;
+
   const create = useApiMutation(
     (body: Record<string, unknown>) =>
       apiClient.post<InstanceRow & { id: number }>(
@@ -105,7 +128,12 @@ export function StartProcessModal({
     },
   );
 
-  const canSubmit = name.trim().length > 0 && template !== '' && sourceModule !== '';
+  const canSubmit =
+    name.trim().length > 0 &&
+    template !== '' &&
+    sourceModule !== '' &&
+    (!entityRequired || entityId.trim() !== '') &&
+    (!collaboratorRequired || targetUserId !== '');
 
   const submit = () => {
     if (!canSubmit || create.isPending) return;
@@ -116,8 +144,11 @@ export function StartProcessModal({
       priority,
       ...(description.trim() ? { description: description.trim() } : {}),
       ...(targetUserId ? { targetUserId: Number(targetUserId) } : {}),
-      ...(entityType.trim() && entityId.trim()
-        ? { sourceEntityType: entityType.trim(), sourceEntityId: entityId.trim() }
+      ...((entityType.trim() || req?.entityType) && entityId.trim()
+        ? {
+            sourceEntityType: entityType.trim() || req?.entityType,
+            sourceEntityId: entityId.trim(),
+          }
         : {}),
       ...(dueAt ? { dueAt: new Date(dueAt + 'T23:59:59').toISOString() } : {}),
     });
@@ -195,23 +226,34 @@ export function StartProcessModal({
               Dados do pedido{chosen ? ` — ${chosen.title}` : ''}
             </p>
             <div className="space-y-3">
+              {canPickCollaborator && (
               <FormField
-                label="Colaborador"
+                label={collaboratorRequired ? 'Colaborador *' : 'Colaborador'}
                 htmlFor="sp-target"
                 hint="Por defeito, o próprio solicitante."
               >
                 <UserPicker value={targetUserId} onChange={setTargetUserId} />
               </FormField>
+              )}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <FormField label="Entidade de origem" htmlFor="sp-etype" hint="Ex.: Curso, Pedido, Documento.">
                   <Input
                     id="sp-etype"
                     value={entityType}
+                    placeholder={req?.entityType ?? undefined}
                     onChange={(e) => setEntityType(e.target.value)}
                     maxLength={60}
                   />
                 </FormField>
-                <FormField label="Identificador" htmlFor="sp-eid" hint="Evita processos duplicados para o mesmo pedido.">
+                <FormField
+                  label={
+                    entityRequired
+                      ? `Identificador de ${req?.entityType?.toLowerCase()} *`
+                      : 'Identificador'
+                  }
+                  htmlFor="sp-eid"
+                  hint="Evita processos duplicados para o mesmo pedido."
+                >
                   <Input
                     id="sp-eid"
                     value={entityId}
