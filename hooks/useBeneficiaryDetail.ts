@@ -20,6 +20,7 @@ import {
   EMPTY_INTERACTION_FORM,
   EMPTY_NEED_FORM,
   type BeneficiaryDetail,
+  type BeneficiaryHistoryEntry,
   type Interaction,
   type InteractionForm,
   type NeedForm,
@@ -58,6 +59,10 @@ export function useBeneficiaryDetail(id: string) {
         description: f.description,
         ...(f.outcome && { outcome: f.outcome }),
         ...(f.satisfaction && { satisfaction: Number(f.satisfaction) }),
+        ...(f.channel && { channel: f.channel }),
+        ...(f.nextAction && { nextAction: f.nextAction }),
+        ...(f.nextActionDate && { nextActionDate: f.nextActionDate }),
+        ...(f.notes && { notes: f.notes }),
       };
       return apiClient.post<BeneficiaryDetail>(
         `/crm/beneficiaries/${id}/interactions`,
@@ -120,6 +125,54 @@ export function useBeneficiaryDetail(id: string) {
     addNeed.mutate(needForm);
   }
 
+  // ─── Extras (docs/modulo_crm_beneficiario.md) ─────────────────────────────
+  // Mutações genéricas: cada separador do detalhe chama `post`/`put`/`remove`
+  // com o sub-recurso e invalida o detalhe. `patchProfile` edita campos do
+  // próprio beneficiário (acompanhamento, consentimentos).
+  const detailKey = queryKeys.beneficiaries.detail(id);
+  const onMutationError = (err: Error) =>
+    notify({ title: err.message || 'Erro ao guardar', intent: 'danger' });
+
+  const addSub = useApiMutation<unknown, { path: string; body: unknown }>(
+    ({ path, body }) => apiClient.post(`/crm/beneficiaries/${path}`, body),
+    { invalidateKeys: [detailKey], onError: onMutationError },
+  );
+  const putSub = useApiMutation<unknown, { path: string; body: unknown }>(
+    ({ path, body }) => apiClient.put(`/crm/beneficiaries/${path}`, body),
+    { invalidateKeys: [detailKey], onError: onMutationError },
+  );
+  const removeSub = useApiMutation<unknown, { path: string }>(
+    ({ path }) => apiClient.delete(`/crm/beneficiaries/${path}`),
+    { invalidateKeys: [detailKey], onError: onMutationError },
+  );
+  const patchProfile = useApiMutation<unknown, Record<string, unknown>>(
+    (body) => apiClient.put(`/crm/beneficiaries/${id}`, body),
+    {
+      invalidateKeys: [detailKey, queryKeys.beneficiaries.lists()],
+      onSuccess: () =>
+        notify({ title: 'Alterações guardadas.', intent: 'success' }),
+      onError: onMutationError,
+    },
+  );
+
+  // Histórico de alterações (carregado só quando o separador abre).
+  const [historyEnabled, setHistoryEnabled] = useState(false);
+  const history = useApiQuery<{ data: BeneficiaryHistoryEntry[] }>(
+    [...detailKey, 'history'],
+    `/crm/beneficiaries/${id}/history?limit=50`,
+    { enabled: !!id && historyEnabled, staleTime: STALE_TIME.DYNAMIC },
+  );
+
+  const extras = {
+    id,
+    addSub,
+    putSub,
+    removeSub,
+    patchProfile,
+    history,
+    setHistoryEnabled,
+  };
+
   // Eliminar beneficiário — só ADMIN/RH (espelha @Roles(ADMIN, RH) do
   // DELETE /crm/beneficiaries/:id, que faz soft delete). Ver useResourceDelete.
   const { canDelete, onDelete, isDeleting } = useResourceDelete({
@@ -152,5 +205,6 @@ export function useBeneficiaryDetail(id: string) {
     canDelete,
     onDelete,
     isDeleting,
+    extras,
   };
 }

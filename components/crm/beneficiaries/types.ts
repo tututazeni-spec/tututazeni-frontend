@@ -35,6 +35,57 @@ export interface BeneficiaryDocument {
   fileUrl: string;
   isVerified: boolean;
   createdAt: string;
+  documentNumber?: string | null;
+  issuedAt?: string | null;
+  expiresAt?: string | null;
+  validationStatus?: string;
+  validatedAt?: string | null;
+  validatedBy?: { fullName: string } | null;
+  notes?: string | null;
+}
+
+export interface BeneficiaryBenefit {
+  id: string;
+  kind: string;
+  name: string;
+  amount: number | null;
+  currency: string;
+  awardedAt: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  status: string;
+  notes: string | null;
+}
+
+export interface BeneficiaryParticipation {
+  id: string;
+  program: string;
+  project: string | null;
+  province: string | null;
+  municipality: string | null;
+  locality: string | null;
+  cohort: string | null;
+  programEdition: string | null;
+  enrolledAt: string | null;
+  startDate: string | null;
+  completedAt: string | null;
+  status: string;
+  attendanceRate: number | null;
+  performance: string | null;
+  certification: string | null;
+  employability: string | null;
+  referral: string | null;
+  finalResult: string | null;
+  impact: string | null;
+}
+
+export interface BeneficiaryHistoryEntry {
+  id: number;
+  action: string;
+  entity: string;
+  metadata: string | null;
+  createdAt: string;
+  user: { fullName: string } | null;
 }
 
 export interface Need {
@@ -68,10 +119,34 @@ export interface BeneficiaryDetail {
   interactions: Interaction[];
   documents: BeneficiaryDocument[];
   needs: Need[];
+  benefits: BeneficiaryBenefit[];
+  participations: BeneficiaryParticipation[];
+  totalBenefits: number;
+  currency: string;
+  isEligible: boolean | null;
+  consentDataProcessing: boolean;
+  consentCommunications: boolean;
+  consentDataSharing: boolean;
+  authorizedChannels: string[];
+  consentStatus: string;
+  consentAt: string | null;
+  consentRevokedAt: string | null;
+  communicationPreferences: string | null;
+  accountManager?: { fullName: string; email: string } | null;
+  updatedBy?: { fullName: string } | null;
+  createdAt: string;
+  updatedAt: string;
+  // Restantes campos de perfil (formConfig.ts) — lidos por chave.
+  [key: string]: unknown;
 }
 
 // Partilhado com partners — ver components/crm/shared.tsx.
-export type InteractionForm = CrmInteractionForm;
+export interface InteractionForm extends CrmInteractionForm {
+  channel: string;
+  nextAction: string;
+  nextActionDate: string;
+  notes: string;
+}
 
 export const EMPTY_INTERACTION_FORM: InteractionForm = {
   type: 'CALL',
@@ -79,10 +154,21 @@ export const EMPTY_INTERACTION_FORM: InteractionForm = {
   description: '',
   outcome: '',
   satisfaction: '',
+  channel: '',
+  nextAction: '',
+  nextActionDate: '',
+  notes: '',
 };
 
 export const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-success-subtle text-success-ink',
+  BENEFIT_ACTIVE: 'bg-success-subtle text-success-ink',
+  ELIGIBLE: 'bg-success-subtle text-success-ink',
+  UNDER_FOLLOW_UP: 'bg-info-subtle text-info-ink',
+  SUSPENDED: 'bg-warning-subtle text-warning-ink',
+  NOT_ELIGIBLE: 'bg-danger-subtle text-danger-ink',
+  BENEFIT_ENDED: 'bg-surface-sunken text-ink-muted',
+  ARCHIVED: 'bg-surface-sunken text-ink-muted',
   INACTIVE: 'bg-surface-sunken text-ink-muted',
   PROSPECT: 'bg-info-subtle text-info-ink',
   FORMER: 'bg-warning-subtle text-warning-ink',
