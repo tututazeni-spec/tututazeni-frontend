@@ -23,6 +23,7 @@ import { ExecutionsTab } from '@/components/automation/ExecutionsTab';
 import { OverviewTab } from '@/components/automation/OverviewTab';
 import { PendingPhaseTab } from '@/components/automation/PendingPhaseTab';
 import { RulesTab } from '@/components/automation/RulesTab';
+import { SchedulesTab } from '@/components/automation/SchedulesTab';
 import { StatsTab } from '@/components/automation/StatsTab';
 import type { Tab } from '@/components/automation/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
@@ -46,6 +47,15 @@ export default function AutomationPage() {
     ruleId: number;
     failedOnly: boolean;
   } | null>(null);
+
+  // Construtor de Fluxos: regra em edição ('new' = nova automação).
+  const [builderTarget, setBuilderTarget] = useState<number | 'new' | null>(
+    null,
+  );
+  const openBuilder = (target: number | 'new') => {
+    setBuilderTarget(target);
+    setTab('builder');
+  };
 
   const openHistory = (ruleId: number, failedOnly = false) => {
     setHistoryFilter({ ruleId, failedOnly });
@@ -96,17 +106,17 @@ export default function AutomationPage() {
             <OverviewTab />
           </TabsContent>
           <TabsContent value="rules">
-            <RulesTab onOpenHistory={openHistory} />
+            <RulesTab
+              onOpenHistory={openHistory}
+              onEditRule={openBuilder}
+              onNewRule={() => openBuilder('new')}
+            />
           </TabsContent>
           <TabsContent value="builder">
-            <BuilderTab />
+            <BuilderTab editing={builderTarget} onEdit={setBuilderTarget} />
           </TabsContent>
           <TabsContent value="schedules">
-            <PendingPhaseTab
-              icon={CalendarClock}
-              title="Agendamentos"
-              description="Execuções programadas por data, hora, periodicidade ou calendário de trabalho."
-            />
+            <SchedulesTab />
           </TabsContent>
           <TabsContent value="executions">
             <ExecutionsTab

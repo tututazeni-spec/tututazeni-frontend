@@ -1,20 +1,34 @@
 // components/automation/BuilderTab.tsx
-// Construtor de Fluxos (docs/modulo_automation.md §4). Fase actual: o
-// formulário de nova automação (secções A–E) + biblioteca de modelos. O
-// editor visual de blocos (ramificações, reordenar) é uma fase posterior.
+// Construtor de Fluxos (docs/modulo_automation.md §4) e integração por eventos
+// (§5): entrada para criar/editar uma automação na página dedicada
+// (FlowBuilder), modelos pré-configurados e catálogo de eventos por módulo.
 
-import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
-import { CreateRuleModal } from './CreateRuleModal';
+import { EventsCatalogPanel } from './EventsCatalogPanel';
+import { FlowBuilder } from './FlowBuilder';
 import { TemplatesTab } from './TemplatesTab';
 
-export function BuilderTab() {
-  const [showCreate, setShowCreate] = useState(false);
+export interface BuilderTabProps {
+  /** Regra em edição; 'new' = nova automação; null = mostrar a entrada. */
+  editing: number | 'new' | null;
+  onEdit: (target: number | 'new' | null) => void;
+}
+
+export function BuilderTab({ editing, onEdit }: BuilderTabProps) {
+  if (editing !== null) {
+    return (
+      <FlowBuilder
+        key={editing}
+        ruleId={editing === 'new' ? undefined : editing}
+        onClose={() => onEdit(null)}
+      />
+    );
+  }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <Card>
         <CardBody>
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -23,12 +37,11 @@ export function BuilderTab() {
                 Nova automação
               </h3>
               <p className="font-body text-sm text-ink-muted">
-                Define o gatilho, as condições, as acções e as regras de
-                execução. A regra fica guardada e pode ser pausada sem perder
-                a configuração.
+                Defina o gatilho, as condições e um fluxo de acções, atrasos e
+                ramificações Sim / Não. Fica em rascunho até ser publicada.
               </p>
             </div>
-            <Button onClick={() => setShowCreate(true)}>
+            <Button onClick={() => onEdit('new')}>
               <Plus size={14} strokeWidth={1.75} />
               Nova automação
             </Button>
@@ -43,7 +56,7 @@ export function BuilderTab() {
         <TemplatesTab />
       </div>
 
-      {showCreate && <CreateRuleModal onClose={() => setShowCreate(false)} />}
+      <EventsCatalogPanel />
     </div>
   );
 }

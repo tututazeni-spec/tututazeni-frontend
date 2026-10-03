@@ -61,3 +61,44 @@ export const TRIGGER_LABEL: Record<string, string> = {
   manual: '▶ Manual',
   other: 'Outro',
 };
+
+// ── Construtor de Fluxos (§4) — espelham ActionType / ConditionOperator /
+// CommunicationChannel em src/automation/automation.dto.ts.
+export const ACTION_ITEMS: { value: string; label: string }[] = [
+  { value: 'send_notification', label: 'Enviar notificação interna' },
+  { value: 'send_email', label: 'Enviar e-mail' },
+  { value: 'send_sms', label: 'Enviar SMS' },
+  { value: 'send_whatsapp', label: 'Enviar WhatsApp' },
+  { value: 'create_task', label: 'Criar tarefa' },
+  { value: 'request_approval', label: 'Solicitar aprovação' },
+  { value: 'assign_course', label: 'Atribuir curso' },
+  { value: 'enroll_training', label: 'Inscrever em formação' },
+  { value: 'create_pdi', label: 'Criar PDI' },
+  { value: 'update_status', label: 'Alterar estado' },
+  { value: 'assign_owner', label: 'Atribuir responsável' },
+  { value: 'create_alert', label: 'Criar alerta' },
+  { value: 'generate_report', label: 'Gerar documento ou relatório' },
+  { value: 'http_request', label: 'Invocar endpoint de API' },
+  { value: 'webhook', label: 'Executar webhook' },
+  { value: 'run_automation', label: 'Executar outra automação' },
+  { value: 'log', label: 'Registar no histórico' },
+];
+
+export const OPERATOR_ITEMS: { value: string; label: string }[] = [
+  { value: 'equals', label: 'Igual a' },
+  { value: 'not_equals', label: 'Diferente de' },
+  { value: 'greater_than', label: 'Maior que' },
+  { value: 'less_than', label: 'Menor que' },
+  { value: 'contains', label: 'Contém' },
+  { value: 'not_contains', label: 'Não contém' },
+  { value: 'is_empty', label: 'Está vazio' },
+  { value: 'is_not_empty', label: 'Não está vazio' },
+];
+export const VALUELESS_OPERATORS = new Set(['is_empty', 'is_not_empty']);
+
+export const CHANNEL_ITEMS: { value: string; label: string }[] = [
+  { value: 'internal', label: 'Notificação interna' },
+  { value: 'email', label: 'E-mail' },
+  { value: 'sms', label: 'SMS' },
+  { value: 'whatsapp', label: 'WhatsApp' },
+];

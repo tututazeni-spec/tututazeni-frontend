@@ -12,7 +12,9 @@ import {
   Pause,
   Play,
   PlayCircle,
+  Pencil,
   Plus,
+  Rocket,
   RefreshCw,
   Trash2,
 } from 'lucide-react';
@@ -57,6 +59,7 @@ const STATUS_META: Record<
   RuleStatus,
   { label: string; intent: BadgeProps['intent'] }
 > = {
+  DRAFT: { label: 'Rascunho', intent: 'warning' },
   ACTIVE: { label: 'Activa', intent: 'success' },
   PAUSED: { label: 'Pausada', intent: 'neutral' },
   ERROR: { label: 'Com erro', intent: 'danger' },
@@ -83,9 +86,17 @@ const fmt = (iso?: string | null) =>
 export interface RulesTabProps {
   /** Abre o Histórico de Execuções filtrado a uma regra (e, opcionalmente, só falhas). */
   onOpenHistory?: (ruleId: number, failedOnly?: boolean) => void;
+  /** Abre o Construtor de Fluxos para editar a regra. */
+  onEditRule?: (ruleId: number) => void;
+  /** Abre o Construtor de Fluxos para uma nova automação. */
+  onNewRule?: () => void;
 }
 
-export function RulesTab({ onOpenHistory }: RulesTabProps = {}) {
+export function RulesTab({
+  onOpenHistory,
+  onEditRule,
+  onNewRule,
+}: RulesTabProps = {}) {
   const notify = useToast();
   const confirm = useConfirm();
   const [running, setRunning] = useState(false);
@@ -183,6 +194,19 @@ export function RulesTab({ onOpenHistory }: RulesTabProps = {}) {
     } catch (e) {
       reportError(e, { source: 'RulesTab.toggle' });
       notify({ title: 'Não foi possível alterar a regra', intent: 'danger' });
+    }
+    load();
+  };
+  const publish = async (r: AutomationRule) => {
+    try {
+      await apiClient.post(`/automation/rules/${r.id}/publish`, {});
+      notify({ title: 'Automação publicada', intent: 'success' });
+    } catch (e) {
+      reportError(e, { source: 'RulesTab.publish' });
+      notify({
+        title: 'Não foi possível publicar — abra o editor e valide o fluxo',
+        intent: 'danger',
+      });
     }
     load();
   };
@@ -308,7 +332,10 @@ export function RulesTab({ onOpenHistory }: RulesTabProps = {}) {
             )}
             Executar Todas
           </Button>
-          <Button size="sm" onClick={() => setShowCreate(true)}>
+          <Button
+            size="sm"
+            onClick={() => (onNewRule ? onNewRule() : setShowCreate(true))}
+          >
             <Plus size={14} strokeWidth={1.75} />
             Nova automação
           </Button>
@@ -435,7 +462,9 @@ export function RulesTab({ onOpenHistory }: RulesTabProps = {}) {
           </TableHead>
           <TableBody>
             {rules.map((r) => {
-              const st = STATUS_META[r.status ?? (r.active ? 'ACTIVE' : 'PAUSED')];
+              const st = STATUS_META[
+                r.status ?? (r.draft ? 'DRAFT' : r.active ? 'ACTIVE' : 'PAUSED')
+              ];
               return (
                 <TableRow key={r.id} className={r.active ? '' : 'opacity-70'}>
                   <TableCell className="min-w-[220px]">
@@ -503,18 +532,37 @@ export function RulesTab({ onOpenHistory }: RulesTabProps = {}) {
                         intent="ghost"
                         onClick={() => setDetail(r)}
                       />
-                      <IconButton
-                        icon={r.active ? Pause : Play}
-                        label={r.active ? 'Pausar regra' : 'Activar regra'}
-                        intent="ghost"
-                        onClick={() => toggle(r.id)}
-                      />
-                      <IconButton
-                        icon={PlayCircle}
-                        label="Executar manualmente"
-                        intent="ghost"
-                        onClick={() => runOne(r)}
-                      />
+                      {onEditRule && (
+                        <IconButton
+                          icon={Pencil}
+                          label="Editar regra"
+                          intent="ghost"
+                          onClick={() => onEditRule(r.id)}
+                        />
+                      )}
+                      {r.draft ? (
+                        <IconButton
+                          icon={Rocket}
+                          label="Publicar regra"
+                          intent="ghost"
+                          onClick={() => publish(r)}
+                        />
+                      ) : (
+                        <>
+                          <IconButton
+                            icon={r.active ? Pause : Play}
+                            label={r.active ? 'Pausar regra' : 'Activar regra'}
+                            intent="ghost"
+                            onClick={() => toggle(r.id)}
+                          />
+                          <IconButton
+                            icon={PlayCircle}
+                            label="Executar manualmente"
+                            intent="ghost"
+                            onClick={() => runOne(r)}
+                          />
+                        </>
+                      )}
                       <IconButton
                         icon={History}
                         label="Consultar histórico"

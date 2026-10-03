@@ -255,6 +255,14 @@ export const queryKeys = {
       [...queryKeys.automation.all, 'executions', status, ruleId ?? null] as const,
     templates: () => [...queryKeys.automation.all, 'templates'] as const,
     stats: () => [...queryKeys.automation.all, 'stats'] as const,
+    rule: (id: number) => [...queryKeys.automation.all, 'rule', id] as const,
+    versions: (id: number) =>
+      [...queryKeys.automation.all, 'versions', id] as const,
+    eventCatalog: () => [...queryKeys.automation.all, 'event-catalog'] as const,
+    events: (params: Record<string, unknown>) =>
+      [...queryKeys.automation.all, 'events', params] as const,
+    schedules: (params?: Record<string, unknown>) =>
+      [...queryKeys.automation.all, 'schedules', params ?? {}] as const,
   },
 
   scalability: {
