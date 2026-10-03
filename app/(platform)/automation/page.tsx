@@ -6,22 +6,52 @@
 // components/automation/ (mesmo padrão que components/engagement/page.tsx
 // usa). Ver memory project_innova_component_separation_audit.
 
-import { Activity, BarChart2, BookOpen, Zap } from 'lucide-react';
+import { useState } from 'react';
+import {
+  Activity,
+  BarChart2,
+  CalendarClock,
+  ClipboardCheck,
+  LayoutDashboard,
+  Settings,
+  Workflow,
+  Zap,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { BuilderTab } from '@/components/automation/BuilderTab';
 import { ExecutionsTab } from '@/components/automation/ExecutionsTab';
+import { OverviewTab } from '@/components/automation/OverviewTab';
+import { PendingPhaseTab } from '@/components/automation/PendingPhaseTab';
 import { RulesTab } from '@/components/automation/RulesTab';
 import { StatsTab } from '@/components/automation/StatsTab';
-import { TemplatesTab } from '@/components/automation/TemplatesTab';
+import type { Tab } from '@/components/automation/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
-const TABS: { id: string; label: string; icon: LucideIcon }[] = [
-  { id: 'rules', label: 'Automações', icon: Zap },
-  { id: 'executions', label: 'Execuções', icon: Activity },
-  { id: 'templates', label: 'Modelos', icon: BookOpen },
-  { id: 'stats', label: 'Análises', icon: BarChart2 },
+// Estrutura do spec (docs/modulo_automation.md §1).
+const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
+  { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
+  { id: 'rules', label: 'Todas as Automações', icon: Zap },
+  { id: 'builder', label: 'Construtor de Fluxos', icon: Workflow },
+  { id: 'schedules', label: 'Agendamentos', icon: CalendarClock },
+  { id: 'executions', label: 'Histórico de Execuções', icon: Activity },
+  { id: 'approvals', label: 'Aprovações e Tarefas', icon: ClipboardCheck },
+  { id: 'reports', label: 'Relatórios', icon: BarChart2 },
+  { id: 'settings', label: 'Configurações', icon: Settings },
 ];
 
 export default function AutomationPage() {
+  const [tab, setTab] = useState<Tab>('overview');
+  // Filtro do histórico vindo de "Consultar histórico" / "Ver erros" na tabela.
+  const [historyFilter, setHistoryFilter] = useState<{
+    ruleId: number;
+    failedOnly: boolean;
+  } | null>(null);
+
+  const openHistory = (ruleId: number, failedOnly = false) => {
+    setHistoryFilter({ ruleId, failedOnly });
+    setTab('executions');
+  };
+
   return (
     <div className="min-h-screen bg-canvas">
       <div className="border-b border-border bg-surface px-6 py-5">
@@ -41,7 +71,7 @@ export default function AutomationPage() {
           items-center no TabsList, flex items-center em cada TabsTrigger)
           com largura mínima uniforme. Estado activo usa data-[state=active]
           do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
-      <Tabs defaultValue="rules">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
         <div className="bg-surface px-6 py-3">
           <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto bg-transparent p-0">
             {TABS.map((t) => {
@@ -62,17 +92,46 @@ export default function AutomationPage() {
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
+          <TabsContent value="overview">
+            <OverviewTab />
+          </TabsContent>
           <TabsContent value="rules">
-            <RulesTab />
+            <RulesTab onOpenHistory={openHistory} />
+          </TabsContent>
+          <TabsContent value="builder">
+            <BuilderTab />
+          </TabsContent>
+          <TabsContent value="schedules">
+            <PendingPhaseTab
+              icon={CalendarClock}
+              title="Agendamentos"
+              description="Execuções programadas por data, hora, periodicidade ou calendário de trabalho."
+            />
           </TabsContent>
           <TabsContent value="executions">
-            <ExecutionsTab />
+            <ExecutionsTab
+              key={`${historyFilter?.ruleId ?? 'all'}-${historyFilter?.failedOnly ?? false}`}
+              ruleId={historyFilter?.ruleId}
+              initialStatus={historyFilter?.failedOnly ? 'FAILED' : ''}
+              onClearRule={() => setHistoryFilter(null)}
+            />
           </TabsContent>
-          <TabsContent value="templates">
-            <TemplatesTab />
+          <TabsContent value="approvals">
+            <PendingPhaseTab
+              icon={ClipboardCheck}
+              title="Aprovações e Tarefas"
+              description="Acompanhamento das etapas que dependem de validação humana antes de prosseguir."
+            />
           </TabsContent>
-          <TabsContent value="stats">
+          <TabsContent value="reports">
             <StatsTab />
+          </TabsContent>
+          <TabsContent value="settings">
+            <PendingPhaseTab
+              icon={Settings}
+              title="Configurações"
+              description="Permissões, limites de execução, políticas de repetição, alertas e segurança."
+            />
           </TabsContent>
         </div>
       </Tabs>

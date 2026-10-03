@@ -1,6 +1,16 @@
 // components/automation/types.ts
 
-export type Tab = 'rules' | 'executions' | 'templates' | 'stats';
+export type Tab =
+  | 'overview'
+  | 'rules'
+  | 'builder'
+  | 'schedules'
+  | 'executions'
+  | 'approvals'
+  | 'reports'
+  | 'settings';
+
+export type RuleStatus = 'ACTIVE' | 'PAUSED' | 'ERROR';
 
 export interface RuleStats {
   total: number;
@@ -17,6 +27,52 @@ export interface AutomationRule {
   trigger: string;
   action: string;
   stats?: RuleStats;
+  code?: string | null;
+  description?: string | null;
+  module?: string | null;
+  status?: RuleStatus;
+  ownerId?: string | null;
+  ownerName?: string | null;
+  priority?: number;
+  lastRunAt?: string | null;
+  lastRunStatus?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  notes?: string | null;
+}
+
+export interface RulesExportResponse {
+  filename: string;
+  content: string;
+}
+
+export interface OverviewData {
+  period: { from: string; to: string; granularity: string };
+  cards: {
+    totalRules: number;
+    activeRules: number;
+    executions: number;
+    failedExecutions: number;
+    waiting: number;
+    timeSaved: {
+      minutes: number;
+      hours: number;
+      estimate: boolean;
+      basisMinutesPerExecution: number;
+    };
+  };
+  byStatus: Record<string, number>;
+  timeline: {
+    date: string;
+    total: number;
+    success: number;
+    failed: number;
+    successRate: number | null;
+  }[];
+  byModule: { label: string; count: number }[];
+  failureCauses: { label: string; count: number }[];
+  successRate: number | null;
+  truncated: boolean;
 }
 
 export interface RunAllResponse {

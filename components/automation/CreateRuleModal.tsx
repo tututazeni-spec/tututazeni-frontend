@@ -295,6 +295,7 @@ export function CreateRuleModal({
       invalidateKeys: [
         queryKeys.automation.rules(),
         queryKeys.automation.stats(),
+        [...queryKeys.automation.all, 'overview'],
         ...(extraInvalidateKeys ?? []),
       ],
       onSuccess: () => {

@@ -246,9 +246,13 @@ export const queryKeys = {
 
   automation: {
     all: ['automation'] as const,
-    rules: () => [...queryKeys.automation.all, 'rules'] as const,
-    executions: (status: string) =>
-      [...queryKeys.automation.all, 'executions', status] as const,
+    rules: (params?: Record<string, unknown>) =>
+      [...queryKeys.automation.all, 'rules', params ?? {}] as const,
+    modules: () => [...queryKeys.automation.all, 'modules'] as const,
+    overview: (params: Record<string, unknown>) =>
+      [...queryKeys.automation.all, 'overview', params] as const,
+    executions: (status: string, ruleId?: number) =>
+      [...queryKeys.automation.all, 'executions', status, ruleId ?? null] as const,
     templates: () => [...queryKeys.automation.all, 'templates'] as const,
     stats: () => [...queryKeys.automation.all, 'stats'] as const,
   },
