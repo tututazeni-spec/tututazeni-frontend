@@ -29,6 +29,9 @@ import type {
   BuilderStep,
   ExperienceType,
   SessionDetail,
+  SessionRules,
+  StepBranches,
+  StepReinforcement,
 } from './types';
 
 const STEP_TYPES: { value: BuilderStep['type']; label: string }[] = [
@@ -44,10 +47,188 @@ const KINDS: { value: BuilderQuestion['kind']; label: string }[] = [
   { value: 'SHORT', label: 'Resposta curta' },
 ];
 
+const NEXT = 'NEXT';
+
+/** Ramificações (role-play): para onde segue o formando conforme a resposta. */
+function BranchEditor({
+  step,
+  index,
+  later,
+  onChange,
+}: {
+  step: BuilderStep;
+  index: number;
+  /** Só etapas posteriores — o backend recusa saltos para trás. */
+  later: { key: string; title: string }[];
+  onChange: (branches: StepBranches | undefined) => void;
+}) {
+  const q = step.question;
+  if (!q) return null;
+  const options = q.kind === 'TRUE_FALSE' ? ['Verdadeiro', 'Falso'] : (q.options ?? []);
+  const graded = !!q.correctAnswer;
+  const b = step.branches ?? {};
+  const items = [
+    { value: NEXT, label: 'Seguir em sequência' },
+    ...later.map((l) => ({ value: l.key, label: l.title || l.key })),
+  ];
+  if (later.length === 0 || (options.length === 0 && !graded)) return null;
+
+  const clean = (next: StepBranches) => {
+    const byOption = Object.fromEntries(
+      Object.entries(next.byOption ?? {}).filter(([, v]) => v),
+    );
+    const out: StepBranches = {
+      ...(next.onCorrect ? { onCorrect: next.onCorrect } : {}),
+      ...(next.onIncorrect ? { onIncorrect: next.onIncorrect } : {}),
+      ...(Object.keys(byOption).length ? { byOption } : {}),
+    };
+    onChange(Object.keys(out).length ? out : undefined);
+  };
+  const pick = (v: string) => (v === NEXT ? undefined : v);
+
+  return (
+    <fieldset className="space-y-2 rounded-card bg-surface-sunken p-3">
+      <legend className="px-1 font-body text-sm font-medium text-ink">
+        Ramificações (opcional)
+      </legend>
+      <p className="font-body text-xs text-ink-faint">
+        Escolha a etapa seguinte conforme a resposta. As etapas saltadas deixam de ser
+        exigidas e não contam para a nota.
+      </p>
+      {graded && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <FormField label="Se acertar, ir para" htmlFor={`br-ok-${index}`}>
+            <Select
+              value={b.onCorrect ?? NEXT}
+              onValueChange={(v) => clean({ ...b, onCorrect: pick(v) })}
+              items={items}
+            />
+          </FormField>
+          <FormField label="Se errar, ir para" htmlFor={`br-ko-${index}`}>
+            <Select
+              value={b.onIncorrect ?? NEXT}
+              onValueChange={(v) => clean({ ...b, onIncorrect: pick(v) })}
+              items={items}
+            />
+          </FormField>
+        </div>
+      )}
+      {options.length > 0 && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {options.map((o) => (
+            <FormField key={o} label={`Se escolher «${o}», ir para`} htmlFor={`br-${index}-${o}`}>
+              <Select
+                value={b.byOption?.[o] ?? NEXT}
+                onValueChange={(v) =>
+                  clean({ ...b, byOption: { ...b.byOption, [o]: pick(v) ?? '' } })
+                }
+                items={items}
+              />
+            </FormField>
+          ))}
+        </div>
+      )}
+    </fieldset>
+  );
+}
+
+/** Reforço (§7): o que mostrar e se a etapa se repete quando a resposta está errada. */
+function ReinforcementEditor({
+  step,
+  index,
+  earlier,
+  onChange,
+}: {
+  step: BuilderStep;
+  index: number;
+  /** Só etapas anteriores — o backend recusa a revisão de etapas à frente. */
+  earlier: { key: string; title: string }[];
+  onChange: (reinforcement: StepReinforcement | undefined) => void;
+}) {
+  if (!step.question?.correctAnswer) return null;
+  const r = step.reinforcement ?? {};
+  const clean = (next: StepReinforcement) => {
+    const out: StepReinforcement = {
+      ...(next.message?.trim() ? { message: next.message } : {}),
+      ...(next.reviewStepKey ? { reviewStepKey: next.reviewStepKey } : {}),
+      ...(next.resourceUrl?.trim() ? { resourceUrl: next.resourceUrl } : {}),
+      ...(next.retryOnIncorrect
+        ? { retryOnIncorrect: true, maxRetries: next.maxRetries ?? 2 }
+        : {}),
+    };
+    onChange(Object.keys(out).length ? out : undefined);
+  };
+  return (
+    <fieldset className="space-y-2 rounded-card bg-surface-sunken p-3">
+      <legend className="px-1 font-body text-sm font-medium text-ink">
+        Reforço se errar (opcional)
+      </legend>
+      <p className="font-body text-xs text-ink-faint">
+        Mensagem e conteúdo complementar mostrados após uma resposta errada; pode
+        obrigar a repetir a etapa antes de avançar.
+      </p>
+      <FormField label="Mensagem de reforço" htmlFor={`rf-m-${index}`}>
+        <Textarea
+          id={`rf-m-${index}`}
+          rows={2}
+          value={r.message ?? ''}
+          onChange={(e) => clean({ ...r, message: e.target.value })}
+        />
+      </FormField>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <FormField label="Etapa anterior a rever" htmlFor={`rf-s-${index}`}>
+          <Select
+            value={r.reviewStepKey ?? NEXT}
+            onValueChange={(v) => clean({ ...r, reviewStepKey: v === NEXT ? undefined : v })}
+            items={[
+              { value: NEXT, label: 'Nenhuma' },
+              ...earlier.map((l) => ({ value: l.key, label: l.title || l.key })),
+            ]}
+          />
+        </FormField>
+        <FormField label="Conteúdo complementar (URL)" htmlFor={`rf-u-${index}`}>
+          <Input
+            id={`rf-u-${index}`}
+            value={r.resourceUrl ?? ''}
+            onChange={(e) => clean({ ...r, resourceUrl: e.target.value })}
+          />
+        </FormField>
+      </div>
+      <div className="flex flex-wrap items-center gap-4 font-body text-sm text-ink">
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={!!r.retryOnIncorrect}
+            onChange={(e) => clean({ ...r, retryOnIncorrect: e.target.checked })}
+          />
+          Repetir a etapa antes de avançar
+        </label>
+        {r.retryOnIncorrect && (
+          <label className="flex items-center gap-2">
+            Repetições
+            <input
+              type="number"
+              min={1}
+              max={5}
+              className="w-16 rounded-card border border-border bg-surface px-2 py-1"
+              value={r.maxRetries ?? 2}
+              onChange={(e) =>
+                clean({ ...r, maxRetries: Math.min(5, Math.max(1, Number(e.target.value) || 2)) })
+              }
+            />
+          </label>
+        )}
+      </div>
+    </fieldset>
+  );
+}
+
 function StepEditor({
   step,
   index,
   total,
+  later,
+  earlier,
   onChange,
   onMove,
   onRemove,
@@ -55,6 +236,8 @@ function StepEditor({
   step: BuilderStep;
   index: number;
   total: number;
+  later: { key: string; title: string }[];
+  earlier: { key: string; title: string }[];
   onChange: (patch: Partial<BuilderStep>) => void;
   onMove: (dir: -1 | 1) => void;
   onRemove: () => void;
@@ -114,7 +297,10 @@ function StepEditor({
               onChange({
                 type: v as BuilderStep['type'],
                 question:
-                  v === 'QUESTION' ? (q ?? { kind: 'SHORT' }) : undefined,
+                  v === 'QUESTION' || v === 'SCENARIO'
+                    ? (q ?? { kind: v === 'SCENARIO' ? 'SINGLE' : 'SHORT' })
+                    : undefined,
+                branches: v === 'QUESTION' || v === 'SCENARIO' ? step.branches : undefined,
               })
             }
             items={STEP_TYPES}
@@ -145,7 +331,7 @@ function StepEditor({
         />
       </FormField>
 
-      {step.type === 'QUESTION' && q && (
+      {(step.type === 'QUESTION' || step.type === 'SCENARIO') && q && (
         <div className="space-y-3 rounded-card bg-surface-sunken p-3">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormField label="Formato" htmlFor={`st-k-${index}`}>
@@ -209,7 +395,75 @@ function StepEditor({
           </div>
         </div>
       )}
+      {step.type === 'QUESTION' && (
+        <ReinforcementEditor
+          step={step}
+          index={index}
+          earlier={earlier}
+          onChange={(reinforcement) => onChange({ reinforcement })}
+        />
+      )}
+      {(step.type === 'QUESTION' || step.type === 'SCENARIO') && (
+        <BranchEditor
+          step={step}
+          index={index}
+          later={later}
+          onChange={(branches) => onChange({ branches })}
+        />
+      )}
     </div>
+  );
+}
+
+/** Regras de conclusão (§7): o que recomendar quando a nota fica abaixo da mínima. */
+function FailRules({
+  rules,
+  onChange,
+}: {
+  rules: SessionRules;
+  onChange: (rules: SessionRules) => void;
+}) {
+  const f = rules.onFail ?? {};
+  const set = (next: NonNullable<SessionRules['onFail']>) => {
+    const out = {
+      ...(next.message?.trim() ? { message: next.message } : {}),
+      ...(next.resourceUrl?.trim() ? { resourceUrl: next.resourceUrl } : {}),
+      ...(next.recommendSessionId ? { recommendSessionId: next.recommendSessionId } : {}),
+    };
+    onChange(Object.keys(out).length ? { onFail: out } : {});
+  };
+  return (
+    <fieldset className="space-y-2 rounded-card border border-border p-3">
+      <legend className="px-1 font-body text-sm font-medium text-ink">
+        Se ficar abaixo da nota mínima
+      </legend>
+      <FormField label="Mensagem" htmlFor="fr-msg">
+        <Textarea
+          id="fr-msg"
+          rows={2}
+          value={f.message ?? ''}
+          onChange={(e) => set({ ...f, message: e.target.value })}
+        />
+      </FormField>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <FormField label="Conteúdo complementar (URL)" htmlFor="fr-url">
+          <Input
+            id="fr-url"
+            value={f.resourceUrl ?? ''}
+            onChange={(e) => set({ ...f, resourceUrl: e.target.value })}
+          />
+        </FormField>
+        <FormField label="Sessão complementar (id)" htmlFor="fr-sess">
+          <Input
+            id="fr-sess"
+            type="number"
+            min={1}
+            value={f.recommendSessionId ?? ''}
+            onChange={(e) => set({ ...f, recommendSessionId: Number(e.target.value) || undefined })}
+          />
+        </FormField>
+      </div>
+    </fieldset>
   );
 }
 
@@ -290,6 +544,23 @@ function AssignBox({ sessionId }: { sessionId: number }) {
   );
 }
 
+/** Ao remover/mover uma etapa, retira as ramificações que apontavam para ela. */
+function dropBranchesTo(steps: BuilderStep[], key: string): BuilderStep[] {
+  return steps.map((s) => {
+    const b = s.branches;
+    if (!b) return s;
+    const byOption = Object.fromEntries(
+      Object.entries(b.byOption ?? {}).filter(([, v]) => v !== key),
+    );
+    const next: StepBranches = {
+      ...(b.onCorrect && b.onCorrect !== key ? { onCorrect: b.onCorrect } : {}),
+      ...(b.onIncorrect && b.onIncorrect !== key ? { onIncorrect: b.onIncorrect } : {}),
+      ...(Object.keys(byOption).length ? { byOption } : {}),
+    };
+    return { ...s, branches: Object.keys(next).length ? next : undefined };
+  });
+}
+
 function SessionForm({ session }: { session: SessionDetail }) {
   const notify = useToast();
   const [title, setTitle] = useState(session.title);
@@ -301,6 +572,7 @@ function SessionForm({ session }: { session: SessionDetail }) {
     session.experienceType,
   );
   const [steps, setSteps] = useState<BuilderStep[]>(session.steps);
+  const [rules, setRules] = useState<SessionRules>(session.rules ?? {});
 
   const patch = (i: number, p: Partial<BuilderStep>) =>
     setSteps((s) => s.map((st, idx) => (idx === i ? { ...st, ...p } : st)));
@@ -308,7 +580,20 @@ function SessionForm({ session }: { session: SessionDetail }) {
     setSteps((s) => {
       const next = [...s];
       [next[i], next[i + dir]] = [next[i + dir], next[i]];
-      return next;
+      // Mover pode deixar ramificações a apontar para trás: retiram-se as que passam a ser inválidas.
+      return next.map((st, idx) => {
+        if (!st.branches) return st;
+        const later = new Set(next.slice(idx + 1).map((x) => x.key));
+        let out = st;
+        for (const k of [
+          st.branches.onCorrect,
+          st.branches.onIncorrect,
+          ...Object.values(st.branches.byOption ?? {}),
+        ]) {
+          if (k && !later.has(k)) out = dropBranchesTo([out], k)[0];
+        }
+        return out;
+      });
     });
   const nextKey = () => {
     let n = steps.length + 1;
@@ -324,6 +609,7 @@ function SessionForm({ session }: { session: SessionDetail }) {
         durationMinutes: duration ? Number(duration) : undefined,
         experienceType,
         steps,
+        rules,
       }),
     {
       invalidateKeys: [
@@ -383,6 +669,8 @@ function SessionForm({ session }: { session: SessionDetail }) {
         />
       </FormField>
 
+      <FailRules rules={rules} onChange={setRules} />
+
       <div className="space-y-3">
         {steps.map((s, i) => (
           <StepEditor
@@ -390,9 +678,11 @@ function SessionForm({ session }: { session: SessionDetail }) {
             step={s}
             index={i}
             total={steps.length}
+            later={steps.slice(i + 1).map((x) => ({ key: x.key, title: x.title }))}
+            earlier={steps.slice(0, i).map((x) => ({ key: x.key, title: x.title }))}
             onChange={(p) => patch(i, p)}
             onMove={(d) => move(i, d)}
-            onRemove={() => setSteps((x) => x.filter((_, idx) => idx !== i))}
+            onRemove={() => setSteps((x) => dropBranchesTo(x, x[i].key).filter((_, idx) => idx !== i))}
           />
         ))}
         <Button

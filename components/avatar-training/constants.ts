@@ -5,8 +5,10 @@ import type {
   AssignmentStatus,
   AttemptStatus,
   AvatarStatus,
+  AvatarType,
   ExperienceType,
   ProgramStatus,
+  SourceType,
   TabId,
 } from './types';
 
@@ -32,7 +34,7 @@ export const TABS: { id: TabId; label: string; roles?: readonly Role[] }[] = [
   { id: 'knowledge', label: 'Base de Conhecimento', roles: AUTHOR_ROLES },
   { id: 'assessments', label: 'Avaliações', roles: AUTHOR_ROLES },
   { id: 'competencies', label: 'Competências' },
-  { id: 'avatars', label: 'Avatares' },
+  { id: 'avatars', label: 'Avatares', roles: AUTHOR_ROLES },
   { id: 'progress', label: 'Progresso dos Formandos' },
   { id: 'reports', label: 'Relatórios', roles: PROGRESS_ROLES },
   { id: 'settings', label: 'Configurações', roles: AUTHOR_ROLES },
@@ -83,3 +85,43 @@ export const SIMULATION_TYPES: readonly ExperienceType[] = [
   'ROLE_PLAY',
   'PRACTICAL_ASSESSMENT',
 ];
+
+export const DIFFICULTY_LABEL: Record<string, string> = {
+  BEGINNER: 'Iniciante',
+  INTERMEDIATE: 'Intermédio',
+  ADVANCED: 'Avançado',
+  EXPERT: 'Especialista',
+};
+
+export const LEVEL_FIT_LABEL = {
+  MATCH: 'Adequada ao seu nível',
+  EASIER: 'Abaixo do seu nível (revisão)',
+  HARDER: 'Acima do seu nível',
+} as const;
+
+export const AVATAR_TYPE_LABEL: Record<AvatarType, string> = {
+  IMAGE: 'Imagem',
+  AVATAR_2D: 'Avatar 2D',
+  AVATAR_3D: 'Avatar 3D',
+  VIDEO: 'Vídeo',
+};
+
+export const SOURCE_LABEL: Record<SourceType, string> = {
+  COURSE: 'Curso',
+  LESSON: 'Lição',
+  DOCUMENT: 'Documento',
+  LIBRARY_ITEM: 'Item da biblioteca',
+};
+
+export const LANGUAGE_ITEMS = [
+  { value: 'pt', label: 'Português' },
+  { value: 'en', label: 'Inglês' },
+  { value: 'es', label: 'Espanhol' },
+  { value: 'fr', label: 'Francês' },
+];
+
+export const AUDIT_ACTION_LABEL: Record<string, string> = {
+  CREATE: 'Criado',
+  UPDATE: 'Alterado',
+  TEST: 'Testado',
+};

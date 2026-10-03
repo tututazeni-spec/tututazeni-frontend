@@ -1,102 +1,247 @@
-// src/app/(dashboard)/events/page.tsx
 'use client';
 
-// Container: gere a navegação entre as abas principais do módulo
-// (docs/events.md) e monta o CreateEventModal. Remodel em curso — uma
-// tarefa do events.md de cada vez; cada aba arranca como placeholder
-// (EmptyState) e ganha conteúdo real quando a respectiva tarefa for
-// trabalhada. CatalogView/MyEventsView/OrganizerView/DetailView (nav
-// anterior: catálogo/os meus eventos/organizador) ficam por agora sem
-// referência — o trabalho de cada secção decide o que delas é reaproveitado.
+// ─── app/(platform)/processes/page.tsx ───────────────────────────────────────
+// INNOVA — Módulo Processes (docs/Modulo_Processes.md).
 //
-// O botão "Criar evento" abria só um toast placeholder — ver memory
-// project_innova_frontend_placeholder_toast_buttons. Monta o
-// CreateEventModal (POST /events), visível apenas para ADMIN/RH/GESTOR
-// (espelha @Roles em src/events/events.controller.ts#create).
+// Container: gere a navegação entre as 12 abas do §2 e as vistas de detalhe
+// (viewer/runner). Cada aba é auto-contida. Abas ainda não implementadas
+// mostram um estado vazio até à fase respectiva. Nota: este ficheiro tinha
+// sido sobrescrito pelo código da página de eventos (#491) — restaurado.
+// ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
-import type { Role } from '@/lib/roles';
-import { NAV, TITLES } from '@/components/events/constants';
-import { CalendarTab } from '@/components/events/CalendarTab';
-import { CheckinAttendanceTab } from '@/components/events/CheckinAttendanceTab';
-import { CommunicationTab } from '@/components/events/CommunicationTab';
-import { CreateEventModal } from '@/components/events/CreateEventModal';
-import { EvaluationTab } from '@/components/events/EvaluationTab';
-import { EventsTab } from '@/components/events/EventsTab';
-import { OverviewTab } from '@/components/events/OverviewTab';
-import { ParticipantsTab } from '@/components/events/ParticipantsTab';
-import { ReportsTab } from '@/components/events/ReportsTab';
-import { ScheduleTab } from '@/components/events/ScheduleTab';
-import { SpeakersGuestsTab } from '@/components/events/SpeakersGuestsTab';
-import { VenuesLogisticsTab } from '@/components/events/VenuesLogisticsTab';
-import type { Nav } from '@/components/events/types';
+import { Hammer, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { CreateProcessModal } from '@/components/processes/CreateProcessModal';
+import { DashboardView } from '@/components/processes/DashboardView';
+import { LibraryView } from '@/components/processes/LibraryView';
+import { InstancesView } from '@/components/processes/InstancesView';
+import { StartProcessModal } from '@/components/processes/StartProcessModal';
+import { TasksView } from '@/components/processes/TasksView';
+import { ProcessViewer } from '@/components/processes/ProcessViewer';
+import { TaskRunner } from '@/components/processes/TaskRunner';
+import { ApprovalsView } from '@/components/processes/ApprovalsView';
+import { WorkflowsView } from '@/components/processes/WorkflowsView';
+import { AutomationsView } from '@/components/processes/AutomationsView';
+import { CalendarView } from '@/components/processes/CalendarView';
+import { DocumentsView } from '@/components/processes/DocumentsView';
+import { ReportsView } from '@/components/processes/ReportsView';
+import { HistoryView } from '@/components/processes/HistoryView';
+import { SettingsView } from '@/components/processes/SettingsView';
+import { NAV } from '@/components/processes/constants';
+import type { Nav } from '@/components/processes/types';
 
-// Espelha @Roles(ADMIN, RH, GESTOR) em src/events/events.controller.ts#create.
-const CAN_CREATE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+// Espelha @Roles(ADMIN, RH, GESTOR) em GET /processes/dashboard
+// (src/process-standard/process-standard.controller.ts).
+const OVERVIEW_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+// Espelha @Roles(ADMIN, RH, GESTOR) em POST /processes/:id/start e nas
+// acções de gestão de instâncias/tarefas.
+const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+// Espelha @Roles de POST /processes/:id/start (§20): gestão, ou pedidos próprios
+// em modelos abertos à função (AUDITOR e INSTRUCTOR não iniciam processos).
+const START_ROLES: readonly Role[] = [
+  'ADMIN',
+  'RH',
+  'GESTOR',
+  'DIRECTOR',
+  'LIDER',
+  'COLABORADOR',
+];
+// Espelha @Roles(ADMIN, RH) nas rotas /processes/automations.
+const AUTOMATION_ROLES: readonly Role[] = ['ADMIN', 'RH'];
+// Espelha @Roles em GET /processes/reports (ver) e /reports/export (exportar).
+const REPORT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR', 'AUDITOR'];
+const REPORT_EXPORT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+// Espelha @Roles em GET /processes/audit/* (ver) e /audit/export (exportar).
+const AUDIT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'AUDITOR'];
+const AUDIT_EXPORT_ROLES: readonly Role[] = ['ADMIN', 'AUDITOR'];
+// Espelha @Roles em GET /processes/settings|integrations (ver), PUT /settings/:key
+// (só ADMIN) e POST /integrations/logs/:id/retry (ADMIN, RH).
+const SETTINGS_EDIT_ROLES: readonly Role[] = ['ADMIN'];
+const INTEGRATION_RETRY_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 
-export default function EventsPage() {
+export default function ProcessesPage() {
   const role = useCurrentRole();
-  const canCreate = !!role && CAN_CREATE_ROLES.includes(role);
+  const canCreate = !!role && ADMIN_ROLES.includes(role);
+  const canSeeOverview = !!role && OVERVIEW_ROLES.includes(role);
+  const canManage = !!role && MANAGE_ROLES.includes(role);
+  const canStart = !!role && START_ROLES.includes(role);
+  const canAutomate = !!role && AUTOMATION_ROLES.includes(role);
+  const canSeeReports = !!role && REPORT_ROLES.includes(role);
+  const canExportReports = !!role && REPORT_EXPORT_ROLES.includes(role);
+  const canSeeAudit = !!role && AUDIT_ROLES.includes(role);
+  const canExportAudit = !!role && AUDIT_EXPORT_ROLES.includes(role);
+  const canEditSettings = !!role && SETTINGS_EDIT_ROLES.includes(role);
+  const canRetryIntegrations = !!role && INTEGRATION_RETRY_ROLES.includes(role);
 
-  const [nav, setNav] = useState<Nav>({ view: 'overview' });
+  const [nav, setNav] = useState<Nav>({ view: 'all' });
   const [showCreate, setShowCreate] = useState(false);
+  const [showStart, setShowStart] = useState(false);
+
+  // Visão Geral é a aba inicial para quem pode vê-la; antes de o role
+  // carregar, ou para os restantes, arranca em "Todos os Processos".
+  const [overviewDefaulted, setOverviewDefaulted] = useState(false);
+  if (canSeeOverview && !overviewDefaulted) {
+    setOverviewDefaulted(true);
+    setNav({ view: 'overview' });
+  }
+
+  const tabs = NAV.filter(
+    (n) =>
+      (n.id !== 'overview' || canSeeOverview) &&
+      (n.id !== 'automations' || canAutomate) &&
+      (n.id !== 'reports' || canSeeReports) &&
+      (n.id !== 'history' || canSeeAudit) &&
+      (n.id !== 'settings' || canSeeAudit),
+  );
+  const activeTab = tabs.find((n) => n.id === nav.view);
+
+  const handleStartInstance = (instanceId: number) => {
+    setNav({
+      view: 'runner',
+      instanceId,
+      processId: nav.view === 'viewer' ? nav.processId : null,
+    });
+  };
+
+  const handleBack = () => {
+    if (nav.view === 'runner' && nav.processId !== null) {
+      setNav({ view: 'viewer', processId: nav.processId });
+    } else {
+      setNav({ view: 'templates' });
+    }
+  };
+
+  const openInstance = (instanceId: number) =>
+    setNav({ view: 'runner', instanceId, processId: null });
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
+    <div className="mx-auto max-w-6xl px-4 py-8">
+      {/* Título fixo; a descrição muda com a aba (§21) */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <div className="mb-1">
-            <h1 className="font-display text-xl font-semibold text-ink">
-              {TITLES[nav.view]}
-            </h1>
-          </div>
+          <h1 className="font-display text-xl font-semibold text-ink">
+            Processos
+          </h1>
+          {activeTab && (
+            <p className="mt-1 font-body text-sm text-ink-muted">
+              {activeTab.description}
+            </p>
+          )}
         </div>
-        {canCreate && (
-          <Button size="sm" onClick={() => setShowCreate(true)}>
-            <Plus size={14} strokeWidth={1.75} />
-            Criar evento
+        {nav.view === 'all' && canStart && (
+          <Button onClick={() => setShowStart(true)}>
+            <Plus size={16} strokeWidth={1.75} />
+            Novo processo
+          </Button>
+        )}
+        {nav.view === 'templates' && canCreate && (
+          <Button onClick={() => setShowCreate(true)}>
+            <Plus size={16} strokeWidth={1.75} />
+            Novo modelo
           </Button>
         )}
       </div>
 
-      {/* Tabs — formato de "cartão": cada botão é um cartão independente
-          (borda + fundo branco + rounded), sem o fundo/pill de grupo
-          anterior. Alinhadas horizontal e verticalmente (justify-center +
-          items-center no wrapper) com largura mínima uniforme. Estado
-          activo usa a mesma condição `nav.view === n.id` de sempre para
-          aplicar destaque azul (borda/fundo/texto primary). */}
-      <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
-        {NAV.map((n) => (
-          <button
-            key={n.id}
-            onClick={() => setNav({ view: n.id })}
-            className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors ${
-              nav.view === n.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
-            }`}
-          >
-            {n.label}
-          </button>
-        ))}
-      </div>
+      {/* Abas (escondidas em viewer/runner) */}
+      {nav.view !== 'viewer' && nav.view !== 'runner' && (
+        <div className="mb-6 flex w-full flex-wrap items-center gap-2">
+          {tabs.map((n) => (
+            <button
+              key={n.id}
+              onClick={() => setNav({ view: n.id })}
+              className={`whitespace-nowrap rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                nav.view === n.id
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border bg-white text-ink-muted hover:text-ink'
+              }`}
+            >
+              {n.label}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {nav.view === 'overview' && <OverviewTab />}
-      {nav.view === 'events' && <EventsTab />}
-      {nav.view === 'calendar' && <CalendarTab />}
-      {nav.view === 'participants' && <ParticipantsTab />}
-      {nav.view === 'schedule' && <ScheduleTab />}
-      {nav.view === 'venues-logistics' && <VenuesLogisticsTab />}
-      {nav.view === 'speakers-guests' && <SpeakersGuestsTab />}
-      {nav.view === 'communication' && <CommunicationTab />}
-      {nav.view === 'checkin-attendance' && <CheckinAttendanceTab />}
-      {nav.view === 'evaluation' && <EvaluationTab />}
-      {nav.view === 'reports' && <ReportsTab />}
+      {nav.view === 'overview' && canSeeOverview && (
+        <DashboardView onOpenInstance={openInstance} />
+      )}
+      {nav.view === 'all' && (
+        <InstancesView canManage={canManage} onOpenInstance={openInstance} />
+      )}
+      {nav.view === 'templates' && (
+        <LibraryView
+          onSelect={(id) => setNav({ view: 'viewer', processId: id })}
+        />
+      )}
+      {nav.view === 'tasks' && <TasksView canManage={canManage} />}
+      {nav.view === 'approvals' && <ApprovalsView canManage={canManage} />}
+      {nav.view === 'workflows' && <WorkflowsView canEdit={canCreate} />}
+      {nav.view === 'automations' && canAutomate && (
+        <AutomationsView canManage={canAutomate} />
+      )}
+      {nav.view === 'calendar' && (
+        <CalendarView canManage={canManage} onOpenInstance={openInstance} />
+      )}
+      {nav.view === 'documents' && (
+        <DocumentsView canManage={canManage} onOpenInstance={openInstance} />
+      )}
+      {nav.view === 'reports' && canSeeReports && (
+        <ReportsView
+          canExport={canExportReports}
+          onOpenInstance={openInstance}
+        />
+      )}
+      {nav.view === 'history' && canSeeAudit && (
+        <HistoryView canExport={canExportAudit} onOpenInstance={openInstance} />
+      )}
+      {nav.view === 'settings' && canSeeAudit && (
+        <SettingsView
+          canEdit={canEditSettings}
+          canRetry={canRetryIntegrations}
+          onOpenInstance={openInstance}
+        />
+      )}
+      {nav.view === 'viewer' && (
+        <ProcessViewer
+          processId={nav.processId}
+          canEdit={canCreate}
+          canStart={canManage}
+          onBack={handleBack}
+          onStartInstance={handleStartInstance}
+          onOpenTemplate={(id) => setNav({ view: 'viewer', processId: id })}
+        />
+      )}
+      {nav.view === 'runner' && (
+        <TaskRunner
+          instanceId={nav.instanceId}
+          onBack={handleBack}
+          canViewAll={canSeeReports}
+        />
+      )}
+      {activeTab && !activeTab.ready && (
+        <EmptyState
+          icon={Hammer}
+          title={`${activeTab.label} — em desenvolvimento`}
+          description="Esta aba será disponibilizada numa próxima fase do módulo."
+          className="mx-auto max-w-xl"
+        />
+      )}
 
-      {showCreate && <CreateEventModal onClose={() => setShowCreate(false)} />}
+      {showCreate && (
+        <CreateProcessModal onClose={() => setShowCreate(false)} />
+      )}
+      {showStart && (
+        <StartProcessModal
+          onClose={() => setShowStart(false)}
+          onCreated={(id) => {
+            setShowStart(false);
+            openInstance(id);
+          }}
+        />
+      )}
     </div>
   );
 }

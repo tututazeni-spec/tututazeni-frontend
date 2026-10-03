@@ -39,17 +39,28 @@ const STATUS_LABEL: Record<string, string> = {
 
 const STATUS_FILTERS = ['', 'SUCCESS', 'FAILED', 'PENDING'] as const;
 
-export function ExecutionsTab() {
+export interface ExecutionsTabProps {
+  /** Filtra o histórico a uma só regra (ex.: vindo de "Consultar histórico"). */
+  ruleId?: number;
+  initialStatus?: string;
+  onClearRule?: () => void;
+}
+
+export function ExecutionsTab({
+  ruleId,
+  initialStatus = '',
+  onClearRule,
+}: ExecutionsTabProps = {}) {
   const notify = useToast();
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState(initialStatus);
   const {
     data,
     isLoading: loading,
     refetch,
   } = useApiQuery<ExecutionsResponse>(
-    queryKeys.automation.executions(status),
+    queryKeys.automation.executions(status, ruleId),
     '/automation/executions',
-    { params: { status: status || undefined }, staleTime: STALE_TIME.DYNAMIC },
+    { params: { status: status || undefined, ruleId }, staleTime: STALE_TIME.DYNAMIC },
   );
 
   const retry = async (id: number) => {
@@ -89,6 +100,11 @@ export function ExecutionsTab() {
             {s ? (STATUS_LABEL[s] ?? s) : 'Todas'}
           </Button>
         ))}
+        {ruleId !== undefined && (
+          <Button size="sm" intent="secondary" onClick={onClearRule}>
+            Regra #{ruleId} ✕
+          </Button>
+        )}
         <span className="ml-auto self-center font-body text-xs text-ink-faint">
           {data?.meta?.total ?? 0} execuções
         </span>

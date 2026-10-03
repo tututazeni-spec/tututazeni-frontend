@@ -8,7 +8,18 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, Check, Paperclip, Play, Plus, Send, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  Check,
+  Copy,
+  FlaskConical,
+  Paperclip,
+  Pencil,
+  Play,
+  Plus,
+  Send,
+  X,
+} from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -26,21 +37,37 @@ import {
   RISK_LEVEL_MAP,
   STEP_TYPE_MAP,
 } from './constants';
+import { CreateProcessModal } from './CreateProcessModal';
+import { ReasonDialog } from './ReasonDialog';
 import { Skeleton } from './Skeleton';
-import type { Process, ProcessInstance } from './types';
+import { StartProcessModal } from './StartProcessModal';
+import { TemplateValidationModal } from './TemplateValidationModal';
+import type { Process, TemplateVersionRow } from './types';
 
 export interface ProcessViewerProps {
   processId: number;
+  /** ADMIN/RH: pode editar, testar, duplicar e publicar modelos. */
+  canEdit: boolean;
+  /** ADMIN/RH/GESTOR: pode iniciar processos a partir do modelo. */
+  canStart: boolean;
   onBack: () => void;
   onStartInstance: (instanceId: number) => void;
+  onOpenTemplate: (processId: number) => void;
 }
 
 export function ProcessViewer({
   processId,
+  canEdit,
+  canStart,
   onBack,
   onStartInstance,
+  onOpenTemplate,
 }: ProcessViewerProps) {
   const notify = useToast();
+  const [showStart, setShowStart] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [showValidate, setShowValidate] = useState(false);
+  const [showReject, setShowReject] = useState(false);
   const [activeTab, setActiveTab] = useState<'flow' | 'info' | 'history'>(
     'flow',
   );
@@ -78,27 +105,27 @@ export function ProcessViewer({
     },
   );
   const handleApproval = (action: 'approve' | 'reject') => {
-    const comment =
-      action === 'reject' ? prompt('Motivo da rejeição:') : undefined;
-    if (action === 'reject' && !comment) return;
-    approval.mutate({ action, comment: comment ?? undefined });
+    if (action === 'reject') return setShowReject(true);
+    approval.mutate({ action });
   };
 
-  const startInstance = useApiMutation(
-    (targetUserId: number) =>
-      apiClient.post<ProcessInstance>(`/processes/${processId}/start`, {
-        targetUserId,
-      }),
+  const duplicate = useApiMutation(
+    () => apiClient.post<Process>(`/processes/${processId}/duplicate`, {}),
     {
-      onSuccess: (inst) => onStartInstance(inst.id),
+      invalidateKeys: [queryKeys.processes.all],
+      onSuccess: (copy) => {
+        notify({ title: `Modelo duplicado (${copy.code})`, intent: 'success' });
+        onOpenTemplate(copy.id);
+      },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
-  const handleStartInstance = () => {
-    const targetUserIdStr = prompt('ID do colaborador alvo:');
-    if (!targetUserIdStr) return;
-    startInstance.mutate(parseInt(targetUserIdStr));
-  };
+
+  const { data: versions } = useApiQuery<TemplateVersionRow[]>(
+    queryKeys.processes.versions(processId),
+    `/processes/${processId}/versions`,
+    { staleTime: STALE_TIME.SEMI_STATIC, enabled: canEdit || canStart },
+  );
 
   const confirm = useConfirm();
   const newVersion = useApiMutation(
@@ -121,7 +148,7 @@ export function ProcessViewer({
   };
 
   const actionLoading =
-    approval.isPending || startInstance.isPending || newVersion.isPending;
+    approval.isPending || duplicate.isPending || newVersion.isPending;
 
   if (loading)
     return (
@@ -146,7 +173,7 @@ export function ProcessViewer({
     <div>
       <Button intent="ghost" size="sm" onClick={onBack} className="mb-5">
         <ArrowLeft size={14} strokeWidth={1.75} />
-        Voltar à biblioteca
+        Voltar aos modelos
       </Button>
 
       {/* Header */}
@@ -225,17 +252,44 @@ export function ProcessViewer({
 
           {/* Acções */}
           <div className="flex flex-shrink-0 flex-col items-end gap-2">
-            {process.status === 'ACTIVE' && (
+            {process.status === 'ACTIVE' && canStart && (
               <Button
-                onClick={handleStartInstance}
+                onClick={() => setShowStart(true)}
                 disabled={actionLoading}
                 size="sm"
               >
                 <Play size={14} strokeWidth={1.75} />
-                Iniciar instância
+                Iniciar processo
               </Button>
             )}
-            {process.status === 'DRAFT' && (
+            {canEdit && (
+              <Button
+                intent="ghost"
+                size="sm"
+                onClick={() => setShowValidate(true)}
+              >
+                <FlaskConical size={14} strokeWidth={1.75} />
+                Testar fluxo
+              </Button>
+            )}
+            {canEdit && process.status === 'DRAFT' && (
+              <Button intent="ghost" size="sm" onClick={() => setShowEdit(true)}>
+                <Pencil size={14} strokeWidth={1.75} />
+                Editar rascunho
+              </Button>
+            )}
+            {canEdit && (
+              <Button
+                intent="ghost"
+                size="sm"
+                onClick={() => duplicate.mutate(undefined)}
+                disabled={actionLoading}
+              >
+                <Copy size={14} strokeWidth={1.75} />
+                Duplicar
+              </Button>
+            )}
+            {process.status === 'DRAFT' && canEdit && (
               <Button
                 intent="warning"
                 onClick={handleSubmitReview}
@@ -246,7 +300,7 @@ export function ProcessViewer({
                 {submitting ? 'A submeter…' : 'Submeter para revisão'}
               </Button>
             )}
-            {process.status === 'IN_REVIEW' && (
+            {process.status === 'IN_REVIEW' && canEdit && (
               <div className="flex gap-2">
                 <Button
                   intent="success"
@@ -268,7 +322,7 @@ export function ProcessViewer({
                 </Button>
               </div>
             )}
-            {process.status === 'ACTIVE' && (
+            {process.status === 'ACTIVE' && canEdit && (
               <Button
                 intent="secondary"
                 size="sm"
@@ -362,6 +416,29 @@ export function ProcessViewer({
                             </strong>
                           </span>
                         )}
+                        {step.reviewer && (
+                          <span>
+                            Revisor:{' '}
+                            <strong className="text-ink">
+                              {step.reviewer.fullName}
+                            </strong>
+                          </span>
+                        )}
+                        {step.parallel && (
+                          <span className="font-medium text-info-ink">
+                            Paralela
+                          </span>
+                        )}
+                        {step.dependsOnOrders.length > 0 && (
+                          <span>
+                            Depende de:{' '}
+                            <strong className="text-ink">
+                              {step.dependsOnOrders
+                                .map((o) => o + 1)
+                                .join(', ')}
+                            </strong>
+                          </span>
+                        )}
                         {step.estimatedMinutes && (
                           <span>
                             Tempo est.:{' '}
@@ -438,6 +515,7 @@ export function ProcessViewer({
                   process.defaultSlaHours ? `${process.defaultSlaHours}h` : '—',
                 ],
                 ['Duração estimada', fmtDuration(process.estimatedMinutes)],
+                ['Entrada em vigor', fmtDate(process.effectiveFrom)],
               ].map(([label, value]) => (
                 <div
                   key={label}
@@ -452,6 +530,30 @@ export function ProcessViewer({
                 </div>
               ))}
             </Card>
+            <Card className="col-span-2 p-5">
+              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                Configuração do modelo
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {(
+                  [
+                    ['Módulos envolvidos', process.involvedModules.join(', ')],
+                    ['Confidencialidade', process.confidentiality],
+                    ['Regras de acesso', process.accessRoles.join(', ') || 'Todas as funções'],
+                    ['Política de revisão', process.reviewPolicy],
+                    ['Documentos necessários', process.requiredDocuments.join(' · ')],
+                    ['Regras de aprovação', process.approvalRules],
+                    ['Condições para iniciar', process.startConditions],
+                    ['Condições para concluir', process.completionConditions],
+                  ] as Array<[string, string | null]>
+                ).map(([label, value]) => (
+                  <div key={label}>
+                    <div className="font-body text-xs text-ink-faint">{label}</div>
+                    <p className="font-body text-sm text-ink">{value || '—'}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
           </div>
         </TabsContent>
 
@@ -461,18 +563,64 @@ export function ProcessViewer({
             <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
               Histórico de versões
             </div>
-            <div className="px-4 py-8 text-center font-body text-sm text-ink-faint">
-              Versão actual:{' '}
-              <strong className="text-ink">v{process.version}</strong>
-              <br />
-              <span className="mt-1 block text-xs">
-                Versões anteriores guardadas no servidor. Use a API para
-                comparar.
-              </span>
+            {(versions ?? [{ version: process.version, current: true, status: process.status, createdAt: process.updatedAt }]).map((v) => (
+              <div
+                key={`${v.version}-${v.current}`}
+                className="flex items-center justify-between border-b border-border px-4 py-3 last:border-0"
+              >
+                <span className="font-mono text-sm text-ink">
+                  v{v.version}
+                  {v.current && (
+                    <span className="ml-2 rounded-control bg-primary-subtle px-1.5 py-0.5 font-body text-xs text-primary">
+                      actual
+                    </span>
+                  )}
+                </span>
+                <span className="font-body text-xs text-ink-faint">
+                  {v.current ? 'Publicada/actualizada' : 'Guardada'} em {fmtDate(v.createdAt)}
+                </span>
+              </div>
+            ))}
+            <div className="px-4 py-3 font-body text-xs text-ink-faint">
+              Cada processo em execução mantém a versão do modelo com que foi iniciado.
             </div>
           </div>
         </TabsContent>
       </Tabs>
+
+      {showStart && (
+        <StartProcessModal
+          templateId={processId}
+          onClose={() => setShowStart(false)}
+          onCreated={(id) => {
+            setShowStart(false);
+            onStartInstance(id);
+          }}
+        />
+      )}
+      {showEdit && (
+        <CreateProcessModal initial={process} onClose={() => setShowEdit(false)} />
+      )}
+      {showValidate && (
+        <TemplateValidationModal
+          processId={processId}
+          onClose={() => setShowValidate(false)}
+        />
+      )}
+      {showReject && (
+        <ReasonDialog
+          title="Rejeitar modelo?"
+          description="O modelo volta a rascunho com a justificação registada."
+          confirmLabel="Rejeitar"
+          destructive
+          loading={approval.isPending}
+          onClose={() => setShowReject(false)}
+          onConfirm={(comment) => {
+            approval.mutate({ action: 'reject', comment });
+            setShowReject(false);
+          }}
+        />
+      )}
     </div>
   );
 }

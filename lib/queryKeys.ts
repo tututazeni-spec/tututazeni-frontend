@@ -246,11 +246,23 @@ export const queryKeys = {
 
   automation: {
     all: ['automation'] as const,
-    rules: () => [...queryKeys.automation.all, 'rules'] as const,
-    executions: (status: string) =>
-      [...queryKeys.automation.all, 'executions', status] as const,
+    rules: (params?: Record<string, unknown>) =>
+      [...queryKeys.automation.all, 'rules', params ?? {}] as const,
+    modules: () => [...queryKeys.automation.all, 'modules'] as const,
+    overview: (params: Record<string, unknown>) =>
+      [...queryKeys.automation.all, 'overview', params] as const,
+    executions: (status: string, ruleId?: number) =>
+      [...queryKeys.automation.all, 'executions', status, ruleId ?? null] as const,
     templates: () => [...queryKeys.automation.all, 'templates'] as const,
     stats: () => [...queryKeys.automation.all, 'stats'] as const,
+    rule: (id: number) => [...queryKeys.automation.all, 'rule', id] as const,
+    versions: (id: number) =>
+      [...queryKeys.automation.all, 'versions', id] as const,
+    eventCatalog: () => [...queryKeys.automation.all, 'event-catalog'] as const,
+    events: (params: Record<string, unknown>) =>
+      [...queryKeys.automation.all, 'events', params] as const,
+    schedules: (params?: Record<string, unknown>) =>
+      [...queryKeys.automation.all, 'schedules', params ?? {}] as const,
   },
 
   scalability: {
@@ -811,7 +823,68 @@ export const queryKeys = {
     instance: (id: number) =>
       [...queryKeys.processes.all, 'instance', id] as const,
     myTasks: () => [...queryKeys.processes.all, 'my-tasks'] as const,
-    dashboard: () => [...queryKeys.processes.all, 'dashboard'] as const,
+    dashboard: (params: Record<string, unknown> = {}) =>
+      [...queryKeys.processes.all, 'dashboard', params] as const,
+    instances: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'instances', params] as const,
+    instanceFilters: () =>
+      [...queryKeys.processes.all, 'instance-filters'] as const,
+    tasks: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'tasks', params] as const,
+    task: (instanceId: number, stepId: number) =>
+      [...queryKeys.processes.all, 'task', instanceId, stepId] as const,
+    instanceHistory: (id: number) =>
+      [...queryKeys.processes.all, 'instance-history', id] as const,
+    versions: (id: number) =>
+      [...queryKeys.processes.all, 'versions', id] as const,
+    approvals: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'approvals', params] as const,
+    approval: (id: number) =>
+      [...queryKeys.processes.all, 'approval', id] as const,
+    automations: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'automations', params] as const,
+    automation: (id: number) =>
+      [...queryKeys.processes.all, 'automation', id] as const,
+    automationCatalog: () =>
+      [...queryKeys.processes.all, 'automation-catalog'] as const,
+    templateOptions: () =>
+      [...queryKeys.processes.all, 'template-options'] as const,
+    calendar: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'calendar', params] as const,
+    deadlineHistory: (instanceId: number, stepId: number | null) =>
+      [
+        ...queryKeys.processes.all,
+        'deadline-history',
+        instanceId,
+        stepId,
+      ] as const,
+    documents: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'documents', params] as const,
+    instanceDocuments: (instanceId: number) =>
+      [...queryKeys.processes.all, 'instance-documents', instanceId] as const,
+    documentVersions: (id: number) =>
+      [...queryKeys.processes.all, 'document-versions', id] as const,
+    documentSources: (search: string) =>
+      [...queryKeys.processes.all, 'document-sources', search] as const,
+    documentTemplates: () =>
+      [...queryKeys.processes.all, 'document-templates'] as const,
+    report: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'report', params] as const,
+    reportRecords: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'report-records', params] as const,
+    auditEvents: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'audit-events', params] as const,
+    auditEvent: (id: number) =>
+      [...queryKeys.processes.all, 'audit-event', id] as const,
+    auditOptions: () => [...queryKeys.processes.all, 'audit-options'] as const,
+    auditAttempts: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'audit-attempts', params] as const,
+    settings: () => [...queryKeys.processes.all, 'settings'] as const,
+    settingHistory: (key: string) =>
+      [...queryKeys.processes.all, 'setting-history', key] as const,
+    integrations: () => [...queryKeys.processes.all, 'integrations'] as const,
+    integrationLogs: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'integration-logs', params] as const,
   },
 
   leadership: {
@@ -1094,8 +1167,8 @@ export const queryKeys = {
     progress: (params: Record<string, unknown>) =>
       [...queryKeys.avatarTraining.all, 'progress', params] as const,
     history: () => [...queryKeys.avatarTraining.all, 'history'] as const,
-    reports: (type: string) =>
-      [...queryKeys.avatarTraining.all, 'reports', type] as const,
+    reports: (type: string, filters?: Record<string, unknown>) =>
+      [...queryKeys.avatarTraining.all, 'reports', type, filters ?? {}] as const,
     reportCatalog: () =>
       [...queryKeys.avatarTraining.all, 'report-catalog'] as const,
     providers: () => [...queryKeys.avatarTraining.all, 'providers'] as const,

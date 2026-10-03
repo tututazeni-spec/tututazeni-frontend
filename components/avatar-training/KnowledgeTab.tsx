@@ -18,14 +18,8 @@ import { Input } from '@/components/ui/Input';
 import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
 import { SessionPicker, useSessionDetail } from './SessionPicker';
+import { SOURCE_LABEL } from './constants';
 import type { SourceType } from './types';
-
-const SOURCE_LABEL: Record<SourceType, string> = {
-  COURSE: 'Curso',
-  LESSON: 'Lição',
-  DOCUMENT: 'Documento',
-  LIBRARY_ITEM: 'Item da biblioteca',
-};
 
 export function KnowledgeTab() {
   const notify = useToast();
