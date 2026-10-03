@@ -860,6 +860,19 @@ export const queryKeys = {
       [...queryKeys.processes.all, 'report', params] as const,
     reportRecords: (params: Record<string, unknown>) =>
       [...queryKeys.processes.all, 'report-records', params] as const,
+    auditEvents: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'audit-events', params] as const,
+    auditEvent: (id: number) =>
+      [...queryKeys.processes.all, 'audit-event', id] as const,
+    auditOptions: () => [...queryKeys.processes.all, 'audit-options'] as const,
+    auditAttempts: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'audit-attempts', params] as const,
+    settings: () => [...queryKeys.processes.all, 'settings'] as const,
+    settingHistory: (key: string) =>
+      [...queryKeys.processes.all, 'setting-history', key] as const,
+    integrations: () => [...queryKeys.processes.all, 'integrations'] as const,
+    integrationLogs: (params: Record<string, unknown>) =>
+      [...queryKeys.processes.all, 'integration-logs', params] as const,
   },
 
   leadership: {

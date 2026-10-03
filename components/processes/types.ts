@@ -645,3 +645,153 @@ export interface PaginatedReportRecords {
   limit: number;
   totalPages: number;
 }
+
+// ─── §13 Histórico e Auditoria ───────────────────────────────────────────────
+export type AuditSource = 'INTERFACE' | 'API' | 'AUTOMATION' | 'SYSTEM';
+
+export interface AuditEvent {
+  id: number;
+  action: string;
+  label: string;
+  createdAt: string;
+  actor: { id: number; fullName: string; role: string | null };
+  source: AuditSource | null;
+  result: 'SUCCESS' | 'FAILED';
+  previousStatus: string | null;
+  newStatus: string | null;
+  reason: string | null;
+  errorMessage: string | null;
+  correlationId: string | null;
+  template: { id: number; code: string; title: string } | null;
+  instance: { id: number; code: string; title: string | null } | null;
+  stepId: number | null;
+  hash: string;
+}
+
+export interface PaginatedAuditEvents {
+  data: AuditEvent[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface AuditEventDetail extends AuditEvent {
+  meta: Record<string, unknown> | null;
+  approval: {
+    id: number;
+    status: string;
+    decision: string | null;
+    justification: string | null;
+    decidedAt: string | null;
+  } | null;
+  document: {
+    id: number;
+    name: string;
+    version: string;
+    validationStatus: string;
+    versions: Array<{ id: number; version: string; createdAt: string }>;
+  } | null;
+  previousEvent: { id: number; action: string; label: string; createdAt: string } | null;
+  nextEvent: {
+    id: number;
+    action: string;
+    label: string;
+    createdAt: string;
+    source: AuditSource | null;
+  } | null;
+}
+
+export interface AuditFilterOptions {
+  actions: Array<{ value: string; label: string }>;
+  users: Array<{ id: number; fullName: string }>;
+}
+
+export interface AuditAttempt {
+  kind: 'INTEGRATION' | 'AUTOMATION';
+  id: string;
+  at: string;
+  name: string;
+  status: string;
+  attempts: number;
+  error: string | null;
+  instanceId: number | null;
+  correlationId: string | null;
+}
+
+export interface PaginatedAuditAttempts {
+  data: AuditAttempt[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+// ─── §14 Configurações ───────────────────────────────────────────────────────
+export interface ProcessSettingSection {
+  key: string;
+  title: string;
+  description: string;
+  enforced: boolean;
+  value: unknown;
+  defaultValue: unknown;
+  version: number;
+  isDefault: boolean;
+  updatedAt: string | null;
+  updatedBy: string | null;
+}
+
+export interface ProcessSettingVersion {
+  version: number;
+  reason: string | null;
+  createdAt: string;
+  changedBy: { id: number; fullName: string };
+  value: unknown;
+}
+
+// ─── §15 Integrações ─────────────────────────────────────────────────────────
+export type IntegrationModuleStatus = 'ACTIVE' | 'CONFIGURED' | 'NO_ACTIVITY' | 'ERRORS';
+
+export interface IntegrationModuleRow {
+  key: string;
+  label: string;
+  description: string;
+  note: string | null;
+  status: IntegrationModuleStatus;
+  instances: number;
+  openInstances: number;
+  templates: number;
+  events: number;
+  failedEvents: number;
+  lastActivityAt: string | null;
+  inboundAllowed: boolean;
+}
+
+export interface IntegrationOverview {
+  inboundEnabled: boolean;
+  restrictedToModules: boolean;
+  summary: { total: number; active: number; configured: number; withErrors: number; noActivity: number };
+  modules: IntegrationModuleRow[];
+  unmappedModules: string[];
+}
+
+export interface IntegrationLog {
+  id: number;
+  module: string;
+  event: string;
+  status: 'RECEIVED' | 'SUCCESS' | 'FAILED' | 'DUPLICATE' | 'REJECTED';
+  attempts: number;
+  processCode: string | null;
+  instanceId: number | null;
+  errorMessage: string | null;
+  correlationId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaginatedIntegrationLogs {
+  data: IntegrationLog[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

@@ -29,6 +29,8 @@ import { AutomationsView } from '@/components/processes/AutomationsView';
 import { CalendarView } from '@/components/processes/CalendarView';
 import { DocumentsView } from '@/components/processes/DocumentsView';
 import { ReportsView } from '@/components/processes/ReportsView';
+import { HistoryView } from '@/components/processes/HistoryView';
+import { SettingsView } from '@/components/processes/SettingsView';
 import { NAV } from '@/components/processes/constants';
 import type { Nav } from '@/components/processes/types';
 
@@ -43,6 +45,13 @@ const AUTOMATION_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 // Espelha @Roles em GET /processes/reports (ver) e /reports/export (exportar).
 const REPORT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR', 'AUDITOR'];
 const REPORT_EXPORT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+// Espelha @Roles em GET /processes/audit/* (ver) e /audit/export (exportar).
+const AUDIT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'AUDITOR'];
+const AUDIT_EXPORT_ROLES: readonly Role[] = ['ADMIN', 'AUDITOR'];
+// Espelha @Roles em GET /processes/settings|integrations (ver), PUT /settings/:key
+// (só ADMIN) e POST /integrations/logs/:id/retry (ADMIN, RH).
+const SETTINGS_EDIT_ROLES: readonly Role[] = ['ADMIN'];
+const INTEGRATION_RETRY_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 
 export default function ProcessesPage() {
   const role = useCurrentRole();
@@ -52,6 +61,10 @@ export default function ProcessesPage() {
   const canAutomate = !!role && AUTOMATION_ROLES.includes(role);
   const canSeeReports = !!role && REPORT_ROLES.includes(role);
   const canExportReports = !!role && REPORT_EXPORT_ROLES.includes(role);
+  const canSeeAudit = !!role && AUDIT_ROLES.includes(role);
+  const canExportAudit = !!role && AUDIT_EXPORT_ROLES.includes(role);
+  const canEditSettings = !!role && SETTINGS_EDIT_ROLES.includes(role);
+  const canRetryIntegrations = !!role && INTEGRATION_RETRY_ROLES.includes(role);
 
   const [nav, setNav] = useState<Nav>({ view: 'all' });
   const [showCreate, setShowCreate] = useState(false);
@@ -69,7 +82,9 @@ export default function ProcessesPage() {
     (n) =>
       (n.id !== 'overview' || canSeeOverview) &&
       (n.id !== 'automations' || canAutomate) &&
-      (n.id !== 'reports' || canSeeReports),
+      (n.id !== 'reports' || canSeeReports) &&
+      (n.id !== 'history' || canSeeAudit) &&
+      (n.id !== 'settings' || canSeeAudit),
   );
   const activeTab = tabs.find((n) => n.id === nav.view);
 
@@ -165,6 +180,16 @@ export default function ProcessesPage() {
       {nav.view === 'reports' && canSeeReports && (
         <ReportsView
           canExport={canExportReports}
+          onOpenInstance={openInstance}
+        />
+      )}
+      {nav.view === 'history' && canSeeAudit && (
+        <HistoryView canExport={canExportAudit} onOpenInstance={openInstance} />
+      )}
+      {nav.view === 'settings' && canSeeAudit && (
+        <SettingsView
+          canEdit={canEditSettings}
+          canRetry={canRetryIntegrations}
           onOpenInstance={openInstance}
         />
       )}

@@ -111,8 +111,8 @@ export const NAV: Array<{
   { id: 'calendar', label: 'Calendário e Prazos', description: 'Datas-limite, vencimentos e tarefas agendadas.', ready: true },
   { id: 'documents', label: 'Documentos', description: 'Documentos, formulários e anexos associados.', ready: true },
   { id: 'reports', label: 'Indicadores e Relatórios', description: 'Tempos, volumes, atrasos e níveis de cumprimento.', ready: true },
-  { id: 'history', label: 'Histórico e Auditoria', description: 'Registo cronológico das alterações e decisões.', ready: false },
-  { id: 'settings', label: 'Configurações', description: 'Permissões, prioridades, estados e regras gerais.', ready: false },
+  { id: 'history', label: 'Histórico e Auditoria', description: 'Registo cronológico das alterações e decisões.', ready: true },
+  { id: 'settings', label: 'Configurações', description: 'Permissões, prioridades, estados e regras gerais.', ready: true },
 ];
 
 export const INSTANCE_STATUS_LABEL: Record<string, string> = {
