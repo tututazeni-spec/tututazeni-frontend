@@ -118,7 +118,10 @@ describe('CreateRunModal', () => {
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     const [, body] = post.mock.calls[0];
     expect(body.expectedPaymentDate).toBe('2026-09-30');
-    expect(body.options).toMatchObject({ calculateIrt: false, calculateInss: true });
+    expect(body.options).toMatchObject({
+      calculateIrt: false,
+      calculateInss: true,
+    });
   });
 
   test('omits options when every option is left on', async () => {
