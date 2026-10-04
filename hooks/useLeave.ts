@@ -4,14 +4,17 @@
 // de hooks/useEmployees.ts, hooks/usePayslipDetail.ts, ...). Puramente
 // dados (useApiQuery); a apresentação vive em components/leave/.
 
+import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from './useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type {
-  DashboardData,
   LeaveBalance,
   LeaveRequest,
   LeaveType,
+  OverviewData,
+  OverviewFilters,
+  VacationsResponse,
 } from '@/components/leave/types';
 
 export function useLeaveTypes() {
@@ -41,24 +44,9 @@ export function useMyRequests() {
 }
 
 /**
- * @param enabled - GET /leave/dashboard exige @Roles(ADMIN, RH, GESTOR) no
- * backend; por omissão `true` para não mudar o comportamento de quem já
- * chamava esta hook sem o parâmetro. As páginas que a montam para todas as
- * roles (ex.: app/(platform)/leave/page.tsx) devem passar `false` para um
- * COLABORADOR, ou o pedido rebenta sempre com 403 mal a página monta.
- */
-export function useLeaveDashboard(enabled = true) {
-  const q = useApiQuery<DashboardData>(
-    queryKeys.leave.dashboard(),
-    '/leave/dashboard',
-    { staleTime: STALE_TIME.SEMI_STATIC, enabled },
-  );
-  return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
-}
-
-/**
  * @param enabled - GET /leave/pending-approvals exige @Roles(ADMIN, RH,
- * GESTOR) no backend; ver nota em useLeaveDashboard acima.
+ * GESTOR) no backend; páginas que a montam para todas as roles passam
+ * `false` para um COLABORADOR, ou o pedido rebenta sempre com 403.
  */
 export function usePendingApprovals(enabled = true) {
   // Fila de aprovações → polling de 60s.
@@ -68,4 +56,50 @@ export function usePendingApprovals(enabled = true) {
     { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000, enabled },
   );
   return { data: q.data ?? [], loading: q.isLoading, refetch: q.refetch };
+}
+
+/** Só envia ao backend os filtros preenchidos. */
+function compact(params: Record<string, string | number | undefined>) {
+  return Object.fromEntries(
+    Object.entries(params).filter(([, v]) => v !== '' && v !== undefined),
+  );
+}
+
+/** GET /leave/overview — o âmbito (próprio/equipa/organização) vem do backend. */
+export function useLeaveOverview(filters: OverviewFilters) {
+  const params = compact({ ...filters });
+  const q = useApiQuery<OverviewData>(
+    queryKeys.leave.overview(params),
+    '/leave/overview',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
+  );
+  return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
+}
+
+export interface VacationFilters {
+  year: number;
+  unitId: string;
+  departmentId: string;
+  search: string;
+  planState: string;
+  page: number;
+}
+
+/** GET /leave/vacations — tabela de saldos/plano anual de férias. */
+export function useVacations(filters: VacationFilters) {
+  const params = compact({ ...filters, limit: 20 });
+  const q = useApiQuery<VacationsResponse>(
+    queryKeys.leave.vacations(params),
+    '/leave/vacations',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
+  );
+  return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
 }

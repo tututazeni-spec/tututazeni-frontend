@@ -101,14 +101,17 @@ export function NewLeaveModal({
     }
   };
 
-  const create = useApiMutation(() => apiClient.post('/leave', form), {
-    invalidateKeys: [queryKeys.leave.all],
-    onSuccess: () => {
-      onSuccess();
-      onClose();
+  const create = useApiMutation(
+    () => apiClient.post('/leave', { ...form, userId: currentUser?.id }),
+    {
+      invalidateKeys: [queryKeys.leave.all],
+      onSuccess: () => {
+        onSuccess();
+        onClose();
+      },
+      onError: (e) => setSubmitError(e.message),
     },
-    onError: (e) => setSubmitError(e.message),
-  });
+  );
   const loading = create.isPending;
 
   const handleSubmit = withValidation(() => {

@@ -768,6 +768,11 @@ export const queryKeys = {
     myBalance: () => [...queryKeys.leave.all, 'my-balance'] as const,
     myRequests: () => [...queryKeys.leave.all, 'my-requests'] as const,
     dashboard: () => [...queryKeys.leave.all, 'dashboard'] as const,
+    // Visão Geral e aba Férias (docs/Modulo_Leave.md §2-3).
+    overview: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'overview', params] as const,
+    vacations: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'vacations', params] as const,
     pendingApprovals: () =>
       [...queryKeys.leave.all, 'pending-approvals'] as const,
     // Separador "Férias & Licenças" do perfil de utilizador (docs/modulo_users.md Ponto 3).

@@ -1,26 +1,21 @@
 'use client';
 
 // ─── app/(dashboard)/leave/page.tsx ──────────────────────────────────────────
-// INNOVA — Módulo de Gestão de Ausências (Leave Management)
+// INNOVA — Módulo Leave (férias, licenças e gestão de ausências)
 //
-// Container: liga os 5 hooks de dados (hooks/useLeave.ts) e as 3 mutações
-// (approve/cancel/bulkApprove) à apresentação, agora repartida em
-// components/leave/. O estado de `pending` é partilhado entre o badge do
-// separador e o conteúdo do separador "Aprovações", por isso fica ao nível
-// do container em vez de cada separador buscar os seus próprios dados
-// (diferente do padrão usado em dashboard/employees, onde os separadores
-// eram totalmente independentes). Ver memory
-// project_innova_component_separation_audit.
+// Container: estrutura de 9 abas de docs/Modulo_Leave.md §1. Visão Geral
+// (§2), Férias (§3) e Aprovações estão implementadas; "Licenças" reutiliza a
+// vista de pedidos e saldos já existente; as restantes abas (§5-§10) são
+// placeholders explícitos até às fases seguintes.
 //
-// Migrado para a fundação de design: header/tab bar bespoke passam a
-// tokens + Button/IconButton; badge do separador passa a Badge — mesmos
-// hooks/mutações/queryKeys, só apresentação.
+// O estado de `pending` é partilhado entre o badge do separador e o
+// conteúdo do separador "Aprovações", por isso fica ao nível do container.
+// Ver memory project_innova_component_separation_audit.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import {
-  useLeaveDashboard,
   useLeaveTypes,
   useMyBalance,
   useMyRequests,
@@ -35,31 +30,46 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { filterByRole, type Role } from '@/lib/roles';
 import {
   BarChart3,
-  Calendar,
+  CalendarDays,
   CheckCircle2,
+  ClipboardList,
+  LayoutDashboard,
+  Palmtree,
   Plus,
   RefreshCcw,
+  ScrollText,
+  Settings,
+  Users,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button, IconButton } from '@/components/ui/Button';
 import { ApprovalsTab } from '@/components/leave/ApprovalsTab';
-import { LeaveDashboardTab } from '@/components/leave/LeaveDashboardTab';
 import { MyLeaveTab } from '@/components/leave/MyLeaveTab';
 import { NewLeaveModal } from '@/components/leave/NewLeaveModal';
+import { OverviewTab } from '@/components/leave/OverviewTab';
+import { PendingPhaseTab } from '@/components/leave/PendingPhaseTab';
+import { VacationsTab } from '@/components/leave/VacationsTab';
 
-type TabKey = 'my' | 'approvals' | 'dashboard';
+type TabKey =
+  | 'overview'
+  | 'vacations'
+  | 'leaves'
+  | 'absences'
+  | 'calendar'
+  | 'approvals'
+  | 'planning'
+  | 'reports'
+  | 'settings';
 
-// GET /leave/dashboard e GET /leave/pending-approvals exigem ambos
-// @Roles(ADMIN, RH, GESTOR) em leave-management.controller.ts — um
-// COLABORADOR não tem acesso a nenhum dos dois. Partilhado entre o filtro
-// de tabs e o `enabled` das duas queries: sem o segundo, os pedidos
-// disparavam sempre no mount independentemente do separador activo (os 4
-// hooks de dados correm incondicionalmente, não só quando a tab é aberta) e
-// rebentavam com 403 em "query:leave".
+// GET /leave/pending-approvals exige @Roles(ADMIN, RH, GESTOR) em
+// leave-management.controller.ts — um COLABORADOR não tem acesso. Partilhado
+// entre o filtro de tabs e o `enabled` da query: sem o segundo, o pedido
+// disparava sempre no mount e rebentava com 403 em "query:leave".
 const LEAVE_APPROVER_ROLES: Role[] = ['ADMIN', 'RH', 'GESTOR'];
+const LEAVE_ADMIN_ROLES: Role[] = ['ADMIN', 'RH'];
 
 export default function LeavePage() {
-  const [tab, setTab] = useState<TabKey>('my');
+  const [tab, setTab] = useState<TabKey>('overview');
   const [showModal, setShowModal] = useState(false);
   const notify = useToast();
   const role = useCurrentRole();
@@ -76,11 +86,6 @@ export default function LeavePage() {
     refetch: mRefetch,
   } = useMyRequests();
   const {
-    data: dashboard,
-    loading: dLoading,
-    refetch: dRefetch,
-  } = useLeaveDashboard(isApprover);
-  const {
     data: pending,
     loading: pLoading,
     refetch: pRefetch,
@@ -90,10 +95,8 @@ export default function LeavePage() {
     ({ id, action }: { id: number; action: string }) =>
       apiClient.patch(`/leave/${id}/approve`, { action }),
     {
-      invalidateKeys: [
-        queryKeys.leave.pendingApprovals(),
-        queryKeys.leave.dashboard(),
-      ],
+      // leave.all cobre também a Visão Geral e a tabela de Férias.
+      invalidateKeys: [queryKeys.leave.all],
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
@@ -101,10 +104,7 @@ export default function LeavePage() {
   const cancel = useApiMutation(
     (id: number) => apiClient.patch(`/leave/${id}/cancel`, {}),
     {
-      invalidateKeys: [
-        queryKeys.leave.myRequests(),
-        queryKeys.leave.myBalance(),
-      ],
+      invalidateKeys: [queryKeys.leave.all],
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
@@ -116,10 +116,7 @@ export default function LeavePage() {
         action: 'APPROVE',
       }),
     {
-      invalidateKeys: [
-        queryKeys.leave.pendingApprovals(),
-        queryKeys.leave.dashboard(),
-      ],
+      invalidateKeys: [queryKeys.leave.all],
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
@@ -148,8 +145,6 @@ export default function LeavePage() {
     cancel.mutate(requestId);
   };
 
-  // Dashboard RH: só quem está em LEAVE_APPROVER_ROLES (ver nota acima)
-  // vê o separador.
   const allTabs: Array<{
     key: TabKey;
     label: string;
@@ -157,33 +152,51 @@ export default function LeavePage() {
     badge?: number;
     roles?: Role[];
   }> = [
-    { key: 'my', label: 'Minhas Ausências', icon: Calendar },
+    { key: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
+    { key: 'vacations', label: 'Férias', icon: Palmtree },
+    { key: 'leaves', label: 'Licenças', icon: ScrollText },
+    { key: 'absences', label: 'Gestão de Ausências', icon: ClipboardList },
+    { key: 'calendar', label: 'Calendário de Ausências', icon: CalendarDays },
     {
       key: 'approvals',
       label: 'Aprovações',
       icon: CheckCircle2,
       badge: pending.length,
+      roles: LEAVE_APPROVER_ROLES,
     },
     {
-      key: 'dashboard',
-      label: 'Dashboard RH',
-      icon: BarChart3,
+      key: 'planning',
+      label: 'Planeamento de Equipas',
+      icon: Users,
       roles: LEAVE_APPROVER_ROLES,
+    },
+    {
+      key: 'reports',
+      label: 'Relatórios',
+      icon: BarChart3,
+      roles: LEAVE_ADMIN_ROLES,
+    },
+    {
+      key: 'settings',
+      label: 'Configurações',
+      icon: Settings,
+      roles: LEAVE_ADMIN_ROLES,
     },
   ];
   const tabs = filterByRole(allTabs, role);
+  const hasTab = (key: TabKey) => tabs.some((t) => t.key === key);
 
   return (
     <div className="min-h-screen bg-canvas">
       {/* Header */}
       <div className="bg-surface border-b border-border px-6 py-5 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-xl font-display font-bold text-ink">
-              Gestão de Ausências
+              Férias e Ausências
             </h1>
             <p className="text-sm text-ink-muted">
-              Licenças, férias e afastamentos
+              Férias, licenças e gestão de ausências
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -194,7 +207,6 @@ export default function LeavePage() {
               onClick={() => {
                 mRefetch();
                 bRefetch();
-                dRefetch();
                 pRefetch();
               }}
             />
@@ -205,15 +217,15 @@ export default function LeavePage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-6 space-y-5">
+      <div className="max-w-7xl mx-auto px-6 py-6 space-y-5">
         {/* Tab bar */}
-        <div className="flex bg-surface rounded-panel border border-border shadow-resting p-1.5 gap-1 w-fit">
+        <div className="flex bg-surface rounded-panel border border-border shadow-resting p-1.5 gap-1 w-full overflow-x-auto">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
               className={cn(
-                'flex items-center gap-2 px-4 py-2 text-sm rounded-control font-medium transition-colors relative',
+                'flex items-center gap-2 px-4 py-2 text-sm rounded-control font-medium transition-colors relative whitespace-nowrap',
                 tab === t.key
                   ? 'bg-primary text-canvas shadow-resting'
                   : 'text-ink-muted hover:text-ink hover:bg-surface-sunken',
@@ -237,7 +249,11 @@ export default function LeavePage() {
           ))}
         </div>
 
-        {tab === 'my' && (
+        {tab === 'overview' && <OverviewTab leaveTypes={leaveTypes} />}
+
+        {tab === 'vacations' && <VacationsTab />}
+
+        {tab === 'leaves' && (
           <MyLeaveTab
             balances={balances}
             balancesLoading={bLoading}
@@ -247,7 +263,25 @@ export default function LeavePage() {
           />
         )}
 
-        {tab === 'approvals' && (
+        {tab === 'absences' && (
+          <PendingPhaseTab
+            icon={ClipboardList}
+            title="Gestão de Ausências"
+            description="Registo de faltas justificadas e injustificadas, ausências parciais e validação de justificações."
+          />
+        )}
+
+        {tab === 'calendar' && (
+          <PendingPhaseTab
+            icon={CalendarDays}
+            title="Calendário de Ausências"
+            description="Vistas diária, semanal, mensal e anual das ausências aprovadas, com filtros por equipa e departamento."
+          />
+        )}
+
+        {/* Os separadores abaixo não são montados para quem não tem o
+            perfil exigido no backend — não só escondidos da tab bar. */}
+        {tab === 'approvals' && hasTab('approvals') && (
           <ApprovalsTab
             pending={pending}
             loading={pLoading}
@@ -257,13 +291,27 @@ export default function LeavePage() {
           />
         )}
 
-        {/* Não montado para quem não tem @Roles(ADMIN, RH, GESTOR) no
-            backend — não só escondido da tab bar — ver nota acima. */}
-        {tab === 'dashboard' && tabs.some((t) => t.key === 'dashboard') && (
-          <LeaveDashboardTab
-            dashboard={dashboard}
-            loading={dLoading}
-            leaveTypes={leaveTypes}
+        {tab === 'planning' && hasTab('planning') && (
+          <PendingPhaseTab
+            icon={Users}
+            title="Planeamento de Equipas"
+            description="Sobreposição de férias, cobertura operacional e disponibilidade por equipa."
+          />
+        )}
+
+        {tab === 'reports' && hasTab('reports') && (
+          <PendingPhaseTab
+            icon={BarChart3}
+            title="Relatórios"
+            description="Absentismo, utilização de férias, licenças por tipo e auditoria de pedidos."
+          />
+        )}
+
+        {tab === 'settings' && hasTab('settings') && (
+          <PendingPhaseTab
+            icon={Settings}
+            title="Configurações"
+            description="Tipos de ausência, regras de contagem, saldos, feriados e fluxos de aprovação."
           />
         )}
       </div>
@@ -277,7 +325,6 @@ export default function LeavePage() {
           onSuccess={() => {
             mRefetch();
             bRefetch();
-            dRefetch();
           }}
         />
       )}

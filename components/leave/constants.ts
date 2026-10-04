@@ -8,7 +8,7 @@
 // StatusBadge substitui o ícone dedicado.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
-import type { LeaveCategory, LeaveStatus } from './types';
+import type { LeaveCategory, LeaveStatus, VacationPlanState } from './types';
 
 export const STATUS_CFG: StatusBadgeMap<LeaveStatus> = {
   DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
@@ -43,3 +43,16 @@ export const MONTH_NAMES = [
   'Nov',
   'Dez',
 ];
+
+export const PLAN_STATE_CFG: StatusBadgeMap<VacationPlanState> = {
+  NOT_STARTED: { label: 'Não iniciado', cls: 'bg-surface-sunken text-ink-muted' },
+  IN_PREPARATION: { label: 'Em preparação', cls: 'bg-info-subtle text-info-ink' },
+  SUBMITTED: { label: 'Submetido', cls: 'bg-warning-subtle text-warning-ink' },
+  APPROVED: { label: 'Aprovado', cls: 'bg-success-subtle text-success-ink' },
+};
+
+/** 'YYYY-MM' → 'Jan/26'. */
+export function monthLabel(key: string): string {
+  const [y, m] = key.split('-');
+  return `${MONTH_NAMES[Number(m) - 1]}/${y.slice(2)}`;
+}
