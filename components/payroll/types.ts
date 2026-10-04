@@ -45,6 +45,7 @@ export interface PayrollRun {
   publishedById: number | null;
   rejectionReason: string | null;
   cancellationReason: string | null;
+  expectedPaymentDate?: string | null;
 }
 
 export interface TimelineStep {
