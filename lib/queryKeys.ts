@@ -594,6 +594,18 @@ export const queryKeys = {
       [...queryKeys.audit.all, 'audits', params] as const,
     auditDetail: (id: number) =>
       [...queryKeys.audit.all, 'audit-detail', id] as const,
+    reportCatalog: () => [...queryKeys.audit.all, 'report-catalog'] as const,
+    reportPreview: (params: Record<string, unknown>) =>
+      [...queryKeys.audit.all, 'report-preview', params] as const,
+    exports: (params: Record<string, unknown>) =>
+      [...queryKeys.audit.all, 'exports', params] as const,
+    exportsSummary: () => [...queryKeys.audit.all, 'exports-summary'] as const,
+    exportDetail: (id: number) =>
+      [...queryKeys.audit.all, 'export-detail', id] as const,
+    policy: () => [...queryKeys.audit.all, 'policy'] as const,
+    policyStatus: () => [...queryKeys.audit.all, 'policy-status'] as const,
+    retentionPreview: () =>
+      [...queryKeys.audit.all, 'retention-preview'] as const,
   },
 
   career: {

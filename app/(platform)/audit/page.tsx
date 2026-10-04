@@ -7,9 +7,11 @@ import { AuditsView } from '@/components/audit/AuditsView';
 import { ChangesView } from '@/components/audit/ChangesView';
 import { NAV, TITLES } from '@/components/audit/constants';
 import { DeletedCyclesView } from '@/components/audit/DeletedCyclesView';
+import { ExportsView } from '@/components/audit/ExportsView';
 import { LogsView } from '@/components/audit/LogsView';
-import { ComingSoonTab } from '@/components/audit/ComingSoonTab';
 import { OverviewView } from '@/components/audit/OverviewView';
+import { PoliciesView } from '@/components/audit/PoliciesView';
+import { ReportsView } from '@/components/audit/ReportsView';
 import { SecurityView } from '@/components/audit/SecurityView';
 import { TimelineView } from '@/components/audit/TimelineView';
 import type { View } from '@/components/audit/types';
@@ -69,9 +71,9 @@ export default function AuditPage() {
       {view === 'changes' && <ChangesView />}
       {view === 'audits' && <AuditsView />}
       {view === 'access' && <AccessView />}
-      {(['reports', 'exports', 'policies'] as View[]).includes(view) && (
-        <ComingSoonTab title={TITLES[view]} />
-      )}
+      {view === 'reports' && <ReportsView />}
+      {view === 'exports' && <ExportsView />}
+      {view === 'policies' && <PoliciesView />}
       {view === 'timeline' && <TimelineView />}
       {view === 'deleted' && <DeletedCyclesView />}
     </div>

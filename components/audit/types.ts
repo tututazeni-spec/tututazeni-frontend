@@ -376,3 +376,115 @@ export interface InternalAuditDetail {
     user: PersonRef | null;
   }>;
 }
+
+// ── Relatórios, Exportações e Políticas (§10-12) ────────────────────────────
+export interface AuditReportCatalogItem {
+  type: string;
+  title: string;
+}
+
+export interface AuditReportResult {
+  type: string;
+  title: string;
+  columns: string[];
+  rows: Array<Record<string, string | number>>;
+  total: number;
+  truncated: boolean;
+  generatedAt: string;
+  filters: Record<string, unknown>;
+}
+
+export type Confidentiality = 'INTERNAL' | 'CONFIDENTIAL' | 'RESTRICTED';
+
+export interface AuditExportItem {
+  id: number;
+  code: string;
+  kind: 'REPORT' | 'EVIDENCE';
+  fileName: string;
+  mimeType: string;
+  format: string;
+  reportType: string | null;
+  incidentId: number | null;
+  auditId: number | null;
+  periodFrom: string | null;
+  periodTo: string | null;
+  filters: Record<string, unknown> | null;
+  recordCount: number;
+  sizeBytes: number;
+  confidentiality: Confidentiality;
+  sha256: string;
+  retentionUntil: string;
+  status: 'ACTIVE' | 'EXPIRED' | 'PURGED';
+  result: string;
+  createdAt: string;
+  author: PersonRef | null;
+}
+
+export interface AuditExportDetail extends AuditExportItem {
+  accesses: Array<{
+    id: number;
+    action: 'VIEW' | 'DOWNLOAD' | 'DENIED';
+    ip: string | null;
+    createdAt: string;
+    user: PersonRef | null;
+  }>;
+}
+
+export interface AuditExportsSummary {
+  total: number;
+  reports: number;
+  evidences: number;
+  expired: number;
+  sizeBytes: number;
+  byConfidentiality: Array<{ level: string; count: number }>;
+}
+
+export interface AuditPolicy {
+  requiredEvents: string[];
+  coveredModules: string[];
+  severityRules: Record<string, Severity>;
+  alertRules: Record<string, number>;
+  retentionDays: Record<string, number>;
+  archivePolicy: string | null;
+  viewRoles: string[];
+  exportRoles: string[];
+  maskSensitive: boolean;
+  maskedFields: string[];
+  backupDestination: string | null;
+  backupFrequency: string | null;
+  serviceEnabled: boolean;
+  failureAlertEmails: string[];
+  updatedAt: string | null;
+}
+
+export interface AuditServiceStatus {
+  serviceEnabled: boolean;
+  health: 'OK' | 'WARNING' | 'DISABLED';
+  lastEventAt: string | null;
+  minutesSinceLastEvent: number | null;
+  events24h: number;
+  failedOperations24h: number;
+  deniedOperations24h: number;
+  silentHours24h: number;
+  exports: {
+    byStatus: Array<{ status: string; count: number }>;
+    expiredPendingPurge: number;
+  };
+  backup: {
+    destination: string | null;
+    frequency: string | null;
+    configured: boolean;
+  };
+}
+
+export interface RetentionPreview {
+  archivePolicy: string | null;
+  note: string;
+  categories: Array<{
+    category: string;
+    retentionDays: number;
+    cutoff: string;
+    total: number;
+    pastRetention: number;
+  }>;
+}
