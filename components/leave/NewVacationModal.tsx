@@ -21,35 +21,24 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import {
+  CAN_PICK_EMPLOYEE_LEAVE,
+  useEmployeeOptions,
+} from './useEmployeeOptions';
 import type { ConflictCheck, DurationPreview } from './types';
 
 const VACATION_CODE = 'VACATION';
-// POST /leave só aceita `userId` de outrem a ADMIN/RH/GESTOR (backend).
-const CAN_PICK_EMPLOYEE = ['ADMIN', 'RH', 'GESTOR'];
 
 export interface NewVacationModalProps {
   onClose: () => void;
   onSuccess: () => void;
 }
 
-function useEmployeeOptions(enabled: boolean) {
-  const params = { limit: 100 };
-  const q = useApiQuery<{ data: Array<{ id: number; name: string }> }>(
-    queryKeys.employees.list({ picker: 'leave-vacation', ...params }),
-    '/employees',
-    { params, staleTime: STALE_TIME.SEMI_STATIC, enabled },
-  );
-  return (q.data?.data ?? []).map((e) => ({
-    value: String(e.id),
-    label: e.name,
-  }));
-}
-
 export function NewVacationModal({ onClose, onSuccess }: NewVacationModalProps) {
   const role = useCurrentRole();
   const { data: me } = useCurrentUser();
-  const canPick = !!role && CAN_PICK_EMPLOYEE.includes(role);
-  const employees = useEmployeeOptions(canPick);
+  const canPick = !!role && CAN_PICK_EMPLOYEE_LEAVE.includes(role);
+  const employees = useEmployeeOptions('leave-vacation', canPick);
 
   const thisYear = new Date().getFullYear();
   const [form, setForm] = useState({

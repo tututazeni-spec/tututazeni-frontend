@@ -8,7 +8,16 @@
 // StatusBadge substitui o ícone dedicado.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
-import type { LeaveCategory, LeaveStatus, VacationPlanState } from './types';
+import type {
+  AbsenceJustificationStatus,
+  AbsenceOccurrenceType,
+  AbsenceSource,
+  LeaveCategory,
+  LeaveStatus,
+  LicensePhase,
+  PayRegime,
+  VacationPlanState,
+} from './types';
 
 export const STATUS_CFG: StatusBadgeMap<LeaveStatus> = {
   DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
@@ -56,3 +65,82 @@ export function monthLabel(key: string): string {
   const [y, m] = key.split('-');
   return `${MONTH_NAMES[Number(m) - 1]}/${y.slice(2)}`;
 }
+
+// ─── §4 Licenças ────────────────────────────────────────────────────────────
+
+export const PHASE_CFG: StatusBadgeMap<LicensePhase> = {
+  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
+  PENDING: { label: 'Pendente', cls: 'bg-warning-subtle text-warning-ink' },
+  APPROVED: { label: 'Aprovada', cls: 'bg-success-subtle text-success-ink' },
+  REJECTED: { label: 'Recusada', cls: 'bg-danger-subtle text-danger-ink' },
+  IN_PROGRESS: { label: 'Em curso', cls: 'bg-info-subtle text-info-ink' },
+  COMPLETED: { label: 'Concluída', cls: 'bg-surface-sunken text-ink' },
+  CANCELLED: { label: 'Cancelada', cls: 'bg-surface-sunken text-ink-faint' },
+};
+
+export const PAY_REGIME_LABELS: Record<PayRegime, string> = {
+  PAID: 'Remunerada',
+  UNPAID: 'Não remunerada',
+  TO_VALIDATE: 'Sujeita a validação',
+};
+
+// ─── §5 Gestão de Ausências ─────────────────────────────────────────────────
+
+export const ABSENCE_TYPE_LABELS: Record<AbsenceOccurrenceType, string> = {
+  JUSTIFIED_ABSENCE: 'Falta justificada',
+  UNJUSTIFIED_ABSENCE: 'Falta injustificada',
+  LATE: 'Atraso',
+  EARLY_DEPARTURE: 'Saída antecipada',
+  PARTIAL_ABSENCE: 'Ausência parcial',
+  HEALTH_ABSENCE: 'Ausência por motivo de saúde',
+  AUTHORIZED_ABSENCE: 'Ausência autorizada',
+  PERSONAL_ABSENCE: 'Ausência por motivo pessoal',
+  NO_SHOW: 'Não comparência',
+  OTHER: 'Outra ocorrência',
+};
+
+/** Tipos que exigem hora de início e de fim (espelha o backend). */
+export const TIMED_ABSENCE_TYPES: AbsenceOccurrenceType[] = [
+  'PARTIAL_ABSENCE',
+  'LATE',
+  'EARLY_DEPARTURE',
+];
+
+export const ABSENCE_SOURCE_LABELS: Record<AbsenceSource, string> = {
+  MANUAL: 'Manual',
+  ATTENDANCE: 'Assiduidade',
+  INTEGRATION: 'Integração',
+};
+
+export const JUSTIFICATION_CFG: StatusBadgeMap<AbsenceJustificationStatus> = {
+  TO_JUSTIFY: { label: 'Por justificar', cls: 'bg-warning-subtle text-warning-ink' },
+  SUBMITTED: { label: 'Submetida', cls: 'bg-info-subtle text-info-ink' },
+  VALIDATED: { label: 'Validada', cls: 'bg-success-subtle text-success-ink' },
+  REJECTED: { label: 'Recusada', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+export function absenceTypeLabel(a: {
+  occurrenceType: AbsenceOccurrenceType;
+  customCategory: string | null;
+}): string {
+  return a.customCategory || ABSENCE_TYPE_LABELS[a.occurrenceType];
+}
+
+// ─── §6 Calendário ──────────────────────────────────────────────────────────
+
+export const WEEKDAY_SHORT = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+
+/** Estado do registo de assiduidade associado a uma ocorrência (AttendanceStatus). */
+export const ATTENDANCE_STATUS_LABELS: Record<string, string> = {
+  PRESENT: 'Presente',
+  LATE: 'Atraso',
+  PARTIAL: 'Parcial',
+  ABSENT: 'Ausente',
+  JUSTIFIED: 'Justificada',
+  REMOTE: 'Remoto',
+  ON_LEAVE: 'Em licença',
+  HALF_DAY_AM: 'Meio dia (manhã)',
+  HALF_DAY_PM: 'Meio dia (tarde)',
+  RECORDED: 'Registada',
+  HOLIDAY: 'Feriado',
+};

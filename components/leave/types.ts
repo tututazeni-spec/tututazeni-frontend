@@ -28,6 +28,9 @@ export interface LeaveType {
   requiresDocument: boolean;
   allowHalfDay: boolean;
   active: boolean;
+  isSensitive?: boolean;
+  requiresPayrollValidation?: boolean;
+  autoApprove?: boolean;
 }
 
 export interface LeaveBalance {
@@ -156,4 +159,242 @@ export interface DurationPreview {
     endDate: string;
     status: LeaveStatus;
   } | null;
+}
+
+// ─── §4 Licenças ────────────────────────────────────────────────────────────
+
+/** Estado do pedido + "em curso"/"concluída" derivados das datas (backend). */
+export type LicensePhase =
+  | 'DRAFT'
+  | 'PENDING'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
+export type PayRegime = 'PAID' | 'UNPAID' | 'TO_VALIDATE';
+
+export interface LicenseRow {
+  id: number;
+  user: {
+    id: number;
+    fullName: string;
+    employeeNumber: string | null;
+    department: { id: number; name: string } | null;
+  };
+  leaveTypeCode: string;
+  type: {
+    code: string;
+    name: string;
+    color: string | null;
+    isPaid?: boolean;
+    isSensitive?: boolean;
+    requiresDocument?: boolean;
+  };
+  startDate: string;
+  endDate: string;
+  startTime: string | null;
+  endTime: string | null;
+  durationMode: DurationMode;
+  workDays: number;
+  hours: number | null;
+  calendarDays: number;
+  payRegime: PayRegime;
+  reason: string | null;
+  hasDocument: boolean;
+  documents: Array<{
+    id: number;
+    name: string;
+    mimeType: string | null;
+    fileUrl: string;
+  }>;
+  submittedAt: string;
+  approver: { id: number; fullName: string } | null;
+  status: LeaveStatus;
+  phase: LicensePhase;
+  registeredBy: { id: number; fullName: string | null } | null;
+  canCancel: boolean;
+  /** Só ADMIN/RH recebem este campo. */
+  payrollImpact?: 'NONE' | 'VALIDATION_REQUIRED';
+}
+
+export interface PaginatedMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface LicensesResponse {
+  data: LicenseRow[];
+  meta: PaginatedMeta;
+}
+
+export interface ApprovalRoute {
+  autoApprove: boolean;
+  steps: Array<{
+    level: number;
+    role: 'GESTOR' | 'RH';
+    approver: { id: number; fullName: string };
+  }>;
+}
+
+// ─── §5 Gestão de Ausências ─────────────────────────────────────────────────
+
+export type AbsenceOccurrenceType =
+  | 'JUSTIFIED_ABSENCE'
+  | 'UNJUSTIFIED_ABSENCE'
+  | 'LATE'
+  | 'EARLY_DEPARTURE'
+  | 'PARTIAL_ABSENCE'
+  | 'HEALTH_ABSENCE'
+  | 'AUTHORIZED_ABSENCE'
+  | 'PERSONAL_ABSENCE'
+  | 'NO_SHOW'
+  | 'OTHER';
+
+export type AbsenceSource = 'MANUAL' | 'ATTENDANCE' | 'INTEGRATION';
+
+export type AbsenceJustificationStatus =
+  'TO_JUSTIFY' | 'SUBMITTED' | 'VALIDATED' | 'REJECTED';
+
+export interface AbsenceActions {
+  submitJustification: boolean;
+  validate: boolean;
+  attach: boolean;
+  correct: boolean;
+  forward: boolean;
+  sendToHr: boolean;
+}
+
+export interface AbsenceRow {
+  id: number;
+  user: {
+    id: number;
+    fullName: string;
+    employeeNumber: string | null;
+    department: { id: number; name: string } | null;
+  };
+  date: string;
+  startTime: string | null;
+  endTime: string | null;
+  durationDays: number;
+  durationHours: number | null;
+  occurrenceType: AbsenceOccurrenceType;
+  customCategory: string | null;
+  justification: string | null;
+  hasAttachment: boolean;
+  attachments: Array<{
+    id: number;
+    name: string;
+    fileUrl: string;
+    mimeType: string | null;
+  }>;
+  source: AbsenceSource;
+  justificationStatus: AbsenceJustificationStatus;
+  validator: { id: number; fullName: string | null } | null;
+  validatedAt: string | null;
+  validationNotes: string | null;
+  attendance: {
+    id: number;
+    status: string;
+    date: string;
+    clockIn: string | null;
+    clockOut: string | null;
+  } | null;
+  forwardedTo: { id: number; fullName: string | null } | null;
+  sentToHrAt: string | null;
+  createdBy: { id: number; fullName: string | null };
+  createdAt: string;
+  /** Só ADMIN/RH recebem este campo. */
+  payrollReview?: boolean;
+  actions: AbsenceActions;
+}
+
+export interface AbsencesResponse {
+  data: AbsenceRow[];
+  meta: PaginatedMeta;
+}
+
+export interface AbsenceRevision {
+  id: number;
+  reason: string;
+  changes: Record<string, [unknown, unknown]>;
+  changedBy: { id: number; fullName: string | null };
+  createdAt: string;
+}
+
+export interface AbsenceDetail extends AbsenceRow {
+  revisions: AbsenceRevision[];
+}
+
+export interface AbsenceHistory {
+  summary: {
+    total: number;
+    totalDays: number;
+    byType: Array<{
+      occurrenceType: AbsenceOccurrenceType;
+      count: number;
+      days: number;
+    }>;
+    byStatus: Array<{ status: AbsenceJustificationStatus; count: number }>;
+  };
+  records: AbsenceRow[];
+}
+
+export interface CsvExport {
+  filename: string;
+  mimeType: string;
+  content: string;
+  total: number;
+}
+
+// ─── §6 Calendário de Ausências ─────────────────────────────────────────────
+
+export type CalendarView = 'day' | 'week' | 'month' | 'year';
+
+export interface CalendarEntry {
+  id: string;
+  kind: 'LEAVE' | 'ABSENCE';
+  userId: number;
+  userName: string;
+  departmentId: number | null;
+  department: string | null;
+  typeCode: string;
+  typeName: string;
+  color: string | null;
+  startDate: string;
+  endDate: string;
+  partial: boolean;
+  startTime: string | null;
+  endTime: string | null;
+}
+
+export interface AbsenceCalendarData {
+  view: CalendarView;
+  range: { from: string; to: string };
+  scope: LeaveScope;
+  entries: CalendarEntry[];
+  holidays: Array<{ date: string; name: string }>;
+  days: Record<
+    string,
+    { absent: number; overlap: boolean; lowCoverage: boolean }
+  >;
+  alerts: Array<{
+    date: string;
+    departmentId: number | null;
+    department: string | null;
+    absent: number;
+    headcount: number;
+    availabilityPercent: number;
+    minAvailabilityPercent: number;
+  }>;
+  overlaps: Array<{
+    date: string;
+    departmentId: number | null;
+    department: string | null;
+    userIds: number[];
+  }>;
+  canExport: boolean;
 }

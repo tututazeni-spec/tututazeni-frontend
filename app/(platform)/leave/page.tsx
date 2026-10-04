@@ -4,8 +4,8 @@
 // INNOVA — Módulo Leave (férias, licenças e gestão de ausências)
 //
 // Container: estrutura de 9 abas de docs/Modulo_Leave.md §1. Visão Geral
-// (§2), Férias (§3) e Aprovações estão implementadas; "Licenças" reutiliza a
-// vista de pedidos e saldos já existente; as restantes abas (§5-§10) são
+// (§2), Férias (§3), Licenças (§4), Gestão de Ausências (§5), Calendário (§6)
+// e Aprovações estão implementadas; as restantes abas (§8-§10) são
 // placeholders explícitos até às fases seguintes.
 //
 // O estado de `pending` é partilhado entre o badge do separador e o
@@ -14,13 +14,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useApiMutation } from '@/hooks/useApiQuery';
-import {
-  useLeaveTypes,
-  useMyBalance,
-  useMyRequests,
-  usePendingApprovals,
-} from '@/hooks/useLeave';
+import { useLeaveTypes, usePendingApprovals } from '@/hooks/useLeave';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -43,9 +39,11 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button, IconButton } from '@/components/ui/Button';
+import { AbsenceCalendarTab } from '@/components/leave/AbsenceCalendarTab';
+import { AbsencesTab } from '@/components/leave/AbsencesTab';
 import { ApprovalsTab } from '@/components/leave/ApprovalsTab';
-import { MyLeaveTab } from '@/components/leave/MyLeaveTab';
-import { NewLeaveModal } from '@/components/leave/NewLeaveModal';
+import { LicensesTab } from '@/components/leave/LicensesTab';
+import { NewLicenseModal } from '@/components/leave/NewLicenseModal';
 import { OverviewTab } from '@/components/leave/OverviewTab';
 import { PendingPhaseTab } from '@/components/leave/PendingPhaseTab';
 import { VacationsTab } from '@/components/leave/VacationsTab';
@@ -78,13 +76,12 @@ export default function LeavePage() {
   // lib/roles.ts para a distinção.
   const isApprover = !!role && LEAVE_APPROVER_ROLES.includes(role);
 
+  const queryClient = useQueryClient();
   const leaveTypes = useLeaveTypes();
-  const { balances, loading: bLoading, refetch: bRefetch } = useMyBalance();
-  const {
-    data: myData,
-    loading: mLoading,
-    refetch: mRefetch,
-  } = useMyRequests();
+  // Licenças: tudo menos férias (que têm o seu próprio fluxo na aba Férias).
+  const licenseTypes = leaveTypes.filter(
+    (t) => t.code !== 'VACATION' && t.active,
+  );
   const {
     data: pending,
     loading: pLoading,
@@ -205,13 +202,12 @@ export default function LeavePage() {
               label="Actualizar"
               intent="secondary"
               onClick={() => {
-                mRefetch();
-                bRefetch();
                 pRefetch();
+                queryClient.invalidateQueries({ queryKey: queryKeys.leave.all });
               }}
             />
             <Button onClick={() => setShowModal(true)}>
-              <Plus size={15} strokeWidth={1.75} /> Solicitar Licença
+              <Plus size={15} strokeWidth={1.75} /> Nova licença
             </Button>
           </div>
         </div>
@@ -254,30 +250,12 @@ export default function LeavePage() {
         {tab === 'vacations' && <VacationsTab />}
 
         {tab === 'leaves' && (
-          <MyLeaveTab
-            balances={balances}
-            balancesLoading={bLoading}
-            requestsData={myData}
-            requestsLoading={mLoading}
-            onCancel={handleCancel}
-          />
+          <LicensesTab leaveTypes={leaveTypes} onCancel={handleCancel} />
         )}
 
-        {tab === 'absences' && (
-          <PendingPhaseTab
-            icon={ClipboardList}
-            title="Gestão de Ausências"
-            description="Registo de faltas justificadas e injustificadas, ausências parciais e validação de justificações."
-          />
-        )}
+        {tab === 'absences' && <AbsencesTab />}
 
-        {tab === 'calendar' && (
-          <PendingPhaseTab
-            icon={CalendarDays}
-            title="Calendário de Ausências"
-            description="Vistas diária, semanal, mensal e anual das ausências aprovadas, com filtros por equipa e departamento."
-          />
-        )}
+        {tab === 'calendar' && <AbsenceCalendarTab leaveTypes={leaveTypes} />}
 
         {/* Os separadores abaixo não são montados para quem não tem o
             perfil exigido no backend — não só escondidos da tab bar. */}
@@ -318,13 +296,11 @@ export default function LeavePage() {
 
       {/* Modal */}
       {showModal && (
-        <NewLeaveModal
-          leaveTypes={leaveTypes}
-          balances={balances}
+        <NewLicenseModal
+          leaveTypes={licenseTypes}
           onClose={() => setShowModal(false)}
           onSuccess={() => {
-            mRefetch();
-            bRefetch();
+            setTab('leaves');
           }}
         />
       )}

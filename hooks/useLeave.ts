@@ -9,9 +9,14 @@ import { useApiQuery } from './useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type {
-  LeaveBalance,
+  AbsenceCalendarData,
+  AbsenceDetail,
+  AbsenceHistory,
+  AbsencesResponse,
+  CalendarView,
   LeaveRequest,
   LeaveType,
+  LicensesResponse,
   OverviewData,
   OverviewFilters,
   VacationsResponse,
@@ -23,24 +28,6 @@ export function useLeaveTypes() {
     staleTime: STALE_TIME.STATIC,
   });
   return q.data ?? [];
-}
-
-export function useMyBalance() {
-  const q = useApiQuery<LeaveBalance[]>(
-    queryKeys.leave.myBalance(),
-    '/leave/my/balance',
-    { staleTime: STALE_TIME.DYNAMIC },
-  );
-  return { balances: q.data ?? [], loading: q.isLoading, refetch: q.refetch };
-}
-
-export function useMyRequests() {
-  const q = useApiQuery<{ data: LeaveRequest[]; meta: { total: number } }>(
-    queryKeys.leave.myRequests(),
-    '/leave/my',
-    { staleTime: STALE_TIME.DYNAMIC },
-  );
-  return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
 }
 
 /**
@@ -102,4 +89,100 @@ export function useVacations(filters: VacationFilters) {
     },
   );
   return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
+}
+
+export interface LicenseFilters {
+  leaveTypeCode: string;
+  phase: string;
+  departmentId: string;
+  unitId: string;
+  from: string;
+  to: string;
+  search: string;
+  page: number;
+}
+
+/** GET /leave/licenses — o âmbito e a privacidade (motivo/comprovativos) vêm do backend. */
+export function useLicenses(filters: LicenseFilters) {
+  const params = compact({ ...filters, limit: 20 });
+  const q = useApiQuery<LicensesResponse>(
+    queryKeys.leave.licenses(params),
+    '/leave/licenses',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
+  );
+  return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
+}
+
+export interface AbsenceFilters {
+  occurrenceType: string;
+  justificationStatus: string;
+  source: string;
+  departmentId: string;
+  unitId: string;
+  from: string;
+  to: string;
+  search: string;
+  page: number;
+}
+
+/** GET /leave/absences — ocorrências do âmbito do perfil. */
+export function useAbsences(filters: AbsenceFilters) {
+  const params = compact({ ...filters, limit: 20 });
+  const q = useApiQuery<AbsencesResponse>(
+    queryKeys.leave.absences(params),
+    '/leave/absences',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
+  );
+  return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
+}
+
+export function useAbsenceDetail(id: number | null) {
+  const q = useApiQuery<AbsenceDetail>(
+    queryKeys.leave.absence(id ?? 0),
+    `/leave/absences/${id}`,
+    { staleTime: STALE_TIME.DYNAMIC, enabled: id !== null },
+  );
+  return { data: q.data ?? null, loading: q.isLoading };
+}
+
+export function useAbsenceHistory(userId: number | null) {
+  const q = useApiQuery<AbsenceHistory>(
+    queryKeys.leave.absenceHistory(userId ?? 0),
+    `/leave/absences/history/${userId}`,
+    { staleTime: STALE_TIME.DYNAMIC, enabled: userId !== null },
+  );
+  return { data: q.data ?? null, loading: q.isLoading };
+}
+
+export interface CalendarFilters {
+  view: CalendarView;
+  date: string;
+  unitId: string;
+  departmentId: string;
+  managerId: string;
+  userId: string;
+  leaveTypeCode: string;
+}
+
+/** GET /leave/absence-calendar — entradas, cobertura e sobreposições do período. */
+export function useAbsenceCalendar(filters: CalendarFilters) {
+  const params = compact({ ...filters });
+  const q = useApiQuery<AbsenceCalendarData>(
+    queryKeys.leave.absenceCalendar(params),
+    '/leave/absence-calendar',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
+  );
+  return { data: q.data ?? null, loading: q.isLoading };
 }
