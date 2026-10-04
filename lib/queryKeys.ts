@@ -155,6 +155,10 @@ export const queryKeys = {
       [...queryKeys.payroll.runPayslipsAll(id), params] as const,
     runExceptions: (id: number) =>
       [...queryKeys.payroll.all, 'run-exceptions', id] as const,
+    // Secções agregadas do Payroll (overview, employees, deductions, payments,
+    // closure, reports) — todas sob o prefixo `all` para invalidação conjunta.
+    section: (name: string, params?: unknown) =>
+      [...queryKeys.payroll.all, name, params ?? null] as const,
   },
 
   assessments: {
@@ -190,7 +194,8 @@ export const queryKeys = {
       [...queryKeys.departments.all, 'metrics', id] as const,
     comparative: () => [...queryKeys.departments.all, 'comparative'] as const,
     heads: () => [...queryKeys.departments.all, 'heads'] as const,
-    headsHistory: () => [...queryKeys.departments.all, 'heads', 'history'] as const,
+    headsHistory: () =>
+      [...queryKeys.departments.all, 'heads', 'history'] as const,
     employees: (params: Record<string, unknown>) =>
       [...queryKeys.departments.all, 'employees', params] as const,
     positions: (params: Record<string, unknown>) =>
@@ -252,7 +257,12 @@ export const queryKeys = {
     overview: (params: Record<string, unknown>) =>
       [...queryKeys.automation.all, 'overview', params] as const,
     executions: (status: string, ruleId?: number) =>
-      [...queryKeys.automation.all, 'executions', status, ruleId ?? null] as const,
+      [
+        ...queryKeys.automation.all,
+        'executions',
+        status,
+        ruleId ?? null,
+      ] as const,
     templates: () => [...queryKeys.automation.all, 'templates'] as const,
     stats: () => [...queryKeys.automation.all, 'stats'] as const,
     rule: (id: number) => [...queryKeys.automation.all, 'rule', id] as const,
@@ -799,10 +809,12 @@ export const queryKeys = {
       [...queryKeys.leave.all, 'report', kind, params] as const,
     // Configurações (docs/Modulo_Leave.md §10).
     settings: () => [...queryKeys.leave.all, 'settings'] as const,
-    settingsHistory: () => [...queryKeys.leave.all, 'settings-history'] as const,
+    settingsHistory: () =>
+      [...queryKeys.leave.all, 'settings-history'] as const,
     holidays: (params: Record<string, unknown>) =>
       [...queryKeys.leave.all, 'holidays', params] as const,
-    holidayLocations: () => [...queryKeys.leave.all, 'holiday-locations'] as const,
+    holidayLocations: () =>
+      [...queryKeys.leave.all, 'holiday-locations'] as const,
     delegations: (all: boolean) =>
       [...queryKeys.leave.all, 'delegations', all] as const,
     // Separador "Férias & Licenças" do perfil de utilizador (docs/modulo_users.md Ponto 3).
@@ -987,7 +999,11 @@ export const queryKeys = {
     domain: (domain: string, params: Record<string, unknown>) =>
       [...queryKeys.executiveReports.all, 'domain', domain, params] as const,
     chartsDepartments: (params: Record<string, unknown>) =>
-      [...queryKeys.executiveReports.all, 'charts-departments', params] as const,
+      [
+        ...queryKeys.executiveReports.all,
+        'charts-departments',
+        params,
+      ] as const,
     chartsGoals: (params: Record<string, unknown>) =>
       [...queryKeys.executiveReports.all, 'charts-goals', params] as const,
     chartsRisks: (params: Record<string, unknown>) =>
@@ -1203,7 +1219,12 @@ export const queryKeys = {
       [...queryKeys.avatarTraining.all, 'progress', params] as const,
     history: () => [...queryKeys.avatarTraining.all, 'history'] as const,
     reports: (type: string, filters?: Record<string, unknown>) =>
-      [...queryKeys.avatarTraining.all, 'reports', type, filters ?? {}] as const,
+      [
+        ...queryKeys.avatarTraining.all,
+        'reports',
+        type,
+        filters ?? {},
+      ] as const,
     reportCatalog: () =>
       [...queryKeys.avatarTraining.all, 'report-catalog'] as const,
     providers: () => [...queryKeys.avatarTraining.all, 'providers'] as const,

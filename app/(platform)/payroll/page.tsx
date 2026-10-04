@@ -8,6 +8,12 @@ import { AdminPayslipDetailView } from '@/components/payroll/AdminPayslipDetailV
 import { CreatePayslipModal } from '@/components/payroll/CreatePayslipModal';
 import { HrDashboardView } from '@/components/payroll/HrDashboardView';
 import { DisputesView } from '@/components/payroll/DisputesView';
+import { OverviewView } from '@/components/payroll/OverviewView';
+import { EmployeesView } from '@/components/payroll/EmployeesView';
+import { DeductionsView } from '@/components/payroll/DeductionsView';
+import { PaymentsView } from '@/components/payroll/PaymentsView';
+import { ClosureView } from '@/components/payroll/ClosureView';
+import { ReportsView } from '@/components/payroll/ReportsView';
 import { AnnualView } from '@/components/payslips/AnnualView';
 import { CompareView } from '@/components/payslips/CompareView';
 import { CompensationDetailView } from '@/components/payslips/CompensationDetailView';
@@ -21,6 +27,12 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
 
 type Nav =
+  | { tab: 'overview' }
+  | { tab: 'employees' }
+  | { tab: 'deductions' }
+  | { tab: 'payments' }
+  | { tab: 'closure' }
+  | { tab: 'reports' }
   | { tab: 'runs'; view: 'list' }
   | { tab: 'runs'; view: 'detail'; runId: number }
   | { tab: 'payslips'; view: 'list' }
@@ -40,11 +52,17 @@ type Nav =
   | { tab: 'compensations'; view: 'detail'; userId: number };
 
 const TABS: Array<{ id: Nav['tab']; label: string; adminOnly?: boolean }> = [
-  { id: 'runs', label: 'Runs', adminOnly: true },
-  { id: 'payslips', label: 'Recibos', adminOnly: true },
-  { id: 'dashboard', label: 'Dashboard', adminOnly: true },
+  { id: 'overview', label: 'Visão Geral', adminOnly: true },
+  { id: 'runs', label: 'Processamentos', adminOnly: true },
+  { id: 'employees', label: 'Colaboradores', adminOnly: true },
+  { id: 'components', label: 'Remunerações', adminOnly: true },
+  { id: 'deductions', label: 'Deduções & Impostos', adminOnly: true },
+  { id: 'payslips', label: 'Recibos de Vencimento', adminOnly: true },
+  { id: 'payments', label: 'Pagamentos', adminOnly: true },
+  { id: 'closure', label: 'Fecho Salarial', adminOnly: true },
+  { id: 'reports', label: 'Relatórios', adminOnly: true },
+  { id: 'dashboard', label: 'Dashboard Recibos', adminOnly: true },
   { id: 'disputes', label: 'Disputas', adminOnly: true },
-  { id: 'components', label: 'Componentes', adminOnly: true },
   { id: 'compensations', label: 'Compensações', adminOnly: true },
   { id: 'my', label: 'Os meus recibos' },
   { id: 'compare', label: 'Comparar meses' },
@@ -54,8 +72,14 @@ const TABS: Array<{ id: Nav['tab']; label: string; adminOnly?: boolean }> = [
 ];
 
 const TITLES: Record<Nav['tab'], string> = {
-  runs: 'Folha de Pagamento — Runs',
-  payslips: 'Folha de Pagamento — Recibos',
+  overview: 'Folha de Pagamento — Visão Geral',
+  employees: 'Folha de Pagamento — Colaboradores',
+  deductions: 'Folha de Pagamento — Deduções & Impostos',
+  payments: 'Folha de Pagamento — Pagamentos',
+  closure: 'Folha de Pagamento — Fecho Salarial',
+  reports: 'Folha de Pagamento — Relatórios',
+  runs: 'Folha de Pagamento — Processamentos',
+  payslips: 'Folha de Pagamento — Recibos de Vencimento',
   dashboard: 'Folha de Pagamento — Dashboard RH',
   disputes: 'Folha de Pagamento — Disputas',
   my: 'Folha de Pagamento — Os meus recibos',
@@ -63,7 +87,7 @@ const TITLES: Record<Nav['tab'], string> = {
   simulate: 'Folha de Pagamento — Simulador IRT Angola 2026',
   annual: 'Folha de Pagamento — Resumo anual',
   compensation: 'Folha de Pagamento — A minha compensação',
-  components: 'Folha de Pagamento — Componentes salariais',
+  components: 'Folha de Pagamento — Remunerações',
   compensations: 'Folha de Pagamento — Compensações',
 };
 
@@ -85,8 +109,7 @@ export default function PayrollPage() {
 
   const [selected, setNav] = useState<Nav | null>(null);
   const nav: Nav =
-    selected ??
-    (isAdmin ? { tab: 'runs', view: 'list' } : { tab: 'my', view: 'list' });
+    selected ?? (isAdmin ? { tab: 'overview' } : { tab: 'my', view: 'list' });
   const [creating, setCreating] = useState(false);
 
   const isDetail = 'view' in nav && nav.view === 'detail';
@@ -127,6 +150,13 @@ export default function PayrollPage() {
           ))}
         </div>
       )}
+
+      {isAdmin && nav.tab === 'overview' && <OverviewView />}
+      {isAdmin && nav.tab === 'employees' && <EmployeesView />}
+      {isAdmin && nav.tab === 'deductions' && <DeductionsView />}
+      {isAdmin && nav.tab === 'payments' && <PaymentsView />}
+      {isAdmin && nav.tab === 'closure' && <ClosureView />}
+      {isAdmin && nav.tab === 'reports' && <ReportsView />}
 
       {isAdmin && nav.tab === 'runs' && nav.view === 'list' && (
         <RunListView
