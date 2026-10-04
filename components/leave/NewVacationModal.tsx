@@ -199,6 +199,12 @@ export function NewVacationModal({ onClose, onSuccess }: NewVacationModalProps) 
               <p className="text-ink-muted">
                 Saldo disponível:{' '}
                 <strong className="text-ink">{p.availableBalance ?? 0} dia(s)</strong>
+                {!!p.reservedDays && (
+                  <span className="text-ink-faint">
+                    {' '}
+                    ({p.reservedDays} reservado(s) em pedidos pendentes)
+                  </span>
+                )}
               </p>
               {p.holidays.length > 0 && (
                 <p className="text-ink-muted">

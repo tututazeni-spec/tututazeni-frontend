@@ -152,6 +152,8 @@ export interface DurationPreview {
   holidays: Array<{ date: string; name: string }>;
   countsWorkDaysOnly: boolean;
   availableBalance: number | null;
+  /** Dias já reservados por pedidos pendentes (já descontados de availableBalance). */
+  reservedDays?: number;
   exceedsBalance: boolean;
   selfOverlap: {
     id: number;
@@ -584,4 +586,97 @@ export interface ReportResult {
   rows: Array<Record<string, string | number | null>>;
   totals?: Record<string, string | number | null>;
   truncated: boolean;
+}
+
+// ─── §10 Configurações ──────────────────────────────────────────────────────
+
+export type DayCountRule = 'PER_TYPE' | 'WORK_DAYS' | 'CALENDAR_DAYS';
+
+/** Espelha `LeaveSettings` do backend (leave-settings.dto.ts). */
+export interface LeaveSettings {
+  referenceYear: number | null;
+  vacationWindowStart: string | null;
+  vacationWindowEnd: string | null;
+  workWeekDays: number[];
+  workdayStart: string;
+  workdayEnd: string;
+  hoursPerDay: number;
+  dayCountRule: DayCountRule;
+  justifiedOccurrenceTypes: AbsenceOccurrenceType[];
+  unjustifiedOccurrenceTypes: AbsenceOccurrenceType[];
+  carryOverEnabled: boolean;
+  carryOverMaxDays: number | null;
+  minNoticeDays: number | null;
+  maxAdvanceDays: number | null;
+  documentRequiredCategories: string[];
+  substituteRequiredOverDays: number | null;
+  decisionSlaDays: number;
+  escalationAfterDays: number | null;
+  employeeCanCancelApproved: boolean;
+  cancelApprovedMinDaysBefore: number | null;
+  defaultMaxAbsencePercent: number;
+  managerCanRegisterAbsences: boolean;
+  managerCanValidateAbsences: boolean;
+  syncAttendance: boolean;
+  payrollFeedEnabled: boolean;
+  notifyHrOnApproval: boolean;
+}
+
+export interface SettingsOverview {
+  settings: LeaveSettings;
+  effectiveFrom: string | null;
+  versionId: number | null;
+  upcoming: {
+    versionId: number;
+    effectiveFrom: string;
+    changeNote: string | null;
+    changedKeys: Array<keyof LeaveSettings>;
+  } | null;
+  defaults: LeaveSettings;
+}
+
+export interface SettingsHistoryEntry {
+  id: number;
+  effectiveFrom: string;
+  createdAt: string;
+  createdById: number;
+  createdByName: string | null;
+  changeNote: string | null;
+  scheduled: boolean;
+  changedKeys: Array<keyof LeaveSettings>;
+  values: LeaveSettings;
+}
+
+export interface EffectiveHoliday {
+  date: string;
+  name: string;
+  source: 'BASE' | 'CUSTOM';
+}
+
+export interface CustomHoliday {
+  id: number;
+  name: string;
+  date: string;
+  location: string | null;
+  recurring: boolean;
+  active: boolean;
+}
+
+export interface HolidaysResponse {
+  year: number;
+  location: string | null;
+  effective: EffectiveHoliday[];
+  custom: CustomHoliday[];
+}
+
+export interface DelegationRow {
+  id: number;
+  delegatorId: number;
+  delegateId: number;
+  delegatorName: string | null;
+  delegateName: string | null;
+  startDate: string;
+  endDate: string;
+  reason: string | null;
+  active: boolean;
 }

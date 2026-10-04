@@ -290,6 +290,12 @@ export function NewLicenseModal({
                     <strong className="text-ink">
                       {p.availableBalance} dia(s)
                     </strong>
+                    {!!p.reservedDays && (
+                      <span className="text-ink-faint">
+                        {' '}
+                        ({p.reservedDays} reservado(s) em pedidos pendentes)
+                      </span>
+                    )}
                   </>
                 )}
               </p>

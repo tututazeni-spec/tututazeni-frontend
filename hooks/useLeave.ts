@@ -16,6 +16,10 @@ import type {
   ApprovalListStatus,
   ApprovalsResponse,
   ApproverCandidate,
+  DelegationRow,
+  HolidaysResponse,
+  SettingsHistoryEntry,
+  SettingsOverview,
   CalendarView,
   LeaveRequest,
   LeaveType,
@@ -283,4 +287,59 @@ export function useLeaveReport(kind: LeaveReportKind, filters: ReportFilters) {
     },
   );
   return { data: q.data ?? null, loading: q.isLoading };
+}
+
+// ─── §10 Configurações ──────────────────────────────────────────────────────
+
+/** GET /leave/settings — só ADMIN/RH. */
+export function useLeaveSettings(enabled: boolean) {
+  const q = useApiQuery<SettingsOverview>(
+    queryKeys.leave.settings(),
+    '/leave/settings',
+    { staleTime: STALE_TIME.DYNAMIC, enabled },
+  );
+  return { data: q.data ?? null, loading: q.isLoading, error: q.error };
+}
+
+export function useSettingsHistory(enabled: boolean) {
+  const q = useApiQuery<SettingsHistoryEntry[]>(
+    queryKeys.leave.settingsHistory(),
+    '/leave/settings/history',
+    { params: { limit: 50 }, staleTime: STALE_TIME.DYNAMIC, enabled },
+  );
+  return { data: q.data ?? [], loading: q.isLoading };
+}
+
+export function useHolidays(year: number, location: string, enabled: boolean) {
+  const params = compact({ year, location });
+  const q = useApiQuery<HolidaysResponse>(
+    queryKeys.leave.holidays(params),
+    '/leave/settings/holidays',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+      enabled,
+    },
+  );
+  return { data: q.data ?? null, loading: q.isLoading };
+}
+
+export function useHolidayLocations(enabled: boolean) {
+  const q = useApiQuery<string[]>(
+    queryKeys.leave.holidayLocations(),
+    '/leave/settings/locations',
+    { staleTime: STALE_TIME.SEMI_STATIC, enabled },
+  );
+  return q.data ?? [];
+}
+
+/** GET /leave/settings/delegations — as minhas; `all` (ADMIN/RH) inclui inactivas. */
+export function useDelegations(all: boolean) {
+  const q = useApiQuery<DelegationRow[]>(
+    queryKeys.leave.delegations(all),
+    '/leave/settings/delegations',
+    { params: all ? { all: 'true' } : undefined, staleTime: STALE_TIME.DYNAMIC },
+  );
+  return { data: q.data ?? [], loading: q.isLoading };
 }

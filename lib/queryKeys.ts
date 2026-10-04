@@ -797,6 +797,14 @@ export const queryKeys = {
     reportCatalog: () => [...queryKeys.leave.all, 'report-catalog'] as const,
     report: (kind: string, params: Record<string, unknown>) =>
       [...queryKeys.leave.all, 'report', kind, params] as const,
+    // Configurações (docs/Modulo_Leave.md §10).
+    settings: () => [...queryKeys.leave.all, 'settings'] as const,
+    settingsHistory: () => [...queryKeys.leave.all, 'settings-history'] as const,
+    holidays: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'holidays', params] as const,
+    holidayLocations: () => [...queryKeys.leave.all, 'holiday-locations'] as const,
+    delegations: (all: boolean) =>
+      [...queryKeys.leave.all, 'delegations', all] as const,
     // Separador "Férias & Licenças" do perfil de utilizador (docs/modulo_users.md Ponto 3).
     byUser: (userId: number) =>
       [...queryKeys.leave.all, 'by-user', userId] as const,

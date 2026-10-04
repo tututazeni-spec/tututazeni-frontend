@@ -4,10 +4,10 @@
 // INNOVA — Módulo Leave (férias, licenças e gestão de ausências)
 //
 // Container: estrutura de 9 abas de docs/Modulo_Leave.md §1. Visão Geral
-// (§2), Férias (§3), Licenças (§4), Gestão de Ausências (§5), Calendário (§6)
-// Aprovações (§7), Planeamento de Equipas (§8) e Relatórios (§9) estão
-// implementadas; só Configurações (§10) é placeholder explícito até à fase
-// seguinte.
+// (§2), Férias (§3), Licenças (§4), Gestão de Ausências (§5), Calendário (§6),
+// Aprovações (§7), Planeamento de Equipas (§8), Relatórios (§9) e
+// Configurações (§10) estão implementadas. Configurações é partilhada: ADMIN/RH
+// mantêm as regras; os restantes aprovadores só gerem as suas substituições.
 //
 // O número de pendentes alimenta o badge do separador "Aprovações" (a lista
 // em si é carregada pelo próprio separador).
@@ -46,9 +46,9 @@ import { ApprovalsTab } from '@/components/leave/ApprovalsTab';
 import { LicensesTab } from '@/components/leave/LicensesTab';
 import { NewLicenseModal } from '@/components/leave/NewLicenseModal';
 import { OverviewTab } from '@/components/leave/OverviewTab';
-import { PendingPhaseTab } from '@/components/leave/PendingPhaseTab';
 import { PlanningTab } from '@/components/leave/PlanningTab';
 import { ReportsTab } from '@/components/leave/ReportsTab';
+import { SettingsTab } from '@/components/leave/SettingsTab';
 import { VacationsTab } from '@/components/leave/VacationsTab';
 
 type TabKey =
@@ -144,7 +144,7 @@ export default function LeavePage() {
       key: 'settings',
       label: 'Configurações',
       icon: Settings,
-      roles: LEAVE_ADMIN_ROLES,
+      roles: LEAVE_APPROVER_ROLES,
     },
   ];
   const tabs = filterByRole(allTabs, role);
@@ -237,11 +237,7 @@ export default function LeavePage() {
         )}
 
         {tab === 'settings' && hasTab('settings') && (
-          <PendingPhaseTab
-            icon={Settings}
-            title="Configurações"
-            description="Tipos de ausência, regras de contagem, saldos, feriados e fluxos de aprovação."
-          />
+          <SettingsTab isAdmin={!!role && LEAVE_ADMIN_ROLES.includes(role)} />
         )}
       </div>
 
