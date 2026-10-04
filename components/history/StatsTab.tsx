@@ -26,10 +26,10 @@ const HEATMAP_LEGEND = [
   'bg-primary',
 ];
 
-export function StatsTab() {
+export function StatsTab({ userId }: { userId?: number }) {
   const { data, isLoading: loading } = useApiQuery<HistoryStats>(
-    queryKeys.history.stats(),
-    '/history/stats/me',
+    userId ? queryKeys.history.statsByUser(userId) : queryKeys.history.stats(),
+    userId ? `/history/stats/user/${userId}` : '/history/stats/me',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 

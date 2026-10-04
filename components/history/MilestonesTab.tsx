@@ -11,10 +11,12 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { Milestone } from './types';
 
-export function MilestonesTab() {
+export function MilestonesTab({ userId }: { userId?: number }) {
   const { data = [], isLoading: loading } = useApiQuery<Milestone[]>(
-    queryKeys.history.milestones(),
-    '/history/milestones/me',
+    userId
+      ? queryKeys.history.milestonesByUser(userId)
+      : queryKeys.history.milestones(),
+    userId ? `/history/milestones/user/${userId}` : '/history/milestones/me',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
@@ -31,7 +33,7 @@ export function MilestonesTab() {
     return (
       <EmptyState
         title="Sem marcos de carreira registados ainda"
-        description="Os teus marcos aparecem aqui à medida que os vais alcançando"
+        description="Os marcos aparecem aqui à medida que são alcançados"
       />
     );
 

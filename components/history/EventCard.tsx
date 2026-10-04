@@ -94,6 +94,9 @@ export function EventCard({ event, compact = false }: EventCardProps) {
 
         {expanded && (
           <div className="mt-2 pt-2 border-t border-border">
+            {event.description && (
+              <p className="mb-2 text-xs text-ink">{event.description}</p>
+            )}
             <div className="grid grid-cols-2 gap-2 text-xs text-ink-muted">
               <div>
                 <span className="font-medium">Entidade:</span> {event.entity}

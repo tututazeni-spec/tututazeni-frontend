@@ -605,8 +605,21 @@ export const queryKeys = {
       [...queryKeys.history.all, 'timeline', params] as const,
     milestones: () => [...queryKeys.history.all, 'milestones'] as const,
     stats: () => [...queryKeys.history.all, 'stats'] as const,
-    auditStats: () => [...queryKeys.history.all, 'audit-stats'] as const,
-    upcoming: () => [...queryKeys.history.all, 'upcoming'] as const,
+    // Hub organizacional (docs/history.md) — uma chave por aba, com os filtros globais
+    overview: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'overview', params] as const,
+    feed: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'feed', params] as const,
+    movements: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'movements', params] as const,
+    orgChanges: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'org-changes', params] as const,
+    documents: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'documents', params] as const,
+    activities: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'activities', params] as const,
+    report: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'report', params] as const,
     // Separadores "Histórico" e "Atividade" do perfil de utilizador
     // (docs/modulo_users.md Ponto 3) — versões por utilizador (ADMIN/RH/GESTOR)
     // das rotas acima, que são todas do próprio chamador.
