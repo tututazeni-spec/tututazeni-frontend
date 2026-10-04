@@ -73,4 +73,38 @@ export interface IntegrityCheck {
   broken: number[];
 }
 
-export type View = 'logs' | 'stats' | 'anomalies' | 'timeline' | 'deleted';
+export interface AuditOverview {
+  periodDays: number;
+  since: string;
+  totals: {
+    events: number;
+    failedAccess: number;
+    criticalActions: number;
+    pendingAlerts: number;
+  };
+  access: { success: number; failed: number };
+  daily: Array<{ date: string; total: number; failedAccess: number }>;
+  byModule: Array<{ module: string; count: number }>;
+  bySeverity: Record<string, number>;
+  topUsers: Array<{
+    userId: number | null;
+    count: number;
+    user: { id: number; fullName: string; email: string } | null;
+  }>;
+  recent: AuditLog[];
+  recentCritical: AuditLog[];
+  anomalies: Anomalies;
+}
+
+export type View =
+  | 'overview'
+  | 'logs'
+  | 'access'
+  | 'changes'
+  | 'security'
+  | 'audits'
+  | 'reports'
+  | 'exports'
+  | 'policies'
+  | 'timeline'
+  | 'deleted';

@@ -571,6 +571,8 @@ export const queryKeys = {
     list: (params: Record<string, unknown>) =>
       [...queryKeys.audit.all, 'list', params] as const,
     stats: () => [...queryKeys.audit.all, 'stats'] as const,
+    overview: (days: number) =>
+      [...queryKeys.audit.all, 'overview', days] as const,
     anomalies: () => [...queryKeys.audit.all, 'anomalies'] as const,
     integrity: () => [...queryKeys.audit.all, 'integrity'] as const,
   },

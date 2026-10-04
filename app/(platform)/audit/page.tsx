@@ -6,18 +6,18 @@ import { AnomaliesView } from '@/components/audit/AnomaliesView';
 import { NAV, TITLES } from '@/components/audit/constants';
 import { DeletedCyclesView } from '@/components/audit/DeletedCyclesView';
 import { LogsView } from '@/components/audit/LogsView';
-import { StatsView } from '@/components/audit/StatsView';
+import { ComingSoonTab } from '@/components/audit/ComingSoonTab';
+import { OverviewView } from '@/components/audit/OverviewView';
 import { TimelineView } from '@/components/audit/TimelineView';
 import type { View } from '@/components/audit/types';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { Button } from '@/components/ui/Button';
 
 export default function AuditPage() {
   const role = useCurrentRole();
   // Cada separador só é visível a quem o backend por trás dele deixa entrar
   // (NAV[].roles) — ex.: DIRECTOR só vê "Apagados", nunca os logs gerais.
   const nav = NAV.filter((n) => !!role && n.roles.includes(role));
-  const [view, setView] = useState<View>('logs');
+  const [view, setView] = useState<View>('overview');
 
   // Se o separador activo deixar de estar disponível para este papel (ex.:
   // DIRECTOR, que não tem "logs"), salta para o primeiro que tiver.
@@ -61,8 +61,18 @@ export default function AuditPage() {
       </div>
 
       {view === 'logs' && <LogsView />}
-      {view === 'stats' && <StatsView />}
-      {view === 'anomalies' && <AnomaliesView />}
+      {view === 'overview' && <OverviewView onNavigate={setView} />}
+      {view === 'security' && <AnomaliesView />}
+      {(
+        [
+          'access',
+          'changes',
+          'audits',
+          'reports',
+          'exports',
+          'policies',
+        ] as View[]
+      ).includes(view) && <ComingSoonTab title={TITLES[view]} />}
       {view === 'timeline' && <TimelineView />}
       {view === 'deleted' && <DeletedCyclesView />}
     </div>
