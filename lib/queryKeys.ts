@@ -768,8 +768,43 @@ export const queryKeys = {
     myBalance: () => [...queryKeys.leave.all, 'my-balance'] as const,
     myRequests: () => [...queryKeys.leave.all, 'my-requests'] as const,
     dashboard: () => [...queryKeys.leave.all, 'dashboard'] as const,
+    // Visão Geral e aba Férias (docs/Modulo_Leave.md §2-3).
+    overview: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'overview', params] as const,
+    vacations: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'vacations', params] as const,
     pendingApprovals: () =>
       [...queryKeys.leave.all, 'pending-approvals'] as const,
+    // Licenças, Gestão de Ausências e Calendário (docs/Modulo_Leave.md §4-6).
+    licenses: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'licenses', params] as const,
+    approvalRoute: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'approval-route', params] as const,
+    absences: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'absences', params] as const,
+    absence: (id: number) => [...queryKeys.leave.all, 'absence', id] as const,
+    absenceHistory: (userId: number) =>
+      [...queryKeys.leave.all, 'absence-history', userId] as const,
+    absenceCalendar: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'absence-calendar', params] as const,
+    // Aprovações, Planeamento e Relatórios (docs/Modulo_Leave.md §7-9).
+    approvals: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'approvals', params] as const,
+    approverCandidates: (search: string) =>
+      [...queryKeys.leave.all, 'approver-candidates', search] as const,
+    planning: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'planning', params] as const,
+    reportCatalog: () => [...queryKeys.leave.all, 'report-catalog'] as const,
+    report: (kind: string, params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'report', kind, params] as const,
+    // Configurações (docs/Modulo_Leave.md §10).
+    settings: () => [...queryKeys.leave.all, 'settings'] as const,
+    settingsHistory: () => [...queryKeys.leave.all, 'settings-history'] as const,
+    holidays: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'holidays', params] as const,
+    holidayLocations: () => [...queryKeys.leave.all, 'holiday-locations'] as const,
+    delegations: (all: boolean) =>
+      [...queryKeys.leave.all, 'delegations', all] as const,
     // Separador "Férias & Licenças" do perfil de utilizador (docs/modulo_users.md Ponto 3).
     byUser: (userId: number) =>
       [...queryKeys.leave.all, 'by-user', userId] as const,
