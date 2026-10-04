@@ -56,16 +56,7 @@ export function MilestonesTab() {
             </p>
           </div>
           <div className="text-right shrink-0">
-            <span
-              className={`text-xs px-2 py-0.5 rounded-pill font-semibold ${
-                m.impactScore >= 80
-                  ? 'bg-success-subtle text-success-ink'
-                  : 'bg-warning-subtle text-warning-ink'
-              }`}
-            >
-              {m.impactScore} pts
-            </span>
-            <p className="text-[10px] text-ink-faint mt-1">{m.type}</p>
+            <p className="text-[10px] text-ink-faint">{m.type}</p>
           </div>
         </div>
       ))}

@@ -104,10 +104,6 @@ export function EventCard({ event, compact = false }: EventCardProps) {
                 </div>
               )}
               <div>
-                <span className="font-medium">Impact:</span> {event.impactScore}
-                /100
-              </div>
-              <div>
                 <span className="font-medium">Módulo:</span> {event.module}
               </div>
             </div>
@@ -116,17 +112,6 @@ export function EventCard({ event, compact = false }: EventCardProps) {
       </div>
 
       <div className="shrink-0 flex items-center gap-1.5">
-        <span
-          className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-            event.impactScore >= 75
-              ? 'bg-success-subtle text-success-ink'
-              : event.impactScore >= 50
-                ? 'bg-warning-subtle text-warning-ink'
-                : 'bg-surface-sunken text-ink-faint'
-          }`}
-        >
-          {event.impactScore}
-        </span>
         <ChevronDown
           size={14}
           strokeWidth={1.75}
