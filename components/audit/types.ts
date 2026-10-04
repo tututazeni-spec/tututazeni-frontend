@@ -185,3 +185,194 @@ export type View =
   | 'policies'
   | 'timeline'
   | 'deleted';
+
+// ── Alterações de Dados (§7) ────────────────────────────────────────────────
+export interface FieldChange {
+  field: string;
+  from: unknown;
+  to: unknown;
+  masked: boolean;
+}
+
+export interface DataChange {
+  id: number;
+  code: string;
+  timestamp: string;
+  action: string;
+  entity: string;
+  entityId: number | null;
+  entityName: string | null;
+  status: Status;
+  severity: Severity;
+  reason: string | null;
+  user: AuditLog['user'];
+  actorType: 'USER' | 'SYSTEM';
+  origin: string | null;
+  approvalRef: string | null;
+  fields: FieldChange[];
+}
+
+export interface ChangesSummary {
+  periodDays: number;
+  totals: { changes: number; failed: number; authors: number };
+  byEntity: Array<{ entity: string; count: number }>;
+  byAction: Array<{ action: string; count: number }>;
+}
+
+// ── Segurança e Incidentes (§8) ─────────────────────────────────────────────
+export type IncidentStatus = 'OPEN' | 'IN_ANALYSIS' | 'MITIGATED' | 'CLOSED';
+
+export interface PersonRef {
+  id: number;
+  fullName: string;
+  email: string;
+}
+
+export interface Incident {
+  id: number;
+  code: string;
+  title: string;
+  description: string | null;
+  category: string;
+  type: string | null;
+  severity: Severity;
+  status: IncidentStatus;
+  detectedAt: string;
+  source: string;
+  sourceLabel: string | null;
+  assigneeId: number | null;
+  assignee: PersonRef | null;
+  resolution: string | null;
+  closedAt: string | null;
+  evidenceCount?: number;
+}
+
+export interface IncidentList extends Paginated<Incident> {
+  counts: {
+    byStatus: Partial<Record<IncidentStatus, number>>;
+    openBySeverity: Partial<Record<Severity, number>>;
+  };
+}
+
+export interface IncidentDetail extends Incident {
+  createdBy: PersonRef | null;
+  evidences: Array<{
+    id: number;
+    auditLogId: number | null;
+    note: string | null;
+    createdAt: string;
+    addedBy: PersonRef | null;
+    auditLog: {
+      id: number;
+      action: string;
+      entity: string;
+      entityId: number | null;
+      severity: Severity;
+      status: Status;
+      timestamp: string;
+      user: { id: number; fullName: string } | null;
+    } | null;
+  }>;
+  history: Array<{
+    id: number;
+    action: string;
+    timestamp: string;
+    user: PersonRef | null;
+    metadata: Record<string, unknown> | null;
+  }>;
+}
+
+// ── Auditorias e Inspeções (§9) ─────────────────────────────────────────────
+export type InternalAuditStatus =
+  | 'PLANNED'
+  | 'PREPARING'
+  | 'IN_PROGRESS'
+  | 'IN_REVIEW'
+  | 'AWAITING_CORRECTIVE_ACTIONS'
+  | 'COMPLETED'
+  | 'CANCELLED';
+export type InternalAuditType =
+  'INTERNAL' | 'OPERATIONAL' | 'COMPLIANCE' | 'SECURITY';
+
+export interface InternalAuditSummary {
+  id: number;
+  code: string;
+  title: string;
+  type: InternalAuditType;
+  status: InternalAuditStatus;
+  modules: string[];
+  startDate: string | null;
+  dueDate: string | null;
+  result: string | null;
+  leadAuditor: PersonRef | null;
+  counts: {
+    checks: number;
+    findings: number;
+    actions: number;
+    evidences: number;
+  };
+}
+
+export interface InternalAuditList extends Paginated<InternalAuditSummary> {
+  counts: { byStatus: Partial<Record<InternalAuditStatus, number>> };
+}
+
+export interface InternalAuditDetail {
+  id: number;
+  code: string;
+  title: string;
+  objective: string | null;
+  scope: string | null;
+  type: InternalAuditType;
+  status: InternalAuditStatus;
+  modules: string[];
+  periodFrom: string | null;
+  periodTo: string | null;
+  criteria: string | null;
+  startDate: string | null;
+  dueDate: string | null;
+  result: string | null;
+  closingReport: string | null;
+  approvedAt: string | null;
+  cancelReason: string | null;
+  leadAuditor: PersonRef | null;
+  approvedBy: PersonRef | null;
+  team: PersonRef[];
+  checks: Array<{
+    id: number;
+    title: string;
+    status: 'PENDING' | 'PASSED' | 'FAILED' | 'NOT_APPLICABLE';
+    notes: string | null;
+  }>;
+  evidences: Array<{
+    id: number;
+    title: string;
+    description: string | null;
+    url: string | null;
+    auditLogId: number | null;
+    createdAt: string;
+    addedBy: PersonRef | null;
+  }>;
+  findings: Array<{
+    id: number;
+    title: string;
+    description: string | null;
+    nonConformity: boolean;
+    risk: Severity;
+    recommendation: string | null;
+  }>;
+  actions: Array<{
+    id: number;
+    findingId: number | null;
+    description: string;
+    status: 'OPEN' | 'IN_PROGRESS' | 'DONE';
+    dueDate: string | null;
+    responsible: PersonRef | null;
+  }>;
+  history: Array<{
+    id: number;
+    action: string;
+    timestamp: string;
+    user: PersonRef | null;
+  }>;
+}

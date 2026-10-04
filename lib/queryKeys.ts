@@ -583,6 +583,17 @@ export const queryKeys = {
     accessSessions: (page: number) =>
       [...queryKeys.audit.all, 'access-sessions', page] as const,
     integrity: () => [...queryKeys.audit.all, 'integrity'] as const,
+    changes: (params: Record<string, unknown>) =>
+      [...queryKeys.audit.all, 'changes', params] as const,
+    changesSummary: (days: number) =>
+      [...queryKeys.audit.all, 'changes-summary', days] as const,
+    incidents: (params: Record<string, unknown>) =>
+      [...queryKeys.audit.all, 'incidents', params] as const,
+    incident: (id: number) => [...queryKeys.audit.all, 'incident', id] as const,
+    audits: (params: Record<string, unknown>) =>
+      [...queryKeys.audit.all, 'audits', params] as const,
+    auditDetail: (id: number) =>
+      [...queryKeys.audit.all, 'audit-detail', id] as const,
   },
 
   career: {

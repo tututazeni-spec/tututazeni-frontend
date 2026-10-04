@@ -3,12 +3,14 @@
 
 import { useEffect, useState } from 'react';
 import { AccessView } from '@/components/audit/AccessView';
-import { AnomaliesView } from '@/components/audit/AnomaliesView';
+import { AuditsView } from '@/components/audit/AuditsView';
+import { ChangesView } from '@/components/audit/ChangesView';
 import { NAV, TITLES } from '@/components/audit/constants';
 import { DeletedCyclesView } from '@/components/audit/DeletedCyclesView';
 import { LogsView } from '@/components/audit/LogsView';
 import { ComingSoonTab } from '@/components/audit/ComingSoonTab';
 import { OverviewView } from '@/components/audit/OverviewView';
+import { SecurityView } from '@/components/audit/SecurityView';
 import { TimelineView } from '@/components/audit/TimelineView';
 import type { View } from '@/components/audit/types';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
@@ -63,11 +65,13 @@ export default function AuditPage() {
 
       {view === 'logs' && <LogsView />}
       {view === 'overview' && <OverviewView onNavigate={setView} />}
-      {view === 'security' && <AnomaliesView />}
+      {view === 'security' && <SecurityView />}
+      {view === 'changes' && <ChangesView />}
+      {view === 'audits' && <AuditsView />}
       {view === 'access' && <AccessView />}
-      {(
-        ['changes', 'audits', 'reports', 'exports', 'policies'] as View[]
-      ).includes(view) && <ComingSoonTab title={TITLES[view]} />}
+      {(['reports', 'exports', 'policies'] as View[]).includes(view) && (
+        <ComingSoonTab title={TITLES[view]} />
+      )}
       {view === 'timeline' && <TimelineView />}
       {view === 'deleted' && <DeletedCyclesView />}
     </div>
