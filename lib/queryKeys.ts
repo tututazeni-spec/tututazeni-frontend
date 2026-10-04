@@ -787,6 +787,16 @@ export const queryKeys = {
       [...queryKeys.leave.all, 'absence-history', userId] as const,
     absenceCalendar: (params: Record<string, unknown>) =>
       [...queryKeys.leave.all, 'absence-calendar', params] as const,
+    // Aprovações, Planeamento e Relatórios (docs/Modulo_Leave.md §7-9).
+    approvals: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'approvals', params] as const,
+    approverCandidates: (search: string) =>
+      [...queryKeys.leave.all, 'approver-candidates', search] as const,
+    planning: (params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'planning', params] as const,
+    reportCatalog: () => [...queryKeys.leave.all, 'report-catalog'] as const,
+    report: (kind: string, params: Record<string, unknown>) =>
+      [...queryKeys.leave.all, 'report', kind, params] as const,
     // Separador "Férias & Licenças" do perfil de utilizador (docs/modulo_users.md Ponto 3).
     byUser: (userId: number) =>
       [...queryKeys.leave.all, 'by-user', userId] as const,

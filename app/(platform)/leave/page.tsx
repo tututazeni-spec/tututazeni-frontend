@@ -5,11 +5,12 @@
 //
 // Container: estrutura de 9 abas de docs/Modulo_Leave.md §1. Visão Geral
 // (§2), Férias (§3), Licenças (§4), Gestão de Ausências (§5), Calendário (§6)
-// e Aprovações estão implementadas; as restantes abas (§8-§10) são
-// placeholders explícitos até às fases seguintes.
+// Aprovações (§7), Planeamento de Equipas (§8) e Relatórios (§9) estão
+// implementadas; só Configurações (§10) é placeholder explícito até à fase
+// seguinte.
 //
-// O estado de `pending` é partilhado entre o badge do separador e o
-// conteúdo do separador "Aprovações", por isso fica ao nível do container.
+// O número de pendentes alimenta o badge do separador "Aprovações" (a lista
+// em si é carregada pelo próprio separador).
 // Ver memory project_innova_component_separation_audit.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -46,6 +47,8 @@ import { LicensesTab } from '@/components/leave/LicensesTab';
 import { NewLicenseModal } from '@/components/leave/NewLicenseModal';
 import { OverviewTab } from '@/components/leave/OverviewTab';
 import { PendingPhaseTab } from '@/components/leave/PendingPhaseTab';
+import { PlanningTab } from '@/components/leave/PlanningTab';
+import { ReportsTab } from '@/components/leave/ReportsTab';
 import { VacationsTab } from '@/components/leave/VacationsTab';
 
 type TabKey =
@@ -82,21 +85,7 @@ export default function LeavePage() {
   const licenseTypes = leaveTypes.filter(
     (t) => t.code !== 'VACATION' && t.active,
   );
-  const {
-    data: pending,
-    loading: pLoading,
-    refetch: pRefetch,
-  } = usePendingApprovals(isApprover);
-
-  const approve = useApiMutation(
-    ({ id, action }: { id: number; action: string }) =>
-      apiClient.patch(`/leave/${id}/approve`, { action }),
-    {
-      // leave.all cobre também a Visão Geral e a tabela de Férias.
-      invalidateKeys: [queryKeys.leave.all],
-      onError: (e) => notify({ title: e.message, intent: 'danger' }),
-    },
-  );
+  const { data: pending, refetch: pRefetch } = usePendingApprovals(isApprover);
 
   const cancel = useApiMutation(
     (id: number) => apiClient.patch(`/leave/${id}/cancel`, {}),
@@ -105,28 +94,6 @@ export default function LeavePage() {
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
-
-  const bulkApprove = useApiMutation(
-    (ids: number[]) =>
-      apiClient.post('/leave/bulk-approve', {
-        requestIds: ids,
-        action: 'APPROVE',
-      }),
-    {
-      invalidateKeys: [queryKeys.leave.all],
-      onError: (e) => notify({ title: e.message, intent: 'danger' }),
-    },
-  );
-
-  // ApprovalCard faz `await onDecide(...)` para gerir o seu loading; engolimos o
-  // erro aqui (o alert já é tratado no onError da mutação).
-  const handleApprovalDecide = async (requestId: number, action: string) => {
-    try {
-      await approve.mutateAsync({ id: requestId, action });
-    } catch {
-      /* tratado */
-    }
-  };
 
   const confirm = useConfirm();
   const handleCancel = async (requestId: number) => {
@@ -260,29 +227,13 @@ export default function LeavePage() {
         {/* Os separadores abaixo não são montados para quem não tem o
             perfil exigido no backend — não só escondidos da tab bar. */}
         {tab === 'approvals' && hasTab('approvals') && (
-          <ApprovalsTab
-            pending={pending}
-            loading={pLoading}
-            onDecide={handleApprovalDecide}
-            onBulkApprove={(ids) => bulkApprove.mutate(ids)}
-            bulkApproving={bulkApprove.isPending}
-          />
+          <ApprovalsTab leaveTypes={leaveTypes} />
         )}
 
-        {tab === 'planning' && hasTab('planning') && (
-          <PendingPhaseTab
-            icon={Users}
-            title="Planeamento de Equipas"
-            description="Sobreposição de férias, cobertura operacional e disponibilidade por equipa."
-          />
-        )}
+        {tab === 'planning' && hasTab('planning') && <PlanningTab />}
 
         {tab === 'reports' && hasTab('reports') && (
-          <PendingPhaseTab
-            icon={BarChart3}
-            title="Relatórios"
-            description="Absentismo, utilização de férias, licenças por tipo e auditoria de pedidos."
-          />
+          <ReportsTab leaveTypes={leaveTypes} />
         )}
 
         {tab === 'settings' && hasTab('settings') && (

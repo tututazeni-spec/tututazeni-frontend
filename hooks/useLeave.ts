@@ -13,12 +13,19 @@ import type {
   AbsenceDetail,
   AbsenceHistory,
   AbsencesResponse,
+  ApprovalListStatus,
+  ApprovalsResponse,
+  ApproverCandidate,
   CalendarView,
   LeaveRequest,
   LeaveType,
   LicensesResponse,
   OverviewData,
+  LeaveReportKind,
   OverviewFilters,
+  PlanningData,
+  ReportCatalogItem,
+  ReportResult,
   VacationsResponse,
 } from '@/components/leave/types';
 
@@ -178,6 +185,97 @@ export function useAbsenceCalendar(filters: CalendarFilters) {
   const q = useApiQuery<AbsenceCalendarData>(
     queryKeys.leave.absenceCalendar(params),
     '/leave/absence-calendar',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
+  );
+  return { data: q.data ?? null, loading: q.isLoading };
+}
+
+export interface ApprovalFilters {
+  status: ApprovalListStatus;
+  stage: string;
+  leaveTypeCode: string;
+  search: string;
+  page: number;
+}
+
+/** GET /leave/approvals — etapas de aprovação (fila e histórico). Só ADMIN/RH/GESTOR. */
+export function useApprovals(filters: ApprovalFilters, enabled = true) {
+  const params = compact({ ...filters, limit: 20 });
+  const q = useApiQuery<ApprovalsResponse>(
+    queryKeys.leave.approvals(params),
+    '/leave/approvals',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: 60_000,
+      placeholderData: keepPreviousData,
+      enabled,
+    },
+  );
+  return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
+}
+
+export function useApproverCandidates(search: string, enabled: boolean) {
+  const params = compact({ search });
+  const q = useApiQuery<ApproverCandidate[]>(
+    queryKeys.leave.approverCandidates(search),
+    '/leave/approvals/candidates',
+    { params, staleTime: STALE_TIME.SEMI_STATIC, enabled },
+  );
+  return q.data ?? [];
+}
+
+export interface PlanningFilters {
+  from: string;
+  to: string;
+  unitId: string;
+  departmentId: string;
+}
+
+/** GET /leave/planning — disponibilidade, cobertura e conflitos por equipa. */
+export function usePlanning(filters: PlanningFilters) {
+  const params = compact({ ...filters });
+  const q = useApiQuery<PlanningData>(
+    queryKeys.leave.planning(params),
+    '/leave/planning',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
+  );
+  return { data: q.data ?? null, loading: q.isLoading };
+}
+
+export function useReportCatalog() {
+  const q = useApiQuery<ReportCatalogItem[]>(
+    queryKeys.leave.reportCatalog(),
+    '/leave/reports',
+    { staleTime: STALE_TIME.STATIC },
+  );
+  return q.data ?? [];
+}
+
+export interface ReportFilters {
+  year: number;
+  from: string;
+  to: string;
+  departmentId: string;
+  unitId: string;
+  leaveTypeCode: string;
+  includeCodes: string;
+}
+
+/** GET /leave/reports/:kind — corre um relatório (ADMIN/RH). */
+export function useLeaveReport(kind: LeaveReportKind, filters: ReportFilters) {
+  const params = compact({ ...filters });
+  const q = useApiQuery<ReportResult>(
+    queryKeys.leave.report(kind, params),
+    `/leave/reports/${kind}`,
     {
       params,
       staleTime: STALE_TIME.DYNAMIC,

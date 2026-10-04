@@ -398,3 +398,190 @@ export interface AbsenceCalendarData {
   }>;
   canExport: boolean;
 }
+
+// ─── §7 Aprovações ──────────────────────────────────────────────────────────
+
+export type ApprovalState =
+  | 'WAITING'
+  | 'PENDING'
+  | 'OVERDUE'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'OTHER';
+
+export type ApprovalListStatus = 'PENDING' | 'OVERDUE' | 'DECIDED' | 'ALL';
+
+export interface ApprovalReassignment {
+  id: number;
+  kind: 'REASSIGN' | 'DELEGATE';
+  from: { id: number; fullName: string | null };
+  to: { id: number; fullName: string | null };
+  by: { id: number; fullName: string | null };
+  reason: string | null;
+  createdAt: string;
+}
+
+export interface ApprovalRow {
+  id: number;
+  requestId: number;
+  stage: 'MANAGER' | 'HR';
+  level: number;
+  state: ApprovalState;
+  approver: { id: number; fullName: string };
+  assignedAt: string;
+  dueAt: string | null;
+  decision: 'APPROVE' | 'REJECT' | 'ESCALATE' | 'DELEGATE' | 'CANCELLED' | null;
+  notes: string | null;
+  decidedAt: string | null;
+  canAct: boolean;
+  canReassign: boolean;
+  request: {
+    id: number;
+    status: string;
+    submittedAt: string;
+    startDate: string;
+    endDate: string;
+    workDays: number;
+    user: {
+      id: number;
+      fullName: string;
+      department: { id: number; name: string } | null;
+    };
+    type: { code: string; name: string; color: string | null };
+  };
+  reassignments: ApprovalReassignment[];
+}
+
+export interface ApprovalsResponse {
+  data: ApprovalRow[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+  summary: { pending: number; overdue: number };
+}
+
+export interface ApproverCandidate {
+  id: number;
+  fullName: string;
+  role: { code: string } | null;
+}
+
+// ─── §8 Planeamento de Equipas ──────────────────────────────────────────────
+
+export interface PlanningDay {
+  date: string;
+  absent: number;
+  pendingAbsent: number;
+  availabilityPercent: number;
+  projectedAvailabilityPercent: number;
+  overlap: boolean;
+  belowMinimum: boolean;
+  projectedBelowMinimum: boolean;
+}
+
+export interface PlanningTeam {
+  departmentId: number | null;
+  department: string | null;
+  headcount: number;
+  minAvailabilityPercent: number;
+  minPeople: number;
+  averageAvailabilityPercent: number;
+  worstAvailabilityPercent: number;
+  belowMinimumDays: number;
+  projectedBelowMinimumDays: number;
+  overlapDays: number;
+  days: PlanningDay[];
+}
+
+export interface PlanningPendingRequest {
+  id: number;
+  user: { id: number; fullName: string };
+  departmentId: number | null;
+  department: string | null;
+  type: { code: string; name: string };
+  startDate: string;
+  endDate: string;
+  workDays: number;
+  submittedAt: string;
+  substitute: { id: number; fullName: string | null } | null;
+  overlappingPeople: number;
+  coverageBreachDates: string[];
+  coverageBreachDays: number;
+  criticalPeriods: string[];
+  hasConflict: boolean;
+}
+
+export interface PlanningData {
+  range: { from: string; to: string };
+  scope: 'ORGANIZATION' | 'TEAM' | 'SELF';
+  summary: {
+    headcount: number;
+    absentToday: number;
+    approvedRequests: number;
+    pendingRequests: number;
+    teamsBelowMinimum: number;
+    conflictingRequests: number;
+  };
+  teams: PlanningTeam[];
+  availabilityByDay: Array<{
+    date: string;
+    absent: number;
+    available: number;
+    availabilityPercent: number;
+  }>;
+  alerts: Array<{
+    date: string;
+    departmentId: number | null;
+    department: string | null;
+    absent: number;
+    headcount: number;
+    availabilityPercent: number;
+    minAvailabilityPercent: number;
+    causedByPending: boolean;
+  }>;
+  pendingRequests: PlanningPendingRequest[];
+  absentPeople: Array<{
+    userId: number;
+    fullName: string;
+    department: string | null;
+    periods: string[];
+  }>;
+  policyNote: string;
+}
+
+// ─── §9 Relatórios ──────────────────────────────────────────────────────────
+
+export type LeaveReportKind =
+  | 'ANNUAL_VACATION_MAP'
+  | 'ABSENCES_BY_DEPARTMENT'
+  | 'MONTHLY_ABSENTEEISM'
+  | 'JUSTIFIED_VS_UNJUSTIFIED'
+  | 'LICENSES_BY_TYPE'
+  | 'PENDING_REQUESTS'
+  | 'VACATION_BY_EMPLOYEE'
+  | 'OPERATIONAL_COVERAGE'
+  | 'PAYROLL_IMPACT'
+  | 'REQUEST_AUDIT';
+
+export interface ReportCatalogItem {
+  kind: LeaveReportKind;
+  title: string;
+  description: string;
+  indicators: string;
+}
+
+export interface ReportColumn {
+  key: string;
+  label: string;
+  type: 'text' | 'number' | 'percent' | 'date';
+}
+
+export interface ReportResult {
+  kind: LeaveReportKind;
+  title: string;
+  description: string;
+  formula?: string;
+  range: { from: string; to: string };
+  columns: ReportColumn[];
+  rows: Array<Record<string, string | number | null>>;
+  totals?: Record<string, string | number | null>;
+  truncated: boolean;
+}

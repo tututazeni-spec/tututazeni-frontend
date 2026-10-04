@@ -12,6 +12,7 @@ import type {
   AbsenceJustificationStatus,
   AbsenceOccurrenceType,
   AbsenceSource,
+  ApprovalState,
   LeaveCategory,
   LeaveStatus,
   LicensePhase,
@@ -144,3 +145,22 @@ export const ATTENDANCE_STATUS_LABELS: Record<string, string> = {
   RECORDED: 'Registada',
   HOLIDAY: 'Feriado',
 };
+
+// ─── §7 Aprovações ──────────────────────────────────────────────────────────
+
+export const APPROVAL_STATE_CFG: StatusBadgeMap<ApprovalState> = {
+  WAITING: {
+    label: 'A aguardar etapa anterior',
+    cls: 'bg-surface-sunken text-ink-muted',
+  },
+  PENDING: { label: 'Por decidir', cls: 'bg-warning-subtle text-warning-ink' },
+  OVERDUE: { label: 'Em atraso', cls: 'bg-danger-subtle text-danger-ink' },
+  APPROVED: { label: 'Aprovada', cls: 'bg-success-subtle text-success-ink' },
+  REJECTED: { label: 'Recusada', cls: 'bg-danger-subtle text-danger-ink' },
+  OTHER: { label: 'Encaminhada', cls: 'bg-info-subtle text-info-ink' },
+};
+
+export const APPROVAL_STAGE_LABELS = {
+  MANAGER: 'Gestor',
+  HR: 'RH',
+} as const;
