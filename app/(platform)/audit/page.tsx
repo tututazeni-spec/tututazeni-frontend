@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AccessView } from '@/components/audit/AccessView';
 import { AnomaliesView } from '@/components/audit/AnomaliesView';
 import { NAV, TITLES } from '@/components/audit/constants';
 import { DeletedCyclesView } from '@/components/audit/DeletedCyclesView';
@@ -63,15 +64,9 @@ export default function AuditPage() {
       {view === 'logs' && <LogsView />}
       {view === 'overview' && <OverviewView onNavigate={setView} />}
       {view === 'security' && <AnomaliesView />}
+      {view === 'access' && <AccessView />}
       {(
-        [
-          'access',
-          'changes',
-          'audits',
-          'reports',
-          'exports',
-          'policies',
-        ] as View[]
+        ['changes', 'audits', 'reports', 'exports', 'policies'] as View[]
       ).includes(view) && <ComingSoonTab title={TITLES[view]} />}
       {view === 'timeline' && <TimelineView />}
       {view === 'deleted' && <DeletedCyclesView />}

@@ -27,7 +27,84 @@ export interface AuditLog {
     fullName: string;
     email: string;
     avatarUrl: string | null;
+    role?: { name: string } | null;
+    department?: { id: number; name: string } | null;
   } | null;
+}
+
+export interface Paginated<T> {
+  data: T[];
+  total: number;
+  totalPages: number;
+}
+
+export interface AuditFilterOptions {
+  entities: string[];
+  actions: string[];
+  departments: Array<{ id: number; name: string }>;
+}
+
+export interface RelatedEvent {
+  id: number;
+  code: string;
+  timestamp: string;
+  action: string;
+  entity: string;
+  entityId: number | null;
+  status: Status;
+  severity: Severity;
+  user: { id: number; fullName: string } | null;
+}
+
+export interface AuditEventDetail {
+  id: number;
+  code: string;
+  timestamp: string;
+  action: string;
+  entity: string;
+  entityId: number | null;
+  entityName: string | null;
+  status: Status;
+  severity: Severity;
+  reason: string | null;
+  ip: string | null;
+  userAgent: string | null;
+  user: AuditLog['user'];
+  actorType: 'USER' | 'SYSTEM';
+  before: unknown;
+  after: unknown;
+  changes: Record<string, { from: unknown; to: unknown }> | null;
+  metadata: Record<string, unknown> | null;
+  correlationId: string | null;
+  masked: boolean;
+  related: { sameRecord: RelatedEvent[]; sameActor: RelatedEvent[] };
+}
+
+export interface AccessSummary {
+  periodDays: number;
+  totals: {
+    successLogins: number;
+    failedLogins: number;
+    logouts: number;
+    passwordChanges: number;
+    permissionChanges: number;
+    activeSessions: number;
+  };
+  daily: Array<{ date: string; success: number; failed: number }>;
+  alerts: Array<{ kind: string; severity: 'MEDIUM' | 'HIGH'; message: string }>;
+}
+
+export interface ActiveSession {
+  id: number;
+  lastActivity: string;
+  expiresAt: string;
+  user: {
+    id: number;
+    fullName: string;
+    email: string;
+    avatarUrl: string | null;
+    role: { name: string } | null;
+  };
 }
 
 export interface AuditStats {
