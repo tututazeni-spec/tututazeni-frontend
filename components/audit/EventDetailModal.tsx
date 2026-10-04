@@ -4,9 +4,14 @@
 
 'use client';
 
-import { Printer } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useState } from 'react';
+import { FileCheck2, GitCompare, Printer, ShieldAlert } from 'lucide-react';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
+import { AUDIT_GLOBAL_ROLES } from '@/lib/roles';
+import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -18,6 +23,7 @@ import {
   entityLabel,
 } from './constants';
 import { DiffViewer } from './DiffViewer';
+import { NewIncidentModal } from './SecurityView';
 import { fmtTs } from './utils';
 import type { AuditEventDetail, RelatedEvent } from './types';
 
@@ -130,6 +136,34 @@ function Body({
   const sev = SEVERITY_CFG[data.severity] ?? SEVERITY_CFG.LOW;
   const hasChanges = data.changes && Object.keys(data.changes).length > 0;
   const hasValues = data.before != null || data.after != null;
+  const role = useCurrentRole();
+  const notify = useToast();
+  const [compare, setCompare] = useState(false);
+  const [incidentOpen, setIncidentOpen] = useState(false);
+  // §16/§17: investigar (incidente/evidência) é para consulta global; RH e
+  // GESTOR só consultam. A geração de evidência segue ainda a política de
+  // exportação no backend (por omissão só ADMIN) — o erro aparece como aviso.
+  const canInvestigate = !!role && AUDIT_GLOBAL_ROLES.includes(role);
+
+  const evidence = useApiMutation(
+    () =>
+      apiClient.post<{ code: string }>(`/audit/events/${data.id}/evidence`, {}),
+    {
+      invalidateKeys: [queryKeys.audit.all],
+      onSuccess: (r) =>
+        notify({
+          title: `Evidência ${r.code} gerada`,
+          description: 'Disponível em «Exportações e Evidências».',
+          intent: 'success',
+        }),
+      onError: (e) =>
+        notify({
+          title: 'Não foi possível gerar a evidência',
+          description: e.message,
+          intent: 'danger',
+        }),
+    },
+  );
 
   return (
     <div className="mt-3">
@@ -182,7 +216,7 @@ function Body({
 
       {(hasChanges || hasValues) && (
         <Section title="Alterações efectuadas">
-          {hasChanges ? (
+          {hasChanges && !compare ? (
             <DiffViewer changes={data.changes!} />
           ) : (
             <div className="grid grid-cols-2 gap-2">
@@ -216,7 +250,36 @@ function Body({
         <Related events={data.related.sameActor} onOpen={onOpen} />
       </Section>
 
-      <div className="mt-5 flex justify-end gap-2">
+      <div className="mt-5 flex flex-wrap justify-end gap-2">
+        {hasChanges && hasValues && (
+          <Button
+            intent="secondary"
+            size="sm"
+            onClick={() => setCompare((c) => !c)}
+          >
+            <GitCompare size={14} className="mr-1" />
+            {compare ? 'Ver alterações campo a campo' : 'Comparar alterações'}
+          </Button>
+        )}
+        {canInvestigate && (
+          <>
+            <Button
+              intent="secondary"
+              size="sm"
+              onClick={() => setIncidentOpen(true)}
+            >
+              <ShieldAlert size={14} className="mr-1" /> Criar incidente
+            </Button>
+            <Button
+              intent="secondary"
+              size="sm"
+              loading={evidence.isPending}
+              onClick={() => evidence.mutate(undefined)}
+            >
+              <FileCheck2 size={14} className="mr-1" /> Gerar evidência
+            </Button>
+          </>
+        )}
         {onFilter && data.entityId && (
           <Button
             intent="secondary"
@@ -230,6 +293,21 @@ function Body({
           <Printer size={14} className="mr-1" /> Imprimir
         </Button>
       </div>
+      {incidentOpen && (
+        <NewIncidentModal
+          prefill={{
+            title: `Incidente — evento ${data.code}`,
+            description: `${actionLabel(data.action)} · ${entityLabel(data.entity)}${
+              data.entityId ? ` #${data.entityId}` : ''
+            } (${fmtTs(data.timestamp)})`,
+            severity: data.severity,
+            source: 'USER',
+            sourceLabel: `Evento ${data.code}`,
+            auditLogId: data.id,
+          }}
+          onClose={() => setIncidentOpen(false)}
+        />
+      )}
     </div>
   );
 }

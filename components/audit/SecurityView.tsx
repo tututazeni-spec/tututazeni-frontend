@@ -135,9 +135,11 @@ export interface IncidentPrefill {
   severity?: Severity;
   source?: 'USER' | 'SYSTEM' | 'RULE';
   sourceLabel?: string;
+  /** Evento de auditoria de origem — fica logo anexado como evidência. */
+  auditLogId?: number;
 }
 
-function NewIncidentModal({
+export function NewIncidentModal({
   prefill,
   onClose,
 }: {
@@ -151,7 +153,7 @@ function NewIncidentModal({
     category: prefill?.category ?? 'SECURITY',
     type: prefill?.type ?? '',
     severity: (prefill?.severity ?? 'MEDIUM') as Severity,
-    auditLogId: '',
+    auditLogId: prefill?.auditLogId ? String(prefill.auditLogId) : '',
   });
   const [assignee, setAssignee] = useState<DirectoryUser | null>(null);
   const [error, setError] = useState('');

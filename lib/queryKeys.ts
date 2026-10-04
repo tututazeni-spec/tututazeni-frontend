@@ -574,6 +574,7 @@ export const queryKeys = {
     overview: (days: number) =>
       [...queryKeys.audit.all, 'overview', days] as const,
     anomalies: () => [...queryKeys.audit.all, 'anomalies'] as const,
+    health: () => [...queryKeys.audit.all, 'health'] as const,
     detail: (id: number) => [...queryKeys.audit.all, 'detail', id] as const,
     filterOptions: () => [...queryKeys.audit.all, 'filter-options'] as const,
     accessSummary: (days: number) =>

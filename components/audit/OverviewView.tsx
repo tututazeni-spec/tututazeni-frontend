@@ -21,7 +21,13 @@ import { BarChart } from '@/components/ui/charts/BarChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { SEVERITY_CFG, actionLabel, entityLabel } from './constants';
 import { fmtTs } from './utils';
-import type { AuditLog, AuditOverview, Severity, View } from './types';
+import type {
+  AuditLog,
+  AuditOverview,
+  AuditWriteHealth,
+  Severity,
+  View,
+} from './types';
 
 const PERIODS = [
   { days: 7, label: '7 dias' },
@@ -87,6 +93,13 @@ export function OverviewView({
     { params: { days }, staleTime: STALE_TIME.DYNAMIC },
   );
 
+  // §15.9/§18: falhas de gravação da auditoria têm de ser visíveis.
+  const { data: health } = useApiQuery<AuditWriteHealth>(
+    queryKeys.audit.health(),
+    '/audit/health',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+
   if (isLoading || !data) return <Skeleton rows={6} />;
 
   const dayLabel = (iso: string) => iso.slice(8, 10) + '/' + iso.slice(5, 7);
@@ -102,6 +115,25 @@ export function OverviewView({
 
   return (
     <div className="space-y-5">
+      {health && health.status !== 'OK' && (
+        <div
+          role="alert"
+          className="rounded-control bg-danger-subtle px-3 py-2 font-body text-sm text-danger-ink"
+        >
+          {health.status === 'UNAVAILABLE'
+            ? 'A fila de gravação da auditoria está indisponível — novos eventos podem não ser registados.'
+            : `${health.failed} evento(s) de auditoria não foram gravados.`}
+          {health.lastFailure?.reason && (
+            <span className="ml-1 text-xs">
+              Última falha
+              {health.lastFailure.entity
+                ? ` (${health.lastFailure.entity}/${health.lastFailure.action})`
+                : ''}
+              : {health.lastFailure.reason}
+            </span>
+          )}
+        </div>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2">
           {PERIODS.map((p) => (

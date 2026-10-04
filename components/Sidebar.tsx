@@ -208,7 +208,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         href: '/audit',
         icon: Shield,
         label: 'Auditoria',
-        roles: [...ADMIN_ROLES, 'DIRECTOR'],
+        roles: [...ADMIN_ROLES, 'GESTOR', 'AUDITOR', 'DIRECTOR'],
       },
     ],
   },

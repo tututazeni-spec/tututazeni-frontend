@@ -150,6 +150,22 @@ export interface IntegrityCheck {
   broken: number[];
 }
 
+/** GET /audit/health — estado da gravação de auditoria (fila). */
+export interface AuditWriteHealth {
+  status: 'OK' | 'DEGRADED' | 'UNAVAILABLE';
+  mode: 'QUEUE' | 'SYNC';
+  waiting: number;
+  active: number;
+  delayed: number;
+  failed: number;
+  lastFailure: {
+    at: string | null;
+    reason: string | null;
+    action: string | null;
+    entity: string | null;
+  } | null;
+}
+
 export interface AuditOverview {
   periodDays: number;
   since: string;

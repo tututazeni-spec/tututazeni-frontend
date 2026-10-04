@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Download } from 'lucide-react';
+import { Download, SlidersHorizontal } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
@@ -93,6 +93,15 @@ export function LogsView() {
   const [filters, setFilters] = useState(EMPTY);
   const [openId, setOpenId] = useState<number | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [advanced, setAdvanced] = useState(false);
+  // Filtros escondidos continuam a aplicar-se: o contador evita surpresas.
+  const advancedActive = [
+    filters.actorType,
+    filters.departmentId,
+    filters.from,
+    filters.to,
+    filters.criticalOnly,
+  ].filter(Boolean).length;
 
   // Datas inclusivas: «até» cobre o dia inteiro.
   const params = {
@@ -222,45 +231,58 @@ export function LogsView() {
           onValueChange={(v) => set({ severity: v === 'ALL' ? '' : v })}
           className="w-40"
         />
-        <Select
-          items={ACTOR_ITEMS}
-          value={filters.actorType || 'ALL'}
-          onValueChange={(v) => set({ actorType: v === 'ALL' ? '' : v })}
-          className="w-52"
-        />
-        <Select
-          items={departmentItems}
-          value={filters.departmentId || 'ALL'}
-          onValueChange={(v) => set({ departmentId: v === 'ALL' ? '' : v })}
-          className="w-52"
-        />
-        <label className="flex items-center gap-1 font-body text-xs text-ink-muted">
-          De
-          <Input
-            type="date"
-            value={filters.from}
-            onChange={(e) => set({ from: e.target.value })}
-            className="w-40"
+        {advanced && (
+          <>
+          <Select
+            items={ACTOR_ITEMS}
+            value={filters.actorType || 'ALL'}
+            onValueChange={(v) => set({ actorType: v === 'ALL' ? '' : v })}
+            className="w-52"
           />
-        </label>
-        <label className="flex items-center gap-1 font-body text-xs text-ink-muted">
-          Até
-          <Input
-            type="date"
-            value={filters.to}
-            onChange={(e) => set({ to: e.target.value })}
-            className="w-40"
+          <Select
+            items={departmentItems}
+            value={filters.departmentId || 'ALL'}
+            onValueChange={(v) => set({ departmentId: v === 'ALL' ? '' : v })}
+            className="w-52"
           />
-        </label>
-        <label className="flex cursor-pointer items-center gap-2 font-body text-sm text-ink-muted">
-          <input
-            type="checkbox"
-            checked={filters.criticalOnly}
-            onChange={(e) => set({ criticalOnly: e.target.checked })}
-            className="rounded accent-primary"
-          />
-          Só críticos
-        </label>
+          <label className="flex items-center gap-1 font-body text-xs text-ink-muted">
+            De
+            <Input
+              type="date"
+              value={filters.from}
+              onChange={(e) => set({ from: e.target.value })}
+              className="w-40"
+            />
+          </label>
+          <label className="flex items-center gap-1 font-body text-xs text-ink-muted">
+            Até
+            <Input
+              type="date"
+              value={filters.to}
+              onChange={(e) => set({ to: e.target.value })}
+              className="w-40"
+            />
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 font-body text-sm text-ink-muted">
+            <input
+              type="checkbox"
+              checked={filters.criticalOnly}
+              onChange={(e) => set({ criticalOnly: e.target.checked })}
+              className="rounded accent-primary"
+            />
+            Só críticos
+          </label>
+          </>
+        )}
+        <Button
+          intent="secondary"
+          size="sm"
+          onClick={() => setAdvanced((v) => !v)}
+        >
+          <SlidersHorizontal size={14} className="mr-1" />
+          Filtros avançados
+          {advancedActive > 0 && ` (${advancedActive})`}
+        </Button>
         <Button
           intent="secondary"
           size="sm"
@@ -279,7 +301,7 @@ export function LogsView() {
             onClick={exportCsv}
           >
             <Download size={14} className="mr-1" />
-            {exporting ? 'A exportar…' : 'Exportar CSV'}
+            {exporting ? 'A exportar…' : 'Exportar relatório'}
           </Button>
         )}
         <span className="ml-auto self-center font-body text-xs text-ink-faint">

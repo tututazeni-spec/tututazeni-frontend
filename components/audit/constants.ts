@@ -4,7 +4,12 @@
 // Extraído de app/(platform)/audit/page.tsx.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
-import { ADMIN_ROLES, EVAL_CYCLE_DELETE_ROLES, type Role } from '@/lib/roles';
+import {
+  AUDIT_GLOBAL_ROLES,
+  AUDIT_SCOPED_ROLES,
+  EVAL_CYCLE_DELETE_ROLES,
+  type Role,
+} from '@/lib/roles';
 import type { Severity, Status, View } from './types';
 
 export const SEVERITY_CFG: Record<
@@ -80,17 +85,18 @@ export function entityLabel(entity: string): string {
 // logs gerais de auditoria só por poder eliminar/restaurar ciclos.
 // Ordem e nomes seguem docs/modulo_audit.md §2 (abas 01-09); "Linha de
 // Tempo" e "Apagados" são extras anteriores ao spec e ficam no fim.
+// §16: RH/GESTOR só vêem os separadores de consulta (âmbito limitado no backend).
 export const NAV: Array<{ id: View; label: string; roles: readonly Role[] }> = [
-  { id: 'overview', label: 'Visão Geral', roles: ADMIN_ROLES },
-  { id: 'logs', label: 'Registos de Auditoria', roles: ADMIN_ROLES },
-  { id: 'access', label: 'Acessos e Sessões', roles: ADMIN_ROLES },
-  { id: 'changes', label: 'Alterações de Dados', roles: ADMIN_ROLES },
-  { id: 'security', label: 'Segurança e Incidentes', roles: ADMIN_ROLES },
-  { id: 'audits', label: 'Auditorias e Inspeções', roles: ADMIN_ROLES },
-  { id: 'reports', label: 'Relatórios', roles: ADMIN_ROLES },
-  { id: 'exports', label: 'Exportações e Evidências', roles: ADMIN_ROLES },
-  { id: 'policies', label: 'Políticas e Retenção', roles: ADMIN_ROLES },
-  { id: 'timeline', label: 'Linha de Tempo', roles: ADMIN_ROLES },
+  { id: 'overview', label: 'Visão Geral', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'logs', label: 'Registos de Auditoria', roles: [...AUDIT_GLOBAL_ROLES, ...AUDIT_SCOPED_ROLES] },
+  { id: 'access', label: 'Acessos e Sessões', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'changes', label: 'Alterações de Dados', roles: [...AUDIT_GLOBAL_ROLES, ...AUDIT_SCOPED_ROLES] },
+  { id: 'security', label: 'Segurança e Incidentes', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'audits', label: 'Auditorias e Inspeções', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'reports', label: 'Relatórios', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'exports', label: 'Exportações e Evidências', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'policies', label: 'Políticas e Retenção', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'timeline', label: 'Linha de Tempo', roles: [...AUDIT_GLOBAL_ROLES, ...AUDIT_SCOPED_ROLES] },
   { id: 'deleted', label: 'Apagados', roles: EVAL_CYCLE_DELETE_ROLES },
 ];
 
