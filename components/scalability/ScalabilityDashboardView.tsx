@@ -301,11 +301,9 @@ function CapacityIndicator({ data }: { data: DashboardData }) {
   const bottleneck = resources.reduce((a, b) => (b.pct > a.pct ? b : a));
   const pct = Math.min(Math.round(bottleneck.pct), 100);
   const state = capacityState(pct);
-  // Simultâneos suportados ≈ sessões actuais ÷ utilização do gargalo.
-  const supported =
-    pct > 0 && p.activeSessionsNow > 0
-      ? Math.round(p.activeSessionsNow / (pct / 100))
-      : null;
+  // Estimativa calculada no backend (medida do histórico ou modelo teórico).
+  const estimate = data.capacityEstimate;
+  const supported = estimate?.concurrentUsers ?? null;
 
   return (
     <Card>
@@ -323,8 +321,15 @@ function CapacityIndicator({ data }: { data: DashboardData }) {
         <p className="mt-3 font-body text-sm text-ink-muted">
           {supported !== null
             ? `A infraestrutura atual suporta aproximadamente ${supported.toLocaleString()} utilizadores simultâneos nas condições atuais.`
-            : 'Sem sessões simultâneas registadas — não é possível estimar quantos utilizadores simultâneos a infraestrutura suporta.'}
+            : 'Estimativa de capacidade indisponível.'}
         </p>
+        {estimate && (
+          <p className="mt-1 font-body text-xs text-ink-faint">
+            {estimate.method === 'MEASURED' ? 'Valor medido' : 'Estimativa teórica'}
+            {' — '}
+            {estimate.basis}
+          </p>
+        )}
         <p className="mt-1 font-body text-xs text-ink-faint">
           Recurso mais utilizado: {bottleneck.name} ({pct}%)
         </p>
