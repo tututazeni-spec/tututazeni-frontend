@@ -1034,6 +1034,7 @@ const RULE_STATE: Record<
   OK: { label: 'OK', intent: 'success' },
   TRIGGERED: { label: 'Disparada', intent: 'danger' },
   UNAVAILABLE: { label: 'Sem dados', intent: 'neutral' },
+  DISABLED: { label: 'Desactivada', intent: 'neutral' },
 };
 
 export interface AlertRulesSectionProps {

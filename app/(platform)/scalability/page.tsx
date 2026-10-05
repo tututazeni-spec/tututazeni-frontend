@@ -28,6 +28,7 @@ import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { downloadAuditFile } from '@/components/audit/downloadAuditFile';
 import { ScalabilityDashboardView } from '@/components/scalability/ScalabilityDashboardView';
 import type {
   AutomationRule,
@@ -60,12 +61,21 @@ import type {
   CostsData,
   CostsSave,
   AlertRulesData,
+  ReportCatalogData,
+  ReportData,
+  ReportFormat,
+  SettingsData,
+  SettingsUpdate,
 } from '@/components/scalability/types';
 
 export default function ScalabilityPage() {
   const notify = useToast();
   const { data: currentUser } = useCurrentUser();
   const [activeTab, setActiveTab] = useState('overview');
+  const [selectedReport, setSelectedReport] = useState<string | null>(null);
+  const [exportingFormat, setExportingFormat] = useState<ReportFormat | null>(
+    null,
+  );
 
   const {
     data: dashboard,
@@ -222,6 +232,38 @@ export default function ScalabilityPage() {
     },
   );
 
+  // §23-24 — o backend responde 403 a perfis não autorizados; sem retry.
+  const { data: reportCatalog = null } = useApiQuery<ReportCatalogData>(
+    queryKeys.scalability.reportCatalog(),
+    '/scalability/reports',
+    {
+      staleTime: STALE_TIME.STATIC,
+      enabled: activeTab === 'reports',
+      retry: false,
+    },
+  );
+
+  const { data: report = null, isFetching: reportLoading } =
+    useApiQuery<ReportData>(
+      queryKeys.scalability.report(selectedReport ?? ''),
+      `/scalability/reports/${selectedReport}`,
+      {
+        staleTime: STALE_TIME.DYNAMIC,
+        enabled: activeTab === 'reports' && selectedReport !== null,
+        retry: false,
+      },
+    );
+
+  const { data: settings = null } = useApiQuery<SettingsData>(
+    queryKeys.scalability.settings(),
+    '/scalability/settings',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      enabled: activeTab === 'settings',
+      retry: false,
+    },
+  );
+
   const { data: integrationMetrics = null } =
     useApiQuery<IntegrationMetricsData>(
       queryKeys.scalability.integrationMetrics(),
@@ -373,6 +415,35 @@ export default function ScalabilityPage() {
       ],
     },
   );
+  const saveSettings = useApiMutation<unknown, SettingsUpdate>(
+    (v) => apiClient.patch('/scalability/settings', v),
+    {
+      invalidateKeys: [
+        queryKeys.scalability.settings(),
+        queryKeys.scalability.alertRules(),
+        queryKeys.scalability.capacityMetrics(),
+      ],
+    },
+  );
+  const exportReport = async (type: string, format: ReportFormat) => {
+    setExportingFormat(format);
+    try {
+      await downloadAuditFile(
+        `/scalability/reports/${type}/export`,
+        { format },
+        `scalability-${type}.${format}`,
+      );
+      notify({ title: 'Relatório exportado', intent: 'success' });
+    } catch (err) {
+      reportError(err, { source: 'ScalabilityPage.exportReport' });
+      notify({
+        title: 'Não foi possível exportar o relatório',
+        intent: 'danger',
+      });
+    } finally {
+      setExportingFormat(null);
+    }
+  };
   const infraCallbacks = (source: string, okTitle: string) => ({
     onSuccess: () => notify({ title: okTitle, intent: 'success' }),
     onError: (err: unknown) => {
@@ -531,6 +602,30 @@ export default function ScalabilityPage() {
             },
           },
         )
+      }
+      reportCatalog={reportCatalog}
+      report={selectedReport ? report : null}
+      selectedReport={selectedReport}
+      reportLoading={reportLoading}
+      reportExporting={exportingFormat}
+      onSelectReport={setSelectedReport}
+      onExportReport={(type, format) => void exportReport(type, format)}
+      settings={settings}
+      settingsSaving={saveSettings.isPending}
+      onSaveSettings={(v, done) =>
+        saveSettings.mutate(v, {
+          onSuccess: () => {
+            notify({ title: 'Configurações guardadas', intent: 'success' });
+            done();
+          },
+          onError: (err: unknown) => {
+            reportError(err, { source: 'ScalabilityPage.saveSettings' });
+            notify({
+              title: 'Não foi possível guardar as configurações',
+              intent: 'danger',
+            });
+          },
+        })
       }
       loadTests={loadTests}
       costs={costs}

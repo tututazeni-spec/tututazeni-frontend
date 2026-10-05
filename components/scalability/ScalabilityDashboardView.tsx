@@ -24,6 +24,7 @@ import {
   Bell,
   Boxes,
   Database,
+  FileText,
   Gauge,
   Globe,
   HardDrive,
@@ -38,6 +39,7 @@ import {
   Plug,
   Scaling,
   Server,
+  Settings,
   ShieldCheck,
   Users,
   Workflow,
@@ -57,6 +59,7 @@ import {
   CostsTab,
   LoadTestsTab,
 } from './LoadTestsCostsAlertsTabs';
+import { ReportsTab, SettingsTab } from './ReportsSettingsTabs';
 import { RenameTenantModal } from './RenameTenantModal';
 import type {
   AlertSeverity,
@@ -87,6 +90,11 @@ import type {
   CostsData,
   CostsSave,
   AlertRulesData,
+  ReportCatalogData,
+  ReportData,
+  ReportFormat,
+  SettingsData,
+  SettingsUpdate,
   PerfClass,
   PageStatus,
   Alert,
@@ -3031,6 +3039,8 @@ const TABS: { id: string; label: string; icon: LucideIcon }[] = [
   { id: 'forecasts', label: 'Previsões', icon: LineChart },
   { id: 'loadtests', label: 'Testes de Carga', icon: FlaskConical },
   { id: 'costs', label: 'Custos', icon: Wallet },
+  { id: 'reports', label: 'Relatórios', icon: FileText },
+  { id: 'settings', label: 'Configurações', icon: Settings },
 ];
 
 // ─── DASHBOARD VIEW (apresentacional — sem estado, sem fetch) ──────────────
@@ -3077,6 +3087,16 @@ export interface ScalabilityDashboardViewProps {
   loadTestSaving?: boolean;
   costsSaving?: boolean;
   alertsEvaluating?: boolean;
+  reportCatalog?: ReportCatalogData | null;
+  report?: ReportData | null;
+  selectedReport?: string | null;
+  reportLoading?: boolean;
+  reportExporting?: ReportFormat | null;
+  onSelectReport?: (type: string) => void;
+  onExportReport?: (type: string, format: ReportFormat) => void;
+  settings?: SettingsData | null;
+  settingsSaving?: boolean;
+  onSaveSettings?: (v: SettingsUpdate, done: () => void) => void;
   onCreateLoadTest?: (v: LoadTestCreate, done: () => void) => void;
   onUpdateLoadTest?: (
     id: string,
@@ -3131,6 +3151,16 @@ export function ScalabilityDashboardView({
   loadTestSaving = false,
   costsSaving = false,
   alertsEvaluating = false,
+  reportCatalog = null,
+  report = null,
+  selectedReport = null,
+  reportLoading = false,
+  reportExporting = null,
+  onSelectReport = () => undefined,
+  onExportReport = () => undefined,
+  settings = null,
+  settingsSaving = false,
+  onSaveSettings = () => undefined,
   onCreateLoadTest = () => undefined,
   onUpdateLoadTest = () => undefined,
   onSaveCosts = () => undefined,
@@ -3326,6 +3356,25 @@ export function ScalabilityDashboardView({
               canEdit={canEditInfra}
               saving={costsSaving}
               onSave={onSaveCosts}
+            />
+          </TabsContent>
+          <TabsContent value="reports">
+            <ReportsTab
+              catalog={reportCatalog}
+              report={report}
+              selected={selectedReport}
+              loadingReport={reportLoading}
+              exporting={reportExporting}
+              onSelect={onSelectReport}
+              onExport={onExportReport}
+            />
+          </TabsContent>
+          <TabsContent value="settings">
+            <SettingsTab
+              data={settings}
+              canEdit={canEditInfra}
+              saving={settingsSaving}
+              onSave={onSaveSettings}
             />
           </TabsContent>
         </div>

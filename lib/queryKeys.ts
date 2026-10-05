@@ -304,6 +304,10 @@ export const queryKeys = {
     loadTests: () => [...queryKeys.scalability.all, 'load-tests'] as const,
     costs: () => [...queryKeys.scalability.all, 'costs'] as const,
     alertRules: () => [...queryKeys.scalability.all, 'alert-rules'] as const,
+    reportCatalog: () => [...queryKeys.scalability.all, 'reports'] as const,
+    report: (type: string) =>
+      [...queryKeys.scalability.all, 'reports', type] as const,
+    settings: () => [...queryKeys.scalability.all, 'settings'] as const,
     integrationMetrics: () =>
       [...queryKeys.scalability.all, 'integration-metrics'] as const,
     performanceMetrics: () =>

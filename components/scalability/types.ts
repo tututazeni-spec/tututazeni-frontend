@@ -983,7 +983,7 @@ export type AlertRuleGroup =
   | 'PERFORMANCE'
   | 'GROWTH'
   | 'RESILIENCE';
-export type AlertRuleState = 'OK' | 'TRIGGERED' | 'UNAVAILABLE';
+export type AlertRuleState = 'OK' | 'TRIGGERED' | 'UNAVAILABLE' | 'DISABLED';
 
 export interface AlertRule {
   key: string;
@@ -1016,4 +1016,113 @@ export interface AlertRulesData {
     rules: AlertRule[];
   }>;
   note: string;
+}
+
+// ─── §23 Relatórios ────────────────────────────────────────
+
+export type ReportFormat = 'csv' | 'xlsx' | 'pdf';
+
+export interface ReportCatalogData {
+  reports: Array<{ type: string; title: string; description: string }>;
+  formats: ReportFormat[];
+}
+
+export type ReportCell = string | number | null;
+
+export interface ReportData {
+  type: string;
+  title: string;
+  generatedAt: string;
+  summary: Array<{ label: string; value: ReportCell }>;
+  tables: Array<{
+    title: string;
+    columns: string[];
+    rows: Array<Record<string, ReportCell>>;
+  }>;
+  notes: string[];
+}
+
+// ─── §24 Configurações ─────────────────────────────────────
+
+export interface ThresholdField {
+  key: string;
+  value: number;
+  default: number;
+  customised: boolean;
+  min: number;
+  max: number;
+}
+
+export interface MaintenanceWindow {
+  id: string;
+  name: string;
+  startsAt: string;
+  endsAt: string;
+  note: string | null;
+  active?: boolean;
+}
+
+export interface SettingsData {
+  updatedAt: string;
+  limits: {
+    maxConcurrentUsers: number;
+    maxApiRps: number;
+    cpu: ThresholdField;
+    memory: ThresholdField;
+    storage: ThresholdField;
+    dbConnections: ThresholdField;
+    latencyP95Ms: ThresholdField;
+    latencyP99Ms: ThresholdField;
+    errorRate: ThresholdField;
+    queuePending: ThresholdField;
+    slowQueryShare: ThresholdField;
+    slowEndpoints: ThresholdField;
+  };
+  growth: {
+    growthFactor: ThresholdField;
+    storageGrowthFactor: ThresholdField;
+    usersNearLimitMonths: ThresholdField;
+  };
+  alertRules: Array<{
+    key: string;
+    group: AlertRuleGroup;
+    label: string;
+    severity: 'INFO' | 'WARNING' | 'CRITICAL';
+    condition: string;
+    defaultCondition: string;
+    enabled: boolean;
+  }>;
+  autoScaling: {
+    enabled: boolean;
+    minInstances: number;
+    maxInstances: number;
+    targetCpu: number;
+    targetMemory: number;
+    emergencyEnabled: boolean;
+    note: string;
+  };
+  maintenanceWindows: MaintenanceWindow[];
+  activeMaintenance: MaintenanceWindow | null;
+  retention: { metricRetentionDays: number };
+  collection: { intervalMinutes: number };
+  authorizedRoles: string[];
+  grantableRoles: string[];
+  note: string;
+}
+
+export interface SettingsUpdate {
+  maxConcurrentUsers?: number;
+  maxApiRps?: number;
+  thresholds?: Record<string, number>;
+  disabledRules?: string[];
+  maintenanceWindows?: Array<{
+    id?: string;
+    name: string;
+    startsAt: string;
+    endsAt: string;
+    note?: string;
+  }>;
+  metricRetentionDays?: number;
+  collectionIntervalMinutes?: number;
+  authorizedRoles?: string[];
 }
