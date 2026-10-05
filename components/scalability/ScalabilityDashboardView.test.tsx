@@ -12,6 +12,15 @@ vi.mock('./ImportUsersModal', () => ({
 vi.mock('./LoadTestModal', () => ({
   LoadTestModal: () => <div>[LoadTestModal]</div>,
 }));
+// Painéis auto-contidos (fazem os seus próprios pedidos) — não precisam de QueryClient aqui.
+vi.mock('./HistoryCharts', () => ({
+  EndpointHistoryChart: () => null,
+  HourlyHistoryCharts: () => null,
+  QueueHistoryChart: () => null,
+  RecommendationsCard: () => null,
+}));
+vi.mock('./WhatIfPanel', () => ({ WhatIfPanel: () => null }));
+vi.mock('./RetentionStatusCard', () => ({ RetentionStatusCard: () => null }));
 vi.mock('./RenameTenantModal', () => ({
   RenameTenantModal: ({ currentName }: { currentName: string }) => (
     <div>[RenameTenantModal {currentName}]</div>

@@ -60,6 +60,12 @@ import {
   LoadTestsTab,
 } from './LoadTestsCostsAlertsTabs';
 import { ReportsTab, SettingsTab } from './ReportsSettingsTabs';
+import {
+  EndpointHistoryChart,
+  HourlyHistoryCharts,
+  QueueHistoryChart,
+  RecommendationsCard,
+} from './HistoryCharts';
 import { WhatIfPanel } from './WhatIfPanel';
 import { RetentionStatusCard } from './RetentionStatusCard';
 import { RenameTenantModal } from './RenameTenantModal';
@@ -3255,6 +3261,9 @@ export function ScalabilityDashboardView({
           </TabsContent>
           <TabsContent value="performance">
             <PerformanceTab data={dashboard} perf={performanceMetrics} />
+            <div className="mt-6">
+              <EndpointHistoryChart />
+            </div>
           </TabsContent>
           <TabsContent value="integrations">
             <IntegrationsTab
@@ -3295,6 +3304,9 @@ export function ScalabilityDashboardView({
           </TabsContent>
           <TabsContent value="queues">
             <QueuesTab queues={queueMetrics} />
+            <div className="mt-6">
+              <QueueHistoryChart />
+            </div>
           </TabsContent>
           <TabsContent value="storage">
             <StorageTab storage={storageMetrics} />
@@ -3309,6 +3321,12 @@ export function ScalabilityDashboardView({
             />
             <div className="mt-6">
               <WhatIfPanel />
+            </div>
+            <div className="mt-6">
+              <RecommendationsCard />
+            </div>
+            <div className="mt-6">
+              <HourlyHistoryCharts />
             </div>
           </TabsContent>
           <TabsContent value="autoscaling">
