@@ -403,6 +403,11 @@ interface OverviewChartsProps {
 
 function OverviewCharts({ data, charts }: OverviewChartsProps) {
   const { tenantInfo: t, performanceSummary: p, capacityEstimate } = data;
+  // 'accounts' = contas atualmente ativas criadas até cada mês;
+  // 'sessions' = utilizadores com sessão (login) nesse mês.
+  const [activeMode, setActiveMode] = useState<'accounts' | 'sessions'>(
+    'accounts',
+  );
   const timeline = charts?.timeline ?? [];
   const growth = charts?.userGrowth ?? [];
 
@@ -498,10 +503,25 @@ function OverviewCharts({ data, charts }: OverviewChartsProps) {
           title="Crescimento de utilizadores"
           sub="Últimos 12 meses — registados, ativos e novos por mês"
         >
+          <div className="mb-3 flex flex-wrap gap-2">
+            <FilterChip
+              label="Ativos: contas ativas"
+              active={activeMode === 'accounts'}
+              onClick={() => setActiveMode('accounts')}
+            />
+            <FilterChip
+              label="Ativos: com sessão no mês"
+              active={activeMode === 'sessions'}
+              onClick={() => setActiveMode('sessions')}
+            />
+          </div>
           <AreaLineChart
             series={[
               growthLine('Registados', (g) => g.registered),
-              growthLine('Ativos', (g) => g.active),
+              growthLine(
+                activeMode === 'accounts' ? 'Ativos (contas)' : 'Ativos (sessão)',
+                (g) => (activeMode === 'accounts' ? g.active : g.activeInMonth),
+              ),
               growthLine('Novos no mês', (g) => g.newUsers),
             ]}
           />

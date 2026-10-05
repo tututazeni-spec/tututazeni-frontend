@@ -246,6 +246,7 @@ export interface OverviewChartsData {
     month: string;
     registered: number;
     active: number;
+    activeInMonth: number;
     newUsers: number;
   }>;
   forecast: {
