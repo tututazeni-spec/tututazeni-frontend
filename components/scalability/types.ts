@@ -831,3 +831,189 @@ export interface ForecastsData {
   dbCapacityGb: number | null;
   note: string;
 }
+
+// ─── §20 Testes de Carga ───
+
+export type LoadTestType =
+  | 'LOAD'
+  | 'STRESS'
+  | 'SPIKE'
+  | 'ENDURANCE'
+  | 'VOLUME'
+  | 'FAILOVER';
+export type LoadTestEnvironment = 'LOCAL' | 'STAGING' | 'PRODUCTION';
+export type LoadTestStatus = 'PLANNED' | 'RUNNING' | 'COMPLETED' | 'CANCELLED';
+export type LoadTestVerdict = 'APPROVED' | 'APPROVED_WITH_NOTES' | 'FAILED';
+
+export interface LoadTestResults {
+  throughputRps: number | null;
+  p95Ms: number | null;
+  p99Ms: number | null;
+  errorRate: number | null;
+  cpuPeak: number | null;
+  ramPeak: number | null;
+  dbPeakConn: number | null;
+  queuePeak: number | null;
+  peakConcurrent: number | null;
+}
+
+export interface LoadTest {
+  id: string;
+  name: string;
+  type: LoadTestType;
+  status: LoadTestStatus;
+  environment: LoadTestEnvironment;
+  appVersion: string | null;
+  scenario: string | null;
+  modules: string[];
+  simulatedUsers: number | null;
+  targetRps: number | null;
+  durationSec: number | null;
+  scheduledAt: string | null;
+  startedAt: string | null;
+  finishedAt: string | null;
+  results: LoadTestResults;
+  verdict: LoadTestVerdict | null;
+  suggestedVerdict: LoadTestVerdict | null;
+  breaches: Array<{
+    metric: 'p95Ms' | 'p99Ms' | 'errorRate';
+    value: number;
+    limit: number;
+    excess: number;
+  }>;
+  observations: string | null;
+  createdAt: string;
+}
+
+export interface LoadTestsData {
+  tests: LoadTest[];
+  summary: {
+    total: number;
+    completed: number;
+    planned: number;
+    passRatePercent: number | null;
+    lastTest: {
+      id: string;
+      name: string;
+      type: LoadTestType;
+      finishedAt: string | null;
+      verdict: LoadTestVerdict | null;
+    } | null;
+  };
+  thresholds: { p95Ms: number; p99Ms: number; errorRatePercent: number };
+}
+
+export interface LoadTestCreate {
+  name: string;
+  type: LoadTestType;
+  environment: LoadTestEnvironment;
+  appVersion?: string;
+  scenario?: string;
+  modules?: string[];
+  simulatedUsers?: number;
+  targetRps?: number;
+  durationSec?: number;
+  scheduledAt?: string;
+}
+
+export interface LoadTestUpdate extends Partial<LoadTestCreate> {
+  status?: LoadTestStatus;
+  throughputRps?: number;
+  p95Ms?: number;
+  p99Ms?: number;
+  errorRate?: number;
+  cpuPeak?: number;
+  ramPeak?: number;
+  dbPeakConn?: number;
+  queuePeak?: number;
+  peakConcurrent?: number;
+  verdict?: LoadTestVerdict;
+  observations?: string;
+}
+
+// ─── §21 Custos ───
+
+export type CostCategory =
+  | 'DATABASE'
+  | 'STORAGE'
+  | 'COMPUTE'
+  | 'TRAFFIC'
+  | 'BACKUPS'
+  | 'EXTERNAL';
+
+export interface CostsData {
+  currency: string;
+  month: string | null;
+  current: {
+    total: number | null;
+    perUser: number | null;
+    perActiveUser: number | null;
+    changePercent: number | null;
+    totalUsers: number;
+    activeUsers: number;
+  };
+  categories: Array<{
+    category: CostCategory;
+    amount: number | null;
+    note: string | null;
+    percent: number | null;
+  }>;
+  history: Array<{ month: string; total: number }>;
+  projection: Array<{
+    users: number;
+    estimated: number | null;
+    perCategory: Array<{
+      category: CostCategory;
+      estimated: number | null;
+    }> | null;
+  }>;
+  note: string;
+}
+
+export interface CostsSave {
+  month: string;
+  currency?: string;
+  entries: Array<{ category: CostCategory; amount: number; note?: string }>;
+}
+
+// ─── §22 Alertas (regras automáticas) ───
+
+export type AlertRuleGroup =
+  | 'CAPACITY'
+  | 'PERFORMANCE'
+  | 'GROWTH'
+  | 'RESILIENCE';
+export type AlertRuleState = 'OK' | 'TRIGGERED' | 'UNAVAILABLE';
+
+export interface AlertRule {
+  key: string;
+  group: AlertRuleGroup;
+  label: string;
+  severity: 'INFO' | 'WARNING' | 'CRITICAL';
+  condition: string;
+  threshold: number | null;
+  unit: string;
+  state: AlertRuleState;
+  value: number | null;
+  detail: string;
+  openAlertId: string | null;
+  openSince: string | null;
+}
+
+export interface AlertRulesData {
+  evaluatedAt: string;
+  summary: {
+    triggered: number;
+    critical: number;
+    unavailable: number;
+    total: number;
+  };
+  groups: Array<{
+    group: AlertRuleGroup;
+    triggered: number;
+    unavailable: number;
+    total: number;
+    rules: AlertRule[];
+  }>;
+  note: string;
+}

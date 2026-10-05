@@ -301,6 +301,9 @@ export const queryKeys = {
       [...queryKeys.scalability.all, 'resilience-metrics'] as const,
     incidents: () => [...queryKeys.scalability.all, 'incidents'] as const,
     forecasts: () => [...queryKeys.scalability.all, 'forecasts'] as const,
+    loadTests: () => [...queryKeys.scalability.all, 'load-tests'] as const,
+    costs: () => [...queryKeys.scalability.all, 'costs'] as const,
+    alertRules: () => [...queryKeys.scalability.all, 'alert-rules'] as const,
     integrationMetrics: () =>
       [...queryKeys.scalability.all, 'integration-metrics'] as const,
     performanceMetrics: () =>

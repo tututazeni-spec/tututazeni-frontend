@@ -54,6 +54,12 @@ import type {
   IncidentCreate,
   IncidentUpdate,
   ForecastsData,
+  LoadTestsData,
+  LoadTestCreate,
+  LoadTestUpdate,
+  CostsData,
+  CostsSave,
+  AlertRulesData,
 } from '@/components/scalability/types';
 
 export default function ScalabilityPage() {
@@ -188,6 +194,34 @@ export default function ScalabilityPage() {
     },
   );
 
+  const { data: loadTests = null } = useApiQuery<LoadTestsData>(
+    queryKeys.scalability.loadTests(),
+    '/scalability/load-tests',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      enabled: activeTab === 'loadtests',
+    },
+  );
+
+  const { data: costs = null } = useApiQuery<CostsData>(
+    queryKeys.scalability.costs(),
+    '/scalability/costs',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      enabled: activeTab === 'costs',
+    },
+  );
+
+  const { data: alertRules = null } = useApiQuery<AlertRulesData>(
+    queryKeys.scalability.alertRules(),
+    '/scalability/alert-rules',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: 60_000,
+      enabled: activeTab === 'alerts',
+    },
+  );
+
   const { data: integrationMetrics = null } =
     useApiQuery<IntegrationMetricsData>(
       queryKeys.scalability.integrationMetrics(),
@@ -313,6 +347,31 @@ export default function ScalabilityPage() {
     (dbCapacityGb) =>
       apiClient.patch('/scalability/forecast-settings', { dbCapacityGb }),
     { invalidateKeys: [queryKeys.scalability.forecasts()] },
+  );
+  // §20-22 — testes de carga, custos e regras de alerta (só ADMIN escreve).
+  const createLoadTest = useApiMutation<unknown, LoadTestCreate>(
+    (v) => apiClient.post('/scalability/load-tests', v),
+    { invalidateKeys: [queryKeys.scalability.loadTests()] },
+  );
+  const updateLoadTest = useApiMutation<
+    unknown,
+    { id: string; body: LoadTestUpdate }
+  >((v) => apiClient.patch(`/scalability/load-tests/${v.id}`, v.body), {
+    invalidateKeys: [queryKeys.scalability.loadTests()],
+  });
+  const saveCosts = useApiMutation<unknown, CostsSave>(
+    (v) => apiClient.put('/scalability/costs', v),
+    { invalidateKeys: [queryKeys.scalability.costs()] },
+  );
+  const evaluateAlerts = useApiMutation<unknown, void>(
+    () => apiClient.post('/scalability/alert-rules/evaluate', {}),
+    {
+      invalidateKeys: [
+        queryKeys.scalability.alertRules(),
+        queryKeys.scalability.alerts(),
+        queryKeys.scalability.dashboard(),
+      ],
+    },
   );
   const infraCallbacks = (source: string, okTitle: string) => ({
     onSuccess: () => notify({ title: okTitle, intent: 'success' }),
@@ -472,6 +531,73 @@ export default function ScalabilityPage() {
             },
           },
         )
+      }
+      loadTests={loadTests}
+      costs={costs}
+      alertRules={alertRules}
+      loadTestSaving={createLoadTest.isPending || updateLoadTest.isPending}
+      costsSaving={saveCosts.isPending}
+      alertsEvaluating={evaluateAlerts.isPending}
+      onCreateLoadTest={(v, done) =>
+        createLoadTest.mutate(v, {
+          onSuccess: () => {
+            notify({ title: 'Teste de carga registado', intent: 'success' });
+            done();
+          },
+          onError: (err: unknown) => {
+            reportError(err, { source: 'ScalabilityPage.createLoadTest' });
+            notify({
+              title: 'Não foi possível registar o teste',
+              intent: 'danger',
+            });
+          },
+        })
+      }
+      onUpdateLoadTest={(id, body, done) =>
+        updateLoadTest.mutate(
+          { id, body },
+          {
+            onSuccess: () => {
+              notify({ title: 'Teste actualizado', intent: 'success' });
+              done();
+            },
+            onError: (err: unknown) => {
+              reportError(err, { source: 'ScalabilityPage.updateLoadTest' });
+              notify({
+                title: 'Não foi possível actualizar o teste',
+                intent: 'danger',
+              });
+            },
+          },
+        )
+      }
+      onSaveCosts={(v, done) =>
+        saveCosts.mutate(v, {
+          onSuccess: () => {
+            notify({ title: 'Custos guardados', intent: 'success' });
+            done();
+          },
+          onError: (err: unknown) => {
+            reportError(err, { source: 'ScalabilityPage.saveCosts' });
+            notify({
+              title: 'Não foi possível guardar os custos',
+              intent: 'danger',
+            });
+          },
+        })
+      }
+      onEvaluateAlerts={() =>
+        evaluateAlerts.mutate(undefined, {
+          onSuccess: () =>
+            notify({ title: 'Regras avaliadas', intent: 'success' }),
+          onError: (err: unknown) => {
+            reportError(err, { source: 'ScalabilityPage.evaluateAlerts' });
+            notify({
+              title: 'Não foi possível avaliar as regras',
+              intent: 'danger',
+            });
+          },
+        })
       }
       forecastSaving={saveDbCapacity.isPending}
       onSaveDbCapacity={(gb) =>

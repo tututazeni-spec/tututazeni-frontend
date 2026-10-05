@@ -32,6 +32,8 @@ import {
   LifeBuoy,
   LineChart,
   Siren,
+  FlaskConical,
+  Wallet,
   Pencil,
   Plug,
   Scaling,
@@ -50,6 +52,11 @@ import { NewIntegrationModal } from './NewIntegrationModal';
 import { LoadTestModal } from './LoadTestModal';
 import { AutoScalingTab, CapacityTab, ResilienceTab } from './InfraTabs';
 import { ForecastsTab, IncidentsTab } from './IncidentsForecastsTabs';
+import {
+  AlertRulesSection,
+  CostsTab,
+  LoadTestsTab,
+} from './LoadTestsCostsAlertsTabs';
 import { RenameTenantModal } from './RenameTenantModal';
 import type {
   AlertSeverity,
@@ -74,6 +81,12 @@ import type {
   IncidentCreate,
   IncidentUpdate,
   ForecastsData,
+  LoadTestsData,
+  LoadTestCreate,
+  LoadTestUpdate,
+  CostsData,
+  CostsSave,
+  AlertRulesData,
   PerfClass,
   PageStatus,
   Alert,
@@ -3016,6 +3029,8 @@ const TABS: { id: string; label: string; icon: LucideIcon }[] = [
   { id: 'resilience', label: 'Resiliência', icon: LifeBuoy },
   { id: 'incidents', label: 'Incidentes', icon: Siren },
   { id: 'forecasts', label: 'Previsões', icon: LineChart },
+  { id: 'loadtests', label: 'Testes de Carga', icon: FlaskConical },
+  { id: 'costs', label: 'Custos', icon: Wallet },
 ];
 
 // ─── DASHBOARD VIEW (apresentacional — sem estado, sem fetch) ──────────────
@@ -3056,6 +3071,20 @@ export interface ScalabilityDashboardViewProps {
     done: () => void,
   ) => void;
   onSaveDbCapacity?: (gb: number | null) => void;
+  loadTests?: LoadTestsData | null;
+  costs?: CostsData | null;
+  alertRules?: AlertRulesData | null;
+  loadTestSaving?: boolean;
+  costsSaving?: boolean;
+  alertsEvaluating?: boolean;
+  onCreateLoadTest?: (v: LoadTestCreate, done: () => void) => void;
+  onUpdateLoadTest?: (
+    id: string,
+    v: LoadTestUpdate,
+    done: () => void,
+  ) => void;
+  onSaveCosts?: (v: CostsSave, done: () => void) => void;
+  onEvaluateAlerts?: () => void;
   alerts: Alert[];
   integrations: Integration[];
   automations: AutomationRule[];
@@ -3096,6 +3125,16 @@ export function ScalabilityDashboardView({
   onCreateIncident = () => undefined,
   onUpdateIncident = () => undefined,
   onSaveDbCapacity = () => undefined,
+  loadTests = null,
+  costs = null,
+  alertRules = null,
+  loadTestSaving = false,
+  costsSaving = false,
+  alertsEvaluating = false,
+  onCreateLoadTest = () => undefined,
+  onUpdateLoadTest = () => undefined,
+  onSaveCosts = () => undefined,
+  onEvaluateAlerts = () => undefined,
   alerts,
   integrations,
   automations,
@@ -3197,7 +3236,15 @@ export function ScalabilityDashboardView({
             <AutomationsTab rules={automations} onExecute={onExecuteRule} />
           </TabsContent>
           <TabsContent value="alerts">
-            <AlertsTab alerts={alerts} onResolve={onResolveAlert} />
+            <div className="flex flex-col gap-8">
+              <AlertRulesSection
+                data={alertRules}
+                canEdit={canEditInfra}
+                evaluating={alertsEvaluating}
+                onEvaluate={onEvaluateAlerts}
+              />
+              <AlertsTab alerts={alerts} onResolve={onResolveAlert} />
+            </div>
           </TabsContent>
           <TabsContent value="sla">
             <SlaTab data={dashboard} slaConfigs={slaConfigs} />
@@ -3262,6 +3309,23 @@ export function ScalabilityDashboardView({
               canEdit={canEditInfra}
               saving={forecastSaving}
               onSaveDbCapacity={onSaveDbCapacity}
+            />
+          </TabsContent>
+          <TabsContent value="loadtests">
+            <LoadTestsTab
+              data={loadTests}
+              canEdit={canEditInfra}
+              saving={loadTestSaving}
+              onCreate={onCreateLoadTest}
+              onUpdate={onUpdateLoadTest}
+            />
+          </TabsContent>
+          <TabsContent value="costs">
+            <CostsTab
+              data={costs}
+              canEdit={canEditInfra}
+              saving={costsSaving}
+              onSave={onSaveCosts}
             />
           </TabsContent>
         </div>
