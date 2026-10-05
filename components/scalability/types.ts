@@ -119,6 +119,7 @@ export interface DashboardData {
     plan: TenantPlan;
     maxUsers: number;
     activeUsersCount: number;
+    registeredUsersCount: number;
     storageUsedGb: number;
     maxStorageGb: number;
   };
@@ -130,6 +131,7 @@ export interface DashboardData {
     requestsPerMinute: number;
     cpuUsagePercent: number;
     memoryUsagePercent: number;
+    dbUsagePercent: number;
   };
   integrations: {
     total: number;

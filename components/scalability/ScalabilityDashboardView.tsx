@@ -334,7 +334,11 @@ function OverviewTab({ data }: OverviewTabProps) {
       )}
 
       {/* Primary metrics */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricTile
+          label="Utilizadores Registados"
+          value={(t.registeredUsersCount ?? t.activeUsersCount).toLocaleString()}
+        />
         <MetricTile
           label="Utilizadores Activos"
           value={t.activeUsersCount.toLocaleString()}
@@ -342,6 +346,45 @@ function OverviewTab({ data }: OverviewTabProps) {
           barValue={userPct}
           barMax={100}
           barWarn={75}
+          barDanger={90}
+        />
+        <MetricTile
+          label="Capacidade Estimada"
+          value={t.maxUsers.toLocaleString()}
+          unit="utilizadores"
+        />
+        <MetricTile
+          label="Utilização da Capacidade"
+          value={formatPercent(userPct, 0)}
+          sub={`${t.activeUsersCount.toLocaleString()} de ${t.maxUsers.toLocaleString()}`}
+          barValue={userPct}
+          barMax={100}
+          barWarn={75}
+          barDanger={90}
+        />
+        <MetricTile
+          label="CPU"
+          value={formatPercent(p.cpuUsagePercent, 0)}
+          barValue={p.cpuUsagePercent}
+          barMax={100}
+          barWarn={70}
+          barDanger={85}
+        />
+        <MetricTile
+          label="Memória"
+          value={formatPercent(p.memoryUsagePercent, 0)}
+          barValue={p.memoryUsagePercent}
+          barMax={100}
+          barWarn={75}
+          barDanger={90}
+        />
+        <MetricTile
+          label="Base de Dados"
+          value={formatPercent(p.dbUsagePercent ?? 0, 0)}
+          sub="ligações abertas / máximo"
+          barValue={p.dbUsagePercent ?? 0}
+          barMax={100}
+          barWarn={70}
           barDanger={90}
         />
         <MetricTile
