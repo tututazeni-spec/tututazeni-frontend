@@ -38,6 +38,8 @@ import type {
   OverviewChartsData,
   SlaConfig,
   UsersLoadData,
+  ApiMetricsData,
+  DatabaseMetricsData,
 } from '@/components/scalability/types';
 
 export default function ScalabilityPage() {
@@ -70,6 +72,26 @@ export default function ScalabilityPage() {
       staleTime: STALE_TIME.DYNAMIC,
       refetchInterval: 60_000,
       enabled: activeTab === 'users',
+    },
+  );
+
+  const { data: apiMetrics = null } = useApiQuery<ApiMetricsData>(
+    queryKeys.scalability.apiMetrics(),
+    '/scalability/api-metrics',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: 30_000,
+      enabled: activeTab === 'api',
+    },
+  );
+
+  const { data: databaseMetrics = null } = useApiQuery<DatabaseMetricsData>(
+    queryKeys.scalability.databaseMetrics(),
+    '/scalability/database-metrics',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: 30_000,
+      enabled: activeTab === 'database',
     },
   );
 
@@ -225,6 +247,8 @@ export default function ScalabilityPage() {
       dashboard={dashboard}
       overviewCharts={overviewCharts}
       usersLoad={usersLoad}
+      apiMetrics={apiMetrics}
+      databaseMetrics={databaseMetrics}
       alerts={alerts}
       integrations={integrations}
       automations={automations}

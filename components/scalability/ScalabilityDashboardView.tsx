@@ -22,11 +22,13 @@ import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import {
   Bell,
+  Database,
   Gauge,
   Globe,
   LayoutDashboard,
   Pencil,
   Plug,
+  Server,
   ShieldCheck,
   Users,
   Workflow,
@@ -47,6 +49,8 @@ import type {
   OverviewChartsData,
   UsersLoadData,
   UsersLoadSegmentRow,
+  ApiMetricsData,
+  DatabaseMetricsData,
   Alert,
   Integration,
   AutomationRule,
@@ -1746,6 +1750,434 @@ function ContentTab({ config }: ContentTabProps) {
   );
 }
 
+// ─── API & BACKEND (modulo_scalability.md §7) ──────────────────
+
+const ENDPOINT_STATE: Record<
+  ApiMetricsData['endpoints'][number]['status'],
+  { label: string; intent: 'success' | 'warning' | 'danger' }
+> = {
+  OK: { label: 'OK', intent: 'success' },
+  ATENCAO: { label: 'Atenção', intent: 'warning' },
+  CRITICO: { label: 'Crítico', intent: 'danger' },
+};
+
+function ApiTab({ api }: { api: ApiMetricsData | null }) {
+  if (!api) {
+    return (
+      <EmptyState
+        title="A carregar métricas da API"
+        description="Os indicadores aparecem aqui assim que estiverem disponíveis."
+      />
+    );
+  }
+  const fmt = (n: number) => n.toLocaleString();
+  const rate = (v: number | null, unit: string) =>
+    v === null ? '—' : `${v.toLocaleString()}${unit}`;
+  const warming = api.rates.requestsPerSecond === null;
+  const uptimeMin = Math.round(api.sinceProcessStartSeconds / 60);
+  return (
+    <div className="flex flex-col gap-6">
+      <SectionHeader
+        title="API & Backend"
+        sub={`Capacidade da API NestJS — acumulado desde o arranque do servidor (${uptimeMin} min)`}
+      />
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <MetricTile
+          label="Requests por segundo"
+          value={rate(api.rates.requestsPerSecond, '/s')}
+          sub={warming ? 'a recolher amostras' : `janela de ${api.rates.windowSeconds / 60} min`}
+        />
+        <MetricTile
+          label="Requests por minuto"
+          value={rate(api.rates.requestsPerMinute, '/min')}
+        />
+        <MetricTile label="Total de requests" value={fmt(api.totals.requests)} />
+        <MetricTile
+          label="Throughput"
+          value={rate(api.rates.throughputRps, ' req/s')}
+          sub="sem contagem de bytes servidos"
+        />
+        <MetricTile label="Latência média" value={`${api.totals.avgLatencyMs} ms`} />
+        <MetricTile label="P50" value={`${api.totals.p50Ms} ms`} />
+        <MetricTile label="P95" value={`${api.totals.p95Ms} ms`} />
+        <MetricTile label="P99" value={`${api.totals.p99Ms} ms`} />
+        <MetricTile
+          label="Taxa de erro"
+          value={`${api.totals.errorRate}%`}
+          sub="4xx + 5xx sobre o total"
+        />
+        <MetricTile label="HTTP 4xx" value={fmt(api.totals.http4xx)} />
+        <MetricTile
+          label="HTTP 5xx"
+          value={fmt(api.totals.http5xx)}
+          sub={
+            api.rates.errors5xxPerMinute === null
+              ? undefined
+              : `${api.rates.errors5xxPerMinute}/min`
+          }
+        />
+        <MetricTile
+          label="Timeouts"
+          value={fmt(api.totals.timeouts)}
+          sub="respostas 408/504"
+        />
+        <MetricTile
+          label="Requests concorrentes"
+          value={api.concurrentRequests === null ? '—' : fmt(api.concurrentRequests)}
+          sub={api.concurrentRequests === null ? 'pedidos em curso não são registados' : undefined}
+        />
+        <MetricTile
+          label="Tempo de processamento"
+          value={`${api.totals.avgProcessingMs} ms`}
+          sub="média por pedido"
+        />
+        <MetricTile
+          label="Requests lentos"
+          value={fmt(api.totals.slowRequests)}
+          sub={`acima de ${api.totals.slowThresholdMs} ms`}
+        />
+      </div>
+
+      <Card>
+        <CardBody>
+          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Por endpoint
+          </p>
+          {api.endpoints.length === 0 ? (
+            <EmptyState
+              title="Sem pedidos registados"
+              description="Os endpoints aparecem à medida que a API recebe tráfego."
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full font-body text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
+                    <th className="py-1.5 font-semibold">Endpoint</th>
+                    <th className="py-1.5 text-right font-semibold">Requests</th>
+                    <th className="py-1.5 text-right font-semibold">Média</th>
+                    <th className="py-1.5 text-right font-semibold">P95</th>
+                    <th className="py-1.5 text-right font-semibold">Erros</th>
+                    <th className="py-1.5 text-right font-semibold">Lentos</th>
+                    <th className="py-1.5 pl-4 font-semibold">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {api.endpoints.map((e) => {
+                    const st = ENDPOINT_STATE[e.status];
+                    return (
+                      <tr key={e.endpoint} className="border-t border-border">
+                        <td className="py-1.5 font-mono text-xs text-ink">{e.endpoint}</td>
+                        <td className="py-1.5 text-right text-ink">{fmt(e.requests)}</td>
+                        <td className="py-1.5 text-right text-ink-muted">{e.avgMs} ms</td>
+                        <td className="py-1.5 text-right text-ink">{e.p95Ms} ms</td>
+                        <td className="py-1.5 text-right text-ink-muted">{e.errorRate}%</td>
+                        <td className="py-1.5 text-right text-ink-muted">{fmt(e.slowRequests)}</td>
+                        <td className="py-1.5 pl-4">
+                          <Badge intent={st.intent} dot={false}>
+                            {st.label}
+                          </Badge>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="mt-3 font-body text-xs text-ink-faint">
+            Estado: Crítico com P95 &gt; 1,5 s ou ≥ 5% de erros 5xx; Atenção com P95 &gt; 500 ms ou ≥ 1% de erros 5xx.
+          </p>
+        </CardBody>
+      </Card>
+    </div>
+  );
+}
+
+// ─── BASE DE DADOS (modulo_scalability.md §8-9) ───────────────
+
+const GROWTH_WINDOWS: Array<{ key: '7d' | '30d' | '90d' | '1y'; label: string }> = [
+  { key: '7d', label: '7 dias' },
+  { key: '30d', label: '30 dias' },
+  { key: '90d', label: '90 dias' },
+  { key: '1y', label: '1 ano' },
+];
+
+function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
+  const [win, setWin] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
+  if (!db) {
+    return (
+      <EmptyState
+        title="A carregar métricas da base de dados"
+        description="Os indicadores aparecem aqui assim que estiverem disponíveis."
+      />
+    );
+  }
+  const fmt = (n: number) => n.toLocaleString();
+  const rate = (v: number | null, unit: string) =>
+    v === null ? '—' : `${v.toLocaleString()}${unit}`;
+  const growthTile = (
+    label: string,
+    g: DatabaseMetricsData['growth']['daily'],
+  ) => (
+    <MetricTile
+      label={label}
+      value={g ? `${g.growthGb >= 0 ? '+' : ''}${g.growthGb} GB` : '—'}
+      sub={g ? `${g.coverageDays} dias de histórico` : 'a acumular histórico'}
+    />
+  );
+  const series = db.growth.series[win];
+  const f = db.growth.forecast;
+  return (
+    <div className="flex flex-col gap-6">
+      <SectionHeader
+        title="Base de Dados"
+        sub="PostgreSQL — ligações, desempenho, índices e crescimento"
+      />
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <MetricTile
+          label="CPU da BD"
+          value="—"
+          sub="não acessível por SQL"
+        />
+        <MetricTile label="RAM da BD" value="—" sub="não acessível por SQL" />
+        <MetricTile label="Storage (tamanho da BD)" value={`${db.storage.sizeGb} GB`} />
+        <MetricTile
+          label="IOPS (leituras)"
+          value={rate(db.throughput.readIops, '/s')}
+          sub="blocos lidos do disco"
+        />
+        <MetricTile
+          label="Throughput"
+          value={rate(db.throughput.transactionsPerSecond, ' tx/s')}
+        />
+        <MetricTile
+          label="Ligações activas"
+          value={`${db.connections.active}`}
+          sub={`${db.connections.total} abertas (${db.connections.idle} inactivas)`}
+        />
+        <MetricTile
+          label="Ligações máximas"
+          value={fmt(db.connections.max)}
+          barValue={db.connections.usagePercent}
+          barMax={100}
+          barWarn={70}
+          barDanger={90}
+          sub={`${db.connections.usagePercent}% em uso`}
+        />
+        <MetricTile
+          label="Pool de ligações"
+          value={fmt(db.pool.max)}
+          sub="DB_POOL_MAX por instância"
+        />
+        <MetricTile
+          label="Queries por segundo"
+          value={rate(db.throughput.queriesPerSecond, '/s')}
+        />
+        <MetricTile
+          label="Queries lentas"
+          value={fmt(db.queries.slowCount)}
+          sub={`acima de ${db.queries.slowThresholdMs} ms (desde o arranque)`}
+        />
+        <MetricTile label="Locks em espera" value={fmt(db.health.waitingLocks)} />
+        <MetricTile label="Deadlocks" value={fmt(db.health.deadlocks)} />
+        <MetricTile
+          label="Cache hit ratio"
+          value={db.health.cacheHitRatio === null ? '—' : `${db.health.cacheHitRatio}%`}
+        />
+        <MetricTile
+          label="Query média (app)"
+          value={`${db.queries.appAvgMs} ms`}
+          sub={`P95 ${db.queries.appP95Ms} ms · ${fmt(db.queries.appTotal)} queries`}
+        />
+        <MetricTile
+          label="Índices"
+          value={fmt(db.indexes.total)}
+          sub={`${db.indexes.unusedCount} inutilizados (top 10)`}
+        />
+      </div>
+
+      <Card>
+        <CardBody>
+          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Queries lentas
+          </p>
+          {db.slowQueries === null ? (
+            <EmptyState
+              title="pg_stat_statements não está instalada"
+              description="Activa a extensão pg_stat_statements no PostgreSQL para ver as queries mais lentas com execuções e tempo médio."
+            />
+          ) : db.slowQueries.rows.length === 0 ? (
+            <p className="font-body text-xs text-ink-faint">Sem queries registadas.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full font-body text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
+                    <th className="py-1.5 font-semibold">Query</th>
+                    <th className="py-1.5 text-right font-semibold">Execuções</th>
+                    <th className="py-1.5 text-right font-semibold">Tempo médio</th>
+                    <th className="py-1.5 text-right font-semibold">Máximo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {db.slowQueries.rows.map((q, i) => (
+                    <tr key={i} className="border-t border-border">
+                      <td className="max-w-md truncate py-1.5 font-mono text-xs text-ink" title={q.query}>
+                        {q.query}
+                      </td>
+                      <td className="py-1.5 text-right text-ink">{fmt(q.calls)}</td>
+                      <td className="py-1.5 text-right text-ink">{q.meanMs} ms</td>
+                      <td className="py-1.5 text-right text-ink-muted">{q.maxMs} ms</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardBody>
+      </Card>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Card>
+          <CardBody>
+            <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+              Tabelas maiores
+            </p>
+            <table className="w-full font-body text-sm">
+              <tbody>
+                {db.largestTables.map((t) => (
+                  <tr key={t.name} className="border-t border-border first:border-0">
+                    <td className="py-1.5 font-mono text-xs text-ink">{t.name}</td>
+                    <td className="py-1.5 text-right text-ink-muted">{fmt(t.rows)} linhas</td>
+                    <td className="py-1.5 text-right text-ink">{t.sizeMb} MB</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+              Tabelas que mais crescem
+            </p>
+            {db.growth.growingTables.length === 0 ? (
+              <p className="font-body text-xs text-ink-faint">
+                A acumular histórico — aparece após duas ou mais amostras horárias com crescimento.
+              </p>
+            ) : (
+              <table className="w-full font-body text-sm">
+                <tbody>
+                  {db.growth.growingTables.map((t) => (
+                    <tr key={t.name} className="border-t border-border first:border-0">
+                      <td className="py-1.5 font-mono text-xs text-ink">{t.name}</td>
+                      <td className="py-1.5 text-right text-ink">+{t.growthMb} MB</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </CardBody>
+        </Card>
+      </div>
+
+      <Card>
+        <CardBody>
+          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Índices inutilizados
+          </p>
+          {db.indexes.unused.length === 0 ? (
+            <p className="font-body text-xs text-ink-faint">
+              Nenhum índice sem leituras (excluindo únicos e chaves primárias).
+            </p>
+          ) : (
+            <table className="w-full font-body text-sm">
+              <tbody>
+                {db.indexes.unused.map((i) => (
+                  <tr key={i.index} className="border-t border-border first:border-0">
+                    <td className="py-1.5 font-mono text-xs text-ink">{i.index}</td>
+                    <td className="py-1.5 text-ink-muted">{i.table}</td>
+                    <td className="py-1.5 text-right text-ink">{i.sizeMb} MB</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardBody>
+      </Card>
+
+      {/* §9 Crescimento da base de dados */}
+      <SectionHeader
+        title="Crescimento da base de dados"
+        sub="Database Growth — amostra horária do tamanho da BD"
+      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {growthTile('Crescimento diário', db.growth.daily)}
+        {growthTile('Crescimento mensal', db.growth.monthly)}
+        {growthTile('Crescimento anual', db.growth.yearly)}
+      </div>
+      <Card>
+        <CardBody>
+          <div className="mb-3 flex flex-wrap gap-2">
+            {GROWTH_WINDOWS.map((w) => (
+              <button
+                key={w.key}
+                type="button"
+                onClick={() => setWin(w.key)}
+                className={`rounded-pill px-3 py-1 font-body text-xs font-medium ${
+                  win === w.key
+                    ? 'bg-ink text-surface'
+                    : 'bg-surface-sunken text-ink-muted'
+                }`}
+              >
+                {w.label}
+              </button>
+            ))}
+          </div>
+          {series.length < 2 ? (
+            <EmptyState
+              title="Histórico insuficiente"
+              description="O tamanho da BD é amostrado a cada hora; o gráfico aparece com pelo menos dois dias de dados."
+            />
+          ) : (
+            <AreaLineChart
+              series={[
+                {
+                  label: 'Tamanho da BD (GB)',
+                  points: series.map((s, i) => ({ x: i, y: s.gb, xLabel: s.day })),
+                },
+              ]}
+              yFormat={(v) => `${v} GB`}
+            />
+          )}
+        </CardBody>
+      </Card>
+      <Card>
+        <CardBody>
+          <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Previsão
+          </p>
+          {f ? (
+            <ul className="font-body text-sm text-ink">
+              <li>Base de dados atual: {f.currentGb} GB</li>
+              <li>Crescimento médio: {f.avgGrowthGbPerMonth} GB/mês</li>
+              <li>Previsão 12 meses: {f.projectedGb12m} GB</li>
+              <li className="mt-1 text-xs text-ink-faint">
+                Calculado sobre {f.basedOnDays} dias de histórico.
+              </li>
+            </ul>
+          ) : (
+            <p className="font-body text-xs text-ink-faint">
+              A acumular histórico — a previsão aparece após mais de um dia de amostras.
+            </p>
+          )}
+        </CardBody>
+      </Card>
+    </div>
+  );
+}
+
 // ─── TABS CONFIG ──────────────────────────────────────────
 
 const TABS: { id: string; label: string; icon: LucideIcon }[] = [
@@ -1756,6 +2188,8 @@ const TABS: { id: string; label: string; icon: LucideIcon }[] = [
   { id: 'alerts', label: 'Alertas', icon: Bell },
   { id: 'sla', label: 'SLA & Compliance', icon: ShieldCheck },
   { id: 'users', label: 'Utilizadores', icon: Users },
+  { id: 'api', label: 'API & Backend', icon: Server },
+  { id: 'database', label: 'Base de Dados', icon: Database },
   { id: 'content', label: 'Conteúdo & CDN', icon: Globe },
 ];
 
@@ -1767,6 +2201,8 @@ export interface ScalabilityDashboardViewProps {
   dashboard: DashboardData;
   overviewCharts?: OverviewChartsData | null;
   usersLoad?: UsersLoadData | null;
+  apiMetrics?: ApiMetricsData | null;
+  databaseMetrics?: DatabaseMetricsData | null;
   alerts: Alert[];
   integrations: Integration[];
   automations: AutomationRule[];
@@ -1785,6 +2221,8 @@ export function ScalabilityDashboardView({
   dashboard,
   overviewCharts = null,
   usersLoad = null,
+  apiMetrics = null,
+  databaseMetrics = null,
   alerts,
   integrations,
   automations,
@@ -1892,6 +2330,12 @@ export function ScalabilityDashboardView({
           </TabsContent>
           <TabsContent value="users">
             <UsersTab data={dashboard} load={usersLoad} />
+          </TabsContent>
+          <TabsContent value="api">
+            <ApiTab api={apiMetrics} />
+          </TabsContent>
+          <TabsContent value="database">
+            <DatabaseTab db={databaseMetrics} />
           </TabsContent>
           <TabsContent value="content">
             <ContentTab config={contentDelivery} />

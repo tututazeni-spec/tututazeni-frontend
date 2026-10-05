@@ -306,3 +306,97 @@ export interface OverviewChartsData {
     monthsToThreshold: number | null;
   };
 }
+
+export interface ApiMetricsData {
+  sinceProcessStartSeconds: number;
+  totals: {
+    requests: number;
+    avgLatencyMs: number;
+    p50Ms: number;
+    p95Ms: number;
+    p99Ms: number;
+    http4xx: number;
+    http5xx: number;
+    errorRate: number;
+    timeouts: number;
+    slowRequests: number;
+    slowThresholdMs: number;
+    avgProcessingMs: number;
+  };
+  rates: {
+    requestsPerSecond: number | null;
+    requestsPerMinute: number | null;
+    throughputRps: number | null;
+    errors5xxPerMinute: number | null;
+    windowSeconds: number;
+  };
+  /** null: pedidos em curso não são registados. */
+  concurrentRequests: number | null;
+  endpoints: Array<{
+    endpoint: string;
+    requests: number;
+    avgMs: number;
+    p95Ms: number;
+    errorRate: number;
+    errors5xx: number;
+    slowRequests: number;
+    status: 'OK' | 'ATENCAO' | 'CRITICO';
+  }>;
+}
+
+type DbGrowth = { growthGb: number; coverageDays: number } | null;
+
+export interface DatabaseMetricsData {
+  host: { cpuPercent: number | null; ramPercent: number | null };
+  storage: { sizeGb: number };
+  connections: {
+    active: number;
+    idle: number;
+    total: number;
+    max: number;
+    usagePercent: number;
+  };
+  pool: { max: number };
+  throughput: {
+    queriesPerSecond: number | null;
+    transactionsPerSecond: number | null;
+    readIops: number | null;
+  };
+  health: {
+    waitingLocks: number;
+    deadlocks: number;
+    cacheHitRatio: number | null;
+  };
+  queries: {
+    appTotal: number;
+    appAvgMs: number;
+    appP95Ms: number;
+    slowCount: number;
+    slowThresholdMs: number;
+  };
+  /** null: extensão pg_stat_statements não instalada. */
+  slowQueries: {
+    source: 'pg_stat_statements';
+    rows: Array<{ query: string; calls: number; meanMs: number; maxMs: number }>;
+  } | null;
+  indexes: {
+    total: number;
+    unusedCount: number;
+    unused: Array<{ table: string; index: string; sizeMb: number }>;
+  };
+  largestTables: Array<{ name: string; sizeMb: number; rows: number }>;
+  growth: {
+    daily: DbGrowth;
+    monthly: DbGrowth;
+    yearly: DbGrowth;
+    series: Record<'7d' | '30d' | '90d' | '1y', Array<{ day: string; gb: number }>>;
+    forecast: {
+      currentGb: number;
+      avgGrowthGbPerMonth: number;
+      projectedGb12m: number;
+      basedOnDays: number;
+    } | null;
+    growingTables: Array<{ name: string; growthMb: number }>;
+    samples: number;
+  };
+}
