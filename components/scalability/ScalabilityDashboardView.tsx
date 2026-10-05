@@ -56,6 +56,9 @@ import type {
   FrontendMetricsData,
   QueueMetricsData,
   StorageMetricsData,
+  IntegrationMetricsData,
+  PerformanceMetricsData,
+  PerfClass,
   PageStatus,
   Alert,
   Integration,
@@ -802,11 +805,96 @@ function OverviewTab({ data, charts }: OverviewTabProps) {
   );
 }
 
-interface PerformanceTabProps {
-  data: DashboardData;
+const PERF_CLASS: Record<
+  PerfClass,
+  { label: string; intent: 'success' | 'info' | 'warning' | 'danger' }
+> = {
+  EXCELENTE: { label: 'Excelente', intent: 'success' },
+  NORMAL: { label: 'Normal', intent: 'info' },
+  ATENCAO: { label: 'Atenção', intent: 'warning' },
+  DEGRADACAO: { label: 'Degradação', intent: 'danger' },
+  CRITICO: { label: 'Crítico', intent: 'danger' },
+};
+
+function PerformanceKpis({ perf }: { perf: PerformanceMetricsData }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <SectionHeader
+          title="KPIs Transversais"
+          sub="API, base de dados, frontend e filas"
+        />
+        {perf.overall && (
+          <Badge intent={PERF_CLASS[perf.overall].intent} dot>
+            {PERF_CLASS[perf.overall].label}
+          </Badge>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        {perf.kpis.map((k) => (
+          <Card key={k.key}>
+            <CardBody>
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+                  {k.label}
+                </span>
+                {k.classification && (
+                  <Badge intent={PERF_CLASS[k.classification].intent} dot>
+                    {PERF_CLASS[k.classification].label}
+                  </Badge>
+                )}
+              </div>
+              <p className="mt-2 font-display text-xl font-bold tabular-nums text-ink">
+                {k.value === null ? '—' : k.value.toLocaleString()}
+                {k.value !== null && (
+                  <span className="ml-1 text-sm font-normal text-ink-muted">
+                    {k.unit}
+                  </span>
+                )}
+              </p>
+              {k.note && (
+                <p className="mt-1 font-body text-[11px] text-ink-faint">
+                  {k.note}
+                </p>
+              )}
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+      {perf.slowEndpoints.length > 0 && (
+        <Card>
+          <CardBody>
+            <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+              Endpoints a vigiar
+            </p>
+            <table className="w-full font-body text-sm">
+              <tbody>
+                {perf.slowEndpoints.map((e) => (
+                  <tr key={e.endpoint} className="border-t border-border">
+                    <td className="py-1.5 text-ink">{e.endpoint}</td>
+                    <td className="py-1.5 text-right text-ink-muted">
+                      p95 {e.p95Ms} ms
+                    </td>
+                    <td className="py-1.5 text-right text-ink-muted">
+                      {e.errorRate}% erros
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardBody>
+        </Card>
+      )}
+    </div>
+  );
 }
 
-function PerformanceTab({ data }: PerformanceTabProps) {
+interface PerformanceTabProps {
+  data: DashboardData;
+  perf?: PerformanceMetricsData | null;
+}
+
+function PerformanceTab({ data, perf = null }: PerformanceTabProps) {
   const p = data.performanceSummary;
   const [configuring, setConfiguring] = useState(false);
   const metrics = [
@@ -893,6 +981,8 @@ function PerformanceTab({ data }: PerformanceTabProps) {
         })}
       </div>
 
+      {perf && <PerformanceKpis perf={perf} />}
+
       {/* Load test CTA */}
       <div className="flex items-center justify-between rounded-card border border-dashed border-border-strong bg-surface-sunken p-5">
         <div>
@@ -921,12 +1011,113 @@ function PerformanceTab({ data }: PerformanceTabProps) {
 interface IntegrationsTabProps {
   tenantId: string;
   integrations: Integration[];
+  metrics?: IntegrationMetricsData | null;
   onSync: (id: number) => void;
+}
+
+const INTEGRATION_ROW_STATE: Record<
+  IntegrationMetricsData['integrations'][number]['state'],
+  { label: string; intent: 'success' | 'warning' | 'danger' | 'neutral' }
+> = {
+  OK: { label: 'OK', intent: 'success' },
+  ATENCAO: { label: 'Atenção', intent: 'warning' },
+  CRITICO: { label: 'Crítico', intent: 'danger' },
+  INACTIVA: { label: 'Inactiva', intent: 'neutral' },
+};
+
+function IntegrationMetrics({ m }: { m: IntegrationMetricsData }) {
+  const t = m.totals;
+  const fmt = (n: number) => n.toLocaleString();
+  const lat = (ms: number | null) =>
+    ms === null ? '—' : ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${ms} ms`;
+  return (
+    <div className="flex flex-col gap-4">
+      <SectionHeader
+        title="Indicadores"
+        sub={`Sincronizações das últimas ${m.windowHours}h`}
+      />
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <MetricTile
+          label="Integrações activas"
+          value={`${t.active}/${t.total}`}
+        />
+        <MetricTile
+          label="Requests"
+          value={fmt(t.requests)}
+          sub="execuções de sync"
+        />
+        <MetricTile label="Sincronizações" value={fmt(t.syncs)} />
+        <MetricTile
+          label="Falhas"
+          value={fmt(t.failures)}
+          sub={`${t.errorRate}% de erro`}
+        />
+        <MetricTile label="Latência média" value={lat(t.avgLatencyMs)} />
+        <MetricTile label="Retries" value={fmt(t.retries)} />
+        <MetricTile label="Jobs pendentes" value={fmt(t.pendingJobs)} />
+        <MetricTile
+          label="Volume transferido"
+          value={fmt(t.recordsTransferred)}
+          unit="registos"
+          sub="sem contagem de bytes"
+        />
+      </div>
+      <Card>
+        <CardBody>
+          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Por integração
+          </p>
+          {m.integrations.length === 0 ? (
+            <p className="font-body text-xs text-ink-faint">
+              Sem integrações configuradas.
+            </p>
+          ) : (
+            <table className="w-full font-body text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
+                  <th className="py-1.5 font-semibold">Integração</th>
+                  <th className="py-1.5 text-right font-semibold">Requests</th>
+                  <th className="py-1.5 text-right font-semibold">Erros</th>
+                  <th className="py-1.5 text-right font-semibold">Latência</th>
+                  <th className="py-1.5 text-right font-semibold">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {m.integrations.map((r) => {
+                  const s = INTEGRATION_ROW_STATE[r.state];
+                  return (
+                    <tr key={r.id} className="border-t border-border">
+                      <td className="py-1.5 text-ink">{r.name}</td>
+                      <td className="py-1.5 text-right text-ink-muted">
+                        {fmt(r.requests)}
+                      </td>
+                      <td className="py-1.5 text-right text-ink-muted">
+                        {r.errorRate}%
+                      </td>
+                      <td className="py-1.5 text-right text-ink-muted">
+                        {lat(r.latencyMs)}
+                      </td>
+                      <td className="py-1.5 text-right">
+                        <Badge intent={s.intent} dot={s.intent !== 'neutral'}>
+                          {s.label}
+                        </Badge>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </CardBody>
+      </Card>
+    </div>
+  );
 }
 
 function IntegrationsTab({
   tenantId,
   integrations,
+  metrics = null,
   onSync,
 }: IntegrationsTabProps) {
   const notify = useToast();
@@ -981,6 +1172,7 @@ function IntegrationsTab({
           onClose={() => setCreating(false)}
         />
       )}
+      {metrics && <IntegrationMetrics m={metrics} />}
       <div className="flex flex-col gap-3">
         {integrations.map((int) => {
           const s = INTEGRATION_STATUS[int.status];
@@ -2818,6 +3010,8 @@ export interface ScalabilityDashboardViewProps {
   frontendMetrics?: FrontendMetricsData | null;
   queueMetrics?: QueueMetricsData | null;
   storageMetrics?: StorageMetricsData | null;
+  integrationMetrics?: IntegrationMetricsData | null;
+  performanceMetrics?: PerformanceMetricsData | null;
   alerts: Alert[];
   integrations: Integration[];
   automations: AutomationRule[];
@@ -2841,6 +3035,8 @@ export function ScalabilityDashboardView({
   frontendMetrics = null,
   queueMetrics = null,
   storageMetrics = null,
+  integrationMetrics = null,
+  performanceMetrics = null,
   alerts,
   integrations,
   automations,
@@ -2928,12 +3124,13 @@ export function ScalabilityDashboardView({
             <OverviewTab data={dashboard} charts={overviewCharts} />
           </TabsContent>
           <TabsContent value="performance">
-            <PerformanceTab data={dashboard} />
+            <PerformanceTab data={dashboard} perf={performanceMetrics} />
           </TabsContent>
           <TabsContent value="integrations">
             <IntegrationsTab
               tenantId={dashboard.tenantInfo.id}
               integrations={integrations}
+              metrics={integrationMetrics}
               onSync={onSyncIntegration}
             />
           </TabsContent>

@@ -43,6 +43,8 @@ import type {
   FrontendMetricsData,
   QueueMetricsData,
   StorageMetricsData,
+  IntegrationMetricsData,
+  PerformanceMetricsData,
 } from '@/components/scalability/types';
 
 export default function ScalabilityPage() {
@@ -127,6 +129,28 @@ export default function ScalabilityPage() {
       enabled: activeTab === 'storage',
     },
   );
+
+  const { data: integrationMetrics = null } =
+    useApiQuery<IntegrationMetricsData>(
+      queryKeys.scalability.integrationMetrics(),
+      '/scalability/integration-metrics',
+      {
+        staleTime: STALE_TIME.DYNAMIC,
+        refetchInterval: 60_000,
+        enabled: activeTab === 'integrations',
+      },
+    );
+
+  const { data: performanceMetrics = null } =
+    useApiQuery<PerformanceMetricsData>(
+      queryKeys.scalability.performanceMetrics(),
+      '/scalability/performance-metrics',
+      {
+        staleTime: STALE_TIME.DYNAMIC,
+        refetchInterval: 30_000,
+        enabled: activeTab === 'performance',
+      },
+    );
 
   const { data: integrations = [] } = useApiQuery<Integration[]>(
     queryKeys.scalability.integrations(),
@@ -285,6 +309,8 @@ export default function ScalabilityPage() {
       frontendMetrics={frontendMetrics}
       queueMetrics={queueMetrics}
       storageMetrics={storageMetrics}
+      integrationMetrics={integrationMetrics}
+      performanceMetrics={performanceMetrics}
       alerts={alerts}
       integrations={integrations}
       automations={automations}

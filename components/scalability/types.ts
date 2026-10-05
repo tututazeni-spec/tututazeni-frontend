@@ -529,3 +529,62 @@ export interface StorageMetricsData {
   }>;
   note: string;
 }
+
+// ─── §13 Integrações / §14 Performance ─────────────────────
+
+export type PerfClass =
+  | 'EXCELENTE'
+  | 'NORMAL'
+  | 'ATENCAO'
+  | 'DEGRADACAO'
+  | 'CRITICO';
+
+export interface IntegrationMetricsData {
+  windowHours: number;
+  totals: {
+    active: number;
+    total: number;
+    requests: number;
+    syncs: number;
+    failures: number;
+    errorRate: number;
+    avgLatencyMs: number | null;
+    retries: number;
+    pendingJobs: number;
+    recordsTransferred: number;
+    bytesTransferred: number | null;
+  };
+  integrations: Array<{
+    id: number;
+    name: string;
+    type: string;
+    status: IntegrationStatus;
+    requests: number;
+    errors: number;
+    errorRate: number;
+    latencyMs: number | null;
+    retries: number;
+    pendingJobs: number;
+    recordsProcessed: number;
+    lastSyncAt: string | null;
+    state: 'OK' | 'ATENCAO' | 'CRITICO' | 'INACTIVA';
+  }>;
+}
+
+export interface PerformanceMetricsData {
+  overall: PerfClass | null;
+  kpis: Array<{
+    key: string;
+    label: string;
+    value: number | null;
+    unit: string;
+    classification: PerfClass | null;
+    note: string | null;
+  }>;
+  slowEndpoints: Array<{
+    endpoint: string;
+    p95Ms: number;
+    errorRate: number;
+    status: 'OK' | 'ATENCAO' | 'CRITICO';
+  }>;
+}
