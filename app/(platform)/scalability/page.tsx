@@ -37,6 +37,7 @@ import type {
   Integration,
   OverviewChartsData,
   SlaConfig,
+  UsersLoadData,
 } from '@/components/scalability/types';
 
 export default function ScalabilityPage() {
@@ -60,6 +61,16 @@ export default function ScalabilityPage() {
     queryKeys.scalability.overviewCharts(),
     '/scalability/overview-charts',
     { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
+  );
+
+  const { data: usersLoad = null } = useApiQuery<UsersLoadData>(
+    queryKeys.scalability.usersLoad(),
+    '/scalability/users-load',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: 60_000,
+      enabled: activeTab === 'users',
+    },
   );
 
   const { data: integrations = [] } = useApiQuery<Integration[]>(
@@ -213,6 +224,7 @@ export default function ScalabilityPage() {
       onTabChange={setActiveTab}
       dashboard={dashboard}
       overviewCharts={overviewCharts}
+      usersLoad={usersLoad}
       alerts={alerts}
       integrations={integrations}
       automations={automations}

@@ -283,6 +283,7 @@ export const queryKeys = {
     alerts: () => [...queryKeys.scalability.all, 'alerts'] as const,
     overviewCharts: () =>
       [...queryKeys.scalability.all, 'overview-charts'] as const,
+    usersLoad: () => [...queryKeys.scalability.all, 'users-load'] as const,
     sla: () => [...queryKeys.scalability.all, 'sla'] as const,
     contentDelivery: () =>
       [...queryKeys.scalability.all, 'content-delivery'] as const,

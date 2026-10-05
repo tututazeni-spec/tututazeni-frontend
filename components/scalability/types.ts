@@ -233,6 +233,53 @@ export interface ContentDeliveryConfig {
 }
 
 // Resposta real de GET /scalability/overview-charts (gráficos da Visão Geral).
+export interface UsersLoadSegmentRow {
+  name: string;
+  users: number;
+  activeMonthly: number;
+}
+
+export interface UsersLoadData {
+  totals: {
+    total: number;
+    active: number;
+    activeDaily: number;
+    activeMonthly: number;
+  };
+  concurrent: {
+    current: number;
+    peak24h: number;
+    historicPeak: number;
+    avg24h: number;
+    min24h: number;
+    max24h: number;
+    timeline: Array<{ at: string; peak: number }>;
+  };
+  sessions: {
+    avgPerUser30d: number;
+    /** null: a plataforma não regista o fim das sessões. */
+    avgDurationMinutes: number | null;
+    /** null enquanto o módulo Monitoring não fornece requests. */
+    requestsPerUserPerMin: number | null;
+  };
+  growth: {
+    daily: { newUsers: number; percent: number };
+    monthly: { newUsers: number; percent: number };
+    yearly: { newUsers: number; percent: number };
+  };
+  segmentation: {
+    department: UsersLoadSegmentRow[];
+    position: UsersLoadSegmentRow[];
+    unit: UsersLoadSegmentRow[];
+    role: UsersLoadSegmentRow[];
+    location: UsersLoadSegmentRow[];
+    userType: UsersLoadSegmentRow[];
+    /** null: não há registo de dispositivo (web/mobile). */
+    platform: { web: number; mobile: number } | null;
+  };
+  trafficSourceConnected: boolean;
+}
+
 export interface OverviewChartsData {
   timeline: Array<{
     at: string;
