@@ -400,3 +400,41 @@ export interface DatabaseMetricsData {
     samples: number;
   };
 }
+
+// Resposta real de GET /scalability/frontend-metrics (modulo_scalability.md §10).
+export type PageStatus = 'OK' | 'ATENCAO' | 'CRITICO';
+
+export interface FrontendPageStats {
+  views: number;
+  loadMs: number | null;
+  lcpMs: number | null;
+  ttfbMs: number | null;
+  errors: number;
+  status: PageStatus;
+}
+
+export interface FrontendMetricsData {
+  windowHours: number;
+  samples: number;
+  percentile: 'p75';
+  vitals: {
+    pageLoadMs: number | null;
+    fcpMs: number | null;
+    lcpMs: number | null;
+    inpMs: number | null;
+    ttfbMs: number | null;
+  };
+  resources: {
+    jsKb: number | null;
+    cssKb: number | null;
+    imagesKb: number | null;
+    requestsPerPage: number | null;
+    cacheHitRatio: number | null;
+  };
+  errors: { total: number; pagesWithErrors: number; errorRate: number };
+  criticalPages: Array<
+    FrontendPageStats & { page: string; path: string; hasData: boolean }
+  >;
+  slowPages: Array<FrontendPageStats & { path: string }>;
+  pages: Array<FrontendPageStats & { path: string }>;
+}

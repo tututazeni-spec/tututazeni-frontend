@@ -51,6 +51,8 @@ import type {
   UsersLoadSegmentRow,
   ApiMetricsData,
   DatabaseMetricsData,
+  FrontendMetricsData,
+  PageStatus,
   Alert,
   Integration,
   AutomationRule,
@@ -1666,20 +1668,220 @@ function UsersTab({ data, load }: UsersTabProps) {
 
 interface ContentTabProps {
   config: ContentDeliveryConfig | null;
+  frontend?: FrontendMetricsData | null;
 }
 
-function ContentTab({ config }: ContentTabProps) {
+// ─── FRONTEND & CDN (modulo_scalability.md §10) ───────────────
+
+const PAGE_STATE: Record<
+  PageStatus,
+  { label: string; intent: 'success' | 'warning' | 'danger' }
+> = {
+  OK: { label: 'OK', intent: 'success' },
+  ATENCAO: { label: 'Atenção', intent: 'warning' },
+  CRITICO: { label: 'Crítico', intent: 'danger' },
+};
+
+interface PageRow {
+  key: string;
+  label: string;
+  stats: FrontendMetricsData['pages'][number] | null;
+}
+
+function PageTable({ rows }: { rows: PageRow[] }) {
+  const ms = (v: number | null | undefined) =>
+    v === null || v === undefined ? '—' : `${Math.round(v)} ms`;
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full font-body text-sm">
+        <thead>
+          <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
+            <th className="py-1.5 font-semibold">Página</th>
+            <th className="py-1.5 text-right font-semibold">Visitas</th>
+            <th className="py-1.5 text-right font-semibold">Carregamento</th>
+            <th className="py-1.5 text-right font-semibold">LCP</th>
+            <th className="py-1.5 text-right font-semibold">TTFB</th>
+            <th className="py-1.5 text-right font-semibold">Erros</th>
+            <th className="py-1.5 pl-4 font-semibold">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(({ key, label, stats }) => (
+            <tr key={key} className="border-t border-border">
+              <td className="py-1.5 font-mono text-xs text-ink">{label}</td>
+              <td className="py-1.5 text-right text-ink">{stats?.views ?? 0}</td>
+              <td className="py-1.5 text-right text-ink">{ms(stats?.loadMs)}</td>
+              <td className="py-1.5 text-right text-ink">{ms(stats?.lcpMs)}</td>
+              <td className="py-1.5 text-right text-ink-muted">{ms(stats?.ttfbMs)}</td>
+              <td className="py-1.5 text-right text-ink-muted">{stats?.errors ?? 0}</td>
+              <td className="py-1.5 pl-4">
+                {stats && stats.views > 0 ? (
+                  <Badge intent={PAGE_STATE[stats.status].intent} dot={false}>
+                    {PAGE_STATE[stats.status].label}
+                  </Badge>
+                ) : (
+                  <Badge intent="neutral" dot={false}>
+                    Sem dados
+                  </Badge>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function FrontendPerfSection({ data }: { data: FrontendMetricsData | null }) {
+  if (!data) {
+    return (
+      <EmptyState
+        title="A carregar métricas de frontend"
+        description="Os indicadores aparecem aqui assim que estiverem disponíveis."
+      />
+    );
+  }
+  const ms = (v: number | null) => (v === null ? '—' : `${Math.round(v)} ms`);
+  const kb = (v: number | null) =>
+    v === null ? '—' : `${v.toLocaleString()} KB`;
+  const noData = data.samples === 0;
+
+  return (
+    <div className="flex flex-col gap-6">
+      <SectionHeader
+        title="Performance do Frontend"
+        sub={`Medições reais dos browsers dos utilizadores — ${data.percentile.toUpperCase()} das últimas ${data.windowHours} h (${data.samples.toLocaleString()} visualizações)`}
+      />
+      {noData ? (
+        <EmptyState
+          title="Ainda sem amostras de frontend"
+          description="As métricas aparecem depois de os utilizadores navegarem na plataforma."
+        />
+      ) : (
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <MetricTile label="Page Load" value={ms(data.vitals.pageLoadMs)} />
+          <MetricTile
+            label="First Contentful Paint"
+            value={ms(data.vitals.fcpMs)}
+            sub="bom ≤ 1800 ms"
+          />
+          <MetricTile
+            label="Largest Contentful Paint"
+            value={ms(data.vitals.lcpMs)}
+            sub="bom ≤ 2500 ms"
+          />
+          <MetricTile
+            label="Interaction to Next Paint"
+            value={ms(data.vitals.inpMs)}
+            sub="bom ≤ 200 ms"
+          />
+          <MetricTile
+            label="Time to First Byte"
+            value={ms(data.vitals.ttfbMs)}
+            sub="bom ≤ 800 ms"
+          />
+          <MetricTile
+            label="JavaScript (bundle)"
+            value={kb(data.resources.jsKb)}
+            sub="média por página"
+          />
+          <MetricTile
+            label="CSS"
+            value={kb(data.resources.cssKb)}
+            sub="média por página"
+          />
+          <MetricTile
+            label="Imagens"
+            value={kb(data.resources.imagesKb)}
+            sub="média por página"
+          />
+          <MetricTile
+            label="Cache hit ratio"
+            value={
+              data.resources.cacheHitRatio === null
+                ? '—'
+                : `${data.resources.cacheHitRatio}%`
+            }
+            sub="recursos servidos da cache do browser"
+          />
+          <MetricTile
+            label="Requests"
+            value={
+              data.resources.requestsPerPage === null
+                ? '—'
+                : `${data.resources.requestsPerPage}`
+            }
+            sub="por página"
+          />
+          <MetricTile
+            label="Erros frontend"
+            value={data.errors.total.toLocaleString()}
+            sub={`${data.errors.errorRate}% das páginas com erros`}
+          />
+        </div>
+      )}
+
+      <Card>
+        <CardBody>
+          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Páginas críticas
+          </p>
+          <PageTable
+            rows={data.criticalPages.map((p) => ({
+              key: p.path,
+              label: p.page,
+              stats: p.hasData ? p : null,
+            }))}
+          />
+        </CardBody>
+      </Card>
+
+      {!noData && (
+        <Card>
+          <CardBody>
+            <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+              Tempo de carregamento por página
+            </p>
+            {data.slowPages.length > 0 && (
+              <p className="mb-3 font-body text-xs text-ink-muted">
+                {data.slowPages.length} página(s) lentas detectadas (≥ 3
+                visitas) — candidatas a degradar com grandes volumes de dados.
+              </p>
+            )}
+            <PageTable
+              rows={data.pages.map((p) => ({
+                key: p.path,
+                label: p.path,
+                stats: p,
+              }))}
+            />
+            <p className="mt-3 font-body text-xs text-ink-faint">
+              Estado: Crítico com LCP &gt; 4 s ou carregamento &gt; 6 s; Atenção
+              com LCP &gt; 2,5 s ou carregamento &gt; 3,5 s.
+            </p>
+          </CardBody>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function ContentTab({ config, frontend = null }: ContentTabProps) {
   if (!config) {
     return (
-      <div className="flex flex-col gap-6">
-        <SectionHeader
-          title="Conteúdo & CDN"
-          sub="Distribuição de vídeos, SCORM e PDFs com bitrate adaptativo"
-        />
-        <EmptyState
-          title="Sem configuração de entrega de conteúdo"
-          description="Este tenant ainda não tem CDN/bitrate adaptativo configurado."
-        />
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-6">
+          <SectionHeader
+            title="Conteúdo & CDN"
+            sub="Distribuição de vídeos, SCORM e PDFs com bitrate adaptativo"
+          />
+          <EmptyState
+            title="Sem configuração de entrega de conteúdo"
+            description="Este tenant ainda não tem CDN/bitrate adaptativo configurado."
+          />
+        </div>
+        <FrontendPerfSection data={frontend} />
       </div>
     );
   }
@@ -1720,7 +1922,9 @@ function ContentTab({ config }: ContentTabProps) {
   ];
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
+      <FrontendPerfSection data={frontend} />
+      <div className="flex flex-col gap-6">
       <SectionHeader
         title="Conteúdo & CDN"
         sub="Distribuição de vídeos, SCORM e PDFs com bitrate adaptativo"
@@ -1745,6 +1949,7 @@ function ContentTab({ config }: ContentTabProps) {
             </CardBody>
           </Card>
         ))}
+      </div>
       </div>
     </div>
   );
@@ -2203,6 +2408,7 @@ export interface ScalabilityDashboardViewProps {
   usersLoad?: UsersLoadData | null;
   apiMetrics?: ApiMetricsData | null;
   databaseMetrics?: DatabaseMetricsData | null;
+  frontendMetrics?: FrontendMetricsData | null;
   alerts: Alert[];
   integrations: Integration[];
   automations: AutomationRule[];
@@ -2223,6 +2429,7 @@ export function ScalabilityDashboardView({
   usersLoad = null,
   apiMetrics = null,
   databaseMetrics = null,
+  frontendMetrics = null,
   alerts,
   integrations,
   automations,
@@ -2338,7 +2545,7 @@ export function ScalabilityDashboardView({
             <DatabaseTab db={databaseMetrics} />
           </TabsContent>
           <TabsContent value="content">
-            <ContentTab config={contentDelivery} />
+            <ContentTab config={contentDelivery} frontend={frontendMetrics} />
           </TabsContent>
         </div>
       </Tabs>

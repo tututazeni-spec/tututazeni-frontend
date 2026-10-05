@@ -287,6 +287,8 @@ export const queryKeys = {
     apiMetrics: () => [...queryKeys.scalability.all, 'api-metrics'] as const,
     databaseMetrics: () =>
       [...queryKeys.scalability.all, 'database-metrics'] as const,
+    frontendMetrics: () =>
+      [...queryKeys.scalability.all, 'frontend-metrics'] as const,
     sla: () => [...queryKeys.scalability.all, 'sla'] as const,
     contentDelivery: () =>
       [...queryKeys.scalability.all, 'content-delivery'] as const,

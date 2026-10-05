@@ -40,6 +40,7 @@ import type {
   UsersLoadData,
   ApiMetricsData,
   DatabaseMetricsData,
+  FrontendMetricsData,
 } from '@/components/scalability/types';
 
 export default function ScalabilityPage() {
@@ -92,6 +93,16 @@ export default function ScalabilityPage() {
       staleTime: STALE_TIME.DYNAMIC,
       refetchInterval: 30_000,
       enabled: activeTab === 'database',
+    },
+  );
+
+  const { data: frontendMetrics = null } = useApiQuery<FrontendMetricsData>(
+    queryKeys.scalability.frontendMetrics(),
+    '/scalability/frontend-metrics',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: 60_000,
+      enabled: activeTab === 'content',
     },
   );
 
@@ -249,6 +260,7 @@ export default function ScalabilityPage() {
       usersLoad={usersLoad}
       apiMetrics={apiMetrics}
       databaseMetrics={databaseMetrics}
+      frontendMetrics={frontendMetrics}
       alerts={alerts}
       integrations={integrations}
       automations={automations}
