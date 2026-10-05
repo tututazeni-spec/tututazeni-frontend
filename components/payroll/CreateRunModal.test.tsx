@@ -105,6 +105,35 @@ describe('CreateRunModal', () => {
     expect(post.mock.calls[0][1].departmentIds).toBeUndefined();
   });
 
+  test('sends expectedPaymentDate and only the options that were switched off', async () => {
+    render(<CreateRunModal onClose={vi.fn()} onCreated={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText(/Período/i), {
+      target: { value: '2026-09' },
+    });
+    fireEvent.change(screen.getByLabelText(/Data prevista/i), {
+      target: { value: '2026-09-30' },
+    });
+    fireEvent.click(screen.getByLabelText('Calcular IRT'));
+    fireEvent.click(screen.getByRole('button', { name: 'Criar' }));
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    const [, body] = post.mock.calls[0];
+    expect(body.expectedPaymentDate).toBe('2026-09-30');
+    expect(body.options).toMatchObject({
+      calculateIrt: false,
+      calculateInss: true,
+    });
+  });
+
+  test('omits options when every option is left on', async () => {
+    render(<CreateRunModal onClose={vi.fn()} onCreated={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText(/Período/i), {
+      target: { value: '2026-09' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Criar' }));
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post.mock.calls[0][1].options).toBeUndefined();
+  });
+
   test('Cancelar calls onClose without posting', () => {
     const onClose = vi.fn();
     render(<CreateRunModal onClose={onClose} onCreated={vi.fn()} />);

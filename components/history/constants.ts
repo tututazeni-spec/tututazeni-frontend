@@ -8,9 +8,18 @@
 // partilham 'success', mesmo padrão de reaproveitamento usado em
 // components/automation/constants.ts (CATEGORY_INTENT).
 
-import { Activity, Award, Clock, Shield } from 'lucide-react';
+import {
+  Activity,
+  BarChart3,
+  Building2,
+  FileText,
+  History,
+  LayoutDashboard,
+  Repeat,
+  User,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import type { Tab } from './types';
+import type { PeriodPreset, Tab } from './types';
 
 export const CATEGORY_COLOR: Record<
   string,
@@ -67,56 +76,99 @@ export const CATEGORY_LABEL: Record<string, string> = {
   FINANCIAL: 'Financeiro',
 };
 
-// Rótulos PT das acções de auditoria mais comuns. As acções vêm cruas da
-// tabela AuditLog (groupBy), por isso `formatAuditAction` cai num
-// formatador genérico para qualquer valor não mapeado.
-export const AUDIT_ACTION_LABEL: Record<string, string> = {
-  ENROLLMENT: 'Inscrição em curso',
-  CONTENT_VIEW: 'Conteúdo visualizado',
-  CONTENT_BOOKMARK: 'Conteúdo guardado',
-  COURSE_COMPLETED: 'Curso concluído',
-  CERTIFICATE_ISSUED: 'Certificado emitido',
-  BADGE_AWARDED: 'Badge atribuído',
-  RECOGNITION: 'Reconhecimento recebido',
-  EVALUATION_SUBMITTED: 'Avaliação submetida',
-  PERFORMANCE_REVIEW: 'Avaliação de desempenho',
-  CALIBRATION: 'Score calibrado',
-  PROMOTION_APPROVED: 'Promoção aprovada',
-  PDI_CREATED: 'PDI criado',
-  PAYSLIP_PROCESSED: 'Recibo processado',
-  LEAVE_APPROVED: 'Ausência aprovada',
-  LEAVE_REQUESTED: 'Ausência solicitada',
-  AVATAR_SESSION: 'Sessão de treino com avatar',
-  AVATAR_SESSION_COMPLETED: 'Sessão de treino concluída',
-  CONFIG_UPDATED: 'Configuração actualizada',
-  PERMISSION_CHANGED: 'Permissão alterada',
-  USER_CREATED: 'Utilizador criado',
-  USER_UPDATED: 'Utilizador actualizado',
-  USER_DELETED: 'Utilizador eliminado',
-  ADMIN_ACTION: 'Acção administrativa',
-  BULK_OPERATION: 'Operação em massa',
-  REPORT_SAVED: 'Relatório guardado',
-  LOGIN: 'Início de sessão',
-  LOGOUT: 'Fim de sessão',
-  CREATE: 'Criar',
-  PUBLISH: 'Publicar',
-  CALIBRATE: 'Calibrar',
-  SUBMIT: 'Submeter',
-  SAVE_DRAFT: 'Guardar rascunho',
+export const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
+  { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
+  { id: 'history', label: 'Histórico', icon: History },
+  { id: 'employee', label: 'Histórico do Colaborador', icon: User },
+  { id: 'movements', label: 'Movimentos', icon: Repeat },
+  { id: 'org', label: 'Alterações Organizacionais', icon: Building2 },
+  { id: 'documents', label: 'Documentos & Registos', icon: FileText },
+  { id: 'activities', label: 'Actividades', icon: Activity },
+  { id: 'reports', label: 'Relatórios', icon: BarChart3 },
+];
+
+export const MODULE_LABEL: Record<string, string> = {
+  LMS: 'Formação (LMS)',
+  PERFORMANCE: 'Desempenho',
+  HR: 'Recursos Humanos',
+  ENGAGEMENT: 'Envolvimento',
+  TALENT: 'Talento',
+  AVATAR: 'Avatar Training',
+  DOCUMENTS: 'Documentos',
+  SYSTEM: 'Sistema',
+  PAYROLL: 'Salários',
 };
 
-/** Rótulo PT de uma acção de auditoria, com fallback genérico legível. */
-export function formatAuditAction(action: string): string {
-  if (!action) return '–';
-  const key = action.toUpperCase().replace(/[\s-]+/g, '_');
-  if (AUDIT_ACTION_LABEL[key]) return AUDIT_ACTION_LABEL[key];
-  const pretty = key.replace(/_/g, ' ').toLowerCase();
-  return pretty.charAt(0).toUpperCase() + pretty.slice(1);
-}
+export const EVENT_TYPE_LABEL: Record<string, string> = {
+  CREATED: 'Criado',
+  UPDATED: 'Actualizado',
+  DELETED: 'Eliminado',
+  APPROVED: 'Aprovado',
+  REJECTED: 'Rejeitado',
+  COMPLETED: 'Concluído',
+  CANCELLED: 'Cancelado',
+  TRANSFERRED: 'Transferido',
+  PROMOTED: 'Promovido',
+  CHANGED: 'Alterado',
+  ASSIGNED: 'Atribuído',
+  DEACTIVATED: 'Desactivado',
+  REACTIVATED: 'Reactivado',
+  SUBMITTED: 'Submetido',
+  ARCHIVED: 'Arquivado',
+};
 
-export const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
-  { id: 'timeline', label: 'Linha de Tempo', icon: Clock },
-  { id: 'milestones', label: 'Marcos', icon: Award },
-  { id: 'stats', label: 'Actividade', icon: Activity },
-  { id: 'audit', label: 'Auditoria', icon: Shield },
+export const MOVEMENT_TYPE_LABEL: Record<string, string> = {
+  ADMISSION: 'Admissão',
+  TRANSFER: 'Transferência',
+  PROMOTION: 'Promoção',
+  POSITION_CHANGE: 'Alteração de cargo',
+  DEPARTMENT_CHANGE: 'Alteração de departamento',
+  MANAGER_CHANGE: 'Mudança de responsável',
+  RESTRUCTURE: 'Reestruturação',
+  EXIT: 'Saída',
+  REACTIVATION: 'Reactivação',
+};
+
+export const AUDIT_STATUS_LABEL: Record<string, string> = {
+  SUCCESS: 'Sucesso',
+  FAILED: 'Falhou',
+  DENIED: 'Negado',
+};
+
+export const DOC_STATUS_LABEL: Record<string, string> = {
+  DRAFT: 'Rascunho',
+  EM_REVISAO: 'Em revisão',
+  PENDENTE_APROVACAO: 'Pendente de aprovação',
+  APROVADO: 'Aprovado',
+  ACTIVE: 'Activo',
+  SUSPENSO: 'Suspenso',
+  EXPIRED: 'Expirado',
+  SUBSTITUIDO: 'Substituído',
+  ARCHIVED: 'Arquivado',
+  DELETED: 'Eliminado',
+};
+
+export const PERIOD_PRESET_LABEL: Record<PeriodPreset, string> = {
+  today: 'Hoje',
+  '7d': 'Últimos 7 dias',
+  month: 'Este mês',
+  lastMonth: 'Último mês',
+  year: 'Este ano',
+  all: 'Todo o período',
+  custom: 'Intervalo personalizado',
+};
+
+export const REPORT_CATALOG: { id: string; label: string }[] = [
+  { id: 'employee-history', label: 'Histórico de colaboradores' },
+  { id: 'movements', label: 'Movimentos de colaboradores' },
+  { id: 'admissions', label: 'Admissões' },
+  { id: 'exits', label: 'Saídas' },
+  { id: 'transfers', label: 'Transferências' },
+  { id: 'promotions', label: 'Promoções' },
+  { id: 'position-changes', label: 'Alterações de cargos' },
+  { id: 'department-changes', label: 'Alterações de departamentos' },
+  { id: 'org-changes', label: 'Alterações organizacionais' },
+  { id: 'activities-by-module', label: 'Actividades por módulo' },
+  { id: 'activities-by-user', label: 'Actividades por utilizador' },
+  { id: 'changes-by-period', label: 'Alterações por período' },
 ];

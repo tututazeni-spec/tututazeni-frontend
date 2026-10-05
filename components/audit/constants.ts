@@ -4,7 +4,12 @@
 // Extraído de app/(platform)/audit/page.tsx.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
-import { ADMIN_ROLES, EVAL_CYCLE_DELETE_ROLES, type Role } from '@/lib/roles';
+import {
+  AUDIT_GLOBAL_ROLES,
+  AUDIT_SCOPED_ROLES,
+  EVAL_CYCLE_DELETE_ROLES,
+  type Role,
+} from '@/lib/roles';
 import type { Severity, Status, View } from './types';
 
 export const SEVERITY_CFG: Record<
@@ -74,23 +79,37 @@ export function entityLabel(entity: string): string {
 }
 
 // `roles` espelha exactamente quem o backend deixa entrar em cada separador —
-// 'logs'/'stats'/'anomalies'/'timeline' vêm de AuditController (@Roles(ADMIN,
-// RH) a nível de classe); 'deleted' vem de GET /evaluation360/cycles/deleted
-// (@Roles(ADMIN, DIRECTOR) — EVAL_CYCLE_DELETE_ROLES). DIRECTOR só vê
-// "Apagados": não ganha acesso aos logs gerais de auditoria só por poder
-// eliminar/restaurar ciclos.
+// as abas 01-09 vêm de AuditController (@Roles(ADMIN, RH) a nível de classe);
+// 'deleted' vem de GET /evaluation360/cycles/deleted (@Roles(ADMIN, DIRECTOR)
+// — EVAL_CYCLE_DELETE_ROLES). DIRECTOR só vê "Apagados": não ganha acesso aos
+// logs gerais de auditoria só por poder eliminar/restaurar ciclos.
+// Ordem e nomes seguem docs/modulo_audit.md §2 (abas 01-09); "Linha de
+// Tempo" e "Apagados" são extras anteriores ao spec e ficam no fim.
+// §16: RH/GESTOR só vêem os separadores de consulta (âmbito limitado no backend).
 export const NAV: Array<{ id: View; label: string; roles: readonly Role[] }> = [
-  { id: 'logs', label: 'Logs', roles: ADMIN_ROLES },
-  { id: 'stats', label: 'Estatísticas', roles: ADMIN_ROLES },
-  { id: 'anomalies', label: 'Anomalias', roles: ADMIN_ROLES },
-  { id: 'timeline', label: 'Linha de Tempo', roles: ADMIN_ROLES },
+  { id: 'overview', label: 'Visão Geral', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'logs', label: 'Registos de Auditoria', roles: [...AUDIT_GLOBAL_ROLES, ...AUDIT_SCOPED_ROLES] },
+  { id: 'access', label: 'Acessos e Sessões', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'changes', label: 'Alterações de Dados', roles: [...AUDIT_GLOBAL_ROLES, ...AUDIT_SCOPED_ROLES] },
+  { id: 'security', label: 'Segurança e Incidentes', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'audits', label: 'Auditorias e Inspeções', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'reports', label: 'Relatórios', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'exports', label: 'Exportações e Evidências', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'policies', label: 'Políticas e Retenção', roles: AUDIT_GLOBAL_ROLES },
+  { id: 'timeline', label: 'Linha de Tempo', roles: [...AUDIT_GLOBAL_ROLES, ...AUDIT_SCOPED_ROLES] },
   { id: 'deleted', label: 'Apagados', roles: EVAL_CYCLE_DELETE_ROLES },
 ];
 
 export const TITLES: Record<View, string> = {
-  logs: 'Logs de Auditoria',
-  stats: 'Estatísticas de Auditoria',
-  anomalies: 'Detecção de Anomalias',
+  overview: 'Auditoria e Rastreabilidade',
+  logs: 'Registos de Auditoria',
+  access: 'Acessos e Sessões',
+  changes: 'Alterações de Dados',
+  security: 'Segurança e Incidentes',
+  audits: 'Auditorias e Inspeções',
+  reports: 'Relatórios de Auditoria',
+  exports: 'Exportações e Evidências',
+  policies: 'Políticas e Retenção',
   timeline: 'Linha de Tempo por Recurso',
   deleted: 'Apagados',
 };

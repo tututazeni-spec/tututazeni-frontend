@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
 import { RunListView } from '@/components/payroll/RunListView';
 import { RunDetailView } from '@/components/payroll/RunDetailView';
 import { PayslipListView } from '@/components/payroll/PayslipListView';
@@ -9,40 +8,115 @@ import { AdminPayslipDetailView } from '@/components/payroll/AdminPayslipDetailV
 import { CreatePayslipModal } from '@/components/payroll/CreatePayslipModal';
 import { HrDashboardView } from '@/components/payroll/HrDashboardView';
 import { DisputesView } from '@/components/payroll/DisputesView';
+import { OverviewView } from '@/components/payroll/OverviewView';
+import { EmployeesView } from '@/components/payroll/EmployeesView';
+import { DeductionsView } from '@/components/payroll/DeductionsView';
+import { PaymentsView } from '@/components/payroll/PaymentsView';
+import { ClosureView } from '@/components/payroll/ClosureView';
+import { ReportsView } from '@/components/payroll/ReportsView';
+import { AnnualView } from '@/components/payslips/AnnualView';
+import { CompareView } from '@/components/payslips/CompareView';
+import { CompensationDetailView } from '@/components/payslips/CompensationDetailView';
+import { CompensationsView } from '@/components/payslips/CompensationsView';
+import { CompensationView } from '@/components/payslips/CompensationView';
+import { ComponentsView } from '@/components/payslips/ComponentsView';
+import { DetailView } from '@/components/payslips/DetailView';
+import { ListView } from '@/components/payslips/ListView';
+import { SimulateView } from '@/components/payslips/SimulateView';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 
 type Nav =
+  | { tab: 'overview' }
+  | { tab: 'employees' }
+  | { tab: 'deductions' }
+  | { tab: 'payments' }
+  | { tab: 'closure' }
+  | { tab: 'reports' }
   | { tab: 'runs'; view: 'list' }
   | { tab: 'runs'; view: 'detail'; runId: number }
   | { tab: 'payslips'; view: 'list' }
   | { tab: 'payslips'; view: 'detail'; payslipId: number }
   | { tab: 'dashboard' }
-  | { tab: 'disputes' };
+  | { tab: 'disputes' }
+  // Ex-módulo /payslips (autosserviço do colaborador + catálogo salarial),
+  // integrado como separadores do Payroll — ver docs/payroll.md §6.
+  | { tab: 'my'; view: 'list' }
+  | { tab: 'my'; view: 'detail'; payslipId: number }
+  | { tab: 'compare' }
+  | { tab: 'simulate' }
+  | { tab: 'annual' }
+  | { tab: 'compensation' }
+  | { tab: 'components' }
+  | { tab: 'compensations'; view: 'list' }
+  | { tab: 'compensations'; view: 'detail'; userId: number };
 
-const TABS: Array<{ id: Nav['tab']; label: string }> = [
-  { id: 'runs', label: 'Runs' },
-  { id: 'payslips', label: 'Recibos' },
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'disputes', label: 'Disputas' },
+const TABS: Array<{ id: Nav['tab']; label: string; adminOnly?: boolean }> = [
+  { id: 'overview', label: 'Visão Geral', adminOnly: true },
+  { id: 'runs', label: 'Processamentos', adminOnly: true },
+  { id: 'employees', label: 'Colaboradores', adminOnly: true },
+  { id: 'components', label: 'Remunerações', adminOnly: true },
+  { id: 'deductions', label: 'Deduções & Impostos', adminOnly: true },
+  { id: 'payslips', label: 'Recibos de Vencimento', adminOnly: true },
+  { id: 'payments', label: 'Pagamentos', adminOnly: true },
+  { id: 'closure', label: 'Fecho Salarial', adminOnly: true },
+  { id: 'reports', label: 'Relatórios', adminOnly: true },
+  { id: 'dashboard', label: 'Dashboard Recibos', adminOnly: true },
+  { id: 'disputes', label: 'Disputas', adminOnly: true },
+  { id: 'compensations', label: 'Compensações', adminOnly: true },
+  { id: 'my', label: 'Os meus recibos' },
+  { id: 'compare', label: 'Comparar meses' },
+  { id: 'simulate', label: 'Simulador IRT' },
+  { id: 'annual', label: 'Resumo anual' },
+  { id: 'compensation', label: 'A minha compensação' },
 ];
 
 const TITLES: Record<Nav['tab'], string> = {
-  runs: 'Folha de Pagamento — Runs',
-  payslips: 'Folha de Pagamento — Recibos',
+  overview: 'Folha de Pagamento — Visão Geral',
+  employees: 'Folha de Pagamento — Colaboradores',
+  deductions: 'Folha de Pagamento — Deduções & Impostos',
+  payments: 'Folha de Pagamento — Pagamentos',
+  closure: 'Folha de Pagamento — Fecho Salarial',
+  reports: 'Folha de Pagamento — Relatórios',
+  runs: 'Folha de Pagamento — Processamentos',
+  payslips: 'Folha de Pagamento — Recibos de Vencimento',
   dashboard: 'Folha de Pagamento — Dashboard RH',
   disputes: 'Folha de Pagamento — Disputas',
+  my: 'Folha de Pagamento — Os meus recibos',
+  compare: 'Folha de Pagamento — Comparar meses',
+  simulate: 'Folha de Pagamento — Simulador IRT Angola 2026',
+  annual: 'Folha de Pagamento — Resumo anual',
+  compensation: 'Folha de Pagamento — A minha compensação',
+  components: 'Folha de Pagamento — Remunerações',
+  compensations: 'Folha de Pagamento — Compensações',
 };
 
+// Separadores com sub-vista lista/detalhe.
+const LIST_TABS: ReadonlyArray<Nav['tab']> = [
+  'runs',
+  'payslips',
+  'my',
+  'compensations',
+];
+
 export default function PayrollPage() {
-  const [nav, setNav] = useState<Nav>({ tab: 'runs', view: 'list' });
+  const role = useCurrentRole();
+  // Enquanto a role ainda não chegou (arranque pós-login/reload) tratamos
+  // como não-admin — os separadores adminOnly aparecem assim que
+  // /auth/me resolve.
+  const isAdmin = !!role && ADMIN_ROLES.includes(role);
+  const visibleTabs = isAdmin ? TABS : TABS.filter((t) => !t.adminOnly);
+
+  const [selected, setNav] = useState<Nav | null>(null);
+  const nav: Nav =
+    selected ?? (isAdmin ? { tab: 'overview' } : { tab: 'my', view: 'list' });
   const [creating, setCreating] = useState(false);
 
-  const isDetail =
-    (nav.tab === 'runs' && nav.view === 'detail') ||
-    (nav.tab === 'payslips' && nav.view === 'detail');
+  const isDetail = 'view' in nav && nav.view === 'detail';
 
   const selectTab = (tab: Nav['tab']) => {
-    if (tab === 'runs' || tab === 'payslips') setNav({ tab, view: 'list' });
-    else setNav({ tab });
+    if (LIST_TABS.includes(tab)) setNav({ tab, view: 'list' } as Nav);
+    else setNav({ tab } as Nav);
   };
 
   return (
@@ -61,7 +135,7 @@ export default function PayrollPage() {
           aplicar destaque azul (borda/fundo/texto primary). */}
       {!isDetail && (
         <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
-          {TABS.map((t) => (
+          {visibleTabs.map((t) => (
             <button
               key={t.id}
               onClick={() => selectTab(t.id)}
@@ -77,19 +151,26 @@ export default function PayrollPage() {
         </div>
       )}
 
-      {nav.tab === 'runs' && nav.view === 'list' && (
+      {isAdmin && nav.tab === 'overview' && <OverviewView />}
+      {isAdmin && nav.tab === 'employees' && <EmployeesView />}
+      {isAdmin && nav.tab === 'deductions' && <DeductionsView />}
+      {isAdmin && nav.tab === 'payments' && <PaymentsView />}
+      {isAdmin && nav.tab === 'closure' && <ClosureView />}
+      {isAdmin && nav.tab === 'reports' && <ReportsView />}
+
+      {isAdmin && nav.tab === 'runs' && nav.view === 'list' && (
         <RunListView
           onSelect={(runId) => setNav({ tab: 'runs', view: 'detail', runId })}
         />
       )}
-      {nav.tab === 'runs' && nav.view === 'detail' && (
+      {isAdmin && nav.tab === 'runs' && nav.view === 'detail' && (
         <RunDetailView
           runId={nav.runId}
           onBack={() => setNav({ tab: 'runs', view: 'list' })}
         />
       )}
 
-      {nav.tab === 'payslips' && nav.view === 'list' && (
+      {isAdmin && nav.tab === 'payslips' && nav.view === 'list' && (
         <PayslipListView
           onSelect={(payslipId) =>
             setNav({ tab: 'payslips', view: 'detail', payslipId })
@@ -97,19 +178,52 @@ export default function PayrollPage() {
           onCreate={() => setCreating(true)}
         />
       )}
-      {nav.tab === 'payslips' && nav.view === 'detail' && (
+      {isAdmin && nav.tab === 'payslips' && nav.view === 'detail' && (
         <AdminPayslipDetailView
           payslipId={nav.payslipId}
           onBack={() => setNav({ tab: 'payslips', view: 'list' })}
         />
       )}
 
-      {nav.tab === 'dashboard' && <HrDashboardView />}
-      {nav.tab === 'disputes' && (
+      {isAdmin && nav.tab === 'dashboard' && <HrDashboardView />}
+      {isAdmin && nav.tab === 'disputes' && (
         <DisputesView
           onOpenPayslip={(payslipId) =>
             setNav({ tab: 'payslips', view: 'detail', payslipId })
           }
+        />
+      )}
+
+      {nav.tab === 'my' && nav.view === 'list' && (
+        <ListView
+          onSelect={(payslipId) =>
+            setNav({ tab: 'my', view: 'detail', payslipId })
+          }
+        />
+      )}
+      {nav.tab === 'my' && nav.view === 'detail' && (
+        <DetailView
+          payslipId={nav.payslipId}
+          onBack={() => setNav({ tab: 'my', view: 'list' })}
+        />
+      )}
+      {nav.tab === 'compare' && <CompareView />}
+      {nav.tab === 'simulate' && <SimulateView />}
+      {nav.tab === 'annual' && <AnnualView />}
+      {nav.tab === 'compensation' && <CompensationView />}
+
+      {isAdmin && nav.tab === 'components' && <ComponentsView />}
+      {isAdmin && nav.tab === 'compensations' && nav.view === 'list' && (
+        <CompensationsView
+          onOpenDetail={(userId) =>
+            setNav({ tab: 'compensations', view: 'detail', userId })
+          }
+        />
+      )}
+      {isAdmin && nav.tab === 'compensations' && nav.view === 'detail' && (
+        <CompensationDetailView
+          userId={nav.userId}
+          onBack={() => setNav({ tab: 'compensations', view: 'list' })}
         />
       )}
 

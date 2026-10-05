@@ -20,6 +20,27 @@ import { useToast } from '@/providers/ToastProvider';
 import { useDepartmentOptions } from './runData';
 import type { PayrollRun } from './types';
 
+const OPTION_FIELDS = [
+  ['includeNewEmployees', 'Incluir novos colaboradores'],
+  ['includeAbsences', 'Incluir ausências'],
+  ['includeOvertime', 'Incluir horas extra'],
+  ['includeSubsidies', 'Incluir subsídios'],
+  ['includePrizes', 'Incluir prémios'],
+  ['includeBonuses', 'Incluir bónus'],
+  ['applyDeductions', 'Aplicar deduções'],
+  ['calculateInss', 'Calcular INSS'],
+  ['calculateIrt', 'Calcular IRT'],
+  ['applyFaults', 'Aplicar faltas'],
+  ['applyDiscounts', 'Aplicar descontos'],
+] as const;
+
+type OptionKey = (typeof OPTION_FIELDS)[number][0];
+type RunOptions = Record<OptionKey, boolean>;
+
+const DEFAULT_OPTIONS = Object.fromEntries(
+  OPTION_FIELDS.map(([k]) => [k, true]),
+) as RunOptions;
+
 export interface CreateRunModalProps {
   onClose: () => void;
   onCreated: (runId: number) => void;
@@ -31,6 +52,8 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
   const [payGroup, setPayGroup] = useState('');
   const [countryCode, setCountryCode] = useState('AO');
   const [notes, setNotes] = useState('');
+  const [expectedPaymentDate, setExpectedPaymentDate] = useState('');
+  const [options, setOptions] = useState<RunOptions>(DEFAULT_OPTIONS);
   const [depIds, setDepIds] = useState<Set<number>>(new Set());
   const { options: depOptions, loading: depLoading } = useDepartmentOptions();
 
@@ -63,13 +86,16 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
       payGroup: payGroup.trim() || undefined,
       countryCode: countryCode.trim() || undefined,
       notes: notes.trim() || undefined,
+      expectedPaymentDate: expectedPaymentDate || undefined,
+      // Só envia opções quando alguma foi desligada (omitido = tudo incluído).
+      options: OPTION_FIELDS.some(([k]) => !options[k]) ? options : undefined,
       departmentIds: depIds.size ? [...depIds] : undefined,
     });
   };
 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent title="Novo run" className="max-w-md">
+      <ModalContent title="Novo run" className="max-w-lg">
         <div className="mt-5 space-y-4">
           <FormField
             label="Período *"
@@ -100,6 +126,45 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
               onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
               className="w-full"
             />
+          </FormField>
+          <FormField label="Data prevista de pagamento" htmlFor="crm-paydate">
+            <Input
+              id="crm-paydate"
+              type="date"
+              value={expectedPaymentDate}
+              onChange={(e) => setExpectedPaymentDate(e.target.value)}
+              className="w-full"
+            />
+          </FormField>
+          <FormField
+            label="Opções de cálculo"
+            htmlFor="crm-options"
+            hint="Tudo activo por omissão; desmarque o que não deve entrar neste processamento."
+          >
+            <div
+              id="crm-options"
+              className="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2"
+            >
+              {OPTION_FIELDS.map(([key, label]) => (
+                <label
+                  key={key}
+                  className="flex cursor-pointer items-center gap-2 py-1"
+                >
+                  <input
+                    type="checkbox"
+                    checked={options[key]}
+                    onChange={(e) =>
+                      setOptions((prev) => ({
+                        ...prev,
+                        [key]: e.target.checked,
+                      }))
+                    }
+                    className="h-4 w-4 rounded border-border-strong accent-primary"
+                  />
+                  <span className="font-body text-sm text-ink">{label}</span>
+                </label>
+              ))}
+            </div>
           </FormField>
           <FormField label="Notas" htmlFor="crm-notes">
             <Textarea

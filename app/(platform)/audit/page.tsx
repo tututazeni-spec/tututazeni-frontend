@@ -2,22 +2,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AnomaliesView } from '@/components/audit/AnomaliesView';
+import { AccessView } from '@/components/audit/AccessView';
+import { AuditsView } from '@/components/audit/AuditsView';
+import { ChangesView } from '@/components/audit/ChangesView';
 import { NAV, TITLES } from '@/components/audit/constants';
 import { DeletedCyclesView } from '@/components/audit/DeletedCyclesView';
+import { ExportsView } from '@/components/audit/ExportsView';
 import { LogsView } from '@/components/audit/LogsView';
-import { StatsView } from '@/components/audit/StatsView';
+import { OverviewView } from '@/components/audit/OverviewView';
+import { PoliciesView } from '@/components/audit/PoliciesView';
+import { ReportsView } from '@/components/audit/ReportsView';
+import { SecurityView } from '@/components/audit/SecurityView';
 import { TimelineView } from '@/components/audit/TimelineView';
 import type { View } from '@/components/audit/types';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { Button } from '@/components/ui/Button';
 
 export default function AuditPage() {
   const role = useCurrentRole();
   // Cada separador só é visível a quem o backend por trás dele deixa entrar
   // (NAV[].roles) — ex.: DIRECTOR só vê "Apagados", nunca os logs gerais.
   const nav = NAV.filter((n) => !!role && n.roles.includes(role));
-  const [view, setView] = useState<View>('logs');
+  const [view, setView] = useState<View>('overview');
 
   // Se o separador activo deixar de estar disponível para este papel (ex.:
   // DIRECTOR, que não tem "logs"), salta para o primeiro que tiver.
@@ -61,8 +66,14 @@ export default function AuditPage() {
       </div>
 
       {view === 'logs' && <LogsView />}
-      {view === 'stats' && <StatsView />}
-      {view === 'anomalies' && <AnomaliesView />}
+      {view === 'overview' && <OverviewView onNavigate={setView} />}
+      {view === 'security' && <SecurityView />}
+      {view === 'changes' && <ChangesView />}
+      {view === 'audits' && <AuditsView />}
+      {view === 'access' && <AccessView />}
+      {view === 'reports' && <ReportsView />}
+      {view === 'exports' && <ExportsView />}
+      {view === 'policies' && <PoliciesView />}
       {view === 'timeline' && <TimelineView />}
       {view === 'deleted' && <DeletedCyclesView />}
     </div>

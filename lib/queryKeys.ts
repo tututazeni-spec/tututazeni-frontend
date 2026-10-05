@@ -155,6 +155,10 @@ export const queryKeys = {
       [...queryKeys.payroll.runPayslipsAll(id), params] as const,
     runExceptions: (id: number) =>
       [...queryKeys.payroll.all, 'run-exceptions', id] as const,
+    // Secções agregadas do Payroll (overview, employees, deductions, payments,
+    // closure, reports) — todas sob o prefixo `all` para invalidação conjunta.
+    section: (name: string, params?: unknown) =>
+      [...queryKeys.payroll.all, name, params ?? null] as const,
   },
 
   assessments: {
@@ -190,7 +194,8 @@ export const queryKeys = {
       [...queryKeys.departments.all, 'metrics', id] as const,
     comparative: () => [...queryKeys.departments.all, 'comparative'] as const,
     heads: () => [...queryKeys.departments.all, 'heads'] as const,
-    headsHistory: () => [...queryKeys.departments.all, 'heads', 'history'] as const,
+    headsHistory: () =>
+      [...queryKeys.departments.all, 'heads', 'history'] as const,
     employees: (params: Record<string, unknown>) =>
       [...queryKeys.departments.all, 'employees', params] as const,
     positions: (params: Record<string, unknown>) =>
@@ -252,7 +257,12 @@ export const queryKeys = {
     overview: (params: Record<string, unknown>) =>
       [...queryKeys.automation.all, 'overview', params] as const,
     executions: (status: string, ruleId?: number) =>
-      [...queryKeys.automation.all, 'executions', status, ruleId ?? null] as const,
+      [
+        ...queryKeys.automation.all,
+        'executions',
+        status,
+        ruleId ?? null,
+      ] as const,
     templates: () => [...queryKeys.automation.all, 'templates'] as const,
     stats: () => [...queryKeys.automation.all, 'stats'] as const,
     rule: (id: number) => [...queryKeys.automation.all, 'rule', id] as const,
@@ -561,8 +571,42 @@ export const queryKeys = {
     list: (params: Record<string, unknown>) =>
       [...queryKeys.audit.all, 'list', params] as const,
     stats: () => [...queryKeys.audit.all, 'stats'] as const,
+    overview: (days: number) =>
+      [...queryKeys.audit.all, 'overview', days] as const,
     anomalies: () => [...queryKeys.audit.all, 'anomalies'] as const,
+    health: () => [...queryKeys.audit.all, 'health'] as const,
+    detail: (id: number) => [...queryKeys.audit.all, 'detail', id] as const,
+    filterOptions: () => [...queryKeys.audit.all, 'filter-options'] as const,
+    accessSummary: (days: number) =>
+      [...queryKeys.audit.all, 'access-summary', days] as const,
+    accessEvents: (params: Record<string, unknown>) =>
+      [...queryKeys.audit.all, 'access-events', params] as const,
+    accessSessions: (page: number) =>
+      [...queryKeys.audit.all, 'access-sessions', page] as const,
     integrity: () => [...queryKeys.audit.all, 'integrity'] as const,
+    changes: (params: Record<string, unknown>) =>
+      [...queryKeys.audit.all, 'changes', params] as const,
+    changesSummary: (days: number) =>
+      [...queryKeys.audit.all, 'changes-summary', days] as const,
+    incidents: (params: Record<string, unknown>) =>
+      [...queryKeys.audit.all, 'incidents', params] as const,
+    incident: (id: number) => [...queryKeys.audit.all, 'incident', id] as const,
+    audits: (params: Record<string, unknown>) =>
+      [...queryKeys.audit.all, 'audits', params] as const,
+    auditDetail: (id: number) =>
+      [...queryKeys.audit.all, 'audit-detail', id] as const,
+    reportCatalog: () => [...queryKeys.audit.all, 'report-catalog'] as const,
+    reportPreview: (params: Record<string, unknown>) =>
+      [...queryKeys.audit.all, 'report-preview', params] as const,
+    exports: (params: Record<string, unknown>) =>
+      [...queryKeys.audit.all, 'exports', params] as const,
+    exportsSummary: () => [...queryKeys.audit.all, 'exports-summary'] as const,
+    exportDetail: (id: number) =>
+      [...queryKeys.audit.all, 'export-detail', id] as const,
+    policy: () => [...queryKeys.audit.all, 'policy'] as const,
+    policyStatus: () => [...queryKeys.audit.all, 'policy-status'] as const,
+    retentionPreview: () =>
+      [...queryKeys.audit.all, 'retention-preview'] as const,
   },
 
   career: {
@@ -595,8 +639,21 @@ export const queryKeys = {
       [...queryKeys.history.all, 'timeline', params] as const,
     milestones: () => [...queryKeys.history.all, 'milestones'] as const,
     stats: () => [...queryKeys.history.all, 'stats'] as const,
-    auditStats: () => [...queryKeys.history.all, 'audit-stats'] as const,
-    upcoming: () => [...queryKeys.history.all, 'upcoming'] as const,
+    // Hub organizacional (docs/history.md) — uma chave por aba, com os filtros globais
+    overview: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'overview', params] as const,
+    feed: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'feed', params] as const,
+    movements: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'movements', params] as const,
+    orgChanges: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'org-changes', params] as const,
+    documents: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'documents', params] as const,
+    activities: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'activities', params] as const,
+    report: (params: Record<string, unknown>) =>
+      [...queryKeys.history.all, 'report', params] as const,
     // Separadores "Histórico" e "Atividade" do perfil de utilizador
     // (docs/modulo_users.md Ponto 3) — versões por utilizador (ADMIN/RH/GESTOR)
     // das rotas acima, que são todas do próprio chamador.
@@ -799,10 +856,12 @@ export const queryKeys = {
       [...queryKeys.leave.all, 'report', kind, params] as const,
     // Configurações (docs/Modulo_Leave.md §10).
     settings: () => [...queryKeys.leave.all, 'settings'] as const,
-    settingsHistory: () => [...queryKeys.leave.all, 'settings-history'] as const,
+    settingsHistory: () =>
+      [...queryKeys.leave.all, 'settings-history'] as const,
     holidays: (params: Record<string, unknown>) =>
       [...queryKeys.leave.all, 'holidays', params] as const,
-    holidayLocations: () => [...queryKeys.leave.all, 'holiday-locations'] as const,
+    holidayLocations: () =>
+      [...queryKeys.leave.all, 'holiday-locations'] as const,
     delegations: (all: boolean) =>
       [...queryKeys.leave.all, 'delegations', all] as const,
     // Separador "Férias & Licenças" do perfil de utilizador (docs/modulo_users.md Ponto 3).
@@ -987,7 +1046,11 @@ export const queryKeys = {
     domain: (domain: string, params: Record<string, unknown>) =>
       [...queryKeys.executiveReports.all, 'domain', domain, params] as const,
     chartsDepartments: (params: Record<string, unknown>) =>
-      [...queryKeys.executiveReports.all, 'charts-departments', params] as const,
+      [
+        ...queryKeys.executiveReports.all,
+        'charts-departments',
+        params,
+      ] as const,
     chartsGoals: (params: Record<string, unknown>) =>
       [...queryKeys.executiveReports.all, 'charts-goals', params] as const,
     chartsRisks: (params: Record<string, unknown>) =>
@@ -1203,7 +1266,12 @@ export const queryKeys = {
       [...queryKeys.avatarTraining.all, 'progress', params] as const,
     history: () => [...queryKeys.avatarTraining.all, 'history'] as const,
     reports: (type: string, filters?: Record<string, unknown>) =>
-      [...queryKeys.avatarTraining.all, 'reports', type, filters ?? {}] as const,
+      [
+        ...queryKeys.avatarTraining.all,
+        'reports',
+        type,
+        filters ?? {},
+      ] as const,
     reportCatalog: () =>
       [...queryKeys.avatarTraining.all, 'report-catalog'] as const,
     providers: () => [...queryKeys.avatarTraining.all, 'providers'] as const,

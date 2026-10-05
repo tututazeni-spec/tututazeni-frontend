@@ -16,25 +16,38 @@ import { Input } from '@/components/ui/Input';
 import { Pagination } from '@/components/ui/Pagination';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_LABEL } from './constants';
+import { presetRange, useHistoryFilters } from './filters';
 import { EventCard } from './EventCard';
 import { monthLabel } from './utils';
 import type { GroupedEvents, Milestone } from './types';
 
-export function TimelineTab() {
+export function TimelineTab({ userId }: { userId?: number }) {
+  const { filters } = useHistoryFilters();
+  const range = presetRange(filters.preset, filters.from, filters.to);
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const params = { page, limit: 20, category };
+  const params = {
+    page,
+    limit: 20,
+    category: category || undefined,
+    from: range.from,
+    to: range.to,
+  };
 
   const { data, isLoading: loading } = useApiQuery<{
     grouped: GroupedEvents[];
     milestones: Milestone[];
     meta: { totalPages: number };
-  }>(queryKeys.history.timeline(params), '/history/timeline/me', {
-    params,
-    staleTime: STALE_TIME.DYNAMIC,
-    placeholderData: keepPreviousData,
-  });
+  }>(
+    queryKeys.history.timeline({ ...params, userId }),
+    userId ? `/history/timeline/user/${userId}` : '/history/timeline/me',
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
+  );
 
   const CATS = [
     'LEARNING',

@@ -149,12 +149,13 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
       },
       { href: '/evaluation360', icon: MessageSquare, label: 'Avaliação 360°' },
       { href: '/onboarding', icon: UserPlus, label: 'Onboarding - Integração' },
-      { href: '/payslips', icon: FileText, label: 'Recibos Salariais' },
       {
+        // Módulo "Folha de Pagamento" único: integra Recibos Salariais
+        // (ex-/payslips) como separadores da mesma página. Ver
+        // app/(platform)/payroll/page.tsx.
         href: '/payroll',
         icon: Wallet,
         label: 'Folha de Pagamento',
-        roles: ADMIN_ROLES,
       },
       { href: '/trainings', icon: GraduationCap, label: 'Gestão de Formações' },
     ],
@@ -207,7 +208,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         href: '/audit',
         icon: Shield,
         label: 'Auditoria',
-        roles: [...ADMIN_ROLES, 'DIRECTOR'],
+        roles: [...ADMIN_ROLES, 'GESTOR', 'AUDITOR', 'DIRECTOR'],
       },
     ],
   },

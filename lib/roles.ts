@@ -40,6 +40,15 @@ export const MGMT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'LIDER', 'GESTOR'];
 export const ADMIN_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 
 /**
+ * Auditoria (docs/modulo_audit.md §16). Espelha AUDIT_GLOBAL_ROLES em
+ * src/audit/audit-scope.ts: consulta global, segurança, incidentes, auditorias
+ * e relatórios. RH e GESTOR só consultam registos dentro do seu âmbito
+ * (módulos de RH / a sua equipa) — ver AUDIT_SCOPED_ROLES.
+ */
+export const AUDIT_GLOBAL_ROLES: readonly Role[] = ['ADMIN', 'AUDITOR'];
+export const AUDIT_SCOPED_ROLES: readonly Role[] = ['RH', 'GESTOR'];
+
+/**
  * Espelha @Roles(Role.ADMIN, Role.RH, Role.GESTOR) em
  * src/dashboard-institutional/dashboard-institutional.controller.ts —
  * separador "Executivo" de /dashboard (GET /dashboard-institutional/executive).
