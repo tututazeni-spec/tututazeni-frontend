@@ -41,6 +41,8 @@ import type {
   ApiMetricsData,
   DatabaseMetricsData,
   FrontendMetricsData,
+  QueueMetricsData,
+  StorageMetricsData,
 } from '@/components/scalability/types';
 
 export default function ScalabilityPage() {
@@ -103,6 +105,26 @@ export default function ScalabilityPage() {
       staleTime: STALE_TIME.DYNAMIC,
       refetchInterval: 60_000,
       enabled: activeTab === 'content',
+    },
+  );
+
+  const { data: queueMetrics = null } = useApiQuery<QueueMetricsData>(
+    queryKeys.scalability.queueMetrics(),
+    '/scalability/queue-metrics',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: 30_000,
+      enabled: activeTab === 'queues',
+    },
+  );
+
+  const { data: storageMetrics = null } = useApiQuery<StorageMetricsData>(
+    queryKeys.scalability.storageMetrics(),
+    '/scalability/storage-metrics',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: 60_000,
+      enabled: activeTab === 'storage',
     },
   );
 
@@ -261,6 +283,8 @@ export default function ScalabilityPage() {
       apiMetrics={apiMetrics}
       databaseMetrics={databaseMetrics}
       frontendMetrics={frontendMetrics}
+      queueMetrics={queueMetrics}
+      storageMetrics={storageMetrics}
       alerts={alerts}
       integrations={integrations}
       automations={automations}

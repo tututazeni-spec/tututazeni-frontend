@@ -25,6 +25,8 @@ import {
   Database,
   Gauge,
   Globe,
+  HardDrive,
+  ListChecks,
   LayoutDashboard,
   Pencil,
   Plug,
@@ -52,6 +54,8 @@ import type {
   ApiMetricsData,
   DatabaseMetricsData,
   FrontendMetricsData,
+  QueueMetricsData,
+  StorageMetricsData,
   PageStatus,
   Alert,
   Integration,
@@ -2383,6 +2387,407 @@ function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
   );
 }
 
+// ─── FILAS & JOBS (modulo_scalability.md §11) ─────────────────
+
+function formatDuration(ms: number | null): string {
+  if (ms === null) return '—';
+  return ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${ms} ms`;
+}
+
+function QueuesTab({ queues }: { queues: QueueMetricsData | null }) {
+  if (!queues) {
+    return (
+      <EmptyState
+        title="A carregar filas e jobs"
+        description="Os indicadores aparecem aqui assim que estiverem disponíveis."
+      />
+    );
+  }
+  const fmt = (n: number) => n.toLocaleString();
+  const t = queues.totals;
+  const points = queues.depthHistory.map((h, i) => ({
+    x: i,
+    y: h.total,
+    xLabel: new Date(h.at).toLocaleTimeString('pt-PT', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+  }));
+  return (
+    <div className="flex flex-col gap-6">
+      <SectionHeader
+        title="Filas & Jobs"
+        sub="Filas Bull (Redis) e jobs persistidos em base de dados"
+      />
+      {queues.mode === 'SYNC' && (
+        <Card>
+          <CardBody>
+            <p className="font-body text-sm text-ink">
+              As filas estão desligadas (QUEUE_ENABLED=false): a auditoria e as
+              notificações executam de forma síncrona.
+            </p>
+          </CardBody>
+        </Card>
+      )}
+      {queues.mode === 'QUEUE' && !queues.redisAvailable && (
+        <Card>
+          <CardBody>
+            <p className="font-body text-sm text-danger">
+              Redis indisponível — as filas Bull não responderam. Os valores
+              abaixo incluem apenas os jobs guardados em base de dados.
+            </p>
+          </CardBody>
+        </Card>
+      )}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <MetricTile label="Jobs executados" value={fmt(t.executed)} />
+        <MetricTile label="Jobs pendentes" value={fmt(t.pending)} />
+        <MetricTile label="Jobs em execução" value={fmt(t.running)} />
+        <MetricTile label="Jobs falhados" value={fmt(t.failed)} />
+        <MetricTile label="Jobs atrasados" value={fmt(t.delayed)} />
+        <MetricTile
+          label="Tempo médio de execução"
+          value={formatDuration(t.avgDurationMs)}
+        />
+        <MetricTile
+          label="Throughput"
+          value={t.throughputPerMin.toLocaleString()}
+          unit="jobs/min"
+          sub="filas Bull, últimos 5 min"
+        />
+        <MetricTile label="Tamanho da fila" value={fmt(t.queueSize)} />
+        <MetricTile
+          label="Retry count"
+          value={fmt(t.retries)}
+          sub="tentativas além da primeira"
+        />
+      </div>
+
+      <Card>
+        <CardBody>
+          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Queue Depth
+          </p>
+          {points.length < 2 ? (
+            <EmptyState
+              title="Histórico insuficiente"
+              description="A profundidade das filas é amostrada a cada minuto; o gráfico aparece após dois minutos de dados."
+            />
+          ) : (
+            <AreaLineChart
+              series={[{ label: 'Jobs em espera', points }]}
+              yFormat={(v) => `${v}`}
+            />
+          )}
+          <p className="mt-3 font-body text-xs text-ink-faint">
+            Jobs em espera + atrasados nas filas Bull, últimas{' '}
+            {queues.historyHours} h. O histórico é guardado em memória e
+            reinicia com o servidor.
+          </p>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardBody>
+          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Por fila
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full font-body text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
+                  <th className="py-1.5 font-semibold">Fila</th>
+                  <th className="py-1.5 text-right font-semibold">Em espera</th>
+                  <th className="py-1.5 text-right font-semibold">Em execução</th>
+                  <th className="py-1.5 text-right font-semibold">Atrasados</th>
+                  <th className="py-1.5 text-right font-semibold">Falhados</th>
+                  <th className="py-1.5 text-right font-semibold">Concluídos</th>
+                  <th className="py-1.5 text-right font-semibold">Duração média</th>
+                  <th className="py-1.5 text-right font-semibold">Jobs/min</th>
+                  <th className="py-1.5 text-right font-semibold">Retries</th>
+                </tr>
+              </thead>
+              <tbody>
+                {queues.queues.map((q) => (
+                  <tr key={q.key} className="border-t border-border">
+                    <td className="py-1.5 text-ink">
+                      {q.label}
+                      <span className="ml-2 text-xs text-ink-faint">
+                        {q.domain}
+                      </span>
+                    </td>
+                    <td className="py-1.5 text-right text-ink">{fmt(q.waiting)}</td>
+                    <td className="py-1.5 text-right text-ink">{fmt(q.active)}</td>
+                    <td className="py-1.5 text-right text-ink-muted">{fmt(q.delayed)}</td>
+                    <td
+                      className={cn(
+                        'py-1.5 text-right',
+                        q.failed > 0 ? 'font-semibold text-danger' : 'text-ink-muted',
+                      )}
+                    >
+                      {fmt(q.failed)}
+                    </td>
+                    <td className="py-1.5 text-right text-ink-muted">{fmt(q.completed)}</td>
+                    <td className="py-1.5 text-right text-ink-muted">
+                      {formatDuration(q.avgDurationMs)}
+                    </td>
+                    <td className="py-1.5 text-right text-ink-muted">{q.throughputPerMin}</td>
+                    <td className="py-1.5 text-right text-ink-muted">{fmt(q.retries)}</td>
+                  </tr>
+                ))}
+                {queues.queues.length === 0 && (
+                  <tr>
+                    <td colSpan={9} className="py-3 text-xs text-ink-faint">
+                      Sem dados das filas Bull.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          {queues.queues
+            .filter((q) => q.lastFailure)
+            .map((q) => (
+              <p key={q.key} className="mt-2 font-body text-xs text-ink-faint">
+                Última falha em {q.label}
+                {q.lastFailure?.at ? ` (${timeAgo(q.lastFailure.at)})` : ''}:{' '}
+                {q.lastFailure?.reason ?? 'sem motivo registado'}
+              </p>
+            ))}
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardBody>
+          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Jobs em base de dados (últimas 24 h)
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full font-body text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
+                  <th className="py-1.5 font-semibold">Origem</th>
+                  <th className="py-1.5 text-right font-semibold">Executados</th>
+                  <th className="py-1.5 text-right font-semibold">Pendentes</th>
+                  <th className="py-1.5 text-right font-semibold">Em execução</th>
+                  <th className="py-1.5 text-right font-semibold">Falhados</th>
+                  <th className="py-1.5 text-right font-semibold">Atrasados</th>
+                  <th className="py-1.5 text-right font-semibold">Duração média</th>
+                  <th className="py-1.5 text-right font-semibold">Retries</th>
+                </tr>
+              </thead>
+              <tbody>
+                {queues.dbJobs.map((j) => (
+                  <tr key={j.key} className="border-t border-border">
+                    <td className="py-1.5 text-ink">{j.label}</td>
+                    <td className="py-1.5 text-right text-ink">{fmt(j.executed)}</td>
+                    <td className="py-1.5 text-right text-ink-muted">{fmt(j.pending)}</td>
+                    <td className="py-1.5 text-right text-ink-muted">{fmt(j.running)}</td>
+                    <td
+                      className={cn(
+                        'py-1.5 text-right',
+                        j.failed > 0 ? 'font-semibold text-danger' : 'text-ink-muted',
+                      )}
+                    >
+                      {fmt(j.failed)}
+                    </td>
+                    <td className="py-1.5 text-right text-ink-muted">{fmt(j.delayed)}</td>
+                    <td className="py-1.5 text-right text-ink-muted">
+                      {formatDuration(j.avgDurationMs)}
+                    </td>
+                    <td className="py-1.5 text-right text-ink-muted">{fmt(j.retries)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 font-body text-xs text-ink-faint">
+            Sem fila nem registo de jobs (executam de forma síncrona):{' '}
+            {queues.synchronousDomains.join(', ')}.
+          </p>
+        </CardBody>
+      </Card>
+    </div>
+  );
+}
+
+// ─── STORAGE (modulo_scalability.md §12) ──────────────────────
+
+function formatSize(mb: number): string {
+  if (mb >= 1024) return `${(mb / 1024).toFixed(2)} GB`;
+  return `${mb.toFixed(mb < 10 ? 2 : 1)} MB`;
+}
+
+function StorageBreakdown({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: StorageMetricsData['byModule'];
+}) {
+  return (
+    <Card>
+      <CardBody>
+        <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+          {title}
+        </p>
+        {rows.length === 0 ? (
+          <p className="font-body text-xs text-ink-faint">Sem ficheiros registados.</p>
+        ) : (
+          <table className="w-full font-body text-sm">
+            <thead>
+              <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
+                <th className="py-1.5 font-semibold">Nome</th>
+                <th className="py-1.5 text-right font-semibold">Ficheiros</th>
+                <th className="py-1.5 text-right font-semibold">Tamanho</th>
+                <th className="py-1.5 text-right font-semibold">%</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.key} className="border-t border-border">
+                  <td className="py-1.5 text-ink">{r.label}</td>
+                  <td className="py-1.5 text-right text-ink-muted">
+                    {r.files.toLocaleString()}
+                  </td>
+                  <td className="py-1.5 text-right text-ink">{formatSize(r.mb)}</td>
+                  <td className="py-1.5 text-right text-ink-muted">{r.percent}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </CardBody>
+    </Card>
+  );
+}
+
+function StorageTab({ storage }: { storage: StorageMetricsData | null }) {
+  if (!storage) {
+    return (
+      <EmptyState
+        title="A carregar métricas de storage"
+        description="Os indicadores aparecem aqui assim que estiverem disponíveis."
+      />
+    );
+  }
+  const growthPoints = storage.growth.map((g, i) => ({
+    x: i,
+    y: g.cumulativeGb,
+    xLabel: g.month,
+  }));
+  return (
+    <div className="flex flex-col gap-6">
+      <SectionHeader
+        title="Storage"
+        sub="Ficheiros guardados pela plataforma, por módulo, tipo e unidade"
+      />
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <MetricTile
+          label="Storage total"
+          value={storage.totalGb === null ? '—' : `${storage.totalGb} GB`}
+          sub="quota do tenant"
+        />
+        <MetricTile
+          label="Utilizado"
+          value={formatSize(storage.usedMb)}
+          barValue={storage.usagePercent ?? undefined}
+          barMax={storage.usagePercent === null ? undefined : 100}
+          barWarn={70}
+          barDanger={90}
+          sub={
+            storage.usagePercent === null
+              ? undefined
+              : `${storage.usagePercent}% da quota`
+          }
+        />
+        <MetricTile
+          label="Disponível"
+          value={
+            storage.availableGb === null ? '—' : `${storage.availableGb} GB`
+          }
+        />
+        <MetricTile
+          label="Crescimento mensal"
+          value={`${storage.monthlyGrowthMb >= 0 ? '+' : ''}${formatSize(storage.monthlyGrowthMb)}`}
+          sub="carregado no último mês com dados"
+        />
+        <MetricTile
+          label="Ficheiros armazenados"
+          value={storage.files.toLocaleString()}
+        />
+      </div>
+
+      <Card>
+        <CardBody>
+          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Crescimento acumulado
+          </p>
+          {growthPoints.length < 2 ? (
+            <EmptyState
+              title="Histórico insuficiente"
+              description="O gráfico aparece quando existirem ficheiros carregados em pelo menos dois meses."
+            />
+          ) : (
+            <AreaLineChart
+              series={[{ label: 'Storage acumulado (GB)', points: growthPoints }]}
+              yFormat={(v) => `${v} GB`}
+            />
+          )}
+        </CardBody>
+      </Card>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <StorageBreakdown title="Storage por módulo" rows={storage.byModule} />
+        <StorageBreakdown title="Categorias de conteúdo" rows={storage.byKind} />
+        <StorageBreakdown title="Tipos de ficheiro" rows={storage.byType} />
+        <StorageBreakdown title="Storage por unidade" rows={storage.byUnit} />
+      </div>
+
+      <Card>
+        <CardBody>
+          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Maiores ficheiros
+          </p>
+          {storage.largestFiles.length === 0 ? (
+            <p className="font-body text-xs text-ink-faint">
+              Sem ficheiros com tamanho registado.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full font-body text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
+                    <th className="py-1.5 font-semibold">Ficheiro</th>
+                    <th className="py-1.5 font-semibold">Módulo</th>
+                    <th className="py-1.5 font-semibold">Tipo</th>
+                    <th className="py-1.5 text-right font-semibold">Tamanho</th>
+                    <th className="py-1.5 text-right font-semibold">Carregado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {storage.largestFiles.map((f, i) => (
+                    <tr key={`${f.name}-${i}`} className="border-t border-border">
+                      <td className="py-1.5 text-ink">{f.name}</td>
+                      <td className="py-1.5 text-ink-muted">{f.module}</td>
+                      <td className="py-1.5 text-ink-muted">{f.type}</td>
+                      <td className="py-1.5 text-right text-ink">{formatSize(f.mb)}</td>
+                      <td className="py-1.5 text-right text-ink-muted">
+                        {timeAgo(f.createdAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="mt-3 font-body text-xs text-ink-faint">{storage.note}</p>
+        </CardBody>
+      </Card>
+    </div>
+  );
+}
+
 // ─── TABS CONFIG ──────────────────────────────────────────
 
 const TABS: { id: string; label: string; icon: LucideIcon }[] = [
@@ -2396,6 +2801,8 @@ const TABS: { id: string; label: string; icon: LucideIcon }[] = [
   { id: 'api', label: 'API & Backend', icon: Server },
   { id: 'database', label: 'Base de Dados', icon: Database },
   { id: 'content', label: 'Conteúdo & CDN', icon: Globe },
+  { id: 'queues', label: 'Filas & Jobs', icon: ListChecks },
+  { id: 'storage', label: 'Storage', icon: HardDrive },
 ];
 
 // ─── DASHBOARD VIEW (apresentacional — sem estado, sem fetch) ──────────────
@@ -2409,6 +2816,8 @@ export interface ScalabilityDashboardViewProps {
   apiMetrics?: ApiMetricsData | null;
   databaseMetrics?: DatabaseMetricsData | null;
   frontendMetrics?: FrontendMetricsData | null;
+  queueMetrics?: QueueMetricsData | null;
+  storageMetrics?: StorageMetricsData | null;
   alerts: Alert[];
   integrations: Integration[];
   automations: AutomationRule[];
@@ -2430,6 +2839,8 @@ export function ScalabilityDashboardView({
   apiMetrics = null,
   databaseMetrics = null,
   frontendMetrics = null,
+  queueMetrics = null,
+  storageMetrics = null,
   alerts,
   integrations,
   automations,
@@ -2546,6 +2957,12 @@ export function ScalabilityDashboardView({
           </TabsContent>
           <TabsContent value="content">
             <ContentTab config={contentDelivery} frontend={frontendMetrics} />
+          </TabsContent>
+          <TabsContent value="queues">
+            <QueuesTab queues={queueMetrics} />
+          </TabsContent>
+          <TabsContent value="storage">
+            <StorageTab storage={storageMetrics} />
           </TabsContent>
         </div>
       </Tabs>

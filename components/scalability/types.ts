@@ -438,3 +438,94 @@ export interface FrontendMetricsData {
   slowPages: Array<FrontendPageStats & { path: string }>;
   pages: Array<FrontendPageStats & { path: string }>;
 }
+
+// Resposta real de GET /scalability/queue-metrics (modulo_scalability.md §11).
+export interface QueueStats {
+  key: string;
+  label: string;
+  domain: string;
+  waiting: number;
+  active: number;
+  delayed: number;
+  failed: number;
+  completed: number;
+  queueSize: number;
+  avgDurationMs: number | null;
+  throughputPerMin: number;
+  retries: number;
+  lastFailure: { at: string | null; reason: string | null } | null;
+}
+
+export interface DbJobStats {
+  key: string;
+  label: string;
+  domain: string;
+  executed: number;
+  pending: number;
+  running: number;
+  failed: number;
+  delayed: number;
+  avgDurationMs: number | null;
+  retries: number;
+}
+
+export interface QueueMetricsData {
+  mode: 'QUEUE' | 'SYNC';
+  redisAvailable: boolean;
+  totals: {
+    executed: number;
+    pending: number;
+    running: number;
+    failed: number;
+    delayed: number;
+    avgDurationMs: number | null;
+    throughputPerMin: number;
+    queueSize: number;
+    retries: number;
+  };
+  queues: QueueStats[];
+  dbJobs: DbJobStats[];
+  synchronousDomains: string[];
+  depthHistory: Array<{
+    at: string;
+    waiting: number;
+    active: number;
+    delayed: number;
+    failed: number;
+    total: number;
+    byQueue: Record<string, number>;
+  }>;
+  historyHours: number;
+}
+
+// Resposta real de GET /scalability/storage-metrics (modulo_scalability.md §12).
+export interface StorageBreakdownRow {
+  key: string;
+  label: string;
+  files: number;
+  mb: number;
+  percent: number;
+}
+
+export interface StorageMetricsData {
+  totalGb: number | null;
+  usedGb: number;
+  usedMb: number;
+  availableGb: number | null;
+  usagePercent: number | null;
+  monthlyGrowthMb: number;
+  files: number;
+  byModule: StorageBreakdownRow[];
+  byKind: StorageBreakdownRow[];
+  byType: StorageBreakdownRow[];
+  byUnit: StorageBreakdownRow[];
+  growth: Array<{ month: string; addedMb: number; cumulativeGb: number }>;
+  largestFiles: Array<{
+    module: string;
+    name: string;
+    type: string;
+    mb: number;
+    createdAt: string;
+  }>;
+  note: string;
+}
