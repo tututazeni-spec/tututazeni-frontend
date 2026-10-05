@@ -488,12 +488,24 @@ function OverviewCharts({ data, charts }: OverviewChartsProps) {
             <AreaLineChart
               series={[line('Requests/min', (m) => m.requestsPerMinute)]}
             />
+          {!charts?.trafficSourceConnected && (
+            <p className="mt-2 font-body text-xs text-ink-faint">
+              Sem fonte de monitorização ligada — será preenchido quando o
+              módulo Monitoring estiver ativo.
+            </p>
+          )}
           </ChartCard>
           <ChartCard title="Latência" sub="Latência média da API (ms)">
             <AreaLineChart
               series={[line('Latência', (m) => m.avgLatencyMs)]}
               yFormat={(v) => `${v}ms`}
             />
+          {!charts?.trafficSourceConnected && (
+            <p className="mt-2 font-body text-xs text-ink-faint">
+              Sem fonte de monitorização ligada — será preenchido quando o
+              módulo Monitoring estiver ativo.
+            </p>
+          )}
           </ChartCard>
         </div>
       )}

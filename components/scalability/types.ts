@@ -249,6 +249,8 @@ export interface OverviewChartsData {
     activeInMonth: number;
     newUsers: number;
   }>;
+  /** false enquanto o módulo Monitoring não fornece requests/latência. */
+  trafficSourceConnected: boolean;
   forecast: {
     thresholdPercent: number;
     targetUsers: number;
