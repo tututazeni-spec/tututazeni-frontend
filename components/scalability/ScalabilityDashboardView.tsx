@@ -60,6 +60,8 @@ import {
   LoadTestsTab,
 } from './LoadTestsCostsAlertsTabs';
 import { ReportsTab, SettingsTab } from './ReportsSettingsTabs';
+import { WhatIfPanel } from './WhatIfPanel';
+import { RetentionStatusCard } from './RetentionStatusCard';
 import { RenameTenantModal } from './RenameTenantModal';
 import type {
   AlertSeverity,
@@ -3305,6 +3307,9 @@ export function ScalabilityDashboardView({
               saving={infraSaving}
               onSaveLimits={onSaveCapacityLimits}
             />
+            <div className="mt-6">
+              <WhatIfPanel />
+            </div>
           </TabsContent>
           <TabsContent value="autoscaling">
             <AutoScalingTab
@@ -3376,6 +3381,9 @@ export function ScalabilityDashboardView({
               saving={settingsSaving}
               onSave={onSaveSettings}
             />
+            <div className="mt-6">
+              <RetentionStatusCard />
+            </div>
           </TabsContent>
         </div>
       </Tabs>
