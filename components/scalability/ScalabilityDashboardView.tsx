@@ -22,14 +22,17 @@ import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import {
   Bell,
+  Boxes,
   Database,
   Gauge,
   Globe,
   HardDrive,
   ListChecks,
   LayoutDashboard,
+  LifeBuoy,
   Pencil,
   Plug,
+  Scaling,
   Server,
   ShieldCheck,
   Users,
@@ -43,6 +46,7 @@ import { CreateRuleModal } from '@/components/automation/CreateRuleModal';
 import { ImportUsersModal } from './ImportUsersModal';
 import { NewIntegrationModal } from './NewIntegrationModal';
 import { LoadTestModal } from './LoadTestModal';
+import { AutoScalingTab, CapacityTab, ResilienceTab } from './InfraTabs';
 import { RenameTenantModal } from './RenameTenantModal';
 import type {
   AlertSeverity,
@@ -58,6 +62,11 @@ import type {
   StorageMetricsData,
   IntegrationMetricsData,
   PerformanceMetricsData,
+  CapacityMetricsData,
+  AutoScalingData,
+  AutoScalingUpdate,
+  ResilienceData,
+  ResilienceUpdate,
   PerfClass,
   PageStatus,
   Alert,
@@ -2995,6 +3004,9 @@ const TABS: { id: string; label: string; icon: LucideIcon }[] = [
   { id: 'content', label: 'Conteúdo & CDN', icon: Globe },
   { id: 'queues', label: 'Filas & Jobs', icon: ListChecks },
   { id: 'storage', label: 'Storage', icon: HardDrive },
+  { id: 'capacity', label: 'Capacidade', icon: Boxes },
+  { id: 'autoscaling', label: 'Auto Scaling', icon: Scaling },
+  { id: 'resilience', label: 'Resiliência', icon: LifeBuoy },
 ];
 
 // ─── DASHBOARD VIEW (apresentacional — sem estado, sem fetch) ──────────────
@@ -3012,6 +3024,18 @@ export interface ScalabilityDashboardViewProps {
   storageMetrics?: StorageMetricsData | null;
   integrationMetrics?: IntegrationMetricsData | null;
   performanceMetrics?: PerformanceMetricsData | null;
+  capacityMetrics?: CapacityMetricsData | null;
+  autoScaling?: AutoScalingData | null;
+  resilience?: ResilienceData | null;
+  /** só ADMIN pode alterar limites, política de scaling e resiliência */
+  canEditInfra?: boolean;
+  infraSaving?: boolean;
+  onSaveCapacityLimits?: (v: {
+    maxConcurrentUsers: number;
+    maxApiRps: number;
+  }) => void;
+  onSaveAutoScaling?: (v: AutoScalingUpdate) => void;
+  onSaveResilience?: (v: ResilienceUpdate) => void;
   alerts: Alert[];
   integrations: Integration[];
   automations: AutomationRule[];
@@ -3037,6 +3061,14 @@ export function ScalabilityDashboardView({
   storageMetrics = null,
   integrationMetrics = null,
   performanceMetrics = null,
+  capacityMetrics = null,
+  autoScaling = null,
+  resilience = null,
+  canEditInfra = false,
+  infraSaving = false,
+  onSaveCapacityLimits = () => undefined,
+  onSaveAutoScaling = () => undefined,
+  onSaveResilience = () => undefined,
   alerts,
   integrations,
   automations,
@@ -3160,6 +3192,33 @@ export function ScalabilityDashboardView({
           </TabsContent>
           <TabsContent value="storage">
             <StorageTab storage={storageMetrics} />
+          </TabsContent>
+          <TabsContent value="capacity">
+            <CapacityTab
+              key={JSON.stringify(capacityMetrics?.limits)}
+              capacity={capacityMetrics}
+              canEdit={canEditInfra}
+              saving={infraSaving}
+              onSaveLimits={onSaveCapacityLimits}
+            />
+          </TabsContent>
+          <TabsContent value="autoscaling">
+            <AutoScalingTab
+              key={autoScaling?.policy.updatedAt}
+              data={autoScaling}
+              canEdit={canEditInfra}
+              saving={infraSaving}
+              onSave={onSaveAutoScaling}
+            />
+          </TabsContent>
+          <TabsContent value="resilience">
+            <ResilienceTab
+              key={JSON.stringify(resilience?.indicators)}
+              data={resilience}
+              canEdit={canEditInfra}
+              saving={infraSaving}
+              onSave={onSaveResilience}
+            />
           </TabsContent>
         </div>
       </Tabs>

@@ -45,6 +45,11 @@ import type {
   StorageMetricsData,
   IntegrationMetricsData,
   PerformanceMetricsData,
+  CapacityMetricsData,
+  AutoScalingData,
+  AutoScalingUpdate,
+  ResilienceData,
+  ResilienceUpdate,
 } from '@/components/scalability/types';
 
 export default function ScalabilityPage() {
@@ -127,6 +132,36 @@ export default function ScalabilityPage() {
       staleTime: STALE_TIME.DYNAMIC,
       refetchInterval: 60_000,
       enabled: activeTab === 'storage',
+    },
+  );
+
+  const { data: capacityMetrics = null } = useApiQuery<CapacityMetricsData>(
+    queryKeys.scalability.capacityMetrics(),
+    '/scalability/capacity-metrics',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: 60_000,
+      enabled: activeTab === 'capacity',
+    },
+  );
+
+  const { data: autoScaling = null } = useApiQuery<AutoScalingData>(
+    queryKeys.scalability.autoScaling(),
+    '/scalability/auto-scaling',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: 60_000,
+      enabled: activeTab === 'autoscaling',
+    },
+  );
+
+  const { data: resilience = null } = useApiQuery<ResilienceData>(
+    queryKeys.scalability.resilienceMetrics(),
+    '/scalability/resilience-metrics',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: 60_000,
+      enabled: activeTab === 'resilience',
     },
   );
 
@@ -223,6 +258,34 @@ export default function ScalabilityPage() {
     });
   };
 
+  // §15-17 — só ADMIN altera limites, política de scaling e resiliência.
+  const canEditInfra = currentUser?.role?.code === 'ADMIN';
+
+  const saveCapacity = useApiMutation<
+    unknown,
+    { maxConcurrentUsers: number; maxApiRps: number }
+  >((v) => apiClient.patch('/scalability/capacity-limits', v), {
+    invalidateKeys: [queryKeys.scalability.capacityMetrics()],
+  });
+  const saveAutoScaling = useApiMutation<unknown, AutoScalingUpdate>(
+    (v) => apiClient.patch('/scalability/auto-scaling', v),
+    { invalidateKeys: [queryKeys.scalability.autoScaling()] },
+  );
+  const saveResilience = useApiMutation<unknown, ResilienceUpdate>(
+    (v) => apiClient.patch('/scalability/resilience', v),
+    { invalidateKeys: [queryKeys.scalability.resilienceMetrics()] },
+  );
+  const infraCallbacks = (source: string, okTitle: string) => ({
+    onSuccess: () => notify({ title: okTitle, intent: 'success' }),
+    onError: (err: unknown) => {
+      reportError(err, { source });
+      notify({
+        title: 'Não foi possível guardar as alterações',
+        intent: 'danger',
+      });
+    },
+  });
+
   const executeRule = useApiMutation<unknown, number>(
     (ruleId) => apiClient.post('/scalability/automations/execute', { ruleId }),
     {
@@ -311,6 +374,39 @@ export default function ScalabilityPage() {
       storageMetrics={storageMetrics}
       integrationMetrics={integrationMetrics}
       performanceMetrics={performanceMetrics}
+      capacityMetrics={capacityMetrics}
+      autoScaling={autoScaling}
+      resilience={resilience}
+      canEditInfra={canEditInfra}
+      infraSaving={
+        saveCapacity.isPending ||
+        saveAutoScaling.isPending ||
+        saveResilience.isPending
+      }
+      onSaveCapacityLimits={(v) =>
+        saveCapacity.mutate(
+          v,
+          infraCallbacks('ScalabilityPage.saveCapacity', 'Limites guardados'),
+        )
+      }
+      onSaveAutoScaling={(v) =>
+        saveAutoScaling.mutate(
+          v,
+          infraCallbacks(
+            'ScalabilityPage.saveAutoScaling',
+            'Política guardada',
+          ),
+        )
+      }
+      onSaveResilience={(v) =>
+        saveResilience.mutate(
+          v,
+          infraCallbacks(
+            'ScalabilityPage.saveResilience',
+            'Resiliência guardada',
+          ),
+        )
+      }
       alerts={alerts}
       integrations={integrations}
       automations={automations}

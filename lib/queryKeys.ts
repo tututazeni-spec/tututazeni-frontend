@@ -293,6 +293,12 @@ export const queryKeys = {
       [...queryKeys.scalability.all, 'queue-metrics'] as const,
     storageMetrics: () =>
       [...queryKeys.scalability.all, 'storage-metrics'] as const,
+    capacityMetrics: () =>
+      [...queryKeys.scalability.all, 'capacity-metrics'] as const,
+    autoScaling: () =>
+      [...queryKeys.scalability.all, 'auto-scaling'] as const,
+    resilienceMetrics: () =>
+      [...queryKeys.scalability.all, 'resilience-metrics'] as const,
     integrationMetrics: () =>
       [...queryKeys.scalability.all, 'integration-metrics'] as const,
     performanceMetrics: () =>

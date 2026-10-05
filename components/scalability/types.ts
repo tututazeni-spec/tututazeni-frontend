@@ -588,3 +588,115 @@ export interface PerformanceMetricsData {
     status: 'OK' | 'ATENCAO' | 'CRITICO';
   }>;
 }
+
+// ─── §15 Capacidade / §16 Auto Scaling / §17 Resiliência ───
+
+export type InfraLevel = 'OK' | 'ATENCAO' | 'CRITICO';
+
+export interface CapacityMetricsData {
+  current: {
+    totalUsers: number;
+    activeUsers: number;
+    concurrentUsers: number;
+    concurrentPeak24h: number;
+    requestsPerSecond: number | null;
+    dbConnections: number | null;
+    storageGb: number | null;
+    queueThroughputPerMin: number | null;
+  };
+  resources: Array<{
+    key: string;
+    label: string;
+    current: number | null;
+    capacity: number | null;
+    unit: string;
+    percent: number | null;
+    level: InfraLevel | null;
+    source: string;
+  }>;
+  bottleneck: { key: string; label: string; percent: number | null } | null;
+  limits: { maxConcurrentUsers: number; maxApiRps: number };
+  note: string;
+}
+
+export interface ScheduledScaling {
+  name: string;
+  cron: string;
+  minInstances: number;
+  maxInstances: number;
+}
+
+export interface AutoScalingPolicy {
+  enabled: boolean;
+  minInstances: number;
+  maxInstances: number;
+  targetCpu: number;
+  targetMemory: number;
+  requestsPerInstance: number;
+  scaleUpThreshold: number;
+  scaleUpMinutes: number;
+  scaleDownThreshold: number;
+  scaleDownMinutes: number;
+  cooldownMinutes: number;
+  scheduled: ScheduledScaling[];
+  emergencyEnabled: boolean;
+  emergencyMaxInstances: number;
+  updatedAt: string;
+}
+
+export interface AutoScalingData {
+  policy: AutoScalingPolicy;
+  evaluation: {
+    cpuNow: number | null;
+    memoryNow: number | null;
+    sampleAt: string | null;
+    requestsPerSecond: number | null;
+    recommendedInstances: number;
+    decision: 'SCALE_UP' | 'SCALE_DOWN' | 'HOLD';
+  };
+  examples: string[];
+  note: string;
+}
+
+export type AutoScalingUpdate = Partial<Omit<AutoScalingPolicy, 'updatedAt'>>;
+
+export interface ResilienceSettings {
+  apiReplicas: number;
+  dbReplication: boolean;
+  failoverEnabled: boolean;
+  loadBalancer: boolean;
+  cdnEnabled: boolean;
+  drPlanDocumented: boolean;
+}
+
+export interface ResilienceData {
+  overall: InfraLevel;
+  score: number;
+  indicators: {
+    rpoMinutes: number;
+    rtoMinutes: number;
+    rpoMet: boolean | null;
+    lastBackupAt: string | null;
+    lastBackupMinutesAgo: number | null;
+    lastRecoveryTestAt: string | null;
+    lastRecoveryTestMinutesAgo: number | null;
+    lastRecoveryTestOk: boolean | null;
+  };
+  settings: ResilienceSettings;
+  checks: Array<{
+    key: string;
+    label: string;
+    status: InfraLevel;
+    detail: string;
+    source: 'MEDIDO' | 'DECLARADO';
+  }>;
+  note: string;
+}
+
+export interface ResilienceUpdate extends Partial<ResilienceSettings> {
+  rpoMinutes?: number;
+  rtoMinutes?: number;
+  lastBackupAt?: string;
+  lastRecoveryTestAt?: string;
+  lastRecoveryTestOk?: boolean;
+}
