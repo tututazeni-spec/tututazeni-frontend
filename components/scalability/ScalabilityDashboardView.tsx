@@ -272,6 +272,67 @@ const SEVERITY: Record<
 
 // ─── TAB PANELS ────────────────────────────────────────────
 
+// ─── INDICADOR GERAL DE CAPACIDADE (modulo_scalability.md §4) ──
+
+type CapacityState = 'Saudável' | 'Atenção' | 'Elevada utilização' | 'Crítica';
+
+function capacityState(pct: number): {
+  label: CapacityState;
+  intent: 'success' | 'warning' | 'danger';
+  bar?: StateIntent;
+} {
+  if (pct >= 90) return { label: 'Crítica', intent: 'danger', bar: 'danger' };
+  if (pct >= 75)
+    return { label: 'Elevada utilização', intent: 'warning', bar: 'warning' };
+  if (pct >= 50) return { label: 'Atenção', intent: 'warning' };
+  return { label: 'Saudável', intent: 'success' };
+}
+
+function CapacityIndicator({ data }: { data: DashboardData }) {
+  const { tenantInfo: t, performanceSummary: p } = data;
+  // A capacidade global é ditada pelo recurso mais utilizado (o gargalo).
+  const resources = [
+    { name: 'CPU', pct: p.cpuUsagePercent },
+    { name: 'memória', pct: p.memoryUsagePercent },
+    { name: 'base de dados', pct: p.dbUsagePercent ?? 0 },
+    { name: 'armazenamento', pct: (t.storageUsedGb / t.maxStorageGb) * 100 },
+    { name: 'licenças', pct: (t.activeUsersCount / t.maxUsers) * 100 },
+  ].map((r) => ({ ...r, pct: Number.isFinite(r.pct) ? r.pct : 0 }));
+  const bottleneck = resources.reduce((a, b) => (b.pct > a.pct ? b : a));
+  const pct = Math.min(Math.round(bottleneck.pct), 100);
+  const state = capacityState(pct);
+  // Simultâneos suportados ≈ sessões actuais ÷ utilização do gargalo.
+  const supported =
+    pct > 0 && p.activeSessionsNow > 0
+      ? Math.round(p.activeSessionsNow / (pct / 100))
+      : null;
+
+  return (
+    <Card>
+      <CardBody>
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+            Capacidade da INNOVA
+          </p>
+          <Badge intent={state.intent} dot={false}>
+            {state.label}
+          </Badge>
+        </div>
+        <p className="mt-2 font-display text-3xl font-bold text-ink">{pct}%</p>
+        <ThresholdBar pct={pct} state={state.bar} className="mt-3" />
+        <p className="mt-3 font-body text-sm text-ink-muted">
+          {supported !== null
+            ? `A infraestrutura atual suporta aproximadamente ${supported.toLocaleString()} utilizadores simultâneos nas condições atuais.`
+            : 'Sem sessões simultâneas registadas — não é possível estimar quantos utilizadores simultâneos a infraestrutura suporta.'}
+        </p>
+        <p className="mt-1 font-body text-xs text-ink-faint">
+          Recurso mais utilizado: {bottleneck.name} ({pct}%)
+        </p>
+      </CardBody>
+    </Card>
+  );
+}
+
 interface OverviewTabProps {
   data: DashboardData;
 }
@@ -332,6 +393,8 @@ function OverviewTab({ data }: OverviewTabProps) {
           contratado ({formatPercent(slaCompliance.slaTarget, 1)})
         </div>
       )}
+
+      <CapacityIndicator data={data} />
 
       {/* Primary metrics */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
