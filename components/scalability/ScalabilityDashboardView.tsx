@@ -30,6 +30,8 @@ import {
   ListChecks,
   LayoutDashboard,
   LifeBuoy,
+  LineChart,
+  Siren,
   Pencil,
   Plug,
   Scaling,
@@ -47,6 +49,7 @@ import { ImportUsersModal } from './ImportUsersModal';
 import { NewIntegrationModal } from './NewIntegrationModal';
 import { LoadTestModal } from './LoadTestModal';
 import { AutoScalingTab, CapacityTab, ResilienceTab } from './InfraTabs';
+import { ForecastsTab, IncidentsTab } from './IncidentsForecastsTabs';
 import { RenameTenantModal } from './RenameTenantModal';
 import type {
   AlertSeverity,
@@ -67,6 +70,10 @@ import type {
   AutoScalingUpdate,
   ResilienceData,
   ResilienceUpdate,
+  IncidentsData,
+  IncidentCreate,
+  IncidentUpdate,
+  ForecastsData,
   PerfClass,
   PageStatus,
   Alert,
@@ -3007,6 +3014,8 @@ const TABS: { id: string; label: string; icon: LucideIcon }[] = [
   { id: 'capacity', label: 'Capacidade', icon: Boxes },
   { id: 'autoscaling', label: 'Auto Scaling', icon: Scaling },
   { id: 'resilience', label: 'Resiliência', icon: LifeBuoy },
+  { id: 'incidents', label: 'Incidentes', icon: Siren },
+  { id: 'forecasts', label: 'Previsões', icon: LineChart },
 ];
 
 // ─── DASHBOARD VIEW (apresentacional — sem estado, sem fetch) ──────────────
@@ -3036,6 +3045,17 @@ export interface ScalabilityDashboardViewProps {
   }) => void;
   onSaveAutoScaling?: (v: AutoScalingUpdate) => void;
   onSaveResilience?: (v: ResilienceUpdate) => void;
+  incidents?: IncidentsData | null;
+  forecasts?: ForecastsData | null;
+  incidentSaving?: boolean;
+  forecastSaving?: boolean;
+  onCreateIncident?: (v: IncidentCreate, done: () => void) => void;
+  onUpdateIncident?: (
+    id: string,
+    v: IncidentUpdate,
+    done: () => void,
+  ) => void;
+  onSaveDbCapacity?: (gb: number | null) => void;
   alerts: Alert[];
   integrations: Integration[];
   automations: AutomationRule[];
@@ -3069,6 +3089,13 @@ export function ScalabilityDashboardView({
   onSaveCapacityLimits = () => undefined,
   onSaveAutoScaling = () => undefined,
   onSaveResilience = () => undefined,
+  incidents = null,
+  forecasts = null,
+  incidentSaving = false,
+  forecastSaving = false,
+  onCreateIncident = () => undefined,
+  onUpdateIncident = () => undefined,
+  onSaveDbCapacity = () => undefined,
   alerts,
   integrations,
   automations,
@@ -3218,6 +3245,23 @@ export function ScalabilityDashboardView({
               canEdit={canEditInfra}
               saving={infraSaving}
               onSave={onSaveResilience}
+            />
+          </TabsContent>
+          <TabsContent value="incidents">
+            <IncidentsTab
+              data={incidents}
+              canEdit={canEditInfra}
+              saving={incidentSaving}
+              onCreate={onCreateIncident}
+              onUpdate={onUpdateIncident}
+            />
+          </TabsContent>
+          <TabsContent value="forecasts">
+            <ForecastsTab
+              data={forecasts}
+              canEdit={canEditInfra}
+              saving={forecastSaving}
+              onSaveDbCapacity={onSaveDbCapacity}
             />
           </TabsContent>
         </div>

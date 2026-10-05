@@ -50,6 +50,10 @@ import type {
   AutoScalingUpdate,
   ResilienceData,
   ResilienceUpdate,
+  IncidentsData,
+  IncidentCreate,
+  IncidentUpdate,
+  ForecastsData,
 } from '@/components/scalability/types';
 
 export default function ScalabilityPage() {
@@ -165,6 +169,25 @@ export default function ScalabilityPage() {
     },
   );
 
+  const { data: incidents = null } = useApiQuery<IncidentsData>(
+    queryKeys.scalability.incidents(),
+    '/scalability/incidents',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      refetchInterval: 60_000,
+      enabled: activeTab === 'incidents',
+    },
+  );
+
+  const { data: forecasts = null } = useApiQuery<ForecastsData>(
+    queryKeys.scalability.forecasts(),
+    '/scalability/forecasts',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      enabled: activeTab === 'forecasts',
+    },
+  );
+
   const { data: integrationMetrics = null } =
     useApiQuery<IntegrationMetricsData>(
       queryKeys.scalability.integrationMetrics(),
@@ -274,6 +297,22 @@ export default function ScalabilityPage() {
   const saveResilience = useApiMutation<unknown, ResilienceUpdate>(
     (v) => apiClient.patch('/scalability/resilience', v),
     { invalidateKeys: [queryKeys.scalability.resilienceMetrics()] },
+  );
+  // §18-19 — incidentes e previsões (só ADMIN escreve).
+  const createIncident = useApiMutation<unknown, IncidentCreate>(
+    (v) => apiClient.post('/scalability/incidents', v),
+    { invalidateKeys: [queryKeys.scalability.incidents()] },
+  );
+  const updateIncident = useApiMutation<
+    unknown,
+    { id: string; body: IncidentUpdate }
+  >((v) => apiClient.patch(`/scalability/incidents/${v.id}`, v.body), {
+    invalidateKeys: [queryKeys.scalability.incidents()],
+  });
+  const saveDbCapacity = useApiMutation<unknown, number | null>(
+    (dbCapacityGb) =>
+      apiClient.patch('/scalability/forecast-settings', { dbCapacityGb }),
+    { invalidateKeys: [queryKeys.scalability.forecasts()] },
   );
   const infraCallbacks = (source: string, okTitle: string) => ({
     onSuccess: () => notify({ title: okTitle, intent: 'success' }),
@@ -395,6 +434,52 @@ export default function ScalabilityPage() {
           infraCallbacks(
             'ScalabilityPage.saveAutoScaling',
             'Política guardada',
+          ),
+        )
+      }
+      incidents={incidents}
+      forecasts={forecasts}
+      incidentSaving={createIncident.isPending || updateIncident.isPending}
+      onCreateIncident={(v, done) =>
+        createIncident.mutate(v, {
+          onSuccess: () => {
+            notify({ title: 'Incidente registado', intent: 'success' });
+            done();
+          },
+          onError: (err: unknown) => {
+            reportError(err, { source: 'ScalabilityPage.createIncident' });
+            notify({
+              title: 'Não foi possível registar o incidente',
+              intent: 'danger',
+            });
+          },
+        })
+      }
+      onUpdateIncident={(id, body, done) =>
+        updateIncident.mutate(
+          { id, body },
+          {
+            onSuccess: () => {
+              notify({ title: 'Incidente actualizado', intent: 'success' });
+              done();
+            },
+            onError: (err: unknown) => {
+              reportError(err, { source: 'ScalabilityPage.updateIncident' });
+              notify({
+                title: 'Não foi possível actualizar o incidente',
+                intent: 'danger',
+              });
+            },
+          },
+        )
+      }
+      forecastSaving={saveDbCapacity.isPending}
+      onSaveDbCapacity={(gb) =>
+        saveDbCapacity.mutate(
+          gb,
+          infraCallbacks(
+            'ScalabilityPage.saveDbCapacity',
+            'Capacidade da BD guardada',
           ),
         )
       }

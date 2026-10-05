@@ -700,3 +700,134 @@ export interface ResilienceUpdate extends Partial<ResilienceSettings> {
   lastRecoveryTestAt?: string;
   lastRecoveryTestOk?: boolean;
 }
+
+// ─── §18 Incidentes de Capacidade ───
+
+export type IncidentStatus =
+  | 'OPEN'
+  | 'INVESTIGATING'
+  | 'MITIGATING'
+  | 'RESOLVED'
+  | 'CLOSED';
+
+export type IncidentSeverity = 'INFO' | 'WARNING' | 'CRITICAL';
+
+export interface CapacityIncident {
+  id: string;
+  title: string;
+  category: string;
+  component: string;
+  severity: IncidentSeverity;
+  status: IncidentStatus;
+  occurredAt: string;
+  impact: string | null;
+  affectedUsers: number | null;
+  rootCause: string | null;
+  actionTaken: string | null;
+  postMortem: string | null;
+  ownerId: number | null;
+  ownerName: string | null;
+  resolvedAt: string | null;
+  closedAt: string | null;
+  durationMinutes: number;
+  ongoing: boolean;
+}
+
+export interface IncidentsData {
+  incidents: CapacityIncident[];
+  summary: {
+    total: number;
+    open: number;
+    openCritical: number;
+    last30d: number;
+    meanTimeToResolveMinutes: number | null;
+  };
+}
+
+export interface IncidentCreate {
+  title: string;
+  category: string;
+  component: string;
+  severity: IncidentSeverity;
+  occurredAt?: string;
+  impact?: string;
+  affectedUsers?: number;
+}
+
+export interface IncidentUpdate {
+  title?: string;
+  category?: string;
+  component?: string;
+  severity?: IncidentSeverity;
+  status?: IncidentStatus;
+  impact?: string;
+  affectedUsers?: number;
+  rootCause?: string;
+  actionTaken?: string;
+  postMortem?: string;
+}
+
+// ─── §19 Previsões ───
+
+export type ForecastConfidence = 'ALTA' | 'MEDIA' | 'BAIXA';
+
+export interface ForecastReach {
+  months: number | null;
+  date: string | null;
+  label: string | null;
+}
+
+export type ForecastResource =
+  | {
+      key: string;
+      label: string;
+      unit: string;
+      available: false;
+      reason: string;
+    }
+  | {
+      key: string;
+      label: string;
+      unit: string;
+      available: true;
+      method: 'compound' | 'linear';
+      current: number;
+      capacity: number | null;
+      capacityLabel: string;
+      monthlyGrowthPercent: number | null;
+      monthlyGrowth: number;
+      confidence: ForecastConfidence;
+      historyMonths: number;
+      history: number[];
+      projections: Array<{
+        months: number;
+        value: number;
+        percentOfCapacity: number | null;
+      }>;
+      reach80: ForecastReach | null;
+      reach100: ForecastReach | null;
+    };
+
+export interface ForecastsData {
+  generatedAt: string;
+  headline: string;
+  earliestBottleneck: {
+    key: string;
+    label: string;
+    months: number;
+    date: string | null;
+  } | null;
+  users: {
+    current: number;
+    monthlyGrowthPercent: number | null;
+    in12Months: number | null;
+  };
+  resources: ForecastResource[];
+  infraNeeds: {
+    currentInstances: number;
+    instancesForCpu12m: number | null;
+    instancesForRam12m: number | null;
+  };
+  dbCapacityGb: number | null;
+  note: string;
+}

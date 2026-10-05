@@ -299,6 +299,8 @@ export const queryKeys = {
       [...queryKeys.scalability.all, 'auto-scaling'] as const,
     resilienceMetrics: () =>
       [...queryKeys.scalability.all, 'resilience-metrics'] as const,
+    incidents: () => [...queryKeys.scalability.all, 'incidents'] as const,
+    forecasts: () => [...queryKeys.scalability.all, 'forecasts'] as const,
     integrationMetrics: () =>
       [...queryKeys.scalability.all, 'integration-metrics'] as const,
     performanceMetrics: () =>

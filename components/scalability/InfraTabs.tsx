@@ -37,7 +37,7 @@ const BAR_INTENT: Record<InfraLevel, 'success' | 'warning' | 'danger'> = {
   CRITICO: 'danger',
 };
 
-function Header({ title, sub }: { title: string; sub?: string }) {
+export function Header({ title, sub }: { title: string; sub?: string }) {
   return (
     <div>
       <h2 className="font-display text-lg font-bold text-ink">{title}</h2>
@@ -46,7 +46,7 @@ function Header({ title, sub }: { title: string; sub?: string }) {
   );
 }
 
-function Tile({
+export function Tile({
   label,
   value,
   unit,
@@ -77,11 +77,11 @@ function Tile({
   );
 }
 
-function Note({ children }: { children: string }) {
+export function Note({ children }: { children: string }) {
   return <p className="font-body text-xs text-ink-faint">{children}</p>;
 }
 
-function fmt(n: number | null, digits = 1): string | null {
+export function fmt(n: number | null, digits = 1): string | null {
   if (n === null) return null;
   return n.toLocaleString(undefined, { maximumFractionDigits: digits });
 }
@@ -104,7 +104,7 @@ function duration(minutes: number): string {
   return `${Number.isInteger(d) ? d : d.toFixed(1)} d`;
 }
 
-function NumField({
+export function NumField({
   label,
   value,
   onChange,
@@ -135,7 +135,7 @@ function NumField({
   );
 }
 
-function Check({
+export function Check({
   label,
   checked,
   onChange,
