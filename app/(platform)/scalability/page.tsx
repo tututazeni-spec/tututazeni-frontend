@@ -35,6 +35,7 @@ import type {
   ContentDeliveryConfig,
   DashboardData,
   Integration,
+  OverviewChartsData,
   SlaConfig,
 } from '@/components/scalability/types';
 
@@ -52,6 +53,12 @@ export default function ScalabilityPage() {
   } = useApiQuery<DashboardData>(
     queryKeys.scalability.dashboard(),
     '/scalability/dashboard',
+    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
+  );
+
+  const { data: overviewCharts = null } = useApiQuery<OverviewChartsData>(
+    queryKeys.scalability.overviewCharts(),
+    '/scalability/overview-charts',
     { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
   );
 
@@ -205,6 +212,7 @@ export default function ScalabilityPage() {
       activeTab={activeTab}
       onTabChange={setActiveTab}
       dashboard={dashboard}
+      overviewCharts={overviewCharts}
       alerts={alerts}
       integrations={integrations}
       automations={automations}

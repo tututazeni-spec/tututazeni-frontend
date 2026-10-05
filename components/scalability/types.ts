@@ -231,3 +231,28 @@ export interface ContentDeliveryConfig {
   maxVideoSizeMb: number;
   allowedFormats: string[];
 }
+
+// Resposta real de GET /scalability/overview-charts (gráficos da Visão Geral).
+export interface OverviewChartsData {
+  timeline: Array<{
+    at: string;
+    cpuUsagePercent: number;
+    memoryUsagePercent: number;
+    requestsPerMinute: number;
+    concurrentSessions: number;
+    avgLatencyMs: number;
+  }>;
+  userGrowth: Array<{
+    month: string;
+    registered: number;
+    active: number;
+    newUsers: number;
+  }>;
+  forecast: {
+    thresholdPercent: number;
+    targetUsers: number;
+    monthlyGrowth: number;
+    alreadyReached: boolean;
+    monthsToThreshold: number | null;
+  };
+}

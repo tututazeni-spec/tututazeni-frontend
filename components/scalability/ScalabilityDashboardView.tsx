@@ -18,6 +18,8 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
+import { BarChart } from '@/components/ui/charts/BarChart';
 import {
   Bell,
   Gauge,
@@ -42,6 +44,7 @@ import type {
   AlertSeverity,
   IntegrationStatus,
   DashboardData,
+  OverviewChartsData,
   Alert,
   Integration,
   AutomationRule,
@@ -338,11 +341,208 @@ function CapacityIndicator({ data }: { data: DashboardData }) {
   );
 }
 
-interface OverviewTabProps {
-  data: DashboardData;
+// ─── GRÁFICOS PRINCIPAIS (modulo_scalability.md §5) ───────────
+
+interface ChartCardProps {
+  title: string;
+  sub?: string;
+  children: React.ReactNode;
 }
 
-function OverviewTab({ data }: OverviewTabProps) {
+function ChartCard({ title, sub, children }: ChartCardProps) {
+  return (
+    <Card>
+      <CardBody>
+        <p className="font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+          {title}
+        </p>
+        {sub && <p className="mb-3 font-body text-xs text-ink-faint">{sub}</p>}
+        {children}
+      </CardBody>
+    </Card>
+  );
+}
+
+const MONTHS_PT = [
+  'Jan',
+  'Fev',
+  'Mar',
+  'Abr',
+  'Mai',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Set',
+  'Out',
+  'Nov',
+  'Dez',
+];
+
+function monthLabel(ym: string): string {
+  const [y, m] = ym.split('-');
+  return `${MONTHS_PT[Number(m) - 1]} ${y.slice(2)}`;
+}
+
+function forecastText(
+  f: OverviewChartsData['forecast'],
+  hasGrowthData: boolean,
+): string {
+  if (!hasGrowthData) return 'Sem dados suficientes para prever.';
+  if (f.alreadyReached)
+    return `Os utilizadores registados já atingiram ${f.thresholdPercent}% da capacidade licenciada (${f.targetUsers.toLocaleString()} utilizadores).`;
+  if (f.monthsToThreshold === null)
+    return 'Sem crescimento de utilizadores nos últimos 3 meses — não há previsão de saturação.';
+  const unit = f.monthsToThreshold === 1 ? 'mês' : 'meses';
+  return `Com o crescimento atual (${f.monthlyGrowth.toLocaleString()} novos utilizadores/mês), a infraestrutura atingirá ${f.thresholdPercent}% da capacidade estimada em aproximadamente ${f.monthsToThreshold} ${unit}.`;
+}
+
+interface OverviewChartsProps {
+  data: DashboardData;
+  charts: OverviewChartsData | null;
+}
+
+function OverviewCharts({ data, charts }: OverviewChartsProps) {
+  const { tenantInfo: t, performanceSummary: p, capacityEstimate } = data;
+  const timeline = charts?.timeline ?? [];
+  const growth = charts?.userGrowth ?? [];
+
+  const hourLabel = (iso: string) =>
+    new Date(iso).toLocaleTimeString('pt-PT', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  const line = (
+    label: string,
+    pick: (m: OverviewChartsData['timeline'][number]) => number,
+  ) => ({
+    label,
+    points: timeline.map((m, i) => ({
+      x: i,
+      y: pick(m),
+      xLabel: hourLabel(m.at),
+    })),
+  });
+  const growthLine = (
+    label: string,
+    pick: (g: OverviewChartsData['userGrowth'][number]) => number,
+  ) => ({
+    label,
+    points: growth.map((g, i) => ({
+      x: i,
+      y: pick(g),
+      xLabel: monthLabel(g.month),
+    })),
+  });
+
+  // Capacidade disponível vs consumo atual, em % do limite de cada recurso.
+  const capacityRows = [
+    {
+      name: 'Utilizadores simultâneos',
+      pct: capacityEstimate
+        ? (p.activeSessionsNow / capacityEstimate.concurrentUsers) * 100
+        : 0,
+    },
+    { name: 'Licenças', pct: (t.activeUsersCount / t.maxUsers) * 100 },
+    { name: 'CPU', pct: p.cpuUsagePercent },
+    { name: 'Memória', pct: p.memoryUsagePercent },
+    { name: 'Base de dados', pct: p.dbUsagePercent ?? 0 },
+    { name: 'Armazenamento', pct: (t.storageUsedGb / t.maxStorageGb) * 100 },
+  ].map((r) => ({
+    ...r,
+    pct: Number.isFinite(r.pct) ? Math.round(r.pct * 10) / 10 : 0,
+  }));
+
+  return (
+    <div className="flex flex-col gap-4">
+      <SectionHeader
+        title="Gráficos principais"
+        sub="Utilização nas últimas 24 horas, crescimento de utilizadores e capacidade"
+      />
+      {timeline.length === 0 ? (
+        <EmptyState
+          title="Sem métricas nas últimas 24 horas"
+          description="O histórico é preenchido automaticamente a cada minuto."
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <ChartCard title="CPU e RAM" sub="% média por hora">
+            <AreaLineChart
+              series={[
+                line('CPU', (m) => m.cpuUsagePercent),
+                line('RAM', (m) => m.memoryUsagePercent),
+              ]}
+              yFormat={(v) => `${v}%`}
+            />
+          </ChartCard>
+          <ChartCard title="Utilizadores simultâneos" sub="Pico por hora">
+            <AreaLineChart
+              series={[line('Simultâneos', (m) => m.concurrentSessions)]}
+            />
+          </ChartCard>
+          <ChartCard title="Requests" sub="Pedidos por minuto (média por hora)">
+            <AreaLineChart
+              series={[line('Requests/min', (m) => m.requestsPerMinute)]}
+            />
+          </ChartCard>
+          <ChartCard title="Latência" sub="Latência média da API (ms)">
+            <AreaLineChart
+              series={[line('Latência', (m) => m.avgLatencyMs)]}
+              yFormat={(v) => `${v}ms`}
+            />
+          </ChartCard>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <ChartCard
+          title="Crescimento de utilizadores"
+          sub="Últimos 12 meses — registados, ativos e novos por mês"
+        >
+          <AreaLineChart
+            series={[
+              growthLine('Registados', (g) => g.registered),
+              growthLine('Ativos', (g) => g.active),
+              growthLine('Novos no mês', (g) => g.newUsers),
+            ]}
+          />
+        </ChartCard>
+        <ChartCard
+          title="Capacidade vs utilização"
+          sub="Consumo atual em % do limite disponível de cada recurso"
+        >
+          <BarChart
+            orientation="horizontal"
+            categories={capacityRows.map((r) => r.name)}
+            series={[
+              {
+                label: 'Consumo atual (%)',
+                values: capacityRows.map((r) => r.pct),
+              },
+            ]}
+            yFormat={(v) => `${v}%`}
+          />
+          <p className="mt-2 font-body text-xs text-ink-faint">
+            Capacidade disponível: 100% − consumo atual.
+          </p>
+        </ChartCard>
+      </div>
+
+      {charts && (
+        <div className="rounded-card border border-border bg-surface px-4 py-3 font-body text-sm text-ink">
+          <span className="font-semibold">Previsão: </span>
+          {forecastText(charts.forecast, growth.length > 0)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface OverviewTabProps {
+  data: DashboardData;
+  charts: OverviewChartsData | null;
+}
+
+function OverviewTab({ data, charts }: OverviewTabProps) {
   const {
     tenantInfo: t,
     performanceSummary: p,
@@ -496,6 +696,8 @@ function OverviewTab({ data }: OverviewTabProps) {
           barDanger={3}
         />
       </div>
+
+      <OverviewCharts data={data} charts={charts} />
 
       {/* Status cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -1343,6 +1545,7 @@ export interface ScalabilityDashboardViewProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   dashboard: DashboardData;
+  overviewCharts?: OverviewChartsData | null;
   alerts: Alert[];
   integrations: Integration[];
   automations: AutomationRule[];
@@ -1359,6 +1562,7 @@ export function ScalabilityDashboardView({
   activeTab,
   onTabChange,
   dashboard,
+  overviewCharts = null,
   alerts,
   integrations,
   automations,
@@ -1443,7 +1647,7 @@ export function ScalabilityDashboardView({
 
         <div className="mx-auto max-w-7xl px-6 py-6">
           <TabsContent value="overview">
-            <OverviewTab data={dashboard} />
+            <OverviewTab data={dashboard} charts={overviewCharts} />
           </TabsContent>
           <TabsContent value="performance">
             <PerformanceTab data={dashboard} />
