@@ -6,6 +6,8 @@ import { NAV } from '@/components/settings/styles';
 import { TabPerfil } from '@/components/settings/TabPerfil';
 import { TabPermissoes } from '@/components/settings/TabPermissoes';
 import { TabSeguranca } from '@/components/settings/TabSeguranca';
+import { TabVisaoGeral } from '@/components/settings/TabVisaoGeral';
+import { TabUtilizadores } from '@/components/settings/TabUtilizadores';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 
@@ -36,6 +38,10 @@ export default function SettingsPage() {
 
   if (!user) return null;
 
+  // Separadores de configuração da organização: só ADMIN (docs/modulo_settings.md).
+  const isAdmin = user.role?.code === 'ADMIN';
+  const visibleNav = NAV.filter((t) => !t.adminOnly || isAdmin);
+
   return (
     <div>
       {/* ── Header ── */}
@@ -57,7 +63,7 @@ export default function SettingsPage() {
           (borda/fundo/texto primary). ── */}
       <Tabs defaultValue="perfil" className="mb-6">
         <TabsList className="flex w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0">
-          {NAV.map((t) => (
+          {visibleNav.map((t) => (
             <TabsTrigger
               key={t.key}
               value={t.key}
@@ -73,6 +79,18 @@ export default function SettingsPage() {
         <TabsContent value="perfil">
           <TabPerfil user={user} />
         </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="visao-geral">
+            <TabVisaoGeral />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="utilizadores">
+            <TabUtilizadores />
+          </TabsContent>
+        )}
 
         <TabsContent value="seguranca">
           <TabSeguranca />

@@ -275,6 +275,16 @@ export const queryKeys = {
       [...queryKeys.automation.all, 'schedules', params ?? {}] as const,
   },
 
+  settings: {
+    all: ['settings'] as const,
+    organization: () => [...queryKeys.settings.all, 'organization'] as const,
+    userPolicy: () => [...queryKeys.settings.all, 'user-policy'] as const,
+    usersOverview: () => [...queryKeys.settings.all, 'users-overview'] as const,
+    inactiveUsers: (days?: number) =>
+      [...queryKeys.settings.all, 'inactive-users', days ?? 'default'] as const,
+    roles: () => [...queryKeys.settings.all, 'roles'] as const,
+  },
+
   scalability: {
     all: ['scalability'] as const,
     dashboard: () => [...queryKeys.scalability.all, 'dashboard'] as const,
