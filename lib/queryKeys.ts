@@ -848,6 +848,9 @@ export const queryKeys = {
     all: ['monitoring'] as const,
     indicators: (params: Record<string, unknown>) =>
       [...queryKeys.monitoring.all, 'indicators', params] as const,
+    overview: () => [...queryKeys.monitoring.all, 'overview'] as const,
+    modules: () => [...queryKeys.monitoring.all, 'modules'] as const,
+    processes: () => [...queryKeys.monitoring.all, 'processes'] as const,
   },
 
   leave: {
