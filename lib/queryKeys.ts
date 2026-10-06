@@ -305,6 +305,10 @@ export const queryKeys = {
     dsrRequests: (status: string, page: number) =>
       [...queryKeys.settings.all, 'dsr-requests', status, page] as const,
     license: () => [...queryKeys.settings.all, 'license'] as const,
+    auditOverview: () => [...queryKeys.settings.all, 'audit-overview'] as const,
+    authSettings: () => [...queryKeys.settings.all, 'auth-settings'] as const,
+    ssoOptions: () => [...queryKeys.settings.all, 'sso-options'] as const,
+    emailSettings: () => [...queryKeys.settings.all, 'email-settings'] as const,
   },
 
   scalability: {

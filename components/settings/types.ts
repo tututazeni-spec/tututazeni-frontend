@@ -11,7 +11,10 @@ export type Tab =
   | 'integracoes'
   | 'certificados'
   | 'privacidade'
-  | 'licenca';
+  | 'licenca'
+  | 'auditoria'
+  | 'autenticacao'
+  | 'email';
 
 export interface OrganizationSettings {
   id: string;
@@ -294,4 +297,87 @@ export interface LicenseSettings {
   contractEndDate: string | null;
   modules: Record<string, boolean>;
   moduleOptions: string[];
+}
+
+// ─── §10 Auditoria e Dados ──────────────────────────────────────────────────
+
+export interface AuditDataOverview {
+  health: 'OK' | 'WARNING' | 'DISABLED';
+  serviceEnabled: boolean;
+  lastEventAt: string | null;
+  events24h: number;
+  failedOperations24h: number;
+  deniedOperations24h: number;
+  totalEvents7d: number | null;
+  backup: { destination: string | null; frequency: string | null; configured: boolean };
+  exports: {
+    byStatus: Array<{ status: string; count: number }>;
+    expiredPendingPurge: number;
+  };
+  policy: {
+    coveredModules: string[];
+    requiredEvents: string[];
+    viewRoles: string[];
+    exportRoles: string[];
+    retentionDays: Record<string, number>;
+    archivePolicy: string;
+    maskSensitive: boolean;
+    updatedAt: string | null;
+  };
+  links: { logs: string; exports: string; policy: string };
+}
+
+// ─── §11 Autenticação / SSO ─────────────────────────────────────────────────
+
+export type OidcProviderKey = 'GOOGLE' | 'MICROSOFT' | 'OIDC';
+
+export interface AuthSettings {
+  ssoEnabled: boolean;
+  ssoProvider: OidcProviderKey | null;
+  oidc: { clientId: string; tenantId: string; issuer: string; hasClientSecret: boolean };
+  ldap: {
+    enabled: boolean;
+    url: string;
+    bindDn: string;
+    baseDn: string;
+    userFilter: string;
+    emailAttribute: string;
+    nameAttribute: string;
+    startTls: boolean;
+    hasBindPassword: boolean;
+  };
+  enforceSsoOnly: boolean;
+  oidcProviderOptions: readonly OidcProviderKey[];
+}
+
+export interface AuthTestResult {
+  ok: boolean;
+  error?: string;
+  issuer?: string;
+  authorizationEndpoint?: string;
+}
+
+// ─── §12 Email ───────────────────────────────────────────────────────────────
+
+export type EmailTemplateKey = 'PASSWORD_RESET' | 'USER_INVITE';
+
+export interface EmailTemplate {
+  subject: string;
+  body: string;
+}
+
+export interface EmailSettingsView {
+  smtp: IntegrationSettings['smtp'];
+  signature: string;
+  templates: Record<EmailTemplateKey, EmailTemplate>;
+  templateKeys: readonly EmailTemplateKey[];
+  placeholders: Record<EmailTemplateKey, readonly string[]>;
+}
+
+export interface EmailTestResult {
+  ok: boolean;
+  to?: string;
+  subject?: string;
+  preview?: string;
+  error?: string;
 }

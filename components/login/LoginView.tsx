@@ -1,7 +1,21 @@
 // components/login/LoginView.tsx
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
+
+interface SsoLoginOptions {
+  ssoEnabled: boolean;
+  ssoProvider: 'GOOGLE' | 'MICROSOFT' | 'OIDC' | null;
+  ldapEnabled: boolean;
+  passwordLoginDisabled: boolean;
+}
+
+const SSO_PROVIDER_LABELS: Record<string, string> = {
+  GOOGLE: 'Google',
+  MICROSOFT: 'Microsoft',
+  OIDC: 'SSO',
+};
 
 interface LoginViewProps {
   email: string;
@@ -13,6 +27,15 @@ interface LoginViewProps {
   error: string | null;
   loading: boolean;
   handleSubmit: (e: React.FormEvent) => void;
+  sso?: SsoLoginOptions;
+  startSsoLogin: () => void;
+  ldapEmail: string;
+  setLdapEmail: (value: string) => void;
+  ldapPassword: string;
+  setLdapPassword: (value: string) => void;
+  ldapLoading: boolean;
+  ldapError: string | null;
+  handleLdapSubmit: (e: React.FormEvent) => void;
 }
 
 export function LoginView({
@@ -25,7 +48,17 @@ export function LoginView({
   error,
   loading,
   handleSubmit,
+  sso,
+  startSsoLogin,
+  ldapEmail,
+  setLdapEmail,
+  ldapPassword,
+  setLdapPassword,
+  ldapLoading,
+  ldapError,
+  handleLdapSubmit,
 }: LoginViewProps) {
+  const [useLdap, setUseLdap] = useState(false);
   return (
     <>
       <style>{`
@@ -260,6 +293,58 @@ export function LoginView({
           color: #94a3b8;
           letter-spacing: 0.3px;
         }
+
+        .login-sso-btn {
+          width: 100%;
+          padding: 12px;
+          background: #fff;
+          color: #0a2560;
+          font-family: 'Inter', sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: border-color 0.2s, background 0.2s;
+        }
+        .login-sso-btn:hover {
+          border-color: #1a4bb5;
+          background: #f8fafc;
+        }
+
+        .login-or {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin: 18px 0;
+          font-size: 11px;
+          color: #94a3b8;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        .login-or::before,
+        .login-or::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background: #e2e8f0;
+        }
+
+        .login-ldap-toggle {
+          display: block;
+          width: 100%;
+          margin-top: 16px;
+          background: none;
+          border: none;
+          color: #1a4bb5;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          text-align: center;
+        }
+        .login-ldap-toggle:hover {
+          text-decoration: underline;
+        }
       `}</style>
 
       <div className="login-root">
@@ -284,7 +369,18 @@ export function LoginView({
             Academia Digital e Gestão de Recursos Humanos Aceda à sua conta
           </p>
 
-          <form onSubmit={handleSubmit}>
+          {sso?.ssoEnabled && (
+            <button
+              type="button"
+              className="login-sso-btn"
+              onClick={startSsoLogin}
+            >
+              Entrar com {SSO_PROVIDER_LABELS[sso.ssoProvider ?? 'OIDC']}
+            </button>
+          )}
+          {sso?.ssoEnabled && <div className="login-or">ou</div>}
+
+          <form onSubmit={useLdap ? handleLdapSubmit : handleSubmit}>
             <div className="login-field">
               <label className="login-label">E-mail</label>
               <div className="login-input-wrap">
@@ -305,8 +401,8 @@ export function LoginView({
                   type="email"
                   className="login-input"
                   placeholder="o.seu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={useLdap ? ldapEmail : email}
+                  onChange={(e) => (useLdap ? setLdapEmail(e.target.value) : setEmail(e.target.value))}
                   required
                   autoComplete="email"
                 />
@@ -333,10 +429,12 @@ export function LoginView({
                   type={showPass ? 'text' : 'password'}
                   className="login-input"
                   placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={useLdap ? ldapPassword : password}
+                  onChange={(e) =>
+                    useLdap ? setLdapPassword(e.target.value) : setPassword(e.target.value)
+                  }
                   required
-                  minLength={8}
+                  minLength={useLdap ? undefined : 8}
                   autoComplete="current-password"
                 />
                 <button
@@ -375,13 +473,21 @@ export function LoginView({
               </div>
             </div>
 
-            {error && <div className="login-error">{error}</div>}
+            {(useLdap ? ldapError : error) && (
+              <div className="login-error">{useLdap ? ldapError : error}</div>
+            )}
 
-            <button type="submit" className="login-btn" disabled={loading}>
-              {loading && <span className="login-spinner" />}
-              {loading ? 'A entrar...' : 'Entrar'}
+            <button type="submit" className="login-btn" disabled={useLdap ? ldapLoading : loading}>
+              {(useLdap ? ldapLoading : loading) && <span className="login-spinner" />}
+              {useLdap ? (ldapLoading ? 'A entrar...' : 'Entrar (LDAP/AD)') : loading ? 'A entrar...' : 'Entrar'}
             </button>
           </form>
+
+          {sso?.ldapEnabled && (
+            <button type="button" className="login-ldap-toggle" onClick={() => setUseLdap((v) => !v)}>
+              {useLdap ? 'Usar palavra-passe normal' : 'Entrar com conta corporativa (LDAP/AD)'}
+            </button>
+          )}
 
           <div className="login-footer">
             © {new Date().getFullYear()} Innova — Propriedade da EVOS, LDA.
