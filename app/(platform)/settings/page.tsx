@@ -13,11 +13,17 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 
 export default function SettingsPage() {
   const toast = useToast();
+  // ?tab= (ex.: primeiro login com password temporária). Lido do URL em vez de
+  // useSearchParams para não exigir <Suspense> nesta página client.
   const {
     data: user,
     isLoading: loading,
     error: queryError,
   } = useCurrentUser();
+  const initialTab =
+    typeof window === 'undefined'
+      ? 'perfil'
+      : (new URLSearchParams(window.location.search).get('tab') ?? 'perfil');
   const error = queryError?.message ?? '';
 
   if (loading)
@@ -61,7 +67,7 @@ export default function SettingsPage() {
           cada TabsTrigger) com largura mínima uniforme. Estado activo usa
           data-[state=active] do Radix para aplicar destaque azul
           (borda/fundo/texto primary). ── */}
-      <Tabs defaultValue="perfil" className="mb-6">
+      <Tabs defaultValue={initialTab} className="mb-6">
         <TabsList className="flex w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0">
           {visibleNav.map((t) => (
             <TabsTrigger

@@ -21,9 +21,16 @@ export function useLogin() {
     setLoading(true);
     try {
       // O backend define o cookie httpOnly 'token'; o JS nunca toca no token.
-      await apiClient.post('/auth/login', { email, password });
+      const res = await apiClient.post<{ mustChangePassword?: boolean }>(
+        '/auth/login',
+        { email, password },
+      );
       // Navegação forçada para garantir que o middleware revê o cookie.
-      window.location.href = '/dashboard';
+      // Conta convidada com password temporária (política de utilizadores):
+      // vai directa ao separador Segurança para a trocar.
+      window.location.href = res?.mustChangePassword
+        ? '/settings?tab=seguranca&firstLogin=1'
+        : '/dashboard';
     } catch (err) {
       reportError(err, { source: 'useLogin.handleSubmit' });
       setError(err instanceof Error ? err.message : 'Erro ao entrar');

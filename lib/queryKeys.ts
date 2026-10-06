@@ -283,6 +283,8 @@ export const queryKeys = {
     inactiveUsers: (days?: number) =>
       [...queryKeys.settings.all, 'inactive-users', days ?? 'default'] as const,
     roles: () => [...queryKeys.settings.all, 'roles'] as const,
+    departmentScopes: () =>
+      [...queryKeys.settings.all, 'department-scopes'] as const,
   },
 
   scalability: {

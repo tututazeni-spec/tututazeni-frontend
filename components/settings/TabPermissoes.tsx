@@ -9,6 +9,7 @@
 import type { CurrentUser as Me } from '@/hooks/useCurrentUser';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
+import { DepartmentScopePanel } from '@/components/settings/DepartmentScopePanel';
 import { RolesPermissionsView } from '@/components/roles-permissions/RolesPermissionsView';
 
 interface TabPermissoesProps {
@@ -77,6 +78,12 @@ export function TabPermissoes({ user }: TabPermissoesProps) {
             </CardBody>
           </Card>
         ))
+      )}
+
+      {user.role?.code === 'ADMIN' && (
+        <div className="col-span-2">
+          <DepartmentScopePanel />
+        </div>
       )}
 
       {canManageRoles && (
