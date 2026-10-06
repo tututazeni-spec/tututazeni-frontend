@@ -281,6 +281,37 @@ export const queryKeys = {
     integrations: () => [...queryKeys.scalability.all, 'integrations'] as const,
     automations: () => [...queryKeys.scalability.all, 'automations'] as const,
     alerts: () => [...queryKeys.scalability.all, 'alerts'] as const,
+    overviewCharts: () =>
+      [...queryKeys.scalability.all, 'overview-charts'] as const,
+    usersLoad: () => [...queryKeys.scalability.all, 'users-load'] as const,
+    apiMetrics: () => [...queryKeys.scalability.all, 'api-metrics'] as const,
+    databaseMetrics: () =>
+      [...queryKeys.scalability.all, 'database-metrics'] as const,
+    frontendMetrics: () =>
+      [...queryKeys.scalability.all, 'frontend-metrics'] as const,
+    queueMetrics: () =>
+      [...queryKeys.scalability.all, 'queue-metrics'] as const,
+    storageMetrics: () =>
+      [...queryKeys.scalability.all, 'storage-metrics'] as const,
+    capacityMetrics: () =>
+      [...queryKeys.scalability.all, 'capacity-metrics'] as const,
+    autoScaling: () =>
+      [...queryKeys.scalability.all, 'auto-scaling'] as const,
+    resilienceMetrics: () =>
+      [...queryKeys.scalability.all, 'resilience-metrics'] as const,
+    incidents: () => [...queryKeys.scalability.all, 'incidents'] as const,
+    forecasts: () => [...queryKeys.scalability.all, 'forecasts'] as const,
+    loadTests: () => [...queryKeys.scalability.all, 'load-tests'] as const,
+    costs: () => [...queryKeys.scalability.all, 'costs'] as const,
+    alertRules: () => [...queryKeys.scalability.all, 'alert-rules'] as const,
+    reportCatalog: () => [...queryKeys.scalability.all, 'reports'] as const,
+    report: (type: string) =>
+      [...queryKeys.scalability.all, 'reports', type] as const,
+    settings: () => [...queryKeys.scalability.all, 'settings'] as const,
+    integrationMetrics: () =>
+      [...queryKeys.scalability.all, 'integration-metrics'] as const,
+    performanceMetrics: () =>
+      [...queryKeys.scalability.all, 'performance-metrics'] as const,
     sla: () => [...queryKeys.scalability.all, 'sla'] as const,
     contentDelivery: () =>
       [...queryKeys.scalability.all, 'content-delivery'] as const,
