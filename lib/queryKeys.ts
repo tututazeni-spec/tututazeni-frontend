@@ -851,6 +851,16 @@ export const queryKeys = {
     overview: () => [...queryKeys.monitoring.all, 'overview'] as const,
     modules: () => [...queryKeys.monitoring.all, 'modules'] as const,
     processes: () => [...queryKeys.monitoring.all, 'processes'] as const,
+    automations: () => [...queryKeys.monitoring.all, 'automations'] as const,
+    integrations: () => [...queryKeys.monitoring.all, 'integrations'] as const,
+    performance: () => [...queryKeys.monitoring.all, 'performance'] as const,
+    alerts: (area: string | null, state: string | null) =>
+      [...queryKeys.monitoring.all, 'alerts', area, state] as const,
+    incidents: (group: string | null) =>
+      [...queryKeys.monitoring.all, 'incidents', group] as const,
+    incident: (kind: string, id: string) =>
+      [...queryKeys.monitoring.all, 'incident', kind, id] as const,
+    health: () => [...queryKeys.monitoring.all, 'health'] as const,
     jobs: () => [...queryKeys.monitoring.all, 'jobs'] as const,
     sla: (days: number) => [...queryKeys.monitoring.all, 'sla', days] as const,
     history: (days: number, kind: string | null) =>

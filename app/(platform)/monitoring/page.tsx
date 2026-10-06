@@ -2,10 +2,14 @@
 
 import { useState } from 'react';
 import { Lock } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useQueryClient } from '@tanstack/react-query';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { reportError } from '@/lib/errorReporting';
+import { useToast } from '@/providers/ToastProvider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -15,10 +19,34 @@ import {
   ProcessesTab,
 } from '@/components/monitoring/PlatformMonitoringView';
 import {
+  AutomationsTab,
+  IntegrationsTab,
+  PerformanceTab,
+} from '@/components/monitoring/CoreMonitoringView';
+import {
+  AlertsTab,
+  HealthTab,
+  IncidentsTab,
+  type AlertCommand,
+  type AlertsFilters,
+} from '@/components/monitoring/AlertsIncidentsHealthView';
+import {
   HistoryTab,
   JobsTab,
   SlaTab,
 } from '@/components/monitoring/OperationsMonitoringView';
+import type {
+  AlertsData,
+  AutomationsData,
+  CreateIncidentPayload,
+  HealthData,
+  IncidentDetail,
+  IncidentRow,
+  IncidentsData,
+  IntegrationsData,
+  PerformanceData,
+  UpdateIncidentPayload,
+} from '@/components/monitoring/coreMonitoringTypes';
 import type {
   HistoryData,
   HistoryKind,
@@ -33,6 +61,8 @@ import type {
 
 // Mesmos papéis do @Roles() de monitoring.controller.ts (backend).
 const ALLOWED = ['ADMIN', 'AUDITOR', 'RH', 'DIRECTOR', 'GESTOR'];
+// As acções sobre alertas e incidentes são só ADMIN no backend.
+const CAN_ACT = ['ADMIN'];
 const REFRESH_MS = 60_000;
 
 function Body<T>({
@@ -56,42 +86,191 @@ function Body<T>({
 
 export default function MonitoringPage() {
   const role = useCurrentRole();
+  const notify = useToast();
+  const qc = useQueryClient();
   const [tab, setTab] = useState('overview');
   const [slaDays, setSlaDays] = useState(30);
   const [historyDays, setHistoryDays] = useState(7);
   const [historyKind, setHistoryKind] = useState<HistoryKind | null>(null);
+  const [alertFilters, setAlertFilters] = useState<AlertsFilters>({
+    area: null,
+    state: null,
+  });
+  const [incidentGroup, setIncidentGroup] = useState<
+    'ACTIVE' | 'RESOLVED' | null
+  >(null);
+  const [creatingIncident, setCreatingIncident] = useState(false);
+  const [selectedIncident, setSelectedIncident] = useState<IncidentRow | null>(
+    null,
+  );
   // `role` undefined (arranque pós-login) passa — evita piscar o bloqueio.
   const blocked = !!role && !ALLOWED.includes(role);
+  const canAct = !!role && CAN_ACT.includes(role);
 
   const opts = { staleTime: STALE_TIME.DYNAMIC, refetchInterval: REFRESH_MS };
+  const on = (t: string) => ({ ...opts, enabled: !blocked && tab === t });
+
   const overview = useApiQuery<OverviewData>(
     queryKeys.monitoring.overview(),
     '/monitoring/overview',
-    { ...opts, enabled: !blocked && tab === 'overview' },
+    on('overview'),
   );
   const modules = useApiQuery<ModulesData>(
     queryKeys.monitoring.modules(),
     '/monitoring/modules',
-    { ...opts, enabled: !blocked && tab === 'modules' },
+    on('modules'),
   );
   const processes = useApiQuery<ProcessesData>(
     queryKeys.monitoring.processes(),
     '/monitoring/processes',
-    { ...opts, enabled: !blocked && tab === 'processes' },
+    on('processes'),
   );
-  const jobs = useApiQuery<JobsData>(queryKeys.monitoring.jobs(), '/monitoring/jobs', {
-    ...opts,
-    enabled: !blocked && tab === 'jobs',
-  });
+  const automations = useApiQuery<AutomationsData>(
+    queryKeys.monitoring.automations(),
+    '/monitoring/automations',
+    on('automations'),
+  );
+  const integrations = useApiQuery<IntegrationsData>(
+    queryKeys.monitoring.integrations(),
+    '/monitoring/integrations',
+    on('integrations'),
+  );
+  const performance = useApiQuery<PerformanceData>(
+    queryKeys.monitoring.performance(),
+    '/monitoring/performance',
+    on('performance'),
+  );
+  const alerts = useApiQuery<AlertsData>(
+    queryKeys.monitoring.alerts(alertFilters.area, alertFilters.state),
+    '/monitoring/alerts',
+    {
+      ...on('alerts'),
+      params: {
+        area: alertFilters.area,
+        state: alertFilters.state,
+        limit: 100,
+      },
+    },
+  );
+  const incidents = useApiQuery<IncidentsData>(
+    queryKeys.monitoring.incidents(incidentGroup),
+    '/monitoring/incidents',
+    { ...on('incidents'), params: { group: incidentGroup } },
+  );
+  const incidentDetail = useApiQuery<IncidentDetail>(
+    queryKeys.monitoring.incident(
+      selectedIncident?.kind ?? '',
+      selectedIncident?.id ?? '',
+    ),
+    `/monitoring/incidents/${selectedIncident?.kind}/${selectedIncident?.id}`,
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      enabled: !blocked && !!selectedIncident,
+    },
+  );
+  const health = useApiQuery<HealthData>(
+    queryKeys.monitoring.health(),
+    '/monitoring/health',
+    on('health'),
+  );
+  const jobs = useApiQuery<JobsData>(
+    queryKeys.monitoring.jobs(),
+    '/monitoring/jobs',
+    on('jobs'),
+  );
   const sla = useApiQuery<SlaData>(
     queryKeys.monitoring.sla(slaDays),
-    `/monitoring/sla?days=${slaDays}`,
-    { ...opts, enabled: !blocked && tab === 'sla' },
+    '/monitoring/sla',
+    { ...on('sla'), params: { days: slaDays } },
   );
   const history = useApiQuery<HistoryData>(
     queryKeys.monitoring.history(historyDays, historyKind),
-    `/monitoring/history?days=${historyDays}${historyKind ? `&kind=${historyKind}` : ''}`,
-    { ...opts, enabled: !blocked && tab === 'history' },
+    '/monitoring/history',
+    {
+      ...on('history'),
+      params: { days: historyDays, kind: historyKind },
+    },
+  );
+
+  const fail = (source: string, title: string) => (err: Error) => {
+    reportError(err, { source });
+    notify({ title, intent: 'danger' });
+  };
+
+  const alertMutation = useApiMutation<unknown, AlertCommand>(
+    (c) => {
+      const base = `/monitoring/alerts/${c.id}`;
+      switch (c.kind) {
+        case 'acknowledge':
+          return apiClient.patch(`${base}/acknowledge`);
+        case 'note':
+          return apiClient.post(`${base}/actions`, { note: c.note });
+        case 'resolve':
+          return apiClient.patch(`${base}/resolve`, { note: c.note });
+        case 'incident':
+          return apiClient.post(`${base}/incident`);
+      }
+    },
+    {
+      invalidateKeys: [
+        [...queryKeys.monitoring.all, 'alerts'],
+        [...queryKeys.monitoring.all, 'incidents'],
+      ],
+      onSuccess: (_d, c) =>
+        notify({
+          title:
+            c.kind === 'incident'
+              ? 'Incidente aberto a partir do alerta'
+              : 'Alerta actualizado',
+          intent: 'success',
+        }),
+      onError: fail(
+        'MonitoringPage.alert',
+        'Não foi possível actualizar o alerta',
+      ),
+    },
+  );
+
+  const createIncident = useApiMutation<unknown, CreateIncidentPayload>(
+    (p) => apiClient.post('/monitoring/incidents', p),
+    {
+      invalidateKeys: [[...queryKeys.monitoring.all, 'incidents']],
+      onSuccess: () => {
+        setCreatingIncident(false);
+        notify({ title: 'Incidente criado', intent: 'success' });
+      },
+      onError: fail(
+        'MonitoringPage.createIncident',
+        'Não foi possível criar o incidente',
+      ),
+    },
+  );
+
+  const updateIncident = useApiMutation<unknown, UpdateIncidentPayload>(
+    (p) => apiClient.patch(`/monitoring/incidents/${selectedIncident?.id}`, p),
+    {
+      invalidateKeys: [
+        [...queryKeys.monitoring.all, 'incidents'],
+        [...queryKeys.monitoring.all, 'incident'],
+      ],
+      onSuccess: () =>
+        notify({ title: 'Incidente actualizado', intent: 'success' }),
+      onError: fail(
+        'MonitoringPage.updateIncident',
+        'Não foi possível actualizar o incidente',
+      ),
+    },
+  );
+
+  const refreshHealth = useApiMutation<HealthData, void>(
+    () =>
+      apiClient.get<HealthData>('/monitoring/health', {
+        params: { fresh: 'true' },
+      }),
+    {
+      onSuccess: (d) => qc.setQueryData(queryKeys.monitoring.health(), d),
+      onError: fail('MonitoringPage.health', 'Não foi possível verificar agora'),
+    },
   );
 
   if (blocked) {
@@ -117,14 +296,22 @@ export default function MonitoringPage() {
         </p>
       </div>
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
-          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="modules">Módulos</TabsTrigger>
-          <TabsTrigger value="processes">Processos</TabsTrigger>
-          <TabsTrigger value="jobs">Jobs</TabsTrigger>
-          <TabsTrigger value="sla">SLA</TabsTrigger>
-          <TabsTrigger value="history">Histórico</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList>
+            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+            <TabsTrigger value="modules">Módulos</TabsTrigger>
+            <TabsTrigger value="processes">Processos</TabsTrigger>
+            <TabsTrigger value="automations">Automações</TabsTrigger>
+            <TabsTrigger value="integrations">Integrações</TabsTrigger>
+            <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="alerts">Alertas</TabsTrigger>
+            <TabsTrigger value="incidents">Incidentes</TabsTrigger>
+            <TabsTrigger value="health">Health Check</TabsTrigger>
+            <TabsTrigger value="jobs">Jobs</TabsTrigger>
+            <TabsTrigger value="sla">SLA</TabsTrigger>
+            <TabsTrigger value="history">Histórico</TabsTrigger>
+          </TabsList>
+        </div>
         <TabsContent value="overview" className="mt-4">
           <Body query={overview}>{(d) => <OverviewTab data={d} />}</Body>
         </TabsContent>
@@ -134,12 +321,72 @@ export default function MonitoringPage() {
         <TabsContent value="processes" className="mt-4">
           <Body query={processes}>{(d) => <ProcessesTab data={d} />}</Body>
         </TabsContent>
+        <TabsContent value="automations" className="mt-4">
+          <Body query={automations}>{(d) => <AutomationsTab data={d} />}</Body>
+        </TabsContent>
+        <TabsContent value="integrations" className="mt-4">
+          <Body query={integrations}>
+            {(d) => <IntegrationsTab data={d} />}
+          </Body>
+        </TabsContent>
+        <TabsContent value="performance" className="mt-4">
+          <Body query={performance}>{(d) => <PerformanceTab data={d} />}</Body>
+        </TabsContent>
+        <TabsContent value="alerts" className="mt-4">
+          <Body query={alerts}>
+            {(d) => (
+              <AlertsTab
+                data={d}
+                filters={alertFilters}
+                onFiltersChange={setAlertFilters}
+                canAct={canAct}
+                busy={alertMutation.isPending}
+                onCommand={(c) => alertMutation.mutate(c)}
+              />
+            )}
+          </Body>
+        </TabsContent>
+        <TabsContent value="incidents" className="mt-4">
+          <Body query={incidents}>
+            {(d) => (
+              <IncidentsTab
+                data={d}
+                group={incidentGroup}
+                onGroupChange={setIncidentGroup}
+                canAct={canAct}
+                busy={createIncident.isPending || updateIncident.isPending}
+                creating={creatingIncident}
+                onCreateClick={() => setCreatingIncident(true)}
+                onCreate={(p) => createIncident.mutate(p)}
+                onCloseCreate={() => setCreatingIncident(false)}
+                selected={selectedIncident}
+                detail={incidentDetail.data}
+                detailLoading={incidentDetail.isLoading}
+                onSelect={setSelectedIncident}
+                onUpdate={(p) => updateIncident.mutate(p)}
+              />
+            )}
+          </Body>
+        </TabsContent>
+        <TabsContent value="health" className="mt-4">
+          <Body query={health}>
+            {(d) => (
+              <HealthTab
+                data={d}
+                refreshing={refreshHealth.isPending}
+                onRefresh={() => refreshHealth.mutate()}
+              />
+            )}
+          </Body>
+        </TabsContent>
         <TabsContent value="jobs" className="mt-4">
           <Body query={jobs}>{(d) => <JobsTab data={d} />}</Body>
         </TabsContent>
         <TabsContent value="sla" className="mt-4">
           <Body query={sla}>
-            {(d) => <SlaTab data={d} days={slaDays} onDaysChange={setSlaDays} />}
+            {(d) => (
+              <SlaTab data={d} days={slaDays} onDaysChange={setSlaDays} />
+            )}
           </Body>
         </TabsContent>
         <TabsContent value="history" className="mt-4">

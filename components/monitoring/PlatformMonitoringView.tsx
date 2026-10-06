@@ -15,7 +15,7 @@ import type {
 
 export type Intent = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 
-const STATUS: Record<MonitoringStatus, { label: string; intent: Intent }> = {
+export const STATUS: Record<MonitoringStatus, { label: string; intent: Intent }> = {
   NORMAL: { label: 'Normal', intent: 'success' },
   ATENCAO: { label: 'Atenção', intent: 'warning' },
   DEGRADADO: { label: 'Degradado', intent: 'warning' },
@@ -23,13 +23,13 @@ const STATUS: Record<MonitoringStatus, { label: string; intent: Intent }> = {
   INDISPONIVEL: { label: 'Indisponível', intent: 'danger' },
 };
 
-const SEVERITY: Record<string, Intent> = {
+export const SEVERITY: Record<string, Intent> = {
   INFO: 'info',
   WARNING: 'warning',
   CRITICAL: 'danger',
 };
 
-function StatusBadge({ status }: { status: MonitoringStatus }) {
+export function StatusBadge({ status }: { status: MonitoringStatus }) {
   const s = STATUS[status];
   return <Badge intent={s.intent}>{s.label}</Badge>;
 }
