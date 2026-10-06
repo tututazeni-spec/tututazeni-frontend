@@ -297,6 +297,14 @@ export const queryKeys = {
     integrationsOverview: () =>
       [...queryKeys.settings.all, 'integrations-overview'] as const,
     whatsappStatus: () => [...queryKeys.settings.all, 'whatsapp-status'] as const,
+    certificates: () => [...queryKeys.settings.all, 'certificates'] as const,
+    certificateTemplates: () =>
+      [...queryKeys.settings.all, 'certificate-templates'] as const,
+    privacy: () => [...queryKeys.settings.all, 'privacy'] as const,
+    consentVersions: () => [...queryKeys.settings.all, 'consent-versions'] as const,
+    dsrRequests: (status: string, page: number) =>
+      [...queryKeys.settings.all, 'dsr-requests', status, page] as const,
+    license: () => [...queryKeys.settings.all, 'license'] as const,
   },
 
   scalability: {

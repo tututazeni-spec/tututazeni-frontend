@@ -8,7 +8,10 @@ export type Tab =
   | 'utilizadores'
   | 'seguranca'
   | 'notificacoes'
-  | 'integracoes';
+  | 'integracoes'
+  | 'certificados'
+  | 'privacidade'
+  | 'licenca';
 
 export interface OrganizationSettings {
   id: string;
@@ -192,4 +195,103 @@ export interface WhatsAppStatus {
     hourlyLimit: number;
     dailyLimit: number;
   };
+}
+
+// ─── §7 Certificados ───────────────────────────────────────────────────────
+
+export interface CertificateSettings {
+  academyLogoUrl: string | null;
+  signatureUrl: string | null;
+  signatoryName: string | null;
+  signatoryTitle: string | null;
+  defaultText: string | null;
+  numberingPrefix: string;
+  numberingNextSeq: number;
+  numberingPadding: number;
+  verificationCodeLength: number;
+  nextNumberPreview: string;
+}
+
+export type CertificateTemplateType =
+  | 'COURSE'
+  | 'PROGRAM'
+  | 'COMPETENCY'
+  | 'ATTENDANCE'
+  | 'PARTICIPATION'
+  | 'ACHIEVEMENT';
+
+export interface CertificateTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  type: CertificateTemplateType;
+  html: string;
+  cssStyle: string | null;
+  logoUrl: string | null;
+  signatureUrl: string | null;
+  signatoryName: string | null;
+  signatoryTitle: string | null;
+  isDefault: boolean;
+  isActive: boolean;
+  validityDays: number | null;
+  createdAt: string;
+}
+
+// ─── §8 Privacidade (LPDP) ─────────────────────────────────────────────────
+
+export interface ConsentTextVersion {
+  version: number;
+  text: string;
+  publishedAt: string;
+}
+
+export interface PrivacySettings {
+  dpoName: string;
+  dpoEmail: string;
+  dpoPhone: string;
+  retentionDays: number;
+  anonymizationEnabled: boolean;
+  exportEnabled: boolean;
+  autoDeleteOnRequest: boolean;
+  consentVersions: ConsentTextVersion[];
+  currentConsentVersion: ConsentTextVersion | null;
+  openRequests: number;
+}
+
+export type DsrType = 'ACCESS' | 'RECTIFICATION' | 'ERASURE' | 'PORTABILITY' | 'OBJECTION';
+export type DsrStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED';
+
+export interface DataSubjectRequest {
+  id: number;
+  requesterName: string;
+  requesterEmail: string;
+  type: DsrType;
+  status: DsrStatus;
+  details: string | null;
+  resolutionNote: string | null;
+  userId: number | null;
+  requestedAt: string;
+  resolvedAt: string | null;
+}
+
+export interface DataSubjectRequestsPage {
+  items: DataSubjectRequest[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+// ─── §9 Licença e Módulos ──────────────────────────────────────────────────
+
+export interface LicenseSettings {
+  plan: string;
+  isActive: boolean;
+  maxUsers: number;
+  currentUsers: number;
+  trialEndsAt: string | null;
+  trialStatus: 'NONE' | 'ACTIVE' | 'EXPIRED';
+  contractStartDate: string | null;
+  contractEndDate: string | null;
+  modules: Record<string, boolean>;
+  moduleOptions: string[];
 }

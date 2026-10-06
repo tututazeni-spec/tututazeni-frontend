@@ -10,6 +10,9 @@ import { TabVisaoGeral } from '@/components/settings/TabVisaoGeral';
 import { TabUtilizadores } from '@/components/settings/TabUtilizadores';
 import { TabNotificacoes } from '@/components/settings/TabNotificacoes';
 import { TabIntegracoes } from '@/components/settings/TabIntegracoes';
+import { TabCertificados } from '@/components/settings/TabCertificados';
+import { TabPrivacidade } from '@/components/settings/TabPrivacidade';
+import { TabLicenca } from '@/components/settings/TabLicenca';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 
@@ -117,6 +120,24 @@ export default function SettingsPage() {
         {isAdmin && (
           <TabsContent value="integracoes">
             <TabIntegracoes />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="certificados">
+            <TabCertificados />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="privacidade">
+            <TabPrivacidade />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="licenca">
+            <TabLicenca />
           </TabsContent>
         )}
       </Tabs>
