@@ -8,6 +8,8 @@ import { TabPermissoes } from '@/components/settings/TabPermissoes';
 import { TabSeguranca } from '@/components/settings/TabSeguranca';
 import { TabVisaoGeral } from '@/components/settings/TabVisaoGeral';
 import { TabUtilizadores } from '@/components/settings/TabUtilizadores';
+import { TabNotificacoes } from '@/components/settings/TabNotificacoes';
+import { TabIntegracoes } from '@/components/settings/TabIntegracoes';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 
@@ -99,12 +101,24 @@ export default function SettingsPage() {
         )}
 
         <TabsContent value="seguranca">
-          <TabSeguranca />
+          <TabSeguranca isAdmin={isAdmin} />
         </TabsContent>
 
         <TabsContent value="permissoes">
           <TabPermissoes user={user} />
         </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="notificacoes">
+            <TabNotificacoes />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="integracoes">
+            <TabIntegracoes />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

@@ -285,6 +285,18 @@ export const queryKeys = {
     roles: () => [...queryKeys.settings.all, 'roles'] as const,
     departmentScopes: () =>
       [...queryKeys.settings.all, 'department-scopes'] as const,
+    securityPolicy: () => [...queryKeys.settings.all, 'security-policy'] as const,
+    lockedUsers: () => [...queryKeys.settings.all, 'locked-users'] as const,
+    sessions: (scope: 'all' | 'me') =>
+      [...queryKeys.settings.all, 'sessions', scope] as const,
+    loginHistory: (scope: 'all' | 'me', page: number) =>
+      [...queryKeys.settings.all, 'login-history', scope, page] as const,
+    twoFactor: () => [...queryKeys.settings.all, 'two-factor'] as const,
+    notifications: () => [...queryKeys.settings.all, 'notifications'] as const,
+    integrations: () => [...queryKeys.settings.all, 'integrations'] as const,
+    integrationsOverview: () =>
+      [...queryKeys.settings.all, 'integrations-overview'] as const,
+    whatsappStatus: () => [...queryKeys.settings.all, 'whatsapp-status'] as const,
   },
 
   scalability: {
