@@ -222,6 +222,12 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         roles: ['ADMIN', 'RH', 'DIRECTOR'],
       },
       {
+        href: '/monitoring',
+        icon: Activity,
+        label: 'Monitorização',
+        roles: ['ADMIN', 'AUDITOR', 'RH', 'DIRECTOR', 'GESTOR'],
+      },
+      {
         href: '/scalability',
         icon: PieChart,
         label: 'Escalabilidade',
