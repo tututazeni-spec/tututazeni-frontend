@@ -13,7 +13,7 @@ import type {
   ProcessInstanceRow,
 } from './platformTypes';
 
-type Intent = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
+export type Intent = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 
 const STATUS: Record<MonitoringStatus, { label: string; intent: Intent }> = {
   NORMAL: { label: 'Normal', intent: 'success' },
@@ -34,7 +34,7 @@ function StatusBadge({ status }: { status: MonitoringStatus }) {
   return <Badge intent={s.intent}>{s.label}</Badge>;
 }
 
-function Tile({
+export function Tile({
   label,
   value,
   sub,
@@ -68,10 +68,10 @@ function Tile({
   );
 }
 
-const tone = (n: number, kind: Intent = 'danger'): Intent | undefined =>
+export const tone = (n: number, kind: Intent = 'danger'): Intent | undefined =>
   n > 0 ? kind : undefined;
 
-const fmtDate = (iso: string) =>
+export const fmtDate = (iso: string) =>
   new Date(iso).toLocaleString('pt-PT', {
     day: '2-digit',
     month: '2-digit',

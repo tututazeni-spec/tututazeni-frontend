@@ -851,6 +851,10 @@ export const queryKeys = {
     overview: () => [...queryKeys.monitoring.all, 'overview'] as const,
     modules: () => [...queryKeys.monitoring.all, 'modules'] as const,
     processes: () => [...queryKeys.monitoring.all, 'processes'] as const,
+    jobs: () => [...queryKeys.monitoring.all, 'jobs'] as const,
+    sla: (days: number) => [...queryKeys.monitoring.all, 'sla', days] as const,
+    history: (days: number, kind: string | null) =>
+      [...queryKeys.monitoring.all, 'history', days, kind] as const,
   },
 
   leave: {
