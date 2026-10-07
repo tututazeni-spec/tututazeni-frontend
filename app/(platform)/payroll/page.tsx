@@ -1,5 +1,25 @@
 'use client';
 
+import { PillNav } from '@/components/ui/PillTabs';
+import {
+  Banknote,
+  BarChart3,
+  Calculator,
+  CalendarRange,
+  Coins,
+  Gift,
+  GitCompare,
+  LayoutDashboard,
+  Lock,
+  MessageSquareWarning,
+  Percent,
+  PieChart,
+  PlayCircle,
+  Receipt,
+  Users,
+  Wallet,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { RunListView } from '@/components/payroll/RunListView';
 import { RunDetailView } from '@/components/payroll/RunDetailView';
@@ -51,24 +71,127 @@ type Nav =
   | { tab: 'compensations'; view: 'list' }
   | { tab: 'compensations'; view: 'detail'; userId: number };
 
-const TABS: Array<{ id: Nav['tab']; label: string; adminOnly?: boolean }> = [
-  { id: 'overview', label: 'Visão Geral', adminOnly: true },
-  { id: 'runs', label: 'Processamentos', adminOnly: true },
-  { id: 'employees', label: 'Colaboradores', adminOnly: true },
-  { id: 'components', label: 'Remunerações', adminOnly: true },
-  { id: 'deductions', label: 'Deduções & Impostos', adminOnly: true },
-  { id: 'payslips', label: 'Recibos de Vencimento', adminOnly: true },
-  { id: 'payments', label: 'Pagamentos', adminOnly: true },
-  { id: 'closure', label: 'Fecho Salarial', adminOnly: true },
-  { id: 'reports', label: 'Relatórios', adminOnly: true },
-  { id: 'dashboard', label: 'Dashboard Recibos', adminOnly: true },
-  { id: 'disputes', label: 'Disputas', adminOnly: true },
-  { id: 'compensations', label: 'Compensações', adminOnly: true },
-  { id: 'my', label: 'Os meus recibos' },
-  { id: 'compare', label: 'Comparar meses' },
-  { id: 'simulate', label: 'Simulador IRT' },
-  { id: 'annual', label: 'Resumo anual' },
-  { id: 'compensation', label: 'A minha compensação' },
+const TABS: Array<{
+  id: Nav['tab'];
+  label: string;
+  hint?: string;
+  icon?: LucideIcon;
+  adminOnly?: boolean;
+}> = [
+  {
+    id: 'overview',
+    hint: 'Resumo da folha',
+    icon: LayoutDashboard,
+    label: 'Visão Geral',
+    adminOnly: true,
+  },
+  {
+    id: 'runs',
+    hint: 'Ciclos de processamento',
+    icon: PlayCircle,
+    label: 'Processamentos',
+    adminOnly: true,
+  },
+  {
+    id: 'employees',
+    hint: 'Dados salariais',
+    icon: Users,
+    label: 'Colaboradores',
+    adminOnly: true,
+  },
+  {
+    id: 'components',
+    hint: 'Componentes salariais',
+    icon: Coins,
+    label: 'Remunerações',
+    adminOnly: true,
+  },
+  {
+    id: 'deductions',
+    hint: 'IRT e segurança social',
+    icon: Percent,
+    label: 'Deduções & Impostos',
+    adminOnly: true,
+  },
+  {
+    id: 'payslips',
+    hint: 'Todos os recibos',
+    icon: Receipt,
+    label: 'Recibos de Vencimento',
+    adminOnly: true,
+  },
+  {
+    id: 'payments',
+    hint: 'Transferências',
+    icon: Banknote,
+    label: 'Pagamentos',
+    adminOnly: true,
+  },
+  {
+    id: 'closure',
+    hint: 'Encerrar o mês',
+    icon: Lock,
+    label: 'Fecho Salarial',
+    adminOnly: true,
+  },
+  {
+    id: 'reports',
+    hint: 'Relatórios',
+    icon: BarChart3,
+    label: 'Relatórios',
+    adminOnly: true,
+  },
+  {
+    id: 'dashboard',
+    hint: 'Indicadores de recibos',
+    icon: PieChart,
+    label: 'Dashboard Recibos',
+    adminOnly: true,
+  },
+  {
+    id: 'disputes',
+    hint: 'Contestações',
+    icon: MessageSquareWarning,
+    label: 'Disputas',
+    adminOnly: true,
+  },
+  {
+    id: 'compensations',
+    hint: 'Compensações da equipa',
+    icon: Gift,
+    label: 'Compensações',
+    adminOnly: true,
+  },
+  {
+    id: 'my',
+    hint: 'Os teus recibos',
+    icon: Receipt,
+    label: 'Os meus recibos',
+  },
+  {
+    id: 'compare',
+    hint: 'Mês a mês',
+    icon: GitCompare,
+    label: 'Comparar meses',
+  },
+  {
+    id: 'simulate',
+    hint: 'Simulador de IRT',
+    icon: Calculator,
+    label: 'Simulador IRT',
+  },
+  {
+    id: 'annual',
+    hint: 'Totais do ano',
+    icon: CalendarRange,
+    label: 'Resumo anual',
+  },
+  {
+    id: 'compensation',
+    hint: 'A tua compensação',
+    icon: Wallet,
+    label: 'A minha compensação',
+  },
 ];
 
 const TITLES: Record<Nav['tab'], string> = {
@@ -127,28 +250,15 @@ export default function PayrollPage() {
         </h1>
       </div>
 
-      {/* Tabs — formato de "cartão": cada botão é um cartão independente
-          (borda + fundo branco + rounded), sem o fundo/pill de grupo
-          anterior. Alinhadas horizontal e verticalmente (justify-center +
-          items-center no wrapper) com largura mínima uniforme. Estado
-          activo usa a mesma condição `nav.tab === t.id` de sempre para
-          aplicar destaque azul (borda/fundo/texto primary). */}
+      {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
       {!isDetail && (
-        <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
-          {visibleTabs.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => selectTab(t.id)}
-              className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors ${
-                nav.tab === t.id
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border bg-white text-ink-muted hover:text-ink'
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+        <PillNav
+          items={visibleTabs}
+          value={nav.tab}
+          onChange={(id) => selectTab(id as Nav['tab'])}
+          label="Folha salarial"
+          className="mb-6"
+        />
       )}
 
       {isAdmin && nav.tab === 'overview' && <OverviewView />}

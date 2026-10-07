@@ -33,28 +33,75 @@ import { BenchmarksTab } from '@/components/roi-impact/BenchmarksTab';
 import { ReportsTab } from '@/components/roi-impact/ReportsTab';
 import { ConfigTab } from '@/components/roi-impact/ConfigTab';
 import type { Tab } from '@/components/roi-impact/types';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList } from '@/components/ui/PillTabs';
 
 // docs/roi-impact.md — "Visão Geral", "ROI da Formação", "Impacto no
 // Negócio", "Modelos de Avaliação", "Custos & Investimento", "Indicadores
 // & KPIs", "Correlações", "Cenários & Simulações", "Benchmarks",
 // "Relatórios" e "Configurações" (§1-11) seguem a ordem/nome do spec.
-const TABS: { id: Tab; label: string; icon: LucideIcon | null }[] = [
-  { id: 'executive', label: 'Visão Geral', icon: Briefcase },
-  { id: 'roi-analysis', label: 'ROI da Formação', icon: LineChart },
-  { id: 'impact', label: 'Impacto no Negócio', icon: Target },
+const TABS: {
+  id: Tab;
+  label: string;
+  hint?: string;
+  icon: LucideIcon | null;
+}[] = [
+  {
+    id: 'executive',
+    label: 'Visão Geral',
+    hint: 'Resumo executivo',
+    icon: Briefcase,
+  },
+  {
+    id: 'roi-analysis',
+    label: 'ROI da Formação',
+    hint: 'Retorno do investimento',
+    icon: LineChart,
+  },
+  {
+    id: 'impact',
+    label: 'Impacto no Negócio',
+    hint: 'Resultados reais',
+    icon: Target,
+  },
   {
     id: 'evaluation-models',
     label: 'Modelos de Avaliação',
+    hint: 'Kirkpatrick e afins',
     icon: ClipboardList,
   },
-  { id: 'costs', label: 'Custos & Investimento', icon: Coins },
-  { id: 'kpis', label: 'Indicadores & KPIs', icon: Gauge },
-  { id: 'correlations', label: 'Correlações', icon: GitCompareArrows },
-  { id: 'scenarios', label: 'Cenários & Simulações', icon: FlaskConical },
-  { id: 'benchmarks', label: 'Indicadores de Referência', icon: Scale },
-  { id: 'reports', label: 'Relatórios', icon: BarChart3 },
-  { id: 'config', label: 'Configurações', icon: Settings },
+  {
+    id: 'costs',
+    label: 'Custos & Investimento',
+    hint: 'Orçamento e gastos',
+    icon: Coins,
+  },
+  {
+    id: 'kpis',
+    label: 'Indicadores & KPIs',
+    hint: 'Métricas-chave',
+    icon: Gauge,
+  },
+  {
+    id: 'correlations',
+    label: 'Correlações',
+    hint: 'Formação vs. resultados',
+    icon: GitCompareArrows,
+  },
+  {
+    id: 'scenarios',
+    label: 'Cenários & Simulações',
+    hint: 'E se…?',
+    icon: FlaskConical,
+  },
+  {
+    id: 'benchmarks',
+    label: 'Indicadores de Referência',
+    hint: 'Benchmarks',
+    icon: Scale,
+  },
+  { id: 'reports', label: 'Relatórios', hint: 'Exportações', icon: BarChart3 },
+  { id: 'config', label: 'Configurações', hint: 'Parâmetros', icon: Settings },
 ];
 
 export default function RoiImpactPage() {
@@ -72,30 +119,9 @@ export default function RoiImpactPage() {
         </div>
       </div>
 
-      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
-          (borda + fundo branco + rounded), sem underline no container.
-          Alinhadas horizontal e verticalmente (justify-center +
-          items-center no TabsList, flex items-center em cada TabsTrigger)
-          com largura mínima uniforme. Estado activo usa data-[state=active]
-          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
       <Tabs defaultValue="executive">
-        <div className="bg-surface px-6 py-3">
-          <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto bg-transparent p-0">
-            {TABS.map((t) => {
-              const Icon = t.icon;
-              return (
-                <TabsTrigger
-                  key={t.id}
-                  value={t.id}
-                  className="flex min-w-[140px] items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
-                             data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                >
-                  {Icon && <Icon size={15} strokeWidth={1.75} />}
-                  {t.label}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+        <div className="bg-surface px-6 py-5">
+          <PillTabsList items={TABS} className="mx-auto max-w-7xl" />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">

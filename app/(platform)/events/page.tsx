@@ -14,6 +14,7 @@
 // CreateEventModal (POST /events), visível apenas para ADMIN/RH/GESTOR
 // (espelha @Roles em src/events/events.controller.ts#create).
 
+import { PillNav } from '@/components/ui/PillTabs';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
@@ -62,27 +63,13 @@ export default function EventsPage() {
         )}
       </div>
 
-      {/* Tabs — formato de "cartão": cada botão é um cartão independente
-          (borda + fundo branco + rounded), sem o fundo/pill de grupo
-          anterior. Alinhadas horizontal e verticalmente (justify-center +
-          items-center no wrapper) com largura mínima uniforme. Estado
-          activo usa a mesma condição `nav.view === n.id` de sempre para
-          aplicar destaque azul (borda/fundo/texto primary). */}
-      <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
-        {NAV.map((n) => (
-          <button
-            key={n.id}
-            onClick={() => setNav({ view: n.id })}
-            className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors ${
-              nav.view === n.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
-            }`}
-          >
-            {n.label}
-          </button>
-        ))}
-      </div>
+      <PillNav
+        items={NAV}
+        value={nav.view}
+        onChange={(id) => setNav({ view: id } as Nav)}
+        label="Eventos"
+        className="mb-6"
+      />
 
       {nav.view === 'overview' && <OverviewTab />}
       {nav.view === 'events' && <EventsTab />}

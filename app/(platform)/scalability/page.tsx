@@ -358,7 +358,7 @@ export default function ScalabilityPage() {
   };
 
   // §15-17 — só ADMIN altera limites, política de scaling e resiliência.
-  const canEditInfra = currentUser?.role?.code === 'ADMIN';
+  const canEditInfra = currentUser?.role?.name === 'ADMIN';
 
   const saveCapacity = useApiMutation<
     unknown,

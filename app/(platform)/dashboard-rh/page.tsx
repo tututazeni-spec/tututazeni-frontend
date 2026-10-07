@@ -15,7 +15,6 @@ import { useState } from 'react';
 import {
   BarChart2,
   BookOpen,
-  CircleCheck,
   Clock,
   RefreshCw,
   ShieldCheck,
@@ -31,7 +30,8 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { IconButton } from '@/components/ui/Button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList } from '@/components/ui/PillTabs';
 import { AttendancePanel } from '@/components/dashboard-rh/AttendancePanel';
 import { CompliancePanel } from '@/components/dashboard-rh/CompliancePanel';
 import { CorrelationsPanel } from '@/components/dashboard-rh/CorrelationsPanel';
@@ -165,55 +165,8 @@ export default function DashboardRhPage() {
         value={activePanel}
         onValueChange={(value) => setActivePanel(value as Panel)}
       >
-        {/* Tabs — barra flutuante em "glassmorphism": contentor translúcido
-            com desfoque (backdrop-blur) e botões em forma de pílula com
-            ícone, título e subtítulo. A aba activa (data-[state=active]
-            do Radix) ganha gradiente azul, sombra e um visto à direita.
-            As manchas desfocadas atrás existem só para o efeito de vidro
-            ser visível sobre o fundo claro. */}
-        <div className="relative bg-surface px-6 py-5">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 overflow-hidden"
-          >
-            <div className="absolute -left-16 top-0 h-40 w-72 rounded-full bg-primary/20 blur-3xl" />
-            <div className="absolute -right-10 bottom-0 h-40 w-72 rounded-full bg-primary/15 blur-3xl" />
-          </div>
-
-          <div className="relative mx-auto max-w-7xl rounded-3xl border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
-            <TabsList className="flex h-auto w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0">
-              {PANELS.map((p) => {
-                const Icon = p.icon;
-                return (
-                  <TabsTrigger
-                    key={p.id}
-                    value={p.id}
-                    className="group flex h-auto items-center gap-3 whitespace-nowrap rounded-full border border-white/70 bg-white/60 py-2 pl-2 pr-4 text-left text-ink shadow-sm backdrop-blur transition-all
-                               hover:bg-white/80
-                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40
-                               data-[state=active]:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/70 data-[state=active]:text-white data-[state=active]:shadow-lg"
-                  >
-                    {Icon && (
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/70 text-ink/70 group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
-                        <Icon size={16} strokeWidth={1.75} />
-                      </span>
-                    )}
-                    <span className="flex flex-col items-start leading-tight">
-                      <span className="text-sm font-semibold">{p.label}</span>
-                      <span className="text-xs opacity-70 group-data-[state=active]:opacity-85">
-                        {p.hint}
-                      </span>
-                    </span>
-                    <CircleCheck
-                      size={16}
-                      strokeWidth={2}
-                      className="hidden shrink-0 group-data-[state=active]:block"
-                    />
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-          </div>
+        <div className="bg-surface px-6 py-5">
+          <PillTabsList items={PANELS} className="mx-auto max-w-7xl" />
         </div>
 
         {/* Content */}

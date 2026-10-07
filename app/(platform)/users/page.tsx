@@ -17,6 +17,7 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { PillNav } from '@/components/ui/PillTabs';
 import { NAV, TITLES } from '@/components/users/constants';
 import { CreateUserView } from '@/components/users/CreateUserView';
 import { DashboardView } from '@/components/users/DashboardView';
@@ -67,28 +68,14 @@ export default function UsersPage() {
         </div>
       )}
 
-      {/* Tabs — formato de "cartão": cada botão é um cartão independente
-          (borda + fundo branco + rounded), sem o fundo/pill de grupo
-          anterior. Alinhadas horizontal e verticalmente (justify-center +
-          items-center no wrapper) com largura mínima uniforme. Estado
-          activo usa a mesma condição `nav.view === n.id` de sempre para
-          aplicar destaque azul (borda/fundo/texto primary). */}
       {nav.view !== 'detail' && nav.view !== 'create' && (
-        <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
-          {NAV.map((n) => (
-            <button
-              key={n.id}
-              onClick={() => setNav({ view: n.id })}
-              className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors ${
-                nav.view === n.id
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border bg-white text-ink-muted hover:text-ink'
-              }`}
-            >
-              {n.label}
-            </button>
-          ))}
-        </div>
+        <PillNav
+          items={NAV}
+          value={nav.view}
+          onChange={(id) => setNav({ view: id } as Nav)}
+          label="Utilizadores"
+          className="mb-6"
+        />
       )}
 
       {nav.view === 'list' && (

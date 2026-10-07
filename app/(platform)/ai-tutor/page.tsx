@@ -17,7 +17,8 @@ import { AnalyticsView } from '@/components/ai-tutor/AnalyticsView';
 import { SettingsView } from '@/components/ai-tutor/SettingsView';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import type { View } from '@/components/ai-tutor/types';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList } from '@/components/ui/PillTabs';
 
 const PRIVILEGED_ROLES = new Set(['ADMIN', 'RH']);
 
@@ -37,25 +38,9 @@ export default function AiTutorPage() {
         </div>
       </div>
 
-      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
-          (borda + fundo branco + rounded), sem underline no container.
-          Alinhadas horizontal e verticalmente (justify-center +
-          items-center no TabsList, flex items-center em cada TabsTrigger)
-          com largura mínima uniforme. Estado activo usa data-[state=active]
-          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
+      {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
       <Tabs value={view} onValueChange={(v) => setView(v as View)}>
-        <TabsList className="mb-6 flex w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0">
-          {nav.map((n) => (
-            <TabsTrigger
-              key={n.id}
-              value={n.id}
-              className="flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
-                         data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-            >
-              {n.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <PillTabsList items={nav} className="mb-6" />
 
         <TabsContent value="overview">
           <OverviewView />

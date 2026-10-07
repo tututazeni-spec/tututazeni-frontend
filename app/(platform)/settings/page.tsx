@@ -20,7 +20,8 @@ import { TabWhatsApp } from '@/components/settings/TabWhatsApp';
 import { TabBackups } from '@/components/settings/TabBackups';
 import { TabSistema } from '@/components/settings/TabSistema';
 import { Button } from '@/components/ui/Button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList } from '@/components/ui/PillTabs';
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -56,7 +57,7 @@ export default function SettingsPage() {
   if (!user) return null;
 
   // Separadores de configuração da organização: só ADMIN (docs/modulo_settings.md).
-  const isAdmin = user.role?.code === 'ADMIN';
+  const isAdmin = user.role?.name === 'ADMIN';
   const visibleNav = NAV.filter((t) => !t.adminOnly || isAdmin);
 
   return (
@@ -71,26 +72,9 @@ export default function SettingsPage() {
         </Button>
       </div>
 
-      {/* ── Tabs — formato de "cartão": cada trigger é um cartão
-          independente (borda + fundo branco + rounded), sem fundo
-          bg-surface-sunken de grupo. Alinhadas horizontal e verticalmente
-          (justify-center + items-center no TabsList, flex items-center em
-          cada TabsTrigger) com largura mínima uniforme. Estado activo usa
-          data-[state=active] do Radix para aplicar destaque azul
-          (borda/fundo/texto primary). ── */}
+      {/* ── Tabs — barra glassmorphism partilhada (components/ui/PillTabs). ── */}
       <Tabs defaultValue={initialTab} className="mb-6">
-        <TabsList className="flex w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0">
-          {visibleNav.map((t) => (
-            <TabsTrigger
-              key={t.key}
-              value={t.key}
-              className="flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
-                         data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-            >
-              {t.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <PillTabsList items={visibleNav.map((t) => ({ ...t, id: t.key }))} />
 
         {/* ── Conteúdo ── */}
         <TabsContent value="perfil">

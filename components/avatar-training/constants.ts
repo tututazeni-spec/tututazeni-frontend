@@ -1,4 +1,20 @@
 // components/avatar-training/constants.ts
+import {
+  Award,
+  BarChart2,
+  BookOpen,
+  Bot,
+  ClipboardCheck,
+  GraduationCap,
+  Hammer,
+  History,
+  LayoutDashboard,
+  Presentation,
+  Settings,
+  TrendingUp,
+  Workflow,
+} from 'lucide-react';
+import type { PillTabItem } from '@/components/ui/PillTabs';
 import type { Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
@@ -25,21 +41,93 @@ export const PROGRESS_ROLES: readonly Role[] = [
   'INSTRUCTOR',
 ];
 
-export const TABS: { id: TabId; label: string; roles?: readonly Role[] }[] = [
-  { id: 'overview', label: 'Visão Geral' },
-  { id: 'room', label: 'Sala de Formação Virtual' },
-  { id: 'programs', label: 'Formações com Avatar' },
-  { id: 'simulations', label: 'Simulações' },
-  { id: 'builder', label: 'Construtor de Sessões', roles: AUTHOR_ROLES },
-  { id: 'knowledge', label: 'Base de Conhecimento', roles: AUTHOR_ROLES },
-  { id: 'assessments', label: 'Avaliações', roles: AUTHOR_ROLES },
-  { id: 'competencies', label: 'Competências' },
-  { id: 'avatars', label: 'Avatares', roles: AUTHOR_ROLES },
-  { id: 'progress', label: 'Progresso dos Formandos' },
-  { id: 'reports', label: 'Relatórios', roles: PROGRESS_ROLES },
-  { id: 'settings', label: 'Configurações', roles: AUTHOR_ROLES },
-  { id: 'history', label: 'Histórico' },
-];
+export const TABS: Array<PillTabItem & { id: TabId; roles?: readonly Role[] }> =
+  [
+    {
+      id: 'overview',
+      label: 'Visão Geral',
+      hint: 'Resumo do módulo',
+      icon: LayoutDashboard,
+    },
+    {
+      id: 'room',
+      label: 'Sala de Formação Virtual',
+      hint: 'Sessões ao vivo',
+      icon: Presentation,
+    },
+    {
+      id: 'programs',
+      label: 'Formações com Avatar',
+      hint: 'Programas publicados',
+      icon: GraduationCap,
+    },
+    {
+      id: 'simulations',
+      label: 'Simulações',
+      hint: 'Cenários práticos',
+      icon: Workflow,
+    },
+    {
+      id: 'builder',
+      label: 'Construtor de Sessões',
+      hint: 'Criar sessões',
+      icon: Hammer,
+      roles: AUTHOR_ROLES,
+    },
+    {
+      id: 'knowledge',
+      label: 'Base de Conhecimento',
+      hint: 'Fontes dos avatares',
+      icon: BookOpen,
+      roles: AUTHOR_ROLES,
+    },
+    {
+      id: 'assessments',
+      label: 'Avaliações',
+      hint: 'Provas práticas',
+      icon: ClipboardCheck,
+      roles: AUTHOR_ROLES,
+    },
+    {
+      id: 'competencies',
+      label: 'Competências',
+      hint: 'Níveis e evidências',
+      icon: Award,
+    },
+    {
+      id: 'avatars',
+      label: 'Avatares',
+      hint: 'Gestão de avatares',
+      icon: Bot,
+      roles: AUTHOR_ROLES,
+    },
+    {
+      id: 'progress',
+      label: 'Progresso dos Formandos',
+      hint: 'Evolução dos formandos',
+      icon: TrendingUp,
+    },
+    {
+      id: 'reports',
+      label: 'Relatórios',
+      hint: 'Métricas e exportação',
+      icon: BarChart2,
+      roles: PROGRESS_ROLES,
+    },
+    {
+      id: 'settings',
+      label: 'Configurações',
+      hint: 'Parâmetros do módulo',
+      icon: Settings,
+      roles: AUTHOR_ROLES,
+    },
+    {
+      id: 'history',
+      label: 'Histórico',
+      hint: 'Sessões anteriores',
+      icon: History,
+    },
+  ];
 
 export const EXPERIENCE_LABEL: Record<ExperienceType, string> = {
   GUIDED_LESSON: 'Aula guiada',

@@ -8,18 +8,27 @@
 // directo e exaustivo por tipo.
 
 import {
+  BarChart3,
   BookOpen,
-  Wrench,
-  Laptop,
-  GraduationCap,
-  Zap,
-  Users,
   Building2,
-  Rocket,
-  Handshake,
+  Calendar,
+  CalendarDays,
   Globe,
-  Mic,
+  GraduationCap,
+  Handshake,
+  Laptop,
+  LayoutDashboard,
+  ListOrdered,
   type LucideIcon,
+  MapPin,
+  Megaphone,
+  Mic,
+  Rocket,
+  ScanLine,
+  Star,
+  Users,
+  Wrench,
+  Zap,
 } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
@@ -261,17 +270,62 @@ export const EVALUATION_STATUS_CFG: StatusBadgeMap<EventEvaluationStatus> = {
 // referência a partir da page; o conteúdo real de cada aba entra quando
 // a tarefa correspondente do events.md for trabalhada.
 export const NAV = [
-  { id: 'overview', label: 'Visão Geral' },
-  { id: 'events', label: 'Eventos' },
-  { id: 'calendar', label: 'Calendário' },
-  { id: 'participants', label: 'Participantes' },
-  { id: 'schedule', label: 'Programação' },
-  { id: 'venues-logistics', label: 'Locais & Logística' },
-  { id: 'speakers-guests', label: 'Oradores & Convidados' },
-  { id: 'communication', label: 'Comunicação' },
-  { id: 'checkin-attendance', label: 'Check-in & Presença' },
-  { id: 'evaluation', label: 'Avaliação' },
-  { id: 'reports', label: 'Relatórios' },
+  {
+    id: 'overview',
+    hint: 'Resumo dos eventos',
+    icon: LayoutDashboard,
+    label: 'Visão Geral',
+  },
+  {
+    id: 'events',
+    hint: 'Todos os eventos',
+    icon: CalendarDays,
+    label: 'Eventos',
+  },
+  { id: 'calendar', hint: 'Vista mensal', icon: Calendar, label: 'Calendário' },
+  {
+    id: 'participants',
+    hint: 'Inscritos e convidados',
+    icon: Users,
+    label: 'Participantes',
+  },
+  {
+    id: 'schedule',
+    hint: 'Agenda e sessões',
+    icon: ListOrdered,
+    label: 'Programação',
+  },
+  {
+    id: 'venues-logistics',
+    hint: 'Espaços e meios',
+    icon: MapPin,
+    label: 'Locais & Logística',
+  },
+  {
+    id: 'speakers-guests',
+    hint: 'Quem apresenta',
+    icon: Mic,
+    label: 'Oradores & Convidados',
+  },
+  {
+    id: 'communication',
+    hint: 'Avisos e convites',
+    icon: Megaphone,
+    label: 'Comunicação',
+  },
+  {
+    id: 'checkin-attendance',
+    hint: 'Entrada e presença',
+    icon: ScanLine,
+    label: 'Check-in & Presença',
+  },
+  {
+    id: 'evaluation',
+    hint: 'Feedback dos eventos',
+    icon: Star,
+    label: 'Avaliação',
+  },
+  { id: 'reports', hint: 'Indicadores', icon: BarChart3, label: 'Relatórios' },
 ] as const;
 
 export const TITLES: Record<View, string> = {

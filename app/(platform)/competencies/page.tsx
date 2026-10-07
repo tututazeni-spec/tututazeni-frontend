@@ -23,6 +23,7 @@
 // /competency-map continua a existir e a usar CompetencyMapView, sem
 // entrada de sidebar.
 
+import { PillNav } from '@/components/ui/PillTabs';
 import { useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES, filterByRole } from '@/lib/roles';
@@ -88,27 +89,13 @@ export default function CompetenciesPage() {
         )}
       </div>
 
-      {/* Tabs — formato de "cartão": cada botão é um cartão independente
-          (borda + fundo branco + rounded), sem o fundo/pill de grupo
-          anterior. Alinhadas horizontal e verticalmente (justify-center +
-          items-center no wrapper) com largura mínima uniforme. Estado
-          activo usa a mesma condição `view === n.id` de sempre para
-          aplicar destaque azul (borda/fundo/texto primary). */}
-      <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
-        {visibleNav.map((n) => (
-          <button
-            key={n.id}
-            onClick={() => setView(n.id)}
-            className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors ${
-              view === n.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
-            }`}
-          >
-            {n.label}
-          </button>
-        ))}
-      </div>
+      <PillNav
+        items={visibleNav}
+        value={view}
+        onChange={(id) => setView(id as typeof view)}
+        label="Competências"
+        className="mb-6"
+      />
 
       {/* Overview/Matrix/etc.: nem montados para quem não tem
           @Roles(ADMIN, RH, GESTOR) no backend — não só escondidos da

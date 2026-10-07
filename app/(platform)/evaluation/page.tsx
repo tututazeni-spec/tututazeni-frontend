@@ -36,7 +36,8 @@ import { ResultsTab } from '@/components/evaluation/ResultsTab';
 import { SettingsTab } from '@/components/evaluation/SettingsTab';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES, MGMT_ROLES, filterByRole } from '@/lib/roles';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList } from '@/components/ui/PillTabs';
 
 // Análises e Calibração espelham exactamente @Roles(ADMIN, RH) de
 // GET /evaluations/analytics/dashboard e GET /evaluations/calibration/:cycleId
@@ -74,29 +75,91 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 // Configurações é leitura MGMT_ROLES (mesmo nível de Escalas/Critérios/
 // Modelos, que aqui são só agregados, não recriados).
 const TABS = [
-  { id: 'overview', label: 'Visão Geral', icon: Star },
+  {
+    id: 'overview',
+    label: 'Visão Geral',
+    hint: 'Resumo das avaliações',
+    icon: Star,
+  },
   {
     id: 'evaluations',
     label: 'Avaliações',
+    hint: 'Todas as avaliações',
     icon: ClipboardCheck,
     roles: MGMT_ROLES,
   },
-  { id: 'cycles', label: 'Ciclos de Avaliação', icon: Layers },
-  { id: 'templates', label: 'Modelos', icon: Layers, roles: MGMT_ROLES },
-  { id: 'criteria', label: 'Critérios', icon: ListChecks, roles: MGMT_ROLES },
-  { id: 'competencies', label: 'Competências', icon: Sparkles },
-  { id: 'formal', label: 'Avaliações Formais', icon: ClipboardList },
-  { id: 'pending', label: 'Avaliações Pendentes', icon: Clock },
-  { id: 'results', label: 'Resultados', icon: BarChart2 },
-  { id: 'analytics', label: 'Análises', icon: TrendingUp, roles: ADMIN_ROLES },
-  { id: 'calibration', label: 'Calibração', icon: Shield, roles: ADMIN_ROLES },
+  {
+    id: 'cycles',
+    label: 'Ciclos de Avaliação',
+    hint: 'Períodos e campanhas',
+    icon: Layers,
+  },
+  {
+    id: 'templates',
+    label: 'Modelos',
+    hint: 'Formulários base',
+    icon: Layers,
+    roles: MGMT_ROLES,
+  },
+  {
+    id: 'criteria',
+    label: 'Critérios',
+    hint: 'O que se avalia',
+    icon: ListChecks,
+    roles: MGMT_ROLES,
+  },
+  {
+    id: 'competencies',
+    label: 'Competências',
+    hint: 'Níveis por pessoa',
+    icon: Sparkles,
+  },
+  {
+    id: 'formal',
+    label: 'Avaliações Formais',
+    hint: 'Processos oficiais',
+    icon: ClipboardList,
+  },
+  {
+    id: 'pending',
+    label: 'Avaliações Pendentes',
+    hint: 'Por preencher',
+    icon: Clock,
+  },
+  {
+    id: 'results',
+    label: 'Resultados',
+    hint: 'Notas e evolução',
+    icon: BarChart2,
+  },
+  {
+    id: 'analytics',
+    label: 'Análises',
+    hint: 'Tendências',
+    icon: TrendingUp,
+    roles: ADMIN_ROLES,
+  },
+  {
+    id: 'calibration',
+    label: 'Calibração',
+    hint: 'Ajuste entre equipas',
+    icon: Shield,
+    roles: ADMIN_ROLES,
+  },
   {
     id: 'reports',
     label: 'Relatórios',
+    hint: 'Exportações',
     icon: FileBarChart,
     roles: ADMIN_ROLES,
   },
-  { id: 'settings', label: 'Configurações', icon: Settings, roles: MGMT_ROLES },
+  {
+    id: 'settings',
+    label: 'Configurações',
+    hint: 'Escalas e regras',
+    icon: Settings,
+    roles: MGMT_ROLES,
+  },
 ];
 
 export default function EvaluationsPage() {
@@ -122,30 +185,9 @@ export default function EvaluationsPage() {
         </div>
       </div>
 
-      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
-          (borda + fundo branco + rounded), sem underline no container.
-          Alinhadas horizontal e verticalmente (justify-center +
-          items-center no TabsList, flex items-center em cada TabsTrigger)
-          com largura mínima uniforme. Estado activo usa data-[state=active]
-          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
       <Tabs defaultValue="overview">
-        <div className="bg-surface px-6 py-3">
-          <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto bg-transparent p-0">
-            {visibleTabs.map((t) => {
-              const Icon = t.icon;
-              return (
-                <TabsTrigger
-                  key={t.id}
-                  value={t.id}
-                  className="flex min-w-[140px] items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
-                             data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                >
-                  <Icon size={16} strokeWidth={1.75} />
-                  {t.label}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+        <div className="bg-surface px-6 py-5">
+          <PillTabsList items={visibleTabs} className="mx-auto max-w-7xl" />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">

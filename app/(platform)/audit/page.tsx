@@ -1,6 +1,7 @@
 // src/app/(dashboard)/audit/page.tsx
 'use client';
 
+import { PillNav } from '@/components/ui/PillTabs';
 import { useEffect, useState } from 'react';
 import { AccessView } from '@/components/audit/AccessView';
 import { AuditsView } from '@/components/audit/AuditsView';
@@ -27,7 +28,9 @@ export default function AuditPage() {
   const initialView =
     typeof window === 'undefined'
       ? 'overview'
-      : ((new URLSearchParams(window.location.search).get('view') as View | null) ?? 'overview');
+      : ((new URLSearchParams(window.location.search).get(
+          'view',
+        ) as View | null) ?? 'overview');
   const [view, setView] = useState<View>(initialView);
 
   // Se o separador activo deixar de estar disponível para este papel (ex.:
@@ -49,27 +52,13 @@ export default function AuditPage() {
         </div>
       </div>
 
-      {/* Tabs — formato de "cartão": cada botão é um cartão independente
-          (borda + fundo branco + rounded), sem o fundo/pill de grupo
-          anterior. Alinhadas horizontal e verticalmente (justify-center +
-          items-center no wrapper) com largura mínima uniforme. Estado
-          activo usa a mesma condição `view === n.id` de sempre para
-          aplicar destaque azul (borda/fundo/texto primary). */}
-      <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
-        {nav.map((n) => (
-          <button
-            key={n.id}
-            onClick={() => setView(n.id)}
-            className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors ${
-              view === n.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
-            }`}
-          >
-            {n.label}
-          </button>
-        ))}
-      </div>
+      <PillNav
+        items={nav}
+        value={view}
+        onChange={(id) => setView(id as typeof view)}
+        label="Auditoria"
+        className="mb-6"
+      />
 
       {view === 'logs' && <LogsView />}
       {view === 'overview' && <OverviewView onNavigate={setView} />}

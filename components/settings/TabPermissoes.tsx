@@ -18,7 +18,7 @@ interface TabPermissoesProps {
 
 export function TabPermissoes({ user }: TabPermissoesProps) {
   const permissions = user.role?.permissions ?? [];
-  const canManageRoles = user.role?.code === 'ADMIN' || user.role?.code === 'RH';
+  const canManageRoles = user.role?.name === 'ADMIN' || user.role?.name === 'RH';
 
   const grouped = permissions.reduce(
     (acc, p) => {
@@ -80,7 +80,7 @@ export function TabPermissoes({ user }: TabPermissoesProps) {
         ))
       )}
 
-      {user.role?.code === 'ADMIN' && (
+      {user.role?.name === 'ADMIN' && (
         <div className="col-span-2">
           <DepartmentScopePanel />
         </div>

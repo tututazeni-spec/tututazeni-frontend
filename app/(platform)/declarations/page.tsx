@@ -27,7 +27,8 @@ import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
 import { useDeclarationsData } from '@/hooks/useDeclarations';
 import { Button, IconButton } from '@/components/ui/Button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList } from '@/components/ui/PillTabs';
 import { DocsAdminTab } from '@/components/declarations/DocsAdminTab';
 import { MyDocsTab } from '@/components/declarations/MyDocsTab';
 import { NewDocRequestModal } from '@/components/declarations/NewDocRequestModal';
@@ -110,18 +111,35 @@ export default function DeclarationsPage() {
   const tabs: Array<{
     key: TabKey;
     label: string;
+    hint: string;
     icon: LucideIcon;
     badge?: number;
   }> = [
-    { key: 'docs-my', label: 'Minhas Declarações', icon: FileText },
+    {
+      key: 'docs-my',
+      label: 'Minhas Declarações',
+      hint: 'Pedidos feitos',
+      icon: FileText,
+    },
     {
       key: 'work-my',
       label: 'Formulários',
+      hint: 'Por preencher',
       icon: Clipboard,
       badge: pendingWork?.total,
     },
-    { key: 'docs-admin', label: 'Gerir Pedidos', icon: BarChart3 },
-    { key: 'work-admin', label: 'Compliance', icon: Shield },
+    {
+      key: 'docs-admin',
+      label: 'Gerir Pedidos',
+      hint: 'Fila administrativa',
+      icon: BarChart3,
+    },
+    {
+      key: 'work-admin',
+      label: 'Compliance',
+      hint: 'Conformidade legal',
+      icon: Shield,
+    },
   ];
 
   return (
@@ -154,23 +172,21 @@ export default function DeclarationsPage() {
 
       <div className="mx-auto max-w-6xl space-y-5 px-6 py-6">
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
-          <TabsList>
-            {tabs.map((t) => (
-              <TabsTrigger
-                key={t.key}
-                value={t.key}
-                className="flex items-center gap-2"
-              >
-                <t.icon size={15} strokeWidth={1.75} />
-                {t.label}
-                {t.badge != null && t.badge > 0 && (
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-subtle font-body text-xs font-bold text-primary">
+          <PillTabsList
+            items={tabs.map((t) => ({
+              id: t.key,
+              label: t.label,
+              hint: t.hint,
+              icon: t.icon,
+              badge:
+                t.badge != null && t.badge > 0 ? (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/80 font-body text-xs font-bold text-primary">
                     {t.badge}
                   </span>
-                )}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+                ) : undefined,
+            }))}
+            className="mb-5"
+          />
 
           <TabsContent value="docs-my">
             <MyDocsTab

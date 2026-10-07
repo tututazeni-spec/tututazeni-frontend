@@ -22,7 +22,6 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
-import { cn } from '@/lib/cn';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { filterByRole, type Role } from '@/lib/roles';
 import {
@@ -40,6 +39,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button, IconButton } from '@/components/ui/Button';
+import { PillNav } from '@/components/ui/PillTabs';
 import { AbsenceCalendarTab } from '@/components/leave/AbsenceCalendarTab';
 import { AbsencesTab } from '@/components/leave/AbsencesTab';
 import { ApprovalsTab } from '@/components/leave/ApprovalsTab';
@@ -112,37 +112,38 @@ export default function LeavePage() {
   const allTabs: Array<{
     key: TabKey;
     label: string;
+    hint: string;
     icon: LucideIcon;
     badge?: number;
     roles?: Role[];
   }> = [
-    { key: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
-    { key: 'vacations', label: 'Férias', icon: Palmtree },
-    { key: 'leaves', label: 'Licenças', icon: ScrollText },
-    { key: 'absences', label: 'Gestão de Ausências', icon: ClipboardList },
-    { key: 'calendar', label: 'Calendário de Ausências', icon: CalendarDays },
+    { key: 'overview', label: 'Visão Geral', hint: 'Resumo e saldos', icon: LayoutDashboard },
+    { key: 'vacations', label: 'Férias', hint: 'Pedidos de férias', icon: Palmtree },
+    { key: 'leaves', label: 'Licenças', hint: 'Licenças e motivos', icon: ScrollText },
+    { key: 'absences', label: 'Gestão de Ausências', hint: 'Faltas e registos', icon: ClipboardList },
+    { key: 'calendar', label: 'Calendário de Ausências', hint: 'Quem está ausente', icon: CalendarDays },
     {
       key: 'approvals',
-      label: 'Aprovações',
+      label: 'Aprovações', hint: 'Pedidos pendentes',
       icon: CheckCircle2,
       badge: pending.length,
       roles: LEAVE_APPROVER_ROLES,
     },
     {
       key: 'planning',
-      label: 'Planeamento de Equipas',
+      label: 'Planeamento de Equipas', hint: 'Cobertura das equipas',
       icon: Users,
       roles: LEAVE_APPROVER_ROLES,
     },
     {
       key: 'reports',
-      label: 'Relatórios',
+      label: 'Relatórios', hint: 'Análises e exportação',
       icon: BarChart3,
       roles: LEAVE_ADMIN_ROLES,
     },
     {
       key: 'settings',
-      label: 'Configurações',
+      label: 'Configurações', hint: 'Regras e substituições',
       icon: Settings,
       roles: LEAVE_APPROVER_ROLES,
     },
@@ -181,36 +182,23 @@ export default function LeavePage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-6 space-y-5">
-        {/* Tab bar */}
-        <div className="flex bg-surface rounded-panel border border-border shadow-resting p-1.5 gap-1 w-full overflow-x-auto">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={cn(
-                'flex items-center gap-2 px-4 py-2 text-sm rounded-control font-medium transition-colors relative whitespace-nowrap',
-                tab === t.key
-                  ? 'bg-primary text-canvas shadow-resting'
-                  : 'text-ink-muted hover:text-ink hover:bg-surface-sunken',
-              )}
-            >
-              <t.icon size={15} strokeWidth={1.75} />
-              {t.label}
-              {t.badge != null && t.badge > 0 && (
-                <span
-                  className={cn(
-                    'w-5 h-5 rounded-full text-xs flex items-center justify-center font-bold',
-                    tab === t.key
-                      ? 'bg-canvas text-primary'
-                      : 'bg-primary text-canvas',
-                  )}
-                >
+        <PillNav
+          items={tabs.map((t) => ({
+            id: t.key,
+            label: t.label,
+            hint: t.hint,
+            icon: t.icon,
+            badge:
+              t.badge != null && t.badge > 0 ? (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white/80 px-1 text-xs font-bold text-primary">
                   {t.badge}
                 </span>
-              )}
-            </button>
-          ))}
-        </div>
+              ) : undefined,
+          }))}
+          value={tab}
+          onChange={(id) => setTab(id as TabKey)}
+          label="Férias e Ausências"
+        />
 
         {tab === 'overview' && <OverviewTab leaveTypes={leaveTypes} />}
 

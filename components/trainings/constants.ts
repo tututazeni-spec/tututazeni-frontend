@@ -6,6 +6,17 @@
 // fundação de design (Fase A) — mesmo padrão de TOKEN usado em
 // components/reports/constants.ts e components/executive-reports/constants.ts.
 
+import {
+  BarChart3,
+  BookOpen,
+  Calendar,
+  ClipboardList,
+  GraduationCap,
+  LayoutDashboard,
+  Package,
+  Settings2,
+  UserCog,
+} from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   ParticipantStatus,
@@ -79,15 +90,50 @@ export const CAN_MANAGE_TRAININGS_ROLES = [
 ] as const;
 
 export const NAV = [
-  { id: 'dashboard', label: 'Visão Geral' },
-  { id: 'plans', label: 'Plano de Formação' },
-  { id: 'catalog', label: 'Catálogo' },
-  { id: 'calendar', label: 'Calendário' },
-  { id: 'my-trainings', label: 'Os meus treinamentos' },
-  { id: 'manage', label: 'Gestão' },
-  { id: 'trainers', label: 'Formadores' },
-  { id: 'resources', label: 'Recursos & Logística' },
-  { id: 'reports', label: 'Relatórios' },
+  {
+    id: 'dashboard',
+    hint: 'Resumo da formação',
+    icon: LayoutDashboard,
+    label: 'Visão Geral',
+  },
+  {
+    id: 'plans',
+    hint: 'Planeamento anual',
+    icon: ClipboardList,
+    label: 'Plano de Formação',
+  },
+  {
+    id: 'catalog',
+    hint: 'Formações disponíveis',
+    icon: BookOpen,
+    label: 'Catálogo',
+  },
+  {
+    id: 'calendar',
+    hint: 'Datas e turmas',
+    icon: Calendar,
+    label: 'Calendário',
+  },
+  {
+    id: 'my-trainings',
+    hint: 'O teu percurso',
+    icon: GraduationCap,
+    label: 'Os meus treinamentos',
+  },
+  { id: 'manage', hint: 'Gerir formações', icon: Settings2, label: 'Gestão' },
+  {
+    id: 'trainers',
+    hint: 'Equipa formadora',
+    icon: UserCog,
+    label: 'Formadores',
+  },
+  {
+    id: 'resources',
+    hint: 'Salas e meios',
+    icon: Package,
+    label: 'Recursos & Logística',
+  },
+  { id: 'reports', hint: 'Indicadores', icon: BarChart3, label: 'Relatórios' },
 ] as const;
 
 export type NavId = (typeof NAV)[number]['id'];

@@ -37,6 +37,7 @@ import {
   FileBarChart,
   type LucideIcon,
 } from 'lucide-react';
+import type { PillTabItem } from '@/components/ui/PillTabs';
 import { ADMIN_ROLES, EXECUTIVE_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
@@ -243,49 +244,68 @@ export const PHASE_ORDER: TaskPhase[] = [
 // "Etapas" fica sem roles (como "Planos de Integração", de que depende —
 // GET /onboarding/templates/:id/stages não tem @Roles() próprio).
 // Fase C acrescenta Acompanhamento/Avaliação de Integração/Relatórios.
-export const TABS: Array<{
-  id: OnboardingTabId;
-  label: string;
-  icon: LucideIcon;
-  roles?: readonly Role[];
-}> = [
-  { id: 'my-plan', label: 'O Meu Plano', icon: UserCheck },
+export const TABS: Array<
+  PillTabItem & { id: OnboardingTabId; roles?: readonly Role[] }
+> = [
+  {
+    id: 'my-plan',
+    label: 'O Meu Plano',
+    hint: 'A tua integração',
+    icon: UserCheck,
+  },
   {
     id: 'overview',
     label: 'Visão Geral',
+    hint: 'Resumo dos processos',
     icon: LayoutDashboard,
     roles: EXECUTIVE_ROLES,
   },
   {
     id: 'plans',
     label: 'Onboardings',
+    hint: 'Integrações em curso',
     icon: ClipboardList,
     roles: EXECUTIVE_ROLES,
   },
-  { id: 'templates', label: 'Planos de Integração', icon: Layers },
-  { id: 'stages', label: 'Etapas', icon: Milestone },
-  { id: 'tasks', label: 'Tarefas', icon: ListChecks, roles: EXECUTIVE_ROLES },
+  {
+    id: 'templates',
+    label: 'Planos de Integração',
+    hint: 'Modelos reutilizáveis',
+    icon: Layers,
+  },
+  { id: 'stages', label: 'Etapas', hint: 'Fases do plano', icon: Milestone },
+  {
+    id: 'tasks',
+    label: 'Tarefas',
+    hint: 'Acções a cumprir',
+    icon: ListChecks,
+    roles: EXECUTIVE_ROLES,
+  },
   {
     id: 'documents',
     label: 'Documentos',
+    hint: 'Entregas e anexos',
     icon: FileText,
     roles: EXECUTIVE_ROLES,
   },
   {
     id: 'training',
     label: 'Formação',
+    hint: 'Cursos associados',
     icon: GraduationCap,
     roles: EXECUTIVE_ROLES,
   },
   {
     id: 'checkins',
     label: 'Acompanhamento',
+    hint: 'Check-ins',
     icon: MessageCircle,
     roles: EXECUTIVE_ROLES,
   },
   {
     id: 'integration-evaluations',
     label: 'Avaliação de Integração',
+    hint: 'Feedback final',
     icon: ClipboardCheck,
     roles: EXECUTIVE_ROLES,
   },
@@ -294,6 +314,7 @@ export const TABS: Array<{
   {
     id: 'reports',
     label: 'Relatórios',
+    hint: 'Indicadores',
     icon: FileBarChart,
     roles: ADMIN_ROLES,
   },

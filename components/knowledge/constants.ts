@@ -3,6 +3,8 @@
 // app/(platform)/knowledge/page.tsx. Cores mapeadas para os tokens
 // semânticos da fundação de design (Fase A).
 
+import { Compass, LayoutDashboard, Library } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { ArticleStatus, View } from './types';
@@ -22,11 +24,29 @@ export const ARTICLE_STATUS_MAP: StatusBadgeMap<ArticleStatus> = {
 export const NAV: Array<{
   id: Exclude<View, 'article'>;
   label: string;
+  hint?: string;
+  icon?: LucideIcon;
   roles?: readonly Role[];
 }> = [
-  { id: 'portal', label: 'Portal' },
-  { id: 'library', label: 'Biblioteca' },
-  { id: 'dashboard', label: 'Admin', roles: NON_COLABORADOR_ROLES },
+  {
+    id: 'portal',
+    hint: 'Pesquisar e explorar',
+    icon: Compass,
+    label: 'Portal',
+  },
+  {
+    id: 'library',
+    hint: 'Todos os artigos',
+    icon: Library,
+    label: 'Biblioteca',
+  },
+  {
+    id: 'dashboard',
+    hint: 'Gestão do conteúdo',
+    icon: LayoutDashboard,
+    label: 'Admin',
+    roles: NON_COLABORADOR_ROLES,
+  },
 ];
 
 export const TITLES: Record<View, string> = {

@@ -3,6 +3,20 @@
 // mapeadas para os tokens semânticos da fundação de design (Fase A).
 // Extraído de app/(platform)/audit/page.tsx.
 
+import {
+  BarChart3,
+  ClipboardCheck,
+  Download,
+  FileDiff,
+  GitCommitHorizontal,
+  LayoutDashboard,
+  LogIn,
+  Scale,
+  ScrollText,
+  ShieldAlert,
+  Trash2,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import {
   AUDIT_GLOBAL_ROLES,
@@ -86,18 +100,90 @@ export function entityLabel(entity: string): string {
 // Ordem e nomes seguem docs/modulo_audit.md §2 (abas 01-09); "Linha de
 // Tempo" e "Apagados" são extras anteriores ao spec e ficam no fim.
 // §16: RH/GESTOR só vêem os separadores de consulta (âmbito limitado no backend).
-export const NAV: Array<{ id: View; label: string; roles: readonly Role[] }> = [
-  { id: 'overview', label: 'Visão Geral', roles: AUDIT_GLOBAL_ROLES },
-  { id: 'logs', label: 'Registos de Auditoria', roles: [...AUDIT_GLOBAL_ROLES, ...AUDIT_SCOPED_ROLES] },
-  { id: 'access', label: 'Acessos e Sessões', roles: AUDIT_GLOBAL_ROLES },
-  { id: 'changes', label: 'Alterações de Dados', roles: [...AUDIT_GLOBAL_ROLES, ...AUDIT_SCOPED_ROLES] },
-  { id: 'security', label: 'Segurança e Incidentes', roles: AUDIT_GLOBAL_ROLES },
-  { id: 'audits', label: 'Auditorias e Inspeções', roles: AUDIT_GLOBAL_ROLES },
-  { id: 'reports', label: 'Relatórios', roles: AUDIT_GLOBAL_ROLES },
-  { id: 'exports', label: 'Exportações e Evidências', roles: AUDIT_GLOBAL_ROLES },
-  { id: 'policies', label: 'Políticas e Retenção', roles: AUDIT_GLOBAL_ROLES },
-  { id: 'timeline', label: 'Linha de Tempo', roles: [...AUDIT_GLOBAL_ROLES, ...AUDIT_SCOPED_ROLES] },
-  { id: 'deleted', label: 'Apagados', roles: EVAL_CYCLE_DELETE_ROLES },
+export const NAV: Array<{
+  id: View;
+  label: string;
+  hint?: string;
+  icon?: LucideIcon;
+  roles: readonly Role[];
+}> = [
+  {
+    id: 'overview',
+    hint: 'Resumo de auditoria',
+    icon: LayoutDashboard,
+    label: 'Visão Geral',
+    roles: AUDIT_GLOBAL_ROLES,
+  },
+  {
+    id: 'logs',
+    hint: 'Todos os eventos',
+    icon: ScrollText,
+    label: 'Registos de Auditoria',
+    roles: [...AUDIT_GLOBAL_ROLES, ...AUDIT_SCOPED_ROLES],
+  },
+  {
+    id: 'access',
+    hint: 'Logins e sessões',
+    icon: LogIn,
+    label: 'Acessos e Sessões',
+    roles: AUDIT_GLOBAL_ROLES,
+  },
+  {
+    id: 'changes',
+    hint: 'Antes e depois',
+    icon: FileDiff,
+    label: 'Alterações de Dados',
+    roles: [...AUDIT_GLOBAL_ROLES, ...AUDIT_SCOPED_ROLES],
+  },
+  {
+    id: 'security',
+    hint: 'Ameaças e alertas',
+    icon: ShieldAlert,
+    label: 'Segurança e Incidentes',
+    roles: AUDIT_GLOBAL_ROLES,
+  },
+  {
+    id: 'audits',
+    hint: 'Inspeções formais',
+    icon: ClipboardCheck,
+    label: 'Auditorias e Inspeções',
+    roles: AUDIT_GLOBAL_ROLES,
+  },
+  {
+    id: 'reports',
+    hint: 'Relatórios',
+    icon: BarChart3,
+    label: 'Relatórios',
+    roles: AUDIT_GLOBAL_ROLES,
+  },
+  {
+    id: 'exports',
+    hint: 'Evidências',
+    icon: Download,
+    label: 'Exportações e Evidências',
+    roles: AUDIT_GLOBAL_ROLES,
+  },
+  {
+    id: 'policies',
+    hint: 'Retenção de dados',
+    icon: Scale,
+    label: 'Políticas e Retenção',
+    roles: AUDIT_GLOBAL_ROLES,
+  },
+  {
+    id: 'timeline',
+    hint: 'Cronologia',
+    icon: GitCommitHorizontal,
+    label: 'Linha de Tempo',
+    roles: [...AUDIT_GLOBAL_ROLES, ...AUDIT_SCOPED_ROLES],
+  },
+  {
+    id: 'deleted',
+    hint: 'Registos removidos',
+    icon: Trash2,
+    label: 'Apagados',
+    roles: EVAL_CYCLE_DELETE_ROLES,
+  },
 ];
 
 export const TITLES: Record<View, string> = {

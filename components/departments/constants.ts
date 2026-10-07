@@ -4,20 +4,78 @@
 // const local dentro do componente principal; hoisted para módulo,
 // mesmo padrão de NAV/TITLES usado nos restantes módulos deste tipo).
 
+import {
+  Briefcase,
+  FileBarChart,
+  GitBranch,
+  History,
+  Layers,
+  LayoutDashboard,
+  List,
+  Network,
+  UserCog,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { PosLevel, View } from './types';
 
-export const NAV: Array<{ id: Exclude<View, 'detail'>; label: string }> = [
-  { id: 'list', label: 'Lista' },
-  { id: 'structure', label: 'Estrutura Organizacional' },
-  { id: 'tree', label: 'Organograma' },
-  { id: 'heads', label: 'Responsáveis' },
-  { id: 'employees', label: 'Colaboradores' },
-  { id: 'positions', label: 'Cargos & Funções' },
-  { id: 'hierarquia', label: 'Hierarquia' },
-  { id: 'historico', label: 'Histórico' },
-  { id: 'relatorios', label: 'Relatórios' },
-  { id: 'dashboard', label: 'Dashboard' },
+export const NAV: Array<{
+  id: Exclude<View, 'detail'>;
+  label: string;
+  hint?: string;
+  icon?: LucideIcon;
+}> = [
+  { id: 'list', hint: 'Todos os departamentos', icon: List, label: 'Lista' },
+  {
+    id: 'structure',
+    hint: 'Estrutura organizacional',
+    icon: Network,
+    label: 'Estrutura Organizacional',
+  },
+  {
+    id: 'tree',
+    hint: 'Árvore da empresa',
+    icon: GitBranch,
+    label: 'Organograma',
+  },
+  { id: 'heads', hint: 'Chefias', icon: UserCog, label: 'Responsáveis' },
+  {
+    id: 'employees',
+    hint: 'Equipa por departamento',
+    icon: Users,
+    label: 'Colaboradores',
+  },
+  {
+    id: 'positions',
+    hint: 'Cargos e funções',
+    icon: Briefcase,
+    label: 'Cargos & Funções',
+  },
+  {
+    id: 'hierarquia',
+    hint: 'Níveis hierárquicos',
+    icon: Layers,
+    label: 'Hierarquia',
+  },
+  {
+    id: 'historico',
+    hint: 'Alterações passadas',
+    icon: History,
+    label: 'Histórico',
+  },
+  {
+    id: 'relatorios',
+    hint: 'Exportações',
+    icon: FileBarChart,
+    label: 'Relatórios',
+  },
+  {
+    id: 'dashboard',
+    hint: 'Indicadores',
+    icon: LayoutDashboard,
+    label: 'Dashboard',
+  },
 ];
 
 export const TITLES: Record<View, string> = {

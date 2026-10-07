@@ -6,6 +6,7 @@
 // real continua no backend. As 13 abas do §2 estão cobertas.
 
 import { useState } from 'react';
+import { PillNav } from '@/components/ui/PillTabs';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { TABS } from '@/components/avatar-training/constants';
 import { AvatarsTab } from '@/components/avatar-training/AvatarsTab';
@@ -27,7 +28,9 @@ export default function AvatarTrainingPage() {
   const role = useCurrentRole();
   const [tab, setTab] = useState<TabId>('overview');
 
-  const visible = TABS.filter((t) => !t.roles || (!!role && t.roles.includes(role)));
+  const visible = TABS.filter(
+    (t) => !t.roles || (!!role && t.roles.includes(role)),
+  );
   const current = visible.some((t) => t.id === tab) ? tab : 'overview';
 
   return (
@@ -36,32 +39,22 @@ export default function AvatarTrainingPage() {
         Avatar Training
       </h1>
 
-      <div
-        role="tablist"
-        className="mb-6 flex w-full flex-wrap items-center justify-center gap-2"
-      >
-        {visible.map((t) => (
-          <button
-            key={t.id}
-            role="tab"
-            aria-selected={current === t.id}
-            onClick={() => setTab(t.id)}
-            className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center text-sm font-medium transition-colors ${
-              current === t.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <PillNav
+        items={visible}
+        value={current}
+        onChange={(id) => setTab(id as TabId)}
+        label="Avatar Training"
+        className="mb-6"
+      />
 
       {current === 'overview' && <OverviewTab />}
       {current === 'room' && <RoomTab />}
       {current === 'programs' && <ProgramsTab />}
       {current === 'simulations' && (
-        <RoomTab only={SIMULATION_TYPES} emptyTitle="Sem simulações atribuídas" />
+        <RoomTab
+          only={SIMULATION_TYPES}
+          emptyTitle="Sem simulações atribuídas"
+        />
       )}
       {current === 'builder' && <BuilderTab />}
       {current === 'knowledge' && <KnowledgeTab />}
