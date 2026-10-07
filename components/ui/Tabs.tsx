@@ -27,7 +27,7 @@ export function TabsTrigger({
     <RadixTabs.Trigger
       className={cn(
         'border-b-2 border-transparent px-3 py-2 font-body text-sm font-medium text-ink-muted',
-        'hover:text-ink',
+        'transition-all duration-200 hover:scale-105 hover:text-ink data-[state=inactive]:hover:border-primary/60 motion-reduce:hover:scale-100',
         'data-[state=active]:border-primary data-[state=active]:text-primary',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
         className,
