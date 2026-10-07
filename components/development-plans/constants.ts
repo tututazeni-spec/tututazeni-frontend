@@ -5,7 +5,21 @@
 // estados, por isso repetem tokens onde não há uma correspondência 1:1.
 // Extraído de app/(platform)/development-plans/page.tsx.
 
-import { Circle, Play, Check, Lock, X, type LucideIcon } from 'lucide-react';
+import {
+  BarChart3,
+  Check,
+  Circle,
+  Gem,
+  Grid3x3,
+  HeartHandshake,
+  Lock,
+  type LucideIcon,
+  Play,
+  Target,
+  TrendingDown,
+  Users,
+  X,
+} from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   ActionStatus,
@@ -170,13 +184,38 @@ export const PRIORITY_CFG: StatusBadgeMap<Priority> = {
 // separadores de PDI. "plans" original desse módulo foi descartado: redundante
 // com Os meus PDIs/Equipa acima.
 export const NAV = [
-  { id: 'my-plans', label: 'Os meus PDIs' },
-  { id: 'team', label: 'Equipa' },
-  { id: 'pool', label: 'Banco de Talentos' },
-  { id: 'skill-gaps', label: 'Lacunas de Competências' },
-  { id: 'mentoring', label: 'Mentoria' },
-  { id: 'analytics', label: 'Análises' },
-  { id: 'ninebox', label: 'Matriz 9 Box' },
+  {
+    id: 'my-plans',
+    hint: 'Os teus planos',
+    icon: Target,
+    label: 'Os meus PDIs',
+  },
+  { id: 'team', hint: 'Planos da equipa', icon: Users, label: 'Equipa' },
+  {
+    id: 'pool',
+    hint: 'Talento disponível',
+    icon: Gem,
+    label: 'Banco de Talentos',
+  },
+  {
+    id: 'skill-gaps',
+    hint: 'Competências em falta',
+    icon: TrendingDown,
+    label: 'Lacunas de Competências',
+  },
+  {
+    id: 'mentoring',
+    hint: 'Mentores e mentorados',
+    icon: HeartHandshake,
+    label: 'Mentoria',
+  },
+  { id: 'analytics', hint: 'Indicadores', icon: BarChart3, label: 'Análises' },
+  {
+    id: 'ninebox',
+    hint: 'Desempenho vs. potencial',
+    icon: Grid3x3,
+    label: 'Matriz 9 Box',
+  },
 ] as const;
 
 export const TITLES: Record<View, string> = {
