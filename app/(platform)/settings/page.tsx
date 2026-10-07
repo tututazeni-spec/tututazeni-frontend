@@ -6,16 +6,32 @@ import { NAV } from '@/components/settings/styles';
 import { TabPerfil } from '@/components/settings/TabPerfil';
 import { TabPermissoes } from '@/components/settings/TabPermissoes';
 import { TabSeguranca } from '@/components/settings/TabSeguranca';
+import { TabVisaoGeral } from '@/components/settings/TabVisaoGeral';
+import { TabUtilizadores } from '@/components/settings/TabUtilizadores';
+import { TabNotificacoes } from '@/components/settings/TabNotificacoes';
+import { TabIntegracoes } from '@/components/settings/TabIntegracoes';
+import { TabCertificados } from '@/components/settings/TabCertificados';
+import { TabPrivacidade } from '@/components/settings/TabPrivacidade';
+import { TabLicenca } from '@/components/settings/TabLicenca';
+import { TabAuditoria } from '@/components/settings/TabAuditoria';
+import { TabAutenticacao } from '@/components/settings/TabAutenticacao';
+import { TabEmail } from '@/components/settings/TabEmail';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 
 export default function SettingsPage() {
   const toast = useToast();
+  // ?tab= (ex.: primeiro login com password temporária). Lido do URL em vez de
+  // useSearchParams para não exigir <Suspense> nesta página client.
   const {
     data: user,
     isLoading: loading,
     error: queryError,
   } = useCurrentUser();
+  const initialTab =
+    typeof window === 'undefined'
+      ? 'perfil'
+      : (new URLSearchParams(window.location.search).get('tab') ?? 'perfil');
   const error = queryError?.message ?? '';
 
   if (loading)
@@ -36,6 +52,10 @@ export default function SettingsPage() {
 
   if (!user) return null;
 
+  // Separadores de configuração da organização: só ADMIN (docs/modulo_settings.md).
+  const isAdmin = user.role?.code === 'ADMIN';
+  const visibleNav = NAV.filter((t) => !t.adminOnly || isAdmin);
+
   return (
     <div>
       {/* ── Header ── */}
@@ -55,9 +75,9 @@ export default function SettingsPage() {
           cada TabsTrigger) com largura mínima uniforme. Estado activo usa
           data-[state=active] do Radix para aplicar destaque azul
           (borda/fundo/texto primary). ── */}
-      <Tabs defaultValue="perfil" className="mb-6">
+      <Tabs defaultValue={initialTab} className="mb-6">
         <TabsList className="flex w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0">
-          {NAV.map((t) => (
+          {visibleNav.map((t) => (
             <TabsTrigger
               key={t.key}
               value={t.key}
@@ -74,13 +94,73 @@ export default function SettingsPage() {
           <TabPerfil user={user} />
         </TabsContent>
 
+        {isAdmin && (
+          <TabsContent value="visao-geral">
+            <TabVisaoGeral />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="utilizadores">
+            <TabUtilizadores />
+          </TabsContent>
+        )}
+
         <TabsContent value="seguranca">
-          <TabSeguranca />
+          <TabSeguranca isAdmin={isAdmin} />
         </TabsContent>
 
         <TabsContent value="permissoes">
           <TabPermissoes user={user} />
         </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="notificacoes">
+            <TabNotificacoes />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="integracoes">
+            <TabIntegracoes />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="certificados">
+            <TabCertificados />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="privacidade">
+            <TabPrivacidade />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="licenca">
+            <TabLicenca />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="auditoria">
+            <TabAuditoria />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="autenticacao">
+            <TabAutenticacao />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="email">
+            <TabEmail />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

@@ -22,7 +22,13 @@ export default function AuditPage() {
   // Cada separador só é visível a quem o backend por trás dele deixa entrar
   // (NAV[].roles) — ex.: DIRECTOR só vê "Apagados", nunca os logs gerais.
   const nav = NAV.filter((n) => !!role && n.roles.includes(role));
-  const [view, setView] = useState<View>('overview');
+  // ?view= (ex.: link a partir de Definições > Auditoria e Dados). Lido do URL
+  // em vez de useSearchParams para não exigir <Suspense> nesta página client.
+  const initialView =
+    typeof window === 'undefined'
+      ? 'overview'
+      : ((new URLSearchParams(window.location.search).get('view') as View | null) ?? 'overview');
+  const [view, setView] = useState<View>(initialView);
 
   // Se o separador activo deixar de estar disponível para este papel (ex.:
   // DIRECTOR, que não tem "logs"), salta para o primeiro que tiver.

@@ -275,6 +275,42 @@ export const queryKeys = {
       [...queryKeys.automation.all, 'schedules', params ?? {}] as const,
   },
 
+  settings: {
+    all: ['settings'] as const,
+    organization: () => [...queryKeys.settings.all, 'organization'] as const,
+    userPolicy: () => [...queryKeys.settings.all, 'user-policy'] as const,
+    usersOverview: () => [...queryKeys.settings.all, 'users-overview'] as const,
+    inactiveUsers: (days?: number) =>
+      [...queryKeys.settings.all, 'inactive-users', days ?? 'default'] as const,
+    roles: () => [...queryKeys.settings.all, 'roles'] as const,
+    departmentScopes: () =>
+      [...queryKeys.settings.all, 'department-scopes'] as const,
+    securityPolicy: () => [...queryKeys.settings.all, 'security-policy'] as const,
+    lockedUsers: () => [...queryKeys.settings.all, 'locked-users'] as const,
+    sessions: (scope: 'all' | 'me') =>
+      [...queryKeys.settings.all, 'sessions', scope] as const,
+    loginHistory: (scope: 'all' | 'me', page: number) =>
+      [...queryKeys.settings.all, 'login-history', scope, page] as const,
+    twoFactor: () => [...queryKeys.settings.all, 'two-factor'] as const,
+    notifications: () => [...queryKeys.settings.all, 'notifications'] as const,
+    integrations: () => [...queryKeys.settings.all, 'integrations'] as const,
+    integrationsOverview: () =>
+      [...queryKeys.settings.all, 'integrations-overview'] as const,
+    whatsappStatus: () => [...queryKeys.settings.all, 'whatsapp-status'] as const,
+    certificates: () => [...queryKeys.settings.all, 'certificates'] as const,
+    certificateTemplates: () =>
+      [...queryKeys.settings.all, 'certificate-templates'] as const,
+    privacy: () => [...queryKeys.settings.all, 'privacy'] as const,
+    consentVersions: () => [...queryKeys.settings.all, 'consent-versions'] as const,
+    dsrRequests: (status: string, page: number) =>
+      [...queryKeys.settings.all, 'dsr-requests', status, page] as const,
+    license: () => [...queryKeys.settings.all, 'license'] as const,
+    auditOverview: () => [...queryKeys.settings.all, 'audit-overview'] as const,
+    authSettings: () => [...queryKeys.settings.all, 'auth-settings'] as const,
+    ssoOptions: () => [...queryKeys.settings.all, 'sso-options'] as const,
+    emailSettings: () => [...queryKeys.settings.all, 'email-settings'] as const,
+  },
+
   scalability: {
     all: ['scalability'] as const,
     dashboard: () => [...queryKeys.scalability.all, 'dashboard'] as const,

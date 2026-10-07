@@ -5,8 +5,19 @@
 'use client';
 
 import { useState } from 'react';
-import { apiClient } from '@/lib/apiClient';
+import { apiClient, API_URL } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+
+// Definições §11 (Autenticação/SSO): opções públicas de login — sem sessão,
+// por isso não pode depender de nada que exija o cookie já estar presente.
+interface SsoLoginOptions {
+  ssoEnabled: boolean;
+  ssoProvider: 'GOOGLE' | 'MICROSOFT' | 'OIDC' | null;
+  ldapEnabled: boolean;
+  passwordLoginDisabled: boolean;
+}
 
 export function useLogin() {
   const [email, setEmail] = useState('');
@@ -15,15 +26,48 @@ export function useLogin() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const sso = useApiQuery<SsoLoginOptions>(queryKeys.settings.ssoOptions(), '/auth/sso/options');
+
+  function startSsoLogin() {
+    window.location.href = `${API_URL}/auth/sso/login`;
+  }
+
+  const [ldapEmail, setLdapEmail] = useState('');
+  const [ldapPassword, setLdapPassword] = useState('');
+  const [ldapLoading, setLdapLoading] = useState(false);
+  const [ldapError, setLdapError] = useState<string | null>(null);
+
+  async function handleLdapSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLdapError(null);
+    setLdapLoading(true);
+    try {
+      await apiClient.post('/auth/sso/ldap-login', { email: ldapEmail, password: ldapPassword });
+      window.location.href = '/dashboard';
+    } catch (err) {
+      reportError(err, { source: 'useLogin.handleLdapSubmit' });
+      setLdapError(err instanceof Error ? err.message : 'Erro ao entrar');
+    } finally {
+      setLdapLoading(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
     try {
       // O backend define o cookie httpOnly 'token'; o JS nunca toca no token.
-      await apiClient.post('/auth/login', { email, password });
+      const res = await apiClient.post<{ mustChangePassword?: boolean }>(
+        '/auth/login',
+        { email, password },
+      );
       // Navegação forçada para garantir que o middleware revê o cookie.
-      window.location.href = '/dashboard';
+      // Conta convidada com password temporária (política de utilizadores):
+      // vai directa ao separador Segurança para a trocar.
+      window.location.href = res?.mustChangePassword
+        ? '/settings?tab=seguranca&firstLogin=1'
+        : '/dashboard';
     } catch (err) {
       reportError(err, { source: 'useLogin.handleSubmit' });
       setError(err instanceof Error ? err.message : 'Erro ao entrar');
@@ -42,5 +86,14 @@ export function useLogin() {
     error,
     loading,
     handleSubmit,
+    sso: sso.data,
+    startSsoLogin,
+    ldapEmail,
+    setLdapEmail,
+    ldapPassword,
+    setLdapPassword,
+    ldapLoading,
+    ldapError,
+    handleLdapSubmit,
   };
 }

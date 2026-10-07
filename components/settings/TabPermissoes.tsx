@@ -1,5 +1,7 @@
 // components/settings/TabPermissoes.tsx
-// Tab "Permissões": role actual e permissões agrupadas por prefixo.
+// Tab "Permissões": role actual e permissões agrupadas por prefixo. ADMIN/RH
+// vêem também a gestão completa de perfis e matriz (RolesPermissionsView —
+// docs/modulo_settings.md §2, já existente, reutilizada sem duplicar).
 // Migrado para componentes UI + tokens de design.
 
 'use client';
@@ -7,6 +9,8 @@
 import type { CurrentUser as Me } from '@/hooks/useCurrentUser';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
+import { DepartmentScopePanel } from '@/components/settings/DepartmentScopePanel';
+import { RolesPermissionsView } from '@/components/roles-permissions/RolesPermissionsView';
 
 interface TabPermissoesProps {
   user: Me;
@@ -14,6 +18,7 @@ interface TabPermissoesProps {
 
 export function TabPermissoes({ user }: TabPermissoesProps) {
   const permissions = user.role?.permissions ?? [];
+  const canManageRoles = user.role?.code === 'ADMIN' || user.role?.code === 'RH';
 
   const grouped = permissions.reduce(
     (acc, p) => {
@@ -73,6 +78,18 @@ export function TabPermissoes({ user }: TabPermissoesProps) {
             </CardBody>
           </Card>
         ))
+      )}
+
+      {user.role?.code === 'ADMIN' && (
+        <div className="col-span-2">
+          <DepartmentScopePanel />
+        </div>
+      )}
+
+      {canManageRoles && (
+        <div className="col-span-2 -mx-6">
+          <RolesPermissionsView />
+        </div>
       )}
     </div>
   );
