@@ -2,6 +2,21 @@
 // Rótulos/configuração dos enums (docs/aulas-ao-vivo.md) e etapas do
 // assistente "Nova Aula" — mesmo padrão de components/trainings/constants.ts.
 
+import {
+  BarChart3,
+  Calendar,
+  CirclePlay,
+  DoorOpen,
+  FolderOpen,
+  GraduationCap,
+  LayoutDashboard,
+  Presentation,
+  Settings,
+  Star,
+  UserCheck,
+  Users,
+  Video,
+} from 'lucide-react';
 import type {
   LiveAttendanceStatus,
   LiveClassEnrollmentMode,
@@ -28,19 +43,69 @@ export const CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES: readonly Role[] = [
 // Materiais/Avaliações/Relatórios/Configurações (secções 11/12/13/14)
 // completam a lista — settings só é mostrado a canManage (ver page.tsx).
 export const NAV = [
-  { id: 'dashboard', label: 'Visão Geral' },
-  { id: 'list', label: 'Aulas' },
-  { id: 'calendar', label: 'Calendário' },
-  { id: 'sessions', label: 'Sessões' },
-  { id: 'participants', label: 'Participantes' },
-  { id: 'instructors', label: 'Formadores' },
-  { id: 'rooms', label: 'Salas & Links' },
-  { id: 'recordings', label: 'Gravações' },
-  { id: 'attendance', label: 'Presenças' },
-  { id: 'materials', label: 'Materiais' },
-  { id: 'evaluations', label: 'Avaliações' },
-  { id: 'reports', label: 'Relatórios' },
-  { id: 'settings', label: 'Configurações' },
+  {
+    id: 'dashboard',
+    hint: 'Resumo das aulas',
+    icon: LayoutDashboard,
+    label: 'Visão Geral',
+  },
+  { id: 'list', hint: 'Todas as aulas', icon: Video, label: 'Aulas' },
+  { id: 'calendar', hint: 'Vista mensal', icon: Calendar, label: 'Calendário' },
+  {
+    id: 'sessions',
+    hint: 'Sessões ao vivo',
+    icon: Presentation,
+    label: 'Sessões',
+  },
+  {
+    id: 'participants',
+    hint: 'Inscritos',
+    icon: Users,
+    label: 'Participantes',
+  },
+  {
+    id: 'instructors',
+    hint: 'Equipa docente',
+    icon: GraduationCap,
+    label: 'Formadores',
+  },
+  {
+    id: 'rooms',
+    hint: 'Salas e ligações',
+    icon: DoorOpen,
+    label: 'Salas & Links',
+  },
+  {
+    id: 'recordings',
+    hint: 'Aulas gravadas',
+    icon: CirclePlay,
+    label: 'Gravações',
+  },
+  {
+    id: 'attendance',
+    hint: 'Registo de presença',
+    icon: UserCheck,
+    label: 'Presenças',
+  },
+  {
+    id: 'materials',
+    hint: 'Ficheiros de apoio',
+    icon: FolderOpen,
+    label: 'Materiais',
+  },
+  {
+    id: 'evaluations',
+    hint: 'Feedback das aulas',
+    icon: Star,
+    label: 'Avaliações',
+  },
+  { id: 'reports', hint: 'Indicadores', icon: BarChart3, label: 'Relatórios' },
+  {
+    id: 'settings',
+    hint: 'Parâmetros',
+    icon: Settings,
+    label: 'Configurações',
+  },
 ] as const;
 
 export type NavId = (typeof NAV)[number]['id'];

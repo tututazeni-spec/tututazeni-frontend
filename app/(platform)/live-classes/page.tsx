@@ -11,6 +11,7 @@
 // app/(platform)/trainings/page.tsx (estado local `nav`, sem rota própria
 // por separador).
 
+import { PillNav } from '@/components/ui/PillTabs';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -226,21 +227,13 @@ export default function LivePage() {
           items-center no wrapper) com largura mínima uniforme. Estado
           activo usa a mesma condição `nav === n.id` de sempre para aplicar
           destaque azul (borda/fundo/texto primary). */}
-      <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
-        {visibleNav.map((n) => (
-          <button
-            key={n.id}
-            onClick={() => setNav(n.id)}
-            className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center font-body text-sm font-medium transition-colors ${
-              nav === n.id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
-            }`}
-          >
-            {n.label}
-          </button>
-        ))}
-      </div>
+      <PillNav
+        items={visibleNav}
+        value={nav}
+        onChange={(id) => setNav(id as NavId)}
+        label="Aulas ao vivo"
+        className="mb-6"
+      />
 
       {nav === 'dashboard' && <DashboardView />}
       {nav === 'calendar' && <CalendarView />}
