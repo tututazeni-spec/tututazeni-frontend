@@ -18,7 +18,7 @@ import {
   Repeat,
   User,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import type { PillTabItem } from '@/components/ui/PillTabs';
 import type { PeriodPreset, Tab } from './types';
 
 export const CATEGORY_COLOR: Record<
@@ -76,15 +76,45 @@ export const CATEGORY_LABEL: Record<string, string> = {
   FINANCIAL: 'Financeiro',
 };
 
-export const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
-  { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
-  { id: 'history', label: 'Histórico', icon: History },
-  { id: 'employee', label: 'Histórico do Colaborador', icon: User },
-  { id: 'movements', label: 'Movimentos', icon: Repeat },
-  { id: 'org', label: 'Alterações Organizacionais', icon: Building2 },
-  { id: 'documents', label: 'Documentos & Registos', icon: FileText },
-  { id: 'activities', label: 'Actividades', icon: Activity },
-  { id: 'reports', label: 'Relatórios', icon: BarChart3 },
+export const TABS: Array<PillTabItem & { id: Tab }> = [
+  {
+    id: 'overview',
+    label: 'Visão Geral',
+    hint: 'Resumo transversal',
+    icon: LayoutDashboard,
+  },
+  { id: 'history', label: 'Histórico', hint: 'Feed de eventos', icon: History },
+  {
+    id: 'employee',
+    label: 'Histórico do Colaborador',
+    hint: 'Percurso individual',
+    icon: User,
+  },
+  {
+    id: 'movements',
+    label: 'Movimentos',
+    hint: 'Transferências e promoções',
+    icon: Repeat,
+  },
+  {
+    id: 'org',
+    label: 'Alterações Organizacionais',
+    hint: 'Estrutura da empresa',
+    icon: Building2,
+  },
+  {
+    id: 'documents',
+    label: 'Documentos & Registos',
+    hint: 'Ficheiros e registos',
+    icon: FileText,
+  },
+  {
+    id: 'activities',
+    label: 'Actividades',
+    hint: 'Acções recentes',
+    icon: Activity,
+  },
+  { id: 'reports', label: 'Relatórios', hint: 'Exportações', icon: BarChart3 },
 ];
 
 export const MODULE_LABEL: Record<string, string> = {

@@ -19,7 +19,8 @@ import { OrgChangesTab } from '@/components/history/OrgChangesTab';
 import { OverviewTab } from '@/components/history/OverviewTab';
 import { ReportsTab } from '@/components/history/ReportsTab';
 import type { Tab } from '@/components/history/types';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList } from '@/components/ui/PillTabs';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
 import { useState } from 'react';
@@ -37,9 +38,7 @@ export default function HistoryPage() {
     <div className="min-h-screen bg-canvas">
       <div className="border-b border-border bg-surface px-6 py-5">
         <div className="max-w-7xl mx-auto">
-          <h1 className="font-display text-xl font-bold text-ink">
-            Histórico
-          </h1>
+          <h1 className="font-display text-xl font-bold text-ink">Histórico</h1>
           <p className="font-body text-sm text-ink-faint">
             Registo transversal de alterações e acontecimentos relevantes —
             todos os dados vêm dos módulos da plataforma.
@@ -49,26 +48,8 @@ export default function HistoryPage() {
 
       <HistoryFiltersProvider>
         <Tabs value={active} onValueChange={(v) => setTab(v as Tab)}>
-          {/* Tabs — formato de "cartão": cada trigger é um cartão independente
-              (borda + fundo branco + rounded), com destaque azul no estado
-              activo (data-[state=active] do Radix). */}
-          <div className="bg-surface px-6 py-3">
-            <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 bg-transparent p-0">
-              {visibleTabs.map((t) => {
-                const Icon = t.icon;
-                return (
-                  <TabsTrigger
-                    key={t.id}
-                    value={t.id}
-                    className="flex min-w-[140px] items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
-                               data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                  >
-                    <Icon size={16} strokeWidth={1.75} />
-                    {t.label}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+          <div className="bg-surface px-6 py-5">
+            <PillTabsList items={visibleTabs} className="mx-auto max-w-7xl" />
           </div>
 
           <div className="max-w-7xl mx-auto space-y-5 px-6 py-6">
