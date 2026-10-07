@@ -62,9 +62,16 @@ export function LoginView({
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        .login-root,
+        .login-root *,
+        .login-root *::before,
+        .login-root *::after {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
 
         .login-root {
           min-height: 100vh;
@@ -74,6 +81,7 @@ export function LoginView({
           justify-content: center;
           position: relative;
           font-family: 'Inter', sans-serif;
+          color: #fff;
           overflow: hidden;
         }
 
@@ -98,21 +106,35 @@ export function LoginView({
           );
         }
 
+        /* ───────── Cartão em vidro (glassmorphism) ───────── */
         .login-card {
           position: relative;
           z-index: 10;
           width: 100%;
           max-width: 440px;
           margin: 24px;
-          background: rgba(255, 255, 255, 0.92);
-          backdrop-filter: blur(18px);
-          -webkit-backdrop-filter: blur(18px);
-          border-radius: 20px;
-          padding: 48px 44px 44px;
+          padding: 44px 40px 36px;
+          color: #fff;
+          background: linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.22) 0%,
+            rgba(255, 255, 255, 0.08) 100%
+          );
+          backdrop-filter: blur(22px) saturate(140%);
+          -webkit-backdrop-filter: blur(22px) saturate(140%);
+          border: 1.5px solid rgba(255, 255, 255, 0.4);
+          border-radius: 28px;
           box-shadow:
-            0 32px 80px rgba(0, 0, 0, 0.25),
-            0 0 0 1px rgba(255,255,255,0.6) inset;
+            0 24px 64px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.35);
           animation: cardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        /* Alternativa para navegadores sem suporte a backdrop-filter */
+        @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+          .login-card {
+            background: rgba(15, 31, 61, 0.7);
+          }
         }
 
         @keyframes cardIn {
@@ -125,7 +147,7 @@ export function LoginView({
           align-items: center;
           justify-content: center;
           gap: 12px;
-          margin-bottom: 32px;
+          margin-bottom: 24px;
         }
 
         .login-logo-icon {
@@ -137,25 +159,32 @@ export function LoginView({
           font-family: 'Montserrat', sans-serif;
           font-size: 32px;
           font-weight: 800;
-          color: #0a2560;
+          color: #fff;
           letter-spacing: -0.5px;
+          text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
         }
 
         .login-divider {
           width: 48px;
           height: 3px;
-          background: linear-gradient(90deg, #1a4bb5, #22c55e);
+          background: linear-gradient(90deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.3));
           border-radius: 2px;
-          margin: 0 auto 28px;
+          margin: 0 auto 22px;
         }
 
         .login-subtitle {
           text-align: center;
-          font-size: 13px;
-          color: #64748b;
+          font-size: 14px;
+          line-height: 1.5;
+          color: #fff;
           font-weight: 400;
-          margin-bottom: 32px;
+          margin-bottom: 30px;
           letter-spacing: 0.2px;
+          text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .login-subtitle span {
+          display: block;
         }
 
         .login-label {
@@ -164,12 +193,12 @@ export function LoginView({
           font-weight: 700;
           letter-spacing: 1.2px;
           text-transform: uppercase;
-          color: #0a2560;
+          color: #fff;
           margin-bottom: 8px;
         }
 
         .login-field {
-          margin-bottom: 20px;
+          margin-bottom: 18px;
         }
 
         .login-input-wrap {
@@ -178,10 +207,11 @@ export function LoginView({
           align-items: center;
         }
 
+        /* Ícones à direita, como no modelo */
         .login-input-icon {
           position: absolute;
-          left: 14px;
-          color: #94a3b8;
+          right: 16px;
+          color: rgba(255, 255, 255, 0.85);
           display: flex;
           align-items: center;
           pointer-events: none;
@@ -189,22 +219,34 @@ export function LoginView({
 
         .login-input {
           width: 100%;
-          padding: 13px 44px 13px 42px;
-          border: 1.5px solid #e2e8f0;
-          border-radius: 10px;
+          padding: 15px 48px 15px 18px;
+          border: 1.5px solid rgba(255, 255, 255, 0.45);
+          border-radius: 16px;
           font-size: 14px;
           font-family: 'Inter', sans-serif;
-          color: #0f172a;
-          background: #fff;
+          color: #fff;
+          caret-color: #fff;
+          background: rgba(255, 255, 255, 0.06);
           outline: none;
-          transition: border-color 0.2s, box-shadow 0.2s;
+          transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
         }
 
-        .login-input::placeholder { color: #94a3b8; }
+        .login-input::placeholder { color: rgba(255, 255, 255, 0.7); }
 
         .login-input:focus {
-          border-color: #1a4bb5;
-          box-shadow: 0 0 0 3px rgba(26, 75, 181, 0.1);
+          border-color: #fff;
+          background: rgba(255, 255, 255, 0.12);
+          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Mantém o texto branco e o fundo translúcido quando o browser preenche automaticamente */
+        .login-input:-webkit-autofill,
+        .login-input:-webkit-autofill:hover,
+        .login-input:-webkit-autofill:focus {
+          -webkit-text-fill-color: #fff;
+          caret-color: #fff;
+          -webkit-box-shadow: 0 0 0 1000px rgba(15, 31, 61, 0.55) inset;
+          transition: background-color 9999s ease-out 0s;
         }
 
         .login-eye {
@@ -213,59 +255,64 @@ export function LoginView({
           background: none;
           border: none;
           cursor: pointer;
-          color: #94a3b8;
+          color: rgba(255, 255, 255, 0.85);
           display: flex;
           align-items: center;
-          padding: 0;
+          padding: 2px;
+          border-radius: 6px;
           transition: color 0.2s;
         }
-        .login-eye:hover { color: #1a4bb5; }
+        .login-eye:hover { color: #fff; }
+        .login-eye:focus-visible {
+          outline: 2px solid #fff;
+          outline-offset: 2px;
+        }
 
         .login-error {
-          background: #fef2f2;
-          border: 1px solid #fecaca;
-          color: #dc2626;
+          background: rgba(220, 38, 38, 0.28);
+          border: 1px solid rgba(254, 202, 202, 0.7);
+          color: #fff;
           font-size: 13px;
           padding: 10px 14px;
-          border-radius: 8px;
-          margin-bottom: 20px;
+          border-radius: 12px;
+          margin-bottom: 18px;
           text-align: center;
         }
 
+        /* ───────── Botão Entrar (#0F1F3D) ───────── */
         .login-btn {
           width: 100%;
-          padding: 14px;
-          background: linear-gradient(135deg, #0a2560 0%, #1a4bb5 100%);
+          padding: 15px;
+          background: #0F1F3D;
           color: #fff;
           font-family: 'Montserrat', sans-serif;
           font-size: 14px;
           font-weight: 700;
           letter-spacing: 1.5px;
           text-transform: uppercase;
-          border: none;
-          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          border-radius: 14px;
           cursor: pointer;
-          transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-          box-shadow: 0 4px 20px rgba(26, 75, 181, 0.35);
+          transition: background 0.2s, transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+          box-shadow: 0 8px 24px rgba(15, 31, 61, 0.45);
           margin-top: 8px;
           position: relative;
           overflow: hidden;
         }
 
-        .login-btn::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.08) 100%);
-        }
-
         .login-btn:hover:not(:disabled) {
+          background: #172b52;
           transform: translateY(-1px);
-          box-shadow: 0 8px 28px rgba(26, 75, 181, 0.45);
+          box-shadow: 0 12px 30px rgba(15, 31, 61, 0.55);
         }
 
         .login-btn:active:not(:disabled) {
           transform: translateY(0);
+        }
+
+        .login-btn:focus-visible {
+          outline: 2px solid #fff;
+          outline-offset: 3px;
         }
 
         .login-btn:disabled {
@@ -277,7 +324,7 @@ export function LoginView({
           display: inline-block;
           width: 14px;
           height: 14px;
-          border: 2px solid rgba(255,255,255,0.4);
+          border: 2px solid rgba(255, 255, 255, 0.4);
           border-top-color: #fff;
           border-radius: 50%;
           animation: spin 0.7s linear infinite;
@@ -287,29 +334,35 @@ export function LoginView({
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .login-footer {
-          margin-top: 28px;
+          margin-top: 26px;
           text-align: center;
           font-size: 11px;
-          color: #94a3b8;
+          line-height: 1.5;
+          color: rgba(255, 255, 255, 0.85);
           letter-spacing: 0.3px;
         }
 
+        /* ───────── SSO / LDAP ───────── */
         .login-sso-btn {
           width: 100%;
-          padding: 12px;
-          background: #fff;
-          color: #0a2560;
+          padding: 13px;
+          background: rgba(255, 255, 255, 0.08);
+          color: #fff;
           font-family: 'Inter', sans-serif;
           font-size: 13px;
           font-weight: 600;
-          border: 1.5px solid #e2e8f0;
-          border-radius: 10px;
+          border: 1.5px solid rgba(255, 255, 255, 0.45);
+          border-radius: 14px;
           cursor: pointer;
           transition: border-color 0.2s, background 0.2s;
         }
         .login-sso-btn:hover {
-          border-color: #1a4bb5;
-          background: #f8fafc;
+          border-color: #fff;
+          background: rgba(255, 255, 255, 0.16);
+        }
+        .login-sso-btn:focus-visible {
+          outline: 2px solid #fff;
+          outline-offset: 3px;
         }
 
         .login-or {
@@ -318,7 +371,7 @@ export function LoginView({
           gap: 10px;
           margin: 18px 0;
           font-size: 11px;
-          color: #94a3b8;
+          color: rgba(255, 255, 255, 0.9);
           text-transform: uppercase;
           letter-spacing: 1px;
         }
@@ -327,7 +380,7 @@ export function LoginView({
           content: '';
           flex: 1;
           height: 1px;
-          background: #e2e8f0;
+          background: rgba(255, 255, 255, 0.4);
         }
 
         .login-ldap-toggle {
@@ -336,7 +389,7 @@ export function LoginView({
           margin-top: 16px;
           background: none;
           border: none;
-          color: #1a4bb5;
+          color: #fff;
           font-size: 12px;
           font-weight: 600;
           cursor: pointer;
@@ -344,6 +397,31 @@ export function LoginView({
         }
         .login-ldap-toggle:hover {
           text-decoration: underline;
+        }
+        .login-ldap-toggle:focus-visible {
+          outline: 2px solid #fff;
+          outline-offset: 3px;
+          border-radius: 6px;
+        }
+
+        @media (max-width: 480px) {
+          .login-card {
+            margin: 16px;
+            padding: 36px 24px 28px;
+            border-radius: 24px;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .login-card,
+          .login-spinner {
+            animation: none;
+          }
+          .login-btn,
+          .login-input,
+          .login-sso-btn {
+            transition: none;
+          }
         }
       `}</style>
 
@@ -366,7 +444,8 @@ export function LoginView({
           <div className="login-divider" />
 
           <p className="login-subtitle">
-            Academia Digital e Gestão de Recursos Humanos Aceda à sua conta
+            <span>Academia Digital e Gestão de Recursos Humanos</span>
+            <span>Aceda à sua conta</span>
           </p>
 
           {sso?.ssoEnabled && (
@@ -382,22 +461,12 @@ export function LoginView({
 
           <form onSubmit={useLdap ? handleLdapSubmit : handleSubmit}>
             <div className="login-field">
-              <label className="login-label">E-mail</label>
+              <label className="login-label" htmlFor="login-email">
+                E-mail
+              </label>
               <div className="login-input-wrap">
-                <span className="login-input-icon">
-                  <svg
-                    width="16"
-                    height="16"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.8}
-                  >
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg>
-                </span>
                 <input
+                  id="login-email"
                   type="email"
                   className="login-input"
                   placeholder="o.seu@email.com"
@@ -406,26 +475,29 @@ export function LoginView({
                   required
                   autoComplete="email"
                 />
+                <span className="login-input-icon" aria-hidden="true">
+                  <svg
+                    width="18"
+                    height="18"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.6}
+                  >
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                  </svg>
+                </span>
               </div>
             </div>
 
             <div className="login-field">
-              <label className="login-label">Senha</label>
+              <label className="login-label" htmlFor="login-password">
+                Senha
+              </label>
               <div className="login-input-wrap">
-                <span className="login-input-icon">
-                  <svg
-                    width="16"
-                    height="16"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.8}
-                  >
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                </span>
                 <input
+                  id="login-password"
                   type={showPass ? 'text' : 'password'}
                   className="login-input"
                   placeholder="••••••••"
@@ -446,24 +518,24 @@ export function LoginView({
                 >
                   {showPass ? (
                     <svg
-                      width="16"
-                      height="16"
+                      width="18"
+                      height="18"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
-                      strokeWidth={1.8}
+                      strokeWidth={1.6}
                     >
                       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
                       <line x1="1" y1="1" x2="23" y2="23" />
                     </svg>
                   ) : (
                     <svg
-                      width="16"
-                      height="16"
+                      width="18"
+                      height="18"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
-                      strokeWidth={1.8}
+                      strokeWidth={1.6}
                     >
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                       <circle cx="12" cy="12" r="3" />
@@ -474,10 +546,17 @@ export function LoginView({
             </div>
 
             {(useLdap ? ldapError : error) && (
-              <div className="login-error">{useLdap ? ldapError : error}</div>
+              <div className="login-error" role="alert">
+                {useLdap ? ldapError : error}
+              </div>
             )}
 
-            <button type="submit" className="login-btn" disabled={useLdap ? ldapLoading : loading}>
+            <button
+              type="submit"
+              className="login-btn"
+              disabled={useLdap ? ldapLoading : loading}
+              aria-busy={useLdap ? ldapLoading : loading}
+            >
               {(useLdap ? ldapLoading : loading) && <span className="login-spinner" />}
               {useLdap ? (ldapLoading ? 'A entrar...' : 'Entrar (LDAP/AD)') : loading ? 'A entrar...' : 'Entrar'}
             </button>
