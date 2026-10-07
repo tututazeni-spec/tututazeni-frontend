@@ -77,8 +77,13 @@ const TABS: Array<PillTabItem & { id: CareerTab } & RoleRestricted> = [
     icon: LayoutDashboard,
     roles: EXECUTIVE_ROLES,
   },
-  { id: 'me', label: 'A Minha Carreira', hint: 'O teu percurso' },
-  { id: 'paths', label: 'Percursos de Carreira', hint: 'Trilhas possíveis' },
+  { id: 'me', label: 'A Minha Carreira', hint: 'O teu percurso', icon: User },
+  {
+    id: 'paths',
+    label: 'Percursos de Carreira',
+    hint: 'Trilhas possíveis',
+    icon: Route,
+  },
   {
     id: 'plans',
     label: 'Planos de Carreira',
@@ -86,7 +91,12 @@ const TABS: Array<PillTabItem & { id: CareerTab } & RoleRestricted> = [
     icon: ClipboardList,
     roles: EXECUTIVE_ROLES,
   },
-  { id: 'opportunities', label: 'Oportunidades', hint: 'Vagas e movimentos' },
+  {
+    id: 'opportunities',
+    label: 'Oportunidades',
+    hint: 'Vagas e movimentos',
+    icon: Briefcase,
+  },
   // ADMIN/RH apenas (não GESTOR) — CriticalPositionsView chama
   // GET/POST /succession/critical-positions, que o backend restringe a
   // @Roles(ADMIN, RH); só o dashboard/matriz aceitam GESTOR também.
@@ -97,8 +107,18 @@ const TABS: Array<PillTabItem & { id: CareerTab } & RoleRestricted> = [
     icon: Crown,
     roles: ['ADMIN', 'RH'],
   },
-  { id: 'pdi', label: 'PDI & Desenvolvimento', hint: 'Plano individual' },
-  { id: 'history', label: 'Histórico', hint: 'Movimentos passados' },
+  {
+    id: 'pdi',
+    label: 'PDI & Desenvolvimento',
+    hint: 'Plano individual',
+    icon: Target,
+  },
+  {
+    id: 'history',
+    label: 'Histórico',
+    hint: 'Movimentos passados',
+    icon: History,
+  },
 ];
 
 export default function CareerPage() {
