@@ -186,31 +186,38 @@ export function UserListView({ onSelect }: UserListViewProps) {
         </div>
       )}
       {!loading && (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell className="w-8" />
-              <TableHeaderCell>Utilizador</TableHeaderCell>
-              <TableHeaderCell>Cargo</TableHeaderCell>
-              <TableHeaderCell>Departamento</TableHeaderCell>
-              <TableHeaderCell>Estado conta</TableHeaderCell>
-              <TableHeaderCell>Estado RH</TableHeaderCell>
-              <TableHeaderCell>Acções</TableHeaderCell>
+        <Table className="bg-[#0F1F3D] text-white">
+          <TableHead className="bg-[#0F1F3D]">
+            <TableRow className="border-white/15 hover:bg-transparent">
+              <TableHeaderCell className="w-8 text-white" />
+              <TableHeaderCell className="text-white">Utilizador</TableHeaderCell>
+              <TableHeaderCell className="text-white">Cargo</TableHeaderCell>
+              <TableHeaderCell className="text-white">
+                Departamento
+              </TableHeaderCell>
+              <TableHeaderCell className="text-white">
+                Estado conta
+              </TableHeaderCell>
+              <TableHeaderCell className="text-white">Estado RH</TableHeaderCell>
+              <TableHeaderCell className="text-white">Acções</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {data?.data.length === 0 && (
-              <TableRow>
+              <TableRow className="border-white/10 hover:bg-white/5">
                 <TableCell
                   colSpan={7}
-                  className="py-12 text-center text-ink-faint"
+                  className="py-12 text-center text-white/70"
                 >
                   Nenhum utilizador encontrado
                 </TableCell>
               </TableRow>
             )}
             {data?.data.map((user) => (
-              <TableRow key={user.id}>
+              <TableRow
+                key={user.id}
+                className="border-white/10 hover:bg-white/5"
+              >
                 <TableCell>
                   <input
                     type="checkbox"
@@ -230,22 +237,22 @@ export function UserListView({ onSelect }: UserListViewProps) {
                       size="sm"
                     />
                     <div>
-                      <div className="text-sm font-medium text-ink">
+                      <div className="text-sm font-medium text-white">
                         {user.fullName}
                       </div>
-                      <div className="text-xs text-ink-faint">{user.email}</div>
+                      <div className="text-xs text-white/70">{user.email}</div>
                       {user.employeeNumber && (
-                        <div className="text-xs font-mono text-ink-faint/70">
+                        <div className="text-xs font-mono text-white/60">
                           {user.employeeNumber}
                         </div>
                       )}
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-xs text-ink-muted">
+                <TableCell className="text-xs text-white">
                   {user.position?.name ?? '—'}
                 </TableCell>
-                <TableCell className="text-xs text-ink-muted">
+                <TableCell className="text-xs text-white">
                   {user.department?.name ?? '—'}
                 </TableCell>
                 <TableCell>
@@ -264,6 +271,7 @@ export function UserListView({ onSelect }: UserListViewProps) {
                     label="Ver perfil"
                     intent="ghost"
                     size="sm"
+                    className="text-white hover:bg-white/10 hover:text-white"
                     onClick={() => onSelect(user.id)}
                   />
                 </TableCell>
