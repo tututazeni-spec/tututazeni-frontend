@@ -186,9 +186,9 @@ export function UserListView({ onSelect }: UserListViewProps) {
         </div>
       )}
       {!loading && (
-        <Table className="bg-[#0F1F3D] text-white">
+        <Table>
           <TableHead className="bg-[#0F1F3D]">
-            <TableRow className="border-white/15 hover:bg-transparent">
+            <TableRow className="hover:bg-transparent">
               <TableHeaderCell className="w-8 text-white" />
               <TableHeaderCell className="text-white">Utilizador</TableHeaderCell>
               <TableHeaderCell className="text-white">Cargo</TableHeaderCell>
@@ -204,20 +204,17 @@ export function UserListView({ onSelect }: UserListViewProps) {
           </TableHead>
           <TableBody>
             {data?.data.length === 0 && (
-              <TableRow className="border-white/10 hover:bg-white/5">
+              <TableRow>
                 <TableCell
                   colSpan={7}
-                  className="py-12 text-center text-white/70"
+                  className="py-12 text-center text-ink-faint"
                 >
                   Nenhum utilizador encontrado
                 </TableCell>
               </TableRow>
             )}
             {data?.data.map((user) => (
-              <TableRow
-                key={user.id}
-                className="border-white/10 hover:bg-white/5"
-              >
+              <TableRow key={user.id}>
                 <TableCell>
                   <input
                     type="checkbox"
@@ -237,22 +234,22 @@ export function UserListView({ onSelect }: UserListViewProps) {
                       size="sm"
                     />
                     <div>
-                      <div className="text-sm font-medium text-white">
+                      <div className="text-sm font-medium text-ink">
                         {user.fullName}
                       </div>
-                      <div className="text-xs text-white/70">{user.email}</div>
+                      <div className="text-xs text-ink-faint">{user.email}</div>
                       {user.employeeNumber && (
-                        <div className="text-xs font-mono text-white/60">
+                        <div className="text-xs font-mono text-ink-faint/70">
                           {user.employeeNumber}
                         </div>
                       )}
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-xs text-white">
+                <TableCell className="text-xs text-ink-muted">
                   {user.position?.name ?? '—'}
                 </TableCell>
-                <TableCell className="text-xs text-white">
+                <TableCell className="text-xs text-ink-muted">
                   {user.department?.name ?? '—'}
                 </TableCell>
                 <TableCell>
@@ -271,7 +268,6 @@ export function UserListView({ onSelect }: UserListViewProps) {
                     label="Ver perfil"
                     intent="ghost"
                     size="sm"
-                    className="text-white hover:bg-white/10 hover:text-white"
                     onClick={() => onSelect(user.id)}
                   />
                 </TableCell>
