@@ -13,7 +13,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -44,7 +45,6 @@ import {
   Users,
   Workflow,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
@@ -3027,28 +3027,28 @@ function StorageTab({ storage }: { storage: StorageMetricsData | null }) {
 
 // ─── TABS CONFIG ──────────────────────────────────────────
 
-const TABS: { id: string; label: string; icon: LucideIcon }[] = [
-  { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
-  { id: 'performance', label: 'Performance', icon: Gauge },
-  { id: 'integrations', label: 'Integrações', icon: Plug },
-  { id: 'automations', label: 'Automações', icon: Workflow },
-  { id: 'alerts', label: 'Alertas', icon: Bell },
-  { id: 'sla', label: 'SLA & Compliance', icon: ShieldCheck },
-  { id: 'users', label: 'Utilizadores', icon: Users },
-  { id: 'api', label: 'API & Backend', icon: Server },
-  { id: 'database', label: 'Base de Dados', icon: Database },
-  { id: 'content', label: 'Conteúdo & CDN', icon: Globe },
-  { id: 'queues', label: 'Filas & Jobs', icon: ListChecks },
-  { id: 'storage', label: 'Storage', icon: HardDrive },
-  { id: 'capacity', label: 'Capacidade', icon: Boxes },
-  { id: 'autoscaling', label: 'Auto Scaling', icon: Scaling },
-  { id: 'resilience', label: 'Resiliência', icon: LifeBuoy },
-  { id: 'incidents', label: 'Incidentes', icon: Siren },
-  { id: 'forecasts', label: 'Previsões', icon: LineChart },
-  { id: 'loadtests', label: 'Testes de Carga', icon: FlaskConical },
-  { id: 'costs', label: 'Custos', icon: Wallet },
-  { id: 'reports', label: 'Relatórios', icon: FileText },
-  { id: 'settings', label: 'Configurações', icon: Settings },
+const TABS: PillTabItem[] = [
+  { id: 'overview', label: 'Visão Geral', hint: 'Estado geral', icon: LayoutDashboard },
+  { id: 'performance', label: 'Performance', hint: 'Latência e erros', icon: Gauge },
+  { id: 'integrations', label: 'Integrações', hint: 'Sistemas ligados', icon: Plug },
+  { id: 'automations', label: 'Automações', hint: 'Regras automáticas', icon: Workflow },
+  { id: 'alerts', label: 'Alertas', hint: 'Avisos abertos', icon: Bell },
+  { id: 'sla', label: 'SLA & Compliance', hint: 'Objectivos de serviço', icon: ShieldCheck },
+  { id: 'users', label: 'Utilizadores', hint: 'Carga de utilizadores', icon: Users },
+  { id: 'api', label: 'API & Backend', hint: 'Pedidos e rotas', icon: Server },
+  { id: 'database', label: 'Base de Dados', hint: 'Consultas e ligações', icon: Database },
+  { id: 'content', label: 'Conteúdo & CDN', hint: 'Entrega de conteúdo', icon: Globe },
+  { id: 'queues', label: 'Filas & Jobs', hint: 'Tarefas em fila', icon: ListChecks },
+  { id: 'storage', label: 'Storage', hint: 'Espaço e ficheiros', icon: HardDrive },
+  { id: 'capacity', label: 'Capacidade', hint: 'Recursos disponíveis', icon: Boxes },
+  { id: 'autoscaling', label: 'Auto Scaling', hint: 'Escala automática', icon: Scaling },
+  { id: 'resilience', label: 'Resiliência', hint: 'Tolerância a falhas', icon: LifeBuoy },
+  { id: 'incidents', label: 'Incidentes', hint: 'Ocorrências', icon: Siren },
+  { id: 'forecasts', label: 'Previsões', hint: 'Projecções de uso', icon: LineChart },
+  { id: 'loadtests', label: 'Testes de Carga', hint: 'Simulações de carga', icon: FlaskConical },
+  { id: 'costs', label: 'Custos', hint: 'Gastos de infra', icon: Wallet },
+  { id: 'reports', label: 'Relatórios', hint: 'Relatórios técnicos', icon: FileText },
+  { id: 'settings', label: 'Configurações', hint: 'Limiares e opções', icon: Settings },
 ];
 
 // ─── DASHBOARD VIEW (apresentacional — sem estado, sem fetch) ──────────────
@@ -3220,39 +3220,26 @@ export function ScalabilityDashboardView({
         </div>
       </div>
 
-      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
-          (borda + fundo branco + rounded), sem underline no container.
-          Alinhadas horizontal e verticalmente (justify-center +
-          items-center no TabsList, flex items-center em cada TabsTrigger)
-          com largura mínima uniforme. Estado activo usa data-[state=active]
-          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
       <Tabs value={activeTab} onValueChange={onTabChange}>
-        <div className="bg-surface px-6 py-3">
-          <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto border-b-0 bg-transparent p-0">
-            {TABS.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  className="flex min-w-[140px] items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
-                             data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                >
-                  <Icon size={16} strokeWidth={1.75} />
-                  {tab.label}
-                  {tab.id === 'alerts' && openAlertCount > 0 && (
-                    <Badge
-                      intent={criticalCount > 0 ? 'danger' : 'warning'}
-                      dot={false}
-                      className="ml-1.5 px-1.5 py-0"
-                    >
-                      {openAlertCount}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+        <div className="mx-auto max-w-7xl px-6 py-3">
+          <PillTabsList
+            items={TABS.map((tab) =>
+              tab.id === 'alerts' && openAlertCount > 0
+                ? {
+                    ...tab,
+                    badge: (
+                      <Badge
+                        intent={criticalCount > 0 ? 'danger' : 'warning'}
+                        dot={false}
+                        className="px-1.5 py-0"
+                      >
+                        {openAlertCount}
+                      </Badge>
+                    ),
+                  }
+                : tab,
+            )}
+          />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
