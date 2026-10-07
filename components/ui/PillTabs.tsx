@@ -52,13 +52,7 @@ function Glass({
 const PILL_BASE =
   'group flex h-auto items-center gap-3 whitespace-nowrap rounded-full border border-white/70 bg-white/60 py-2 pl-2 pr-4 text-left font-body text-ink shadow-sm backdrop-blur transition-all hover:bg-white/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 data-[state=active]:border-transparent data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/70 data-[state=active]:text-white data-[state=active]:shadow-lg';
 
-function PillBody({
-  item,
-  active,
-}: {
-  item: PillTabItem;
-  active?: boolean;
-}) {
+function PillBody({ item, active }: { item: PillTabItem; active?: boolean }) {
   const Icon = item.icon;
   return (
     <>
@@ -112,11 +106,7 @@ export function PillTabsList({
     <Glass className={className}>
       <TabsList className="flex h-auto w-full flex-wrap items-center justify-center gap-2 border-0 bg-transparent p-0">
         {items.map((item) => (
-          <TabsTrigger
-            key={item.id}
-            value={item.id}
-            className={PILL_BASE}
-          >
+          <TabsTrigger key={item.id} value={item.id} className={PILL_BASE}>
             <PillBody item={item} />
           </TabsTrigger>
         ))}
