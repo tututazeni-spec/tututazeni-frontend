@@ -309,6 +309,11 @@ export const queryKeys = {
     authSettings: () => [...queryKeys.settings.all, 'auth-settings'] as const,
     ssoOptions: () => [...queryKeys.settings.all, 'sso-options'] as const,
     emailSettings: () => [...queryKeys.settings.all, 'email-settings'] as const,
+    whatsappSettings: () => [...queryKeys.settings.all, 'whatsapp-settings'] as const,
+    whatsappMetaTemplates: () => [...queryKeys.settings.all, 'whatsapp-meta-templates'] as const,
+    backups: () => [...queryKeys.settings.all, 'backups'] as const,
+    systemSettings: () => [...queryKeys.settings.all, 'system-settings'] as const,
+    systemStatus: () => [...queryKeys.settings.all, 'system-status'] as const,
   },
 
   scalability: {

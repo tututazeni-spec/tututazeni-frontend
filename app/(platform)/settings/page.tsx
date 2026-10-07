@@ -16,6 +16,9 @@ import { TabLicenca } from '@/components/settings/TabLicenca';
 import { TabAuditoria } from '@/components/settings/TabAuditoria';
 import { TabAutenticacao } from '@/components/settings/TabAutenticacao';
 import { TabEmail } from '@/components/settings/TabEmail';
+import { TabWhatsApp } from '@/components/settings/TabWhatsApp';
+import { TabBackups } from '@/components/settings/TabBackups';
+import { TabSistema } from '@/components/settings/TabSistema';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 
@@ -159,6 +162,24 @@ export default function SettingsPage() {
         {isAdmin && (
           <TabsContent value="email">
             <TabEmail />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="whatsapp">
+            <TabWhatsApp />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="backups">
+            <TabBackups />
+          </TabsContent>
+        )}
+
+        {isAdmin && (
+          <TabsContent value="sistema">
+            <TabSistema />
           </TabsContent>
         )}
       </Tabs>
