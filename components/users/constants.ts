@@ -15,18 +15,39 @@
 // directamente. Substituído por "Importação" e "Histórico & Auditoria"
 // (Ponto 5 e Ponto 6).
 
+import { BarChart3, FileUp, History, KeyRound, Search, Users } from 'lucide-react';
+import type { PillTabItem } from '@/components/ui/PillTabs';
 import type { View } from './types';
 
-export const NAV: Array<{
-  id: Exclude<View, 'detail' | 'create'>;
-  label: string;
-}> = [
-  { id: 'list', label: 'Utilizadores' },
-  { id: 'directory', label: 'Diretório' },
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'import', label: 'Importação' },
-  { id: 'audit', label: 'Histórico & Auditoria' },
-  { id: 'permissions', label: 'Permissões por Cargos' },
+export const NAV: Array<
+  PillTabItem & { id: Exclude<View, 'detail' | 'create'> }
+> = [
+  { id: 'list', label: 'Utilizadores', hint: 'Gestão de contas', icon: Users },
+  {
+    id: 'directory',
+    label: 'Diretório',
+    hint: 'Pessoas da empresa',
+    icon: Search,
+  },
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    hint: 'Indicadores de RH',
+    icon: BarChart3,
+  },
+  { id: 'import', label: 'Importação', hint: 'Carregar em lote', icon: FileUp },
+  {
+    id: 'audit',
+    label: 'Histórico & Auditoria',
+    hint: 'Alterações e acessos',
+    icon: History,
+  },
+  {
+    id: 'permissions',
+    label: 'Permissões por Cargos',
+    hint: 'Acessos por perfil',
+    icon: KeyRound,
+  },
 ];
 
 export const TITLES: Record<View, string> = {
