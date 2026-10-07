@@ -14,7 +14,10 @@ export type Tab =
   | 'licenca'
   | 'auditoria'
   | 'autenticacao'
-  | 'email';
+  | 'email'
+  | 'whatsapp'
+  | 'backups'
+  | 'sistema';
 
 export interface OrganizationSettings {
   id: string;
@@ -380,4 +383,118 @@ export interface EmailTestResult {
   subject?: string;
   preview?: string;
   error?: string;
+}
+
+// ─── §13 WhatsApp ────────────────────────────────────────────────────────────
+
+export type WhatsAppProvider = 'TWILIO' | 'META';
+export type WhatsAppEventKey = 'NOTIFICATION' | 'AUTOMATION' | 'CORPORATE_EVENT';
+
+export interface WhatsAppTemplateMapping {
+  name: string;
+  language: string;
+}
+
+export interface WhatsAppSettingsView {
+  enabled: boolean;
+  provider: WhatsAppProvider;
+  number: string;
+  accountSid: string;
+  hasAuthToken: boolean;
+  hourlyLimit: number;
+  dailyLimit: number;
+  meta: {
+    phoneNumberId: string;
+    businessAccountId: string;
+    apiVersion: string;
+    hasAccessToken: boolean;
+  };
+  authorizedEvents: WhatsAppEventKey[];
+  templates: Record<WhatsAppEventKey, WhatsAppTemplateMapping>;
+  eventOptions: readonly WhatsAppEventKey[];
+  status: {
+    enabled: boolean;
+    connected: boolean;
+    error?: string;
+    providerStatus?: string;
+    displayPhoneNumber?: string;
+    verifiedName?: string;
+    qualityRating?: string;
+    usage: { lastHour: number; lastDay: number; hourlyLimit: number; dailyLimit: number };
+  };
+}
+
+export interface WhatsAppMetaTemplate {
+  name: string;
+  language: string;
+  status: string;
+  category: string;
+}
+
+// ─── §14 Backups ─────────────────────────────────────────────────────────────
+
+export type BackupFrequency = 'DAILY' | 'WEEKLY' | 'MONTHLY';
+
+export interface BackupSettingsForm {
+  enabled: boolean;
+  frequency: BackupFrequency;
+  hour: number;
+  day: number;
+  destinationDir: string;
+  retentionDays: number;
+  minCopies: number;
+}
+
+export interface BackupRunRow {
+  id: number;
+  trigger: 'MANUAL' | 'SCHEDULED' | 'PRE_RESTORE';
+  status: 'RUNNING' | 'SUCCESS' | 'FAILED';
+  filePath: string | null;
+  sizeBytes: number | null;
+  error: string | null;
+  startedAt: string;
+  finishedAt: string | null;
+  deletedAt: string | null;
+  restoredAt: string | null;
+}
+
+export interface BackupsView {
+  settings: BackupSettingsForm;
+  frequencyOptions: readonly BackupFrequency[];
+  nextRunAt: string | null;
+  health: 'DISABLED' | 'NEVER' | 'HEALTHY' | 'STALE' | 'FAILED';
+  lastSuccessAt: string | null;
+  storedCopies: number;
+  storedBytes: number;
+  tools: { pgDump: boolean; pgRestore: boolean };
+  restoreEnabled: boolean;
+  runs: BackupRunRow[];
+}
+
+// ─── §15 Sistema ─────────────────────────────────────────────────────────────
+
+export interface SystemSettingsForm {
+  maintenance: { enabled: boolean; message: string };
+  pagination: { maxPageSize: number };
+  uploads: { maxFileSizeMb: number; allowedMimeTypes: string[] };
+  jobs: { retentionDays: number };
+}
+
+export interface SystemSettingsView {
+  settings: SystemSettingsForm;
+  limits: { maxPageSizeCeiling: number; maxUploadMbCeiling: number };
+  mimeTypeOptions: readonly string[];
+  queueNames: readonly string[];
+  cacheNamespaces: readonly string[];
+}
+
+export interface SystemStatus {
+  queues: {
+    name: string;
+    paused: boolean;
+    counts: Record<string, number> | null;
+  }[];
+  cache: { connected: boolean; keys?: number; usedMemoryMb?: number | null; enabled?: boolean };
+  db: { connected: boolean; latencyMs?: number; sizeMb?: number; poolMax?: number };
+  process: { uptimeSeconds: number; nodeVersion: string; memoryMb: number; env: string };
 }

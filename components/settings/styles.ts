@@ -19,4 +19,7 @@ export const NAV: Array<{ key: Tab; label: string; adminOnly?: boolean }> = [
   { key: 'auditoria', label: 'Auditoria e Dados', adminOnly: true },
   { key: 'autenticacao', label: 'Autenticação / SSO', adminOnly: true },
   { key: 'email', label: 'Email', adminOnly: true },
+  { key: 'whatsapp', label: 'WhatsApp', adminOnly: true },
+  { key: 'backups', label: 'Backups', adminOnly: true },
+  { key: 'sistema', label: 'Sistema', adminOnly: true },
 ];
