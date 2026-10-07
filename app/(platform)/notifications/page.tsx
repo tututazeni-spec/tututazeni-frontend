@@ -18,7 +18,9 @@ import { AdminView as AdminDetailView } from '@/components/notifications/AdminVi
 import { CATEGORY_CFG, Skeleton } from '@/components/notifications/shared';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Inbox, ShieldCheck, SlidersHorizontal } from 'lucide-react';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList } from '@/components/ui/PillTabs';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Priority/Category/Notification/NotifData/Stats/AdminForm vivem em
@@ -352,18 +354,35 @@ export default function NotificationsPage() {
       </div>
 
       <Tabs value={view} onValueChange={(v) => setView(v as View)}>
-        <TabsList className="mb-6 w-fit">
-          <TabsTrigger value="inbox" className="gap-1.5">
-            Caixa de entrada
-            {unread > 0 && (
-              <span className="rounded-pill bg-primary px-1.5 py-0.5 font-body text-[10px] font-bold text-canvas">
-                {unread}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="preferences">Preferências</TabsTrigger>
-          <TabsTrigger value="admin">Admin</TabsTrigger>
-        </TabsList>
+        <PillTabsList
+          items={[
+            {
+              id: 'inbox',
+              label: 'Caixa de entrada',
+              hint: 'As tuas notificações',
+              icon: Inbox,
+              badge:
+                unread > 0 ? (
+                  <span className="rounded-pill bg-white/80 px-1.5 py-0.5 font-body text-[10px] font-bold text-primary">
+                    {unread}
+                  </span>
+                ) : undefined,
+            },
+            {
+              id: 'preferences',
+              label: 'Preferências',
+              hint: 'Canais e frequência',
+              icon: SlidersHorizontal,
+            },
+            {
+              id: 'admin',
+              label: 'Admin',
+              hint: 'Gestão e envios',
+              icon: ShieldCheck,
+            },
+          ]}
+          className="mb-6"
+        />
 
         <TabsContent value="inbox">
           <InboxView />
