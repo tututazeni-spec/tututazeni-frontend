@@ -3,6 +3,19 @@
 // de app/(platform)/competencies/page.tsx. Cores mapeadas para os
 // tokens semânticos da fundação de design (Fase A).
 
+import {
+  BarChart3,
+  Boxes,
+  ClipboardCheck,
+  Grid3x3,
+  LayoutDashboard,
+  Library,
+  SignalHigh,
+  Sprout,
+  TrendingDown,
+  User,
+  type LucideIcon,
+} from 'lucide-react';
 import { NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
@@ -85,35 +98,72 @@ export const STATUS_CFG: StatusBadgeMap<CompetencyStatus> = {
 // /competencies/development são @Roles(ADMIN, RH, GESTOR).
 // "Relatórios" (docs/módulo_competencies.md §9) — mesma restrição de roles:
 // GET /competencies/reports/overview é @Roles(ADMIN, RH, GESTOR).
-export const NAV: Array<{ id: View; label: string; roles?: readonly Role[] }> =
-  [
-    { id: 'overview', label: 'Visão Geral', roles: NON_COLABORADOR_ROLES },
-    { id: 'catalog', label: 'Competências' },
-    {
-      id: 'levels',
-      label: 'Níveis de Proficiência',
-      roles: NON_COLABORADOR_ROLES,
-    },
-    {
-      id: 'models',
-      label: 'Modelos de Competências',
-      roles: NON_COLABORADOR_ROLES,
-    },
-    { id: 'my-profile', label: 'O meu perfil' },
-    {
-      id: 'matrix',
-      label: 'Matriz de Competências',
-      roles: NON_COLABORADOR_ROLES,
-    },
-    { id: 'evaluations', label: 'Avaliações', roles: NON_COLABORADOR_ROLES },
-    { id: 'gaps', label: 'Gaps de Competências', roles: NON_COLABORADOR_ROLES },
-    {
-      id: 'development',
-      label: 'Desenvolvimento',
-      roles: NON_COLABORADOR_ROLES,
-    },
-    { id: 'reports', label: 'Relatórios', roles: NON_COLABORADOR_ROLES },
-  ];
+export const NAV: Array<{
+  id: View;
+  label: string;
+  hint?: string;
+  icon?: LucideIcon;
+  roles?: readonly Role[];
+}> = [
+  {
+    id: 'overview',
+    hint: 'Resumo geral',
+    icon: LayoutDashboard,
+    label: 'Visão Geral',
+    roles: NON_COLABORADOR_ROLES,
+  },
+  { id: 'catalog', hint: 'Catálogo', icon: Library, label: 'Competências' },
+  {
+    id: 'levels',
+    hint: 'Escala de proficiência',
+    icon: SignalHigh,
+    label: 'Níveis de Proficiência',
+    roles: NON_COLABORADOR_ROLES,
+  },
+  {
+    id: 'models',
+    hint: 'Modelos por função',
+    icon: Boxes,
+    label: 'Modelos de Competências',
+    roles: NON_COLABORADOR_ROLES,
+  },
+  { id: 'my-profile', hint: 'O teu perfil', icon: User, label: 'O meu perfil' },
+  {
+    id: 'matrix',
+    hint: 'Pessoas vs. competências',
+    icon: Grid3x3,
+    label: 'Matriz de Competências',
+    roles: NON_COLABORADOR_ROLES,
+  },
+  {
+    id: 'evaluations',
+    hint: 'Avaliações',
+    icon: ClipboardCheck,
+    label: 'Avaliações',
+    roles: NON_COLABORADOR_ROLES,
+  },
+  {
+    id: 'gaps',
+    hint: 'Lacunas',
+    icon: TrendingDown,
+    label: 'Gaps de Competências',
+    roles: NON_COLABORADOR_ROLES,
+  },
+  {
+    id: 'development',
+    hint: 'Planos de evolução',
+    icon: Sprout,
+    label: 'Desenvolvimento',
+    roles: NON_COLABORADOR_ROLES,
+  },
+  {
+    id: 'reports',
+    hint: 'Indicadores',
+    icon: BarChart3,
+    label: 'Relatórios',
+    roles: NON_COLABORADOR_ROLES,
+  },
+];
 
 export const TITLES: Record<View, string> = {
   overview: 'Visão Geral de Competências',
