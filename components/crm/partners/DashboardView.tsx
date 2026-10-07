@@ -118,32 +118,60 @@ export function DashboardView({
             Satisfação média: {satisfaction ? satisfaction.toFixed(1) : '—'}/5
           </h3>
         </div>
-        <div className="divide-y divide-border">
-          {recentInteractions.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">
-              Sem interacções recentes
-            </p>
-          ) : (
-            recentInteractions.map((it) => (
-              <div
-                key={it.id}
-                className="p-4 flex justify-between items-center"
-              >
-                <div>
-                  <p className="font-body text-sm font-medium text-ink">
-                    {it.subject}
-                  </p>
-                  <p className="font-body text-xs text-ink-muted">
-                    {it.partner.name} ({it.partner.code})
-                    {it.user?.fullName ? ` · ${it.user.fullName}` : ''}
-                  </p>
-                </div>
-                <span className="font-body text-xs text-ink-faint">
-                  {formatDate(it.date)}
-                </span>
-              </div>
-            ))
-          )}
+        <div className="overflow-hidden">
+          <table className="w-full font-body text-sm">
+            <thead className="bg-[#0F1F3D] text-white uppercase">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Assunto
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Parceiro
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Responsável
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-xs">
+                  Data
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {recentInteractions.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-4 py-8 text-center text-ink-faint"
+                  >
+                    Sem interacções recentes
+                  </td>
+                </tr>
+              ) : (
+                recentInteractions.map((it) => (
+                  <tr
+                    key={it.id}
+                    className="hover:bg-surface-sunken transition-colors"
+                  >
+                    <td className="px-4 py-3 font-medium text-ink">
+                      {it.subject}
+                    </td>
+                    <td className="px-4 py-3 text-ink-muted">
+                      {it.partner.name}{' '}
+                      <span className="font-mono text-primary">
+                        ({it.partner.code})
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-ink-muted">
+                      {it.user?.fullName || '—'}
+                    </td>
+                    <td className="px-4 py-3 text-ink-muted">
+                      {formatDate(it.date)}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </Card>
     </div>
