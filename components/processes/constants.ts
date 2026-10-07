@@ -4,6 +4,21 @@
 // app/(platform)/processes/page.tsx. Cores mapeadas para os tokens
 // semânticos da fundação de design (Fase A).
 
+import {
+  BarChart3,
+  CalendarClock,
+  CheckSquare,
+  FileStack,
+  FileText,
+  History,
+  LayoutDashboard,
+  ListChecks,
+  Settings,
+  Stamp,
+  Workflow,
+  Zap,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { ApprovalStatus } from './approval-types';
 import type { ExecutionStatus } from './automation-types';
@@ -63,19 +78,34 @@ export const STEP_TYPE_MAP: StatusBadgeMap<StepType> = {
   GATEWAY: { label: 'Ramificação', cls: 'bg-warning-subtle text-warning-ink' },
   REVIEW: { label: 'Aprovação', cls: 'bg-accent-subtle text-accent' },
   FORM: { label: 'Formulário de entrada', cls: 'bg-info-subtle text-info-ink' },
-  PARALLEL: { label: 'Tarefas paralelas', cls: 'bg-warning-subtle text-warning-ink' },
-  WAIT_EVENT: { label: 'Espera por evento', cls: 'bg-surface-sunken text-ink-muted' },
+  PARALLEL: {
+    label: 'Tarefas paralelas',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
+  WAIT_EVENT: {
+    label: 'Espera por evento',
+    cls: 'bg-surface-sunken text-ink-muted',
+  },
   TIMER: { label: 'Temporizador', cls: 'bg-surface-sunken text-ink-muted' },
   INTEGRATION: { label: 'Integração', cls: 'bg-primary-subtle text-primary' },
-  AUTO_ACTION: { label: 'Acção automática', cls: 'bg-primary-subtle text-primary' },
+  AUTO_ACTION: {
+    label: 'Acção automática',
+    cls: 'bg-primary-subtle text-primary',
+  },
   NOTIFICATION: { label: 'Notificação', cls: 'bg-info-subtle text-info-ink' },
-  DOCUMENT: { label: 'Geração de documento', cls: 'bg-accent-subtle text-accent' },
+  DOCUMENT: {
+    label: 'Geração de documento',
+    cls: 'bg-accent-subtle text-accent',
+  },
 };
 
 export const APPROVAL_STATUS_MAP: StatusBadgeMap<ApprovalStatus> = {
   WAITING: { label: 'Em espera', cls: 'bg-surface-sunken text-ink-faint' },
   PENDING: { label: 'Pendente', cls: 'bg-info-subtle text-info-ink' },
-  INFO_REQUESTED: { label: 'Informação pedida', cls: 'bg-warning-subtle text-warning-ink' },
+  INFO_REQUESTED: {
+    label: 'Informação pedida',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
   ESCALATED: { label: 'Escalada', cls: 'bg-danger-subtle text-danger-ink' },
   APPROVED: { label: 'Aprovada', cls: 'bg-success-subtle text-success-ink' },
   REJECTED: { label: 'Rejeitada', cls: 'bg-danger-subtle text-danger-ink' },
@@ -99,20 +129,106 @@ export const NAV: Array<{
   id: TabKey;
   label: string;
   description: string;
+  hint?: string;
+  icon?: LucideIcon;
   ready: boolean;
 }> = [
-  { id: 'overview', label: 'Visão Geral', description: 'Indicadores, alertas e resumo dos processos.', ready: true },
-  { id: 'all', label: 'Todos os Processos', description: 'Lista centralizada dos processos existentes.', ready: true },
-  { id: 'templates', label: 'Modelos de Processos', description: 'Criação e gestão de modelos reutilizáveis.', ready: true },
-  { id: 'tasks', label: 'Tarefas e Etapas', description: 'Execução, atribuição e acompanhamento das tarefas.', ready: true },
-  { id: 'approvals', label: 'Aprovações', description: 'Pedidos pendentes de validação ou decisão.', ready: true },
-  { id: 'workflows', label: 'Fluxos de Trabalho', description: 'Desenho das etapas, regras e transições.', ready: true },
-  { id: 'automations', label: 'Automações', description: 'Regras automáticas, condições e ações.', ready: true },
-  { id: 'calendar', label: 'Calendário e Prazos', description: 'Datas-limite, vencimentos e tarefas agendadas.', ready: true },
-  { id: 'documents', label: 'Documentos', description: 'Documentos, formulários e anexos associados.', ready: true },
-  { id: 'reports', label: 'Indicadores e Relatórios', description: 'Tempos, volumes, atrasos e níveis de cumprimento.', ready: true },
-  { id: 'history', label: 'Histórico e Auditoria', description: 'Registo cronológico das alterações e decisões.', ready: true },
-  { id: 'settings', label: 'Configurações', description: 'Permissões, prioridades, estados e regras gerais.', ready: true },
+  {
+    id: 'overview',
+    hint: 'Resumo dos processos',
+    icon: LayoutDashboard,
+    label: 'Visão Geral',
+    description: 'Indicadores, alertas e resumo dos processos.',
+    ready: true,
+  },
+  {
+    id: 'all',
+    hint: 'Instâncias em curso',
+    icon: ListChecks,
+    label: 'Todos os Processos',
+    description: 'Lista centralizada dos processos existentes.',
+    ready: true,
+  },
+  {
+    id: 'templates',
+    hint: 'Modelos reutilizáveis',
+    icon: FileStack,
+    label: 'Modelos de Processos',
+    description: 'Criação e gestão de modelos reutilizáveis.',
+    ready: true,
+  },
+  {
+    id: 'tasks',
+    hint: 'Etapas a executar',
+    icon: CheckSquare,
+    label: 'Tarefas e Etapas',
+    description: 'Execução, atribuição e acompanhamento das tarefas.',
+    ready: true,
+  },
+  {
+    id: 'approvals',
+    hint: 'Decisões pendentes',
+    icon: Stamp,
+    label: 'Aprovações',
+    description: 'Pedidos pendentes de validação ou decisão.',
+    ready: true,
+  },
+  {
+    id: 'workflows',
+    hint: 'Etapas e transições',
+    icon: Workflow,
+    label: 'Fluxos de Trabalho',
+    description: 'Desenho das etapas, regras e transições.',
+    ready: true,
+  },
+  {
+    id: 'automations',
+    hint: 'Regras automáticas',
+    icon: Zap,
+    label: 'Automações',
+    description: 'Regras automáticas, condições e ações.',
+    ready: true,
+  },
+  {
+    id: 'calendar',
+    hint: 'Prazos e datas',
+    icon: CalendarClock,
+    label: 'Calendário e Prazos',
+    description: 'Datas-limite, vencimentos e tarefas agendadas.',
+    ready: true,
+  },
+  {
+    id: 'documents',
+    hint: 'Anexos e formulários',
+    icon: FileText,
+    label: 'Documentos',
+    description: 'Documentos, formulários e anexos associados.',
+    ready: true,
+  },
+  {
+    id: 'reports',
+    hint: 'Tempos e volumes',
+    icon: BarChart3,
+    label: 'Indicadores e Relatórios',
+    description: 'Tempos, volumes, atrasos e níveis de cumprimento.',
+    ready: true,
+  },
+  {
+    id: 'history',
+    hint: 'Registo de alterações',
+    icon: History,
+    label: 'Histórico e Auditoria',
+    description: 'Registo cronológico das alterações e decisões.',
+    ready: true,
+  },
+  {
+    id: 'settings',
+    hint: 'Regras gerais',
+    icon: Settings,
+    label: 'Configurações',
+    description: 'Permissões, prioridades, estados e regras gerais.',
+    ready: true,
+  },
 ];
 
 export const INSTANCE_STATUS_LABEL: Record<string, string> = {
@@ -136,7 +252,10 @@ export const PRIORITY_MAP: StatusBadgeMap<ProcessPriority> = {
 };
 
 export const DEADLINE_MAP: StatusBadgeMap<DeadlineSituation> = {
-  ON_TIME: { label: 'Dentro do prazo', cls: 'bg-success-subtle text-success-ink' },
+  ON_TIME: {
+    label: 'Dentro do prazo',
+    cls: 'bg-success-subtle text-success-ink',
+  },
   AT_RISK: { label: 'Em risco', cls: 'bg-warning-subtle text-warning-ink' },
   OVERDUE: { label: 'Atrasado', cls: 'bg-danger-subtle text-danger-ink' },
   NONE: { label: 'Sem prazo', cls: 'bg-surface-sunken text-ink-faint' },
@@ -172,7 +291,10 @@ export const DOC_STATUS_MAP: StatusBadgeMap<DocEffectiveStatus> = {
 export const CONFIDENTIALITY_MAP: StatusBadgeMap<DocConfidentiality> = {
   PUBLIC: { label: 'Público', cls: 'bg-surface-sunken text-ink-muted' },
   INTERNAL: { label: 'Interno', cls: 'bg-info-subtle text-info-ink' },
-  CONFIDENTIAL: { label: 'Confidencial', cls: 'bg-warning-subtle text-warning-ink' },
+  CONFIDENTIAL: {
+    label: 'Confidencial',
+    cls: 'bg-warning-subtle text-warning-ink',
+  },
   RESTRICTED: { label: 'Restrito', cls: 'bg-danger-subtle text-danger-ink' },
 };
 

@@ -9,6 +9,7 @@
 // sido sobrescrito pelo código da página de eventos (#491) — restaurado.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { PillNav } from '@/components/ui/PillTabs';
 import { useState } from 'react';
 import { Hammer, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -148,21 +149,13 @@ export default function ProcessesPage() {
 
       {/* Abas (escondidas em viewer/runner) */}
       {nav.view !== 'viewer' && nav.view !== 'runner' && (
-        <div className="mb-6 flex w-full flex-wrap items-center gap-2">
-          {tabs.map((n) => (
-            <button
-              key={n.id}
-              onClick={() => setNav({ view: n.id })}
-              className={`whitespace-nowrap rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                nav.view === n.id
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border bg-white text-ink-muted hover:text-ink'
-              }`}
-            >
-              {n.label}
-            </button>
-          ))}
-        </div>
+        <PillNav
+          items={tabs}
+          value={nav.view}
+          onChange={(id) => setNav({ view: id } as Nav)}
+          label="Processos"
+          className="mb-6"
+        />
       )}
 
       {nav.view === 'overview' && canSeeOverview && (
