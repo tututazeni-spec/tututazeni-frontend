@@ -30,7 +30,8 @@ import { FeedbackTab } from './FeedbackTab';
 import { RelatoriosTab } from './RelatoriosTab';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { EVAL_OVERVIEW_ROLES, EVAL_CREATOR_ROLES } from '@/lib/roles';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs } from '@/components/ui/Tabs';
+import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
 import {
   BarChart3,
   FileText,
@@ -42,18 +43,17 @@ import {
   UserCog,
   ClipboardList,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 
-const TABS: { id: TabId; label: string; icon: LucideIcon }[] = [
-  { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
-  { id: 'adminOverview', label: 'Painel Geral', icon: BarChart3 },
-  { id: 'cycles', label: 'Avaliações 360°', icon: Layers },
-  { id: 'evaluated', label: 'Avaliados', icon: Users },
-  { id: 'evaluators', label: 'Avaliadores', icon: UserCog },
-  { id: 'questionnaires', label: 'Questionários', icon: FileText },
-  { id: 'results', label: 'Resultados', icon: LineChart },
-  { id: 'feedback', label: 'Feedback', icon: MessageSquare },
-  { id: 'reports', label: 'Relatórios', icon: ClipboardList },
+const TABS: (PillTabItem & { id: TabId })[] = [
+  { id: 'overview', label: 'Visão Geral', hint: 'O meu resultado', icon: LayoutDashboard },
+  { id: 'adminOverview', label: 'Painel Geral', hint: 'Visão agregada', icon: BarChart3 },
+  { id: 'cycles', label: 'Avaliações 360°', hint: 'Ciclos de avaliação', icon: Layers },
+  { id: 'evaluated', label: 'Avaliados', hint: 'Participantes', icon: Users },
+  { id: 'evaluators', label: 'Avaliadores', hint: 'Quem avalia', icon: UserCog },
+  { id: 'questionnaires', label: 'Questionários', hint: 'Perguntas e modelos', icon: FileText },
+  { id: 'results', label: 'Resultados', hint: 'Scores e análises', icon: LineChart },
+  { id: 'feedback', label: 'Feedback', hint: 'Comentários', icon: MessageSquare },
+  { id: 'reports', label: 'Relatórios', hint: 'Exportar relatórios', icon: ClipboardList },
 ];
 
 // Abas "Avaliados"/"Avaliadores" (docs/evaluation360.md §4/§5) são vistas de
@@ -148,30 +148,9 @@ export function Evaluation360View({
         </div>
       </div>
 
-      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
-          (borda + fundo branco + rounded), sem underline no container.
-          Alinhadas horizontal e verticalmente (justify-center +
-          items-center no TabsList, flex items-center em cada TabsTrigger)
-          com largura mínima uniforme. Estado activo usa data-[state=active]
-          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
       <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as TabId)}>
-        <div className="bg-surface px-6 py-3">
-          <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto bg-transparent p-0">
-            {visibleTabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  className="flex min-w-[140px] items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
-                             data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                >
-                  <Icon size={16} strokeWidth={1.75} />
-                  {tab.label}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+        <div className="mx-auto max-w-7xl px-6 py-3">
+          <PillTabsList items={visibleTabs} />
         </div>
 
         {/* Content */}
