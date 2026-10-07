@@ -8,6 +8,7 @@
 // design: nav em pílula local passa a Button primary/ghost dentro de um
 // wrapper com token, mesmo padrão de app/(platform)/audit/page.tsx.
 
+import { PillNav } from '@/components/ui/PillTabs';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { NAV, TITLES } from '@/components/knowledge/constants';
@@ -54,20 +55,15 @@ export default function KnowledgePage() {
 
       {creating && <CreateArticleModal onClose={() => setCreating(false)} />}
 
-      {/* Tabs */}
+      {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
       {nav.view !== 'article' && (
-        <div className="mb-6 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
-          {visibleNav.map((n) => (
-            <Button
-              key={n.id}
-              size="sm"
-              intent={nav.view === n.id ? 'primary' : 'ghost'}
-              onClick={() => setNav({ view: n.id })}
-            >
-              {n.label}
-            </Button>
-          ))}
-        </div>
+        <PillNav
+          items={visibleNav}
+          value={nav.view}
+          onChange={(id) => setNav({ view: id } as Nav)}
+          label="Base de conhecimento"
+          className="mb-6"
+        />
       )}
 
       {nav.view === 'portal' && (
