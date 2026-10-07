@@ -424,7 +424,7 @@ export function FunderDetailView({
                           placeholder="https://… link do relatório"
                           value={reportFileUrl}
                           onChange={(e) => setReportFileUrl(e.target.value)}
-                          className="flex-1 min-w-[220px]"
+                          className="min-w-[160px] flex-1"
                         />
                         <Button
                           size="sm"

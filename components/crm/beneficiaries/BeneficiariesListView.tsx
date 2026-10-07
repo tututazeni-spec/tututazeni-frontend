@@ -89,7 +89,7 @@ export function BeneficiariesListView({
           placeholder="Pesquisar por nome, email, código..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="flex-1 min-w-[200px]"
+          className="min-w-[160px] flex-1"
         />
         <Select
           value={statusFilter}
@@ -126,7 +126,7 @@ export function BeneficiariesListView({
       <Card>
         <div className="overflow-hidden">
           <table className="w-full font-body text-sm">
-            <thead className="bg-surface-sunken text-ink-muted uppercase">
+            <thead className="bg-[#0F1F3D] text-white uppercase">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-xs">
                   Código

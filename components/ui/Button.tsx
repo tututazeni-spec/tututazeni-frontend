@@ -16,7 +16,7 @@ export const buttonVariants = cva(
     variants: {
       intent: {
         primary:
-          'bg-primary text-canvas hover:bg-primary-hover active:bg-primary-active',
+          'bg-[#0F1F3D] text-white hover:bg-[#1a2f57] active:bg-[#0a1629]',
         secondary:
           'border-[1.5px] border-primary bg-surface text-primary hover:bg-primary-subtle',
         ghost:

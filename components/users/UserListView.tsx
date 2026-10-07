@@ -111,7 +111,7 @@ export function UserListView({ onSelect }: UserListViewProps) {
           placeholder="Pesquisar por nome, email, nº funcionário…"
           value={filters.search}
           onChange={(e) => updateFilters({ search: e.target.value })}
-          className="flex-1 min-w-[200px]"
+          className="min-w-[160px] flex-1"
         />
         <select
           value={filters.status}
@@ -187,15 +187,19 @@ export function UserListView({ onSelect }: UserListViewProps) {
       )}
       {!loading && (
         <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell className="w-8" />
-              <TableHeaderCell>Utilizador</TableHeaderCell>
-              <TableHeaderCell>Cargo</TableHeaderCell>
-              <TableHeaderCell>Departamento</TableHeaderCell>
-              <TableHeaderCell>Estado conta</TableHeaderCell>
-              <TableHeaderCell>Estado RH</TableHeaderCell>
-              <TableHeaderCell>Acções</TableHeaderCell>
+          <TableHead className="bg-[#0F1F3D]">
+            <TableRow className="hover:bg-transparent">
+              <TableHeaderCell className="w-8 text-white" />
+              <TableHeaderCell className="text-white">Utilizador</TableHeaderCell>
+              <TableHeaderCell className="text-white">Cargo</TableHeaderCell>
+              <TableHeaderCell className="text-white">
+                Departamento
+              </TableHeaderCell>
+              <TableHeaderCell className="text-white">
+                Estado conta
+              </TableHeaderCell>
+              <TableHeaderCell className="text-white">Estado RH</TableHeaderCell>
+              <TableHeaderCell className="text-white">Acções</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>

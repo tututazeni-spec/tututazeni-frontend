@@ -146,8 +146,8 @@ export default function CoursesPage() {
                     onClick={() => setNav({ view: n.id })}
                     className={`flex items-center gap-3 whitespace-nowrap rounded-full border py-2 pl-2 pr-4 text-left backdrop-blur transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
                       active
-                        ? 'border-transparent bg-gradient-to-r from-primary to-primary/70 text-white shadow-lg'
-                        : 'border-white/70 bg-white/60 text-ink shadow-sm hover:bg-white/80'
+                        ? 'border-transparent bg-[#0F1F3D] text-white shadow-lg'
+                        : 'border-white/70 bg-white/60 text-ink shadow-sm duration-200 hover:scale-105 hover:border-primary hover:bg-white/80 hover:shadow-md motion-reduce:hover:scale-100'
                     }`}
                   >
                     <span

@@ -114,7 +114,7 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
             setSearch(e.target.value);
             reset();
           }}
-          className="min-w-[220px] flex-1"
+          className="min-w-[160px] flex-1"
         />
         <Select
           items={scopeItems}

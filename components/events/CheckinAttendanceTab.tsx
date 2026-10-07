@@ -170,7 +170,7 @@ export function CheckinAttendanceTab() {
             placeholder="Filtrar por evento"
             searchPlaceholder="Pesquisar evento…"
             emptyText="Nenhum evento encontrado"
-            className="w-64"
+            className="min-w-[160px] flex-1"
           />
           <Input
             placeholder="Pesquisar por nome…"

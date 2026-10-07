@@ -117,7 +117,7 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
           placeholder="Pesquisar cursos, competências, tópicos…"
           value={search}
           onChange={(e) => updateFilters({ search: e.target.value })}
-          className="flex-1 min-w-[200px]"
+          className="min-w-[160px] flex-1"
         />
         <Select
           items={categoryItems}

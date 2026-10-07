@@ -245,7 +245,7 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
           placeholder="Pesquisar tarefa, processo ou código…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="min-w-[220px] flex-1"
+          className="min-w-[160px] flex-1"
         />
         {canManage && (
           <Select

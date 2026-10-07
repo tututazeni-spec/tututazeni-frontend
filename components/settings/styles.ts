@@ -1,7 +1,7 @@
 ﻿// components/settings/styles.ts
-// Metadados de navegaÃ§Ã£o do mÃ³dulo de definiÃ§Ãµes (dados, nÃ£o estilos).
-// `adminOnly`: separadores de configuraÃ§Ã£o da organizaÃ§Ã£o (ROLE ADMIN no
-// docs/modulo_settings.md) â€” escondidos para os restantes utilizadores.
+// Metadados de navegação do módulo de definições (dados, não estilos).
+// `adminOnly`: separadores de configuração da organização (ROLE ADMIN no
+// docs/modulo_settings.md) — escondidos para os restantes utilizadores.
 
 import {
   Archive,
@@ -29,14 +29,14 @@ export const NAV: Array<
   { key: 'perfil', label: 'Perfil', hint: 'Os teus dados', icon: User },
   {
     key: 'visao-geral',
-    label: 'VisÃ£o Geral',
-    hint: 'Resumo da organizaÃ§Ã£o',
+    label: 'Visão Geral',
+    hint: 'Resumo da organização',
     icon: LayoutDashboard,
     adminOnly: true,
   },
   {
     key: 'permissoes',
-    label: 'PermissÃµes',
+    label: 'Permissões',
     hint: 'Acessos e perfis',
     icon: KeyRound,
   },
@@ -49,20 +49,20 @@ export const NAV: Array<
   },
   {
     key: 'seguranca',
-    label: 'SeguranÃ§a',
-    hint: 'Palavra-passe e sessÃµes',
+    label: 'Segurança',
+    hint: 'Palavra-passe e sessões',
     icon: Lock,
   },
   {
     key: 'notificacoes',
-    label: 'NotificaÃ§Ãµes',
-    hint: 'Canais da organizaÃ§Ã£o',
+    label: 'Notificações',
+    hint: 'Canais da organização',
     icon: Bell,
     adminOnly: true,
   },
   {
     key: 'integracoes',
-    label: 'IntegraÃ§Ãµes',
+    label: 'Integrações',
     hint: 'Sistemas ligados',
     icon: Plug,
     adminOnly: true,
@@ -70,7 +70,7 @@ export const NAV: Array<
   {
     key: 'certificados',
     label: 'Certificados',
-    hint: 'Modelos e emissÃ£o',
+    hint: 'Modelos e emissão',
     icon: BadgeCheck,
     adminOnly: true,
   },
@@ -83,21 +83,21 @@ export const NAV: Array<
   },
   {
     key: 'licenca',
-    label: 'LicenÃ§a e MÃ³dulos',
-    hint: 'Plano e mÃ³dulos',
+    label: 'Licença e Módulos',
+    hint: 'Plano e módulos',
     icon: ShieldCheck,
     adminOnly: true,
   },
   {
     key: 'auditoria',
     label: 'Auditoria e Dados',
-    hint: 'RetenÃ§Ã£o e registos',
+    hint: 'Retenção e registos',
     icon: ScrollText,
     adminOnly: true,
   },
   {
     key: 'autenticacao',
-    label: 'AutenticaÃ§Ã£o / SSO',
+    label: 'Autenticação / SSO',
     hint: 'SSO e LDAP',
     icon: KeyRound,
     adminOnly: true,
@@ -119,7 +119,7 @@ export const NAV: Array<
   {
     key: 'backups',
     label: 'Backups',
-    hint: 'CÃ³pias de seguranÃ§a',
+    hint: 'Cópias de segurança',
     icon: Archive,
     adminOnly: true,
   },

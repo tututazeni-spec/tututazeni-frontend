@@ -192,7 +192,7 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
               setSearch(e.target.value);
               reset();
             }}
-            className="min-w-[240px]"
+            className="min-w-[160px] flex-1"
           />
           <Select
             items={STATUS_ITEMS}

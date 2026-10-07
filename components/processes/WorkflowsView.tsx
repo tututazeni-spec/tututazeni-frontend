@@ -47,7 +47,7 @@ export function WorkflowsView({ canEdit }: WorkflowsViewProps) {
           placeholder="Pesquisar modelo para abrir o fluxo…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="max-w-md flex-1"
+          className="min-w-[160px] flex-1"
         />
         <span className="font-body text-sm text-ink-faint">
           Só os rascunhos são editáveis; os restantes abrem para consulta e teste.

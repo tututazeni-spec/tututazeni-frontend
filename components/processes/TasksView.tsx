@@ -71,7 +71,7 @@ export function TasksView({ canManage }: TasksViewProps) {
             setSearch(e.target.value);
             reset();
           }}
-          className="min-w-[220px] flex-1"
+          className="min-w-[160px] flex-1"
         />
         {canManage && (
           <Select

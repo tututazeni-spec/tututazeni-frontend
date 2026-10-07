@@ -106,7 +106,7 @@ export function ColaboradorDashboard() {
       <AlertBanner alerts={alerts} />
 
       {/* Hero: user + points */}
-      <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-active p-5 text-canvas mb-[2cm]!">
+      <div className="rounded-2xl bg-[#0F1F3D] p-5 text-canvas mb-[2cm]!">
         <div className="flex items-center gap-4">
           {data?.user && (
             <Avatar
