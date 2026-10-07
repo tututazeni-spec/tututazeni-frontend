@@ -16,7 +16,18 @@
 // project_innova_career_pdi_module_duplication.
 
 import { useState } from 'react';
-import { Compass, RefreshCcw } from 'lucide-react';
+import {
+  Briefcase,
+  ClipboardList,
+  Compass,
+  Crown,
+  History,
+  LayoutDashboard,
+  RefreshCcw,
+  Route,
+  Target,
+  User,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
@@ -31,7 +42,8 @@ import {
 } from '@/lib/roles';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
 import { DashboardView } from '@/components/career/DashboardView';
 import { HistoryTab } from '@/components/career/HistoryTab';
 import { OverviewTab } from '@/components/career/OverviewTab';
@@ -57,18 +69,36 @@ type CareerTab =
   | 'pdi'
   | 'history';
 
-const TABS: Array<{ id: CareerTab; label: string } & RoleRestricted> = [
-  { id: 'overview', label: 'Visão Geral', roles: EXECUTIVE_ROLES },
-  { id: 'me', label: 'A Minha Carreira' },
-  { id: 'paths', label: 'Percursos de Carreira' },
-  { id: 'plans', label: 'Planos de Carreira', roles: EXECUTIVE_ROLES },
-  { id: 'opportunities', label: 'Oportunidades' },
+const TABS: Array<PillTabItem & { id: CareerTab } & RoleRestricted> = [
+  {
+    id: 'overview',
+    label: 'Visão Geral',
+    hint: 'Panorama da carreira',
+    icon: LayoutDashboard,
+    roles: EXECUTIVE_ROLES,
+  },
+  { id: 'me', label: 'A Minha Carreira', hint: 'O teu percurso' },
+  { id: 'paths', label: 'Percursos de Carreira', hint: 'Trilhas possíveis' },
+  {
+    id: 'plans',
+    label: 'Planos de Carreira',
+    hint: 'Planos da equipa',
+    icon: ClipboardList,
+    roles: EXECUTIVE_ROLES,
+  },
+  { id: 'opportunities', label: 'Oportunidades', hint: 'Vagas e movimentos' },
   // ADMIN/RH apenas (não GESTOR) — CriticalPositionsView chama
   // GET/POST /succession/critical-positions, que o backend restringe a
   // @Roles(ADMIN, RH); só o dashboard/matriz aceitam GESTOR também.
-  { id: 'succession', label: 'Sucessão', roles: ['ADMIN', 'RH'] },
-  { id: 'pdi', label: 'PDI & Desenvolvimento' },
-  { id: 'history', label: 'Histórico' },
+  {
+    id: 'succession',
+    label: 'Sucessão',
+    hint: 'Posições críticas',
+    icon: Crown,
+    roles: ['ADMIN', 'RH'],
+  },
+  { id: 'pdi', label: 'PDI & Desenvolvimento', hint: 'Plano individual' },
+  { id: 'history', label: 'Histórico', hint: 'Movimentos passados' },
 ];
 
 export default function CareerPage() {
@@ -147,25 +177,9 @@ export default function CareerPage() {
         </div>
       </div>
 
-      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
-          (borda + fundo branco + rounded), sem underline no container.
-          Alinhadas horizontal e verticalmente (justify-center +
-          items-center no TabsList, flex items-center em cada TabsTrigger)
-          com largura mínima uniforme. Estado activo usa data-[state=active]
-          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
+      {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
       <Tabs value={tab} onValueChange={(v) => setTab(v as CareerTab)}>
-        <TabsList className="mb-6 flex w-full flex-wrap items-center justify-center gap-2 overflow-x-auto bg-transparent p-0">
-          {visibleTabs.map((t) => (
-            <TabsTrigger
-              key={t.id}
-              value={t.id}
-              className="flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
-                         data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-            >
-              {t.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <PillTabsList items={visibleTabs} className="mb-6" />
 
         <TabsContent value="overview">
           <OverviewTab />
