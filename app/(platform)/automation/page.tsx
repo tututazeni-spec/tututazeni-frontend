@@ -17,7 +17,6 @@ import {
   Workflow,
   Zap,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { BuilderTab } from '@/components/automation/BuilderTab';
 import { ExecutionsTab } from '@/components/automation/ExecutionsTab';
 import { OverviewTab } from '@/components/automation/OverviewTab';
@@ -26,18 +25,59 @@ import { RulesTab } from '@/components/automation/RulesTab';
 import { SchedulesTab } from '@/components/automation/SchedulesTab';
 import { StatsTab } from '@/components/automation/StatsTab';
 import type { Tab } from '@/components/automation/types';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
 
 // Estrutura do spec (docs/modulo_automation.md §1).
-const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
-  { id: 'overview', label: 'Visão Geral', icon: LayoutDashboard },
-  { id: 'rules', label: 'Todas as Automações', icon: Zap },
-  { id: 'builder', label: 'Construtor de Fluxos', icon: Workflow },
-  { id: 'schedules', label: 'Agendamentos', icon: CalendarClock },
-  { id: 'executions', label: 'Histórico de Execuções', icon: Activity },
-  { id: 'approvals', label: 'Aprovações e Tarefas', icon: ClipboardCheck },
-  { id: 'reports', label: 'Relatórios', icon: BarChart2 },
-  { id: 'settings', label: 'Configurações', icon: Settings },
+const TABS: Array<PillTabItem & { id: Tab }> = [
+  {
+    id: 'overview',
+    label: 'Visão Geral',
+    hint: 'Resumo das regras',
+    icon: LayoutDashboard,
+  },
+  {
+    id: 'rules',
+    label: 'Todas as Automações',
+    hint: 'Regras configuradas',
+    icon: Zap,
+  },
+  {
+    id: 'builder',
+    label: 'Construtor de Fluxos',
+    hint: 'Criar e editar',
+    icon: Workflow,
+  },
+  {
+    id: 'schedules',
+    label: 'Agendamentos',
+    hint: 'Execuções planeadas',
+    icon: CalendarClock,
+  },
+  {
+    id: 'executions',
+    label: 'Histórico de Execuções',
+    hint: 'Resultados e erros',
+    icon: Activity,
+  },
+  {
+    id: 'approvals',
+    label: 'Aprovações e Tarefas',
+    hint: 'Validação humana',
+    icon: ClipboardCheck,
+  },
+  {
+    id: 'reports',
+    label: 'Relatórios',
+    hint: 'Métricas de execução',
+    icon: BarChart2,
+  },
+  {
+    id: 'settings',
+    label: 'Configurações',
+    hint: 'Limites e políticas',
+    icon: Settings,
+  },
 ];
 
 export default function AutomationPage() {
@@ -75,30 +115,10 @@ export default function AutomationPage() {
         </div>
       </div>
 
-      {/* Tabs — formato de "cartão": cada trigger é um cartão independente
-          (borda + fundo branco + rounded), sem underline no container.
-          Alinhadas horizontal e verticalmente (justify-center +
-          items-center no TabsList, flex items-center em cada TabsTrigger)
-          com largura mínima uniforme. Estado activo usa data-[state=active]
-          do Radix para aplicar destaque azul (borda/fundo/texto primary). */}
+      {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
-        <div className="bg-surface px-6 py-3">
-          <TabsList className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2 overflow-x-auto bg-transparent p-0">
-            {TABS.map((t) => {
-              const Icon = t.icon;
-              return (
-                <TabsTrigger
-                  key={t.id}
-                  value={t.id}
-                  className="flex min-w-[140px] items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-border bg-white px-4 py-2 text-center text-sm font-medium text-foreground shadow-none
-                             data-[state=active]:border-primary data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                >
-                  <Icon size={16} strokeWidth={1.75} />
-                  {t.label}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+        <div className="bg-surface px-6 py-5">
+          <PillTabsList items={TABS} className="mx-auto max-w-7xl" />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
