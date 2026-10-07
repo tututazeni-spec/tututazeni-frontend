@@ -178,7 +178,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
             <Search size={16} strokeWidth={1.75} /> Seleccionar Curso
           </h3>
           <div className="flex gap-3 items-end flex-wrap">
-            <div className="flex-1 min-w-[200px]">
+            <div className="min-w-[160px] flex-1">
               <FormField label="ID do Curso" htmlFor="courseId">
                 <Input
                   id="courseId"

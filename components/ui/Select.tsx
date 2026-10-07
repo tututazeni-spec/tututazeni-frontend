@@ -32,6 +32,9 @@ export function Select({
   disabled,
   className,
 }: SelectProps) {
+  const emptyItem = items.find((i) => i.value === '');
+  const shownLabel = label ?? emptyItem?.label ?? placeholder;
+
   return (
     <RadixSelect.Root
       value={value}
@@ -52,16 +55,29 @@ export function Select({
         <span
           aria-hidden
           className={cn(
-            'pointer-events-none absolute left-3 origin-left font-body text-ink-muted transition-all duration-150',
+            'pointer-events-none absolute left-3 whitespace-nowrap origin-left font-body text-ink-muted transition-all duration-150',
             'top-[6px] text-[11px] font-medium text-field',
             'group-data-[placeholder]:top-1/2 group-data-[placeholder]:-translate-y-1/2 group-data-[placeholder]:text-sm',
             'group-data-[placeholder]:font-normal group-data-[placeholder]:text-ink-muted',
             'group-focus:top-[6px] group-focus:translate-y-0 group-focus:text-[11px] group-focus:font-medium group-focus:text-field',
           )}
         >
-          {label ?? placeholder}
+          {shownLabel}
         </span>
-        <RadixSelect.Value placeholder={' '} />
+        <span className="grid min-w-0">
+          {[shownLabel, ...items.map((i) => i.label)].map((t, n) => (
+            <span
+              key={n}
+              aria-hidden
+              className="invisible col-start-1 row-start-1 whitespace-nowrap"
+            >
+              {t}
+            </span>
+          ))}
+          <span className="col-start-1 row-start-1 whitespace-nowrap">
+            <RadixSelect.Value placeholder={' '} />
+          </span>
+        </span>
         <RadixSelect.Icon>
           <ChevronDown size={16} strokeWidth={1.75} className="text-field" />
         </RadixSelect.Icon>

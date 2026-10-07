@@ -89,7 +89,7 @@ export function BeneficiariesListView({
           placeholder="Pesquisar por nome, email, código..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="flex-1 min-w-[200px]"
+          className="min-w-[160px] flex-1"
         />
         <Select
           value={statusFilter}

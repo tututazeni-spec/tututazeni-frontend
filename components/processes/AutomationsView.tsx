@@ -106,7 +106,7 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
           placeholder="Pesquisar por nome, código ou descrição…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="min-w-[220px] flex-1"
+          className="min-w-[160px] flex-1"
         />
         <Select
           items={[

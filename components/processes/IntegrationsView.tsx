@@ -108,7 +108,7 @@ export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewP
               placeholder="Procurar módulo…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-64"
+              className="min-w-[160px] flex-1"
             />
             <Select
               items={[

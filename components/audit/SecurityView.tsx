@@ -528,7 +528,7 @@ function IncidentModal({
                     placeholder="Nota"
                     value={evNote}
                     onChange={(e) => setEvNote(e.target.value)}
-                    className="min-w-[200px] flex-1"
+                    className="min-w-[160px] flex-1"
                   />
                   <Button
                     size="sm"

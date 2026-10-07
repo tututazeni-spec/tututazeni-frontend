@@ -78,7 +78,7 @@ export function FundersListView({
           placeholder="Pesquisar por nome, código, email..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="flex-1 min-w-[200px]"
+          className="min-w-[160px] flex-1"
         />
         <Select
           value={typeFilter}

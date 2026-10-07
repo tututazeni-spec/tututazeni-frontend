@@ -350,7 +350,7 @@ export function RulesTab({
             aria-label="Pesquisar por nome ou código"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="min-w-[240px] flex-1"
+            className="min-w-[160px] flex-1"
           />
           <Select
             items={moduleItems}

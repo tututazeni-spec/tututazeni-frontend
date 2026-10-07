@@ -151,7 +151,7 @@ export function PositionsView() {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="min-w-[220px] flex-1"
+          className="min-w-[160px] flex-1"
         />
         <select
           value={departmentId}

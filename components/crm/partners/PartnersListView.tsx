@@ -75,7 +75,7 @@ export function PartnersListView({
           placeholder="Pesquisar por nome, código, NIF..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="flex-1 min-w-[200px]"
+          className="min-w-[160px] flex-1"
         />
         <Select
           value={tierFilter}

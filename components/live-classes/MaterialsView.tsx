@@ -243,7 +243,7 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="w-64"
+          className="min-w-[160px] flex-1"
         />
         {canManage && (
           <Button size="sm" onClick={() => setShowAdd(true)}>

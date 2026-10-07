@@ -111,7 +111,7 @@ export function UserListView({ onSelect }: UserListViewProps) {
           placeholder="Pesquisar por nome, email, nº funcionário…"
           value={filters.search}
           onChange={(e) => updateFilters({ search: e.target.value })}
-          className="flex-1 min-w-[200px]"
+          className="min-w-[160px] flex-1"
         />
         <select
           value={filters.status}

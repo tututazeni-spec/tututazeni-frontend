@@ -81,7 +81,7 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="min-w-[200px] flex-1"
+          className="min-w-[160px] flex-1"
         />
         <Select
           items={STATUS_ITEMS}

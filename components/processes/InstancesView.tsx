@@ -270,7 +270,7 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
             placeholder="Pesquisar por código, nome ou entidade…"
             value={filters.search}
             onChange={(e) => set('search', e.target.value)}
-            className="min-w-[220px] flex-1"
+            className="min-w-[160px] flex-1"
           />
           <Select items={STATUS_ITEMS} value={filters.status || ALL} onValueChange={setSelect('status')} className="w-44" />
           <Select items={PRIORITY_ITEMS} value={filters.priority || ALL} onValueChange={setSelect('priority')} className="w-44" />

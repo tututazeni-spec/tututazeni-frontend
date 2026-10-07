@@ -156,7 +156,7 @@ export function ReportsTab() {
     <div className="space-y-4">
       <Card>
         <CardBody className="flex flex-wrap items-end gap-3">
-          <div className="min-w-[240px] flex-1">
+          <div className="min-w-[160px] flex-1">
             <p className="mb-1 font-body text-xs text-ink-faint">Relatório</p>
             <Select
               items={REPORT_ITEMS}
