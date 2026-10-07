@@ -99,7 +99,7 @@ export function PillTabsList({
   items,
   className,
 }: {
-  items: PillTabItem[];
+  items: readonly PillTabItem[];
   className?: string;
 }) {
   return (
@@ -123,7 +123,7 @@ export function PillNav({
   label,
   className,
 }: {
-  items: PillTabItem[];
+  items: readonly PillTabItem[];
   value: string;
   onChange: (id: string) => void;
   label?: string;
