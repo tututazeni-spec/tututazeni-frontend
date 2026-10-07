@@ -68,6 +68,11 @@ body {
   --color-border: #e7e2d4;
   --color-border-strong: #d8d1be;
 
+  /* campos de selecção/pesquisa — contorno azul-marinho, texto preto */
+  --color-field: #0f1f3d;
+  --color-field-soft: #eef1f7;
+  --color-field-ink: #000000;
+
   /* texto */
   --color-ink: #20241f;
   --color-ink-muted: #6e756b;
@@ -154,4 +159,15 @@ body {
   100% {
     background-position: 200px 0;
   }
+}
+
+/* <select> nativos: mesmo contorno e texto dos Select/Combobox partilhados */
+select {
+  border: 1.5px solid var(--color-field);
+  border-radius: var(--radius-control);
+  color: var(--color-field-ink);
+}
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-field-soft);
 }

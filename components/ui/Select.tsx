@@ -15,6 +15,8 @@ export interface SelectProps {
   value?: string;
   onValueChange?: (value: string) => void;
   placeholder?: string;
+  /** Rótulo flutuante; por omissão usa o placeholder. */
+  label?: string;
   invalid?: boolean;
   disabled?: boolean;
   className?: string;
@@ -25,6 +27,7 @@ export function Select({
   value,
   onValueChange,
   placeholder = 'Selecionar…',
+  label,
   invalid,
   disabled,
   className,
@@ -38,27 +41,34 @@ export function Select({
       <RadixSelect.Trigger
         aria-invalid={invalid || undefined}
         className={cn(
-          'inline-flex items-center justify-between gap-2 rounded-control border-[1.5px] border-border-strong',
-          'bg-surface px-3 py-[9px] font-body text-sm text-ink',
-          'focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle',
+          'group relative inline-flex min-h-[48px] items-center justify-between gap-2 rounded-control border-[1.5px] border-field',
+          'bg-surface px-3 pb-[6px] pt-[18px] text-left font-body text-sm text-field-ink',
+          'focus:bg-field-soft focus:outline-none focus:ring-[3px] focus:ring-field-soft',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          invalid &&
-            'border-danger focus:border-danger focus:ring-danger-subtle',
+          invalid && 'border-danger focus:ring-danger-subtle',
           className,
         )}
       >
-        <RadixSelect.Value placeholder={placeholder} />
+        <span
+          aria-hidden
+          className={cn(
+            'pointer-events-none absolute left-3 origin-left font-body text-ink-muted transition-all duration-150',
+            'top-[6px] text-[11px] font-medium text-field',
+            'group-data-[placeholder]:top-1/2 group-data-[placeholder]:-translate-y-1/2 group-data-[placeholder]:text-sm',
+            'group-data-[placeholder]:font-normal group-data-[placeholder]:text-ink-muted',
+            'group-focus:top-[6px] group-focus:translate-y-0 group-focus:text-[11px] group-focus:font-medium group-focus:text-field',
+          )}
+        >
+          {label ?? placeholder}
+        </span>
+        <RadixSelect.Value placeholder={' '} />
         <RadixSelect.Icon>
-          <ChevronDown
-            size={16}
-            strokeWidth={1.75}
-            className="text-ink-muted"
-          />
+          <ChevronDown size={16} strokeWidth={1.75} className="text-field" />
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
       <RadixSelect.Portal>
         <RadixSelect.Content
-          className="z-[60] overflow-hidden rounded-card border border-border bg-surface shadow-elevated"
+          className="z-[60] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
           position="popper"
           sideOffset={4}
         >
@@ -68,8 +78,8 @@ export function Select({
                 key={item.value}
                 value={item.value}
                 className={cn(
-                  'flex cursor-pointer items-center justify-between gap-2 rounded-control px-3 py-2 font-body text-sm text-ink',
-                  'outline-none data-[highlighted]:bg-primary-subtle',
+                  'flex cursor-pointer items-center justify-between gap-2 rounded-control px-3 py-2 font-body text-sm text-field-ink',
+                  'outline-none data-[highlighted]:bg-field-soft',
                 )}
               >
                 <RadixSelect.ItemText>{item.label}</RadixSelect.ItemText>
