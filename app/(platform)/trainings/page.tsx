@@ -6,6 +6,7 @@
 // componentes auto-contidos em components/trainings/. Ver memory
 // project_innova_component_separation_audit.
 
+import { PillNav } from '@/components/ui/PillTabs';
 import { useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import {
@@ -67,30 +68,16 @@ export default function TrainingsPage() {
         </div>
       </div>
 
-      {/* Tabs — formato de "cartão": cada botão é um cartão independente
-          (borda + fundo branco + rounded), sem o fundo/pill de grupo
-          anterior. Alinhadas horizontal e verticalmente (justify-center +
-          items-center no wrapper) com largura mínima uniforme. Estado
-          activo usa a mesma condição `nav.view === n.id` de sempre para
-          aplicar destaque azul (borda/fundo/texto primary). */}
       {nav.view !== 'detail' &&
         nav.view !== 'manage-detail' &&
         nav.view !== 'plan-detail' && (
-          <div className="mb-6 flex w-full flex-wrap items-center justify-center gap-2">
-            {visibleNav.map((n) => (
-              <button
-                key={n.id}
-                onClick={() => setNav({ view: n.id })}
-                className={`flex min-w-[140px] items-center justify-center whitespace-nowrap rounded-lg border px-4 py-2 text-center font-body text-sm font-medium transition-colors ${
-                  nav.view === n.id
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-white text-ink-muted hover:text-ink'
-                }`}
-              >
-                {n.label}
-              </button>
-            ))}
-          </div>
+          <PillNav
+            items={visibleNav}
+            value={nav.view}
+            onChange={(id) => setNav({ view: id } as Nav)}
+            label="Formações"
+            className="mb-6"
+          />
         )}
 
       {nav.view === 'catalog' && <CatalogView onSelect={handleSelect} />}
