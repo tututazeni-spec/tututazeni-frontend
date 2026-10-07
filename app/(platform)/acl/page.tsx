@@ -13,7 +13,6 @@ import {
   BarChart2,
   Activity,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
@@ -23,15 +22,26 @@ import { OverviewTab } from '@/components/acl/OverviewTab';
 import { PoliciesTab } from '@/components/acl/PoliciesTab';
 import { RolesTab } from '@/components/acl/RolesTab';
 import { Button } from '@/components/ui/Button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
 import type { Tab } from '@/components/acl/types';
 
-const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
-  { id: 'overview', label: 'Visão Geral', icon: BarChart2 },
-  { id: 'roles', label: 'Roles', icon: Shield },
-  { id: 'matrix', label: 'Matriz', icon: Key },
-  { id: 'policies', label: 'Políticas', icon: Settings },
-  { id: 'audit', label: 'Auditoria', icon: Activity },
+const TABS: Array<PillTabItem & { id: Tab }> = [
+  {
+    id: 'overview',
+    label: 'Visão Geral',
+    hint: 'Resumo de acessos',
+    icon: BarChart2,
+  },
+  { id: 'roles', label: 'Roles', hint: 'Perfis e funções', icon: Shield },
+  { id: 'matrix', label: 'Matriz', hint: 'Permissões por role', icon: Key },
+  { id: 'policies', label: 'Políticas', hint: 'Regras ABAC', icon: Settings },
+  {
+    id: 'audit',
+    label: 'Auditoria',
+    hint: 'Registo de alterações',
+    icon: Activity,
+  },
 ];
 
 export default function AclPage() {
@@ -81,22 +91,8 @@ export default function AclPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="overview">
-        <div className="border-b border-border bg-surface px-6">
-          <TabsList className="mx-auto max-w-7xl">
-            {TABS.map((t) => {
-              const Icon = t.icon;
-              return (
-                <TabsTrigger
-                  key={t.id}
-                  value={t.id}
-                  className="gap-2 whitespace-nowrap"
-                >
-                  <Icon size={15} strokeWidth={1.75} />
-                  {t.label}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+        <div className="bg-surface px-6 py-5">
+          <PillTabsList items={TABS} className="mx-auto max-w-7xl" />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
