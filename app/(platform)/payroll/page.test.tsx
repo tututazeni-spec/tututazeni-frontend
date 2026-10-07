@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+﻿import { describe, expect, test, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 
 vi.mock('@/components/payroll/RunListView', () => ({
@@ -85,40 +85,40 @@ describe('PayrollPage tabs', () => {
   test('starts on the Visão Geral tab', () => {
     render(<PayrollPage />);
     expect(screen.getByText('overview-view')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Processamentos' }));
+    fireEvent.click(screen.getByRole('tab', { name: /^Processamentos/ }));
     expect(screen.getByText('run-list')).toBeInTheDocument();
   });
 
   test('switches to Recibos, Dashboard and Disputas', () => {
     render(<PayrollPage />);
     fireEvent.click(
-      screen.getByRole('button', { name: 'Recibos de Vencimento' }),
+      screen.getByRole('tab', { name: /^Recibos de Vencimento/ }),
     );
     expect(screen.getByText('open-payslip')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Dashboard Recibos' }));
+    fireEvent.click(screen.getByRole('tab', { name: /^Dashboard Recibos/ }));
     expect(screen.getByText('hr-dashboard')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Disputas' }));
+    fireEvent.click(screen.getByRole('tab', { name: /^Disputas/ }));
     expect(screen.getByText('disputes-view')).toBeInTheDocument();
   });
 
   test('opening a payslip detail hides the tab strip', () => {
     render(<PayrollPage />);
     fireEvent.click(
-      screen.getByRole('button', { name: 'Recibos de Vencimento' }),
+      screen.getByRole('tab', { name: /^Recibos de Vencimento/ }),
     );
     fireEvent.click(screen.getByText('open-payslip'));
     expect(screen.getByText('payslip-detail')).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Dashboard Recibos' }),
+      screen.queryByRole('tab', { name: /^Dashboard Recibos/ }),
     ).not.toBeInTheDocument();
   });
 
   test('admin also sees the merged payslips tabs', () => {
     roleRef.role = 'ADMIN';
     render(<PayrollPage />);
-    fireEvent.click(screen.getByRole('button', { name: 'Os meus recibos' }));
+    fireEvent.click(screen.getByRole('tab', { name: /^Os meus recibos/ }));
     expect(screen.getByText('my-list')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Remunerações' }));
+    fireEvent.click(screen.getByRole('tab', { name: /^Remunerações/ }));
     expect(screen.getByText('components-view')).toBeInTheDocument();
   });
 
@@ -127,10 +127,10 @@ describe('PayrollPage tabs', () => {
     render(<PayrollPage />);
     expect(screen.getByText('my-list')).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Processamentos' }),
+      screen.queryByRole('tab', { name: /^Processamentos/ }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Remunerações' }),
+      screen.queryByRole('tab', { name: /^Remunerações/ }),
     ).not.toBeInTheDocument();
     roleRef.role = 'ADMIN';
   });
