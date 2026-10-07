@@ -1,7 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { Lock } from 'lucide-react';
+import {
+  Activity,
+  AlertTriangle,
+  Clock,
+  Cog,
+  Flame,
+  Gauge,
+  HeartPulse,
+  History,
+  LayoutDashboard,
+  Plug,
+  Lock,
+  Workflow,
+  Zap,
+} from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
@@ -10,7 +24,8 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import {
@@ -83,6 +98,66 @@ function Body<T>({
   }
   return <>{children(query.data)}</>;
 }
+
+const TABS: PillTabItem[] = [
+  {
+    id: 'overview',
+    label: 'Visão Geral',
+    hint: 'Estado da plataforma',
+    icon: LayoutDashboard,
+  },
+  { id: 'modules', label: 'Módulos', hint: 'Saúde por módulo', icon: Activity },
+  {
+    id: 'processes',
+    label: 'Processos',
+    hint: 'Fluxos em curso',
+    icon: Workflow,
+  },
+  {
+    id: 'automations',
+    label: 'Automações',
+    hint: 'Regras e execuções',
+    icon: Zap,
+  },
+  {
+    id: 'integrations',
+    label: 'Integrações',
+    hint: 'Sistemas externos',
+    icon: Plug,
+  },
+  {
+    id: 'performance',
+    label: 'Performance',
+    hint: 'Latência e carga',
+    icon: Gauge,
+  },
+  {
+    id: 'alerts',
+    label: 'Alertas',
+    hint: 'Avisos activos',
+    icon: AlertTriangle,
+  },
+  {
+    id: 'incidents',
+    label: 'Incidentes',
+    hint: 'Ocorrências abertas',
+    icon: Flame,
+  },
+  {
+    id: 'health',
+    label: 'Health Check',
+    hint: 'Verificações',
+    icon: HeartPulse,
+  },
+  { id: 'jobs', label: 'Jobs', hint: 'Tarefas em fila', icon: Cog },
+  { id: 'sla', label: 'SLA', hint: 'Cumprimento de prazos', icon: Clock },
+  {
+    id: 'history',
+    label: 'Histórico',
+    hint: 'Eventos passados',
+    icon: History,
+  },
+];
 
 export default function MonitoringPage() {
   const role = useCurrentRole();
@@ -269,7 +344,10 @@ export default function MonitoringPage() {
       }),
     {
       onSuccess: (d) => qc.setQueryData(queryKeys.monitoring.health(), d),
-      onError: fail('MonitoringPage.health', 'Não foi possível verificar agora'),
+      onError: fail(
+        'MonitoringPage.health',
+        'Não foi possível verificar agora',
+      ),
     },
   );
 
@@ -296,22 +374,7 @@ export default function MonitoringPage() {
         </p>
       </div>
       <Tabs value={tab} onValueChange={setTab}>
-        <div className="overflow-x-auto">
-          <TabsList>
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="modules">Módulos</TabsTrigger>
-            <TabsTrigger value="processes">Processos</TabsTrigger>
-            <TabsTrigger value="automations">Automações</TabsTrigger>
-            <TabsTrigger value="integrations">Integrações</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="alerts">Alertas</TabsTrigger>
-            <TabsTrigger value="incidents">Incidentes</TabsTrigger>
-            <TabsTrigger value="health">Health Check</TabsTrigger>
-            <TabsTrigger value="jobs">Jobs</TabsTrigger>
-            <TabsTrigger value="sla">SLA</TabsTrigger>
-            <TabsTrigger value="history">Histórico</TabsTrigger>
-          </TabsList>
-        </div>
+        <PillTabsList items={TABS} className="mb-4" />
         <TabsContent value="overview" className="mt-4">
           <Body query={overview}>{(d) => <OverviewTab data={d} />}</Body>
         </TabsContent>
