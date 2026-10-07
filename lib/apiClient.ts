@@ -99,10 +99,34 @@ function redirectToLoginIfNeeded(status: number): void {
   if (status === 401) logout();
 }
 
+// Renovação silenciosa da sessão. O access token (cookie httpOnly) dura poucos
+// minutos; o que limita a sessão é a inactividade (30 min, validada no backend
+// em POST /auth/refresh). Por isso um 401 NÃO é logo logout: tentamos primeiro
+// rodar o refresh token e repetir o pedido. Só se o refresh falhar (inactivo
+// há mais de 30 min, token revogado) é que se termina a sessão. Partilhado
+// por todos os pedidos em voo (single-flight) — o refresh token é de uso único.
+let refreshing: Promise<boolean> | null = null;
+
+function refreshSession(): Promise<boolean> {
+  if (!refreshing) {
+    refreshing = fetch('/api/auth/refresh', {
+      method: 'POST',
+      credentials: 'include',
+    })
+      .then((r) => r.ok)
+      .catch(() => false)
+      .finally(() => {
+        refreshing = null;
+      });
+  }
+  return refreshing;
+}
+
 async function request<T>(
   method: string,
   path: string,
   options: RequestOptions = {},
+  retried = false,
 ): Promise<T> {
   const { body, params, headers, signal, ...rest } = options;
   const url = buildUrl(path, params);
@@ -128,6 +152,11 @@ async function request<T>(
     status = res.status;
     ok = res.ok;
 
+    if (res.status === 401 && !retried && !path.startsWith('/auth/')) {
+      if (await refreshSession()) {
+        return await request<T>(method, path, options, true);
+      }
+    }
     redirectToLoginIfNeeded(res.status);
 
     if (!res.ok) {
