@@ -56,7 +56,7 @@ export default function SettingsPage() {
   if (!user) return null;
 
   // Separadores de configuração da organização: só ADMIN (docs/modulo_settings.md).
-  const isAdmin = user.role?.code === 'ADMIN';
+  const isAdmin = user.role?.name === 'ADMIN';
   const visibleNav = NAV.filter((t) => !t.adminOnly || isAdmin);
 
   return (
