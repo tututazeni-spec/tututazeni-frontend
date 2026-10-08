@@ -13,10 +13,12 @@
 
 import { useEffect, useReducer, useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Search, BookMarked, AlertTriangle, Package } from 'lucide-react';
@@ -40,6 +42,11 @@ interface ModulosViewProps {
 }
 
 export function ModulosView({ initialCourseId }: ModulosViewProps) {
+  const role = useCurrentRole();
+  // POST/PUT/DELETE de módulos e lições são @Roles(ADMIN, RH) no backend —
+  // GET fica aberto a todos, por isso só os controlos de escrita são gated.
+  const canManage = !!role && ADMIN_ROLES.includes(role);
+
   const [courseIdInput, setCourseIdInput] = useState(
     initialCourseId ? String(initialCourseId) : '',
   );
@@ -160,7 +167,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
           >
             Progresso
           </Button>
-          {loaded && (
+          {loaded && canManage && (
             <Button
               onClick={() => dispatchModal({ type: 'openNewModule' })}
               intent="primary"
@@ -299,12 +306,14 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
             <p className="text-ink-faint text-sm mb-4">
               Este curso não tem módulos ainda.
             </p>
-            <Button
-              onClick={() => dispatchModal({ type: 'openNewModule' })}
-              intent="primary"
-            >
-              + Criar Primeiro Módulo
-            </Button>
+            {canManage && (
+              <Button
+                onClick={() => dispatchModal({ type: 'openNewModule' })}
+                intent="primary"
+              >
+                + Criar Primeiro Módulo
+              </Button>
+            )}
           </CardBody>
         </Card>
       ) : (
@@ -330,6 +339,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
                   })
                 }
                 onDeleteLesson={deleteLesson}
+                canManage={canManage}
               />
             ))}
         </div>

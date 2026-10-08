@@ -8,12 +8,14 @@ import { XCircle, BookOpen, Clapperboard } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useStopwatch } from '@/hooks/useStopwatch';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate, formatTime as fmtTime } from '@/lib/format';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { JitsiRoom } from '@/components/live-classes/room/JitsiRoom';
 import { RecordingPanel } from '@/components/live-classes/room/RecordingPanel';
 import { fmtDuration } from '@/components/live-classes/room/utils';
@@ -23,6 +25,12 @@ export default function LiveRoomPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const classId = parseInt(params.id);
+
+  const role = useCurrentRole();
+  // PUT /live-classes/:id (usado para guardar a URL da gravação) é
+  // @Roles(ADMIN, RH) no backend — colaborador só encontra/entra em aulas,
+  // não gere a gravação.
+  const canManageRecording = !!role && ADMIN_ROLES.includes(role);
 
   const queryClient = useQueryClient();
   const {
@@ -229,18 +237,20 @@ export default function LiveRoomPage() {
               )}
             </div>
 
-            {/* Recording panel */}
-            <div className="p-4 flex-1">
-              <RecordingPanel
-                liveClass={liveClass}
-                onUrlSaved={(url) =>
-                  queryClient.setQueryData<LiveClass>(
-                    queryKeys.liveClasses.detail(classId),
-                    (lc) => (lc ? { ...lc, recordingUrl: url } : lc),
-                  )
-                }
-              />
-            </div>
+            {/* Recording panel — ADMIN/RH apenas (PUT /live-classes/:id) */}
+            {canManageRecording && (
+              <div className="p-4 flex-1">
+                <RecordingPanel
+                  liveClass={liveClass}
+                  onUrlSaved={(url) =>
+                    queryClient.setQueryData<LiveClass>(
+                      queryKeys.liveClasses.detail(classId),
+                      (lc) => (lc ? { ...lc, recordingUrl: url } : lc),
+                    )
+                  }
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
