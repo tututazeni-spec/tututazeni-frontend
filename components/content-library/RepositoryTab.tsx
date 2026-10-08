@@ -9,9 +9,12 @@
 // apontam.
 
 import { useLibraryList } from '@/hooks/useLibraryList';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { LibraryListView } from '@/components/library/LibraryListView';
 
 export function RepositoryTab() {
   const props = useLibraryList();
-  return <LibraryListView {...props} />;
+  const role = useCurrentRole();
+  const canAdd = !!role && role !== 'COLABORADOR';
+  return <LibraryListView {...props} canAdd={canAdd} />;
 }
