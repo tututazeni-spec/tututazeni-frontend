@@ -8,6 +8,8 @@ import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 import {
   useNotificationsInbox,
   type ReadFilter,
@@ -326,6 +328,10 @@ const TITLES: Record<View, string> = {
 };
 
 export default function NotificationsPage() {
+  const role = useCurrentRole();
+  // Os endpoints de gestão (templates, envios, estatísticas) são
+  // @Roles(ADMIN, RH) no backend — o separador Admin só é útil a esses papéis.
+  const canSeeAdmin = !!role && ADMIN_ROLES.includes(role);
   const [view, setView] = useState<View>('inbox');
 
   // Badge de não lidas com polling (60s). Key partilhada com as mutações do inbox.
@@ -374,12 +380,16 @@ export default function NotificationsPage() {
               hint: 'Canais e frequência',
               icon: SlidersHorizontal,
             },
-            {
-              id: 'admin',
-              label: 'Admin',
-              hint: 'Gestão e envios',
-              icon: ShieldCheck,
-            },
+            ...(canSeeAdmin
+              ? [
+                  {
+                    id: 'admin' as const,
+                    label: 'Admin',
+                    hint: 'Gestão e envios',
+                    icon: ShieldCheck,
+                  },
+                ]
+              : []),
           ]}
           className="mb-6"
         />
@@ -390,9 +400,11 @@ export default function NotificationsPage() {
         <TabsContent value="preferences">
           <PreferencesView />
         </TabsContent>
-        <TabsContent value="admin">
-          <AdminView />
-        </TabsContent>
+        {canSeeAdmin && (
+          <TabsContent value="admin">
+            <AdminView />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
