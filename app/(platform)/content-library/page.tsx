@@ -73,6 +73,9 @@ const TABS: Array<PillTabItem & { id: Tab }> = [
 export default function ContentLibraryPage() {
   const role = useCurrentRole();
   const canAddContent = !!role && AUTHOR_ROLES.includes(role);
+  const tabs = TABS.filter(
+    (t) => t.id !== 'analytics' || role !== 'COLABORADOR',
+  );
   const [showAdd, setShowAdd] = useState(false);
 
   return (
@@ -103,7 +106,7 @@ export default function ContentLibraryPage() {
       {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
       <Tabs defaultValue="home">
         <div className="bg-surface px-6 py-5">
-          <PillTabsList items={TABS} className="mx-auto max-w-7xl" />
+          <PillTabsList items={tabs} className="mx-auto max-w-7xl" />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
@@ -122,9 +125,11 @@ export default function ContentLibraryPage() {
           <TabsContent value="my-progress">
             <MyProgressTab />
           </TabsContent>
-          <TabsContent value="analytics">
-            <AnalyticsTab />
-          </TabsContent>
+          {role !== 'COLABORADOR' && (
+            <TabsContent value="analytics">
+              <AnalyticsTab />
+            </TabsContent>
+          )}
         </div>
       </Tabs>
     </div>
