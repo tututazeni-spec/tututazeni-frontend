@@ -199,6 +199,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
               intent="primary"
               loading={loading}
             >
+              {!loading && <Search size={16} strokeWidth={1.75} />}
               {loading ? 'A carregar...' : 'Carregar Curso'}
             </Button>
           </div>

@@ -13,7 +13,7 @@
 // uma das 14 abas principais, não uma sub-vista de "Aulas") — ver
 // RecordingsView.tsx.
 
-import { Circle, Calendar, Clapperboard, Video } from 'lucide-react';
+import { Circle, Calendar, Clapperboard, Search, Video } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
 import { ClassCard } from './ClassCard';
 import { Spinner } from './Spinner';
@@ -201,7 +201,10 @@ export function LiveClassesView({
         <UpcomingStrip upcoming={upcoming} onOpen={onOpen} />
 
         {/* ── Search ── */}
-        <div className="flex gap-3 mb-4.5 flex-wrap items-center">
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className="flex gap-3 mb-4.5 flex-wrap items-center"
+        >
           <input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -215,6 +218,13 @@ export function LiveClassesView({
             type="number"
             className={`${INP} w-32`}
           />
+          <button
+            type="submit"
+            aria-label="Procurar"
+            className="py-2.25 px-3.5 rounded-lg border border-border bg-white cursor-pointer text-ink-muted flex items-center justify-center"
+          >
+            <Search size={16} strokeWidth={1.75} />
+          </button>
           <Select
             items={TYPE_ITEMS}
             value={filters.type}
@@ -245,6 +255,7 @@ export function LiveClassesView({
             filters.status ||
             filters.modality) && (
             <button
+              type="button"
               onClick={() => {
                 onSearchChange('');
                 onFiltersChange({
@@ -260,7 +271,7 @@ export function LiveClassesView({
               ✕
             </button>
           )}
-        </div>
+        </form>
 
         {loading ? (
           <Spinner />
