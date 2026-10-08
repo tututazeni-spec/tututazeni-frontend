@@ -18,6 +18,8 @@ interface ModuleBlockProps {
   onAddLesson: () => void;
   onEditLesson: (l: Lesson) => void;
   onDeleteLesson: (l: Lesson) => void;
+  /** ADMIN/RH apenas — módulos/lições são @Roles(ADMIN, RH) no backend. */
+  canManage: boolean;
 }
 
 export function ModuleBlock({
@@ -27,6 +29,7 @@ export function ModuleBlock({
   onAddLesson,
   onEditLesson,
   onDeleteLesson,
+  canManage,
 }: ModuleBlockProps) {
   const [open, setOpen] = useState(true);
   return (
@@ -52,29 +55,31 @@ export function ModuleBlock({
             Módulo {mod.seq} · {mod.lessons.length} lição(ões)
           </p>
         </div>
-        <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-          <Button
-            onClick={onAddLesson}
-            intent="primary"
-            className="px-2 py-1 text-xs"
-          >
-            + Lição
-          </Button>
-          <Button
-            onClick={onEditModule}
-            intent="ghost"
-            className="px-2 py-1 text-xs"
-          >
-            <Pencil size={14} strokeWidth={1.75} />
-          </Button>
-          <Button
-            onClick={onDeleteModule}
-            intent="danger"
-            className="px-2 py-1 text-xs"
-          >
-            <Trash2 size={14} strokeWidth={1.75} />
-          </Button>
-        </div>
+        {canManage && (
+          <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+            <Button
+              onClick={onAddLesson}
+              intent="primary"
+              className="px-2 py-1 text-xs"
+            >
+              + Lição
+            </Button>
+            <Button
+              onClick={onEditModule}
+              intent="ghost"
+              className="px-2 py-1 text-xs"
+            >
+              <Pencil size={14} strokeWidth={1.75} />
+            </Button>
+            <Button
+              onClick={onDeleteModule}
+              intent="danger"
+              className="px-2 py-1 text-xs"
+            >
+              <Trash2 size={14} strokeWidth={1.75} />
+            </Button>
+          </div>
+        )}
       </div>
       {/* Lessons */}
       {open && (
@@ -90,6 +95,7 @@ export function ModuleBlock({
                 lesson={l}
                 onEdit={() => onEditLesson(l)}
                 onDelete={() => onDeleteLesson(l)}
+                canManage={canManage}
               />
             ))
           )}
