@@ -4,7 +4,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { apiClient, API_URL } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -19,12 +19,28 @@ interface SsoLoginOptions {
   passwordLoginDisabled: boolean;
 }
 
+// Lido directamente de window.location.search (em vez de
+// next/navigation#useSearchParams) para não obrigar esta página a uma
+// fronteira <Suspense> só por causa de um aviso de sessão opcional.
+function sessionExpiredNotice(): string | null {
+  if (typeof window === 'undefined') return null;
+  const reason = new URLSearchParams(window.location.search).get('reason');
+  return reason === 'expired'
+    ? 'A tua sessão expirou por inactividade. Inicia sessão novamente.'
+    : null;
+}
+
 export function useLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setNotice(sessionExpiredNotice());
+  }, []);
 
   const sso = useApiQuery<SsoLoginOptions>(queryKeys.settings.ssoOptions(), '/auth/sso/options');
 
@@ -84,6 +100,7 @@ export function useLogin() {
     showPass,
     setShowPass,
     error,
+    notice,
     loading,
     handleSubmit,
     sso: sso.data,

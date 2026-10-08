@@ -25,6 +25,7 @@ interface LoginViewProps {
   showPass: boolean;
   setShowPass: (updater: (s: boolean) => boolean) => void;
   error: string | null;
+  notice: string | null;
   loading: boolean;
   handleSubmit: (e: React.FormEvent) => void;
   sso?: SsoLoginOptions;
@@ -46,6 +47,7 @@ export function LoginView({
   showPass,
   setShowPass,
   error,
+  notice,
   loading,
   handleSubmit,
   sso,
@@ -271,6 +273,17 @@ export function LoginView({
         .login-error {
           background: rgba(220, 38, 38, 0.28);
           border: 1px solid rgba(254, 202, 202, 0.7);
+          color: #fff;
+          font-size: 13px;
+          padding: 10px 14px;
+          border-radius: 12px;
+          margin-bottom: 18px;
+          text-align: center;
+        }
+
+        .login-notice {
+          background: rgba(255, 255, 255, 0.18);
+          border: 1px solid rgba(255, 255, 255, 0.45);
           color: #fff;
           font-size: 13px;
           padding: 10px 14px;
@@ -544,6 +557,12 @@ export function LoginView({
                 </button>
               </div>
             </div>
+
+            {!(useLdap ? ldapError : error) && notice && (
+              <div className="login-notice" role="status">
+                {notice}
+              </div>
+            )}
 
             {(useLdap ? ldapError : error) && (
               <div className="login-error" role="alert">

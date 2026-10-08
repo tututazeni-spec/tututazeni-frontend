@@ -71,8 +71,13 @@ let loggingOut = false;
  * Limpa a sessão (cookie httpOnly) e redirecciona para /login. Chamado tanto
  * automaticamente (401 em qualquer pedido) como manualmente (botão "Sair").
  * Idempotente: chamadas repetidas antes do redirect completar são ignoradas.
+ *
+ * `reason: 'expired'` acrescenta ?reason=expired ao redirect, para o login
+ * explicar que a sessão terminou por inactividade em vez de reabrir o
+ * formulário sem explicação. Qualquer outro valor (ex.: o evento de clique,
+ * quando se passa `logout` directamente a um onClick) é ignorado.
  */
-export function logout(): void {
+export function logout(reason?: 'expired'): void {
   if (
     typeof window === 'undefined' ||
     window.location.pathname.startsWith('/login') ||
@@ -91,7 +96,8 @@ export function logout(): void {
     method: 'POST',
     credentials: 'include',
   }).finally(() => {
-    window.location.href = '/login';
+    window.location.href =
+      reason === 'expired' ? '/login?reason=expired' : '/login';
   });
 }
 
@@ -156,6 +162,9 @@ async function request<T>(
       if (await refreshSession()) {
         return await request<T>(method, path, options, true);
       }
+      // Refresh recusado: inactivo há mais do limite do backend (ou token
+      // revogado) — termina a sessão a explicar porquê.
+      logout('expired');
     }
     redirectToLoginIfNeeded(res.status);
 
