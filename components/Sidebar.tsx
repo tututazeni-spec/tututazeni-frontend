@@ -440,7 +440,7 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
       {/* Logout */}
       <div style={{ padding: '12px', borderTop: '1px solid #e5e7eb' }}>
         <button
-          onClick={logout}
+          onClick={() => logout()}
           style={{
             width: '100%',
             display: 'flex',
