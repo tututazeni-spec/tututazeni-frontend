@@ -26,6 +26,12 @@ vi.mock('./RenameTenantModal', () => ({
     <div>[RenameTenantModal {currentName}]</div>
   ),
 }));
+vi.mock('./SlaConfigModal', () => ({
+  SlaConfigModal: () => <div>[SlaConfigModal]</div>,
+}));
+vi.mock('./ContentDeliveryConfigModal', () => ({
+  ContentDeliveryConfigModal: () => <div>[ContentDeliveryConfigModal]</div>,
+}));
 
 import { ScalabilityDashboardView } from './ScalabilityDashboardView';
 import type {
@@ -244,6 +250,15 @@ describe('ScalabilityDashboardView — SLA', () => {
     renderView('sla');
     expect(screen.getByText('Sem SLA configurado')).toBeInTheDocument();
   });
+
+  test('"Nova Configuração de SLA" monta o modal de configuração', () => {
+    renderView('sla');
+    expect(screen.queryByText('[SlaConfigModal]')).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Nova Configuração de SLA' }),
+    );
+    expect(screen.getByText('[SlaConfigModal]')).toBeInTheDocument();
+  });
 });
 
 describe('ScalabilityDashboardView — conteúdo', () => {
@@ -251,6 +266,17 @@ describe('ScalabilityDashboardView — conteúdo', () => {
     renderView('content');
     expect(
       screen.getByText('Sem configuração de entrega de conteúdo'),
+    ).toBeInTheDocument();
+  });
+
+  test('"Configurar CDN" monta o modal de configuração de entrega de conteúdo', () => {
+    renderView('content');
+    expect(
+      screen.queryByText('[ContentDeliveryConfigModal]'),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole('button', { name: 'Configurar CDN' })[0]);
+    expect(
+      screen.getByText('[ContentDeliveryConfigModal]'),
     ).toBeInTheDocument();
   });
 });
