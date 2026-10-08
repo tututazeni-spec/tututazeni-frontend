@@ -2,7 +2,7 @@
 'use client';
 
 import { PillNav } from '@/components/ui/PillTabs';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AccessView } from '@/components/audit/AccessView';
 import { AuditsView } from '@/components/audit/AuditsView';
 import { ChangesView } from '@/components/audit/ChangesView';
@@ -22,7 +22,14 @@ export default function AuditPage() {
   const role = useCurrentRole();
   // Cada separador só é visível a quem o backend por trás dele deixa entrar
   // (NAV[].roles) — ex.: DIRECTOR só vê "Apagados", nunca os logs gerais.
-  const nav = NAV.filter((n) => !!role && n.roles.includes(role));
+  // useMemo mantém a referência estável entre renders em que `role` não
+  // muda, para o useEffect abaixo poder depender de `nav` sem re-executar
+  // em todo o render (e sem precisar de desligar exhaustive-deps, que fazia
+  // o React Compiler desistir de optimizar este componente).
+  const nav = useMemo(
+    () => NAV.filter((n) => !!role && n.roles.includes(role)),
+    [role],
+  );
   // ?view= (ex.: link a partir de Definições > Auditoria e Dados). Lido do URL
   // em vez de useSearchParams para não exigir <Suspense> nesta página client.
   const initialView =
@@ -39,8 +46,7 @@ export default function AuditPage() {
     if (nav.length > 0 && !nav.some((n) => n.id === view)) {
       setView(nav[0].id);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role]);
+  }, [nav, view]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
