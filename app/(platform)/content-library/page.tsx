@@ -77,6 +77,14 @@ export default function ContentLibraryPage() {
     (t) => t.id !== 'analytics' || role !== 'COLABORADOR',
   );
   const [showAdd, setShowAdd] = useState(false);
+  const [activeTab, setActiveTab] = useState('home');
+  const [catalogueSearch, setCatalogueSearch] = useState('');
+
+  // Pesquisa do hero do Início: abre o Catálogo já filtrado pelo termo.
+  function searchInCatalogue(term: string) {
+    setCatalogueSearch(term);
+    setActiveTab('catalogue');
+  }
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -104,17 +112,17 @@ export default function ContentLibraryPage() {
       {showAdd && <AddContentModal onClose={() => setShowAdd(false)} />}
 
       {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
-      <Tabs defaultValue="home">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="bg-surface px-6 py-5">
           <PillTabsList items={tabs} className="mx-auto max-w-7xl" />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
           <TabsContent value="home">
-            <HomeTab />
+            <HomeTab onSearch={searchInCatalogue} />
           </TabsContent>
           <TabsContent value="catalogue">
-            <CatalogueTab />
+            <CatalogueTab initialSearch={catalogueSearch} />
           </TabsContent>
           <TabsContent value="repository">
             <RepositoryTab />
