@@ -80,7 +80,7 @@ function TopBarKpiCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
@@ -116,7 +116,7 @@ function GaugeKpiCard({
   const offset = circumference - (clamped / 100) * circumference;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="flex items-center gap-3 p-5 pt-6">
         <div className="relative h-16 w-16 shrink-0">
@@ -188,7 +188,7 @@ function TrendKpiCard({
     .join(' ');
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
@@ -241,7 +241,7 @@ function BulletKpiCard({
   const targetClamped = Math.max(0, Math.min(100, target));
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
@@ -299,7 +299,7 @@ function HistogramKpiCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />

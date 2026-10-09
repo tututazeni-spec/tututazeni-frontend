@@ -13,7 +13,6 @@ import { Card, CardBody } from '@/components/ui/Card';
 import type { LucideIcon } from 'lucide-react';
 import { TrendingDown, UserMinus, UserPlus, Users } from 'lucide-react';
 import { Modal, ModalContent } from '@/components/ui/Modal';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentAnalytics, PeopleAnalytics } from './types';
 
@@ -25,6 +24,26 @@ const TONES: Record<Tone, { bar: string; text: string; stroke: string }> = {
   gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]', stroke: '#C9A227' },
   red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]', stroke: '#C0453F' },
 };
+
+// Barra azul-marinho (#0F1F3D) — o ProgressBar partilhado só tem cores de
+// intenção (accent = laranja), por isso estes cards desenham a sua.
+function NavyBar({ value }: { value: number }) {
+  const clamped = Math.min(100, Math.max(0, value));
+  return (
+    <div
+      role="progressbar"
+      aria-valuenow={clamped}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      className="h-1.5 w-full rounded-pill bg-surface-sunken"
+    >
+      <div
+        className="h-full rounded-pill bg-[#0F1F3D] transition-[width] duration-300"
+        style={{ width: `${clamped}%` }}
+      />
+    </div>
+  );
+}
 
 function TopBarKpiCard({
   icon: Icon,
@@ -39,7 +58,7 @@ function TopBarKpiCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
@@ -86,7 +105,7 @@ function TrendKpiCard({
     .join(' ');
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
@@ -165,7 +184,7 @@ function DepartmentDetail({ departmentId }: { departmentId: number }) {
                   {c.name}
                 </div>
                 <div className="flex-1">
-                  <ProgressBar value={Math.round((c.avgLevel / 5) * 100)} />
+                  <NavyBar value={Math.round((c.avgLevel / 5) * 100)} />
                 </div>
                 <div className="w-16 flex-shrink-0 text-right text-xs font-data text-black">
                   {c.avgLevel}/5
@@ -230,7 +249,7 @@ export function PeopleAnalyticsView() {
       {/* Diversidade */}
       {/* Diversidade */}
       <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
-        <div className="h-1.5 w-full bg-[#2B6CC4]" />
+        <div className="h-1.5 w-full bg-[#0F1F3D]" />
         <div className="p-5">
           <div className="mb-3 font-body text-sm font-semibold text-ink-muted">
             Diversidade — género
@@ -239,17 +258,17 @@ export function PeopleAnalyticsView() {
             {Object.entries(data.diversity.gender).map(([gender, count]) => (
               <div
                 key={gender}
-                className="rounded-2xl border border-border bg-surface-sunken p-4"
+                className="rounded-2xl bg-[#0F1F3D] p-4 opacity-70"
               >
                 <Users
                   size={18}
                   strokeWidth={1.75}
-                  className="text-[#2B6CC4]"
+                  className="text-white"
                 />
-                <p className="mt-2 font-display text-2xl font-bold text-[#2B6CC4]">
+                <p className="mt-2 font-display text-2xl font-bold text-white">
                   {count}
                 </p>
-                <p className="mt-0.5 font-body text-xs font-medium text-ink-muted">
+                <p className="mt-0.5 font-body text-xs font-medium text-white">
                   {GENDER_LABELS[gender] ?? gender}
                 </p>
               </div>
@@ -274,7 +293,7 @@ export function PeopleAnalyticsView() {
               {d.name}
             </div>
             <div className="flex-1">
-              <ProgressBar
+              <NavyBar
                 value={Math.round(
                   (d.count / Math.max(data.headcount.total, 1)) * 100,
                 )}

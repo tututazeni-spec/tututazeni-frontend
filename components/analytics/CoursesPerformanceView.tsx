@@ -45,7 +45,7 @@ function TopBarKpiCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
@@ -115,14 +115,14 @@ export function CoursesPerformanceView() {
   return (
     <>
       <Table>
-        <TableHead>
-          <TableRow>
-            <TableHeaderCell>Curso</TableHeaderCell>
-            <TableHeaderCell>Categoria</TableHeaderCell>
-            <TableHeaderCell>Nível</TableHeaderCell>
-            <TableHeaderCell>Matrículas</TableHeaderCell>
-            <TableHeaderCell>Concluídas</TableHeaderCell>
-            <TableHeaderCell>Nota média</TableHeaderCell>
+        <TableHead className="bg-[#0F1F3D]">
+          <TableRow className="hover:bg-transparent">
+            <TableHeaderCell className="text-white">Curso</TableHeaderCell>
+            <TableHeaderCell className="text-white">Categoria</TableHeaderCell>
+            <TableHeaderCell className="text-white">Nível</TableHeaderCell>
+            <TableHeaderCell className="text-white">Matrículas</TableHeaderCell>
+            <TableHeaderCell className="text-white">Concluídas</TableHeaderCell>
+            <TableHeaderCell className="text-white">Nota média</TableHeaderCell>
           </TableRow>
         </TableHead>
         <TableBody>

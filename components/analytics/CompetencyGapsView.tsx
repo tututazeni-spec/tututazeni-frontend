@@ -11,8 +11,9 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { CATEGORY_CFG } from '@/components/competencies/constants';
+import type { CompetencyCategory } from '@/components/competencies/types';
 import type { CompetencyGapItem } from './types';
 
 export function CompetencyGapsView() {
@@ -38,16 +39,28 @@ export function CompetencyGapsView() {
                   {g.name}
                 </div>
                 <div className="truncate text-[10px] text-ink-faint">
-                  {g.category}
+                  {CATEGORY_CFG[g.category as CompetencyCategory]?.label ??
+                    g.category}
                 </div>
               </div>
               <div className="flex-1">
-                <ProgressBar value={Math.min(g.avgCurrent * 20, 100)} />
+                <div
+                  role="progressbar"
+                  aria-valuenow={Math.min(g.avgCurrent * 20, 100)}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  className="h-1.5 w-full rounded-pill bg-surface-sunken"
+                >
+                  <div
+                    className="h-full rounded-pill bg-[#0F1F3D] transition-[width] duration-300"
+                    style={{ width: `${Math.min(g.avgCurrent * 20, 100)}%` }}
+                  />
+                </div>
               </div>
               <div className="w-24 flex-shrink-0 text-right text-xs font-data text-black">
                 {g.avgCurrent} → {g.avgTarget}
               </div>
-              <div className="w-16 flex-shrink-0 text-right text-xs font-data font-bold text-warning">
+              <div className="w-16 flex-shrink-0 text-right text-xs font-data font-bold text-black">
                 Gap: {g.gap}
               </div>
               <div className="w-20 flex-shrink-0 text-right text-xs text-ink-faint">

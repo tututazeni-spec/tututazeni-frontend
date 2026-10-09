@@ -44,7 +44,7 @@ function TopBarKpiCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
@@ -96,12 +96,12 @@ export function ROIView() {
           Impacto de formação por curso
         </div>
         <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>Curso</TableHeaderCell>
-              <TableHeaderCell>Métrica</TableHeaderCell>
-              <TableHeaderCell>Taxa de impacto</TableHeaderCell>
-              <TableHeaderCell>Calculado em</TableHeaderCell>
+          <TableHead className="bg-[#0F1F3D]">
+            <TableRow className="hover:bg-transparent">
+              <TableHeaderCell className="text-white">Curso</TableHeaderCell>
+              <TableHeaderCell className="text-white">Métrica</TableHeaderCell>
+              <TableHeaderCell className="text-white">Taxa de impacto</TableHeaderCell>
+              <TableHeaderCell className="text-white">Calculado em</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>

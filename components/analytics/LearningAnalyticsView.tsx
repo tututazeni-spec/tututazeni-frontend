@@ -13,7 +13,6 @@ import { Card, CardBody } from '@/components/ui/Card';
 import type { LucideIcon } from 'lucide-react';
 import { Award, ClipboardCheck, Clock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import {
   Table,
   TableBody,
@@ -49,7 +48,7 @@ function TopBarKpiCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
@@ -99,7 +98,7 @@ export function LearningAnalyticsView() {
 
       {/* Estado das matrículas */}
       <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
-        <div className="h-1.5 w-full bg-[#2E8B3E]" />
+        <div className="h-1.5 w-full bg-[#0F1F3D]" />
         <div className="p-5">
           <div className="mb-3 font-body text-sm font-semibold text-ink-muted">
             Matrículas por estado
@@ -108,14 +107,13 @@ export function LearningAnalyticsView() {
             {Object.entries(data.byStatus).map(([status, count]) => (
               <div
                 key={status}
-                className="flex items-center gap-2 rounded-full border border-border bg-surface-sunken px-3 py-1.5"
+                className="flex items-center gap-2 rounded-full bg-[#0F1F3D] px-3 py-1.5 opacity-70"
               >
-                <StatusBadge
-                  value={status as EnrollmentStatus}
-                  map={ENROLLMENT_STATUS_CFG}
-                  variant="dot"
-                />
-                <span className="font-data text-sm font-bold text-ink">
+                <span className="text-xs font-medium text-white">
+                  {ENROLLMENT_STATUS_CFG[status as EnrollmentStatus]?.label ??
+                    status}
+                </span>
+                <span className="font-data text-sm font-bold text-white">
                   {count}
                 </span>
               </div>
@@ -136,19 +134,18 @@ export function LearningAnalyticsView() {
 
       {/* Top cursos */}
       <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
-        <div className="h-1.5 w-full bg-[#2B6CC4]" />
         <div className="p-5">
           <div className="mb-3 font-body text-sm font-semibold text-ink-muted">
             Top cursos por conclusões
           </div>
           <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeaderCell>Curso</TableHeaderCell>
-                <TableHeaderCell>Categoria</TableHeaderCell>
-                <TableHeaderCell>Matrículas</TableHeaderCell>
-                <TableHeaderCell>Concluídas</TableHeaderCell>
-                <TableHeaderCell>Nota média</TableHeaderCell>
+            <TableHead className="bg-[#0F1F3D]">
+              <TableRow className="hover:bg-transparent">
+                <TableHeaderCell className="text-white">Curso</TableHeaderCell>
+                <TableHeaderCell className="text-white">Categoria</TableHeaderCell>
+                <TableHeaderCell className="text-white">Matrículas</TableHeaderCell>
+                <TableHeaderCell className="text-white">Concluídas</TableHeaderCell>
+                <TableHeaderCell className="text-white">Nota média</TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>

@@ -14,7 +14,6 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -55,7 +54,7 @@ function TopBarKpiCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
@@ -67,10 +66,6 @@ function TopBarKpiCard({
     </div>
   );
 }
-
-// TODO: substituir por dados reais quando soubermos o campo da API
-// (ex.: data.people.turnoverTrend) com o histórico mensal da rotatividade.
-const MOCK_TURNOVER_TREND = [5.1, 5.6, 4.9, 6.2, 5.8, 6.5];
 
 function TrendKpiCard({
   icon: Icon,
@@ -100,7 +95,7 @@ function TrendKpiCard({
     .join(' ');
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
@@ -108,20 +103,22 @@ function TrendKpiCard({
         <p className="mt-1 font-body text-xs font-medium text-ink-muted">
           {label}
         </p>
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          className="mt-2 h-7 w-full"
-          preserveAspectRatio="none"
-        >
-          <polyline
-            points={points}
-            fill="none"
-            stroke={t.stroke}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        {trendData.length > 1 && (
+          <svg
+            viewBox={`0 0 ${width} ${height}`}
+            className="mt-2 h-7 w-full"
+            preserveAspectRatio="none"
+          >
+            <polyline
+              points={points}
+              fill="none"
+              stroke={t.stroke}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
       </div>
     </div>
   );
@@ -143,7 +140,7 @@ function HorizontalBarKpiCard({
   const t = TONES[tone];
   const clamped = Math.max(0, Math.min(100, percent));
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
@@ -162,15 +159,13 @@ function HorizontalBarKpiCard({
   );
 }
 
-// TODO: substituir por dados reais quando soubermos o campo da API com as
-// etapas do funil de adopção de PDI (ex.: data.pdi.funnel). Enquanto isso,
-// as duas primeiras etapas são estimadas a partir de adoptionRate.
-function funnelStagesFromAdoption(adoptionRate: number) {
-  const rate = Math.max(0, Math.min(100, adoptionRate));
+function funnelStages(funnel: HRDashboard['pdi']['funnel']) {
+  const pct = (n: number) =>
+    funnel.eligible > 0 ? Math.min(100, (n / funnel.eligible) * 100) : 0;
   return [
-    { label: 'Elegíveis', pct: 100 },
-    { label: 'Iniciaram PDI', pct: Math.min(100, rate + 20) },
-    { label: 'Adoptaram', pct: rate },
+    { label: 'Elegíveis', pct: funnel.eligible > 0 ? 100 : 0 },
+    { label: 'Iniciaram PDI', pct: pct(funnel.started) },
+    { label: 'Adoptaram', pct: pct(funnel.adopted) },
   ];
 }
 
@@ -178,19 +173,19 @@ function FunnelKpiCard({
   icon: Icon,
   label,
   value,
-  adoptionRate,
+  funnel,
   tone,
 }: {
   icon: LucideIcon;
   label: string;
   value: string | number;
-  adoptionRate: number;
+  funnel: HRDashboard['pdi']['funnel'];
   tone: Tone;
 }) {
   const t = TONES[tone];
-  const stages = funnelStagesFromAdoption(adoptionRate);
+  const stages = funnelStages(funnel);
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
@@ -258,7 +253,7 @@ export function HRDashboardView() {
               icon={TrendingDown}
               label="Taxa de Rotatividade"
               value={`${data.people.turnoverRate}%`}
-              trendData={MOCK_TURNOVER_TREND}
+              trendData={data.people.turnoverTrend ?? []}
               tone="red"
             />
           </div>
@@ -318,7 +313,9 @@ export function HRDashboardView() {
               icon={Filter}
               label="Adopção"
               value={`${data.pdi.adoptionRate}%`}
-              adoptionRate={data.pdi.adoptionRate}
+              funnel={
+                data.pdi.funnel ?? { eligible: 0, started: 0, adopted: 0 }
+              }
               tone="gold"
             />
             <TopBarKpiCard
@@ -352,9 +349,22 @@ export function HRDashboardView() {
                 {d.name}
               </div>
               <div className="flex-1">
-                <ProgressBar
-                  value={Math.round((d.count / data.people.total) * 100)}
-                />
+                <div
+                  role="progressbar"
+                  aria-valuenow={Math.round(
+                    (d.count / data.people.total) * 100,
+                  )}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  className="h-1.5 w-full rounded-pill bg-surface-sunken"
+                >
+                  <div
+                    className="h-full rounded-pill bg-[#0F1F3D] transition-[width] duration-300"
+                    style={{
+                      width: `${Math.round((d.count / data.people.total) * 100)}%`,
+                    }}
+                  />
+                </div>
               </div>
               <div className="text-sm font-data font-bold text-black w-8 text-right">
                 {d.count}

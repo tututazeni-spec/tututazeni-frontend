@@ -37,6 +37,17 @@ export interface CollaboratorDashboard {
   };
   xp: { total: number; badges: number };
   streak: { current: number; longest: number };
+  learningSequence: {
+    pathId: number;
+    title: string;
+    milestones: Array<{
+      id: string;
+      label: string;
+      status: 'completed' | 'current' | 'locked';
+      progress: number;
+      date: string | null;
+    }>;
+  } | null;
   pdi: CollaboratorPdiSummary[];
   competencies: Array<{
     name: string;
@@ -112,6 +123,8 @@ export interface HRDashboard {
     hired: number;
     terminated: number;
     turnoverRate: number;
+    /** % mensal de saídas nos últimos 6 meses (mais antigo → mais recente). */
+    turnoverTrend: number[];
   };
   learning: {
     enrollments: number;
@@ -125,6 +138,7 @@ export interface HRDashboard {
     adoptionRate: number;
     pendingApproval: number;
     completed: number;
+    funnel: { eligible: number; started: number; adopted: number };
   };
   headcountByDept?: DeptHeadcount[];
 }
@@ -217,6 +231,9 @@ export interface DepartmentAnalytics {
 export interface PDIAnalytics {
   byStatus: Record<string, number>;
   avgProgress: number;
+  completionRate: number;
+  overduePlans: number;
+  staleDrafts: number;
   overdueActions: number;
   completedThisMonth: number;
   actionsByType: Array<{ type: string; count: number }>;
