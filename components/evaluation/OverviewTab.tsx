@@ -15,8 +15,14 @@ import {
   AlertTriangle,
   CalendarClock,
   ChevronRight,
+  CheckCircle2,
   ClipboardCheck,
+  Clock,
   Layers,
+  Percent,
+  PlayCircle,
+  Star,
+  Users,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
@@ -27,7 +33,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { RadarChart } from './RadarChart';
@@ -62,28 +68,42 @@ function OrganizationOverview() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-        <KpiCard label="Em curso" value={data.kpis.inProgress} intent="info" />
-        <KpiCard label="Pendentes" value={data.kpis.pending} intent="warning" />
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <NavyStatCard
+          icon={PlayCircle}
+          label="Em curso"
+          value={data.kpis.inProgress}
+          tone="blue"
+        />
+        <NavyStatCard
+          icon={Clock}
+          label="Pendentes"
+          value={data.kpis.pending}
+          tone="orange"
+        />
+        <NavyStatCard
+          icon={CheckCircle2}
           label="Concluídas"
           value={data.kpis.completed}
-          intent="success"
+          tone="green"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Percent}
           label="Taxa Conclusão"
           value={`${data.kpis.completionRate}%`}
-          intent="primary"
+          tone="blue"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Star}
           label="Média Desempenho"
           value={data.kpis.avgScore.toFixed(1)}
-          intent="accent"
+          tone="orange"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Users}
           label="Colaboradores Avaliados"
           value={data.kpis.evaluatedCount}
-          intent="primary"
+          tone="blue"
         />
       </div>
 
@@ -209,7 +229,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
-        itemClassName="skeleton-shimmer h-24 rounded-card"
+        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
       />
     );
 
@@ -219,26 +239,30 @@ export function OverviewTab({ userId }: OverviewTabProps) {
 
       {/* My completion progress */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KpiCard
+        <NavyStatCard
+          icon={CheckCircle2}
           label="Concluídas"
           value={progress?.completed ?? 0}
-          intent="success"
+          tone="green"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Clock}
           label="Pendentes"
           value={progress?.pending ?? 0}
-          intent="warning"
+          tone="orange"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Percent}
           label="Taxa Conclusão"
           value={`${progress?.completionRate ?? 0}%`}
-          intent="primary"
+          tone="blue"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Star}
           label="Pontuação Mais Recente"
           value={myResults ? myResults.finalScore.toFixed(1) : '–'}
           sub={myResults?.scoreLabel}
-          intent="accent"
+          tone="orange"
         />
       </div>
 

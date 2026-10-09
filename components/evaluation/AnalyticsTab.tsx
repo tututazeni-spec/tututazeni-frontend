@@ -12,7 +12,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { SCORE_COLOR } from './constants';
@@ -57,7 +57,7 @@ export function AnalyticsTab() {
       <Skeleton
         rows={4}
         wrapperClassName="space-y-4"
-        itemClassName="skeleton-shimmer h-24 rounded-card"
+        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
       />
     );
   if (!data?.hasData)
@@ -75,29 +75,29 @@ export function AnalyticsTab() {
     <div className="space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KpiCard
+        <NavyStatCard
           icon={Users}
           label="Participantes"
           value={data.kpis.totalParticipants}
-          intent="primary"
+          tone="blue"
         />
-        <KpiCard
+        <NavyStatCard
           icon={Star}
           label="Pontuação Média"
           value={data.kpis.avgScore?.toFixed(1) ?? '–'}
-          intent="warning"
+          tone="orange"
         />
-        <KpiCard
+        <NavyStatCard
           icon={CheckCircle}
           label="Taxa Participação"
           value={`${data.kpis.participationRate}%`}
-          intent="success"
+          tone="green"
         />
-        <KpiCard
+        <NavyStatCard
           icon={Activity}
           label="Total Avaliações"
           value={data.kpis.totalEvaluations}
-          intent="info"
+          tone="blue"
         />
       </div>
 
