@@ -76,7 +76,11 @@ export function SkillsPanel() {
                 (s, i) => s.competency?.name ?? `Competência ${i + 1}`,
               )}
               series={[
-                { label: 'Gap médio', values: sortedGaps.map((s) => s.avgGap) },
+                {
+                  label: 'Gap médio',
+                  values: sortedGaps.map((s) => s.avgGap),
+                  color: '#0F1F3D',
+                },
               ]}
               className="mb-4"
               yFormat={(v) => v.toFixed(1)}
@@ -96,7 +100,7 @@ export function SkillsPanel() {
                     Nível médio {s.avgLevel} · {s.count} avaliações
                   </p>
                 </div>
-                <span className="font-body text-xs font-bold text-danger-ink">
+                <span className="font-body text-xs font-bold text-black">
                   gap {s.avgGap}
                 </span>
               </div>
@@ -122,6 +126,7 @@ export function SkillsPanel() {
                 {
                   label: 'Nível médio',
                   values: sortedStrengths.map((s) => s.avgLevel),
+                  color: '#0F1F3D',
                 },
               ]}
               className="mb-4"
@@ -142,7 +147,7 @@ export function SkillsPanel() {
                     {s.count} avaliações
                   </p>
                 </div>
-                <span className="font-body text-xs font-bold text-success-ink">
+                <span className="font-body text-xs font-bold text-black">
                   nível {s.avgLevel}
                 </span>
               </div>

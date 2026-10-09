@@ -14,7 +14,6 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -314,7 +313,9 @@ export function HRDashboardView() {
               icon={Filter}
               label="Adopção"
               value={`${data.pdi.adoptionRate}%`}
-              funnel={data.pdi.funnel ?? { eligible: 0, started: 0, adopted: 0 }}
+              funnel={
+                data.pdi.funnel ?? { eligible: 0, started: 0, adopted: 0 }
+              }
               tone="gold"
             />
             <TopBarKpiCard
@@ -348,9 +349,22 @@ export function HRDashboardView() {
                 {d.name}
               </div>
               <div className="flex-1">
-                <ProgressBar
-                  value={Math.round((d.count / data.people.total) * 100)}
-                />
+                <div
+                  role="progressbar"
+                  aria-valuenow={Math.round(
+                    (d.count / data.people.total) * 100,
+                  )}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  className="h-1.5 w-full rounded-pill bg-surface-sunken"
+                >
+                  <div
+                    className="h-full rounded-pill bg-[#0F1F3D] transition-[width] duration-300"
+                    style={{
+                      width: `${Math.round((d.count / data.people.total) * 100)}%`,
+                    }}
+                  />
+                </div>
               </div>
               <div className="text-sm font-data font-bold text-black w-8 text-right">
                 {d.count}

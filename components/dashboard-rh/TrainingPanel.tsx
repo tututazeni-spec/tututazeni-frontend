@@ -80,6 +80,7 @@ export function TrainingPanel() {
               {
                 label: 'Inscrições',
                 values: (data?.topCourses ?? []).map((c) => c.count),
+                color: '#0F1F3D',
               },
             ]}
             className="mb-4"
@@ -98,7 +99,7 @@ export function TrainingPanel() {
                     {c.course?.category}
                   </p>
                 </div>
-                <span className="font-body text-xs font-bold text-primary">
+                <span className="font-body text-xs font-bold text-black">
                   {c.count} inscrições
                 </span>
               </div>
