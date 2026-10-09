@@ -682,11 +682,11 @@ export function OrgDashboard() {
                   key={i}
                   className={`flex items-center gap-2 rounded-control px-3 py-2 font-body text-xs ${
                     SEVERITY_INTENT[r.severity] === 'danger'
-                      ? 'bg-danger-subtle text-danger-ink'
-                      : 'bg-warning-subtle text-warning-ink'
+                      ? 'bg-danger-subtle text-black'
+                      : 'bg-warning-subtle text-black'
                   }`}
                 >
-                  <AlertTriangle size={12} strokeWidth={1.75} />
+                  <AlertTriangle size={12} strokeWidth={1.75} className="text-black" />
                   {r.label}
                 </div>
               ))}
