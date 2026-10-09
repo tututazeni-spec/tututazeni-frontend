@@ -19,11 +19,17 @@ export function NavyStatCard({
   icon: Icon,
   label,
   value,
+  sub,
+  trend,
   tone,
 }: {
   icon: LucideIcon;
   label: string;
   value: string | number;
+  /** Linha secundária opcional (contexto do valor). */
+  sub?: string;
+  /** Variação opcional face ao período anterior. */
+  trend?: number | null;
   tone: NavyStatTone;
 }) {
   const t = TONES[tone];
@@ -40,10 +46,24 @@ export function NavyStatCard({
       >
         <Icon size={26} strokeWidth={1.75} />
       </span>
-      <div className="flex h-[95px] items-center justify-center px-3">
-        <p className={`font-display text-[38px] font-bold leading-none ${t.text}`}>
+      <div className="flex h-[95px] flex-col items-center justify-center px-3 text-center">
+        <p
+          className={`flex items-baseline gap-2 font-display text-[38px] font-bold leading-none ${t.text}`}
+        >
           {value}
+          {typeof trend === 'number' && trend !== 0 && (
+            <span
+              className={`font-body text-xs font-semibold ${trend > 0 ? 'text-success' : 'text-danger'}`}
+            >
+              {trend > 0 ? '▲' : '▼'} {Math.abs(trend)}
+            </span>
+          )}
         </p>
+        {sub && (
+          <p className="mt-1.5 line-clamp-2 font-body text-xs leading-tight text-ink-faint">
+            {sub}
+          </p>
+        )}
       </div>
     </div>
   );
