@@ -23,7 +23,7 @@ import {
   useUnitOptions,
 } from '@/components/competencies/modelFormData';
 import { useLeaveOverview } from '@/hooks/useLeave';
-import { STATUS_CFG, monthLabel } from './constants';
+import { DEPT_COLORS, STATUS_CFG, monthLabel } from './constants';
 import type { LeaveScope, LeaveType, OverviewFilters } from './types';
 
 const ALL = 'ALL';
@@ -328,7 +328,7 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
         <ChartCard title="Disponibilidade da equipa">
           {charts.absenteeismByDepartment.length ? (
             <ul className="space-y-2 text-sm">
-              {charts.absenteeismByDepartment.slice(0, 8).map((d) => {
+              {charts.absenteeismByDepartment.slice(0, 8).map((d, i) => {
                 const availability = Math.max(0, 100 - d.rate);
                 return (
                   <li key={d.departmentId ?? 'none'}>
@@ -340,8 +340,11 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
                     </div>
                     <div className="h-2 bg-surface-sunken rounded-pill overflow-hidden">
                       <div
-                        className="h-full rounded-pill bg-success"
-                        style={{ width: `${availability}%` }}
+                        className="h-full rounded-pill"
+                        style={{
+                          width: `${availability}%`,
+                          backgroundColor: DEPT_COLORS[i % DEPT_COLORS.length],
+                        }}
                       />
                     </div>
                   </li>

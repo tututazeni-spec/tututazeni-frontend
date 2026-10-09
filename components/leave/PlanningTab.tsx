@@ -38,6 +38,7 @@ import {
 import { usePlanning, type PlanningFilters } from '@/hooks/useLeave';
 import { cn } from '@/lib/cn';
 import { formatDate } from '@/lib/format';
+import { DEPT_COLORS } from './constants';
 import type { PlanningDay, PlanningTeam } from './types';
 
 const ALL = 'ALL';
@@ -64,22 +65,6 @@ function dayTitle(d: PlanningDay): string {
   const pending = d.pendingAbsent ? ` (+${d.pendingAbsent} por aprovar)` : '';
   return `${formatDate(d.date)} — ${d.availabilityPercent}% disponível, ${d.absent} ausente(s)${pending}`;
 }
-
-// Uma cor por departamento (cicla se houver mais departamentos que cores).
-const DEPT_COLORS = [
-  '#3B82F6',
-  '#10B981',
-  '#F59E0B',
-  '#EF4444',
-  '#8B5CF6',
-  '#EC4899',
-  '#14B8A6',
-  '#F97316',
-  '#6366F1',
-  '#84CC16',
-  '#06B6D4',
-  '#A855F7',
-];
 
 function AvailabilityStrip({
   team,
