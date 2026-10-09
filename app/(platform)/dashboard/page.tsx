@@ -65,12 +65,13 @@ export default function DashboardPage() {
 
   // Nome do tenant definido em Definições → Visão Geral (aberto a qualquer
   // utilizador autenticado, ao contrário de /settings/organization).
-  const { data: branding } = useApiQuery<{ tenantName?: string }>(
+  const { data: branding } = useApiQuery<{ tenantName?: string; logoUrl?: string | null }>(
     queryKeys.settings.branding(),
     '/settings/branding',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
   const tenantName = branding?.tenantName?.trim();
+  const tenantLogo = branding?.logoUrl;
 
   const availableTabs = filterByRole(TABS, role);
 
@@ -80,14 +81,24 @@ export default function DashboardPage() {
   const ActiveIcon = activeTab?.icon;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="-mt-6 min-h-screen bg-white">
       {/* Container azul: cabeçalho dinâmico + Slideshow no mesmo cartão
           (#0F1F3D), acima das tabs e visível em qualquer separador. */}
-      <div className="mx-auto max-w-7xl px-6 pt-6">
+      <div className="mx-auto max-w-7xl px-6 pt-2">
         {tenantName && (
-          <p className="mb-3 truncate font-display text-lg font-bold text-[#0F1F3D]">
-            {tenantName}
-          </p>
+          <div className="mb-2 flex items-center gap-4">
+            {tenantLogo && (
+              // eslint-disable-next-line @next/next/no-img-element -- data-URL guardada em Definições
+              <img
+                src={tenantLogo}
+                alt=""
+                className="h-24 w-24 shrink-0 rounded-xl object-contain"
+              />
+            )}
+            <p className="truncate font-display text-lg font-bold text-[#0F1F3D]">
+              {tenantName}
+            </p>
+          </div>
         )}
         <section className="overflow-hidden rounded-3xl bg-[#0F1F3D] text-white shadow-[0_12px_32px_rgba(15,31,61,0.25)]">
           <div className="flex items-center gap-3 px-6 py-5">
