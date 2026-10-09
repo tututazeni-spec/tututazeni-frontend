@@ -49,9 +49,9 @@ const ALERT_ICON = {
   info: Info,
 } as const;
 const ALERT_CLASS = {
-  warning: 'bg-warning-subtle text-warning-ink',
-  danger: 'bg-danger-subtle text-danger-ink',
-  info: 'bg-info-subtle text-info-ink',
+  warning: 'bg-warning-subtle text-black',
+  danger: 'bg-danger-subtle text-black',
+  info: 'bg-info-subtle text-black',
 } as const;
 
 /** Cores das barras, alinhadas com os tons dos cards (azul, verde, dourado, vermelho). */
@@ -362,7 +362,7 @@ export function AdminDashboardView({
           tone="blue"
           icon={<BookOpen className="h-6 w-6" />}
         />
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
           <GaugeChart
             value={rates.avgCompletionRate}
             label="Taxa de Conclusão"
@@ -370,7 +370,7 @@ export function AdminDashboardView({
             size={110}
           />
         </div>
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
           <GaugeChart
             value={rates.avgPassRate}
             label="Taxa de Aprovação"
