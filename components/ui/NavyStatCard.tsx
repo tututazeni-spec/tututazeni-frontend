@@ -1,7 +1,7 @@
 // components/ui/NavyStatCard.tsx
 // Card de estatística "cabeçalho azul-marinho + ícone circular sobreposto +
 // número centralizado" (docs/prompt_claude_code_cards_estatisticas.md).
-// Sem hover/escala: o card mantém-se estável.
+// Hover: zoom subtil (escala 1.06), desactivado com prefers-reduced-motion.
 
 import type { LucideIcon } from 'lucide-react';
 
@@ -34,7 +34,7 @@ export function NavyStatCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="relative h-[155px] overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)]">
+    <div className="relative h-[155px] overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
       <div className="flex h-[60px] items-center bg-[#152F59] pl-[86px] pr-3">
         <h3 className="line-clamp-2 font-body text-[15px] font-semibold leading-tight text-white">
           {label}
