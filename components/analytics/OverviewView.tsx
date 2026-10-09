@@ -1,11 +1,8 @@
 // components/analytics/OverviewView.tsx
 // Separador "Visão geral" — KPIs organizacionais. Dados próprios +
 // apresentação. Extraído de app/(platform)/analytics/page.tsx.
-// Migrado para a fundação de design: os 4 KPIs principais passam a
-// components/ui/KpiCard (icon+intent); os pares agrupados (Cursos/
-// Matrículas/Gamificação) usam o padrão de "tile" plano já estabelecido
-// em components/micro-learning/DashboardView.tsx, mais leve do que
-// aninhar KpiCard dentro de Card.
+// Todos os KPIs usam o NavyStatCard; os pares agrupados (Cursos/
+// Matrículas/Gamificação) ficam sob um título de grupo.
 
 'use client';
 
@@ -20,119 +17,26 @@ import {
   CheckCircle2,
   ClipboardList,
   TrendingUp,
+  Zap,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import type { OrgOverview } from './types';
 
-type Tone = 'blue' | 'green' | 'gold';
-
-interface ToneStyle {
-  header: string;
-  title: string;
-  iconBg: string;
-  iconText: string;
-  track: string;
-  fill: string;
-  number: string;
-}
-
-const TONES: { [K in Tone]: ToneStyle } = {
-  blue: {
-    header: 'bg-[#2B6CC4]',
-    title: 'text-white/80',
-    iconBg: 'bg-[#BCD0EC]',
-    iconText: 'text-[#2B6CC4]',
-    track: 'bg-[#C9D9F0]',
-    fill: 'bg-[#2B6CC4]',
-    number: 'text-[#2B6CC4]',
-  },
-  green: {
-    header: 'bg-[#2E8B3E]',
-    title: 'text-white/80',
-    iconBg: 'bg-[#B5DBB8]',
-    iconText: 'text-[#2E8B3E]',
-    track: 'bg-[#C8E4CA]',
-    fill: 'bg-[#2E8B3E]',
-    number: 'text-[#2E7D32]',
-  },
-  gold: {
-    header: 'bg-[#C9A227]',
-    title: 'text-white/80',
-    iconBg: 'bg-[#F0E0AE]',
-    iconText: 'text-[#B8912A]',
-    track: 'bg-[#EADFB8]',
-    fill: 'bg-[#B8912A]',
-    number: 'text-[#B8912A]',
-  },
-};
-
-function Tile({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string | number;
-  tone: Tone;
-}) {
-  return (
-    <div className="h-[104px] rounded-2xl border border-border bg-white p-4 shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-      <div className="mb-2 truncate font-body text-sm text-black" title={label}>
-        {label}
-      </div>
-      <div className={`font-data text-4xl font-bold ${TONES[tone].number}`}>
-        {value}
-      </div>
-    </div>
-  );
-}
-
-function SummaryCard({
+function StatGroup({
   title,
-  tone,
-  icon,
-  caption,
-  progress = 0,
   children,
 }: {
   title: string;
-  tone: Tone;
-  icon: React.ReactNode;
-  caption: string | number;
-  progress?: number;
   children: React.ReactNode;
 }) {
-  const t = TONES[tone];
-  const width = Math.max(8, Math.min(100, progress));
-
   return (
-    <div>
-      <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
-        <div
-          className={`px-4 py-2.5 font-body text-base font-semibold uppercase tracking-wide ${t.header} ${t.title}`}
-        >
-          {title}
-        </div>
-        <div className="p-4">
-          <div
-            className={`flex h-10 w-10 items-center justify-center rounded-full ${t.iconBg} ${t.iconText}`}
-          >
-            {icon}
-          </div>
-          <div className="mt-2 font-body text-sm text-black">{caption}</div>
-          <div
-            className={`mt-1 h-1.5 w-full overflow-hidden rounded-full ${t.track}`}
-          >
-            <div
-              className={`h-full rounded-full ${t.fill}`}
-              style={{ width: `${width}%` }}
-            />
-          </div>
-        </div>
-      </div>
-      <div className="mt-3 grid grid-cols-2 gap-4">{children}</div>
-    </div>
+    <section>
+      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-[#152F59]">
+        {title}
+      </h3>
+      <div className="grid grid-cols-2 gap-4">{children}</div>
+    </section>
   );
 }
 
@@ -176,59 +80,51 @@ export function OverviewView() {
       </div>
 
       {/* Segunda linha */}
-      <div className="grid grid-cols-3 gap-4">
-        <SummaryCard
-          title="Cursos"
-          tone="blue"
-          icon={<BookOpen className="h-6 w-6" />}
-          caption="Total"
-          progress={
-            data.courses.total > 0
-              ? (data.courses.published / data.courses.total) * 100
-              : 0
-          }
-        >
-          <Tile label="Total" value={data.courses.total} tone="blue" />
-          <Tile label="Publicados" value={data.courses.published} tone="blue" />
-        </SummaryCard>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <StatGroup title="Cursos">
+          <NavyStatCard
+            icon={BookOpen}
+            label="Total"
+            value={data.courses.total}
+            tone="blue"
+          />
+          <NavyStatCard
+            icon={CheckCircle2}
+            label="Publicados"
+            value={data.courses.published}
+            tone="green"
+          />
+        </StatGroup>
 
-        <SummaryCard
-          title="Matrículas"
-          tone="green"
-          icon={<FileBadge className="h-6 w-6" />}
-          caption={`${data.enrollments.completionRate}%`}
-          progress={data.enrollments.completionRate}
-        >
-          <Tile
+        <StatGroup title="Matrículas">
+          <NavyStatCard
+            icon={FileBadge}
             label="Concluídas"
             value={data.enrollments.completed}
             tone="green"
           />
-          <Tile
+          <NavyStatCard
+            icon={ClipboardList}
             label="Adopção de PDI"
             value={`${data.pdi.adoptionRate}%`}
-            tone="green"
+            tone="orange"
           />
-        </SummaryCard>
+        </StatGroup>
 
-        <SummaryCard
-          title="Gamificação"
-          tone="gold"
-          icon={<Award className="h-6 w-6" />}
-          caption={data.engagement.totalBadges}
-          progress={0}
-        >
-          <Tile
+        <StatGroup title="Gamificação">
+          <NavyStatCard
+            icon={Zap}
             label="Pontos de Experiência"
             value={data.engagement.totalXp}
-            tone="gold"
+            tone="orange"
           />
-          <Tile
+          <NavyStatCard
+            icon={Award}
             label="Distintivos"
             value={data.engagement.totalBadges}
-            tone="gold"
+            tone="blue"
           />
-        </SummaryCard>
+        </StatGroup>
       </div>
     </div>
   );
