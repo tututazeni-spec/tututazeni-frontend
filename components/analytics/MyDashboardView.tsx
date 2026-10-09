@@ -240,12 +240,23 @@ export function MyDashboardView() {
                       {c.name}
                     </div>
                     <div className="flex-1">
-                      <ProgressBar
-                        value={Math.round((c.currentLevel / 5) * 100)}
-                      />
+                      <div
+                        role="progressbar"
+                        aria-valuenow={Math.round((c.currentLevel / 5) * 100)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        className="h-1.5 w-full rounded-pill bg-surface-sunken"
+                      >
+                        <div
+                          className="h-full rounded-pill bg-[#0F1F3D] transition-[width] duration-300"
+                          style={{
+                            width: `${Math.round((c.currentLevel / 5) * 100)}%`,
+                          }}
+                        />
+                      </div>
                     </div>
                     <div
-                      className={`text-xs font-data flex-shrink-0 ${behind ? 'text-warning' : 'text-success'}`}
+                      className={`text-xs font-data flex-shrink-0 ${behind ? 'text-black' : 'text-success'}`}
                     >
                       {c.currentLevel}/5
                     </div>
