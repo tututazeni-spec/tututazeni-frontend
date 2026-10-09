@@ -143,7 +143,7 @@ describe('AdminDashboardView — cobre docs/06-modulo-courses.md "Dashboard Admi
     ).toBeInTheDocument();
   });
 
-  test('mostra distribuições por categoria/nível/unidade/departamento/instrutor/competências', () => {
+  test('não mostra distribuições nem rankings de taxa de conclusão', () => {
     render(
       <AdminDashboardView
         onSelect={noop}
@@ -151,12 +151,12 @@ describe('AdminDashboardView — cobre docs/06-modulo-courses.md "Dashboard Admi
         onCreateCourse={noop}
       />,
     );
-    expect(screen.getByText('Por categoria')).toBeInTheDocument();
-    expect(screen.getByText('Por departamento')).toBeInTheDocument();
-    expect(screen.getByText('Por instrutor')).toBeInTheDocument();
+    expect(screen.queryByText('Por categoria')).not.toBeInTheDocument();
+    expect(screen.queryByText('Por departamento')).not.toBeInTheDocument();
+    expect(screen.queryByText('Por instrutor')).not.toBeInTheDocument();
     expect(
-      screen.getByText('Competências mais desenvolvidas'),
-    ).toBeInTheDocument();
+      screen.queryByText('Competências mais desenvolvidas'),
+    ).not.toBeInTheDocument();
   });
 
   test('atalho "Criar curso" chama onCreateCourse', () => {

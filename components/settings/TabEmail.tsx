@@ -17,7 +17,11 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
-import type { EmailSettingsView, EmailTemplateKey, EmailTestResult } from './types';
+import type {
+  EmailSettingsView,
+  EmailTemplateKey,
+  EmailTestResult,
+} from './types';
 
 const TEMPLATE_LABELS: Record<EmailTemplateKey, string> = {
   PASSWORD_RESET: 'Recuperação de password',
@@ -37,7 +41,12 @@ function Toggle({
 }) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
       {label}
     </label>
   );
@@ -53,8 +62,11 @@ export function TabEmail() {
   const [smtp, setSmtp] = useState<EmailSettingsView['smtp'] | null>(null);
   const [smtpPassword, setSmtpPassword] = useState('');
   const [signature, setSignature] = useState('');
-  const [templates, setTemplates] = useState<EmailSettingsView['templates'] | null>(null);
-  const [activeKey, setActiveKey] = useState<EmailTemplateKey>('PASSWORD_RESET');
+  const [templates, setTemplates] = useState<
+    EmailSettingsView['templates'] | null
+  >(null);
+  const [activeKey, setActiveKey] =
+    useState<EmailTemplateKey>('PASSWORD_RESET');
   const [testTo, setTestTo] = useState('');
 
   useEffect(() => {
@@ -66,7 +78,8 @@ export function TabEmail() {
   }, [data]);
 
   const save = useApiMutation(
-    (payload: Record<string, unknown>) => apiClient.put('/settings/email', payload),
+    (payload: Record<string, unknown>) =>
+      apiClient.put('/settings/email', payload),
     {
       invalidateKeys: [queryKeys.settings.emailSettings()],
       onSuccess: () => {
@@ -78,12 +91,19 @@ export function TabEmail() {
   );
 
   const test = useApiMutation(
-    () => apiClient.post<EmailTestResult>('/settings/email/test', { key: activeKey, ...(testTo && { to: testTo }) }),
+    () =>
+      apiClient.post<EmailTestResult>('/settings/email/test', {
+        key: activeKey,
+        ...(testTo && { to: testTo }),
+      }),
     {
       onSuccess: (r) =>
         toast(
           r.ok
-            ? { title: `Email de teste enviado para ${r.to}`, intent: 'success' }
+            ? {
+                title: `Email de teste enviado para ${r.to}`,
+                intent: 'success',
+              }
             : { title: r.error ?? 'Falha no envio', intent: 'danger' },
         ),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
@@ -91,8 +111,13 @@ export function TabEmail() {
   );
 
   if (isLoading || !smtp || !templates)
-    return <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>;
-  if (error) return <p className="py-10 text-center text-sm text-danger">{error.message}</p>;
+    return (
+      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
+    );
+  if (error)
+    return (
+      <p className="py-10 text-center text-sm text-danger">{error.message}</p>
+    );
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -110,16 +135,20 @@ export function TabEmail() {
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Servidor (SMTP)
+        </div>
         <CardBody>
-          <h3 className="mb-4 text-base font-bold text-ink">Servidor (SMTP)</h3>
           <div className="grid grid-cols-2 gap-4">
             <FormField label="Servidor" htmlFor="email-smtp-host">
               <Input
                 id="email-smtp-host"
                 className="w-full"
                 value={smtp.host}
-                onChange={(e) => setSmtp((s) => (s ? { ...s, host: e.target.value } : s))}
+                onChange={(e) =>
+                  setSmtp((s) => (s ? { ...s, host: e.target.value } : s))
+                }
                 placeholder="smtp.empresa.ao"
               />
             </FormField>
@@ -131,7 +160,11 @@ export function TabEmail() {
                 max={65535}
                 className="w-full"
                 value={smtp.port}
-                onChange={(e) => setSmtp((s) => (s ? { ...s, port: Number(e.target.value) } : s))}
+                onChange={(e) =>
+                  setSmtp((s) =>
+                    s ? { ...s, port: Number(e.target.value) } : s,
+                  )
+                }
               />
             </FormField>
             <FormField label="Utilizador" htmlFor="email-smtp-user">
@@ -139,13 +172,19 @@ export function TabEmail() {
                 id="email-smtp-user"
                 className="w-full"
                 value={smtp.user}
-                onChange={(e) => setSmtp((s) => (s ? { ...s, user: e.target.value } : s))}
+                onChange={(e) =>
+                  setSmtp((s) => (s ? { ...s, user: e.target.value } : s))
+                }
               />
             </FormField>
             <FormField
               label="Palavra-passe"
               htmlFor="email-smtp-password"
-              hint={smtp.hasPassword ? 'Já configurada — deixe em branco para manter' : undefined}
+              hint={
+                smtp.hasPassword
+                  ? 'Já configurada — deixe em branco para manter'
+                  : undefined
+              }
             >
               <Input
                 id="email-smtp-password"
@@ -156,12 +195,18 @@ export function TabEmail() {
                 placeholder="••••••••"
               />
             </FormField>
-            <FormField label="Remetente" htmlFor="email-smtp-from" hint="ex.: INNOVA <noreply@empresa.ao>">
+            <FormField
+              label="Remetente"
+              htmlFor="email-smtp-from"
+              hint="ex.: INNOVA <noreply@empresa.ao>"
+            >
               <Input
                 id="email-smtp-from"
                 className="w-full"
                 value={smtp.from}
-                onChange={(e) => setSmtp((s) => (s ? { ...s, from: e.target.value } : s))}
+                onChange={(e) =>
+                  setSmtp((s) => (s ? { ...s, from: e.target.value } : s))
+                }
               />
             </FormField>
             <div className="flex items-end">
@@ -176,10 +221,15 @@ export function TabEmail() {
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Assinatura
+        </div>
         <CardBody>
-          <h3 className="mb-4 text-base font-bold text-ink">Assinatura</h3>
-          <FormField label="Acrescentada ao fim de todos os emails transaccionais" htmlFor="email-signature">
+          <FormField
+            label="Acrescentada ao fim de todos os emails transaccionais"
+            htmlFor="email-signature"
+          >
             <Textarea
               id="email-signature"
               className="w-full"
@@ -191,20 +241,26 @@ export function TabEmail() {
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Templates
+        </div>
         <CardBody>
-          <h3 className="mb-4 text-base font-bold text-ink">Templates</h3>
           <FormField label="Template" htmlFor="email-template-key">
             <Select
               className="w-full"
-              items={(data?.templateKeys ?? []).map((k) => ({ value: k, label: TEMPLATE_LABELS[k] }))}
+              items={(data?.templateKeys ?? []).map((k) => ({
+                value: k,
+                label: TEMPLATE_LABELS[k],
+              }))}
               value={activeKey}
               onValueChange={(v) => setActiveKey(v as EmailTemplateKey)}
             />
           </FormField>
           {placeholders.length > 0 && (
             <p className="mt-2 text-xs text-ink-faint">
-              Placeholders disponíveis: {placeholders.map((p) => `{{${p}}}`).join(', ')}
+              Placeholders disponíveis:{' '}
+              {placeholders.map((p) => `{{${p}}}`).join(', ')}
             </p>
           )}
           <div className="mt-4 space-y-4">
@@ -215,7 +271,15 @@ export function TabEmail() {
                 value={draft.subject}
                 onChange={(e) =>
                   setTemplates((t) =>
-                    t ? { ...t, [activeKey]: { ...t[activeKey], subject: e.target.value } } : t,
+                    t
+                      ? {
+                          ...t,
+                          [activeKey]: {
+                            ...t[activeKey],
+                            subject: e.target.value,
+                          },
+                        }
+                      : t,
                   )
                 }
               />
@@ -228,7 +292,15 @@ export function TabEmail() {
                 value={draft.body}
                 onChange={(e) =>
                   setTemplates((t) =>
-                    t ? { ...t, [activeKey]: { ...t[activeKey], body: e.target.value } } : t,
+                    t
+                      ? {
+                          ...t,
+                          [activeKey]: {
+                            ...t[activeKey],
+                            body: e.target.value,
+                          },
+                        }
+                      : t,
                   )
                 }
               />
@@ -236,7 +308,10 @@ export function TabEmail() {
           </div>
           <div className="mt-4 flex items-end gap-2">
             <div className="flex-1">
-              <FormField label="Enviar teste para" htmlFor="email-template-test-to">
+              <FormField
+                label="Enviar teste para"
+                htmlFor="email-template-test-to"
+              >
                 <Input
                   id="email-template-test-to"
                   type="email"
@@ -247,7 +322,12 @@ export function TabEmail() {
                 />
               </FormField>
             </div>
-            <Button type="button" intent="secondary" disabled={test.isPending} onClick={() => test.mutate(undefined)}>
+            <Button
+              type="button"
+              intent="secondary"
+              disabled={test.isPending}
+              onClick={() => test.mutate(undefined)}
+            >
               {test.isPending ? 'A enviar…' : 'Testar este template'}
             </Button>
           </div>

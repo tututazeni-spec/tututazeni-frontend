@@ -16,6 +16,15 @@ const BAR_COLORS = [
   'bg-cyan-500',
 ] as const;
 
+/** Cabeçalho dos cards: #0F1F3D a 60% de opacidade, sangrando até às margens do card. */
+function CardHeader({ title }: { title: string }) {
+  return (
+    <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D]/60 px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-white">
+      {title}
+    </div>
+  );
+}
+
 interface BarRow {
   key: string | number;
   label: string;
@@ -76,9 +85,7 @@ function BarCard({
 }) {
   return (
     <Card className="p-4">
-      <div className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
-        {title}
-      </div>
+      <CardHeader title={title} />
       {rows.length === 0 ? (
         <p className="text-xs text-ink-faint">Sem dados</p>
       ) : (
@@ -130,9 +137,7 @@ export function CourseProgressList({
   const barClass = tone === 'green' ? 'bg-emerald-500' : 'bg-rose-500';
   return (
     <Card className="p-4">
-      <div className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
-        {title}
-      </div>
+      <CardHeader title={title} />
       {items.length === 0 ? (
         <p className="text-xs text-ink-faint">Sem dados</p>
       ) : (

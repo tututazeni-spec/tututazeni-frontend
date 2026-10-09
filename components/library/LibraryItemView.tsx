@@ -138,11 +138,11 @@ export function LibraryItemView({
       </Card>
 
       {item.description && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Descrição
+          </div>
           <CardBody>
-            <h2 className="mb-2 font-body text-xs font-semibold uppercase text-ink-muted">
-              Descrição
-            </h2>
             <p className="whitespace-pre-line font-body text-sm text-ink">
               {item.description}
             </p>

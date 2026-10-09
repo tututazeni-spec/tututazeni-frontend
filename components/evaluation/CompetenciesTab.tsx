@@ -9,7 +9,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Gauge, Sigma } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -18,6 +18,7 @@ import { MGMT_ROLES } from '@/lib/roles';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
@@ -87,31 +88,25 @@ export function CompetenciesTab() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-3 gap-3">
-            <Card>
-              <CardBody className="text-center">
-                <p className="text-xs text-ink-faint">Prontidão</p>
-                <p className="text-2xl font-display font-bold text-ink">
-                  {data!.readinessPercent}%
-                </p>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody className="text-center">
-                <p className="text-xs text-ink-faint">Gaps obrigatórios</p>
-                <p className="text-2xl font-display font-bold text-danger-ink">
-                  {data!.mandatoryGaps}
-                </p>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody className="text-center">
-                <p className="text-xs text-ink-faint">Gap total</p>
-                <p className="text-2xl font-display font-bold text-ink">
-                  {data!.totalGap}
-                </p>
-              </CardBody>
-            </Card>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <NavyStatCard
+              icon={Gauge}
+              label="Prontidão"
+              value={`${data!.readinessPercent}%`}
+              tone="blue"
+            />
+            <NavyStatCard
+              icon={AlertTriangle}
+              label="Gaps obrigatórios"
+              value={data!.mandatoryGaps}
+              tone="red"
+            />
+            <NavyStatCard
+              icon={Sigma}
+              label="Gap total"
+              value={data!.totalGap}
+              tone="orange"
+            />
           </div>
 
           <div className="space-y-2">

@@ -19,7 +19,11 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
-import type { CertificateSettings, CertificateTemplate, CertificateTemplateType } from './types';
+import type {
+  CertificateSettings,
+  CertificateTemplate,
+  CertificateTemplateType,
+} from './types';
 
 const TEMPLATE_TYPES: { value: CertificateTemplateType; label: string }[] = [
   { value: 'COURSE', label: 'Curso' },
@@ -93,10 +97,15 @@ export function TabCertificados() {
   }, [data]);
 
   const save = useApiMutation(
-    (payload: Partial<CertificateSettings>) => apiClient.put('/settings/certificates', payload),
+    (payload: Partial<CertificateSettings>) =>
+      apiClient.put('/settings/certificates', payload),
     {
       invalidateKeys: [queryKeys.settings.certificates()],
-      onSuccess: () => toast({ title: 'Definições de certificados guardadas', intent: 'success' }),
+      onSuccess: () =>
+        toast({
+          title: 'Definições de certificados guardadas',
+          intent: 'success',
+        }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
@@ -105,7 +114,8 @@ export function TabCertificados() {
   const [draft, setDraft] = useState<TemplateDraft | null>(null);
 
   const createTemplate = useApiMutation(
-    (payload: Record<string, unknown>) => apiClient.post('/settings/certificates/templates', payload),
+    (payload: Record<string, unknown>) =>
+      apiClient.post('/settings/certificates/templates', payload),
     {
       invalidateKeys: [queryKeys.settings.certificateTemplates()],
       onSuccess: () => {
@@ -137,17 +147,27 @@ export function TabCertificados() {
     },
   );
   const setDefault = useApiMutation(
-    (id: string) => apiClient.post(`/settings/certificates/templates/${id}/default`),
+    (id: string) =>
+      apiClient.post(`/settings/certificates/templates/${id}/default`),
     {
       invalidateKeys: [queryKeys.settings.certificateTemplates()],
-      onSuccess: () => toast({ title: 'Template definido como predefinido', intent: 'success' }),
+      onSuccess: () =>
+        toast({
+          title: 'Template definido como predefinido',
+          intent: 'success',
+        }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
 
   if (isLoading || !form)
-    return <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>;
-  if (error) return <p className="py-10 text-center text-sm text-danger">{error.message}</p>;
+    return (
+      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
+    );
+  if (error)
+    return (
+      <p className="py-10 text-center text-sm text-danger">{error.message}</p>
+    );
 
   const set = (patch: Partial<CertificateSettings>) =>
     setForm((f) => (f ? { ...f, ...patch } : f));
@@ -231,35 +251,57 @@ export function TabCertificados() {
   return (
     <div className="space-y-4">
       <form onSubmit={submit} className="grid grid-cols-2 gap-4">
-        <Card className="col-span-2">
+        <Card className="col-span-2 overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Identidade dos certificados
+          </div>
           <CardBody>
-            <h3 className="mb-4 text-base font-bold text-ink">Identidade dos certificados</h3>
             <div className="grid grid-cols-2 gap-4">
-              <FormField label="Logo da academia" htmlFor="academyLogoUrl" hint="Substitui o logo de cada template. PNG/SVG, máx. 512 KB">
+              <FormField
+                label="Logo da academia"
+                htmlFor="academyLogoUrl"
+                hint="Substitui o logo de cada template. PNG/SVG, máx. 512 KB"
+              >
                 <div className="flex items-center gap-3">
                   {form.academyLogoUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={form.academyLogoUrl} alt="Logo" className="h-10 w-auto" />
+                    <img
+                      src={form.academyLogoUrl}
+                      alt="Logo"
+                      className="h-10 w-auto"
+                    />
                   )}
                   <input
                     id="academyLogoUrl"
                     type="file"
                     accept="image/*"
-                    onChange={(e) => pickImage('academyLogoUrl', e.target.files?.[0])}
+                    onChange={(e) =>
+                      pickImage('academyLogoUrl', e.target.files?.[0])
+                    }
                   />
                 </div>
               </FormField>
-              <FormField label="Assinatura electrónica" htmlFor="signatureUrl" hint="Aplicada a todos os certificados. PNG, máx. 512 KB">
+              <FormField
+                label="Assinatura electrónica"
+                htmlFor="signatureUrl"
+                hint="Aplicada a todos os certificados. PNG, máx. 512 KB"
+              >
                 <div className="flex items-center gap-3">
                   {form.signatureUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={form.signatureUrl} alt="Assinatura" className="h-10 w-auto" />
+                    <img
+                      src={form.signatureUrl}
+                      alt="Assinatura"
+                      className="h-10 w-auto"
+                    />
                   )}
                   <input
                     id="signatureUrl"
                     type="file"
                     accept="image/*"
-                    onChange={(e) => pickImage('signatureUrl', e.target.files?.[0])}
+                    onChange={(e) =>
+                      pickImage('signatureUrl', e.target.files?.[0])
+                    }
                   />
                 </div>
               </FormField>
@@ -281,7 +323,11 @@ export function TabCertificados() {
               </FormField>
             </div>
             <div className="mt-4">
-              <FormField label="Texto padrão" htmlFor="defaultText" hint="Acrescentado a todos os certificados emitidos">
+              <FormField
+                label="Texto padrão"
+                htmlFor="defaultText"
+                hint="Acrescentado a todos os certificados emitidos"
+              >
                 <Textarea
                   id="defaultText"
                   className="w-full"
@@ -294,11 +340,16 @@ export function TabCertificados() {
           </CardBody>
         </Card>
 
-        <Card className="col-span-2">
+        <Card className="col-span-2 overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Numeração e verificação
+          </div>
           <CardBody>
-            <h3 className="mb-1 text-base font-bold text-ink">Numeração e verificação</h3>
             <p className="mb-4 text-xs text-ink-faint">
-              Próximo número: <span className="font-mono font-semibold text-ink">{form.nextNumberPreview}</span>
+              Próximo número:{' '}
+              <span className="font-mono font-semibold text-ink">
+                {form.nextNumberPreview}
+              </span>
             </p>
             <div className="grid grid-cols-4 gap-4">
               <FormField label="Prefixo" htmlFor="numberingPrefix">
@@ -309,14 +360,19 @@ export function TabCertificados() {
                   onChange={(e) => set({ numberingPrefix: e.target.value })}
                 />
               </FormField>
-              <FormField label="Próximo nº de sequência" htmlFor="numberingNextSeq">
+              <FormField
+                label="Próximo nº de sequência"
+                htmlFor="numberingNextSeq"
+              >
                 <Input
                   id="numberingNextSeq"
                   type="number"
                   min={1}
                   className="w-full"
                   value={form.numberingNextSeq}
-                  onChange={(e) => set({ numberingNextSeq: Number(e.target.value) })}
+                  onChange={(e) =>
+                    set({ numberingNextSeq: Number(e.target.value) })
+                  }
                 />
               </FormField>
               <FormField label="Zeros à esquerda" htmlFor="numberingPadding">
@@ -327,10 +383,15 @@ export function TabCertificados() {
                   max={10}
                   className="w-full"
                   value={form.numberingPadding}
-                  onChange={(e) => set({ numberingPadding: Number(e.target.value) })}
+                  onChange={(e) =>
+                    set({ numberingPadding: Number(e.target.value) })
+                  }
                 />
               </FormField>
-              <FormField label="Tamanho do código de verificação" htmlFor="verificationCodeLength">
+              <FormField
+                label="Tamanho do código de verificação"
+                htmlFor="verificationCodeLength"
+              >
                 <Input
                   id="verificationCodeLength"
                   type="number"
@@ -338,7 +399,9 @@ export function TabCertificados() {
                   max={32}
                   className="w-full"
                   value={form.verificationCodeLength}
-                  onChange={(e) => set({ verificationCodeLength: Number(e.target.value) })}
+                  onChange={(e) =>
+                    set({ verificationCodeLength: Number(e.target.value) })
+                  }
                 />
               </FormField>
             </div>
@@ -355,7 +418,9 @@ export function TabCertificados() {
       <Card>
         <CardBody>
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">Biblioteca de templates</h3>
+            <h3 className="text-base font-bold text-ink">
+              Biblioteca de templates
+            </h3>
             <Button type="button" onClick={openCreate}>
               Novo template
             </Button>
@@ -363,7 +428,9 @@ export function TabCertificados() {
           {templates.isLoading ? (
             <p className="text-sm text-ink-faint">A carregar…</p>
           ) : !list.length ? (
-            <p className="py-6 text-center text-sm text-ink-faint">Nenhum template criado.</p>
+            <p className="py-6 text-center text-sm text-ink-faint">
+              Nenhum template criado.
+            </p>
           ) : (
             <table className="w-full text-sm">
               <thead>
@@ -381,19 +448,27 @@ export function TabCertificados() {
                     <td className="py-2">
                       <div className="font-medium text-ink">{t.name}</div>
                       {t.description && (
-                        <div className="text-xs text-ink-faint">{t.description}</div>
+                        <div className="text-xs text-ink-faint">
+                          {t.description}
+                        </div>
                       )}
                     </td>
                     <td>{TEMPLATE_TYPE_LABELS[t.type] ?? t.type}</td>
                     <td>
                       <div className="flex gap-1">
-                        {t.isDefault && <Badge intent="info">Predefinido</Badge>}
+                        {t.isDefault && (
+                          <Badge intent="info">Predefinido</Badge>
+                        )}
                         <Badge intent={t.isActive ? 'success' : 'neutral'}>
                           {t.isActive ? 'Activo' : 'Inactivo'}
                         </Badge>
                       </div>
                     </td>
-                    <td>{t.validityDays ? `${t.validityDays} dias` : 'Sem validade'}</td>
+                    <td>
+                      {t.validityDays
+                        ? `${t.validityDays} dias`
+                        : 'Sem validade'}
+                    </td>
                     <td className="text-right">
                       <div className="flex justify-end gap-1">
                         {!t.isDefault && (
@@ -448,7 +523,9 @@ export function TabCertificados() {
                     className="w-full"
                     required
                     value={draft.name}
-                    onChange={(e) => setDraft((d) => (d ? { ...d, name: e.target.value } : d))}
+                    onChange={(e) =>
+                      setDraft((d) => (d ? { ...d, name: e.target.value } : d))
+                    }
                   />
                 </FormField>
                 <FormField label="Tipo *" htmlFor="tpl-type">
@@ -457,7 +534,9 @@ export function TabCertificados() {
                     items={TEMPLATE_TYPES}
                     value={draft.type}
                     onValueChange={(v) =>
-                      setDraft((d) => (d ? { ...d, type: v as CertificateTemplateType } : d))
+                      setDraft((d) =>
+                        d ? { ...d, type: v as CertificateTemplateType } : d,
+                      )
                     }
                   />
                 </FormField>
@@ -467,17 +546,27 @@ export function TabCertificados() {
                   id="tpl-description"
                   className="w-full"
                   value={draft.description}
-                  onChange={(e) => setDraft((d) => (d ? { ...d, description: e.target.value } : d))}
+                  onChange={(e) =>
+                    setDraft((d) =>
+                      d ? { ...d, description: e.target.value } : d,
+                    )
+                  }
                 />
               </FormField>
-              <FormField label="HTML *" htmlFor="tpl-html" hint="Markup do certificado (placeholders resolvidos na emissão)">
+              <FormField
+                label="HTML *"
+                htmlFor="tpl-html"
+                hint="Markup do certificado (placeholders resolvidos na emissão)"
+              >
                 <Textarea
                   id="tpl-html"
                   className="w-full font-mono text-xs"
                   rows={8}
                   required
                   value={draft.html}
-                  onChange={(e) => setDraft((d) => (d ? { ...d, html: e.target.value } : d))}
+                  onChange={(e) =>
+                    setDraft((d) => (d ? { ...d, html: e.target.value } : d))
+                  }
                 />
               </FormField>
               <FormField label="CSS" htmlFor="tpl-css">
@@ -486,31 +575,49 @@ export function TabCertificados() {
                   className="w-full font-mono text-xs"
                   rows={4}
                   value={draft.cssStyle}
-                  onChange={(e) => setDraft((d) => (d ? { ...d, cssStyle: e.target.value } : d))}
+                  onChange={(e) =>
+                    setDraft((d) =>
+                      d ? { ...d, cssStyle: e.target.value } : d,
+                    )
+                  }
                 />
               </FormField>
               <div className="grid grid-cols-2 gap-4">
-                <FormField label="Nome do signatário" htmlFor="tpl-signatoryName">
+                <FormField
+                  label="Nome do signatário"
+                  htmlFor="tpl-signatoryName"
+                >
                   <Input
                     id="tpl-signatoryName"
                     className="w-full"
                     value={draft.signatoryName}
                     onChange={(e) =>
-                      setDraft((d) => (d ? { ...d, signatoryName: e.target.value } : d))
+                      setDraft((d) =>
+                        d ? { ...d, signatoryName: e.target.value } : d,
+                      )
                     }
                   />
                 </FormField>
-                <FormField label="Cargo do signatário" htmlFor="tpl-signatoryTitle">
+                <FormField
+                  label="Cargo do signatário"
+                  htmlFor="tpl-signatoryTitle"
+                >
                   <Input
                     id="tpl-signatoryTitle"
                     className="w-full"
                     value={draft.signatoryTitle}
                     onChange={(e) =>
-                      setDraft((d) => (d ? { ...d, signatoryTitle: e.target.value } : d))
+                      setDraft((d) =>
+                        d ? { ...d, signatoryTitle: e.target.value } : d,
+                      )
                     }
                   />
                 </FormField>
-                <FormField label="Validade (dias)" htmlFor="tpl-validityDays" hint="Vazio = sem validade">
+                <FormField
+                  label="Validade (dias)"
+                  htmlFor="tpl-validityDays"
+                  hint="Vazio = sem validade"
+                >
                   <Input
                     id="tpl-validityDays"
                     type="number"
@@ -519,29 +626,41 @@ export function TabCertificados() {
                     className="w-full"
                     value={draft.validityDays}
                     onChange={(e) =>
-                      setDraft((d) => (d ? { ...d, validityDays: e.target.value } : d))
+                      setDraft((d) =>
+                        d ? { ...d, validityDays: e.target.value } : d,
+                      )
                     }
                   />
                 </FormField>
                 <div className="flex items-end gap-4">
-                  <label htmlFor="tpl-isActive" className="flex items-center gap-2 text-sm text-ink">
+                  <label
+                    htmlFor="tpl-isActive"
+                    className="flex items-center gap-2 text-sm text-ink"
+                  >
                     <input
                       id="tpl-isActive"
                       type="checkbox"
                       checked={draft.isActive}
                       onChange={(e) =>
-                        setDraft((d) => (d ? { ...d, isActive: e.target.checked } : d))
+                        setDraft((d) =>
+                          d ? { ...d, isActive: e.target.checked } : d,
+                        )
                       }
                     />
                     Activo
                   </label>
-                  <label htmlFor="tpl-isDefault" className="flex items-center gap-2 text-sm text-ink">
+                  <label
+                    htmlFor="tpl-isDefault"
+                    className="flex items-center gap-2 text-sm text-ink"
+                  >
                     <input
                       id="tpl-isDefault"
                       type="checkbox"
                       checked={draft.isDefault}
                       onChange={(e) =>
-                        setDraft((d) => (d ? { ...d, isDefault: e.target.checked } : d))
+                        setDraft((d) =>
+                          d ? { ...d, isDefault: e.target.checked } : d,
+                        )
                       }
                     />
                     Predefinido do tipo
@@ -559,7 +678,12 @@ export function TabCertificados() {
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={createTemplate.isPending || updateTemplate.isPending}>
+                <Button
+                  type="submit"
+                  disabled={
+                    createTemplate.isPending || updateTemplate.isPending
+                  }
+                >
                   {createTemplate.isPending || updateTemplate.isPending
                     ? 'A guardar…'
                     : editing

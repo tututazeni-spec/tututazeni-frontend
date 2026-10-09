@@ -138,11 +138,11 @@ export function AnalyticsTab() {
         )}
 
         {/* Plans by status */}
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Planos por Status
+          </div>
           <CardBody>
-            <h3 className="mb-4 font-display font-semibold text-ink">
-              Planos por Status
-            </h3>
             <div className="space-y-3">
               {dash?.plansByStatus.map((s) => {
                 const total = dash.plansByStatus.reduce(
@@ -167,11 +167,11 @@ export function AnalyticsTab() {
         </Card>
 
         {/* Top training needs */}
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Top Necessidades de Formação
+          </div>
           <CardBody>
-            <h3 className="mb-4 font-display font-semibold text-ink">
-              Top Necessidades de Formação
-            </h3>
             <div className="space-y-3">
               {dash?.topTrainingNeeds.map((n, i) => (
                 <div key={i} className="flex items-center gap-3">
@@ -198,11 +198,11 @@ export function AnalyticsTab() {
 
       {/* Recent completions */}
       {(dash?.recentCompletions.length ?? 0) > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Conclusões Recentes
+          </div>
           <CardBody>
-            <h3 className="mb-3 font-display font-semibold text-ink">
-              Conclusões Recentes
-            </h3>
             <div className="flex flex-wrap gap-2">
               {dash?.recentCompletions.map((c, i) => (
                 <div

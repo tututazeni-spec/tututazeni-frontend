@@ -5,12 +5,12 @@
 
 'use client';
 
-import { Bookmark, CheckCircle, RotateCcw } from 'lucide-react';
+import { Bookmark, CheckCircle, Clock, Eye, RotateCcw } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ContentCard } from './ContentCard';
@@ -49,29 +49,29 @@ export function MyProgressTab() {
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <KpiCard
+          <NavyStatCard
+            icon={Eye}
             label="Visualizações"
             value={stats.viewCount}
-            intent="info"
-            className="w-full"
+            tone="blue"
           />
-          <KpiCard
+          <NavyStatCard
+            icon={CheckCircle}
             label="Concluídos"
             value={stats.completions}
-            intent="success"
-            className="w-full"
+            tone="green"
           />
-          <KpiCard
+          <NavyStatCard
+            icon={Bookmark}
             label="Guardados"
             value={stats.bookmarkCount}
-            intent="warning"
-            className="w-full"
+            tone="orange"
           />
-          <KpiCard
+          <NavyStatCard
+            icon={Clock}
             label="Horas de aprendizagem"
             value={`${stats.totalHours}h`}
-            intent="accent"
-            className="w-full"
+            tone="red"
           />
         </div>
       )}
@@ -79,16 +79,12 @@ export function MyProgressTab() {
       {/* In progress */}
       {(progress?.data.filter((p) => p.progress > 0 && p.progress < 100)
         .length ?? 0) > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+            <RotateCcw size={16} strokeWidth={1.75} className="text-primary" />
+            Em Progresso
+          </div>
           <CardBody>
-            <h3 className="mb-3 flex items-center gap-2 font-body font-semibold text-ink">
-              <RotateCcw
-                size={16}
-                strokeWidth={1.75}
-                className="text-primary"
-              />
-              Em Progresso
-            </h3>
             <div className="space-y-2">
               {progress!.data
                 .filter((p) => p.progress > 0 && p.progress < 100)
@@ -115,16 +111,16 @@ export function MyProgressTab() {
 
       {/* Completed */}
       {(progress?.stats.completed ?? 0) > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+            <CheckCircle
+              size={16}
+              strokeWidth={1.75}
+              className="text-success"
+            />
+            Concluídos ({progress?.stats.completed})
+          </div>
           <CardBody>
-            <h3 className="mb-3 flex items-center gap-2 font-body font-semibold text-ink">
-              <CheckCircle
-                size={16}
-                strokeWidth={1.75}
-                className="text-success"
-              />
-              Concluídos ({progress?.stats.completed})
-            </h3>
             <div className="grid grid-cols-1 gap-2">
               {progress!.data
                 .filter((p) => p.progress === 100 && p.content)
@@ -143,12 +139,12 @@ export function MyProgressTab() {
 
       {/* Bookmarks */}
       {bookmarks.length > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+            <Bookmark size={16} strokeWidth={1.75} className="text-accent" />
+            Guardados ({bookmarks.length})
+          </div>
           <CardBody>
-            <h3 className="mb-3 flex items-center gap-2 font-body font-semibold text-ink">
-              <Bookmark size={16} strokeWidth={1.75} className="text-accent" />
-              Guardados ({bookmarks.length})
-            </h3>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
               {bookmarks.map((c) => (
                 <ContentCard

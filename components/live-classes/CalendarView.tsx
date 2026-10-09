@@ -108,7 +108,7 @@ export function CalendarView() {
           items={MODALITY_ITEMS}
           value={modality}
           onValueChange={setModality}
-          className="w-44"
+          className="w-56"
         />
       </div>
 

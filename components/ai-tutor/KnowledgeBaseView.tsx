@@ -18,6 +18,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -68,43 +69,36 @@ export function KnowledgeBaseView() {
       {loadingSources ? (
         <Skeleton
           rows={1}
-          wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-3"
-          itemClassName="skeleton-shimmer h-20 rounded-card"
+          wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
+          itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
         />
       ) : sources ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Card className="p-4">
-            <div className="font-display text-xl font-bold text-ink">
-              {sources.courses}
-            </div>
-            <div className="font-body text-xs text-ink-muted">
-              Cursos indexados
-            </div>
-          </Card>
-          <Card className="p-4">
-            <div className="font-display text-xl font-bold text-ink">
-              {sources.lessons}
-            </div>
-            <div className="font-body text-xs text-ink-muted">
-              Lições com conteúdo
-            </div>
-          </Card>
-          <Card className="p-4">
-            <div className="font-display text-xl font-bold text-ink">
-              {sources.libraryItems}
-            </div>
-            <div className="font-body text-xs text-ink-muted">
-              Itens da Biblioteca
-            </div>
-          </Card>
-          <Card className="p-4">
-            <div className="font-display text-xl font-bold text-ink">
-              {sources.documents}
-            </div>
-            <div className="font-body text-xs text-ink-muted">
-              Documentos internos (normas, manuais, políticas…)
-            </div>
-          </Card>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <NavyStatCard
+            icon={GraduationCap}
+            tone="blue"
+            label="Cursos indexados"
+            value={sources.courses}
+          />
+          <NavyStatCard
+            icon={BookOpen}
+            tone="blue"
+            label="Lições com conteúdo"
+            value={sources.lessons}
+          />
+          <NavyStatCard
+            icon={Library}
+            tone="orange"
+            label="Itens da Biblioteca"
+            value={sources.libraryItems}
+          />
+          <NavyStatCard
+            icon={FileText}
+            tone="green"
+            label="Documentos internos"
+            value={sources.documents}
+            sub="normas, manuais, políticas…"
+          />
         </div>
       ) : null}
 

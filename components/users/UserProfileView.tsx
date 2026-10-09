@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   Clock,
   Trophy,
+  TrendingUp,
   AlertTriangle,
 } from 'lucide-react';
 import { formatDate as fmtDate } from '@/lib/format';
@@ -26,7 +27,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import type { ProfileTab, UserAction } from '@/hooks/useUserProfile';
@@ -236,30 +237,31 @@ export function UserProfileView({
       {/* Resumo */}
       {tab === 'overview' && stats && (
         <div className="space-y-5">
-          <div className="grid grid-cols-4 gap-3">
-            <KpiCard
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <NavyStatCard
               icon={BookOpen}
+              tone="blue"
               label="Matrículas"
               value={stats.enrollments.total}
             />
-            <KpiCard
+            <NavyStatCard
               icon={CheckCircle2}
+              tone="green"
               label="Concluídos"
               value={stats.enrollments.completed}
-              intent="success"
             />
-            <KpiCard
-              icon={Clock}
+            <NavyStatCard
+              icon={TrendingUp}
+              tone="orange"
               label="Taxa conclusão"
               value={`${stats.completionRate}%`}
-              intent="info"
             />
-            <KpiCard
+            <NavyStatCard
               icon={Trophy}
+              tone="blue"
               label="Pontos"
               value={stats.gamification.points}
               sub={`${stats.gamification.badges} badges`}
-              intent="accent"
             />
           </div>
           {stats.enrollments.overdue > 0 && (

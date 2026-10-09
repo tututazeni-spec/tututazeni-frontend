@@ -15,8 +15,14 @@ import {
   AlertTriangle,
   CalendarClock,
   ChevronRight,
+  CheckCircle2,
   ClipboardCheck,
+  Clock,
   Layers,
+  Percent,
+  PlayCircle,
+  Star,
+  Users,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
@@ -27,7 +33,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { RadarChart } from './RadarChart';
@@ -40,10 +46,10 @@ import type {
 } from './types';
 
 const DIST_CONFIG = [
-  { key: 'exceptional', label: 'Excepcional', bg: 'bg-success' },
-  { key: 'above', label: 'Acima', bg: 'bg-info' },
-  { key: 'expected', label: 'Esperado', bg: 'bg-warning' },
-  { key: 'below', label: 'Abaixo', bg: 'bg-danger' },
+  { key: 'exceptional', label: 'Excepcional', bg: 'bg-[#218653]' },
+  { key: 'above', label: 'Acima', bg: 'bg-[#1877F2]' },
+  { key: 'expected', label: 'Esperado', bg: 'bg-[#E99A16]' },
+  { key: 'below', label: 'Abaixo', bg: 'bg-[#EF4657]' },
 ] as const;
 
 // docs/modulo_evaluation.md ponto 1 — bloco organizacional, visível só a
@@ -62,28 +68,42 @@ function OrganizationOverview() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-        <KpiCard label="Em curso" value={data.kpis.inProgress} intent="info" />
-        <KpiCard label="Pendentes" value={data.kpis.pending} intent="warning" />
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <NavyStatCard
+          icon={PlayCircle}
+          label="Em curso"
+          value={data.kpis.inProgress}
+          tone="blue"
+        />
+        <NavyStatCard
+          icon={Clock}
+          label="Pendentes"
+          value={data.kpis.pending}
+          tone="orange"
+        />
+        <NavyStatCard
+          icon={CheckCircle2}
           label="Concluídas"
           value={data.kpis.completed}
-          intent="success"
+          tone="green"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Percent}
           label="Taxa Conclusão"
           value={`${data.kpis.completionRate}%`}
-          intent="primary"
+          tone="blue"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Star}
           label="Média Desempenho"
           value={data.kpis.avgScore.toFixed(1)}
-          intent="accent"
+          tone="orange"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Users}
           label="Colaboradores Avaliados"
           value={data.kpis.evaluatedCount}
-          intent="primary"
+          tone="blue"
         />
       </div>
 
@@ -101,12 +121,12 @@ function OrganizationOverview() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+            <ClipboardCheck size={15} strokeWidth={1.75} /> Distribuição das
+            classificações
+          </div>
           <CardBody>
-            <h3 className="font-display text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-              <ClipboardCheck size={15} strokeWidth={1.75} /> Distribuição das
-              classificações
-            </h3>
             <div className="space-y-2">
               {DIST_CONFIG.map((d) => {
                 const count = data.distribution[d.key] ?? 0;
@@ -142,11 +162,11 @@ function OrganizationOverview() {
           </CardBody>
         </Card>
 
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+            <CalendarClock size={15} strokeWidth={1.75} /> Próximos prazos
+          </div>
           <CardBody>
-            <h3 className="font-display text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-              <CalendarClock size={15} strokeWidth={1.75} /> Próximos prazos
-            </h3>
             <div className="space-y-2">
               {data.upcomingDeadlines.slice(0, 5).map((d) => (
                 <div key={d.id} className="flex items-center gap-2 text-sm">
@@ -209,7 +229,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
-        itemClassName="skeleton-shimmer h-24 rounded-card"
+        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
       />
     );
 
@@ -219,26 +239,30 @@ export function OverviewTab({ userId }: OverviewTabProps) {
 
       {/* My completion progress */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KpiCard
+        <NavyStatCard
+          icon={CheckCircle2}
           label="Concluídas"
           value={progress?.completed ?? 0}
-          intent="success"
+          tone="green"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Clock}
           label="Pendentes"
           value={progress?.pending ?? 0}
-          intent="warning"
+          tone="orange"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Percent}
           label="Taxa Conclusão"
           value={`${progress?.completionRate ?? 0}%`}
-          intent="primary"
+          tone="blue"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Star}
           label="Pontuação Mais Recente"
           value={myResults ? myResults.finalScore.toFixed(1) : '–'}
           sub={myResults?.scoreLabel}
-          intent="accent"
+          tone="orange"
         />
       </div>
 
@@ -292,11 +316,11 @@ export function OverviewTab({ userId }: OverviewTabProps) {
 
       {/* My results radar */}
       {myResults && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Os Meus Resultados
+          </div>
           <CardBody>
-            <h3 className="font-display font-semibold text-ink mb-4">
-              Os Meus Resultados
-            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Score breakdown */}
               <div>

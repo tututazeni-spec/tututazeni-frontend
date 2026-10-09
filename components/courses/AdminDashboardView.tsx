@@ -6,10 +6,11 @@
 
 import {
   BookOpen,
-  Check,
-  FileEdit,
+  CheckCircle,
+  FileText,
   Pause,
-  Archive,
+  Trash2,
+  GraduationCap,
   Layers,
   ListChecks,
   Users,
@@ -19,9 +20,6 @@ import {
   TrendingUp,
   CheckCircle2,
   Timer,
-  AlertTriangle,
-  AlertCircle,
-  Info,
   PlusCircle,
   Settings,
   ClipboardCheck,
@@ -32,8 +30,9 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
-import { TopBarCard } from '@/components/ui/TopBarCard';
-import { GaugeChart } from '@/components/ui/charts/GaugeChart';
+import { AlertCard } from '@/components/ui/AlertCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { rateTone } from '@/components/dashboard-rh/rateTone';
 import { Skeleton, fmtDuration } from './shared';
 import type { AdminDashboard, TopLevelView } from './types';
 
@@ -43,69 +42,11 @@ interface AdminDashboardViewProps {
   onCreateCourse: () => void;
 }
 
-const ALERT_ICON = {
-  warning: AlertTriangle,
-  danger: AlertCircle,
-  info: Info,
+const ALERT_TITLE = {
+  warning: 'Atenção',
+  danger: 'Urgente',
+  info: 'Informação',
 } as const;
-const ALERT_CLASS = {
-  warning: 'bg-warning-subtle text-black',
-  danger: 'bg-danger-subtle text-black',
-  info: 'bg-info-subtle text-black',
-} as const;
-
-/** Cores das barras, alinhadas com os tons dos cards (azul, verde, dourado, vermelho). */
-const BAR_COLORS = [
-  'bg-blue-500',
-  'bg-emerald-500',
-  'bg-amber-500',
-  'bg-rose-500',
-  'bg-violet-500',
-  'bg-cyan-500',
-] as const;
-
-/** Lista de distribuição — barra horizontal proporcional ao máximo + contagem
- * sempre visível em texto (nunca só cor, ver skill dataviz "never color alone"). */
-function DistributionList({
-  title,
-  items,
-}: {
-  title: string;
-  items: Array<{ label: string; count: number }>;
-}) {
-  const max = Math.max(1, ...items.map((i) => i.count));
-  return (
-    <Card className="overflow-hidden">
-      <div className="px-4 py-3 bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
-        {title}
-      </div>
-      {items.length === 0 ? (
-        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
-      ) : (
-        <div className="space-y-2 p-4">
-          {items.slice(0, 6).map((item, i) => (
-            <div key={i}>
-              <div className="flex items-start justify-between gap-3">
-                <span className="min-w-0 break-words text-xs text-ink-muted">
-                  {item.label}
-                </span>
-                <span className="flex-shrink-0 font-data text-xs text-ink">
-                  {item.count}
-                </span>
-              </div>
-              <div className="mt-1 h-2.5 w-full overflow-hidden rounded-md bg-surface-sunken">
-                <div
-                  className={`h-full rounded-md ${BAR_COLORS[i % BAR_COLORS.length]}`}
-                  style={{ width: `${(item.count / max) * 100}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </Card>
-  );
-}
 
 function CourseRankList({
   title,
@@ -146,61 +87,6 @@ function CourseRankList({
             </div>
           </div>
         ))
-      )}
-    </Card>
-  );
-}
-
-function CourseLollipopList({
-  title,
-  items,
-  suffix,
-  onSelect,
-}: {
-  title: string;
-  items: Array<{ id: number; title: string; value: number }>;
-  suffix: string;
-  onSelect: (id: number) => void;
-}) {
-  return (
-    <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
-        {title}
-      </div>
-      {items.length === 0 ? (
-        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
-      ) : (
-        items.map((c) => {
-          const pct = Math.min(100, Math.max(0, c.value));
-          return (
-            <div
-              key={c.id}
-              className="px-4 py-2.5 border-b border-border last:border-0 cursor-pointer hover:bg-surface-sunken"
-              onClick={() => onSelect(c.id)}
-            >
-              <div className="flex items-start justify-between gap-2 mb-1.5">
-                <span className="min-w-0 break-words text-xs font-medium text-ink">
-                  {c.title}
-                </span>
-                <span className="text-xs font-data text-ink-muted flex-shrink-0">
-                  {c.value}
-                  {suffix}
-                </span>
-              </div>
-              <div className="relative h-4">
-                <div className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-border" />
-                <div
-                  className="absolute left-0 top-1/2 h-0.5 -translate-y-1/2 rounded-full bg-primary"
-                  style={{ width: `${pct}%` }}
-                />
-                <div
-                  className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-primary shadow-resting"
-                  style={{ left: `${pct}%` }}
-                />
-              </div>
-            </div>
-          );
-        })
       )}
     </Card>
   );
@@ -265,138 +151,127 @@ export function AdminDashboardView({
 
       {/* Alertas e pendências */}
       {data.alerts.length > 0 && (
-        <div className="space-y-2">
-          {data.alerts.map((a, i) => {
-            const Icon = ALERT_ICON[a.severity];
-            return (
-              <div
-                key={i}
-                className={`flex items-start gap-2 px-4 py-2.5 rounded-card text-xs font-medium ${ALERT_CLASS[a.severity]}`}
-              >
-                <Icon
-                  size={14}
-                  strokeWidth={1.75}
-                  className="mt-0.5 shrink-0"
-                />
-                {a.message}
-              </div>
-            );
-          })}
+        <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
+          {data.alerts.map((a, i) => (
+            <AlertCard
+              key={i}
+              variant={a.severity}
+              compact
+              title={ALERT_TITLE[a.severity]}
+              message={a.message}
+            />
+          ))}
         </div>
       )}
 
       {/* KPIs principais */}
       <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        <TopBarCard
+        <NavyStatCard
           label="Total de cursos"
           value={counts.total}
           tone="blue"
-          icon={<BookOpen className="h-6 w-6" />}
+          icon={BookOpen}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Publicados"
           value={counts.published}
           tone="green"
-          icon={<Check className="h-6 w-6" />}
+          icon={CheckCircle}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Rascunhos"
           value={counts.draft}
-          tone="gold"
-          icon={<FileEdit className="h-6 w-6" />}
+          tone="orange"
+          icon={FileText}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Em pausa"
           value={counts.paused}
-          tone="gold"
-          icon={<Pause className="h-6 w-6" />}
+          tone="orange"
+          icon={Pause}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Arquivados"
           value={counts.archived}
           tone="red"
-          icon={<Archive className="h-6 w-6" />}
+          icon={Trash2}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Módulos"
           value={counts.totalModules}
           tone="blue"
-          icon={<Layers className="h-6 w-6" />}
+          icon={Layers}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Lições"
           value={counts.totalLessons}
           tone="blue"
-          icon={<ListChecks className="h-6 w-6" />}
+          icon={ListChecks}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Inscritos"
           value={counts.totalEnrollments}
           tone="blue"
-          icon={<Users className="h-6 w-6" />}
+          icon={Users}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Formandos"
           value={counts.totalLearners}
           tone="blue"
-          icon={<Users className="h-6 w-6" />}
+          icon={GraduationCap}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Conclusões"
           value={counts.completions}
           tone="green"
-          icon={<CheckCircle2 className="h-6 w-6" />}
+          icon={CheckCircle2}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Inscrições pendentes"
           value={counts.pendingEnrollments}
-          tone={counts.pendingEnrollments > 0 ? 'gold' : 'blue'}
-          icon={<Clock className="h-6 w-6" />}
+          tone={counts.pendingEnrollments > 0 ? 'orange' : 'blue'}
+          icon={Clock}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Certificados emitidos"
           value={counts.certificatesIssued}
           tone="green"
-          icon={<Award className="h-6 w-6" />}
+          icon={Award}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Obrigatórios / opcionais"
           value={`${counts.mandatoryCourses}/${counts.optionalCourses}`}
           tone="blue"
-          icon={<BookOpen className="h-6 w-6" />}
+          icon={BookOpen}
         />
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-shadow duration-200 hover:shadow-md">
-          <GaugeChart
-            value={rates.avgCompletionRate}
-            label="Taxa de Conclusão"
-            thresholds={{ warning: 50, danger: 25 }}
-            size={110}
-          />
-        </div>
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-shadow duration-200 hover:shadow-md">
-          <GaugeChart
-            value={rates.avgPassRate}
-            label="Taxa de Aprovação"
-            thresholds={{ warning: 50, danger: 25 }}
-            size={110}
-          />
-        </div>
-        <TopBarCard
+        <NavyStatCard
+          label="Taxa de Conclusão"
+          value={`${rates.avgCompletionRate}%`}
+          tone={rateTone(rates.avgCompletionRate, { warning: 50, danger: 25 })}
+          icon={TrendingUp}
+        />
+        <NavyStatCard
+          label="Taxa de Aprovação"
+          value={`${rates.avgPassRate}%`}
+          tone={rateTone(rates.avgPassRate, { warning: 50, danger: 25 })}
+          icon={CheckCircle2}
+        />
+        <NavyStatCard
           label="Nota média"
           value={rates.avgRating || '—'}
-          tone="gold"
-          icon={<Star className="h-6 w-6" />}
+          tone="orange"
+          icon={Star}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Horas de aprendizagem"
           value={fmtDuration(rates.totalLearningHours)}
           tone="blue"
-          icon={<Timer className="h-6 w-6" />}
+          icon={Timer}
         />
       </div>
 
       {/* Rankings */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <CourseRankList
           title="Cursos mais populares"
           items={data.topCourses.map((c) => ({
@@ -406,66 +281,6 @@ export function AdminDashboardView({
           }))}
           suffix=" matrículas"
           onSelect={onSelect}
-        />
-        <CourseLollipopList
-          title="Maior taxa de conclusão"
-          items={data.bestCompletion.map((c) => ({
-            id: c.id,
-            title: c.title,
-            value: c.rate,
-          }))}
-          suffix="%"
-          onSelect={onSelect}
-        />
-        <CourseLollipopList
-          title="Menor taxa de conclusão / maior abandono"
-          items={data.worstCompletion.map((c) => ({
-            id: c.id,
-            title: c.title,
-            value: c.rate,
-          }))}
-          suffix="%"
-          onSelect={onSelect}
-        />
-      </div>
-
-      {/* Distribuições */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <DistributionList
-          title="Por categoria"
-          items={data.byCategory.map((c) => ({
-            label: c.category,
-            count: c.count,
-          }))}
-        />
-        <DistributionList
-          title="Por nível"
-          items={data.byLevel.map((c) => ({ label: c.level, count: c.count }))}
-        />
-        <DistributionList
-          title="Por unidade"
-          items={data.byUnit.map((c) => ({ label: c.unit, count: c.count }))}
-        />
-        <DistributionList
-          title="Por departamento"
-          items={data.byDepartment.map((c) => ({
-            label: c.department,
-            count: c.count,
-          }))}
-        />
-        <DistributionList
-          title="Por instrutor"
-          items={data.byInstructor.map((c) => ({
-            label: c.instructor,
-            count: c.count,
-          }))}
-        />
-        <DistributionList
-          title="Competências mais desenvolvidas"
-          items={data.topCompetencies.map((c) => ({
-            label: c.name,
-            count: c.count,
-          }))}
         />
       </div>
 

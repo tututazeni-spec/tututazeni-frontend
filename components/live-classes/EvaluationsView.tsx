@@ -7,7 +7,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Star } from 'lucide-react';
+import {
+  BookOpen,
+  ClipboardCheck,
+  GraduationCap,
+  MessageSquare,
+  Star,
+  ThumbsUp,
+} from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -16,7 +23,7 @@ import { formatDateTime } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type {
   EvaluationsSummary,
@@ -58,29 +65,49 @@ export function EvaluationsView() {
   return (
     <div className="space-y-6">
       {loadingSummary || !summary ? (
-        <Skeleton rows={1} itemClassName="skeleton-shimmer h-24 rounded-card" />
+        <Skeleton
+          rows={6}
+          wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
+          itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
+        />
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <KpiCard
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <NavyStatCard
+            icon={MessageSquare}
+            tone="blue"
             label="Respostas"
             value={summary.responses}
-            intent="primary"
           />
-          <KpiCard
+          <NavyStatCard
+            icon={Star}
+            tone="orange"
             label="Avaliação da sessão"
             value={summary.avgRating ?? '—'}
-            intent="accent"
           />
-          <KpiCard
+          <NavyStatCard
+            icon={GraduationCap}
+            tone="blue"
             label="Formador"
             value={summary.avgInstructorRating ?? '—'}
           />
-          <KpiCard label="Conteúdo" value={summary.avgContentRating ?? '—'} />
-          <KpiCard
+          <NavyStatCard
+            icon={BookOpen}
+            tone="blue"
+            label="Conteúdo"
+            value={summary.avgContentRating ?? '—'}
+          />
+          <NavyStatCard
+            icon={ClipboardCheck}
+            tone="green"
             label="Organização / Aplicabilidade"
             value={summary.avgOrganizationRating ?? '—'}
           />
-          <KpiCard label="NPS" value={summary.nps ?? '—'} intent="warning" />
+          <NavyStatCard
+            icon={ThumbsUp}
+            tone="orange"
+            label="NPS"
+            value={summary.nps ?? '—'}
+          />
         </div>
       )}
 

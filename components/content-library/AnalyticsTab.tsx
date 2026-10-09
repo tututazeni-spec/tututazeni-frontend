@@ -11,13 +11,14 @@
 
 'use client';
 
+import { CheckCircle, Eye, Library, PlayCircle } from 'lucide-react';
 import { useComplianceOverview } from '@/components/documents/hooks';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { FORMAT_CLS, FORMAT_CLS_FALLBACK } from './constants';
@@ -43,39 +44,39 @@ export function AnalyticsTab() {
     <div className="space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
+        <NavyStatCard
+          icon={Library}
           label="Total de Conteúdos"
           value={data?.kpis.totalContent ?? 0}
-          intent="primary"
-          className="w-full"
+          tone="blue"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={PlayCircle}
           label="Activos"
           value={data?.kpis.activeContent ?? 0}
-          intent="success"
-          className="w-full"
+          tone="green"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Eye}
           label="Visualizações"
           value={data?.kpis.totalViews ?? 0}
-          intent="info"
-          className="w-full"
+          tone="orange"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={CheckCircle}
           label="Conclusões"
           value={data?.kpis.totalCompletions ?? 0}
-          intent="accent"
-          className="w-full"
+          tone="red"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Format breakdown */}
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Distribuição por Formato
+          </div>
           <CardBody>
-            <h3 className="mb-4 font-body font-semibold text-ink">
-              Distribuição por Formato
-            </h3>
             <div className="space-y-2">
               {(data?.formatBreakdown ?? []).map((f) => {
                 const total = (data?.formatBreakdown ?? []).reduce(
@@ -104,11 +105,11 @@ export function AnalyticsTab() {
         </Card>
 
         {/* Most viewed */}
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Mais Vistos (30 dias)
+          </div>
           <CardBody>
-            <h3 className="mb-4 font-body font-semibold text-ink">
-              Mais Vistos (30 dias)
-            </h3>
             <div className="space-y-3">
               {(data?.mostViewed ?? []).map((v, i) => (
                 <div key={i} className="flex items-center gap-3">
@@ -140,11 +141,11 @@ export function AnalyticsTab() {
 
       {/* Recently added */}
       {(data?.recentlyAdded?.length ?? 0) > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Adicionados Recentemente
+          </div>
           <CardBody>
-            <h3 className="mb-3 font-body font-semibold text-ink">
-              Adicionados Recentemente
-            </h3>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
               {(data?.recentlyAdded ?? []).map((c) => (
                 <div
@@ -171,11 +172,11 @@ export function AnalyticsTab() {
 
       {/* Compliance de leitura obrigatória — Documentos Corporativos (ADMIN/RH/DIRECTOR) */}
       {canSeeCompliance && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Compliance de Leitura Obrigatória
+          </div>
           <CardBody>
-            <h3 className="mb-4 font-body font-semibold text-ink">
-              Compliance de Leitura Obrigatória
-            </h3>
             {complianceLoading ? (
               <Skeleton rows={3} />
             ) : compliance.length === 0 ? (

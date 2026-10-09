@@ -11,7 +11,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AiTutorAnalytics } from './types';
 
@@ -26,55 +26,57 @@ export function AnalyticsView() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-3"
-        itemClassName="skeleton-shimmer h-28 rounded-card"
+        wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
+        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
       />
     );
   if (!data) return null;
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-3">
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <NavyStatCard
+          tone="blue"
           icon={Users2}
           label="Utilizadores do AI Tutor"
           value={data.utilizadoresDoAiTutor}
         />
-        <KpiCard
+        <NavyStatCard
+          tone="blue"
           icon={Percent}
           label="Taxa de utilização"
           value={`${data.taxaDeUtilizacao}%`}
-          intent="accent"
           sub="colaboradores activos que já usaram a Ísis"
         />
-        <KpiCard
+        <NavyStatCard
+          tone="blue"
           icon={Users2}
           label="Sessões por colaborador"
           value={data.sessoesPorColaborador}
-          intent="info"
         />
-        <KpiCard
+        <NavyStatCard
+          tone="orange"
           icon={Timer}
           label="Tempo médio por sessão"
           value={`${data.tempoMedioMinutos} min`}
-          intent="warning"
         />
-        <KpiCard
+        <NavyStatCard
+          tone="blue"
           icon={HelpCircle}
           label="Exercícios realizados"
           value={data.exerciciosRealizados}
         />
-        <KpiCard
+        <NavyStatCard
+          tone="green"
           icon={Percent}
           label="Recomendações aceites"
           value={data.recomendacoesAceites}
-          intent="success"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
             Perguntas por curso
           </div>
           {data.perguntasPorCurso.length === 0 ? (
@@ -99,7 +101,7 @@ export function AnalyticsView() {
         </Card>
 
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
             Perguntas sem resposta autorizada
           </div>
           <p className="px-4 pt-3 font-body text-xs text-ink-faint">

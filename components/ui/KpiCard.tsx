@@ -5,14 +5,14 @@ import { TrendingDown, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Card } from './Card';
 
-const INTENT_CLASSES = {
-  primary: 'bg-primary-subtle text-primary',
-  accent: 'bg-accent-subtle text-accent',
-  success: 'bg-success-subtle text-success-ink',
-  warning: 'bg-warning-subtle text-warning-ink',
-  danger: 'bg-danger-subtle text-danger-ink',
-  info: 'bg-info-subtle text-info-ink',
-} as const;
+const INTENTS = [
+  'primary',
+  'accent',
+  'success',
+  'warning',
+  'danger',
+  'info',
+] as const;
 
 export interface KpiCardProps {
   icon?: LucideIcon;
@@ -21,7 +21,8 @@ export interface KpiCardProps {
   sub?: string;
   /** % — positivo mostra seta a subir a verde, negativo a descer a vermelho. */
   trend?: number;
-  intent?: keyof typeof INTENT_CLASSES;
+  /** Mantido por compatibilidade: o ícone usa sempre o estilo #0F1F3D/60 branco. */
+  intent?: (typeof INTENTS)[number];
   className?: string;
 }
 
@@ -31,14 +32,13 @@ export function KpiCard({
   value,
   sub,
   trend,
-  intent = 'primary',
   className,
 }: KpiCardProps) {
   return (
     <Card className={cn('w-48 p-4', className)}>
       <div className="mb-3 flex min-h-6 items-start justify-between">
         {Icon ? (
-          <div className={cn('rounded-control p-2', INTENT_CLASSES[intent])}>
+          <div className="rounded-control bg-[#0F1F3D]/60 p-2 text-white">
             <Icon size={18} strokeWidth={1.75} />
           </div>
         ) : (

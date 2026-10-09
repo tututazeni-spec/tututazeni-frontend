@@ -17,7 +17,12 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import type { AuthSettings, AuthTestResult, OidcProviderKey, UserPolicy } from './types';
+import type {
+  AuthSettings,
+  AuthTestResult,
+  OidcProviderKey,
+  UserPolicy,
+} from './types';
 
 const PROVIDER_LABELS: Record<OidcProviderKey, string> = {
   GOOGLE: 'Google',
@@ -38,7 +43,12 @@ function Toggle({
 }) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
       {label}
     </label>
   );
@@ -52,7 +62,10 @@ export function TabAutenticacao() {
     queryKeys.settings.authSettings(),
     '/settings/auth',
   );
-  const policy = useApiQuery<UserPolicy>(queryKeys.settings.userPolicy(), '/settings/users/policy');
+  const policy = useApiQuery<UserPolicy>(
+    queryKeys.settings.userPolicy(),
+    '/settings/users/policy',
+  );
 
   const [form, setForm] = useState<AuthForm | null>(null);
   const [clientSecret, setClientSecret] = useState('');
@@ -63,40 +76,62 @@ export function TabAutenticacao() {
   }, [data]);
 
   const save = useApiMutation(
-    (payload: Record<string, unknown>) => apiClient.put('/settings/auth', payload),
+    (payload: Record<string, unknown>) =>
+      apiClient.put('/settings/auth', payload),
     {
       invalidateKeys: [queryKeys.settings.authSettings()],
       onSuccess: () => {
         setClientSecret('');
         setBindPassword('');
-        toast({ title: 'Definições de autenticação guardadas', intent: 'success' });
+        toast({
+          title: 'Definições de autenticação guardadas',
+          intent: 'success',
+        });
       },
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
 
-  const testOidc = useApiMutation(() => apiClient.post<AuthTestResult>('/settings/auth/test-oidc', {}), {
-    onSuccess: (r) =>
-      toast(
-        r.ok
-          ? { title: `Descoberta OIDC OK — ${r.issuer}`, intent: 'success' }
-          : { title: r.error ?? 'Falha na descoberta OIDC', intent: 'danger' },
-      ),
-    onError: (e) => toast({ title: e.message, intent: 'danger' }),
-  });
+  const testOidc = useApiMutation(
+    () => apiClient.post<AuthTestResult>('/settings/auth/test-oidc', {}),
+    {
+      onSuccess: (r) =>
+        toast(
+          r.ok
+            ? { title: `Descoberta OIDC OK — ${r.issuer}`, intent: 'success' }
+            : {
+                title: r.error ?? 'Falha na descoberta OIDC',
+                intent: 'danger',
+              },
+        ),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
 
-  const testLdap = useApiMutation(() => apiClient.post<AuthTestResult>('/settings/auth/test-ldap', {}), {
-    onSuccess: (r) =>
-      toast(
-        r.ok
-          ? { title: 'Ligação LDAP/AD estabelecida', intent: 'success' }
-          : { title: r.error ?? 'Falha na ligação LDAP/AD', intent: 'danger' },
-      ),
-    onError: (e) => toast({ title: e.message, intent: 'danger' }),
-  });
+  const testLdap = useApiMutation(
+    () => apiClient.post<AuthTestResult>('/settings/auth/test-ldap', {}),
+    {
+      onSuccess: (r) =>
+        toast(
+          r.ok
+            ? { title: 'Ligação LDAP/AD estabelecida', intent: 'success' }
+            : {
+                title: r.error ?? 'Falha na ligação LDAP/AD',
+                intent: 'danger',
+              },
+        ),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
 
-  if (isLoading || !form) return <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>;
-  if (error) return <p className="py-10 text-center text-sm text-danger">{error.message}</p>;
+  if (isLoading || !form)
+    return (
+      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
+    );
+  if (error)
+    return (
+      <p className="py-10 text-center text-sm text-danger">{error.message}</p>
+    );
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -111,7 +146,11 @@ export function TabAutenticacao() {
     });
   }
 
-  const providerOptions = data?.oidcProviderOptions.map((p) => ({ value: p, label: PROVIDER_LABELS[p] })) ?? [];
+  const providerOptions =
+    data?.oidcProviderOptions.map((p) => ({
+      value: p,
+      label: PROVIDER_LABELS[p],
+    })) ?? [];
 
   return (
     <form onSubmit={submit} className="space-y-4">
@@ -128,7 +167,9 @@ export function TabAutenticacao() {
               id="sso-enabled"
               label="Activar login único"
               checked={form.ssoEnabled}
-              onChange={(v) => setForm((f) => (f ? { ...f, ssoEnabled: v } : f))}
+              onChange={(v) =>
+                setForm((f) => (f ? { ...f, ssoEnabled: v } : f))
+              }
             />
             <FormField label="Fornecedor" htmlFor="sso-provider">
               <Select
@@ -136,7 +177,9 @@ export function TabAutenticacao() {
                 items={providerOptions}
                 value={form.ssoProvider ?? undefined}
                 onValueChange={(v) =>
-                  setForm((f) => (f ? { ...f, ssoProvider: v as OidcProviderKey } : f))
+                  setForm((f) =>
+                    f ? { ...f, ssoProvider: v as OidcProviderKey } : f,
+                  )
                 }
                 placeholder="Escolher fornecedor…"
               />
@@ -148,14 +191,25 @@ export function TabAutenticacao() {
                   className="w-full"
                   value={form.oidc.clientId}
                   onChange={(e) =>
-                    setForm((f) => (f ? { ...f, oidc: { ...f.oidc, clientId: e.target.value } } : f))
+                    setForm((f) =>
+                      f
+                        ? {
+                            ...f,
+                            oidc: { ...f.oidc, clientId: e.target.value },
+                          }
+                        : f,
+                    )
                   }
                 />
               </FormField>
               <FormField
                 label="Client Secret"
                 htmlFor="oidc-client-secret"
-                hint={form.oidc.hasClientSecret ? 'Já configurado — deixe em branco para manter' : undefined}
+                hint={
+                  form.oidc.hasClientSecret
+                    ? 'Já configurado — deixe em branco para manter'
+                    : undefined
+                }
               >
                 <Input
                   id="oidc-client-secret"
@@ -167,25 +221,47 @@ export function TabAutenticacao() {
                 />
               </FormField>
               {form.ssoProvider === 'MICROSOFT' && (
-                <FormField label="Tenant do Azure AD" htmlFor="oidc-tenant" hint='"common" = qualquer conta'>
+                <FormField
+                  label="Tenant do Azure AD"
+                  htmlFor="oidc-tenant"
+                  hint='"common" = qualquer conta'
+                >
                   <Input
                     id="oidc-tenant"
                     className="w-full"
                     value={form.oidc.tenantId}
                     onChange={(e) =>
-                      setForm((f) => (f ? { ...f, oidc: { ...f.oidc, tenantId: e.target.value } } : f))
+                      setForm((f) =>
+                        f
+                          ? {
+                              ...f,
+                              oidc: { ...f.oidc, tenantId: e.target.value },
+                            }
+                          : f,
+                      )
                     }
                   />
                 </FormField>
               )}
               {form.ssoProvider === 'OIDC' && (
-                <FormField label="Emissor (issuer)" htmlFor="oidc-issuer" hint="ex.: https://idp.empresa.ao">
+                <FormField
+                  label="Emissor (issuer)"
+                  htmlFor="oidc-issuer"
+                  hint="ex.: https://idp.empresa.ao"
+                >
                   <Input
                     id="oidc-issuer"
                     className="w-full"
                     value={form.oidc.issuer}
                     onChange={(e) =>
-                      setForm((f) => (f ? { ...f, oidc: { ...f.oidc, issuer: e.target.value } } : f))
+                      setForm((f) =>
+                        f
+                          ? {
+                              ...f,
+                              oidc: { ...f.oidc, issuer: e.target.value },
+                            }
+                          : f,
+                      )
                     }
                   />
                 </FormField>
@@ -208,7 +284,9 @@ export function TabAutenticacao() {
       <Card>
         <CardBody>
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">LDAP / Active Directory</h3>
+            <h3 className="text-base font-bold text-ink">
+              LDAP / Active Directory
+            </h3>
             <Badge intent={form.ldap.enabled ? 'success' : 'neutral'}>
               {form.ldap.enabled ? 'Activo' : 'Inactivo'}
             </Badge>
@@ -218,15 +296,29 @@ export function TabAutenticacao() {
               id="ldap-enabled"
               label="Activar login via LDAP/AD"
               checked={form.ldap.enabled}
-              onChange={(v) => setForm((f) => (f ? { ...f, ldap: { ...f.ldap, enabled: v } } : f))}
+              onChange={(v) =>
+                setForm((f) =>
+                  f ? { ...f, ldap: { ...f.ldap, enabled: v } } : f,
+                )
+              }
             />
             <div className="grid grid-cols-2 gap-4">
-              <FormField label="URL" htmlFor="ldap-url" hint="ex.: ldaps://ad.empresa.ao:636">
+              <FormField
+                label="URL"
+                htmlFor="ldap-url"
+                hint="ex.: ldaps://ad.empresa.ao:636"
+              >
                 <Input
                   id="ldap-url"
                   className="w-full"
                   value={form.ldap.url}
-                  onChange={(e) => setForm((f) => (f ? { ...f, ldap: { ...f.ldap, url: e.target.value } } : f))}
+                  onChange={(e) =>
+                    setForm((f) =>
+                      f
+                        ? { ...f, ldap: { ...f.ldap, url: e.target.value } }
+                        : f,
+                    )
+                  }
                 />
               </FormField>
               <div className="flex items-end">
@@ -234,21 +326,38 @@ export function TabAutenticacao() {
                   id="ldap-starttls"
                   label="StartTLS"
                   checked={form.ldap.startTls}
-                  onChange={(v) => setForm((f) => (f ? { ...f, ldap: { ...f.ldap, startTls: v } } : f))}
+                  onChange={(v) =>
+                    setForm((f) =>
+                      f ? { ...f, ldap: { ...f.ldap, startTls: v } } : f,
+                    )
+                  }
                 />
               </div>
-              <FormField label="Bind DN (conta de serviço)" htmlFor="ldap-bind-dn">
+              <FormField
+                label="Bind DN (conta de serviço)"
+                htmlFor="ldap-bind-dn"
+              >
                 <Input
                   id="ldap-bind-dn"
                   className="w-full"
                   value={form.ldap.bindDn}
-                  onChange={(e) => setForm((f) => (f ? { ...f, ldap: { ...f.ldap, bindDn: e.target.value } } : f))}
+                  onChange={(e) =>
+                    setForm((f) =>
+                      f
+                        ? { ...f, ldap: { ...f.ldap, bindDn: e.target.value } }
+                        : f,
+                    )
+                  }
                 />
               </FormField>
               <FormField
                 label="Bind Password"
                 htmlFor="ldap-bind-password"
-                hint={form.ldap.hasBindPassword ? 'Já configurada — deixe em branco para manter' : undefined}
+                hint={
+                  form.ldap.hasBindPassword
+                    ? 'Já configurada — deixe em branco para manter'
+                    : undefined
+                }
               >
                 <Input
                   id="ldap-bind-password"
@@ -259,21 +368,42 @@ export function TabAutenticacao() {
                   placeholder="••••••••"
                 />
               </FormField>
-              <FormField label="Base DN" htmlFor="ldap-base-dn" hint="ex.: DC=empresa,DC=ao">
+              <FormField
+                label="Base DN"
+                htmlFor="ldap-base-dn"
+                hint="ex.: DC=empresa,DC=ao"
+              >
                 <Input
                   id="ldap-base-dn"
                   className="w-full"
                   value={form.ldap.baseDn}
-                  onChange={(e) => setForm((f) => (f ? { ...f, ldap: { ...f.ldap, baseDn: e.target.value } } : f))}
+                  onChange={(e) =>
+                    setForm((f) =>
+                      f
+                        ? { ...f, ldap: { ...f.ldap, baseDn: e.target.value } }
+                        : f,
+                    )
+                  }
                 />
               </FormField>
-              <FormField label="Filtro de busca" htmlFor="ldap-filter" hint="{{email}} é substituído pelo email introduzido">
+              <FormField
+                label="Filtro de busca"
+                htmlFor="ldap-filter"
+                hint="{{email}} é substituído pelo email introduzido"
+              >
                 <Input
                   id="ldap-filter"
                   className="w-full"
                   value={form.ldap.userFilter}
                   onChange={(e) =>
-                    setForm((f) => (f ? { ...f, ldap: { ...f.ldap, userFilter: e.target.value } } : f))
+                    setForm((f) =>
+                      f
+                        ? {
+                            ...f,
+                            ldap: { ...f.ldap, userFilter: e.target.value },
+                          }
+                        : f,
+                    )
                   }
                 />
               </FormField>
@@ -283,7 +413,14 @@ export function TabAutenticacao() {
                   className="w-full"
                   value={form.ldap.emailAttribute}
                   onChange={(e) =>
-                    setForm((f) => (f ? { ...f, ldap: { ...f.ldap, emailAttribute: e.target.value } } : f))
+                    setForm((f) =>
+                      f
+                        ? {
+                            ...f,
+                            ldap: { ...f.ldap, emailAttribute: e.target.value },
+                          }
+                        : f,
+                    )
                   }
                 />
               </FormField>
@@ -293,7 +430,14 @@ export function TabAutenticacao() {
                   className="w-full"
                   value={form.ldap.nameAttribute}
                   onChange={(e) =>
-                    setForm((f) => (f ? { ...f, ldap: { ...f.ldap, nameAttribute: e.target.value } } : f))
+                    setForm((f) =>
+                      f
+                        ? {
+                            ...f,
+                            ldap: { ...f.ldap, nameAttribute: e.target.value },
+                          }
+                        : f,
+                    )
                   }
                 />
               </FormField>
@@ -312,12 +456,14 @@ export function TabAutenticacao() {
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Domínio autorizado
+        </div>
         <CardBody>
-          <h3 className="mb-4 text-base font-bold text-ink">Domínio autorizado</h3>
           <p className="m-0 text-sm text-ink-faint">
-            O domínio de email autorizado para contas novas (via SSO, LDAP ou convite) é partilhado
-            com a política de utilizadores —{' '}
+            O domínio de email autorizado para contas novas (via SSO, LDAP ou
+            convite) é partilhado com a política de utilizadores —{' '}
             {policy.data?.allowedEmailDomains?.length
               ? policy.data.allowedEmailDomains.join(', ')
               : 'sem restrição configurada'}
@@ -328,7 +474,9 @@ export function TabAutenticacao() {
               id="enforce-sso-only"
               label="Obrigar SSO/LDAP para todos excepto ADMIN (acesso de emergência)"
               checked={form.enforceSsoOnly}
-              onChange={(v) => setForm((f) => (f ? { ...f, enforceSsoOnly: v } : f))}
+              onChange={(v) =>
+                setForm((f) => (f ? { ...f, enforceSsoOnly: v } : f))
+              }
             />
           </div>
         </CardBody>

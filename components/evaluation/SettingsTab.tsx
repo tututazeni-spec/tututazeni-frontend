@@ -9,10 +9,12 @@
 
 'use client';
 
+import { FileText, ListChecks, Ruler } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
 import {
@@ -52,32 +54,32 @@ export function SettingsTab() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardBody>
-            <p className="text-xs text-ink-faint">Escalas configuradas</p>
-            <p className="text-2xl font-bold text-ink">{data.scales.length}</p>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody>
-            <p className="text-xs text-ink-faint">Critérios activos</p>
-            <p className="text-2xl font-bold text-ink">{data.criteriaCount}</p>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody>
-            <p className="text-xs text-ink-faint">Modelos activos</p>
-            <p className="text-2xl font-bold text-ink">{data.templatesCount}</p>
-          </CardBody>
-        </Card>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <NavyStatCard
+          icon={Ruler}
+          label="Escalas configuradas"
+          value={data.scales.length}
+          tone="blue"
+        />
+        <NavyStatCard
+          icon={ListChecks}
+          label="Critérios activos"
+          value={data.criteriaCount}
+          tone="green"
+        />
+        <NavyStatCard
+          icon={FileText}
+          label="Modelos activos"
+          value={data.templatesCount}
+          tone="orange"
+        />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Fluxo de Aprovação
+        </div>
         <CardBody>
-          <h4 className="font-display font-semibold text-ink mb-3">
-            Fluxo de Aprovação
-          </h4>
           <div className="flex flex-wrap items-center gap-2">
             {data.approvalFlow.map((stage, i) => (
               <div key={stage} className="flex items-center gap-2">
@@ -92,11 +94,11 @@ export function SettingsTab() {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Tipos de Avaliação
+          </div>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-3">
-              Tipos de Avaliação
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.evalPurposes.map((p) => (
                 <Badge key={p} intent="neutral">
@@ -106,11 +108,11 @@ export function SettingsTab() {
             </div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Tipos de Avaliador
+          </div>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-3">
-              Tipos de Avaliador
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.evalTypes.map((t) => (
                 <Badge key={t} intent="neutral">
@@ -120,11 +122,11 @@ export function SettingsTab() {
             </div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Estados do Ciclo
+          </div>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-3">
-              Estados do Ciclo
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.cycleStatuses.map((s) => (
                 <Badge key={s} intent="neutral" className={STATUS_MAP[s]?.cls}>
@@ -134,11 +136,11 @@ export function SettingsTab() {
             </div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Visibilidade dos Resultados
+          </div>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-3">
-              Visibilidade dos Resultados
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.resultsVisibilityOptions.map((v) => (
                 <Badge key={v} intent="neutral">
@@ -150,9 +152,11 @@ export function SettingsTab() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Escalas
+        </div>
         <CardBody>
-          <h4 className="font-display font-semibold text-ink mb-3">Escalas</h4>
           {data.scales.length === 0 && (
             <p className="text-xs text-ink-faint">Sem escalas criadas.</p>
           )}

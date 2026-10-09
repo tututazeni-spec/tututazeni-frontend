@@ -19,7 +19,7 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AiTutorOverview } from './types';
 
@@ -39,65 +39,67 @@ export function OverviewView() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-3"
-        itemClassName="skeleton-shimmer h-28 rounded-card"
+        wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
+        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
       />
     );
   if (!data) return null;
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-3">
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <NavyStatCard
+          tone="blue"
           icon={MessageCircle}
           label="Conversas hoje"
           value={data.conversasHoje}
         />
         {isPrivileged && (
-          <KpiCard
+          <NavyStatCard
+            tone="blue"
             icon={Users}
             label="Utilizadores activos"
             value={data.utilizadoresAtivos ?? 0}
-            intent="accent"
           />
         )}
-        <KpiCard
+        <NavyStatCard
+          tone="blue"
           icon={Sparkles}
           label="Sessões de aprendizagem"
           value={data.sessoesAprendizagem}
-          intent="info"
         />
-        <KpiCard
+        <NavyStatCard
+          tone="blue"
           icon={MessageCircle}
           label="Perguntas respondidas"
           value={data.perguntasRespondidas}
         />
         {isPrivileged && (
-          <KpiCard
+          <NavyStatCard
+            tone="green"
             icon={GraduationCap}
             label="Cursos apoiados"
             value={data.cursosApoiados ?? 0}
-            intent="success"
           />
         )}
-        <KpiCard
+        <NavyStatCard
+          tone="green"
           icon={CheckCircle2}
           label="Taxa de conclusão"
           value={`${data.taxaConclusao}%`}
-          intent="success"
         />
-        <KpiCard
+        <NavyStatCard
+          tone="orange"
           icon={Clock}
           label="Horas de aprendizagem com IA"
           value={`${data.horasAprendizagem}h`}
-          intent="warning"
         />
       </div>
 
       {isPrivileged && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+            <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
               Perguntas mais frequentes
             </div>
             {(data.perguntasFrequentes ?? []).length === 0 ? (
@@ -122,7 +124,7 @@ export function OverviewView() {
           </Card>
 
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+            <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
               Cursos mais utilizados
             </div>
             {(data.cursosMaisUtilizados ?? []).length === 0 ? (
@@ -152,7 +154,7 @@ export function OverviewView() {
           </Card>
 
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+            <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
               Temas com maior procura
             </div>
             {(data.temasMaisProcurados ?? []).length === 0 ? (
@@ -175,7 +177,7 @@ export function OverviewView() {
           </Card>
 
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+            <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
               Utilizadores mais activos
             </div>
             {(data.utilizadoresMaisAtivos ?? []).length === 0 ? (

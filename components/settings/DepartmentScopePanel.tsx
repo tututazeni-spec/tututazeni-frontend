@@ -50,11 +50,11 @@ export function DepartmentScopePanel() {
     return <p className="py-6 text-sm text-danger">{error?.message}</p>;
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        Acesso por departamento
+      </div>
       <CardBody>
-        <h3 className="mb-1 text-base font-bold text-ink">
-          Acesso por departamento
-        </h3>
         <p className="mb-4 text-xs text-ink-faint">
           Limita os utilizadores que cada perfil consegue listar. Sem
           departamentos marcados, o perfil vê todos. ADMIN e RH não são

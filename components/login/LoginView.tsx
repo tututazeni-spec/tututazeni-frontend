@@ -149,12 +149,13 @@ export function LoginView({
           align-items: center;
           justify-content: center;
           gap: 12px;
-          margin-bottom: 24px;
+          margin-bottom: 17px;
         }
 
         .login-logo-icon {
-          width: 52px;
-          height: 52px;
+          width: 182px;
+          height: auto;
+          max-width: 100%;
         }
 
         .login-logo-text {
@@ -447,11 +448,10 @@ export function LoginView({
               className="login-logo-icon"
               src="/images/innova-logo.png"
               alt="Innova"
-              width={52}
-              height={52}
+              width={182}
+              height={59}
               style={{ objectFit: 'contain' }}
             />
-            <span className="login-logo-text">Innova</span>
           </div>
 
           <div className="login-divider" />

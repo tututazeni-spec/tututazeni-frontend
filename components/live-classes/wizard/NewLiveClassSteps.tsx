@@ -75,7 +75,7 @@ export function NewLiveClassSteps({
       modules.find((m) => String(m.id) === form.moduleId)?.lessons ?? [];
     return (
       <div className="space-y-4">
-        <FormField label="Curso *" htmlFor="lc-course">
+        <FormField label="Curso" htmlFor="lc-course">
           <Combobox
             items={courseOptions}
             value={form.courseId}
@@ -131,7 +131,7 @@ export function NewLiveClassSteps({
           <FormField
             label="Módulo associado"
             htmlFor="lc-module"
-            hint={!form.courseId ? 'Escolhe primeiro um curso.' : undefined}
+            hint={!form.courseId ? 'Opcional — escolhe primeiro um curso.' : undefined}
           >
             <Select
               items={[

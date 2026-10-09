@@ -49,11 +49,11 @@ export function MyDocsTab({ myDocs, onRequestNew }: MyDocsTabProps) {
               className="group flex items-center justify-between px-5 py-4"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control bg-info-subtle">
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control bg-[#0F1F3D]/60">
                   <FileText
                     size={16}
                     strokeWidth={1.75}
-                    className="text-info-ink"
+                    className="text-white"
                   />
                 </div>
                 <div>

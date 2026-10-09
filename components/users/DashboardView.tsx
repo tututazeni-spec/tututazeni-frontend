@@ -4,11 +4,12 @@
 
 'use client';
 
+import { Ban, Clock, UserCheck, UserMinus, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AdminDashboard } from './types';
@@ -31,15 +32,36 @@ export function DashboardView() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-5 gap-3">
-        <KpiCard label="Total colaboradores" value={data.users.total} />
-        <KpiCard label="Activos" value={data.users.active} intent="success" />
-        <KpiCard label="Inactivos" value={data.users.inactive} />
-        <KpiCard label="Pendentes" value={data.users.pending} intent="info" />
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
+        <NavyStatCard
+          icon={Users}
+          tone="blue"
+          label="Total colaboradores"
+          value={data.users.total}
+        />
+        <NavyStatCard
+          icon={UserCheck}
+          tone="green"
+          label="Activos"
+          value={data.users.active}
+        />
+        <NavyStatCard
+          icon={UserMinus}
+          tone="orange"
+          label="Inactivos"
+          value={data.users.inactive}
+        />
+        <NavyStatCard
+          icon={Clock}
+          tone="blue"
+          label="Pendentes"
+          value={data.users.pending}
+        />
+        <NavyStatCard
+          icon={Ban}
+          tone={data.users.suspended > 0 ? 'red' : 'blue'}
           label="Suspensos"
           value={data.users.suspended}
-          intent={data.users.suspended > 0 ? 'warning' : 'primary'}
         />
       </div>
 

@@ -4,7 +4,13 @@
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { fmtDate, STATUS, StatusBadge, Tile, tone } from './PlatformMonitoringView';
+import {
+  fmtDate,
+  STATUS,
+  StatusBadge,
+  Tile,
+  tone,
+} from './PlatformMonitoringView';
 import type { Intent } from './PlatformMonitoringView';
 import type {
   AutomationsData,
@@ -40,13 +46,11 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <Card>
-      <CardBody>
-        <h3 className="mb-3 font-display text-base font-bold text-ink">
-          {title}
-        </h3>
-        {children}
-      </CardBody>
+    <Card className="overflow-hidden">
+      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        {title}
+      </div>
+      <CardBody>{children}</CardBody>
     </Card>
   );
 }
@@ -111,7 +115,9 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
           <ul className="divide-y divide-border font-body text-sm">
             {data.failuresByRule.map((r) => (
               <li key={r.ruleId} className="flex justify-between gap-3 py-2">
-                <span className="text-ink">{r.name ?? `Regra #${r.ruleId}`}</span>
+                <span className="text-ink">
+                  {r.name ?? `Regra #${r.ruleId}`}
+                </span>
                 <span className="tabular-nums text-ink-muted">
                   {r.failed24h} falha(s)
                   {r.lastRunAt && ` · última ${fmtDate(r.lastRunAt)}`}
@@ -234,8 +240,8 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
               <li key={d.day} className="flex justify-between gap-3 py-2">
                 <span className="tabular-nums text-ink">{d.day}</span>
                 <span className="tabular-nums text-ink-muted">
-                  {d.success} sucesso · {d.failed} falha · {d.successRatePercent}
-                  %
+                  {d.success} sucesso · {d.failed} falha ·{' '}
+                  {d.successRatePercent}%
                 </span>
               </li>
             ))}
@@ -253,7 +259,12 @@ function QueueLine({
   q,
 }: {
   label: string;
-  q: { waiting: number; active: number; failed: number; delayed: number } | null;
+  q: {
+    waiting: number;
+    active: number;
+    failed: number;
+    delayed: number;
+  } | null;
 }) {
   return (
     <span>
@@ -281,7 +292,10 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
             </span>
             {data.sso && (
               <Badge intent={data.sso.enabled ? 'success' : 'neutral'}>
-                SSO {data.sso.enabled ? (data.sso.provider ?? 'activo') : 'desligado'}
+                SSO{' '}
+                {data.sso.enabled
+                  ? (data.sso.provider ?? 'activo')
+                  : 'desligado'}
               </Badge>
             )}
           </div>
@@ -348,8 +362,8 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
         <div className="mt-3 space-y-1 font-body text-xs text-ink-muted">
           <div>
             <QueueLine label="Email" q={data.email.queue} /> ·{' '}
-            {data.email.connections} ligação(ões),{' '}
-            {data.email.lastTestFailed} com último teste falhado
+            {data.email.connections} ligação(ões), {data.email.lastTestFailed}{' '}
+            com último teste falhado
           </div>
           <div>
             <QueueLine label="Webhooks" q={data.webhooks.queue} /> ·{' '}
@@ -465,7 +479,13 @@ const tileIntent = (s: MonitoringStatus | null | undefined) => {
   return i === 'danger' || i === 'warning' ? i : undefined;
 };
 
-function EndpointTable({ title, rows }: { title: string; rows: EndpointRow[] }) {
+function EndpointTable({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: EndpointRow[];
+}) {
   return (
     <Section title={title}>
       {rows.length === 0 ? (
@@ -647,7 +667,11 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
                     ? null
                     : `${storage.monthlyGrowthMb} MB`
                 }
-                sub={storage.files === null ? undefined : `${storage.files} ficheiros`}
+                sub={
+                  storage.files === null
+                    ? undefined
+                    : `${storage.files} ficheiros`
+                }
               />
             </>
           ) : (
@@ -674,8 +698,12 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
                     <td className="pr-3 tabular-nums">{q.waiting}</td>
                     <td className="pr-3 tabular-nums">{q.active}</td>
                     <td className="pr-3 tabular-nums">{q.failed}</td>
-                    <td className="pr-3 tabular-nums">{fmtMs(q.avgDurationMs)}</td>
-                    <td className="tabular-nums">{q.throughputPerMin ?? '—'}</td>
+                    <td className="pr-3 tabular-nums">
+                      {fmtMs(q.avgDurationMs)}
+                    </td>
+                    <td className="tabular-nums">
+                      {q.throughputPerMin ?? '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -683,7 +711,9 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
           </div>
         )}
         {storage.available && storage.note && (
-          <p className="mt-3 font-body text-xs text-ink-faint">{storage.note}</p>
+          <p className="mt-3 font-body text-xs text-ink-faint">
+            {storage.note}
+          </p>
         )}
       </Section>
 
