@@ -307,7 +307,7 @@ export function StructureView({ onSelect }: StructureViewProps) {
             </div>
           ) : (
             <Table>
-              <TableHead>
+              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                 <TableRow>
                   <TableHeaderCell>Nível</TableHeaderCell>
                   <TableHeaderCell>Departamento</TableHeaderCell>

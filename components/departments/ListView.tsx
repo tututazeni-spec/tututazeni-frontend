@@ -100,7 +100,7 @@ export function ListView({ onSelect }: ListViewProps) {
       )}
       {!loading && (
         <Table>
-          <TableHead>
+          <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
             <TableRow>
               <TableHeaderCell>Departamento</TableHeaderCell>
               <TableHeaderCell>Código</TableHeaderCell>

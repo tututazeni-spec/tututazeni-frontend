@@ -215,7 +215,7 @@ export function PositionsView() {
       {error && <div className="px-4 py-8 text-center text-sm text-danger">{error}</div>}
       {!loading && !error && (
         <Table>
-          <TableHead>
+          <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
             <TableRow>
               <TableHeaderCell>Cargo</TableHeaderCell>
               <TableHeaderCell>Função</TableHeaderCell>

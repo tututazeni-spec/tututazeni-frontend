@@ -105,7 +105,7 @@ export function HeadsView() {
             <div className="text-sm text-danger">{headsError.message}</div>
           ) : (
             <Table>
-              <TableHead>
+              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                 <TableRow>
                   <TableHeaderCell>Departamento</TableHeaderCell>
                   <TableHeaderCell>Responsável</TableHeaderCell>
@@ -206,7 +206,7 @@ export function HeadsView() {
             <div className="text-sm text-danger">{historyError.message}</div>
           ) : (
             <Table>
-              <TableHead>
+              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                 <TableRow>
                   <TableHeaderCell>Departamento</TableHeaderCell>
                   <TableHeaderCell>Responsável anterior</TableHeaderCell>
