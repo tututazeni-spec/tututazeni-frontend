@@ -12,12 +12,15 @@
 
 import type { LucideIcon } from 'lucide-react';
 import {
-  Award,
   BookOpen,
+  Bot,
+  CalendarDays,
   CheckCircle2,
   ClipboardList,
-  Clock,
+  GraduationCap,
+  Presentation,
   Target,
+  Video,
   Zap,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -58,7 +61,7 @@ function CourseStyleKpiCard({
 }) {
   const t = KPI_TONES[tone];
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-shadow duration-150 hover:shadow-hover">
+    <div className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-hover motion-reduce:hover:scale-100">
       <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
       <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
       <p className={`font-display text-4xl font-bold ${t.text}`}>{value}</p>
@@ -162,20 +165,44 @@ export function ColaboradorDashboard() {
           value={data?.learning?.completed ?? 0}
         />
         <CourseStyleKpiCard
-          icon={Award}
-          tone="gold"
-          label="Distintivos Conquistados"
-          value={data?.gamification?.recentBadges?.length ?? 0}
+          icon={GraduationCap}
+          tone="blue"
+          label="Cursos Matriculados"
+          value={data?.learning?.totalEnrolled ?? 0}
         />
         <CourseStyleKpiCard
           icon={ClipboardList}
           tone="red"
           label="Avaliações Pendentes"
-          value={data?.engagement?.pendingSurveys ?? 0}
+          value={data?.overview?.pendingEvaluations ?? 0}
+        />
+        <CourseStyleKpiCard
+          icon={Video}
+          tone="orange"
+          label="Aulas ao Vivo Agendadas"
+          value={data?.overview?.scheduledLiveClasses ?? 0}
+        />
+        <CourseStyleKpiCard
+          icon={Bot}
+          tone="gold"
+          label="Sessões de Tutor de IA"
+          value={data?.overview?.aiTutorSessions ?? 0}
+        />
+        <CourseStyleKpiCard
+          icon={CalendarDays}
+          tone="green"
+          label="Pedidos de Férias"
+          value={data?.overview?.pendingLeaveRequests ?? 0}
+        />
+        <CourseStyleKpiCard
+          icon={Presentation}
+          tone="blue"
+          label="Os Meus Treinamentos"
+          value={data?.overview?.myTrainings ?? 0}
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5">
         {/* PDI */}
         {plan && (
           <div className="rounded-card border border-border bg-surface p-5">
@@ -205,33 +232,6 @@ export function ColaboradorDashboard() {
             </p>
           </div>
         )}
-
-        {/* Pending items */}
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting">
-          <span
-            aria-hidden
-            className="absolute inset-x-0 top-0 h-1.5 bg-orange-500"
-          />
-          <div className="mb-3 flex items-center gap-2">
-            <div className="rounded-control bg-orange-100 p-2 text-orange-600">
-              <Clock size={18} strokeWidth={1.75} />
-            </div>
-            <h3 className="font-body font-semibold text-ink">Pendentes</h3>
-          </div>
-          <p className="font-display text-4xl font-bold text-orange-600">
-            {(data?.pendingItems ?? []).length}
-          </p>
-          {(() => {
-            const highCount = (data?.pendingItems ?? []).filter(
-              (item) => item.priority === 'HIGH',
-            ).length;
-            return highCount > 0 ? (
-              <p className="mt-1 font-body text-xs text-danger">
-                {highCount} de alta prioridade
-              </p>
-            ) : null;
-          })()}
-        </div>
       </div>
 
       {/* Competencies radar */}

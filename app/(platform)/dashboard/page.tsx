@@ -11,7 +11,11 @@
 
 import { useState } from 'react';
 import { BarChart2, CircleCheck, LayoutDashboard, Users } from 'lucide-react';
+import { DashboardWatermark } from '@/components/dashboard/DashboardWatermark';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import {
   AUTHENTICATED_ROLES,
   EXECUTIVE_ROLES,
@@ -59,6 +63,16 @@ export default function DashboardPage() {
   const [tab, setTab] = useState('personal');
   const role = useCurrentRole() ?? 'COLABORADOR';
 
+  // Nome do tenant definido em Definições → Visão Geral (aberto a qualquer
+  // utilizador autenticado, ao contrário de /settings/organization).
+  const { data: branding } = useApiQuery<{ tenantName?: string; logoUrl?: string | null }>(
+    queryKeys.settings.branding(),
+    '/settings/branding',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const tenantName = branding?.tenantName?.trim();
+  const tenantLogo = branding?.logoUrl;
+
   const availableTabs = filterByRole(TABS, role);
 
   const activeTab =
@@ -67,36 +81,53 @@ export default function DashboardPage() {
   const ActiveIcon = activeTab?.icon;
 
   return (
-    <div className="min-h-screen bg-canvas">
-      {/* Header dinâmico */}
-      <div className="border-b border-border bg-canvas px-6 py-5">
-        <div className="mx-auto flex max-w-7xl items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            {ActiveIcon && (
-              <ActiveIcon
-                size={22}
-                strokeWidth={1.8}
-                className="transition-all duration-300"
+    <div className="-mt-6 min-h-screen bg-white">
+      {/* Container azul: cabeçalho dinâmico + Slideshow no mesmo cartão
+          (#0F1F3D), acima das tabs e visível em qualquer separador. */}
+      <div className="mx-auto max-w-7xl px-6 pt-2">
+        {tenantName && (
+          <div className="mb-2 flex items-center gap-4">
+            {tenantLogo && (
+              // eslint-disable-next-line @next/next/no-img-element -- data-URL guardada em Definições
+              <img
+                src={tenantLogo}
+                alt=""
+                className="h-24 w-24 shrink-0 rounded-xl object-contain"
               />
             )}
+            <p className="truncate font-display text-lg font-bold text-[#0F1F3D]">
+              {tenantName}
+            </p>
+          </div>
+        )}
+        <section className="overflow-hidden rounded-3xl bg-[#0F1F3D] text-white shadow-[0_12px_32px_rgba(15,31,61,0.25)]">
+          <div className="flex items-center gap-3 px-6 py-5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white">
+              {ActiveIcon && (
+                <ActiveIcon
+                  size={22}
+                  strokeWidth={1.8}
+                  className="transition-all duration-300"
+                />
+              )}
+            </div>
+
+            <div>
+              <h1 className="font-display text-xl font-bold text-white">
+                Dashboard
+              </h1>
+              {activeTab?.hint && (
+                <p className="mt-0.5 font-body text-xs text-white/90">
+                  {activeTab.hint}
+                </p>
+              )}
+            </div>
           </div>
 
-          <div>
-            <h1 className="font-display text-xl font-bold text-ink">
-              Dashboard
-            </h1>
-            {activeTab?.hint && (
-              <p className="mt-0.5 font-body text-xs text-ink-muted">
-                {activeTab.hint}
-              </p>
-            )}
+          <div className="mx-6 mb-6 rounded-2xl bg-[#3B5280] p-3">
+            <Slideshow />
           </div>
-        </div>
-      </div>
-      {/* Slideshow — mesma posição de sempre: acima das tabs, visível em
-          qualquer separador. */}
-      <div className="mx-auto max-w-7xl px-6 pt-6">
-        <Slideshow />
+        </section>
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
@@ -106,7 +137,7 @@ export default function DashboardPage() {
             (data-[state=active] do Radix) ganha gradiente azul, sombra e
             um visto à direita. As manchas desfocadas atrás existem só
             para o efeito de vidro ser visível sobre o fundo claro. */}
-        <div className="relative bg-canvas px-6 py-5">
+        <div className="relative bg-white px-6 py-5">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 overflow-hidden"

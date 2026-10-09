@@ -29,13 +29,13 @@ export function AlertBanner({ alerts }: AlertBannerProps) {
             strokeWidth={1.75}
             className="shrink-0 text-danger-ink"
           />
-          <p className="flex-1 font-body text-sm text-danger-ink">
+          <p className="flex-1 font-body text-sm text-black">
             {a.message}
           </p>
           {a.actionUrl && (
             <a
               href={a.actionUrl}
-              className="rounded-control bg-danger px-3 py-1 font-body text-xs text-canvas hover:brightness-95"
+              className="rounded-control bg-[#0F1F3D] px-3 py-1 font-body text-xs text-white hover:brightness-95"
             >
               Ver →
             </a>
@@ -52,13 +52,13 @@ export function AlertBanner({ alerts }: AlertBannerProps) {
             strokeWidth={1.75}
             className="shrink-0 text-warning-ink"
           />
-          <p className="flex-1 font-body text-sm text-warning-ink">
+          <p className="flex-1 font-body text-sm text-black">
             {a.message}
           </p>
           {a.actionUrl && (
             <a
               href={a.actionUrl}
-              className="shrink-0 rounded-control bg-warning px-3 py-1 font-body text-xs text-canvas hover:brightness-95"
+              className="shrink-0 rounded-control bg-[#0F1F3D] px-3 py-1 font-body text-xs text-white hover:brightness-95"
             >
               Ver →
             </a>

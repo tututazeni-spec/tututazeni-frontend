@@ -16,7 +16,6 @@ import type { LucideIcon } from 'lucide-react';
 import {
   AlertTriangle,
   Award,
-  BadgeCheck,
   BookOpen,
   Brain,
   Building2,
@@ -26,6 +25,7 @@ import {
   Library,
   MapPin,
   Save,
+  Trash2,
   ShieldAlert,
   Smile,
   Star,
@@ -38,9 +38,11 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
-import { Select } from '@/components/ui/Select';
+import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
@@ -86,7 +88,7 @@ function HighlightKpiCard({
 }) {
   const t = KPI_TONES[tone];
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-shadow duration-150 hover:shadow-hover">
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-hover motion-reduce:hover:scale-100">
       <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
       <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
       <div className="flex items-baseline gap-2">
@@ -104,16 +106,6 @@ function HighlightKpiCard({
     </div>
   );
 }
-
-// TODO: substituir por dados reais quando soubermos o campo da API
-// (ex.: summary.crm.fundingByQuarter) com a distribuição do financiamento
-// ao longo do período. Enquanto isso, usa-se uma série de exemplo.
-const MOCK_FUNDING_BREAKDOWN = [
-  { label: 'T1', value: 0.6 },
-  { label: 'T2', value: 0.9 },
-  { label: 'T3', value: 0.75 },
-  { label: 'T4', value: 1.2 },
-];
 
 function FundingKpiCard({
   icon: Icon,
@@ -142,33 +134,35 @@ function FundingKpiCard({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-shadow duration-150 hover:shadow-hover">
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-hover motion-reduce:hover:scale-100">
       <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
       <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
       <p className={`font-display text-4xl font-bold ${t.text}`}>{value}</p>
       <p className="mt-1 font-body text-sm text-ink">{label}</p>
       {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
 
-      <div className="mt-4 flex h-12 items-end gap-1.5">
-        {breakdown.map((b) => (
-          <div
-            key={b.label}
-            className="flex flex-1 flex-col items-center gap-1"
-          >
+      {breakdown.some((b) => b.value > 0) && (
+        <div className="mt-4 flex h-12 items-end gap-1.5">
+          {breakdown.map((b) => (
             <div
-              className="w-full rounded-t"
-              style={{
-                height: `${Math.max((b.value / max) * 100, 6)}%`,
-                backgroundColor: BAR_COLOR[tone],
-                opacity: 0.85,
-              }}
-            />
-            <span className="font-body text-[9px] text-ink-faint">
-              {b.label}
-            </span>
-          </div>
-        ))}
-      </div>
+              key={b.label}
+              className="flex flex-1 flex-col items-center gap-1"
+            >
+              <div
+                className="w-full rounded-t"
+                style={{
+                  height: `${Math.max((b.value / max) * 100, 6)}%`,
+                  backgroundColor: BAR_COLOR[tone],
+                  opacity: 0.85,
+                }}
+              />
+              <span className="font-body text-[9px] text-ink-faint">
+                {b.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -242,10 +236,13 @@ const COMPARISON_LABELS: Record<string, string> = {
 // (GET/POST /dashboard-institutional/snapshots, GET .../snapshots/compare).
 function SnapshotsPanel() {
   const notify = useToast();
+  const confirm = useConfirm();
+  const role = useCurrentRole();
+  const canDelete = role === 'ADMIN' || role === 'RH';
   const snapshotsQ = useApiQuery<{ data: ExecutiveSnapshot[] }>(
     queryKeys.dashboard.executiveSnapshots(),
     '/dashboard-institutional/snapshots',
-    { params: { page: 1, limit: 12 }, staleTime: STALE_TIME.SEMI_STATIC },
+    { params: { page: 1, limit: 100 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
   const snapshots = useMemo(
     () => snapshotsQ.data?.data ?? [],
@@ -270,17 +267,40 @@ function SnapshotsPanel() {
     },
   );
 
-  const [period1, setPeriod1] = useState<string>();
-  const [period2, setPeriod2] = useState<string>();
+  const deleteSnapshot = useApiMutation<unknown, string>(
+    (id) => apiClient.delete(`/dashboard-institutional/snapshots/${id}`),
+    {
+      invalidateKeys: [queryKeys.dashboard.executiveSnapshots()],
+      onSuccess: () => {
+        setCompareResult(null);
+        notify({ title: 'Snapshot apagado', intent: 'success' });
+      },
+      onError: (err) =>
+        notify({
+          title: err.message || 'Erro ao apagar snapshot',
+          intent: 'danger',
+        }),
+    },
+  );
+
+  async function handleDelete(s: ExecutiveSnapshot) {
+    const ok = await confirm({
+      title: 'Apagar snapshot',
+      message: `Apagar o snapshot de ${s.period}? Deixa de aparecer no histórico e nas comparações.`,
+      confirmLabel: 'Apagar',
+      destructive: true,
+    });
+    if (ok) deleteSnapshot.mutate(s.id);
+  }
+
+  // Períodos escolhidos por data (AAAA-MM) — qualquer mês anterior, não só
+  // os mais recentes da lista.
+  const [period1, setPeriod1] = useState('');
+  const [period2, setPeriod2] = useState('');
   const [compareResult, setCompareResult] = useState<CompareResult | null>(
     null,
   );
   const [comparing, setComparing] = useState(false);
-
-  const periodOptions = useMemo(
-    () => snapshots.map((s) => ({ value: s.period, label: s.period })),
-    [snapshots],
-  );
 
   async function handleCompare() {
     if (!period1 || !period2) return;
@@ -335,6 +355,7 @@ function SnapshotsPanel() {
                     <th className="pb-2">Inscrições</th>
                     <th className="pb-2">Conclusão</th>
                     <th className="pb-2">Guardado por</th>
+                    {canDelete && <th className="pb-2" />}
                   </tr>
                 </thead>
                 <tbody>
@@ -353,6 +374,19 @@ function SnapshotsPanel() {
                       <td className="py-2 text-ink-faint">
                         {s.createdBy?.fullName ?? '—'}
                       </td>
+                      {canDelete && (
+                        <td className="py-2 text-right">
+                          <Button
+                            size="sm"
+                            intent="ghost"
+                            aria-label={`Apagar snapshot ${s.period}`}
+                            onClick={() => handleDelete(s)}
+                            disabled={deleteSnapshot.isPending}
+                          >
+                            <Trash2 size={14} strokeWidth={1.75} />
+                          </Button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -364,22 +398,24 @@ function SnapshotsPanel() {
                 <p className="mb-1 font-body text-xs text-ink-faint">
                   Período A
                 </p>
-                <Select
-                  items={periodOptions}
+                <Input
+                  type="month"
                   value={period1}
-                  onValueChange={setPeriod1}
-                  placeholder="Escolher…"
+                  max={currentPeriodKey()}
+                  onChange={(e) => setPeriod1(e.target.value)}
+                  aria-label="Período A"
                 />
               </div>
               <div>
                 <p className="mb-1 font-body text-xs text-ink-faint">
                   Período B
                 </p>
-                <Select
-                  items={periodOptions}
+                <Input
+                  type="month"
                   value={period2}
-                  onValueChange={setPeriod2}
-                  placeholder="Escolher…"
+                  max={currentPeriodKey()}
+                  onChange={(e) => setPeriod2(e.target.value)}
+                  aria-label="Período B"
                 />
               </div>
               <Button
@@ -391,6 +427,11 @@ function SnapshotsPanel() {
                 Comparar
               </Button>
             </div>
+
+            <p className="mt-2 font-body text-xs text-ink-faint">
+              Escolhe o mês de cada período. Só é possível comparar meses com
+              snapshot guardado.
+            </p>
 
             {compareResult && (
               <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
@@ -552,8 +593,8 @@ export function OrgDashboard() {
             tone="gold"
             label="Financiamento"
             value={`AOA ${(summary.crm.totalFunding / 1_000_000).toFixed(1)}M`}
-            sub="Distribuição por trimestre"
-            breakdown={MOCK_FUNDING_BREAKDOWN}
+            sub="Activo · início por trimestre"
+            breakdown={summary.crm.fundingByQuarter ?? []}
           />
           <HighlightKpiCard
             icon={Building2}
@@ -573,12 +614,6 @@ export function OrgDashboard() {
             label="Biblioteca"
             value={summary.knowledge.libraryItems}
             sub="recursos"
-          />
-          <HighlightKpiCard
-            icon={BadgeCheck}
-            tone="orange"
-            label="Distintivos Emitidos"
-            value={summary.knowledge.badgesIssued}
           />
           <HighlightKpiCard
             icon={Smile}
@@ -690,11 +725,11 @@ export function OrgDashboard() {
                   key={i}
                   className={`flex items-center gap-2 rounded-control px-3 py-2 font-body text-xs ${
                     SEVERITY_INTENT[r.severity] === 'danger'
-                      ? 'bg-danger-subtle text-danger-ink'
-                      : 'bg-warning-subtle text-warning-ink'
+                      ? 'bg-danger-subtle text-black'
+                      : 'bg-warning-subtle text-black'
                   }`}
                 >
-                  <AlertTriangle size={12} strokeWidth={1.75} />
+                  <AlertTriangle size={12} strokeWidth={1.75} className="text-black" />
                   {r.label}
                 </div>
               ))}
@@ -920,12 +955,16 @@ export function OrgDashboard() {
               {modules.platform && (
                 <>
                   <div className="flex justify-center pt-1">
-                    <GaugeChart
-                      value={modules.platform.uptimePercent}
-                      label="Uptime"
-                      thresholds={{ warning: 99, danger: 95 }}
-                      size={120}
-                    />
+                    {modules.platform.uptimePercent != null ? (
+                      <GaugeChart
+                        value={modules.platform.uptimePercent}
+                        label="Uptime"
+                        thresholds={{ warning: 99, danger: 95 }}
+                        size={120}
+                      />
+                    ) : (
+                      <Stat label="Uptime" value="Sem dados" />
+                    )}
                   </div>
                   <Stat
                     label="Alertas abertos"

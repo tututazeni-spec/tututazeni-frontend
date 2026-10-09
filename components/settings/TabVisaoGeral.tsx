@@ -45,12 +45,12 @@ const TIMEZONES = [
 ].map((v) => ({ value: v, label: v }));
 
 // Imagens (logo/favicon) guardadas como data-URL — mesmo padrão do avatar.
-const MAX_IMAGE_BYTES = 512 * 1024;
+const MAX_IMAGE_BYTES = 1024 * 1024;
 
 function readImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     if (file.size > MAX_IMAGE_BYTES) {
-      reject(new Error('Imagem demasiado grande (máx. 512 KB).'));
+      reject(new Error('Imagem demasiado grande (máx. 1 MB).'));
       return;
     }
     const reader = new FileReader();
@@ -70,7 +70,9 @@ export function TabVisaoGeral() {
 
   useEffect(() => {
     if (data) {
-      const { id: _id, tenantCode: _code, ...rest } = data;
+      // updatedAt também vem no GET mas o DTO (whitelist) rejeita-o no PUT.
+      const { id: _id, tenantCode: _code, updatedAt: _upd, ...rest } =
+        data as OrganizationSettings & { updatedAt?: string | null };
       setForm(rest);
     }
   }, [data]);
@@ -78,7 +80,10 @@ export function TabVisaoGeral() {
   const save = useApiMutation(
     (payload: Partial<Form>) => apiClient.put('/settings/organization', payload),
     {
-      invalidateKeys: [queryKeys.settings.organization()],
+      invalidateKeys: [
+        queryKeys.settings.organization(),
+        queryKeys.settings.branding(),
+      ],
       onSuccess: () =>
         toast({ title: 'Definições da organização guardadas', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
@@ -138,7 +143,7 @@ export function TabVisaoGeral() {
                 onChange={(e) => set('platformName', e.target.value)}
               />
             </FormField>
-            <FormField label="Logo" htmlFor="logoUrl" hint="PNG/SVG, máx. 512 KB">
+            <FormField label="Logo" htmlFor="logoUrl" hint="PNG/SVG, máx. 1 MB">
               <div className="flex items-center gap-3">
                 {form.logoUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -152,7 +157,7 @@ export function TabVisaoGeral() {
                 />
               </div>
             </FormField>
-            <FormField label="Favicon" htmlFor="faviconUrl" hint="PNG/ICO, máx. 512 KB">
+            <FormField label="Favicon" htmlFor="faviconUrl" hint="PNG/ICO, máx. 1 MB">
               <div className="flex items-center gap-3">
                 {form.faviconUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -227,7 +232,10 @@ export function TabVisaoGeral() {
         </CardBody>
       </Card>
 
-      <div className="col-span-2 flex justify-end">
+      <div className="sticky bottom-0 z-10 col-span-2 -mx-1 flex items-center justify-end gap-3 rounded-card border border-border bg-surface/95 px-4 py-3 shadow-hover backdrop-blur">
+        <span className="font-body text-xs text-ink-faint">
+          Alterações (nome, logo, formatos) só ficam gravadas ao guardar.
+        </span>
         <Button type="submit" disabled={save.isPending}>
           {save.isPending ? 'A guardar…' : 'Guardar alterações'}
         </Button>

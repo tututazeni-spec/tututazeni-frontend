@@ -66,7 +66,7 @@ export function AlertStrip({ alerts }: AlertStripProps) {
             } ${conf.classes}`}
           >
             <AlertIcon size={14} strokeWidth={1.75} className="shrink-0" />
-            <p className="flex-1 font-body text-sm">{displayMessage}</p>
+            <p className="flex-1 font-body text-sm text-black">{displayMessage}</p>
           </div>
         );
       })}
