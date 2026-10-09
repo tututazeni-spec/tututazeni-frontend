@@ -78,7 +78,7 @@ export function ReportView({
               color="text-ink"
             />
             <SummaryCard
-              label="Milestones concluídos"
+              label="Marcos concluídos"
               value={String(report.milestonesCompleted)}
               color="text-success-ink"
             />
