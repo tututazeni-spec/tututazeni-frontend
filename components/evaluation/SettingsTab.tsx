@@ -75,11 +75,11 @@ export function SettingsTab() {
         />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Fluxo de Aprovação
+        </div>
         <CardBody>
-          <h4 className="font-display font-semibold text-ink mb-3">
-            Fluxo de Aprovação
-          </h4>
           <div className="flex flex-wrap items-center gap-2">
             {data.approvalFlow.map((stage, i) => (
               <div key={stage} className="flex items-center gap-2">
@@ -94,11 +94,11 @@ export function SettingsTab() {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Tipos de Avaliação
+          </div>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-3">
-              Tipos de Avaliação
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.evalPurposes.map((p) => (
                 <Badge key={p} intent="neutral">
@@ -108,11 +108,11 @@ export function SettingsTab() {
             </div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Tipos de Avaliador
+          </div>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-3">
-              Tipos de Avaliador
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.evalTypes.map((t) => (
                 <Badge key={t} intent="neutral">
@@ -122,11 +122,11 @@ export function SettingsTab() {
             </div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Estados do Ciclo
+          </div>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-3">
-              Estados do Ciclo
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.cycleStatuses.map((s) => (
                 <Badge key={s} intent="neutral" className={STATUS_MAP[s]?.cls}>
@@ -136,11 +136,11 @@ export function SettingsTab() {
             </div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Visibilidade dos Resultados
+          </div>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-3">
-              Visibilidade dos Resultados
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.resultsVisibilityOptions.map((v) => (
                 <Badge key={v} intent="neutral">
@@ -152,9 +152,11 @@ export function SettingsTab() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Escalas
+        </div>
         <CardBody>
-          <h4 className="font-display font-semibold text-ink mb-3">Escalas</h4>
           {data.scales.length === 0 && (
             <p className="text-xs text-ink-faint">Sem escalas criadas.</p>
           )}

@@ -36,9 +36,11 @@ function GroupTable({
 }) {
   if (!rows.length) return null;
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        {title}
+      </div>
       <CardBody>
-        <h4 className="font-display font-semibold text-ink mb-3">{title}</h4>
         <div className="space-y-2">
           {rows.map((r) => (
             <div
@@ -249,11 +251,11 @@ export function ReportsTab() {
           </div>
 
           {data.competencyGaps.length > 0 && (
-            <Card>
+            <Card className="overflow-hidden">
+              <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                Gaps de Competências
+              </div>
               <CardBody>
-                <h4 className="font-display font-semibold text-ink mb-3">
-                  Gaps de Competências
-                </h4>
                 <div className="space-y-2">
                   {data.competencyGaps.map((c) => (
                     <div
@@ -272,11 +274,11 @@ export function ReportsTab() {
           )}
 
           {data.evolution.length > 1 && (
-            <Card>
+            <Card className="overflow-hidden">
+              <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                Evolução do Desempenho
+              </div>
               <CardBody>
-                <h4 className="font-display font-semibold text-ink mb-3">
-                  Evolução do Desempenho
-                </h4>
                 <div className="flex items-end gap-2 h-24">
                   {data.evolution.map((e) => (
                     <div

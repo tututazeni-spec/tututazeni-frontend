@@ -316,11 +316,11 @@ export function OverviewTab({ userId }: OverviewTabProps) {
 
       {/* My results radar */}
       {myResults && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Os Meus Resultados
+          </div>
           <CardBody>
-            <h3 className="font-display font-semibold text-ink mb-4">
-              Os Meus Resultados
-            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Score breakdown */}
               <div>
