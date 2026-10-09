@@ -24,9 +24,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Skeleton } from './shared';
 import type { CourseCategoryManaged } from './types';
 
-const GRID = 'min-w-[800px] grid-cols-[1.2fr_2fr_1fr_1fr_100px]';
-const PANEL =
-  'rounded-xl border border-border/60 bg-surface-sunken/40 p-3';
+const PANEL = 'rounded-xl border border-border/60 bg-surface-sunken/40 p-3';
 
 interface CategoryFormState {
   name: string;
@@ -66,14 +64,8 @@ function CategoryModal({
   );
 
   const update = useApiMutation(
-    ({
-      id,
-      ...body
-    }: {
-      id: number;
-      name: string;
-      description?: string;
-    }) => apiClient.patch(`/courses/categories/${id}`, body),
+    ({ id, ...body }: { id: number; name: string; description?: string }) =>
+      apiClient.patch(`/courses/categories/${id}`, body),
     {
       invalidateKeys,
       onSuccess: () => {
@@ -219,80 +211,79 @@ export function CategoriasView() {
           description="Cria a primeira categoria para organizar o catálogo de cursos."
         />
       ) : (
-        <div className="overflow-x-auto">
-          {/* Cabeçalho */}
-          <div className={`grid ${GRID} gap-3 px-4 pb-2 text-xs font-medium uppercase tracking-wide text-ink-faint`}>
-            <div>Categoria</div>
-            <div>Descrição</div>
-            <div>Cursos associados</div>
-            <div>Estado</div>
-            <div />
-          </div>
-
+        <div>
           <div className="space-y-3">
             {data.map((cat) => (
               <div
                 key={cat.id}
-                className={`grid ${GRID} items-stretch gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-3 shadow-sm backdrop-blur-md hover:bg-surface ${cat.isActive ? 'border-l-emerald-500' : 'border-l-slate-400'}`}
+                className={`flex flex-col gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-4 shadow-sm backdrop-blur-md hover:bg-surface ${cat.isActive ? 'border-l-emerald-500' : 'border-l-slate-400'}`}
               >
-                <div className="flex min-w-0 flex-col justify-center">
-                  <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
-                    {cat.name}
+                <div className="flex items-start gap-3">
+                  <div className="flex min-w-0 flex-1 flex-col justify-center">
+                    <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
+                      {cat.name}
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button
+                      size="sm"
+                      intent="ghost"
+                      onClick={() => setModalFor(cat)}
+                    >
+                      <Pencil size={14} strokeWidth={1.75} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      intent="ghost"
+                      onClick={() => onDelete(cat)}
+                    >
+                      <Trash2 size={14} strokeWidth={1.75} />
+                    </Button>
                   </div>
                 </div>
-                <div className={`${PANEL} flex min-w-0 items-center`}>
-                  <span className="line-clamp-3 text-xs text-ink-muted">
-                    {cat.description || '—'}
-                  </span>
-                </div>
-                <div className={`${PANEL} flex flex-col items-center justify-center gap-1`}>
-                  <span className="font-mono text-lg font-semibold text-ink">
-                    {cat.courseCount}
-                  </span>
-                  <span className="text-xs text-ink-faint">
-                    {cat.courseCount === 1 ? 'curso' : 'cursos'}
-                  </span>
-                </div>
-                <div className={`${PANEL} flex items-center`}>
-                  <button
-                    onClick={() =>
-                      toggleActive.mutate({
-                        id: cat.id,
-                        isActive: !cat.isActive,
-                      })
-                    }
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-[2fr_1fr_1fr]">
+                  <div
+                    className={`${PANEL} col-span-2 flex min-w-0 items-center lg:col-span-1`}
                   >
-                    <StatusBadge
-                      value={cat.isActive ? 'ACTIVE' : 'INACTIVE'}
-                      variant="dot"
-                      map={{
-                        ACTIVE: {
-                          label: 'Activa',
-                          cls: 'bg-success-subtle text-success-ink',
-                        },
-                        INACTIVE: {
-                          label: 'Inactiva',
-                          cls: 'bg-surface-sunken text-ink-faint',
-                        },
-                      }}
-                    />
-                  </button>
-                </div>
-                <div className="flex items-center justify-end gap-1">
-                  <Button
-                    size="sm"
-                    intent="ghost"
-                    onClick={() => setModalFor(cat)}
+                    <span className="line-clamp-3 text-xs text-ink-muted">
+                      {cat.description || '—'}
+                    </span>
+                  </div>
+                  <div
+                    className={`${PANEL} flex flex-col items-center justify-center gap-1`}
                   >
-                    <Pencil size={14} strokeWidth={1.75} />
-                  </Button>
-                  <Button
-                    size="sm"
-                    intent="ghost"
-                    onClick={() => onDelete(cat)}
-                  >
-                    <Trash2 size={14} strokeWidth={1.75} />
-                  </Button>
+                    <span className="font-mono text-lg font-semibold text-ink">
+                      {cat.courseCount}
+                    </span>
+                    <span className="text-xs text-ink-faint">
+                      {cat.courseCount === 1 ? 'curso' : 'cursos'}
+                    </span>
+                  </div>
+                  <div className={`${PANEL} flex items-center`}>
+                    <button
+                      onClick={() =>
+                        toggleActive.mutate({
+                          id: cat.id,
+                          isActive: !cat.isActive,
+                        })
+                      }
+                    >
+                      <StatusBadge
+                        value={cat.isActive ? 'ACTIVE' : 'INACTIVE'}
+                        variant="dot"
+                        map={{
+                          ACTIVE: {
+                            label: 'Activa',
+                            cls: 'bg-success-subtle text-success-ink',
+                          },
+                          INACTIVE: {
+                            label: 'Inactiva',
+                            cls: 'bg-surface-sunken text-ink-faint',
+                          },
+                        }}
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
