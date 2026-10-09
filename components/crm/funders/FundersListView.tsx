@@ -64,7 +64,7 @@ export function FundersListView({
         </div>
                <Link
           href="/crm/funders/novo"
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-body text-sm font-bold text-white shadow-lg transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#0F1F3D] px-5 py-3 font-body text-sm font-bold text-white shadow-lg transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F1F3D]/40"
         >
           <Plus className="h-4 w-4" />
           Novo Financiador
@@ -139,7 +139,7 @@ export function FundersListView({
       <Card>
         <div className="overflow-hidden">
           <table className="w-full font-body text-sm">
-            <thead className="bg-[#0F1F3D] text-white uppercase">
+            <thead className="bg-[#0F1F3D]/60 text-white uppercase">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-xs">
                   Código
