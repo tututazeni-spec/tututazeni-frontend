@@ -123,6 +123,8 @@ export interface HRDashboard {
     hired: number;
     terminated: number;
     turnoverRate: number;
+    /** % mensal de saídas nos últimos 6 meses (mais antigo → mais recente). */
+    turnoverTrend: number[];
   };
   learning: {
     enrollments: number;
@@ -136,6 +138,7 @@ export interface HRDashboard {
     adoptionRate: number;
     pendingApproval: number;
     completed: number;
+    funnel: { eligible: number; started: number; adopted: number };
   };
   headcountByDept?: DeptHeadcount[];
 }

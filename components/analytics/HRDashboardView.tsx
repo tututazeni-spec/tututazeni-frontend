@@ -68,10 +68,6 @@ function TopBarKpiCard({
   );
 }
 
-// TODO: substituir por dados reais quando soubermos o campo da API
-// (ex.: data.people.turnoverTrend) com o histórico mensal da rotatividade.
-const MOCK_TURNOVER_TREND = [5.1, 5.6, 4.9, 6.2, 5.8, 6.5];
-
 function TrendKpiCard({
   icon: Icon,
   label,
@@ -162,15 +158,13 @@ function HorizontalBarKpiCard({
   );
 }
 
-// TODO: substituir por dados reais quando soubermos o campo da API com as
-// etapas do funil de adopção de PDI (ex.: data.pdi.funnel). Enquanto isso,
-// as duas primeiras etapas são estimadas a partir de adoptionRate.
-function funnelStagesFromAdoption(adoptionRate: number) {
-  const rate = Math.max(0, Math.min(100, adoptionRate));
+function funnelStages(funnel: HRDashboard['pdi']['funnel']) {
+  const pct = (n: number) =>
+    funnel.eligible > 0 ? Math.min(100, (n / funnel.eligible) * 100) : 0;
   return [
-    { label: 'Elegíveis', pct: 100 },
-    { label: 'Iniciaram PDI', pct: Math.min(100, rate + 20) },
-    { label: 'Adoptaram', pct: rate },
+    { label: 'Elegíveis', pct: funnel.eligible > 0 ? 100 : 0 },
+    { label: 'Iniciaram PDI', pct: pct(funnel.started) },
+    { label: 'Adoptaram', pct: pct(funnel.adopted) },
   ];
 }
 
@@ -178,17 +172,17 @@ function FunnelKpiCard({
   icon: Icon,
   label,
   value,
-  adoptionRate,
+  funnel,
   tone,
 }: {
   icon: LucideIcon;
   label: string;
   value: string | number;
-  adoptionRate: number;
+  funnel: HRDashboard['pdi']['funnel'];
   tone: Tone;
 }) {
   const t = TONES[tone];
-  const stages = funnelStagesFromAdoption(adoptionRate);
+  const stages = funnelStages(funnel);
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg">
       <div className={`h-1.5 w-full ${t.bar}`} />
@@ -258,7 +252,7 @@ export function HRDashboardView() {
               icon={TrendingDown}
               label="Taxa de Rotatividade"
               value={`${data.people.turnoverRate}%`}
-              trendData={MOCK_TURNOVER_TREND}
+              trendData={data.people.turnoverTrend}
               tone="red"
             />
           </div>
@@ -318,7 +312,7 @@ export function HRDashboardView() {
               icon={Filter}
               label="Adopção"
               value={`${data.pdi.adoptionRate}%`}
-              adoptionRate={data.pdi.adoptionRate}
+              funnel={data.pdi.funnel}
               tone="gold"
             />
             <TopBarKpiCard
