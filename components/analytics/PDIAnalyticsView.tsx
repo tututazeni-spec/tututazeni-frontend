@@ -21,7 +21,27 @@ import type {
 } from '@/components/development-plans/types';
 import type { PDIAnalytics } from './types';
 import type { LucideIcon } from 'lucide-react';
-import { AlertTriangle, CheckCircle2, TrendingUp } from 'lucide-react';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  FileClock,
+  Percent,
+  TrendingUp,
+} from 'lucide-react';
+
+// Ordem do ciclo de vida; estados com 0 também aparecem.
+const STATUS_ORDER: PlanStatus[] = [
+  'DRAFT',
+  'PENDING_APPROVAL',
+  'ACTIVE',
+  'PAUSED',
+  'AT_RISK',
+  'OVERDUE',
+  'COMPLETED',
+  'PARTIALLY_COMPLETED',
+  'CANCELLED',
+];
 
 type Tone = 'blue' | 'green' | 'gold' | 'red';
 
@@ -69,6 +89,16 @@ export function PDIAnalyticsView() {
 
   if (isLoading || !data) return <Skeleton rows={4} />;
 
+  const totalPlans = Object.values(data.byStatus).reduce((a, b) => a + b, 0);
+  const pct = (n: number) =>
+    totalPlans > 0 ? Math.round((n / totalPlans) * 100) : 0;
+  const statuses = [
+    ...STATUS_ORDER,
+    ...Object.keys(data.byStatus).filter(
+      (k) => !STATUS_ORDER.includes(k as PlanStatus),
+    ),
+  ] as PlanStatus[];
+
   return (
     <div className="space-y-5">
       {/* KPIs */}
@@ -91,6 +121,24 @@ export function PDIAnalyticsView() {
           value={data.completedThisMonth}
           tone="green"
         />
+        <TopBarKpiCard
+          icon={Percent}
+          label="Taxa de conclusão (excl. rascunhos e cancelados)"
+          value={`${data.completionRate}%`}
+          tone="green"
+        />
+        <TopBarKpiCard
+          icon={Clock}
+          label="PDIs activos com prazo ultrapassado"
+          value={data.overduePlans}
+          tone={data.overduePlans > 0 ? 'red' : 'green'}
+        />
+        <TopBarKpiCard
+          icon={FileClock}
+          label="Rascunhos parados há mais de 30 dias"
+          value={data.staleDrafts}
+          tone={data.staleDrafts > 0 ? 'gold' : 'green'}
+        />
       </div>
 
       {/* Estado dos PDIs */}
@@ -98,24 +146,46 @@ export function PDIAnalyticsView() {
         <div className="h-1.5 w-full bg-[#2B6CC4]" />
         <div className="p-5">
           <div className="mb-3 font-body text-sm font-semibold text-ink-muted">
-            PDIs por estado
+            PDIs por estado · {totalPlans} no total
           </div>
+          {totalPlans > 0 && (
+            <div className="mb-4 flex h-2 w-full overflow-hidden rounded-full bg-surface-sunken">
+              {statuses.map((status) => {
+                const count = data.byStatus[status] ?? 0;
+                if (count === 0) return null;
+                return (
+                  <div
+                    key={status}
+                    title={`${PLAN_STATUS_CFG[status]?.label ?? status}: ${count}`}
+                    className={`h-full ${PLAN_STATUS_CFG[status]?.cls ?? ''}`}
+                    style={{ width: `${(count / totalPlans) * 100}%` }}
+                  />
+                );
+              })}
+            </div>
+          )}
           <div className="flex flex-wrap gap-2">
-            {Object.entries(data.byStatus).map(([status, count]) => (
-              <div
-                key={status}
-                className="flex items-center gap-2 rounded-full border border-border bg-surface-sunken px-3 py-1.5"
-              >
-                <StatusBadge
-                  value={status as PlanStatus}
-                  map={PLAN_STATUS_CFG}
-                  variant="dot"
-                />
-                <span className="font-data text-sm font-bold text-ink">
-                  {count}
-                </span>
-              </div>
-            ))}
+            {statuses.map((status) => {
+              const count = data.byStatus[status] ?? 0;
+              return (
+                <div
+                  key={status}
+                  className={`flex items-center gap-2 rounded-full border border-border bg-surface-sunken px-3 py-1.5 ${count === 0 ? 'opacity-50' : ''}`}
+                >
+                  <StatusBadge
+                    value={status as PlanStatus}
+                    map={PLAN_STATUS_CFG}
+                    variant="dot"
+                  />
+                  <span className="font-data text-sm font-bold text-ink">
+                    {count}
+                  </span>
+                  <span className="font-body text-xs text-ink-muted">
+                    {pct(count)}%
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

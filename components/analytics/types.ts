@@ -231,6 +231,9 @@ export interface DepartmentAnalytics {
 export interface PDIAnalytics {
   byStatus: Record<string, number>;
   avgProgress: number;
+  completionRate: number;
+  overduePlans: number;
+  staleDrafts: number;
   overdueActions: number;
   completedThisMonth: number;
   actionsByType: Array<{ type: string; count: number }>;
