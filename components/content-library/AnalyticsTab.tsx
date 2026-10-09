@@ -11,13 +11,14 @@
 
 'use client';
 
+import { CheckCircle, Eye, Library, PlayCircle } from 'lucide-react';
 import { useComplianceOverview } from '@/components/documents/hooks';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { FORMAT_CLS, FORMAT_CLS_FALLBACK } from './constants';
@@ -43,29 +44,29 @@ export function AnalyticsTab() {
     <div className="space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <KpiCard
+        <NavyStatCard
+          icon={Library}
           label="Total de Conteúdos"
           value={data?.kpis.totalContent ?? 0}
-          intent="primary"
-          className="w-full"
+          tone="blue"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={PlayCircle}
           label="Activos"
           value={data?.kpis.activeContent ?? 0}
-          intent="success"
-          className="w-full"
+          tone="green"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Eye}
           label="Visualizações"
           value={data?.kpis.totalViews ?? 0}
-          intent="info"
-          className="w-full"
+          tone="orange"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={CheckCircle}
           label="Conclusões"
           value={data?.kpis.totalCompletions ?? 0}
-          intent="accent"
-          className="w-full"
+          tone="red"
         />
       </div>
 
