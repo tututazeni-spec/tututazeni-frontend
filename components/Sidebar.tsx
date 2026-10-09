@@ -334,7 +334,7 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
             }}
           >
             <Image
-              src="/images/innova-logo.jpeg"
+              src="/images/innova-logo.png"
               alt="INNOVA"
               width={36}
               height={36}
