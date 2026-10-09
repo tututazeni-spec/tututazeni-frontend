@@ -255,7 +255,7 @@ export function CreateCourseModal({
       >
         <div className="mt-5 space-y-5">
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-danger-ink rounded-card text-sm">
+            <div className="flex items-center gap-2 p-3 bg-danger-subtle text-black rounded-card text-sm">
               <AlertCircle size={16} strokeWidth={1.75} />
               {error}
             </div>

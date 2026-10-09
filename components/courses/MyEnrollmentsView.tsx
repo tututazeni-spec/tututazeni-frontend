@@ -59,7 +59,7 @@ export function MyEnrollmentsView({ onSelect }: MyEnrollmentsViewProps) {
   const filtered = data.filter((e) => matchesFilter(e, filter));
 
   if (loading) return <Skeleton />;
-  if (error) return <div className="text-sm text-danger">{error.message}</div>;
+  if (error) return <div className="text-sm text-black">{error.message}</div>;
 
   return (
     <div>
