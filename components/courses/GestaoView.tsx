@@ -308,71 +308,76 @@ export function GestaoView({
       {/* Filtros — grid de largura uniforme (8 campos: 2 pesquisas + 6
           selects, em 1/2/3 colunas; departamentos ocupa 2 no ecrã largo para o texto caber sem ser cortado) em vez de larguras w-* ad-hoc por campo, para que todos
           os controlos fiquem com o mesmo tamanho e alinhados em colunas. */}
-      <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <Input
-          type="text"
-          placeholder="Pesquisar cursos…"
-          value={filters.search}
-          onChange={(e) => updateFilters({ search: e.target.value })}
-          className="w-full"
-        />
-        <Input
-          type="text"
-          placeholder="Unidade…"
-          value={filters.unit}
-          onChange={(e) => updateFilters({ unit: e.target.value })}
-          className="w-full"
-        />
-        <Select
-          items={categoryItems}
-          value={filters.category || 'ALL'}
-          onValueChange={(v) =>
-            updateFilters({ category: v === 'ALL' ? '' : v })
-          }
-          className="w-full"
-        />
-        <Select
-          items={TYPE_ITEMS}
-          value={filters.type || 'ALL'}
-          onValueChange={(v) => updateFilters({ type: v === 'ALL' ? '' : v })}
-          className="w-full"
-        />
-        <Select
-          items={MODALITY_ITEMS}
-          value={filters.modality || 'ALL'}
-          onValueChange={(v) =>
-            updateFilters({ modality: v === 'ALL' ? '' : v })
-          }
-          className="w-full"
-        />
-        <Select
-          items={STATUS_ITEMS}
-          value={filters.status || 'ALL'}
-          onValueChange={(v) => updateFilters({ status: v === 'ALL' ? '' : v })}
-          className="w-full"
-        />
-        <Select
-          items={LEVEL_ITEMS}
-          value={filters.level || 'ALL'}
-          onValueChange={(v) => updateFilters({ level: v === 'ALL' ? '' : v })}
-          className="w-full"
-        />
-        <Select
-          items={[
-            { value: 'ALL', label: 'Todos os departamentos' },
-            ...departmentOptions,
-          ]}
-          value={filters.departmentId || 'ALL'}
-          onValueChange={(v) =>
-            updateFilters({ departmentId: v === 'ALL' ? '' : v })
-          }
-          className="w-full lg:col-span-2"
-        />
-      </div>
-      <div className="mb-5 flex justify-end">
-        <span className="text-sm text-ink-faint">
-          {data?.total ?? 0} cursos
-        </span>
+      {/* Painel de filtros: cartão com #0F1F3D a 15% de opacidade */}
+      <div className="mb-5 rounded-2xl border border-[#0F1F3D]/20 bg-[#0F1F3D]/15 p-4">
+        <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <Input
+            type="text"
+            placeholder="Pesquisar cursos…"
+            value={filters.search}
+            onChange={(e) => updateFilters({ search: e.target.value })}
+            className="w-full"
+          />
+          <Input
+            type="text"
+            placeholder="Unidade…"
+            value={filters.unit}
+            onChange={(e) => updateFilters({ unit: e.target.value })}
+            className="w-full"
+          />
+          <Select
+            items={categoryItems}
+            value={filters.category || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ category: v === 'ALL' ? '' : v })
+            }
+            className="w-full"
+          />
+          <Select
+            items={TYPE_ITEMS}
+            value={filters.type || 'ALL'}
+            onValueChange={(v) => updateFilters({ type: v === 'ALL' ? '' : v })}
+            className="w-full"
+          />
+          <Select
+            items={MODALITY_ITEMS}
+            value={filters.modality || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ modality: v === 'ALL' ? '' : v })
+            }
+            className="w-full"
+          />
+          <Select
+            items={STATUS_ITEMS}
+            value={filters.status || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ status: v === 'ALL' ? '' : v })
+            }
+            className="w-full"
+          />
+          <Select
+            items={LEVEL_ITEMS}
+            value={filters.level || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ level: v === 'ALL' ? '' : v })
+            }
+            className="w-full"
+          />
+          <Select
+            items={[
+              { value: 'ALL', label: 'Todos os departamentos' },
+              ...departmentOptions,
+            ]}
+            value={filters.departmentId || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ departmentId: v === 'ALL' ? '' : v })
+            }
+            className="w-full lg:col-span-2"
+          />
+        </div>
+        <div className="flex justify-end">
+          <span className="text-sm text-black">{data?.total ?? 0} cursos</span>
+        </div>
       </div>
 
       {isLoading && <Skeleton rows={4} />}
