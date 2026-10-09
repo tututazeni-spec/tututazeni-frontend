@@ -7,7 +7,14 @@
 'use client';
 
 import { useState } from 'react';
-import { CalendarDays, Clock, MapPin, Plus, Trash2, Users2 } from 'lucide-react';
+import {
+  CalendarDays,
+  Clock,
+  MapPin,
+  Plus,
+  Trash2,
+  Users2,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -34,8 +41,6 @@ const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> =
     CANCELLED: { label: 'Cancelada', cls: 'bg-danger-subtle text-danger-ink' },
   };
 
-const GRID =
-  'min-w-[1000px] grid-cols-[1.3fr_1.4fr_1.4fr_1.1fr_1fr_200px]';
 const PANEL = 'rounded-xl border border-border/60 bg-surface-sunken/40 p-3';
 
 const STATUS_ACCENT: Record<string, string> = {
@@ -104,8 +109,8 @@ export function TurmasView() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="w-72">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="w-full sm:w-72">
           <Combobox
             items={courseOptions}
             value={courseId}
@@ -142,17 +147,7 @@ export function TurmasView() {
       )}
 
       {courseId && !isLoading && data.length > 0 && (
-        <div className="overflow-x-auto">
-          {/* Cabeçalho agrupado */}
-          <div className={`grid ${GRID} gap-3 px-4 pb-2 text-xs font-medium uppercase tracking-wide text-ink-faint`}>
-            <div>Turma</div>
-            <div>Formador &amp; Local / Sala</div>
-            <div>Datas &amp; Horário</div>
-            <div>Inscritos &amp; Vagas</div>
-            <div>Estado</div>
-            <div />
-          </div>
-
+        <div>
           <div className="space-y-3">
             {data.map((c) => {
               const place = [c.location, c.room].filter(Boolean).join(' · ');
@@ -164,104 +159,125 @@ export function TurmasView() {
                 <div
                   key={c.id}
                   onClick={() => setDetailId(c.id)}
-                  className={`grid ${GRID} cursor-pointer items-stretch gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-3 shadow-sm backdrop-blur-md hover:bg-surface ${STATUS_ACCENT[c.status] ?? ''}`}
+                  className={`cursor-pointer flex flex-col gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-4 shadow-sm backdrop-blur-md hover:bg-surface ${STATUS_ACCENT[c.status] ?? ''}`}
                 >
-                  {/* 1. Turma */}
-                  <div className="flex min-w-0 flex-col justify-center">
-                    <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
-                      {c.name}
+                  {/* Topo: nome e acções */}
+                  <div className="flex flex-wrap items-start gap-3">
+                    <div className="flex min-w-0 flex-1 basis-48 flex-col justify-center">
+                      <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
+                        {c.name}
+                      </div>
                     </div>
-                  </div>
-
-                  {/* 2. Formador & Local / Sala */}
-                  <div className={`${PANEL} flex min-w-0 flex-col items-center justify-center gap-1`}>
-                    {c.instructor ? (
-                      <>
-                        <Avatar
-                          name={c.instructor.fullName}
-                          url={c.instructor.avatarUrl ?? undefined}
-                          size="sm"
-                        />
-                        <span className="max-w-full truncate text-xs font-medium text-ink">
-                          {c.instructor.fullName}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-xs text-ink-faint">Sem formador</span>
-                    )}
-                    <span className="flex max-w-full items-center gap-1 text-xs text-ink-faint">
-                      <MapPin size={12} strokeWidth={1.75} className="shrink-0" />
-                      <span className="truncate">{place || '—'}</span>
-                    </span>
-                  </div>
-
-                  {/* 3. Datas & Horário */}
-                  <div className={`${PANEL} flex flex-col items-center justify-center gap-1.5`}>
-                    <span className="flex items-center gap-1 text-xs text-ink">
-                      <CalendarDays size={12} strokeWidth={1.75} />
-                      {fmtDate(c.startDate)} — {fmtDate(c.endDate)}
-                    </span>
-                    <span className="flex items-center gap-1 text-xs text-ink-muted">
-                      <Clock size={12} strokeWidth={1.75} />
-                      {c.schedule ?? '—'}
-                    </span>
-                  </div>
-
-                  {/* 4. Inscritos & Vagas */}
-                  <div className={`${PANEL} flex flex-col items-center justify-center gap-1.5`}>
-                    <span className="font-mono text-sm font-semibold text-ink">
-                      {c.enrolled}/{c.capacity}
-                    </span>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
-                      <div
-                        className={`h-full rounded-full ${pct >= 90 ? 'bg-orange-400' : 'bg-blue-500'}`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-ink-muted">
-                      Vagas: <span className="font-mono">{c.availableSlots}</span>
-                    </span>
-                  </div>
-
-                  {/* 5. Estado */}
-                  <div className={`${PANEL} flex items-center`}>
-                    <StatusBadge
-                      value={c.status}
-                      map={COHORT_STATUS_MAP}
-                      variant="dot"
-                    />
-                  </div>
-
-                  {/* 6. Acções */}
-                  <div
-                    className="flex items-center justify-end gap-1"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Button
-                      size="sm"
-                      intent="ghost"
-                      onClick={() => setDetailId(c.id)}
+                    {/* 6. Acções */}
+                    <div
+                      className="flex shrink-0 flex-wrap items-center justify-end gap-1"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <Users2 size={14} strokeWidth={1.75} />
-                    </Button>
-                    <Button
-                      size="sm"
-                      intent="ghost"
-                      aria-label={`Eliminar turma ${c.name}`}
-                      title="Eliminar turma"
-                      onClick={() => onDelete(c)}
-                    >
-                      <Trash2 size={14} strokeWidth={1.75} className="text-danger-ink" />
-                    </Button>
-                    {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
                       <Button
                         size="sm"
-                        intent="secondary"
-                        onClick={() => onClose(c)}
+                        intent="ghost"
+                        onClick={() => setDetailId(c.id)}
                       >
-                        Encerrar
+                        <Users2 size={14} strokeWidth={1.75} />
                       </Button>
-                    )}
+                      <Button
+                        size="sm"
+                        intent="ghost"
+                        aria-label={`Eliminar turma ${c.name}`}
+                        title="Eliminar turma"
+                        onClick={() => onDelete(c)}
+                      >
+                        <Trash2
+                          size={14}
+                          strokeWidth={1.75}
+                          className="text-danger-ink"
+                        />
+                      </Button>
+                      {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
+                        <Button
+                          size="sm"
+                          intent="secondary"
+                          onClick={() => onClose(c)}
+                        >
+                          Encerrar
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Detalhes em grelha fluida */}
+                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    {/* 2. Formador & Local / Sala */}
+                    <div
+                      className={`${PANEL} flex min-w-0 flex-col items-center justify-center gap-1`}
+                    >
+                      {c.instructor ? (
+                        <>
+                          <Avatar
+                            name={c.instructor.fullName}
+                            url={c.instructor.avatarUrl ?? undefined}
+                            size="sm"
+                          />
+                          <span className="max-w-full truncate text-xs font-medium text-ink">
+                            {c.instructor.fullName}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-xs text-ink-faint">
+                          Sem formador
+                        </span>
+                      )}
+                      <span className="flex max-w-full items-center gap-1 text-xs text-ink-faint">
+                        <MapPin
+                          size={12}
+                          strokeWidth={1.75}
+                          className="shrink-0"
+                        />
+                        <span className="truncate">{place || '—'}</span>
+                      </span>
+                    </div>
+
+                    {/* 3. Datas & Horário */}
+                    <div
+                      className={`${PANEL} flex flex-col items-center justify-center gap-1.5`}
+                    >
+                      <span className="flex flex-wrap items-center justify-center gap-x-1 text-center text-xs text-ink">
+                        <CalendarDays size={12} strokeWidth={1.75} />
+                        {fmtDate(c.startDate)} — {fmtDate(c.endDate)}
+                      </span>
+                      <span className="flex items-center gap-1 text-xs text-ink-muted">
+                        <Clock size={12} strokeWidth={1.75} />
+                        {c.schedule ?? '—'}
+                      </span>
+                    </div>
+
+                    {/* 4. Inscritos & Vagas */}
+                    <div
+                      className={`${PANEL} flex flex-col items-center justify-center gap-1.5`}
+                    >
+                      <span className="font-mono text-sm font-semibold text-ink">
+                        {c.enrolled}/{c.capacity}
+                      </span>
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
+                        <div
+                          className={`h-full rounded-full ${pct >= 90 ? 'bg-orange-400' : 'bg-blue-500'}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-ink-muted">
+                        Vagas:{' '}
+                        <span className="font-mono">{c.availableSlots}</span>
+                      </span>
+                    </div>
+
+                    {/* 5. Estado */}
+                    <div className={`${PANEL} flex items-center`}>
+                      <StatusBadge
+                        value={c.status}
+                        map={COHORT_STATUS_MAP}
+                        variant="dot"
+                      />
+                    </div>
                   </div>
                 </div>
               );
