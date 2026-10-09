@@ -137,18 +137,6 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
           title="Formação por unidade"
           items={data.byUnit.map((u) => ({ label: u.unit, count: u.count }))}
         />
-        {data.mandatoryPending.courses.length > 0 && (
-          <CourseBarList
-            title="Formação obrigatória pendente — por curso"
-            items={data.mandatoryPending.courses.map((c) => ({
-              id: c.id,
-              title: c.title,
-              value: c.pending,
-            }))}
-            suffix=" por concluir"
-            onSelect={onSelect}
-          />
-        )}
       </div>
     </div>
   );
