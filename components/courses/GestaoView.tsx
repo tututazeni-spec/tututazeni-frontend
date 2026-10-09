@@ -308,8 +308,8 @@ export function GestaoView({
       {/* Filtros — grid de largura uniforme (8 campos: 2 pesquisas + 6
           selects, em 1/2/3 colunas; departamentos ocupa 2 no ecrã largo para o texto caber sem ser cortado) em vez de larguras w-* ad-hoc por campo, para que todos
           os controlos fiquem com o mesmo tamanho e alinhados em colunas. */}
-      {/* Painel de filtros: cartão com #0F1F3D a 15% de opacidade */}
-      <div className="mb-5 rounded-2xl border border-[#0F1F3D]/20 bg-[#0F1F3D]/15 p-4">
+      {/* Painel de filtros: cartão com #0F1F3D a 8% de opacidade */}
+      <div className="mb-5 rounded-2xl border border-[#0F1F3D]/20 bg-[#0F1F3D]/8 p-4">
         <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <Input
             type="text"
