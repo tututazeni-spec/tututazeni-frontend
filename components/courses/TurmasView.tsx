@@ -11,6 +11,7 @@ import {
   Briefcase,
   CalendarDays,
   DoorOpen,
+  PlayCircle,
   Clock,
   MapPin,
   Plus,
@@ -213,13 +214,42 @@ export function TurmasView() {
   const [courseId, setCourseId] = useState<string | undefined>(undefined);
   const [showCreate, setShowCreate] = useState(false);
   const [detailId, setDetailId] = useState<number | null>(null);
-  const [showOpen, setShowOpen] = useState(false);
+  const [panel, setPanel] = useState<'OPEN' | 'ACTIVE' | null>(null);
+  const showOpen = panel !== null;
 
-  const { data: openCohorts = [], isLoading: openLoading } = useApiQuery<
-    Array<Cohort & { course: CohortDetail['course'] }>
-  >(queryKeys.courses.openCohorts(), '/courses/cohorts/open', {
-    staleTime: STALE_TIME.DYNAMIC,
-  });
+  type CohortWithCourse = Cohort & { course: CohortDetail['course'] };
+  const openQuery = useApiQuery<CohortWithCourse[]>(
+    queryKeys.courses.openCohorts('OPEN'),
+    '/courses/cohorts/open?status=OPEN',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const activeQuery = useApiQuery<CohortWithCourse[]>(
+    queryKeys.courses.openCohorts('ACTIVE'),
+    '/courses/cohorts/open?status=ACTIVE',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const panelQuery = panel === 'ACTIVE' ? activeQuery : openQuery;
+  const openCohorts = panelQuery.data ?? [];
+  const openLoading = panelQuery.isLoading;
+  const panelCards: Array<{
+    key: 'OPEN' | 'ACTIVE';
+    label: string;
+    icon: LucideIcon;
+    count: number;
+  }> = [
+    {
+      key: 'OPEN',
+      label: 'Turmas Abertas',
+      icon: DoorOpen,
+      count: openQuery.data?.length ?? 0,
+    },
+    {
+      key: 'ACTIVE',
+      label: 'Turmas Activas',
+      icon: PlayCircle,
+      count: activeQuery.data?.length ?? 0,
+    },
+  ];
 
   const { data = [], isLoading } = useApiQuery<Cohort[]>(
     queryKeys.courses.cohorts(Number(courseId)),
@@ -232,7 +262,8 @@ export function TurmasView() {
     {
       invalidateKeys: [
         queryKeys.courses.cohorts(Number(courseId)),
-        queryKeys.courses.openCohorts(),
+        queryKeys.courses.openCohorts('OPEN'),
+        queryKeys.courses.openCohorts('ACTIVE'),
       ],
       onSuccess: () => toast({ title: 'Turma encerrada', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
@@ -244,7 +275,8 @@ export function TurmasView() {
     {
       invalidateKeys: [
         queryKeys.courses.cohorts(Number(courseId)),
-        queryKeys.courses.openCohorts(),
+        queryKeys.courses.openCohorts('OPEN'),
+        queryKeys.courses.openCohorts('ACTIVE'),
       ],
       onSuccess: () => toast({ title: 'Turma eliminada', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
@@ -280,33 +312,36 @@ export function TurmasView() {
               value={courseId}
               onValueChange={(v) => {
                 setCourseId(v);
-                if (v) setShowOpen(false);
+                if (v) setPanel(null);
               }}
               placeholder="Selecionar curso"
               searchPlaceholder="Escreva para filtrar cursos…"
               emptyText="Nenhum curso encontrado"
             />
           </div>
-          <button
-            type="button"
-            aria-pressed={showOpen}
-            onClick={() => setShowOpen((v) => !v)}
-            className={`flex h-10 items-center gap-2.5 rounded-xl border px-3 text-left transition-colors ${
-              showOpen
-                ? 'border-[#0D6EFD] bg-[#EAF2FF]'
-                : 'border-[#DCE5F1] bg-white hover:bg-[#F5F8FD]'
-            }`}
-          >
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD]">
-              <DoorOpen size={15} strokeWidth={1.75} />
-            </span>
-            <span className="text-sm font-semibold text-[#0F1F3D]">
-              Turmas Abertas
-            </span>
-            <span className="rounded-full bg-[#0D6EFD] px-2 py-0.5 text-[11px] font-semibold text-white">
-              {openCohorts.length}
-            </span>
-          </button>
+          {panelCards.map(({ key, label, icon: Icon, count }) => (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={panel === key}
+              onClick={() => setPanel((p) => (p === key ? null : key))}
+              className={`flex h-10 items-center gap-2.5 rounded-xl border px-3 text-left transition-colors ${
+                panel === key
+                  ? 'border-[#0D6EFD] bg-[#EAF2FF]'
+                  : 'border-[#DCE5F1] bg-white hover:bg-[#F5F8FD]'
+              }`}
+            >
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD]">
+                <Icon size={15} strokeWidth={1.75} />
+              </span>
+              <span className="text-sm font-semibold text-[#0F1F3D]">
+                {label}
+              </span>
+              <span className="rounded-full bg-[#0D6EFD] px-2 py-0.5 text-[11px] font-semibold text-white">
+                {count}
+              </span>
+            </button>
+          ))}
         </div>
         <Button
           size="sm"
@@ -323,8 +358,14 @@ export function TurmasView() {
           {openLoading && <Skeleton rows={3} />}
           {!openLoading && openCohorts.length === 0 && (
             <EmptyState
-              title="Sem turmas abertas"
-              description="Não há turmas com inscrições abertas neste momento."
+              title={
+                panel === 'ACTIVE' ? 'Sem turmas activas' : 'Sem turmas abertas'
+              }
+              description={
+                panel === 'ACTIVE'
+                  ? 'Não há turmas a decorrer neste momento.'
+                  : 'Não há turmas com inscrições abertas neste momento.'
+              }
             />
           )}
           {!openLoading && openCohorts.length > 0 && (
