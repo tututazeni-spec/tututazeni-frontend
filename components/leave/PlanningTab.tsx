@@ -52,11 +52,12 @@ function defaultRange() {
   };
 }
 
-function dayClass(d: PlanningDay): string {
+// Dias de alerta mantêm a cor do estado; dias dentro do mínimo usam a cor da equipa.
+function dayClass(d: PlanningDay): string | null {
   if (d.belowMinimum) return 'bg-danger';
   if (d.projectedBelowMinimum) return 'bg-warning';
   if (d.overlap) return 'bg-info';
-  return 'bg-success';
+  return null;
 }
 
 function dayTitle(d: PlanningDay): string {
@@ -80,20 +81,30 @@ const DEPT_COLORS = [
   '#A855F7',
 ];
 
-function AvailabilityStrip({ team }: { team: PlanningTeam }) {
+function AvailabilityStrip({
+  team,
+  color,
+}: {
+  team: PlanningTeam;
+  color: string;
+}) {
   return (
     <div
       className="flex gap-px"
       role="img"
       aria-label={`Disponibilidade diária de ${team.department ?? 'sem departamento'}`}
     >
-      {team.days.map((d) => (
-        <span
-          key={d.date}
-          title={dayTitle(d)}
-          className={cn('h-5 min-w-[3px] flex-1 rounded-sm', dayClass(d))}
-        />
-      ))}
+      {team.days.map((d) => {
+        const cls = dayClass(d);
+        return (
+          <span
+            key={d.date}
+            title={dayTitle(d)}
+            className={cn('h-5 min-w-[3px] flex-1 rounded-sm', cls)}
+            style={cls ? undefined : { backgroundColor: color }}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -226,7 +237,10 @@ export function PlanningTab() {
                 Disponibilidade por equipa
               </h3>
               <p className="flex flex-wrap items-center gap-3 text-xs text-white/90">
-                <Legend cls="bg-success" label="Dentro do mínimo" />
+                <Legend
+                  cls="bg-gradient-to-r from-[#3B82F6] to-[#10B981]"
+                  label="Dentro do mínimo (cor da equipa)"
+                />
                 <Legend cls="bg-info" label="Sobreposição" />
                 <Legend cls="bg-warning" label="Abaixo se aprovar pendentes" />
                 <Legend cls="bg-danger" label="Abaixo do mínimo" />
@@ -284,7 +298,10 @@ export function PlanningTab() {
                       <TableCell>{t.belowMinimumDays}</TableCell>
                       <TableCell>{t.overlapDays} dia(s)</TableCell>
                       <TableCell>
-                        <AvailabilityStrip team={t} />
+                        <AvailabilityStrip
+                          team={t}
+                          color={DEPT_COLORS[i % DEPT_COLORS.length]}
+                        />
                       </TableCell>
                     </TableRow>
                   ))}
