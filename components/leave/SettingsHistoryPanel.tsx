@@ -34,9 +34,9 @@ export function SettingsHistoryPanel() {
     <ol className="space-y-3">
       {data.map((h) => (
         <li key={h.id}>
-          <Card className="p-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-semibold text-ink">
+          <Card className="overflow-hidden p-4">
+            <div className="-mx-4 -mt-4 mb-3 flex flex-wrap items-center justify-between gap-2 bg-[#0F1F3D]/60 px-4 py-3">
+              <p className="text-sm font-semibold text-white">
                 {h.changeNote || 'Sem motivo indicado'}
               </p>
               <span

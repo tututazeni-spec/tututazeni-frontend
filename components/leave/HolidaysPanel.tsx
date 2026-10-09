@@ -112,7 +112,8 @@ export function HolidaysPanel() {
 
   return (
     <div className="space-y-4">
-      <Card className="p-4 grid grid-cols-1 gap-3 md:grid-cols-[1fr_8rem] items-end">
+      <Card className="overflow-hidden p-4 grid grid-cols-1 gap-3 md:grid-cols-[1fr_8rem] items-end">
+        <h3 className="col-span-full -mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Localização e ano</h3>
         <FormField label="Localização" htmlFor="holiday-location">
           <Select
             items={locationItems}

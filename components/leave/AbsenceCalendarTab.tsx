@@ -332,7 +332,8 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
         </div>
       </div>
 
-      <Card className="p-4 print:hidden">
+      <Card className="overflow-hidden p-4 print:hidden">
+        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
           <Select
             className="w-full"
