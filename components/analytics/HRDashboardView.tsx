@@ -55,7 +55,7 @@ function TopBarKpiCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
@@ -100,7 +100,7 @@ function TrendKpiCard({
     .join(' ');
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
@@ -143,7 +143,7 @@ function HorizontalBarKpiCard({
   const t = TONES[tone];
   const clamped = Math.max(0, Math.min(100, percent));
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
@@ -190,7 +190,7 @@ function FunnelKpiCard({
   const t = TONES[tone];
   const stages = funnelStagesFromAdoption(adoptionRate);
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-4 pt-5">
         <Icon size={20} strokeWidth={1.75} className={t.text} />
