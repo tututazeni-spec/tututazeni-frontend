@@ -13,6 +13,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { CATEGORY_CFG } from '@/components/competencies/constants';
+import type { CompetencyCategory } from '@/components/competencies/types';
 import type { CompetencyGapItem } from './types';
 
 export function CompetencyGapsView() {
@@ -38,7 +40,8 @@ export function CompetencyGapsView() {
                   {g.name}
                 </div>
                 <div className="truncate text-[10px] text-ink-faint">
-                  {g.category}
+                  {CATEGORY_CFG[g.category as CompetencyCategory]?.label ??
+                    g.category}
                 </div>
               </div>
               <div className="flex-1">
