@@ -268,7 +268,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                             <Avatar
                               name={r.fullName}
                               url={r.avatarUrl ?? undefined}
-                              size="md"
+                              size="lg"
                             />
                             <div className="min-w-0">
                               <p className="font-semibold text-[#0F2E5E]">
