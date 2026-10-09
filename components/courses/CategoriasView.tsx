@@ -270,7 +270,60 @@ function CategoryCoursesModal({
   );
 }
 
-export function CategoriasView() {
+function CategoryCourseListModal({
+  category,
+  onClose,
+  onSelect,
+}: {
+  category: CourseCategoryManaged;
+  onClose: () => void;
+  onSelect: (id: number) => void;
+}) {
+  const { data = [], isLoading } = useApiQuery<CategoryCourseRow[]>(
+    [...queryKeys.courses.categoriesManaged(), category.id, 'courses'],
+    `/courses/categories/${category.id}/courses`,
+    { staleTime: 0 },
+  );
+  const courses = data.filter((c) => c.inCategory);
+
+  return (
+    <Modal open onOpenChange={(open) => !open && onClose()}>
+      <ModalContent title={`Cursos em "${category.name}"`} className="max-w-lg">
+        <div className="mt-4 max-h-96 space-y-1 overflow-y-auto">
+          {isLoading ? (
+            <Skeleton rows={4} />
+          ) : courses.length === 0 ? (
+            <p className="py-6 text-center text-sm text-ink-muted">
+              Nenhum curso nesta categoria.
+            </p>
+          ) : (
+            courses.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => onSelect(c.id)}
+                className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-surface-sunken"
+              >
+                <span className="min-w-0 flex-1 truncate text-sm text-ink">
+                  {c.title}
+                </span>
+                <span className="shrink-0 text-xs text-ink-faint">
+                  {c.status}
+                </span>
+              </button>
+            ))
+          )}
+        </div>
+      </ModalContent>
+    </Modal>
+  );
+}
+
+export function CategoriasView({
+  onSelectCourse,
+}: {
+  onSelectCourse?: (id: number) => void;
+}) {
   const confirm = useConfirm();
   const toast = useToast();
   const [modalFor, setModalFor] = useState<
@@ -279,6 +332,7 @@ export function CategoriasView() {
   const [coursesFor, setCoursesFor] = useState<CourseCategoryManaged | null>(
     null,
   );
+  const [listFor, setListFor] = useState<CourseCategoryManaged | null>(null);
 
   const { data = [], isLoading } = useApiQuery<CourseCategoryManaged[]>(
     queryKeys.courses.categoriesManaged(),
@@ -384,8 +438,12 @@ export function CategoriasView() {
                       {cat.description || '—'}
                     </span>
                   </div>
-                  <div
-                    className={`${PANEL} flex flex-col items-center justify-center gap-0 lg:flex-row lg:gap-1.5`}
+                  <button
+                    type="button"
+                    title="Ver cursos da categoria"
+                    disabled={cat.courseCount === 0}
+                    onClick={() => setListFor(cat)}
+                    className={`${PANEL} flex flex-col items-center justify-center gap-0 lg:flex-row lg:gap-1.5 enabled:cursor-pointer enabled:hover:bg-surface-sunken`}
                   >
                     <span className="font-mono text-lg font-semibold text-ink">
                       {cat.courseCount}
@@ -393,7 +451,7 @@ export function CategoriasView() {
                     <span className="text-xs text-ink-faint">
                       {cat.courseCount === 1 ? 'curso' : 'cursos'}
                     </span>
-                  </div>
+                  </button>
                   <div className={`${PANEL} flex items-center`}>
                     <button
                       onClick={() =>
@@ -424,6 +482,17 @@ export function CategoriasView() {
             ))}
           </div>
         </div>
+      )}
+
+      {listFor && (
+        <CategoryCourseListModal
+          category={listFor}
+          onClose={() => setListFor(null)}
+          onSelect={(id) => {
+            setListFor(null);
+            onSelectCourse?.(id);
+          }}
+        />
       )}
 
       {coursesFor && (
