@@ -5,12 +5,12 @@
 
 'use client';
 
-import { Bookmark, CheckCircle, RotateCcw } from 'lucide-react';
+import { Bookmark, CheckCircle, Clock, Eye, RotateCcw } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ContentCard } from './ContentCard';
@@ -49,29 +49,29 @@ export function MyProgressTab() {
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <KpiCard
+          <NavyStatCard
+            icon={Eye}
             label="Visualizações"
             value={stats.viewCount}
-            intent="info"
-            className="w-full"
+            tone="blue"
           />
-          <KpiCard
+          <NavyStatCard
+            icon={CheckCircle}
             label="Concluídos"
             value={stats.completions}
-            intent="success"
-            className="w-full"
+            tone="green"
           />
-          <KpiCard
+          <NavyStatCard
+            icon={Bookmark}
             label="Guardados"
             value={stats.bookmarkCount}
-            intent="warning"
-            className="w-full"
+            tone="orange"
           />
-          <KpiCard
+          <NavyStatCard
+            icon={Clock}
             label="Horas de aprendizagem"
             value={`${stats.totalHours}h`}
-            intent="accent"
-            className="w-full"
+            tone="red"
           />
         </div>
       )}
