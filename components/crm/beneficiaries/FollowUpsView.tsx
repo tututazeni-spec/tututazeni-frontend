@@ -32,12 +32,12 @@ export function FollowUpsView({
       <div className="flex justify-between items-center">
         <div>
           <h1 className="font-display text-2xl font-bold text-ink">
-            Follow-ups Pendentes
+            Acompanhamentos Pendentes
           </h1>
           <p className="font-body text-ink-muted">
             {followUps.length}{' '}
             {followUps.length === 1 ? 'beneficiário' : 'beneficiários'}{' '}
-            atribuídos a si com follow-up a vencer
+            atribuídos a si com acompanhamento a vencer
           </p>
         </div>
         <Link href="/crm/beneficiaries">
@@ -49,7 +49,7 @@ export function FollowUpsView({
         <div className="divide-y divide-border">
           {followUps.length === 0 ? (
             <p className="p-4 font-body text-ink-faint">
-              Sem follow-ups pendentes
+              Sem acompanhamentos pendentes
             </p>
           ) : (
             followUps.map((f) => (
@@ -71,7 +71,7 @@ export function FollowUpsView({
                   </p>
                 </div>
                 <span className="font-body text-xs text-warning-ink font-medium">
-                  Follow-up: {formatDate(f.nextFollowUpAt)}
+                  Acompanhamento: {formatDate(f.nextFollowUpAt)}
                 </span>
               </Link>
             ))

@@ -19,7 +19,7 @@ export function useBeneficiaryFollowUps(days = 7) {
     followUps: data ?? [],
     isLoading,
     isError,
-    errorMessage: error?.message || 'Erro ao carregar follow-ups',
+    errorMessage: error?.message || 'Erro ao carregar acompanhamentos',
     onRetry: refetch,
   };
 }
