@@ -45,12 +45,12 @@ const TIMEZONES = [
 ].map((v) => ({ value: v, label: v }));
 
 // Imagens (logo/favicon) guardadas como data-URL — mesmo padrão do avatar.
-const MAX_IMAGE_BYTES = 512 * 1024;
+const MAX_IMAGE_BYTES = 1024 * 1024;
 
 function readImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     if (file.size > MAX_IMAGE_BYTES) {
-      reject(new Error('Imagem demasiado grande (máx. 512 KB).'));
+      reject(new Error('Imagem demasiado grande (máx. 1 MB).'));
       return;
     }
     const reader = new FileReader();
@@ -143,7 +143,7 @@ export function TabVisaoGeral() {
                 onChange={(e) => set('platformName', e.target.value)}
               />
             </FormField>
-            <FormField label="Logo" htmlFor="logoUrl" hint="PNG/SVG, máx. 512 KB">
+            <FormField label="Logo" htmlFor="logoUrl" hint="PNG/SVG, máx. 1 MB">
               <div className="flex items-center gap-3">
                 {form.logoUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -157,7 +157,7 @@ export function TabVisaoGeral() {
                 />
               </div>
             </FormField>
-            <FormField label="Favicon" htmlFor="faviconUrl" hint="PNG/ICO, máx. 512 KB">
+            <FormField label="Favicon" htmlFor="faviconUrl" hint="PNG/ICO, máx. 1 MB">
               <div className="flex items-center gap-3">
                 {form.faviconUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
