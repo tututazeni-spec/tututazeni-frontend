@@ -22,6 +22,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import type { OrgOverview } from './types';
 
 type Tone = 'blue' | 'green' | 'gold';
@@ -87,41 +88,6 @@ function Tile({
   );
 }
 
-type KpiTone = 'blue' | 'green' | 'gold' | 'red';
-
-const KPI_TONES: { [K in KpiTone]: { bar: string; text: string } } = {
-  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
-  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
-};
-
-function TopBarCard({
-  label,
-  value,
-  tone,
-  icon,
-}: {
-  label: string;
-  value: string | number;
-  tone: KpiTone;
-  icon: React.ReactNode;
-}) {
-  const t = KPI_TONES[tone];
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-      <div className={`h-1.5 w-full ${t.bar}`} />
-      <div className="p-5 pt-6">
-        <div className={t.text}>{icon}</div>
-        <div className={`mt-4 font-data text-4xl font-bold ${t.text}`}>
-          {value}
-        </div>
-        <div className="mt-1 font-body text-sm text-black">{label}</div>
-      </div>
-    </div>
-  );
-}
-
 function SummaryCard({
   title,
   tone,
@@ -182,30 +148,30 @@ export function OverviewView() {
   return (
     <div className="space-y-8">
       {/* KPIs principais */}
-      <div className="mt-6 grid grid-cols-4 gap-4">
-        <TopBarCard
+      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <NavyStatCard
           label="Colaboradores activos"
           value={data.users.active}
           tone="blue"
-          icon={<Users className="h-6 w-6" />}
+          icon={Users}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Taxa de conclusão"
           value={`${data.enrollments.completionRate}%`}
           tone="green"
-          icon={<CheckCircle2 className="h-6 w-6" />}
+          icon={CheckCircle2}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Adopção de PDI"
           value={`${data.pdi.adoptionRate}%`}
-          tone="gold"
-          icon={<ClipboardList className="h-6 w-6" />}
+          tone="orange"
+          icon={ClipboardList}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Performance média"
           value={data.performance.avgScore}
           tone="red"
-          icon={<TrendingUp className="h-6 w-6" />}
+          icon={TrendingUp}
         />
       </div>
 

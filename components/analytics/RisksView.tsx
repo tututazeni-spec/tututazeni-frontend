@@ -7,7 +7,6 @@
 'use client';
 
 import { useState } from 'react';
-import type { LucideIcon } from 'lucide-react';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -21,45 +20,9 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import type { RiskAlert } from './types';
-
-type Tone = 'blue' | 'green' | 'gold' | 'red';
-
-const TONES: Record<Tone, { bar: string; text: string }> = {
-  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
-  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
-};
-
-function TopBarKpiCard({
-  icon: Icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  tone: Tone;
-}) {
-  const t = TONES[tone];
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-      <div className={`h-1.5 w-full ${t.bar}`} />
-      <div className="p-5 pt-6">
-        <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
-          {value}
-        </p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
-          {label}
-        </p>
-      </div>
-    </div>
-  );
-}
 
 export function RisksView() {
   const [tab, setTab] = useState<'inactive' | 'pdis' | 'actions'>('inactive');
@@ -76,20 +39,20 @@ export function RisksView() {
   return (
     <div className="space-y-5">
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-4">
-        <TopBarKpiCard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <NavyStatCard
           icon={Clock}
           label="Inactivos (+60 dias)"
           value={summary.inactiveCount}
-          tone={summary.inactiveCount > 0 ? 'gold' : 'green'}
+          tone={summary.inactiveCount > 0 ? 'orange' : 'green'}
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={AlertTriangle}
           label="PDIs atrasados"
           value={summary.overduePDICount}
           tone={summary.overduePDICount > 0 ? 'red' : 'green'}
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={ShieldAlert}
           label="Acções críticas"
           value={summary.criticalActionCount}

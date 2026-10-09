@@ -15,7 +15,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import type { LucideIcon } from 'lucide-react';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import {
   Users,
   UserPlus,
@@ -31,187 +31,6 @@ import {
   Filter,
 } from 'lucide-react';
 import type { HRDashboard } from './types';
-
-type Tone = 'blue' | 'green' | 'gold' | 'red';
-
-const TONES: Record<Tone, { bar: string; text: string; stroke: string }> = {
-  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]', stroke: '#2B6CC4' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]', stroke: '#2E8B3E' },
-  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]', stroke: '#C9A227' },
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]', stroke: '#C0453F' },
-};
-
-function TopBarKpiCard({
-  icon: Icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  tone: Tone;
-}) {
-  const t = TONES[tone];
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-      <div className={`h-1.5 w-full ${t.bar}`} />
-      <div className="p-4 pt-5">
-        <Icon size={20} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-2 font-data text-2xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-xs font-medium text-ink-muted">
-          {label}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function TrendKpiCard({
-  icon: Icon,
-  label,
-  value,
-  trendData,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  trendData: number[];
-  tone: Tone;
-}) {
-  const t = TONES[tone];
-  const width = 100;
-  const height = 28;
-  const max = Math.max(...trendData, 1);
-  const min = Math.min(...trendData, 0);
-  const range = max - min || 1;
-  const points = trendData
-    .map((v, i) => {
-      const x = (i / Math.max(trendData.length - 1, 1)) * width;
-      const y = height - ((v - min) / range) * height;
-      return `${x},${y}`;
-    })
-    .join(' ');
-
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-      <div className={`h-1.5 w-full ${t.bar}`} />
-      <div className="p-4 pt-5">
-        <Icon size={20} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-2 font-data text-2xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-xs font-medium text-ink-muted">
-          {label}
-        </p>
-        {trendData.length > 1 && (
-          <svg
-            viewBox={`0 0 ${width} ${height}`}
-            className="mt-2 h-7 w-full"
-            preserveAspectRatio="none"
-          >
-            <polyline
-              points={points}
-              fill="none"
-              stroke={t.stroke}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function HorizontalBarKpiCard({
-  icon: Icon,
-  label,
-  value,
-  percent,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  percent: number;
-  tone: Tone;
-}) {
-  const t = TONES[tone];
-  const clamped = Math.max(0, Math.min(100, percent));
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-      <div className={`h-1.5 w-full ${t.bar}`} />
-      <div className="p-4 pt-5">
-        <Icon size={20} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-2 font-data text-2xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-xs font-medium text-ink-muted">
-          {label}
-        </p>
-        <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-[#E3E8EF]">
-          <div
-            className={`h-full rounded-full ${t.bar} transition-all`}
-            style={{ width: `${clamped}%` }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function funnelStages(funnel: HRDashboard['pdi']['funnel']) {
-  const pct = (n: number) =>
-    funnel.eligible > 0 ? Math.min(100, (n / funnel.eligible) * 100) : 0;
-  return [
-    { label: 'Elegíveis', pct: funnel.eligible > 0 ? 100 : 0 },
-    { label: 'Iniciaram PDI', pct: pct(funnel.started) },
-    { label: 'Adoptaram', pct: pct(funnel.adopted) },
-  ];
-}
-
-function FunnelKpiCard({
-  icon: Icon,
-  label,
-  value,
-  funnel,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  funnel: HRDashboard['pdi']['funnel'];
-  tone: Tone;
-}) {
-  const t = TONES[tone];
-  const stages = funnelStages(funnel);
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-      <div className={`h-1.5 w-full ${t.bar}`} />
-      <div className="p-4 pt-5">
-        <Icon size={20} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-2 font-data text-2xl font-bold ${t.text}`}>{value}</p>
-        <p className="mt-1 font-body text-xs font-medium text-ink-muted">
-          {label}
-        </p>
-        <div className="mt-2 space-y-1">
-          {stages.map((s) => (
-            <div key={s.label} className="flex items-center gap-2">
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-[#E3E8EF]">
-                <div
-                  className={`h-full rounded-full ${t.bar}`}
-                  style={{ width: `${s.pct}%` }}
-                />
-              </div>
-              <span className="w-8 shrink-0 text-right font-body text-[10px] text-ink-faint">
-                {Math.round(s.pct)}%
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function HRDashboardView() {
   const { data, isLoading } = useApiQuery<HRDashboard>(
@@ -230,30 +49,29 @@ export function HRDashboardView() {
           <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Análise de Dados de Pessoas
           </div>
-          <div className="grid grid-cols-4 gap-3">
-            <TopBarKpiCard
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <NavyStatCard
               icon={Users}
               label="Activos"
               value={data.people.total}
               tone="blue"
             />
-            <TopBarKpiCard
+            <NavyStatCard
               icon={UserPlus}
               label="Admitidos"
               value={data.people.hired}
               tone="green"
             />
-            <TopBarKpiCard
+            <NavyStatCard
               icon={UserMinus}
               label="Saídas"
               value={data.people.terminated}
               tone="red"
             />
-            <TrendKpiCard
+            <NavyStatCard
               icon={TrendingDown}
               label="Taxa de Rotatividade"
               value={`${data.people.turnoverRate}%`}
-              trendData={data.people.turnoverTrend ?? []}
               tone="red"
             />
           </div>
@@ -266,27 +84,26 @@ export function HRDashboardView() {
           <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Análise da Aprendizagem
           </div>
-          <div className="grid grid-cols-4 gap-3">
-            <TopBarKpiCard
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <NavyStatCard
               icon={BookOpen}
               label="Matrículas"
               value={data.learning.enrollments}
               tone="blue"
             />
-            <TopBarKpiCard
+            <NavyStatCard
               icon={CheckCircle2}
               label="Concluídas"
               value={data.learning.completed}
               tone="green"
             />
-            <HorizontalBarKpiCard
+            <NavyStatCard
               icon={BarChart3}
               label="Taxa conclusão"
               value={`${data.learning.completionRate}%`}
-              percent={data.learning.completionRate}
               tone="green"
             />
-            <TopBarKpiCard
+            <NavyStatCard
               icon={XCircle}
               label="Abandonadas"
               value={data.learning.abandoned}
@@ -302,29 +119,31 @@ export function HRDashboardView() {
           <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
             Análise dos Planos de Desenvolvimento Individual
           </div>
-          <div className="grid grid-cols-4 gap-3">
-            <TopBarKpiCard
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <NavyStatCard
               icon={Target}
               label="PDIs activos"
               value={data.pdi.active}
               tone="blue"
             />
-            <FunnelKpiCard
+            <NavyStatCard
               icon={Filter}
               label="Adopção"
               value={`${data.pdi.adoptionRate}%`}
-              funnel={
-                data.pdi.funnel ?? { eligible: 0, started: 0, adopted: 0 }
+              sub={
+                data.pdi.funnel
+                  ? `${data.pdi.funnel.adopted} de ${data.pdi.funnel.eligible} elegíveis`
+                  : undefined
               }
-              tone="gold"
+              tone="orange"
             />
-            <TopBarKpiCard
+            <NavyStatCard
               icon={Clock}
               label="Aguardando Aprovação"
               value={data.pdi.pendingApproval}
-              tone="gold"
+              tone="orange"
             />
-            <TopBarKpiCard
+            <NavyStatCard
               icon={Award}
               label="Concluídos (mês)"
               value={data.pdi.completed}

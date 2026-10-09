@@ -10,9 +10,9 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Modal, ModalContent } from '@/components/ui/Modal';
-import type { LucideIcon } from 'lucide-react';
 import { ClipboardCheck, Star } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import {
   Table,
   TableBody,
@@ -22,43 +22,6 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { CoursePerformance } from './types';
-
-type Tone = 'blue' | 'green' | 'gold' | 'red';
-
-const TONES: Record<Tone, { bar: string; text: string }> = {
-  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
-  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
-};
-
-function TopBarKpiCard({
-  icon: Icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  tone: Tone;
-}) {
-  const t = TONES[tone];
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-      <div className={`h-1.5 w-full ${t.bar}`} />
-      <div className="p-4 pt-5">
-        <Icon size={20} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-2 font-display text-2xl font-bold ${t.text}`}>
-          {value}
-        </p>
-        <p className="mt-1 font-body text-xs font-medium text-ink-muted">
-          {label}
-        </p>
-      </div>
-    </div>
-  );
-}
 
 function CourseDetail({ courseId }: { courseId: number }) {
   const { data, isLoading } = useApiQuery<CoursePerformance>(
@@ -76,24 +39,18 @@ function CourseDetail({ courseId }: { courseId: number }) {
 
   return (
     <div className="mt-4 grid grid-cols-2 gap-4">
-      <TopBarKpiCard
+      <NavyStatCard
         icon={Star}
         label="Feedback médio"
-        value={
-          rating != null
-            ? `${rating.toFixed(1)} ★ (${feedbackCount})`
-            : 'Sem feedback'
-        }
-        tone="gold"
+        value={rating != null ? `${rating.toFixed(1)} ★` : '—'}
+        sub={rating != null ? `${feedbackCount} avaliações` : 'Sem feedback'}
+        tone="orange"
       />
-      <TopBarKpiCard
+      <NavyStatCard
         icon={ClipboardCheck}
         label="Nota média de avaliação"
-        value={
-          score != null
-            ? `${score.toFixed(1)} (${attempts} tentativas)`
-            : 'Sem tentativas'
-        }
+        value={score != null ? score.toFixed(1) : '—'}
+        sub={score != null ? `${attempts} tentativas` : 'Sem tentativas'}
         tone="blue"
       />
     </div>
