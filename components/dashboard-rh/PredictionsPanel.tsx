@@ -75,13 +75,6 @@ export function PredictionsPanel() {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-card border border-warning-subtle bg-warning-subtle p-3">
-        <p className="font-body text-xs text-warning-ink">
-          Previsão heurística baseada em performance e tempo de casa — não
-          substitui análise de RH.
-        </p>
-      </div>
-
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <TopBarKpiCard
           icon={AlertTriangle}
