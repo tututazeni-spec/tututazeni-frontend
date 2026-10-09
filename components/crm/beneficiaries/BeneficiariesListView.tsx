@@ -126,7 +126,7 @@ export function BeneficiariesListView({
       <Card>
         <div className="overflow-hidden">
           <table className="w-full font-body text-sm">
-            <thead className="bg-[#0F1F3D] text-white uppercase">
+            <thead className="bg-[#0F1F3D]/60 text-white uppercase">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-xs">
                   Código

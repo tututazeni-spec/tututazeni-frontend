@@ -147,6 +147,8 @@ interface DistributionListProps {
   labelKey: string;
   /** Traduz o valor bruto do groupBy (ex.: enum) para um rótulo legível. */
   formatLabel?: (value: string) => string;
+  /** Cabeçalho #0F1F3D a 60% com texto branco (dashboard de beneficiários). */
+  navyHeader?: boolean;
 }
 
 /** Lista label→contagem a partir de um `groupBy` do Prisma (dashboards CRM). */
@@ -155,14 +157,24 @@ export function DistributionList({
   data,
   labelKey,
   formatLabel,
+  navyHeader,
 }: DistributionListProps) {
   const rows = data ?? [];
   return (
     <Card>
+      {navyHeader && (
+        <div className="bg-[#0F1F3D]/60 px-4 py-3">
+          <h3 className="font-body text-sm font-semibold text-white">
+            {title}
+          </h3>
+        </div>
+      )}
       <CardBody>
-        <h3 className="font-body text-sm font-semibold text-ink mb-3">
-          {title}
-        </h3>
+        {!navyHeader && (
+          <h3 className="font-body text-sm font-semibold text-ink mb-3">
+            {title}
+          </h3>
+        )}
         {rows.length === 0 ? (
           <p className="font-body text-sm text-ink-faint">Sem dados</p>
         ) : (
