@@ -16,6 +16,8 @@ export interface BarChartSeries {
   color?: string;
   /** valores alinhados com `categories`, por índice */
   values: number[];
+  /** cor por categoria (por índice); tem precedência sobre `color` */
+  barColors?: string[];
 }
 
 export interface BarChartProps {
@@ -126,7 +128,9 @@ export function BarChart({
                       (barH * seriesCount) / 2 +
                       barH * si;
                     const color =
-                      s.color ?? CATEGORICAL[si % CATEGORICAL.length];
+                      s.barColors?.[ci] ??
+                      s.color ??
+                      CATEGORICAL[si % CATEGORICAL.length];
                     return (
                       <path
                         key={s.label}
@@ -205,7 +209,9 @@ export function BarChart({
                       barW * si;
                     const y = padding.top + plotH - h;
                     const color =
-                      s.color ?? CATEGORICAL[si % CATEGORICAL.length];
+                      s.barColors?.[ci] ??
+                      s.color ??
+                      CATEGORICAL[si % CATEGORICAL.length];
                     return (
                       <path
                         key={s.label}
@@ -240,13 +246,15 @@ export function BarChart({
         </ChartTooltip>
       )}
 
-      <ChartLegend
-        className="mt-2"
-        items={series.map((s, i) => ({
-          label: s.label,
-          color: s.color ?? CATEGORICAL[i % CATEGORICAL.length],
-        }))}
-      />
+      {!series.every((s) => s.barColors) && (
+        <ChartLegend
+          className="mt-2"
+          items={series.map((s, i) => ({
+            label: s.label,
+            color: s.color ?? CATEGORICAL[i % CATEGORICAL.length],
+          }))}
+        />
+      )}
     </div>
   );
 }

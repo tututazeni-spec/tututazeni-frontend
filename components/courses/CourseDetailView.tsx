@@ -118,10 +118,10 @@ export function CourseDetailView({
 
       {isEnrolled && pendingApproval && (
         <Card className="p-5 mb-6 bg-warning-subtle">
-          <p className="m-0 text-sm font-medium text-warning-ink">
+          <p className="m-0 text-sm font-medium text-black">
             Pedido de inscrição enviado — aguarda aprovação
           </p>
-          <p className="m-0 mt-1 text-xs text-warning-ink/80">
+          <p className="m-0 mt-1 text-xs text-black">
             Este curso requer aprovação para inscrição. Vais poder aceder ao
             conteúdo assim que o pedido for aprovado.
           </p>
@@ -382,11 +382,11 @@ export function CourseDetailView({
         <Card className="p-5 mb-6 bg-success-subtle">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <p className="m-0 text-sm font-semibold text-success-ink flex items-center gap-2">
+              <p className="m-0 text-sm font-semibold text-black flex items-center gap-2">
                 <Check size={16} strokeWidth={1.75} /> Curso concluído
               </p>
               {progress.enrollment.completedAt && (
-                <p className="m-0 mt-1 text-xs text-success-ink/80">
+                <p className="m-0 mt-1 text-xs text-black">
                   Concluído em{' '}
                   {new Date(progress.enrollment.completedAt).toLocaleDateString(
                     'pt',

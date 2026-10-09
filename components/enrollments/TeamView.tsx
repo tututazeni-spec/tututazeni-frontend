@@ -5,11 +5,17 @@
 
 'use client';
 
+import {
+  AlertTriangle,
+  CircleCheck,
+  ListChecks,
+  Mail,
+  TrendingUp,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar } from '@/components/ui/Avatar';
-import { ProgressBar } from '@/components/ui/ProgressBar';
+import { NavyCard } from '@/components/courses/NavyCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { TeamProgress } from './types';
 
@@ -41,59 +47,43 @@ export function TeamView() {
       <div className="mb-4 text-xs text-ink-faint">
         {data.total} membros na equipa
       </div>
-      <div className="overflow-hidden rounded-card border border-border">
-        <div className="grid grid-cols-[1fr_80px_80px_80px_100px] gap-3 border-b border-border px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-ink-faint">
-          <div>Colaborador</div>
-          <div>Total</div>
-          <div>Concluídos</div>
-          <div>Atrasados</div>
-          <div>Compliance</div>
-        </div>
+      <div className="space-y-5">
         {data.team.map((member) => {
           const compliance =
             member.stats.total > 0
               ? Math.round((member.stats.completed / member.stats.total) * 100)
               : 100;
           return (
-            <div
+            <NavyCard
               key={member.id}
-              className="grid grid-cols-[1fr_80px_80px_80px_100px] items-center gap-3 border-b border-border px-4 py-3 last:border-0"
-            >
-              <div className="flex items-center gap-3">
-                <Avatar
-                  name={member.fullName}
-                  url={member.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div>
-                  <div className="text-sm font-medium text-ink">
-                    {member.fullName}
-                  </div>
-                  <div className="text-xs text-ink-faint">{member.email}</div>
-                </div>
-              </div>
-              <div className="font-mono text-sm text-ink-muted">
-                {member.stats.total}
-              </div>
-              <div className="font-mono text-sm text-success-ink">
-                {member.stats.completed}
-              </div>
-              <div
-                className={`font-mono text-sm ${member.stats.overdue > 0 ? 'font-semibold text-danger-ink' : 'text-ink-faint'}`}
-              >
-                {member.stats.overdue}
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <ProgressBar value={compliance} />
-                  </div>
-                  <span className="w-8 font-mono text-xs text-ink-muted">
-                    {compliance}%
-                  </span>
-                </div>
-              </div>
-            </div>
+              title={member.fullName}
+              avatar={{ name: member.fullName, url: member.avatarUrl }}
+              subtitle={member.email}
+              subtitleIcon={Mail}
+              infos={[
+                {
+                  icon: ListChecks,
+                  value: String(member.stats.total),
+                  label: 'Total',
+                },
+                {
+                  icon: CircleCheck,
+                  value: String(member.stats.completed),
+                  label: 'Concluídos',
+                },
+                {
+                  icon: AlertTriangle,
+                  value: String(member.stats.overdue),
+                  label: 'Atrasados',
+                  danger: member.stats.overdue > 0,
+                },
+                {
+                  icon: TrendingUp,
+                  value: `${compliance}%`,
+                  label: 'Conformidade',
+                },
+              ]}
+            />
           );
         })}
       </div>

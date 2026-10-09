@@ -4,8 +4,7 @@
 // — severidade HIGH/MEDIUM/LOW mapeada para os tokens danger/warning/info,
 // mesmo padrão de box usado em components/dashboard/AlertBanner.tsx.
 
-import { AlertTriangle, CheckCircle, Clock } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { AlertCard, type AlertCardVariant } from '@/components/ui/AlertCard';
 import type { Alert } from './types';
 
 export interface AlertStripProps {
@@ -14,54 +13,38 @@ export interface AlertStripProps {
 
 const SEVERITY_CONFIG: Record<
   Alert['severity'],
-  { icon: LucideIcon; classes: string }
+  { variant: AlertCardVariant; title: string }
 > = {
-  HIGH: {
-    icon: AlertTriangle,
-    classes: 'border-danger-subtle bg-danger-subtle text-danger-ink',
-  },
-  MEDIUM: {
-    icon: Clock,
-    classes: 'border-warning-subtle bg-warning-subtle text-warning-ink',
-  },
-  LOW: {
-    icon: CheckCircle,
-    classes: 'border-info-subtle bg-info-subtle text-info-ink',
-  },
+  HIGH: { variant: 'danger', title: 'Urgente' },
+  MEDIUM: { variant: 'warning', title: 'Atenção' },
+  LOW: { variant: 'info', title: 'Informação' },
 };
 
 export function AlertStrip({ alerts }: AlertStripProps) {
   if (!alerts.length)
     return (
-      <div className="flex items-center gap-2 rounded-card border border-success-subtle bg-success-subtle px-4 py-3">
-        <CheckCircle
-          size={16}
-          strokeWidth={1.75}
-          className="text-success-ink"
-        />
-        <p className="font-body text-sm font-medium text-success-ink">
-          Sem alertas críticos activos
-        </p>
-      </div>
+      <AlertCard
+        variant="success"
+        title="Tudo em ordem"
+        message="Sem alertas críticos activos"
+      />
     );
 
   return (
     <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
       {alerts.map((a, i) => {
         const conf = SEVERITY_CONFIG[a.severity];
-        const AlertIcon = conf.icon;
         const displayMessage = a.message.replace(
           /taxa de participação em surveys/i,
           'Taxa de Resposta',
         );
         return (
-          <div
+          <AlertCard
             key={i}
-            className={`flex items-center gap-3 rounded-card border px-4 py-3 ${conf.classes}`}
-          >
-            <AlertIcon size={14} strokeWidth={1.75} className="shrink-0" />
-            <p className="flex-1 font-body text-sm text-black">{displayMessage}</p>
-          </div>
+            variant={conf.variant}
+            title={conf.title}
+            message={displayMessage}
+          />
         );
       })}
     </div>

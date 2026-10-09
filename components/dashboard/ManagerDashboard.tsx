@@ -15,7 +15,6 @@
 'use client';
 
 import { useState } from 'react';
-import type { LucideIcon } from 'lucide-react';
 import {
   AlarmClock,
   AlertTriangle,
@@ -32,6 +31,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AlertBanner } from './AlertBanner';
@@ -43,207 +43,6 @@ const PERIODS = [
   { id: 'QUARTER', label: 'Trimestre' },
   { id: 'YEAR', label: 'Ano' },
 ];
-
-type KpiTone = 'blue' | 'green' | 'gold' | 'red' | 'orange';
-
-// Classes completas: o Tailwind não detecta nomes montados dinamicamente
-const KPI_TONES: Record<KpiTone, { bar: string; text: string }> = {
-  blue: { bar: 'bg-blue-500', text: 'text-blue-600' },
-  green: { bar: 'bg-green-600', text: 'text-green-600' },
-  gold: { bar: 'bg-amber-500', text: 'text-amber-600' },
-  red: { bar: 'bg-red-500', text: 'text-red-600' },
-  orange: { bar: 'bg-orange-500', text: 'text-orange-600' },
-};
-
-function HighlightKpiCard({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  trend,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  trend?: number | null;
-  tone: KpiTone;
-}) {
-  const t = KPI_TONES[tone];
-  return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-hover motion-reduce:hover:scale-100">
-      <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
-      <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
-      <div className="flex items-baseline gap-2">
-        <p className={`font-display text-4xl font-bold ${t.text}`}>{value}</p>
-        {typeof trend === 'number' && trend !== 0 && (
-          <span
-            className={`font-body text-xs font-semibold ${trend > 0 ? 'text-success' : 'text-danger'}`}
-          >
-            {trend > 0 ? '▲' : '▼'} {Math.abs(trend)}
-          </span>
-        )}
-      </div>
-      <p className="mt-1 font-body text-sm text-ink">{label}</p>
-      {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
-    </div>
-  );
-}
-
-function GaugeKpiCard({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  percent,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  percent: number;
-  tone: KpiTone;
-}) {
-  const t = KPI_TONES[tone];
-  const clamped = Math.max(0, Math.min(100, percent));
-  const radius = 30;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (clamped / 100) * circumference;
-
-  const TRACK_COLOR: Record<KpiTone, string> = {
-    blue: '#DBEAFE',
-    green: '#DCFCE7',
-    gold: '#FEF3C7',
-    red: '#FEE2E2',
-    orange: '#FFEDD5',
-  };
-  const STROKE_COLOR: Record<KpiTone, string> = {
-    blue: '#3B82F6',
-    green: '#16A34A',
-    gold: '#F59E0B',
-    red: '#EF4444',
-    orange: '#F97316',
-  };
-
-  return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-hover motion-reduce:hover:scale-100">
-      <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
-      <div className="flex items-center gap-4">
-        <div className="relative h-20 w-20 shrink-0">
-          <svg viewBox="0 0 72 72" className="h-full w-full -rotate-90">
-            <circle
-              cx="36"
-              cy="36"
-              r={radius}
-              fill="none"
-              stroke={TRACK_COLOR[tone]}
-              strokeWidth="8"
-            />
-            <circle
-              cx="36"
-              cy="36"
-              r={radius}
-              fill="none"
-              stroke={STROKE_COLOR[tone]}
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={offset}
-              style={{ transition: 'stroke-dashoffset 0.4s ease' }}
-            />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Icon size={20} strokeWidth={1.75} className={t.text} />
-          </div>
-        </div>
-        <div className="min-w-0">
-          <p className={`font-display text-3xl font-bold ${t.text}`}>{value}</p>
-          <p className="mt-0.5 font-body text-sm text-ink">{label}</p>
-          {sub && (
-            <p className="mt-0.5 font-body text-xs text-ink-faint">{sub}</p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// TODO: substituir por dados reais quando soubermos o campo da API
-// (ex.: kpis.inProgressTrend) com o histórico de inscrições em curso
-// por período. Enquanto isso, usa-se uma série de exemplo.
-const MOCK_ENROLLMENT_TREND = [4, 6, 5, 8, 7, 9, 11];
-
-function SparklineKpiCard({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  trend,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub?: string;
-  trend: number[];
-  tone: KpiTone;
-}) {
-  const t = KPI_TONES[tone];
-  const width = 100;
-  const height = 32;
-  const max = Math.max(...trend, 1);
-  const min = Math.min(...trend, 0);
-  const range = max - min || 1;
-  const points = trend
-    .map((v, i) => {
-      const x = (i / Math.max(trend.length - 1, 1)) * width;
-      const y = height - ((v - min) / range) * height;
-      return `${x},${y}`;
-    })
-    .join(' ');
-  const lastY = height - ((trend[trend.length - 1] - min) / range) * height;
-
-  const STROKE_COLOR: Record<KpiTone, string> = {
-    blue: '#3B82F6',
-    green: '#16A34A',
-    gold: '#F59E0B',
-    red: '#EF4444',
-    orange: '#F97316',
-  };
-
-  return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-hover motion-reduce:hover:scale-100">
-      <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
-          <p className={`font-display text-4xl font-bold ${t.text}`}>{value}</p>
-          <p className="mt-1 font-body text-sm text-ink">{label}</p>
-          {sub && (
-            <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>
-          )}
-        </div>
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          className="mt-1 h-8 w-20 shrink-0"
-          preserveAspectRatio="none"
-        >
-          <polyline
-            points={points}
-            fill="none"
-            stroke={STROKE_COLOR[tone]}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <circle cx={width} cy={lastY} r="2.5" fill={STROKE_COLOR[tone]} />
-        </svg>
-      </div>
-    </div>
-  );
-}
 
 export function ManagerDashboard() {
   const [period, setPeriod] = useState('MONTH');
@@ -266,7 +65,7 @@ export function ManagerDashboard() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-24 rounded-card bg-surface-sunken"
+        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
       />
     );
 
@@ -295,60 +94,58 @@ export function ManagerDashboard() {
 
       {/* KPIs — visão geral da equipa */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <HighlightKpiCard
+        <NavyStatCard
           icon={Users}
           tone="blue"
           label="Equipa"
           value={data?.teamSize ?? 0}
         />
-        <HighlightKpiCard
+        <NavyStatCard
           icon={Target}
           tone="green"
           label="PDIs Activos"
           value={kpis.activePlans ?? 0}
           sub={`Cobertura: ${kpis.pdpCoverage ?? 0}% · ${kpis.completedPlans ?? 0} concluídos`}
         />
-        <HighlightKpiCard
+        <NavyStatCard
           icon={Star}
-          tone="gold"
+          tone="orange"
           label="Pontuação Média"
           value={kpis.avgScore?.toFixed(1) ?? '–'}
           trend={kpis.scoreTrend}
         />
-        <GaugeKpiCard
+        <NavyStatCard
           icon={GraduationCap}
           tone={mandatoryOk ? 'green' : 'red'}
           label="Formação Obrigatória"
           value={`${kpis.mandatoryRate ?? 0}%`}
-          percent={kpis.mandatoryRate ?? 0}
         />
       </div>
 
       {/* KPIs — accionáveis para o gestor + engagement da equipa */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <HighlightKpiCard
+        <NavyStatCard
           icon={ClipboardList}
           tone={hasPendingEvals ? 'red' : 'green'}
           label="Avaliações Pendentes"
           value={kpis.pendingEvals ?? 0}
           sub="Aguardam a tua avaliação"
         />
-        <HighlightKpiCard
+        <NavyStatCard
           icon={AlarmClock}
           tone={hasOverdueActions ? 'red' : 'green'}
           label="Ações de PDI Atrasadas"
           value={kpis.overdueActions ?? 0}
           sub="Da equipa, prazo já passado"
         />
-        <SparklineKpiCard
+        <NavyStatCard
           icon={BookOpen}
           tone="orange"
           label="Inscrições em Curso"
           value={kpis.inProgress ?? 0}
           sub={`${kpis.completedEnrollments ?? 0} concluídas no período`}
-          trend={MOCK_ENROLLMENT_TREND}
         />
-        <HighlightKpiCard
+        <NavyStatCard
           icon={MessageSquare}
           tone="blue"
           label="Engajamento"
@@ -358,10 +155,10 @@ export function ManagerDashboard() {
       </div>
 
       {/* Team table */}
-      <div className="rounded-card border border-border bg-surface">
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <h3 className="font-body font-semibold text-ink-muted">Equipa</h3>
-          <span className="font-body text-xs text-ink-faint">
+      <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <div className="flex items-center justify-between border-b border-border bg-[#0F1F3D]/60 px-5 py-4">
+          <h3 className="font-body font-semibold text-white">Equipa</h3>
+          <span className="font-body text-xs text-white">
             {data?.teamSize ?? 0} colaboradores
           </span>
         </div>

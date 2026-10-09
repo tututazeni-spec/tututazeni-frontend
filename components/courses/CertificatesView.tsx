@@ -71,7 +71,7 @@ export function CertificatesView() {
         </div>
         {verifyResult && (
           <div
-            className={`mt-3 p-3 rounded-control text-sm ${verifyResult.error ? 'bg-danger-subtle text-danger-ink' : verifyResult.valid ? 'bg-success-subtle text-success-ink' : 'bg-warning-subtle text-warning-ink'}`}
+            className={`mt-3 p-3 rounded-control text-sm ${verifyResult.error ? 'bg-danger-subtle text-black' : verifyResult.valid ? 'bg-success-subtle text-black' : 'bg-warning-subtle text-black'}`}
           >
             {verifyResult.error
               ? `${verifyResult.error}`

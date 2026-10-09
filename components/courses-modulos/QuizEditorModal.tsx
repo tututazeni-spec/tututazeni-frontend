@@ -356,7 +356,7 @@ export function QuizEditorModal({
                           <Trash2 size={16} strokeWidth={1.75} />
                         </button>
                       </div>
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
                         <Select
                           items={QUESTION_TYPE_ITEMS}
                           value={q.type}
@@ -366,7 +366,7 @@ export function QuizEditorModal({
                               emptyQuestion(v as QuestionType),
                             )
                           }
-                          className="w-56"
+                          className="w-full sm:w-64"
                         />
                         <Input
                           type="number"

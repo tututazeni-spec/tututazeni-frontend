@@ -12,17 +12,22 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, Users, TrendingUp } from 'lucide-react';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ClipboardList,
+  Users,
+  TrendingUp,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card, CardBody } from '@/components/ui/Card';
-import { TopBarCard } from '@/components/ui/TopBarCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BarChart } from '@/components/ui/charts/BarChart';
-import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { NineBox } from './NineBox';
@@ -62,39 +67,43 @@ export function ManagerView() {
       )}
 
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-3">
-        <div className="transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg rounded-xl">
-          <TopBarCard
-            label="Equipa"
-            value={metrics.headcount}
-            tone="blue"
-            icon={<Users className="h-6 w-6" />}
-          />
-        </div>
-        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3 transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg">
-          <GaugeChart
-            value={metrics.pdiAdoptionRate}
-            label="PDIs Activos"
-            thresholds={{ warning: 50, danger: 25 }}
-            size={120}
-          />
-        </div>
-        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3 transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg">
-          <GaugeChart
-            value={metrics.completionRate}
-            label="Conclusão Cursos"
-            thresholds={{ warning: 50, danger: 25 }}
-            size={120}
-          />
-        </div>
-        <div className="transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg rounded-xl">
-          <TopBarCard
-            label="Desempenho Médio"
-            value={metrics.avgPerformance}
-            tone="gold"
-            icon={<TrendingUp className="h-6 w-6" />}
-          />
-        </div>
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <NavyStatCard
+          label="Equipa"
+          value={metrics.headcount}
+          tone="blue"
+          icon={Users}
+        />
+        <NavyStatCard
+          label="PDIs Activos"
+          value={`${metrics.pdiAdoptionRate}%`}
+          tone={
+            metrics.pdiAdoptionRate < 25
+              ? 'red'
+              : metrics.pdiAdoptionRate < 50
+                ? 'orange'
+                : 'green'
+          }
+          icon={ClipboardList}
+        />
+        <NavyStatCard
+          label="Conclusão Cursos"
+          value={`${metrics.completionRate}%`}
+          tone={
+            metrics.completionRate < 25
+              ? 'red'
+              : metrics.completionRate < 50
+                ? 'orange'
+                : 'green'
+          }
+          icon={CheckCircle2}
+        />
+        <NavyStatCard
+          label="Desempenho Médio"
+          value={metrics.avgPerformance}
+          tone="orange"
+          icon={TrendingUp}
+        />
       </div>
       {metrics.overdueActions > 0 && (
         <div className="rounded-control border border-danger/30 bg-danger-subtle px-4 py-2.5 text-sm text-black">
@@ -109,9 +118,7 @@ export function ManagerView() {
           <TabsTrigger value="ninebox">
             Matriz de Desempenho e Potencial (9-Box)
           </TabsTrigger>
-          <TabsTrigger value="gaps">
-            Lacunas de Competências(Gaps)
-          </TabsTrigger>
+          <TabsTrigger value="gaps">Lacunas de Competências(Gaps)</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -140,11 +147,11 @@ export function ManagerView() {
         </TabsContent>
 
         <TabsContent value="ninebox">
-          <Card>
+          <Card className="overflow-hidden">
+            <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+              Matriz 9-Box
+            </div>
             <CardBody>
-              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-4">
-                Matriz 9-Box
-              </div>
               <ErrorBoundary source="analytics.NineBox">
                 <NineBox data={nineBox} />
               </ErrorBoundary>

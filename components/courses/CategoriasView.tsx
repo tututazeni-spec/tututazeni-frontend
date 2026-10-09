@@ -6,8 +6,15 @@
 
 'use client';
 
-import { useState } from 'react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import {
+  BookOpen,
+  BookPlus,
+  CircleCheck,
+  Pencil,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -19,14 +26,10 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
+import { NAVY_ACTION, NavyBadge, NavyCard } from './NavyCard';
 import { Skeleton } from './shared';
 import type { CourseCategoryManaged } from './types';
-
-const GRID = 'min-w-[800px] grid-cols-[1.2fr_2fr_1fr_1fr_100px]';
-const PANEL =
-  'rounded-xl border border-border/60 bg-surface-sunken/40 p-3';
 
 interface CategoryFormState {
   name: string;
@@ -66,14 +69,8 @@ function CategoryModal({
   );
 
   const update = useApiMutation(
-    ({
-      id,
-      ...body
-    }: {
-      id: number;
-      name: string;
-      description?: string;
-    }) => apiClient.patch(`/courses/categories/${id}`, body),
+    ({ id, ...body }: { id: number; name: string; description?: string }) =>
+      apiClient.patch(`/courses/categories/${id}`, body),
     {
       invalidateKeys,
       onSuccess: () => {
@@ -108,7 +105,7 @@ function CategoryModal({
       >
         <div className="mt-4 space-y-4">
           {error && (
-            <p className="rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+            <p className="rounded-card bg-danger-subtle p-3 text-sm text-black">
               {error}
             </p>
           )}
@@ -154,12 +151,193 @@ function CategoryModal({
   );
 }
 
-export function CategoriasView() {
+interface CategoryCourseRow {
+  id: number;
+  title: string;
+  status: string;
+  category: string | null;
+  inCategory: boolean;
+}
+
+function CategoryCoursesModal({
+  category,
+  onClose,
+}: {
+  category: CourseCategoryManaged;
+  onClose: () => void;
+}) {
+  const toast = useToast();
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<Set<number> | null>(null);
+
+  const { data = [], isLoading } = useApiQuery<CategoryCourseRow[]>(
+    [...queryKeys.courses.categoriesManaged(), category.id, 'courses'],
+    `/courses/categories/${category.id}/courses`,
+    { staleTime: 0 },
+  );
+
+  const checked = useMemo(
+    () => selected ?? new Set(data.filter((c) => c.inCategory).map((c) => c.id)),
+    [selected, data],
+  );
+
+  const save = useApiMutation(
+    (courseIds: number[]) =>
+      apiClient.put(`/courses/categories/${category.id}/courses`, {
+        courseIds,
+      }),
+    {
+      invalidateKeys: [queryKeys.courses.all],
+      onSuccess: () => {
+        toast({ title: 'Cursos da categoria actualizados', intent: 'success' });
+        onClose();
+      },
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  function toggle(id: number) {
+    const next = new Set(checked);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelected(next);
+  }
+
+  const term = search.trim().toLowerCase();
+  const visible = term
+    ? data.filter((c) => c.title.toLowerCase().includes(term))
+    : data;
+
+  return (
+    <Modal open onOpenChange={(open) => !open && onClose()}>
+      <ModalContent title={`Cursos em "${category.name}"`} className="max-w-lg">
+        <div className="mt-4 space-y-3">
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Pesquisar curso…"
+            className="w-full"
+          />
+          <div className="max-h-80 space-y-1 overflow-y-auto">
+            {isLoading ? (
+              <Skeleton rows={4} />
+            ) : visible.length === 0 ? (
+              <p className="py-6 text-center text-sm text-ink-muted">
+                Nenhum curso encontrado.
+              </p>
+            ) : (
+              visible.map((c) => (
+                <label
+                  key={c.id}
+                  className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-surface-sunken"
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked.has(c.id)}
+                    onChange={() => toggle(c.id)}
+                  />
+                  <span className="min-w-0 flex-1 truncate text-sm text-ink">
+                    {c.title}
+                  </span>
+                  {c.category && c.category !== category.name && (
+                    <span className="shrink-0 text-xs text-ink-faint">
+                      {c.category}
+                    </span>
+                  )}
+                </label>
+              ))
+            )}
+          </div>
+          <p className="text-xs text-ink-muted">
+            {checked.size} seleccionado(s). Cursos de outra categoria passam
+            para esta ao guardar.
+          </p>
+        </div>
+        <div className="mt-6 flex gap-3 border-t border-border pt-4">
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
+            Cancelar
+          </Button>
+          <Button
+            className="flex-1 justify-center"
+            onClick={() => save.mutate([...checked])}
+            loading={save.isPending}
+            disabled={save.isPending || isLoading}
+          >
+            Guardar
+          </Button>
+        </div>
+      </ModalContent>
+    </Modal>
+  );
+}
+
+function CategoryCourseListModal({
+  category,
+  onClose,
+  onSelect,
+}: {
+  category: CourseCategoryManaged;
+  onClose: () => void;
+  onSelect: (id: number) => void;
+}) {
+  const { data = [], isLoading } = useApiQuery<CategoryCourseRow[]>(
+    [...queryKeys.courses.categoriesManaged(), category.id, 'courses'],
+    `/courses/categories/${category.id}/courses`,
+    { staleTime: 0 },
+  );
+  const courses = data.filter((c) => c.inCategory);
+
+  return (
+    <Modal open onOpenChange={(open) => !open && onClose()}>
+      <ModalContent title={`Cursos em "${category.name}"`} className="max-w-lg">
+        <div className="mt-4 max-h-96 space-y-1 overflow-y-auto">
+          {isLoading ? (
+            <Skeleton rows={4} />
+          ) : courses.length === 0 ? (
+            <p className="py-6 text-center text-sm text-ink-muted">
+              Nenhum curso nesta categoria.
+            </p>
+          ) : (
+            courses.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => onSelect(c.id)}
+                className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-surface-sunken"
+              >
+                <span className="min-w-0 flex-1 truncate text-sm text-ink">
+                  {c.title}
+                </span>
+                <span className="shrink-0 text-xs text-ink-faint">
+                  {c.status}
+                </span>
+              </button>
+            ))
+          )}
+        </div>
+      </ModalContent>
+    </Modal>
+  );
+}
+
+export function CategoriasView({
+  onSelectCourse,
+}: {
+  onSelectCourse?: (id: number) => void;
+}) {
   const confirm = useConfirm();
   const toast = useToast();
   const [modalFor, setModalFor] = useState<
     CourseCategoryManaged | 'new' | null
   >(null);
+  const [coursesFor, setCoursesFor] = useState<CourseCategoryManaged | null>(
+    null,
+  );
+  const [listFor, setListFor] = useState<CourseCategoryManaged | null>(null);
 
   const { data = [], isLoading } = useApiQuery<CourseCategoryManaged[]>(
     queryKeys.courses.categoriesManaged(),
@@ -196,6 +374,8 @@ export function CategoriasView() {
   async function onDelete(cat: CourseCategoryManaged) {
     const ok = await confirm({
       title: `Eliminar "${cat.name}"?`,
+      message:
+        'Os cursos desta categoria não são apagados, ficam apenas sem categoria.',
       confirmLabel: 'Eliminar',
       destructive: true,
     });
@@ -219,42 +399,15 @@ export function CategoriasView() {
           description="Cria a primeira categoria para organizar o catálogo de cursos."
         />
       ) : (
-        <div className="overflow-x-auto">
-          {/* Cabeçalho */}
-          <div className={`grid ${GRID} gap-3 px-4 pb-2 text-xs font-medium uppercase tracking-wide text-ink-faint`}>
-            <div>Categoria</div>
-            <div>Descrição</div>
-            <div>Cursos associados</div>
-            <div>Estado</div>
-            <div />
-          </div>
-
-          <div className="space-y-3">
+        <div>
+          <div className="space-y-5">
             {data.map((cat) => (
-              <div
+              <NavyCard
                 key={cat.id}
-                className={`grid ${GRID} items-stretch gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-3 shadow-sm backdrop-blur-md hover:bg-surface ${cat.isActive ? 'border-l-emerald-500' : 'border-l-slate-400'}`}
-              >
-                <div className="flex min-w-0 flex-col justify-center">
-                  <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
-                    {cat.name}
-                  </div>
-                </div>
-                <div className={`${PANEL} flex min-w-0 items-center`}>
-                  <span className="line-clamp-3 text-xs text-ink-muted">
-                    {cat.description || '—'}
-                  </span>
-                </div>
-                <div className={`${PANEL} flex flex-col items-center justify-center gap-1`}>
-                  <span className="font-mono text-lg font-semibold text-ink">
-                    {cat.courseCount}
-                  </span>
-                  <span className="text-xs text-ink-faint">
-                    {cat.courseCount === 1 ? 'curso' : 'cursos'}
-                  </span>
-                </div>
-                <div className={`${PANEL} flex items-center`}>
-                  <button
+                title={cat.name}
+                subtitle={cat.description || undefined}
+                badge={
+                  <NavyBadge
                     onClick={() =>
                       toggleActive.mutate({
                         id: cat.id,
@@ -262,42 +415,76 @@ export function CategoriasView() {
                       })
                     }
                   >
-                    <StatusBadge
-                      value={cat.isActive ? 'ACTIVE' : 'INACTIVE'}
-                      variant="dot"
-                      map={{
-                        ACTIVE: {
-                          label: 'Activa',
-                          cls: 'bg-success-subtle text-success-ink',
-                        },
-                        INACTIVE: {
-                          label: 'Inactiva',
-                          cls: 'bg-surface-sunken text-ink-faint',
-                        },
-                      }}
-                    />
-                  </button>
-                </div>
-                <div className="flex items-center justify-end gap-1">
-                  <Button
-                    size="sm"
-                    intent="ghost"
-                    onClick={() => setModalFor(cat)}
-                  >
-                    <Pencil size={14} strokeWidth={1.75} />
-                  </Button>
-                  <Button
-                    size="sm"
-                    intent="ghost"
-                    onClick={() => onDelete(cat)}
-                  >
-                    <Trash2 size={14} strokeWidth={1.75} />
-                  </Button>
-                </div>
-              </div>
+                    {cat.isActive ? 'Activa' : 'Inactiva'}
+                  </NavyBadge>
+                }
+                actions={
+                  <>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
+                      title="Gerir cursos"
+                      aria-label="Gerir cursos"
+                      onClick={() => setCoursesFor(cat)}
+                    >
+                      <BookPlus size={15} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
+                      title="Editar categoria"
+                      aria-label="Editar categoria"
+                      onClick={() => setModalFor(cat)}
+                    >
+                      <Pencil size={15} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
+                      title="Eliminar categoria"
+                      aria-label="Eliminar categoria"
+                      onClick={() => onDelete(cat)}
+                    >
+                      <Trash2 size={15} strokeWidth={1.75} />
+                    </button>
+                  </>
+                }
+                infos={[
+                  {
+                    icon: BookOpen,
+                    value: `${cat.courseCount} ${cat.courseCount === 1 ? 'curso' : 'cursos'}`,
+                    label: 'Ver cursos da categoria',
+                    disabled: cat.courseCount === 0,
+                    onClick: () => setListFor(cat),
+                  },
+                  {
+                    icon: CircleCheck,
+                    value: cat.isActive ? 'Activa' : 'Inactiva',
+                    label: 'Estado',
+                  },
+                ]}
+              />
             ))}
           </div>
         </div>
+      )}
+
+      {listFor && (
+        <CategoryCourseListModal
+          category={listFor}
+          onClose={() => setListFor(null)}
+          onSelect={(id) => {
+            setListFor(null);
+            onSelectCourse?.(id);
+          }}
+        />
+      )}
+
+      {coursesFor && (
+        <CategoryCoursesModal
+          category={coursesFor}
+          onClose={() => setCoursesFor(null)}
+        />
       )}
 
       {modalFor && (

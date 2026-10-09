@@ -31,7 +31,7 @@ const NAV = [
     href: `${BASE}/dashboard`,
   },
   {
-    label: 'Follow-ups',
+    label: 'Acompanhamentos',
     hint: 'Acompanhamentos pendentes',
     icon: CalendarClock,
     href: `${BASE}/follow-ups`,

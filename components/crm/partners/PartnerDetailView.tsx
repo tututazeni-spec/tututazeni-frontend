@@ -166,13 +166,13 @@ export function PartnerDetailView({
       <section>
         <div className="flex justify-between items-center mb-3">
           <h2 className="font-display text-lg font-semibold text-ink">
-            Milestones ({p.milestones.length})
+            Marcos ({p.milestones.length})
           </h2>
           <Button
             onClick={() => setShowMilestoneForm((s) => !s)}
             intent={showMilestoneForm ? 'secondary' : 'primary'}
           >
-            {showMilestoneForm ? 'Cancelar' : '+ Novo Milestone'}
+            {showMilestoneForm ? 'Cancelar' : '+ Novo Marco'}
           </Button>
         </div>
 
@@ -256,7 +256,7 @@ export function PartnerDetailView({
                 />
                 <div className="md:col-span-2">
                   <Button type="submit" disabled={savingMilestone}>
-                    {savingMilestone ? 'A guardar...' : 'Criar Milestone'}
+                    {savingMilestone ? 'A guardar...' : 'Criar Marco'}
                   </Button>
                 </div>
               </CardBody>
@@ -268,7 +268,7 @@ export function PartnerDetailView({
           <div className="divide-y divide-border">
             {p.milestones.length === 0 ? (
               <p className="p-4 font-body text-ink-faint">
-                Sem milestones registados
+                Sem marcos registados
               </p>
             ) : (
               p.milestones.map((m) => (

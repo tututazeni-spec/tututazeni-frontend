@@ -10,7 +10,6 @@
 
 'use client';
 
-import type { LucideIcon } from 'lucide-react';
 import {
   BookOpen,
   Bot,
@@ -24,51 +23,15 @@ import {
   Zap,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { colorAt } from '@/lib/chartColors';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
-import { Card } from '@/components/ui/Card';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AlertBanner } from './AlertBanner';
 import { ALERTS_POLL_MS, type Alert, type MyDashboardData } from './types';
-
-// Cartão tipo "curso" (ícone + número em destaque) inspirado nos tiles de
-// progresso da Udemy/MasterClass — só usado aqui; o KpiCard partilhado
-// (components/ui/KpiCard) mantém-se inalterado para os restantes
-// dashboards que o usam.
-type KpiTone = 'blue' | 'green' | 'gold' | 'red' | 'orange';
-
-// Classes completas: o Tailwind não detecta nomes montados dinamicamente
-const KPI_TONES: Record<KpiTone, { bar: string; text: string }> = {
-  blue: { bar: 'bg-blue-500', text: 'text-blue-600' },
-  green: { bar: 'bg-green-600', text: 'text-green-600' },
-  gold: { bar: 'bg-amber-500', text: 'text-amber-600' },
-  red: { bar: 'bg-red-500', text: 'text-red-600' },
-  orange: { bar: 'bg-orange-500', text: 'text-orange-600' },
-};
-
-function CourseStyleKpiCard({
-  icon: Icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  tone: KpiTone;
-}) {
-  const t = KPI_TONES[tone];
-  return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-hover motion-reduce:hover:scale-100">
-      <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
-      <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
-      <p className={`font-display text-4xl font-bold ${t.text}`}>{value}</p>
-      <p className="mt-1 font-body text-sm text-ink">{label}</p>
-    </div>
-  );
-}
 
 export function ColaboradorDashboard() {
   // Duas queries independentes → correm em paralelo (sem waterfall).
@@ -89,12 +52,12 @@ export function ColaboradorDashboard() {
         <Skeleton
           rows={4}
           wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-          itemClassName="h-24 rounded-card bg-surface-sunken"
+          itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
         />
         <Skeleton
           rows={2}
           wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-          itemClassName="h-24 rounded-card bg-surface-sunken"
+          itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
         />
       </div>
     );
@@ -152,49 +115,49 @@ export function ColaboradorDashboard() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <CourseStyleKpiCard
+        <NavyStatCard
           icon={BookOpen}
           tone="blue"
           label="Cursos em Progresso"
           value={data?.learning?.inProgress ?? 0}
         />
-        <CourseStyleKpiCard
+        <NavyStatCard
           icon={CheckCircle2}
           tone="green"
           label="Cursos Concluídos"
           value={data?.learning?.completed ?? 0}
         />
-        <CourseStyleKpiCard
+        <NavyStatCard
           icon={GraduationCap}
           tone="blue"
           label="Cursos Matriculados"
           value={data?.learning?.totalEnrolled ?? 0}
         />
-        <CourseStyleKpiCard
+        <NavyStatCard
           icon={ClipboardList}
           tone="red"
           label="Avaliações Pendentes"
           value={data?.overview?.pendingEvaluations ?? 0}
         />
-        <CourseStyleKpiCard
+        <NavyStatCard
           icon={Video}
           tone="orange"
           label="Aulas ao Vivo Agendadas"
           value={data?.overview?.scheduledLiveClasses ?? 0}
         />
-        <CourseStyleKpiCard
+        <NavyStatCard
           icon={Bot}
-          tone="gold"
+          tone="orange"
           label="Sessões de Tutor de IA"
           value={data?.overview?.aiTutorSessions ?? 0}
         />
-        <CourseStyleKpiCard
+        <NavyStatCard
           icon={CalendarDays}
           tone="green"
           label="Pedidos de Férias"
           value={data?.overview?.pendingLeaveRequests ?? 0}
         />
-        <CourseStyleKpiCard
+        <NavyStatCard
           icon={Presentation}
           tone="blue"
           label="Os Meus Treinamentos"
@@ -236,8 +199,8 @@ export function ColaboradorDashboard() {
 
       {/* Competencies radar */}
       {(data?.skills?.length ?? 0) > 0 && (
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-3 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Evolução de Competências
           </h3>
           <div className="space-y-2">
@@ -251,7 +214,10 @@ export function ColaboradorDashboard() {
                     {s.current}/{s.target ?? 5}
                   </span>
                 </div>
-                <ProgressBar value={(s.current / (s.target ?? 5)) * 100} />
+                <ProgressBar
+                  value={(s.current / (s.target ?? 5)) * 100}
+                  color={colorAt(i)}
+                />
               </div>
             ))}
           </div>

@@ -49,9 +49,9 @@ const ALERT_ICON = {
   info: Info,
 } as const;
 const ALERT_CLASS = {
-  warning: 'bg-warning-subtle text-warning-ink',
-  danger: 'bg-danger-subtle text-danger-ink',
-  info: 'bg-info-subtle text-info-ink',
+  warning: 'bg-warning-subtle text-black',
+  danger: 'bg-danger-subtle text-black',
+  info: 'bg-info-subtle text-black',
 } as const;
 
 /** Cores das barras, alinhadas com os tons dos cards (azul, verde, dourado, vermelho). */
@@ -75,32 +75,31 @@ function DistributionList({
 }) {
   const max = Math.max(1, ...items.map((i) => i.count));
   return (
-    <Card className="p-4">
-      <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
+    <Card className="overflow-hidden">
+      <div className="px-4 py-3 bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       {items.length === 0 ? (
-        <p className="text-xs text-ink-faint">Sem dados</p>
+        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 p-4">
           {items.slice(0, 6).map((item, i) => (
-            <div key={i} className="flex items-center gap-3">
-  <span
-    className="w-28 flex-shrink-0 truncate text-xs text-ink-muted"
-    title={item.label}
-  >
-    {item.label}
-  </span>
-  <div className="h-5 flex-1 overflow-hidden rounded-md bg-surface-sunken">
-    <div
-            className={`h-full rounded-md ${BAR_COLORS[i % BAR_COLORS.length]}`}
-      style={{ width: `${(item.count / max) * 100}%` }}
-    />
-  </div>
-  <span className="w-8 flex-shrink-0 text-right font-data text-xs text-ink">
-    {item.count}
-  </span>
-</div>
+            <div key={i}>
+              <div className="flex items-start justify-between gap-3">
+                <span className="min-w-0 break-words text-xs text-ink-muted">
+                  {item.label}
+                </span>
+                <span className="flex-shrink-0 font-data text-xs text-ink">
+                  {item.count}
+                </span>
+              </div>
+              <div className="mt-1 h-2.5 w-full overflow-hidden rounded-md bg-surface-sunken">
+                <div
+                  className={`h-full rounded-md ${BAR_COLORS[i % BAR_COLORS.length]}`}
+                  style={{ width: `${(item.count / max) * 100}%` }}
+                />
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -121,7 +120,7 @@ function CourseRankList({
 }) {
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       {items.length === 0 ? (
@@ -130,14 +129,14 @@ function CourseRankList({
         items.map((c, idx) => (
           <div
             key={c.id}
-            className="flex items-center gap-3 px-4 py-2.5 border-b border-border last:border-0 cursor-pointer hover:bg-surface-sunken"
+            className="flex items-start gap-3 px-4 py-2.5 border-b border-border last:border-0 cursor-pointer hover:bg-surface-sunken"
             onClick={() => onSelect(c.id)}
           >
             <span className="text-sm font-bold font-mono text-ink-faint w-5 text-center">
               {idx + 1}
             </span>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-ink truncate">
+              <div className="break-words text-xs font-medium text-ink">
                 {c.title}
               </div>
             </div>
@@ -165,7 +164,7 @@ function CourseLollipopList({
 }) {
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       {items.length === 0 ? (
@@ -179,8 +178,8 @@ function CourseLollipopList({
               className="px-4 py-2.5 border-b border-border last:border-0 cursor-pointer hover:bg-surface-sunken"
               onClick={() => onSelect(c.id)}
             >
-              <div className="flex items-center justify-between gap-2 mb-1.5">
-                <span className="text-xs font-medium text-ink truncate">
+              <div className="flex items-start justify-between gap-2 mb-1.5">
+                <span className="min-w-0 break-words text-xs font-medium text-ink">
                   {c.title}
                 </span>
                 <span className="text-xs font-data text-ink-muted flex-shrink-0">
@@ -252,15 +251,15 @@ export function AdminDashboardView({
       {/* Atalhos */}
       <div className="flex flex-wrap gap-2">
         {SHORTCUTS.map((s) => (
-         <button
-  key={s.label}
-  type="button"
-  onClick={() => s.action(onNavigate, onCreateCourse)}
-  className="inline-flex h-11 items-center gap-2.5 rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 active:bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
->
-  <s.icon size={16} strokeWidth={1.75} />
-  {s.label}
-</button>
+          <button
+            key={s.label}
+            type="button"
+            onClick={() => s.action(onNavigate, onCreateCourse)}
+            className="inline-flex min-h-11 items-center gap-2.5 rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 active:bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
+          >
+            <s.icon size={16} strokeWidth={1.75} />
+            {s.label}
+          </button>
         ))}
       </div>
 
@@ -272,9 +271,13 @@ export function AdminDashboardView({
             return (
               <div
                 key={i}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-card text-xs font-medium ${ALERT_CLASS[a.severity]}`}
+                className={`flex items-start gap-2 px-4 py-2.5 rounded-card text-xs font-medium ${ALERT_CLASS[a.severity]}`}
               >
-                <Icon size={14} strokeWidth={1.75} />
+                <Icon
+                  size={14}
+                  strokeWidth={1.75}
+                  className="mt-0.5 shrink-0"
+                />
                 {a.message}
               </div>
             );
@@ -283,8 +286,8 @@ export function AdminDashboardView({
       )}
 
       {/* KPIs principais */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                <TopBarCard
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <TopBarCard
           label="Total de cursos"
           value={counts.total}
           tone="blue"
@@ -362,7 +365,7 @@ export function AdminDashboardView({
           tone="blue"
           icon={<BookOpen className="h-6 w-6" />}
         />
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-shadow duration-200 hover:shadow-md">
           <GaugeChart
             value={rates.avgCompletionRate}
             label="Taxa de Conclusão"
@@ -370,7 +373,7 @@ export function AdminDashboardView({
             size={110}
           />
         </div>
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-shadow duration-200 hover:shadow-md">
           <GaugeChart
             value={rates.avgPassRate}
             label="Taxa de Aprovação"
@@ -500,7 +503,7 @@ export function AdminDashboardView({
       {/* Actividade recente */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimas inscrições
           </div>
           {data.recentActivity.enrollments.length === 0 ? (
@@ -519,7 +522,7 @@ export function AdminDashboardView({
           )}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimas conclusões
           </div>
           {data.recentActivity.completions.length === 0 ? (
@@ -538,7 +541,7 @@ export function AdminDashboardView({
           )}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimas avaliações
           </div>
           {data.recentActivity.feedbacks.length === 0 ? (
@@ -558,7 +561,7 @@ export function AdminDashboardView({
           )}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimos certificados emitidos
           </div>
           {data.recentActivity.certificates.length === 0 ? (
@@ -583,13 +586,13 @@ export function AdminDashboardView({
       {/* Recentemente criados/actualizados, próximos do término */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Recentemente criados
           </div>
           {data.recentlyCreated.map((c) => (
             <div
               key={c.id}
-              className="px-4 py-2 border-b border-border last:border-0 text-xs text-ink-muted truncate cursor-pointer hover:bg-surface-sunken"
+              className="px-4 py-2 border-b border-border last:border-0 text-xs text-ink-muted break-words cursor-pointer hover:bg-surface-sunken"
               onClick={() => onSelect(c.id)}
             >
               {c.title}
@@ -597,13 +600,13 @@ export function AdminDashboardView({
           ))}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Recentemente actualizados
           </div>
           {data.recentlyUpdated.map((c) => (
             <div
               key={c.id}
-              className="px-4 py-2 border-b border-border last:border-0 text-xs text-ink-muted truncate cursor-pointer hover:bg-surface-sunken"
+              className="px-4 py-2 border-b border-border last:border-0 text-xs text-ink-muted break-words cursor-pointer hover:bg-surface-sunken"
               onClick={() => onSelect(c.id)}
             >
               {c.title}
@@ -611,7 +614,7 @@ export function AdminDashboardView({
           ))}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Próximos do término
           </div>
           {data.endingSoon.length === 0 ? (
@@ -622,10 +625,10 @@ export function AdminDashboardView({
             data.endingSoon.map((c) => (
               <div
                 key={c.id}
-                className="px-4 py-2 border-b border-border last:border-0 text-xs text-ink-muted truncate cursor-pointer hover:bg-surface-sunken flex items-center justify-between gap-2"
+                className="px-4 py-2 border-b border-border last:border-0 text-xs text-ink-muted break-words cursor-pointer hover:bg-surface-sunken flex items-start justify-between gap-2"
                 onClick={() => onSelect(c.id)}
               >
-                <span className="truncate">{c.title}</span>
+                <span className="min-w-0 break-words">{c.title}</span>
                 <span className="text-ink-faint flex-shrink-0">
                   {new Date(c.endDate).toLocaleDateString('pt')}
                 </span>

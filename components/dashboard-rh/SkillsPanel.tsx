@@ -6,8 +6,9 @@
 'use client';
 
 import { AlertTriangle, Layers, ListChecks } from 'lucide-react';
-import { TopBarCard } from '@/components/ui/TopBarCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { colorAt } from '@/lib/chartColors';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -25,7 +26,7 @@ export function SkillsPanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-28 rounded-2xl bg-surface-sunken"
+        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
       />
     );
 
@@ -40,23 +41,23 @@ export function SkillsPanel() {
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <TopBarCard
+        <NavyStatCard
           label="Colaboradores Avaliados"
           value={`${data?.assessmentRate ?? 0}%`}
           tone="blue"
-          icon={<ListChecks className="h-6 w-6" />}
+          icon={ListChecks}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Competências Mapeadas"
           value={data?.totalCompetencies ?? 0}
-          tone="gold"
-          icon={<Layers className="h-6 w-6" />}
+          tone="orange"
+          icon={Layers}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Gaps Críticos"
           value={data?.criticalGaps ?? 0}
           tone="red"
-          icon={<AlertTriangle className="h-6 w-6" />}
+          icon={AlertTriangle}
         />
       </div>
 
@@ -79,7 +80,7 @@ export function SkillsPanel() {
                 {
                   label: 'Gap médio',
                   values: sortedGaps.map((s) => s.avgGap),
-                  color: '#0F1F3D',
+                  barColors: sortedGaps.map((_, i) => colorAt(i)),
                 },
               ]}
               className="mb-4"
@@ -126,7 +127,7 @@ export function SkillsPanel() {
                 {
                   label: 'Nível médio',
                   values: sortedStrengths.map((s) => s.avgLevel),
-                  color: '#0F1F3D',
+                  barColors: sortedStrengths.map((_, i) => colorAt(i)),
                 },
               ]}
               className="mb-4"

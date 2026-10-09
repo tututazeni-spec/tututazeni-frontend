@@ -8,6 +8,7 @@
 'use client';
 
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { colorAt } from '@/lib/chartColors';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -26,13 +27,13 @@ export function CompetencyGapsView() {
   if (isLoading || !data) return <Skeleton rows={5} />;
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+        Gaps de competência — organização inteira (actual vs. desejado)
+      </div>
       <CardBody>
-        <div className="mb-4 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-          Gaps de competência — organização inteira (actual vs. desejado)
-        </div>
         <div className="space-y-3">
-          {data.map((g) => (
+          {data.map((g, idx) => (
             <div key={g.name} className="flex items-center gap-3">
               <div className="w-40 flex-shrink-0">
                 <div className="truncate text-xs font-medium text-ink">
@@ -52,8 +53,11 @@ export function CompetencyGapsView() {
                   className="h-1.5 w-full rounded-pill bg-surface-sunken"
                 >
                   <div
-                    className="h-full rounded-pill bg-[#0F1F3D] transition-[width] duration-300"
-                    style={{ width: `${Math.min(g.avgCurrent * 20, 100)}%` }}
+                    className="h-full rounded-pill transition-[width] duration-300"
+                    style={{
+                      width: `${Math.min(g.avgCurrent * 20, 100)}%`,
+                      backgroundColor: colorAt(idx),
+                    }}
                   />
                 </div>
               </div>

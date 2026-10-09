@@ -47,10 +47,10 @@ export function LessonRow({
         <CtIcon size={18} strokeWidth={1.75} />
       </span>
       <div className="flex-1 min-w-0">
-        <p className="m-0 text-sm font-semibold text-ink overflow-hidden text-ellipsis whitespace-nowrap">
+        <p className="m-0 text-sm font-semibold text-ink break-words">
           {lesson.title}
         </p>
-        <div className="flex gap-2 mt-1">
+        <div className="mt-1 flex flex-wrap gap-2">
           <span
             className="px-2 py-0.5 rounded-full text-xs font-bold"
             style={{

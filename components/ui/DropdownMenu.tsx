@@ -17,8 +17,9 @@ export function DropdownMenuContent({
     <RadixDropdown.Portal>
       <RadixDropdown.Content
         sideOffset={sideOffset}
+        collisionPadding={8}
         className={cn(
-          'z-[60] min-w-[180px] rounded-card border border-border bg-surface p-1 shadow-elevated',
+          'z-[700] min-w-[180px] max-w-[min(24rem,calc(100vw-2rem))] max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto rounded-card border border-border bg-surface p-1 shadow-elevated',
           className,
         )}
         {...props}

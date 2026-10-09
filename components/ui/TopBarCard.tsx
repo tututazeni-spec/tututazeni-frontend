@@ -20,14 +20,18 @@ export function TopBarCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-xl bg-white shadow-md transition-all duration-200 hover:scale-105 hover:shadow-lg motion-reduce:hover:scale-100">
+    <div className="overflow-hidden rounded-xl bg-white shadow-md transition-shadow duration-200 hover:shadow-lg">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5">
         <div className={t.text}>{icon}</div>
-        <div className={`mt-3 font-data text-4xl font-bold ${t.text}`}>
+        <div
+          className={`mt-3 break-words font-data text-3xl font-bold xl:text-4xl ${t.text}`}
+        >
           {value}
         </div>
-        <div className="mt-1 font-body text-lg text-black">{label}</div>
+        <div className="mt-1 break-words font-body text-base text-black">
+          {label}
+        </div>
       </div>
     </div>
   );

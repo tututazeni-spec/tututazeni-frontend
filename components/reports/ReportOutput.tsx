@@ -21,6 +21,8 @@ import {
   UserX,
 } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import type { NavyStatTone } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import type { ReportData } from './types';
 
@@ -88,25 +90,16 @@ const SUMMARY_LABELS: Record<string, string> = {
   passRate: 'Taxa de Aprovação',
 };
 
-type Tone = 'blue' | 'green' | 'gold' | 'red';
-
-const TONES: Record<Tone, { bar: string; text: string }> = {
-  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
-  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
-};
-
-const KEY_STYLE: Record<string, { icon: LucideIcon; tone: Tone }> = {
+const KEY_STYLE: Record<string, { icon: LucideIcon; tone: NavyStatTone }> = {
   total: { icon: Users, tone: 'blue' },
   active: { icon: UserCheck, tone: 'green' },
   inactive: { icon: UserX, tone: 'red' },
   newHires: { icon: UserPlus, tone: 'green' },
-  newHiresTrend: { icon: TrendingUp, tone: 'gold' },
+  newHiresTrend: { icon: TrendingUp, tone: 'orange' },
   turnoverRate: { icon: TrendingDown, tone: 'red' },
 };
 
-const DEFAULT_KEY_STYLE: { icon: LucideIcon; tone: Tone } = {
+const DEFAULT_KEY_STYLE: { icon: LucideIcon; tone: NavyStatTone } = {
   icon: BarChart2,
   tone: 'blue',
 };
@@ -146,24 +139,16 @@ export function ReportOutput({ data }: ReportOutputProps) {
               k.toLowerCase().includes('pct') ||
               k.toLowerCase().includes('ratio');
             const style = KEY_STYLE[k] ?? DEFAULT_KEY_STYLE;
-            const Icon = style.icon;
-            const t = TONES[style.tone];
             return (
-              <div
+              <NavyStatCard
                 key={k}
-                className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100"
-              >
-                <div className={`h-1.5 w-full ${t.bar}`} />
-                <div className="p-5 pt-6">
-                  <Icon size={22} strokeWidth={1.75} className={t.text} />
-                  <p className={`mt-3 font-display text-2xl font-bold ${t.text}`}>
-                    {typeof v === 'number' ? (isRate ? `${v}%` : v) : String(v)}
-                  </p>
-                  <p className="mt-1 font-body text-xs font-medium text-ink-muted">
-                    {label}
-                  </p>
-                </div>
-              </div>
+                icon={style.icon}
+                tone={style.tone}
+                label={label}
+                value={
+                  typeof v === 'number' ? (isRate ? `${v}%` : v) : String(v)
+                }
+              />
             );
           })}
       </div>

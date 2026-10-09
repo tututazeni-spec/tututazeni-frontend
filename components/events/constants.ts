@@ -217,7 +217,7 @@ export const COMMUNICATION_TYPE_CFG: Record<
   CANCELLATION: { label: 'Cancelamento' },
   INSTRUCTIONS: { label: 'Instruções' },
   THANK_YOU: { label: 'Agradecimento' },
-  FOLLOW_UP: { label: 'Follow-up' },
+  FOLLOW_UP: { label: 'Acompanhamento' },
 };
 
 export const COMMUNICATION_CHANNEL_CFG: Record<

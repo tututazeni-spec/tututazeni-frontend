@@ -50,7 +50,7 @@ export function DashboardView({
             <Button intent="secondary">Contratos a expirar</Button>
           </Link>
           <Link href="/crm/partners/overdue-milestones">
-            <Button intent="secondary">Milestones em atraso</Button>
+            <Button intent="secondary">Marcos em atraso</Button>
           </Link>
           <Link href="/crm/partners/report">
             <Button intent="secondary">Relatório por período</Button>
@@ -88,7 +88,7 @@ export function DashboardView({
           color="text-warning-ink"
         />
         <SummaryCard
-          label="Milestones em atraso"
+          label="Marcos em atraso"
           value={String(totals.overdueMilestones)}
           color="text-danger-ink"
         />

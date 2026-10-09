@@ -9,7 +9,6 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
-import type { LucideIcon } from 'lucide-react';
 import {
   BookOpen,
   Bot,
@@ -19,44 +18,8 @@ import {
   Zap,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import type { EngagementMetrics } from './types';
-
-type Tone = 'blue' | 'green' | 'gold' | 'red';
-
-const TONES: Record<Tone, { bar: string; text: string }> = {
-  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
-  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
-};
-
-function TopBarKpiCard({
-  icon: Icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  tone: Tone;
-}) {
-  const t = TONES[tone];
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-      <div className={`h-1.5 w-full ${t.bar}`} />
-      <div className="p-5 pt-6">
-        <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
-          {value}
-        </p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
-          {label}
-        </p>
-      </div>
-    </div>
-  );
-}
 
 export function EngagementView() {
   const { data, isLoading } = useApiQuery<EngagementMetrics>(
@@ -69,41 +32,41 @@ export function EngagementView() {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-3 gap-4">
-        <TopBarKpiCard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <NavyStatCard
           icon={Users}
           label="Colaboradores"
           value={data.totalUsers}
           tone="blue"
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={UserCheck}
           label="Activos (últimos 30 dias)"
           value={data.activeUsersLast30d}
           tone="green"
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={Zap}
           label="Taxa de engajamento"
           value={`${data.engagementRate}%`}
-          tone="gold"
+          tone="orange"
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <TopBarKpiCard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <NavyStatCard
           icon={BookOpen}
           label="Interacções com a base de conhecimento"
           value={data.knowledgeInteractions}
-          tone="gold"
+          tone="orange"
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={Bot}
           label="Sessões de tutor AI"
           value={data.aiTutorSessions}
           tone="blue"
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={GraduationCap}
           label="Acessos a micro-learning"
           value={data.microLearningAccess}
@@ -112,7 +75,7 @@ export function EngagementView() {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
           Leaderboard — Top 10 pontos de experiência
         </div>
         {data.leaderboard.map((u, i) => (

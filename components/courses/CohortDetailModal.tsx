@@ -8,7 +8,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check, UserMinus, X } from 'lucide-react';
+import { Check, Pencil, UserMinus, X } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -20,12 +20,18 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useDirectoryUsers } from '@/components/enrollments/enrollData';
+import { CohortDepartmentPicker } from './CohortDepartmentPicker';
+import { CohortInfoEditor } from './CohortInfoEditor';
 import { Skeleton } from './shared';
 import type { CohortAttendanceEntry, CohortDetail } from './types';
 
 export interface CohortDetailModalProps {
   cohortId: number;
   onClose: () => void;
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString('pt-PT');
 }
 
 function todayISO() {
@@ -39,6 +45,9 @@ export function CohortDetailModal({
   const toast = useToast();
   const confirm = useConfirm();
   const [addSearch, setAddSearch] = useState('');
+  const [editingInfo, setEditingInfo] = useState(false);
+  const [editingCapacity, setEditingCapacity] = useState(false);
+  const [capacityDraft, setCapacityDraft] = useState('');
   const [date, setDate] = useState(todayISO());
   const [presence, setPresence] = useState<Record<number, boolean>>({});
 
@@ -96,6 +105,45 @@ export function CohortDetailModal({
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
+
+  const addDepartment = useApiMutation(
+    (departmentId: number) =>
+      apiClient.post<{ added: number; alreadyIn: number }>(
+        `/courses/cohorts/${cohortId}/participants`,
+        { departmentIds: [departmentId] },
+      ),
+    {
+      invalidateKeys,
+      onSuccess: (r) =>
+        toast({
+          title: `${r.added} adicionado(s), ${r.alreadyIn} já estavam na turma`,
+          intent: 'success',
+        }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  const updateCapacity = useApiMutation(
+    (capacity: number) =>
+      apiClient.patch(`/courses/cohorts/${cohortId}`, { capacity }),
+    {
+      invalidateKeys,
+      onSuccess: () => {
+        toast({ title: 'Vagas actualizadas', intent: 'success' });
+        setEditingCapacity(false);
+      },
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  function saveCapacity() {
+    const n = Number(capacityDraft);
+    if (!Number.isInteger(n) || n < 1) {
+      toast({ title: 'Indica um número de vagas válido', intent: 'danger' });
+      return;
+    }
+    updateCapacity.mutate(n);
+  }
 
   const removeParticipant = useApiMutation(
     (userId: number) =>
@@ -175,14 +223,89 @@ export function CohortDetailModal({
                 <div className="text-xs uppercase tracking-wide text-ink-faint">
                   Vagas
                 </div>
-                {cohort.availableSlots}/{cohort.capacity}
+                {editingCapacity ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      min={Math.max(1, cohort.participants.length)}
+                      value={capacityDraft}
+                      onChange={(e) => setCapacityDraft(e.target.value)}
+                      className="w-20"
+                      aria-label="Capacidade da turma"
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      aria-label="Guardar vagas"
+                      onClick={saveCapacity}
+                      disabled={updateCapacity.isPending}
+                      className="rounded-control p-1 text-success-ink hover:bg-success-subtle"
+                    >
+                      <Check size={16} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Cancelar"
+                      onClick={() => setEditingCapacity(false)}
+                      className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken"
+                    >
+                      <X size={16} strokeWidth={1.75} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    {cohort.availableSlots}/{cohort.capacity}
+                    <button
+                      type="button"
+                      aria-label="Editar vagas"
+                      onClick={() => {
+                        setCapacityDraft(String(cohort.capacity));
+                        setEditingCapacity(true);
+                      }}
+                      className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
+                    >
+                      <Pencil size={14} strokeWidth={1.75} />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
+
+            {editingInfo ? (
+              <CohortInfoEditor
+                cohort={cohort}
+                invalidateKeys={invalidateKeys}
+                onDone={() => setEditingInfo(false)}
+              />
+            ) : (
+              <div className="-mt-3 flex items-center justify-between text-sm text-ink-muted">
+                <span>
+                  {formatDate(cohort.startDate)}
+                  {cohort.endDate ? ` → ${formatDate(cohort.endDate)}` : ''}
+                </span>
+                <Button
+                  size="sm"
+                  intent="secondary"
+                  onClick={() => setEditingInfo(true)}
+                >
+                  <Pencil size={14} strokeWidth={1.75} className="mr-1" />
+                  Editar dados da turma
+                </Button>
+              </div>
+            )}
 
             <section>
               <h3 className="mb-2 text-sm font-medium text-ink">
                 Participantes ({cohort.participants.length})
               </h3>
+              <div className="mb-3">
+                <CohortDepartmentPicker
+                  onAdd={async (id) => {
+                    await addDepartment.mutateAsync(id).catch(() => undefined);
+                  }}
+                  loading={addDepartment.isPending}
+                />
+              </div>
               <div className="relative mb-3">
                 <Input
                   value={addSearch}
