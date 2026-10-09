@@ -50,10 +50,6 @@ export function AlertStrip({ alerts }: AlertStripProps) {
       {alerts.map((a, i) => {
         const conf = SEVERITY_CONFIG[a.severity];
         const AlertIcon = conf.icon;
-        const messageLC = a.message.toLowerCase();
-        const isParticipaçãoAlert =
-          messageLC.includes('participação em surveys') &&
-          messageLC.includes('30%');
         const displayMessage = a.message.replace(
           /taxa de participação em surveys/i,
           'Taxa de Resposta',
@@ -61,9 +57,7 @@ export function AlertStrip({ alerts }: AlertStripProps) {
         return (
           <div
             key={i}
-            className={`flex items-center gap-3 rounded-card border px-4 py-3 ${
-              isParticipaçãoAlert ? 'mt-[1cm]!' : ''
-            } ${conf.classes}`}
+            className={`flex items-center gap-3 rounded-card border px-4 py-3 ${conf.classes}`}
           >
             <AlertIcon size={14} strokeWidth={1.75} className="shrink-0" />
             <p className="flex-1 font-body text-sm text-black">{displayMessage}</p>

@@ -12,7 +12,6 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { GaugeChart } from '@/components/ui/charts/GaugeChart';
-import { BarChart } from '@/components/ui/charts/BarChart';
 import { TopBarCard } from '@/components/ui/TopBarCard';
 import type { TrainingData } from './types';
 
@@ -41,7 +40,7 @@ export function TrainingPanel() {
           tone="blue"
           icon={<CheckCircle2 className="h-6 w-6" />}
         />
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
           <GaugeChart
             value={data?.completionRate ?? 0}
             label="Taxa de Conclusão"
@@ -49,7 +48,7 @@ export function TrainingPanel() {
             size={120}
           />
         </div>
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
           <GaugeChart
             value={data?.mandatoryRate ?? 0}
             label="Formações Obrigatórias"
@@ -71,50 +70,41 @@ export function TrainingPanel() {
           <h4 className="mb-3 font-body font-semibold text-ink-muted">
             Top 5 Cursos
           </h4>
-          <BarChart
-            orientation="horizontal"
-            categories={(data?.topCourses ?? []).map(
-              (c, i) => c.course?.title ?? `Curso ${c.courseId ?? i}`,
-            )}
-            series={[
-              {
-                label: 'Inscrições',
-                values: (data?.topCourses ?? []).map((c) => c.count),
-                color: '#0F1F3D',
-              },
-            ]}
-            className="mb-4"
-          />
-          <div className="space-y-2">
-            {(data?.topCourses ?? []).map((c, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <span className="w-4 font-body text-xs font-bold text-ink-faint">
-                  #{i + 1}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-body text-xs font-medium text-ink">
-                    {c.course?.title ?? `Curso ${c.courseId}`}
-                  </p>
-                  <p className="font-body text-[10px] text-ink-faint">
-                    {c.course?.category}
-                  </p>
-                </div>
-                <span className="font-body text-xs font-bold text-black">
-                  {c.count} inscrições
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {(data?.insights?.length ?? 0) > 0 && (
-        <div className="rounded-card border border-accent-subtle bg-accent-subtle p-4">
-          {data?.insights?.map((ins, i) => (
-            <p key={i} className="font-body text-xs text-black">
-              {ins.replace(/^⚠️\s*/, '')}
-            </p>
-          ))}
+          <ol className="space-y-3">
+            {(data?.topCourses ?? []).map((c, i, all) => {
+              const title = c.course?.title ?? `Curso ${c.courseId ?? i}`;
+              const max = Math.max(1, ...all.map((x) => x.count));
+              return (
+                <li key={c.courseId ?? i} className="flex items-start gap-3">
+                  <span className="w-5 shrink-0 pt-0.5 font-body text-xs font-bold text-ink-faint">
+                    #{i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className="break-words font-body text-xs font-medium text-ink"
+                      title={title}
+                    >
+                      {title}
+                    </p>
+                    {c.course?.category && (
+                      <p className="break-words font-body text-[10px] text-ink-faint">
+                        {c.course.category}
+                      </p>
+                    )}
+                    <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-border">
+                      <div
+                        className="h-full rounded-full bg-[#0F1F3D]"
+                        style={{ width: `${(c.count / max) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                  <span className="shrink-0 whitespace-nowrap pt-0.5 font-body text-xs font-bold text-black">
+                    {c.count} inscrições
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
         </div>
       )}
     </div>

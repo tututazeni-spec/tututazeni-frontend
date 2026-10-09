@@ -141,7 +141,7 @@ export function CompliancePanel() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3 transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
           <GaugeChart
             value={data?.mandatoryRate ?? 0}
             label={`Obrigatórias (${data?.mandatoryDone ?? 0}/${data?.mandatory ?? 0})`}

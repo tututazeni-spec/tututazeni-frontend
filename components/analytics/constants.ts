@@ -59,7 +59,7 @@ export const NAV: Array<{
   { id: 'people', label: 'Pessoas', icon: Users, roles: ADMIN_ROLES },
   {
     id: 'engagement',
-    label: 'Engagement',
+    label: 'Engajamento',
     icon: Sparkles,
     roles: EXECUTIVE_ROLES,
   },
@@ -78,7 +78,7 @@ export const TITLES: Record<View, string> = {
   people: 'People Analytics',
   pdi: 'Analytics de PDI',
   competencies: 'Mapa de Gaps de Competências',
-  engagement: 'Métricas de Engagement',
+  engagement: 'Métricas de Engajamento',
   roi: 'ROI de Formação',
   courses: 'Performance de Cursos',
   snapshots: 'Histórico de Snapshots',

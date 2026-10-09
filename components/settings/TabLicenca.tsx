@@ -23,7 +23,7 @@ const MODULE_LABELS: Record<string, string> = {
   ROLES: 'Perfis e permissões',
   LMS: 'Academia / Cursos',
   PERFORMANCE: 'Avaliação de desempenho',
-  ENGAGEMENT: 'Engagement',
+  ENGAGEMENT: 'Engajamento',
   TALENT: 'Talento / Carreira',
   EVALUATION: 'Avaliação 360°',
   CONTENT_LIBRARY: 'Biblioteca de conteúdos',
