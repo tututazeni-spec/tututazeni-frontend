@@ -8,11 +8,19 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, Info } from 'lucide-react';
+import {
+  AlertTriangle,
+  CalendarClock,
+  CalendarOff,
+  GitCompareArrows,
+  Info,
+  Users,
+  UsersRound,
+} from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -137,31 +145,36 @@ export function PlanningTab() {
         />
       ) : (
         <>
-          <div className="flex flex-wrap gap-3">
-            <KpiCard
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
+            <NavyStatCard
+              icon={Users}
+              tone="blue"
               label="Colaboradores"
               value={data.summary.headcount}
-              intent="primary"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={CalendarOff}
+              tone="blue"
               label="Ausentes hoje"
               value={data.summary.absentToday}
-              intent="info"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={CalendarClock}
+              tone="orange"
               label="Pedidos pendentes"
               value={data.summary.pendingRequests}
-              intent="warning"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={UsersRound}
+              tone={data.summary.teamsBelowMinimum ? 'red' : 'green'}
               label="Equipas abaixo do mínimo"
               value={data.summary.teamsBelowMinimum}
-              intent={data.summary.teamsBelowMinimum ? 'danger' : 'success'}
             />
-            <KpiCard
+            <NavyStatCard
+              icon={GitCompareArrows}
+              tone={data.summary.conflictingRequests ? 'red' : 'green'}
               label="Pedidos em conflito"
               value={data.summary.conflictingRequests}
-              intent={data.summary.conflictingRequests ? 'danger' : 'success'}
             />
           </div>
 

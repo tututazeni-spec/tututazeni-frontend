@@ -7,12 +7,20 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, ChevronDown, ChevronRight, Repeat2, X } from 'lucide-react';
+import {
+  AlarmClock,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Hourglass,
+  Repeat2,
+  X,
+} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -107,18 +115,18 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-2 gap-3 md:max-w-md">
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 md:max-w-xl">
+        <NavyStatCard
+          icon={Hourglass}
+          tone="blue"
           label="Por decidir"
           value={data?.summary.pending ?? 0}
-          intent="primary"
-          className="w-full"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={AlarmClock}
+          tone={data?.summary.overdue ? 'red' : 'green'}
           label="Em atraso"
           value={data?.summary.overdue ?? 0}
-          intent={data?.summary.overdue ? 'danger' : 'success'}
-          className="w-full"
         />
       </div>
 

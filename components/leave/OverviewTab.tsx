@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
@@ -203,36 +203,32 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
       {filterBar}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KpiCard
+        <NavyStatCard
           icon={Palmtree}
+          tone="green"
           label="Férias disponíveis"
           value={cards.vacationAvailable ?? '—'}
           sub="dias · o seu saldo"
-          intent="success"
-          className="w-full"
         />
-        <KpiCard
+        <NavyStatCard
           icon={CalendarClock}
+          tone="orange"
           label="Pedidos pendentes"
           value={cards.pendingRequests}
-          intent="warning"
-          className="w-full"
         />
-        <KpiCard
+        <NavyStatCard
           icon={CalendarCheck}
+          tone="blue"
           label="Dias de férias gozados"
           value={cards.vacationTaken}
           sub="no período"
-          intent="primary"
-          className="w-full"
         />
-        <KpiCard
+        <NavyStatCard
           icon={CalendarOff}
+          tone="red"
           label="Ausências no período"
           value={cards.absences.total}
           sub={`${cards.absences.justified} justificadas · ${cards.absences.unjustified} injustificadas`}
-          intent="accent"
-          className="w-full"
         />
       </div>
 
