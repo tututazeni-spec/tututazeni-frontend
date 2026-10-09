@@ -99,7 +99,7 @@ export function OverviewView() {
       {isPrivileged && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+            <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
               Perguntas mais frequentes
             </div>
             {(data.perguntasFrequentes ?? []).length === 0 ? (
@@ -124,7 +124,7 @@ export function OverviewView() {
           </Card>
 
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+            <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
               Cursos mais utilizados
             </div>
             {(data.cursosMaisUtilizados ?? []).length === 0 ? (
@@ -154,7 +154,7 @@ export function OverviewView() {
           </Card>
 
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+            <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
               Temas com maior procura
             </div>
             {(data.temasMaisProcurados ?? []).length === 0 ? (
@@ -177,7 +177,7 @@ export function OverviewView() {
           </Card>
 
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+            <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
               Utilizadores mais activos
             </div>
             {(data.utilizadoresMaisAtivos ?? []).length === 0 ? (
