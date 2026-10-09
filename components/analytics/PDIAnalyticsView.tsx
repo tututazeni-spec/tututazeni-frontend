@@ -113,7 +113,7 @@ export function PDIAnalyticsView() {
           icon={AlertTriangle}
           label="Acções atrasadas"
           value={data.overdueActions}
-          tone={data.overdueActions > 0 ? 'red' : 'green'}
+          tone="red"
         />
         <TopBarKpiCard
           icon={CheckCircle2}
@@ -131,13 +131,13 @@ export function PDIAnalyticsView() {
           icon={Clock}
           label="PDIs activos com prazo ultrapassado"
           value={data.overduePlans}
-          tone={data.overduePlans > 0 ? 'red' : 'green'}
+          tone="red"
         />
         <TopBarKpiCard
           icon={FileClock}
           label="Rascunhos parados há mais de 30 dias"
           value={data.staleDrafts}
-          tone={data.staleDrafts > 0 ? 'gold' : 'green'}
+          tone="gold"
         />
       </div>
 
