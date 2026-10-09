@@ -85,7 +85,7 @@ function AvailabilityStrip({
           <span
             key={d.date}
             title={dayTitle(d)}
-            className={cn('h-4 min-w-0 flex-1 rounded-[1px]', cls)}
+            className={cn('h-5 min-w-[3px] flex-1 rounded-sm', cls)}
             style={cls ? undefined : { backgroundColor: color }}
           />
         );
@@ -238,7 +238,7 @@ export function PlanningTab() {
                 description="Não há colaboradores activos para estes filtros."
               />
             ) : (
-              <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:leading-tight">
+              <Table>
                 <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                   <TableRow>
                     <TableHeaderCell>Equipa</TableHeaderCell>
@@ -248,7 +248,7 @@ export function PlanningTab() {
                     <TableHeaderCell>Pior dia</TableHeaderCell>
                     <TableHeaderCell>Dias abaixo</TableHeaderCell>
                     <TableHeaderCell>Sobreposição</TableHeaderCell>
-                    <TableHeaderCell className="min-w-[8rem]">
+                    <TableHeaderCell className="min-w-[14rem]">
                       Período
                     </TableHeaderCell>
                   </TableRow>
@@ -270,10 +270,7 @@ export function PlanningTab() {
                       </TableCell>
                       <TableCell>{t.headcount}</TableCell>
                       <TableCell>
-                        {t.minAvailabilityPercent}%
-                        <span className="block text-ink-faint">
-                          ({t.minPeople} pessoas)
-                        </span>
+                        {t.minAvailabilityPercent}% ({t.minPeople} pessoas)
                       </TableCell>
                       <TableCell>{t.averageAvailabilityPercent}%</TableCell>
                       <TableCell
