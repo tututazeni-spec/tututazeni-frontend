@@ -41,7 +41,7 @@ export function TrainingPanel() {
           tone="blue"
           icon={<CheckCircle2 className="h-6 w-6" />}
         />
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
           <GaugeChart
             value={data?.completionRate ?? 0}
             label="Taxa de Conclusão"
@@ -49,7 +49,7 @@ export function TrainingPanel() {
             size={120}
           />
         </div>
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
           <GaugeChart
             value={data?.mandatoryRate ?? 0}
             label="Formações Obrigatórias"
