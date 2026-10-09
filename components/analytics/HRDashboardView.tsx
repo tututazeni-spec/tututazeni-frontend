@@ -104,20 +104,22 @@ function TrendKpiCard({
         <p className="mt-1 font-body text-xs font-medium text-ink-muted">
           {label}
         </p>
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          className="mt-2 h-7 w-full"
-          preserveAspectRatio="none"
-        >
-          <polyline
-            points={points}
-            fill="none"
-            stroke={t.stroke}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        {trendData.length > 1 && (
+          <svg
+            viewBox={`0 0 ${width} ${height}`}
+            className="mt-2 h-7 w-full"
+            preserveAspectRatio="none"
+          >
+            <polyline
+              points={points}
+              fill="none"
+              stroke={t.stroke}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
       </div>
     </div>
   );
@@ -252,7 +254,7 @@ export function HRDashboardView() {
               icon={TrendingDown}
               label="Taxa de Rotatividade"
               value={`${data.people.turnoverRate}%`}
-              trendData={data.people.turnoverTrend}
+              trendData={data.people.turnoverTrend ?? []}
               tone="red"
             />
           </div>
@@ -312,7 +314,7 @@ export function HRDashboardView() {
               icon={Filter}
               label="Adopção"
               value={`${data.pdi.adoptionRate}%`}
-              funnel={data.pdi.funnel}
+              funnel={data.pdi.funnel ?? { eligible: 0, started: 0, adopted: 0 }}
               tone="gold"
             />
             <TopBarKpiCard
