@@ -38,11 +38,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         aria-invalid={invalid || undefined}
         className={cn(
-          'rounded-control border-[1.5px] border-field bg-surface px-3 py-[9px] font-body text-sm text-ink',
-          'placeholder:text-ink-faint',
-          'focus:border-field focus:outline-none focus:ring-[3px] focus:ring-field-soft',
+          'min-h-[48px] rounded-control border-[1.5px] border-field bg-surface px-3 py-[9px] font-body text-sm text-field-ink',
+          'placeholder:text-ink-muted',
+          'focus:bg-field-soft focus:outline-none focus:ring-[3px] focus:ring-field-soft',
+          'disabled:cursor-not-allowed disabled:opacity-50',
           invalid &&
-            'border-danger focus:border-danger focus:ring-danger-subtle',
+            'border-danger focus:ring-danger-subtle',
           className,
         )}
         {...props}
