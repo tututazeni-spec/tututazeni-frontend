@@ -8,7 +8,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check, UserMinus, X } from 'lucide-react';
+import { Check, Pencil, UserMinus, X } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -40,6 +40,8 @@ export function CohortDetailModal({
   const toast = useToast();
   const confirm = useConfirm();
   const [addSearch, setAddSearch] = useState('');
+  const [editingCapacity, setEditingCapacity] = useState(false);
+  const [capacityDraft, setCapacityDraft] = useState('');
   const [date, setDate] = useState(todayISO());
   const [presence, setPresence] = useState<Record<number, boolean>>({});
 
@@ -114,6 +116,28 @@ export function CohortDetailModal({
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
+
+  const updateCapacity = useApiMutation(
+    (capacity: number) =>
+      apiClient.patch(`/courses/cohorts/${cohortId}`, { capacity }),
+    {
+      invalidateKeys,
+      onSuccess: () => {
+        toast({ title: 'Vagas actualizadas', intent: 'success' });
+        setEditingCapacity(false);
+      },
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  function saveCapacity() {
+    const n = Number(capacityDraft);
+    if (!Number.isInteger(n) || n < 1) {
+      toast({ title: 'Indica um número de vagas válido', intent: 'danger' });
+      return;
+    }
+    updateCapacity.mutate(n);
+  }
 
   const removeParticipant = useApiMutation(
     (userId: number) =>
@@ -193,7 +217,51 @@ export function CohortDetailModal({
                 <div className="text-xs uppercase tracking-wide text-ink-faint">
                   Vagas
                 </div>
-                {cohort.availableSlots}/{cohort.capacity}
+                {editingCapacity ? (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      min={Math.max(1, cohort.participants.length)}
+                      value={capacityDraft}
+                      onChange={(e) => setCapacityDraft(e.target.value)}
+                      className="w-20"
+                      aria-label="Capacidade da turma"
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      aria-label="Guardar vagas"
+                      onClick={saveCapacity}
+                      disabled={updateCapacity.isPending}
+                      className="rounded-control p-1 text-success-ink hover:bg-success-subtle"
+                    >
+                      <Check size={16} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Cancelar"
+                      onClick={() => setEditingCapacity(false)}
+                      className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken"
+                    >
+                      <X size={16} strokeWidth={1.75} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    {cohort.availableSlots}/{cohort.capacity}
+                    <button
+                      type="button"
+                      aria-label="Editar vagas"
+                      onClick={() => {
+                        setCapacityDraft(String(cohort.capacity));
+                        setEditingCapacity(true);
+                      }}
+                      className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
+                    >
+                      <Pencil size={14} strokeWidth={1.75} />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
