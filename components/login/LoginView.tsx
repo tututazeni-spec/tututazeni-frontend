@@ -153,8 +153,9 @@ export function LoginView({
         }
 
         .login-logo-icon {
-          width: 52px;
-          height: 52px;
+          width: 182px;
+          height: 182px;
+          max-width: 100%;
         }
 
         .login-logo-text {
@@ -447,8 +448,8 @@ export function LoginView({
               className="login-logo-icon"
               src="/images/innova-logo.png"
               alt="Innova"
-              width={52}
-              height={52}
+              width={182}
+              height={182}
               style={{ objectFit: 'contain' }}
             />
           </div>
