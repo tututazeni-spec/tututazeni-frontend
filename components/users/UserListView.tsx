@@ -187,7 +187,7 @@ export function UserListView({ onSelect }: UserListViewProps) {
       )}
       {!loading && (
         <Table>
-          <TableHead className="bg-[#0F1F3D]">
+          <TableHead className="bg-[#0F1F3D]/60">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell className="w-8 text-white" />
               <TableHeaderCell className="text-white">Utilizador</TableHeaderCell>
