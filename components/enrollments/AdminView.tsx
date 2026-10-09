@@ -8,7 +8,12 @@
 
 'use client';
 
-import { AlertTriangle, CalendarDays, Hourglass, MoreHorizontal } from 'lucide-react';
+import {
+  AlertTriangle,
+  CalendarDays,
+  Hourglass,
+  MoreHorizontal,
+} from 'lucide-react';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
@@ -210,7 +215,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
       {/* Filtros — grid de largura uniforme (mesmo padrão da aba "Cursos",
           ver components/courses/GestaoView.tsx): todos os campos com
           w-full em vez de larguras w-* ad-hoc, alinhados em colunas. */}
-      <div className="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Select
           items={STATUS_ITEMS}
           value={filters.status || 'ALL'}
@@ -223,7 +228,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
           onValueChange={(v) =>
             updateFilters({ courseId: v === 'ALL' ? '' : v })
           }
-          className="w-full"
+          className="w-full lg:col-span-2"
         />
         <Select
           items={[
@@ -264,7 +269,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
 
       {/* Bulk deadline */}
       {selected.length > 0 && (
-        <div className="mb-4 flex items-center gap-3 rounded-card border border-border bg-info-subtle px-4 py-2.5">
+        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-card border border-border bg-info-subtle px-4 py-2.5">
           <span className="text-sm font-medium text-info-ink">
             {selected.length} seleccionados
           </span>
@@ -291,165 +296,189 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
       )}
 
       {/* Tabela em cartões */}
-<div className="overflow-x-auto">
-  <div className="grid min-w-[1100px] grid-cols-[32px_1.5fr_1fr_1fr_120px_1.1fr_40px] gap-3 px-4 pb-2 text-xs font-medium uppercase tracking-wide text-ink-faint">
-    <div />
-    <div>Colaborador / Curso</div>
-    <div>Departamento &amp; Origem</div>
-    <div>Estado &amp; Nota</div>
-    <div>Progresso</div>
-    <div>Inscrição, Conclusão &amp; Deadline</div>
-    <div />
-  </div>
+      <div>
+        {loading && (
+          <Skeleton
+            rows={4}
+            wrapperClassName="space-y-3 animate-pulse"
+            itemClassName="h-24 rounded-2xl bg-surface-sunken"
+          />
+        )}
 
-  {loading && (
-    <Skeleton
-      rows={4}
-      wrapperClassName="space-y-3 animate-pulse"
-      itemClassName="h-24 rounded-2xl bg-surface-sunken"
-    />
-  )}
+        <div className="space-y-3">
+          {!loading &&
+            data?.data?.map((e) => (
+              <div
+                key={e.id}
+                className={`flex flex-col gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-4 shadow-sm backdrop-blur-md hover:bg-surface ${STATUS_ACCENT[e.status] ?? ''}`}
+              >
+                {/* Topo: selecção, colaborador, curso e acções */}
+                <div className="flex items-start gap-3">
+                  <div className="flex items-center pt-2">
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(e.id)}
+                      onChange={() => toggleSelect(e.id)}
+                      className="h-4 w-4 rounded border-border-strong accent-primary"
+                    />
+                  </div>
 
-  <div className="space-y-3">
-    {!loading &&
-      data?.data?.map((e) => (
-        <div
-          key={e.id}
-          className={`grid min-w-[1100px] grid-cols-[32px_1.5fr_1fr_1fr_120px_1.1fr_40px] items-stretch gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-3 shadow-sm backdrop-blur-md hover:bg-surface ${STATUS_ACCENT[e.status] ?? ''}`}
-        >
-          {/* Checkbox */}
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              checked={selected.includes(e.id)}
-              onChange={() => toggleSelect(e.id)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
-            />
-          </div>
+                  {/* 1. Colaborador / Curso */}
+                  <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
+                    <div className="flex items-center gap-2">
+                      <Avatar
+                        name={e.user?.fullName ?? ''}
+                        url={e.user?.avatarUrl ?? undefined}
+                        size="sm"
+                      />
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-ink">
+                          {e.user?.fullName}
+                        </div>
+                        <div className="truncate text-xs text-ink-faint">
+                          {e.user?.email}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="w-fit max-w-full break-words rounded-full bg-blue-500/20 px-2.5 py-0.5 text-[11px] font-semibold uppercase text-blue-700">
+                      {e.course?.title}
+                    </span>
+                  </div>
 
-          {/* 1. Colaborador / Curso */}
-          <div className="flex min-w-0 flex-col justify-center gap-2">
-            <div className="flex items-center gap-2">
-              <Avatar
-                name={e.user?.fullName ?? ''}
-                url={e.user?.avatarUrl ?? undefined}
-                size="sm"
-              />
-              <div className="min-w-0">
-                <div className="truncate text-sm font-semibold text-ink">
-                  {e.user?.fullName}
+                  {/* 6. Acções (igual ao que já tinhas) */}
+                  <div className="flex shrink-0 items-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="rounded-control p-1.5 text-ink-muted hover:bg-surface-sunken hover:text-ink"
+                          disabled={rowBusy(e.id)}
+                        >
+                          <MoreHorizontal size={16} strokeWidth={1.75} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => remind.mutate(e.id)}>
+                          Enviar lembrete
+                        </DropdownMenuItem>
+                        {(e.status === 'CANCELLED' ||
+                          e.status === 'EXPIRED') && (
+                          <DropdownMenuItem
+                            onSelect={() => reenroll.mutate(e.id)}
+                          >
+                            Reinscrever
+                          </DropdownMenuItem>
+                        )}
+                        {e.status !== 'CANCELLED' && (
+                          <DropdownMenuItem onSelect={() => onResetProgress(e)}>
+                            Reiniciar progresso
+                          </DropdownMenuItem>
+                        )}
+                        {e.status !== 'COMPLETED' &&
+                          e.status !== 'CANCELLED' && (
+                            <DropdownMenuItem
+                              className="text-danger-ink"
+                              onSelect={() => onRemove(e)}
+                            >
+                              Remover inscrição
+                            </DropdownMenuItem>
+                          )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
-                <div className="truncate text-xs text-ink-faint">
-                  {e.user?.email}
+
+                {/* Detalhes em grelha fluida */}
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  {/* 2. Departamento & Origem */}
+                  <div
+                    className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1.5`}
+                  >
+                    <span
+                      className={`${PILL} bg-fuchsia-500/20 text-fuchsia-700`}
+                    >
+                      {e.user.department?.name ?? '—'}
+                    </span>
+                    {e.user.unit?.name && (
+                      <span className="max-w-full truncate text-xs text-ink-faint">
+                        {e.user.unit.name}
+                      </span>
+                    )}
+                    <span
+                      className={`${PILL} bg-violet-500/20 text-violet-700`}
+                    >
+                      {ORIGIN_LABELS[e.origin]}
+                    </span>
+                  </div>
+
+                  {/* 3. Estado & Nota */}
+                  <div
+                    className={`${PANEL} flex flex-col items-start justify-center gap-1.5`}
+                  >
+                    <StatusBadge
+                      value={e.status}
+                      map={STATUS_CFG}
+                      variant="dot"
+                    />
+                    <span className="text-xs text-ink-muted">
+                      Nota:{' '}
+                      <span className="font-mono">
+                        {e.certificate?.score != null
+                          ? `${e.certificate.score}%`
+                          : '—'}
+                      </span>
+                    </span>
+                  </div>
+
+                  {/* 4. Progresso */}
+                  <div className={`${PANEL} flex items-center justify-center`}>
+                    <ProgressRing value={e.progressPercent ?? 0} />
+                  </div>
+
+                  {/* 5. Inscrição, Conclusão & Deadline */}
+                  <div
+                    className={`${PANEL} flex min-w-0 flex-col justify-center gap-1`}
+                  >
+                    <span className="flex items-center gap-1 text-xs text-ink-faint">
+                      <CalendarDays size={12} strokeWidth={1.75} />
+                      Inscrição:{' '}
+                      {new Date(e.enrolledAt).toLocaleDateString('pt')}
+                    </span>
+                    <span className="flex items-center gap-1 text-xs text-ink-faint">
+                      <CalendarDays size={12} strokeWidth={1.75} />
+                      Conclusão:{' '}
+                      {e.completedAt
+                        ? new Date(e.completedAt).toLocaleDateString('pt')
+                        : '—'}
+                    </span>
+                    <div className="text-xs">
+                      {e.deadline ? (
+                        <Badge intent={deadlineIntent(e.deadline, e.isOverdue)}>
+                          {e.isOverdue ? (
+                            <AlertTriangle
+                              size={12}
+                              strokeWidth={1.75}
+                              className="mr-1 inline"
+                            />
+                          ) : (
+                            <Hourglass
+                              size={12}
+                              strokeWidth={1.75}
+                              className="mr-1 inline"
+                            />
+                          )}
+                          {deadlineCountdown(e.deadline)}
+                        </Badge>
+                      ) : (
+                        <span className="text-ink-faint">Deadline: —</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <span className={`${PILL} w-fit bg-blue-500/20 text-blue-700`}>
-              {e.course?.title}
-            </span>
-          </div>
-
-          {/* 2. Departamento & Origem */}
-          <div className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1.5`}>
-            <span className={`${PILL} bg-fuchsia-500/20 text-fuchsia-700`}>
-              {e.user.department?.name ?? '—'}
-            </span>
-            {e.user.unit?.name && (
-              <span className="max-w-full truncate text-xs text-ink-faint">
-                {e.user.unit.name}
-              </span>
-            )}
-            <span className={`${PILL} bg-violet-500/20 text-violet-700`}>
-              {ORIGIN_LABELS[e.origin]}
-            </span>
-          </div>
-
-          {/* 3. Estado & Nota */}
-          <div className={`${PANEL} flex flex-col items-start justify-center gap-1.5`}>
-            <StatusBadge value={e.status} map={STATUS_CFG} variant="dot" />
-            <span className="text-xs text-ink-muted">
-              Nota:{' '}
-              <span className="font-mono">
-                {e.certificate?.score != null ? `${e.certificate.score}%` : '—'}
-              </span>
-            </span>
-          </div>
-
-          {/* 4. Progresso */}
-          <div className={`${PANEL} flex items-center justify-center`}>
-            <ProgressRing value={e.progressPercent ?? 0} />
-          </div>
-
-          {/* 5. Inscrição, Conclusão & Deadline */}
-          <div className={`${PANEL} flex min-w-0 flex-col justify-center gap-1`}>
-            <span className="flex items-center gap-1 text-xs text-ink-faint">
-              <CalendarDays size={12} strokeWidth={1.75} />
-              Inscrição: {new Date(e.enrolledAt).toLocaleDateString('pt')}
-            </span>
-            <span className="flex items-center gap-1 text-xs text-ink-faint">
-              <CalendarDays size={12} strokeWidth={1.75} />
-              Conclusão:{' '}
-              {e.completedAt
-                ? new Date(e.completedAt).toLocaleDateString('pt')
-                : '—'}
-            </span>
-            <div className="text-xs">
-              {e.deadline ? (
-                <Badge intent={deadlineIntent(e.deadline, e.isOverdue)}>
-                  {e.isOverdue ? (
-                    <AlertTriangle size={12} strokeWidth={1.75} className="mr-1 inline" />
-                  ) : (
-                    <Hourglass size={12} strokeWidth={1.75} className="mr-1 inline" />
-                  )}
-                  {deadlineCountdown(e.deadline)}
-                </Badge>
-              ) : (
-                <span className="text-ink-faint">Deadline: —</span>
-              )}
-            </div>
-          </div>
-
-          {/* 6. Acções (igual ao que já tinhas) */}
-          <div className="flex items-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="rounded-control p-1.5 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-                  disabled={rowBusy(e.id)}
-                >
-                  <MoreHorizontal size={16} strokeWidth={1.75} />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => remind.mutate(e.id)}>
-                  Enviar lembrete
-                </DropdownMenuItem>
-                {(e.status === 'CANCELLED' || e.status === 'EXPIRED') && (
-                  <DropdownMenuItem onSelect={() => reenroll.mutate(e.id)}>
-                    Reinscrever
-                  </DropdownMenuItem>
-                )}
-                {e.status !== 'CANCELLED' && (
-                  <DropdownMenuItem onSelect={() => onResetProgress(e)}>
-                    Reiniciar progresso
-                  </DropdownMenuItem>
-                )}
-                {e.status !== 'COMPLETED' && e.status !== 'CANCELLED' && (
-                  <DropdownMenuItem
-                    className="text-danger-ink"
-                    onSelect={() => onRemove(e)}
-                  >
-                    Remover inscrição
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+            ))}
         </div>
-      ))}
-  </div>
-</div>
+      </div>
 
       {/* Paginação */}
       {data && data.totalPages > 1 && (
