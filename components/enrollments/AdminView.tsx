@@ -255,7 +255,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             }
             className="w-full"
           />
-          <label className="flex w-full cursor-pointer items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] text-sm text-ink-muted">
+          <label className="flex w-full cursor-pointer items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] text-sm text-black">
             <input
               type="checkbox"
               checked={!!filters.overdue}
@@ -339,15 +339,15 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                         size="sm"
                       />
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold text-ink">
+                        <div className="truncate text-sm font-semibold text-black">
                           {e.user?.fullName}
                         </div>
-                        <div className="truncate text-xs text-ink-faint">
+                        <div className="truncate text-xs text-black">
                           {e.user?.email}
                         </div>
                       </div>
                     </div>
-                    <span className="w-fit max-w-full break-words rounded-full bg-blue-500/20 px-2.5 py-0.5 text-[11px] font-semibold uppercase text-blue-700">
+                    <span className="w-fit max-w-full break-words rounded-full bg-blue-500/20 px-2.5 py-0.5 text-[11px] font-semibold uppercase text-black">
                       {e.course?.title}
                     </span>
                   </div>
@@ -358,7 +358,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className="rounded-control p-1.5 text-ink-muted hover:bg-surface-sunken hover:text-ink"
+                          className="rounded-control p-1.5 text-black hover:bg-surface-sunken hover:text-black"
                           disabled={rowBusy(e.id)}
                         >
                           <MoreHorizontal size={16} strokeWidth={1.75} />
@@ -401,19 +401,15 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                   <div
                     className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1.5`}
                   >
-                    <span
-                      className={`${PILL} bg-fuchsia-500/20 text-fuchsia-700`}
-                    >
+                    <span className={`${PILL} bg-fuchsia-500/20 text-black`}>
                       {e.user.department?.name ?? '—'}
                     </span>
                     {e.user.unit?.name && (
-                      <span className="max-w-full truncate text-xs text-ink-faint">
+                      <span className="max-w-full truncate text-xs text-black">
                         {e.user.unit.name}
                       </span>
                     )}
-                    <span
-                      className={`${PILL} bg-violet-500/20 text-violet-700`}
-                    >
+                    <span className={`${PILL} bg-violet-500/20 text-black`}>
                       {ORIGIN_LABELS[e.origin]}
                     </span>
                   </div>
@@ -422,12 +418,14 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                   <div
                     className={`${PANEL} flex flex-col items-start justify-center gap-1.5`}
                   >
-                    <StatusBadge
-                      value={e.status}
-                      map={STATUS_CFG}
-                      variant="dot"
-                    />
-                    <span className="text-xs text-ink-muted">
+                    <span className="[&_*]:!text-black">
+                      <StatusBadge
+                        value={e.status}
+                        map={STATUS_CFG}
+                        variant="dot"
+                      />
+                    </span>
+                    <span className="text-xs text-black">
                       Nota:{' '}
                       <span className="font-mono">
                         {e.certificate?.score != null
@@ -446,12 +444,12 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                   <div
                     className={`${PANEL} flex min-w-0 flex-col justify-center gap-1`}
                   >
-                    <span className="flex items-center gap-1 text-xs text-ink-faint">
+                    <span className="flex items-center gap-1 text-xs text-black">
                       <CalendarDays size={12} strokeWidth={1.75} />
                       Inscrição:{' '}
                       {new Date(e.enrolledAt).toLocaleDateString('pt')}
                     </span>
-                    <span className="flex items-center gap-1 text-xs text-ink-faint">
+                    <span className="flex items-center gap-1 text-xs text-black">
                       <CalendarDays size={12} strokeWidth={1.75} />
                       Conclusão:{' '}
                       {e.completedAt
@@ -460,7 +458,10 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                     </span>
                     <div className="text-xs">
                       {e.deadline ? (
-                        <Badge intent={deadlineIntent(e.deadline, e.isOverdue)}>
+                        <Badge
+                          intent={deadlineIntent(e.deadline, e.isOverdue)}
+                          className="!text-black"
+                        >
                           {e.isOverdue ? (
                             <AlertTriangle
                               size={12}
@@ -477,7 +478,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                           {deadlineCountdown(e.deadline)}
                         </Badge>
                       ) : (
-                        <span className="text-ink-faint">Deadline: —</span>
+                        <span className="text-black">Deadline: —</span>
                       )}
                     </div>
                   </div>
@@ -490,7 +491,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
       {/* Paginação */}
       {data && data.totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-xs text-ink-faint">
+          <span className="text-xs text-black">
             Página {data.page} de {data.totalPages}
           </span>
           <div className="flex gap-2">
