@@ -232,7 +232,10 @@ export function TabVisaoGeral() {
         </CardBody>
       </Card>
 
-      <div className="col-span-2 flex justify-end">
+      <div className="sticky bottom-0 z-10 col-span-2 -mx-1 flex items-center justify-end gap-3 rounded-card border border-border bg-surface/95 px-4 py-3 shadow-hover backdrop-blur">
+        <span className="font-body text-xs text-ink-faint">
+          Alterações (nome, logo, formatos) só ficam gravadas ao guardar.
+        </span>
         <Button type="submit" disabled={save.isPending}>
           {save.isPending ? 'A guardar…' : 'Guardar alterações'}
         </Button>
