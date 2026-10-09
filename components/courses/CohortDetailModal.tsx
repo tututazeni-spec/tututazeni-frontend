@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useDirectoryUsers } from '@/components/enrollments/enrollData';
+import { CohortDepartmentPicker } from './CohortDepartmentPicker';
 import { Skeleton } from './shared';
 import type { CohortAttendanceEntry, CohortDetail } from './types';
 
@@ -93,6 +94,23 @@ export function CohortDetailModal({
         toast({ title: 'Participante adicionado', intent: 'success' });
         setAddSearch('');
       },
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  const addDepartment = useApiMutation(
+    (departmentId: number) =>
+      apiClient.post<{ added: number; alreadyIn: number }>(
+        `/courses/cohorts/${cohortId}/participants`,
+        { departmentIds: [departmentId] },
+      ),
+    {
+      invalidateKeys,
+      onSuccess: (r) =>
+        toast({
+          title: `${r.added} adicionado(s), ${r.alreadyIn} já estavam na turma`,
+          intent: 'success',
+        }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
@@ -183,6 +201,14 @@ export function CohortDetailModal({
               <h3 className="mb-2 text-sm font-medium text-ink">
                 Participantes ({cohort.participants.length})
               </h3>
+              <div className="mb-3">
+                <CohortDepartmentPicker
+                  onAdd={async (id) => {
+                    await addDepartment.mutateAsync(id).catch(() => undefined);
+                  }}
+                  loading={addDepartment.isPending}
+                />
+              </div>
               <div className="relative mb-3">
                 <Input
                   value={addSearch}

@@ -16,6 +16,7 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
+import { CohortDepartmentPicker } from './CohortDepartmentPicker';
 import {
   useDirectoryUsers,
   type DirectoryUser,
@@ -41,12 +42,55 @@ export function CreateCohortModal({
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [error, setError] = useState('');
+  const [participants, setParticipants] = useState<DirectoryUser[]>([]);
+  const [participantSearch, setParticipantSearch] = useState('');
 
   const { users, loading: usersLoading } = useDirectoryUsers(
     instructorSearch,
     '',
     !instructor && instructorSearch.trim().length > 0,
   );
+
+  const { users: participantResults, loading: participantsLoading } =
+    useDirectoryUsers(
+      participantSearch,
+      '',
+      participantSearch.trim().length > 0,
+    );
+
+  function addParticipants(list: DirectoryUser[]) {
+    setParticipants((cur) => {
+      const ids = new Set(cur.map((p) => p.id));
+      return [...cur, ...list.filter((u) => !ids.has(u.id))];
+    });
+  }
+
+  async function addDepartment(departmentId: number) {
+    try {
+      // O diretório devolve no máximo 100 colaboradores por pedido.
+      const members = await apiClient.get<DirectoryUser[]>(
+        '/users/directory',
+        { params: { departmentId } },
+      );
+      if (members.length === 0) {
+        toast({
+          title: 'Departamento sem colaboradores activos',
+          intent: 'danger',
+        });
+        return;
+      }
+      addParticipants(members);
+      const truncated = members.length >= 100;
+      toast({
+        title: truncated
+          ? 'Mostrados os primeiros 100 do departamento — adiciona o resto no detalhe da turma'
+          : `${members.length} colaborador(es) adicionado(s)`,
+        intent: truncated ? 'danger' : 'success',
+      });
+    } catch (e) {
+      toast({ title: (e as Error).message, intent: 'danger' });
+    }
+  }
 
   const create = useApiMutation(
     (vars: Record<string, unknown>) =>
@@ -75,6 +119,7 @@ export function CreateCohortModal({
       capacity: Number(capacity) || undefined,
       startDate,
       endDate: endDate || undefined,
+      userIds: participants.length ? participants.map((p) => p.id) : undefined,
     });
   }
 
@@ -198,6 +243,91 @@ export function CreateCohortModal({
               className="w-full"
               placeholder="Ex: Seg/Qua 18h-20h"
             />
+          </FormField>
+
+          <FormField
+            label={`Participantes (${participants.length})`}
+            htmlFor="ch-participants"
+          >
+            <div className="space-y-2">
+              <CohortDepartmentPicker onAdd={addDepartment} />
+              <div className="relative">
+                <Input
+                  id="ch-participants"
+                  value={participantSearch}
+                  onChange={(e) => setParticipantSearch(e.target.value)}
+                  className="w-full"
+                  placeholder="Ou pesquisar colaborador por nome ou email…"
+                  autoComplete="off"
+                />
+                {participantSearch.trim().length > 0 && (
+                  <div className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
+                    {participantsLoading && (
+                      <div className="px-3 py-2 text-sm text-ink-muted">
+                        A pesquisar…
+                      </div>
+                    )}
+                    {!participantsLoading &&
+                      participantResults.length === 0 && (
+                        <div className="px-3 py-2 text-sm text-ink-muted">
+                          Nenhum colaborador encontrado
+                        </div>
+                      )}
+                    {participantResults.map((u) => (
+                      <button
+                        key={u.id}
+                        type="button"
+                        onClick={() => {
+                          addParticipants([u]);
+                          setParticipantSearch('');
+                        }}
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
+                      >
+                        <Avatar
+                          name={u.fullName}
+                          url={u.avatarUrl ?? undefined}
+                          size="sm"
+                        />
+                        <div className="min-w-0 truncate text-sm text-ink">
+                          {u.fullName}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {participants.length > 0 && (
+                <div className="max-h-44 divide-y divide-border overflow-y-auto rounded-card border border-border">
+                  {participants.map((p) => (
+                    <div
+                      key={p.id}
+                      className="flex items-center gap-2 px-2 py-1.5"
+                    >
+                      <Avatar
+                        name={p.fullName}
+                        url={p.avatarUrl ?? undefined}
+                        size="sm"
+                      />
+                      <div className="min-w-0 flex-1 truncate text-sm text-ink">
+                        {p.fullName}
+                      </div>
+                      <button
+                        type="button"
+                        aria-label={`Remover ${p.fullName}`}
+                        onClick={() =>
+                          setParticipants((cur) =>
+                            cur.filter((x) => x.id !== p.id),
+                          )
+                        }
+                        className="rounded-control p-1 text-ink-muted hover:bg-danger-subtle hover:text-danger-ink"
+                      >
+                        <X size={16} strokeWidth={1.75} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </FormField>
 
           <div className="grid grid-cols-3 gap-3">
