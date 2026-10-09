@@ -7,7 +7,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import {
+  BarChart3,
+  Briefcase,
+  Building2,
+  ChevronRight,
+  Plus,
+  Settings,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -35,21 +45,87 @@ import { PLAN_STATE_CFG } from './constants';
 import { NewVacationModal } from './NewVacationModal';
 
 const ALL = 'ALL';
-const HEADERS = [
-  'Colaborador',
-  'Departamento',
-  'Unidade',
-  'Ano',
-  'Atribuídos',
-  'Transitados',
-  'Reservados',
-  'Gozados',
-  'Disponível',
-  'Próximo período',
-  'Estado do plano',
+
+// Colaborador e Departamento à esquerda; restantes centrados.
+const HEADERS: { label: string; center: boolean }[] = [
+  { label: 'Colaborador', center: false },
+  { label: 'Departamento', center: false },
+  { label: 'Unidade', center: true },
+  { label: 'Ano', center: true },
+  { label: 'Atribuídos', center: true },
+  { label: 'Transitados', center: true },
+  { label: 'Reservados', center: true },
+  { label: 'Gozados', center: true },
+  { label: 'Disponível', center: true },
+  { label: 'Próximo período', center: true },
+  { label: 'Estado do plano', center: true },
 ];
 
-export function VacationsTab() {
+const HEADER_CELL =
+  'px-4 py-4 text-xs font-semibold uppercase tracking-wide text-[#0F2E5E] whitespace-nowrap';
+const BODY_CELL = 'px-4 py-4 text-sm text-[#0F2E5E]';
+
+/* ── Badge de departamento (cor + ícone) ───────────────────── */
+interface DeptStyle {
+  bg: string;
+  text: string;
+  icon: LucideIcon;
+}
+
+const DEPT_STYLES: Record<string, DeptStyle> = {
+  Engenharia: { bg: '#E6F0FF', text: '#1D6BF3', icon: Settings },
+  'Recursos Humanos': { bg: '#F1E8FF', text: '#6D2FD6', icon: Users },
+  Marketing: { bg: '#DDF5EA', text: '#16995F', icon: BarChart3 },
+  Administração: { bg: '#E3ECFD', text: '#2F55C8', icon: Briefcase },
+};
+const DEPT_FALLBACK: DeptStyle = {
+  bg: '#EEF1F6',
+  text: '#475569',
+  icon: Building2,
+};
+
+function DepartmentBadge({ name }: { name: string | undefined }) {
+  if (!name) return <span className="text-[#9DB3D9]">—</span>;
+  const s = DEPT_STYLES[name] ?? DEPT_FALLBACK;
+  const Icon = s.icon;
+  return (
+    <span
+      className="inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium"
+      style={{ backgroundColor: s.bg, color: s.text }}
+    >
+      <Icon size={16} strokeWidth={2} />
+      {name}
+    </span>
+  );
+}
+
+/* ── Pílula numérica ───────────────────────────────────────── */
+function NumberPill({
+  value,
+  tone,
+}: {
+  value: number | string;
+  tone: 'blue' | 'grey';
+}) {
+  const cls =
+    tone === 'blue'
+      ? 'bg-[#E6F0FF] text-[#1D6BF3]'
+      : 'bg-slate-100 text-slate-500';
+  return (
+    <span
+      className={`inline-flex min-w-[56px] items-center justify-center rounded-full px-4 py-2 text-sm font-medium ${cls}`}
+    >
+      {value}
+    </span>
+  );
+}
+
+interface VacationsTabProps {
+  /** Opcional: chamado ao clicar numa linha (ou na seta). */
+  onSelectUser?: (userId: number) => void;
+}
+
+export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
   const thisYear = new Date().getFullYear();
   const [filters, setFilters] = useState<VacationFilters>({
     year: thisYear,
@@ -140,7 +216,7 @@ export function VacationsTab() {
         <Skeleton
           rows={6}
           wrapperClassName="space-y-2 animate-pulse"
-          itemClassName="h-10 bg-surface-sunken rounded-control"
+          itemClassName="h-16 bg-surface-sunken rounded-2xl"
         />
       ) : !data || data.data.length === 0 ? (
         <EmptyState
@@ -149,50 +225,121 @@ export function VacationsTab() {
         />
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
-                <TableRow>
-                  {HEADERS.map((h) => (
-                    <TableHeaderCell key={h}>{h}</TableHeaderCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.data.map((r) => (
-                  <TableRow key={r.userId}>
-                    <TableCell>
-                      <p className="font-medium text-ink">{r.fullName}</p>
-                      <p className="text-xs text-ink-faint">
-                        {r.employeeNumber ?? '—'}
-                      </p>
-                    </TableCell>
-                    <TableCell>{r.department?.name ?? '—'}</TableCell>
-                    <TableCell>{r.unit?.name ?? '—'}</TableCell>
-                    <TableCell>{r.referenceYear}</TableCell>
-                    <TableCell>{r.assignedDays}</TableCell>
-                    <TableCell>{r.carriedOverDays}</TableCell>
-                    <TableCell>{r.reservedDays}</TableCell>
-                    <TableCell>{r.takenDays}</TableCell>
-                    <TableCell className="font-semibold">
-                      {r.availableDays}
-                    </TableCell>
-                    <TableCell>
-                      {r.nextPeriod
-                        ? `${formatDate(r.nextPeriod.startDate)} → ${formatDate(r.nextPeriod.endDate)}`
-                        : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge
-                        value={r.planState}
-                        map={PLAN_STATE_CFG}
-                        variant="dot"
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
+            {/* Barra de título */}
+            <div className="flex items-center gap-4 bg-[#0F2E5E] px-6 py-5">
+              <Users size={24} strokeWidth={1.75} className="text-[#3B82F6]" />
+              <h3 className="text-xl font-semibold text-white">Colaboradores</h3>
+            </div>
+
+            <div className="overflow-x-auto">
+              <div className="min-w-[1200px]">
+                <Table>
+                  <TableHead className="bg-[#EEF4FD]">
+                    <TableRow>
+                      {HEADERS.map((h) => (
+                        <TableHeaderCell
+                          key={h.label}
+                          className={`${HEADER_CELL} ${
+                            h.center ? 'text-center' : 'text-left'
+                          }`}
+                        >
+                          {h.label}
+                        </TableHeaderCell>
+                      ))}
+                      <TableHeaderCell className="w-16 px-4 py-4">
+                        <span className="sr-only">Abrir</span>
+                      </TableHeaderCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {data.data.map((r) => (
+                      <TableRow
+                        key={r.userId}
+                        onClick={
+                          onSelectUser ? () => onSelectUser(r.userId) : undefined
+                        }
+                        className={`border-t border-slate-100 transition-colors hover:bg-slate-50/70 ${
+                          onSelectUser ? 'cursor-pointer' : ''
+                        }`}
+                      >
+                        <TableCell className={BODY_CELL}>
+                          <div className="flex items-center gap-4">
+                            <Avatar
+                              name={r.fullName}
+                              url={r.avatarUrl ?? undefined}
+                              size="md"
+                            />
+                            <div className="min-w-0">
+                              <p className="font-semibold text-[#0F2E5E]">
+                                {r.fullName}
+                              </p>
+                              <p className="text-xs text-ink-faint">
+                                {r.employeeNumber ?? '—'}
+                              </p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className={BODY_CELL}>
+                          <DepartmentBadge name={r.department?.name} />
+                        </TableCell>
+                        <TableCell className={`${BODY_CELL} text-center`}>
+                          {r.unit?.name ?? (
+                            <span className="text-[#9DB3D9]">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell
+                          className={`${BODY_CELL} text-center font-medium`}
+                        >
+                          {r.referenceYear}
+                        </TableCell>
+                        <TableCell className={`${BODY_CELL} text-center`}>
+                          <NumberPill value={r.assignedDays} tone="blue" />
+                        </TableCell>
+                        <TableCell className={`${BODY_CELL} text-center`}>
+                          <NumberPill value={r.carriedOverDays} tone="grey" />
+                        </TableCell>
+                        <TableCell className={`${BODY_CELL} text-center`}>
+                          <NumberPill value={r.reservedDays} tone="grey" />
+                        </TableCell>
+                        <TableCell className={`${BODY_CELL} text-center`}>
+                          <NumberPill value={r.takenDays} tone="grey" />
+                        </TableCell>
+                        <TableCell className={`${BODY_CELL} text-center`}>
+                          <NumberPill value={r.availableDays} tone="blue" />
+                        </TableCell>
+                        <TableCell
+                          className={`${BODY_CELL} whitespace-nowrap text-center`}
+                        >
+                          {r.nextPeriod ? (
+                            `${formatDate(r.nextPeriod.startDate)} → ${formatDate(r.nextPeriod.endDate)}`
+                          ) : (
+                            <span className="text-[#9DB3D9]">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className={`${BODY_CELL} text-center`}>
+                          <div className="flex justify-center">
+                            <StatusBadge
+                              value={r.planState}
+                              map={PLAN_STATE_CFG}
+                              variant="dot"
+                            />
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-4 py-4">
+                          <span
+                            aria-hidden
+                            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF4FD] text-[#1D6BF3]"
+                          >
+                            <ChevronRight size={18} strokeWidth={2} />
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
           </div>
           <p className="text-xs text-ink-faint">
             {data.meta.total} colaborador(es). Os saldos mostram a posição
