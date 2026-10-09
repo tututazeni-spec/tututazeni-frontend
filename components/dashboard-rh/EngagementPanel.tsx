@@ -65,8 +65,8 @@ export function EngagementPanel() {
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h4 className="mb-4 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Participação em Pesquisas por Departamento
           </h4>
           {byDept.length === 0 ? (
@@ -87,8 +87,8 @@ export function EngagementPanel() {
           )}
         </div>
 
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h4 className="mb-4 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Actividade de Clima
           </h4>
           <table className="w-full font-body text-sm text-ink">

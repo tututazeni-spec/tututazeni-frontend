@@ -13,7 +13,6 @@
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
-  AlertTriangle,
   Award,
   BookOpen,
   Brain,
@@ -40,6 +39,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { Button } from '@/components/ui/Button';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
@@ -83,8 +83,10 @@ function ModulePanel({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-card border border-border bg-surface p-5">
-      <h3 className="mb-3 font-body font-semibold text-ink-muted">{title}</h3>
+    <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+      <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">
+        {title}
+      </h3>
       {data ? (
         <div className="space-y-2">{children}</div>
       ) : (
@@ -95,6 +97,10 @@ function ModulePanel({
     </div>
   );
 }
+
+// Os insights chegam como texto livre do backend; os que sinalizam um valor
+// abaixo do limiar usam o estilo de aviso, os restantes o informativo.
+const INSIGHT_NEGATIVE = /abaixo de|menos de/i;
 
 const SEVERITY_INTENT: Record<string, 'danger' | 'warning'> = {
   HIGH: 'danger',
@@ -216,23 +222,22 @@ function SnapshotsPanel() {
   }
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="flex items-center justify-between border-b border-border bg-[#0F1F3D]/60 px-4 py-3">
+        <h3 className="font-display font-semibold text-white">
+          Snapshots (Histórico de KPIs)
+        </h3>
+        <Button
+          size="sm"
+          intent="secondary"
+          onClick={() => saveSnapshot.mutate()}
+          disabled={saveSnapshot.isPending}
+        >
+          <Save size={14} strokeWidth={1.75} />
+          Guardar snapshot deste mês
+        </Button>
+      </div>
       <CardBody>
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-display font-semibold text-ink">
-            Snapshots (Histórico de KPIs)
-          </h3>
-          <Button
-            size="sm"
-            intent="secondary"
-            onClick={() => saveSnapshot.mutate()}
-            disabled={saveSnapshot.isPending}
-          >
-            <Save size={14} strokeWidth={1.75} />
-            Guardar snapshot deste mês
-          </Button>
-        </div>
-
         {snapshots.length === 0 ? (
           <p className="font-body text-sm text-ink-faint">
             Sem snapshots guardados ainda.
@@ -519,8 +524,8 @@ export function OrgDashboard() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Talent metrics */}
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-4 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h3 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">
             Talentos
           </h3>
           <div className="space-y-3">
@@ -559,8 +564,8 @@ export function OrgDashboard() {
         </div>
 
         {/* Departments */}
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-4 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h3 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">
             Departamentos
           </h3>
           {(org.departments ?? []).length > 0 ? (
@@ -579,20 +584,21 @@ export function OrgDashboard() {
         </div>
 
         {/* AI Insights */}
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-4 flex items-center gap-2 font-body font-semibold text-ink-muted">
-            <Brain size={14} strokeWidth={1.75} className="text-accent" />
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h3 className="-mx-5 -mt-5 mb-4 flex items-center gap-2 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">
+            <Brain size={14} strokeWidth={1.75} className="text-white" />
             Análises de IA
           </h3>
           {(org.insights ?? []).length > 0 ? (
             <div className="space-y-2">
               {(org.insights ?? []).map((ins, i) => (
-                <p
+                <AlertCard
+                  compact
                   key={i}
-                  className="rounded-control bg-accent-subtle px-3 py-2 font-body text-xs text-ink-muted"
-                >
-                  {ins}
-                </p>
+                  variant={INSIGHT_NEGATIVE.test(ins) ? 'warning' : 'info'}
+                  title={INSIGHT_NEGATIVE.test(ins) ? 'Atenção' : 'Destaque'}
+                  message={ins}
+                />
               ))}
             </div>
           ) : (
@@ -605,25 +611,29 @@ export function OrgDashboard() {
 
       {/* Riscos + Top Talento */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-4 flex items-center gap-2 font-body font-semibold text-ink-muted">
-            <ShieldAlert size={14} strokeWidth={1.75} className="text-danger" />
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h3 className="-mx-5 -mt-5 mb-4 flex items-center gap-2 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">
+            <ShieldAlert size={14} strokeWidth={1.75} className="text-white" />
             Riscos Organizacionais
           </h3>
           {(org.risks?.length ?? 0) > 0 ? (
             <div className="space-y-2">
               {org.risks!.map((r, i) => (
-                <div
+                <AlertCard
+                  compact
                   key={i}
-                  className={`flex items-center gap-2 rounded-control px-3 py-2 font-body text-xs ${
+                  variant={
                     SEVERITY_INTENT[r.severity] === 'danger'
-                      ? 'bg-danger-subtle text-black'
-                      : 'bg-warning-subtle text-black'
-                  }`}
-                >
-                  <AlertTriangle size={12} strokeWidth={1.75} className="text-black" />
-                  {r.label}
-                </div>
+                      ? 'danger'
+                      : 'warning'
+                  }
+                  title={
+                    SEVERITY_INTENT[r.severity] === 'danger'
+                      ? 'Risco elevado'
+                      : 'Risco moderado'
+                  }
+                  message={r.label}
+                />
               ))}
             </div>
           ) : (
@@ -633,9 +643,9 @@ export function OrgDashboard() {
           )}
         </div>
 
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-4 flex items-center gap-2 font-body font-semibold text-ink-muted">
-            <Award size={14} strokeWidth={1.75} className="text-accent" />
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h3 className="-mx-5 -mt-5 mb-4 flex items-center gap-2 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">
+            <Award size={14} strokeWidth={1.75} className="text-white" />
             Top Talento
           </h3>
           {(org.topTalent?.length ?? 0) > 0 ? (
@@ -662,11 +672,11 @@ export function OrgDashboard() {
 
       {/* Tendência de crescimento */}
       {data?.growthTrend && data.growthTrend.length > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <h3 className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-display font-semibold text-white">
+            Novos Funcionários (6 meses)
+          </h3>
           <CardBody>
-            <h3 className="mb-4 font-display font-semibold text-ink">
-              Novos Funcionários (6 meses)
-            </h3>
             <AreaLineChart
               series={[
                 {

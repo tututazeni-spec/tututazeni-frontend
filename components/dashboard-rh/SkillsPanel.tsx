@@ -8,6 +8,7 @@
 import { AlertTriangle, Layers, ListChecks } from 'lucide-react';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { colorAt } from '@/lib/chartColors';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -79,7 +80,7 @@ export function SkillsPanel() {
                 {
                   label: 'Gap médio',
                   values: sortedGaps.map((s) => s.avgGap),
-                  color: '#0F1F3D',
+                  barColors: sortedGaps.map((_, i) => colorAt(i)),
                 },
               ]}
               className="mb-4"
@@ -126,7 +127,7 @@ export function SkillsPanel() {
                 {
                   label: 'Nível médio',
                   values: sortedStrengths.map((s) => s.avgLevel),
-                  color: '#0F1F3D',
+                  barColors: sortedStrengths.map((_, i) => colorAt(i)),
                 },
               ]}
               className="mb-4"

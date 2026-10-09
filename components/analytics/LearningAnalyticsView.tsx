@@ -86,11 +86,11 @@ export function LearningAnalyticsView() {
       </div>
 
       {/* Tendência mensal */}
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+          Matrículas por mês (últimos 12 meses)
+        </div>
         <CardBody>
-          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-            Matrículas por mês (últimos 12 meses)
-          </div>
           <MonthlyTrendChart data={data.monthlyEnrollments} />
         </CardBody>
       </Card>

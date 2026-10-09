@@ -147,11 +147,11 @@ export function ManagerView() {
         </TabsContent>
 
         <TabsContent value="ninebox">
-          <Card>
+          <Card className="overflow-hidden">
+            <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+              Matriz 9-Box
+            </div>
             <CardBody>
-              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-4">
-                Matriz 9-Box
-              </div>
               <ErrorBoundary source="analytics.NineBox">
                 <NineBox data={nineBox} />
               </ErrorBoundary>

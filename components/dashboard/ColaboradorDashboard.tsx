@@ -23,6 +23,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { colorAt } from '@/lib/chartColors';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
@@ -198,8 +199,8 @@ export function ColaboradorDashboard() {
 
       {/* Competencies radar */}
       {(data?.skills?.length ?? 0) > 0 && (
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-3 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Evolução de Competências
           </h3>
           <div className="space-y-2">
@@ -213,7 +214,10 @@ export function ColaboradorDashboard() {
                     {s.current}/{s.target ?? 5}
                   </span>
                 </div>
-                <ProgressBar value={(s.current / (s.target ?? 5)) * 100} />
+                <ProgressBar
+                  value={(s.current / (s.target ?? 5)) * 100}
+                  color={colorAt(i)}
+                />
               </div>
             ))}
           </div>

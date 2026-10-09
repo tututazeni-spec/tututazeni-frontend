@@ -59,7 +59,7 @@ export function ROIView() {
           Impacto de formação por curso
         </div>
         <Table>
-          <TableHead className="bg-[#0F1F3D]">
+          <TableHead className="bg-[#0F1F3D]/60">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell className="text-white">Curso</TableHeaderCell>
               <TableHeaderCell className="text-white">Métrica</TableHeaderCell>

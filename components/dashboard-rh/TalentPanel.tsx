@@ -132,8 +132,8 @@ export function TalentPanel() {
 
       {/* Succession plans */}
       {tab === 'succession' && (
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h4 className="mb-3 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h4 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Planos de Sucessão
           </h4>
           {successionPlans.length === 0 ? (

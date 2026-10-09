@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { colorAt } from '@/lib/chartColors';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -18,7 +19,7 @@ import type { DepartmentAnalytics, PeopleAnalytics } from './types';
 
 // Barra azul-marinho (#0F1F3D) — o ProgressBar partilhado só tem cores de
 // intenção (accent = laranja), por isso estes cards desenham a sua.
-function NavyBar({ value }: { value: number }) {
+function NavyBar({ value, color }: { value: number; color?: string }) {
   const clamped = Math.min(100, Math.max(0, value));
   return (
     <div
@@ -30,7 +31,10 @@ function NavyBar({ value }: { value: number }) {
     >
       <div
         className="h-full rounded-pill bg-[#0F1F3D] transition-[width] duration-300"
-        style={{ width: `${clamped}%` }}
+        style={{
+          width: `${clamped}%`,
+          ...(color ? { backgroundColor: color } : {}),
+        }}
       />
     </div>
   );
@@ -177,10 +181,10 @@ export function PeopleAnalyticsView() {
 
       {/* Departamentos */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
           Colaboradores por departamento — clicar para detalhe
         </div>
-        {data.byDepartment.map((d) => (
+        {data.byDepartment.map((d, idx) => (
           <button
             key={d.id}
             type="button"
@@ -195,6 +199,7 @@ export function PeopleAnalyticsView() {
                 value={Math.round(
                   (d.count / Math.max(data.headcount.total, 1)) * 100,
                 )}
+                color={colorAt(idx)}
               />
             </div>
             <div className="text-sm font-data font-bold text-black w-8 text-right">

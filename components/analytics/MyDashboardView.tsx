@@ -20,6 +20,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { colorAt } from '@/lib/chartColors';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -210,7 +211,7 @@ export function MyDashboardView() {
           <CardBody>
             <div className="text-xs text-ink-faint mb-3">Competências Top</div>
             <div className="space-y-2">
-              {data.competencies.slice(0, 4).map((c) => {
+              {data.competencies.slice(0, 4).map((c, idx) => {
                 const behind =
                   c.targetLevel !== null && c.currentLevel < c.targetLevel;
                 return (
@@ -227,9 +228,10 @@ export function MyDashboardView() {
                         className="h-1.5 w-full rounded-pill bg-surface-sunken"
                       >
                         <div
-                          className="h-full rounded-pill bg-[#0F1F3D] transition-[width] duration-300"
+                          className="h-full rounded-pill transition-[width] duration-300"
                           style={{
                             width: `${Math.round((c.currentLevel / 5) * 100)}%`,
+                            backgroundColor: colorAt(idx),
                           }}
                         />
                       </div>

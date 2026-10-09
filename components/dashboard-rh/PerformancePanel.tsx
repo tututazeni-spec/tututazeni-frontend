@@ -66,8 +66,8 @@ export function PerformancePanel() {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {/* Distribution */}
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h4 className="mb-4 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Distribuição de Performance
           </h4>
           <BarChart
@@ -94,8 +94,8 @@ export function PerformancePanel() {
         </div>
 
         {/* By dept */}
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h4 className="mb-4 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Pontuação por Departamento
           </h4>
           {(data?.byDepartment ?? []).length > 0 ? (
