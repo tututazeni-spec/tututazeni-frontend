@@ -67,7 +67,7 @@ export default function DashboardPage() {
   const ActiveIcon = activeTab?.icon;
 
   return (
-    <div className="min-h-screen bg-canvas">
+    <div className="min-h-screen bg-white">
       {/* Container azul: cabeçalho dinâmico + Slideshow no mesmo cartão
           (#0F1F3D), acima das tabs e visível em qualquer separador. */}
       <div className="mx-auto max-w-7xl px-6 pt-6">
@@ -108,7 +108,7 @@ export default function DashboardPage() {
             (data-[state=active] do Radix) ganha gradiente azul, sombra e
             um visto à direita. As manchas desfocadas atrás existem só
             para o efeito de vidro ser visível sobre o fundo claro. */}
-        <div className="relative bg-canvas px-6 py-5">
+        <div className="relative bg-white px-6 py-5">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 overflow-hidden"
