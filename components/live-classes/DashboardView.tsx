@@ -5,12 +5,24 @@
 
 'use client';
 
-import { Calendar, Clapperboard, Clock, Users, Video } from 'lucide-react';
+import {
+  Calendar,
+  CalendarClock,
+  CalendarDays,
+  CalendarRange,
+  CheckCircle2,
+  Clapperboard,
+  Clock,
+  UserCheck,
+  Users,
+  Video,
+  XCircle,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { MODALITY_CFG } from './constants';
 import type { LiveClassesDashboard } from './types';
@@ -26,8 +38,8 @@ export function DashboardView() {
     return (
       <Skeleton
         rows={3}
-        wrapperClassName="space-y-3"
-        itemClassName="skeleton-shimmer h-24 rounded-card"
+        wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
+        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
       />
     );
 
@@ -35,62 +47,74 @@ export function DashboardView() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <NavyStatCard
           icon={Calendar}
+          tone="blue"
           label="Agendadas"
           value={cards.scheduled}
-          intent="info"
         />
-        <KpiCard
+        <NavyStatCard
           icon={Video}
+          tone="red"
           label="Em curso"
           value={cards.inProgress}
-          intent="danger"
         />
-        <KpiCard
-          icon={Clapperboard}
+        <NavyStatCard
+          icon={CheckCircle2}
+          tone="green"
           label="Concluídas"
           value={cards.completed}
-          intent="success"
         />
-        <KpiCard label="Canceladas" value={cards.cancelled} intent="warning" />
-        <KpiCard label="Hoje" value={cards.today} />
-        <KpiCard label="Esta semana" value={cards.thisWeek} />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <KpiCard
-          icon={Calendar}
+        <NavyStatCard
+          icon={XCircle}
+          tone="orange"
+          label="Canceladas"
+          value={cards.cancelled}
+        />
+        <NavyStatCard
+          icon={CalendarDays}
+          tone="blue"
+          label="Hoje"
+          value={cards.today}
+        />
+        <NavyStatCard
+          icon={CalendarRange}
+          tone="blue"
+          label="Esta semana"
+          value={cards.thisWeek}
+        />
+        <NavyStatCard
+          icon={CalendarClock}
+          tone="blue"
           label="Próximas"
           value={cards.upcoming}
-          intent="primary"
         />
-        <KpiCard
+        <NavyStatCard
           icon={Users}
+          tone="blue"
           label="Participantes"
           value={cards.totalParticipants}
         />
-        <KpiCard
+        <NavyStatCard
+          icon={UserCheck}
+          tone="green"
           label="Presença média"
           value={`${cards.averageAttendancePercent}%`}
-          intent="success"
         />
-        <KpiCard
+        <NavyStatCard
           icon={Clock}
+          tone="orange"
           label="Horas realizadas"
           value={cards.hoursDelivered}
         />
+        <NavyStatCard
+          icon={Clapperboard}
+          tone="blue"
+          label="Gravações disponíveis"
+          value={cards.recordingsAvailable}
+        />
       </div>
-
-      <Card className="p-4">
-        <div className="mb-1 font-body text-xs text-ink-faint">
-          Gravações disponíveis
-        </div>
-        <div className="font-mono text-3xl font-bold text-ink">
-          {cards.recordingsAvailable}
-        </div>
-      </Card>
 
       {data.byModality.length > 0 && (
         <Card className="overflow-hidden p-0">

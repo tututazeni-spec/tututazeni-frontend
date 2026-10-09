@@ -8,12 +8,24 @@
 'use client';
 
 import { useState } from 'react';
-import { Download } from 'lucide-react';
+import {
+  Ban,
+  CalendarDays,
+  Clock,
+  Download,
+  Star,
+  TimerReset,
+  UserCheck,
+  UserX,
+  Users,
+  Percent,
+  CheckCircle2,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { buttonVariants } from '@/components/ui/Button';
@@ -104,29 +116,34 @@ export function ReportsView() {
 
       {isLoading || !data ? (
         <Skeleton
-          rows={3}
-          wrapperClassName="space-y-3"
-          itemClassName="skeleton-shimmer h-24 rounded-card"
+          rows={4}
+          wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
+          itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
         />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <KpiCard
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <NavyStatCard
+              icon={CalendarDays}
+              tone="blue"
               label="Aulas"
               value={data.totals.classes}
-              intent="primary"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={CheckCircle2}
+              tone="green"
               label="Realizadas"
               value={data.totals.completed}
-              intent="success"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={Ban}
+              tone="red"
               label="Canceladas"
               value={data.totals.cancelled}
-              intent="danger"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={Clock}
+              tone="orange"
               label="Horas ministradas"
               value={data.totals.hoursDelivered}
             />
@@ -136,31 +153,36 @@ export function ReportsView() {
             <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
               Participantes e presença
             </h3>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-              <KpiCard
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <NavyStatCard
+                icon={Users}
+                tone="blue"
                 label="Participantes"
                 value={data.attendance.participants}
-                intent="primary"
               />
-              <KpiCard
+              <NavyStatCard
+                icon={UserCheck}
+                tone="green"
                 label="Presenças"
                 value={data.attendance.present}
-                intent="success"
               />
-              <KpiCard
+              <NavyStatCard
+                icon={UserX}
+                tone="red"
                 label="Ausências"
                 value={data.attendance.absent}
-                intent="danger"
               />
-              <KpiCard
+              <NavyStatCard
+                icon={TimerReset}
+                tone="orange"
                 label="Atrasos"
                 value={data.attendance.late}
-                intent="warning"
               />
-              <KpiCard
+              <NavyStatCard
+                icon={Percent}
+                tone="blue"
                 label="Taxa de presença"
                 value={`${data.attendance.attendanceRate}%`}
-                intent="info"
               />
             </div>
           </div>
@@ -169,13 +191,14 @@ export function ReportsView() {
             <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
               Avaliação
             </h3>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <KpiCard
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              <NavyStatCard
+                icon={Star}
+                tone="orange"
                 label="Avaliação média"
                 value={
                   data.avgEvaluation != null ? `${data.avgEvaluation} / 5` : '—'
                 }
-                intent="accent"
               />
             </div>
           </div>
