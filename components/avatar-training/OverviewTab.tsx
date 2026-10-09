@@ -6,12 +6,32 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { AlertTriangle } from 'lucide-react';
+import {
+  AlertOctagon,
+  AlertTriangle,
+  Award,
+  BarChart3,
+  CheckCircle2,
+  ClipboardCheck,
+  Clock,
+  Cpu,
+  FileSearch,
+  MessageSquareWarning,
+  MessagesSquare,
+  Play,
+  ServerCrash,
+  Target,
+  Timer,
+  TrendingUp,
+  Users,
+  Wallet,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
-import { Card } from '@/components/ui/Card';
+import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -99,30 +119,44 @@ function OverviewFilters({
   );
 }
 
+// Ícone e tom por significado: positivos verde, consumo/tempo laranja, problemas vermelho.
+const INDICATOR_STYLE: Record<string, { icon: LucideIcon; tone: NavyStatTone }> = {
+  SESSIONS: { icon: MessagesSquare, tone: 'blue' },
+  COMPLETION_RATE: { icon: CheckCircle2, tone: 'green' },
+  AVG_SCORE: { icon: Target, tone: 'blue' },
+  AVG_DURATION: { icon: Timer, tone: 'orange' },
+  ACTIVE_LEARNERS: { icon: Users, tone: 'green' },
+  SIMULATIONS_DONE: { icon: Play, tone: 'blue' },
+  PASS_RATE: { icon: Award, tone: 'green' },
+  EVOLUTION: { icon: TrendingUp, tone: 'green' },
+  MANDATORY: { icon: ClipboardCheck, tone: 'green' },
+  ANSWER_QUALITY: { icon: MessageSquareWarning, tone: 'red' },
+  TECH_CONSUMPTION: { icon: Cpu, tone: 'orange' },
+  INCIDENTS: { icon: AlertOctagon, tone: 'red' },
+  MANDATORY_OVERDUE: { icon: Clock, tone: 'red' },
+  CONTENT_TO_REVIEW: { icon: FileSearch, tone: 'orange' },
+  PROVIDER_FAILURES: { icon: ServerCrash, tone: 'red' },
+  COST_LIMIT: { icon: Wallet, tone: 'orange' },
+};
+const DEFAULT_INDICATOR_STYLE = { icon: BarChart3, tone: 'blue' as NavyStatTone };
+
 function IndicatorCard({ i }: { i: Indicator }) {
   const noData = i.status !== 'OK' || i.value === null;
+  const { icon, tone } = INDICATOR_STYLE[i.code] ?? DEFAULT_INDICATOR_STYLE;
   return (
-    <Card className="p-4" title={`${i.formula}\nFonte: ${i.source}`}>
-      <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-        {i.label}
-      </div>
-      <div className="mt-2 font-display text-2xl font-semibold text-ink">
-        {i.status === 'RESTRICTED'
-          ? 'Restrito'
-          : noData
-            ? 'Sem dados'
-            : i.value}
-      </div>
-      {!noData && (
-        <div className="font-body text-xs text-ink-muted">{i.unit}</div>
-      )}
-      <p className="mt-2 line-clamp-2 font-body text-[11px] text-ink-faint">
-        {i.formula}
-      </p>
-      <p className="mt-1 font-body text-[11px] text-ink-faint">
-        Fonte: {i.source} · Actualizado em {formatDateTime(i.updatedAt)}
-      </p>
-    </Card>
+    <div title={`${i.formula}
+Fonte: ${i.source}
+Actualizado em ${formatDateTime(i.updatedAt)}`}>
+      <NavyStatCard
+        icon={icon}
+        tone={tone}
+        label={i.label}
+        value={
+          i.status === 'RESTRICTED' ? 'Restrito' : noData ? 'Sem dados' : (i.value as number)
+        }
+        sub={noData ? undefined : i.unit}
+      />
+    </div>
   );
 }
 
@@ -159,8 +193,8 @@ export function OverviewTab() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="space-y-4"
-        itemClassName="h-24 bg-surface-sunken rounded-card animate-pulse"
+        wrapperClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
       />
     );
 
@@ -194,7 +228,7 @@ export function OverviewTab() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {data.indicators.map((i) => (
           <IndicatorCard key={i.code} i={i} />
         ))}
