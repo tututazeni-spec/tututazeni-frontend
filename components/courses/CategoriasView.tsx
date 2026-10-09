@@ -7,7 +7,14 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { BookPlus, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+  BookOpen,
+  BookPlus,
+  CircleCheck,
+  Pencil,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -19,12 +26,10 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
+import { NAVY_ACTION, NavyBadge, NavyCard } from './NavyCard';
 import { Skeleton } from './shared';
 import type { CourseCategoryManaged } from './types';
-
-const PANEL = 'rounded-xl border border-border/60 bg-surface-sunken/40 p-3';
 
 interface CategoryFormState {
   name: string;
@@ -395,92 +400,70 @@ export function CategoriasView({
         />
       ) : (
         <div>
-          <div className="space-y-3">
+          <div className="space-y-5">
             {data.map((cat) => (
-              <div
+              <NavyCard
                 key={cat.id}
-                className={`flex flex-col gap-2 rounded-2xl border border-l-4 border-border bg-surface/60 p-2 shadow-sm backdrop-blur-md hover:bg-surface lg:flex-row lg:items-center lg:gap-3 ${cat.isActive ? 'border-l-emerald-500' : 'border-l-slate-400'}`}
-              >
-                <div className="flex items-start gap-3 lg:w-72 lg:shrink-0">
-                  <div className="flex min-w-0 flex-1 flex-col justify-center">
-                    <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
-                      {cat.name}
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <Button
-                      size="sm"
-                      intent="ghost"
+                title={cat.name}
+                subtitle={cat.description || undefined}
+                badge={
+                  <NavyBadge
+                    onClick={() =>
+                      toggleActive.mutate({
+                        id: cat.id,
+                        isActive: !cat.isActive,
+                      })
+                    }
+                  >
+                    {cat.isActive ? 'Activa' : 'Inactiva'}
+                  </NavyBadge>
+                }
+                actions={
+                  <>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
                       title="Gerir cursos"
+                      aria-label="Gerir cursos"
                       onClick={() => setCoursesFor(cat)}
                     >
-                      <BookPlus size={14} strokeWidth={1.75} />
-                    </Button>
-                    <Button
-                      size="sm"
-                      intent="ghost"
+                      <BookPlus size={15} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
+                      title="Editar categoria"
+                      aria-label="Editar categoria"
                       onClick={() => setModalFor(cat)}
                     >
-                      <Pencil size={14} strokeWidth={1.75} />
-                    </Button>
-                    <Button
-                      size="sm"
-                      intent="ghost"
+                      <Pencil size={15} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
+                      title="Eliminar categoria"
+                      aria-label="Eliminar categoria"
                       onClick={() => onDelete(cat)}
                     >
-                      <Trash2 size={14} strokeWidth={1.75} />
-                    </Button>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2 lg:flex lg:flex-1 lg:items-stretch [&>div]:!p-1.5 lg:[&>div]:flex-1">
-                  <div
-                    className={`${PANEL} col-span-2 flex min-w-0 items-center lg:col-span-1`}
-                  >
-                    <span className="line-clamp-3 text-xs text-ink-muted">
-                      {cat.description || '—'}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    title="Ver cursos da categoria"
-                    disabled={cat.courseCount === 0}
-                    onClick={() => setListFor(cat)}
-                    className={`${PANEL} flex flex-col items-center justify-center gap-0 lg:flex-row lg:gap-1.5 enabled:cursor-pointer enabled:hover:bg-surface-sunken`}
-                  >
-                    <span className="font-mono text-lg font-semibold text-ink">
-                      {cat.courseCount}
-                    </span>
-                    <span className="text-xs text-ink-faint">
-                      {cat.courseCount === 1 ? 'curso' : 'cursos'}
-                    </span>
-                  </button>
-                  <div className={`${PANEL} flex items-center`}>
-                    <button
-                      onClick={() =>
-                        toggleActive.mutate({
-                          id: cat.id,
-                          isActive: !cat.isActive,
-                        })
-                      }
-                    >
-                      <StatusBadge
-                        value={cat.isActive ? 'ACTIVE' : 'INACTIVE'}
-                        variant="dot"
-                        map={{
-                          ACTIVE: {
-                            label: 'Activa',
-                            cls: 'bg-success-subtle text-success-ink',
-                          },
-                          INACTIVE: {
-                            label: 'Inactiva',
-                            cls: 'bg-surface-sunken text-ink-faint',
-                          },
-                        }}
-                      />
+                      <Trash2 size={15} strokeWidth={1.75} />
                     </button>
-                  </div>
-                </div>
-              </div>
+                  </>
+                }
+                infos={[
+                  {
+                    icon: BookOpen,
+                    value: `${cat.courseCount} ${cat.courseCount === 1 ? 'curso' : 'cursos'}`,
+                    label: 'Ver cursos da categoria',
+                    disabled: cat.courseCount === 0,
+                    onClick: () => setListFor(cat),
+                  },
+                  {
+                    icon: CircleCheck,
+                    value: cat.isActive ? 'Activa' : 'Inactiva',
+                    label: 'Estado',
+                  },
+                ]}
+              />
             ))}
           </div>
         </div>

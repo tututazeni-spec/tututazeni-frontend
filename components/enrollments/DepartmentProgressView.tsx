@@ -5,20 +5,20 @@
 
 'use client';
 
+import {
+  AlertTriangle,
+  CircleCheck,
+  ListChecks,
+  TrendingUp,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { PANEL, PILL, ProgressRing } from '@/components/courses/cardStyles';
+import { PILL } from '@/components/courses/cardStyles';
+import { NavyCard } from '@/components/courses/NavyCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentProgressRow, ProgressByDepartment } from './types';
-
-function progressAccent(r: DepartmentProgressRow) {
-  if (r.overdue > 0) return 'border-l-red-500';
-  if (r.completionRate >= 75) return 'border-l-emerald-500';
-  if (r.completionRate >= 40) return 'border-l-orange-400';
-  return 'border-l-blue-400';
-}
 
 function ProgressTable({
   title,
@@ -38,53 +38,31 @@ function ProgressTable({
       {rows.length === 0 ? (
         <p className="p-4 text-xs text-ink-faint">Sem inscrições registadas</p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-5">
           {rows.map((r) => (
-            <div
+            <NavyCard
               key={r.id}
-              className={`flex flex-col gap-2 rounded-2xl border border-l-4 border-border bg-surface/60 p-2 shadow-sm backdrop-blur-md hover:bg-surface lg:flex-row lg:items-center lg:gap-3 ${progressAccent(r)}`}
-            >
-              {/* Nome */}
-              <div className="min-w-0 break-words text-sm font-semibold uppercase text-ink lg:w-72 lg:shrink-0">
-                {r.name}
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 lg:flex lg:flex-1 lg:items-stretch [&>div]:!p-1.5 lg:[&>div]:flex-1">
-                {/* Total, Concluídas & Atrasadas */}
-                <div
-                  className={`${PANEL} grid min-w-0 grid-cols-3 items-center gap-4 text-center`}
-                >
-                  <div>
-                    <div className="font-mono text-sm text-ink-muted">
-                      {r.total}
-                    </div>
-                    <div className="text-xs text-ink-faint">Total</div>
-                  </div>
-                  <div>
-                    <div className="font-mono text-sm text-success-ink">
-                      {r.completed}
-                    </div>
-                    <div className="text-xs text-ink-faint">Concluídas</div>
-                  </div>
-                  <div>
-                    <div
-                      className={`font-mono text-sm ${r.overdue > 0 ? 'font-semibold text-danger-ink' : 'text-ink-faint'}`}
-                    >
-                      {r.overdue}
-                    </div>
-                    <div className="text-xs text-ink-faint">Atrasadas</div>
-                  </div>
-                </div>
-
-                {/* Taxa de conclusão */}
-                <div
-                  className={`${PANEL} flex items-center justify-center`}
-                  title="Taxa de conclusão"
-                >
-                  <ProgressRing value={r.completionRate} />
-                </div>
-              </div>
-            </div>
+              title={r.name}
+              infos={[
+                { icon: ListChecks, value: String(r.total), label: 'Total' },
+                {
+                  icon: CircleCheck,
+                  value: String(r.completed),
+                  label: 'Concluídas',
+                },
+                {
+                  icon: AlertTriangle,
+                  value: String(r.overdue),
+                  label: 'Atrasadas',
+                  danger: r.overdue > 0,
+                },
+                {
+                  icon: TrendingUp,
+                  value: `${Math.round(r.completionRate)}%`,
+                  label: 'Taxa de conclusão',
+                },
+              ]}
+            />
           ))}
         </div>
       )}

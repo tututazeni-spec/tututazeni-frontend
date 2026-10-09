@@ -10,9 +10,12 @@
 
 import {
   AlertTriangle,
+  Building2,
   CalendarDays,
   Hourglass,
+  Mail,
   MoreHorizontal,
+  TrendingUp,
 } from 'lucide-react';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
@@ -20,8 +23,6 @@ import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import {
   DropdownMenu,
@@ -30,15 +31,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { Input } from '@/components/ui/Input';
-import { PANEL, PILL, ProgressRing } from '@/components/courses/cardStyles';
+import {
+  NAVY_ACTION,
+  NavyBadge,
+  NavyCard,
+} from '@/components/courses/NavyCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { ORIGIN_LABELS, STATUS_CFG } from './constants';
 import { useCourseOptions, useDepartmentOptions } from './enrollData';
-import { deadlineCountdown, deadlineIntent } from './utils';
+import { deadlineCountdown } from './utils';
 import type { Enrollment } from './types';
 
 const STATUS_ITEMS = [
@@ -56,15 +60,6 @@ const MANDATORY_ITEMS = [
   { value: 'true', label: 'Apenas obrigatórios' },
   { value: 'false', label: 'Apenas opcionais' },
 ];
-
-const STATUS_ACCENT: Record<string, string> = {
-  NOT_STARTED: 'border-l-blue-400',
-  IN_PROGRESS: 'border-l-orange-400',
-  COMPLETED: 'border-l-emerald-500',
-  OVERDUE: 'border-l-red-500',
-  CANCELLED: 'border-l-slate-400',
-  EXPIRED: 'border-l-slate-400',
-};
 
 interface AdminViewProps {
   /** Pré-filtra por curso — usado pela acção "Ver inscrições" da aba Cursos. */
@@ -312,53 +307,30 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
           />
         )}
 
-        <div className="space-y-3">
+        <div className="space-y-5">
           {!loading &&
             data?.data?.map((e) => (
-              <div
+              <NavyCard
                 key={e.id}
-                className={`flex flex-col gap-2 rounded-2xl border border-l-4 border-border bg-surface/60 p-2 shadow-sm backdrop-blur-md hover:bg-surface lg:flex-row lg:items-center lg:gap-3 ${STATUS_ACCENT[e.status] ?? ''}`}
-              >
-                {/* Topo: selecção, colaborador, curso e acções */}
-                <div className="flex items-start gap-3 lg:w-72 lg:shrink-0">
-                  <div className="flex items-center pt-2">
-                    <input
-                      type="checkbox"
-                      checked={selected.includes(e.id)}
-                      onChange={() => toggleSelect(e.id)}
-                      className="h-4 w-4 rounded border-border-strong accent-primary"
-                    />
-                  </div>
-
-                  {/* 1. Colaborador / Curso */}
-                  <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
-                    <div className="flex items-center gap-2">
-                      <Avatar
-                        name={e.user?.fullName ?? ''}
-                        url={e.user?.avatarUrl ?? undefined}
-                        size="sm"
-                      />
-                      <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold text-black">
-                          {e.user?.fullName}
-                        </div>
-                        <div className="truncate text-xs text-black">
-                          {e.user?.email}
-                        </div>
-                      </div>
-                    </div>
-                    <span className="w-fit max-w-full break-words rounded-full bg-blue-500/20 px-2.5 py-0.5 text-[11px] font-semibold uppercase text-black">
-                      {e.course?.title}
-                    </span>
-                  </div>
-
-                  {/* 6. Acções (igual ao que já tinhas) */}
-                  <div className="flex shrink-0 items-center">
+                title={e.course?.title ?? ''}
+                lead={
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(e.id)}
+                    onChange={() => toggleSelect(e.id)}
+                    aria-label={`Seleccionar ${e.user?.fullName ?? ''}`}
+                    className="h-4 w-4 shrink-0 rounded border-border-strong accent-primary"
+                  />
+                }
+                badge={
+                  <NavyBadge>{STATUS_CFG[e.status]?.label ?? e.status}</NavyBadge>
+                }
+                actions={
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className="rounded-control p-1.5 text-black hover:bg-surface-sunken hover:text-black"
+                          className={NAVY_ACTION}
                           disabled={rowBusy(e.id)}
                         >
                           <MoreHorizontal size={16} strokeWidth={1.75} />
@@ -392,98 +364,48 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                           )}
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  </div>
-                </div>
-
-                {/* Detalhes em grelha fluida */}
-                <div className="grid grid-cols-2 gap-2 lg:flex lg:flex-1 lg:items-stretch [&>div]:!p-1.5 lg:[&>div]:flex-1">
-                  {/* 2. Departamento & Origem */}
-                  <div
-                    className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1.5`}
-                  >
-                    <span className={`${PILL} bg-fuchsia-500/20 text-black`}>
-                      {e.user.department?.name ?? '—'}
-                    </span>
-                    {e.user.unit?.name && (
-                      <span className="max-w-full truncate text-xs text-black">
-                        {e.user.unit.name}
-                      </span>
-                    )}
-                    <span className={`${PILL} bg-violet-500/20 text-black`}>
-                      {ORIGIN_LABELS[e.origin]}
-                    </span>
-                  </div>
-
-                  {/* 3. Estado & Nota */}
-                  <div
-                    className={`${PANEL} flex flex-col items-start justify-center gap-1.5`}
-                  >
-                    <span className="[&_*]:!text-black">
-                      <StatusBadge
-                        value={e.status}
-                        map={STATUS_CFG}
-                        variant="dot"
-                      />
-                    </span>
-                    <span className="text-xs text-black">
-                      Nota:{' '}
-                      <span className="font-mono">
-                        {e.certificate?.score != null
-                          ? `${e.certificate.score}%`
-                          : '—'}
-                      </span>
-                    </span>
-                  </div>
-
-                  {/* 4. Progresso */}
-                  <div className={`${PANEL} flex items-center justify-center`}>
-                    <ProgressRing value={e.progressPercent ?? 0} />
-                  </div>
-
-                  {/* 5. Inscrição, Conclusão & Deadline */}
-                  <div
-                    className={`${PANEL} flex min-w-0 flex-col justify-center gap-1`}
-                  >
-                    <span className="flex items-center gap-1 text-xs text-black">
-                      <CalendarDays size={12} strokeWidth={1.75} />
-                      Inscrição:{' '}
-                      {new Date(e.enrolledAt).toLocaleDateString('pt')}
-                    </span>
-                    <span className="flex items-center gap-1 text-xs text-black">
-                      <CalendarDays size={12} strokeWidth={1.75} />
-                      Conclusão:{' '}
-                      {e.completedAt
+                }
+                avatar={{
+                  name: e.user?.fullName ?? '',
+                  url: e.user?.avatarUrl,
+                }}
+                subtitle={e.user?.email}
+                subtitleIcon={Mail}
+                infos={[
+                  {
+                    icon: Building2,
+                    value: e.user.department?.name ?? '—',
+                    label:
+                      [e.user.unit?.name, ORIGIN_LABELS[e.origin]]
+                        .filter(Boolean)
+                        .join(' · ') || '—',
+                  },
+                  {
+                    icon: TrendingUp,
+                    value: `${Math.round(e.progressPercent ?? 0)}%`,
+                    label: `Nota: ${
+                      e.certificate?.score != null
+                        ? `${e.certificate.score}%`
+                        : '—'
+                    }`,
+                  },
+                  {
+                    icon: CalendarDays,
+                    value: `Inscrição: ${new Date(e.enrolledAt).toLocaleDateString('pt')}`,
+                    label: `Conclusão: ${
+                      e.completedAt
                         ? new Date(e.completedAt).toLocaleDateString('pt')
-                        : '—'}
-                    </span>
-                    <div className="text-xs">
-                      {e.deadline ? (
-                        <Badge
-                          intent={deadlineIntent(e.deadline, e.isOverdue)}
-                          className="!text-black"
-                        >
-                          {e.isOverdue ? (
-                            <AlertTriangle
-                              size={12}
-                              strokeWidth={1.75}
-                              className="mr-1 inline"
-                            />
-                          ) : (
-                            <Hourglass
-                              size={12}
-                              strokeWidth={1.75}
-                              className="mr-1 inline"
-                            />
-                          )}
-                          {deadlineCountdown(e.deadline)}
-                        </Badge>
-                      ) : (
-                        <span className="text-black">Deadline: —</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+                        : '—'
+                    }`,
+                  },
+                  {
+                    icon: e.isOverdue ? AlertTriangle : Hourglass,
+                    value: e.deadline ? deadlineCountdown(e.deadline) : '—',
+                    label: 'Deadline',
+                    danger: !!e.isOverdue,
+                  },
+                ]}
+              />
             ))}
         </div>
       </div>
