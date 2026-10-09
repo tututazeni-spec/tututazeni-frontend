@@ -64,7 +64,7 @@ export function Select({
         >
           {shownLabel}
         </span>
-        <span className="grid min-w-0 flex-1 overflow-hidden">
+        <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)] overflow-hidden">
           {[shownLabel, ...items.map((i) => i.label)].map((t, n) => (
             <span
               key={n}
