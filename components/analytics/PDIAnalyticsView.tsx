@@ -10,7 +10,6 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import {
   ACTION_CFG,
   STATUS_CFG as PLAN_STATUS_CFG,
@@ -143,7 +142,7 @@ export function PDIAnalyticsView() {
 
       {/* Estado dos PDIs */}
       <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
-        <div className="h-1.5 w-full bg-[#2B6CC4]" />
+        <div className="h-1.5 w-full bg-[#0F1F3D]" />
         <div className="p-5">
           <div className="mb-3 font-body text-sm font-semibold text-ink-muted">
             PDIs por estado · {totalPlans} no total
@@ -170,17 +169,15 @@ export function PDIAnalyticsView() {
               return (
                 <div
                   key={status}
-                  className={`flex items-center gap-2 rounded-full border border-border bg-surface-sunken px-3 py-1.5 ${count === 0 ? 'opacity-50' : ''}`}
+                  className="flex items-center gap-2 rounded-full bg-[#0F1F3D] px-3 py-1.5 opacity-70"
                 >
-                  <StatusBadge
-                    value={status as PlanStatus}
-                    map={PLAN_STATUS_CFG}
-                    variant="dot"
-                  />
-                  <span className="font-data text-sm font-bold text-ink">
+                  <span className="text-xs font-medium text-white">
+                    {PLAN_STATUS_CFG[status]?.label ?? status}
+                  </span>
+                  <span className="font-data text-sm font-bold text-white">
                     {count}
                   </span>
-                  <span className="font-body text-xs text-ink-muted">
+                  <span className="font-body text-xs text-white">
                     {pct(count)}%
                   </span>
                 </div>
@@ -200,14 +197,12 @@ export function PDIAnalyticsView() {
             {actionsByType.map((a) => (
               <div
                 key={a.type}
-                className={`flex items-center gap-2 rounded-card bg-surface-sunken px-3 py-2 ${a.count === 0 ? 'opacity-50' : ''}`}
+                className="flex items-center gap-2 rounded-card bg-[#0F1F3D] px-3 py-2 opacity-70"
               >
-                <StatusBadge
-                  value={a.type as ActionType}
-                  map={ACTION_CFG}
-                  variant="plain"
-                />
-                <span className="font-data text-sm font-bold text-black">
+                <span className="text-xs font-medium text-white">
+                  {ACTION_CFG[a.type].label}
+                </span>
+                <span className="font-data text-sm font-bold text-white">
                   {a.count}
                 </span>
               </div>

@@ -249,7 +249,7 @@ export function PeopleAnalyticsView() {
       {/* Diversidade */}
       {/* Diversidade */}
       <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
-        <div className="h-1.5 w-full bg-[#2B6CC4]" />
+        <div className="h-1.5 w-full bg-[#0F1F3D]" />
         <div className="p-5">
           <div className="mb-3 font-body text-sm font-semibold text-ink-muted">
             Diversidade — género
@@ -258,17 +258,17 @@ export function PeopleAnalyticsView() {
             {Object.entries(data.diversity.gender).map(([gender, count]) => (
               <div
                 key={gender}
-                className="rounded-2xl border border-border bg-surface-sunken p-4"
+                className="rounded-2xl bg-[#0F1F3D] p-4 opacity-70"
               >
                 <Users
                   size={18}
                   strokeWidth={1.75}
-                  className="text-[#2B6CC4]"
+                  className="text-white"
                 />
-                <p className="mt-2 font-display text-2xl font-bold text-[#2B6CC4]">
+                <p className="mt-2 font-display text-2xl font-bold text-white">
                   {count}
                 </p>
-                <p className="mt-0.5 font-body text-xs font-medium text-ink-muted">
+                <p className="mt-0.5 font-body text-xs font-medium text-white">
                   {GENDER_LABELS[gender] ?? gender}
                 </p>
               </div>
