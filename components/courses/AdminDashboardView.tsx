@@ -264,6 +264,7 @@ export function AdminDashboardView({
             <AlertCard
               key={i}
               variant={a.severity}
+              compact
               title={ALERT_TITLE[a.severity]}
               message={a.message}
             />
