@@ -10,6 +10,7 @@ import { useState } from 'react';
 import {
   Briefcase,
   CalendarDays,
+  DoorOpen,
   Clock,
   MapPin,
   Plus,
@@ -31,7 +32,7 @@ import { useCourseOptions } from '@/components/enrollments/enrollData';
 import { CohortDetailModal } from './CohortDetailModal';
 import { CreateCohortModal } from './CreateCohortModal';
 import { Skeleton } from './shared';
-import type { Cohort, CohortStatus } from './types';
+import type { Cohort, CohortDetail, CohortStatus } from './types';
 
 const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> =
   {
@@ -212,6 +213,13 @@ export function TurmasView() {
   const [courseId, setCourseId] = useState<string | undefined>(undefined);
   const [showCreate, setShowCreate] = useState(false);
   const [detailId, setDetailId] = useState<number | null>(null);
+  const [showOpen, setShowOpen] = useState(false);
+
+  const { data: openCohorts = [], isLoading: openLoading } = useApiQuery<
+    Array<Cohort & { course: CohortDetail['course'] }>
+  >(queryKeys.courses.openCohorts(), '/courses/cohorts/open', {
+    staleTime: STALE_TIME.DYNAMIC,
+  });
 
   const { data = [], isLoading } = useApiQuery<Cohort[]>(
     queryKeys.courses.cohorts(Number(courseId)),
@@ -222,7 +230,10 @@ export function TurmasView() {
   const close = useApiMutation(
     (id: number) => apiClient.patch(`/courses/cohorts/${id}/close`),
     {
-      invalidateKeys: [queryKeys.courses.cohorts(Number(courseId))],
+      invalidateKeys: [
+        queryKeys.courses.cohorts(Number(courseId)),
+        queryKeys.courses.openCohorts(),
+      ],
       onSuccess: () => toast({ title: 'Turma encerrada', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
@@ -231,7 +242,10 @@ export function TurmasView() {
   const remove = useApiMutation(
     (id: number) => apiClient.delete(`/courses/cohorts/${id}`),
     {
-      invalidateKeys: [queryKeys.courses.cohorts(Number(courseId))],
+      invalidateKeys: [
+        queryKeys.courses.cohorts(Number(courseId)),
+        queryKeys.courses.openCohorts(),
+      ],
       onSuccess: () => toast({ title: 'Turma eliminada', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
@@ -259,15 +273,40 @@ export function TurmasView() {
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="w-full sm:w-72">
-          <Combobox
-            items={courseOptions}
-            value={courseId}
-            onValueChange={setCourseId}
-            placeholder="Selecionar curso"
-            searchPlaceholder="Escreva para filtrar cursos…"
-            emptyText="Nenhum curso encontrado"
-          />
+        <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
+          <div className="w-full sm:w-72">
+            <Combobox
+              items={courseOptions}
+              value={courseId}
+              onValueChange={(v) => {
+                setCourseId(v);
+                if (v) setShowOpen(false);
+              }}
+              placeholder="Selecionar curso"
+              searchPlaceholder="Escreva para filtrar cursos…"
+              emptyText="Nenhum curso encontrado"
+            />
+          </div>
+          <button
+            type="button"
+            aria-pressed={showOpen}
+            onClick={() => setShowOpen((v) => !v)}
+            className={`flex h-10 items-center gap-2.5 rounded-xl border px-3 text-left transition-colors ${
+              showOpen
+                ? 'border-[#0D6EFD] bg-[#EAF2FF]'
+                : 'border-[#DCE5F1] bg-white hover:bg-[#F5F8FD]'
+            }`}
+          >
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD]">
+              <DoorOpen size={15} strokeWidth={1.75} />
+            </span>
+            <span className="text-sm font-semibold text-[#0F1F3D]">
+              Turmas Abertas
+            </span>
+            <span className="rounded-full bg-[#0D6EFD] px-2 py-0.5 text-[11px] font-semibold text-white">
+              {openCohorts.length}
+            </span>
+          </button>
         </div>
         <Button
           size="sm"
@@ -279,23 +318,52 @@ export function TurmasView() {
         </Button>
       </div>
 
-      {!courseId && (
+      {showOpen && (
+        <div>
+          {openLoading && <Skeleton rows={3} />}
+          {!openLoading && openCohorts.length === 0 && (
+            <EmptyState
+              title="Sem turmas abertas"
+              description="Não há turmas com inscrições abertas neste momento."
+            />
+          )}
+          {!openLoading && openCohorts.length > 0 && (
+            <div className="space-y-5">
+              {openCohorts.map((c) => (
+                <div key={c.id}>
+                  <div className="mb-1 px-1 text-xs font-medium text-[#71829B]">
+                    {c.course.title}
+                  </div>
+                  <CohortCard
+                    c={c}
+                    onOpen={() => setDetailId(c.id)}
+                    onDelete={() => onDelete(c)}
+                    onClose={() => onClose(c)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {!showOpen && !courseId && (
         <EmptyState
           title="Escolhe um curso"
           description="Selecciona um curso presencial ou híbrido para ver e gerir as suas turmas."
         />
       )}
 
-      {courseId && isLoading && <Skeleton rows={3} />}
+      {!showOpen && courseId && isLoading && <Skeleton rows={3} />}
 
-      {courseId && !isLoading && data.length === 0 && (
+      {!showOpen && courseId && !isLoading && data.length === 0 && (
         <EmptyState
           title="Ainda não há turmas"
           description="Cria a primeira turma para este curso."
         />
       )}
 
-      {courseId && !isLoading && data.length > 0 && (
+      {!showOpen && courseId && !isLoading && data.length > 0 && (
         <div>
           <div className="space-y-5">
             {data.map((c) => (
