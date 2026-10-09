@@ -11,6 +11,7 @@
 'use client';
 
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { colorAt } from '@/lib/chartColors';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -156,10 +157,10 @@ export function HRDashboardView() {
       {/* Headcount por departamento */}
       {(data.headcountByDept?.length ?? 0) > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Colaboradores por Departamento
           </div>
-          {(data.headcountByDept ?? []).map((d) => (
+          {(data.headcountByDept ?? []).map((d, idx) => (
             <div
               key={d.id}
               className="flex items-center gap-4 px-4 py-3 border-b border-border last:border-0"
@@ -178,9 +179,10 @@ export function HRDashboardView() {
                   className="h-1.5 w-full rounded-pill bg-surface-sunken"
                 >
                   <div
-                    className="h-full rounded-pill bg-[#0F1F3D] transition-[width] duration-300"
+                    className="h-full rounded-pill transition-[width] duration-300"
                     style={{
                       width: `${Math.round((d.count / data.people.total) * 100)}%`,
+                      backgroundColor: colorAt(idx),
                     }}
                   />
                 </div>

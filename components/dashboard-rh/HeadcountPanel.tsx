@@ -80,8 +80,8 @@ export function HeadcountPanel() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {/* Tenure buckets */}
         {data?.byTenure && (
-          <div className="rounded-card border border-border bg-surface p-5">
-            <h4 className="mb-4 font-body font-semibold text-ink-muted">
+          <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+            <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
               Distribuição por Tempo de Casa
             </h4>
             <BarChart
@@ -97,8 +97,8 @@ export function HeadcountPanel() {
         )}
 
         {/* Monthly trend */}
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h4 className="mb-4 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Evolução Mensal
           </h4>
           {trend.length > 0 ? (

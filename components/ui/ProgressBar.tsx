@@ -13,12 +13,15 @@ export interface ProgressBarProps {
   value: number;
   /** cor de preenchimento — por omissão `accent`, mantém o comportamento actual */
   intent?: 'accent' | 'success' | 'warning' | 'danger';
+  /** cor CSS arbitrária — tem precedência sobre `intent` */
+  color?: string;
   className?: string;
 }
 
 export function ProgressBar({
   value,
   intent = 'accent',
+  color,
   className,
 }: ProgressBarProps) {
   const clamped = Math.min(100, Math.max(0, value));
@@ -33,9 +36,12 @@ export function ProgressBar({
       <div
         className={cn(
           'h-full rounded-pill transition-[width] duration-300',
-          INTENT_FILL[intent],
+          !color && INTENT_FILL[intent],
         )}
-        style={{ width: `${clamped}%` }}
+        style={{
+          width: `${clamped}%`,
+          ...(color ? { backgroundColor: color } : {}),
+        }}
       />
     </div>
   );
