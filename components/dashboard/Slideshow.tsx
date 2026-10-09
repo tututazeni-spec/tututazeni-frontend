@@ -70,7 +70,10 @@ export function Slideshow() {
         width: '100%',
         borderRadius: 16,
         overflow: 'hidden',
-        marginBottom: 32,
+        // Fundo neutro: durante o fade a foto não deve misturar-se com o
+        // azul do container exterior.
+        background: '#1a1a1a',
+        marginBottom: 0,
         boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
       }}
     >
@@ -86,15 +89,6 @@ export function Slideshow() {
           opacity: fading ? 0 : 1,
         }}
       >
-        {/* Gradient overlay */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'linear-gradient(90deg, rgba(10,20,60,0.72) 0%, rgba(10,20,60,0.35) 60%, rgba(10,20,60,0.10) 100%)',
-          }}
-        />
         {/* Caption */}
         <div
           style={{
