@@ -69,10 +69,15 @@ const INITIAL_CATALOGUE_FILTERS: CatalogueFilters = {
   page: 1,
 };
 
-export function CatalogueTab() {
-  const [filters, setFilters] = useState<CatalogueFilters>(
-    INITIAL_CATALOGUE_FILTERS,
-  );
+export function CatalogueTab({
+  initialSearch = '',
+}: {
+  initialSearch?: string;
+}) {
+  const [filters, setFilters] = useState<CatalogueFilters>({
+    ...INITIAL_CATALOGUE_FILTERS,
+    search: initialSearch,
+  });
   const { search, format, level, sortBy, micro, cert, page } = filters;
 
   function updateFilters(patch: Partial<Omit<CatalogueFilters, 'page'>>) {

@@ -20,7 +20,7 @@ import { ContentCard } from './ContentCard';
 import { ContentRow } from './ContentRow';
 import type { Content } from './types';
 
-export function HomeTab() {
+export function HomeTab({ onSearch }: { onSearch: (term: string) => void }) {
   const [search, setSearch] = useState('');
 
   const recQuery = useApiQuery<Content[]>(
@@ -59,9 +59,7 @@ export function HomeTab() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (search.trim()) {
-      // Trigger catalogue tab with search
-    }
+    onSearch(search.trim());
   };
 
   return (
