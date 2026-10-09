@@ -130,7 +130,7 @@ export function PartnersListView({
             />
             <NavCard
               href="/crm/partners/overdue-milestones"
-              label="Milestones em atraso"
+              label="Marcos em atraso"
               hint="Acção necessária"
               icon={<Flag className="h-4 w-4" />}
             />

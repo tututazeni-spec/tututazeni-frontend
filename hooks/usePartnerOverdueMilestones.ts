@@ -21,7 +21,7 @@ export function usePartnerOverdueMilestones() {
     data: data ?? [],
     isLoading,
     isError,
-    errorMessage: error?.message || 'Erro ao carregar milestones em atraso',
+    errorMessage: error?.message || 'Erro ao carregar marcos em atraso',
     onRetry: refetch,
   };
 }

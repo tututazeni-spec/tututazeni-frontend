@@ -31,10 +31,10 @@ export function OverdueMilestonesView({
       <div className="flex justify-between items-center">
         <div>
           <h1 className="font-display text-2xl font-bold text-ink">
-            Milestones em Atraso
+            Marcos em Atraso
           </h1>
           <p className="font-body text-ink-muted">
-            {data.length} {data.length === 1 ? 'milestone' : 'milestones'} por
+            {data.length} {data.length === 1 ? 'marco' : 'marcos'} por
             concluir
           </p>
         </div>
@@ -47,7 +47,7 @@ export function OverdueMilestonesView({
         <div className="divide-y divide-border">
           {data.length === 0 ? (
             <p className="p-4 font-body text-ink-faint">
-              Sem milestones em atraso
+              Sem marcos em atraso
             </p>
           ) : (
             data.map((m) => (
