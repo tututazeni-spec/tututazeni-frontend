@@ -68,35 +68,37 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      {/* Header dinâmico */}
-      <div className="border-b border-border bg-canvas px-6 py-5">
-        <div className="mx-auto flex max-w-7xl items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            {ActiveIcon && (
-              <ActiveIcon
-                size={22}
-                strokeWidth={1.8}
-                className="transition-all duration-300"
-              />
-            )}
+      {/* Container azul: cabeçalho dinâmico + Slideshow no mesmo cartão
+          (#0F1F3D), acima das tabs e visível em qualquer separador. */}
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <section className="overflow-hidden rounded-3xl bg-[#0F1F3D] text-white shadow-[0_12px_32px_rgba(15,31,61,0.25)]">
+          <div className="flex items-center gap-3 px-6 py-5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white">
+              {ActiveIcon && (
+                <ActiveIcon
+                  size={22}
+                  strokeWidth={1.8}
+                  className="transition-all duration-300"
+                />
+              )}
+            </div>
+
+            <div>
+              <h1 className="font-display text-xl font-bold text-white">
+                Dashboard
+              </h1>
+              {activeTab?.hint && (
+                <p className="mt-0.5 font-body text-xs text-white/90">
+                  {activeTab.hint}
+                </p>
+              )}
+            </div>
           </div>
 
-          <div>
-            <h1 className="font-display text-xl font-bold text-ink">
-              Dashboard
-            </h1>
-            {activeTab?.hint && (
-              <p className="mt-0.5 font-body text-xs text-ink-muted">
-                {activeTab.hint}
-              </p>
-            )}
+          <div className="mx-6 mb-6 rounded-2xl bg-[#3B5280] p-3">
+            <Slideshow />
           </div>
-        </div>
-      </div>
-      {/* Slideshow — mesma posição de sempre: acima das tabs, visível em
-          qualquer separador. */}
-      <div className="mx-auto max-w-7xl px-6 pt-6">
-        <Slideshow />
+        </section>
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
