@@ -20,8 +20,21 @@ import { ContentCard } from './ContentCard';
 import { ContentRow } from './ContentRow';
 import type { Content } from './types';
 
-export function HomeTab({ onSearch }: { onSearch: (term: string) => void }) {
+export function HomeTab() {
   const [search, setSearch] = useState('');
+  // Termo submetido (Enter / "Pesquisar"): só então se consulta o backend.
+  const [submitted, setSubmitted] = useState('');
+
+  const searchQuery = useApiQuery<{ data: Content[] }>(
+    queryKeys.contentLibrary.catalogue({ search: submitted, limit: 12 }),
+    '/content-library',
+    {
+      params: { search: submitted, limit: 12 },
+      staleTime: STALE_TIME.SEMI_STATIC,
+      enabled: submitted.length > 0,
+    },
+  );
+  const results = searchQuery.data?.data ?? [];
 
   const recQuery = useApiQuery<Content[]>(
     queryKeys.contentLibrary.recommended(),
@@ -59,7 +72,7 @@ export function HomeTab({ onSearch }: { onSearch: (term: string) => void }) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(search.trim());
+    setSubmitted(search.trim());
   };
 
   return (
@@ -89,6 +102,44 @@ export function HomeTab({ onSearch }: { onSearch: (term: string) => void }) {
           <Button type="submit">Pesquisar</Button>
         </form>
       </div>
+
+      {/* Resultados da pesquisa */}
+      {submitted && (
+        <div>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h3 className="font-body font-semibold text-ink">
+              Resultados para &ldquo;{submitted}&rdquo;
+            </h3>
+            <Button
+              intent="ghost"
+              size="sm"
+              onClick={() => {
+                setSubmitted('');
+                setSearch('');
+              }}
+            >
+              Limpar
+            </Button>
+          </div>
+          {searchQuery.isLoading ? (
+            <Skeleton
+              rows={4}
+              wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse"
+              itemClassName="bg-surface-sunken rounded-card h-52"
+            />
+          ) : results.length === 0 ? (
+            <p className="font-body text-sm text-ink-muted">
+              Nenhum conteúdo encontrado.
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+              {results.map((c) => (
+                <ContentCard key={c.id} content={c} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Continue watching */}
       {continueW.length > 0 && (
