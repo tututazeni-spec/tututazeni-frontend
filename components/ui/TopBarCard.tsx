@@ -27,7 +27,7 @@ export function TopBarCard({
         <div className={`mt-3 font-data text-4xl font-bold ${t.text}`}>
           {value}
         </div>
-        <div className="mt-1 break-words font-body text-lg text-black">{label}</div>
+        <div className="mt-1 font-body text-lg text-black">{label}</div>
       </div>
     </div>
   );
