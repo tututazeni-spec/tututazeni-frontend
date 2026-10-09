@@ -147,6 +147,7 @@ export interface ExecutiveSummary {
     partners: number;
     funders: number;
     totalFunding: number;
+    fundingByQuarter?: Array<{ label: string; value: number }>;
   };
   knowledge: {
     libraryItems: number;
@@ -209,7 +210,7 @@ export interface ExecutiveModulesOverview {
     successRate: number;
   } | null;
   platform: {
-    uptimePercent: number;
+    uptimePercent: number | null;
     openAlerts: number;
     criticalAlerts: number;
     integrationsWithErrors: number;

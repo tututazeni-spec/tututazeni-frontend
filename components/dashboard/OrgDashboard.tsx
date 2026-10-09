@@ -105,16 +105,6 @@ function HighlightKpiCard({
   );
 }
 
-// TODO: substituir por dados reais quando soubermos o campo da API
-// (ex.: summary.crm.fundingByQuarter) com a distribuição do financiamento
-// ao longo do período. Enquanto isso, usa-se uma série de exemplo.
-const MOCK_FUNDING_BREAKDOWN = [
-  { label: 'T1', value: 0.6 },
-  { label: 'T2', value: 0.9 },
-  { label: 'T3', value: 0.75 },
-  { label: 'T4', value: 1.2 },
-];
-
 function FundingKpiCard({
   icon: Icon,
   label,
@@ -149,26 +139,28 @@ function FundingKpiCard({
       <p className="mt-1 font-body text-sm text-ink">{label}</p>
       {sub && <p className="mt-1 font-body text-xs text-ink-faint">{sub}</p>}
 
-      <div className="mt-4 flex h-12 items-end gap-1.5">
-        {breakdown.map((b) => (
-          <div
-            key={b.label}
-            className="flex flex-1 flex-col items-center gap-1"
-          >
+      {breakdown.some((b) => b.value > 0) && (
+        <div className="mt-4 flex h-12 items-end gap-1.5">
+          {breakdown.map((b) => (
             <div
-              className="w-full rounded-t"
-              style={{
-                height: `${Math.max((b.value / max) * 100, 6)}%`,
-                backgroundColor: BAR_COLOR[tone],
-                opacity: 0.85,
-              }}
-            />
-            <span className="font-body text-[9px] text-ink-faint">
-              {b.label}
-            </span>
-          </div>
-        ))}
-      </div>
+              key={b.label}
+              className="flex flex-1 flex-col items-center gap-1"
+            >
+              <div
+                className="w-full rounded-t"
+                style={{
+                  height: `${Math.max((b.value / max) * 100, 6)}%`,
+                  backgroundColor: BAR_COLOR[tone],
+                  opacity: 0.85,
+                }}
+              />
+              <span className="font-body text-[9px] text-ink-faint">
+                {b.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -552,8 +544,8 @@ export function OrgDashboard() {
             tone="gold"
             label="Financiamento"
             value={`AOA ${(summary.crm.totalFunding / 1_000_000).toFixed(1)}M`}
-            sub="Distribuição por trimestre"
-            breakdown={MOCK_FUNDING_BREAKDOWN}
+            sub="Activo · início por trimestre"
+            breakdown={summary.crm.fundingByQuarter ?? []}
           />
           <HighlightKpiCard
             icon={Building2}
@@ -920,12 +912,16 @@ export function OrgDashboard() {
               {modules.platform && (
                 <>
                   <div className="flex justify-center pt-1">
-                    <GaugeChart
-                      value={modules.platform.uptimePercent}
-                      label="Uptime"
-                      thresholds={{ warning: 99, danger: 95 }}
-                      size={120}
-                    />
+                    {modules.platform.uptimePercent != null ? (
+                      <GaugeChart
+                        value={modules.platform.uptimePercent}
+                        label="Uptime"
+                        thresholds={{ warning: 99, danger: 95 }}
+                        size={120}
+                      />
+                    ) : (
+                      <Stat label="Uptime" value="Sem dados" />
+                    )}
                   </div>
                   <Stat
                     label="Alertas abertos"
