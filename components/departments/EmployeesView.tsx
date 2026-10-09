@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
   Table,
@@ -123,15 +123,10 @@ export function EmployeesView() {
       {/* Indicadores */}
       {indicators && (
         <div className="mb-5 space-y-3">
-          <div className="flex flex-wrap gap-3">
-            <KpiCard icon={Users} label="Total de colaboradores" value={indicators.total} />
-            <KpiCard
-              icon={UserCheck}
-              label="Activos"
-              value={indicators.active}
-              intent="success"
-            />
-            <KpiCard icon={UserX} label="Inactivos" value={indicators.inactive} />
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            <NavyStatCard icon={Users} tone="blue" label="Total de colaboradores" value={indicators.total} />
+            <NavyStatCard icon={UserCheck} tone="green" label="Activos" value={indicators.active} />
+            <NavyStatCard icon={UserX} tone="orange" label="Inactivos" value={indicators.inactive} />
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <BreakdownCard title="Por género" buckets={indicators.byGender} />

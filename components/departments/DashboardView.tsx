@@ -5,11 +5,11 @@
 
 'use client';
 
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Building2, CheckCircle2, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { ComparativeRow } from './types';
@@ -47,10 +47,10 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
   return (
     <div className="space-y-6">
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <KpiCard label="Total departamentos" value={rows.length} />
-        <KpiCard label="Activos" value={activeCount} intent="success" />
-        <KpiCard label="Total colaboradores" value={totalMembers} />
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <NavyStatCard icon={Building2} tone="blue" label="Total departamentos" value={rows.length} />
+        <NavyStatCard icon={CheckCircle2} tone="green" label="Activos" value={activeCount} />
+        <NavyStatCard icon={Users} tone="blue" label="Total colaboradores" value={totalMembers} />
       </div>
 
       {/* Distribution chart */}

@@ -23,7 +23,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useUnits } from './departmentFormData';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentNode, ReportsData } from './types';
@@ -166,40 +166,43 @@ export function ReportsView() {
       {!isLoading && !error && data && (
         <div className="space-y-6">
           {/* KPIs */}
-          <div className="flex flex-wrap gap-4">
-            <KpiCard
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+            <NavyStatCard
               icon={Users}
+              tone="blue"
               label="Colaboradores"
               value={data.employeeDistribution.total}
               sub={`${data.employeeDistribution.active} activos · ${data.employeeDistribution.inactive} inactivos`}
             />
-            <KpiCard
+            <NavyStatCard
               icon={Briefcase}
+              tone={data.positionsOccupiedVsVacant.vacancies > 0 ? 'orange' : 'green'}
               label="Cargos ocupados vs. vagas"
               value={`${data.positionsOccupiedVsVacant.occupied}/${data.positionsOccupiedVsVacant.planned}`}
               sub={`${data.positionsOccupiedVsVacant.vacancies} vagas`}
-              intent={data.positionsOccupiedVsVacant.vacancies > 0 ? 'warning' : 'success'}
             />
-            <KpiCard
+            <NavyStatCard
               icon={LogIn}
+              tone="green"
               label="Admissões no período"
               value={data.admissions.total}
-              intent="success"
             />
-            <KpiCard
+            <NavyStatCard
               icon={LogOut}
+              tone={data.exits.total > 0 ? 'red' : 'blue'}
               label="Saídas no período"
               value={data.exits.total}
-              intent={data.exits.total > 0 ? 'danger' : 'primary'}
             />
-            <KpiCard
+            <NavyStatCard
               icon={Repeat}
+              tone="orange"
               label="Taxa de rotatividade"
               value={`${data.turnoverRate.toFixed(1)}%`}
               sub="saídas / efectivo actual"
             />
-            <KpiCard
+            <NavyStatCard
               icon={Clock}
+              tone="blue"
               label="Antiguidade média"
               value={`${data.seniority.avgYears.toFixed(1)} anos`}
             />
