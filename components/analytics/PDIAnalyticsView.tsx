@@ -85,8 +85,11 @@ export function PDIAnalyticsView() {
 
   if (isLoading || !data) return <Skeleton rows={4} />;
 
-  // Só os tipos que o formulário de PDI oferece (ACTION_CFG).
-  const actionsByType = data.actionsByType.filter((a) => a.type in ACTION_CFG);
+  // Todos os tipos que o formulário de PDI oferece (ACTION_CFG), incluindo 0.
+  const countByType = new Map(data.actionsByType.map((a) => [a.type, a.count]));
+  const actionsByType = (Object.keys(ACTION_CFG) as ActionType[]).map(
+    (type) => ({ type, count: countByType.get(type) ?? 0 }),
+  );
 
   const statuses = STATUS_ORDER;
   const totalPlans = statuses.reduce(
@@ -197,7 +200,7 @@ export function PDIAnalyticsView() {
             {actionsByType.map((a) => (
               <div
                 key={a.type}
-                className="flex items-center gap-2 rounded-card bg-surface-sunken px-3 py-2"
+                className={`flex items-center gap-2 rounded-card bg-surface-sunken px-3 py-2 ${a.count === 0 ? 'opacity-50' : ''}`}
               >
                 <StatusBadge
                   value={a.type as ActionType}
@@ -209,11 +212,6 @@ export function PDIAnalyticsView() {
                 </span>
               </div>
             ))}
-            {actionsByType.length === 0 && (
-              <div className="text-sm text-ink-faint py-2">
-                Sem acções registadas
-              </div>
-            )}
           </div>
         </CardBody>
       </Card>
