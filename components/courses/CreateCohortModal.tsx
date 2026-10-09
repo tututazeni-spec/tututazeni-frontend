@@ -67,7 +67,7 @@ export function CreateCohortModal({
 
   async function addDepartment(departmentId: number) {
     try {
-      // O diretório devolve no máximo 100 colaboradores por pedido.
+      // Sem pesquisa, o diretório devolve o departamento inteiro (sem limite).
       const members = await apiClient.get<DirectoryUser[]>(
         '/users/directory',
         { params: { departmentId } },
@@ -80,12 +80,9 @@ export function CreateCohortModal({
         return;
       }
       addParticipants(members);
-      const truncated = members.length >= 100;
       toast({
-        title: truncated
-          ? 'Mostrados os primeiros 100 do departamento — adiciona o resto no detalhe da turma'
-          : `${members.length} colaborador(es) adicionado(s)`,
-        intent: truncated ? 'danger' : 'success',
+        title: `${members.length} colaborador(es) adicionado(s)`,
+        intent: 'success',
       });
     } catch (e) {
       toast({ title: (e as Error).message, intent: 'danger' });
