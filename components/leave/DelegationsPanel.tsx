@@ -101,10 +101,10 @@ export function DelegationsPanel({ isAdmin }: DelegationsPanelProps) {
 
   return (
     <div className="space-y-4">
-      <Card className="p-4 space-y-4">
-        <div>
-          <h3 className="text-sm font-semibold text-ink">Nova substituição</h3>
-          <p className="text-xs text-ink-faint">
+      <Card className="overflow-hidden p-4 space-y-4">
+        <div className="-mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3">
+          <h3 className="text-sm font-semibold text-white">Nova substituição</h3>
+          <p className="text-xs text-white/80">
             Para quando estiver ausente: as suas aprovações vão para o
             substituto escolhido.
           </p>
@@ -197,8 +197,8 @@ export function DelegationsPanel({ isAdmin }: DelegationsPanelProps) {
         </div>
       </Card>
 
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-ink mb-3">
+      <Card className="overflow-hidden p-4">
+        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
           {isAdmin ? 'Substituições' : 'As minhas substituições'}
         </h3>
         {!loading && rows.length === 0 ? (

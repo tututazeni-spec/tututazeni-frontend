@@ -183,13 +183,9 @@ export function PlanningTab() {
           </p>
 
           {data.alerts.length > 0 && (
-            <Card className="p-4 space-y-2">
-              <h3 className="flex items-center gap-2 text-sm font-semibold text-ink">
-                <AlertTriangle
-                  size={15}
-                  strokeWidth={1.75}
-                  className="text-danger-ink"
-                />
+            <Card className="overflow-hidden p-4 space-y-2">
+              <h3 className="-mx-4 -mt-4 flex items-center gap-2 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
+                <AlertTriangle size={15} strokeWidth={1.75} />
                 Alertas de falta de cobertura
               </h3>
               <ul className="space-y-1 text-xs text-ink-muted max-h-48 overflow-y-auto">
@@ -208,12 +204,12 @@ export function PlanningTab() {
             </Card>
           )}
 
-          <Card className="p-4 space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold text-ink">
+          <Card className="overflow-hidden p-4 space-y-3">
+            <div className="-mx-4 -mt-4 flex flex-wrap items-center justify-between gap-2 bg-[#0F1F3D]/60 px-4 py-3">
+              <h3 className="text-sm font-semibold text-white">
                 Disponibilidade por equipa
               </h3>
-              <p className="flex flex-wrap items-center gap-3 text-xs text-ink-faint">
+              <p className="flex flex-wrap items-center gap-3 text-xs text-white/90">
                 <Legend cls="bg-success" label="Dentro do mínimo" />
                 <Legend cls="bg-info" label="Sobreposição" />
                 <Legend cls="bg-warning" label="Abaixo se aprovar pendentes" />
@@ -272,8 +268,8 @@ export function PlanningTab() {
             )}
           </Card>
 
-          <Card className="p-4 space-y-3">
-            <h3 className="text-sm font-semibold text-ink">
+          <Card className="overflow-hidden p-4 space-y-3">
+            <h3 className="-mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
               Pedidos pendentes no período
             </h3>
             {data.pendingRequests.length === 0 ? (
@@ -340,8 +336,8 @@ export function PlanningTab() {
           </Card>
 
           {data.absentPeople.length > 0 && (
-            <Card className="p-4 space-y-2">
-              <h3 className="text-sm font-semibold text-ink">
+            <Card className="overflow-hidden p-4 space-y-2">
+              <h3 className="-mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
                 Férias aprovadas e ausências previstas
               </h3>
               <ul className="space-y-1 text-xs text-ink-muted max-h-64 overflow-y-auto">
