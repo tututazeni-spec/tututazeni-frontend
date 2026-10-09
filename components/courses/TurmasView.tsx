@@ -63,15 +63,15 @@ interface CohortInfoProps {
 
 function CohortInfo({ icon: Icon, value, label }: CohortInfoProps) {
   return (
-    <div className="flex min-w-0 items-center gap-3 px-3 sm:px-5">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD] sm:h-10 sm:w-10">
-        <Icon size={20} strokeWidth={1.75} />
+    <div className="flex min-w-0 items-center gap-2 px-2 sm:px-4">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD]">
+        <Icon size={15} strokeWidth={1.75} />
       </span>
       <div className="min-w-0">
-        <div className="text-[13px] font-semibold text-[#0F1F3D] sm:text-sm">
+        <div className="text-xs font-semibold leading-tight text-[#0F1F3D]">
           {value}
         </div>
-        <div className="text-xs text-[#71829B]">{label}</div>
+        <div className="text-[11px] leading-tight text-[#71829B]">{label}</div>
       </div>
     </div>
   );
@@ -94,17 +94,17 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
       onClick={onOpen}
       className="cursor-pointer overflow-hidden rounded-2xl border border-[#DCE5F1] bg-white shadow-[0_8px_24px_rgba(15,31,61,0.08)]"
     >
-      <div className="bg-gradient-to-br from-[#0F1F3D] to-[#132B52] p-5 sm:p-6">
+      <div className="bg-gradient-to-br from-[#0F1F3D] to-[#132B52] px-4 py-3">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <h3 className="min-w-0 flex-1 basis-48 text-[21px] font-semibold uppercase leading-tight text-white sm:text-[22px]">
+          <h3 className="min-w-0 flex-1 basis-48 text-base font-semibold uppercase leading-tight text-white">
             {c.name}
           </h3>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#263F67] px-3.5 py-2 text-xs text-white">
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#263F67] px-2.5 py-1 text-[11px] text-white">
             <span aria-hidden>●</span>
             {statusLabel}
           </span>
         </div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             {c.instructor ? (
               <>
@@ -113,30 +113,30 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
                   <img
                     src={c.instructor.avatarUrl}
                     alt=""
-                    className="h-[50px] w-[50px] shrink-0 rounded-full object-cover"
+                    className="h-8 w-8 shrink-0 rounded-full object-cover"
                   />
                 ) : (
-                  <span className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-[#0D6EFD] text-lg font-bold text-white">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0D6EFD] text-xs font-bold text-white">
                     {initials(c.instructor.fullName)}
                   </span>
                 )}
                 <div className="min-w-0">
-                  <div className="truncate text-base font-semibold text-white">
+                  <div className="truncate text-sm font-semibold leading-tight text-white">
                     {c.instructor.fullName}
                   </div>
-                  <div className="flex items-center gap-1 text-[13px] text-[#C7D4E8]">
-                    <MapPin size={13} strokeWidth={1.75} className="shrink-0" />
+                  <div className="flex items-center gap-1 text-xs text-[#C7D4E8]">
+                    <MapPin size={12} strokeWidth={1.75} className="shrink-0" />
                     <span className="truncate">{place || '—'}</span>
                   </div>
                 </div>
               </>
             ) : (
               <div className="min-w-0">
-                <div className="text-base font-semibold text-white">
+                <div className="text-sm font-semibold leading-tight text-white">
                   Sem formador
                 </div>
-                <div className="flex items-center gap-1 text-[13px] text-[#C7D4E8]">
-                  <MapPin size={13} strokeWidth={1.75} className="shrink-0" />
+                <div className="flex items-center gap-1 text-xs text-[#C7D4E8]">
+                  <MapPin size={12} strokeWidth={1.75} className="shrink-0" />
                   <span className="truncate">{place || '—'}</span>
                 </div>
               </div>
@@ -177,7 +177,7 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-y-5 p-5 sm:p-[22px] lg:grid-cols-4 lg:gap-y-0">
+      <div className="grid grid-cols-2 gap-y-3 px-3 py-3 lg:grid-cols-4 lg:gap-y-0">
         <CohortInfo
           icon={CalendarDays}
           value={`${fmtDate(c.startDate)} — ${fmtDate(c.endDate)}`}
