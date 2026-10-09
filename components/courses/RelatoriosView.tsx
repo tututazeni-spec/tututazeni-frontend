@@ -80,11 +80,13 @@ function TopBarKpiCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow duration-200 hover:shadow-md">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
+        <p
+          className={`mt-3 break-words font-display text-3xl font-bold ${t.text}`}
+        >
           {value}
         </p>
         <p className="mt-1 font-body text-sm font-medium text-ink-muted">
@@ -116,7 +118,7 @@ function GaugeKpiCard({
   const offset = circumference - (clamped / 100) * circumference;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow duration-200 hover:shadow-md">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="flex items-center gap-3 p-5 pt-6">
         <div className="relative h-16 w-16 shrink-0">
@@ -146,7 +148,11 @@ function GaugeKpiCard({
           </div>
         </div>
         <div className="min-w-0">
-          <p className={`font-display text-2xl font-bold ${t.text}`}>{value}</p>
+          <p
+            className={`break-words font-display text-2xl font-bold ${t.text}`}
+          >
+            {value}
+          </p>
           <p className="mt-0.5 font-body text-xs font-medium text-ink-muted">
             {label}
           </p>
@@ -188,11 +194,13 @@ function TrendKpiCard({
     .join(' ');
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow duration-200 hover:shadow-md">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-2xl font-bold ${t.text}`}>
+        <p
+          className={`mt-3 break-words font-display text-2xl font-bold ${t.text}`}
+        >
           {value}
         </p>
         <p className="mt-1 font-body text-sm font-medium text-ink-muted">
@@ -241,11 +249,13 @@ function BulletKpiCard({
   const targetClamped = Math.max(0, Math.min(100, target));
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow duration-200 hover:shadow-md">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-2xl font-bold ${t.text}`}>
+        <p
+          className={`mt-3 break-words font-display text-2xl font-bold ${t.text}`}
+        >
           {value}
         </p>
         <p className="mt-1 font-body text-sm font-medium text-ink-muted">
@@ -299,11 +309,13 @@ function HistogramKpiCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow duration-200 hover:shadow-md">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-2xl font-bold ${t.text}`}>
+        <p
+          className={`mt-3 break-words font-display text-2xl font-bold ${t.text}`}
+        >
           {value}
         </p>
         <p className="mt-1 font-body text-sm font-medium text-ink-muted">
@@ -338,7 +350,7 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <TopBarKpiCard
           icon={Users}
           label="Formandos por curso"

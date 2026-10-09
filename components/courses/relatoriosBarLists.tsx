@@ -26,24 +26,23 @@ interface BarRow {
 
 function BarRows({ rows, max }: { rows: BarRow[]; max: number }) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       {rows.map((row, i) => {
         const content = (
           <>
-            <span
-              className="w-28 flex-shrink-0 truncate text-xs text-ink-muted"
-              title={row.label}
-            >
-              {row.label}
+            <span className="flex items-start justify-between gap-3">
+              <span className="min-w-0 break-words text-xs text-ink-muted">
+                {row.label}
+              </span>
+              <span className="flex-shrink-0 whitespace-nowrap text-right font-data text-xs text-ink">
+                {row.display}
+              </span>
             </span>
-            <div className="h-5 flex-1 overflow-hidden rounded-md bg-surface-sunken">
-              <div
-                className={`h-full rounded-md ${BAR_COLORS[i % BAR_COLORS.length]}`}
+            <span className="mt-1 block h-2.5 w-full overflow-hidden rounded-full bg-surface-sunken">
+              <span
+                className={`block h-full rounded-full ${BAR_COLORS[i % BAR_COLORS.length]}`}
                 style={{ width: `${Math.min(100, (row.value / max) * 100)}%` }}
               />
-            </div>
-            <span className="min-w-10 flex-shrink-0 whitespace-nowrap text-right font-data text-xs text-ink">
-              {row.display}
             </span>
           </>
         );
@@ -52,12 +51,12 @@ function BarRows({ rows, max }: { rows: BarRow[]; max: number }) {
             key={row.key}
             type="button"
             onClick={row.onClick}
-            className="flex w-full items-center gap-3 rounded-md text-left hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="block w-full rounded-md p-1 text-left hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             {content}
           </button>
         ) : (
-          <div key={row.key} className="flex items-center gap-3">
+          <div key={row.key} className="p-1">
             {content}
           </div>
         );
@@ -147,11 +146,8 @@ export function CourseProgressList({
                 onClick={() => onSelect(c.id)}
                 className="block w-full rounded-md text-left hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
-                <div className="mb-1 flex items-center justify-between gap-2">
-                  <span
-                    className="truncate text-xs font-medium text-ink"
-                    title={c.title}
-                  >
+                <div className="mb-1 flex items-start justify-between gap-2">
+                  <span className="min-w-0 break-words text-xs font-medium text-ink">
                     {c.title}
                   </span>
                   <span className="flex-shrink-0 font-data text-xs text-ink">
