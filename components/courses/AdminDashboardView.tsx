@@ -20,9 +20,6 @@ import {
   TrendingUp,
   CheckCircle2,
   Timer,
-  AlertTriangle,
-  AlertCircle,
-  Info,
   PlusCircle,
   Settings,
   ClipboardCheck,
@@ -33,6 +30,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { rateTone } from '@/components/dashboard-rh/rateTone';
 import { Skeleton, fmtDuration } from './shared';
@@ -44,15 +42,10 @@ interface AdminDashboardViewProps {
   onCreateCourse: () => void;
 }
 
-const ALERT_ICON = {
-  warning: AlertTriangle,
-  danger: AlertCircle,
-  info: Info,
-} as const;
-const ALERT_CLASS = {
-  warning: 'bg-warning-subtle text-black',
-  danger: 'bg-danger-subtle text-black',
-  info: 'bg-info-subtle text-black',
+const ALERT_TITLE = {
+  warning: 'Atenção',
+  danger: 'Urgente',
+  info: 'Informação',
 } as const;
 
 /** Cores das barras, alinhadas com os tons dos cards (azul, verde, dourado, vermelho). */
@@ -266,23 +259,15 @@ export function AdminDashboardView({
 
       {/* Alertas e pendências */}
       {data.alerts.length > 0 && (
-        <div className="space-y-2">
-          {data.alerts.map((a, i) => {
-            const Icon = ALERT_ICON[a.severity];
-            return (
-              <div
-                key={i}
-                className={`flex items-start gap-2 px-4 py-2.5 rounded-card text-xs font-medium ${ALERT_CLASS[a.severity]}`}
-              >
-                <Icon
-                  size={14}
-                  strokeWidth={1.75}
-                  className="mt-0.5 shrink-0"
-                />
-                {a.message}
-              </div>
-            );
-          })}
+        <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
+          {data.alerts.map((a, i) => (
+            <AlertCard
+              key={i}
+              variant={a.severity}
+              title={ALERT_TITLE[a.severity]}
+              message={a.message}
+            />
+          ))}
         </div>
       )}
 
