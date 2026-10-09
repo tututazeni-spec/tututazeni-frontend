@@ -147,7 +147,6 @@ export function CreateLiveClassWizard({ onClose }: CreateLiveClassWizardProps) {
     switch (current.id) {
       case 'general': {
         const missing: string[] = [];
-        if (!form.courseId) missing.push('curso');
         if (!form.topic.trim()) missing.push('título');
         return missing.length ? [`Falta preencher: ${missing.join(', ')}`] : [];
       }
