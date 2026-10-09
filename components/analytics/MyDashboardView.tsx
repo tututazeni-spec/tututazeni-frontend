@@ -2,10 +2,7 @@
 // Separador "O meu progresso" — aprendizagem, streak, competências e
 // PDIs activos. Dados próprios + apresentação. Extraído de
 // app/(platform)/analytics/page.tsx. Migrado para a fundação de
-// design: streak card usa o mesmo gradiente
-// (from-accent to-accent-hover + text-canvas) já estabelecido em
-// components/micro-learning/DashboardView.tsx; os 4 stats principais
-// seguem o mesmo padrão de "tile" plano desse módulo. A cor que
+// design: os 4 stats principais usam o NavyStatCard. A cor que
 // indicava "competência atrás do alvo" (âmbar vs. esmeralda na barra)
 // não é replicável — components/ui/ProgressBar é mono-cor — passa a
 // ser comunicada pelo texto do nível adjacente à barra.
@@ -28,21 +25,13 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import type { CollaboratorDashboard } from './types';
-
-type KpiTone = 'blue' | 'green' | 'gold' | 'red';
-
-const KPI_TONES: { [K in KpiTone]: { bar: string; text: string } } = {
-  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
-  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
-};
 
 const STAT_TILES: Array<{
   key: 'completed' | 'inProgress' | 'totalHours' | 'totalXp';
   label: string;
-  tone: KpiTone;
+  tone: NavyStatTone;
   icon: LucideIcon;
   suffix?: string;
 }> = [
@@ -56,7 +45,7 @@ const STAT_TILES: Array<{
   {
     key: 'totalHours',
     label: 'Horas De Aprendizagem',
-    tone: 'gold',
+    tone: 'orange',
     icon: Clock,
     suffix: 'h',
   },
@@ -178,26 +167,16 @@ export function MyDashboardView() {
   return (
     <div className="space-y-5">
       {/* Stats pessoais */}
-      <div className="grid grid-cols-4 gap-4">
-        {STAT_TILES.map(({ key, label, tone, icon: Icon, suffix }) => {
-          const t = KPI_TONES[tone];
-          return (
-            <div
-              key={key}
-              className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100"
-            >
-              <div className={`h-1.5 w-full ${t.bar}`} />
-              <div className="p-5 pt-6">
-                <Icon className={`h-6 w-6 ${t.text}`} />
-                <div className={`mt-4 font-data text-4xl font-bold ${t.text}`}>
-                  {stats[key]}
-                  {suffix ?? ''}
-                </div>
-                <div className="mt-1 font-body text-sm text-black">{label}</div>
-              </div>
-            </div>
-          );
-        })}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {STAT_TILES.map(({ key, label, tone, icon, suffix }) => (
+          <NavyStatCard
+            key={key}
+            icon={icon}
+            label={label}
+            value={`${stats[key]}${suffix ?? ''}`}
+            tone={tone}
+          />
+        ))}
       </div>
 
       {/* Streak + Badges */}
