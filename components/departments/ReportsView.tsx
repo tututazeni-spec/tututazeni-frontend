@@ -49,14 +49,14 @@ function BarList({
 }) {
   const max = Math.max(1, ...items.map((i) => i.count));
   return (
-    <Card className="p-4">
-      <div className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
+    <Card className="overflow-hidden">
+      <div className="bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       {items.length === 0 ? (
-        <p className="text-xs text-ink-faint">Sem dados</p>
+        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 p-4">
           {items.slice(0, 10).map((item, i) => (
             <div key={i}>
               <div className="mb-0.5 flex items-start justify-between text-xs">
@@ -244,7 +244,7 @@ export function ReportsView() {
 
           {/* Headcount por departamento: previsto vs. actual */}
           <Card className="overflow-hidden">
-            <div className="border-b border-border px-4 py-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Headcount previsto vs. actual, por departamento
             </div>
             {data.headcountByDepartment.length === 0 ? (
