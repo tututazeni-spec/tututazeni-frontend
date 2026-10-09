@@ -29,7 +29,7 @@ export function AlertBanner({ alerts }: AlertBannerProps) {
             strokeWidth={1.75}
             className="shrink-0 text-danger-ink"
           />
-          <p className="flex-1 font-body text-sm text-danger-ink">
+          <p className="flex-1 font-body text-sm text-black">
             {a.message}
           </p>
           {a.actionUrl && (
@@ -52,7 +52,7 @@ export function AlertBanner({ alerts }: AlertBannerProps) {
             strokeWidth={1.75}
             className="shrink-0 text-warning-ink"
           />
-          <p className="flex-1 font-body text-sm text-warning-ink">
+          <p className="flex-1 font-body text-sm text-black">
             {a.message}
           </p>
           {a.actionUrl && (
