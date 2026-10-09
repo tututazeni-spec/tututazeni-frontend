@@ -8,12 +8,15 @@
 
 import { useState } from 'react';
 import {
+  Briefcase,
   CalendarDays,
   Clock,
   MapPin,
   Plus,
   Trash2,
+  Users,
   Users2,
+  type LucideIcon,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -21,11 +24,9 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useCourseOptions } from '@/components/enrollments/enrollData';
 import { CohortDetailModal } from './CohortDetailModal';
 import { CreateCohortModal } from './CreateCohortModal';
@@ -41,19 +42,167 @@ const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> =
     CANCELLED: { label: 'Cancelada', cls: 'bg-danger-subtle text-danger-ink' },
   };
 
-const PANEL = 'rounded-xl border border-border/60 bg-surface-sunken/40 p-3';
-
-const STATUS_ACCENT: Record<string, string> = {
-  DRAFT: 'border-l-amber-400',
-  OPEN: 'border-l-blue-500',
-  ACTIVE: 'border-l-emerald-500',
-  CLOSED: 'border-l-slate-400',
-  CANCELLED: 'border-l-rose-500',
-};
-
 function fmtDate(d: string | null) {
   if (!d) return '—';
   return new Date(d).toLocaleDateString('pt-PT');
+}
+
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  const first = parts[0][0];
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
+  return (first + last).toUpperCase();
+}
+
+interface CohortInfoProps {
+  icon: LucideIcon;
+  value: string;
+  label: string;
+}
+
+function CohortInfo({ icon: Icon, value, label }: CohortInfoProps) {
+  return (
+    <div className="flex min-w-0 items-center gap-3 px-3 sm:px-5">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD] sm:h-10 sm:w-10">
+        <Icon size={20} strokeWidth={1.75} />
+      </span>
+      <div className="min-w-0">
+        <div className="text-[13px] font-semibold text-[#0F1F3D] sm:text-sm">
+          {value}
+        </div>
+        <div className="text-xs text-[#71829B]">{label}</div>
+      </div>
+    </div>
+  );
+}
+
+interface CohortCardProps {
+  c: Cohort;
+  onOpen: () => void;
+  onDelete: () => void;
+  onClose: () => void;
+}
+
+function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
+  const place = [c.location, c.room].filter(Boolean).join(' · ');
+  const statusLabel = COHORT_STATUS_MAP[c.status]?.label ?? c.status;
+  const actionCls =
+    'inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-medium text-[#C7D4E8] hover:bg-white/10 hover:text-white';
+  return (
+    <div
+      onClick={onOpen}
+      className="cursor-pointer overflow-hidden rounded-2xl border border-[#DCE5F1] bg-white shadow-[0_8px_24px_rgba(15,31,61,0.08)]"
+    >
+      <div className="bg-gradient-to-br from-[#0F1F3D] to-[#132B52] p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h3 className="min-w-0 flex-1 basis-48 text-[21px] font-semibold uppercase leading-tight text-white sm:text-[22px]">
+            {c.name}
+          </h3>
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#263F67] px-3.5 py-2 text-xs text-white">
+            <span aria-hidden>●</span>
+            {statusLabel}
+          </span>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            {c.instructor ? (
+              <>
+                {c.instructor.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={c.instructor.avatarUrl}
+                    alt=""
+                    className="h-[50px] w-[50px] shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-[#0D6EFD] text-lg font-bold text-white">
+                    {initials(c.instructor.fullName)}
+                  </span>
+                )}
+                <div className="min-w-0">
+                  <div className="truncate text-base font-semibold text-white">
+                    {c.instructor.fullName}
+                  </div>
+                  <div className="flex items-center gap-1 text-[13px] text-[#C7D4E8]">
+                    <MapPin size={13} strokeWidth={1.75} className="shrink-0" />
+                    <span className="truncate">{place || '—'}</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="min-w-0">
+                <div className="text-base font-semibold text-white">
+                  Sem formador
+                </div>
+                <div className="flex items-center gap-1 text-[13px] text-[#C7D4E8]">
+                  <MapPin size={13} strokeWidth={1.75} className="shrink-0" />
+                  <span className="truncate">{place || '—'}</span>
+                </div>
+              </div>
+            )}
+          </div>
+          <div
+            className="flex shrink-0 items-center gap-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className={actionCls}
+              aria-label="Ver participantes"
+              title="Ver participantes"
+              onClick={onOpen}
+            >
+              <Users2 size={15} strokeWidth={1.75} />
+            </button>
+            <button
+              type="button"
+              className={actionCls}
+              aria-label={`Eliminar turma ${c.name}`}
+              title="Eliminar turma"
+              onClick={onDelete}
+            >
+              <Trash2 size={15} strokeWidth={1.75} />
+            </button>
+            {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
+              <button
+                type="button"
+                className={`${actionCls} border border-white/25`}
+                onClick={onClose}
+              >
+                Encerrar
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-y-5 p-5 sm:p-[22px] lg:grid-cols-4 lg:gap-y-0">
+        <CohortInfo
+          icon={CalendarDays}
+          value={`${fmtDate(c.startDate)} — ${fmtDate(c.endDate)}`}
+          label="Período"
+        />
+        <div className="lg:border-l lg:border-[#DCE5F1]">
+          <CohortInfo icon={Clock} value={c.schedule ?? '—'} label="Horário" />
+        </div>
+        <div className="lg:border-l lg:border-[#DCE5F1]">
+          <CohortInfo
+            icon={Users}
+            value={`${c.enrolled}/${c.capacity}`}
+            label="Inscritos"
+          />
+        </div>
+        <div className="lg:border-l lg:border-[#DCE5F1]">
+          <CohortInfo
+            icon={Briefcase}
+            value={`Vagas: ${c.availableSlots}`}
+            label="Disponíveis"
+          />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function TurmasView() {
@@ -148,140 +297,16 @@ export function TurmasView() {
 
       {courseId && !isLoading && data.length > 0 && (
         <div>
-          <div className="space-y-3">
-            {data.map((c) => {
-              const place = [c.location, c.room].filter(Boolean).join(' · ');
-              const pct =
-                c.capacity > 0
-                  ? Math.min(100, Math.round((c.enrolled / c.capacity) * 100))
-                  : 0;
-              return (
-                <div
-                  key={c.id}
-                  onClick={() => setDetailId(c.id)}
-                  className={`cursor-pointer flex flex-col gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-4 shadow-sm backdrop-blur-md hover:bg-surface ${STATUS_ACCENT[c.status] ?? ''}`}
-                >
-                  {/* Topo: nome e acções */}
-                  <div className="flex flex-wrap items-start gap-3">
-                    <div className="flex min-w-0 flex-1 basis-48 flex-col justify-center">
-                      <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
-                        {c.name}
-                      </div>
-                    </div>
-                    {/* 6. Acções */}
-                    <div
-                      className="flex shrink-0 flex-wrap items-center justify-end gap-1"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Button
-                        size="sm"
-                        intent="ghost"
-                        onClick={() => setDetailId(c.id)}
-                      >
-                        <Users2 size={14} strokeWidth={1.75} />
-                      </Button>
-                      <Button
-                        size="sm"
-                        intent="ghost"
-                        aria-label={`Eliminar turma ${c.name}`}
-                        title="Eliminar turma"
-                        onClick={() => onDelete(c)}
-                      >
-                        <Trash2
-                          size={14}
-                          strokeWidth={1.75}
-                          className="text-danger-ink"
-                        />
-                      </Button>
-                      {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
-                        <Button
-                          size="sm"
-                          intent="secondary"
-                          onClick={() => onClose(c)}
-                        >
-                          Encerrar
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Detalhes em grelha fluida */}
-                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                    {/* 2. Formador & Local / Sala */}
-                    <div
-                      className={`${PANEL} flex min-w-0 flex-col items-center justify-center gap-1`}
-                    >
-                      {c.instructor ? (
-                        <>
-                          <Avatar
-                            name={c.instructor.fullName}
-                            url={c.instructor.avatarUrl ?? undefined}
-                            size="sm"
-                          />
-                          <span className="max-w-full truncate text-xs font-medium text-ink">
-                            {c.instructor.fullName}
-                          </span>
-                        </>
-                      ) : (
-                        <span className="text-xs text-ink-faint">
-                          Sem formador
-                        </span>
-                      )}
-                      <span className="flex max-w-full items-center gap-1 text-xs text-ink-faint">
-                        <MapPin
-                          size={12}
-                          strokeWidth={1.75}
-                          className="shrink-0"
-                        />
-                        <span className="truncate">{place || '—'}</span>
-                      </span>
-                    </div>
-
-                    {/* 3. Datas & Horário */}
-                    <div
-                      className={`${PANEL} flex flex-col items-center justify-center gap-1.5`}
-                    >
-                      <span className="flex flex-wrap items-center justify-center gap-x-1 text-center text-xs text-ink">
-                        <CalendarDays size={12} strokeWidth={1.75} />
-                        {fmtDate(c.startDate)} — {fmtDate(c.endDate)}
-                      </span>
-                      <span className="flex items-center gap-1 text-xs text-ink-muted">
-                        <Clock size={12} strokeWidth={1.75} />
-                        {c.schedule ?? '—'}
-                      </span>
-                    </div>
-
-                    {/* 4. Inscritos & Vagas */}
-                    <div
-                      className={`${PANEL} flex flex-col items-center justify-center gap-1.5`}
-                    >
-                      <span className="font-mono text-sm font-semibold text-ink">
-                        {c.enrolled}/{c.capacity}
-                      </span>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
-                        <div
-                          className={`h-full rounded-full ${pct >= 90 ? 'bg-orange-400' : 'bg-blue-500'}`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                      <span className="text-xs text-ink-muted">
-                        Vagas:{' '}
-                        <span className="font-mono">{c.availableSlots}</span>
-                      </span>
-                    </div>
-
-                    {/* 5. Estado */}
-                    <div className={`${PANEL} flex items-center`}>
-                      <StatusBadge
-                        value={c.status}
-                        map={COHORT_STATUS_MAP}
-                        variant="dot"
-                      />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="space-y-5">
+            {data.map((c) => (
+              <CohortCard
+                key={c.id}
+                c={c}
+                onOpen={() => setDetailId(c.id)}
+                onDelete={() => onDelete(c)}
+                onClose={() => onClose(c)}
+              />
+            ))}
           </div>
         </div>
       )}
