@@ -60,7 +60,7 @@ export function DashboardView({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 2xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-[0.8fr_1fr_0.8fr_1.4fr_1fr]">
         <TopBarCard
           label="Total"
           value={totals.total}
