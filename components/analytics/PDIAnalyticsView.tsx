@@ -10,6 +10,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import {
   ACTION_CFG,
   STATUS_CFG as PLAN_STATUS_CFG,
@@ -19,7 +20,6 @@ import type {
   PlanStatus,
 } from '@/components/development-plans/types';
 import type { PDIAnalytics } from './types';
-import type { LucideIcon } from 'lucide-react';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -37,43 +37,6 @@ const STATUS_ORDER: PlanStatus[] = [
   'COMPLETED',
   'CANCELLED',
 ];
-
-type Tone = 'blue' | 'green' | 'gold' | 'red';
-
-const TONES: Record<Tone, { bar: string; text: string }> = {
-  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
-  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
-};
-
-function TopBarKpiCard({
-  icon: Icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  tone: Tone;
-}) {
-  const t = TONES[tone];
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-      <div className={`h-1.5 w-full ${t.bar}`} />
-      <div className="p-5 pt-6">
-        <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
-          {value}
-        </p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
-          {label}
-        </p>
-      </div>
-    </div>
-  );
-}
 
 export function PDIAnalyticsView() {
   const { data, isLoading } = useApiQuery<PDIAnalytics>(
@@ -101,42 +64,42 @@ export function PDIAnalyticsView() {
   return (
     <div className="space-y-5">
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-4">
-        <TopBarKpiCard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <NavyStatCard
           icon={TrendingUp}
           label="Progresso médio (PDIs activos)"
           value={`${data.avgProgress}%`}
           tone="blue"
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={AlertTriangle}
           label="Acções atrasadas"
           value={data.overdueActions}
           tone="red"
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={CheckCircle2}
           label="Concluídos este mês"
           value={data.completedThisMonth}
           tone="green"
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={Percent}
           label="Taxa de conclusão (excl. rascunhos e cancelados)"
           value={`${data.completionRate}%`}
           tone="green"
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={Clock}
           label="PDIs activos com prazo ultrapassado"
           value={data.overduePlans}
           tone="red"
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={FileClock}
           label="Rascunhos parados há mais de 30 dias"
           value={data.staleDrafts}
-          tone="gold"
+          tone="orange"
         />
       </div>
 

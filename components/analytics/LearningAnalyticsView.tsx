@@ -10,9 +10,9 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
-import type { LucideIcon } from 'lucide-react';
 import { Award, ClipboardCheck, Clock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import {
   Table,
   TableBody,
@@ -26,43 +26,6 @@ import type { EnrollmentStatus } from '@/components/enrollments/types';
 import { MonthlyTrendChart } from './MonthlyTrendChart';
 import type { LearningAnalytics } from './types';
 
-type Tone = 'blue' | 'green' | 'gold' | 'red';
-
-const TONES: Record<Tone, { bar: string; text: string }> = {
-  blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
-  gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
-};
-
-function TopBarKpiCard({
-  icon: Icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  tone: Tone;
-}) {
-  const t = TONES[tone];
-  return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-      <div className={`h-1.5 w-full ${t.bar}`} />
-      <div className="p-5 pt-6">
-        <Icon size={22} strokeWidth={1.75} className={t.text} />
-        <p className={`mt-3 font-display text-3xl font-bold ${t.text}`}>
-          {value}
-        </p>
-        <p className="mt-1 font-body text-sm font-medium text-ink-muted">
-          {label}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export function LearningAnalyticsView() {
   const { data, isLoading } = useApiQuery<LearningAnalytics>(
     queryKeys.analyticsPage.learning(),
@@ -75,24 +38,24 @@ export function LearningAnalyticsView() {
   return (
     <div className="space-y-5">
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-4">
-        <TopBarKpiCard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <NavyStatCard
           icon={ClipboardCheck}
           label="Nota média de avaliação"
           value={data.avgAssessmentScore}
           tone="blue"
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={Award}
           label="Certificados emitidos"
           value={data.certificationCount}
           tone="green"
         />
-        <TopBarKpiCard
+        <NavyStatCard
           icon={Clock}
           label="Horas de formação consumidas"
           value={data.totalHoursConsumed}
-          tone="gold"
+          tone="orange"
         />
       </div>
 
