@@ -5,7 +5,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
-import { TopBarCard } from '@/components/ui/TopBarCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { AlertTriangle, CalendarClock, CircleCheck, UserPlus, Users } from 'lucide-react';
 import {
   DistributionList,
@@ -60,36 +60,36 @@ export function DashboardView({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-[0.8fr_1fr_0.8fr_1.4fr_1fr]">
-        <TopBarCard
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <NavyStatCard
           label="Total"
           value={totals.total}
           tone="blue"
-          icon={<Users className="h-6 w-6" />}
+          icon={Users}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Novos este mês"
           value={totals.newThisMonth}
           tone="blue"
-          icon={<UserPlus className="h-6 w-6" />}
+          icon={UserPlus}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Activos"
           value={totals.active}
           tone="green"
-          icon={<CircleCheck className="h-6 w-6" />}
+          icon={CircleCheck}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Acompanhamentos a 30 dias"
           value={totals.pendingFollowUps}
-          tone="gold"
-          icon={<CalendarClock className="h-6 w-6" />}
+          tone="orange"
+          icon={CalendarClock}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Necessidades em aberto"
           value={totals.openNeeds}
           tone="red"
-          icon={<AlertTriangle className="h-6 w-6" />}
+          icon={AlertTriangle}
         />
       </div>
 
@@ -98,22 +98,25 @@ export function DashboardView({
           title="Por tipo"
           data={distributions.byType}
           labelKey="type"
+          navyHeader
         />
         <DistributionList
           title="Por estado"
           data={distributions.byStatus}
           labelKey="status"
+          navyHeader
         />
         <DistributionList
           title="Por província"
           data={distributions.byProvince}
           labelKey="province"
+          navyHeader
         />
       </div>
 
       <Card>
-        <div className="p-4 border-b border-border">
-          <h3 className="font-body text-sm font-semibold text-ink">
+        <div className="bg-[#0F1F3D]/60 p-4">
+          <h3 className="font-body text-sm font-semibold text-white">
             Satisfação média: {satisfaction ? satisfaction.toFixed(1) : '—'}/5
           </h3>
         </div>
