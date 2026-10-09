@@ -18,14 +18,14 @@ export function AlertBanner({ alerts }: AlertBannerProps) {
   const others = alerts.filter((a) => a.priority !== 'URGENT');
 
   return (
-    <div className="space-y-2">
+    <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
       {urgent.map((a, i) => (
         <div
           key={i}
           className="flex items-center gap-3 rounded-card border border-danger-subtle bg-danger-subtle px-4 py-3"
         >
           <AlertTriangle
-            size={16}
+            size={14}
             strokeWidth={1.75}
             className="shrink-0 text-danger-ink"
           />
