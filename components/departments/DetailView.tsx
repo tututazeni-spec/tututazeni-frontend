@@ -419,7 +419,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
         <div>
           {/* Add member form */}
           <Card className="mb-4 border-success bg-success-subtle p-4">
-            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-success-ink">
+            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Adicionar colaborador ao departamento
             </div>
             <div className="flex flex-wrap gap-3">
@@ -454,7 +454,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
 
           {/* Transfer form */}
           <Card className="mb-4 border-info bg-info-subtle p-4">
-            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-info-ink">
+            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Transferir colaborador
             </div>
             <div className="flex flex-wrap gap-3">
@@ -503,9 +503,9 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           <Table>
             <TableHead>
               <TableRow>
-                <TableHeaderCell>Colaborador</TableHeaderCell>
-                <TableHeaderCell>Cargo</TableHeaderCell>
-                <TableHeaderCell>Estado</TableHeaderCell>
+                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Colaborador</TableHeaderCell>
+                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Cargo</TableHeaderCell>
+                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Estado</TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>
