@@ -100,11 +100,11 @@ export function MyCareerTab({
       </div>
 
       {/* Roadmap */}
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Trilha de Carreira
+        </div>
         <CardBody>
-          <h3 className="text-sm font-display font-semibold text-ink mb-3">
-            Trilha de Carreira
-          </h3>
           <CareerRoadmap plan={myPlan} />
         </CardBody>
       </Card>
@@ -114,11 +114,11 @@ export function MyCareerTab({
         {myPlan.readiness &&
           (myPlan.readiness.missingSkills.length > 0 ||
             myPlan.readiness.skillGaps.length > 0) && (
-            <Card>
+            <Card className="overflow-hidden">
+              <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                Gaps a Desenvolver
+              </div>
               <CardBody>
-                <h3 className="text-sm font-display font-semibold text-ink mb-3">
-                  Gaps a Desenvolver
-                </h3>
                 {myPlan.readiness.missingSkills.length > 0 && (
                   <div className="mb-3">
                     <p className="text-xs text-danger-ink font-semibold mb-2">
@@ -143,11 +143,11 @@ export function MyCareerTab({
 
         {/* Cursos recomendados */}
         {(myPlan.readiness?.recommendedCourses.length ?? 0) > 0 && (
-          <Card>
+          <Card className="overflow-hidden">
+            <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+              Cursos Recomendados
+            </div>
             <CardBody>
-              <h3 className="text-sm font-display font-semibold text-ink mb-3">
-                Cursos Recomendados
-              </h3>
               <div className="space-y-2">
                 {myPlan.readiness!.recommendedCourses.slice(0, 4).map((c) => (
                   <div

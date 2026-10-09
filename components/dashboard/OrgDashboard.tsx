@@ -698,12 +698,12 @@ export function OrgDashboard() {
       {/* Distribuição geográfica */}
       {data?.geographic &&
         data.geographic.beneficiariesByProvince.length > 0 && (
-          <Card>
+          <Card className="overflow-hidden">
+            <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+              <MapPin size={16} strokeWidth={1.75} className="text-accent" />
+              Beneficiários por Província
+            </div>
             <CardBody>
-              <h3 className="mb-4 flex items-center gap-2 font-display font-semibold text-ink">
-                <MapPin size={16} strokeWidth={1.75} className="text-accent" />
-                Beneficiários por Província
-              </h3>
               <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
                 {data.geographic.beneficiariesByProvince.map((p) => (
                   <div

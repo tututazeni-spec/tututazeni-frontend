@@ -15,7 +15,10 @@ import type {
 
 export type Intent = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 
-export const STATUS: Record<MonitoringStatus, { label: string; intent: Intent }> = {
+export const STATUS: Record<
+  MonitoringStatus,
+  { label: string; intent: Intent }
+> = {
   NORMAL: { label: 'Normal', intent: 'success' },
   ATENCAO: { label: 'Atenção', intent: 'warning' },
   DEGRADADO: { label: 'Degradado', intent: 'warning' },
@@ -164,11 +167,11 @@ export function OverviewTab({ data }: { data: OverviewData }) {
         />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Pendências críticas
+        </div>
         <CardBody>
-          <h3 className="mb-3 font-display text-base font-bold text-ink">
-            Pendências críticas
-          </h3>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <Tile
               label="Etapas bloqueadas"
@@ -190,11 +193,11 @@ export function OverviewTab({ data }: { data: OverviewData }) {
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Últimas ocorrências
+        </div>
         <CardBody>
-          <h3 className="mb-3 font-display text-base font-bold text-ink">
-            Últimas ocorrências
-          </h3>
           {data.latestOccurrences.length === 0 ? (
             <EmptyState
               title="Sem ocorrências"
@@ -337,11 +340,11 @@ function InstanceTable({
   rows: ProcessInstanceRow[];
 }) {
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        {title}
+      </div>
       <CardBody>
-        <h3 className="mb-3 font-display text-base font-bold text-ink">
-          {title}
-        </h3>
         {rows.length === 0 ? (
           <p className="font-body text-sm text-ink-muted">Nenhum.</p>
         ) : (
@@ -439,11 +442,11 @@ export function ProcessesTab({ data }: { data: ProcessesData }) {
       </div>
 
       {data.overdueByResponsible.length > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Responsáveis com mais atrasos
+          </div>
           <CardBody>
-            <h3 className="mb-3 font-display text-base font-bold text-ink">
-              Responsáveis com mais atrasos
-            </h3>
             <ul className="space-y-1 font-body text-sm">
               {data.overdueByResponsible.map((r) => (
                 <li key={r.userId} className="flex justify-between">

@@ -42,15 +42,20 @@ function RankingList({
 }) {
   const max = items[0]?.count ?? 1;
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        {title}
+      </div>
       <CardBody>
-        <h4 className="mb-3 font-display font-semibold text-ink">{title}</h4>
         {items.length === 0 ? (
           <p className="text-sm text-ink-faint">Sem dados no período.</p>
         ) : (
           <div className="space-y-2">
             {items.map((i, idx) => (
-              <div key={`${i.label}-${idx}`} className="flex items-center gap-3">
+              <div
+                key={`${i.label}-${idx}`}
+                className="flex items-center gap-3"
+              >
                 <span className="w-5 text-right text-xs text-ink-faint">
                   #{idx + 1}
                 </span>
@@ -111,19 +116,94 @@ export function OverviewTab() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-4">
-        <KpiCard icon={History} label="Total de eventos" value={k.totalEvents} sub="Desde sempre" />
-        <KpiCard icon={CalendarDays} label="Alterações hoje" value={k.eventsToday} intent="accent" />
-        <KpiCard icon={CalendarRange} label="Alterações este mês" value={k.eventsMonth} intent="accent" />
-        <KpiCard icon={UserPlus} label="Admissões" value={k.admissions} intent="success" sub={period} />
-        <KpiCard icon={ArrowRightLeft} label="Transferências" value={k.transfers} intent="info" sub={period} />
-        <KpiCard icon={Briefcase} label="Alterações de cargo" value={k.positionChanges} intent="info" sub={period} />
-        <KpiCard icon={Building2} label="Alterações de departamento" value={k.departmentChanges} intent="info" sub={period} />
-        <KpiCard icon={Wallet} label="Alterações salariais" value={k.salaryChanges} intent="warning" sub={period} />
-        <KpiCard icon={Star} label="Avaliações concluídas" value={k.evaluationsCompleted} intent="success" sub={period} />
-        <KpiCard icon={GraduationCap} label="Formações concluídas" value={k.trainingsCompleted} intent="success" sub={period} />
-        <KpiCard icon={FileText} label="Documentos adicionados" value={k.documentsAdded} intent="primary" sub={period} />
-        <KpiCard icon={ThumbsUp} label="Pedidos aprovados" value={k.requestsApproved} intent="success" sub={period} />
-        <KpiCard icon={ThumbsDown} label="Pedidos rejeitados" value={k.requestsRejected} intent="danger" sub={period} />
+        <KpiCard
+          icon={History}
+          label="Total de eventos"
+          value={k.totalEvents}
+          sub="Desde sempre"
+        />
+        <KpiCard
+          icon={CalendarDays}
+          label="Alterações hoje"
+          value={k.eventsToday}
+          intent="accent"
+        />
+        <KpiCard
+          icon={CalendarRange}
+          label="Alterações este mês"
+          value={k.eventsMonth}
+          intent="accent"
+        />
+        <KpiCard
+          icon={UserPlus}
+          label="Admissões"
+          value={k.admissions}
+          intent="success"
+          sub={period}
+        />
+        <KpiCard
+          icon={ArrowRightLeft}
+          label="Transferências"
+          value={k.transfers}
+          intent="info"
+          sub={period}
+        />
+        <KpiCard
+          icon={Briefcase}
+          label="Alterações de cargo"
+          value={k.positionChanges}
+          intent="info"
+          sub={period}
+        />
+        <KpiCard
+          icon={Building2}
+          label="Alterações de departamento"
+          value={k.departmentChanges}
+          intent="info"
+          sub={period}
+        />
+        <KpiCard
+          icon={Wallet}
+          label="Alterações salariais"
+          value={k.salaryChanges}
+          intent="warning"
+          sub={period}
+        />
+        <KpiCard
+          icon={Star}
+          label="Avaliações concluídas"
+          value={k.evaluationsCompleted}
+          intent="success"
+          sub={period}
+        />
+        <KpiCard
+          icon={GraduationCap}
+          label="Formações concluídas"
+          value={k.trainingsCompleted}
+          intent="success"
+          sub={period}
+        />
+        <KpiCard
+          icon={FileText}
+          label="Documentos adicionados"
+          value={k.documentsAdded}
+          intent="primary"
+          sub={period}
+        />
+        <KpiCard
+          icon={ThumbsUp}
+          label="Pedidos aprovados"
+          value={k.requestsApproved}
+          intent="success"
+          sub={period}
+        />
+        <KpiCard
+          icon={ThumbsDown}
+          label="Pedidos rejeitados"
+          value={k.requestsRejected}
+          intent="danger"
+          sub={period}
+        />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -143,13 +223,15 @@ export function OverviewTab() {
         />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+          <CheckCircle2 size={16} strokeWidth={1.75} /> Últimas actividades
+        </div>
         <CardBody>
-          <h4 className="mb-3 flex items-center gap-2 font-display font-semibold text-ink">
-            <CheckCircle2 size={16} strokeWidth={1.75} /> Últimas actividades
-          </h4>
           {data.recent.length === 0 ? (
-            <p className="text-sm text-ink-faint">Ainda não há eventos registados.</p>
+            <p className="text-sm text-ink-faint">
+              Ainda não há eventos registados.
+            </p>
           ) : (
             <ul className="divide-y divide-border">
               {data.recent.map((e) => (

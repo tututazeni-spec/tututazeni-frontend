@@ -112,11 +112,11 @@ export function GovernanceTab() {
 
       {/* Role distribution */}
       {(data?.usersPerRole ?? []).length > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Utilizadores por Função
+          </div>
           <CardBody>
-            <h4 className="font-semibold text-ink mb-4">
-              Utilizadores por Função
-            </h4>
             {(data?.usersPerRole ?? []).map((r, i) => {
               const max = (data?.usersPerRole ?? [])[0].count;
               return (

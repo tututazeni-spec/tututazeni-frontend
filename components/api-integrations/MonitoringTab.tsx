@@ -66,11 +66,11 @@ export function MonitoringTab() {
 
       {/* Integration health grid */}
       {(data?.integrationHealth ?? []).length > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Saúde das Integrações
+          </div>
           <CardBody>
-            <h4 className="mb-4 font-display font-semibold text-ink">
-              Saúde das Integrações
-            </h4>
             <div className="grid gap-2">
               {(data?.integrationHealth ?? []).map((i, idx) => {
                 const intent = HEALTH_INTENT[i.health] ?? 'neutral';

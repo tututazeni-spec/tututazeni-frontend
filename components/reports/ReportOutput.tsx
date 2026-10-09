@@ -124,7 +124,7 @@ export function ReportOutput({ data }: ReportOutputProps) {
       )}
 
       {/* Summary KPIs */}
-           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {Object.entries(summary)
           .slice(0, 8)
           .map(([k, v]) => {
@@ -155,11 +155,11 @@ export function ReportOutput({ data }: ReportOutputProps) {
 
       {/* By Department */}
       {(data.byDepartment ?? []).length > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Por Departamento
+          </div>
           <CardBody>
-            <h4 className="mb-4 font-display font-semibold text-ink">
-              Por Departamento
-            </h4>
             <div className="space-y-2">
               {(data.byDepartment ?? []).slice(0, 8).map((d, i) => {
                 const val = d.count ?? d.avgScore ?? d.completions ?? 0;
@@ -199,17 +199,17 @@ export function ReportOutput({ data }: ReportOutputProps) {
         data.topContent ??
         []
       ).length > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            {data.topPerformers
+              ? 'Top Performers'
+              : data.topCourses
+                ? 'Top Cursos'
+                : data.skills
+                  ? 'Lacunas Críticas'
+                  : 'Top Conteúdos'}
+          </div>
           <CardBody>
-            <h4 className="mb-4 font-display font-semibold text-ink">
-              {data.topPerformers
-                ? 'Top Performers'
-                : data.topCourses
-                  ? 'Top Cursos'
-                  : data.skills
-                    ? 'Lacunas Críticas'
-                    : 'Top Conteúdos'}
-            </h4>
             <div className="space-y-2">
               {(
                 data.topPerformers ??

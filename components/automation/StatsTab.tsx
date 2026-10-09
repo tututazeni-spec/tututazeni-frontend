@@ -56,11 +56,11 @@ export function StatsTab() {
       </div>
 
       {byCategory.length > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Por Categoria
+          </div>
           <CardBody>
-            <h4 className="mb-4 font-display font-semibold text-ink">
-              Por Categoria
-            </h4>
             {byCategory.map((c, i) => (
               <div key={i} className="mb-3 last:mb-0">
                 <div className="mb-1 flex items-center justify-between text-xs">

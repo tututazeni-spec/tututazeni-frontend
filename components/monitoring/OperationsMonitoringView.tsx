@@ -48,10 +48,14 @@ function SlaBadge({ state }: { state: SlaState }) {
 
 // ── §10 Jobs & Background Tasks ──────────────────────────────────────────────
 
-const JOB_TITLES: { key: keyof Pick<
-  JobsData,
-  'running' | 'failed' | 'scheduled' | 'waiting' | 'executed'
->; title: string; state: JobState }[] = [
+const JOB_TITLES: {
+  key: keyof Pick<
+    JobsData,
+    'running' | 'failed' | 'scheduled' | 'waiting' | 'executed'
+  >;
+  title: string;
+  state: JobState;
+}[] = [
   { key: 'failed', title: 'Jobs falhados', state: 'failed' },
   { key: 'running', title: 'Jobs em execução', state: 'active' },
   { key: 'scheduled', title: 'Jobs agendados', state: 'delayed' },
@@ -59,11 +63,21 @@ const JOB_TITLES: { key: keyof Pick<
   { key: 'executed', title: 'Últimos jobs executados', state: 'completed' },
 ];
 
-function JobTable({ title, rows, state }: { title: string; rows: JobRow[]; state: JobState }) {
+function JobTable({
+  title,
+  rows,
+  state,
+}: {
+  title: string;
+  rows: JobRow[];
+  state: JobState;
+}) {
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        {title}
+      </div>
       <CardBody>
-        <h3 className="mb-3 font-display text-base font-bold text-ink">{title}</h3>
         {rows.length === 0 ? (
           <p className="font-body text-sm text-ink-muted">Nenhum.</p>
         ) : (
@@ -102,9 +116,15 @@ function JobTable({ title, rows, state }: { title: string; rows: JobRow[]; state
                           </Badge>
                         )}
                       </td>
-                      <td className="pr-3 tabular-nums">{fmtMs(j.durationMs)}</td>
-                      <td className="pr-3 tabular-nums">{when ? fmtDate(when) : '—'}</td>
-                      <td className="max-w-xs text-xs text-danger-ink">{j.error ?? ''}</td>
+                      <td className="pr-3 tabular-nums">
+                        {fmtMs(j.durationMs)}
+                      </td>
+                      <td className="pr-3 tabular-nums">
+                        {when ? fmtDate(when) : '—'}
+                      </td>
+                      <td className="max-w-xs text-xs text-danger-ink">
+                        {j.error ?? ''}
+                      </td>
                     </tr>
                   );
                 })}
@@ -122,7 +142,11 @@ export function JobsTab({ data }: { data: JobsData }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile label="Em execução" value={s.running} sub={`${s.waiting} em espera`} />
+        <Tile
+          label="Em execução"
+          value={s.running}
+          sub={`${s.waiting} em espera`}
+        />
         <Tile
           label="Falhados"
           value={s.failed}
@@ -132,14 +156,22 @@ export function JobsTab({ data }: { data: JobsData }) {
         <Tile
           label="Agendados"
           value={s.scheduled}
-          sub={s.nextExecutionAt ? `próximo ${fmtDate(s.nextExecutionAt)}` : 'sem agendamentos'}
+          sub={
+            s.nextExecutionAt
+              ? `próximo ${fmtDate(s.nextExecutionAt)}`
+              : 'sem agendamentos'
+          }
         />
         <Tile
           label="Executados (retidos)"
           value={s.executed}
           sub={`sucesso ${s.successRatePercent === null ? '—' : `${s.successRatePercent}%`}`}
         />
-        <Tile label="Duração média" value={fmtMs(s.avgDurationMs)} sub="jobs concluídos" />
+        <Tile
+          label="Duração média"
+          value={fmtMs(s.avgDurationMs)}
+          sub="jobs concluídos"
+        />
         <Tile
           label="Cron jobs"
           value={s.cronJobs}
@@ -159,9 +191,11 @@ export function JobsTab({ data }: { data: JobsData }) {
         />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Filas
+        </div>
         <CardBody>
-          <h3 className="mb-3 font-display text-base font-bold text-ink">Filas</h3>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
@@ -199,16 +233,23 @@ export function JobsTab({ data }: { data: JobsData }) {
       </Card>
 
       {JOB_TITLES.map((t) => (
-        <JobTable key={t.key} title={t.title} rows={data[t.key]} state={t.state} />
+        <JobTable
+          key={t.key}
+          title={t.title}
+          rows={data[t.key]}
+          state={t.state}
+        />
       ))}
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Cron jobs (esta instância)
+        </div>
         <CardBody>
-          <h3 className="mb-3 font-display text-base font-bold text-ink">
-            Cron jobs (esta instância)
-          </h3>
           {data.crons.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">Sem cron jobs registados.</p>
+            <p className="font-body text-sm text-ink-muted">
+              Sem cron jobs registados.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[560px] text-left font-body text-sm">
@@ -223,7 +264,9 @@ export function JobsTab({ data }: { data: JobsData }) {
                 <tbody className="divide-y divide-border">
                   {data.crons.map((c) => (
                     <tr key={c.name}>
-                      <td className="py-2 pr-3 font-medium text-ink">{c.name}</td>
+                      <td className="py-2 pr-3 font-medium text-ink">
+                        {c.name}
+                      </td>
                       <td className="pr-3">
                         <Badge intent={c.running ? 'success' : 'warning'}>
                           {c.running ? 'Activo' : 'Parado'}
@@ -290,7 +333,11 @@ export function SlaTab({
           value={`${c.availabilityPercent}%`}
           sub={`objectivo ${data.sla.uptimePercent}%`}
           intent={
-            c.state === 'VIOLADO' ? 'danger' : c.state === 'EM_RISCO' ? 'warning' : undefined
+            c.state === 'VIOLADO'
+              ? 'danger'
+              : c.state === 'EM_RISCO'
+                ? 'warning'
+                : undefined
           }
         />
         <Tile
@@ -333,11 +380,11 @@ export function SlaTab({
       </div>
 
       {data.atRisk.length > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Serviços em risco
+          </div>
           <CardBody>
-            <h3 className="mb-3 font-display text-base font-bold text-ink">
-              Serviços em risco
-            </h3>
             <ul className="space-y-2 font-body text-sm">
               {data.atRisk.map((s) => (
                 <li key={s.key} className="flex flex-wrap items-center gap-3">
@@ -351,11 +398,11 @@ export function SlaTab({
         </Card>
       )}
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Cumprimento por serviço
+        </div>
         <CardBody>
-          <h3 className="mb-3 font-display text-base font-bold text-ink">
-            Cumprimento por serviço
-          </h3>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
@@ -377,7 +424,9 @@ export function SlaTab({
                     <td className="pr-3">
                       <SlaBadge state={s.state} />
                     </td>
-                    <td className="pr-3 tabular-nums">{pct(s.actual) ?? '—'}</td>
+                    <td className="pr-3 tabular-nums">
+                      {pct(s.actual) ?? '—'}
+                    </td>
                     <td className="pr-3 tabular-nums">
                       {s.target}%
                       <span className="ml-1 text-xs text-ink-faint">
@@ -393,11 +442,11 @@ export function SlaTab({
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Indisponibilidade por componente
+        </div>
         <CardBody>
-          <h3 className="mb-3 font-display text-base font-bold text-ink">
-            Indisponibilidade por componente
-          </h3>
           {data.components.length === 0 ? (
             <p className="font-body text-sm text-ink-muted">
               Sem incidentes críticos na janela.
@@ -405,7 +454,10 @@ export function SlaTab({
           ) : (
             <ul className="divide-y divide-border font-body text-sm">
               {data.components.map((x) => (
-                <li key={x.component} className="flex justify-between gap-3 py-2">
+                <li
+                  key={x.component}
+                  className="flex justify-between gap-3 py-2"
+                >
                   <span className="text-ink">{x.component}</span>
                   <span className="tabular-nums text-ink-muted">
                     {x.incidents} incidente(s) · {fmtMin(x.downtimeMinutes)} ·{' '}
@@ -418,11 +470,11 @@ export function SlaTab({
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Violações de SLA
+        </div>
         <CardBody>
-          <h3 className="mb-3 font-display text-base font-bold text-ink">
-            Violações de SLA
-          </h3>
           {data.violations.slaAlerts.length === 0 ? (
             <EmptyState
               title="Sem violações registadas"
@@ -438,10 +490,14 @@ export function SlaTab({
                   <span className="w-28 shrink-0 tabular-nums text-ink-muted">
                     {fmtDate(a.at)}
                   </span>
-                  <Badge intent={SEVERITY[a.severity] ?? 'neutral'}>{a.severity}</Badge>
+                  <Badge intent={SEVERITY[a.severity] ?? 'neutral'}>
+                    {a.severity}
+                  </Badge>
                   <span className="min-w-0 flex-1 text-ink">
                     {a.title}
-                    <span className="block text-xs text-ink-muted">{a.message}</span>
+                    <span className="block text-xs text-ink-muted">
+                      {a.message}
+                    </span>
                   </span>
                   <span className="text-xs text-ink-faint">
                     {a.resolved ? 'resolvido' : 'por resolver'}
@@ -500,7 +556,11 @@ export function HistoryTab({
           </button>
         ))}
         <span className="ml-3 text-ink-muted">Tipo:</span>
-        <button type="button" className={chip(kind === null)} onClick={() => onKindChange(null)}>
+        <button
+          type="button"
+          className={chip(kind === null)}
+          onClick={() => onKindChange(null)}
+        >
           Todos
         </button>
         {(Object.keys(KIND_LABEL) as HistoryKind[]).map((k) => (
@@ -511,13 +571,18 @@ export function HistoryTab({
             onClick={() => onKindChange(k)}
           >
             {KIND_LABEL[k]}
-            {data.summary.byKind[k] !== undefined && ` (${data.summary.byKind[k]})`}
+            {data.summary.byKind[k] !== undefined &&
+              ` (${data.summary.byKind[k]})`}
           </button>
         ))}
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile label="Ocorrências" value={data.summary.events} sub={`últimos ${data.windowDays} dias`} />
+        <Tile
+          label="Ocorrências"
+          value={data.summary.events}
+          sub={`últimos ${data.windowDays} dias`}
+        />
         <Tile
           label="Críticas"
           value={data.summary.critical}
@@ -530,16 +595,20 @@ export function HistoryTab({
         />
         <Tile
           label="Mais antigo (horário)"
-          value={data.retention.oldestHourlyAt ? fmtDate(data.retention.oldestHourlyAt) : null}
+          value={
+            data.retention.oldestHourlyAt
+              ? fmtDate(data.retention.oldestHourlyAt)
+              : null
+          }
           sub={`${data.retention.hourlyRows} linhas horárias`}
         />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Linha do tempo
+        </div>
         <CardBody>
-          <h3 className="mb-3 font-display text-base font-bold text-ink">
-            Linha do tempo
-          </h3>
           {data.events.length === 0 ? (
             <EmptyState
               title="Sem ocorrências"
@@ -555,7 +624,9 @@ export function HistoryTab({
                   <span className="w-28 shrink-0 tabular-nums text-ink-muted">
                     {fmtDate(e.at)}
                   </span>
-                  <Badge intent={SEVERITY[e.severity] ?? 'neutral'}>{e.kind}</Badge>
+                  <Badge intent={SEVERITY[e.severity] ?? 'neutral'}>
+                    {e.kind}
+                  </Badge>
                   <span className="min-w-0 flex-1 text-ink">
                     <span className="text-ink-muted">{e.event}: </span>
                     {e.title}
@@ -567,19 +638,22 @@ export function HistoryTab({
           )}
           {data.truncated && (
             <p className="mt-2 font-body text-xs text-ink-faint">
-              Lista limitada às ocorrências mais recentes; reduz a janela ou filtra por tipo.
+              Lista limitada às ocorrências mais recentes; reduz a janela ou
+              filtra por tipo.
             </p>
           )}
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Plataforma por dia
+        </div>
         <CardBody>
-          <h3 className="mb-3 font-display text-base font-bold text-ink">
-            Plataforma por dia
-          </h3>
           {data.platform.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">Sem métricas na janela.</p>
+            <p className="font-body text-sm text-ink-muted">
+              Sem métricas na janela.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] text-left font-body text-sm">
@@ -598,13 +672,19 @@ export function HistoryTab({
                   {[...data.platform].reverse().map((d) => (
                     <tr key={d.day}>
                       <td className="py-2 pr-3 tabular-nums">{d.day}</td>
-                      <td className="pr-3 tabular-nums">{fmtMs(d.avgLatencyMs)}</td>
+                      <td className="pr-3 tabular-nums">
+                        {fmtMs(d.avgLatencyMs)}
+                      </td>
                       <td className="pr-3 tabular-nums">{fmtMs(d.maxP95Ms)}</td>
                       <td className="pr-3 tabular-nums">
-                        {d.avgErrorRatePercent === null ? '—' : `${d.avgErrorRatePercent}%`}
+                        {d.avgErrorRatePercent === null
+                          ? '—'
+                          : `${d.avgErrorRatePercent}%`}
                       </td>
                       <td className="pr-3 tabular-nums">{d.maxCpuPercent}%</td>
-                      <td className="pr-3 tabular-nums">{d.maxMemoryPercent}%</td>
+                      <td className="pr-3 tabular-nums">
+                        {d.maxMemoryPercent}%
+                      </td>
                       <td className="tabular-nums">{d.maxRequestsPerMinute}</td>
                     </tr>
                   ))}
@@ -616,11 +696,11 @@ export function HistoryTab({
       </Card>
 
       {data.queues.length > 0 && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Filas por dia (picos)
+          </div>
           <CardBody>
-            <h3 className="mb-3 font-display text-base font-bold text-ink">
-              Filas por dia (picos)
-            </h3>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[480px] text-left font-body text-sm">
                 <thead className="text-xs uppercase text-ink-muted">
