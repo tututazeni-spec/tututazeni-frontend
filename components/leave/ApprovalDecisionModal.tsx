@@ -50,6 +50,7 @@ export function ApprovalDecisionModal({
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
+        navyHeader
         title={reject ? 'Recusar pedido' : 'Aprovar pedido'}
         description={`${row.request.user.fullName} — ${row.request.type.name}, ${formatDate(row.request.startDate)} a ${formatDate(row.request.endDate)}`}
         className="max-w-md"

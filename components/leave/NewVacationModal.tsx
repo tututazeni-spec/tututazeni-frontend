@@ -120,6 +120,7 @@ export function NewVacationModal({ onClose, onSuccess }: NewVacationModalProps) 
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
+        navyHeader
         title="Novo pedido de férias"
         description="O saldo, os feriados e as sobreposições são validados antes da submissão."
         className="max-w-xl max-h-[90vh] overflow-y-auto"

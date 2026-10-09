@@ -86,6 +86,7 @@ export function AbsenceDetailModal({
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
+        navyHeader
         title={a ? `Ocorrência #${a.id} — ${a.user.fullName}` : 'Ocorrência'}
         description="Detalhe, justificação e histórico de alterações."
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
