@@ -72,7 +72,7 @@ function HighlightKpiCard({
 }) {
   const t = KPI_TONES[tone];
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-shadow duration-150 hover:shadow-hover">
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-hover motion-reduce:hover:scale-100">
       <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
       <Icon size={26} strokeWidth={1.75} className={`mb-4 ${t.text}`} />
       <div className="flex items-baseline gap-2">
@@ -128,7 +128,7 @@ function GaugeKpiCard({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-shadow duration-150 hover:shadow-hover">
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-hover motion-reduce:hover:scale-100">
       <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
       <div className="flex items-center gap-4">
         <div className="relative h-20 w-20 shrink-0">
@@ -214,7 +214,7 @@ function SparklineKpiCard({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-shadow duration-150 hover:shadow-hover">
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 pt-6 shadow-resting transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-hover motion-reduce:hover:scale-100">
       <span aria-hidden className={`absolute inset-x-0 top-0 h-1.5 ${t.bar}`} />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
