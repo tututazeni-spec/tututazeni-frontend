@@ -16,7 +16,6 @@ import type { LucideIcon } from 'lucide-react';
 import {
   AlertTriangle,
   Award,
-  BadgeCheck,
   BookOpen,
   Brain,
   Building2,
@@ -565,12 +564,6 @@ export function OrgDashboard() {
             label="Biblioteca"
             value={summary.knowledge.libraryItems}
             sub="recursos"
-          />
-          <HighlightKpiCard
-            icon={BadgeCheck}
-            tone="orange"
-            label="Distintivos Emitidos"
-            value={summary.knowledge.badgesIssued}
           />
           <HighlightKpiCard
             icon={Smile}
