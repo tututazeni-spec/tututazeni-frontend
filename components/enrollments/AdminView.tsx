@@ -215,56 +215,63 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
       {/* Filtros — grid de largura uniforme (mesmo padrão da aba "Cursos",
           ver components/courses/GestaoView.tsx): todos os campos com
           w-full em vez de larguras w-* ad-hoc, alinhados em colunas. */}
-      <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <Select
-          items={STATUS_ITEMS}
-          value={filters.status || 'ALL'}
-          onValueChange={(v) => updateFilters({ status: v === 'ALL' ? '' : v })}
-          className="w-full"
-        />
-        <Select
-          items={[{ value: 'ALL', label: 'Todos os cursos' }, ...courseOptions]}
-          value={filters.courseId || 'ALL'}
-          onValueChange={(v) =>
-            updateFilters({ courseId: v === 'ALL' ? '' : v })
-          }
-          className="w-full lg:col-span-2"
-        />
-        <Select
-          items={[
-            { value: 'ALL', label: 'Todos os departamentos' },
-            ...departmentOptions,
-          ]}
-          value={filters.departmentId || 'ALL'}
-          onValueChange={(v) =>
-            updateFilters({ departmentId: v === 'ALL' ? '' : v })
-          }
-          className="w-full"
-        />
-        <Select
-          items={MANDATORY_ITEMS}
-          value={filters.mandatory || 'ALL'}
-          onValueChange={(v) =>
-            updateFilters({ mandatory: v === 'ALL' ? '' : v })
-          }
-          className="w-full"
-        />
-        <label className="flex w-full cursor-pointer items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] text-sm text-ink-muted">
-          <input
-            type="checkbox"
-            checked={!!filters.overdue}
-            onChange={(e) =>
-              updateFilters({ overdue: e.target.checked ? 'true' : '' })
+      <div className="mb-5 rounded-2xl border border-[#0F1F3D]/20 bg-[#0F1F3D]/8 p-4">
+        <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <Select
+            items={STATUS_ITEMS}
+            value={filters.status || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ status: v === 'ALL' ? '' : v })
             }
-            className="h-4 w-4 rounded border-border-strong accent-primary"
+            className="w-full"
           />
-          Apenas atrasados
-        </label>
-      </div>
-      <div className="mb-5 flex justify-end">
-        <span className="text-sm text-ink-faint">
-          {data?.total ?? 0} matrículas
-        </span>
+          <Select
+            items={[
+              { value: 'ALL', label: 'Todos os cursos' },
+              ...courseOptions,
+            ]}
+            value={filters.courseId || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ courseId: v === 'ALL' ? '' : v })
+            }
+            className="w-full lg:col-span-2"
+          />
+          <Select
+            items={[
+              { value: 'ALL', label: 'Todos os departamentos' },
+              ...departmentOptions,
+            ]}
+            value={filters.departmentId || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ departmentId: v === 'ALL' ? '' : v })
+            }
+            className="w-full"
+          />
+          <Select
+            items={MANDATORY_ITEMS}
+            value={filters.mandatory || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ mandatory: v === 'ALL' ? '' : v })
+            }
+            className="w-full"
+          />
+          <label className="flex w-full cursor-pointer items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] text-sm text-ink-muted">
+            <input
+              type="checkbox"
+              checked={!!filters.overdue}
+              onChange={(e) =>
+                updateFilters({ overdue: e.target.checked ? 'true' : '' })
+              }
+              className="h-4 w-4 rounded border-border-strong accent-primary"
+            />
+            Apenas atrasados
+          </label>
+        </div>
+        <div className="flex justify-end">
+          <span className="text-sm text-black">
+            {data?.total ?? 0} matrículas
+          </span>
+        </div>
       </div>
 
       {/* Bulk deadline */}
@@ -310,10 +317,10 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             data?.data?.map((e) => (
               <div
                 key={e.id}
-                className={`flex flex-col gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-4 shadow-sm backdrop-blur-md hover:bg-surface ${STATUS_ACCENT[e.status] ?? ''}`}
+                className={`flex flex-col gap-2 rounded-2xl border border-l-4 border-border bg-surface/60 p-2 shadow-sm backdrop-blur-md hover:bg-surface lg:flex-row lg:items-center lg:gap-3 ${STATUS_ACCENT[e.status] ?? ''}`}
               >
                 {/* Topo: selecção, colaborador, curso e acções */}
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3 lg:w-72 lg:shrink-0">
                   <div className="flex items-center pt-2">
                     <input
                       type="checkbox"
@@ -389,7 +396,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                 </div>
 
                 {/* Detalhes em grelha fluida */}
-                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-2 lg:flex lg:flex-1 lg:items-stretch [&>div]:!p-1.5 lg:[&>div]:flex-1">
                   {/* 2. Departamento & Origem */}
                   <div
                     className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1.5`}
