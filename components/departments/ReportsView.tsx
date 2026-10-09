@@ -59,8 +59,8 @@ function BarList({
         <div className="space-y-2">
           {items.slice(0, 10).map((item, i) => (
             <div key={i}>
-              <div className="mb-0.5 flex items-center justify-between text-xs">
-                <span className="truncate pr-2 text-ink-muted">{item.label}</span>
+              <div className="mb-0.5 flex items-start justify-between text-xs">
+                <span className="min-w-0 break-words pr-2 text-ink-muted">{item.label}</span>
                 <span className="flex-shrink-0 font-data text-ink-faint">
                   {item.count}
                   {suffix}
@@ -255,7 +255,7 @@ export function ReportsView() {
                   key={d.id}
                   className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5 text-sm last:border-0"
                 >
-                  <span className="min-w-0 flex-1 truncate text-ink">{d.name}</span>
+                  <span className="min-w-0 flex-1 break-words text-ink">{d.name}</span>
                   <span className="flex-shrink-0 font-mono text-xs text-ink-muted">
                     {d.actual} actual · {d.expected ?? '—'} previsto · {d.max ?? '—'} limite
                   </span>
