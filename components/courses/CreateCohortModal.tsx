@@ -138,6 +138,7 @@ export function CreateCohortModal({
           <FormField label="Nome da turma *" htmlFor="ch-name">
             <Input
               id="ch-name"
+              autoComplete="off"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full"
@@ -217,6 +218,7 @@ export function CreateCohortModal({
             <FormField label="Local" htmlFor="ch-location">
               <Input
                 id="ch-location"
+                autoComplete="off"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full"
@@ -225,6 +227,7 @@ export function CreateCohortModal({
             <FormField label="Sala" htmlFor="ch-room">
               <Input
                 id="ch-room"
+                autoComplete="off"
                 value={room}
                 onChange={(e) => setRoom(e.target.value)}
                 className="w-full"
@@ -235,6 +238,7 @@ export function CreateCohortModal({
           <FormField label="Horário" htmlFor="ch-schedule">
             <Input
               id="ch-schedule"
+              autoComplete="off"
               value={schedule}
               onChange={(e) => setSchedule(e.target.value)}
               className="w-full"

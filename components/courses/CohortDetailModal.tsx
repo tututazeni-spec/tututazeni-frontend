@@ -21,12 +21,17 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useDirectoryUsers } from '@/components/enrollments/enrollData';
 import { CohortDepartmentPicker } from './CohortDepartmentPicker';
+import { CohortInfoEditor } from './CohortInfoEditor';
 import { Skeleton } from './shared';
 import type { CohortAttendanceEntry, CohortDetail } from './types';
 
 export interface CohortDetailModalProps {
   cohortId: number;
   onClose: () => void;
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString('pt-PT');
 }
 
 function todayISO() {
@@ -40,6 +45,7 @@ export function CohortDetailModal({
   const toast = useToast();
   const confirm = useConfirm();
   const [addSearch, setAddSearch] = useState('');
+  const [editingInfo, setEditingInfo] = useState(false);
   const [editingCapacity, setEditingCapacity] = useState(false);
   const [capacityDraft, setCapacityDraft] = useState('');
   const [date, setDate] = useState(todayISO());
@@ -264,6 +270,29 @@ export function CohortDetailModal({
                 )}
               </div>
             </div>
+
+            {editingInfo ? (
+              <CohortInfoEditor
+                cohort={cohort}
+                invalidateKeys={invalidateKeys}
+                onDone={() => setEditingInfo(false)}
+              />
+            ) : (
+              <div className="-mt-3 flex items-center justify-between text-sm text-ink-muted">
+                <span>
+                  {formatDate(cohort.startDate)}
+                  {cohort.endDate ? ` → ${formatDate(cohort.endDate)}` : ''}
+                </span>
+                <Button
+                  size="sm"
+                  intent="secondary"
+                  onClick={() => setEditingInfo(true)}
+                >
+                  <Pencil size={14} strokeWidth={1.75} className="mr-1" />
+                  Editar dados da turma
+                </Button>
+              </div>
+            )}
 
             <section>
               <h3 className="mb-2 text-sm font-medium text-ink">
