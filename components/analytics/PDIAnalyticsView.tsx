@@ -35,11 +35,7 @@ const STATUS_ORDER: PlanStatus[] = [
   'DRAFT',
   'PENDING_APPROVAL',
   'ACTIVE',
-  'PAUSED',
-  'AT_RISK',
-  'OVERDUE',
   'COMPLETED',
-  'PARTIALLY_COMPLETED',
   'CANCELLED',
 ];
 
@@ -89,15 +85,13 @@ export function PDIAnalyticsView() {
 
   if (isLoading || !data) return <Skeleton rows={4} />;
 
-  const totalPlans = Object.values(data.byStatus).reduce((a, b) => a + b, 0);
+  const statuses = STATUS_ORDER;
+  const totalPlans = statuses.reduce(
+    (sum, status) => sum + (data.byStatus[status] ?? 0),
+    0,
+  );
   const pct = (n: number) =>
     totalPlans > 0 ? Math.round((n / totalPlans) * 100) : 0;
-  const statuses = [
-    ...STATUS_ORDER,
-    ...Object.keys(data.byStatus).filter(
-      (k) => !STATUS_ORDER.includes(k as PlanStatus),
-    ),
-  ] as PlanStatus[];
 
   return (
     <div className="space-y-5">
