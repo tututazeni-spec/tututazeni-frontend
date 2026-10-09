@@ -87,7 +87,7 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
               <CheckCircle2 size={16} strokeWidth={1.75} /> Marcar Lição como
               Concluída
             </h3>
-            <div className="grid grid-cols-3 gap-3 items-end">
+            <div className="grid grid-cols-1 gap-3 items-end sm:grid-cols-3">
               <FormField label="ID Matrícula" htmlFor="prog-enrollment">
                 <Input
                   id="prog-enrollment"

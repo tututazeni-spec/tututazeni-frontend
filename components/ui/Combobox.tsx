@@ -115,7 +115,7 @@ export function Combobox({
           align="start"
           sideOffset={4}
           collisionPadding={8}
-          className="z-[60] min-w-[var(--radix-popover-trigger-width)] max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
+          className="z-[700] min-w-[var(--radix-popover-trigger-width)] max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
         >
           <div className="m-2 flex items-center gap-2 rounded-pill border-[1.5px] border-field bg-surface px-3 py-[7px] focus-within:bg-field-soft">
             <Search

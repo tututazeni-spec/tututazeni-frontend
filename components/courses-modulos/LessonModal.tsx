@@ -254,7 +254,7 @@ export function LessonModal({
       onClick={onClose}
     >
       <Card
-        className="w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-elevated"
+        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-elevated"
         onClick={(e) => e.stopPropagation()}
       >
         <CardBody className="flex flex-col gap-5">
@@ -280,7 +280,7 @@ export function LessonModal({
           </div>
 
           <form onSubmit={submit} className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <FormField label="Título *" htmlFor="lesson-title">
                 <Input
                   id="lesson-title"
@@ -417,7 +417,7 @@ export function LessonModal({
             )}
 
             {form.contentType === 'LIVE' && (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <FormField label="Data/hora" htmlFor="lesson-live-date">
                   <Input
                     id="lesson-live-date"
@@ -483,7 +483,7 @@ export function LessonModal({
               </FormField>
             )}
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <FormField label="Sequência" htmlFor="lesson-seq">
                 <Input
                   id="lesson-seq"
@@ -504,7 +504,7 @@ export function LessonModal({
               </FormField>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <FormField label="Estado" htmlFor="lesson-status">
                 <Select
                   items={[
@@ -530,7 +530,7 @@ export function LessonModal({
               </FormField>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <FormField
                 label="Disponível a partir de"
                 htmlFor="lesson-available-from"
@@ -723,14 +723,14 @@ function LessonActivitiesAndResources({
             </p>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Select
             items={ACTIVITY_TYPE_ITEMS}
             value={activityForm.type}
             onValueChange={(v) =>
               setActivityForm((f) => ({ ...f, type: v as LessonActivityType }))
             }
-            className="w-40"
+            className="w-full sm:w-48"
           />
           <Input
             value={activityForm.title}
@@ -738,7 +738,7 @@ function LessonActivitiesAndResources({
               setActivityForm((f) => ({ ...f, title: e.target.value }))
             }
             placeholder="Título da actividade"
-            className="flex-1"
+            className="min-w-0 flex-1 basis-40"
           />
           <Button
             type="button"
@@ -787,14 +787,14 @@ function LessonActivitiesAndResources({
             </p>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Select
             items={RESOURCE_TYPE_ITEMS}
             value={resourceForm.fileType}
             onValueChange={(v) =>
               setResourceForm((f) => ({ ...f, fileType: v }))
             }
-            className="w-40"
+            className="w-full sm:w-48"
           />
           <Input
             value={resourceForm.title}
@@ -802,7 +802,7 @@ function LessonActivitiesAndResources({
               setResourceForm((f) => ({ ...f, title: e.target.value }))
             }
             placeholder="Título"
-            className="flex-1"
+            className="min-w-0 flex-1 basis-40"
           />
           <Input
             value={resourceForm.url}
@@ -810,7 +810,7 @@ function LessonActivitiesAndResources({
               setResourceForm((f) => ({ ...f, url: e.target.value }))
             }
             placeholder="URL"
-            className="flex-1"
+            className="min-w-0 flex-1 basis-40"
           />
           <Button
             type="button"

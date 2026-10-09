@@ -219,7 +219,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
           <Card>
             <CardBody className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-info-subtle flex items-center justify-center text-lg"></div>
-              <div>
+              <div className="min-w-0">
                 <p className="m-0 text-xl font-extrabold text-primary">
                   {modules.length}
                 </p>
@@ -232,7 +232,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
               <div className="w-10 h-10 rounded-lg bg-success-subtle flex items-center justify-center text-success">
                 <BookMarked size={18} strokeWidth={1.75} />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="m-0 text-xl font-extrabold text-success">
                   {totalLessons}
                 </p>
@@ -254,7 +254,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
                   >
                     <TypeIcon size={18} strokeWidth={1.75} />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p
                       className="m-0 text-xl font-extrabold"
                       style={{
@@ -263,7 +263,9 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
                     >
                       {t.count}
                     </p>
-                    <p className="m-0 text-xs text-ink-muted">{t.label}</p>
+                    <p className="m-0 break-words text-xs text-ink-muted">
+                      {t.label}
+                    </p>
                   </div>
                 </CardBody>
               </Card>

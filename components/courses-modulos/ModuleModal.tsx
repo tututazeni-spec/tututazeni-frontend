@@ -184,7 +184,7 @@ export function ModuleModal({
       onClick={onClose}
     >
       <Card
-        className="w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-elevated"
+        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-elevated"
         onClick={(e) => e.stopPropagation()}
       >
         <CardBody className="flex flex-col gap-5">
@@ -210,7 +210,7 @@ export function ModuleModal({
           </div>
 
           <form onSubmit={submit} className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <FormField label="Título *" htmlFor="module-title">
                 <Input
                   id="module-title"
@@ -245,7 +245,7 @@ export function ModuleModal({
               />
             </FormField>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <FormField label="Sequência" htmlFor="module-seq">
                 <Input
                   id="module-seq"
@@ -265,7 +265,7 @@ export function ModuleModal({
               </FormField>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <FormField label="Tipo" htmlFor="module-type">
                 <Select
                   items={TYPE_ITEMS}
@@ -287,7 +287,7 @@ export function ModuleModal({
               </FormField>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <FormField
                 label="Duração estimada (min)"
                 htmlFor="module-duration"
@@ -418,7 +418,7 @@ export function ModuleModal({
             </div>
 
             {editing && (
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 rounded-control border border-border bg-surface-sunken p-3 text-xs text-ink-muted">
+              <div className="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2 rounded-control border border-border bg-surface-sunken p-3 text-xs text-ink-muted">
                 <span>
                   Nº de lições:{' '}
                   <strong className="text-ink">{totalLessons}</strong>

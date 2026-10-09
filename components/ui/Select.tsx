@@ -88,7 +88,7 @@ export function Select({
       </RadixSelect.Trigger>
       <RadixSelect.Portal>
         <RadixSelect.Content
-          className="z-[60] min-w-[var(--radix-select-trigger-width)] max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
+          className="z-[700] min-w-[var(--radix-select-trigger-width)] max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
           position="popper"
           sideOffset={4}
           collisionPadding={8}
