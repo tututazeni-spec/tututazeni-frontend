@@ -121,12 +121,12 @@ function OrganizationOverview() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+            <ClipboardCheck size={15} strokeWidth={1.75} /> Distribuição das
+            classificações
+          </div>
           <CardBody>
-            <h3 className="font-display text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-              <ClipboardCheck size={15} strokeWidth={1.75} /> Distribuição das
-              classificações
-            </h3>
             <div className="space-y-2">
               {DIST_CONFIG.map((d) => {
                 const count = data.distribution[d.key] ?? 0;
@@ -162,11 +162,11 @@ function OrganizationOverview() {
           </CardBody>
         </Card>
 
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+            <CalendarClock size={15} strokeWidth={1.75} /> Próximos prazos
+          </div>
           <CardBody>
-            <h3 className="font-display text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-              <CalendarClock size={15} strokeWidth={1.75} /> Próximos prazos
-            </h3>
             <div className="space-y-2">
               {data.upcomingDeadlines.slice(0, 5).map((d) => (
                 <div key={d.id} className="flex items-center gap-2 text-sm">
