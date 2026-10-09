@@ -343,9 +343,9 @@ export function CategoriasView() {
             {data.map((cat) => (
               <div
                 key={cat.id}
-                className={`flex flex-col gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-4 shadow-sm backdrop-blur-md hover:bg-surface ${cat.isActive ? 'border-l-emerald-500' : 'border-l-slate-400'}`}
+                className={`flex flex-col gap-2 rounded-2xl border border-l-4 border-border bg-surface/60 p-2 shadow-sm backdrop-blur-md hover:bg-surface lg:flex-row lg:items-center lg:gap-3 ${cat.isActive ? 'border-l-emerald-500' : 'border-l-slate-400'}`}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3 lg:w-72 lg:shrink-0">
                   <div className="flex min-w-0 flex-1 flex-col justify-center">
                     <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
                       {cat.name}
@@ -376,7 +376,7 @@ export function CategoriasView() {
                     </Button>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 lg:grid-cols-[2fr_1fr_1fr]">
+                <div className="grid grid-cols-2 gap-2 lg:flex lg:flex-1 lg:items-stretch [&>div]:!p-1.5 lg:[&>div]:flex-1">
                   <div
                     className={`${PANEL} col-span-2 flex min-w-0 items-center lg:col-span-1`}
                   >
@@ -385,7 +385,7 @@ export function CategoriasView() {
                     </span>
                   </div>
                   <div
-                    className={`${PANEL} flex flex-col items-center justify-center gap-1`}
+                    className={`${PANEL} flex flex-col items-center justify-center gap-0 lg:flex-row lg:gap-1.5`}
                   >
                     <span className="font-mono text-lg font-semibold text-ink">
                       {cat.courseCount}
