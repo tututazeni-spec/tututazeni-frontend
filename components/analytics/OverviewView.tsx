@@ -76,8 +76,10 @@ function Tile({
   tone: Tone;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-white p-4 shadow-resting">
-      <div className="mb-2 font-body text-sm text-black">{label}</div>
+    <div className="h-[104px] rounded-2xl border border-border bg-white p-4 shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
+      <div className="mb-2 truncate font-body text-sm text-black" title={label}>
+        {label}
+      </div>
       <div className={`font-data text-4xl font-bold ${TONES[tone].number}`}>
         {value}
       </div>
@@ -107,7 +109,7 @@ function TopBarCard({
 }) {
   const t = KPI_TONES[tone];
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <div className={t.text}>{icon}</div>
@@ -237,8 +239,8 @@ export function OverviewView() {
             tone="green"
           />
           <Tile
-            label="Adoção de PDI"
-            value={data.pdi.adoptionRate}
+            label="Adopção de PDI"
+            value={`${data.pdi.adoptionRate}%`}
             tone="green"
           />
         </SummaryCard>
@@ -251,7 +253,7 @@ export function OverviewView() {
           progress={0}
         >
           <Tile
-            label="Pontos de Experiência total"
+            label="Pontos de Experiência"
             value={data.engagement.totalXp}
             tone="gold"
           />
