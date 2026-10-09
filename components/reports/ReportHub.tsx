@@ -73,7 +73,7 @@ export function ReportHub({ onRun }: ReportHubProps) {
         <Skeleton
           rows={6}
           wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
-          itemClassName="skeleton-shimmer h-40 rounded-card"
+          itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
         />
       ) : (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
