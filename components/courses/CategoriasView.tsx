@@ -6,8 +6,8 @@
 
 'use client';
 
-import { useState } from 'react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { BookPlus, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -146,12 +146,139 @@ function CategoryModal({
   );
 }
 
+interface CategoryCourseRow {
+  id: number;
+  title: string;
+  status: string;
+  category: string | null;
+  inCategory: boolean;
+}
+
+function CategoryCoursesModal({
+  category,
+  onClose,
+}: {
+  category: CourseCategoryManaged;
+  onClose: () => void;
+}) {
+  const toast = useToast();
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<Set<number> | null>(null);
+
+  const { data = [], isLoading } = useApiQuery<CategoryCourseRow[]>(
+    [...queryKeys.courses.categoriesManaged(), category.id, 'courses'],
+    `/courses/categories/${category.id}/courses`,
+    { staleTime: 0 },
+  );
+
+  const checked = useMemo(
+    () => selected ?? new Set(data.filter((c) => c.inCategory).map((c) => c.id)),
+    [selected, data],
+  );
+
+  const save = useApiMutation(
+    (courseIds: number[]) =>
+      apiClient.put(`/courses/categories/${category.id}/courses`, {
+        courseIds,
+      }),
+    {
+      invalidateKeys: [queryKeys.courses.all],
+      onSuccess: () => {
+        toast({ title: 'Cursos da categoria actualizados', intent: 'success' });
+        onClose();
+      },
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  function toggle(id: number) {
+    const next = new Set(checked);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelected(next);
+  }
+
+  const term = search.trim().toLowerCase();
+  const visible = term
+    ? data.filter((c) => c.title.toLowerCase().includes(term))
+    : data;
+
+  return (
+    <Modal open onOpenChange={(open) => !open && onClose()}>
+      <ModalContent title={`Cursos em "${category.name}"`} className="max-w-lg">
+        <div className="mt-4 space-y-3">
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Pesquisar curso…"
+            className="w-full"
+          />
+          <div className="max-h-80 space-y-1 overflow-y-auto">
+            {isLoading ? (
+              <Skeleton rows={4} />
+            ) : visible.length === 0 ? (
+              <p className="py-6 text-center text-sm text-ink-muted">
+                Nenhum curso encontrado.
+              </p>
+            ) : (
+              visible.map((c) => (
+                <label
+                  key={c.id}
+                  className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-surface-sunken"
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked.has(c.id)}
+                    onChange={() => toggle(c.id)}
+                  />
+                  <span className="min-w-0 flex-1 truncate text-sm text-ink">
+                    {c.title}
+                  </span>
+                  {c.category && c.category !== category.name && (
+                    <span className="shrink-0 text-xs text-ink-faint">
+                      {c.category}
+                    </span>
+                  )}
+                </label>
+              ))
+            )}
+          </div>
+          <p className="text-xs text-ink-muted">
+            {checked.size} seleccionado(s). Cursos de outra categoria passam
+            para esta ao guardar.
+          </p>
+        </div>
+        <div className="mt-6 flex gap-3 border-t border-border pt-4">
+          <Button
+            intent="secondary"
+            className="flex-1 justify-center"
+            onClick={onClose}
+          >
+            Cancelar
+          </Button>
+          <Button
+            className="flex-1 justify-center"
+            onClick={() => save.mutate([...checked])}
+            loading={save.isPending}
+            disabled={save.isPending || isLoading}
+          >
+            Guardar
+          </Button>
+        </div>
+      </ModalContent>
+    </Modal>
+  );
+}
+
 export function CategoriasView() {
   const confirm = useConfirm();
   const toast = useToast();
   const [modalFor, setModalFor] = useState<
     CourseCategoryManaged | 'new' | null
   >(null);
+  const [coursesFor, setCoursesFor] = useState<CourseCategoryManaged | null>(
+    null,
+  );
 
   const { data = [], isLoading } = useApiQuery<CourseCategoryManaged[]>(
     queryKeys.courses.categoriesManaged(),
@@ -228,6 +355,14 @@ export function CategoriasView() {
                     <Button
                       size="sm"
                       intent="ghost"
+                      title="Gerir cursos"
+                      onClick={() => setCoursesFor(cat)}
+                    >
+                      <BookPlus size={14} strokeWidth={1.75} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      intent="ghost"
                       onClick={() => setModalFor(cat)}
                     >
                       <Pencil size={14} strokeWidth={1.75} />
@@ -289,6 +424,13 @@ export function CategoriasView() {
             ))}
           </div>
         </div>
+      )}
+
+      {coursesFor && (
+        <CategoryCoursesModal
+          category={coursesFor}
+          onClose={() => setCoursesFor(null)}
+        />
       )}
 
       {modalFor && (
