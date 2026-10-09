@@ -26,7 +26,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
-import { TopBarCard } from '@/components/ui/TopBarCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { AlertStrip } from '@/components/dashboard-rh/AlertStrip';
@@ -73,7 +73,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
       <Skeleton
         rows={6}
         wrapperClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 animate-pulse"
-        itemClassName="h-48 rounded-card bg-surface-sunken"
+        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
       />
     );
   if (q.error || !q.data)
@@ -112,77 +112,77 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
 
       {/* Indicadores complementares (§3.1, lista adicional) */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <TopBarCard
+        <NavyStatCard
           label="Admissões"
           value={d.workforce.hires}
           tone="green"
-          icon={<UserPlus size={22} strokeWidth={1.75} />}
+          icon={UserPlus}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Saídas"
           value={d.workforce.exits}
           tone="red"
-          icon={<UserMinus size={22} strokeWidth={1.75} />}
+          icon={UserMinus}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Saldo líquido"
           value={`${d.workforce.netBalance > 0 ? '+' : ''}${d.workforce.netBalance}`}
           tone="blue"
-          icon={<Users size={22} strokeWidth={1.75} />}
+          icon={Users}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Rotatividade (12 meses)"
           value={pct(d.workforce.turnoverLast12Months)}
-          tone="gold"
-          icon={<TrendingDown size={22} strokeWidth={1.75} />}
+          tone="orange"
+          icon={TrendingDown}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Inscrições / concluídas"
           value={`${d.training.enrollmentsEligible} / ${d.training.enrollmentsCompleted}`}
           tone="blue"
-          icon={<GraduationCap size={22} strokeWidth={1.75} />}
+          icon={GraduationCap}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Participantes · horas"
           value={`${d.training.participants} · ${d.training.hours}h`}
           tone="green"
-          icon={<BookOpen size={22} strokeWidth={1.75} />}
+          icon={BookOpen}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Avaliações concluídas"
           value={pct(d.performance.completionPct)}
-          tone="gold"
-          icon={<CheckCircle2 size={22} strokeWidth={1.75} />}
+          tone="orange"
+          icon={CheckCircle2}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Competências avaliadas"
           value={pct(d.competencies.evaluatedPct)}
           tone="blue"
-          icon={<Wrench size={22} strokeWidth={1.75} />}
+          icon={Wrench}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Lacunas de competências"
           value={d.competencies.gapsIdentified}
           tone="red"
-          icon={<Wrench size={22} strokeWidth={1.75} />}
+          icon={Wrench}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Licenças pendentes · em curso"
           value={`${d.leave.pending} · ${d.leave.inCourse}`}
-          tone="gold"
-          icon={<CalendarClock size={22} strokeWidth={1.75} />}
+          tone="orange"
+          icon={CalendarClock}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Onboarding em curso · concluído"
           value={`${d.onboarding.inProgress} · ${d.onboarding.completed}`}
           tone="green"
-          icon={<Rocket size={22} strokeWidth={1.75} />}
+          icon={Rocket}
         />
-        <TopBarCard
+        <NavyStatCard
           label="PDIs activos"
           value={d.development.activePlans}
           tone="blue"
-          icon={<Target size={22} strokeWidth={1.75} />}
+          icon={Target}
         />
       </div>
 

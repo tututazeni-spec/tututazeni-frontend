@@ -62,7 +62,7 @@ export function DomainPanel({ domain, filters }: DomainPanelProps) {
       <Skeleton
         rows={3}
         wrapperClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 animate-pulse"
-        itemClassName="h-48 rounded-card bg-surface-sunken"
+        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
       />
     );
   if (q.error || !q.data)

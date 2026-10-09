@@ -236,7 +236,7 @@ export function DetailView({ reportId, onBack, onDeleted }: DetailViewProps) {
         </TabsList>
 
         <TabsContent value="kpis">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {report.metrics.map((m) => (
               <KpiCard key={m.id} metric={m} />
             ))}

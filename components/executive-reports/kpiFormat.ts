@@ -2,7 +2,7 @@
 // Formatação e semáforo dos KPIs executivos. "Sem dados" nunca é convertido
 // em zero (docs/Executive_Reports.md §12.3).
 
-import type { TopBarTone } from '@/components/ui/TopBarCard';
+import type { NavyStatTone } from '@/components/ui/NavyStatCard';
 import type { ExecutiveKpi, KpiState } from './dashboardTypes';
 
 export function formatKpiValue(
@@ -22,9 +22,9 @@ export const STATE_LABEL: Record<KpiState, string> = {
   NO_DATA: 'Sem dados',
 };
 
-export const STATE_TONE: Record<KpiState, TopBarTone> = {
+export const STATE_TONE: Record<KpiState, NavyStatTone> = {
   ON_TARGET: 'green',
-  WARNING: 'gold',
+  WARNING: 'orange',
   CRITICAL: 'red',
   NO_TARGET: 'blue',
   NO_DATA: 'blue',
