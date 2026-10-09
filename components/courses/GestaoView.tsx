@@ -11,11 +11,15 @@
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
+  BookOpen,
   CalendarDays,
   MapPin,
   Monitor,
   MoreHorizontal,
   Plus,
+  Tag,
+  Users,
+  type LucideIcon,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -28,7 +32,6 @@ import { EnrollUserModal } from '@/components/enrollments/EnrollUserModal';
 import { useDepartmentOptions } from '@/components/enrollments/enrollData';
 import { EditCourseModal } from './EditCourseModal';
 import { PendingEnrollmentsModal } from './PendingEnrollmentsModal';
-import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import {
   DropdownMenu,
@@ -40,7 +43,6 @@ import {
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import {
   COURSE_MODALITY_LABELS,
   COURSE_STATUS_MAP,
@@ -81,58 +83,31 @@ const MODALITY_ITEMS = [
   })),
 ];
 
-const STATUS_ACCENT: Record<string, string> = {
-  DRAFT: 'border-l-amber-400',
-  PUBLISHED: 'border-l-emerald-500',
-  PAUSED: 'border-l-orange-400',
-  ARCHIVED: 'border-l-slate-400',
-};
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
+  return (parts[0][0] + last).toUpperCase();
+}
 
-const LEVEL_PILL: Record<string, string> = {
-  BEGINNER: 'bg-emerald-500/20 text-black',
-  INTERMEDIATE: 'bg-orange-500/20 text-black',
-  ADVANCED: 'bg-yellow-500/25 text-black',
-};
+interface CourseInfoProps {
+  icon: LucideIcon;
+  value: string;
+  label: string;
+}
 
-const MODALITY_PILL: Record<string, string> = {
-  PRESENCIAL: 'bg-emerald-500/20 text-black',
-  ONLINE: 'bg-blue-500/20 text-black',
-};
-
-const PILL =
-  'inline-block max-w-full truncate rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase';
-const PANEL = 'rounded-xl border border-border/60 bg-surface-sunken/40 p-3';
-
-function ProgressRing({ value }: { value: number }) {
-  const r = 22;
-  const circ = 2 * Math.PI * r;
-  const pct = Math.max(0, Math.min(100, value));
+function CourseInfo({ icon: Icon, value, label }: CourseInfoProps) {
   return (
-    <div className="relative h-10 w-10 shrink-0">
-      <svg viewBox="0 0 56 56" className="h-full w-full -rotate-90">
-        <circle
-          cx="28"
-          cy="28"
-          r={r}
-          fill="none"
-          strokeWidth="5"
-          className="stroke-border"
-        />
-        <circle
-          cx="28"
-          cy="28"
-          r={r}
-          fill="none"
-          strokeWidth="5"
-          strokeLinecap="round"
-          className={pct >= 75 ? 'stroke-orange-400' : 'stroke-blue-500'}
-          strokeDasharray={circ}
-          strokeDashoffset={circ * (1 - pct / 100)}
-        />
-      </svg>
-      <span className="absolute inset-0 flex items-center justify-center font-mono text-[10px] text-black">
-        {pct}%
+    <div className="flex min-w-0 items-center gap-3 px-3 sm:px-5">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD] sm:h-10 sm:w-10">
+        <Icon size={20} strokeWidth={1.75} />
       </span>
+      <div className="min-w-0">
+        <div className="text-[13px] font-semibold text-[#0F1F3D] sm:text-sm">
+          {value}
+        </div>
+        <div className="text-xs text-[#71829B]">{label}</div>
+      </div>
     </div>
   );
 }
@@ -400,31 +375,34 @@ export function GestaoView({
               return (
                 <div
                   key={c.id}
-                  className={`flex flex-col gap-2 rounded-2xl border border-l-4 border-border bg-surface/60 p-2 shadow-sm backdrop-blur-md hover:bg-surface lg:flex-row lg:items-center lg:gap-3 ${STATUS_ACCENT[c.status] ?? ''}`}
+                  className="overflow-hidden rounded-2xl border border-[#DCE5F1] bg-white shadow-[0_8px_24px_rgba(15,31,61,0.08)]"
                 >
-                  {/* Topo: código, nome e menu de acções */}
-                  <div className="flex items-start gap-3 lg:w-72 lg:shrink-0">
-                    <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
-                      <span className="w-fit rounded-full bg-blue-500/20 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-black">
-                        {c.internalCode ?? '—'}
-                      </span>
-                      <button
-                        type="button"
-                        className="min-w-0 text-left"
-                        onClick={() => onSelect(c.id)}
-                      >
-                        <div className="line-clamp-2 text-sm font-semibold uppercase text-black">
-                          {c.title}
-                        </div>
-                      </button>
-                    </div>
-                    {/* Acções */}
-                    <div className="flex shrink-0 items-center">
+                  <div className="bg-gradient-to-br from-[#0F1F3D] to-[#132B52] p-5 sm:p-6">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1 basis-48">
+                        <span className="mb-1.5 inline-block rounded-full bg-white/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-[#C7D4E8]">
+                          {c.internalCode ?? '—'}
+                        </span>
+                        <button
+                          type="button"
+                          className="block w-full min-w-0 text-left"
+                          onClick={() => onSelect(c.id)}
+                        >
+                          <h3 className="line-clamp-2 text-[21px] font-semibold uppercase leading-tight text-white sm:text-[22px]">
+                            {c.title}
+                          </h3>
+                        </button>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#263F67] px-3.5 py-2 text-xs text-white">
+                          <span aria-hidden>●</span>
+                          {COURSE_STATUS_MAP[c.status]?.label ?? c.status}
+                        </span>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button
                             type="button"
-                            className="rounded-control p-1.5 text-black hover:bg-surface-sunken hover:text-black"
+                            className="rounded-lg p-1.5 text-[#C7D4E8] hover:bg-white/10 hover:text-white disabled:opacity-50"
                             disabled={rowBusy(c.id)}
                           >
                             <MoreHorizontal size={16} strokeWidth={1.75} />
@@ -525,103 +503,68 @@ export function GestaoView({
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex min-w-0 items-center gap-3">
+                      {c.primaryInstructor?.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={c.primaryInstructor.avatarUrl}
+                          alt=""
+                          className="h-[50px] w-[50px] shrink-0 rounded-full object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-[#0D6EFD] text-lg font-bold text-white">
+                          {c.primaryInstructor
+                            ? initials(c.primaryInstructor.fullName)
+                            : '?'}
+                        </span>
+                      )}
+                      <div className="min-w-0">
+                        <div className="truncate text-base font-semibold text-white">
+                          {c.primaryInstructor?.fullName ?? 'Sem instrutor'}
+                        </div>
+                        <div className="flex items-center gap-1 text-[13px] text-[#C7D4E8]">
+                          <Tag size={13} strokeWidth={1.75} className="shrink-0" />
+                          <span className="truncate">
+                            {[c.category, levelLabel].filter(Boolean).join(' · ') ||
+                              '—'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Detalhes em grelha fluida: 2 colunas no telemóvel, 4 em ecrãs largos */}
-                  <div className="grid grid-cols-2 gap-2 lg:flex lg:flex-1 lg:items-stretch [&>div]:!p-1.5 lg:[&>div]:flex-1">
-                    {/* 2. Categoria, Tipo & Nível */}
-                    <div
-                      className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1 lg:flex-row lg:flex-wrap lg:content-center lg:items-center`}
-                    >
-                      <span className={`${PILL} bg-blue-500/20 text-black`}>
-                        {c.category ?? '—'}
-                      </span>
-                      <span className={`${PILL} bg-fuchsia-500/20 text-black`}>
-                        {c.type ? COURSE_TYPE_LABELS[c.type] : '—'}
-                      </span>
-                      <span
-                        className={`${PILL} ${LEVEL_PILL[c.level] ?? 'bg-slate-500/20 text-black'}`}
-                      >
-                        {levelLabel ?? '—'}
-                      </span>
+                  <div className="grid grid-cols-2 gap-y-5 p-5 sm:p-[22px] lg:grid-cols-4 lg:gap-y-0">
+                    <CourseInfo
+                      icon={BookOpen}
+                      value={c.type ? COURSE_TYPE_LABELS[c.type] : '—'}
+                      label="Tipo"
+                    />
+                    <div className="lg:border-l lg:border-[#DCE5F1]">
+                      <CourseInfo
+                        icon={c.modality === 'ONLINE' ? Monitor : MapPin}
+                        value={`${c.modality ? COURSE_MODALITY_LABELS[c.modality] : '—'} · ${fmtDuration(c.workloadHours)}`}
+                        label="Modalidade"
+                      />
                     </div>
-
-                    {/* 3. Modalidade & Duração */}
-                    <div
-                      className={`${PANEL} flex flex-col items-center justify-center gap-1 lg:flex-row lg:flex-wrap lg:content-center`}
-                    >
-                      {c.modality === 'ONLINE' ? (
-                        <Monitor
-                          size={16}
-                          strokeWidth={1.75}
-                          className="text-blue-500"
-                        />
-                      ) : (
-                        <MapPin
-                          size={16}
-                          strokeWidth={1.75}
-                          className="text-emerald-600"
-                        />
-                      )}
-                      <span
-                        className={`${PILL} ${MODALITY_PILL[c.modality ?? ''] ?? 'bg-violet-500/20 text-black'}`}
-                      >
-                        {c.modality ? COURSE_MODALITY_LABELS[c.modality] : '—'}
-                      </span>
-                      <span className="text-xs text-black">
-                        {fmtDuration(c.workloadHours)}
-                      </span>
+                    <div className="lg:border-l lg:border-[#DCE5F1]">
+                      <CourseInfo
+                        icon={CalendarDays}
+                        value={
+                          c.publishedAt
+                            ? new Date(c.publishedAt).toLocaleDateString('pt')
+                            : '—'
+                        }
+                        label="Publicação"
+                      />
                     </div>
-
-                    {/* 4. Instrutor & Publicação */}
-                    <div
-                      className={`${PANEL} flex min-w-0 flex-col items-center justify-center gap-1 lg:flex-row lg:flex-wrap lg:content-center`}
-                    >
-                      {c.primaryInstructor ? (
-                        <>
-                          <Avatar
-                            name={c.primaryInstructor.fullName}
-                            url={c.primaryInstructor.avatarUrl ?? undefined}
-                            size="sm"
-                          />
-                          <span className="max-w-full truncate text-xs font-medium text-black">
-                            {c.primaryInstructor.fullName}
-                          </span>
-                        </>
-                      ) : (
-                        <span className="text-xs text-black">
-                          Sem instrutor
-                        </span>
-                      )}
-                      <span className="flex items-center gap-1 text-xs text-black">
-                        <CalendarDays size={12} strokeWidth={1.75} />
-                        {c.publishedAt
-                          ? new Date(c.publishedAt).toLocaleDateString('pt')
-                          : '—'}
-                      </span>
-                    </div>
-
-                    {/* 5. Estado, Formandos & Progresso médio */}
-                    <div
-                      className={`${PANEL} flex items-center justify-between gap-3`}
-                    >
-                      <div className="flex flex-col items-start gap-1 lg:flex-row lg:flex-wrap lg:items-center">
-                        <span className="[&_*]:!text-black">
-                          <StatusBadge
-                            value={c.status}
-                            map={COURSE_STATUS_MAP}
-                            variant="dot"
-                          />
-                        </span>
-                        <span className="text-xs text-black">
-                          Formandos:{' '}
-                          <span className="font-mono">
-                            {c._count.enrollments}
-                          </span>
-                        </span>
-                      </div>
-                      <ProgressRing value={c.avgProgress ?? 0} />
+                    <div className="lg:border-l lg:border-[#DCE5F1]">
+                      <CourseInfo
+                        icon={Users}
+                        value={`Formandos: ${c._count.enrollments}`}
+                        label={`Progresso médio: ${Math.round(c.avgProgress ?? 0)}%`}
+                      />
                     </div>
                   </div>
                 </div>
