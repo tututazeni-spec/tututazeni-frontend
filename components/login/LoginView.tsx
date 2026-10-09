@@ -445,7 +445,7 @@ export function LoginView({
           <div className="login-logo">
             <Image
               className="login-logo-icon"
-              src="/images/innova-logo.png"
+              src="/images/innova-logo.jpeg"
               alt="Innova"
               width={52}
               height={52}
