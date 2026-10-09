@@ -23,13 +23,15 @@ function progressAccent(r: DepartmentProgressRow) {
 function ProgressTable({
   title,
   rows,
+  pillClassName = 'bg-blue-500/20 text-blue-700',
 }: {
   title: string;
   rows: DepartmentProgressRow[];
+  pillClassName?: string;
 }) {
   return (
     <div>
-      <span className={`${PILL} mb-3 bg-blue-500/20 text-blue-700`}>
+      <span className={`${PILL} mb-3 ${pillClassName}`}>
         {title}
       </span>
 
@@ -121,7 +123,11 @@ export function DepartmentProgressView() {
         title="Progresso por departamento"
         rows={data.byDepartment}
       />
-      <ProgressTable title="Progresso por unidade" rows={data.byUnit} />
+      <ProgressTable
+        title="Progresso por unidade"
+        rows={data.byUnit}
+        pillClassName="bg-emerald-500/20 text-emerald-700"
+      />
     </div>
   );
 }
