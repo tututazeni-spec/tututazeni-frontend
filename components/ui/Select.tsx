@@ -91,6 +91,7 @@ export function Select({
           className="z-[60] min-w-[var(--radix-select-trigger-width)] max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
           position="popper"
           sideOffset={4}
+          collisionPadding={8}
         >
           <RadixSelect.Viewport className="p-1 max-h-[var(--radix-select-content-available-height)] overflow-y-auto">
             {items.map((item) => (
@@ -102,7 +103,9 @@ export function Select({
                   'outline-none data-[highlighted]:bg-field-soft',
                 )}
               >
-                <RadixSelect.ItemText>{item.label}</RadixSelect.ItemText>
+                <span className="min-w-0 whitespace-normal break-words">
+                  <RadixSelect.ItemText>{item.label}</RadixSelect.ItemText>
+                </span>
                 <RadixSelect.ItemIndicator>
                   <Check
                     size={14}

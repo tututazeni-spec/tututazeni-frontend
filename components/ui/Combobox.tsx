@@ -100,15 +100,22 @@ export function Combobox({
           >
             {label ?? placeholder}
           </span>
-          <span>{selected ? selected.label : ' '}</span>
-          <ChevronDown size={16} strokeWidth={1.75} className="text-field" />
+          <span className="min-w-0 flex-1 truncate">
+            {selected ? selected.label : ' '}
+          </span>
+          <ChevronDown
+            size={16}
+            strokeWidth={1.75}
+            className="shrink-0 text-field"
+          />
         </button>
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
           align="start"
           sideOffset={4}
-          className="z-[60] w-[--radix-popover-trigger-width] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
+          collisionPadding={8}
+          className="z-[60] min-w-[var(--radix-popover-trigger-width)] max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
         >
           <div className="m-2 flex items-center gap-2 rounded-pill border-[1.5px] border-field bg-surface px-3 py-[7px] focus-within:bg-field-soft">
             <Search
@@ -132,7 +139,7 @@ export function Combobox({
               }}
             />
           </div>
-          <div className="max-h-64 overflow-y-auto p-1">
+          <div className="max-h-[min(16rem,var(--radix-popover-content-available-height))] overflow-y-auto p-1">
             {filteredItems.length === 0 && (
               <div className="px-3 py-2 font-body text-sm text-ink-muted">
                 {emptyText}
@@ -152,7 +159,9 @@ export function Combobox({
                   item.value === value && 'bg-field-soft',
                 )}
               >
-                <span>{item.label}</span>
+                <span className="min-w-0 whitespace-normal break-words text-left">
+                  {item.label}
+                </span>
                 {item.value === value && (
                   <Check
                     size={14}
