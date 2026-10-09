@@ -39,10 +39,10 @@ export function CourseCard({
           onClick();
         }
       }}
-      className="cursor-pointer overflow-hidden transition-shadow hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+      className="flex cursor-pointer overflow-hidden transition-shadow hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
     >
       {/* Thumbnail */}
-      <div className="aspect-video bg-surface-sunken relative overflow-hidden">
+      <div className="relative w-2/5 shrink-0 self-stretch overflow-hidden bg-surface-sunken">
         <CourseThumbnail src={course.thumbnailUrl} alt={course.title} />
         {course.mandatory && (
           <Badge intent="danger" className="absolute top-2 left-2">
@@ -61,7 +61,7 @@ export function CourseCard({
         )}
       </div>
 
-      <div className="p-4">
+      <div className="min-w-0 flex-1 p-3">
         {/* Category */}
         {course.category && (
           <div className="text-xs text-primary font-medium mb-1">
