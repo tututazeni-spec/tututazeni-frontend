@@ -9,10 +9,12 @@
 
 'use client';
 
+import { FileText, ListChecks, Ruler } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
 import {
@@ -52,25 +54,25 @@ export function SettingsTab() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardBody>
-            <p className="text-xs text-ink-faint">Escalas configuradas</p>
-            <p className="text-2xl font-bold text-ink">{data.scales.length}</p>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody>
-            <p className="text-xs text-ink-faint">Critérios activos</p>
-            <p className="text-2xl font-bold text-ink">{data.criteriaCount}</p>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody>
-            <p className="text-xs text-ink-faint">Modelos activos</p>
-            <p className="text-2xl font-bold text-ink">{data.templatesCount}</p>
-          </CardBody>
-        </Card>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <NavyStatCard
+          icon={Ruler}
+          label="Escalas configuradas"
+          value={data.scales.length}
+          tone="blue"
+        />
+        <NavyStatCard
+          icon={ListChecks}
+          label="Critérios activos"
+          value={data.criteriaCount}
+          tone="green"
+        />
+        <NavyStatCard
+          icon={FileText}
+          label="Modelos activos"
+          value={data.templatesCount}
+          tone="orange"
+        />
       </div>
 
       <Card>

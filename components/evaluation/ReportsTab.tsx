@@ -7,7 +7,13 @@
 
 'use client';
 
-import { Download } from 'lucide-react';
+import {
+  CheckCircle2,
+  ClipboardList,
+  Download,
+  Star,
+  Target,
+} from 'lucide-react';
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -17,7 +23,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
-import { SCORE_COLOR } from './constants';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { SCORE_COLOR, SCORE_TONE } from './constants';
 import type { EvaluationReportGroup, EvaluationReportsOverview } from './types';
 
 function GroupTable({
@@ -203,43 +210,35 @@ export function ReportsTab() {
 
       {data && (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Card>
-              <CardBody>
-                <p className="text-xs text-ink-faint">Total de Avaliações</p>
-                <p className="text-2xl font-bold text-ink">
-                  {data.totalEvaluations}
-                </p>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <p className="text-xs text-ink-faint">Score Médio</p>
-                <p
-                  className={`text-2xl font-bold ${SCORE_COLOR(data.avgScore)}`}
-                >
-                  {data.avgScore.toFixed(1)}
-                </p>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <p className="text-xs text-ink-faint">Taxa de Conclusão</p>
-                <p className="text-2xl font-bold text-ink">
-                  {data.completionRate}%
-                </p>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <p className="text-xs text-ink-faint">Objetivos Alcançados</p>
-                <p className="text-2xl font-bold text-ink">
-                  {data.objectivesAchieved.avgAchievement != null
-                    ? `${data.objectivesAchieved.avgAchievement}%`
-                    : '—'}
-                </p>
-              </CardBody>
-            </Card>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <NavyStatCard
+              icon={ClipboardList}
+              label="Total de Avaliações"
+              value={data.totalEvaluations}
+              tone="blue"
+            />
+            <NavyStatCard
+              icon={Star}
+              label="Score Médio"
+              value={data.avgScore.toFixed(1)}
+              tone={SCORE_TONE(data.avgScore)}
+            />
+            <NavyStatCard
+              icon={CheckCircle2}
+              label="Taxa de Conclusão"
+              value={`${data.completionRate}%`}
+              tone="green"
+            />
+            <NavyStatCard
+              icon={Target}
+              label="Objetivos Alcançados"
+              value={
+                data.objectivesAchieved.avgAchievement != null
+                  ? `${data.objectivesAchieved.avgAchievement}%`
+                  : '—'
+              }
+              tone="orange"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

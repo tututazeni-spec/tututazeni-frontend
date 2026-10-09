@@ -10,6 +10,7 @@
 // Extraído verbatim (excepto cor) de app/(platform)/evaluation/page.tsx.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
+import type { NavyStatTone } from '@/components/ui/NavyStatCard';
 
 export const STATUS_MAP: StatusBadgeMap<string> = {
   DRAFT: { label: 'DRAFT', cls: 'bg-surface-sunken text-ink-muted' },
@@ -116,6 +117,9 @@ export const MODEL_LABEL: Record<string, string> = {
   CONTINUOUS: 'Contínuo',
   PROJECT: 'Por Projecto',
 };
+
+export const SCORE_TONE = (score: number): NavyStatTone =>
+  score >= 4 ? 'green' : score >= 3 ? 'blue' : score >= 2 ? 'orange' : 'red';
 
 export const SCORE_COLOR = (score: number) =>
   score >= 4
