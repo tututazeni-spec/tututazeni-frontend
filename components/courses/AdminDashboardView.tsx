@@ -75,14 +75,14 @@ function DistributionList({
 }) {
   const max = Math.max(1, ...items.map((i) => i.count));
   return (
-    <Card className="p-4">
-      <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
+    <Card className="overflow-hidden">
+      <div className="px-4 py-3 bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       {items.length === 0 ? (
-        <p className="text-xs text-ink-faint">Sem dados</p>
+        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 p-4">
           {items.slice(0, 6).map((item, i) => (
             <div key={i} className="flex items-center gap-3">
   <span
@@ -91,15 +91,15 @@ function DistributionList({
   >
     {item.label}
   </span>
-  <div className="h-5 flex-1 overflow-hidden rounded-md bg-surface-sunken">
+  <div className="flex flex-1 items-center gap-2">
     <div
-            className={`h-full rounded-md ${BAR_COLORS[i % BAR_COLORS.length]}`}
-      style={{ width: `${(item.count / max) * 100}%` }}
+      className={`h-2.5 rounded-md ${BAR_COLORS[i % BAR_COLORS.length]}`}
+      style={{ width: `${(item.count / max) * 88}%` }}
     />
+    <span className="flex-shrink-0 font-data text-xs text-ink">
+      {item.count}
+    </span>
   </div>
-  <span className="w-8 flex-shrink-0 text-right font-data text-xs text-ink">
-    {item.count}
-  </span>
 </div>
           ))}
         </div>
@@ -121,7 +121,7 @@ function CourseRankList({
 }) {
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       {items.length === 0 ? (
@@ -165,7 +165,7 @@ function CourseLollipopList({
 }) {
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       {items.length === 0 ? (
@@ -500,7 +500,7 @@ export function AdminDashboardView({
       {/* Actividade recente */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimas inscrições
           </div>
           {data.recentActivity.enrollments.length === 0 ? (
@@ -519,7 +519,7 @@ export function AdminDashboardView({
           )}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimas conclusões
           </div>
           {data.recentActivity.completions.length === 0 ? (
@@ -538,7 +538,7 @@ export function AdminDashboardView({
           )}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimas avaliações
           </div>
           {data.recentActivity.feedbacks.length === 0 ? (
@@ -558,7 +558,7 @@ export function AdminDashboardView({
           )}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimos certificados emitidos
           </div>
           {data.recentActivity.certificates.length === 0 ? (
@@ -583,7 +583,7 @@ export function AdminDashboardView({
       {/* Recentemente criados/actualizados, próximos do término */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Recentemente criados
           </div>
           {data.recentlyCreated.map((c) => (
@@ -597,7 +597,7 @@ export function AdminDashboardView({
           ))}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Recentemente actualizados
           </div>
           {data.recentlyUpdated.map((c) => (
@@ -611,7 +611,7 @@ export function AdminDashboardView({
           ))}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
             Próximos do término
           </div>
           {data.endingSoon.length === 0 ? (
