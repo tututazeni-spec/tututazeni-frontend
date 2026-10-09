@@ -1414,6 +1414,7 @@ export const queryKeys = {
       [...queryKeys.courses.all, 'quiz-attempt', quizId] as const,
     cohorts: (courseId: number) =>
       [...queryKeys.courses.all, 'cohorts', courseId] as const,
+    openCohorts: () => [...queryKeys.courses.all, 'cohorts', 'open'] as const,
     cohortDetail: (cohortId: number) =>
       [...queryKeys.courses.all, 'cohort-detail', cohortId] as const,
     cohortAttendance: (cohortId: number, date: string) =>
