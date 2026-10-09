@@ -278,6 +278,7 @@ export const queryKeys = {
   settings: {
     all: ['settings'] as const,
     organization: () => [...queryKeys.settings.all, 'organization'] as const,
+    branding: () => [...queryKeys.settings.all, 'branding'] as const,
     userPolicy: () => [...queryKeys.settings.all, 'user-policy'] as const,
     usersOverview: () => [...queryKeys.settings.all, 'users-overview'] as const,
     inactiveUsers: (days?: number) =>

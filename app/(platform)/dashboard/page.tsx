@@ -11,7 +11,11 @@
 
 import { useState } from 'react';
 import { BarChart2, CircleCheck, LayoutDashboard, Users } from 'lucide-react';
+import { DashboardWatermark } from '@/components/dashboard/DashboardWatermark';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import {
   AUTHENTICATED_ROLES,
   EXECUTIVE_ROLES,
@@ -59,6 +63,15 @@ export default function DashboardPage() {
   const [tab, setTab] = useState('personal');
   const role = useCurrentRole() ?? 'COLABORADOR';
 
+  // Nome do tenant definido em Definições → Visão Geral (aberto a qualquer
+  // utilizador autenticado, ao contrário de /settings/organization).
+  const { data: branding } = useApiQuery<{ tenantName?: string }>(
+    queryKeys.settings.branding(),
+    '/settings/branding',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const tenantName = branding?.tenantName?.trim();
+
   const availableTabs = filterByRole(TABS, role);
 
   const activeTab =
@@ -71,6 +84,11 @@ export default function DashboardPage() {
       {/* Container azul: cabeçalho dinâmico + Slideshow no mesmo cartão
           (#0F1F3D), acima das tabs e visível em qualquer separador. */}
       <div className="mx-auto max-w-7xl px-6 pt-6">
+        {tenantName && (
+          <p className="mb-3 truncate font-display text-lg font-bold text-[#0F1F3D]">
+            {tenantName}
+          </p>
+        )}
         <section className="overflow-hidden rounded-3xl bg-[#0F1F3D] text-white shadow-[0_12px_32px_rgba(15,31,61,0.25)]">
           <div className="flex items-center gap-3 px-6 py-5">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white">
