@@ -108,8 +108,8 @@ function ProgressRing({ value }: { value: number }) {
   const circ = 2 * Math.PI * r;
   const pct = Math.max(0, Math.min(100, value));
   return (
-    <div className="relative h-14 w-14">
-      <svg viewBox="0 0 56 56" className="h-14 w-14 -rotate-90">
+    <div className="relative h-10 w-10 shrink-0">
+      <svg viewBox="0 0 56 56" className="h-full w-full -rotate-90">
         <circle
           cx="28"
           cy="28"
@@ -130,7 +130,7 @@ function ProgressRing({ value }: { value: number }) {
           strokeDashoffset={circ * (1 - pct / 100)}
         />
       </svg>
-      <span className="absolute inset-0 flex items-center justify-center font-mono text-xs text-black">
+      <span className="absolute inset-0 flex items-center justify-center font-mono text-[10px] text-black">
         {pct}%
       </span>
     </div>
@@ -400,11 +400,11 @@ export function GestaoView({
               return (
                 <div
                   key={c.id}
-                  className={`flex flex-col gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-4 shadow-sm backdrop-blur-md hover:bg-surface ${STATUS_ACCENT[c.status] ?? ''}`}
+                  className={`flex flex-col gap-2 rounded-2xl border border-l-4 border-border bg-surface/60 p-2.5 shadow-sm backdrop-blur-md hover:bg-surface lg:flex-row lg:items-center lg:gap-3 ${STATUS_ACCENT[c.status] ?? ''}`}
                 >
                   {/* Topo: código, nome e menu de acções */}
-                  <div className="flex items-start gap-3">
-                    <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
+                  <div className="flex items-start gap-3 lg:w-72 lg:shrink-0">
+                    <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
                       <span className="w-fit rounded-full bg-blue-500/20 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-black">
                         {c.internalCode ?? '—'}
                       </span>
@@ -529,7 +529,7 @@ export function GestaoView({
                   </div>
 
                   {/* Detalhes em grelha fluida: 2 colunas no telemóvel, 4 em ecrãs largos */}
-                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-2 lg:flex lg:flex-1 lg:items-stretch [&>div]:!p-2 lg:[&>div]:flex-1">
                     {/* 2. Categoria, Tipo & Nível */}
                     <div
                       className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1.5`}

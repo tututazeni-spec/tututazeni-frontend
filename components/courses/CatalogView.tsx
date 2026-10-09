@@ -149,7 +149,7 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
           <div className="text-xs text-ink-faint mb-4">
             {data.total} cursos encontrados
           </div>
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-3 gap-4 mb-6">
             {data.data.map((course) => (
               <CourseCard
                 key={course.id}
