@@ -451,7 +451,6 @@ export function LoginView({
               height={52}
               style={{ objectFit: 'contain' }}
             />
-            <span className="login-logo-text">Innova</span>
           </div>
 
           <div className="login-divider" />
