@@ -25,6 +25,7 @@ import {
   Library,
   MapPin,
   Save,
+  Trash2,
   ShieldAlert,
   Smile,
   Star,
@@ -37,9 +38,11 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
-import { Select } from '@/components/ui/Select';
+import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
@@ -233,10 +236,13 @@ const COMPARISON_LABELS: Record<string, string> = {
 // (GET/POST /dashboard-institutional/snapshots, GET .../snapshots/compare).
 function SnapshotsPanel() {
   const notify = useToast();
+  const confirm = useConfirm();
+  const role = useCurrentRole();
+  const canDelete = role === 'ADMIN' || role === 'RH';
   const snapshotsQ = useApiQuery<{ data: ExecutiveSnapshot[] }>(
     queryKeys.dashboard.executiveSnapshots(),
     '/dashboard-institutional/snapshots',
-    { params: { page: 1, limit: 12 }, staleTime: STALE_TIME.SEMI_STATIC },
+    { params: { page: 1, limit: 100 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
   const snapshots = useMemo(
     () => snapshotsQ.data?.data ?? [],
@@ -261,17 +267,40 @@ function SnapshotsPanel() {
     },
   );
 
-  const [period1, setPeriod1] = useState<string>();
-  const [period2, setPeriod2] = useState<string>();
+  const deleteSnapshot = useApiMutation<unknown, string>(
+    (id) => apiClient.delete(`/dashboard-institutional/snapshots/${id}`),
+    {
+      invalidateKeys: [queryKeys.dashboard.executiveSnapshots()],
+      onSuccess: () => {
+        setCompareResult(null);
+        notify({ title: 'Snapshot apagado', intent: 'success' });
+      },
+      onError: (err) =>
+        notify({
+          title: err.message || 'Erro ao apagar snapshot',
+          intent: 'danger',
+        }),
+    },
+  );
+
+  async function handleDelete(s: ExecutiveSnapshot) {
+    const ok = await confirm({
+      title: 'Apagar snapshot',
+      message: `Apagar o snapshot de ${s.period}? Deixa de aparecer no histórico e nas comparações.`,
+      confirmLabel: 'Apagar',
+      destructive: true,
+    });
+    if (ok) deleteSnapshot.mutate(s.id);
+  }
+
+  // Períodos escolhidos por data (AAAA-MM) — qualquer mês anterior, não só
+  // os mais recentes da lista.
+  const [period1, setPeriod1] = useState('');
+  const [period2, setPeriod2] = useState('');
   const [compareResult, setCompareResult] = useState<CompareResult | null>(
     null,
   );
   const [comparing, setComparing] = useState(false);
-
-  const periodOptions = useMemo(
-    () => snapshots.map((s) => ({ value: s.period, label: s.period })),
-    [snapshots],
-  );
 
   async function handleCompare() {
     if (!period1 || !period2) return;
@@ -326,6 +355,7 @@ function SnapshotsPanel() {
                     <th className="pb-2">Inscrições</th>
                     <th className="pb-2">Conclusão</th>
                     <th className="pb-2">Guardado por</th>
+                    {canDelete && <th className="pb-2" />}
                   </tr>
                 </thead>
                 <tbody>
@@ -344,6 +374,19 @@ function SnapshotsPanel() {
                       <td className="py-2 text-ink-faint">
                         {s.createdBy?.fullName ?? '—'}
                       </td>
+                      {canDelete && (
+                        <td className="py-2 text-right">
+                          <Button
+                            size="sm"
+                            intent="ghost"
+                            aria-label={`Apagar snapshot ${s.period}`}
+                            onClick={() => handleDelete(s)}
+                            disabled={deleteSnapshot.isPending}
+                          >
+                            <Trash2 size={14} strokeWidth={1.75} />
+                          </Button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -355,22 +398,24 @@ function SnapshotsPanel() {
                 <p className="mb-1 font-body text-xs text-ink-faint">
                   Período A
                 </p>
-                <Select
-                  items={periodOptions}
+                <Input
+                  type="month"
                   value={period1}
-                  onValueChange={setPeriod1}
-                  placeholder="Escolher…"
+                  max={currentPeriodKey()}
+                  onChange={(e) => setPeriod1(e.target.value)}
+                  aria-label="Período A"
                 />
               </div>
               <div>
                 <p className="mb-1 font-body text-xs text-ink-faint">
                   Período B
                 </p>
-                <Select
-                  items={periodOptions}
+                <Input
+                  type="month"
                   value={period2}
-                  onValueChange={setPeriod2}
-                  placeholder="Escolher…"
+                  max={currentPeriodKey()}
+                  onChange={(e) => setPeriod2(e.target.value)}
+                  aria-label="Período B"
                 />
               </div>
               <Button
@@ -382,6 +427,11 @@ function SnapshotsPanel() {
                 Comparar
               </Button>
             </div>
+
+            <p className="mt-2 font-body text-xs text-ink-faint">
+              Escolhe o mês de cada período. Só é possível comparar meses com
+              snapshot guardado.
+            </p>
 
             {compareResult && (
               <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
