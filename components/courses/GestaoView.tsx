@@ -306,9 +306,9 @@ export function GestaoView({
   return (
     <div>
       {/* Filtros — grid de largura uniforme (8 campos: 2 pesquisas + 6
-          selects) em vez de larguras w-* ad-hoc por campo, para que todos
+          selects, em 1/2/4 colunas para o texto caber sem ser cortado) em vez de larguras w-* ad-hoc por campo, para que todos
           os controlos fiquem com o mesmo tamanho e alinhados em colunas. */}
-      <div className="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
+      <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Input
           type="text"
           placeholder="Pesquisar cursos…"
