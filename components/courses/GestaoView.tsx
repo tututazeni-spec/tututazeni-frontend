@@ -306,9 +306,9 @@ export function GestaoView({
   return (
     <div>
       {/* Filtros — grid de largura uniforme (8 campos: 2 pesquisas + 6
-          selects, em 1/2/4 colunas para o texto caber sem ser cortado) em vez de larguras w-* ad-hoc por campo, para que todos
+          selects, em 1/2/3 colunas; departamentos ocupa 2 no ecrã largo para o texto caber sem ser cortado) em vez de larguras w-* ad-hoc por campo, para que todos
           os controlos fiquem com o mesmo tamanho e alinhados em colunas. */}
-      <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Input
           type="text"
           placeholder="Pesquisar cursos…"
@@ -366,7 +366,7 @@ export function GestaoView({
           onValueChange={(v) =>
             updateFilters({ departmentId: v === 'ALL' ? '' : v })
           }
-          className="w-full"
+          className="w-full lg:col-span-2"
         />
       </div>
       <div className="mb-5 flex justify-end">
