@@ -10,7 +10,13 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { CalendarDays, MapPin, Monitor, MoreHorizontal, Plus } from 'lucide-react';
+import {
+  CalendarDays,
+  MapPin,
+  Monitor,
+  MoreHorizontal,
+  Plus,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -93,7 +99,8 @@ const MODALITY_PILL: Record<string, string> = {
   ONLINE: 'bg-blue-500/20 text-blue-700',
 };
 
-const PILL = 'inline-block max-w-full truncate rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase';
+const PILL =
+  'inline-block max-w-full truncate rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase';
 const PANEL = 'rounded-xl border border-border/60 bg-surface-sunken/40 p-3';
 
 function ProgressRing({ value }: { value: number }) {
@@ -103,9 +110,21 @@ function ProgressRing({ value }: { value: number }) {
   return (
     <div className="relative h-14 w-14">
       <svg viewBox="0 0 56 56" className="h-14 w-14 -rotate-90">
-        <circle cx="28" cy="28" r={r} fill="none" strokeWidth="5" className="stroke-border" />
         <circle
-          cx="28" cy="28" r={r} fill="none" strokeWidth="5" strokeLinecap="round"
+          cx="28"
+          cy="28"
+          r={r}
+          fill="none"
+          strokeWidth="5"
+          className="stroke-border"
+        />
+        <circle
+          cx="28"
+          cy="28"
+          r={r}
+          fill="none"
+          strokeWidth="5"
+          strokeLinecap="round"
           className={pct >= 75 ? 'stroke-orange-400' : 'stroke-blue-500'}
           strokeDasharray={circ}
           strokeDashoffset={circ * (1 - pct / 100)}
@@ -366,196 +385,246 @@ export function GestaoView({
       )}
 
       {!isLoading && courses.length > 0 && (
-  <div className="overflow-x-auto">
-    {/* Cabeçalho agrupado */}
-    <div className="grid min-w-[1100px] grid-cols-[1.4fr_1.3fr_1fr_1.2fr_1.3fr_40px] gap-3 px-4 pb-2 text-xs font-medium uppercase tracking-wide text-ink-faint">
-      <div>Código &amp; Nome</div>
-      <div>Categoria, Tipo &amp; Nível</div>
-      <div>Modalidade &amp; Duração</div>
-      <div>Instrutor &amp; Publicação</div>
-      <div>Estado, Formandos &amp; Progresso médio</div>
-      <div />
-    </div>
-
-    <div className="space-y-3">
-      {courses.map((c) => {
-        const noModules = c._count.modules === 0;
-        const levelLabel = LEVEL_ITEMS.find((l) => l.value === c.level)?.label;
-        return (
-          <div
-            key={c.id}
-            className={`grid min-w-[1100px] grid-cols-[1.4fr_1.3fr_1fr_1.2fr_1.3fr_40px] items-stretch gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-3 shadow-sm backdrop-blur-md hover:bg-surface ${STATUS_ACCENT[c.status] ?? ''}`}
-          >
-            {/* 1. Código & Nome */}
-            <div className="flex min-w-0 flex-col justify-center gap-1.5">
-              <span className="w-fit rounded-full bg-blue-500/20 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-blue-700">
-                {c.internalCode ?? '—'}
-              </span>
-              <button type="button" className="min-w-0 text-left" onClick={() => onSelect(c.id)}>
-                <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
-                  {c.title}
-                </div>
-              </button>
-            </div>
-
-            {/* 2. Categoria, Tipo & Nível */}
-            <div className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1.5`}>
-              <span className={`${PILL} bg-blue-500/20 text-blue-700`}>{c.category ?? '—'}</span>
-              <span className={`${PILL} bg-fuchsia-500/20 text-fuchsia-700`}>
-                {c.type ? COURSE_TYPE_LABELS[c.type] : '—'}
-              </span>
-              <span className={`${PILL} ${LEVEL_PILL[c.level] ?? 'bg-slate-500/20 text-slate-700'}`}>
-                {levelLabel ?? '—'}
-              </span>
-            </div>
-
-            {/* 3. Modalidade & Duração */}
-            <div className={`${PANEL} flex flex-col items-center justify-center gap-1.5`}>
-              {c.modality === 'ONLINE' ? (
-                <Monitor size={16} strokeWidth={1.75} className="text-blue-500" />
-              ) : (
-                <MapPin size={16} strokeWidth={1.75} className="text-emerald-600" />
-              )}
-              <span className={`${PILL} ${MODALITY_PILL[c.modality ?? ''] ?? 'bg-violet-500/20 text-violet-700'}`}>
-                {c.modality ? COURSE_MODALITY_LABELS[c.modality] : '—'}
-              </span>
-              <span className="text-xs text-ink-muted">{fmtDuration(c.workloadHours)}</span>
-            </div>
-
-            {/* 4. Instrutor & Publicação */}
-            <div className={`${PANEL} flex min-w-0 flex-col items-center justify-center gap-1`}>
-              {c.primaryInstructor ? (
-                <>
-                  <Avatar
-                    name={c.primaryInstructor.fullName}
-                    url={c.primaryInstructor.avatarUrl ?? undefined}
-                    size="sm"
-                  />
-                  <span className="max-w-full truncate text-xs font-medium text-ink">
-                    {c.primaryInstructor.fullName}
-                  </span>
-                </>
-              ) : (
-                <span className="text-xs text-ink-faint">Sem instrutor</span>
-              )}
-              <span className="flex items-center gap-1 text-xs text-ink-faint">
-                <CalendarDays size={12} strokeWidth={1.75} />
-                {c.publishedAt ? new Date(c.publishedAt).toLocaleDateString('pt') : '—'}
-              </span>
-            </div>
-
-            {/* 5. Estado, Formandos & Progresso médio */}
-            <div className={`${PANEL} flex items-center justify-between gap-3`}>
-              <div className="flex flex-col items-start gap-1.5">
-                <StatusBadge value={c.status} map={COURSE_STATUS_MAP} variant="dot" />
-                <span className="text-xs text-ink-muted">
-                  Formandos: <span className="font-mono">{c._count.enrollments}</span>
-                </span>
-              </div>
-              <ProgressRing value={c.avgProgress ?? 0} />
-            </div>
-
-            {/* 6. Acções — cola aqui o <DropdownMenu>…</DropdownMenu> existente, sem alterações */}
-            <div className="flex items-center">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+        <div>
+          <div className="space-y-3">
+            {courses.map((c) => {
+              const noModules = c._count.modules === 0;
+              const levelLabel = LEVEL_ITEMS.find(
+                (l) => l.value === c.level,
+              )?.label;
+              return (
+                <div
+                  key={c.id}
+                  className={`flex flex-col gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-4 shadow-sm backdrop-blur-md hover:bg-surface ${STATUS_ACCENT[c.status] ?? ''}`}
+                >
+                  {/* Topo: código, nome e menu de acções */}
+                  <div className="flex items-start gap-3">
+                    <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
+                      <span className="w-fit rounded-full bg-blue-500/20 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-blue-700">
+                        {c.internalCode ?? '—'}
+                      </span>
                       <button
                         type="button"
-                        className="rounded-control p-1.5 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-                        disabled={rowBusy(c.id)}
+                        className="min-w-0 text-left"
+                        onClick={() => onSelect(c.id)}
                       >
-                        <MoreHorizontal size={16} strokeWidth={1.75} />
+                        <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
+                          {c.title}
+                        </div>
                       </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onSelect={() => onSelect(c.id)}>
-                        Ver
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => setEditCourseId(c.id)}>
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => duplicate.mutate(c.id)}>
-                        Duplicar
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      {c.status === 'DRAFT' && (
-                        <DropdownMenuItem
-                          disabled={noModules}
-                          onSelect={() => publish.mutate(c.id)}
-                        >
-                          Publicar
-                        </DropdownMenuItem>
-                      )}
-                      {c.status === 'PUBLISHED' && (
-                        <DropdownMenuItem onSelect={() => pause.mutate(c.id)}>
-                          Despublicar
-                        </DropdownMenuItem>
-                      )}
-                      {c.status === 'PAUSED' && (
-                        <DropdownMenuItem onSelect={() => resume.mutate(c.id)}>
-                          Retomar
-                        </DropdownMenuItem>
-                      )}
-                      {c.status === 'ARCHIVED' ? (
-                        <DropdownMenuItem onSelect={() => restore.mutate(c.id)}>
-                          Repor rascunho
-                        </DropdownMenuItem>
-                      ) : (
-                        <DropdownMenuItem onSelect={() => onArchive(c)}>
-                          Arquivar
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onSelect={() => setEnrollFor(c.id)}>
-                        Inscrever colaboradores
-                      </DropdownMenuItem>
-                      {onViewEnrollments && (
-                        <DropdownMenuItem
-                          onSelect={() => onViewEnrollments(c.id)}
-                        >
-                          Ver inscrições / progresso
-                        </DropdownMenuItem>
-                      )}
-                      {onManageModules && (
-                        <DropdownMenuItem
-                          onSelect={() => onManageModules(c.id)}
-                        >
-                          Gerir módulos
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem onSelect={() => setAddModuleFor(c.id)}>
-                        <Plus
-                          size={14}
-                          strokeWidth={1.75}
-                          className="mr-1 inline"
-                        />
-                        Adicionar módulo
-                      </DropdownMenuItem>
-                      {c.requiresApproval && (
-                        <DropdownMenuItem onSelect={() => setPendingFor(c)}>
-                          Pedidos de inscrição
-                        </DropdownMenuItem>
-                      )}
-                      {(c.status === 'DRAFT' || c.status === 'ARCHIVED') && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-danger-ink"
-                            onSelect={() => onDelete(c)}
+                    </div>
+                    {/* Acções */}
+                    <div className="flex shrink-0 items-center">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            className="rounded-control p-1.5 text-ink-muted hover:bg-surface-sunken hover:text-ink"
+                            disabled={rowBusy(c.id)}
                           >
-                            Eliminar
+                            <MoreHorizontal size={16} strokeWidth={1.75} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onSelect={() => onSelect(c.id)}>
+                            Ver
                           </DropdownMenuItem>
-                        </>
+                          <DropdownMenuItem
+                            onSelect={() => setEditCourseId(c.id)}
+                          >
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() => duplicate.mutate(c.id)}
+                          >
+                            Duplicar
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          {c.status === 'DRAFT' && (
+                            <DropdownMenuItem
+                              disabled={noModules}
+                              onSelect={() => publish.mutate(c.id)}
+                            >
+                              Publicar
+                            </DropdownMenuItem>
+                          )}
+                          {c.status === 'PUBLISHED' && (
+                            <DropdownMenuItem
+                              onSelect={() => pause.mutate(c.id)}
+                            >
+                              Despublicar
+                            </DropdownMenuItem>
+                          )}
+                          {c.status === 'PAUSED' && (
+                            <DropdownMenuItem
+                              onSelect={() => resume.mutate(c.id)}
+                            >
+                              Retomar
+                            </DropdownMenuItem>
+                          )}
+                          {c.status === 'ARCHIVED' ? (
+                            <DropdownMenuItem
+                              onSelect={() => restore.mutate(c.id)}
+                            >
+                              Repor rascunho
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem onSelect={() => onArchive(c)}>
+                              Arquivar
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onSelect={() => setEnrollFor(c.id)}>
+                            Inscrever colaboradores
+                          </DropdownMenuItem>
+                          {onViewEnrollments && (
+                            <DropdownMenuItem
+                              onSelect={() => onViewEnrollments(c.id)}
+                            >
+                              Ver inscrições / progresso
+                            </DropdownMenuItem>
+                          )}
+                          {onManageModules && (
+                            <DropdownMenuItem
+                              onSelect={() => onManageModules(c.id)}
+                            >
+                              Gerir módulos
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            onSelect={() => setAddModuleFor(c.id)}
+                          >
+                            <Plus
+                              size={14}
+                              strokeWidth={1.75}
+                              className="mr-1 inline"
+                            />
+                            Adicionar módulo
+                          </DropdownMenuItem>
+                          {c.requiresApproval && (
+                            <DropdownMenuItem onSelect={() => setPendingFor(c)}>
+                              Pedidos de inscrição
+                            </DropdownMenuItem>
+                          )}
+                          {(c.status === 'DRAFT' ||
+                            c.status === 'ARCHIVED') && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-danger-ink"
+                                onSelect={() => onDelete(c)}
+                              >
+                                Eliminar
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+
+                  {/* Detalhes em grelha fluida: 2 colunas no telemóvel, 4 em ecrãs largos */}
+                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    {/* 2. Categoria, Tipo & Nível */}
+                    <div
+                      className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1.5`}
+                    >
+                      <span className={`${PILL} bg-blue-500/20 text-blue-700`}>
+                        {c.category ?? '—'}
+                      </span>
+                      <span
+                        className={`${PILL} bg-fuchsia-500/20 text-fuchsia-700`}
+                      >
+                        {c.type ? COURSE_TYPE_LABELS[c.type] : '—'}
+                      </span>
+                      <span
+                        className={`${PILL} ${LEVEL_PILL[c.level] ?? 'bg-slate-500/20 text-slate-700'}`}
+                      >
+                        {levelLabel ?? '—'}
+                      </span>
+                    </div>
+
+                    {/* 3. Modalidade & Duração */}
+                    <div
+                      className={`${PANEL} flex flex-col items-center justify-center gap-1.5`}
+                    >
+                      {c.modality === 'ONLINE' ? (
+                        <Monitor
+                          size={16}
+                          strokeWidth={1.75}
+                          className="text-blue-500"
+                        />
+                      ) : (
+                        <MapPin
+                          size={16}
+                          strokeWidth={1.75}
+                          className="text-emerald-600"
+                        />
                       )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-            </div>
+                      <span
+                        className={`${PILL} ${MODALITY_PILL[c.modality ?? ''] ?? 'bg-violet-500/20 text-violet-700'}`}
+                      >
+                        {c.modality ? COURSE_MODALITY_LABELS[c.modality] : '—'}
+                      </span>
+                      <span className="text-xs text-ink-muted">
+                        {fmtDuration(c.workloadHours)}
+                      </span>
+                    </div>
+
+                    {/* 4. Instrutor & Publicação */}
+                    <div
+                      className={`${PANEL} flex min-w-0 flex-col items-center justify-center gap-1`}
+                    >
+                      {c.primaryInstructor ? (
+                        <>
+                          <Avatar
+                            name={c.primaryInstructor.fullName}
+                            url={c.primaryInstructor.avatarUrl ?? undefined}
+                            size="sm"
+                          />
+                          <span className="max-w-full truncate text-xs font-medium text-ink">
+                            {c.primaryInstructor.fullName}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-xs text-ink-faint">
+                          Sem instrutor
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1 text-xs text-ink-faint">
+                        <CalendarDays size={12} strokeWidth={1.75} />
+                        {c.publishedAt
+                          ? new Date(c.publishedAt).toLocaleDateString('pt')
+                          : '—'}
+                      </span>
+                    </div>
+
+                    {/* 5. Estado, Formandos & Progresso médio */}
+                    <div
+                      className={`${PANEL} flex items-center justify-between gap-3`}
+                    >
+                      <div className="flex flex-col items-start gap-1.5">
+                        <StatusBadge
+                          value={c.status}
+                          map={COURSE_STATUS_MAP}
+                          variant="dot"
+                        />
+                        <span className="text-xs text-ink-muted">
+                          Formandos:{' '}
+                          <span className="font-mono">
+                            {c._count.enrollments}
+                          </span>
+                        </span>
+                      </div>
+                      <ProgressRing value={c.avgProgress ?? 0} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        );
-      })}
-    </div>
-  </div>
-)}
+        </div>
+      )}
 
       {data && data.totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
