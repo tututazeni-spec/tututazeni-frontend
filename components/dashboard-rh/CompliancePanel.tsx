@@ -51,7 +51,7 @@ function TopBarKpiCard({
 }) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow hover:shadow-lg">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5 pt-6">
         <Icon size={22} strokeWidth={1.75} className={t.text} />
@@ -94,7 +94,7 @@ function ThermometerKpiCard({
   const color = RISK_HEX[risk] ?? '#2E8B3E';
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-shadow hover:shadow-lg">
+    <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
       <div className="h-1.5 w-full" style={{ backgroundColor: color }} />
       <div className="flex items-center gap-4 p-5 pt-6">
         <div className="relative flex h-20 w-6 shrink-0 flex-col items-center justify-end rounded-full bg-[#E3E8EF] p-1">
