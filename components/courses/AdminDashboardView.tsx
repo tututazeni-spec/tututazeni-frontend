@@ -48,59 +48,6 @@ const ALERT_TITLE = {
   info: 'Informação',
 } as const;
 
-/** Cores das barras, alinhadas com os tons dos cards (azul, verde, dourado, vermelho). */
-const BAR_COLORS = [
-  'bg-blue-500',
-  'bg-emerald-500',
-  'bg-amber-500',
-  'bg-rose-500',
-  'bg-violet-500',
-  'bg-cyan-500',
-] as const;
-
-/** Lista de distribuição — barra horizontal proporcional ao máximo + contagem
- * sempre visível em texto (nunca só cor, ver skill dataviz "never color alone"). */
-function DistributionList({
-  title,
-  items,
-}: {
-  title: string;
-  items: Array<{ label: string; count: number }>;
-}) {
-  const max = Math.max(1, ...items.map((i) => i.count));
-  return (
-    <Card className="overflow-hidden">
-      <div className="px-4 py-3 bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
-        {title}
-      </div>
-      {items.length === 0 ? (
-        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
-      ) : (
-        <div className="space-y-2 p-4">
-          {items.slice(0, 6).map((item, i) => (
-            <div key={i}>
-              <div className="flex items-start justify-between gap-3">
-                <span className="min-w-0 break-words text-xs text-ink-muted">
-                  {item.label}
-                </span>
-                <span className="flex-shrink-0 font-data text-xs text-ink">
-                  {item.count}
-                </span>
-              </div>
-              <div className="mt-1 h-2.5 w-full overflow-hidden rounded-md bg-surface-sunken">
-                <div
-                  className={`h-full rounded-md ${BAR_COLORS[i % BAR_COLORS.length]}`}
-                  style={{ width: `${(item.count / max) * 100}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </Card>
-  );
-}
-
 function CourseRankList({
   title,
   items,
@@ -140,61 +87,6 @@ function CourseRankList({
             </div>
           </div>
         ))
-      )}
-    </Card>
-  );
-}
-
-function CourseLollipopList({
-  title,
-  items,
-  suffix,
-  onSelect,
-}: {
-  title: string;
-  items: Array<{ id: number; title: string; value: number }>;
-  suffix: string;
-  onSelect: (id: number) => void;
-}) {
-  return (
-    <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
-        {title}
-      </div>
-      {items.length === 0 ? (
-        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
-      ) : (
-        items.map((c) => {
-          const pct = Math.min(100, Math.max(0, c.value));
-          return (
-            <div
-              key={c.id}
-              className="px-4 py-2.5 border-b border-border last:border-0 cursor-pointer hover:bg-surface-sunken"
-              onClick={() => onSelect(c.id)}
-            >
-              <div className="flex items-start justify-between gap-2 mb-1.5">
-                <span className="min-w-0 break-words text-xs font-medium text-ink">
-                  {c.title}
-                </span>
-                <span className="text-xs font-data text-ink-muted flex-shrink-0">
-                  {c.value}
-                  {suffix}
-                </span>
-              </div>
-              <div className="relative h-4">
-                <div className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-border" />
-                <div
-                  className="absolute left-0 top-1/2 h-0.5 -translate-y-1/2 rounded-full bg-primary"
-                  style={{ width: `${pct}%` }}
-                />
-                <div
-                  className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-primary shadow-resting"
-                  style={{ left: `${pct}%` }}
-                />
-              </div>
-            </div>
-          );
-        })
       )}
     </Card>
   );
@@ -379,7 +271,7 @@ export function AdminDashboardView({
       </div>
 
       {/* Rankings */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <CourseRankList
           title="Cursos mais populares"
           items={data.topCourses.map((c) => ({
@@ -389,66 +281,6 @@ export function AdminDashboardView({
           }))}
           suffix=" matrículas"
           onSelect={onSelect}
-        />
-        <CourseLollipopList
-          title="Maior taxa de conclusão"
-          items={data.bestCompletion.map((c) => ({
-            id: c.id,
-            title: c.title,
-            value: c.rate,
-          }))}
-          suffix="%"
-          onSelect={onSelect}
-        />
-        <CourseLollipopList
-          title="Menor taxa de conclusão / maior abandono"
-          items={data.worstCompletion.map((c) => ({
-            id: c.id,
-            title: c.title,
-            value: c.rate,
-          }))}
-          suffix="%"
-          onSelect={onSelect}
-        />
-      </div>
-
-      {/* Distribuições */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <DistributionList
-          title="Por categoria"
-          items={data.byCategory.map((c) => ({
-            label: c.category,
-            count: c.count,
-          }))}
-        />
-        <DistributionList
-          title="Por nível"
-          items={data.byLevel.map((c) => ({ label: c.level, count: c.count }))}
-        />
-        <DistributionList
-          title="Por unidade"
-          items={data.byUnit.map((c) => ({ label: c.unit, count: c.count }))}
-        />
-        <DistributionList
-          title="Por departamento"
-          items={data.byDepartment.map((c) => ({
-            label: c.department,
-            count: c.count,
-          }))}
-        />
-        <DistributionList
-          title="Por instrutor"
-          items={data.byInstructor.map((c) => ({
-            label: c.instructor,
-            count: c.count,
-          }))}
-        />
-        <DistributionList
-          title="Competências mais desenvolvidas"
-          items={data.topCompetencies.map((c) => ({
-            label: c.name,
-            count: c.count,
-          }))}
         />
       </div>
 
