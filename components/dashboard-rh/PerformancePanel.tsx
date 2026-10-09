@@ -15,7 +15,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BarChart } from '@/components/ui/charts/BarChart';
-import { TopBarCard } from '@/components/ui/TopBarCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import type { PerformanceData } from './types';
 
 export function PerformancePanel() {
@@ -29,7 +29,7 @@ export function PerformancePanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-28 rounded-2xl bg-surface-sunken"
+        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
       />
     );
   const dist = data?.distribution ?? {};
@@ -38,29 +38,29 @@ export function PerformancePanel() {
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <TopBarCard
+        <NavyStatCard
           label="Pontuação Média"
           value={data?.avgScore?.toFixed(1) ?? '–'}
-          tone="gold"
-          icon={<Star className="h-6 w-6" />}
+          tone="orange"
+          icon={Star}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Avaliados"
           value={data?.total ?? 0}
           tone="blue"
-          icon={<Users className="h-6 w-6" />}
+          icon={Users}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Profissionais de Alto Potencial"
           value={data?.hiPos ?? 0}
           tone="green"
-          icon={<Award className="h-6 w-6" />}
+          icon={Award}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Em Risco"
           value={data?.atRisk ?? 0}
           tone="red"
-          icon={<AlertTriangle className="h-6 w-6" />}
+          icon={AlertTriangle}
         />
       </div>
 

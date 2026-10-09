@@ -10,7 +10,8 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { Banknote, FileText, Receipt, Wallet } from 'lucide-react';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import type { PayrollData } from './types';
@@ -54,7 +55,7 @@ export function PayrollPanel() {
         <Skeleton
           rows={4}
           wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-          itemClassName="h-24 rounded-card bg-surface-sunken"
+          itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
         />
       ) : !data?.headcount ? (
         <p className="font-body text-sm text-ink-faint">
@@ -63,29 +64,29 @@ export function PayrollPanel() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <KpiCard
+            <NavyStatCard
+              icon={FileText}
               label="Recibos Processados"
               value={data.headcount}
-              intent="primary"
-              className="w-full"
+              tone="blue"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={Wallet}
               label="Massa Salarial Bruta"
               value={money(data.totalGross)}
-              intent="info"
-              className="w-full"
+              tone="blue"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={Banknote}
               label="Massa Salarial Líquida"
               value={money(data.totalNet)}
-              intent="success"
-              className="w-full"
+              tone="green"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={Receipt}
               label="Deduções Totais"
               value={money(data.totalDeductions)}
-              intent="warning"
-              className="w-full"
+              tone="orange"
             />
           </div>
           {((data.totalNet ?? 0) > 0 || (data.totalDeductions ?? 0) > 0) && (

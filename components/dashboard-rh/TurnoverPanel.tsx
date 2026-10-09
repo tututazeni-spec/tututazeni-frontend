@@ -10,10 +10,10 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
-import { TopBarCard } from '@/components/ui/TopBarCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { GaugeChart } from '@/components/ui/charts/GaugeChart';
-import { AlertTriangle, Clock } from 'lucide-react';
+import { AlertTriangle, Clock, TrendingDown, UserCheck } from 'lucide-react';
+import { rateTone } from './rateTone';
 import type { TurnoverData } from './types';
 
 export function TurnoverPanel() {
@@ -27,41 +27,36 @@ export function TurnoverPanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-24 rounded-card bg-surface-sunken"
+        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
       />
     );
 
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3 transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-          <GaugeChart
-            value={data?.turnoverRate ?? 0}
-            label="Taxa de Rotatividade"
-            invert
-            thresholds={{ warning: 15, danger: 25 }}
-            size={120}
-          />
-        </div>
-        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3 transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-          <GaugeChart
-            value={data?.retentionRate ?? 0}
-            label="Taxa de Retenção"
-            thresholds={{ warning: 70, danger: 50 }}
-            size={120}
-          />
-        </div>
-        <TopBarCard
+        <NavyStatCard
+          icon={TrendingDown}
+          tone={rateTone(data?.turnoverRate ?? 0, { warning: 15, danger: 25 }, true)}
+          label="Taxa de Rotatividade"
+          value={`${Math.round(data?.turnoverRate ?? 0)}%`}
+        />
+        <NavyStatCard
+          icon={UserCheck}
+          tone={rateTone(data?.retentionRate ?? 0, { warning: 70, danger: 50 })}
+          label="Taxa de Retenção"
+          value={`${Math.round(data?.retentionRate ?? 0)}%`}
+        />
+        <NavyStatCard
           label="Saídas (últimos 3 meses)"
           value={data?.leftLast3Months ?? 0}
           tone="red"
-          icon={<AlertTriangle className="h-6 w-6" />}
+          icon={AlertTriangle}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Tempo Médio de Casa"
           value={`${data?.avgTenureYears ?? 0} anos`}
           tone="blue"
-          icon={<Clock className="h-6 w-6" />}
+          icon={Clock}
         />
       </div>
 

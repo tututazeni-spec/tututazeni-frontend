@@ -6,13 +6,13 @@
 
 'use client';
 
-import { CheckCircle2, Clock, GraduationCap, ShieldAlert } from 'lucide-react';
+import { CheckCircle2, Clock, ShieldCheck } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { GaugeChart } from '@/components/ui/charts/GaugeChart';
-import { TopBarCard } from '@/components/ui/TopBarCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { rateTone } from './rateTone';
 import type { TrainingData } from './types';
 
 export function TrainingPanel() {
@@ -26,7 +26,7 @@ export function TrainingPanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-28 rounded-2xl bg-surface-sunken"
+        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
       />
     );
 
@@ -34,33 +34,29 @@ export function TrainingPanel() {
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <TopBarCard
+        <NavyStatCard
           label="Conclusões (mês)"
           value={data?.completed ?? 0}
           tone="blue"
-          icon={<CheckCircle2 className="h-6 w-6" />}
+          icon={CheckCircle2}
         />
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-          <GaugeChart
-            value={data?.completionRate ?? 0}
-            label="Taxa de Conclusão"
-            thresholds={{ warning: 50, danger: 25 }}
-            size={120}
-          />
-        </div>
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-          <GaugeChart
-            value={data?.mandatoryRate ?? 0}
-            label="Formações Obrigatórias"
-            thresholds={{ warning: 50, danger: 25 }}
-            size={120}
-          />
-        </div>
-        <TopBarCard
+        <NavyStatCard
+          icon={CheckCircle2}
+          tone={rateTone(data?.completionRate ?? 0, { warning: 50, danger: 25 })}
+          label="Taxa de Conclusão"
+          value={`${Math.round(data?.completionRate ?? 0)}%`}
+        />
+        <NavyStatCard
+          icon={ShieldCheck}
+          tone={rateTone(data?.mandatoryRate ?? 0, { warning: 50, danger: 25 })}
+          label="Formações Obrigatórias"
+          value={`${Math.round(data?.mandatoryRate ?? 0)}%`}
+        />
+        <NavyStatCard
           label="Horas Estimadas"
           value={`${data?.estimatedHours ?? 0}h`}
-          tone="gold"
-          icon={<Clock className="h-6 w-6" />}
+          tone="orange"
+          icon={Clock}
         />
       </div>
 
