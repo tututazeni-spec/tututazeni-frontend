@@ -33,8 +33,19 @@ export interface MyDashboardData {
     totalPoints?: number;
     recentBadges?: unknown[];
   };
-  learning?: { inProgress?: number; completed?: number };
+  learning?: {
+    inProgress?: number;
+    completed?: number;
+    totalEnrolled?: number;
+  };
   engagement?: { pendingSurveys?: number };
+  overview?: {
+    pendingEvaluations?: number;
+    scheduledLiveClasses?: number;
+    aiTutorSessions?: number;
+    pendingLeaveRequests?: number;
+    myTrainings?: number;
+  };
   pendingItems?: Array<{ priority: string; label: string }>;
   skills?: Array<{ name: string; current: number; target?: number }>;
 }

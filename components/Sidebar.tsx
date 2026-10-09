@@ -42,7 +42,6 @@ import {
   Wallet,
   Handshake,
   Crown,
-  ClipboardList,
   Network,
   ShieldCheck,
 } from 'lucide-react';
@@ -109,8 +108,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
     label: 'Aprendizagem',
     items: [
       { href: '/courses', icon: BookOpen, label: 'Cursos' },
-      // TODO: confirmar a rota real em app/(platform)/ e as roles do controller.
-      { href: '/enrollments', icon: ClipboardList, label: 'Inscrições' },
       { href: '/evaluation', icon: Star, label: 'Avaliações' },
       { href: '/live-classes', icon: Play, label: 'Aulas ao Vivo' },
       { href: '/content-library', icon: Library, label: 'Biblioteca' },
@@ -146,9 +143,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
           'AUDITOR',
         ],
       },
-      // TODO: confirmar a rota real em app/(platform)/ e as roles do controller.
       { href: '/organization', icon: Network, label: 'Organização' },
-      // TODO: confirmar a rota real em app/(platform)/ e as roles do controller.
       { href: '/leadership', icon: Crown, label: 'Liderança' },
       {
         // Módulo "Competências" único: integra Competências + Mapa de
@@ -255,7 +250,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
   {
     label: 'Sistema',
     items: [
-      // TODO: confirmar a rota real em app/(platform)/ e as roles do controller.
       { href: '/settings', icon: Settings, label: 'Definições' },
     ],
   },
