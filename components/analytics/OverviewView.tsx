@@ -80,7 +80,7 @@ export function OverviewView() {
       </div>
 
       {/* Segunda linha */}
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <StatGroup title="Cursos">
           <NavyStatCard
             icon={BookOpen}
