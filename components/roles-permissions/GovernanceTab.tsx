@@ -5,16 +5,42 @@
 
 'use client';
 
-import { AlertTriangle } from 'lucide-react';
+import {
+  AlertTriangle,
+  KeyRound,
+  Shield,
+  ShieldAlert,
+  UserX,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
-import { KpiCard, type KpiCardProps } from '@/components/ui/KpiCard';
+import {
+  NavyStatCard,
+  type NavyStatTone,
+} from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { GovernanceData } from './types';
+
+// Uma cor por função (cicla se houver mais funções que cores).
+const ROLE_COLORS = [
+  '#3B82F6',
+  '#10B981',
+  '#F59E0B',
+  '#EF4444',
+  '#8B5CF6',
+  '#EC4899',
+  '#14B8A6',
+  '#F97316',
+  '#6366F1',
+  '#84CC16',
+  '#06B6D4',
+  '#A855F7',
+];
 
 const ALERT_STYLES: Record<string, { box: string; icon: string }> = {
   ALERT: { box: 'bg-danger-subtle border-danger', icon: 'text-danger' },
@@ -50,27 +76,32 @@ export function GovernanceTab() {
   const kpis: Array<{
     label: string;
     value: number;
-    intent: KpiCardProps['intent'];
+    icon: LucideIcon;
+    tone: NavyStatTone;
   }> = [
     {
       label: 'Funções',
       value: data?.totalRoles ?? 0,
-      intent: 'primary',
+      icon: Shield,
+      tone: 'blue',
     },
     {
       label: 'Permissões',
       value: data?.totalPermissions ?? 0,
-      intent: 'info',
+      icon: KeyRound,
+      tone: 'blue',
     },
     {
       label: 'Sem Função',
       value: data?.usersWithoutRole ?? 0,
-      intent: (data?.usersWithoutRole ?? 0) > 0 ? 'danger' : 'success',
+      icon: UserX,
+      tone: (data?.usersWithoutRole ?? 0) > 0 ? 'red' : 'green',
     },
     {
       label: 'Acessos Negados',
       value: data?.deniedAccesses ?? 0,
-      intent: (data?.deniedAccesses ?? 0) > 50 ? 'danger' : 'info',
+      icon: ShieldAlert,
+      tone: (data?.deniedAccesses ?? 0) > 50 ? 'red' : 'orange',
     },
   ];
 
@@ -78,12 +109,12 @@ export function GovernanceTab() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {kpis.map((k) => (
-          <KpiCard
+          <NavyStatCard
             key={k.label}
+            icon={k.icon}
             label={k.label}
             value={k.value}
-            intent={k.intent}
-            className="w-full"
+            tone={k.tone}
           />
         ))}
       </div>
@@ -127,7 +158,10 @@ export function GovernanceTab() {
                     </span>
                     <span className="font-bold text-ink">{r.count}</span>
                   </div>
-                  <ProgressBar value={(r.count / max) * 100} />
+                  <ProgressBar
+                    value={(r.count / max) * 100}
+                    color={ROLE_COLORS[i % ROLE_COLORS.length]}
+                  />
                 </div>
               );
             })}
