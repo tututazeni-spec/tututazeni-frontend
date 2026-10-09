@@ -179,11 +179,11 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
       </div>
 
       {/* ── Selector de curso ── */}
-      <Card className="mb-6">
+      <Card className="mb-6 overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+          <Search size={16} strokeWidth={1.75} /> Seleccionar Curso
+        </div>
         <CardBody>
-          <h3 className="m-0 mb-3.5 flex items-center gap-1.5 text-sm font-bold text-ink">
-            <Search size={16} strokeWidth={1.75} /> Seleccionar Curso
-          </h3>
           <div className="flex gap-3 items-end flex-wrap">
             <div className="min-w-[160px] flex-1">
               <FormField label="ID do Curso" htmlFor="courseId">

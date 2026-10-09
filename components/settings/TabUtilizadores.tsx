@@ -16,11 +16,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import type {
-  InactiveUsersResult,
-  UserPolicy,
-  UsersOverview,
-} from './types';
+import type { InactiveUsersResult, UserPolicy, UsersOverview } from './types';
 
 const FIELD_LABELS: Record<string, string> = {
   phone: 'Telefone',
@@ -105,7 +101,10 @@ export function TabUtilizadores() {
         queryKeys.settings.inactiveUsers(),
       ],
       onSuccess: () =>
-        toast({ title: 'Política de utilizadores guardada', intent: 'success' }),
+        toast({
+          title: 'Política de utilizadores guardada',
+          intent: 'success',
+        }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
@@ -120,7 +119,8 @@ export function TabUtilizadores() {
         queryKeys.settings.inactiveUsers(),
         queryKeys.settings.usersOverview(),
       ],
-      onSuccess: () => toast({ title: 'Utilizador desactivado', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Utilizador desactivado', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
@@ -191,11 +191,11 @@ export function TabUtilizadores() {
       )}
 
       <form onSubmit={submit} className="grid grid-cols-2 gap-4">
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Campos obrigatórios na criação
+          </div>
           <CardBody>
-            <h3 className="mb-1 text-base font-bold text-ink">
-              Campos obrigatórios na criação
-            </h3>
             <p className="mb-4 text-xs text-ink-faint">
               Aplicado a Novo utilizador e importações. No convite só se exigem
               Função e Departamento.
@@ -214,11 +214,11 @@ export function TabUtilizadores() {
           </CardBody>
         </Card>
 
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Regras de criação e convite
+          </div>
           <CardBody>
-            <h3 className="mb-4 text-base font-bold text-ink">
-              Regras de criação e convite
-            </h3>
             <div className="space-y-4">
               <FormField
                 label="Domínios de email autorizados"
@@ -238,14 +238,19 @@ export function TabUtilizadores() {
                   className="w-full"
                   items={roleItems}
                   value={
-                    policy.defaultRoleId ? String(policy.defaultRoleId) : NO_ROLE
+                    policy.defaultRoleId
+                      ? String(policy.defaultRoleId)
+                      : NO_ROLE
                   }
                   onValueChange={(v) =>
                     patch({ defaultRoleId: v === NO_ROLE ? null : Number(v) })
                   }
                 />
               </FormField>
-              <FormField label="Validade do convite (dias)" htmlFor="inviteDays">
+              <FormField
+                label="Validade do convite (dias)"
+                htmlFor="inviteDays"
+              >
                 <Input
                   id="inviteDays"
                   type="number"

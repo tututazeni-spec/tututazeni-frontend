@@ -77,11 +77,11 @@ export function StatsTab({ userId }: { userId?: number }) {
       </div>
 
       {/* Activity heatmap */}
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Actividade — Últimas 12 Semanas
+        </div>
         <CardBody>
-          <h4 className="font-display font-semibold text-ink mb-4">
-            Actividade — Últimas 12 Semanas
-          </h4>
           <div
             className="grid gap-1"
             style={{ gridTemplateColumns: 'repeat(84, 1fr)' }}
@@ -117,11 +117,11 @@ export function StatsTab({ userId }: { userId?: number }) {
 
       {/* By category */}
       {data?.byCategory && (
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Actividade por Categoria
+          </div>
           <CardBody>
-            <h4 className="font-display font-semibold text-ink mb-4">
-              Actividade por Categoria
-            </h4>
             <div className="space-y-2">
               {Object.entries(data.byCategory as Record<string, number>)
                 .sort((a, b) => b[1] - a[1])

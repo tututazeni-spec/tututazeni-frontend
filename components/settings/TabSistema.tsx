@@ -16,7 +16,11 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
-import type { SystemSettingsForm, SystemSettingsView, SystemStatus } from './types';
+import type {
+  SystemSettingsForm,
+  SystemSettingsView,
+  SystemStatus,
+} from './types';
 
 function fmtUptime(s: number) {
   const d = Math.floor(s / 86400);
@@ -31,9 +35,13 @@ export function TabSistema() {
     queryKeys.settings.systemSettings(),
     '/settings/system',
   );
-  const status = useApiQuery<SystemStatus>(queryKeys.settings.systemStatus(), '/settings/system/status', {
-    refetchInterval: 10_000,
-  });
+  const status = useApiQuery<SystemStatus>(
+    queryKeys.settings.systemStatus(),
+    '/settings/system/status',
+    {
+      refetchInterval: 10_000,
+    },
+  );
   const [form, setForm] = useState<SystemSettingsForm | null>(null);
 
   useEffect(() => {
@@ -47,24 +55,40 @@ export function TabSistema() {
     (payload: SystemSettingsForm) => apiClient.put('/settings/system', payload),
     {
       invalidateKeys: [queryKeys.settings.systemSettings()],
-      onSuccess: () => toast({ title: 'Parâmetros de sistema guardados', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Parâmetros de sistema guardados', intent: 'success' }),
       onError,
     },
   );
 
   const flush = useApiMutation(
     (namespace: string) =>
-      apiClient.post<{ removed: number }>('/settings/system/cache/flush', { namespace }),
+      apiClient.post<{ removed: number }>('/settings/system/cache/flush', {
+        namespace,
+      }),
     {
       invalidateKeys: refreshStatus,
-      onSuccess: (r) => toast({ title: `Cache limpa (${r.removed} chaves)`, intent: 'success' }),
+      onSuccess: (r) =>
+        toast({
+          title: `Cache limpa (${r.removed} chaves)`,
+          intent: 'success',
+        }),
       onError,
     },
   );
 
   const queueAction = useApiMutation(
-    ({ name, action }: { name: string; action: 'pause' | 'resume' | 'clean' | 'retry-failed' }) =>
-      apiClient.post<Record<string, unknown>>(`/settings/system/queues/${name}/${action}`, {}),
+    ({
+      name,
+      action,
+    }: {
+      name: string;
+      action: 'pause' | 'resume' | 'clean' | 'retry-failed';
+    }) =>
+      apiClient.post<Record<string, unknown>>(
+        `/settings/system/queues/${name}/${action}`,
+        {},
+      ),
     {
       invalidateKeys: refreshStatus,
       onSuccess: () => toast({ title: 'Acção executada', intent: 'success' }),
@@ -72,9 +96,14 @@ export function TabSistema() {
     },
   );
 
-  if (error) return <p className="py-10 text-center text-sm text-danger">{error.message}</p>;
+  if (error)
+    return (
+      <p className="py-10 text-center text-sm text-danger">{error.message}</p>
+    );
   if (isLoading || !data || !form)
-    return <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>;
+    return (
+      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
+    );
 
   const st = status.data;
 
@@ -102,9 +131,11 @@ export function TabSistema() {
   return (
     <div className="space-y-4">
       {/* Estado */}
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Estado do sistema
+        </div>
         <CardBody>
-          <h3 className="mb-4 text-base font-bold text-ink">Estado do sistema</h3>
           {!st ? (
             <p className="text-sm text-ink-faint">A carregar estado…</p>
           ) : (
@@ -117,7 +148,8 @@ export function TabSistema() {
                   </Badge>
                   {st.db.connected && (
                     <span className="ml-2 text-xs text-ink-faint">
-                      {st.db.latencyMs} ms · {st.db.sizeMb} MB · pool {st.db.poolMax}
+                      {st.db.latencyMs} ms · {st.db.sizeMb} MB · pool{' '}
+                      {st.db.poolMax}
                     </span>
                   )}
                 </dd>
@@ -131,7 +163,8 @@ export function TabSistema() {
                   {st.cache.connected && (
                     <span className="ml-2 text-xs text-ink-faint">
                       {st.cache.keys} chaves · {st.cache.usedMemoryMb ?? '?'} MB
-                      {st.cache.enabled === false && ' · desactivada (CACHE_ENABLED)'}
+                      {st.cache.enabled === false &&
+                        ' · desactivada (CACHE_ENABLED)'}
                     </span>
                   )}
                 </dd>
@@ -139,7 +172,8 @@ export function TabSistema() {
               <div>
                 <dt className="text-xs text-ink-faint">Processo</dt>
                 <dd>
-                  {fmtUptime(st.process.uptimeSeconds)} · {st.process.memoryMb} MB
+                  {fmtUptime(st.process.uptimeSeconds)} · {st.process.memoryMb}{' '}
+                  MB
                 </dd>
               </div>
               <div>
@@ -167,9 +201,11 @@ export function TabSistema() {
       </Card>
 
       {/* Filas */}
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Filas e jobs
+        </div>
         <CardBody>
-          <h3 className="mb-4 text-base font-bold text-ink">Filas e jobs</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-ink">
               <thead className="text-xs text-ink-faint">
@@ -188,7 +224,9 @@ export function TabSistema() {
                   <tr key={q.name} className="border-t border-border">
                     <td className="py-2 pr-3 font-medium">{q.name}</td>
                     <td className="pr-3">
-                      <Badge intent={q.paused ? 'warning' : 'success'}>{q.paused ? 'Em pausa' : 'Activa'}</Badge>
+                      <Badge intent={q.paused ? 'warning' : 'success'}>
+                        {q.paused ? 'Em pausa' : 'Activa'}
+                      </Badge>
                     </td>
                     <td className="pr-3">{q.counts?.waiting ?? '—'}</td>
                     <td className="pr-3">{q.counts?.active ?? '—'}</td>
@@ -199,7 +237,12 @@ export function TabSistema() {
                         type="button"
                         intent="ghost"
                         disabled={queueAction.isPending}
-                        onClick={() => queueAction.mutate({ name: q.name, action: q.paused ? 'resume' : 'pause' })}
+                        onClick={() =>
+                          queueAction.mutate({
+                            name: q.name,
+                            action: q.paused ? 'resume' : 'pause',
+                          })
+                        }
                       >
                         {q.paused ? 'Retomar' : 'Pausar'}
                       </Button>
@@ -207,7 +250,12 @@ export function TabSistema() {
                         type="button"
                         intent="ghost"
                         disabled={queueAction.isPending || !q.counts?.failed}
-                        onClick={() => queueAction.mutate({ name: q.name, action: 'retry-failed' })}
+                        onClick={() =>
+                          queueAction.mutate({
+                            name: q.name,
+                            action: 'retry-failed',
+                          })
+                        }
                       >
                         Repetir falhados
                       </Button>
@@ -215,7 +263,9 @@ export function TabSistema() {
                         type="button"
                         intent="ghost"
                         disabled={queueAction.isPending}
-                        onClick={() => queueAction.mutate({ name: q.name, action: 'clean' })}
+                        onClick={() =>
+                          queueAction.mutate({ name: q.name, action: 'clean' })
+                        }
                       >
                         Limpar antigos
                       </Button>
@@ -230,29 +280,50 @@ export function TabSistema() {
 
       <form onSubmit={submit} className="space-y-4">
         {/* Manutenção */}
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Manutenção
+          </div>
           <CardBody>
-            <h3 className="mb-4 text-base font-bold text-ink">Manutenção</h3>
             <div className="space-y-4">
-              <label htmlFor="sys-maint" className="flex items-center gap-2 text-sm text-ink">
+              <label
+                htmlFor="sys-maint"
+                className="flex items-center gap-2 text-sm text-ink"
+              >
                 <input
                   id="sys-maint"
                   type="checkbox"
                   checked={form.maintenance.enabled}
                   onChange={(e) =>
-                    setForm({ ...form, maintenance: { ...form.maintenance, enabled: e.target.checked } })
+                    setForm({
+                      ...form,
+                      maintenance: {
+                        ...form.maintenance,
+                        enabled: e.target.checked,
+                      },
+                    })
                   }
                 />
-                Modo de manutenção (só administradores acedem; os restantes recebem 503)
+                Modo de manutenção (só administradores acedem; os restantes
+                recebem 503)
               </label>
-              <FormField label="Mensagem mostrada aos utilizadores" htmlFor="sys-maint-msg">
+              <FormField
+                label="Mensagem mostrada aos utilizadores"
+                htmlFor="sys-maint-msg"
+              >
                 <Textarea
                   id="sys-maint-msg"
                   className="w-full"
                   rows={2}
                   value={form.maintenance.message}
                   onChange={(e) =>
-                    setForm({ ...form, maintenance: { ...form.maintenance, message: e.target.value } })
+                    setForm({
+                      ...form,
+                      maintenance: {
+                        ...form.maintenance,
+                        message: e.target.value,
+                      },
+                    })
                   }
                 />
               </FormField>
@@ -261,9 +332,11 @@ export function TabSistema() {
         </Card>
 
         {/* Limites */}
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Limites e parâmetros técnicos
+          </div>
           <CardBody>
-            <h3 className="mb-4 text-base font-bold text-ink">Limites e parâmetros técnicos</h3>
             <div className="grid grid-cols-3 gap-4">
               <FormField
                 label="Paginação — máximo por página"
@@ -278,7 +351,10 @@ export function TabSistema() {
                   className="w-full"
                   value={form.pagination.maxPageSize}
                   onChange={(e) =>
-                    setForm({ ...form, pagination: { maxPageSize: Number(e.target.value) } })
+                    setForm({
+                      ...form,
+                      pagination: { maxPageSize: Number(e.target.value) },
+                    })
                   }
                 />
               </FormField>
@@ -295,26 +371,46 @@ export function TabSistema() {
                   className="w-full"
                   value={form.uploads.maxFileSizeMb}
                   onChange={(e) =>
-                    setForm({ ...form, uploads: { ...form.uploads, maxFileSizeMb: Number(e.target.value) } })
+                    setForm({
+                      ...form,
+                      uploads: {
+                        ...form.uploads,
+                        maxFileSizeMb: Number(e.target.value),
+                      },
+                    })
                   }
                 />
               </FormField>
-              <FormField label="Jobs — retenção (dias)" htmlFor="sys-jobs" hint="Usado por “Limpar antigos”">
+              <FormField
+                label="Jobs — retenção (dias)"
+                htmlFor="sys-jobs"
+                hint="Usado por “Limpar antigos”"
+              >
                 <Input
                   id="sys-jobs"
                   type="number"
                   min={1}
                   className="w-full"
                   value={form.jobs.retentionDays}
-                  onChange={(e) => setForm({ ...form, jobs: { retentionDays: Number(e.target.value) } })}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      jobs: { retentionDays: Number(e.target.value) },
+                    })
+                  }
                 />
               </FormField>
             </div>
             <fieldset className="mt-4">
-              <legend className="mb-2 text-sm font-medium text-ink">Tipos de ficheiro permitidos</legend>
+              <legend className="mb-2 text-sm font-medium text-ink">
+                Tipos de ficheiro permitidos
+              </legend>
               <div className="grid grid-cols-2 gap-1 md:grid-cols-3">
                 {data.mimeTypeOptions.map((m) => (
-                  <label key={m} className="flex items-center gap-2 text-xs text-ink">
+                  <label
+                    key={m}
+                    className="flex items-center gap-2 text-xs text-ink"
+                  >
                     <input
                       type="checkbox"
                       checked={form.uploads.allowedMimeTypes.includes(m)}

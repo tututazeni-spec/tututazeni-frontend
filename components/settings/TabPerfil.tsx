@@ -59,11 +59,11 @@ export function TabPerfil({ user }: TabPerfilProps) {
       </Card>
 
       {/* Info organizacional */}
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Informação Organizacional
+        </div>
         <CardBody>
-          <h3 className="mb-4 text-sm font-bold text-ink">
-            Informação Organizacional
-          </h3>
           <div className="space-y-3">
             {[
               { label: 'Departamento', value: user.department?.name },
@@ -95,11 +95,11 @@ export function TabPerfil({ user }: TabPerfilProps) {
       </Card>
 
       {/* Badges */}
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Distintivos Recentes
+        </div>
         <CardBody>
-          <h3 className="mb-4 text-sm font-bold text-ink">
-            Distintivos Recentes
-          </h3>
           {!user.badgeAwards?.length ? (
             <p className="text-ink-faint text-sm text-center py-5">
               Nenhum Distintivo conquistado ainda.

@@ -169,13 +169,21 @@ function PasswordCard({
   const pw = form.newPassword;
   const str = strength(pw);
   const strLabel = ['', 'Fraca', 'Razoável', 'Boa', 'Forte'];
-  const strColorClass = ['', 'text-danger', 'text-warning', 'text-primary', 'text-success'];
+  const strColorClass = [
+    '',
+    'text-danger',
+    'text-warning',
+    'text-primary',
+    'text-success',
+  ];
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Alterar Senha
+        </div>
         <CardBody>
-          <h3 className="mb-5 text-base font-bold text-ink">Alterar Senha</h3>
           <form onSubmit={submit} className="space-y-4">
             <div>
               <div className="relative">
@@ -196,7 +204,11 @@ function PasswordCard({
                   className="absolute right-3 top-9 text-ink-faint hover:text-ink"
                   aria-label={showPass ? 'Ocultar' : 'Mostrar'}
                 >
-                  {showPass ? <EyeOff strokeWidth={1.75} size={18} /> : <Eye strokeWidth={1.75} size={18} />}
+                  {showPass ? (
+                    <EyeOff strokeWidth={1.75} size={18} />
+                  ) : (
+                    <Eye strokeWidth={1.75} size={18} />
+                  )}
                 </button>
               </div>
             </div>
@@ -234,7 +246,9 @@ function PasswordCard({
                       />
                     ))}
                   </div>
-                  <span className={cn('text-xs font-semibold', strColorClass[str])}>
+                  <span
+                    className={cn('text-xs font-semibold', strColorClass[str])}
+                  >
                     {strLabel[str]}
                   </span>
                 </div>
@@ -249,11 +263,17 @@ function PasswordCard({
                 onChange={(e) => set('confirmPassword', e.target.value)}
                 placeholder="••••••••"
                 required
-                invalid={form.confirmPassword.length > 0 && form.confirmPassword !== form.newPassword}
+                invalid={
+                  form.confirmPassword.length > 0 &&
+                  form.confirmPassword !== form.newPassword
+                }
               />
-              {form.confirmPassword && form.confirmPassword !== form.newPassword && (
-                <p className="text-danger text-xs mt-1">As senhas não coincidem</p>
-              )}
+              {form.confirmPassword &&
+                form.confirmPassword !== form.newPassword && (
+                  <p className="text-danger text-xs mt-1">
+                    As senhas não coincidem
+                  </p>
+                )}
             </FormField>
 
             <Button
@@ -269,21 +289,28 @@ function PasswordCard({
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Dicas de Segurança
+        </div>
         <CardBody>
-          <h3 className="mb-4 text-base font-bold text-ink">Dicas de Segurança</h3>
           <div className="space-y-3">
             {[
               { text: 'Usa pelo menos 8 caracteres', ok: pw.length >= 8 },
               { text: 'Inclui letras maiúsculas', ok: /[A-Z]/.test(pw) },
               { text: 'Inclui números', ok: /[0-9]/.test(pw) },
-              { text: 'Inclui caracteres especiais', ok: /[^A-Za-z0-9]/.test(pw) },
+              {
+                text: 'Inclui caracteres especiais',
+                ok: /[^A-Za-z0-9]/.test(pw),
+              },
             ].map((tip) => (
               <div
                 key={tip.text}
                 className={cn(
                   'flex items-center gap-3 p-3 rounded-lg border transition-all',
-                  pw && tip.ok ? 'bg-success-subtle border-success' : 'bg-surface-sunken border-border',
+                  pw && tip.ok
+                    ? 'bg-success-subtle border-success'
+                    : 'bg-surface-sunken border-border',
                 )}
               >
                 <span className="text-sm text-ink">{tip.text}</span>
@@ -293,8 +320,8 @@ function PasswordCard({
 
           <div className="mt-5 p-4 bg-surface border border-ink rounded-lg">
             <p className="m-0 text-xs text-ink font-semibold">
-              O token de acesso expira num curto período. Serás redirecionado para o login
-              automaticamente.
+              O token de acesso expira num curto período. Serás redirecionado
+              para o login automaticamente.
             </p>
           </div>
         </CardBody>
@@ -314,11 +341,18 @@ function TwoFactorCard({
     queryKeys.settings.twoFactor(),
     '/settings/security/me/2fa',
   );
-  const [setup, setSetup] = useState<{ secret: string; otpauthUrl: string } | null>(null);
+  const [setup, setSetup] = useState<{
+    secret: string;
+    otpauthUrl: string;
+  } | null>(null);
   const [code, setCode] = useState('');
 
   const setupMutation = useApiMutation(
-    () => apiClient.post<{ secret: string; otpauthUrl: string }>('/settings/security/me/2fa/setup', {}),
+    () =>
+      apiClient.post<{ secret: string; otpauthUrl: string }>(
+        '/settings/security/me/2fa/setup',
+        {},
+      ),
     {
       onSuccess: (data) => setSetup(data),
       onError: (e) => toastFn(e.message, 'error'),
@@ -326,7 +360,8 @@ function TwoFactorCard({
   );
 
   const enableMutation = useApiMutation(
-    (c: string) => apiClient.post('/settings/security/me/2fa/enable', { code: c }),
+    (c: string) =>
+      apiClient.post('/settings/security/me/2fa/enable', { code: c }),
     {
       invalidateKeys: [queryKeys.settings.twoFactor()],
       onSuccess: () => {
@@ -339,7 +374,8 @@ function TwoFactorCard({
   );
 
   const disableMutation = useApiMutation(
-    (c: string) => apiClient.post('/settings/security/me/2fa/disable', { code: c }),
+    (c: string) =>
+      apiClient.post('/settings/security/me/2fa/disable', { code: c }),
     {
       invalidateKeys: [queryKeys.settings.twoFactor()],
       onSuccess: () => {
@@ -359,8 +395,12 @@ function TwoFactorCard({
     <Card>
       <CardBody>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-bold text-ink">Autenticação de dois factores (2FA)</h3>
-          <Badge intent={enabled ? 'success' : 'neutral'}>{enabled ? 'Activo' : 'Inactivo'}</Badge>
+          <h3 className="text-base font-bold text-ink">
+            Autenticação de dois factores (2FA)
+          </h3>
+          <Badge intent={enabled ? 'success' : 'neutral'}>
+            {enabled ? 'Activo' : 'Inactivo'}
+          </Badge>
         </div>
         {mode && (
           <p className="mb-4 text-xs text-ink-faint">
@@ -370,7 +410,10 @@ function TwoFactorCard({
 
         {enabled ? (
           <div className="max-w-sm space-y-3">
-            <FormField label="Código da app de autenticação" htmlFor="disable-2fa-code">
+            <FormField
+              label="Código da app de autenticação"
+              htmlFor="disable-2fa-code"
+            >
               <Input
                 id="disable-2fa-code"
                 value={code}
@@ -390,14 +433,19 @@ function TwoFactorCard({
         ) : setup ? (
           <div className="max-w-sm space-y-3">
             <p className="text-sm text-ink-muted">
-              Adiciona esta chave numa app de autenticação (Google Authenticator, Authy…) e
-              confirma com o código gerado.
+              Adiciona esta chave numa app de autenticação (Google
+              Authenticator, Authy…) e confirma com o código gerado.
             </p>
             <FormField label="Chave secreta" htmlFor="totp-secret">
               <Input id="totp-secret" readOnly value={setup.secret} />
             </FormField>
             <FormField label="URL de configuração (otpauth)" htmlFor="totp-url">
-              <Input id="totp-url" readOnly value={setup.otpauthUrl} className="text-xs" />
+              <Input
+                id="totp-url"
+                readOnly
+                value={setup.otpauthUrl}
+                className="text-xs"
+              />
             </FormField>
             <FormField label="Código de confirmação" htmlFor="enable-2fa-code">
               <Input
@@ -456,13 +504,17 @@ function MySessionsCard({
   );
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        As minhas sessões activas
+      </div>
       <CardBody>
-        <h3 className="mb-4 text-base font-bold text-ink">As minhas sessões activas</h3>
         {sessions.isLoading ? (
           <p className="text-sm text-ink-faint">A carregar…</p>
         ) : !sessions.data?.items.length ? (
-          <p className="py-4 text-center text-sm text-ink-faint">Nenhuma sessão activa.</p>
+          <p className="py-4 text-center text-sm text-ink-faint">
+            Nenhuma sessão activa.
+          </p>
         ) : (
           <div className="space-y-2">
             {sessions.data.items.map((s) => (
@@ -471,12 +523,18 @@ function MySessionsCard({
                 className="flex items-center justify-between rounded-lg border border-border p-3 text-sm"
               >
                 <div>
-                  <p className="m-0 text-ink">{s.userAgent ?? 'Dispositivo desconhecido'}</p>
+                  <p className="m-0 text-ink">
+                    {s.userAgent ?? 'Dispositivo desconhecido'}
+                  </p>
                   <p className="m-0 text-xs text-ink-faint">
                     {s.ip ?? '—'} · desde {fmtDate(s.createdAt)}
                   </p>
                 </div>
-                <Button intent="ghost" disabled={revoke.isPending} onClick={() => revoke.mutate(s.id)}>
+                <Button
+                  intent="ghost"
+                  disabled={revoke.isPending}
+                  onClick={() => revoke.mutate(s.id)}
+                >
                   Terminar
                 </Button>
               </div>
@@ -534,7 +592,9 @@ function LoginHistoryCard({
         {history.isLoading ? (
           <p className="text-sm text-ink-faint">A carregar…</p>
         ) : !history.data?.data.length ? (
-          <p className="py-4 text-center text-sm text-ink-faint">Sem registos.</p>
+          <p className="py-4 text-center text-sm text-ink-faint">
+            Sem registos.
+          </p>
         ) : (
           <>
             <table className="w-full text-sm">
@@ -554,7 +614,15 @@ function LoginHistoryCard({
                       <td className="py-2">{row.user?.fullName ?? '—'}</td>
                     )}
                     <td>
-                      <Badge intent={row.action === 'LOGIN' ? 'success' : row.action === 'LOGOUT' ? 'neutral' : 'danger'}>
+                      <Badge
+                        intent={
+                          row.action === 'LOGIN'
+                            ? 'success'
+                            : row.action === 'LOGOUT'
+                              ? 'neutral'
+                              : 'danger'
+                        }
+                      >
                         {row.action}
                       </Badge>
                     </td>
@@ -584,10 +652,9 @@ function SecurityPolicyCard({
 }: {
   toastFn: (msg: string, type: 'success' | 'error') => void;
 }) {
-  const query = useApiQuery<SecurityPolicy & { twoFactorModes: TwoFactorMode[] }>(
-    queryKeys.settings.securityPolicy(),
-    '/settings/security/policy',
-  );
+  const query = useApiQuery<
+    SecurityPolicy & { twoFactorModes: TwoFactorMode[] }
+  >(queryKeys.settings.securityPolicy(), '/settings/security/policy');
   const [form, setForm] = useState<SecurityPolicy | null>(null);
 
   useEffect(() => {
@@ -595,7 +662,8 @@ function SecurityPolicyCard({
   }, [query.data]);
 
   const save = useApiMutation(
-    (payload: SecurityPolicy) => apiClient.put('/settings/security/policy', payload),
+    (payload: SecurityPolicy) =>
+      apiClient.put('/settings/security/policy', payload),
     {
       invalidateKeys: [queryKeys.settings.securityPolicy()],
       onSuccess: () => toastFn('Política de segurança guardada', 'success'),
@@ -615,11 +683,16 @@ function SecurityPolicyCard({
   }
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        Política de Segurança (organização)
+      </div>
       <CardBody>
-        <h3 className="mb-4 text-base font-bold text-ink">Política de Segurança (organização)</h3>
         <form onSubmit={submit} className="grid grid-cols-3 gap-4">
-          <FormField label="Tamanho mínimo da senha" htmlFor="passwordMinLength">
+          <FormField
+            label="Tamanho mínimo da senha"
+            htmlFor="passwordMinLength"
+          >
             <Input
               id="passwordMinLength"
               type="number"
@@ -629,17 +702,25 @@ function SecurityPolicyCard({
               onChange={(e) => set('passwordMinLength', Number(e.target.value))}
             />
           </FormField>
-          <FormField label="Expiração da senha (dias, 0 = nunca)" htmlFor="passwordExpiryDays">
+          <FormField
+            label="Expiração da senha (dias, 0 = nunca)"
+            htmlFor="passwordExpiryDays"
+          >
             <Input
               id="passwordExpiryDays"
               type="number"
               min={0}
               max={730}
               value={num('passwordExpiryDays')}
-              onChange={(e) => set('passwordExpiryDays', Number(e.target.value))}
+              onChange={(e) =>
+                set('passwordExpiryDays', Number(e.target.value))
+              }
             />
           </FormField>
-          <FormField label="Tentativas falhadas até bloquear (0 = sem bloqueio)" htmlFor="maxFailedAttempts">
+          <FormField
+            label="Tentativas falhadas até bloquear (0 = sem bloqueio)"
+            htmlFor="maxFailedAttempts"
+          >
             <Input
               id="maxFailedAttempts"
               type="number"
@@ -649,7 +730,10 @@ function SecurityPolicyCard({
               onChange={(e) => set('maxFailedAttempts', Number(e.target.value))}
             />
           </FormField>
-          <FormField label="Duração do bloqueio (minutos)" htmlFor="lockoutMinutes">
+          <FormField
+            label="Duração do bloqueio (minutos)"
+            htmlFor="lockoutMinutes"
+          >
             <Input
               id="lockoutMinutes"
               type="number"
@@ -659,27 +743,40 @@ function SecurityPolicyCard({
               onChange={(e) => set('lockoutMinutes', Number(e.target.value))}
             />
           </FormField>
-          <FormField label="Sessão inactiva expira após (minutos)" htmlFor="sessionIdleMinutes">
+          <FormField
+            label="Sessão inactiva expira após (minutos)"
+            htmlFor="sessionIdleMinutes"
+          >
             <Input
               id="sessionIdleMinutes"
               type="number"
               min={5}
               max={1440}
               value={num('sessionIdleMinutes')}
-              onChange={(e) => set('sessionIdleMinutes', Number(e.target.value))}
+              onChange={(e) =>
+                set('sessionIdleMinutes', Number(e.target.value))
+              }
             />
           </FormField>
-          <FormField label="Validade do token de acesso (minutos)" htmlFor="accessTokenMinutes">
+          <FormField
+            label="Validade do token de acesso (minutos)"
+            htmlFor="accessTokenMinutes"
+          >
             <Input
               id="accessTokenMinutes"
               type="number"
               min={5}
               max={120}
               value={num('accessTokenMinutes')}
-              onChange={(e) => set('accessTokenMinutes', Number(e.target.value))}
+              onChange={(e) =>
+                set('accessTokenMinutes', Number(e.target.value))
+              }
             />
           </FormField>
-          <FormField label="Validade do refresh token (dias)" htmlFor="refreshTokenDays">
+          <FormField
+            label="Validade do refresh token (dias)"
+            htmlFor="refreshTokenDays"
+          >
             <Input
               id="refreshTokenDays"
               type="number"
@@ -745,13 +842,17 @@ function LockedUsersCard({
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-base font-bold text-ink">Contas bloqueadas</h3>
           {query.data && (
-            <Badge intent={query.data.total ? 'danger' : 'success'}>{query.data.total}</Badge>
+            <Badge intent={query.data.total ? 'danger' : 'success'}>
+              {query.data.total}
+            </Badge>
           )}
         </div>
         {query.isLoading ? (
           <p className="text-sm text-ink-faint">A carregar…</p>
         ) : !query.data?.items.length ? (
-          <p className="py-4 text-center text-sm text-ink-faint">Nenhuma conta bloqueada.</p>
+          <p className="py-4 text-center text-sm text-ink-faint">
+            Nenhuma conta bloqueada.
+          </p>
         ) : (
           <div className="space-y-2">
             {query.data.items.map((u) => (
@@ -762,14 +863,20 @@ function LockedUsersCard({
                 <div>
                   <p className="m-0 font-medium text-ink">{u.fullName}</p>
                   <p className="m-0 text-xs text-ink-faint">
-                    {u.email} · bloqueada até {u.lockedUntil ? fmtDate(u.lockedUntil) : '—'}
+                    {u.email} · bloqueada até{' '}
+                    {u.lockedUntil ? fmtDate(u.lockedUntil) : '—'}
                   </p>
                 </div>
                 <Button
                   intent="primary"
                   disabled={unlock.isPending}
                   onClick={async () => {
-                    if (await confirm({ title: `Desbloquear ${u.fullName}?`, confirmLabel: 'Desbloquear' })) {
+                    if (
+                      await confirm({
+                        title: `Desbloquear ${u.fullName}?`,
+                        confirmLabel: 'Desbloquear',
+                      })
+                    ) {
                       unlock.mutate(u.id);
                     }
                   }}
@@ -807,7 +914,8 @@ function AllSessionsCard({
     },
   );
   const revokeAll = useApiMutation(
-    (userId: number) => apiClient.delete(`/settings/security/users/${userId}/sessions`),
+    (userId: number) =>
+      apiClient.delete(`/settings/security/users/${userId}/sessions`),
     {
       invalidateKeys: [queryKeys.settings.sessions('all')],
       onSuccess: () => toastFn('Sessões terminadas', 'success'),
@@ -819,13 +927,17 @@ function AllSessionsCard({
     <Card>
       <CardBody>
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-bold text-ink">Sessões activas (organização)</h3>
+          <h3 className="text-base font-bold text-ink">
+            Sessões activas (organização)
+          </h3>
           {query.data && <Badge intent="info">{query.data.total}</Badge>}
         </div>
         {query.isLoading ? (
           <p className="text-sm text-ink-faint">A carregar…</p>
         ) : !query.data?.items.length ? (
-          <p className="py-4 text-center text-sm text-ink-faint">Nenhuma sessão activa.</p>
+          <p className="py-4 text-center text-sm text-ink-faint">
+            Nenhuma sessão activa.
+          </p>
         ) : (
           <table className="w-full text-sm">
             <thead>
@@ -840,14 +952,22 @@ function AllSessionsCard({
               {query.data.items.map((s) => (
                 <tr key={s.id} className="border-t border-border">
                   <td className="py-2">
-                    <div className="font-medium text-ink">{s.user?.fullName ?? `#${s.userId}`}</div>
-                    <div className="text-xs text-ink-faint">{s.user?.email}</div>
+                    <div className="font-medium text-ink">
+                      {s.user?.fullName ?? `#${s.userId}`}
+                    </div>
+                    <div className="text-xs text-ink-faint">
+                      {s.user?.email}
+                    </div>
                   </td>
                   <td>{s.ip ?? '—'}</td>
                   <td>{fmtDate(s.createdAt)}</td>
                   <td className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button intent="ghost" disabled={revoke.isPending} onClick={() => revoke.mutate(s.id)}>
+                      <Button
+                        intent="ghost"
+                        disabled={revoke.isPending}
+                        onClick={() => revoke.mutate(s.id)}
+                      >
                         Terminar
                       </Button>
                       <Button

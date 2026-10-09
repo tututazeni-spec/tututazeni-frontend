@@ -47,11 +47,11 @@ export function SettingsView() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Tipos de aula
+          </div>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">
-              Tipos de aula
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.types.map((t) => (
                 <Badge key={t} intent="neutral" className={TYPE_CFG[t]?.cls}>
@@ -61,11 +61,11 @@ export function SettingsView() {
             </div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Modalidades
+          </div>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">
-              Modalidades
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.modalities.map((m) => (
                 <Badge key={m} intent="neutral">
@@ -75,11 +75,11 @@ export function SettingsView() {
             </div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Estados
+          </div>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">
-              Estados
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.statuses.map((s) => (
                 <Badge key={s} intent="neutral" className={STATUS_CFG[s]?.cls}>
@@ -89,11 +89,11 @@ export function SettingsView() {
             </div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Recorrência
+          </div>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">
-              Recorrência
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.recurrences.map((r) => (
                 <Badge key={r} intent="neutral">
@@ -103,11 +103,11 @@ export function SettingsView() {
             </div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Inscrição
+          </div>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">
-              Inscrição
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.enrollmentModes.map((m) => (
                 <Badge key={m} intent="neutral">
@@ -117,11 +117,11 @@ export function SettingsView() {
             </div>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Estados de presença
+          </div>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">
-              Estados de presença
-            </h4>
             <div className="flex flex-wrap gap-2">
               {data.attendanceStatuses.map((s) => (
                 <Badge
@@ -138,11 +138,11 @@ export function SettingsView() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Regras de presença (por omissão)
+          </div>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">
-              Regras de presença (por omissão)
-            </h4>
             <div className="space-y-2 font-body text-sm text-ink-muted">
               <div className="flex justify-between">
                 <span>Percentagem mínima de presença</span>
@@ -163,11 +163,11 @@ export function SettingsView() {
             </p>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Política de gravação (por omissão)
+          </div>
           <CardBody>
-            <h4 className="mb-3 font-display font-semibold text-ink">
-              Política de gravação (por omissão)
-            </h4>
             <div className="space-y-2 font-body text-sm text-ink-muted">
               <div className="flex justify-between">
                 <span>Gravar sessão</span>
@@ -202,11 +202,11 @@ export function SettingsView() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Notificações
+        </div>
         <CardBody>
-          <h4 className="mb-3 font-display font-semibold text-ink">
-            Notificações
-          </h4>
           <p className="mb-2 font-body text-xs text-ink-faint">
             Eventos configuráveis por aula (Etapa 9) e canais disponíveis
             conforme as integrações activas.
@@ -228,11 +228,11 @@ export function SettingsView() {
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Permissões
+        </div>
         <CardBody>
-          <h4 className="mb-3 font-display font-semibold text-ink">
-            Permissões
-          </h4>
           <div className="space-y-2">
             {data.permissions.map((p) => (
               <div

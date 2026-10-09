@@ -77,7 +77,12 @@ function Toggle({
 }) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
       {label}
     </label>
   );
@@ -105,9 +110,13 @@ export function TabWhatsApp() {
   );
 
   const save = useApiMutation(
-    (payload: Record<string, unknown>) => apiClient.put('/settings/whatsapp', payload),
+    (payload: Record<string, unknown>) =>
+      apiClient.put('/settings/whatsapp', payload),
     {
-      invalidateKeys: [queryKeys.settings.whatsappSettings(), queryKeys.settings.all],
+      invalidateKeys: [
+        queryKeys.settings.whatsappSettings(),
+        queryKeys.settings.all,
+      ],
       onSuccess: () => {
         setAuthToken('');
         setAccessToken('');
@@ -118,7 +127,11 @@ export function TabWhatsApp() {
   );
 
   const test = useApiMutation(
-    () => apiClient.post<{ ok: boolean; error?: string }>('/settings/whatsapp/test', { to: testTo }),
+    () =>
+      apiClient.post<{ ok: boolean; error?: string }>(
+        '/settings/whatsapp/test',
+        { to: testTo },
+      ),
     {
       onSuccess: (r) =>
         toast(
@@ -130,11 +143,17 @@ export function TabWhatsApp() {
     },
   );
 
-  if (error) return <p className="py-10 text-center text-sm text-danger">{error.message}</p>;
+  if (error)
+    return (
+      <p className="py-10 text-center text-sm text-danger">{error.message}</p>
+    );
   if (isLoading || !form || !data)
-    return <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>;
+    return (
+      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
+    );
 
-  const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => (f ? { ...f, [k]: v } : f));
+  const set = <K extends keyof Form>(k: K, v: Form[K]) =>
+    setForm((f) => (f ? { ...f, [k]: v } : f));
   const isMeta = form.provider === 'META';
   const st = data.status;
 
@@ -167,9 +186,19 @@ export function TabWhatsApp() {
       <Card>
         <CardBody>
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">Estado da integração</h3>
-            <Badge intent={!st.enabled ? 'neutral' : st.connected ? 'success' : 'danger'}>
-              {!st.enabled ? 'Desactivada' : st.connected ? 'Ligada' : 'Sem ligação'}
+            <h3 className="text-base font-bold text-ink">
+              Estado da integração
+            </h3>
+            <Badge
+              intent={
+                !st.enabled ? 'neutral' : st.connected ? 'success' : 'danger'
+              }
+            >
+              {!st.enabled
+                ? 'Desactivada'
+                : st.connected
+                  ? 'Ligada'
+                  : 'Sem ligação'}
             </Badge>
           </div>
           <dl className="grid grid-cols-2 gap-3 text-sm text-ink md:grid-cols-4">
@@ -210,9 +239,11 @@ export function TabWhatsApp() {
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Ligação (só envio)
+        </div>
         <CardBody>
-          <h3 className="mb-4 text-base font-bold text-ink">Ligação (só envio)</h3>
           <div className="space-y-4">
             <Toggle
               id="wa-enabled"
@@ -253,13 +284,19 @@ export function TabWhatsApp() {
                     id="wa-meta-waba"
                     className="w-full"
                     value={form.metaBusinessAccountId}
-                    onChange={(e) => set('metaBusinessAccountId', e.target.value)}
+                    onChange={(e) =>
+                      set('metaBusinessAccountId', e.target.value)
+                    }
                   />
                 </FormField>
                 <FormField
                   label="Token de acesso"
                   htmlFor="wa-meta-token"
-                  hint={data.meta.hasAccessToken ? 'Já configurado — deixe em branco para manter' : undefined}
+                  hint={
+                    data.meta.hasAccessToken
+                      ? 'Já configurado — deixe em branco para manter'
+                      : undefined
+                  }
                 >
                   <Input
                     id="wa-meta-token"
@@ -270,7 +307,11 @@ export function TabWhatsApp() {
                     placeholder="••••••••"
                   />
                 </FormField>
-                <FormField label="Versão da Graph API" htmlFor="wa-meta-version" hint="ex.: v21.0">
+                <FormField
+                  label="Versão da Graph API"
+                  htmlFor="wa-meta-version"
+                  hint="ex.: v21.0"
+                >
                   <Input
                     id="wa-meta-version"
                     className="w-full"
@@ -292,7 +333,11 @@ export function TabWhatsApp() {
                 <FormField
                   label="Auth Token"
                   htmlFor="wa-token"
-                  hint={data.hasAuthToken ? 'Já configurado — deixe em branco para manter' : undefined}
+                  hint={
+                    data.hasAuthToken
+                      ? 'Já configurado — deixe em branco para manter'
+                      : undefined
+                  }
                 >
                   <Input
                     id="wa-token"
@@ -307,7 +352,10 @@ export function TabWhatsApp() {
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              <FormField label="Limite por hora (0 = sem limite)" htmlFor="wa-hourly">
+              <FormField
+                label="Limite por hora (0 = sem limite)"
+                htmlFor="wa-hourly"
+              >
                 <Input
                   id="wa-hourly"
                   type="number"
@@ -317,7 +365,10 @@ export function TabWhatsApp() {
                   onChange={(e) => set('hourlyLimit', Number(e.target.value))}
                 />
               </FormField>
-              <FormField label="Limite por dia (0 = sem limite)" htmlFor="wa-daily">
+              <FormField
+                label="Limite por dia (0 = sem limite)"
+                htmlFor="wa-daily"
+              >
                 <Input
                   id="wa-daily"
                   type="number"
@@ -332,16 +383,21 @@ export function TabWhatsApp() {
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Eventos autorizados
+        </div>
         <CardBody>
-          <h3 className="mb-1 text-base font-bold text-ink">Eventos autorizados</h3>
           <p className="mb-4 text-xs text-ink-faint">
-            Só estes eventos enviam WhatsApp. Cada utilizador continua a precisar de ter o canal activo
-            nas suas preferências.
+            Só estes eventos enviam WhatsApp. Cada utilizador continua a
+            precisar de ter o canal activo nas suas preferências.
           </p>
           <div className="space-y-4">
             {data.eventOptions.map((ev) => (
-              <div key={ev} className="grid grid-cols-[1fr_1fr_120px] items-end gap-3">
+              <div
+                key={ev}
+                className="grid grid-cols-[1fr_1fr_120px] items-end gap-3"
+              >
                 <Toggle
                   id={`wa-ev-${ev}`}
                   label={EVENT_LABELS[ev]}
@@ -357,7 +413,10 @@ export function TabWhatsApp() {
                 />
                 {isMeta && (
                   <>
-                    <FormField label="Template Meta (vazio = texto livre)" htmlFor={`wa-tpl-${ev}`}>
+                    <FormField
+                      label="Template Meta (vazio = texto livre)"
+                      htmlFor={`wa-tpl-${ev}`}
+                    >
                       <Input
                         id={`wa-tpl-${ev}`}
                         className="w-full"
@@ -366,7 +425,10 @@ export function TabWhatsApp() {
                         onChange={(e) =>
                           set('templates', {
                             ...form.templates,
-                            [ev]: { ...form.templates[ev], name: e.target.value },
+                            [ev]: {
+                              ...form.templates[ev],
+                              name: e.target.value,
+                            },
                           })
                         }
                         placeholder="nome_do_template"
@@ -380,7 +442,10 @@ export function TabWhatsApp() {
                         onChange={(e) =>
                           set('templates', {
                             ...form.templates,
-                            [ev]: { ...form.templates[ev], language: e.target.value },
+                            [ev]: {
+                              ...form.templates[ev],
+                              language: e.target.value,
+                            },
                           })
                         }
                       />
@@ -405,15 +470,19 @@ export function TabWhatsApp() {
                 disabled={metaTemplates.isFetching}
                 onClick={() => void metaTemplates.refetch()}
               >
-                {metaTemplates.isFetching ? 'A carregar…' : 'Carregar templates aprovados da Meta'}
+                {metaTemplates.isFetching
+                  ? 'A carregar…'
+                  : 'Carregar templates aprovados da Meta'}
               </Button>
               {metaTemplates.error && (
-                <p className="text-sm text-danger">{metaTemplates.error.message}</p>
+                <p className="text-sm text-danger">
+                  {metaTemplates.error.message}
+                </p>
               )}
               {metaTemplates.data && (
                 <p className="text-xs text-ink-faint">
-                  {metaTemplates.data.length} templates — o corpo do template recebe a mensagem como
-                  variável {'{{1}}'}.
+                  {metaTemplates.data.length} templates — o corpo do template
+                  recebe a mensagem como variável {'{{1}}'}.
                 </p>
               )}
             </div>
@@ -421,9 +490,11 @@ export function TabWhatsApp() {
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Enviar mensagem de teste
+        </div>
         <CardBody>
-          <h3 className="mb-4 text-base font-bold text-ink">Enviar mensagem de teste</h3>
           <div className="flex items-end gap-2">
             <div className="flex-1">
               <FormField label="Número de destino (E.164)" htmlFor="wa-test-to">
@@ -445,7 +516,9 @@ export function TabWhatsApp() {
               {test.isPending ? 'A enviar…' : 'Testar'}
             </Button>
           </div>
-          <p className="mt-2 text-xs text-ink-faint">Grave as alterações antes de testar.</p>
+          <p className="mt-2 text-xs text-ink-faint">
+            Grave as alterações antes de testar.
+          </p>
         </CardBody>
       </Card>
 

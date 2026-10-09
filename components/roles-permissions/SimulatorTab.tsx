@@ -46,11 +46,11 @@ export function SimulatorTab() {
 
   return (
     <div className="space-y-5">
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Simulador de Permissões
+        </div>
         <CardBody>
-          <h4 className="font-semibold text-ink mb-4">
-            Simulador de Permissões
-          </h4>
           <div className="grid grid-cols-3 gap-3 mb-4">
             {[
               {

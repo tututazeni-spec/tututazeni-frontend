@@ -17,16 +17,32 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import type { BackupFrequency, BackupRunRow, BackupSettingsForm, BackupsView } from './types';
+import type {
+  BackupFrequency,
+  BackupRunRow,
+  BackupSettingsForm,
+  BackupsView,
+} from './types';
 
 const FREQUENCY_ITEMS = [
   { value: 'DAILY', label: 'Diária' },
   { value: 'WEEKLY', label: 'Semanal' },
   { value: 'MONTHLY', label: 'Mensal' },
 ];
-const WEEKDAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+const WEEKDAYS = [
+  'Domingo',
+  'Segunda',
+  'Terça',
+  'Quarta',
+  'Quinta',
+  'Sexta',
+  'Sábado',
+];
 
-const HEALTH: Record<BackupsView['health'], { label: string; intent: 'success' | 'danger' | 'warning' | 'neutral' }> = {
+const HEALTH: Record<
+  BackupsView['health'],
+  { label: string; intent: 'success' | 'danger' | 'warning' | 'neutral' }
+> = {
   HEALTHY: { label: 'Em dia', intent: 'success' },
   STALE: { label: 'Em atraso', intent: 'warning' },
   FAILED: { label: 'Último falhou', intent: 'danger' },
@@ -34,7 +50,10 @@ const HEALTH: Record<BackupsView['health'], { label: string; intent: 'success' |
   DISABLED: { label: 'Desactivado', intent: 'neutral' },
 };
 
-const RUN_STATUS: Record<BackupRunRow['status'], { label: string; intent: 'success' | 'danger' | 'warning' }> = {
+const RUN_STATUS: Record<
+  BackupRunRow['status'],
+  { label: string; intent: 'success' | 'danger' | 'warning' }
+> = {
   SUCCESS: { label: 'Concluído', intent: 'success' },
   FAILED: { label: 'Falhou', intent: 'danger' },
   RUNNING: { label: 'A correr', intent: 'warning' },
@@ -53,7 +72,8 @@ function fmtBytes(n: number | null) {
   return `${(n / 1024 ** 3).toFixed(2)} GB`;
 }
 
-const fmtDate = (s: string | null) => (s ? new Date(s).toLocaleString('pt-PT') : '—');
+const fmtDate = (s: string | null) =>
+  s ? new Date(s).toLocaleString('pt-PT') : '—';
 
 export function TabBackups() {
   const toast = useToast();
@@ -71,10 +91,12 @@ export function TabBackups() {
   }, [data]);
 
   const save = useApiMutation(
-    (payload: BackupSettingsForm) => apiClient.put('/settings/backups', payload),
+    (payload: BackupSettingsForm) =>
+      apiClient.put('/settings/backups', payload),
     {
       invalidateKeys: [queryKeys.settings.backups()],
-      onSuccess: () => toast({ title: 'Definições de backup guardadas', intent: 'success' }),
+      onSuccess: () =>
+        toast({ title: 'Definições de backup guardadas', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
@@ -95,9 +117,12 @@ export function TabBackups() {
 
   const restore = useApiMutation(
     (id: number) =>
-      apiClient.post<{ ok: boolean; error?: string }>(`/settings/backups/${id}/restore`, {
-        confirmation,
-      }),
+      apiClient.post<{ ok: boolean; error?: string }>(
+        `/settings/backups/${id}/restore`,
+        {
+          confirmation,
+        },
+      ),
     {
       invalidateKeys: [queryKeys.settings.backups()],
       onSuccess: (r) => {
@@ -113,12 +138,19 @@ export function TabBackups() {
     },
   );
 
-  if (error) return <p className="py-10 text-center text-sm text-danger">{error.message}</p>;
+  if (error)
+    return (
+      <p className="py-10 text-center text-sm text-danger">{error.message}</p>
+    );
   if (isLoading || !data || !form)
-    return <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>;
+    return (
+      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
+    );
 
-  const set = <K extends keyof BackupSettingsForm>(k: K, v: BackupSettingsForm[K]) =>
-    setForm((f) => (f ? { ...f, [k]: v } : f));
+  const set = <K extends keyof BackupSettingsForm>(
+    k: K,
+    v: BackupSettingsForm[K],
+  ) => setForm((f) => (f ? { ...f, [k]: v } : f));
   const health = HEALTH[data.health];
 
   function submit(e: React.FormEvent) {
@@ -136,7 +168,9 @@ export function TabBackups() {
           </div>
           <dl className="grid grid-cols-2 gap-3 text-sm text-ink md:grid-cols-4">
             <div>
-              <dt className="text-xs text-ink-faint">Último backup com sucesso</dt>
+              <dt className="text-xs text-ink-faint">
+                Último backup com sucesso
+              </dt>
               <dd>{fmtDate(data.lastSuccessAt)}</dd>
             </div>
             <div>
@@ -150,38 +184,53 @@ export function TabBackups() {
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-ink-faint">Ferramentas no servidor</dt>
+              <dt className="text-xs text-ink-faint">
+                Ferramentas no servidor
+              </dt>
               <dd>
-                pg_dump {data.tools.pgDump ? '✓' : '✗'} · pg_restore {data.tools.pgRestore ? '✓' : '✗'}
+                pg_dump {data.tools.pgDump ? '✓' : '✗'} · pg_restore{' '}
+                {data.tools.pgRestore ? '✓' : '✗'}
               </dd>
             </div>
           </dl>
           {!data.tools.pgDump && (
             <p className="mt-3 text-sm text-danger">
-              pg_dump não foi encontrado no servidor. Instale o cliente PostgreSQL ou defina PG_DUMP_PATH.
+              pg_dump não foi encontrado no servidor. Instale o cliente
+              PostgreSQL ou defina PG_DUMP_PATH.
             </p>
           )}
           <div className="mt-4">
             <Button
               type="button"
-              disabled={runNow.isPending || !data.settings.destinationDir || !data.tools.pgDump}
+              disabled={
+                runNow.isPending ||
+                !data.settings.destinationDir ||
+                !data.tools.pgDump
+              }
               onClick={() => runNow.mutate(undefined)}
             >
               {runNow.isPending ? 'A executar…' : 'Executar backup agora'}
             </Button>
             {!data.settings.destinationDir && (
-              <span className="ml-3 text-xs text-ink-faint">Defina e guarde a pasta de destino primeiro.</span>
+              <span className="ml-3 text-xs text-ink-faint">
+                Defina e guarde a pasta de destino primeiro.
+              </span>
             )}
           </div>
         </CardBody>
       </Card>
 
       <form onSubmit={submit}>
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Configuração
+          </div>
           <CardBody>
-            <h3 className="mb-4 text-base font-bold text-ink">Configuração</h3>
             <div className="space-y-4">
-              <label htmlFor="bk-enabled" className="flex items-center gap-2 text-sm text-ink">
+              <label
+                htmlFor="bk-enabled"
+                className="flex items-center gap-2 text-sm text-ink"
+              >
                 <input
                   id="bk-enabled"
                   type="checkbox"
@@ -196,7 +245,9 @@ export function TabBackups() {
                     className="w-full"
                     items={FREQUENCY_ITEMS}
                     value={form.frequency}
-                    onValueChange={(v) => set('frequency', v as BackupFrequency)}
+                    onValueChange={(v) =>
+                      set('frequency', v as BackupFrequency)
+                    }
                   />
                 </FormField>
                 <FormField label="Hora (0-23)" htmlFor="bk-hour">
@@ -214,7 +265,10 @@ export function TabBackups() {
                   <FormField label="Dia da semana" htmlFor="bk-weekday">
                     <Select
                       className="w-full"
-                      items={WEEKDAYS.map((l, i) => ({ value: String(i), label: l }))}
+                      items={WEEKDAYS.map((l, i) => ({
+                        value: String(i),
+                        label: l,
+                      }))}
                       value={String(form.day)}
                       onValueChange={(v) => set('day', Number(v))}
                     />
@@ -254,7 +308,9 @@ export function TabBackups() {
                     min={1}
                     className="w-full"
                     value={form.retentionDays}
-                    onChange={(e) => set('retentionDays', Number(e.target.value))}
+                    onChange={(e) =>
+                      set('retentionDays', Number(e.target.value))
+                    }
                   />
                 </FormField>
                 <FormField
@@ -282,11 +338,15 @@ export function TabBackups() {
         </Card>
       </form>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Histórico
+        </div>
         <CardBody>
-          <h3 className="mb-4 text-base font-bold text-ink">Histórico</h3>
           {data.runs.length === 0 ? (
-            <p className="text-sm text-ink-faint">Ainda não foi executado nenhum backup.</p>
+            <p className="text-sm text-ink-faint">
+              Ainda não foi executado nenhum backup.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-ink">
@@ -304,22 +364,41 @@ export function TabBackups() {
                   {data.runs.map((r) => {
                     const st = RUN_STATUS[r.status];
                     const canRestore =
-                      r.status === 'SUCCESS' && !r.deletedAt && data.restoreEnabled && data.tools.pgRestore;
+                      r.status === 'SUCCESS' &&
+                      !r.deletedAt &&
+                      data.restoreEnabled &&
+                      data.tools.pgRestore;
                     return (
-                      <tr key={r.id} className="border-t border-border align-top">
-                        <td className="py-2 pr-3 whitespace-nowrap">{fmtDate(r.startedAt)}</td>
+                      <tr
+                        key={r.id}
+                        className="border-t border-border align-top"
+                      >
+                        <td className="py-2 pr-3 whitespace-nowrap">
+                          {fmtDate(r.startedAt)}
+                        </td>
                         <td className="pr-3">{TRIGGER_LABEL[r.trigger]}</td>
                         <td className="pr-3">
                           <Badge intent={st.intent}>{st.label}</Badge>
-                          {r.restoredAt && <div className="text-xs text-ink-faint">Restaurado {fmtDate(r.restoredAt)}</div>}
+                          {r.restoredAt && (
+                            <div className="text-xs text-ink-faint">
+                              Restaurado {fmtDate(r.restoredAt)}
+                            </div>
+                          )}
                         </td>
                         <td className="pr-3">{fmtBytes(r.sizeBytes)}</td>
                         <td className="max-w-[260px] break-all pr-3 text-xs text-ink-faint">
-                          {r.error ?? (r.deletedAt ? 'Eliminado pela retenção' : r.filePath)}
+                          {r.error ??
+                            (r.deletedAt
+                              ? 'Eliminado pela retenção'
+                              : r.filePath)}
                         </td>
                         <td>
                           {canRestore && (
-                            <Button type="button" intent="ghost" onClick={() => setRestoreId(r.id)}>
+                            <Button
+                              type="button"
+                              intent="ghost"
+                              onClick={() => setRestoreId(r.id)}
+                            >
                               Restaurar
                             </Button>
                           )}
@@ -333,8 +412,9 @@ export function TabBackups() {
           )}
           {!data.restoreEnabled && (
             <p className="mt-3 text-xs text-ink-faint">
-              A restauração a partir da aplicação está desactivada neste ambiente (defina
-              BACKUP_RESTORE_ENABLED=true no servidor para a permitir).
+              A restauração a partir da aplicação está desactivada neste
+              ambiente (defina BACKUP_RESTORE_ENABLED=true no servidor para a
+              permitir).
             </p>
           )}
         </CardBody>
@@ -347,10 +427,14 @@ export function TabBackups() {
               Restaurar o backup #{restoreId}
             </h3>
             <p className="mb-4 text-sm text-ink">
-              Esta acção substitui TODOS os dados actuais pelos do backup. É criada primeiro uma cópia de
-              segurança do estado actual. A plataforma pode ficar indisponível durante o processo.
+              Esta acção substitui TODOS os dados actuais pelos do backup. É
+              criada primeiro uma cópia de segurança do estado actual. A
+              plataforma pode ficar indisponível durante o processo.
             </p>
-            <FormField label="Escreva RESTAURAR para confirmar" htmlFor="bk-confirm">
+            <FormField
+              label="Escreva RESTAURAR para confirmar"
+              htmlFor="bk-confirm"
+            >
               <Input
                 id="bk-confirm"
                 className="w-full"
