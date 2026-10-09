@@ -216,7 +216,7 @@ export default function CoursesPage() {
         <ModulosView initialCourseId={modulosCourseId} />
       )}
       {nav.view === 'turmas' && <TurmasView />}
-      {nav.view === 'categorias' && <CategoriasView />}
+      {nav.view === 'categorias' && <CategoriasView onSelectCourse={handleSelect} />}
       {nav.view === 'relatorios' && <RelatoriosView onSelect={handleSelect} />}
 
       {showCreate && (
