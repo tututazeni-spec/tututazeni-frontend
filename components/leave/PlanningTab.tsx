@@ -64,6 +64,22 @@ function dayTitle(d: PlanningDay): string {
   return `${formatDate(d.date)} — ${d.availabilityPercent}% disponível, ${d.absent} ausente(s)${pending}`;
 }
 
+// Uma cor por departamento (cicla se houver mais departamentos que cores).
+const DEPT_COLORS = [
+  '#3B82F6',
+  '#10B981',
+  '#F59E0B',
+  '#EF4444',
+  '#8B5CF6',
+  '#EC4899',
+  '#14B8A6',
+  '#F97316',
+  '#6366F1',
+  '#84CC16',
+  '#06B6D4',
+  '#A855F7',
+];
+
 function AvailabilityStrip({ team }: { team: PlanningTeam }) {
   return (
     <div
@@ -238,10 +254,19 @@ export function PlanningTab() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {data.teams.map((t) => (
+                  {data.teams.map((t, i) => (
                     <TableRow key={t.departmentId ?? 'none'}>
                       <TableCell className="font-medium">
-                        {t.department ?? 'Sem departamento'}
+                        <span className="inline-flex items-center gap-2">
+                          <span
+                            aria-hidden
+                            className="inline-block h-3 w-3 shrink-0 rounded-full"
+                            style={{
+                              backgroundColor: DEPT_COLORS[i % DEPT_COLORS.length],
+                            }}
+                          />
+                          {t.department ?? 'Sem departamento'}
+                        </span>
                       </TableCell>
                       <TableCell>{t.headcount}</TableCell>
                       <TableCell>
