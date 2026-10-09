@@ -45,7 +45,7 @@ export const tabBtn = (active: boolean): string => {
   const base =
     'px-5.5 py-2.25 text-sm font-medium rounded-lg transition-all duration-150 cursor-pointer border-none';
   const activeStyles = active
-    ? 'bg-danger text-canvas font-bold'
+    ? 'bg-[#0F1F3D] text-white font-bold'
     : 'bg-transparent text-ink-muted';
   return `${base} ${activeStyles}`;
 };
