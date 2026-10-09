@@ -150,7 +150,7 @@ export function TalentPanel() {
             onClick={() => setTab(t.key)}
             className={`flex flex-1 items-center justify-center gap-2 rounded-control py-2 font-body text-sm font-medium transition-colors ${
               tab === t.key
-                ? 'bg-primary text-canvas shadow-sm'
+                ? 'bg-[#0F1F3D] text-canvas shadow-sm'
                 : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
             }`}
           >
@@ -249,24 +249,19 @@ export function TalentPanel() {
 
       {/* Positions at risk */}
       {tab === 'risk' && (
-        <div className="rounded-card border border-danger-subtle bg-danger-subtle p-4">
-          <h4 className="mb-2 font-body font-semibold text-danger-ink">
-            <AlertTriangle
-              size={14}
-              strokeWidth={1.75}
-              className="inline align-[-2px]"
-            />{' '}
-            Posições Sem Sucessor
-          </h4>
+        <div className="rounded-card border border-border bg-surface p-5">
           {positionsAtRisk.length === 0 ? (
-            <p className="font-body text-xs text-danger-ink/80">
+            <p className="font-body text-sm text-ink-faint">
               Sem posições em risco no momento.
             </p>
           ) : (
-            <div className="space-y-1">
+            <div className="space-y-2">
               {positionsAtRisk.map((p, i) => (
-                <p key={i} className="font-body text-xs text-danger-ink">
-                  • {p.name} (Nível {p.level})
+                <p
+                  key={i}
+                  className="border-b border-border py-2 font-body text-sm text-ink last:border-0"
+                >
+                  {p.name} (Nível {p.level})
                 </p>
               ))}
             </div>
