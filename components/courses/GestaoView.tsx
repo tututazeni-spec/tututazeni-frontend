@@ -98,15 +98,15 @@ interface CourseInfoProps {
 
 function CourseInfo({ icon: Icon, value, label }: CourseInfoProps) {
   return (
-    <div className="flex min-w-0 items-center gap-3 px-3 sm:px-5">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD] sm:h-10 sm:w-10">
-        <Icon size={20} strokeWidth={1.75} />
+    <div className="flex min-w-0 items-center gap-2 px-2 sm:px-4">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD]">
+        <Icon size={15} strokeWidth={1.75} />
       </span>
       <div className="min-w-0">
-        <div className="text-[13px] font-semibold text-[#0F1F3D] sm:text-sm">
+        <div className="text-xs font-semibold leading-tight text-[#0F1F3D]">
           {value}
         </div>
-        <div className="text-xs text-[#71829B]">{label}</div>
+        <div className="text-[11px] leading-tight text-[#71829B]">{label}</div>
       </div>
     </div>
   );
@@ -377,10 +377,10 @@ export function GestaoView({
                   key={c.id}
                   className="overflow-hidden rounded-2xl border border-[#DCE5F1] bg-white shadow-[0_8px_24px_rgba(15,31,61,0.08)]"
                 >
-                  <div className="bg-gradient-to-br from-[#0F1F3D] to-[#132B52] p-5 sm:p-6">
+                  <div className="bg-gradient-to-br from-[#0F1F3D] to-[#132B52] px-4 py-3">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0 flex-1 basis-48">
-                        <span className="mb-1.5 inline-block rounded-full bg-white/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-[#C7D4E8]">
+                        <span className="mb-0.5 inline-block rounded-full bg-white/10 px-2 font-mono text-[10px] font-semibold text-[#C7D4E8]">
                           {c.internalCode ?? '—'}
                         </span>
                         <button
@@ -388,13 +388,13 @@ export function GestaoView({
                           className="block w-full min-w-0 text-left"
                           onClick={() => onSelect(c.id)}
                         >
-                          <h3 className="line-clamp-2 text-[21px] font-semibold uppercase leading-tight text-white sm:text-[22px]">
+                          <h3 className="line-clamp-1 text-base font-semibold uppercase leading-tight text-white">
                             {c.title}
                           </h3>
                         </button>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#263F67] px-3.5 py-2 text-xs text-white">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#263F67] px-2.5 py-1 text-[11px] text-white">
                           <span aria-hidden>●</span>
                           {COURSE_STATUS_MAP[c.status]?.label ?? c.status}
                         </span>
@@ -505,27 +505,27 @@ export function GestaoView({
                       </DropdownMenu>
                       </div>
                     </div>
-                    <div className="mt-4 flex min-w-0 items-center gap-3">
+                    <div className="mt-2 flex min-w-0 items-center gap-3">
                       {c.primaryInstructor?.avatarUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={c.primaryInstructor.avatarUrl}
                           alt=""
-                          className="h-[50px] w-[50px] shrink-0 rounded-full object-cover"
+                          className="h-8 w-8 shrink-0 rounded-full object-cover"
                         />
                       ) : (
-                        <span className="flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-full bg-[#0D6EFD] text-lg font-bold text-white">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0D6EFD] text-xs font-bold text-white">
                           {c.primaryInstructor
                             ? initials(c.primaryInstructor.fullName)
                             : '?'}
                         </span>
                       )}
                       <div className="min-w-0">
-                        <div className="truncate text-base font-semibold text-white">
+                        <div className="truncate text-sm font-semibold leading-tight text-white">
                           {c.primaryInstructor?.fullName ?? 'Sem instrutor'}
                         </div>
-                        <div className="flex items-center gap-1 text-[13px] text-[#C7D4E8]">
-                          <Tag size={13} strokeWidth={1.75} className="shrink-0" />
+                        <div className="flex items-center gap-1 text-xs text-[#C7D4E8]">
+                          <Tag size={12} strokeWidth={1.75} className="shrink-0" />
                           <span className="truncate">
                             {[c.category, levelLabel].filter(Boolean).join(' · ') ||
                               '—'}
@@ -535,7 +535,7 @@ export function GestaoView({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-y-5 p-5 sm:p-[22px] lg:grid-cols-4 lg:gap-y-0">
+                  <div className="grid grid-cols-2 gap-y-3 px-3 py-3 lg:grid-cols-4 lg:gap-y-0">
                     <CourseInfo
                       icon={BookOpen}
                       value={c.type ? COURSE_TYPE_LABELS[c.type] : '—'}
@@ -575,7 +575,7 @@ export function GestaoView({
       )}
 
       {data && data.totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-2 flex items-center justify-between">
           <span className="text-xs text-ink-faint">
             Página {data.page} de {data.totalPages}
           </span>
