@@ -44,19 +44,20 @@ export function CorrelationsPanel() {
 
       {data?.trainingVsPerformance && (
         <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-resting">
-          <div className="h-1.5 w-full bg-[#2B6CC4]" />
+          <div className="h-1.5 w-full bg-[#0F1F3D]" />
           <div className="p-5">
             <h4 className="mb-1 font-body font-semibold text-ink-muted">
               Formação × Performance
             </h4>
-            <p className="mb-4 rounded-control border border-[#2B6CC4]/30 bg-[#2B6CC4]/10 px-3 py-2 font-body text-xs text-[#1E4E8C]">
+            <p className="mb-4 rounded-control border border-[#0F1F3D]/30 bg-[#0F1F3D]/10 px-3 py-2 font-body text-xs text-[#0F1F3D]">
               {data.trainingVsPerformance.insight}
             </p>
             <BarChart
-              categories={['Alto treino (3+ cursos)', 'Baixo treino']}
+              categories={['Alta formação (3 ou mais cursos)', 'Baixa formação']}
               series={[
                 {
                   label: 'Performance média',
+                  color: '#0F1F3D',
                   values: [
                     data.trainingVsPerformance.highTrainingAvgPerf ?? 0,
                     data.trainingVsPerformance.lowTrainingAvgPerf ?? 0,
@@ -81,12 +82,12 @@ export function CorrelationsPanel() {
 
       {data?.engagementVsPerformance && (
         <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-resting">
-          <div className="h-1.5 w-full bg-[#C9A227]" />
+          <div className="h-1.5 w-full bg-[#0F1F3D]" />
           <div className="p-5">
             <h4 className="mb-1 font-body font-semibold text-ink-muted">
               Compromisso dos Colaboradores × Performance
             </h4>
-            <p className="mb-4 rounded-control border border-[#C9A227]/30 bg-[#C9A227]/10 px-3 py-2 font-body text-xs text-[#8A6B14]">
+            <p className="mb-4 rounded-control border border-[#0F1F3D]/30 bg-[#0F1F3D]/10 px-3 py-2 font-body text-xs text-[#0F1F3D]">
               {data.engagementVsPerformance.insight}
             </p>
             <BarChart
@@ -94,6 +95,7 @@ export function CorrelationsPanel() {
               series={[
                 {
                   label: 'Performance média',
+                  color: '#0F1F3D',
                   values: [
                     data.engagementVsPerformance.highEngAvgPerf ?? 0,
                     data.engagementVsPerformance.lowEngAvgPerf ?? 0,
