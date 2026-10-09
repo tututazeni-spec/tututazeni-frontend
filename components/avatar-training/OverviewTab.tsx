@@ -152,7 +152,7 @@ Actualizado em ${formatDateTime(i.updatedAt)}`}>
         tone={tone}
         label={i.label}
         value={
-          i.status === 'RESTRICTED' ? 'Restrito' : noData ? 'Sem dados' : (i.value as number)
+          i.status === 'RESTRICTED' ? 'Restrito' : noData ? '' : (i.value as number)
         }
         sub={noData ? undefined : i.unit}
       />
