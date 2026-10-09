@@ -85,6 +85,9 @@ export function PDIAnalyticsView() {
 
   if (isLoading || !data) return <Skeleton rows={4} />;
 
+  // Só os tipos que o formulário de PDI oferece (ACTION_CFG).
+  const actionsByType = data.actionsByType.filter((a) => a.type in ACTION_CFG);
+
   const statuses = STATUS_ORDER;
   const totalPlans = statuses.reduce(
     (sum, status) => sum + (data.byStatus[status] ?? 0),
@@ -191,7 +194,7 @@ export function PDIAnalyticsView() {
             Acções por tipo
           </div>
           <div className="flex flex-wrap gap-2">
-            {data.actionsByType.map((a) => (
+            {actionsByType.map((a) => (
               <div
                 key={a.type}
                 className="flex items-center gap-2 rounded-card bg-surface-sunken px-3 py-2"
@@ -206,7 +209,7 @@ export function PDIAnalyticsView() {
                 </span>
               </div>
             ))}
-            {data.actionsByType.length === 0 && (
+            {actionsByType.length === 0 && (
               <div className="text-sm text-ink-faint py-2">
                 Sem acções registadas
               </div>
