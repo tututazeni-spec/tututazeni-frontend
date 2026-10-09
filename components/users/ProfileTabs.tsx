@@ -14,6 +14,22 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import {
+  AlertTriangle,
+  CalendarCheck,
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  Flame,
+  Hourglass,
+  PlayCircle,
+  Scale,
+  Star,
+  UserCheck,
+  UserX,
+  Users,
+  Zap,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -21,7 +37,7 @@ import { formatDate as fmtDate } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import {
@@ -480,22 +496,30 @@ export function CoursesTab({ userId }: { userId: number }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-4 gap-3">
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <NavyStatCard
+          icon={CheckCircle2}
+          tone="green"
           label="Concluídos"
           value={data.groups.completed.length}
-          intent="success"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={PlayCircle}
+          tone="blue"
           label="Em curso"
           value={data.groups.inProgress.length}
-          intent="info"
         />
-        <KpiCard label="Não iniciados" value={data.groups.notStarted.length} />
-        <KpiCard
+        <NavyStatCard
+          icon={Hourglass}
+          tone="orange"
+          label="Não iniciados"
+          value={data.groups.notStarted.length}
+        />
+        <NavyStatCard
+          icon={AlertTriangle}
+          tone="red"
           label="Atrasados"
           value={data.groups.overdue.length}
-          intent="danger"
         />
       </div>
       <Table>
@@ -612,24 +636,27 @@ export function PerformanceTab({ userId }: { userId: number }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <NavyStatCard
+          icon={Star}
+          tone="blue"
           label="Score final"
           value={data.finalScore}
           sub={data.scoreLabel}
-          intent="primary"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Users}
+          tone="green"
           label="Avaliadores"
           value={data.totalEvaluators}
-          intent="info"
         />
         {data.concordance && (
-          <KpiCard
+          <NavyStatCard
+            icon={Scale}
+            tone="orange"
             label="Gap auto vs. outros"
             value={data.concordance.gap}
             sub={data.concordance.label}
-            intent="warning"
           />
         )}
       </div>
@@ -905,14 +932,15 @@ export function LeaveTab({ userId }: { userId: number }) {
   return (
     <div className="space-y-4">
       {balance.data && balance.data.length > 0 && (
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {balance.data.map((b) => (
-            <KpiCard
+            <NavyStatCard
+              icon={CalendarDays}
+              tone="blue"
               key={b.leaveTypeCode}
               label={b.leaveTypeCode}
               value={b.balance}
               sub={`${b.used} usados`}
-              intent="info"
             />
           ))}
         </div>
@@ -970,26 +998,30 @@ export function AttendanceTab({ userId }: { userId: number }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-4 gap-3">
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <NavyStatCard
+          icon={CalendarCheck}
+          tone="green"
           label="Taxa de presença"
           value={`${data.summary.attendanceRate}%`}
-          intent="success"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={UserCheck}
+          tone="blue"
           label="Presente"
           value={data.summary.presentDays}
-          intent="info"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Clock}
+          tone="orange"
           label="Atrasos"
           value={data.summary.lateDays}
-          intent="warning"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={UserX}
+          tone="red"
           label="Ausências"
           value={data.summary.absentDays}
-          intent="danger"
         />
       </div>
       <Table>
@@ -1093,23 +1125,31 @@ export function ActivityTab({ userId }: { userId: number }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-4 gap-3">
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <NavyStatCard
+          icon={Flame}
+          tone="orange"
           label="Sequência activa"
           value={`${data.streak} dias`}
-          intent="accent"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={CalendarDays}
+          tone="blue"
           label="Dias activos (1 ano)"
           value={data.activeDays}
-          intent="info"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={CheckCircle2}
+          tone="green"
           label="Taxa de conclusão"
           value={`${data.completionRate}%`}
-          intent="success"
         />
-        <KpiCard label="Pontos (XP)" value={data.xpPoints} intent="primary" />
+        <NavyStatCard
+          icon={Zap}
+          tone="blue"
+          label="Pontos (XP)"
+          value={data.xpPoints}
+        />
       </div>
       <Card className="p-5">
         <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
