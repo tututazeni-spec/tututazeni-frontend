@@ -51,11 +51,15 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="p-5">
-      <h3 className="font-body text-sm font-semibold text-ink mb-4">{title}</h3>
-      <ErrorBoundary source={`leave.overview.${title}`}>
-        {children}
-      </ErrorBoundary>
+    <Card className="overflow-hidden">
+      <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+        {title}
+      </h3>
+      <div className="p-5">
+        <ErrorBoundary source={`leave.overview.${title}`}>
+          {children}
+        </ErrorBoundary>
+      </div>
     </Card>
   );
 }
