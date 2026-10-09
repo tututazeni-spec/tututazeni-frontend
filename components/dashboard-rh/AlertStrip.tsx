@@ -46,7 +46,7 @@ export function AlertStrip({ alerts }: AlertStripProps) {
     );
 
   return (
-    <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+    <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
       {alerts.map((a, i) => {
         const conf = SEVERITY_CONFIG[a.severity];
         const AlertIcon = conf.icon;
