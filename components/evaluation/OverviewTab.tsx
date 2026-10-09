@@ -46,10 +46,10 @@ import type {
 } from './types';
 
 const DIST_CONFIG = [
-  { key: 'exceptional', label: 'Excepcional', bg: 'bg-success' },
-  { key: 'above', label: 'Acima', bg: 'bg-info' },
-  { key: 'expected', label: 'Esperado', bg: 'bg-warning' },
-  { key: 'below', label: 'Abaixo', bg: 'bg-danger' },
+  { key: 'exceptional', label: 'Excepcional', bg: 'bg-[#218653]' },
+  { key: 'above', label: 'Acima', bg: 'bg-[#1877F2]' },
+  { key: 'expected', label: 'Esperado', bg: 'bg-[#E99A16]' },
+  { key: 'below', label: 'Abaixo', bg: 'bg-[#EF4657]' },
 ] as const;
 
 // docs/modulo_evaluation.md ponto 1 — bloco organizacional, visível só a
