@@ -5,7 +5,7 @@
 // extraído de atoms.tsx como ficheiro próprio, mesma decisão de
 // StarRating em components/trainings/.
 
-import { AlertTriangle, Clock } from 'lucide-react';
+import { AlertCard } from '@/components/ui/AlertCard';
 import type { Alert } from './types';
 
 export interface AlertBannerProps {
@@ -20,50 +20,22 @@ export function AlertBanner({ alerts }: AlertBannerProps) {
   return (
     <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
       {urgent.map((a, i) => (
-        <div
+        <AlertCard
           key={i}
-          className="flex items-center gap-3 rounded-card border border-danger-subtle bg-danger-subtle px-4 py-3"
-        >
-          <AlertTriangle
-            size={14}
-            strokeWidth={1.75}
-            className="shrink-0 text-danger-ink"
-          />
-          <p className="flex-1 font-body text-sm text-black">
-            {a.message}
-          </p>
-          {a.actionUrl && (
-            <a
-              href={a.actionUrl}
-              className="rounded-control bg-[#0F1F3D] px-3 py-1 font-body text-xs text-white hover:brightness-95"
-            >
-              Ver →
-            </a>
-          )}
-        </div>
+          variant="danger"
+          title="Urgente"
+          message={a.message}
+          actionUrl={a.actionUrl}
+        />
       ))}
       {others.slice(0, 2).map((a, i) => (
-        <div
+        <AlertCard
           key={i}
-          className="flex items-center gap-3 rounded-card border border-warning-subtle bg-warning-subtle px-4 py-3"
-        >
-          <Clock
-            size={14}
-            strokeWidth={1.75}
-            className="shrink-0 text-warning-ink"
-          />
-          <p className="flex-1 font-body text-sm text-black">
-            {a.message}
-          </p>
-          {a.actionUrl && (
-            <a
-              href={a.actionUrl}
-              className="shrink-0 rounded-control bg-[#0F1F3D] px-3 py-1 font-body text-xs text-white hover:brightness-95"
-            >
-              Ver →
-            </a>
-          )}
-        </div>
+          variant="warning"
+          title="Atenção"
+          message={a.message}
+          actionUrl={a.actionUrl}
+        />
       ))}
     </div>
   );
