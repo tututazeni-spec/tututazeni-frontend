@@ -44,7 +44,7 @@ export function Select({
       <RadixSelect.Trigger
         aria-invalid={invalid || undefined}
         className={cn(
-          'group relative inline-flex min-h-[48px] items-center justify-between gap-2 rounded-control border-[1.5px] border-field',
+          'group relative inline-flex min-h-[48px] max-w-full items-center justify-between gap-2 rounded-control border-[1.5px] border-field',
           'bg-surface px-3 pb-[6px] pt-[18px] text-left font-body text-sm text-field-ink',
           'focus:bg-field-soft focus:outline-none focus:ring-[3px] focus:ring-field-soft',
           'disabled:cursor-not-allowed disabled:opacity-50',
@@ -55,7 +55,7 @@ export function Select({
         <span
           aria-hidden
           className={cn(
-            'pointer-events-none absolute left-3 whitespace-nowrap origin-left font-body text-ink-muted transition-all duration-150',
+            'pointer-events-none absolute left-3 max-w-[calc(100%-2.75rem)] truncate whitespace-nowrap origin-left font-body text-ink-muted transition-all duration-150',
             'top-[6px] text-[11px] font-medium text-field',
             'group-data-[placeholder]:top-1/2 group-data-[placeholder]:-translate-y-1/2 group-data-[placeholder]:text-sm',
             'group-data-[placeholder]:font-normal group-data-[placeholder]:text-ink-muted',
@@ -64,7 +64,7 @@ export function Select({
         >
           {shownLabel}
         </span>
-        <span className="grid min-w-0">
+        <span className="grid min-w-0 flex-1 overflow-hidden">
           {[shownLabel, ...items.map((i) => i.label)].map((t, n) => (
             <span
               key={n}
@@ -74,17 +74,21 @@ export function Select({
               {t}
             </span>
           ))}
-          <span className="col-start-1 row-start-1 whitespace-nowrap">
+          <span className="col-start-1 row-start-1 min-w-0 truncate whitespace-nowrap">
             <RadixSelect.Value placeholder={' '} />
           </span>
         </span>
         <RadixSelect.Icon>
-          <ChevronDown size={16} strokeWidth={1.75} className="text-field" />
+          <ChevronDown
+            size={16}
+            strokeWidth={1.75}
+            className="shrink-0 text-field"
+          />
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
       <RadixSelect.Portal>
         <RadixSelect.Content
-          className="z-[60] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
+          className="z-[60] min-w-[var(--radix-select-trigger-width)] max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
           position="popper"
           sideOffset={4}
         >
