@@ -38,14 +38,30 @@ function flattenTree(
   ]);
 }
 
+const BAR_COLORS = [
+  '#2563EB',
+  '#16A34A',
+  '#F97316',
+  '#9333EA',
+  '#DC2626',
+  '#0891B2',
+  '#CA8A04',
+  '#DB2777',
+  '#4F46E5',
+  '#65A30D',
+];
+
 function BarList({
   title,
   items,
   suffix = '',
+  multiColor = false,
 }: {
   title: string;
   items: Array<{ label: string; count: number }>;
   suffix?: string;
+  /** Cada item com uma cor própria (em vez da cor primária única). */
+  multiColor?: boolean;
 }) {
   const max = Math.max(1, ...items.map((i) => i.count));
   return (
@@ -68,8 +84,11 @@ function BarList({
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-surface-sunken">
                 <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${(item.count / max) * 100}%` }}
+                  className={`h-full rounded-full ${multiColor ? '' : 'bg-primary'}`}
+                  style={{
+                    width: `${(item.count / max) * 100}%`,
+                    ...(multiColor && { backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }),
+                  }}
                 />
               </div>
             </div>
@@ -227,6 +246,7 @@ export function ReportsView() {
                   count: p.vacancies,
                 }))}
               suffix=" vagas"
+              multiColor
             />
             <BarList
               title="Distribuição por localização"
