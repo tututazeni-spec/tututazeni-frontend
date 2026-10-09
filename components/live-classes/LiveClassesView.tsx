@@ -14,6 +14,7 @@
 // RecordingsView.tsx.
 
 import { Circle, Calendar, Clapperboard, Search, Video } from 'lucide-react';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { ClassCard } from './ClassCard';
 import { Spinner } from './Spinner';
@@ -105,37 +106,6 @@ export function LiveClassesView({
   onCancel,
   onDuplicate,
 }: LiveClassesViewProps) {
-  const stats = [
-    {
-      icon: Circle,
-      label: 'Ao Vivo',
-      value: liveNow,
-      textClass: 'text-danger',
-      bgClass: 'bg-danger-subtle',
-    },
-    {
-      icon: Calendar,
-      label: 'Agendadas',
-      value: upcomingCount,
-      textClass: 'text-warning',
-      bgClass: 'bg-warning-subtle',
-    },
-    {
-      icon: Clapperboard,
-      label: 'Gravações',
-      value: recordingsCount,
-      textClass: 'text-accent',
-      bgClass: 'bg-accent-subtle',
-    },
-    {
-      icon: Video,
-      label: 'Total Aulas',
-      value: total,
-      textClass: 'text-info',
-      bgClass: 'bg-info-subtle',
-    },
-  ];
-
   return (
     <>
       <style>{`
@@ -166,35 +136,35 @@ export function LiveClassesView({
           {canCreate && (
             <button
               onClick={onCreateNew}
-              className="py-2.25 px-5 bg-danger text-canvas border-none rounded-lg text-sm font-bold cursor-pointer"
+              className="py-2.25 px-5 bg-[#0F1F3D] text-white border-none rounded-lg text-sm font-bold cursor-pointer inline-flex items-center gap-2"
             >
-              + Nova Aula
+              <Circle size={12} className="fill-[#FF6B6B] text-[#FF6B6B]" />
+              Nova Aula
             </button>
           )}
         </div>
 
         {/* ── Stats ── */}
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3 mb-5.5">
-          {stats.map((s) => (
-            <div
-              key={s.label}
-              className={`${CARD} py-3.5 px-4 flex items-center gap-3`}
-            >
-              <div
-                className={`w-10 h-10 rounded-[10px] ${s.bgClass} ${s.textClass} flex items-center justify-center flex-shrink-0`}
-              >
-                <s.icon size={18} strokeWidth={1.75} />
-              </div>
-              <div>
-                <p className="m-0 text-xs font-bold text-ink-faint uppercase tracking-wide">
-                  {s.label}
-                </p>
-                <p className={`m-0 text-2xl font-black ${s.textClass}`}>
-                  {s.value}
-                </p>
-              </div>
-            </div>
-          ))}
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 mb-5.5">
+          <NavyStatCard icon={Circle} tone="red" label="Ao Vivo" value={liveNow} />
+          <NavyStatCard
+            icon={Calendar}
+            tone="blue"
+            label="Agendadas"
+            value={upcomingCount}
+          />
+          <NavyStatCard
+            icon={Clapperboard}
+            tone="blue"
+            label="Gravações"
+            value={recordingsCount}
+          />
+          <NavyStatCard
+            icon={Video}
+            tone="blue"
+            label="Total Aulas"
+            value={total}
+          />
         </div>
 
         {/* ── Upcoming strip ── */}
