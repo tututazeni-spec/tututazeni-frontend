@@ -189,7 +189,7 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
         <>
           <div className="overflow-x-auto">
             <Table>
-              <TableHead>
+              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                 <TableRow>
                   {headers.map((h, i) => (
                     <TableHeaderCell key={`${h}-${i}`}>{h}</TableHeaderCell>

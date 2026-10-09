@@ -239,7 +239,7 @@ export function PlanningTab() {
               />
             ) : (
               <Table>
-                <TableHead>
+                <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                   <TableRow>
                     <TableHeaderCell>Equipa</TableHeaderCell>
                     <TableHeaderCell>Colab.</TableHeaderCell>
@@ -303,7 +303,7 @@ export function PlanningTab() {
               </p>
             ) : (
               <Table>
-                <TableHead>
+                <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                   <TableRow>
                     <TableHeaderCell>Colaborador</TableHeaderCell>
                     <TableHeaderCell>Pedido</TableHeaderCell>

@@ -199,7 +199,7 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
         <>
           <div className="overflow-x-auto">
             <Table>
-              <TableHead>
+              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                 <TableRow>
                   <TableHeaderCell className="w-8" />
                   <TableHeaderCell>Colaborador</TableHeaderCell>

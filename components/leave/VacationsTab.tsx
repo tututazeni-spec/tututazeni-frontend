@@ -150,7 +150,7 @@ export function VacationsTab() {
         <>
           <div className="overflow-x-auto">
             <Table>
-              <TableHead>
+              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                 <TableRow>
                   {HEADERS.map((h) => (
                     <TableHeaderCell key={h}>{h}</TableHeaderCell>
