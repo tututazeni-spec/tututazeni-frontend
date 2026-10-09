@@ -237,11 +237,11 @@ export function ResultsTab() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* By evaluator type */}
-            <Card>
+            <Card className="overflow-hidden">
+              <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                Por Tipo de Avaliador
+              </div>
               <CardBody>
-                <h4 className="font-display font-semibold text-ink mb-3">
-                  Por Tipo de Avaliador
-                </h4>
                 <div className="space-y-3">
                   {Object.entries(result.byType).map(([type, score]) => (
                     <div key={type}>
@@ -262,11 +262,11 @@ export function ResultsTab() {
 
             {/* Concordance */}
             {result.concordance && (
-              <Card>
+              <Card className="overflow-hidden">
+                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                  Matriz de Concordância
+                </div>
                 <CardBody>
-                  <h4 className="font-display font-semibold text-ink mb-3">
-                    Matriz de Concordância
-                  </h4>
                   <div className="flex items-center justify-center gap-6 py-4">
                     <div className="text-center">
                       <p className="text-3xl font-bold text-primary">
@@ -305,11 +305,11 @@ export function ResultsTab() {
 
           {/* Competency Radar */}
           {Object.keys(result.competencies).length > 0 && (
-            <Card>
+            <Card className="overflow-hidden">
+              <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                Mapa de Competências
+              </div>
               <CardBody>
-                <h4 className="font-display font-semibold text-ink mb-4">
-                  Mapa de Competências
-                </h4>
                 <ErrorBoundary source="evaluation.ResultsTab.RadarChart">
                   <RadarChart
                     data={Object.entries(result.competencies).map(
@@ -415,11 +415,11 @@ export function ResultsTab() {
               result.comments.self.length > 0) && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.comments.manager.length > 0 && (
-                  <Card>
+                  <Card className="overflow-hidden">
+                    <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                      Comentários do Gestor
+                    </div>
                     <CardBody>
-                      <h4 className="font-display font-semibold text-ink mb-2">
-                        Comentários do Gestor
-                      </h4>
                       {result.comments.manager.map((c, i) => (
                         <p key={i} className="text-xs text-ink-muted mb-1">
                           {c.comment}
@@ -429,11 +429,11 @@ export function ResultsTab() {
                   </Card>
                 )}
                 {result.comments.self.length > 0 && (
-                  <Card>
+                  <Card className="overflow-hidden">
+                    <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                      Comentários do Colaborador
+                    </div>
                     <CardBody>
-                      <h4 className="font-display font-semibold text-ink mb-2">
-                        Comentários do Colaborador
-                      </h4>
                       {result.comments.self.map((c, i) => (
                         <p key={i} className="text-xs text-ink-muted mb-1">
                           {c.comment}

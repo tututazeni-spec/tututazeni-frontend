@@ -229,11 +229,11 @@ export function CalibrationTab() {
           {/* Comparar equipas / distribuição */}
           {(data.byDepartment?.length ?? 0) > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
+              <Card className="overflow-hidden">
+                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                  Comparar Equipas
+                </div>
                 <CardBody>
-                  <h4 className="font-display font-semibold text-ink mb-3">
-                    Comparar Equipas
-                  </h4>
                   <div className="space-y-2">
                     {(data.byDepartment ?? []).map((d) => (
                       <div
@@ -252,11 +252,11 @@ export function CalibrationTab() {
                 </CardBody>
               </Card>
               {data.distribution && (
-                <Card>
+                <Card className="overflow-hidden">
+                  <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                    Distribuição de Resultados
+                  </div>
                   <CardBody>
-                    <h4 className="font-display font-semibold text-ink mb-3">
-                      Distribuição de Resultados
-                    </h4>
                     <div className="space-y-2 text-xs">
                       <div className="flex justify-between">
                         <span className="text-ink-muted">Excepcional (≥4)</span>

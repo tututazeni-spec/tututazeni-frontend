@@ -102,11 +102,11 @@ export function AnalyticsTab() {
       </div>
 
       {/* Distribution */}
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Distribuição de Performance
+        </div>
         <CardBody>
-          <h3 className="font-display font-semibold text-ink mb-4">
-            Distribuição de Performance
-          </h3>
           <div className="grid grid-cols-4 gap-3">
             {DISTRIBUTION_CONFIG.map((d) => {
               const total = Object.values(data.distribution).reduce(
@@ -142,16 +142,16 @@ export function AnalyticsTab() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top performers */}
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+            <Trophy
+              size={16}
+              strokeWidth={1.75}
+              className="inline align-[-2px]"
+            />{' '}
+            Top Performers
+          </div>
           <CardBody>
-            <h3 className="font-display font-semibold text-ink mb-4">
-              <Trophy
-                size={16}
-                strokeWidth={1.75}
-                className="inline align-[-2px]"
-              />{' '}
-              Top Performers
-            </h3>
             <div className="space-y-2">
               {(data.topPerformers ?? []).slice(0, 8).map((p, i) => (
                 <div key={i} className="flex items-center gap-3">
@@ -188,11 +188,11 @@ export function AnalyticsTab() {
         </Card>
 
         {/* By department */}
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Score por Departamento
+          </div>
           <CardBody>
-            <h3 className="font-display font-semibold text-ink mb-4">
-              Score por Departamento
-            </h3>
             <div className="space-y-2">
               {(data.byDepartment ?? []).map((d, i) => (
                 <div key={i}>
