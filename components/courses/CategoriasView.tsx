@@ -369,6 +369,8 @@ export function CategoriasView({
   async function onDelete(cat: CourseCategoryManaged) {
     const ok = await confirm({
       title: `Eliminar "${cat.name}"?`,
+      message:
+        'Os cursos desta categoria não são apagados, ficam apenas sem categoria.',
       confirmLabel: 'Eliminar',
       destructive: true,
     });
