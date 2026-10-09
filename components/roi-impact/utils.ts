@@ -95,7 +95,7 @@ export const IMPACT_CATEGORY_LABELS: Record<string, string> = {
   SEGURANCA: 'Segurança',
   VENDAS_RECEITA: 'Vendas/Receita',
   SATISFACAO_CLIENTE: 'Satisfação do cliente',
-  SATISFACAO_COLABORADOR: 'Satisfação/engagement do colaborador',
+  SATISFACAO_COLABORADOR: 'Satisfação/engajamento do colaborador',
   TEMPO_RESPOSTA: 'Tempo de resposta/ciclo',
   CUMPRIMENTO_SLA: 'Cumprimento de SLA',
   COMPLIANCE: 'Compliance',
@@ -211,7 +211,7 @@ export const CORRELATION_TYPE_LABELS: Record<string, string> = {
   INVESTIMENTO_ROTATIVIDADE: 'Investimento × rotatividade',
   ONBOARDING_TEMPO_PRODUTIVIDADE: 'Onboarding × tempo até produtividade',
   MENTORIA_PROGRESSAO_CARREIRA: 'Mentoria × progressão de carreira',
-  LIDERANCA_ENGAGEMENT_EQUIPA: 'Liderança × engagement da equipa',
+  LIDERANCA_ENGAGEMENT_EQUIPA: 'Liderança × engajamento da equipa',
 };
 
 // Convenção estatística comum: |r| < 0.3 fraca, < 0.6 moderada, >= 0.6 forte
@@ -261,6 +261,6 @@ export const ROI_REPORT_LABELS: Record<string, string> = {
   'insufficient-data': 'Iniciativas sem dados suficientes',
   'roi-evolution': 'Evolução do ROI ano a ano',
   'onboarding-retention': 'Impacto do onboarding na retenção',
-  'leadership-engagement': 'Impacto da liderança no engagement',
+  'leadership-engagement': 'Impacto da liderança no engajamento',
   'executive-summary': 'Relatório executivo para Administração',
 };

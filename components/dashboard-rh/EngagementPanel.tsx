@@ -37,17 +37,17 @@ export function EngagementPanel() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <TopBarCard
-          label="Score de Engagement"
+          label="Score de Engajamento"
           value={
             data?.engagementScore != null ? `${data.engagementScore}%` : '–'
           }
           tone="blue"
           icon={<Activity className="h-6 w-6" />}
         />
-        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3 transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
           <GaugeChart
             value={data?.participationRate ?? 0}
-            label="Participação em Surveys"
+            label="Participação em Pesquisas"
             thresholds={{ warning: 50, danger: 25 }}
             size={120}
           />
@@ -69,7 +69,7 @@ export function EngagementPanel() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-4 font-body font-semibold text-ink-muted">
-            Participação em Surveys por Departamento
+            Participação em Pesquisas por Departamento
           </h4>
           {byDept.length === 0 ? (
             <p className="font-body text-xs text-ink-faint">

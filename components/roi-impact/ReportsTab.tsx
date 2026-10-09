@@ -529,7 +529,7 @@ function ReportBody({
                     <TableHeaderCell>Líder</TableHeaderCell>
                     <TableHeaderCell>Progresso no programa</TableHeaderCell>
                     <TableHeaderCell>Equipa</TableHeaderCell>
-                    <TableHeaderCell>Engagement médio</TableHeaderCell>
+                    <TableHeaderCell>Engajamento médio</TableHeaderCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
