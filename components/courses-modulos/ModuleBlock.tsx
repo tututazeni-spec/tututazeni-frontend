@@ -36,7 +36,7 @@ export function ModuleBlock({
     <Card className="overflow-hidden p-0">
       {/* Module header */}
       <div
-        className="flex items-center gap-3 p-4 bg-surface-sunken border-b border-border cursor-pointer hover:bg-surface-sunken/80 transition-colors"
+        className="flex flex-wrap items-center gap-3 p-4 bg-surface-sunken border-b border-border cursor-pointer hover:bg-surface-sunken/80 transition-colors"
         style={{
           borderBottom: open ? '1px solid var(--color-border)' : 'none',
         }}
@@ -49,8 +49,10 @@ export function ModuleBlock({
             <Folder size={18} strokeWidth={1.75} />
           )}
         </span>
-        <div className="flex-1">
-          <p className="m-0 text-sm font-bold text-ink">{mod.title}</p>
+        <div className="min-w-0 flex-1 basis-48">
+          <p className="m-0 break-words text-sm font-bold text-ink">
+            {mod.title}
+          </p>
           <p className="m-0 text-xs text-ink-faint">
             Módulo {mod.seq} · {mod.lessons.length} lição(ões)
           </p>
