@@ -40,17 +40,17 @@ function ProgressTable({
           {rows.map((r) => (
             <div
               key={r.id}
-              className={`flex flex-col gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-4 shadow-sm backdrop-blur-md hover:bg-surface sm:flex-row sm:items-center ${progressAccent(r)}`}
+              className={`flex flex-col gap-2 rounded-2xl border border-l-4 border-border bg-surface/60 p-2 shadow-sm backdrop-blur-md hover:bg-surface lg:flex-row lg:items-center lg:gap-3 ${progressAccent(r)}`}
             >
               {/* Nome */}
-              <div className="min-w-0 flex-1 break-words text-sm font-semibold uppercase text-ink">
+              <div className="min-w-0 break-words text-sm font-semibold uppercase text-ink lg:w-72 lg:shrink-0">
                 {r.name}
               </div>
 
-              <div className="flex items-stretch gap-3">
+              <div className="grid grid-cols-2 gap-2 lg:flex lg:flex-1 lg:items-stretch [&>div]:!p-1.5 lg:[&>div]:flex-1">
                 {/* Total, Concluídas & Atrasadas */}
                 <div
-                  className={`${PANEL} grid min-w-0 flex-1 grid-cols-3 items-center gap-4 text-center sm:flex-none`}
+                  className={`${PANEL} grid min-w-0 grid-cols-3 items-center gap-4 text-center`}
                 >
                   <div>
                     <div className="font-mono text-sm text-ink-muted">
@@ -76,7 +76,7 @@ function ProgressTable({
 
                 {/* Taxa de conclusão */}
                 <div
-                  className={`${PANEL} flex shrink-0 items-center justify-center`}
+                  className={`${PANEL} flex items-center justify-center`}
                   title="Taxa de conclusão"
                 >
                   <ProgressRing value={r.completionRate} />
