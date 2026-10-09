@@ -37,6 +37,17 @@ export interface CollaboratorDashboard {
   };
   xp: { total: number; badges: number };
   streak: { current: number; longest: number };
+  learningSequence: {
+    pathId: number;
+    title: string;
+    milestones: Array<{
+      id: string;
+      label: string;
+      status: 'completed' | 'current' | 'locked';
+      progress: number;
+      date: string | null;
+    }>;
+  } | null;
   pdi: CollaboratorPdiSummary[];
   competencies: Array<{
     name: string;

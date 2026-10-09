@@ -63,53 +63,17 @@ const STAT_TILES: Array<{
   { key: 'totalXp', label: 'Pontos de Experiência', tone: 'red', icon: Zap },
 ];
 
-type MilestoneStatus = 'completed' | 'current' | 'locked';
+type Milestone = NonNullable<
+  CollaboratorDashboard['learningSequence']
+>['milestones'][number];
 
-interface Milestone {
-  id: string;
-  label: string;
-  date: string;
-  status: MilestoneStatus;
-  progress?: number;
+function formatMilestoneDate(iso: string | null): string {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('pt-PT', {
+    day: '2-digit',
+    month: 'short',
+  });
 }
-
-// TODO: substituir por dados reais quando soubermos o campo da API
-// (ex.: data.learningPath) que traz esta lista.
-const MOCK_MILESTONES: Milestone[] = [
-  {
-    id: '1',
-    label: 'Fundamentos de Gestão',
-    date: 'Jul 15',
-    status: 'completed',
-  },
-  { id: '2', label: 'Comunicação Eficaz', date: 'Aug 01', status: 'completed' },
-  {
-    id: '3',
-    label: 'Liderança Ágil',
-    date: 'Aug 20',
-    status: 'completed',
-    progress: 60,
-  },
-  {
-    id: '4',
-    label: 'Liderança Ágil',
-    date: 'Set 10',
-    status: 'current',
-    progress: 60,
-  },
-  {
-    id: '5',
-    label: 'Desenvolvimento de Equipe',
-    date: 'Set 10',
-    status: 'locked',
-  },
-  {
-    id: '6',
-    label: 'Estratégia de Negócios',
-    date: 'Set 30',
-    status: 'locked',
-  },
-];
 
 function LearningSequenceChart({ milestones }: { milestones: Milestone[] }) {
   const activeIndex = milestones.findIndex((m) => m.status === 'current');
@@ -179,13 +143,13 @@ function LearningSequenceChart({ milestones }: { milestones: Milestone[] }) {
               >
                 {m.label}
               </div>
-              {typeof m.progress === 'number' && (
+              {m.status !== 'locked' && m.progress > 0 && (
                 <div className="font-body text-[11px] text-primary">
                   {m.progress}% Completo
                 </div>
               )}
               <div className="mt-1 font-body text-[11px] text-ink-faint">
-                {m.date}
+                {formatMilestoneDate(m.date)}
               </div>
             </div>
           );
@@ -247,7 +211,21 @@ export function MyDashboardView() {
               {data.streak.current} dias · recorde {data.streak.longest}
             </div>
           </div>
-          <LearningSequenceChart milestones={MOCK_MILESTONES} />
+          {data.learningSequence &&
+          data.learningSequence.milestones.length > 0 ? (
+            <>
+              <div className="mb-2 font-body text-xs text-ink-faint">
+                {data.learningSequence.title}
+              </div>
+              <LearningSequenceChart
+                milestones={data.learningSequence.milestones}
+              />
+            </>
+          ) : (
+            <div className="py-6 text-center font-body text-xs text-ink-faint">
+              Sem percurso de aprendizagem activo.
+            </div>
+          )}
         </div>
         <Card>
           <CardBody>
