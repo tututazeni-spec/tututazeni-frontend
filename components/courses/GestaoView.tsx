@@ -89,14 +89,14 @@ const STATUS_ACCENT: Record<string, string> = {
 };
 
 const LEVEL_PILL: Record<string, string> = {
-  BEGINNER: 'bg-emerald-500/20 text-emerald-700',
-  INTERMEDIATE: 'bg-orange-500/20 text-orange-700',
-  ADVANCED: 'bg-yellow-500/25 text-yellow-700',
+  BEGINNER: 'bg-emerald-500/20 text-black',
+  INTERMEDIATE: 'bg-orange-500/20 text-black',
+  ADVANCED: 'bg-yellow-500/25 text-black',
 };
 
 const MODALITY_PILL: Record<string, string> = {
-  PRESENCIAL: 'bg-emerald-500/20 text-emerald-700',
-  ONLINE: 'bg-blue-500/20 text-blue-700',
+  PRESENCIAL: 'bg-emerald-500/20 text-black',
+  ONLINE: 'bg-blue-500/20 text-black',
 };
 
 const PILL =
@@ -130,7 +130,7 @@ function ProgressRing({ value }: { value: number }) {
           strokeDashoffset={circ * (1 - pct / 100)}
         />
       </svg>
-      <span className="absolute inset-0 flex items-center justify-center font-mono text-xs text-ink">
+      <span className="absolute inset-0 flex items-center justify-center font-mono text-xs text-black">
         {pct}%
       </span>
     </div>
@@ -400,7 +400,7 @@ export function GestaoView({
                   {/* Topo: código, nome e menu de acções */}
                   <div className="flex items-start gap-3">
                     <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
-                      <span className="w-fit rounded-full bg-blue-500/20 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-blue-700">
+                      <span className="w-fit rounded-full bg-blue-500/20 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-black">
                         {c.internalCode ?? '—'}
                       </span>
                       <button
@@ -408,7 +408,7 @@ export function GestaoView({
                         className="min-w-0 text-left"
                         onClick={() => onSelect(c.id)}
                       >
-                        <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
+                        <div className="line-clamp-2 text-sm font-semibold uppercase text-black">
                           {c.title}
                         </div>
                       </button>
@@ -419,7 +419,7 @@ export function GestaoView({
                         <DropdownMenuTrigger asChild>
                           <button
                             type="button"
-                            className="rounded-control p-1.5 text-ink-muted hover:bg-surface-sunken hover:text-ink"
+                            className="rounded-control p-1.5 text-black hover:bg-surface-sunken hover:text-black"
                             disabled={rowBusy(c.id)}
                           >
                             <MoreHorizontal size={16} strokeWidth={1.75} />
@@ -529,16 +529,14 @@ export function GestaoView({
                     <div
                       className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1.5`}
                     >
-                      <span className={`${PILL} bg-blue-500/20 text-blue-700`}>
+                      <span className={`${PILL} bg-blue-500/20 text-black`}>
                         {c.category ?? '—'}
                       </span>
-                      <span
-                        className={`${PILL} bg-fuchsia-500/20 text-fuchsia-700`}
-                      >
+                      <span className={`${PILL} bg-fuchsia-500/20 text-black`}>
                         {c.type ? COURSE_TYPE_LABELS[c.type] : '—'}
                       </span>
                       <span
-                        className={`${PILL} ${LEVEL_PILL[c.level] ?? 'bg-slate-500/20 text-slate-700'}`}
+                        className={`${PILL} ${LEVEL_PILL[c.level] ?? 'bg-slate-500/20 text-black'}`}
                       >
                         {levelLabel ?? '—'}
                       </span>
@@ -562,11 +560,11 @@ export function GestaoView({
                         />
                       )}
                       <span
-                        className={`${PILL} ${MODALITY_PILL[c.modality ?? ''] ?? 'bg-violet-500/20 text-violet-700'}`}
+                        className={`${PILL} ${MODALITY_PILL[c.modality ?? ''] ?? 'bg-violet-500/20 text-black'}`}
                       >
                         {c.modality ? COURSE_MODALITY_LABELS[c.modality] : '—'}
                       </span>
-                      <span className="text-xs text-ink-muted">
+                      <span className="text-xs text-black">
                         {fmtDuration(c.workloadHours)}
                       </span>
                     </div>
@@ -582,16 +580,16 @@ export function GestaoView({
                             url={c.primaryInstructor.avatarUrl ?? undefined}
                             size="sm"
                           />
-                          <span className="max-w-full truncate text-xs font-medium text-ink">
+                          <span className="max-w-full truncate text-xs font-medium text-black">
                             {c.primaryInstructor.fullName}
                           </span>
                         </>
                       ) : (
-                        <span className="text-xs text-ink-faint">
+                        <span className="text-xs text-black">
                           Sem instrutor
                         </span>
                       )}
-                      <span className="flex items-center gap-1 text-xs text-ink-faint">
+                      <span className="flex items-center gap-1 text-xs text-black">
                         <CalendarDays size={12} strokeWidth={1.75} />
                         {c.publishedAt
                           ? new Date(c.publishedAt).toLocaleDateString('pt')
@@ -604,12 +602,14 @@ export function GestaoView({
                       className={`${PANEL} flex items-center justify-between gap-3`}
                     >
                       <div className="flex flex-col items-start gap-1.5">
-                        <StatusBadge
-                          value={c.status}
-                          map={COURSE_STATUS_MAP}
-                          variant="dot"
-                        />
-                        <span className="text-xs text-ink-muted">
+                        <span className="[&_*]:!text-black">
+                          <StatusBadge
+                            value={c.status}
+                            map={COURSE_STATUS_MAP}
+                            variant="dot"
+                          />
+                        </span>
+                        <span className="text-xs text-black">
                           Formandos:{' '}
                           <span className="font-mono">
                             {c._count.enrollments}
