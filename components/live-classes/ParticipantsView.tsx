@@ -234,7 +234,7 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
               setPage(1);
             }}
             placeholder="Colaborador ou nº…"
-            className="w-52"
+            className="w-64"
           />
         </div>
         {canManage && (

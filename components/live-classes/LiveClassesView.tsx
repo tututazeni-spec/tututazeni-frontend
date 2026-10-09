@@ -217,7 +217,7 @@ export function LiveClassesView({
             onValueChange={(v) =>
               onFiltersChange({ modality: v as Filters['modality'] })
             }
-            className="w-44"
+            className="w-56"
           />
           {(search ||
             filters.courseId ||
