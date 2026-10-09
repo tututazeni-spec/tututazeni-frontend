@@ -78,7 +78,10 @@ export function TabVisaoGeral() {
   const save = useApiMutation(
     (payload: Partial<Form>) => apiClient.put('/settings/organization', payload),
     {
-      invalidateKeys: [queryKeys.settings.organization()],
+      invalidateKeys: [
+        queryKeys.settings.organization(),
+        queryKeys.settings.branding(),
+      ],
       onSuccess: () =>
         toast({ title: 'Definições da organização guardadas', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
