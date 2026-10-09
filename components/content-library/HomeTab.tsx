@@ -65,7 +65,7 @@ export function HomeTab({ onSearch }: { onSearch: (term: string) => void }) {
   return (
     <div className="space-y-8">
       {/* Hero search */}
-      <div className="rounded-panel bg-gradient-to-br from-primary to-primary-active p-8">
+      <div className="rounded-panel bg-[#0F1F3D] p-8">
         <h2 className="mb-1 font-display text-2xl font-bold text-canvas">
           O que queres aprender hoje?
         </h2>
