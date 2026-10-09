@@ -191,7 +191,7 @@ export function RoomsView({ canManage }: { canManage: boolean }) {
                 key={v.liveClassId}
                 className="flex flex-wrap items-center gap-3 px-4 py-3"
               >
-                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control bg-info-subtle text-info">
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control bg-[#0F1F3D]/60 text-white">
                   <Video size={16} strokeWidth={1.75} />
                 </div>
                 <div className="min-w-0 flex-1">

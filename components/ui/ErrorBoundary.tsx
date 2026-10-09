@@ -53,8 +53,8 @@ export class ErrorBoundary extends Component<
 
     return (
       <div className="flex flex-col items-center gap-3 rounded-card border border-dashed border-border-strong bg-surface p-10 text-center">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-danger-subtle">
-          <AlertTriangle size={20} strokeWidth={1.75} className="text-danger" />
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0F1F3D]/60">
+          <AlertTriangle size={20} strokeWidth={1.75} className="text-white" />
         </div>
         <div>
           <h3 className="font-display text-sm font-bold text-ink">

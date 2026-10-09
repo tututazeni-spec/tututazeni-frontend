@@ -66,7 +66,7 @@ export function FormalEvaluationsParticipantView() {
           key={e.id}
           className="flex items-center gap-4 rounded-card border border-border bg-surface p-5 transition-shadow hover:shadow-hover"
         >
-          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-card bg-accent-subtle">
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-card bg-[#0F1F3D]/60 text-white">
             <ClipboardList size={20} strokeWidth={1.75} />
           </div>
           <div className="flex-1">

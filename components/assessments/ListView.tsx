@@ -29,11 +29,6 @@ export interface ListViewProps {
   onStart: (id: number) => void;
 }
 
-const TYPE_ICON_BG: Record<string, string> = {
-  QUIZ: 'bg-primary-subtle',
-  EXAM: 'bg-accent-subtle',
-  DIAGNOSTIC: 'bg-warning-subtle',
-};
 
 export function ListView({ onStart }: ListViewProps) {
   // EXAM é reservado às "Avaliações Formais" do módulo evaluation (ver
@@ -94,8 +89,8 @@ export function ListView({ onStart }: ListViewProps) {
             className="bg-surface border border-border rounded-card p-5 flex items-center gap-4 hover:shadow-hover transition-shadow"
           >
             <div
-              className={`w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 ${
-                TYPE_ICON_BG[a.type] ?? 'bg-surface-sunken'
+              className={`w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 text-white ${
+                'bg-[#0F1F3D]/60'
               }`}
             >
               {(() => {
