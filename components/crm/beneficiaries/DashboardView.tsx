@@ -49,7 +49,7 @@ export function DashboardView({
         </div>
         <div className="flex gap-2">
           <Link href="/crm/beneficiaries/follow-ups">
-            <Button intent="secondary">Follow-ups</Button>
+            <Button intent="secondary">Acompanhamentos</Button>
           </Link>
           <Link href="/crm/beneficiaries/report">
             <Button intent="secondary">Relatório por período</Button>
@@ -80,7 +80,7 @@ export function DashboardView({
           icon={<CircleCheck className="h-6 w-6" />}
         />
         <TopBarCard
-          label="Follow-ups a 30 dias"
+          label="Acompanhamentos a 30 dias"
           value={totals.pendingFollowUps}
           tone="gold"
           icon={<CalendarClock className="h-6 w-6" />}
