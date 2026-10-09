@@ -6,10 +6,11 @@
 
 import {
   BookOpen,
-  Check,
-  FileEdit,
+  CheckCircle,
+  FileText,
   Pause,
-  Archive,
+  Trash2,
+  GraduationCap,
   Layers,
   ListChecks,
   Users,
@@ -32,8 +33,8 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
-import { TopBarCard } from '@/components/ui/TopBarCard';
-import { GaugeChart } from '@/components/ui/charts/GaugeChart';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { rateTone } from '@/components/dashboard-rh/rateTone';
 import { Skeleton, fmtDuration } from './shared';
 import type { AdminDashboard, TopLevelView } from './types';
 
@@ -287,111 +288,107 @@ export function AdminDashboardView({
 
       {/* KPIs principais */}
       <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        <TopBarCard
+        <NavyStatCard
           label="Total de cursos"
           value={counts.total}
           tone="blue"
-          icon={<BookOpen className="h-6 w-6" />}
+          icon={BookOpen}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Publicados"
           value={counts.published}
           tone="green"
-          icon={<Check className="h-6 w-6" />}
+          icon={CheckCircle}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Rascunhos"
           value={counts.draft}
-          tone="gold"
-          icon={<FileEdit className="h-6 w-6" />}
+          tone="orange"
+          icon={FileText}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Em pausa"
           value={counts.paused}
-          tone="gold"
-          icon={<Pause className="h-6 w-6" />}
+          tone="orange"
+          icon={Pause}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Arquivados"
           value={counts.archived}
           tone="red"
-          icon={<Archive className="h-6 w-6" />}
+          icon={Trash2}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Módulos"
           value={counts.totalModules}
           tone="blue"
-          icon={<Layers className="h-6 w-6" />}
+          icon={Layers}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Lições"
           value={counts.totalLessons}
           tone="blue"
-          icon={<ListChecks className="h-6 w-6" />}
+          icon={ListChecks}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Inscritos"
           value={counts.totalEnrollments}
           tone="blue"
-          icon={<Users className="h-6 w-6" />}
+          icon={Users}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Formandos"
           value={counts.totalLearners}
           tone="blue"
-          icon={<Users className="h-6 w-6" />}
+          icon={GraduationCap}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Conclusões"
           value={counts.completions}
           tone="green"
-          icon={<CheckCircle2 className="h-6 w-6" />}
+          icon={CheckCircle2}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Inscrições pendentes"
           value={counts.pendingEnrollments}
-          tone={counts.pendingEnrollments > 0 ? 'gold' : 'blue'}
-          icon={<Clock className="h-6 w-6" />}
+          tone={counts.pendingEnrollments > 0 ? 'orange' : 'blue'}
+          icon={Clock}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Certificados emitidos"
           value={counts.certificatesIssued}
           tone="green"
-          icon={<Award className="h-6 w-6" />}
+          icon={Award}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Obrigatórios / opcionais"
           value={`${counts.mandatoryCourses}/${counts.optionalCourses}`}
           tone="blue"
-          icon={<BookOpen className="h-6 w-6" />}
+          icon={BookOpen}
         />
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-shadow duration-200 hover:shadow-md">
-          <GaugeChart
-            value={rates.avgCompletionRate}
-            label="Taxa de Conclusão"
-            thresholds={{ warning: 50, danger: 25 }}
-            size={110}
-          />
-        </div>
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-4 shadow-resting transition-shadow duration-200 hover:shadow-md">
-          <GaugeChart
-            value={rates.avgPassRate}
-            label="Taxa de Aprovação"
-            thresholds={{ warning: 50, danger: 25 }}
-            size={110}
-          />
-        </div>
-        <TopBarCard
+        <NavyStatCard
+          label="Taxa de Conclusão"
+          value={`${rates.avgCompletionRate}%`}
+          tone={rateTone(rates.avgCompletionRate, { warning: 50, danger: 25 })}
+          icon={TrendingUp}
+        />
+        <NavyStatCard
+          label="Taxa de Aprovação"
+          value={`${rates.avgPassRate}%`}
+          tone={rateTone(rates.avgPassRate, { warning: 50, danger: 25 })}
+          icon={CheckCircle2}
+        />
+        <NavyStatCard
           label="Nota média"
           value={rates.avgRating || '—'}
-          tone="gold"
-          icon={<Star className="h-6 w-6" />}
+          tone="orange"
+          icon={Star}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Horas de aprendizagem"
           value={fmtDuration(rates.totalLearningHours)}
           tone="blue"
-          icon={<Timer className="h-6 w-6" />}
+          icon={Timer}
         />
       </div>
 
