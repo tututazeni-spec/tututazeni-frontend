@@ -400,7 +400,7 @@ export function GestaoView({
               return (
                 <div
                   key={c.id}
-                  className={`flex flex-col gap-2 rounded-2xl border border-l-4 border-border bg-surface/60 p-2.5 shadow-sm backdrop-blur-md hover:bg-surface lg:flex-row lg:items-center lg:gap-3 ${STATUS_ACCENT[c.status] ?? ''}`}
+                  className={`flex flex-col gap-2 rounded-2xl border border-l-4 border-border bg-surface/60 p-2 shadow-sm backdrop-blur-md hover:bg-surface lg:flex-row lg:items-center lg:gap-3 ${STATUS_ACCENT[c.status] ?? ''}`}
                 >
                   {/* Topo: código, nome e menu de acções */}
                   <div className="flex items-start gap-3 lg:w-72 lg:shrink-0">
@@ -529,10 +529,10 @@ export function GestaoView({
                   </div>
 
                   {/* Detalhes em grelha fluida: 2 colunas no telemóvel, 4 em ecrãs largos */}
-                  <div className="grid grid-cols-2 gap-2 lg:flex lg:flex-1 lg:items-stretch [&>div]:!p-2 lg:[&>div]:flex-1">
+                  <div className="grid grid-cols-2 gap-2 lg:flex lg:flex-1 lg:items-stretch [&>div]:!p-1.5 lg:[&>div]:flex-1">
                     {/* 2. Categoria, Tipo & Nível */}
                     <div
-                      className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1.5`}
+                      className={`${PANEL} flex min-w-0 flex-col items-start justify-center gap-1 lg:flex-row lg:flex-wrap lg:content-center lg:items-center`}
                     >
                       <span className={`${PILL} bg-blue-500/20 text-black`}>
                         {c.category ?? '—'}
@@ -549,7 +549,7 @@ export function GestaoView({
 
                     {/* 3. Modalidade & Duração */}
                     <div
-                      className={`${PANEL} flex flex-col items-center justify-center gap-1.5`}
+                      className={`${PANEL} flex flex-col items-center justify-center gap-1 lg:flex-row lg:flex-wrap lg:content-center`}
                     >
                       {c.modality === 'ONLINE' ? (
                         <Monitor
@@ -576,7 +576,7 @@ export function GestaoView({
 
                     {/* 4. Instrutor & Publicação */}
                     <div
-                      className={`${PANEL} flex min-w-0 flex-col items-center justify-center gap-1`}
+                      className={`${PANEL} flex min-w-0 flex-col items-center justify-center gap-1 lg:flex-row lg:flex-wrap lg:content-center`}
                     >
                       {c.primaryInstructor ? (
                         <>
@@ -606,7 +606,7 @@ export function GestaoView({
                     <div
                       className={`${PANEL} flex items-center justify-between gap-3`}
                     >
-                      <div className="flex flex-col items-start gap-1.5">
+                      <div className="flex flex-col items-start gap-1 lg:flex-row lg:flex-wrap lg:items-center">
                         <span className="[&_*]:!text-black">
                           <StatusBadge
                             value={c.status}
