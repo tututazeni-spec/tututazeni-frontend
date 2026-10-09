@@ -36,53 +36,54 @@ function ProgressTable({
       {rows.length === 0 ? (
         <p className="p-4 text-xs text-ink-faint">Sem inscrições registadas</p>
       ) : (
-        <div className="overflow-x-auto">
-          {/* Cabeçalho agrupado */}
-          <div className="grid min-w-[640px] grid-cols-[1.4fr_2fr_120px] gap-3 px-4 pb-2 text-xs font-medium uppercase tracking-wide text-ink-faint">
-            <div>Nome</div>
-            <div className="grid grid-cols-3 text-center">
-              <div>Total</div>
-              <div>Concluídas</div>
-              <div>Atrasadas</div>
-            </div>
-            <div className="text-center">Taxa de conclusão</div>
-          </div>
+        <div className="space-y-3">
+          {rows.map((r) => (
+            <div
+              key={r.id}
+              className={`flex flex-col gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-4 shadow-sm backdrop-blur-md hover:bg-surface sm:flex-row sm:items-center ${progressAccent(r)}`}
+            >
+              {/* Nome */}
+              <div className="min-w-0 flex-1 break-words text-sm font-semibold uppercase text-ink">
+                {r.name}
+              </div>
 
-          <div className="space-y-3">
-            {rows.map((r) => (
-              <div
-                key={r.id}
-                className={`grid min-w-[640px] grid-cols-[1.4fr_2fr_120px] items-stretch gap-3 rounded-2xl border border-l-4 border-border bg-surface/60 p-3 shadow-sm backdrop-blur-md hover:bg-surface ${progressAccent(r)}`}
-              >
-                {/* 1. Nome */}
-                <div className="flex min-w-0 items-center">
-                  <div className="line-clamp-2 text-sm font-semibold uppercase text-ink">
-                    {r.name}
+              <div className="flex items-stretch gap-3">
+                {/* Total, Concluídas & Atrasadas */}
+                <div
+                  className={`${PANEL} grid min-w-0 flex-1 grid-cols-3 items-center gap-4 text-center sm:flex-none`}
+                >
+                  <div>
+                    <div className="font-mono text-sm text-ink-muted">
+                      {r.total}
+                    </div>
+                    <div className="text-xs text-ink-faint">Total</div>
+                  </div>
+                  <div>
+                    <div className="font-mono text-sm text-success-ink">
+                      {r.completed}
+                    </div>
+                    <div className="text-xs text-ink-faint">Concluídas</div>
+                  </div>
+                  <div>
+                    <div
+                      className={`font-mono text-sm ${r.overdue > 0 ? 'font-semibold text-danger-ink' : 'text-ink-faint'}`}
+                    >
+                      {r.overdue}
+                    </div>
+                    <div className="text-xs text-ink-faint">Atrasadas</div>
                   </div>
                 </div>
 
-                {/* 2. Total, Concluídas & Atrasadas */}
-                <div className={`${PANEL} grid grid-cols-3 items-center text-center`}>
-                  <div className="font-mono text-sm text-ink-muted">
-                    {r.total}
-                  </div>
-                  <div className="font-mono text-sm text-success-ink">
-                    {r.completed}
-                  </div>
-                  <div
-                    className={`font-mono text-sm ${r.overdue > 0 ? 'font-semibold text-danger-ink' : 'text-ink-faint'}`}
-                  >
-                    {r.overdue}
-                  </div>
-                </div>
-
-                {/* 3. Taxa de conclusão */}
-                <div className={`${PANEL} flex items-center justify-center`}>
+                {/* Taxa de conclusão */}
+                <div
+                  className={`${PANEL} flex shrink-0 items-center justify-center`}
+                  title="Taxa de conclusão"
+                >
                   <ProgressRing value={r.completionRate} />
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
