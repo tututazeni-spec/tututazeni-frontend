@@ -6,7 +6,7 @@
 'use client';
 
 import { AlertTriangle, Layers, ListChecks } from 'lucide-react';
-import { TopBarCard } from '@/components/ui/TopBarCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -25,7 +25,7 @@ export function SkillsPanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-28 rounded-2xl bg-surface-sunken"
+        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
       />
     );
 
@@ -40,23 +40,23 @@ export function SkillsPanel() {
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <TopBarCard
+        <NavyStatCard
           label="Colaboradores Avaliados"
           value={`${data?.assessmentRate ?? 0}%`}
           tone="blue"
-          icon={<ListChecks className="h-6 w-6" />}
+          icon={ListChecks}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Competências Mapeadas"
           value={data?.totalCompetencies ?? 0}
-          tone="gold"
-          icon={<Layers className="h-6 w-6" />}
+          tone="orange"
+          icon={Layers}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Gaps Críticos"
           value={data?.criticalGaps ?? 0}
           tone="red"
-          icon={<AlertTriangle className="h-6 w-6" />}
+          icon={AlertTriangle}
         />
       </div>
 

@@ -14,7 +14,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
-import { TopBarCard } from '@/components/ui/TopBarCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import type {
   AnniversaryUser,
@@ -43,7 +43,7 @@ export function HeadcountPanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-28 rounded-2xl bg-surface-sunken"
+        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
       />
     );
 
@@ -51,29 +51,29 @@ export function HeadcountPanel() {
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <TopBarCard
+        <NavyStatCard
           label="Total"
           value={data?.total ?? 0}
           tone="blue"
-          icon={<Users className="h-6 w-6" />}
+          icon={Users}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Activos"
           value={data?.active ?? 0}
           tone="green"
-          icon={<UserCheck className="h-6 w-6" />}
+          icon={UserCheck}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Taxa de Rotatividade"
           value={`${data?.turnoverRate ?? 0}%`}
           tone="red"
-          icon={<TrendingDown className="h-6 w-6" />}
+          icon={TrendingDown}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Tempo Médio de Serviço"
           value={`${data?.avgTenureMonths ?? 0}m`}
-          tone="gold"
-          icon={<Clock className="h-6 w-6" />}
+          tone="orange"
+          icon={Clock}
         />
       </div>
 

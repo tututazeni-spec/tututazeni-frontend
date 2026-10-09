@@ -9,12 +9,12 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { TopBarCard } from '@/components/ui/TopBarCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BarChart } from '@/components/ui/charts/BarChart';
-import { GaugeChart } from '@/components/ui/charts/GaugeChart';
+import { rateTone } from './rateTone';
 import type { EngagementData } from './types';
-import { Activity, ThumbsUp, Award } from 'lucide-react';
+import { Activity, Award, ClipboardList, ThumbsUp } from 'lucide-react';
 
 export function EngagementPanel() {
   const { data, isLoading: loading } = useApiQuery<EngagementData>(
@@ -27,7 +27,7 @@ export function EngagementPanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-24 rounded-card bg-surface-sunken"
+        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
       />
     );
 
@@ -36,33 +36,31 @@ export function EngagementPanel() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <TopBarCard
+        <NavyStatCard
           label="Score de Engajamento"
           value={
             data?.engagementScore != null ? `${data.engagementScore}%` : '–'
           }
           tone="blue"
-          icon={<Activity className="h-6 w-6" />}
+          icon={Activity}
         />
-        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3 transition-all duration-200 hover:scale-105 hover:shadow-md motion-reduce:hover:scale-100">
-          <GaugeChart
-            value={data?.participationRate ?? 0}
-            label="Participação em Pesquisas"
-            thresholds={{ warning: 50, danger: 25 }}
-            size={120}
-          />
-        </div>
-        <TopBarCard
+        <NavyStatCard
+          icon={ClipboardList}
+          tone={rateTone(data?.participationRate ?? 0, { warning: 50, danger: 25 })}
+          label="Participação em Pesquisas"
+          value={`${Math.round(data?.participationRate ?? 0)}%`}
+        />
+        <NavyStatCard
           label="Reconhecimentos (mês)"
           value={data?.recognitions ?? 0}
           tone="green"
-          icon={<ThumbsUp className="h-6 w-6" />}
+          icon={ThumbsUp}
         />
-        <TopBarCard
+        <NavyStatCard
           label="Badges Atribuídos (mês)"
           value={data?.badgeAwards ?? 0}
-          tone="gold"
-          icon={<Award className="h-6 w-6" />}
+          tone="orange"
+          icon={Award}
         />
       </div>
 
