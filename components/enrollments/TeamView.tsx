@@ -50,24 +50,24 @@ export function TeamView() {
           return (
             <div
               key={member.id}
-              className="flex flex-col gap-3 rounded-2xl border border-border bg-surface/60 p-4 shadow-sm hover:bg-surface sm:flex-row sm:items-center"
+              className="flex flex-col gap-2 rounded-2xl border border-border bg-surface/60 p-2 shadow-sm hover:bg-surface lg:flex-row lg:items-center lg:gap-3"
             >
-              <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="flex min-w-0 items-center gap-2 lg:w-72 lg:shrink-0">
                 <Avatar
                   name={member.fullName}
                   url={member.avatarUrl ?? undefined}
                   size="sm"
                 />
                 <div className="min-w-0">
-                  <div className="break-words text-sm font-medium text-ink">
+                  <div className="truncate text-sm font-semibold text-ink">
                     {member.fullName}
                   </div>
-                  <div className="break-all text-xs text-ink-faint">
+                  <div className="truncate text-xs text-ink-faint">
                     {member.email}
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-3 gap-4 text-center lg:flex-1">
                 <div>
                   <div className="font-mono text-sm text-ink-muted">
                     {member.stats.total}
@@ -89,7 +89,7 @@ export function TeamView() {
                   <div className="text-xs text-ink-faint">Atrasados</div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 sm:w-44">
+              <div className="flex items-center gap-2 lg:w-44">
                 <div className="flex-1">
                   <ProgressBar value={compliance} />
                 </div>
