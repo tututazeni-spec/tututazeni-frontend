@@ -70,7 +70,9 @@ export function TabVisaoGeral() {
 
   useEffect(() => {
     if (data) {
-      const { id: _id, tenantCode: _code, ...rest } = data;
+      // updatedAt também vem no GET mas o DTO (whitelist) rejeita-o no PUT.
+      const { id: _id, tenantCode: _code, updatedAt: _upd, ...rest } =
+        data as OrganizationSettings & { updatedAt?: string | null };
       setForm(rest);
     }
   }, [data]);
