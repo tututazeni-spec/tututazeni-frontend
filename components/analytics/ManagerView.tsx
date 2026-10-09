@@ -63,13 +63,15 @@ export function ManagerView() {
 
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
-        <TopBarCard
-          label="Equipa"
-          value={metrics.headcount}
-          tone="blue"
-          icon={<Users className="h-6 w-6" />}
-        />
-        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
+        <div className="transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg rounded-xl">
+          <TopBarCard
+            label="Equipa"
+            value={metrics.headcount}
+            tone="blue"
+            icon={<Users className="h-6 w-6" />}
+          />
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3 transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg">
           <GaugeChart
             value={metrics.pdiAdoptionRate}
             label="PDIs Activos"
@@ -77,7 +79,7 @@ export function ManagerView() {
             size={120}
           />
         </div>
-        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3">
+        <div className="flex flex-col items-center justify-center rounded-card border border-border bg-surface p-3 transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg">
           <GaugeChart
             value={metrics.completionRate}
             label="Conclusão Cursos"
@@ -85,12 +87,14 @@ export function ManagerView() {
             size={120}
           />
         </div>
-        <TopBarCard
-          label="Desempenho Médio"
-          value={metrics.avgPerformance}
-          tone="gold"
-          icon={<TrendingUp className="h-6 w-6" />}
-        />
+        <div className="transition-transform duration-200 ease-out hover:scale-105 hover:shadow-lg rounded-xl">
+          <TopBarCard
+            label="Desempenho Médio"
+            value={metrics.avgPerformance}
+            tone="gold"
+            icon={<TrendingUp className="h-6 w-6" />}
+          />
+        </div>
       </div>
       {metrics.overdueActions > 0 && (
         <div className="rounded-control border border-danger/30 bg-danger-subtle px-4 py-2.5 text-sm text-black">
@@ -105,7 +109,7 @@ export function ManagerView() {
           <TabsTrigger value="ninebox">
             Matriz de Desempenho e Potencial (9-Box)
           </TabsTrigger>
-          <TabsTrigger value="Lacunas de Competências">
+          <TabsTrigger value="gaps">
             Lacunas de Competências(Gaps)
           </TabsTrigger>
         </TabsList>
@@ -153,7 +157,7 @@ export function ManagerView() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="Lacunas de Competências">
+        <TabsContent value="gaps">
           <Card>
             <CardBody>
               <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-4">
