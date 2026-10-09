@@ -287,7 +287,7 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
           />
         ) : (
           <>
-            <Table>
+            <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:align-bottom [&_th]:leading-tight">
               <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                 <TableRow>
                   {data.columns.map((c) => (
