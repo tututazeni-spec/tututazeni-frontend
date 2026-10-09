@@ -115,14 +115,14 @@ export function CoursesPerformanceView() {
   return (
     <>
       <Table>
-        <TableHead>
-          <TableRow>
-            <TableHeaderCell>Curso</TableHeaderCell>
-            <TableHeaderCell>Categoria</TableHeaderCell>
-            <TableHeaderCell>Nível</TableHeaderCell>
-            <TableHeaderCell>Matrículas</TableHeaderCell>
-            <TableHeaderCell>Concluídas</TableHeaderCell>
-            <TableHeaderCell>Nota média</TableHeaderCell>
+        <TableHead className="bg-[#0F1F3D]">
+          <TableRow className="hover:bg-transparent">
+            <TableHeaderCell className="text-white">Curso</TableHeaderCell>
+            <TableHeaderCell className="text-white">Categoria</TableHeaderCell>
+            <TableHeaderCell className="text-white">Nível</TableHeaderCell>
+            <TableHeaderCell className="text-white">Matrículas</TableHeaderCell>
+            <TableHeaderCell className="text-white">Concluídas</TableHeaderCell>
+            <TableHeaderCell className="text-white">Nota média</TableHeaderCell>
           </TableRow>
         </TableHead>
         <TableBody>

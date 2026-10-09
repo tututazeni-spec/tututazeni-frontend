@@ -136,7 +136,6 @@ export function LearningAnalyticsView() {
 
       {/* Top cursos */}
       <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
-        <div className="h-1.5 w-full bg-[#2B6CC4]" />
         <div className="p-5">
           <div className="mb-3 font-body text-sm font-semibold text-ink-muted">
             Top cursos por conclusões

@@ -62,14 +62,14 @@ export function SnapshotsView() {
         <Skeleton rows={5} />
       ) : (
         <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>Data</TableHeaderCell>
-              <TableHeaderCell>Departamento</TableHeaderCell>
-              <TableHeaderCell>Colaboradores</TableHeaderCell>
-              <TableHeaderCell>Cursos concluídos</TableHeaderCell>
-              <TableHeaderCell>Performance média</TableHeaderCell>
-              <TableHeaderCell>PDIs activos</TableHeaderCell>
+          <TableHead className="bg-[#0F1F3D]">
+            <TableRow className="hover:bg-transparent">
+              <TableHeaderCell className="text-white">Data</TableHeaderCell>
+              <TableHeaderCell className="text-white">Departamento</TableHeaderCell>
+              <TableHeaderCell className="text-white">Colaboradores</TableHeaderCell>
+              <TableHeaderCell className="text-white">Cursos concluídos</TableHeaderCell>
+              <TableHeaderCell className="text-white">Performance média</TableHeaderCell>
+              <TableHeaderCell className="text-white">PDIs activos</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
