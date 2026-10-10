@@ -13,7 +13,18 @@
 
 import { useEffect, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Search } from 'lucide-react';
+import {
+  ArrowRight,
+  Boxes,
+  ChessKing,
+  MessageCircleMore,
+  Monitor,
+  Search,
+  Target,
+  UsersRound,
+  type LucideIcon,
+} from 'lucide-react';
+
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -22,9 +33,44 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CATEGORY_CFG } from './constants';
-import type { Competency } from './types';
+import { iconForCompetencyName } from './competencyIcons';
+import type { Competency, CompetencyCategory } from './types';
+
+// Uma cor por competência (estável, pelo id), a 50% de opacidade. Classes
+// literais para o Tailwind as detectar.
+const CARD_COLORS = [
+  'bg-[#0F1F3D]/50',
+  'bg-[#1E40AF]/50',
+  'bg-[#0F766E]/50',
+  'bg-[#6D28D9]/50',
+  'bg-[#B91C1C]/50',
+  'bg-[#B45309]/50',
+  'bg-[#BE185D]/50',
+  'bg-[#15803D]/50',
+];
+
+function cardColor(id: number): string {
+  return CARD_COLORS[Math.abs(id) % CARD_COLORS.length];
+}
+
+const BADGE_CLS =
+  'rounded-md bg-white/20 px-2 py-0.5 font-body text-xs font-medium text-white';
+
+const CATEGORY_ICONS: Record<CompetencyCategory, LucideIcon> = {
+  HARD_SKILL: Monitor,
+  SOFT_SKILL: UsersRound,
+  LANGUAGE: MessageCircleMore,
+  TOOL: Boxes,
+  LEADERSHIP: ChessKing,
+  FUNCTIONAL: Target,
+};
+
+function competencyIcon(comp: Competency): LucideIcon {
+  return (
+    iconForCompetencyName(comp.name) ?? CATEGORY_ICONS[comp.category] ?? Target
+  );
+}
 
 const CATEGORY_ITEMS = [
   { value: 'ALL', label: 'Todas as categorias' },
@@ -128,98 +174,71 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
             }}
           />
         )}
-        <span className="font-body text-sm text-ink-faint">
-          {data?.total ?? 0} competências
+        <span className="font-body text-sm text-black">
+          {data?.total ?? 0} Competências
         </span>
       </div>
 
       {loading ? (
         <Skeleton rows={6} />
       ) : (
-        <div className="grid grid-cols-3 gap-3">
-          {data?.data.map((comp) => (
-            <div
-              key={comp.id}
-              onClick={() => onSelect(comp.id)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onSelect(comp.id);
-                }
-              }}
-              className="cursor-pointer rounded-card border border-border bg-surface p-4 shadow-resting transition-shadow duration-150 hover:shadow-hover"
-            >
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <div className="flex-1">
-                  <div className="mb-1 font-body text-sm font-semibold text-ink">
-                    {comp.name}
-                    {comp.code && (
-                      <span className="ml-1.5 font-body text-xs font-normal text-ink-faint">
-                        {comp.code}
-                      </span>
-                    )}
-                  </div>
-                  {comp.family && (
-                    <div className="mb-1 font-body text-xs text-ink-faint">
-                      {comp.family}
-                    </div>
-                  )}
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <StatusBadge value={comp.category} map={CATEGORY_CFG} />
-                    {canManage && comp.status === 'IN_REVIEW' && (
-                      <span className="rounded bg-warning-subtle px-1.5 py-0.5 font-body text-xs text-warning-ink">
-                        Em revisão
-                      </span>
-                    )}
-                    {canManage && comp.status === 'INACTIVE' && (
-                      <span className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-xs text-ink-muted">
-                        Arquivada
-                      </span>
-                    )}
-                    {comp.isCritical && (
-                      <span className="rounded bg-danger-subtle px-1.5 py-0.5 font-body text-xs text-danger-ink">
-                        Crítica
-                      </span>
-                    )}
-                    {comp.isStrategic && (
-                      <span className="rounded bg-accent-subtle px-1.5 py-0.5 font-body text-xs text-accent">
-                        Estratégica
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              {comp.description && (
-                <p className="mb-2 line-clamp-2 font-body text-xs text-ink-muted">
-                  {comp.description}
-                </p>
-              )}
-              <div className="mb-3 flex flex-wrap gap-1">
-                {comp.tags.slice(0, 3).map((t) => (
-                  <span
-                    key={t}
-                    className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-xs text-ink-muted"
-                  >
-                    {t}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {data?.data.map((comp) => {
+            const Icon = competencyIcon(comp);
+            return (
+              <div
+                key={comp.id}
+                onClick={() => onSelect(comp.id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelect(comp.id);
+                  }
+                }}
+                className={`flex min-h-[168px] cursor-pointer flex-col rounded-2xl ${cardColor(comp.id)} p-4 text-white shadow-resting transition-shadow duration-150 hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2`}
+              >
+                <div className="mb-3 flex items-start justify-between gap-2">
+                  <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-white/15">
+                    <Icon size={24} strokeWidth={1.75} aria-hidden="true" />
                   </span>
-                ))}
-              </div>
-              <div className="flex items-center gap-3 font-body text-xs text-ink-faint">
-                <span> {comp._count.userCompetencies}</span>
-                <span> {comp._count.courses} cursos</span>
-                <span> {comp._count.positions} cargos</span>
-              </div>
-              {comp.owner && (
-                <div className="mt-2 font-body text-xs text-ink-faint">
-                  Responsável: {comp.owner.fullName}
+                  <ArrowRight
+                    size={16}
+                    strokeWidth={2}
+                    aria-hidden="true"
+                    className="shrink-0"
+                  />
                 </div>
-              )}
-            </div>
-          ))}
+                <div className="mb-2 break-words font-body text-base font-semibold leading-snug text-white">
+                  {comp.name}
+                </div>
+                <div className="mb-3 flex flex-wrap items-center gap-1.5">
+                  <span className={BADGE_CLS}>
+                    {CATEGORY_CFG[comp.category]?.label ?? comp.category}
+                  </span>
+                  {canManage && comp.status === 'IN_REVIEW' && (
+                    <span className={BADGE_CLS}>Em revisão</span>
+                  )}
+                  {canManage && comp.status === 'INACTIVE' && (
+                    <span className={BADGE_CLS}>Arquivada</span>
+                  )}
+                  {comp.isCritical && (
+                    <span className={BADGE_CLS}>Crítica</span>
+                  )}
+                  {comp.isStrategic && (
+                    <span className={BADGE_CLS}>Estratégica</span>
+                  )}
+                </div>
+                <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 font-body text-xs text-white">
+                  <span>{comp._count.courses} Cursos</span>
+                  <span>{comp._count.positions} Cargos</span>
+                </div>
+              </div>
+            );
+          })}
           {data?.data.length === 0 && (
-            <div className="col-span-3">
+            <div className="sm:col-span-2 lg:col-span-3">
               <EmptyState
                 title="Nenhuma competência encontrada"
                 description="Ajusta a pesquisa ou a categoria seleccionada."

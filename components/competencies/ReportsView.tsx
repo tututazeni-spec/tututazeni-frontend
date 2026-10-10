@@ -10,13 +10,25 @@
 'use client';
 
 import { useState } from 'react';
-import { Download } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowUpRight,
+  BarChart3,
+  CalendarCheck,
+  Download,
+  Layers,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  UserCheck,
+  Users,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { buttonVariants } from '@/components/ui/Button';
@@ -36,14 +48,35 @@ import type {
 
 const ALL = 'ALL';
 
+// Cabeçalho dos cards de relatório: #0F1F3D a 60%, letra branca, sem hover.
+const CARD_HEADER_CLASS =
+  'border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white';
+
+// Paleta para as listas em que cada competência tem a sua própria cor.
+const BAR_COLORS = [
+  '#1685FF',
+  '#22B8A7',
+  '#9B35D5',
+  '#FF9C2A',
+  '#E5484D',
+  '#30A46C',
+  '#E93D82',
+  '#5B5BD6',
+  '#00A2C7',
+  '#F5D90A',
+];
+
 function RankedList({
   rows,
   empty,
   valueLabel,
+  colorful,
 }: {
   rows: { label: string; value: number; sub?: string }[];
   empty: string;
   valueLabel?: (v: number) => string;
+  /** true = cada linha usa uma cor diferente da paleta. */
+  colorful?: boolean;
 }) {
   if (rows.length === 0) {
     return (
@@ -55,7 +88,7 @@ function RankedList({
   const max = Math.max(...rows.map((r) => r.value), 1);
   return (
     <div className="space-y-2 p-4">
-      {rows.map((r) => (
+      {rows.map((r, i) => (
         <div key={r.label} className="flex items-center gap-3">
           <span
             className="w-32 shrink-0 truncate font-body text-xs text-ink-muted"
@@ -65,8 +98,13 @@ function RankedList({
           </span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
             <div
-              className="h-full rounded-full bg-primary"
-              style={{ width: `${Math.round((r.value / max) * 100)}%` }}
+              className={`h-full rounded-full ${colorful ? '' : 'bg-primary'}`}
+              style={{
+                width: `${Math.round((r.value / max) * 100)}%`,
+                ...(colorful
+                  ? { backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }
+                  : {}),
+              }}
             />
           </div>
           <span className="w-16 shrink-0 text-right font-mono text-xs text-ink-faint">
@@ -92,7 +130,7 @@ function GroupTable({
 }) {
   return (
     <Card className="overflow-hidden p-0">
-      <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+      <div className={CARD_HEADER_CLASS}>
         {title}
       </div>
       {kind === 'competencies' ? (
@@ -109,9 +147,9 @@ function GroupTable({
           rows={(rows as CompetencyReportGapGroup[]).map((r) => ({
             label: r.label,
             value: r.count,
-            sub: `gap méd. ${r.avgGap}`,
+            sub: `lacuna méd. ${r.avgGap}`,
           }))}
-          empty="Sem gaps"
+          empty="Sem lacunas"
         />
       )}
     </Card>
@@ -268,54 +306,67 @@ export function ReportsView() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-            <KpiCard
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <NavyStatCard
+              icon={Layers}
+              tone="blue"
               label="Competências"
               value={data.mapaGeral.totalCompetencies}
-              intent="primary"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={AlertTriangle}
+              tone="red"
               label="Críticas"
               value={data.mapaGeral.critical}
-              intent="danger"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={Target}
+              tone="blue"
               label="Estratégicas"
               value={data.mapaGeral.strategic}
-              intent="accent"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={UserCheck}
+              tone="blue"
               label="Colaboradores avaliados"
               value={data.mapaGeral.usersAssessed}
-              intent="info"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={TrendingUp}
+              tone="green"
               label="Nível médio de proficiência"
               value={`${data.nivelMedioProficiencia.geral} / 5`}
-              intent="success"
             />
           </div>
 
           <div>
             <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-              Gaps de competências
+              Lacunas de competências
             </h3>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <KpiCard
-                label="Gaps identificados"
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <NavyStatCard
+                icon={Target}
+                tone="orange"
+                label="Lacunas identificadas"
                 value={data.gaps.total}
-                intent="warning"
               />
-              <KpiCard
-                label="Colaboradores com gap"
+              <NavyStatCard
+                icon={Users}
+                tone="red"
+                label="Colaboradores com lacunas"
                 value={data.gaps.usersWithGap}
-                intent="danger"
               />
-              <KpiCard label="Gap médio" value={data.gaps.avgGap} />
-              <KpiCard
+              <NavyStatCard
+                icon={BarChart3}
+                tone="blue"
+                label="Lacuna média"
+                value={data.gaps.avgGap}
+              />
+              <NavyStatCard
+                icon={TrendingDown}
+                tone="red"
                 label="Abaixo do nível esperado"
                 value={data.colaboradoresAbaixoDoEsperado.total}
-                intent="danger"
               />
             </div>
           </div>
@@ -324,21 +375,24 @@ export function ReportsView() {
             <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
               Impacto das formações na proficiência
             </h3>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <KpiCard
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              <NavyStatCard
+                icon={CalendarCheck}
+                tone="blue"
                 label="Eventos com evolução"
                 value={data.impactoFormacoes.events}
-                intent="primary"
               />
-              <KpiCard
+              <NavyStatCard
+                icon={TrendingUp}
+                tone="green"
                 label="Colaboradores que melhoraram"
                 value={data.impactoFormacoes.improved}
-                intent="success"
               />
-              <KpiCard
+              <NavyStatCard
+                icon={ArrowUpRight}
+                tone="green"
                 label="Aumento médio de nível"
                 value={`+${data.impactoFormacoes.avgLevelIncrease}`}
-                intent="success"
               />
             </div>
           </div>
@@ -363,12 +417,12 @@ export function ReportsView() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <GroupTable
-              title="Gaps por departamento"
+              title="Lacunas por departamento"
               rows={data.gapsPorDepartamento}
               kind="gaps"
             />
             <GroupTable
-              title="Gaps por cargo"
+              title="Lacunas por cargo"
               rows={data.gapsPorCargo}
               kind="gaps"
             />
@@ -382,7 +436,7 @@ export function ReportsView() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <Card className="overflow-hidden p-0">
-              <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className={CARD_HEADER_CLASS}>
                 Competências críticas
               </div>
               <RankedList
@@ -395,7 +449,7 @@ export function ReportsView() {
               />
             </Card>
             <Card className="overflow-hidden p-0">
-              <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className={CARD_HEADER_CLASS}>
                 Competências mais desenvolvidas
               </div>
               <RankedList
@@ -404,12 +458,13 @@ export function ReportsView() {
                   value: c.usersAssessed,
                 }))}
                 empty="Sem dados"
+                colorful
               />
             </Card>
           </div>
 
           <Card className="overflow-hidden p-0">
-            <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className={CARD_HEADER_CLASS}>
               Competências com maior défice
             </div>
             <RankedList
@@ -418,6 +473,7 @@ export function ReportsView() {
                 value: c.totalGap,
               }))}
               empty="Sem défices identificados"
+              colorful
             />
           </Card>
         </>

@@ -8,10 +8,24 @@
 
 'use client';
 
+import {
+  AlertTriangle,
+  Award,
+  Briefcase,
+  CheckCircle2,
+  ClipboardList,
+  Clock,
+  Layers,
+  Target,
+  TrendingUp,
+  UserCheck,
+  Users,
+  Wrench,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -31,74 +45,86 @@ export function OverviewView() {
   return (
     <div className="space-y-6">
       {/* KPIs gerais */}
-      <div className="grid grid-cols-4 gap-3">
-        <KpiCard
+      <div className="grid grid-cols-4 gap-4">
+        <NavyStatCard
+          icon={Layers}
+          tone="blue"
           label="Total de competências"
           value={data.total}
-          intent="primary"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={CheckCircle2}
+          tone="green"
           label="Competências activas"
           value={data.active}
-          intent="success"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Clock}
+          tone={data.inReview > 0 ? 'orange' : 'blue'}
           label="Em revisão"
           value={data.inReview}
-          intent={data.inReview > 0 ? 'warning' : 'primary'}
         />
-        <KpiCard
+        <NavyStatCard
+          icon={AlertTriangle}
+          tone={data.critical > 0 ? 'red' : 'blue'}
           label="Competências críticas"
           value={data.critical}
-          intent={data.critical > 0 ? 'danger' : 'primary'}
         />
       </div>
 
       {/* Por categoria */}
-      <div className="grid grid-cols-4 gap-3">
-        <KpiCard
+      <div className="grid grid-cols-4 gap-4">
+        <NavyStatCard
+          icon={Wrench}
+          tone="blue"
           label="Técnicas"
           value={data.byCategory.technical}
-          intent="info"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Users}
+          tone="blue"
           label="Comportamentais"
           value={data.byCategory.behavioral}
-          intent="primary"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Award}
+          tone="blue"
           label="Liderança"
           value={data.byCategory.leadership}
-          intent="accent"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={Briefcase}
+          tone="orange"
           label="Funcionais"
           value={data.byCategory.functional}
-          intent="danger"
         />
       </div>
 
       {/* Avaliação da organização */}
-      <div className="grid grid-cols-4 gap-3">
-        <KpiCard
+      <div className="grid grid-cols-4 gap-4">
+        <NavyStatCard
+          icon={Target}
+          tone="blue"
           label="Competências estratégicas"
           value={data.strategic}
-          intent="accent"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={UserCheck}
+          tone="blue"
           label="Colaboradores avaliados"
           value={data.evaluatedUsers}
-          intent="info"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={TrendingUp}
+          tone="green"
           label="Média global de proficiência"
           value={data.avgProficiency}
-          intent="success"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={ClipboardList}
+          tone={data.pendingEvaluations > 0 ? 'orange' : 'blue'}
           label="Avaliações pendentes"
-          value={data.pendingEvaluations ?? '—'}
-          intent="primary"
+          value={data.pendingEvaluations}
         />
       </div>
 
@@ -142,7 +168,7 @@ export function OverviewView() {
 
       {/* Competências com maior lacuna */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
           Competências com maior lacuna
         </div>
         {data.biggestGaps.length === 0 ? (
@@ -178,7 +204,7 @@ export function OverviewView() {
       {/* Top competências */}
       {data.topCompetencies.length > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Top competências da organização
           </div>
           {data.topCompetencies.map((t, idx) => (

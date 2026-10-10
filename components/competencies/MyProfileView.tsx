@@ -4,7 +4,7 @@
 // Extraído de app/(platform)/competencies/page.tsx. Migrado para a
 // fundação de design: sub-navegação por separador passa a Tabs
 // (Radix), inputs passam a Input, botões passam a Button, badges
-// ad-hoc passam a Badge, resumo numérico passa a KpiCard, skeleton
+// ad-hoc passam a Badge, resumo numérico passa a NavyStatCard, skeleton
 // local passa a components/ui/Skeleton, histórico de evolução passa a
 // Table. A barra de nível (antes `LevelBar` em atoms.tsx, recolorida
 // por nível) passa a ProgressBar mono (bg-accent) + texto adjacente
@@ -16,7 +16,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, BarChart3, GitCompare, Layers } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -25,8 +25,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -38,8 +37,10 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
+import { Select } from '@/components/ui/Select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { CATEGORY_CFG, LEVEL_LABELS } from './constants';
+import { usePositionOptions } from './modelFormData';
 import { levelTextClass } from './utils';
 import type {
   CompetencyCategory,
@@ -58,7 +59,7 @@ function LevelBar({ current, target, max = 5 }: LevelBarProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="relative flex-1">
-        <ProgressBar value={(current / max) * 100} />
+        <ProgressBar value={(current / max) * 100} color="#0F1F3D" />
         {target && target > current && (
           <div
             className="absolute bottom-0 top-0 w-0.5 bg-ink-faint"
@@ -103,6 +104,8 @@ export function MyProfileView() {
   const [positionId, setPositionId] = useState('');
   const [selfAssessing, setSelfAssessing] = useState<number | null>(null);
   const [selfLevel, setSelfLevel] = useState(1);
+  const { options: positionOptions, loading: loadingPositions } =
+    usePositionOptions(tab === 'gap');
 
   const profileQ = useApiQuery<UserCompetency[]>(
     queryKeys.competencies.myProfile(),
@@ -163,34 +166,54 @@ export function MyProfileView() {
   return (
     <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
       <TabsList>
-        <TabsTrigger value="profile">O meu perfil</TabsTrigger>
-        <TabsTrigger value="gap">Análise de lacunas</TabsTrigger>
-        <TabsTrigger value="evolution">Evolução</TabsTrigger>
+        <TabsTrigger
+          value="profile"
+          className="data-[state=active]:border-[#0F1F3D] data-[state=active]:text-[#0F1F3D]"
+        >
+          O meu perfil
+        </TabsTrigger>
+        <TabsTrigger
+          value="gap"
+          className="data-[state=active]:border-[#0F1F3D] data-[state=active]:text-[#0F1F3D]"
+        >
+          Análise de lacunas
+        </TabsTrigger>
+        <TabsTrigger
+          value="evolution"
+          className="data-[state=active]:border-[#0F1F3D] data-[state=active]:text-[#0F1F3D]"
+        >
+          Evolução
+        </TabsTrigger>
       </TabsList>
 
       {/* Profile tab */}
       <TabsContent value="profile">
         <div className="space-y-5">
           {/* Summary cards */}
-          <div className="grid grid-cols-4 gap-3">
-            <KpiCard
+          <div className="grid grid-cols-4 gap-4">
+            <NavyStatCard
+              icon={Layers}
+              tone="blue"
               label="Competências"
               value={competencies.length}
-              intent="primary"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={AlertTriangle}
+              tone="orange"
               label="Com lacunas"
               value={competencies.filter((c) => (c.gap ?? 0) > 0).length}
-              intent="warning"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={GitCompare}
+              tone="red"
               label="Divergências"
               value={
                 competencies.filter((c) => (c.divergence ?? 0) >= 2).length
               }
-              intent="danger"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={BarChart3}
+              tone="blue"
               label="Nível médio"
               value={
                 competencies.length > 0
@@ -200,7 +223,6 @@ export function MyProfileView() {
                     ).toFixed(1)
                   : '—'
               }
-              intent="primary"
             />
           </div>
 
@@ -213,7 +235,7 @@ export function MyProfileView() {
                   map={CATEGORY_CFG}
                 />
                 <span className="font-body text-xs text-ink-faint">
-                  {items.length} competências
+                  {items.length} Competências
                 </span>
               </div>
               <div className="space-y-2">
@@ -235,7 +257,7 @@ export function MyProfileView() {
                             </Badge>
                           )}
                           {(uc.gap ?? 0) > 0 && (
-                            <Badge intent="warning">Gap: {uc.gap}</Badge>
+                            <Badge intent="warning">Lacuna: {uc.gap}</Badge>
                           )}
                         </div>
                         <LevelBar
@@ -324,12 +346,11 @@ export function MyProfileView() {
       <TabsContent value="gap">
         <div>
           <div className="mb-5 flex items-center gap-3">
-            <Input
-              type="number"
-              placeholder="ID do cargo alvo"
-              value={positionId}
-              onChange={(e) => setPositionId(e.target.value)}
-              className="max-w-xs"
+            <Select
+              items={positionOptions}
+              value={positionId || undefined}
+              onValueChange={setPositionId}
+              placeholder={loadingPositions ? 'A carregar…' : 'Cargo alvo'}
             />
             <Button
               onClick={loadGap}
@@ -454,13 +475,15 @@ export function MyProfileView() {
       {/* Evolution tab */}
       <TabsContent value="evolution">
         <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>Competência</TableHeaderCell>
-              <TableHeaderCell>Fonte</TableHeaderCell>
-              <TableHeaderCell>Anterior</TableHeaderCell>
-              <TableHeaderCell>Novo</TableHeaderCell>
-              <TableHeaderCell>Data</TableHeaderCell>
+          <TableHead className="bg-[#0F1F3D]/60">
+            <TableRow className="hover:bg-transparent">
+              <TableHeaderCell className="text-white">
+                Competência
+              </TableHeaderCell>
+              <TableHeaderCell className="text-white">Fonte</TableHeaderCell>
+              <TableHeaderCell className="text-white">Anterior</TableHeaderCell>
+              <TableHeaderCell className="text-white">Novo</TableHeaderCell>
+              <TableHeaderCell className="text-white">Data</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>

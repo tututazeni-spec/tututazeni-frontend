@@ -29,7 +29,7 @@ export function CompetencyGapsView() {
   return (
     <Card className="overflow-hidden">
       <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
-        Gaps de competência — organização inteira (actual vs. desejado)
+        Lacunas de competência — organização inteira (actual vs. desejado)
       </div>
       <CardBody>
         <div className="space-y-3">
@@ -65,7 +65,7 @@ export function CompetencyGapsView() {
                 {g.avgCurrent} → {g.avgTarget}
               </div>
               <div className="w-16 flex-shrink-0 text-right text-xs font-data font-bold text-black">
-                Gap: {g.gap}
+                Lacuna: {g.gap}
               </div>
               <div className="w-20 flex-shrink-0 text-right text-xs text-ink-faint">
                 {g.count} pessoas
@@ -74,7 +74,7 @@ export function CompetencyGapsView() {
           ))}
           {data.length === 0 && (
             <div className="py-6 text-center text-sm text-ink-faint">
-              Sem gaps de competência identificados
+              Sem lacunas de competência identificados
             </div>
           )}
         </div>

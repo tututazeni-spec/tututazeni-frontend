@@ -68,6 +68,22 @@ export interface RadarData {
   }>;
 }
 
+// GET /competency-map/team (competency-map.service.ts#getTeamMap)
+export interface TeamMember {
+  user: { id: number; fullName: string; avatarUrl: string | null };
+  readinessScore: number;
+  readinessLevel: ReadinessLevel;
+  topGaps: GapEntry[];
+  employeeSkills: EmployeeSkill[];
+}
+
+export interface TeamMap {
+  managerId: number;
+  teamSize: number;
+  avgReadiness: number;
+  members: TeamMember[];
+}
+
 export interface CatalogueSkill {
   id: number;
   name: string;

@@ -68,7 +68,7 @@ export function CompetenciesTab() {
       {isMgmt && !selected ? (
         <EmptyState
           title="Selecciona um colaborador"
-          description="Escolhe um colaborador para ver o gap de competências face ao cargo actual."
+          description="Escolhe um colaborador para ver a lacuna de competências face ao cargo actual."
         />
       ) : loading ? (
         <Skeleton
@@ -79,7 +79,7 @@ export function CompetenciesTab() {
       ) : data?.noPosition ? (
         <EmptyState
           title="Sem cargo atribuído"
-          description="Este colaborador não tem um cargo associado — não é possível calcular o gap de competências."
+          description="Este colaborador não tem um cargo associado — não é possível calcular a lacuna de competências."
         />
       ) : (data?.gaps.length ?? 0) === 0 ? (
         <EmptyState
@@ -97,13 +97,13 @@ export function CompetenciesTab() {
             />
             <NavyStatCard
               icon={AlertTriangle}
-              label="Gaps obrigatórios"
+              label="Lacunas obrigatórias"
               value={data!.mandatoryGaps}
               tone="red"
             />
             <NavyStatCard
               icon={Sigma}
-              label="Gap total"
+              label="Lacuna total"
               value={data!.totalGap}
               tone="orange"
             />
@@ -138,7 +138,7 @@ export function CompetenciesTab() {
                               strokeWidth={1.75}
                               className="inline mr-1"
                             />
-                            Gap de {g.gap}
+                            Lacuna de {g.gap}
                           </Badge>
                         )}
                       </div>

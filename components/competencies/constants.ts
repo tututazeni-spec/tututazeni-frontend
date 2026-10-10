@@ -54,7 +54,7 @@ export const CATEGORY_CFG: StatusBadgeMap<CompetencyCategory> = {
   },
   LANGUAGE: { label: 'Idioma', cls: 'bg-success-subtle text-success-ink' },
   TOOL: { label: 'Ferramenta', cls: 'bg-warning-subtle text-warning-ink' },
-  LEADERSHIP: { label: 'Liderança', cls: 'bg-accent-subtle text-accent' },
+  LEADERSHIP: { label: 'Liderança', cls: 'bg-primary-subtle text-primary' },
   FUNCTIONAL: {
     label: 'Competências Funcionais',
     cls: 'bg-danger-subtle text-danger-ink',
@@ -146,7 +146,7 @@ export const NAV: Array<{
     id: 'gaps',
     hint: 'Lacunas',
     icon: TrendingDown,
-    label: 'Gaps de Competências',
+    label: 'Lacunas de Competências',
     roles: NON_COLABORADOR_ROLES,
   },
   {
@@ -173,7 +173,7 @@ export const TITLES: Record<View, string> = {
   'my-profile': 'O meu Perfil de Competências',
   matrix: 'Matriz de Competências',
   evaluations: 'Avaliações de Competências',
-  gaps: 'Gaps de Competências',
+  gaps: 'Lacunas de Competências',
   development: 'Desenvolvimento',
   reports: 'Relatórios de Competências',
 };

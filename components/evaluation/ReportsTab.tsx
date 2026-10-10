@@ -253,7 +253,7 @@ export function ReportsTab() {
           {data.competencyGaps.length > 0 && (
             <Card className="overflow-hidden">
               <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
-                Gaps de Competências
+                Lacunas de Competências
               </div>
               <CardBody>
                 <div className="space-y-2">

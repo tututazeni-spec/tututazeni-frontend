@@ -641,7 +641,7 @@ export function CreateCycleModal({
                   onChange={(e) => setLinkedToPdi(e.target.checked)}
                   className="h-4 w-4 rounded border-border-strong"
                 />
-                Gera gaps de competência no PDI
+                Gera lacunas de competência no PDI
               </label>
               <label className="flex items-center gap-2 font-body text-sm text-ink">
                 <input

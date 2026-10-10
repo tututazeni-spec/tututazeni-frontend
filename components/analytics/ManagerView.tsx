@@ -118,7 +118,7 @@ export function ManagerView() {
           <TabsTrigger value="ninebox">
             Matriz de Desempenho e Potencial (9-Box)
           </TabsTrigger>
-          <TabsTrigger value="gaps">Lacunas de Competências(Gaps)</TabsTrigger>
+          <TabsTrigger value="gaps">Lacunas de Competências</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -176,7 +176,7 @@ export function ManagerView() {
                   categories={competencyGaps.map((g) => g.name)}
                   series={[
                     {
-                      label: 'Gap médio',
+                      label: 'Lacuna média',
                       values: competencyGaps.map((g) => g.avgGap),
                     },
                   ]}
@@ -194,7 +194,7 @@ export function ManagerView() {
                       <ProgressBar value={Math.min(g.avgGap * 20, 100)} />
                     </div>
                     <div className="text-xs font-data text-black flex-shrink-0 w-12 text-right">
-                      Gap: {g.avgGap}
+                      Lacuna: {g.avgGap}
                     </div>
                     <div className="text-xs text-black flex-shrink-0">
                       {g.count} pessoas
@@ -203,7 +203,7 @@ export function ManagerView() {
                 ))}
                 {competencyGaps.length === 0 && (
                   <div className="text-center text-sm text-ink-faint py-4">
-                    Sem Lacunas identificadas
+                    Sem lacunas identificadas
                   </div>
                 )}
               </div>

@@ -217,8 +217,8 @@ export interface CompetencyOverview {
     usersWithGap: number;
   }>;
   topCompetencies: TopCompetency[];
-  /** null = ainda não medido — depende do tab "Avaliações" (fase futura). */
-  pendingEvaluations: number | null;
+  /** Autoavaliações submetidas que ainda aguardam a avaliação do gestor. */
+  pendingEvaluations: number;
 }
 
 // docs/módulo_competencies.md §4 (Fase 2) — ver
