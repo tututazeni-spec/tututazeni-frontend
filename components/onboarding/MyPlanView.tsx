@@ -210,7 +210,10 @@ export function MyPlanView() {
       )}
 
       {/* Header */}
-      <NavyHeroCard className="block">
+      <NavyHeroCard
+        className="block"
+        surfaceClassName="border-[#0F1F3D]/80 bg-[#0F1F3D]/80"
+      >
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
             <div className="mb-0.5 text-sm text-white">Plano de integração</div>
@@ -358,8 +361,11 @@ export function MyPlanView() {
               { label: 'Amigável / Mentor', person: plan.buddy },
               { label: 'RH Responsável', person: plan.hrResponsible },
             ].map(({ label, person }) => (
-              <Card key={label} className="p-5 text-center">
-                <div className="text-xs text-ink-faint mb-3">{label}</div>
+              <Card
+                key={label}
+                className="p-5 text-center !bg-[#0F1F3D]/80 !border-[#0F1F3D]/80 text-white"
+              >
+                <div className="text-xs text-white mb-3">{label}</div>
                 {person ? (
                   <div className="flex flex-col items-center gap-2">
                     <Avatar
@@ -367,11 +373,11 @@ export function MyPlanView() {
                       url={person.avatarUrl ?? undefined}
                       size="lg"
                     />
-                    <div className="text-sm font-medium text-ink">
+                    <div className="text-sm font-medium text-white">
                       {person.fullName}
                     </div>
                     {person.position && (
-                      <div className="text-xs text-ink-faint">
+                      <div className="text-xs text-white/80">
                         {person.position.name}
                       </div>
                     )}
@@ -380,14 +386,14 @@ export function MyPlanView() {
                         href={`mailto:${person.email}?subject=${encodeURIComponent(
                           `Onboarding — ${plan.template.name}`,
                         )}`}
-                        className="text-xs text-primary hover:underline mt-1"
+                        className="text-xs text-white underline-offset-2 hover:underline mt-1"
                       >
                         Enviar mensagem
                       </a>
                     )}
                   </div>
                 ) : (
-                  <div className="text-xs text-ink-faint mt-4">
+                  <div className="text-xs text-white mt-4">
                     Não atribuído
                   </div>
                 )}
@@ -485,17 +491,16 @@ export function MyPlanView() {
                 </CardBody>
               </Card>
             ) : (
-              <Card>
-                <CardBody>
-                  <p className="text-sm text-ink-muted">
-                    {answeredCount >= SURVEY_MILESTONES.length
-                      ? 'Já respondeste a todas as pesquisas de satisfação.'
-                      : nextLockedMilestone
-                        ? `A próxima pesquisa (${nextLockedMilestone.label}) abre ao fim de ${nextLockedMilestone.day} dias de plano.`
-                        : 'Sem pesquisas pendentes de momento.'}
-                  </p>
-                </CardBody>
-              </Card>
+              <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
+                <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+                  Pesquisas de satisfação
+                </h3>
+                {answeredCount >= SURVEY_MILESTONES.length
+                  ? 'Já respondeste a todas as pesquisas de satisfação.'
+                  : nextLockedMilestone
+                    ? `A próxima pesquisa (${nextLockedMilestone.label}) abre ao fim de ${nextLockedMilestone.day} dias de plano.`
+                    : 'Sem pesquisas pendentes de momento.'}
+              </div>
             )}
           </div>
         </TabsContent>

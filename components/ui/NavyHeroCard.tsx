@@ -10,13 +10,21 @@ import { cn } from '@/lib/cn';
 export function NavyHeroCard({
   children,
   className,
+  surfaceClassName,
 }: {
   children: ReactNode;
   /** Classes do contentor interno (layout do conteúdo). */
   className?: string;
+  /** Substitui a cor de fundo/borda do cartão (por omissão #0A2342/80). */
+  surfaceClassName?: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-[#0A2342]/80 bg-[#0A2342]/80 p-7">
+    <div
+      className={cn(
+        'relative overflow-hidden rounded-xl border p-7',
+        surfaceClassName ?? 'border-[#0A2342]/80 bg-[#0A2342]/80',
+      )}
+    >
       <svg
         aria-hidden="true"
         viewBox="0 0 320 160"

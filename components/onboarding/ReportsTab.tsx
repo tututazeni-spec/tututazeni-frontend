@@ -18,6 +18,18 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useDepartmentOptions, useUnitOptions } from './planData';
 import type { OnboardingReportOverview } from './types';
 
+// Uma cor por linha (cíclica), para distinguir departamentos/unidades/responsáveis.
+const BAR_COLORS = [
+  'bg-[#2563EB]',
+  'bg-[#16A34A]',
+  'bg-[#F59E0B]',
+  'bg-[#DC2626]',
+  'bg-[#7C3AED]',
+  'bg-[#0891B2]',
+  'bg-[#DB2777]',
+  'bg-[#65A30D]',
+];
+
 function RankedList({
   title,
   rows,
@@ -28,37 +40,39 @@ function RankedList({
   const sorted = [...rows].sort((a, b) => b[1] - a[1]).slice(0, 8);
   const max = Math.max(...sorted.map(([, n]) => n), 1);
   return (
-    <div className="rounded-card border border-border bg-surface p-4">
-      <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+    <div className="overflow-hidden rounded-card border border-border bg-surface">
+      <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
         {title}
       </div>
-      {sorted.length === 0 ? (
-        <p className="py-4 text-center font-body text-sm text-ink-faint">
-          Sem dados
-        </p>
-      ) : (
-        <div className="space-y-2">
-          {sorted.map(([label, count]) => (
-            <div key={label} className="flex items-center gap-3">
-              <span
-                className="w-32 shrink-0 truncate font-body text-xs text-ink-muted"
-                title={label}
-              >
-                {label}
-              </span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${Math.round((count / max) * 100)}%` }}
-                />
+      <div className="p-4">
+        {sorted.length === 0 ? (
+          <p className="py-4 text-center font-body text-sm text-ink-faint">
+            Sem dados
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {sorted.map(([label, count], i) => (
+              <div key={label} className="flex items-center gap-3">
+                <span
+                  className="w-32 shrink-0 truncate font-body text-xs text-ink-muted"
+                  title={label}
+                >
+                  {label}
+                </span>
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
+                  <div
+                    className={`h-full rounded-full ${BAR_COLORS[i % BAR_COLORS.length]}`}
+                    style={{ width: `${Math.round((count / max) * 100)}%` }}
+                  />
+                </div>
+                <span className="w-8 text-right font-mono text-xs text-ink-faint">
+                  {count}
+                </span>
               </div>
-              <span className="w-8 text-right font-mono text-xs text-ink-faint">
-                {count}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

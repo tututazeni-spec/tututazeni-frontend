@@ -289,7 +289,7 @@ export function PlanDetailModal({
               {team.map(({ label, person }) => (
                 <div
                   key={label}
-                  className="rounded-card bg-[#0F1F3D] p-3 text-center text-white"
+                  className="rounded-card bg-[#0F1F3D]/80 p-3 text-center text-white"
                 >
                   <div className="mb-2 font-body text-xs text-white">
                     {label}
