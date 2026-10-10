@@ -9,19 +9,38 @@
 'use client';
 
 import { useState } from 'react';
-import { CalendarClock } from 'lucide-react';
+import {
+  Ban,
+  CalendarCheck,
+  CalendarClock,
+  FileEdit,
+  Radio,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime as fmtDateTime } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { KpiCard } from '@/components/ui/KpiCard';
+import {
+  NavyStatCard,
+  type NavyStatTone,
+} from '@/components/ui/NavyStatCard';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { STATUS_CFG, TYPE_CFG } from './constants';
 import { DetailView } from './DetailView';
 import type { EventDashboard, EventStatus, EventType } from './types';
+
+const STATUS_CARD: Record<string, { icon: LucideIcon; tone: NavyStatTone }> = {
+  DRAFT: { icon: FileEdit, tone: 'orange' },
+  PUBLISHED: { icon: CalendarClock, tone: 'blue' },
+  LIVE: { icon: Radio, tone: 'red' },
+  ENDED: { icon: CalendarCheck, tone: 'green' },
+  CANCELLED: { icon: Ban, tone: 'red' },
+};
 
 function RankedList({
   title,
@@ -154,18 +173,19 @@ export function OverviewTab() {
       </div>
 
       {/* Status breakdown */}
-      <div className="grid grid-cols-5 gap-2">
-        {Object.entries(STATUS_CFG).map(([status, cfg]) => (
-          <div
-            key={status}
-            className={`rounded-card px-3 py-2 text-center ${cfg.cls}`}
-          >
-            <div className="text-lg font-bold font-mono">
-              {data.byStatus[status] ?? 0}
-            </div>
-            <div className="text-xs font-medium">{cfg.label}</div>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+        {Object.entries(STATUS_CFG).map(([status, cfg]) => {
+          const look = STATUS_CARD[status] ?? STATUS_CARD.DRAFT;
+          return (
+            <NavyStatCard
+              key={status}
+              icon={look.icon}
+              tone={look.tone}
+              label={cfg.label}
+              value={data.byStatus[status] ?? 0}
+            />
+          );
+        })}
       </div>
 
       {/* Breakdowns */}
