@@ -57,7 +57,7 @@ export const ORIGIN_CFG: Record<PdiOrigin, string> = {
   PERFORMANCE_REVIEW: 'Avaliação de desempenho',
   EVALUATION_360: 'Avaliação 360°',
   COMPETENCY_MAP: 'Mapa de competências',
-  COMPETENCY_GAP: 'Gap de competências',
+  COMPETENCY_GAP: 'Lacuna de competências',
   CAREER_PLAN: 'Plano de carreira',
   SUCCESSION: 'Sucessão',
   LEADERSHIP_PROGRAM: 'Programa de liderança',
