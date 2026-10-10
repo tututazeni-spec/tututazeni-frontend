@@ -58,7 +58,7 @@ function LevelBar({ current, target, max = 5 }: LevelBarProps) {
   return (
     <div className="flex items-center gap-2">
       <div className="relative flex-1">
-        <ProgressBar value={(current / max) * 100} />
+        <ProgressBar value={(current / max) * 100} color="#0F1F3D" />
         {target && target > current && (
           <div
             className="absolute bottom-0 top-0 w-0.5 bg-ink-faint"
