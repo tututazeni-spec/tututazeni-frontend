@@ -25,21 +25,32 @@ import {
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
+import {
+  CheckCircle2,
+  Percent,
+  Star,
+  TrendingUp,
+  Trophy,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 
 const ALL = 'ALL';
 
-function Stat({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-      <div className="text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
-        {label}
-      </div>
-      <div className="text-2xl font-bold leading-tight tracking-tighter text-ink">
-        {value}
-      </div>
-    </div>
-  );
+function Stat({
+  label,
+  value,
+  icon,
+  tone,
+}: {
+  label: string;
+  value: string | number;
+  icon: LucideIcon;
+  tone: NavyStatTone;
+}) {
+  return <NavyStatCard icon={icon} tone={tone} label={label} value={value} />;
 }
 
 function fmt(v: number | null): string {
@@ -103,10 +114,10 @@ function ComparisonStat({
   cmp: { a: number | null; b: number | null; diff: number | null };
 }) {
   return (
-    <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-      <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
+    <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+      <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
         {title}
-      </div>
+      </h3>
       <div className="flex items-center justify-between text-sm">
         <span className="text-ink-muted">{labelA}</span>
         <span className="font-bold text-ink">{fmt(cmp.a)}</span>
@@ -243,7 +254,7 @@ export function RelatoriosTab() {
       </div>
 
       {!cycleId && !cyclesLoading && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
@@ -254,10 +265,17 @@ export function RelatoriosTab() {
       {data && (
         <>
           {/* Resultado geral 360° */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <Stat label="Avaliados" value={data.overall.totalParticipants} />
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Stat
+              label="Avaliados"
+              value={data.overall.totalParticipants}
+              icon={Users}
+              tone="blue"
+            />
             <Stat
               label="Média geral"
+              icon={Star}
+              tone="orange"
               value={
                 data.overall.avgOverall
                   ? data.overall.avgOverall.toFixed(1)
@@ -266,6 +284,8 @@ export function RelatoriosTab() {
             />
             <Stat
               label="Média ponderada"
+              icon={TrendingUp}
+              tone="green"
               value={
                 data.overall.avgWeighted
                   ? data.overall.avgWeighted.toFixed(1)
@@ -274,22 +294,31 @@ export function RelatoriosTab() {
             />
             <Stat
               label="Elegíveis a promoção"
+              icon={Trophy}
+              tone="blue"
               value={data.overall.eligiblePromotion}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             <Stat
               label="Taxa de participação"
+              icon={Percent}
+              tone="blue"
               value={`${data.participationRate}%`}
             />
-            <Stat label="Taxa de conclusão" value={`${data.completionRate}%`} />
+            <Stat
+              label="Taxa de conclusão"
+              value={`${data.completionRate}%`}
+              icon={CheckCircle2}
+              tone="green"
+            />
           </div>
 
           {/* Resultados por competência */}
-          <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-            <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
+          <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+            <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
               Resultados por competência
-            </div>
+            </h3>
             <BarList
               items={data.byCompetency.map((c) => ({
                 key: c.competencyId,
@@ -301,10 +330,10 @@ export function RelatoriosTab() {
 
           {/* Resultados por departamento / cargo / unidade */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-              <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
+            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
                 Por departamento
-              </div>
+              </h3>
               <BarList
                 items={data.byDepartment.map((d) => ({
                   key: d.id,
@@ -313,10 +342,10 @@ export function RelatoriosTab() {
                 }))}
               />
             </div>
-            <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-              <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
+            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
                 Por cargo
-              </div>
+              </h3>
               <BarList
                 items={data.byPosition.map((d) => ({
                   key: d.id,
@@ -325,10 +354,10 @@ export function RelatoriosTab() {
                 }))}
               />
             </div>
-            <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-              <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
+            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
                 Por unidade
-              </div>
+              </h3>
               <BarList
                 items={data.byUnit.map((d) => ({
                   key: d.id,
@@ -340,10 +369,10 @@ export function RelatoriosTab() {
           </div>
 
           {/* Por grupo de avaliadores */}
-          <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-            <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
+          <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+            <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
               Resultados por grupo de avaliadores
-            </div>
+            </h3>
             <BarList
               items={Object.entries(data.byEvaluatorGroup)
                 .filter(([, v]) => v !== null)
@@ -379,10 +408,10 @@ export function RelatoriosTab() {
 
           {/* Pontos fortes / gaps */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-              <div className="text-xs font-bold text-success-ink uppercase tracking-wider mb-3.5">
+            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
                 Principais pontos fortes
-              </div>
+              </h3>
               {data.topStrengths.length === 0 && (
                 <div className="text-sm text-ink-muted">
                   Sem dados suficientes ainda.
@@ -402,10 +431,10 @@ export function RelatoriosTab() {
                 </div>
               ))}
             </div>
-            <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-              <div className="text-xs font-bold text-danger-ink uppercase tracking-wider mb-3.5">
+            <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
                 Principais lacunas
-              </div>
+              </h3>
               {data.topGaps.length === 0 && (
                 <div className="text-sm text-ink-muted">
                   Sem dados suficientes ainda.
@@ -428,10 +457,10 @@ export function RelatoriosTab() {
           </div>
 
           {/* Competências críticas */}
-          <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-            <div className="text-xs font-bold text-danger-ink uppercase tracking-wider mb-3.5">
+          <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+            <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
               Competências críticas (abaixo do nível esperado)
-            </div>
+            </h3>
             {data.criticalCompetencies.length === 0 && (
               <div className="text-sm text-ink-muted">
                 Nenhuma competência abaixo do nível esperado.
@@ -457,7 +486,7 @@ export function RelatoriosTab() {
           </div>
 
           {/* Avaliadores pendentes */}
-          <div className="rounded-xl border border-border bg-surface overflow-hidden">
+          <div className="rounded-card border border-border bg-surface overflow-hidden">
             <div className="px-5 py-4 border-b border-border flex items-center justify-between">
               <div className="text-xs font-bold text-ink-muted uppercase tracking-wider">
                 Avaliadores pendentes
@@ -474,7 +503,7 @@ export function RelatoriosTab() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse min-w-[700px]">
                   <thead>
-                    <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wider text-ink-muted">
+                    <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
                       <th className="px-4 py-2.5">Avaliador</th>
                       <th className="px-4 py-2.5">Avaliado</th>
                       <th className="px-4 py-2.5">Tipo</th>
@@ -576,16 +605,16 @@ function CycleEvolutionSection({
 
       {isLoading && <div className="text-sm text-ink-muted">A carregar…</div>}
       {!isLoading && points.length === 0 && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
           Sem ciclos para comparar.
         </div>
       )}
 
       {points.length > 0 && (
-        <div className="rounded-xl border border-border bg-surface overflow-x-auto">
+        <div className="rounded-card border border-border bg-surface overflow-x-auto">
           <table className="w-full text-sm border-collapse min-w-[900px]">
             <thead>
-              <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wider text-ink-muted">
+              <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Ciclo</th>
                 <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Início</th>
