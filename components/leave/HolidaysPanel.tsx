@@ -112,7 +112,8 @@ export function HolidaysPanel() {
 
   return (
     <div className="space-y-4">
-      <Card className="p-4 grid grid-cols-1 gap-3 md:grid-cols-[1fr_8rem] items-end">
+      <Card className="overflow-hidden p-4 grid grid-cols-1 gap-3 md:grid-cols-[1fr_8rem] items-end">
+        <h3 className="col-span-full -mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Localização e ano</h3>
         <FormField label="Localização" htmlFor="holiday-location">
           <Select
             items={locationItems}
@@ -137,8 +138,8 @@ export function HolidaysPanel() {
         </FormField>
       </Card>
 
-      <Card className="p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-ink">Acrescentar feriado</h3>
+      <Card className="overflow-hidden p-4 space-y-3">
+        <h3 className="-mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Acrescentar feriado</h3>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_11rem_auto_auto] items-end">
           <FormField label="Nome" htmlFor="holiday-name">
             <Input
@@ -184,8 +185,8 @@ export function HolidaysPanel() {
         </p>
       </Card>
 
-      <Card className="p-4">
-        <h3 className="text-sm font-semibold text-ink mb-3">
+      <Card className="overflow-hidden p-4">
+        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
           Feriados em {year}
           {loc ? ` — ${loc}` : ''}
         </h3>
@@ -231,8 +232,8 @@ export function HolidaysPanel() {
       </Card>
 
       {customHere.length > 0 && (
-        <Card className="p-4">
-          <h3 className="text-sm font-semibold text-ink mb-3">
+        <Card className="overflow-hidden p-4">
+          <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
             Configurados por si
           </h3>
           <ul className="divide-y divide-border">

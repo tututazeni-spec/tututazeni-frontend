@@ -103,7 +103,7 @@ export function HierarchyView() {
       {error && <div className="px-4 py-8 text-center text-sm text-danger">{error.message}</div>}
       {!isLoading && !error && (
         <Table>
-          <TableHead>
+          <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
             <TableRow>
               <TableHeaderCell>Colaborador</TableHeaderCell>
               <TableHeaderCell>Cargo</TableHeaderCell>

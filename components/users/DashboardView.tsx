@@ -14,6 +14,22 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AdminDashboard } from './types';
 
+// Uma cor por departamento (cicla se houver mais departamentos que cores).
+const DEPT_COLORS = [
+  '#3B82F6',
+  '#10B981',
+  '#F59E0B',
+  '#EF4444',
+  '#8B5CF6',
+  '#EC4899',
+  '#14B8A6',
+  '#F97316',
+  '#6366F1',
+  '#84CC16',
+  '#06B6D4',
+  '#A855F7',
+];
+
 export function DashboardView() {
   const { data, isLoading } = useApiQuery<AdminDashboard>(
     queryKeys.users.adminDashboard(),
@@ -66,11 +82,11 @@ export function DashboardView() {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
           Distribuição por departamento
         </div>
         <div className="p-4 space-y-3">
-          {data.byDepartment.map((dept) => {
+          {data.byDepartment.map((dept, i) => {
             const max = data.byDepartment[0]?.count ?? 1;
             const pct = Math.round((dept.count / max) * 100);
             return (
@@ -80,6 +96,7 @@ export function DashboardView() {
                 </div>
                 <ProgressBar
                   value={pct}
+                  color={DEPT_COLORS[i % DEPT_COLORS.length]}
                   className="h-5 flex-1 rounded-control"
                 />
                 <div className="w-12 text-right text-xs font-mono text-ink-muted">

@@ -122,6 +122,7 @@ export function RegisterAbsenceModal({
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
+        navyHeader
         title="Registar ausência"
         description="Se a falta já consta da assiduidade, é associada ao registo existente."
         className="max-w-xl max-h-[90vh] overflow-y-auto"

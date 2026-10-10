@@ -116,7 +116,8 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
         </Button>
       </div>
 
-      <Card className="p-4">
+      <Card className="overflow-hidden p-4">
+        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           <Input
             placeholder="Procurar nome ou n.º interno"
@@ -189,7 +190,7 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
         <>
           <div className="overflow-x-auto">
             <Table>
-              <TableHead>
+              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                 <TableRow>
                   {headers.map((h, i) => (
                     <TableHeaderCell key={`${h}-${i}`}>{h}</TableHeaderCell>

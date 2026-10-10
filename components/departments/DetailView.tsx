@@ -17,20 +17,19 @@ import {
   UserCheck,
   UserX,
   Users,
-  Building2,
-  AlertTriangle,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
   Table,
@@ -311,21 +310,8 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       <Card className="mb-5 p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div
-              className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-card text-xl"
-              style={{
-                background: dept.color
-                  ? `${dept.color}20`
-                  : 'var(--color-surface-sunken)',
-              }}
-            >
-              {dept.icon ?? <Building2 size={20} strokeWidth={1.75} />}
-            </div>
             <div>
               <div className="mb-1 flex flex-wrap items-center gap-2">
-                <span className="font-mono text-sm text-ink-faint">
-                  {dept.code}
-                </span>
                 <Badge intent={dept.active ? 'success' : 'neutral'}>
                   {dept.active ? 'Activo' : 'Inactivo'}
                 </Badge>
@@ -389,14 +375,13 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           </div>
         )}
         {!dept.head && (
-          <div className="mt-4 rounded-control border border-black bg-white px-3 py-2 text-xs text-black">
-            <AlertTriangle
-              size={13}
-              strokeWidth={1.75}
-              className="inline align-[-2px]"
-            />{' '}
-            Departamento sem gestor definido
-          </div>
+          <AlertCard
+            compact
+            variant="warning"
+            title="Atenção"
+            message="Departamento sem gestor definido"
+            className="mt-4"
+          />
         )}
       </Card>
 
@@ -419,7 +404,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
         <div>
           {/* Add member form */}
           <Card className="mb-4 border-success bg-success-subtle p-4">
-            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-success-ink">
+            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Adicionar colaborador ao departamento
             </div>
             <div className="flex flex-wrap gap-3">
@@ -454,7 +439,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
 
           {/* Transfer form */}
           <Card className="mb-4 border-info bg-info-subtle p-4">
-            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-info-ink">
+            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Transferir colaborador
             </div>
             <div className="flex flex-wrap gap-3">
@@ -503,9 +488,9 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           <Table>
             <TableHead>
               <TableRow>
-                <TableHeaderCell>Colaborador</TableHeaderCell>
-                <TableHeaderCell>Cargo</TableHeaderCell>
-                <TableHeaderCell>Estado</TableHeaderCell>
+                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Colaborador</TableHeaderCell>
+                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Cargo</TableHeaderCell>
+                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Estado</TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -612,33 +597,35 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       {/* Metrics tab */}
       {activeTab === 'metrics' && metrics && (
         <div className="space-y-4">
-          <div className="grid grid-cols-4 gap-3">
-            <KpiCard
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <NavyStatCard
               icon={Users}
+              tone="blue"
               label="Total membros"
               value={metrics.totalUsers}
             />
-            <KpiCard
+            <NavyStatCard
               icon={UserCheck}
+              tone="green"
               label="Activos"
               value={metrics.activeUsers}
-              intent="success"
             />
-            <KpiCard
+            <NavyStatCard
               icon={UserX}
+              tone="orange"
               label="Inactivos"
               value={metrics.inactiveUsers}
             />
-            <KpiCard
+            <NavyStatCard
               icon={ArrowLeftRight}
+              tone="blue"
               label="Transferências ↑"
               value={metrics.transfers.in}
               sub={`↓ saídas: ${metrics.transfers.out}`}
-              intent="accent"
             />
           </div>
           <Card className="p-4">
-            <div className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Hierarquia organizacional
             </div>
             <Breadcrumb items={metrics.breadcrumb} />
@@ -651,9 +638,9 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeaderCell>Gestor</TableHeaderCell>
-              <TableHeaderCell>Início</TableHeaderCell>
-              <TableHeaderCell>Fim</TableHeaderCell>
+              <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Gestor</TableHeaderCell>
+              <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Início</TableHeaderCell>
+              <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Fim</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>

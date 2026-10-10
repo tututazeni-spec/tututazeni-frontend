@@ -27,6 +27,8 @@ export interface ModalContentProps {
   description?: string;
   children?: ReactNode;
   className?: string;
+  /** Cabeçalho do título em #0F1F3D a 60%, com texto e botão de fechar brancos. */
+  navyHeader?: boolean;
   /** Passthrough para `Dialog.Content` — permite ao consumidor controlar o foco inicial de forma determinística. */
   onOpenAutoFocus?: (event: Event) => void;
 }
@@ -36,6 +38,7 @@ export function ModalContent({
   description,
   children,
   className,
+  navyHeader,
   onOpenAutoFocus,
 }: ModalContentProps) {
   return (
@@ -63,7 +66,13 @@ export function ModalContent({
           className,
         )}
       >
-        <Dialog.Title className="pr-8 font-display text-lg font-bold text-ink">
+        <Dialog.Title
+          className={cn(
+            'pr-8 font-display text-lg font-bold text-ink',
+            navyHeader &&
+              '-mx-6 -mt-6 mb-4 bg-[#0F1F3D]/60 px-6 py-4 pr-14 text-white',
+          )}
+        >
           {title}
         </Dialog.Title>
         {description && (
@@ -75,7 +84,12 @@ export function ModalContent({
         <Dialog.Close asChild>
           <button
             aria-label="Fechar"
-            className="absolute right-4 top-4 rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className={cn(
+              'absolute right-4 top-4 rounded-control p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+              navyHeader
+                ? 'text-white hover:bg-white/20'
+                : 'text-ink-muted hover:bg-surface-sunken hover:text-ink',
+            )}
           >
             <X size={18} strokeWidth={1.75} />
           </button>

@@ -8,11 +8,19 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, Info } from 'lucide-react';
+import {
+  AlertTriangle,
+  CalendarClock,
+  CalendarOff,
+  GitCompareArrows,
+  Info,
+  Users,
+  UsersRound,
+} from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -30,6 +38,7 @@ import {
 import { usePlanning, type PlanningFilters } from '@/hooks/useLeave';
 import { cn } from '@/lib/cn';
 import { formatDate } from '@/lib/format';
+import { DEPT_COLORS } from './constants';
 import type { PlanningDay, PlanningTeam } from './types';
 
 const ALL = 'ALL';
@@ -44,11 +53,12 @@ function defaultRange() {
   };
 }
 
-function dayClass(d: PlanningDay): string {
+// Dias de alerta mantêm a cor do estado; dias dentro do mínimo usam a cor da equipa.
+function dayClass(d: PlanningDay): string | null {
   if (d.belowMinimum) return 'bg-danger';
   if (d.projectedBelowMinimum) return 'bg-warning';
   if (d.overlap) return 'bg-info';
-  return 'bg-success';
+  return null;
 }
 
 function dayTitle(d: PlanningDay): string {
@@ -56,20 +66,30 @@ function dayTitle(d: PlanningDay): string {
   return `${formatDate(d.date)} — ${d.availabilityPercent}% disponível, ${d.absent} ausente(s)${pending}`;
 }
 
-function AvailabilityStrip({ team }: { team: PlanningTeam }) {
+function AvailabilityStrip({
+  team,
+  color,
+}: {
+  team: PlanningTeam;
+  color: string;
+}) {
   return (
     <div
       className="flex gap-px"
       role="img"
       aria-label={`Disponibilidade diária de ${team.department ?? 'sem departamento'}`}
     >
-      {team.days.map((d) => (
-        <span
-          key={d.date}
-          title={dayTitle(d)}
-          className={cn('h-5 min-w-[3px] flex-1 rounded-sm', dayClass(d))}
-        />
-      ))}
+      {team.days.map((d) => {
+        const cls = dayClass(d);
+        return (
+          <span
+            key={d.date}
+            title={dayTitle(d)}
+            className={cn('h-5 min-w-[3px] flex-1 rounded-sm', cls)}
+            style={cls ? undefined : { backgroundColor: color }}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -89,7 +109,8 @@ export function PlanningTab() {
 
   return (
     <div className="space-y-5">
-      <Card className="p-4">
+      <Card className="overflow-hidden p-4">
+        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Input
             type="date"
@@ -137,31 +158,36 @@ export function PlanningTab() {
         />
       ) : (
         <>
-          <div className="flex flex-wrap gap-3">
-            <KpiCard
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
+            <NavyStatCard
+              icon={Users}
+              tone="blue"
               label="Colaboradores"
               value={data.summary.headcount}
-              intent="primary"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={CalendarOff}
+              tone="blue"
               label="Ausentes hoje"
               value={data.summary.absentToday}
-              intent="info"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={CalendarClock}
+              tone="orange"
               label="Pedidos pendentes"
               value={data.summary.pendingRequests}
-              intent="warning"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={UsersRound}
+              tone={data.summary.teamsBelowMinimum ? 'red' : 'green'}
               label="Equipas abaixo do mínimo"
               value={data.summary.teamsBelowMinimum}
-              intent={data.summary.teamsBelowMinimum ? 'danger' : 'success'}
             />
-            <KpiCard
+            <NavyStatCard
+              icon={GitCompareArrows}
+              tone={data.summary.conflictingRequests ? 'red' : 'green'}
               label="Pedidos em conflito"
               value={data.summary.conflictingRequests}
-              intent={data.summary.conflictingRequests ? 'danger' : 'success'}
             />
           </div>
 
@@ -170,13 +196,9 @@ export function PlanningTab() {
           </p>
 
           {data.alerts.length > 0 && (
-            <Card className="p-4 space-y-2">
-              <h3 className="flex items-center gap-2 text-sm font-semibold text-ink">
-                <AlertTriangle
-                  size={15}
-                  strokeWidth={1.75}
-                  className="text-danger-ink"
-                />
+            <Card className="overflow-hidden p-4 space-y-2">
+              <h3 className="-mx-4 -mt-4 flex items-center gap-2 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
+                <AlertTriangle size={15} strokeWidth={1.75} />
                 Alertas de falta de cobertura
               </h3>
               <ul className="space-y-1 text-xs text-ink-muted max-h-48 overflow-y-auto">
@@ -195,13 +217,16 @@ export function PlanningTab() {
             </Card>
           )}
 
-          <Card className="p-4 space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold text-ink">
+          <Card className="overflow-hidden p-4 space-y-3">
+            <div className="-mx-4 -mt-4 flex flex-wrap items-center justify-between gap-2 bg-[#0F1F3D]/60 px-4 py-3">
+              <h3 className="text-sm font-semibold text-white">
                 Disponibilidade por equipa
               </h3>
-              <p className="flex flex-wrap items-center gap-3 text-xs text-ink-faint">
-                <Legend cls="bg-success" label="Dentro do mínimo" />
+              <p className="flex flex-wrap items-center gap-3 text-xs text-white/90">
+                <Legend
+                  cls="bg-gradient-to-r from-[#3B82F6] to-[#10B981]"
+                  label="Dentro do mínimo (cor da equipa)"
+                />
                 <Legend cls="bg-info" label="Sobreposição" />
                 <Legend cls="bg-warning" label="Abaixo se aprovar pendentes" />
                 <Legend cls="bg-danger" label="Abaixo do mínimo" />
@@ -214,7 +239,7 @@ export function PlanningTab() {
               />
             ) : (
               <Table>
-                <TableHead>
+                <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                   <TableRow>
                     <TableHeaderCell>Equipa</TableHeaderCell>
                     <TableHeaderCell>Colab.</TableHeaderCell>
@@ -229,10 +254,19 @@ export function PlanningTab() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {data.teams.map((t) => (
+                  {data.teams.map((t, i) => (
                     <TableRow key={t.departmentId ?? 'none'}>
                       <TableCell className="font-medium">
-                        {t.department ?? 'Sem departamento'}
+                        <span className="inline-flex items-center gap-2">
+                          <span
+                            aria-hidden
+                            className="inline-block h-3 w-3 shrink-0 rounded-full"
+                            style={{
+                              backgroundColor: DEPT_COLORS[i % DEPT_COLORS.length],
+                            }}
+                          />
+                          {t.department ?? 'Sem departamento'}
+                        </span>
                       </TableCell>
                       <TableCell>{t.headcount}</TableCell>
                       <TableCell>
@@ -250,7 +284,10 @@ export function PlanningTab() {
                       <TableCell>{t.belowMinimumDays}</TableCell>
                       <TableCell>{t.overlapDays} dia(s)</TableCell>
                       <TableCell>
-                        <AvailabilityStrip team={t} />
+                        <AvailabilityStrip
+                          team={t}
+                          color={DEPT_COLORS[i % DEPT_COLORS.length]}
+                        />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -259,8 +296,8 @@ export function PlanningTab() {
             )}
           </Card>
 
-          <Card className="p-4 space-y-3">
-            <h3 className="text-sm font-semibold text-ink">
+          <Card className="overflow-hidden p-4 space-y-3">
+            <h3 className="-mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
               Pedidos pendentes no período
             </h3>
             {data.pendingRequests.length === 0 ? (
@@ -269,7 +306,7 @@ export function PlanningTab() {
               </p>
             ) : (
               <Table>
-                <TableHead>
+                <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                   <TableRow>
                     <TableHeaderCell>Colaborador</TableHeaderCell>
                     <TableHeaderCell>Pedido</TableHeaderCell>
@@ -327,8 +364,8 @@ export function PlanningTab() {
           </Card>
 
           {data.absentPeople.length > 0 && (
-            <Card className="p-4 space-y-2">
-              <h3 className="text-sm font-semibold text-ink">
+            <Card className="overflow-hidden p-4 space-y-2">
+              <h3 className="-mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
                 Férias aprovadas e ausências previstas
               </h3>
               <ul className="space-y-1 text-xs text-ink-muted max-h-64 overflow-y-auto">

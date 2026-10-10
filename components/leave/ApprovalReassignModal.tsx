@@ -57,6 +57,7 @@ export function ApprovalReassignModal({
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
+        navyHeader
         title="Reatribuir aprovação"
         description={`Etapa actual: ${row.approver.fullName}. A reatribuição fica no histórico do pedido.`}
         className="max-w-md"

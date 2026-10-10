@@ -7,12 +7,20 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, ChevronDown, ChevronRight, Repeat2, X } from 'lucide-react';
+import {
+  AlarmClock,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Hourglass,
+  Repeat2,
+  X,
+} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -107,22 +115,23 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-2 gap-3 md:max-w-md">
-        <KpiCard
+      <div className="grid grid-cols-2 gap-4 md:max-w-xl">
+        <NavyStatCard
+          icon={Hourglass}
+          tone="blue"
           label="Por decidir"
           value={data?.summary.pending ?? 0}
-          intent="primary"
-          className="w-full"
         />
-        <KpiCard
+        <NavyStatCard
+          icon={AlarmClock}
+          tone={data?.summary.overdue ? 'red' : 'green'}
           label="Em atraso"
           value={data?.summary.overdue ?? 0}
-          intent={data?.summary.overdue ? 'danger' : 'success'}
-          className="w-full"
         />
       </div>
 
-      <Card className="p-4">
+      <Card className="overflow-hidden p-4">
+        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
         <div className="flex flex-wrap gap-1 mb-3">
           {VIEWS.map((v) => (
             <Button
@@ -191,7 +200,7 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
         <>
           <div className="overflow-x-auto">
             <Table>
-              <TableHead>
+              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                 <TableRow>
                   <TableHeaderCell className="w-8" />
                   <TableHeaderCell>Colaborador</TableHeaderCell>

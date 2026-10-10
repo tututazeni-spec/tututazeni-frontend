@@ -23,7 +23,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useUnits } from './departmentFormData';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentNode, ReportsData } from './types';
@@ -38,29 +38,45 @@ function flattenTree(
   ]);
 }
 
+const BAR_COLORS = [
+  '#2563EB',
+  '#16A34A',
+  '#F97316',
+  '#9333EA',
+  '#DC2626',
+  '#0891B2',
+  '#CA8A04',
+  '#DB2777',
+  '#4F46E5',
+  '#65A30D',
+];
+
 function BarList({
   title,
   items,
   suffix = '',
+  multiColor = false,
 }: {
   title: string;
   items: Array<{ label: string; count: number }>;
   suffix?: string;
+  /** Cada item com uma cor própria (em vez da cor primária única). */
+  multiColor?: boolean;
 }) {
   const max = Math.max(1, ...items.map((i) => i.count));
   return (
-    <Card className="p-4">
-      <div className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
+    <Card className="overflow-hidden">
+      <div className="bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       {items.length === 0 ? (
-        <p className="text-xs text-ink-faint">Sem dados</p>
+        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 p-4">
           {items.slice(0, 10).map((item, i) => (
             <div key={i}>
-              <div className="mb-0.5 flex items-center justify-between text-xs">
-                <span className="truncate pr-2 text-ink-muted">{item.label}</span>
+              <div className="mb-0.5 flex items-start justify-between text-xs">
+                <span className="min-w-0 break-words pr-2 text-ink-muted">{item.label}</span>
                 <span className="flex-shrink-0 font-data text-ink-faint">
                   {item.count}
                   {suffix}
@@ -68,8 +84,11 @@ function BarList({
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-surface-sunken">
                 <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${(item.count / max) * 100}%` }}
+                  className={`h-full rounded-full ${multiColor ? '' : 'bg-primary'}`}
+                  style={{
+                    width: `${(item.count / max) * 100}%`,
+                    ...(multiColor && { backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }),
+                  }}
                 />
               </div>
             </div>
@@ -166,40 +185,43 @@ export function ReportsView() {
       {!isLoading && !error && data && (
         <div className="space-y-6">
           {/* KPIs */}
-          <div className="flex flex-wrap gap-4">
-            <KpiCard
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <NavyStatCard
               icon={Users}
+              tone="blue"
               label="Colaboradores"
               value={data.employeeDistribution.total}
               sub={`${data.employeeDistribution.active} activos · ${data.employeeDistribution.inactive} inactivos`}
             />
-            <KpiCard
+            <NavyStatCard
               icon={Briefcase}
+              tone={data.positionsOccupiedVsVacant.vacancies > 0 ? 'orange' : 'green'}
               label="Cargos ocupados vs. vagas"
               value={`${data.positionsOccupiedVsVacant.occupied}/${data.positionsOccupiedVsVacant.planned}`}
               sub={`${data.positionsOccupiedVsVacant.vacancies} vagas`}
-              intent={data.positionsOccupiedVsVacant.vacancies > 0 ? 'warning' : 'success'}
             />
-            <KpiCard
+            <NavyStatCard
               icon={LogIn}
+              tone="green"
               label="Admissões no período"
               value={data.admissions.total}
-              intent="success"
             />
-            <KpiCard
+            <NavyStatCard
               icon={LogOut}
+              tone={data.exits.total > 0 ? 'red' : 'blue'}
               label="Saídas no período"
               value={data.exits.total}
-              intent={data.exits.total > 0 ? 'danger' : 'primary'}
             />
-            <KpiCard
+            <NavyStatCard
               icon={Repeat}
+              tone="orange"
               label="Taxa de rotatividade"
               value={`${data.turnoverRate.toFixed(1)}%`}
               sub="saídas / efectivo actual"
             />
-            <KpiCard
+            <NavyStatCard
               icon={Clock}
+              tone="blue"
               label="Antiguidade média"
               value={`${data.seniority.avgYears.toFixed(1)} anos`}
             />
@@ -224,6 +246,7 @@ export function ReportsView() {
                   count: p.vacancies,
                 }))}
               suffix=" vagas"
+              multiColor
             />
             <BarList
               title="Distribuição por localização"
@@ -241,7 +264,7 @@ export function ReportsView() {
 
           {/* Headcount por departamento: previsto vs. actual */}
           <Card className="overflow-hidden">
-            <div className="border-b border-border px-4 py-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Headcount previsto vs. actual, por departamento
             </div>
             {data.headcountByDepartment.length === 0 ? (
@@ -252,7 +275,7 @@ export function ReportsView() {
                   key={d.id}
                   className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5 text-sm last:border-0"
                 >
-                  <span className="min-w-0 flex-1 truncate text-ink">{d.name}</span>
+                  <span className="min-w-0 flex-1 break-words text-ink">{d.name}</span>
                   <span className="flex-shrink-0 font-mono text-xs text-ink-muted">
                     {d.actual} actual · {d.expected ?? '—'} previsto · {d.max ?? '—'} limite
                   </span>

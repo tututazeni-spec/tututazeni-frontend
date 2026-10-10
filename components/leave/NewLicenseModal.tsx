@@ -194,6 +194,7 @@ export function NewLicenseModal({
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
+        navyHeader
         title="Nova licença"
         description="A duração, o saldo e as sobreposições são validados antes da submissão."
         className="max-w-2xl max-h-[90vh] overflow-y-auto"

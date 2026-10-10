@@ -133,7 +133,8 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
       </div>
 
       <div className="space-y-4 min-w-0">
-        <Card className="p-4 space-y-3">
+        <Card className="overflow-hidden p-4 space-y-3">
+          <h3 className="-mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {usesPeriod ? (
               <>
@@ -286,8 +287,8 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
           />
         ) : (
           <>
-            <Table>
-              <TableHead>
+            <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:align-bottom [&_th]:leading-tight">
+              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
                 <TableRow>
                   {data.columns.map((c) => (
                     <TableHeaderCell

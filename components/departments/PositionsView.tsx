@@ -22,7 +22,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
   Table,
@@ -123,10 +123,10 @@ export function PositionsView() {
       {/* Indicadores */}
       {indicators && (
         <div className="mb-5 space-y-3">
-          <div className="flex flex-wrap gap-3">
-            <KpiCard icon={Briefcase} label="Total de cargos" value={indicators.total} />
-            <KpiCard icon={UserCheck} label="Activos" value={indicators.active} intent="success" />
-            <KpiCard icon={UserX} label="Inactivos" value={indicators.inactive} />
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            <NavyStatCard icon={Briefcase} tone="blue" label="Total de cargos" value={indicators.total} />
+            <NavyStatCard icon={UserCheck} tone="green" label="Activos" value={indicators.active} />
+            <NavyStatCard icon={UserX} tone="orange" label="Inactivos" value={indicators.inactive} />
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <BreakdownCard title="Por família profissional" buckets={indicators.byJobFamily} />
@@ -215,7 +215,7 @@ export function PositionsView() {
       {error && <div className="px-4 py-8 text-center text-sm text-danger">{error}</div>}
       {!loading && !error && (
         <Table>
-          <TableHead>
+          <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
             <TableRow>
               <TableHeaderCell>Cargo</TableHeaderCell>
               <TableHeaderCell>Função</TableHeaderCell>

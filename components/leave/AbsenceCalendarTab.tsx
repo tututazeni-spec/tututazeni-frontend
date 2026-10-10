@@ -332,7 +332,8 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
         </div>
       </div>
 
-      <Card className="p-4 print:hidden">
+      <Card className="overflow-hidden p-4 print:hidden">
+        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
           <Select
             className="w-full"
@@ -445,9 +446,9 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
           {(data.alerts.length > 0 || data.overlaps.length > 0) && (
             <div className="grid gap-4 md:grid-cols-2">
               {data.alerts.length > 0 && (
-                <Card className="p-4">
-                  <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-ink">
-                    <AlertTriangle size={14} strokeWidth={1.75} className="text-danger-ink" />
+                <Card className="overflow-hidden p-4">
+                  <h3 className="-mx-4 -mt-4 mb-3 flex items-center gap-2 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
+                    <AlertTriangle size={14} strokeWidth={1.75} />
                     Cobertura insuficiente
                   </h3>
                   <ul className="space-y-1 text-sm text-ink-muted">
@@ -468,9 +469,9 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
                 </Card>
               )}
               {data.overlaps.length > 0 && (
-                <Card className="p-4">
-                  <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-ink">
-                    <Users size={14} strokeWidth={1.75} className="text-warning-ink" />
+                <Card className="overflow-hidden p-4">
+                  <h3 className="-mx-4 -mt-4 mb-3 flex items-center gap-2 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
+                    <Users size={14} strokeWidth={1.75} />
                     Sobreposição de ausências
                   </h3>
                   <ul className="space-y-1 text-sm text-ink-muted">

@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
@@ -23,7 +23,7 @@ import {
   useUnitOptions,
 } from '@/components/competencies/modelFormData';
 import { useLeaveOverview } from '@/hooks/useLeave';
-import { STATUS_CFG, monthLabel } from './constants';
+import { DEPT_COLORS, STATUS_CFG, monthLabel } from './constants';
 import type { LeaveScope, LeaveType, OverviewFilters } from './types';
 
 const ALL = 'ALL';
@@ -51,11 +51,15 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="p-5">
-      <h3 className="font-body text-sm font-semibold text-ink mb-4">{title}</h3>
-      <ErrorBoundary source={`leave.overview.${title}`}>
-        {children}
-      </ErrorBoundary>
+    <Card className="overflow-hidden">
+      <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+        {title}
+      </h3>
+      <div className="p-5">
+        <ErrorBoundary source={`leave.overview.${title}`}>
+          {children}
+        </ErrorBoundary>
+      </div>
     </Card>
   );
 }
@@ -89,7 +93,8 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
   ];
 
   const filterBar = (
-    <Card className="p-4">
+    <Card className="overflow-hidden p-4">
+      <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <label className="text-xs text-ink-muted space-y-1">
           <span>De</span>
@@ -203,36 +208,32 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
       {filterBar}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KpiCard
+        <NavyStatCard
           icon={Palmtree}
+          tone="green"
           label="Férias disponíveis"
           value={cards.vacationAvailable ?? '—'}
           sub="dias · o seu saldo"
-          intent="success"
-          className="w-full"
         />
-        <KpiCard
+        <NavyStatCard
           icon={CalendarClock}
+          tone="orange"
           label="Pedidos pendentes"
           value={cards.pendingRequests}
-          intent="warning"
-          className="w-full"
         />
-        <KpiCard
+        <NavyStatCard
           icon={CalendarCheck}
+          tone="blue"
           label="Dias de férias gozados"
           value={cards.vacationTaken}
           sub="no período"
-          intent="primary"
-          className="w-full"
         />
-        <KpiCard
+        <NavyStatCard
           icon={CalendarOff}
+          tone="red"
           label="Ausências no período"
           value={cards.absences.total}
           sub={`${cards.absences.justified} justificadas · ${cards.absences.unjustified} injustificadas`}
-          intent="accent"
-          className="w-full"
         />
       </div>
 
@@ -328,7 +329,7 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
         <ChartCard title="Disponibilidade da equipa">
           {charts.absenteeismByDepartment.length ? (
             <ul className="space-y-2 text-sm">
-              {charts.absenteeismByDepartment.slice(0, 8).map((d) => {
+              {charts.absenteeismByDepartment.slice(0, 8).map((d, i) => {
                 const availability = Math.max(0, 100 - d.rate);
                 return (
                   <li key={d.departmentId ?? 'none'}>
@@ -340,8 +341,11 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
                     </div>
                     <div className="h-2 bg-surface-sunken rounded-pill overflow-hidden">
                       <div
-                        className="h-full rounded-pill bg-success"
-                        style={{ width: `${availability}%` }}
+                        className="h-full rounded-pill"
+                        style={{
+                          width: `${availability}%`,
+                          backgroundColor: DEPT_COLORS[i % DEPT_COLORS.length],
+                        }}
                       />
                     </div>
                   </li>
