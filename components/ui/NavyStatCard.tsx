@@ -48,11 +48,11 @@ export function NavyStatCard({
   return (
     <div
       className={cn(
-        'relative h-[155px] overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100',
+        'relative flex min-h-[155px] flex-col overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100',
         className,
       )}
     >
-      <div className="flex h-[60px] items-center bg-[#152F59] pl-[86px] pr-3">
+      <div className="flex min-h-[60px] shrink-0 items-center bg-[#152F59] py-2 pl-[86px] pr-3">
         <h3
           className={`break-words font-body font-semibold leading-tight text-white ${label.length > 24 ? 'text-[13px]' : 'text-[15px]'}`}
         >
@@ -65,7 +65,7 @@ export function NavyStatCard({
       >
         <Icon size={26} strokeWidth={1.75} />
       </span>
-      <div className="flex h-[95px] flex-col items-center justify-center px-3 text-center">
+      <div className="flex min-h-[95px] flex-1 flex-col items-center justify-center px-3 text-center">
         <p
           className={`flex items-baseline gap-2 font-display font-bold leading-none ${valueSize(value)} ${t.text}`}
         >
