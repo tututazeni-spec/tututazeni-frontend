@@ -54,7 +54,7 @@ export const CATEGORY_CFG: StatusBadgeMap<CompetencyCategory> = {
   },
   LANGUAGE: { label: 'Idioma', cls: 'bg-success-subtle text-success-ink' },
   TOOL: { label: 'Ferramenta', cls: 'bg-warning-subtle text-warning-ink' },
-  LEADERSHIP: { label: 'Liderança', cls: 'bg-accent-subtle text-accent' },
+  LEADERSHIP: { label: 'Liderança', cls: 'bg-primary-subtle text-primary' },
   FUNCTIONAL: {
     label: 'Competências Funcionais',
     cls: 'bg-danger-subtle text-danger-ink',
