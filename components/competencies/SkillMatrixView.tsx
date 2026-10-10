@@ -20,6 +20,7 @@
 'use client';
 
 import { useState } from 'react';
+import { UserRound, type LucideIcon } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -27,7 +28,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { levelColor } from './utils';
+import { iconForCompetencyName } from './competencyIcons';
 import {
   useCompetencyOptions,
   useDepartmentOptions,
@@ -46,6 +47,26 @@ const LEGEND = [
   { level: 4, label: '4 — Avançado' },
   { level: 5, label: '5 — Especialista' },
 ];
+
+// Heatmap: 1 coral → 5 verde intenso; 0 (sem registo) em neutro. Classes
+// literais para o Tailwind as detectar. Texto escuro em todas para contraste.
+const HEAT_CLS: Record<number, string> = {
+  0: 'bg-[#ECE8E1] text-[#6B7280]',
+  1: 'bg-[#F26B6B] text-[#0F2D55]',
+  2: 'bg-[#F6A36B] text-[#0F2D55]',
+  3: 'bg-[#F7DF72] text-[#0F2D55]',
+  4: 'bg-[#76D6A0] text-[#0F2D55]',
+  5: 'bg-[#20B981] text-[#0F2D55]',
+};
+
+function heatClass(level: number): string {
+  return HEAT_CLS[Math.min(5, Math.max(0, Math.round(level)))];
+}
+
+function CompetencyIcon({ name }: { name: string }) {
+  const Icon: LucideIcon = iconForCompetencyName(name) ?? UserRound;
+  return <Icon size={16} strokeWidth={1.75} aria-hidden="true" />;
+}
 
 const HIERARCHY_LEVEL_OPTIONS = Object.entries(POSITION_LEVEL_CFG).map(
   ([value, cfg]) => ({
@@ -149,7 +170,7 @@ export function SkillMatrixView() {
         {LEGEND.map(({ level, label }) => (
           <div key={label} className="flex items-center gap-1">
             <div
-              className={`h-3 w-3 rounded-sm ${levelColor(level).split(' ')[0]}`}
+              className={`h-3 w-3 rounded-sm ${heatClass(level).split(' ')[0]}`}
             />
             {label}
           </div>
@@ -159,58 +180,71 @@ export function SkillMatrixView() {
       {loading ? (
         <Skeleton rows={6} />
       ) : !matrix ? null : (
-        <div className="overflow-x-auto">
-          <div className="min-w-max">
-            {/* Header row — competências */}
-            <div className="flex">
-              <div className="w-44 flex-shrink-0" />
-              {matrix.competencies.map((comp) => (
-                <div
-                  key={comp.id}
-                  className="w-16 flex-shrink-0 px-1 pb-2 text-center font-body text-xs leading-tight text-ink-muted"
-                  style={{
-                    writingMode: 'vertical-rl',
-                    transform: 'rotate(180deg)',
-                    height: 100,
-                  }}
-                >
-                  {comp.name}
-                </div>
-              ))}
-            </div>
-
-            {/* Rows — utilizadores */}
-            {matrix.matrix.map((row) => (
-              <div
-                key={row.user.id}
-                className="flex items-center border-b border-border hover:bg-surface-sunken"
-              >
-                <div className="flex w-44 flex-shrink-0 items-center gap-2 py-2 pr-3">
-                  <Avatar name={row.user.fullName} size="sm" />
-                  <div>
-                    <div className="truncate font-body text-xs font-medium text-ink">
-                      {row.user.fullName}
-                    </div>
-                    <div className="truncate font-body text-xs text-ink-faint">
-                      {row.user.position?.name}
-                    </div>
-                  </div>
-                </div>
-                {row.levels.map((lv) => (
-                  <div
-                    key={lv.competencyId}
-                    className="flex w-16 flex-shrink-0 items-center justify-center py-2"
+        <div className="overflow-hidden rounded-2xl border border-border">
+          <div className="max-h-[70vh] overflow-auto">
+            <table className="min-w-max border-separate border-spacing-0 font-body">
+              <thead>
+                <tr>
+                  <th
+                    scope="col"
+                    className="sticky left-0 top-0 z-30 w-56 min-w-56 border-b border-r border-white/20 bg-[#0F2D55] px-3 py-3 text-left text-xs font-semibold text-white"
                   >
-                    <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-control font-body text-xs font-bold ${levelColor(lv.level)}`}
+                    <span className="flex items-center gap-2">
+                      <UserRound
+                        size={16}
+                        strokeWidth={1.75}
+                        aria-hidden="true"
+                      />
+                      Pessoas
+                    </span>
+                  </th>
+                  {matrix.competencies.map((comp) => (
+                    <th
+                      key={comp.id}
+                      scope="col"
+                      className="sticky top-0 z-20 w-28 min-w-28 border-b border-r border-white/20 bg-[#0F2D55] px-2 py-3 text-center align-top text-xs font-semibold leading-tight text-white last:border-r-0"
                     >
-                      {lv.level || '—'}
-                    </div>
-                  </div>
+                      <span className="flex flex-col items-center gap-1.5">
+                        <CompetencyIcon name={comp.name} />
+                        <span className="break-words">{comp.name}</span>
+                      </span>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {matrix.matrix.map((row) => (
+                  <tr key={row.user.id}>
+                    <th
+                      scope="row"
+                      className="sticky left-0 z-10 w-56 min-w-56 border-b border-r border-white/20 bg-[#0F2D55] px-3 py-2 text-left font-normal"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Avatar name={row.user.fullName} size="sm" />
+                        <span className="min-w-0">
+                          <span className="block truncate text-xs font-semibold text-white">
+                            {row.user.fullName}
+                          </span>
+                          {row.user.position?.name && (
+                            <span className="block truncate text-[11px] text-white/70">
+                              {row.user.position.name}
+                            </span>
+                          )}
+                        </span>
+                      </span>
+                    </th>
+                    {row.levels.map((lv) => (
+                      <td
+                        key={lv.competencyId}
+                        className={`h-12 w-28 min-w-28 border-b border-r border-white px-2 text-center text-sm font-semibold last:border-r-0 ${heatClass(lv.level)}`}
+                      >
+                        {lv.level || '—'}
+                      </td>
+                    ))}
+                  </tr>
                 ))}
-              </div>
-            ))}
-
+              </tbody>
+            </table>
             {matrix.matrix.length === 0 && (
               <div className="py-12 text-center font-body text-sm text-ink-faint">
                 Sem utilizadores encontrados

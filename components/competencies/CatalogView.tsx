@@ -17,7 +17,6 @@ import {
   ArrowRight,
   Boxes,
   ChessKing,
-  Lightbulb,
   MessageCircleMore,
   Monitor,
   Search,
@@ -35,6 +34,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_CFG } from './constants';
+import { iconForCompetencyName } from './competencyIcons';
 import type { Competency, CompetencyCategory } from './types';
 
 // Uma cor por competência (estável, pelo id), a 50% de opacidade. Classes
@@ -57,17 +57,6 @@ function cardColor(id: number): string {
 const BADGE_CLS =
   'rounded-md bg-white/20 px-2 py-0.5 font-body text-xs font-medium text-white';
 
-// Ícone por nome (competências-tipo conhecidas); as restantes, incluindo as
-// criadas dinamicamente, caem no ícone da categoria.
-const NAME_ICONS: Array<[RegExp, LucideIcon]> = [
-  [/resultado/i, Target],
-  [/inova/i, Lightbulb],
-  [/estrat/i, ChessKing],
-  [/adaptab/i, Monitor],
-  [/bem-estar|disciplina/i, UsersRound],
-  [/comunica/i, MessageCircleMore],
-];
-
 const CATEGORY_ICONS: Record<CompetencyCategory, LucideIcon> = {
   HARD_SKILL: Monitor,
   SOFT_SKILL: UsersRound,
@@ -78,8 +67,9 @@ const CATEGORY_ICONS: Record<CompetencyCategory, LucideIcon> = {
 };
 
 function competencyIcon(comp: Competency): LucideIcon {
-  const byName = NAME_ICONS.find(([re]) => re.test(comp.name));
-  return byName ? byName[1] : (CATEGORY_ICONS[comp.category] ?? Target);
+  return (
+    iconForCompetencyName(comp.name) ?? CATEGORY_ICONS[comp.category] ?? Target
+  );
 }
 
 const CATEGORY_ITEMS = [
