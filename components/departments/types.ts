@@ -293,7 +293,6 @@ export interface ReportsData {
 
 export type View =
   | 'list'
-  | 'tree'
   | 'structure'
   | 'heads'
   | 'employees'

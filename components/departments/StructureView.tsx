@@ -1,6 +1,6 @@
 // components/departments/StructureView.tsx
 // Separador "Estrutura Organizacional" (docs/modulo_departments.md Ponto 3).
-// Distinto do separador "Organograma" (TreeView): aqui mostram-se os campos
+// Aqui mostram-se os campos
 // pedidos pela spec (unidade, departamento superior, nível, responsável,
 // colaboradores, cargos, localização) com duas visualizações — Árvore e
 // Lista hierárquica — e um painel de pré-visualização ao clicar num
