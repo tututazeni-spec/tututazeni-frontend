@@ -6,6 +6,8 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { ChevronRight } from 'lucide-react';
+import { departmentIcon } from './departmentIcon';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -15,15 +17,16 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
 import type { PaginatedDepts } from './types';
+
+// Mesma grelha no cabeçalho e nos cartões para as colunas alinharem.
+const GRID =
+  'grid items-center gap-3 grid-cols-[minmax(0,1fr)_auto_auto] md:grid-cols-[minmax(0,2fr)_90px_minmax(0,1.4fr)_70px_90px_90px_20px]';
+
+function DeptIcon({ name, hasChildren }: { name: string; hasChildren: boolean }) {
+  const Icon = departmentIcon(name, hasChildren);
+  return <Icon size={20} strokeWidth={1.75} />;
+}
 
 interface ListViewProps {
   onSelect: (id: number) => void;
@@ -99,84 +102,73 @@ export function ListView({ onSelect }: ListViewProps) {
         <div className="px-4 py-8 text-center text-sm text-danger">{error}</div>
       )}
       {!loading && (
-        <Table>
-          <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
-            <TableRow>
-              <TableHeaderCell>Departamento</TableHeaderCell>
-              <TableHeaderCell>Código</TableHeaderCell>
-              <TableHeaderCell>Gestor</TableHeaderCell>
-              <TableHeaderCell>Membros</TableHeaderCell>
-              <TableHeaderCell>Estado</TableHeaderCell>
-              <TableHeaderCell>Sub-deptos</TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+        <div>
+          <div
+            className={`${GRID} hidden rounded-t-2xl bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white md:grid`}
+          >
+            <span>Departamento</span>
+            <span>Código</span>
+            <span>Gestor</span>
+            <span>Membros</span>
+            <span>Estado</span>
+            <span>Sub-deptos</span>
+            <span />
+          </div>
+          <div className="md:mt-1.5">
             {data?.data.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="py-12 text-center text-ink-faint"
-                >
-                  Nenhum departamento encontrado
-                </TableCell>
-              </TableRow>
+              <div className="py-12 text-center text-sm text-ink-faint">
+                Nenhum departamento encontrado
+              </div>
             )}
             {data?.data.map((d) => (
-              <TableRow
+              <button
                 key={d.id}
-                className="cursor-pointer"
+                type="button"
                 onClick={() => onSelect(d.id)}
+                className={`${GRID} mb-1.5 w-full rounded-[14px] border border-[#E1EAF6] bg-[#F0F6FF] px-4 py-3 text-left transition-colors hover:bg-[#E5F0FF]`}
               >
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
-                      style={{
-                        background: d.color ?? 'var(--color-ink-faint)',
-                      }}
-                    />
-                    <div>
-                      <div className="text-sm font-medium text-ink">
-                        {d.name}
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
+                    <DeptIcon name={d.name} hasChildren={d._count.children > 0} />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-bold text-[#0F1F3D]">
+                      {d.name}
+                    </div>
+                    {d.parent && (
+                      <div className="truncate text-[11px] text-[#7890AC]">
+                        ↳ {d.parent.name}
                       </div>
-                      {d.parent && (
-                        <div className="mt-0.5 text-xs text-ink-faint">
-                          ↳ {d.parent.name}
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
-                </TableCell>
-                <TableCell className="font-mono text-xs text-ink-muted">
-                  {d.code}
-                </TableCell>
-                <TableCell>
+                </div>
+                <span className="text-[11px] text-[#0F1F3D]">{d.code}</span>
+                <div className="min-w-0 text-[11px] text-[#0F1F3D]">
                   {d.head ? (
-                    <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-1.5">
                       <Avatar name={d.head.fullName} size="sm" />
-                      <span className="truncate text-xs text-ink">
-                        {d.head.fullName}
-                      </span>
-                    </div>
+                      <span className="truncate">{d.head.fullName}</span>
+                    </span>
                   ) : (
-                    <span className="text-xs text-ink-faint">—</span>
+                    '—'
                   )}
-                </TableCell>
-                <TableCell className="text-sm text-ink-muted">
-                  {d._count.users}
-                </TableCell>
-                <TableCell>
+                </div>
+                <span className="text-xs text-[#0F1F3D]">{d._count.users}</span>
+                <span>
                   <Badge intent={d.active ? 'success' : 'neutral'}>
                     {d.active ? 'Activo' : 'Inactivo'}
                   </Badge>
-                </TableCell>
-                <TableCell className="text-sm text-ink-faint">
-                  {d._count.children}
-                </TableCell>
-              </TableRow>
+                </span>
+                <span className="text-xs text-[#0F1F3D]">{d._count.children}</span>
+                <ChevronRight
+                  size={18}
+                  strokeWidth={1.75}
+                  className="flex-shrink-0 text-[#526B89]"
+                />
+              </button>
             ))}
-          </TableBody>
-        </Table>
+          </div>
+        </div>
       )}
 
       {data && data.totalPages > 1 && (
