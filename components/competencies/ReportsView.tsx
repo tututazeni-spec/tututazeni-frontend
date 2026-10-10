@@ -10,13 +10,25 @@
 'use client';
 
 import { useState } from 'react';
-import { Download } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowUpRight,
+  BarChart3,
+  CalendarCheck,
+  Download,
+  Layers,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  UserCheck,
+  Users,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { buttonVariants } from '@/components/ui/Button';
@@ -268,31 +280,36 @@ export function ReportsView() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-            <KpiCard
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+            <NavyStatCard
+              icon={Layers}
+              tone="blue"
               label="Competências"
               value={data.mapaGeral.totalCompetencies}
-              intent="primary"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={AlertTriangle}
+              tone="red"
               label="Críticas"
               value={data.mapaGeral.critical}
-              intent="danger"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={Target}
+              tone="blue"
               label="Estratégicas"
               value={data.mapaGeral.strategic}
-              intent="accent"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={UserCheck}
+              tone="blue"
               label="Colaboradores avaliados"
               value={data.mapaGeral.usersAssessed}
-              intent="info"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={TrendingUp}
+              tone="green"
               label="Nível médio de proficiência"
               value={`${data.nivelMedioProficiencia.geral} / 5`}
-              intent="success"
             />
           </div>
 
@@ -300,22 +317,30 @@ export function ReportsView() {
             <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
               Gaps de competências
             </h3>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <KpiCard
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <NavyStatCard
+                icon={Target}
+                tone="orange"
                 label="Gaps identificados"
                 value={data.gaps.total}
-                intent="warning"
               />
-              <KpiCard
+              <NavyStatCard
+                icon={Users}
+                tone="red"
                 label="Colaboradores com gap"
                 value={data.gaps.usersWithGap}
-                intent="danger"
               />
-              <KpiCard label="Gap médio" value={data.gaps.avgGap} />
-              <KpiCard
+              <NavyStatCard
+                icon={BarChart3}
+                tone="blue"
+                label="Gap médio"
+                value={data.gaps.avgGap}
+              />
+              <NavyStatCard
+                icon={TrendingDown}
+                tone="red"
                 label="Abaixo do nível esperado"
                 value={data.colaboradoresAbaixoDoEsperado.total}
-                intent="danger"
               />
             </div>
           </div>
@@ -324,21 +349,24 @@ export function ReportsView() {
             <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
               Impacto das formações na proficiência
             </h3>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <KpiCard
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              <NavyStatCard
+                icon={CalendarCheck}
+                tone="blue"
                 label="Eventos com evolução"
                 value={data.impactoFormacoes.events}
-                intent="primary"
               />
-              <KpiCard
+              <NavyStatCard
+                icon={TrendingUp}
+                tone="green"
                 label="Colaboradores que melhoraram"
                 value={data.impactoFormacoes.improved}
-                intent="success"
               />
-              <KpiCard
+              <NavyStatCard
+                icon={ArrowUpRight}
+                tone="green"
                 label="Aumento médio de nível"
                 value={`+${data.impactoFormacoes.avgLevelIncrease}`}
-                intent="success"
               />
             </div>
           </div>
