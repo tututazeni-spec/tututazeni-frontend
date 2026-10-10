@@ -131,7 +131,7 @@ export function ComponentsView() {
 
       {!isLoading && (data?.length ?? 0) > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="grid grid-cols-[120px_1fr_110px_150px_130px_80px_88px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="grid grid-cols-[120px_1fr_110px_150px_130px_80px_88px] gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
             <div>Código</div>
             <div>Nome</div>
             <div>Tipo</div>
