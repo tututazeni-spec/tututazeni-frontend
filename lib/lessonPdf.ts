@@ -16,9 +16,12 @@ export const MAX_PDF_DATA_URL_LEN = 7_000_000;
  * `message` estável (`'NOT_A_PDF'` | `'PDF_TOO_LARGE'`) para o chamador
  * traduzir numa mensagem de UI.
  */
-export function assertUploadablePdf(file: File): void {
+export function assertUploadablePdf(
+  file: File,
+  maxBytes: number = MAX_PDF_UPLOAD_BYTES,
+): void {
   if (file.type !== 'application/pdf') throw new Error('NOT_A_PDF');
-  if (file.size > MAX_PDF_UPLOAD_BYTES) throw new Error('PDF_TOO_LARGE');
+  if (file.size > maxBytes) throw new Error('PDF_TOO_LARGE');
 }
 
 function readFileAsDataUrl(file: File): Promise<string> {
@@ -34,20 +37,26 @@ function readFileAsDataUrl(file: File): Promise<string> {
  * Lê o PDF escolhido como data URL. Valida antes (tipo/tamanho) e depois
  * (comprimento da string vs. limite do backend).
  */
-export async function fileToPdfDataUrl(file: File): Promise<string> {
-  assertUploadablePdf(file);
+export async function fileToPdfDataUrl(
+  file: File,
+  maxBytes: number = MAX_PDF_UPLOAD_BYTES,
+): Promise<string> {
+  assertUploadablePdf(file, maxBytes);
   const dataUrl = await readFileAsDataUrl(file);
   if (dataUrl.length > MAX_PDF_DATA_URL_LEN) throw new Error('PDF_TOO_LARGE');
   return dataUrl;
 }
 
 /** Mensagem de UI (PT) para os erros estáveis lançados acima. */
-export function pdfErrorMessage(err: unknown): string {
+export function pdfErrorMessage(
+  err: unknown,
+  maxBytes: number = MAX_PDF_UPLOAD_BYTES,
+): string {
   const code = err instanceof Error ? err.message : String(err);
   if (code === 'NOT_A_PDF') return 'O ficheiro tem de ser um PDF.';
   if (code === 'PDF_TOO_LARGE')
     return `O PDF é demasiado grande (máx. ${Math.floor(
-      MAX_PDF_UPLOAD_BYTES / (1024 * 1024),
+      maxBytes / (1024 * 1024),
     )} MB).`;
   return 'Não foi possível carregar o PDF.';
 }

@@ -4,11 +4,12 @@
 // Hover: zoom subtil (escala 1.06), desactivado com prefers-reduced-motion.
 
 import type { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/cn';
 
 export type NavyStatTone = 'blue' | 'green' | 'orange' | 'red';
 
 // Classes completas: o Tailwind não detecta nomes montados dinamicamente
-const TONES: Record<NavyStatTone, { bg: string; text: string }> = {
+export const NAVY_TONES: Record<NavyStatTone, { bg: string; text: string }> = {
   blue: { bg: 'bg-[#1877F2]', text: 'text-[#1877F2]' },
   green: { bg: 'bg-[#218653]', text: 'text-[#218653]' },
   orange: { bg: 'bg-[#E99A16]', text: 'text-[#E99A16]' },
@@ -22,6 +23,7 @@ export function NavyStatCard({
   sub,
   trend,
   tone,
+  className,
 }: {
   icon: LucideIcon;
   label: string;
@@ -31,10 +33,16 @@ export function NavyStatCard({
   /** Variação opcional face ao período anterior. */
   trend?: number | null;
   tone: NavyStatTone;
+  className?: string;
 }) {
-  const t = TONES[tone];
+  const t = NAVY_TONES[tone];
   return (
-    <div className="relative h-[155px] overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
+    <div
+      className={cn(
+        'relative h-[155px] overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100',
+        className,
+      )}
+    >
       <div className="flex h-[60px] items-center bg-[#152F59] pl-[86px] pr-3">
         <h3 className="break-words font-body text-[15px] font-semibold leading-tight text-white">
           {label}

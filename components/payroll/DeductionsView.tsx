@@ -54,7 +54,7 @@ export function DeductionsView() {
 
       {data && data.employees > 0 && (
         <div className="space-y-8">
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
             <KpiCard
               label="Base contributiva INSS"
               value={fmtKz(data.inss.contributoryBase)}

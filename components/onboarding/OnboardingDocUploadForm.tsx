@@ -4,18 +4,20 @@
 // pode submeter para o seu próprio plano — POST /onboarding/documents
 // (UploadDocumentDto: planId, documentType, fileUrl, notes?).
 //
-// `fileUrl` é validado no backend por @IsAllowedFileUrl: tem de ser uma
-// URL **HTTPS** (e, se ALLOWED_FILE_HOST estiver definido, de um domínio
-// autorizado). Não aceita ficheiros/base64 — é um link para o documento
-// (OneDrive, Google Drive, etc.). O documento nasce em PENDING e o RH
-// valida-o no detalhe do plano.
+// `fileUrl` é validado no backend por @IsAllowedFileUrl: ou uma URL **HTTPS**
+// (e, se ALLOWED_FILE_HOST estiver definido, de um domínio autorizado —
+// OneDrive, Google Drive, etc.), ou um **PDF de até 3 MB** carregado aqui e
+// enviado como data URL base64 (mesmo padrão das lições PDF). O documento
+// nasce em PENDING e o RH valida-o no detalhe do plano.
 
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { useRef } from 'react';
+import { AlertCircle, FileText, Upload, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { fileToPdfDataUrl, pdfErrorMessage } from '@/lib/lessonPdf';
 import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
@@ -23,6 +25,9 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
+
+/** Limite do PDF carregado (alinhado com MAX_DOC_PDF_DATA_URL_LEN no backend). */
+const MAX_DOC_PDF_BYTES = 3 * 1024 * 1024;
 
 export interface OnboardingDocUploadFormProps {
   planId: number;
@@ -37,17 +42,23 @@ export function OnboardingDocUploadForm({
   const notify = useToast();
   const [documentType, setDocumentType] = useState('');
   const [fileUrl, setFileUrl] = useState('');
+  // PDF carregado (data URL) — alternativa ao link; tem prioridade.
+  const [pdf, setPdf] = useState<{ name: string; dataUrl: string } | null>(
+    null,
+  );
+  const fileInput = useRef<HTMLInputElement>(null);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
 
-  const canSubmit = documentType.trim().length > 0 && fileUrl.trim().length > 0;
+  const canSubmit =
+    documentType.trim().length > 0 && (!!pdf || fileUrl.trim().length > 0);
 
   const upload = useApiMutation(
     () =>
       apiClient.post('/onboarding/documents', {
         planId,
         documentType: documentType.trim(),
-        fileUrl: fileUrl.trim(),
+        fileUrl: pdf ? pdf.dataUrl : fileUrl.trim(),
         ...(notes.trim() ? { notes: notes.trim() } : {}),
       }),
     {
@@ -56,6 +67,7 @@ export function OnboardingDocUploadForm({
         notify({ title: 'Documento submetido', intent: 'success' });
         setDocumentType('');
         setFileUrl('');
+        setPdf(null);
         setNotes('');
         onUploaded();
       },
@@ -66,6 +78,21 @@ export function OnboardingDocUploadForm({
     },
   );
   const loading = upload.isPending;
+
+  const handlePickPdf = async (file: File | undefined) => {
+    if (!file) return;
+    setError('');
+    try {
+      setPdf({
+        name: file.name,
+        dataUrl: await fileToPdfDataUrl(file, MAX_DOC_PDF_BYTES),
+      });
+    } catch (e) {
+      setPdf(null);
+      setError(pdfErrorMessage(e, MAX_DOC_PDF_BYTES));
+    }
+    if (fileInput.current) fileInput.current.value = '';
+  };
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
@@ -102,7 +129,7 @@ export function OnboardingDocUploadForm({
           <FormField
             label="Link do documento *"
             htmlFor="od-url"
-            hint="URL HTTPS para o ficheiro (OneDrive, Google Drive, …)."
+            hint="URL HTTPS para o ficheiro (OneDrive, Google Drive, …) — ou carregue um PDF abaixo."
           >
             <Input
               id="od-url"
@@ -111,7 +138,50 @@ export function OnboardingDocUploadForm({
               onChange={(e) => setFileUrl(e.target.value)}
               placeholder="https://…"
               className="w-full"
+              disabled={!!pdf}
             />
+          </FormField>
+
+          <FormField
+            label="Ou carregar documento (PDF)"
+            htmlFor="od-pdf"
+            hint="Apenas PDF, máx. 3 MB."
+          >
+            <input
+              ref={fileInput}
+              id="od-pdf"
+              type="file"
+              accept="application/pdf,.pdf"
+              className="hidden"
+              onChange={(e) => handlePickPdf(e.target.files?.[0])}
+            />
+            {pdf ? (
+              <div className="flex items-center gap-2 rounded-card border border-border bg-surface-sunken px-3 py-2 text-sm text-ink">
+                <FileText
+                  size={16}
+                  strokeWidth={1.75}
+                  className="shrink-0 text-ink-muted"
+                />
+                <span className="min-w-0 flex-1 truncate">{pdf.name}</span>
+                <button
+                  type="button"
+                  aria-label="Remover PDF"
+                  onClick={() => setPdf(null)}
+                  className="rounded-control p-1 text-ink-muted hover:bg-surface hover:text-ink"
+                >
+                  <X size={14} strokeWidth={1.75} />
+                </button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                intent="secondary"
+                onClick={() => fileInput.current?.click()}
+              >
+                <Upload size={14} strokeWidth={1.75} />
+                Carregar PDF
+              </Button>
+            )}
           </FormField>
 
           <FormField label="Notas" htmlFor="od-notes">

@@ -44,7 +44,7 @@ export function SuccessionTab() {
       ) : (
         dashboard && (
           <>
-            <div className="flex flex-wrap gap-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
               <KpiCard
                 icon={Target}
                 label="Posições críticas"
