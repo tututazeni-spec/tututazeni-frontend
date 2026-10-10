@@ -1,7 +1,8 @@
 // components/ui/NavyStatGroupCard.tsx
 // Card único com cabeçalho azul-marinho (mesmo desenho do NavyStatCard) e,
 // por baixo, N divisões lado a lado — uma por item (ícone circular + número
-// centralizado + rótulo). Usado para distribuições por estado.
+// centralizado + rótulo; zoom ao passar o cursor). Usado para distribuições
+// por estado.
 
 import type { LucideIcon } from 'lucide-react';
 import { NAVY_TONES, type NavyStatTone } from '@/components/ui/NavyStatCard';
@@ -34,22 +35,25 @@ export function NavyStatGroupCard({
           return (
             <div
               key={key}
-              className="flex flex-col items-center justify-center gap-1.5 px-3 py-5 text-center"
+              className="flex items-center justify-center px-3 py-5"
             >
-              <span
-                aria-hidden
-                className={`flex h-11 w-11 items-center justify-center rounded-full text-white ${t.bg}`}
-              >
-                <Icon size={22} strokeWidth={1.75} />
-              </span>
-              <p
-                className={`font-display text-[32px] font-bold leading-none ${t.text}`}
-              >
-                {value}
-              </p>
-              <p className="font-body text-xs font-medium text-ink-muted">
-                {label}
-              </p>
+              {/* Zoom no conteúdo (não na divisão) para o overflow-hidden do card não o cortar */}
+              <div className="flex origin-center flex-col items-center gap-1.5 text-center transition-transform duration-200 ease-out hover:scale-110 motion-reduce:hover:scale-100">
+                <span
+                  aria-hidden
+                  className={`flex h-11 w-11 items-center justify-center rounded-full text-white ${t.bg}`}
+                >
+                  <Icon size={22} strokeWidth={1.75} />
+                </span>
+                <p
+                  className={`font-display text-[32px] font-bold leading-none ${t.text}`}
+                >
+                  {value}
+                </p>
+                <p className="font-body text-xs font-medium text-ink-muted">
+                  {label}
+                </p>
+              </div>
             </div>
           );
         })}
