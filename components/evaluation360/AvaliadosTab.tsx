@@ -12,6 +12,7 @@
 
 'use client';
 
+import { FilterPanelCard } from './FilterPanelCard';
 import { useEffect, useState } from 'react';
 import type { CycleParticipantRow } from './types';
 import { participantStatusLabel } from './colors';
@@ -80,7 +81,7 @@ export function AvaliadosTab() {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-3 items-end">
+      <FilterPanelCard>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Ciclo</div>
           <Select
@@ -111,10 +112,13 @@ export function AvaliadosTab() {
             onValueChange={setDepartmentId}
           />
         </div>
-      </div>
+      </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+            Avaliados
+          </h3>
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
@@ -122,16 +126,19 @@ export function AvaliadosTab() {
         <div className="text-sm text-ink-muted">A carregar…</div>
       )}
       {cycleId && !isLoading && rows.length === 0 && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+            Avaliados
+          </h3>
           Nenhum avaliado encontrado com estes filtros.
         </div>
       )}
 
       {rows.length > 0 && (
-        <div className="rounded-xl border border-border bg-surface overflow-x-auto">
+        <div className="rounded-card border border-border bg-surface overflow-x-auto">
           <table className="w-full text-sm border-collapse min-w-[1000px]">
             <thead>
-              <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wider text-ink-muted">
+              <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Colaborador</th>
                 <th className="px-4 py-3">Cargo</th>
                 <th className="px-4 py-3">Departamento</th>

@@ -13,6 +13,22 @@
 
 'use client';
 
+import {
+  Activity,
+  CheckCircle2,
+  ClipboardList,
+  FileEdit,
+  Layers,
+  Lock,
+  MailCheck,
+  Percent,
+  Send,
+  Star,
+  Target,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
+import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -44,17 +60,18 @@ interface RawOverview {
   }[];
 }
 
-function Stat({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-      <div className="text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
-        {label}
-      </div>
-      <div className="text-2xl font-bold leading-tight tracking-tighter text-ink">
-        {value}
-      </div>
-    </div>
-  );
+function Stat({
+  label,
+  value,
+  icon,
+  tone,
+}: {
+  label: string;
+  value: string | number;
+  icon: LucideIcon;
+  tone: NavyStatTone;
+}) {
+  return <NavyStatCard icon={icon} tone={tone} label={label} value={value} />;
 }
 
 export function OverviewAdminTab() {
@@ -71,7 +88,7 @@ export function OverviewAdminTab() {
   }
   if (!data) {
     return (
-      <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+      <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
         Ainda sem dados de avaliação 360º.
       </div>
     );
@@ -88,46 +105,89 @@ export function OverviewAdminTab() {
       </div>
 
       {/* Estado das avaliações */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <Stat label="Total" value={data.totalCycles} />
-        <Stat label="Em preparação" value={data.inPreparation} />
-        <Stat label="Abertas" value={data.open} />
-        <Stat label="Em preenchimento" value={data.inProgress} />
-        <Stat label="Concluídas" value={data.completed} />
-        <Stat label="Encerradas" value={data.closed} />
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+        <Stat
+          label="Total"
+          value={data.totalCycles}
+          icon={Layers}
+          tone="blue"
+        />
+        <Stat
+          label="Em preparação"
+          value={data.inPreparation}
+          icon={FileEdit}
+          tone="orange"
+        />
+        <Stat label="Abertas" value={data.open} icon={Send} tone="blue" />
+        <Stat
+          label="Em preenchimento"
+          value={data.inProgress}
+          icon={Activity}
+          tone="orange"
+        />
+        <Stat
+          label="Concluídas"
+          value={data.completed}
+          icon={CheckCircle2}
+          tone="green"
+        />
+        <Stat label="Encerradas" value={data.closed} icon={Lock} tone="red" />
       </div>
 
       {/* Participação */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <Stat label="Colaboradores avaliados" value={data.evaluatedCount} />
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <Stat
+          label="Colaboradores avaliados"
+          value={data.evaluatedCount}
+          icon={Users}
+          tone="blue"
+        />
         <Stat
           label="Avaliadores convidados"
           value={data.invitedEvaluatorsCount}
+          icon={Send}
+          tone="blue"
         />
         <Stat
           label="Avaliadores que responderam"
           value={data.respondedEvaluatorsCount}
+          icon={MailCheck}
+          tone="green"
         />
-        <Stat label="Avaliações pendentes" value={data.pendingAssignments} />
+        <Stat
+          label="Avaliações pendentes"
+          value={data.pendingAssignments}
+          icon={ClipboardList}
+          tone="red"
+        />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <Stat
           label="Taxa de participação"
           value={`${data.participationRate}%`}
+          icon={Percent}
+          tone="blue"
         />
-        <Stat label="Taxa de conclusão" value={`${data.completionRate}%`} />
+        <Stat
+          label="Taxa de conclusão"
+          value={`${data.completionRate}%`}
+          icon={Target}
+          tone="green"
+        />
         <Stat
           label="Média global"
           value={data.avgOverall > 0 ? data.avgOverall.toFixed(1) : '—'}
+          icon={Star}
+          tone="orange"
         />
       </div>
 
       {/* Média por competência (docs/evaluation360.md §1) — todas, não só top/bottom */}
-      <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-        <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
+      <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+        <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
           Média por competência
-        </div>
+        </h3>
         {data.competencyAverages.length === 0 && (
           <div className="text-sm text-ink-muted">
             Sem dados suficientes ainda.
@@ -161,10 +221,10 @@ export function OverviewAdminTab() {
 
       {/* Competências */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-          <div className="text-xs font-bold text-success-ink uppercase tracking-wider mb-3.5">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Competências com maior pontuação
-          </div>
+          </h3>
           {data.topCompetencies.length === 0 && (
             <div className="text-sm text-ink-muted">
               Sem dados suficientes ainda.
@@ -185,10 +245,10 @@ export function OverviewAdminTab() {
             </div>
           ))}
         </div>
-        <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-          <div className="text-xs font-bold text-danger-ink uppercase tracking-wider mb-3.5">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Competências com menor pontuação
-          </div>
+          </h3>
           {data.bottomCompetencies.length === 0 && (
             <div className="text-sm text-ink-muted">
               Sem dados suficientes ainda.
@@ -213,10 +273,10 @@ export function OverviewAdminTab() {
 
       {/* Prazos e últimas avaliações */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-          <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Avaliações próximas do prazo (7 dias)
-          </div>
+          </h3>
           {data.upcomingDeadline.length === 0 && (
             <div className="text-sm text-ink-muted">
               Nenhuma avaliação a terminar em breve.
@@ -234,10 +294,10 @@ export function OverviewAdminTab() {
             </div>
           ))}
         </div>
-        <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
-          <div className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3.5">
+        <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Últimas avaliações realizadas
-          </div>
+          </h3>
           {data.recentCompleted.length === 0 && (
             <div className="text-sm text-ink-muted">
               Ainda nenhuma avaliação concluída.

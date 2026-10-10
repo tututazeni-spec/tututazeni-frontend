@@ -23,6 +23,7 @@
 
 'use client';
 
+import { FilterPanelCard } from './FilterPanelCard';
 import { useEffect, useState } from 'react';
 import type { ContinuousFeedback, CycleFeedbackRow } from './types';
 import { timeAgo, evaluatorRoleLabel } from './colors';
@@ -66,7 +67,10 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
           </Button>
         </div>
         {feedbacks.length === 0 && (
-          <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+          <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
+            <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+              Feedback
+            </h3>
             Ainda sem feedback contínuo.
           </div>
         )}
@@ -170,7 +174,7 @@ function CycleFeedbackSection() {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-3 items-end">
+      <FilterPanelCard>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Ciclo</div>
           <Select
@@ -191,10 +195,13 @@ function CycleFeedbackSection() {
             onValueChange={setEvaluatorRole}
           />
         </div>
-      </div>
+      </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+            Feedback
+          </h3>
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
@@ -202,7 +209,10 @@ function CycleFeedbackSection() {
         <div className="text-sm text-ink-muted">A carregar…</div>
       )}
       {cycleId && !isLoading && rows.length === 0 && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+            Feedback
+          </h3>
           Ainda sem feedback submetido para este ciclo.
         </div>
       )}
@@ -214,7 +224,7 @@ function CycleFeedbackSection() {
             return (
               <div
                 key={`${r.evaluateeId}-${i}`}
-                className="rounded-lg border border-border bg-surface p-4"
+                className="rounded-card border border-border bg-surface p-4"
               >
                 <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
                   <div className="flex flex-wrap items-center gap-2">
