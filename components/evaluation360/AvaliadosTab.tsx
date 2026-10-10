@@ -12,6 +12,7 @@
 
 'use client';
 
+import { FilterPanelCard } from './FilterPanelCard';
 import { useEffect, useState } from 'react';
 import type { CycleParticipantRow } from './types';
 import { participantStatusLabel } from './colors';
@@ -80,7 +81,7 @@ export function AvaliadosTab() {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-3 items-end">
+      <FilterPanelCard>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Ciclo</div>
           <Select
@@ -111,7 +112,7 @@ export function AvaliadosTab() {
             onValueChange={setDepartmentId}
           />
         </div>
-      </div>
+      </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
         <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">

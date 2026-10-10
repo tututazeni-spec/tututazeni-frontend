@@ -13,6 +13,7 @@
 
 'use client';
 
+import { FilterPanelCard } from './FilterPanelCard';
 import { useEffect, useState } from 'react';
 import type { CompetencyScore, CycleResultRow } from './types';
 import { typeColor, typeLabel } from './colors';
@@ -241,16 +242,18 @@ function CycleResultsMatrix() {
         </p>
       </div>
 
-      <div>
-        <div className="text-xs font-semibold text-ink-muted mb-1">Ciclo</div>
-        <Select
-          items={cycleOptions}
-          value={cycleId || undefined}
-          onValueChange={setCycleId}
-          placeholder={cyclesLoading ? 'A carregar…' : 'Escolher ciclo'}
-          className="min-w-[220px]"
-        />
-      </div>
+      <FilterPanelCard>
+        <div>
+          <div className="text-xs font-semibold text-ink-muted mb-1">Ciclo</div>
+          <Select
+            items={cycleOptions}
+            value={cycleId || undefined}
+            onValueChange={setCycleId}
+            placeholder={cyclesLoading ? 'A carregar…' : 'Escolher ciclo'}
+            className="min-w-[220px]"
+          />
+        </div>
+      </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
         <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">

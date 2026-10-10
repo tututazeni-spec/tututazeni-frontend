@@ -13,6 +13,7 @@
 
 'use client';
 
+import { FilterPanelCard } from './FilterPanelCard';
 import { useEffect, useState } from 'react';
 import type { CycleEvolutionPoint, CycleReportData } from './types';
 import { evaluatorRoleLabel, scoreColor, cycleStatusText } from './colors';
@@ -202,7 +203,7 @@ export function RelatoriosTab() {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-3 items-end">
+      <FilterPanelCard>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Ciclo</div>
           <Select
@@ -251,7 +252,7 @@ export function RelatoriosTab() {
             onValueChange={setEvaluatorRole}
           />
         </div>
-      </div>
+      </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
         <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
@@ -589,7 +590,7 @@ function CycleEvolutionSection({
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <FilterPanelCard className="flex flex-wrap gap-2">
         {cycles.map((c) => (
           <button
             key={c.id}
@@ -604,7 +605,7 @@ function CycleEvolutionSection({
             {c.name}
           </button>
         ))}
-      </div>
+      </FilterPanelCard>
 
       {isLoading && <div className="text-sm text-ink-muted">A carregar…</div>}
       {!isLoading && points.length === 0 && (

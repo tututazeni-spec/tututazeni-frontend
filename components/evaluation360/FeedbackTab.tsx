@@ -23,6 +23,7 @@
 
 'use client';
 
+import { FilterPanelCard } from './FilterPanelCard';
 import { useEffect, useState } from 'react';
 import type { ContinuousFeedback, CycleFeedbackRow } from './types';
 import { timeAgo, evaluatorRoleLabel } from './colors';
@@ -173,7 +174,7 @@ function CycleFeedbackSection() {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-3 items-end">
+      <FilterPanelCard>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Ciclo</div>
           <Select
@@ -194,7 +195,7 @@ function CycleFeedbackSection() {
             onValueChange={setEvaluatorRole}
           />
         </div>
-      </div>
+      </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
         <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
