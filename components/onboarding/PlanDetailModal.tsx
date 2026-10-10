@@ -232,6 +232,7 @@ export function PlanDetailModal({
       <ModalContent
         title={data ? data.user.fullName : 'Plano de integração'}
         description={data ? data.template.name : undefined}
+        navyBanner
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
       >
         {isLoading ? (
@@ -287,9 +288,9 @@ export function PlanDetailModal({
               {team.map(({ label, person }) => (
                 <div
                   key={label}
-                  className="rounded-card border border-border bg-surface p-3 text-center"
+                  className="rounded-card bg-[#0F1F3D] p-3 text-center text-white"
                 >
-                  <div className="mb-2 font-body text-xs text-ink-faint">
+                  <div className="mb-2 font-body text-xs text-white">
                     {label}
                   </div>
                   {person ? (
@@ -299,7 +300,7 @@ export function PlanDetailModal({
                         url={person.avatarUrl ?? undefined}
                         size="md"
                       />
-                      <div className="font-body text-xs font-medium text-ink">
+                      <div className="font-body text-xs font-medium text-white">
                         {person.fullName}
                       </div>
                       {person.email && (
@@ -307,14 +308,14 @@ export function PlanDetailModal({
                           href={`mailto:${person.email}?subject=${encodeURIComponent(
                             `Onboarding — ${data.user.fullName}`,
                           )}`}
-                          className="font-body text-xs text-primary hover:underline"
+                          className="font-body text-xs text-white underline-offset-2 hover:underline"
                         >
                           Enviar mensagem
                         </a>
                       )}
                     </div>
                   ) : (
-                    <div className="font-body text-xs text-ink-faint">
+                    <div className="font-body text-xs text-white">
                       Não atribuído
                     </div>
                   )}
