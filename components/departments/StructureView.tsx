@@ -91,8 +91,8 @@ function TreeRow({
         onClick={() => onPreview(node.id)}
         className={`flex w-full items-center gap-3 rounded-card border p-3 text-left transition-colors ${
           selectedId === node.id
-            ? 'border-primary bg-primary-subtle'
-            : 'border-border bg-surface hover:border-primary/50'
+            ? 'border-info bg-info/10'
+            : 'border-border bg-surface hover:border-info/50'
         }`}
         style={{ marginLeft: node.level * 24, marginBottom: 4 }}
       >
@@ -297,7 +297,7 @@ function PreviewPanel({
         <button
           type="button"
           onClick={() => onViewDetail(node.id)}
-          className="mt-4 flex h-16 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#078BFF] to-[#1247D8] text-base font-semibold text-white transition-opacity duration-200 hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0756D9] sm:h-20 sm:text-lg"
+          className="mt-4 flex h-16 w-full items-center justify-center gap-2 rounded-2xl bg-[#0F1F3D] text-base font-semibold text-white transition-opacity duration-200 hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F1F3D] sm:h-20 sm:text-lg"
         >
           Ver detalhe completo
           <ArrowRight size={20} strokeWidth={2} />
@@ -343,7 +343,7 @@ export function StructureView({ onSelect }: StructureViewProps) {
             onClick={() => setViz('tree')}
             className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
               viz === 'tree'
-                ? 'border-primary bg-primary/10 text-primary'
+                ? 'border-info bg-info/10 text-info'
                 : 'border-border bg-white text-ink-muted hover:text-ink'
             }`}
           >
@@ -355,7 +355,7 @@ export function StructureView({ onSelect }: StructureViewProps) {
             onClick={() => setViz('list')}
             className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
               viz === 'list'
-                ? 'border-primary bg-primary/10 text-primary'
+                ? 'border-info bg-info/10 text-info'
                 : 'border-border bg-white text-ink-muted hover:text-ink'
             }`}
           >
