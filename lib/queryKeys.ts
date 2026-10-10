@@ -1389,6 +1389,7 @@ export const queryKeys = {
     all: ['competency-map'] as const,
     my: () => [...queryKeys.competencyMap.all, 'my'] as const,
     myRadar: () => [...queryKeys.competencyMap.all, 'my', 'radar'] as const,
+    team: () => [...queryKeys.competencyMap.all, 'team'] as const,
     skills: (params: Record<string, unknown>) =>
       [...queryKeys.competencyMap.all, 'skills', params] as const,
   },
