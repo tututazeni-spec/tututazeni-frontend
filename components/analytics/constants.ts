@@ -77,7 +77,7 @@ export const TITLES: Record<View, string> = {
   learning: 'Analytics de Aprendizagem',
   people: 'People Analytics',
   pdi: 'Analytics de PDI',
-  competencies: 'Mapa de Gaps de Competências',
+  competencies: 'Mapa de Lacunas de Competências',
   engagement: 'Métricas de Engajamento',
   roi: 'ROI de Formação',
   courses: 'Performance de Cursos',
