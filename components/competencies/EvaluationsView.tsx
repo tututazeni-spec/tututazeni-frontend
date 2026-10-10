@@ -144,8 +144,8 @@ export function EvaluationsView() {
         />
       ) : (
         <Table>
-          <TableHead>
-            <TableRow>
+          <TableHead className="bg-[#0F1F3D]/60">
+            <TableRow className="hover:bg-transparent">
               {[
                 'Colaborador',
                 'Avaliador',
@@ -160,7 +160,9 @@ export function EvaluationsView() {
                 'Evidências',
                 'Próxima avaliação',
               ].map((h) => (
-                <TableHeaderCell key={h}>{h}</TableHeaderCell>
+                <TableHeaderCell key={h} className="text-white">
+                  {h}
+                </TableHeaderCell>
               ))}
             </TableRow>
           </TableHead>
