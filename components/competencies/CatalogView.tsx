@@ -190,7 +190,7 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
                     onSelect(comp.id);
                   }
                 }}
-                className="flex min-h-[168px] cursor-pointer flex-col rounded-2xl bg-gradient-to-br from-[#0B4DA2] to-[#0756B8] p-4 text-white shadow-resting transition-shadow duration-150 hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B4DA2]"
+                className="flex min-h-[168px] cursor-pointer flex-col rounded-2xl bg-[#0F1F3D] p-4 text-white shadow-resting transition-shadow duration-150 hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0F1F3D]"
               >
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-white/15">
