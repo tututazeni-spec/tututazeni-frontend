@@ -1,7 +1,7 @@
 // src/app/(dashboard)/departments/page.tsx
 'use client';
 
-// Container: gere a navegação (lista/organograma/detalhe/dashboard);
+// Container: gere a navegação (lista/detalhe/dashboard);
 // delega dados+apresentação de cada separador aos componentes
 // auto-contidos em components/departments/. Ver memory
 // project_innova_component_separation_audit.
@@ -23,7 +23,6 @@ import { ListView } from '@/components/departments/ListView';
 import { PositionsView } from '@/components/departments/PositionsView';
 import { ReportsView } from '@/components/departments/ReportsView';
 import { StructureView } from '@/components/departments/StructureView';
-import { TreeView } from '@/components/departments/TreeView';
 import type { Nav } from '@/components/departments/types';
 
 export default function DepartmentsPage() {
@@ -71,7 +70,6 @@ export default function DepartmentsPage() {
       {/* Views */}
       {nav.view === 'list' && <ListView onSelect={handleSelect} />}
       {nav.view === 'structure' && <StructureView onSelect={handleSelect} />}
-      {nav.view === 'tree' && <TreeView onSelect={handleSelect} />}
       {nav.view === 'heads' && <HeadsView />}
       {nav.view === 'employees' && <EmployeesView />}
       {nav.view === 'positions' && <PositionsView />}
