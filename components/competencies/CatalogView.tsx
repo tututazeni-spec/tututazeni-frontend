@@ -37,17 +37,17 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_CFG } from './constants';
 import type { Competency, CompetencyCategory } from './types';
 
-// Uma cor por competência (estável, pelo id), a 30% de opacidade. Classes
+// Uma cor por competência (estável, pelo id), a 50% de opacidade. Classes
 // literais para o Tailwind as detectar.
 const CARD_COLORS = [
-  'bg-[#0F1F3D]/30',
-  'bg-[#1E40AF]/30',
-  'bg-[#0F766E]/30',
-  'bg-[#6D28D9]/30',
-  'bg-[#B91C1C]/30',
-  'bg-[#B45309]/30',
-  'bg-[#BE185D]/30',
-  'bg-[#15803D]/30',
+  'bg-[#0F1F3D]/50',
+  'bg-[#1E40AF]/50',
+  'bg-[#0F766E]/50',
+  'bg-[#6D28D9]/50',
+  'bg-[#B91C1C]/50',
+  'bg-[#B45309]/50',
+  'bg-[#BE185D]/50',
+  'bg-[#15803D]/50',
 ];
 
 function cardColor(id: number): string {
