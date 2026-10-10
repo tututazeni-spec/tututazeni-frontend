@@ -66,7 +66,10 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
           </Button>
         </div>
         {feedbacks.length === 0 && (
-          <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
+          <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
+            <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+              Feedback
+            </h3>
             Ainda sem feedback contínuo.
           </div>
         )}
@@ -194,7 +197,10 @@ function CycleFeedbackSection() {
       </div>
 
       {!cycleId && !cyclesLoading && (
-        <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+            Feedback
+          </h3>
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
@@ -202,7 +208,10 @@ function CycleFeedbackSection() {
         <div className="text-sm text-ink-muted">A carregar…</div>
       )}
       {cycleId && !isLoading && rows.length === 0 && (
-        <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+            Feedback
+          </h3>
           Ainda sem feedback submetido para este ciclo.
         </div>
       )}
