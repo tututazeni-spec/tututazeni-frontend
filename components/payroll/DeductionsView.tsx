@@ -148,7 +148,7 @@ export function DeductionsView() {
           <h3 className={H3}>
             Regras fiscais {data.config.taxYear} ({data.config.countryCode})
           </h3>
-          <div className="rounded-card border border-border bg-surface p-4 font-body text-sm text-ink-muted">
+          <div className="rounded-[14px] border border-[#1E3A66] bg-[#071D3B] p-4 font-body text-sm text-white shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
             <p>
               INSS: trabalhador {pct(data.config.socialSecurity.employeeRate)} ·
               patronal {pct(data.config.socialSecurity.employerRate)}
@@ -157,7 +157,7 @@ export function DeductionsView() {
                 : ''}
               {' · '}Salário mínimo {fmtKz(data.config.minimumWage)}
             </p>
-            <ul className="mt-2 space-y-1">
+            <ul className="mt-3 space-y-1 border-t border-[#6F8FB8]/20 pt-3 text-[#CFE3FF]">
               {data.config.irtBrackets.map((b) => (
                 <li key={b.id}>
                   {fmtKz(b.min)} – {b.max == null ? '∞' : fmtKz(b.max)}: taxa{' '}
