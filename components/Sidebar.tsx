@@ -41,6 +41,8 @@ import {
   LogOut,
   Wallet,
   Handshake,
+  Crown,
+  Network,
   ShieldCheck,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
