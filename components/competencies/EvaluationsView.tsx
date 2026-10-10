@@ -41,10 +41,10 @@ import {
 import { UserFilterSearch } from './UserFilterSearch';
 import type { CompetencyEvaluation } from './types';
 
-const ALL = 'ALL';
+const ALL = '';
 
 const HIERARCHY_LEVEL_ITEMS = [
-  { value: ALL, label: 'Todos os níveis hierárquicos' },
+  { value: ALL, label: 'Nível hierárquico' },
   ...Object.entries(POSITION_LEVEL_CFG).map(([value, cfg]) => ({
     value,
     label: cfg.label,
@@ -52,7 +52,7 @@ const HIERARCHY_LEVEL_ITEMS = [
 ];
 
 const TYPE_ITEMS = [
-  { value: ALL, label: 'Todos os tipos' },
+  { value: ALL, label: 'Tipo' },
   ...Object.entries(EVALUATION_TYPE_LABELS).map(([value, label]) => ({
     value,
     label,
@@ -60,7 +60,7 @@ const TYPE_ITEMS = [
 ];
 
 const STATUS_ITEMS = [
-  { value: ALL, label: 'Todos os estados' },
+  { value: ALL, label: 'Estado' },
   ...Object.entries(EVALUATION_STATUS_CFG).map(([value, cfg]) => ({
     value,
     label: cfg.label,
@@ -90,34 +90,32 @@ export function EvaluationsView() {
     userId: user?.id,
   };
 
+  // Sem nenhum filtro seleccionado só se mostra o cabeçalho da tabela.
+  const hasFilter = Object.values(params).some((v) => v !== undefined);
+
   const { data: rows, isLoading: loading } = useApiQuery<
     CompetencyEvaluation[]
   >(queryKeys.competencies.evaluations(params), '/competencies/evaluations', {
     params,
     staleTime: STALE_TIME.DYNAMIC,
+    enabled: hasFilter,
   });
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
         <Select
-          items={[
-            { value: ALL, label: 'Todos os departamentos' },
-            ...departmentOptions,
-          ]}
+          items={[{ value: ALL, label: 'Departamento' }, ...departmentOptions]}
           value={departmentId}
           onValueChange={setDepartmentId}
         />
         <Select
-          items={[{ value: ALL, label: 'Todos os cargos' }, ...positionOptions]}
+          items={[{ value: ALL, label: 'Cargo' }, ...positionOptions]}
           value={positionId}
           onValueChange={setPositionId}
         />
         <Select
-          items={[
-            { value: ALL, label: 'Todas as competências' },
-            ...competencyOptions,
-          ]}
+          items={[{ value: ALL, label: 'Competência' }, ...competencyOptions]}
           value={competencyId}
           onValueChange={setCompetencyId}
         />
@@ -135,15 +133,15 @@ export function EvaluationsView() {
         />
       </div>
 
-      {loading ? (
+      {hasFilter && loading ? (
         <Skeleton rows={6} />
-      ) : !rows || rows.length === 0 ? (
+      ) : hasFilter && (!rows || rows.length === 0) ? (
         <EmptyState
           title="Sem avaliações"
           description="Nenhuma avaliação de competência corresponde aos filtros seleccionados."
         />
       ) : (
-        <Table>
+        <Table className="[&_td]:px-2 [&_td]:py-2 [&_th]:px-2 [&_th]:py-2 [&_th]:text-[10px]">
           <TableHead className="bg-[#0F1F3D]/60">
             <TableRow className="hover:bg-transparent">
               {[
@@ -151,14 +149,14 @@ export function EvaluationsView() {
                 'Avaliador',
                 'Competência',
                 'Tipo',
-                'Nível obtido',
-                'Nível esperado',
+                'Obtido',
+                'Esperado',
                 'Lacuna',
                 'Data',
                 'Estado',
                 'Comentários',
                 'Evidências',
-                'Próxima avaliação',
+                'Próxima',
               ].map((h) => (
                 <TableHeaderCell key={h} className="text-white">
                   {h}
@@ -167,7 +165,7 @@ export function EvaluationsView() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((r) => (
+            {(hasFilter ? (rows ?? []) : []).map((r) => (
               <TableRow key={r.id}>
                 <TableCell>
                   <div className="flex items-center gap-2">
@@ -222,13 +220,13 @@ export function EvaluationsView() {
                   <StatusBadge value={r.estado} map={EVALUATION_STATUS_CFG} />
                 </TableCell>
                 <TableCell
-                  className="max-w-[180px] truncate text-xs text-ink-muted"
+                  className="max-w-[110px] truncate text-xs text-ink-muted"
                   title={r.comentarios ?? ''}
                 >
                   {r.comentarios ?? '—'}
                 </TableCell>
                 <TableCell
-                  className="max-w-[140px] truncate text-xs text-ink-muted"
+                  className="max-w-[90px] truncate text-xs text-ink-muted"
                   title={r.evidencias ?? ''}
                 >
                   {r.evidencias ?? '—'}
