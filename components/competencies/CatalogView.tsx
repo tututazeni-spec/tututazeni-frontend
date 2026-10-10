@@ -240,7 +240,7 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
                     <span className={BADGE_CLS}>Estratégica</span>
                   )}
                 </div>
-                <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 font-body text-xs text-white/85">
+                <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 font-body text-xs text-white">
                   <span>{comp._count.courses} cursos</span>
                   <span>{comp._count.positions} cargos</span>
                 </div>
