@@ -12,7 +12,6 @@ import { API_URL as API_BASE } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate, formatKz as fmtKz } from '@/lib/format';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -105,9 +104,10 @@ export function ListView({ onSelect }: ListViewProps) {
       </div>
 
       {/* Tabela */}
-      <div className="overflow-hidden rounded-card border border-border bg-surface">
+      <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="min-w-[700px]">
         {/* Cabeçalho */}
-        <div className="grid grid-cols-[1fr_120px_160px_130px_100px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="grid grid-cols-[1fr_120px_160px_130px_100px] gap-3 bg-[#0B2D5B] px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
           <div>Período</div>
           <div>Pagamento</div>
           <div>Salário líquido</div>
@@ -120,43 +120,47 @@ export function ListView({ onSelect }: ListViewProps) {
             <Skeleton
               rows={5}
               wrapperClassName="space-y-2 animate-pulse"
-              itemClassName="h-12 rounded-card bg-surface-sunken"
+              itemClassName="h-12 rounded-card bg-white/10"
             />
           </div>
         )}
 
         {error && (
-          <div className="px-4 py-8 text-center font-body text-sm text-danger">
+          <div className="px-4 py-8 text-center font-body text-sm text-[#FFB4B4]">
             {error}
           </div>
         )}
 
         {!loading && !error && data?.data.length === 0 && (
-          <EmptyState
-            title="Sem recibos"
-            description={`Não há recibos disponíveis para ${year}.`}
-          />
+          <div className="px-4 py-10 text-center">
+            <div className="font-body text-sm font-semibold text-white">
+              Sem recibos
+            </div>
+            <div className="mt-1 font-body text-xs text-[#9DB4D3]">
+              {`Não há recibos disponíveis para ${year}.`}
+            </div>
+          </div>
         )}
 
         {!loading &&
           data?.data.map((p) => (
             <div
               key={p.id}
-              className="grid cursor-pointer grid-cols-[1fr_120px_160px_130px_100px] items-center gap-3 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken"
+              className="grid cursor-pointer grid-cols-[1fr_120px_160px_130px_100px] items-center gap-3 border-b border-[#6F8FB8]/20 px-4 py-3.5 text-white transition-colors duration-150 last:border-0 hover:bg-white/5"
               onClick={() => onSelect(p.id)}
             >
               <div>
-                <div className="font-body text-sm font-medium text-ink">
+                <div className="font-body text-sm font-semibold text-white">
                   {fmtPeriod(p.period)}
                 </div>
-                <div className="mt-0.5 font-mono text-xs text-ink-faint">
+                <div className="mt-0.5 font-mono text-xs text-[#9DB4D3]">
                   {p.receiptCode}
                 </div>
               </div>
-              <div className="font-body text-sm text-ink-muted">
+              <div className="font-body text-sm text-[#CFE3FF]">
                 {fmtDate(p.paymentDate)}
               </div>
-              <div className="font-mono text-sm font-semibold text-ink">
+              <div className="font-mono text-sm font-semibold text-white">
                 {fmtKz(p.netSalary)}
               </div>
               <div>
@@ -172,6 +176,7 @@ export function ListView({ onSelect }: ListViewProps) {
                   label="Ver detalhe"
                   intent="ghost"
                   size="sm"
+                  className="text-white hover:bg-white/10"
                   onClick={() => onSelect(p.id)}
                 />
                 <IconButton
@@ -179,6 +184,7 @@ export function ListView({ onSelect }: ListViewProps) {
                   label="Descarregar PDF"
                   intent="ghost"
                   size="sm"
+                  className="text-white hover:bg-white/10"
                   onClick={() =>
                     window.open(`${API_BASE}/payslips/my/${p.id}/pdf`, '_blank')
                   }
@@ -186,6 +192,7 @@ export function ListView({ onSelect }: ListViewProps) {
               </div>
             </div>
           ))}
+        </div>
       </div>
 
       {/* Paginação */}
