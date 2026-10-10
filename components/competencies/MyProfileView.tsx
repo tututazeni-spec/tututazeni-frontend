@@ -239,7 +239,7 @@ export function MyProfileView() {
                             </Badge>
                           )}
                           {(uc.gap ?? 0) > 0 && (
-                            <Badge intent="warning">Gap: {uc.gap}</Badge>
+                            <Badge intent="warning">Lacuna: {uc.gap}</Badge>
                           )}
                         </div>
                         <LevelBar

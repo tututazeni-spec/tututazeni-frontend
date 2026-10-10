@@ -141,8 +141,8 @@ export function GapsView() {
         <Skeleton rows={6} />
       ) : !rows || rows.length === 0 ? (
         <EmptyState
-          title="Sem gaps"
-          description="Nenhum gap de competência corresponde aos filtros seleccionados."
+          title="Sem lacunas"
+          description="Nenhuma lacuna de competência corresponde aos filtros seleccionados."
         />
       ) : (
         <Table>
@@ -153,7 +153,7 @@ export function GapsView() {
                 'Competência',
                 'Nível atual',
                 'Nível esperado',
-                'Gap',
+                'Lacuna',
                 'Prioridade',
                 'Crítica',
                 'Impacto',
