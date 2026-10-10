@@ -17,7 +17,6 @@ import {
   UserCheck,
   UserX,
   Users,
-  Building2,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -311,21 +310,8 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       <Card className="mb-5 p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div
-              className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-card text-xl"
-              style={{
-                background: dept.color
-                  ? `${dept.color}20`
-                  : 'var(--color-surface-sunken)',
-              }}
-            >
-              {dept.icon ?? <Building2 size={20} strokeWidth={1.75} />}
-            </div>
             <div>
               <div className="mb-1 flex flex-wrap items-center gap-2">
-                <span className="font-mono text-sm text-ink-faint">
-                  {dept.code}
-                </span>
                 <Badge intent={dept.active ? 'success' : 'neutral'}>
                   {dept.active ? 'Activo' : 'Inactivo'}
                 </Badge>
