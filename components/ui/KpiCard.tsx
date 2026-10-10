@@ -33,7 +33,6 @@ export function KpiCard({
   value,
   sub,
   trend,
-  intent = 'primary',
   className,
 }: KpiCardProps) {
   return (
