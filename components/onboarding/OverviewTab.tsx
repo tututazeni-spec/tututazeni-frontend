@@ -51,37 +51,39 @@ function RankedList({
   const sorted = [...rows].sort((a, b) => b[1] - a[1]).slice(0, 6);
   const max = Math.max(...sorted.map(([, n]) => n), 1);
   return (
-    <div className="rounded-card border border-border bg-surface p-4">
-      <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+    <div className="overflow-hidden rounded-card border border-border bg-surface">
+      <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
         {title}
       </div>
-      {sorted.length === 0 ? (
-        <p className="py-4 text-center font-body text-sm text-ink-faint">
-          Sem dados
-        </p>
-      ) : (
-        <div className="space-y-2">
-          {sorted.map(([label, count]) => (
-            <div key={label} className="flex items-center gap-3">
-              <span
-                className="w-28 shrink-0 truncate font-body text-xs text-ink-muted"
-                title={label}
-              >
-                {label}
-              </span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${Math.round((count / max) * 100)}%` }}
-                />
+      <div className="p-4">
+        {sorted.length === 0 ? (
+          <p className="py-4 text-center font-body text-sm text-ink-faint">
+            Sem dados
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {sorted.map(([label, count]) => (
+              <div key={label} className="flex items-center gap-3">
+                <span
+                  className="w-28 shrink-0 truncate font-body text-xs text-ink-muted"
+                  title={label}
+                >
+                  {label}
+                </span>
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
+                  <div
+                    className="h-full rounded-full bg-primary"
+                    style={{ width: `${Math.round((count / max) * 100)}%` }}
+                  />
+                </div>
+                <span className="w-6 text-right font-mono text-xs text-ink-faint">
+                  {count}
+                </span>
               </div>
-              <span className="w-6 text-right font-mono text-xs text-ink-faint">
-                {count}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -193,7 +195,7 @@ export function OverviewTab({
       <div className="grid grid-cols-2 gap-4">
         {/* Próximas entradas */}
         <div className="bg-surface border border-border rounded-card overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
             Próximas entradas
           </div>
           {upcomingStarts.length === 0 ? (
@@ -231,7 +233,7 @@ export function OverviewTab({
 
         {/* Colaboradores activos */}
         <div className="bg-surface border border-border rounded-card overflow-hidden">
-          <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
             Processos de Integração activos
           </div>
           {active.map((plan) => (
