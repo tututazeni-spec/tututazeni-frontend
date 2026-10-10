@@ -37,6 +37,23 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_CFG } from './constants';
 import type { Competency, CompetencyCategory } from './types';
 
+// Uma cor por competência (estável, pelo id), a 60% de opacidade. Classes
+// literais para o Tailwind as detectar.
+const CARD_COLORS = [
+  'bg-[#0F1F3D]/60',
+  'bg-[#1E40AF]/60',
+  'bg-[#0F766E]/60',
+  'bg-[#6D28D9]/60',
+  'bg-[#B91C1C]/60',
+  'bg-[#B45309]/60',
+  'bg-[#BE185D]/60',
+  'bg-[#15803D]/60',
+];
+
+function cardColor(id: number): string {
+  return CARD_COLORS[Math.abs(id) % CARD_COLORS.length];
+}
+
 const BADGE_CLS =
   'rounded-md bg-white/20 px-2 py-0.5 font-body text-xs font-medium text-white';
 
@@ -190,7 +207,7 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
                     onSelect(comp.id);
                   }
                 }}
-                className="flex min-h-[168px] cursor-pointer flex-col rounded-2xl bg-[#0F1F3D] p-4 text-white shadow-resting transition-shadow duration-150 hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0F1F3D]"
+                className={`flex min-h-[168px] cursor-pointer flex-col rounded-2xl ${cardColor(comp.id)} p-4 text-white shadow-resting transition-shadow duration-150 hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2`}
               >
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-white/15">
