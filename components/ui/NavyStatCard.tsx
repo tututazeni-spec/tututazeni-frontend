@@ -52,9 +52,9 @@ export function NavyStatCard({
         className,
       )}
     >
-      <div className="flex min-h-[60px] shrink-0 items-center bg-[#152F59] py-2 pl-[86px] pr-3">
+      <div className="flex min-h-[60px] shrink-0 items-center bg-[#152F59] py-2 pl-[80px] pr-2">
         <h3
-          className={`break-words font-body font-semibold leading-tight text-white ${label.length > 24 ? 'text-[13px]' : 'text-[15px]'}`}
+          className={`min-w-0 break-words font-body font-semibold leading-tight text-white ${label.length > 24 ? 'text-[12px]' : label.length > 10 ? 'text-[13px]' : 'text-[15px]'}`}
         >
           {label}
         </h3>
@@ -79,7 +79,7 @@ export function NavyStatCard({
           )}
         </p>
         {sub && (
-          <p className="mt-1.5 line-clamp-2 font-body text-xs leading-tight text-ink-faint">
+          <p className="mt-1.5 break-words font-body text-xs leading-tight text-ink-faint">
             {sub}
           </p>
         )}
