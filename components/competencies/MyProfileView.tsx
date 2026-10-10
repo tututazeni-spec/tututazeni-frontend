@@ -474,7 +474,7 @@ export function MyProfileView() {
       <TabsContent value="evolution">
         <Table>
           <TableHead className="bg-[#0F1F3D]/60">
-            <TableRow>
+            <TableRow className="hover:bg-transparent">
               <TableHeaderCell className="text-white">
                 Competência
               </TableHeaderCell>
