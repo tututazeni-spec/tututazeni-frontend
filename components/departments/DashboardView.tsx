@@ -14,6 +14,22 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { ComparativeRow } from './types';
 
+/** Uma cor por departamento (atribuída por posição; repete só após esgotar a paleta). */
+const DEPT_COLORS = [
+  '#2563EB',
+  '#16A34A',
+  '#F59E0B',
+  '#DC2626',
+  '#7C3AED',
+  '#0891B2',
+  '#DB2777',
+  '#65A30D',
+  '#EA580C',
+  '#4F46E5',
+  '#0D9488',
+  '#B45309',
+];
+
 interface DashboardViewProps {
   onSelect: (id: number) => void;
 }
@@ -54,15 +70,15 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
       </div>
 
       {/* Distribution chart */}
-      <div className="rounded-card border border-border bg-surface p-5">
-        <div className="mb-4 text-xs font-medium uppercase tracking-wide text-ink-faint">
+      <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Distribuição de colaboradores
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 p-5">
           {rows
             .filter((r) => r.active)
             .sort((a, b) => b.totalMembers - a.totalMembers)
-            .map((r) => {
+            .map((r, i) => {
               const pct = Math.round((r.totalMembers / maxMembers) * 100);
               return (
                 <div
@@ -75,6 +91,7 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
                   </div>
                   <ProgressBar
                     value={pct}
+                    color={DEPT_COLORS[i % DEPT_COLORS.length]}
                     className="h-6 flex-1 rounded-control"
                   />
                   <div className="w-20 text-right font-mono text-xs text-ink-muted">
