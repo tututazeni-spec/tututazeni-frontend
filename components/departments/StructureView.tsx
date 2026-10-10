@@ -8,15 +8,26 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, List, Network } from 'lucide-react';
+import { useMemo, useState, type ReactNode } from 'react';
+import {
+  ArrowRight,
+  Briefcase,
+  ChevronDown,
+  ChevronRight,
+  GitBranch,
+  GraduationCap,
+  List,
+  Network,
+  User,
+  Users,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
   Table,
@@ -146,6 +157,69 @@ function TreeRow({
   );
 }
 
+function HeaderIllustration() {
+  return (
+    <svg
+      viewBox="0 0 160 130"
+      className="h-full w-full"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <defs>
+        <linearGradient id="dept-book-a" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#3FA2FF" />
+          <stop offset="1" stopColor="#0756D9" />
+        </linearGradient>
+        <linearGradient id="dept-cap-a" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#5BB4FF" />
+          <stop offset="1" stopColor="#0A63E8" />
+        </linearGradient>
+      </defs>
+      {/* livros */}
+      <rect x="22" y="96" width="116" height="20" rx="4" fill="#0A3C9E" />
+      <rect x="22" y="96" width="116" height="6" rx="3" fill="#EAF3FF" opacity="0.85" />
+      <rect x="32" y="74" width="96" height="20" rx="4" fill="url(#dept-book-a)" />
+      <rect x="32" y="74" width="96" height="6" rx="3" fill="#EAF3FF" opacity="0.85" />
+      <rect x="42" y="54" width="76" height="18" rx="4" fill="#0756D9" />
+      <rect x="42" y="54" width="76" height="5" rx="2.5" fill="#EAF3FF" opacity="0.85" />
+      {/* capelo */}
+      <path d="M52 34v14c0 7 12 12 28 12s28-5 28-12V34z" fill="#0756D9" />
+      <path d="M80 8 20 30l60 22 60-22z" fill="url(#dept-cap-a)" />
+      <path d="M80 8 20 30l60 22V8z" fill="#fff" opacity="0.12" />
+      <path d="M130 33v24" stroke="#EAF3FF" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="130" cy="60" r="4" fill="#078BFF" />
+    </svg>
+  );
+}
+
+const PREVIEW_FIELD_ICON = 'h-[18px] w-[18px]';
+
+function PreviewField({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: LucideIcon;
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-3 border-b border-[#EAF3FF] py-3 last:border-b-0">
+      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#EAF3FF] text-[#0F1F3D]">
+        <Icon className={PREVIEW_FIELD_ICON} strokeWidth={1.75} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <dt className="text-xs font-medium uppercase tracking-wide text-[#7186A8]">
+          {label}
+        </dt>
+        <dd className="mt-0.5 break-words text-base font-semibold text-[#0F1F3D]">
+          {children}
+        </dd>
+      </div>
+    </div>
+  );
+}
+
 function PreviewPanel({
   node,
   onViewDetail,
@@ -157,25 +231,42 @@ function PreviewPanel({
 }) {
   const descendants = countDescendants(node);
   return (
-    <Card className="sticky top-4 p-4">
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <div>
-          <div className="text-sm font-semibold text-ink">{node.name}</div>
-          <div className="font-mono text-xs text-ink-faint">{node.code}</div>
-        </div>
+    <aside
+      aria-label={`Resumo de ${node.name}`}
+      className="sticky top-4 self-start overflow-hidden rounded-[24px] border border-[#D6E6FB] bg-[#EAF3FF] shadow-[0_8px_24px_rgba(15,31,61,0.10)]"
+    >
+      <div className="relative h-44 overflow-hidden bg-gradient-to-br from-[#0F1F3D] to-[#0756D9] px-5 pt-5 sm:h-52">
+        <span className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#078BFF]/20" />
+        <span className="pointer-events-none absolute -bottom-12 left-1/3 h-32 w-32 rotate-45 rounded-3xl bg-white/5" />
         <button
           type="button"
           onClick={onClose}
-          className="text-xs text-ink-faint hover:text-ink"
+          aria-label="Fechar"
+          className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
         >
-          Fechar
+          <X size={16} strokeWidth={1.75} />
         </button>
+        <div className="relative flex items-center gap-3 pr-8">
+          <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#078BFF] text-white">
+            <GraduationCap size={24} strokeWidth={1.75} />
+          </span>
+          <div className="min-w-0">
+            <div className="break-words text-xl font-bold leading-tight text-white">
+              {node.name}
+            </div>
+            <div className="mt-0.5 font-mono text-sm tracking-wider text-[#BFDBFF]">
+              {node.code}
+            </div>
+          </div>
+        </div>
+        <div className="absolute -bottom-2 right-2 h-28 w-36 sm:h-32 sm:w-40">
+          <HeaderIllustration />
+        </div>
       </div>
 
-      <dl className="space-y-3 text-sm">
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-ink-faint">Responsável</dt>
-          <dd className="mt-1 text-ink">
+      <div className="relative -mt-5 rounded-t-[24px] bg-white px-5 pb-5 pt-2">
+        <dl>
+          <PreviewField icon={User} label="Responsável">
             {node.head ? (
               <span className="flex items-center gap-2">
                 <Avatar name={node.head.fullName} size="sm" />
@@ -184,48 +275,35 @@ function PreviewPanel({
             ) : (
               '—'
             )}
-          </dd>
-        </div>
-
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-ink-faint">Colaboradores</dt>
-          <dd className="mt-1 text-ink">{node._count.users}</dd>
-        </div>
-
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-ink-faint">Subdepartamentos</dt>
-          <dd className="mt-1 text-ink">
+          </PreviewField>
+          <PreviewField icon={Users} label="Colaboradores">
+            {node._count.users}
+          </PreviewField>
+          <PreviewField icon={Network} label="Subdepartamentos">
             {node.children.length === 0
               ? 'Nenhum'
               : node.children.map((c) => c.name).join(', ')}
-          </dd>
-        </div>
-
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-ink-faint">Cargos</dt>
-          <dd className="mt-1 text-ink">{node.positionsCount}</dd>
-        </div>
-
-        <div>
-          <dt className="text-xs uppercase tracking-wide text-ink-faint">
-            Estrutura descendente
-          </dt>
-          <dd className="mt-1 text-ink">
+          </PreviewField>
+          <PreviewField icon={Briefcase} label="Cargos">
+            {node.positionsCount}
+          </PreviewField>
+          <PreviewField icon={GitBranch} label="Estrutura descendente">
             {descendants === 0
               ? 'Sem sub-estrutura'
               : `${descendants} departamento(s) abaixo`}
-          </dd>
-        </div>
-      </dl>
+          </PreviewField>
+        </dl>
 
-      <Button
-        className="mt-4 w-full"
-        intent="secondary"
-        onClick={() => onViewDetail(node.id)}
-      >
-        Ver detalhe completo
-      </Button>
-    </Card>
+        <button
+          type="button"
+          onClick={() => onViewDetail(node.id)}
+          className="mt-4 flex h-16 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#078BFF] to-[#1247D8] text-base font-semibold text-white transition-opacity duration-200 hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0756D9] sm:h-20 sm:text-lg"
+        >
+          Ver detalhe completo
+          <ArrowRight size={20} strokeWidth={2} />
+        </button>
+      </div>
+    </aside>
   );
 }
 
@@ -287,7 +365,7 @@ export function StructureView({ onSelect }: StructureViewProps) {
         </div>
       </div>
 
-      <div className={`grid gap-4 ${previewNode ? 'lg:grid-cols-[1fr_320px]' : ''}`}>
+      <div className={`grid gap-4 ${previewNode ? 'lg:grid-cols-[1fr_380px]' : ''}`}>
         <div>
           {tree.length === 0 ? (
             <div className="py-12 text-center text-sm text-ink-faint">
