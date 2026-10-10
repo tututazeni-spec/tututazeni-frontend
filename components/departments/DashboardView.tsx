@@ -71,16 +71,12 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
 
       {/* Distribution chart */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
-          Distribuição de colaboradores
+        <div className="flex items-center gap-3 border-b border-border bg-[#0F1F3D]/60 px-5 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          <div className="flex-1">Distribuição de colaboradores</div>
+          <div className="w-20 text-right">Membros</div>
+          <div className="w-24">Responsável</div>
         </div>
         <div className="space-y-3 p-5">
-          <div className="flex items-center gap-3 text-[10px] font-medium uppercase tracking-wide text-ink-faint">
-            <div className="w-48 shrink-0" />
-            <div className="flex-1" />
-            <div className="w-20 text-right">Membros</div>
-            <div className="w-24">Responsável</div>
-          </div>
           {rows
             .filter((r) => r.active)
             .sort((a, b) => b.totalMembers - a.totalMembers)
