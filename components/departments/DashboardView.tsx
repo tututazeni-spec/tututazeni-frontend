@@ -75,6 +75,12 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
           Distribuição de colaboradores
         </div>
         <div className="space-y-3 p-5">
+          <div className="flex items-center gap-3 text-[10px] font-medium uppercase tracking-wide text-ink-faint">
+            <div className="w-48 shrink-0" />
+            <div className="flex-1" />
+            <div className="w-20 text-right">Membros</div>
+            <div className="w-24">Responsável</div>
+          </div>
           {rows
             .filter((r) => r.active)
             .sort((a, b) => b.totalMembers - a.totalMembers)
