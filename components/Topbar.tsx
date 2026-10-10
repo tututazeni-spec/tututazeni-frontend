@@ -26,7 +26,9 @@ export default function Topbar({ title }: TopbarProps) {
   const { data: unread } = useApiQuery<{ count: number }>(
     queryKeys.notifications.unreadCount(),
     '/notifications/my/unread-count',
-    { refetchInterval: 60_000 },
+    // silent: polling de fundo do badge — uma falha transitória (ex.: backend a
+    // reiniciar) não deve gerar toast/erro na consola; o próximo ciclo recupera.
+    { refetchInterval: 60_000, meta: { silent: true } },
   );
   const hasUnread = (unread?.count ?? 0) > 0;
 
