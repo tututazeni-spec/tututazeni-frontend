@@ -5,10 +5,12 @@
 // financiador tinha ainda um `money()` local. Ver memory
 // project_innova_component_separation_audit.
 
+import { BarChart3 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
+import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate as formatDateShared } from '@/lib/format';
@@ -91,15 +93,16 @@ interface SummaryCardProps {
 }
 
 export function SummaryCard({ label, value, color }: SummaryCardProps) {
+  // `color` mantém-se por compatibilidade: a classe de texto escolhe o tom.
+  const tone: NavyStatTone = color.includes('success')
+    ? 'green'
+    : color.includes('warning')
+      ? 'orange'
+      : color.includes('danger')
+        ? 'red'
+        : 'blue';
   return (
-    <Card>
-      <CardBody>
-        <p className="font-body text-xs font-medium text-ink-muted uppercase">
-          {label}
-        </p>
-        <p className={cn('font-display text-lg font-bold', color)}>{value}</p>
-      </CardBody>
-    </Card>
+    <NavyStatCard icon={BarChart3} tone={tone} label={label} value={value} />
   );
 }
 

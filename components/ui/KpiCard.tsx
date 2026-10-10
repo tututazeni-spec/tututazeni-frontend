@@ -1,18 +1,20 @@
 // components/ui/KpiCard.tsx
 // Consolida os `KpiCard` locais (ex.: components/engagement/atoms.tsx).
+// Desenho: NavyStatCard (cabeçalho azul-marinho + ícone circular sobreposto +
+// número centralizado) — `intent` passa a `tone`, `trend` (%) é mostrado
+// ao lado do valor.
 import type { LucideIcon } from 'lucide-react';
-import { TrendingDown, TrendingUp } from 'lucide-react';
-import { cn } from '@/lib/cn';
-import { Card } from './Card';
+import { BarChart3 } from 'lucide-react';
+import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 
-const INTENTS = [
-  'primary',
-  'accent',
-  'success',
-  'warning',
-  'danger',
-  'info',
-] as const;
+const INTENT_TONE = {
+  primary: 'blue',
+  accent: 'blue',
+  info: 'blue',
+  success: 'green',
+  warning: 'orange',
+  danger: 'red',
+} as const satisfies Record<string, NavyStatTone>;
 
 export interface KpiCardProps {
   icon?: LucideIcon;
@@ -21,51 +23,28 @@ export interface KpiCardProps {
   sub?: string;
   /** % — positivo mostra seta a subir a verde, negativo a descer a vermelho. */
   trend?: number;
-  /** Mantido por compatibilidade: o ícone usa sempre o estilo #0F1F3D/60 branco. */
-  intent?: (typeof INTENTS)[number];
+  intent?: keyof typeof INTENT_TONE;
   className?: string;
 }
 
 export function KpiCard({
-  icon: Icon,
+  icon,
   label,
   value,
   sub,
   trend,
+  intent = 'primary',
   className,
 }: KpiCardProps) {
   return (
-    <Card className={cn('w-48 p-4', className)}>
-      <div className="mb-3 flex min-h-6 items-start justify-between">
-        {Icon ? (
-          <div className="rounded-control bg-[#0F1F3D]/60 p-2 text-white">
-            <Icon size={18} strokeWidth={1.75} />
-          </div>
-        ) : (
-          <div />
-        )}
-
-        {trend !== undefined && (
-          <span
-            className={cn(
-              'flex items-center gap-0.5 font-body text-xs font-medium',
-              trend >= 0 ? 'text-success' : 'text-danger',
-            )}
-          >
-            {trend >= 0 ? (
-              <TrendingUp size={12} strokeWidth={1.75} />
-            ) : (
-              <TrendingDown size={12} strokeWidth={1.75} />
-            )}
-            {Math.abs(trend)}%
-          </span>
-        )}
-      </div>
-      <p className="font-display text-2xl font-bold text-ink">{value}</p>
-      <p className="mt-0.5 font-body text-xs text-ink-muted">{label}</p>
-      {sub && (
-        <p className="mt-0.5 font-body text-[10px] text-ink-faint">{sub}</p>
-      )}
-    </Card>
+    <NavyStatCard
+      icon={icon ?? BarChart3}
+      tone={INTENT_TONE[intent]}
+      label={label}
+      value={value}
+      sub={sub}
+      trend={trend}
+      className={className}
+    />
   );
 }

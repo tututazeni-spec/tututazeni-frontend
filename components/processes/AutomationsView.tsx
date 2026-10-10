@@ -89,7 +89,7 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
 
   return (
     <div>
-      <div className="mb-5 flex flex-wrap gap-3">
+      <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
         <KpiCard label="Regras" value={k?.total ?? '—'} intent="primary" />
         <KpiCard label="Activas" value={k?.active ?? '—'} intent="success" />
         <KpiCard label="Execuções (24 h)" value={k?.executions24h ?? '—'} intent="info" />

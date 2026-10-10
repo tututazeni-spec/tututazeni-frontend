@@ -209,7 +209,7 @@ export function ReportsView() {
 
       {data && (
         <div className="space-y-6">
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
             {Object.entries(data.totals).map(([k, v]) => (
               <KpiCard
                 key={k}
