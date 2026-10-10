@@ -15,7 +15,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
-import { fmtPeriod } from '@/components/payslips/format';
+import { fmtPeriodNumeric } from '@/components/payslips/format';
 import {
   PAYSLIP_STATUS_MAP,
   type PayslipStatus,
@@ -201,7 +201,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                   </div>
                 </div>
                 <div className="font-body text-sm text-[#CFE3FF]">
-                  {fmtPeriod(r.period)}
+                  {fmtPeriodNumeric(r.period)}
                 </div>
                 <div className="font-body text-sm text-[#CFE3FF]">
                   {fmtDate(r.paymentDate)}

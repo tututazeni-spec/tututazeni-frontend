@@ -21,3 +21,9 @@ export function fmtPeriod(period: string): string {
   ];
   return `${months[parseInt(month, 10) - 1]} ${year}`;
 }
+
+// "2024-03" → "03/2024"
+export function fmtPeriodNumeric(period: string): string {
+  const [year, month] = period.split('-');
+  return `${month.padStart(2, '0')}/${year}`;
+}
