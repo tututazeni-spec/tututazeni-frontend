@@ -36,7 +36,7 @@ function Metric({
   return (
     <div className="flex items-center gap-2 px-3 first:pl-0 last:pr-0 text-[15px] text-[#0F1F3D]">
       <Icon size={22} strokeWidth={1.75} className="shrink-0 text-[#49658A]" />
-      <span className="whitespace-nowrap">{children}</span>
+      <span>{children}</span>
     </div>
   );
 }
@@ -51,7 +51,7 @@ function InfoRow({
   return (
     <div className="flex items-center gap-3 rounded-[14px] bg-[#EEF4FD] px-4 py-3 text-[15px] text-[#0F1F3D]">
       <Icon size={20} strokeWidth={1.75} className="shrink-0 text-[#1267B8]" />
-      <span className="min-w-0 flex-1 truncate">{children}</span>
+      <span className="min-w-0 flex-1 break-words">{children}</span>
       <ChevronRight
         size={18}
         strokeWidth={1.75}
@@ -123,7 +123,7 @@ export function TemplateCard({
 
       <div className="space-y-2 px-7 py-6">
         {description && (
-          <p className="mb-3 line-clamp-2 text-xs text-[#49658A]">
+          <p className="mb-3 break-words text-xs text-[#49658A]">
             {description}
           </p>
         )}
@@ -132,28 +132,23 @@ export function TemplateCard({
 
         {tasks.length > 0 && (
           <div className="space-y-1 pt-3">
-            {tasks.slice(0, 3).map((task) => {
+            {tasks.map((task) => {
               const CatIcon = CATEGORY_CFG[task.category]?.icon;
               return (
                 <div
                   key={task.id}
-                  className="flex items-center gap-2 text-xs text-[#49658A]"
+                  className="flex items-start gap-2 text-xs text-[#49658A]"
                 >
                   <span>
                     {CatIcon ? <CatIcon size={13} strokeWidth={1.75} /> : '•'}
                   </span>
-                  <span className="truncate">{task.title}</span>
-                  <span className="ml-auto text-warning-ink">
+                  <span className="min-w-0 break-words">{task.title}</span>
+                  <span className="ml-auto shrink-0 text-warning-ink">
                     +{task.xpReward}xp
                   </span>
                 </div>
               );
             })}
-            {tasks.length > 3 && (
-              <div className="text-xs text-ink-faint">
-                +{tasks.length - 3} mais tarefas…
-              </div>
-            )}
           </div>
         )}
       </div>
