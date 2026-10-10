@@ -6,6 +6,15 @@
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
+// Valores longos (ex.: montantes em Kz) encolhem para caberem inteiros no cartão.
+function valueSize(value: string | number): string {
+  const len = String(value).length;
+  if (len > 14) return 'text-[20px]';
+  if (len > 10) return 'text-[26px]';
+  if (len > 7) return 'text-[32px]';
+  return 'text-[38px]';
+}
+
 export type NavyStatTone = 'blue' | 'green' | 'orange' | 'red';
 
 // Classes completas: o Tailwind não detecta nomes montados dinamicamente
@@ -44,7 +53,9 @@ export function NavyStatCard({
       )}
     >
       <div className="flex h-[60px] items-center bg-[#152F59] pl-[86px] pr-3">
-        <h3 className="break-words font-body text-[15px] font-semibold leading-tight text-white">
+        <h3
+          className={`break-words font-body font-semibold leading-tight text-white ${label.length > 24 ? 'text-[13px]' : 'text-[15px]'}`}
+        >
           {label}
         </h3>
       </div>
@@ -56,7 +67,7 @@ export function NavyStatCard({
       </span>
       <div className="flex h-[95px] flex-col items-center justify-center px-3 text-center">
         <p
-          className={`flex items-baseline gap-2 font-display text-[38px] font-bold leading-none ${t.text}`}
+          className={`flex items-baseline gap-2 font-display font-bold leading-none ${valueSize(value)} ${t.text}`}
         >
           {value}
           {typeof trend === 'number' && trend !== 0 && (
