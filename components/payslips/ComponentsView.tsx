@@ -51,25 +51,6 @@ function calcLabel(c: SalaryComponent): string {
 
 const CALC_MONO: ComponentCalcType[] = ['FORMULA'];
 
-// Rótulos em português para os códigos técnicos (o código em si não muda).
-const CODE_LABELS: Record<string, string> = {
-  BASE_SALARY: 'Salário base',
-  ALLOWANCE_FOOD: 'Sub. alimentação',
-  ALLOWANCE_TRANSPORT: 'Sub. transporte',
-  OVERTIME: 'Horas extras',
-  BONUS: 'Bónus',
-  INSS_EMPLOYEE: 'INSS colaborador',
-  IRT: 'IRT',
-  HEALTH_INSURANCE: 'Seguro de saúde',
-  UNION_FEE: 'Quota sindical',
-  ADVANCE: 'Adiantamento',
-  ABSENCE_DEDUCTION: 'Desc. por faltas',
-};
-
-function codeLabel(code: string): string {
-  return CODE_LABELS[code] ?? code;
-}
-
 export function ComponentsView() {
   const qc = useQueryClient();
   const confirm = useConfirm();
@@ -151,8 +132,7 @@ export function ComponentsView() {
       {!isLoading && (data?.length ?? 0) > 0 && (
         <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
           <div className="min-w-[860px]">
-          <div className="grid grid-cols-[120px_1fr_110px_150px_130px_80px_88px] gap-3 bg-[#0B2D5B] px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
-            <div>Código</div>
+          <div className="grid grid-cols-[1fr_110px_150px_130px_80px_88px] gap-3 bg-[#0B2D5B] px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
             <div>Nome</div>
             <div>Tipo</div>
             <div>Cálculo</div>
@@ -163,13 +143,10 @@ export function ComponentsView() {
           {data!.map((c) => (
             <div
               key={c.code}
-              className={`grid grid-cols-[120px_1fr_110px_150px_130px_80px_88px] items-center gap-3 border-b border-[#6F8FB8]/20 px-4 py-3 text-white transition-colors duration-150 last:border-0 hover:bg-white/5 ${
+              className={`grid grid-cols-[1fr_110px_150px_130px_80px_88px] items-center gap-3 border-b border-[#6F8FB8]/20 px-4 py-3 text-white transition-colors duration-150 last:border-0 hover:bg-white/5 ${
                 c.active ? '' : 'opacity-55'
               }`}
             >
-              <div className="font-body text-sm text-white" title={c.code}>
-                {codeLabel(c.code)}
-              </div>
               <div className="min-w-0">
                 <div className="truncate font-body text-sm font-semibold text-white">
                   {c.name}
