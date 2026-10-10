@@ -121,9 +121,9 @@ function GroupTable({
           rows={(rows as CompetencyReportGapGroup[]).map((r) => ({
             label: r.label,
             value: r.count,
-            sub: `gap méd. ${r.avgGap}`,
+            sub: `lacuna méd. ${r.avgGap}`,
           }))}
-          empty="Sem gaps"
+          empty="Sem lacunas"
         />
       )}
     </Card>
@@ -315,25 +315,25 @@ export function ReportsView() {
 
           <div>
             <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-              Gaps de competências
+              Lacunas de competências
             </h3>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <NavyStatCard
                 icon={Target}
                 tone="orange"
-                label="Gaps identificados"
+                label="Lacunas identificadas"
                 value={data.gaps.total}
               />
               <NavyStatCard
                 icon={Users}
                 tone="red"
-                label="Colaboradores com gap"
+                label="Colaboradores com lacunas"
                 value={data.gaps.usersWithGap}
               />
               <NavyStatCard
                 icon={BarChart3}
                 tone="blue"
-                label="Gap médio"
+                label="Lacuna média"
                 value={data.gaps.avgGap}
               />
               <NavyStatCard
@@ -391,12 +391,12 @@ export function ReportsView() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <GroupTable
-              title="Gaps por departamento"
+              title="Lacunas por departamento"
               rows={data.gapsPorDepartamento}
               kind="gaps"
             />
             <GroupTable
-              title="Gaps por cargo"
+              title="Lacunas por cargo"
               rows={data.gapsPorCargo}
               kind="gaps"
             />

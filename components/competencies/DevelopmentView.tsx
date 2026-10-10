@@ -109,7 +109,7 @@ export function DevelopmentView() {
               {[
                 'Colaborador',
                 'Competência',
-                'Gap',
+                'Lacuna',
                 'Nível actual',
                 'Nível objectivo',
                 'Acção',

@@ -153,7 +153,7 @@ export function EvaluationsView() {
                 'Tipo',
                 'Nível obtido',
                 'Nível esperado',
-                'Gap',
+                'Lacuna',
                 'Data',
                 'Estado',
                 'Comentários',
