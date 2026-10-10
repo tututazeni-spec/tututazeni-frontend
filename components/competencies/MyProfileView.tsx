@@ -163,9 +163,24 @@ export function MyProfileView() {
   return (
     <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
       <TabsList>
-        <TabsTrigger value="profile">O meu perfil</TabsTrigger>
-        <TabsTrigger value="gap">Análise de lacunas</TabsTrigger>
-        <TabsTrigger value="evolution">Evolução</TabsTrigger>
+        <TabsTrigger
+          value="profile"
+          className="data-[state=active]:border-[#0F1F3D] data-[state=active]:text-[#0F1F3D]"
+        >
+          O meu perfil
+        </TabsTrigger>
+        <TabsTrigger
+          value="gap"
+          className="data-[state=active]:border-[#0F1F3D] data-[state=active]:text-[#0F1F3D]"
+        >
+          Análise de lacunas
+        </TabsTrigger>
+        <TabsTrigger
+          value="evolution"
+          className="data-[state=active]:border-[#0F1F3D] data-[state=active]:text-[#0F1F3D]"
+        >
+          Evolução
+        </TabsTrigger>
       </TabsList>
 
       {/* Profile tab */}
@@ -217,7 +232,7 @@ export function MyProfileView() {
                   map={CATEGORY_CFG}
                 />
                 <span className="font-body text-xs text-ink-faint">
-                  {items.length} competências
+                  {items.length} Competências
                 </span>
               </div>
               <div className="space-y-2">
@@ -458,13 +473,15 @@ export function MyProfileView() {
       {/* Evolution tab */}
       <TabsContent value="evolution">
         <Table>
-          <TableHead>
+          <TableHead className="bg-[#0F1F3D]/60">
             <TableRow>
-              <TableHeaderCell>Competência</TableHeaderCell>
-              <TableHeaderCell>Fonte</TableHeaderCell>
-              <TableHeaderCell>Anterior</TableHeaderCell>
-              <TableHeaderCell>Novo</TableHeaderCell>
-              <TableHeaderCell>Data</TableHeaderCell>
+              <TableHeaderCell className="text-white">
+                Competência
+              </TableHeaderCell>
+              <TableHeaderCell className="text-white">Fonte</TableHeaderCell>
+              <TableHeaderCell className="text-white">Anterior</TableHeaderCell>
+              <TableHeaderCell className="text-white">Novo</TableHeaderCell>
+              <TableHeaderCell className="text-white">Data</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
