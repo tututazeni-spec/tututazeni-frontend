@@ -37,6 +37,7 @@ import {
   SURVEY_MILESTONES,
   SURVEY_MILESTONE_LABELS,
 } from './constants';
+import { DocumentLink } from './DocumentLink';
 import { OnboardingDocUploadForm } from './OnboardingDocUploadForm';
 import { TaskCard } from './TaskCard';
 import {
@@ -318,14 +319,10 @@ export function MyPlanView() {
                   <div className="text-sm font-medium text-ink">
                     {doc.documentType}
                   </div>
-                  <a
-                    href={doc.fileUrl}
-                    target="_blank"
-                    rel="noreferrer"
+                  <DocumentLink
+                    fileUrl={doc.fileUrl}
                     className="text-xs text-primary hover:underline"
-                  >
-                    Abrir documento
-                  </a>
+                  />
                   {doc.rejectionReason && (
                     <div className="text-xs text-danger-ink mt-0.5">
                       Motivo: {doc.rejectionReason}

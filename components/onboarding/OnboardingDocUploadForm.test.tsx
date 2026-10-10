@@ -75,4 +75,38 @@ describe('OnboardingDocUploadForm', () => {
       await screen.findByText('fileUrl deve usar HTTPS'),
     ).toBeInTheDocument();
   });
+
+  test('PDF carregado é enviado como data URL no lugar do link', async () => {
+    render(<OnboardingDocUploadForm planId={7} onUploaded={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText('Tipo de documento *'), {
+      target: { value: 'NIB' },
+    });
+    const file = new File(['%PDF-1.4'], 'nib.pdf', { type: 'application/pdf' });
+    fireEvent.change(screen.getByLabelText('Ou carregar documento (PDF)'), {
+      target: { files: [file] },
+    });
+    expect(await screen.findByText('nib.pdf')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Submeter documento' }));
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    const body = post.mock.calls[0][1] as { fileUrl: string };
+    expect(body.fileUrl).toMatch(/^data:application\/pdf;base64,/);
+  });
+
+  test('recusa PDF acima de 3 MB e ficheiro que não é PDF', async () => {
+    render(<OnboardingDocUploadForm planId={7} onUploaded={vi.fn()} />);
+    const input = screen.getByLabelText('Ou carregar documento (PDF)');
+
+    const big = new File(['x'], 'grande.pdf', { type: 'application/pdf' });
+    Object.defineProperty(big, 'size', { value: 3 * 1024 * 1024 + 1 });
+    fireEvent.change(input, { target: { files: [big] } });
+    expect(await screen.findByText(/máx\. 3 MB/)).toBeInTheDocument();
+
+    const txt = new File(['x'], 'a.txt', { type: 'text/plain' });
+    fireEvent.change(input, { target: { files: [txt] } });
+    expect(
+      await screen.findByText('O ficheiro tem de ser um PDF.'),
+    ).toBeInTheDocument();
+    expect(post).not.toHaveBeenCalled();
+  });
 });

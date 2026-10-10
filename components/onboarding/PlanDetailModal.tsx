@@ -49,6 +49,7 @@ import {
   STATUS_CFG,
   TASK_STATUS_CFG,
 } from './constants';
+import { DocumentLink } from './DocumentLink';
 import type {
   DocStatus,
   OnboardingPlanDetail,
@@ -570,14 +571,10 @@ export function PlanDetailModal({
                               </Badge>
                             </div>
                             <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-body text-xs text-ink-faint">
-                              <a
-                                href={doc.fileUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-primary hover:underline"
-                              >
-                                Abrir documento
-                              </a>
+                  <DocumentLink
+                    fileUrl={doc.fileUrl}
+                    className="text-primary hover:underline"
+                  />
                               <span>Enviado {fmtDate(doc.createdAt)}</span>
                               {doc.notes && <span>Nota: {doc.notes}</span>}
                               {doc.rejectionReason && (
