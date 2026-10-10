@@ -402,7 +402,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             activeUsers={metrics.activeUsers}
             expected={metrics.expectedEmployees}
             max={metrics.maxEmployees}
-            invalidateKeys={reloadKeys}
+            invalidateKeys={[...reloadKeys, queryKeys.departments.all]}
           />
         </div>
       )}
