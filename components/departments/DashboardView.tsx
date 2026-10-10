@@ -86,7 +86,7 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
                   className="group flex cursor-pointer items-center gap-3"
                   onClick={() => onSelect(r.id)}
                 >
-                  <div className="w-32 truncate text-xs text-ink group-hover:text-primary">
+                  <div className="w-48 shrink-0 break-words text-xs text-ink group-hover:text-primary">
                     {r.name}
                   </div>
                   <ProgressBar
