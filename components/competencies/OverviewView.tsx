@@ -168,7 +168,7 @@ export function OverviewView() {
 
       {/* Competências com maior lacuna */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
           Competências com maior lacuna
         </div>
         {data.biggestGaps.length === 0 ? (
@@ -204,7 +204,7 @@ export function OverviewView() {
       {/* Top competências */}
       {data.topCompetencies.length > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Top competências da organização
           </div>
           {data.topCompetencies.map((t, idx) => (
