@@ -166,7 +166,7 @@ export function ParticipantDetailModal({
                 </div>
                 {data.result.gaps.length > 0 && (
                   <p className="m-0 mt-3 text-xs text-ink-muted">
-                    Maiores gaps:{' '}
+                    Maiores lacunas:{' '}
                     {data.result.gaps.map((g) => g.name).join(', ')}
                   </p>
                 )}

@@ -259,8 +259,8 @@ export function RadarChart({ competencies }: RadarChartProps) {
                   }
                 >
                   {c.gap === null
-                    ? 'Gap: sem dados'
-                    : `Gap: ${c.gap > 0 ? '+' : ''}${c.gap.toFixed(1)}`}
+                    ? 'Lacuna: sem dados'
+                    : `Lacuna: ${c.gap > 0 ? '+' : ''}${c.gap.toFixed(1)}`}
                 </text>
               </g>
             );

@@ -150,7 +150,7 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
                     <th className="px-4 py-3 text-right">Outras</th>
                     <th className="px-4 py-3 text-right">Média</th>
                     <th className="px-4 py-3 text-right">Nível esperado</th>
-                    <th className="px-4 py-3 text-right">Gap</th>
+                    <th className="px-4 py-3 text-right">Lacuna</th>
                     <th className="px-4 py-3 text-right">Nº respostas</th>
                   </tr>
                 </thead>
@@ -272,7 +272,7 @@ function CycleResultsMatrix() {
                 <th className="px-4 py-3 text-right">Outras</th>
                 <th className="px-4 py-3 text-right">Média geral</th>
                 <th className="px-4 py-3 text-right">Nível esperado</th>
-                <th className="px-4 py-3 text-right">Gap</th>
+                <th className="px-4 py-3 text-right">Lacuna</th>
                 <th className="px-4 py-3 text-right">Nº respostas</th>
               </tr>
             </thead>
