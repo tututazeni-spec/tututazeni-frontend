@@ -220,7 +220,11 @@ export function SkillMatrixView() {
                       className="sticky left-0 z-10 w-56 min-w-56 border-b border-r border-white/20 bg-[#0F2D55] px-3 py-2 text-left font-normal"
                     >
                       <span className="flex items-center gap-2">
-                        <Avatar name={row.user.fullName} size="sm" />
+                        <Avatar
+                          name={row.user.fullName}
+                          url={row.user.avatarUrl ?? undefined}
+                          size="sm"
+                        />
                         <span className="min-w-0">
                           <span className="block truncate text-xs font-semibold text-white">
                             {row.user.fullName}
