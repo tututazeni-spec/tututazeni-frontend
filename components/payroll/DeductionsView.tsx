@@ -3,7 +3,7 @@
 // escalão e regras fiscais do ano (GET /payroll/deductions).
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -149,25 +149,34 @@ export function DeductionsView() {
             Regras fiscais {data.config.taxYear} ({data.config.countryCode})
           </h3>
           <div className="rounded-[14px] border border-[#1E3A66] bg-[#071D3B] p-4 font-body text-sm text-white shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
-            <p>
-              INSS: trabalhador {pct(data.config.socialSecurity.employeeRate)} ·
-              patronal {pct(data.config.socialSecurity.employerRate)}
-              {data.config.socialSecurity.ceiling
-                ? ` · tecto ${fmtKz(data.config.socialSecurity.ceiling)}`
-                : ''}
-              {' · '}Salário mínimo {fmtKz(data.config.minimumWage)}
-            </p>
-            <ul className="mt-3 space-y-1 border-t border-[#6F8FB8]/20 pt-3 text-[#CFE3FF]">
+            <dl className="grid grid-cols-[180px_1fr] gap-x-4 gap-y-1.5">
+              <dt className="text-[#9DB4D3]">INSS trabalhador</dt>
+              <dd>{pct(data.config.socialSecurity.employeeRate)}</dd>
+              <dt className="text-[#9DB4D3]">INSS patronal</dt>
+              <dd>{pct(data.config.socialSecurity.employerRate)}</dd>
+              <dt className="text-[#9DB4D3]">Tecto INSS</dt>
+              <dd>
+                {data.config.socialSecurity.ceiling
+                  ? fmtKz(data.config.socialSecurity.ceiling)
+                  : '—'}
+              </dd>
+              <dt className="text-[#9DB4D3]">Salário mínimo</dt>
+              <dd>{fmtKz(data.config.minimumWage)}</dd>
+            </dl>
+            <div className="mt-3 grid grid-cols-[1fr_1fr_80px_1fr] gap-x-4 gap-y-1.5 border-t border-[#6F8FB8]/20 pt-3 text-[#CFE3FF]">
+              <div className="text-xs font-bold uppercase tracking-wide text-white">De</div>
+              <div className="text-xs font-bold uppercase tracking-wide text-white">Até</div>
+              <div className="text-xs font-bold uppercase tracking-wide text-white">Taxa</div>
+              <div className="text-xs font-bold uppercase tracking-wide text-white">Parcela a abater</div>
               {data.config.irtBrackets.map((b) => (
-                <li key={b.id}>
-                  {fmtKz(b.min)} – {b.max == null ? '∞' : fmtKz(b.max)}: taxa{' '}
-                  {pct(b.rate)}
-                  {b.deduction
-                    ? ` (parcela a abater ${fmtKz(b.deduction)})`
-                    : ''}
-                </li>
+                <Fragment key={b.id}>
+                  <div>{fmtKz(b.min)}</div>
+                  <div>{b.max == null ? '∞' : fmtKz(b.max)}</div>
+                  <div>{pct(b.rate)}</div>
+                  <div>{b.deduction ? fmtKz(b.deduction) : '—'}</div>
+                </Fragment>
               ))}
-            </ul>
+            </div>
           </div>
         </section>
       )}
