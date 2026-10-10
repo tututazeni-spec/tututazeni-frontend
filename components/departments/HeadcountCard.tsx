@@ -47,7 +47,7 @@ export function HeadcountCard({
     {
       invalidateKeys,
       onSuccess: () => {
-        notify({ title: 'Headcount actualizado', intent: 'success' });
+        notify({ title: 'Número de colaboradores actualizado', intent: 'success' });
         setEditing(false);
       },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
@@ -66,7 +66,7 @@ export function HeadcountCard({
   return (
     <Card className="p-4">
       <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
-        Headcount
+        Número de colaboradores
       </div>
       {editing ? (
         <div className="flex flex-wrap items-end gap-3">
@@ -125,7 +125,7 @@ export function HeadcountCard({
           </div>
           {canEdit && (
             <Button intent="secondary" size="sm" onClick={startEdit}>
-              Definir headcount
+              Definir número de colaboradores
             </Button>
           )}
         </div>
