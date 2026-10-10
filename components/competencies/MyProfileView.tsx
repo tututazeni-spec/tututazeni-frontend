@@ -25,7 +25,6 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -38,8 +37,10 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
+import { Select } from '@/components/ui/Select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { CATEGORY_CFG, LEVEL_LABELS } from './constants';
+import { usePositionOptions } from './modelFormData';
 import { levelTextClass } from './utils';
 import type {
   CompetencyCategory,
@@ -103,6 +104,8 @@ export function MyProfileView() {
   const [positionId, setPositionId] = useState('');
   const [selfAssessing, setSelfAssessing] = useState<number | null>(null);
   const [selfLevel, setSelfLevel] = useState(1);
+  const { options: positionOptions, loading: loadingPositions } =
+    usePositionOptions(tab === 'gap');
 
   const profileQ = useApiQuery<UserCompetency[]>(
     queryKeys.competencies.myProfile(),
@@ -343,12 +346,11 @@ export function MyProfileView() {
       <TabsContent value="gap">
         <div>
           <div className="mb-5 flex items-center gap-3">
-            <Input
-              type="number"
-              placeholder="ID do cargo alvo"
-              value={positionId}
-              onChange={(e) => setPositionId(e.target.value)}
-              className="max-w-xs"
+            <Select
+              items={positionOptions}
+              value={positionId || undefined}
+              onValueChange={setPositionId}
+              placeholder={loadingPositions ? 'A carregar…' : 'Cargo alvo'}
             />
             <Button
               onClick={loadGap}

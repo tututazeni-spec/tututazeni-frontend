@@ -122,9 +122,9 @@ export function OverviewView() {
         />
         <NavyStatCard
           icon={ClipboardList}
-          tone="blue"
+          tone={data.pendingEvaluations > 0 ? 'orange' : 'blue'}
           label="Avaliações pendentes"
-          value={data.pendingEvaluations ?? '—'}
+          value={data.pendingEvaluations}
         />
       </div>
 
