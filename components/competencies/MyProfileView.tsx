@@ -4,7 +4,7 @@
 // Extraído de app/(platform)/competencies/page.tsx. Migrado para a
 // fundação de design: sub-navegação por separador passa a Tabs
 // (Radix), inputs passam a Input, botões passam a Button, badges
-// ad-hoc passam a Badge, resumo numérico passa a KpiCard, skeleton
+// ad-hoc passam a Badge, resumo numérico passa a NavyStatCard, skeleton
 // local passa a components/ui/Skeleton, histórico de evolução passa a
 // Table. A barra de nível (antes `LevelBar` em atoms.tsx, recolorida
 // por nível) passa a ProgressBar mono (bg-accent) + texto adjacente
@@ -16,7 +16,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, BarChart3, GitCompare, Layers } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -26,7 +26,7 @@ import { formatDate as fmtDate } from '@/lib/format';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -172,25 +172,30 @@ export function MyProfileView() {
       <TabsContent value="profile">
         <div className="space-y-5">
           {/* Summary cards */}
-          <div className="grid grid-cols-4 gap-3">
-            <KpiCard
+          <div className="grid grid-cols-4 gap-4">
+            <NavyStatCard
+              icon={Layers}
+              tone="blue"
               label="Competências"
               value={competencies.length}
-              intent="primary"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={AlertTriangle}
+              tone="orange"
               label="Com lacunas"
               value={competencies.filter((c) => (c.gap ?? 0) > 0).length}
-              intent="warning"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={GitCompare}
+              tone="red"
               label="Divergências"
               value={
                 competencies.filter((c) => (c.divergence ?? 0) >= 2).length
               }
-              intent="danger"
             />
-            <KpiCard
+            <NavyStatCard
+              icon={BarChart3}
+              tone="blue"
               label="Nível médio"
               value={
                 competencies.length > 0
@@ -200,7 +205,6 @@ export function MyProfileView() {
                     ).toFixed(1)
                   : '—'
               }
-              intent="primary"
             />
           </div>
 
