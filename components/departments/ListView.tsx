@@ -85,9 +85,6 @@ export function ListView({ onSelect }: ListViewProps) {
           <option value="true">Activos</option>
           <option value="false">Inactivos</option>
         </select>
-        <span className="text-sm text-ink-faint">
-          {data?.total ?? 0} departamentos
-        </span>
       </div>
 
       {/* Tabela */}
