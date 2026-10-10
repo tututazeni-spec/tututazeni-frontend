@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/Table';
 import { CreateDepartmentModal } from './CreateDepartmentModal';
 import { departmentIcon } from './departmentIcon';
+import { HeadcountCard } from './HeadcountCard';
 import type { Department, HeadHistoryEntry, Member, Metrics } from './types';
 
 interface DetailViewProps {
@@ -393,6 +394,18 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           />
         )}
       </Card>
+
+      {metrics && (
+        <div className="mb-5">
+          <HeadcountCard
+            deptId={deptId}
+            activeUsers={metrics.activeUsers}
+            expected={metrics.expectedEmployees}
+            max={metrics.maxEmployees}
+            invalidateKeys={reloadKeys}
+          />
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="mb-5 flex w-fit flex-wrap gap-1 rounded-control p-1">
