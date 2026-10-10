@@ -13,19 +13,10 @@ import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
 import {
   CATEGORY_CFG,
   EVALUATION_STATUS_CFG,
@@ -66,6 +57,37 @@ const STATUS_ITEMS = [
     label: cfg.label,
   })),
 ];
+
+const COLUMNS = [
+  { label: 'Colaborador' },
+  { label: 'Avaliador' },
+  { label: 'Competência' },
+  { label: 'Tipo' },
+  { label: 'Nível obtido', center: true },
+  { label: 'Nível esperado', center: true },
+  { label: 'Lacuna', center: true },
+  { label: 'Data' },
+  { label: 'Estado' },
+  { label: 'Comentários' },
+  { label: 'Evidências' },
+  { label: 'Próxima avaliação' },
+];
+
+const AVATAR_COLORS = ['#22B8A7', '#9B35D5', '#FF9C2A', '#1685FF'];
+
+function avatarColor(name: string): string {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  const first = parts[0][0];
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
+  return (first + last).toUpperCase();
+}
 
 export function EvaluationsView() {
   const [departmentId, setDepartmentId] = useState(ALL);
@@ -141,105 +163,109 @@ export function EvaluationsView() {
           description="Nenhuma avaliação de competência corresponde aos filtros seleccionados."
         />
       ) : (
-        <Table className="[&_td]:px-2 [&_td]:py-2 [&_th]:px-2 [&_th]:py-2 [&_th]:text-[10px]">
-          <TableHead className="bg-[#0F1F3D]/60">
-            <TableRow className="hover:bg-transparent">
-              {[
-                'Colaborador',
-                'Avaliador',
-                'Competência',
-                'Tipo',
-                'Obtido',
-                'Esperado',
-                'Lacuna',
-                'Data',
-                'Estado',
-                'Comentários',
-                'Evidências',
-                'Próxima',
-              ].map((h) => (
-                <TableHeaderCell key={h} className="text-white">
-                  {h}
-                </TableHeaderCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {(hasFilter ? (rows ?? []) : []).map((r) => (
-              <TableRow key={r.id}>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Avatar
-                      name={r.colaborador}
-                      url={r.colaboradorAvatarUrl ?? undefined}
-                      size="sm"
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-ink">
-                        {r.colaborador}
-                      </p>
-                      <p className="text-[11px] text-ink-faint">
-                        {r.departamento ?? '—'} · {r.cargo ?? '—'}
-                      </p>
+        <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+          <table className="w-full min-w-[1100px] border-collapse font-body text-sm text-white">
+            <thead className="bg-[#0B2D5B]">
+              <tr>
+                {COLUMNS.map((c) => (
+                  <th
+                    key={c.label}
+                    className={`px-4 py-3 text-xs font-bold uppercase leading-tight tracking-wide text-white ${c.center ? 'text-center' : 'text-left'}`}
+                  >
+                    {c.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {(hasFilter ? (rows ?? []) : []).map((r) => (
+                <tr
+                  key={r.id}
+                  className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
+                >
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      {r.colaboradorAvatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={r.colaboradorAvatarUrl}
+                          alt={r.colaborador}
+                          className="h-9 w-9 shrink-0 rounded-full object-cover"
+                        />
+                      ) : (
+                        <span
+                          aria-hidden
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+                          style={{
+                            backgroundColor: avatarColor(r.colaborador),
+                          }}
+                        >
+                          {initials(r.colaborador)}
+                        </span>
+                      )}
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-white">
+                          {r.colaborador}
+                        </p>
+                        <p className="truncate text-xs text-[#9DB4D3]">
+                          {r.departamento ?? '—'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell className="text-sm text-ink-muted">
-                  {r.avaliador ?? '—'}
-                </TableCell>
-                <TableCell>
-                  <p className="text-sm text-ink">{r.competencia}</p>
-                  <StatusBadge
-                    value={r.categoria}
-                    map={CATEGORY_CFG}
-                    className="mt-0.5"
-                  />
-                </TableCell>
-                <TableCell className="text-xs text-ink-muted">
-                  {r.tipoAvaliacao}
-                </TableCell>
-                <TableCell className="text-sm font-medium text-ink">
-                  {r.nivelObtido}
-                </TableCell>
-                <TableCell className="text-sm text-ink-muted">
-                  {r.nivelEsperado ?? '—'}
-                </TableCell>
-                <TableCell
-                  className={
-                    r.gap != null && r.gap > 0
-                      ? 'text-sm font-medium text-danger-ink'
-                      : 'text-sm text-ink-muted'
-                  }
-                >
-                  {r.gap ?? '—'}
-                </TableCell>
-                <TableCell className="text-xs text-ink-muted">
-                  {new Date(r.data).toLocaleDateString('pt')}
-                </TableCell>
-                <TableCell>
-                  <StatusBadge value={r.estado} map={EVALUATION_STATUS_CFG} />
-                </TableCell>
-                <TableCell
-                  className="max-w-[110px] truncate text-xs text-ink-muted"
-                  title={r.comentarios ?? ''}
-                >
-                  {r.comentarios ?? '—'}
-                </TableCell>
-                <TableCell
-                  className="max-w-[90px] truncate text-xs text-ink-muted"
-                  title={r.evidencias ?? ''}
-                >
-                  {r.evidencias ?? '—'}
-                </TableCell>
-                <TableCell className="text-xs text-ink-faint">
-                  {r.proximaAvaliacao
-                    ? new Date(r.proximaAvaliacao).toLocaleDateString('pt')
-                    : '—'}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                  </td>
+                  <td className="px-4 py-3 text-[#CFE3FF]">
+                    {r.avaliador ?? '—'}
+                  </td>
+                  <td className="px-4 py-3 leading-snug text-white">
+                    <p>{r.competencia}</p>
+                    <StatusBadge
+                      value={r.categoria}
+                      map={CATEGORY_CFG}
+                      className="mt-0.5"
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="inline-block whitespace-nowrap rounded-full bg-[#124A88] px-2.5 py-0.5 text-xs font-medium text-[#CFE3FF]">
+                      {r.tipoAvaliacao}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                    {r.nivelObtido}
+                  </td>
+                  <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                    {r.nivelEsperado ?? '—'}
+                  </td>
+                  <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                    {r.gap ?? '—'}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-xs text-[#CFE3FF]">
+                    {new Date(r.data).toLocaleDateString('pt')}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-white">
+                    {EVALUATION_STATUS_CFG[r.estado]?.label ?? r.estado}
+                  </td>
+                  <td
+                    className="max-w-[180px] truncate px-4 py-3 text-xs text-[#CFE3FF]"
+                    title={r.comentarios ?? ''}
+                  >
+                    {r.comentarios ?? '—'}
+                  </td>
+                  <td
+                    className="max-w-[140px] truncate px-4 py-3 text-xs text-[#CFE3FF]"
+                    title={r.evidencias ?? ''}
+                  >
+                    {r.evidencias ?? '—'}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-xs text-[#9DB4D3]">
+                    {r.proximaAvaliacao
+                      ? new Date(r.proximaAvaliacao).toLocaleDateString('pt')
+                      : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
