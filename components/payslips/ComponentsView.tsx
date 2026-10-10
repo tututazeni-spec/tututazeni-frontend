@@ -56,13 +56,13 @@ export function ComponentsView() {
   const confirm = useConfirm();
   const notify = useToast();
 
-  const [type, setType] = useState<string>('all');
+  const [type, setType] = useState<string>('');  // '' = nada escolhido: só o cabeçalho
   const [state, setState] = useState<StateFilter>('active');
   const [editing, setEditing] = useState<SalaryComponent | null>(null);
   const [creating, setCreating] = useState(false);
 
   const params: Record<string, string> = {};
-  if (type !== 'all') params.type = type;
+  if (type && type !== 'all') params.type = type;
   if (state === 'active') params.active = 'true';
   if (state === 'inactive') params.active = 'false';
 
@@ -106,7 +106,12 @@ export function ComponentsView() {
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Select items={TYPE_ITEMS} value={type} onValueChange={setType} />
+        <Select
+          items={TYPE_ITEMS}
+          value={type}
+          onValueChange={setType}
+          placeholder="Seleccionar tipo"
+        />
         <Select
           items={STATE_ITEMS}
           value={state}
@@ -140,7 +145,7 @@ export function ComponentsView() {
             <div>Ordem</div>
             <div>Acções</div>
           </div>
-          {data!.map((c) => (
+          {type !== '' && data!.map((c) => (
             <div
               key={c.code}
               className={`grid grid-cols-[1fr_110px_150px_130px_80px_88px] items-center gap-3 border-b border-[#6F8FB8]/20 px-4 py-3 text-white transition-colors duration-150 last:border-0 hover:bg-white/5 ${
