@@ -18,13 +18,28 @@ import {
 import { CATEGORY_CFG } from './constants';
 import type { OnboardingTemplate } from './types';
 
-// Fachada de vidro: gradiente azul + grelha de montantes finos + brilho
-const HEADER_BG = [
-  'linear-gradient(135deg, rgba(15,31,61,0.55) 0%, rgba(15,31,61,0.15) 60%, rgba(18,103,184,0.0) 100%)',
-  'repeating-linear-gradient(90deg, rgba(255,255,255,0.10) 0 1px, transparent 1px 46px)',
-  'repeating-linear-gradient(0deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 38px)',
-  'linear-gradient(160deg, #1267B8 0%, #0B4F9C 55%, #0F1F3D 100%)',
-].join(', ');
+// Paleta por template (escolhida pelo id, estável entre renders): cada card
+// tem a sua cor. [início, meio, fim do gradiente, cor de destaque das linhas]
+const PALETTE: Array<[string, string, string, string]> = [
+  ['#1267B8', '#0B4F9C', '#0F1F3D', '#1267B8'], // azul
+  ['#0E9AA7', '#0B7A86', '#0F3D45', '#0E8794'], // turquesa
+  ['#2E9E6B', '#1E7D52', '#0F3D2A', '#1E8A5A'], // verde
+  ['#7B5CD6', '#5B3FB5', '#2A1B63', '#6A4CC4'], // roxo
+  ['#D9822B', '#B5651A', '#5A3009', '#C27220'], // âmbar
+  ['#D6455D', '#B02D45', '#5E1424', '#C23A52'], // carmim
+  ['#3F6FD8', '#2B4FB0', '#14235E', '#3A63C6'], // índigo
+  ['#5B7083', '#46586A', '#1E2A36', '#51657A'], // ardósia
+];
+
+// Fachada de vidro: gradiente + grelha de montantes finos + brilho
+function headerBackground([c1, c2, c3]: [string, string, string, string]) {
+  return [
+    'linear-gradient(135deg, rgba(15,31,61,0.35) 0%, rgba(15,31,61,0.10) 60%, rgba(255,255,255,0) 100%)',
+    'repeating-linear-gradient(90deg, rgba(255,255,255,0.10) 0 1px, transparent 1px 46px)',
+    'repeating-linear-gradient(0deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 38px)',
+    `linear-gradient(160deg, ${c1} 0%, ${c2} 55%, ${c3} 100%)`,
+  ].join(', ');
+}
 
 function Metric({
   icon: Icon,
@@ -43,19 +58,27 @@ function Metric({
 
 function InfoRow({
   icon: Icon,
+  accent,
   children,
 }: {
   icon: LucideIcon;
+  accent: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex items-center gap-3 rounded-[14px] bg-[#EEF4FD] px-4 py-3 text-[15px] text-[#0F1F3D]">
-      <Icon size={20} strokeWidth={1.75} className="shrink-0 text-[#1267B8]" />
+      <Icon
+        size={20}
+        strokeWidth={1.75}
+        className="shrink-0"
+        style={{ color: accent }}
+      />
       <span className="min-w-0 flex-1 break-words">{children}</span>
       <ChevronRight
         size={18}
         strokeWidth={1.75}
-        className="shrink-0 text-[#1267B8]"
+        className="shrink-0"
+        style={{ color: accent }}
       />
     </div>
   );
@@ -68,6 +91,7 @@ export function TemplateCard({
   template: OnboardingTemplate;
   onOpen: () => void;
 }) {
+  const palette = PALETTE[Math.abs(t.id) % PALETTE.length];
   const category = t.department?.name ?? t.company ?? null;
   const description = t.objective || t.description;
   const tasks = t.tasks ?? [];
@@ -87,7 +111,7 @@ export function TemplateCard({
     >
       <div
         className="flex min-h-[190px] flex-col justify-between p-7 text-white"
-        style={{ background: HEADER_BG }}
+        style={{ background: headerBackground(palette) }}
       >
         <div className="flex items-start justify-between">
           <Users size={30} strokeWidth={1.75} aria-hidden />
@@ -127,8 +151,16 @@ export function TemplateCard({
             {description}
           </p>
         )}
-        {t.position && <InfoRow icon={User}>{t.position.name}</InfoRow>}
-        {t.unit && <InfoRow icon={GraduationCap}>{t.unit.name}</InfoRow>}
+        {t.position && (
+          <InfoRow icon={User} accent={palette[3]}>
+            {t.position.name}
+          </InfoRow>
+        )}
+        {t.unit && (
+          <InfoRow icon={GraduationCap} accent={palette[3]}>
+            {t.unit.name}
+          </InfoRow>
+        )}
 
         {tasks.length > 0 && (
           <div className="space-y-1 pt-3">
