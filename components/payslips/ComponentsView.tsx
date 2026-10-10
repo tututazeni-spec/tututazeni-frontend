@@ -51,6 +51,25 @@ function calcLabel(c: SalaryComponent): string {
 
 const CALC_MONO: ComponentCalcType[] = ['FORMULA'];
 
+// Rótulos em português para os códigos técnicos (o código em si não muda).
+const CODE_LABELS: Record<string, string> = {
+  BASE_SALARY: 'Salário base',
+  ALLOWANCE_FOOD: 'Sub. alimentação',
+  ALLOWANCE_TRANSPORT: 'Sub. transporte',
+  OVERTIME: 'Horas extras',
+  BONUS: 'Bónus',
+  INSS_EMPLOYEE: 'INSS colaborador',
+  IRT: 'IRT',
+  HEALTH_INSURANCE: 'Seguro de saúde',
+  UNION_FEE: 'Quota sindical',
+  ADVANCE: 'Adiantamento',
+  ABSENCE_DEDUCTION: 'Desc. por faltas',
+};
+
+function codeLabel(code: string): string {
+  return CODE_LABELS[code] ?? code;
+}
+
 export function ComponentsView() {
   const qc = useQueryClient();
   const confirm = useConfirm();
@@ -148,7 +167,9 @@ export function ComponentsView() {
                 c.active ? '' : 'opacity-55'
               }`}
             >
-              <div className="font-mono text-sm text-white">{c.code}</div>
+              <div className="font-body text-sm text-white" title={c.code}>
+                {codeLabel(c.code)}
+              </div>
               <div className="min-w-0">
                 <div className="truncate font-body text-sm font-semibold text-white">
                   {c.name}
