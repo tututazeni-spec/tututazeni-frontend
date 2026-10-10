@@ -25,6 +25,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -208,41 +209,37 @@ export function MyPlanView() {
       )}
 
       {/* Header */}
-      <Card>
-        <CardBody>
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div>
-              <div className="text-sm text-ink-faint mb-0.5">
-                Plano de integração
-              </div>
-              <div className="text-xl font-bold text-ink">
-                {plan.template.name}
-              </div>
-              <div className="text-xs text-ink-muted mt-1">
-                Início: {fmtDate(plan.startDate)} · {plan.template.durationDays}{' '}
-                dias
-              </div>
+      <NavyHeroCard className="block">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <div className="mb-0.5 text-sm text-white">Plano de integração</div>
+            <div className="text-xl font-bold tracking-tight text-white">
+              {plan.template.name}
             </div>
-            <div className="text-right">
-              <div className="text-3xl font-bold font-mono text-primary">
-                {pct}%
-              </div>
-              <div className="text-xs text-ink-faint">
-                {plan.completedTasks}/{plan.totalTasks} tarefas
-              </div>
-              {plan.xpEarned > 0 && (
-                <div className="text-xs text-warning-ink font-medium mt-1">
-                  {plan.xpEarned} Ponto de Experiência ganho
-                </div>
-              )}
+            <div className="mt-1 text-xs text-white">
+              Início: {fmtDate(plan.startDate)} · {plan.template.durationDays}{' '}
+              dias
             </div>
           </div>
-          <ProgressBar value={pct} />
-          <div className="mt-1 text-right text-xs text-ink-faint">
-            {paceLabel(pct)}
+          <div className="text-right">
+            <div className="font-mono text-3xl font-bold text-white">
+              {pct}%
+            </div>
+            <div className="text-xs text-white">
+              {plan.completedTasks}/{plan.totalTasks} tarefas
+            </div>
+            {plan.xpEarned > 0 && (
+              <div className="mt-1 text-xs font-medium text-white">
+                {plan.xpEarned} Ponto de Experiência ganho
+              </div>
+            )}
           </div>
-        </CardBody>
-      </Card>
+        </div>
+        <ProgressBar value={pct} />
+        <div className="mt-1 text-right text-xs text-white">
+          {paceLabel(pct)}
+        </div>
+      </NavyHeroCard>
 
       {/* Tabs */}
       <Tabs
