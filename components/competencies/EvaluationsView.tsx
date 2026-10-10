@@ -75,13 +75,13 @@ const COLUMNS = [
 
 const AVATAR_COLORS = ['#22B8A7', '#9B35D5', '#FF9C2A', '#1685FF'];
 
-function avatarColor(name: string): string {
+export function avatarColor(name: string): string {
   let h = 0;
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   return AVATAR_COLORS[h % AVATAR_COLORS.length];
 }
 
-function initials(name: string): string {
+export function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '?';
   const first = parts[0][0];

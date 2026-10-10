@@ -48,14 +48,35 @@ import type {
 
 const ALL = 'ALL';
 
+// Cabeçalho dos cards de relatório: #0F1F3D a 60%, letra branca, sem hover.
+const CARD_HEADER_CLASS =
+  'border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white';
+
+// Paleta para as listas em que cada competência tem a sua própria cor.
+const BAR_COLORS = [
+  '#1685FF',
+  '#22B8A7',
+  '#9B35D5',
+  '#FF9C2A',
+  '#E5484D',
+  '#30A46C',
+  '#E93D82',
+  '#5B5BD6',
+  '#00A2C7',
+  '#F5D90A',
+];
+
 function RankedList({
   rows,
   empty,
   valueLabel,
+  colorful,
 }: {
   rows: { label: string; value: number; sub?: string }[];
   empty: string;
   valueLabel?: (v: number) => string;
+  /** true = cada linha usa uma cor diferente da paleta. */
+  colorful?: boolean;
 }) {
   if (rows.length === 0) {
     return (
@@ -67,7 +88,7 @@ function RankedList({
   const max = Math.max(...rows.map((r) => r.value), 1);
   return (
     <div className="space-y-2 p-4">
-      {rows.map((r) => (
+      {rows.map((r, i) => (
         <div key={r.label} className="flex items-center gap-3">
           <span
             className="w-32 shrink-0 truncate font-body text-xs text-ink-muted"
@@ -77,8 +98,13 @@ function RankedList({
           </span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
             <div
-              className="h-full rounded-full bg-primary"
-              style={{ width: `${Math.round((r.value / max) * 100)}%` }}
+              className={`h-full rounded-full ${colorful ? '' : 'bg-primary'}`}
+              style={{
+                width: `${Math.round((r.value / max) * 100)}%`,
+                ...(colorful
+                  ? { backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }
+                  : {}),
+              }}
             />
           </div>
           <span className="w-16 shrink-0 text-right font-mono text-xs text-ink-faint">
@@ -104,7 +130,7 @@ function GroupTable({
 }) {
   return (
     <Card className="overflow-hidden p-0">
-      <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+      <div className={CARD_HEADER_CLASS}>
         {title}
       </div>
       {kind === 'competencies' ? (
@@ -280,7 +306,7 @@ export function ReportsView() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <NavyStatCard
               icon={Layers}
               tone="blue"
@@ -410,7 +436,7 @@ export function ReportsView() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <Card className="overflow-hidden p-0">
-              <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className={CARD_HEADER_CLASS}>
                 Competências críticas
               </div>
               <RankedList
@@ -423,7 +449,7 @@ export function ReportsView() {
               />
             </Card>
             <Card className="overflow-hidden p-0">
-              <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className={CARD_HEADER_CLASS}>
                 Competências mais desenvolvidas
               </div>
               <RankedList
@@ -432,12 +458,13 @@ export function ReportsView() {
                   value: c.usersAssessed,
                 }))}
                 empty="Sem dados"
+                colorful
               />
             </Card>
           </div>
 
           <Card className="overflow-hidden p-0">
-            <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className={CARD_HEADER_CLASS}>
               Competências com maior défice
             </div>
             <RankedList
@@ -446,6 +473,7 @@ export function ReportsView() {
                 value: c.totalGap,
               }))}
               empty="Sem défices identificados"
+              colorful
             />
           </Card>
         </>

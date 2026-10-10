@@ -11,19 +11,10 @@ import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
 import {
   CATEGORY_CFG,
   GAP_IMPACT_CFG,
@@ -37,13 +28,14 @@ import {
   usePositionOptions,
   type DirectoryUser,
 } from './modelFormData';
+import { avatarColor, initials } from './EvaluationsView';
 import { UserFilterSearch } from './UserFilterSearch';
 import type { CompetencyGap } from './types';
 
-const ALL = 'ALL';
+const ALL = '';
 
 const HIERARCHY_LEVEL_ITEMS = [
-  { value: ALL, label: 'Todos os níveis hierárquicos' },
+  { value: ALL, label: 'Nível hierárquico' },
   ...Object.entries(POSITION_LEVEL_CFG).map(([value, cfg]) => ({
     value,
     label: cfg.label,
@@ -51,7 +43,7 @@ const HIERARCHY_LEVEL_ITEMS = [
 ];
 
 const PRIORITY_ITEMS = [
-  { value: ALL, label: 'Todas as prioridades' },
+  { value: ALL, label: 'Prioridade' },
   ...Object.entries(GAP_PRIORITY_CFG).map(([value, cfg]) => ({
     value,
     label: cfg.label,
@@ -59,11 +51,25 @@ const PRIORITY_ITEMS = [
 ];
 
 const STATUS_ITEMS = [
-  { value: ALL, label: 'Todos os estados' },
+  { value: ALL, label: 'Estado' },
   ...Object.entries(GAP_STATUS_CFG).map(([value, cfg]) => ({
     value,
     label: cfg.label,
   })),
+];
+
+const COLUMNS = [
+  { label: 'Colaborador' },
+  { label: 'Competência' },
+  { label: 'Nível atual', center: true },
+  { label: 'Nível esperado', center: true },
+  { label: 'Lacuna', center: true },
+  { label: 'Prioridade' },
+  { label: 'Crítica' },
+  { label: 'Impacto' },
+  { label: 'Identificado em' },
+  { label: 'Plano associado' },
+  { label: 'Estado' },
 ];
 
 export function GapsView() {
@@ -89,10 +95,13 @@ export function GapsView() {
     userId: user?.id,
   };
 
+  // Sem nenhum filtro seleccionado só se mostra o cabeçalho da tabela.
+  const hasFilter = Object.values(params).some((v) => v !== undefined);
+
   const { data: rows, isLoading: loading } = useApiQuery<CompetencyGap[]>(
     queryKeys.competencies.gaps(params),
     '/competencies/gaps',
-    { params, staleTime: STALE_TIME.DYNAMIC },
+    { params, staleTime: STALE_TIME.DYNAMIC, enabled: hasFilter },
   );
 
   return (
@@ -100,20 +109,20 @@ export function GapsView() {
       <div className="flex flex-wrap gap-2">
         <Select
           items={[
-            { value: ALL, label: 'Todos os departamentos' },
+            { value: ALL, label: 'Departamento' },
             ...departmentOptions,
           ]}
           value={departmentId}
           onValueChange={setDepartmentId}
         />
         <Select
-          items={[{ value: ALL, label: 'Todos os cargos' }, ...positionOptions]}
+          items={[{ value: ALL, label: 'Cargo' }, ...positionOptions]}
           value={positionId}
           onValueChange={setPositionId}
         />
         <Select
           items={[
-            { value: ALL, label: 'Todas as competências' },
+            { value: ALL, label: 'Competência' },
             ...competencyOptions,
           ]}
           value={competencyId}
@@ -137,93 +146,102 @@ export function GapsView() {
         />
       </div>
 
-      {loading ? (
+      {hasFilter && loading ? (
         <Skeleton rows={6} />
-      ) : !rows || rows.length === 0 ? (
+      ) : hasFilter && (!rows || rows.length === 0) ? (
         <EmptyState
           title="Sem lacunas"
           description="Nenhuma lacuna de competência corresponde aos filtros seleccionados."
         />
       ) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              {[
-                'Colaborador',
-                'Competência',
-                'Nível atual',
-                'Nível esperado',
-                'Lacuna',
-                'Prioridade',
-                'Crítica',
-                'Impacto',
-                'Identificado em',
-                'Plano associado',
-                'Estado',
-              ].map((h) => (
-                <TableHeaderCell key={h}>{h}</TableHeaderCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((r) => (
-              <TableRow key={r.id}>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Avatar
-                      name={r.colaborador}
-                      url={r.colaboradorAvatarUrl ?? undefined}
-                      size="sm"
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-ink">
-                        {r.colaborador}
-                      </p>
-                      <p className="text-[11px] text-ink-faint">
-                        {r.departamento ?? '—'} · {r.cargo ?? '—'}
-                      </p>
+        <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+          <table className="w-full min-w-[1100px] border-collapse font-body text-sm text-white">
+            <thead className="bg-[#0B2D5B]">
+              <tr>
+                {COLUMNS.map((c) => (
+                  <th
+                    key={c.label}
+                    className={`px-4 py-3 text-xs font-bold uppercase leading-tight tracking-wide text-white ${c.center ? 'text-center' : 'text-left'}`}
+                  >
+                    {c.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {(hasFilter ? (rows ?? []) : []).map((r) => (
+                <tr
+                  key={r.id}
+                  className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
+                >
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      {r.colaboradorAvatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={r.colaboradorAvatarUrl}
+                          alt={r.colaborador}
+                          className="h-9 w-9 shrink-0 rounded-full object-cover"
+                        />
+                      ) : (
+                        <span
+                          aria-hidden
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+                          style={{ backgroundColor: avatarColor(r.colaborador) }}
+                        >
+                          {initials(r.colaborador)}
+                        </span>
+                      )}
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-white">
+                          {r.colaborador}
+                        </p>
+                        <p className="truncate text-xs text-[#9DB4D3]">
+                          {r.departamento ?? '—'} · {r.cargo ?? '—'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <p className="text-sm text-ink">{r.competencia}</p>
-                  <StatusBadge
-                    value={r.categoria}
-                    map={CATEGORY_CFG}
-                    className="mt-0.5"
-                  />
-                </TableCell>
-                <TableCell className="text-sm text-ink-muted">
-                  {r.nivelAtual}
-                </TableCell>
-                <TableCell className="text-sm font-medium text-ink">
-                  {r.nivelEsperado}
-                </TableCell>
-                <TableCell className="text-sm font-medium text-danger-ink">
-                  {r.gap}
-                </TableCell>
-                <TableCell>
-                  <StatusBadge value={r.prioridade} map={GAP_PRIORITY_CFG} />
-                </TableCell>
-                <TableCell className="text-xs text-ink-muted">
-                  {r.competenciaCritica ? 'Sim' : 'Não'}
-                </TableCell>
-                <TableCell>
-                  <StatusBadge value={r.impacto} map={GAP_IMPACT_CFG} />
-                </TableCell>
-                <TableCell className="text-xs text-ink-muted">
-                  {new Date(r.dataIdentificacao).toLocaleDateString('pt')}
-                </TableCell>
-                <TableCell className="text-xs text-ink-muted">
-                  {r.planoDesenvolvimentoAssociado?.name ?? '—'}
-                </TableCell>
-                <TableCell>
-                  <StatusBadge value={r.estado} map={GAP_STATUS_CFG} />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                  </td>
+                  <td className="px-4 py-3 leading-snug text-white">
+                    <p>{r.competencia}</p>
+                    <StatusBadge
+                      value={r.categoria}
+                      map={CATEGORY_CFG}
+                      className="mt-0.5"
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                    {r.nivelAtual}
+                  </td>
+                  <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                    {r.nivelEsperado}
+                  </td>
+                  <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                    {r.gap}
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge value={r.prioridade} map={GAP_PRIORITY_CFG} />
+                  </td>
+                  <td className="px-4 py-3 text-xs text-white">
+                    {r.competenciaCritica ? 'Sim' : 'Não'}
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge value={r.impacto} map={GAP_IMPACT_CFG} />
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-xs text-[#CFE3FF]">
+                    {new Date(r.dataIdentificacao).toLocaleDateString('pt')}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-[#CFE3FF]">
+                    {r.planoDesenvolvimentoAssociado?.name ?? '—'}
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge value={r.estado} map={GAP_STATUS_CFG} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
