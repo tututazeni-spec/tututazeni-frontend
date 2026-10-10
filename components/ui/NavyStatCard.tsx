@@ -9,7 +9,7 @@ import { cn } from '@/lib/cn';
 export type NavyStatTone = 'blue' | 'green' | 'orange' | 'red';
 
 // Classes completas: o Tailwind não detecta nomes montados dinamicamente
-const TONES: Record<NavyStatTone, { bg: string; text: string }> = {
+export const NAVY_TONES: Record<NavyStatTone, { bg: string; text: string }> = {
   blue: { bg: 'bg-[#1877F2]', text: 'text-[#1877F2]' },
   green: { bg: 'bg-[#218653]', text: 'text-[#218653]' },
   orange: { bg: 'bg-[#E99A16]', text: 'text-[#E99A16]' },
@@ -35,7 +35,7 @@ export function NavyStatCard({
   tone: NavyStatTone;
   className?: string;
 }) {
-  const t = TONES[tone];
+  const t = NAVY_TONES[tone];
   return (
     <div
       className={cn(

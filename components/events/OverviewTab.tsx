@@ -23,10 +23,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime as fmtDateTime } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { KpiCard } from '@/components/ui/KpiCard';
-import {
-  NavyStatCard,
-  type NavyStatTone,
-} from '@/components/ui/NavyStatCard';
+import { type NavyStatTone } from '@/components/ui/NavyStatCard';
+import { NavyStatGroupCard } from '@/components/ui/NavyStatGroupCard';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -173,20 +171,19 @@ export function OverviewTab() {
       </div>
 
       {/* Status breakdown */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        {Object.entries(STATUS_CFG).map(([status, cfg]) => {
+      <NavyStatGroupCard
+        title="Eventos por Estado"
+        items={Object.entries(STATUS_CFG).map(([status, cfg]) => {
           const look = STATUS_CARD[status] ?? STATUS_CARD.DRAFT;
-          return (
-            <NavyStatCard
-              key={status}
-              icon={look.icon}
-              tone={look.tone}
-              label={cfg.label}
-              value={data.byStatus[status] ?? 0}
-            />
-          );
+          return {
+            key: status,
+            icon: look.icon,
+            tone: look.tone,
+            label: cfg.label,
+            value: data.byStatus[status] ?? 0,
+          };
         })}
-      </div>
+      />
 
       {/* Breakdowns */}
       <div className="grid grid-cols-3 gap-3">

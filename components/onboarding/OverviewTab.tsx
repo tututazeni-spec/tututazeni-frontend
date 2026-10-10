@@ -24,10 +24,8 @@ import { formatDate as fmtDate } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { KpiCard } from '@/components/ui/KpiCard';
-import {
-  NavyStatCard,
-  type NavyStatTone,
-} from '@/components/ui/NavyStatCard';
+import { type NavyStatTone } from '@/components/ui/NavyStatCard';
+import { NavyStatGroupCard } from '@/components/ui/NavyStatGroupCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -162,20 +160,19 @@ export function OverviewTab({
       </div>
 
       {/* Status breakdown */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        {Object.entries(STATUS_CFG).map(([status, cfg]) => {
+      <NavyStatGroupCard
+        title="Integrações dos Colaboradores por Estado"
+        items={Object.entries(STATUS_CFG).map(([status, cfg]) => {
           const look = STATUS_CARD[status] ?? STATUS_CARD.NOT_STARTED;
-          return (
-            <NavyStatCard
-              key={status}
-              icon={look.icon}
-              tone={look.tone}
-              label={cfg.label}
-              value={summary.byStatus[status] ?? 0}
-            />
-          );
+          return {
+            key: status,
+            icon: look.icon,
+            tone: look.tone,
+            label: cfg.label,
+            value: summary.byStatus[status] ?? 0,
+          };
         })}
-      </div>
+      />
 
       {/* Breakdowns */}
       <div className="grid grid-cols-3 gap-3">
