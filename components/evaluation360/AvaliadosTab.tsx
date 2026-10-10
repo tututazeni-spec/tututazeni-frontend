@@ -114,7 +114,7 @@ export function AvaliadosTab() {
       </div>
 
       {!cycleId && !cyclesLoading && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
@@ -122,16 +122,16 @@ export function AvaliadosTab() {
         <div className="text-sm text-ink-muted">A carregar…</div>
       )}
       {cycleId && !isLoading && rows.length === 0 && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
           Nenhum avaliado encontrado com estes filtros.
         </div>
       )}
 
       {rows.length > 0 && (
-        <div className="rounded-xl border border-border bg-surface overflow-x-auto">
+        <div className="rounded-card border border-border bg-surface overflow-x-auto">
           <table className="w-full text-sm border-collapse min-w-[1000px]">
             <thead>
-              <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wider text-ink-muted">
+              <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Colaborador</th>
                 <th className="px-4 py-3">Cargo</th>
                 <th className="px-4 py-3">Departamento</th>

@@ -66,7 +66,7 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
           </Button>
         </div>
         {feedbacks.length === 0 && (
-          <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+          <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
             Ainda sem feedback contínuo.
           </div>
         )}
@@ -194,7 +194,7 @@ function CycleFeedbackSection() {
       </div>
 
       {!cycleId && !cyclesLoading && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
@@ -202,7 +202,7 @@ function CycleFeedbackSection() {
         <div className="text-sm text-ink-muted">A carregar…</div>
       )}
       {cycleId && !isLoading && rows.length === 0 && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
           Ainda sem feedback submetido para este ciclo.
         </div>
       )}
@@ -214,7 +214,7 @@ function CycleFeedbackSection() {
             return (
               <div
                 key={`${r.evaluateeId}-${i}`}
-                className="rounded-lg border border-border bg-surface p-4"
+                className="rounded-card border border-border bg-surface p-4"
               >
                 <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
                   <div className="flex flex-wrap items-center gap-2">

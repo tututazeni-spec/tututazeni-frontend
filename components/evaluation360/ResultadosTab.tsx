@@ -75,16 +75,21 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
         </div>
 
         {competencies.length === 0 ? (
-          <div className="rounded-xl border border-border bg-surface p-6 text-sm text-ink-muted">
+          <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
             Ainda sem competências pontuadas para ti.
           </div>
         ) : (
           <>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
-              <div className="rounded-xl border border-border bg-surface p-6 flex justify-center">
-                <ErrorBoundary source="evaluation360.RadarChart">
-                  <RadarChart competencies={competencies} />
-                </ErrorBoundary>
+              <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+                <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+                  Radar de competências
+                </h3>
+                <div className="flex justify-center">
+                  <ErrorBoundary source="evaluation360.RadarChart">
+                    <RadarChart competencies={competencies} />
+                  </ErrorBoundary>
+                </div>
               </div>
               <div className="flex flex-col gap-2.5">
                 <div className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-1">
@@ -95,7 +100,7 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
                   return (
                     <div
                       key={c.id}
-                      className="rounded-lg border border-border bg-surface px-3.5 py-2.5 flex justify-between items-center"
+                      className="rounded-card border border-border bg-surface px-3.5 py-2.5 flex justify-between items-center"
                     >
                       <span className="text-sm font-semibold text-ink">
                         {c.name}
@@ -132,16 +137,16 @@ export function ResultadosTab({ competencies }: ResultadosTabProps) {
                 </span>
               ))}
             </div>
-            <div className="rounded-xl border border-border bg-surface overflow-hidden">
+            <div className="rounded-card border border-border bg-surface overflow-hidden">
               <ErrorBoundary source="evaluation360.CompetencyHeatmap">
                 <CompetencyHeatmap competencies={competencies} />
               </ErrorBoundary>
             </div>
 
-            <div className="rounded-xl border border-border bg-surface overflow-x-auto">
+            <div className="rounded-card border border-border bg-surface overflow-x-auto">
               <table className="w-full text-sm border-collapse min-w-[900px]">
                 <thead>
-                  <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wider text-ink-muted">
+                  <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
                     <th className="px-4 py-3">Competência</th>
                     <th className="px-4 py-3 text-right">Auto</th>
                     <th className="px-4 py-3 text-right">Gestor</th>
@@ -245,7 +250,7 @@ function CycleResultsMatrix() {
       </div>
 
       {!cycleId && !cyclesLoading && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
@@ -253,16 +258,16 @@ function CycleResultsMatrix() {
         <div className="text-sm text-ink-muted">A carregar…</div>
       )}
       {cycleId && !isLoading && rows.length === 0 && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
           Este ciclo ainda não tem resultados calculados.
         </div>
       )}
 
       {rows.length > 0 && (
-        <div className="rounded-xl border border-border bg-surface overflow-x-auto">
+        <div className="rounded-card border border-border bg-surface overflow-x-auto">
           <table className="w-full text-sm border-collapse min-w-[1100px]">
             <thead>
-              <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wider text-ink-muted">
+              <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Avaliado</th>
                 <th className="px-4 py-3">Competência</th>
                 <th className="px-4 py-3 text-right">Auto</th>

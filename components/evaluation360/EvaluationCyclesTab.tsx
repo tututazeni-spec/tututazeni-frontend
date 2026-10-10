@@ -270,16 +270,16 @@ export function EvaluationCyclesTab() {
 
       {isLoading && <div className="text-sm text-ink-muted">A carregar…</div>}
       {!isLoading && cycles.length === 0 && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-sm text-ink-muted">
+        <div className="rounded-card border border-border bg-surface p-5 font-body text-sm text-ink-muted">
           Nenhuma avaliação 360° encontrada com estes filtros.
         </div>
       )}
 
       {cycles.length > 0 && (
-        <div className="rounded-xl border border-border bg-surface overflow-x-auto">
+        <div className="rounded-card border border-border bg-surface overflow-x-auto">
           <table className="w-full text-sm border-collapse min-w-[900px]">
             <thead>
-              <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wider text-ink-muted">
+              <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Nome</th>
                 <th className="px-4 py-3">Código</th>
                 <th className="px-4 py-3">Tipo</th>
