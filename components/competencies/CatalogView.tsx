@@ -184,8 +184,8 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
             }}
           />
         )}
-        <span className="font-body text-sm text-ink-faint">
-          {data?.total ?? 0} competências
+        <span className="font-body text-sm text-black">
+          {data?.total ?? 0} Competências
         </span>
       </div>
 
