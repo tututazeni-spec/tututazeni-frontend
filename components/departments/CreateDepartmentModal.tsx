@@ -383,7 +383,7 @@ export function CreateDepartmentModal({
             </FormField>
 
             <FormField
-              label="Headcount previsto"
+              label="Número de colaboradores previsto"
               htmlFor="cd-expected-employees"
             >
               <Input
