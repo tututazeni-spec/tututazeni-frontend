@@ -101,9 +101,9 @@ beforeEach(() => {
 });
 
 describe('ComponentsView', () => {
-  test('renders a row per component with code, name and a type badge', () => {
+  test('renders a row per component with name and a type badge', () => {
     render(<ComponentsView />);
-    expect(screen.getByText('BASE')).toBeInTheDocument();
+    expect(screen.queryByText('BASE')).not.toBeInTheDocument();
     expect(screen.getByText('Salário Base')).toBeInTheDocument();
     // The filter labels "Rendimento"/"Desconto" also live in the (mocked) Select
     // <option>s, so scope the type-badge assertions to the row <span>s. Two
