@@ -15,6 +15,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
 import { formatKz as fmtKz, formatDate as fmtDate } from '@/lib/format';
+import { Avatar } from '@/components/ui/Avatar';
 import { fmtPeriodNumeric } from '@/components/payslips/format';
 import {
   PAYSLIP_STATUS_MAP,
@@ -56,7 +57,7 @@ const STATUS_ITEMS = [
   { value: 'DISPUTED', label: PAYSLIP_STATUS_MAP.DISPUTED.label },
 ];
 
-const COLS = 'grid grid-cols-[1.4fr_110px_120px_130px_130px_120px_120px] gap-3';
+const COLS = 'grid grid-cols-[minmax(0,1fr)_72px_96px_120px_120px_100px_128px] gap-2';
 
 export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
   const confirm = useConfirm();
@@ -173,8 +174,8 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
       )}
 
       {!isLoading && rows.length > 0 && (
-        <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
-          <div className="min-w-[900px]">
+        <div className="overflow-hidden rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+          <div>
             <div
               className={`${COLS} bg-[#0B2D5B] px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
             >
@@ -192,12 +193,19 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                 className={`${COLS} cursor-pointer items-center border-b border-[#6F8FB8]/20 px-4 py-3.5 text-white transition-colors duration-150 last:border-0 hover:bg-white/5`}
                 onClick={() => onSelect(r.id)}
               >
-                <div className="min-w-0">
-                  <div className="truncate font-body text-sm font-semibold text-white">
-                    {r.user?.fullName ?? '—'}
-                  </div>
-                  <div className="truncate font-mono text-xs text-[#9DB4D3]">
-                    {r.user?.employeeNumber ?? '—'}
+                <div className="flex min-w-0 items-center gap-3">
+                  <Avatar
+                    name={r.user?.fullName ?? '—'}
+                    size="lg"
+                    className="shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <div className="truncate font-body text-sm font-semibold text-white">
+                      {r.user?.fullName ?? '—'}
+                    </div>
+                    <div className="truncate font-mono text-xs text-[#9DB4D3]">
+                      {r.user?.employeeNumber ?? '—'}
+                    </div>
                   </div>
                 </div>
                 <div className="font-body text-sm text-[#CFE3FF]">
@@ -220,7 +228,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                   />
                 </div>
                 <div
-                  className="flex gap-2"
+                  className="flex gap-1"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <IconButton
