@@ -8,6 +8,7 @@
 
 'use client';
 
+import { FilterPanelCard } from './FilterPanelCard';
 import { useEffect, useState } from 'react';
 import type { CycleEvaluatorRow } from './types';
 import { evaluatorAssignmentStatusLabel, evaluatorRoleLabel } from './colors';
@@ -76,7 +77,7 @@ export function AvaliadoresTab() {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-3 items-end">
+      <FilterPanelCard>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Ciclo</div>
           <Select
@@ -103,7 +104,7 @@ export function AvaliadoresTab() {
           </div>
           <Select items={ROLE_OPTIONS} value={role} onValueChange={setRole} />
         </div>
-      </div>
+      </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
         <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">

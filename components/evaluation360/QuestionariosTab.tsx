@@ -7,6 +7,7 @@
 
 'use client';
 
+import { FilterPanelCard } from './FilterPanelCard';
 import { useState } from 'react';
 import { FileText, Plus } from 'lucide-react';
 import type { QuestionnaireListItem, QuestionnaireStatus } from './types';
@@ -104,7 +105,7 @@ export function QuestionariosTab() {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-3 items-end">
+      <FilterPanelCard>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">
             Estado
@@ -115,7 +116,7 @@ export function QuestionariosTab() {
             onValueChange={setStatus}
           />
         </div>
-      </div>
+      </FilterPanelCard>
 
       {isLoading && <div className="text-sm text-ink-muted">A carregar…</div>}
       {!isLoading && rows.length === 0 && (

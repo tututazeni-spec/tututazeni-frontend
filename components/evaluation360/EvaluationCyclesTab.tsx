@@ -14,6 +14,7 @@
 
 'use client';
 
+import { FilterPanelCard } from './FilterPanelCard';
 import { useState } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -197,7 +198,7 @@ export function EvaluationCyclesTab() {
       </div>
 
       {/* Filtros: Estado, Tipo, Departamento, Unidade, Cargo, Responsável, Data — docs/evaluation360.md §2 */}
-      <div className="flex flex-wrap gap-3 items-end">
+      <FilterPanelCard>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">
             Estado
@@ -266,7 +267,7 @@ export function EvaluationCyclesTab() {
             onChange={(e) => setTo(e.target.value)}
           />
         </div>
-      </div>
+      </FilterPanelCard>
 
       {isLoading && <div className="text-sm text-ink-muted">A carregar…</div>}
       {!isLoading && cycles.length === 0 && (
