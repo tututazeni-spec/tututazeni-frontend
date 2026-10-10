@@ -241,7 +241,7 @@ export function CustomReportsPanel({ filters }: CustomReportsPanelProps) {
                 id="cr-sort"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                placeholder="ex.: headcount"
+                placeholder="ex.: número de colaboradores"
               />
             </div>
             <div>

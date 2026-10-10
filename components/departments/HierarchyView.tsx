@@ -90,7 +90,6 @@ export function HierarchyView() {
           }}
           className="w-56"
         />
-        <span className="text-sm text-ink-faint">{data?.total ?? 0} colaboradores</span>
       </div>
 
       {isLoading && (
@@ -102,9 +101,9 @@ export function HierarchyView() {
       )}
       {error && <div className="px-4 py-8 text-center text-sm text-danger">{error.message}</div>}
       {!isLoading && !error && (
-        <Table>
+        <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-[10px]">
           <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
-            <TableRow>
+            <TableRow className="hover:bg-transparent">
               <TableHeaderCell>Colaborador</TableHeaderCell>
               <TableHeaderCell>Cargo</TableHeaderCell>
               <TableHeaderCell>Departamento</TableHeaderCell>
@@ -124,11 +123,11 @@ export function HierarchyView() {
               </TableRow>
             ) : (
               data?.data.map((u) => (
-                <TableRow key={u.id}>
+                <TableRow key={u.id} className="hover:bg-transparent">
                   <TableCell>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
-                      <span className="text-sm text-ink">{u.fullName}</span>
+                      <span className="text-xs text-ink">{u.fullName}</span>
                       {!u.active && (
                         <Badge intent="neutral" className="text-[10px]">
                           Inactivo
@@ -136,14 +135,14 @@ export function HierarchyView() {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-ink-muted">
+                  <TableCell className="text-xs text-ink-muted">
                     {u.position?.name ?? '—'}
                   </TableCell>
-                  <TableCell className="text-sm text-ink-muted">
+                  <TableCell className="text-xs text-ink-muted">
                     {u.department?.name ?? '—'}
                     {u.subdepartment ? ` · ${u.subdepartment}` : ''}
                   </TableCell>
-                  <TableCell className="text-sm text-ink-muted">
+                  <TableCell className="text-xs text-ink-muted">
                     {u.manager?.fullName ?? '—'}
                   </TableCell>
                   <TableCell className="text-xs font-mono text-ink-muted">{u.level}</TableCell>
@@ -153,7 +152,7 @@ export function HierarchyView() {
                   <TableCell className="text-xs font-mono text-ink-muted">
                     {u.indirectReportsCount}
                   </TableCell>
-                  <TableCell className="max-w-xs truncate text-xs text-ink-faint" title={u.reportingChain.join(' → ')}>
+                  <TableCell className="max-w-[9rem] break-words text-[10px] text-ink-faint" title={u.reportingChain.join(' → ')}>
                     {u.reportingChain.join(' → ')}
                   </TableCell>
                 </TableRow>

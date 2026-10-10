@@ -49,6 +49,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { EvalResults } from '@/components/evaluation/types';
+import { genderLabel } from '@/lib/gender';
 import {
   ACCOUNT_STATUS_MAP,
   HR_STATUS_MAP,
@@ -128,7 +129,7 @@ export function PersonalDataTab({ user }: { user: User }) {
         rows={[
           ['Nome completo', user.fullName],
           ['Nome preferencial', user.preferredName],
-          ['Género', user.gender],
+          ['Género', genderLabel(user.gender)],
           ['Data de nascimento', user.birthDate && fmtDate(user.birthDate)],
           ['Nacionalidade', user.nationality],
           ['País de residência', user.country],
