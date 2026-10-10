@@ -14,11 +14,9 @@ import { useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Badge } from '@/components/ui/Badge';
-import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { CATEGORY_CFG } from './constants';
+import { TemplateCard } from './TemplateCard';
 import { TemplateDetailModal } from './TemplateDetailModal';
 import type { OnboardingTemplate } from './types';
 
@@ -56,78 +54,13 @@ export function IntegrationPlansTab({
   }
 
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
       {data.map((t) => (
-        <Card
+        <TemplateCard
           key={t.id}
-          interactive
-          onClick={() => setDetailId(t.id)}
-          className="p-5"
-        >
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <div className="text-sm font-semibold text-ink">
-                {t.name}
-                {t.version && t.version > 1 && (
-                  <span className="ml-1.5 font-mono text-xs font-normal text-ink-faint">
-                    v{t.version}
-                  </span>
-                )}
-              </div>
-              {t.objective ? (
-                <p className="text-xs text-ink-muted mt-0.5 line-clamp-2">
-                  {t.objective}
-                </p>
-              ) : (
-                t.description && (
-                  <p className="text-xs text-ink-muted mt-0.5 line-clamp-2">
-                    {t.description}
-                  </p>
-                )
-              )}
-            </div>
-            <Badge intent={t.active ? 'success' : 'neutral'}>
-              {t.active ? 'Activo' : 'Inactivo'}
-            </Badge>
-          </div>
-
-          <div className="flex flex-wrap gap-2 text-xs text-ink-faint mb-4">
-            <span> {t.durationDays} dias</span>
-            <span> {t._count?.tasks ?? 0} tarefas</span>
-            <span> {t._count?.plans ?? 0} planos</span>
-            {t.position && <span> {t.position.name}</span>}
-            {t.department && <span> {t.department.name}</span>}
-            {t.unit && <span> {t.unit.name}</span>}
-          </div>
-
-          {t.tasks && t.tasks.length > 0 && (
-            <div className="space-y-1">
-              {t.tasks.slice(0, 3).map((task) => {
-                const catCfg = CATEGORY_CFG[task.category];
-                const CatIcon = catCfg?.icon;
-                return (
-                  <div
-                    key={task.id}
-                    className="flex items-center gap-2 text-xs text-ink-muted"
-                  >
-                    <span>
-                      {CatIcon ? <CatIcon size={13} strokeWidth={1.75} /> : '•'}
-                    </span>
-                    <span className="truncate">{task.title}</span>
-                    <span className="ml-auto text-warning-ink">
-                      +{task.xpReward}xp
-                    </span>
-                  </div>
-                );
-              })}
-              {t.tasks.length > 3 && (
-                <div className="text-xs text-ink-faint">
-                  +{t.tasks.length - 3} mais tarefas…
-                </div>
-              )}
-            </div>
-          )}
-        </Card>
+          template={t}
+          onOpen={() => setDetailId(t.id)}
+        />
       ))}
 
       {detailId !== null && (
