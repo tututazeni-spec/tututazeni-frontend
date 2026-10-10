@@ -230,11 +230,11 @@ export function ReportsView() {
           {/* Headcount */}
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             <BarList
-              title="Headcount por departamento (actual)"
+              title="Número de colaboradores por departamento (actual)"
               items={data.headcountByDepartment.map((d) => ({ label: d.name, count: d.actual }))}
             />
             <BarList
-              title="Headcount por unidade"
+              title="Número de colaboradores por unidade"
               items={data.headcountByUnit.map((u) => ({ label: u.name, count: u.actual }))}
             />
             <BarList
@@ -265,7 +265,7 @@ export function ReportsView() {
           {/* Headcount por departamento: previsto vs. actual */}
           <Card className="overflow-hidden">
             <div className="bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
-              Headcount previsto vs. actual, por departamento
+              Número de colaboradores previsto vs. actual, por departamento
             </div>
             {data.headcountByDepartment.length === 0 ? (
               <p className="p-4 text-xs text-ink-faint">Sem dados</p>

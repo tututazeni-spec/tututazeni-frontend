@@ -5,7 +5,7 @@
 
 'use client';
 
-import { AlertTriangle, Building2, CheckCircle2, Users } from 'lucide-react';
+import { Building2, CheckCircle2, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -71,8 +71,10 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
 
       {/* Distribution chart */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
-          Distribuição de colaboradores
+        <div className="flex items-center gap-3 border-b border-border bg-[#0F1F3D]/60 px-5 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          <div className="flex-1">Distribuição de colaboradores</div>
+          <div className="w-20 text-right">Membros</div>
+          <div className="w-24">Responsável</div>
         </div>
         <div className="space-y-3 p-5">
           {rows
@@ -86,13 +88,13 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
                   className="group flex cursor-pointer items-center gap-3"
                   onClick={() => onSelect(r.id)}
                 >
-                  <div className="w-32 truncate text-xs text-ink group-hover:text-primary">
+                  <div className="w-48 shrink-0 break-words text-xs text-ink group-hover:text-primary">
                     {r.name}
                   </div>
                   <ProgressBar
                     value={pct}
                     color={DEPT_COLORS[i % DEPT_COLORS.length]}
-                    className="h-6 flex-1 rounded-control"
+                    className="h-3 flex-1 rounded-control"
                   />
                   <div className="w-20 text-right font-mono text-xs text-ink-muted">
                     {r.totalMembers} membros
@@ -105,25 +107,6 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
             })}
         </div>
       </div>
-
-      {/* Depts without head warning */}
-      {rows.filter((r) => r.active && r.headName === '—').length > 0 && (
-        <div className="rounded-card border border-black bg-white px-4 py-3 text-sm text-black">
-          <AlertTriangle
-            size={12}
-            strokeWidth={1.75}
-            className="inline align-[-2px]"
-          />{' '}
-          <strong>
-            {rows.filter((r) => r.active && r.headName === '—').length}
-          </strong>{' '}
-          departamento(s) activo(s) sem gestor definido:{' '}
-          {rows
-            .filter((r) => r.active && r.headName === '—')
-            .map((r) => r.name)
-            .join(', ')}
-        </div>
-      )}
     </div>
   );
 }

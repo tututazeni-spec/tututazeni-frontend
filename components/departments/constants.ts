@@ -7,7 +7,6 @@
 import {
   Briefcase,
   FileBarChart,
-  GitBranch,
   History,
   Layers,
   LayoutDashboard,
@@ -32,12 +31,6 @@ export const NAV: Array<{
     hint: 'Estrutura organizacional',
     icon: Network,
     label: 'Estrutura Organizacional',
-  },
-  {
-    id: 'tree',
-    hint: 'Árvore da empresa',
-    icon: GitBranch,
-    label: 'Organograma',
   },
   { id: 'heads', hint: 'Chefias', icon: UserCog, label: 'Responsáveis' },
   {
@@ -81,7 +74,6 @@ export const NAV: Array<{
 export const TITLES: Record<View, string> = {
   list: 'Departamentos',
   structure: 'Estrutura Organizacional',
-  tree: 'Organograma',
   heads: 'Responsáveis',
   employees: 'Colaboradores',
   positions: 'Cargos & Funções',

@@ -13,6 +13,8 @@ export interface Department {
   icon: string | null;
   costCenter: string | null;
   trainingBudget: number | null;
+  expectedEmployees?: number | null;
+  maxEmployees?: number | null;
   parentId: number | null;
   headId: number | null;
   createdAt: string;
@@ -52,6 +54,8 @@ export interface Metrics {
   totalUsers: number;
   activeUsers: number;
   inactiveUsers: number;
+  expectedEmployees: number | null;
+  maxEmployees: number | null;
   transfers: { in: number; out: number };
   breadcrumb: Array<{ id: number; name: string; code: string }>;
 }
@@ -293,7 +297,6 @@ export interface ReportsData {
 
 export type View =
   | 'list'
-  | 'tree'
   | 'structure'
   | 'heads'
   | 'employees'

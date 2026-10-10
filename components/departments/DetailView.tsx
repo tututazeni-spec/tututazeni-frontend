@@ -40,6 +40,8 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { CreateDepartmentModal } from './CreateDepartmentModal';
+import { departmentIcon } from './departmentIcon';
+import { HeadcountCard } from './HeadcountCard';
 import type { Department, HeadHistoryEntry, Member, Metrics } from './types';
 
 interface DetailViewProps {
@@ -121,6 +123,11 @@ function LookupHint({
       </span>
     </p>
   );
+}
+
+function HeaderIcon({ name, hasChildren }: { name: string; hasChildren: boolean }) {
+  const Icon = departmentIcon(name, hasChildren);
+  return <Icon size={24} strokeWidth={1.75} />;
 }
 
 export function DetailView({ deptId, onBack }: DetailViewProps) {
@@ -310,6 +317,9 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       <Card className="mb-5 p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-4">
+            <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
+              <HeaderIcon name={dept.name} hasChildren={dept._count.children > 0} />
+            </span>
             <div>
               <div className="mb-1 flex flex-wrap items-center gap-2">
                 <Badge intent={dept.active ? 'success' : 'neutral'}>
@@ -380,22 +390,36 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             variant="warning"
             title="Atenção"
             message="Departamento sem gestor definido"
-            className="mt-4"
+            className="mt-4 [&_p]:text-[#0F1F3D]"
           />
         )}
       </Card>
 
+      {metrics && (
+        <div className="mb-5">
+          <HeadcountCard
+            deptId={deptId}
+            activeUsers={metrics.activeUsers}
+            expected={metrics.expectedEmployees}
+            max={metrics.maxEmployees}
+            invalidateKeys={[...reloadKeys, queryKeys.departments.all]}
+          />
+        </div>
+      )}
+
       {/* Tabs */}
-      <div className="mb-5 flex w-fit flex-wrap gap-1 rounded-control bg-surface-sunken p-1">
+      <div className="mb-5 flex w-fit flex-wrap gap-1 rounded-control p-1">
         {tabs.map((t) => (
-          <Button
+          <button
             key={t.id}
-            size="sm"
-            intent={activeTab === t.id ? 'primary' : 'ghost'}
+            type="button"
             onClick={() => setActiveTab(t.id)}
+            className={`rounded-control px-3 py-1.5 text-sm font-medium text-white transition-colors ${
+              activeTab === t.id ? 'bg-[#0F1F3D]' : 'bg-[#0F1F3D]/60 hover:bg-[#0F1F3D]/80'
+            }`}
           >
             {t.label}
-          </Button>
+          </button>
         ))}
       </div>
 

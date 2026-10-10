@@ -108,6 +108,7 @@ export function CreateDepartmentModal({
   const [costCenter, setCostCenter] = useState('');
   const [annualBudget, setAnnualBudget] = useState('');
   const [maxEmployees, setMaxEmployees] = useState('');
+  const [expectedEmployees, setExpectedEmployees] = useState('');
   const [status, setStatus] = useState('ACTIVE');
   const [operationalStartDate, setOperationalStartDate] = useState('');
   const [institutionalEmail, setInstitutionalEmail] = useState('');
@@ -173,6 +174,9 @@ export function CreateDepartmentModal({
       ...(costCenter.trim() ? { costCenter: costCenter.trim() } : {}),
       ...(annualBudget.trim() ? { annualBudget: Number(annualBudget) } : {}),
       ...(maxEmployees.trim() ? { maxEmployees: Number(maxEmployees) } : {}),
+      ...(expectedEmployees.trim()
+        ? { expectedEmployees: Number(expectedEmployees) }
+        : {}),
       status,
       ...(operationalStartDate ? { operationalStartDate } : {}),
       ...(institutionalEmail.trim()
@@ -375,6 +379,20 @@ export function CreateDepartmentModal({
                 value={maxEmployees}
                 onChange={(e) => setMaxEmployees(e.target.value)}
                 placeholder="Ex.: 25"
+              />
+            </FormField>
+
+            <FormField
+              label="Número de colaboradores previsto"
+              htmlFor="cd-expected-employees"
+            >
+              <Input
+                id="cd-expected-employees"
+                type="number"
+                min={0}
+                value={expectedEmployees}
+                onChange={(e) => setExpectedEmployees(e.target.value)}
+                placeholder="Ex.: 20"
               />
             </FormField>
 

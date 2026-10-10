@@ -1,6 +1,6 @@
 // components/departments/StructureView.tsx
 // Separador "Estrutura Organizacional" (docs/modulo_departments.md Ponto 3).
-// Distinto do separador "Organograma" (TreeView): aqui mostram-se os campos
+// Aqui mostram-se os campos
 // pedidos pela spec (unidade, departamento superior, nível, responsável,
 // colaboradores, cargos, localização) com duas visualizações — Árvore e
 // Lista hierárquica — e um painel de pré-visualização ao clicar num
@@ -27,17 +27,9 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
 import type { DepartmentNode } from './types';
+import { departmentIcon } from './departmentIcon';
 
 interface StructureViewProps {
   onSelect: (id: number) => void;
@@ -70,6 +62,79 @@ function findNode(nodes: DepartmentNode[], id: number): DepartmentNode | null {
   return null;
 }
 
+function DeptCard({
+  node,
+  parentName,
+  selected,
+  onPreview,
+  indent = 0,
+  toggle,
+}: {
+  node: DepartmentNode;
+  parentName: string | null;
+  selected: boolean;
+  onPreview: (id: number) => void;
+  indent?: number;
+  toggle?: ReactNode;
+}) {
+  const Icon = departmentIcon(node.name, node.children.length > 0);
+  const stats = [
+    `${node._count.users} Colaboradores`,
+    `${node.positionsCount} Cargos`,
+    `Nível ${node.level + 1}`,
+  ];
+  const extras = [node.unit?.name, node.location, node.head?.fullName].filter(Boolean);
+
+  return (
+    <button
+      type="button"
+      onClick={() => onPreview(node.id)}
+      style={{ marginLeft: indent, width: `calc(100% - ${indent}px)` }}
+      className={`relative mb-1.5 flex items-center gap-3 rounded-[14px] border px-4 py-3 text-left transition-colors ${
+        selected
+          ? 'border-[#C9DDF8] bg-[#E5F0FF]'
+          : 'border-[#E1EAF6] bg-[#F0F6FF] hover:bg-[#E8F1FF]'
+      }`}
+    >
+      {selected && (
+        <span
+          aria-hidden="true"
+          className="absolute left-0 top-1/2 h-[85%] w-[5px] -translate-y-1/2 rounded-full bg-[#2878E5]"
+        />
+      )}
+      {toggle}
+      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
+        <Icon size={20} strokeWidth={1.75} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-baseline gap-2">
+          <span className="truncate text-sm font-bold text-[#0F1F3D]">
+            {node.name}
+          </span>
+        </div>
+        <div className="mt-0.5 flex flex-wrap items-center text-[11px] text-[#61758F]">
+          {stats.map((t, i) => (
+            <span key={t} className="flex items-center">
+              {i > 0 && <span className="mx-[calc(0.5rem+0.5cm)] h-3 w-px bg-[#C7D6E8]" aria-hidden="true" />}
+              {t}
+            </span>
+          ))}
+        </div>
+        {(parentName || extras.length > 0) && (
+          <div className="mt-0.5 truncate text-[11px] text-[#7890AC]">
+            {[parentName ? `sob ${parentName}` : null, ...extras].filter(Boolean).join(' · ')}
+          </div>
+        )}
+      </div>
+      <ChevronRight
+        size={18}
+        strokeWidth={1.75}
+        className={`flex-shrink-0 ${selected ? 'text-[#1765C1]' : 'text-[#526B89]'}`}
+      />
+    </button>
+  );
+}
+
 function TreeRow({
   node,
   parentName,
@@ -86,59 +151,34 @@ function TreeRow({
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => onPreview(node.id)}
-        className={`flex w-full items-center gap-3 rounded-card border p-3 text-left transition-colors ${
-          selectedId === node.id
-            ? 'border-info bg-info/10'
-            : 'border-border bg-surface hover:border-info/50'
-        }`}
-        style={{ marginLeft: node.level * 24, marginBottom: 4 }}
-      >
-        {hasChildren ? (
-          <span
-            role="button"
-            tabIndex={-1}
-            onClick={(e) => {
-              e.stopPropagation();
-              setExpanded((v) => !v);
-            }}
-            className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-ink-faint hover:text-ink"
-          >
-            {expanded ? (
-              <ChevronDown size={14} strokeWidth={1.75} />
-            ) : (
-              <ChevronRight size={14} strokeWidth={1.75} />
-            )}
-          </span>
-        ) : (
-          <span className="w-5 flex-shrink-0" />
-        )}
-
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="truncate text-sm font-medium text-ink">{node.name}</span>
-            <span className="font-mono text-xs text-ink-faint">{node.code}</span>
-            {parentName && (
-              <span className="text-xs text-ink-faint">· sob {parentName}</span>
-            )}
-          </div>
-          <div className="mt-0.5 flex flex-wrap items-center gap-3 text-xs text-ink-faint">
-            {node.unit && <span>{node.unit.name}</span>}
-            {node.location && <span>{node.location}</span>}
-            {node.head && (
-              <span className="flex items-center gap-1">
-                <Avatar name={node.head.fullName} size="sm" />
-                {node.head.fullName}
-              </span>
-            )}
-            <span>{node._count.users} colaboradores</span>
-            <span>{node.positionsCount} cargos</span>
-            <span>Nível {node.level + 1}</span>
-          </div>
-        </div>
-      </button>
+      <DeptCard
+        node={node}
+        parentName={parentName}
+        selected={selectedId === node.id}
+        onPreview={onPreview}
+        indent={node.level * 24}
+        toggle={
+          hasChildren ? (
+            <span
+              role="button"
+              tabIndex={-1}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded((v) => !v);
+              }}
+              className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-[#526B89] hover:text-[#17365D]"
+            >
+              {expanded ? (
+                <ChevronDown size={14} strokeWidth={1.75} />
+              ) : (
+                <ChevronRight size={14} strokeWidth={1.75} />
+              )}
+            </span>
+          ) : (
+            <span className="w-5 flex-shrink-0" />
+          )
+        }
+      />
 
       {expanded && hasChildren && (
         <div>
@@ -336,33 +376,25 @@ export function StructureView({ onSelect }: StructureViewProps) {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="mb-4 flex h-10 items-center gap-2 rounded-t-2xl bg-[#0F1F3D]/60 px-4">
+        {(
+          [
+            ['tree', Network, 'Árvore organizacional'],
+            ['list', List, 'Lista hierárquica'],
+          ] as const
+        ).map(([mode, Icon, label]) => (
           <button
+            key={mode}
             type="button"
-            onClick={() => setViz('tree')}
-            className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-              viz === 'tree'
-                ? 'border-info bg-info/10 text-info'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
+            onClick={() => setViz(mode)}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium uppercase text-white transition-colors ${
+              viz === mode ? 'bg-[#0F1F3D]' : 'bg-white/10 hover:bg-white/20'
             }`}
           >
-            <Network size={14} strokeWidth={1.75} />
-            Árvore organizacional
+            <Icon size={14} strokeWidth={1.75} />
+            {label}
           </button>
-          <button
-            type="button"
-            onClick={() => setViz('list')}
-            className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-              viz === 'list'
-                ? 'border-info bg-info/10 text-info'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
-            }`}
-          >
-            <List size={14} strokeWidth={1.75} />
-            Lista hierárquica
-          </button>
-        </div>
+        ))}
       </div>
 
       <div className={`grid gap-4 ${previewNode ? 'lg:grid-cols-[1fr_380px]' : ''}`}>
@@ -372,7 +404,7 @@ export function StructureView({ onSelect }: StructureViewProps) {
               Sem departamentos na hierarquia
             </div>
           ) : viz === 'tree' ? (
-            <div className="rounded-card border border-border bg-surface p-4">
+            <div>
               {tree.map((node) => (
                 <TreeRow
                   key={node.id}
@@ -384,61 +416,17 @@ export function StructureView({ onSelect }: StructureViewProps) {
               ))}
             </div>
           ) : (
-            <Table>
-              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
-                <TableRow>
-                  <TableHeaderCell>Nível</TableHeaderCell>
-                  <TableHeaderCell>Departamento</TableHeaderCell>
-                  <TableHeaderCell>Departamento superior</TableHeaderCell>
-                  <TableHeaderCell>Unidade</TableHeaderCell>
-                  <TableHeaderCell>Localização</TableHeaderCell>
-                  <TableHeaderCell>Responsável</TableHeaderCell>
-                  <TableHeaderCell>Colaboradores</TableHeaderCell>
-                  <TableHeaderCell>Cargos</TableHeaderCell>
-                  <TableHeaderCell>Subdeptos</TableHeaderCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {flatRows.map(({ node, parentName }) => (
-                  <TableRow
-                    key={node.id}
-                    className="cursor-pointer"
-                    onClick={() => setPreviewId(node.id)}
-                  >
-                    <TableCell>
-                      <Badge intent="neutral">{node.level + 1}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm font-medium text-ink">{node.name}</span>
-                      <span className="ml-1.5 font-mono text-xs text-ink-faint">
-                        {node.code}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-sm text-ink-muted">
-                      {parentName ?? '—'}
-                    </TableCell>
-                    <TableCell className="text-sm text-ink-muted">
-                      {node.unit?.name ?? '—'}
-                    </TableCell>
-                    <TableCell className="text-sm text-ink-muted">
-                      {node.location ?? '—'}
-                    </TableCell>
-                    <TableCell className="text-sm text-ink-muted">
-                      {node.head?.fullName ?? '—'}
-                    </TableCell>
-                    <TableCell className="text-sm text-ink-muted">
-                      {node._count.users}
-                    </TableCell>
-                    <TableCell className="text-sm text-ink-muted">
-                      {node.positionsCount}
-                    </TableCell>
-                    <TableCell className="text-sm text-ink-muted">
-                      {node.children.length}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div>
+              {flatRows.map(({ node, parentName }) => (
+                <DeptCard
+                  key={node.id}
+                  node={node}
+                  parentName={parentName}
+                  selected={previewId === node.id}
+                  onPreview={setPreviewId}
+                />
+              ))}
+            </div>
           )}
         </div>
 
