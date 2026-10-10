@@ -25,6 +25,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { ChangeHeadModal } from './ChangeHeadModal';
+import { departmentIcon } from './departmentIcon';
 import type { HeadHistoryRow, HeadRow } from './types';
 
 type SubTab = 'current' | 'history';
@@ -66,31 +67,25 @@ export function HeadsView() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setSubTab('current')}
-          className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-            subTab === 'current'
-              ? 'border-primary bg-primary/10 text-primary'
-              : 'border-border bg-white text-ink-muted hover:text-ink'
-          }`}
-        >
-          <ListIcon size={14} strokeWidth={1.75} />
-          Responsáveis actuais
-        </button>
-        <button
-          type="button"
-          onClick={() => setSubTab('history')}
-          className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-            subTab === 'history'
-              ? 'border-primary bg-primary/10 text-primary'
-              : 'border-border bg-white text-ink-muted hover:text-ink'
-          }`}
-        >
-          <History size={14} strokeWidth={1.75} />
-          Histórico
-        </button>
+      <div className="mb-4 flex h-10 items-center gap-2 rounded-t-2xl bg-[#0F1F3D]/60 px-4">
+        {(
+          [
+            ['current', ListIcon, 'Responsáveis actuais'],
+            ['history', History, 'Histórico'],
+          ] as const
+        ).map(([tab, Icon, label]) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setSubTab(tab)}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium uppercase text-white transition-colors ${
+              subTab === tab ? 'bg-[#0F1F3D]' : 'bg-white/10 hover:bg-white/20'
+            }`}
+          >
+            <Icon size={14} strokeWidth={1.75} />
+            {label}
+          </button>
+        ))}
       </div>
 
       {subTab === 'current' && (
@@ -104,9 +99,9 @@ export function HeadsView() {
           ) : headsError ? (
             <div className="text-sm text-danger">{headsError.message}</div>
           ) : (
-            <Table>
+            <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-[10px]">
               <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
-                <TableRow>
+                <TableRow className="hover:bg-transparent">
                   <TableHeaderCell>Departamento</TableHeaderCell>
                   <TableHeaderCell>Responsável</TableHeaderCell>
                   <TableHeaderCell>Cargo</TableHeaderCell>
@@ -133,30 +128,38 @@ export function HeadsView() {
                   heads.map((row) => (
                     <TableRow key={row.departmentId}>
                       <TableCell>
-                        <span className="text-sm font-medium text-ink">
-                          {row.departmentName}
-                        </span>
-                        <span className="ml-1.5 font-mono text-xs text-ink-faint">
-                          {row.departmentCode}
+                        <span className="flex items-center gap-2">
+                          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
+                            {(() => {
+                              const Icon = departmentIcon(
+                                row.departmentName,
+                                row.subdepartmentsUnderResponsibility > 0,
+                              );
+                              return <Icon size={16} strokeWidth={1.75} />;
+                            })()}
+                          </span>
+                          <span className="text-xs font-bold text-[#0F1F3D]">
+                            {row.departmentName}
+                          </span>
                         </span>
                       </TableCell>
                       <TableCell>
                         {row.head ? (
-                          <span className="flex items-center gap-2">
+                          <span className="flex items-center gap-1.5">
                             <Avatar name={row.head.fullName} size="sm" />
-                            <span className="text-sm text-ink">{row.head.fullName}</span>
+                            <span className="text-xs text-ink">{row.head.fullName}</span>
                           </span>
                         ) : (
-                          <span className="text-sm text-ink-faint">Por atribuir</span>
+                          <span className="text-xs text-ink-faint">Por atribuir</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-ink-muted">
+                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
                         {row.position ?? '—'}
                       </TableCell>
-                      <TableCell className="text-sm text-ink-muted">
+                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
                         {row.deputyHead?.fullName ?? '—'}
                       </TableCell>
-                      <TableCell className="text-xs text-ink-muted">
+                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
                         {fmtDate(row.startedAt)}
                       </TableCell>
                       <TableCell>
@@ -164,13 +167,13 @@ export function HeadsView() {
                           {STATUS_LABEL[row.status] ?? row.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm text-ink-muted">
-                        {row.contact ?? '—'}
+                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
+                        <span className="break-all">{row.contact ?? '—'}</span>
                       </TableCell>
-                      <TableCell className="text-sm text-ink-muted">
+                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
                         {row.usersUnderResponsibility}
                       </TableCell>
-                      <TableCell className="text-sm text-ink-muted">
+                      <TableCell className="whitespace-nowrap text-xs text-ink-muted">
                         {row.subdepartmentsUnderResponsibility}
                       </TableCell>
                       {canManage && (
@@ -178,10 +181,11 @@ export function HeadsView() {
                           <Button
                             size="sm"
                             intent="ghost"
+                            title="Alterar responsável"
+                            aria-label="Alterar responsável"
                             onClick={() => setChanging(row)}
                           >
                             <UserCog size={14} strokeWidth={1.75} />
-                            Alterar
                           </Button>
                         </TableCell>
                       )}
@@ -207,7 +211,7 @@ export function HeadsView() {
           ) : (
             <Table>
               <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
-                <TableRow>
+                <TableRow className="hover:bg-transparent">
                   <TableHeaderCell>Departamento</TableHeaderCell>
                   <TableHeaderCell>Responsável anterior</TableHeaderCell>
                   <TableHeaderCell>Novo responsável</TableHeaderCell>

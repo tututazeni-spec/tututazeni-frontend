@@ -55,24 +55,23 @@ function BreakdownCard({
 }) {
   const top = [...buckets].sort((a, b) => b.count - a.count).slice(0, 6);
   return (
-    <Card className="p-4">
-      <div className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-faint">
+    <Card className="overflow-hidden p-0">
+      <div className="bg-[#0F1F3D]/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
-      {top.length === 0 ? (
-        <p className="text-xs text-ink-faint">Sem dados</p>
-      ) : (
-        <div className="flex flex-wrap gap-2">
-          {top.map((b) => (
-            <span
-              key={b.label}
-              className="rounded-full bg-surface-sunken px-2.5 py-1 text-xs text-ink-muted"
-            >
-              {b.label} <strong className="text-ink">{b.count}</strong>
-            </span>
-          ))}
-        </div>
-      )}
+      <div className="p-4">
+        {top.length === 0 ? (
+          <p className="text-xs text-ink-faint">Sem dados</p>
+        ) : (
+          <div className="flex flex-wrap gap-x-4 gap-y-1">
+            {top.map((b) => (
+              <span key={b.label} className="text-xs text-black">
+                {b.label} <strong>{b.count}</strong>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
     </Card>
   );
 }
@@ -195,7 +194,6 @@ export function PositionsView() {
           <option value="true">Activos</option>
           <option value="false">Inactivos</option>
         </select>
-        <span className="text-sm text-ink-faint">{data?.total ?? 0} cargos</span>
         {canManage && (
           <Button size="sm" className="ml-auto" onClick={() => setCreateOpen(true)}>
             <Plus size={14} strokeWidth={1.75} />
@@ -244,9 +242,6 @@ export function PositionsView() {
                 >
                   <TableCell>
                     <span className="text-sm font-medium text-ink">{pos.name}</span>
-                    {pos.code && (
-                      <span className="ml-1.5 font-mono text-xs text-ink-faint">{pos.code}</span>
-                    )}
                   </TableCell>
                   <TableCell className="text-sm text-ink-muted">
                     {pos.jobFunction ?? '—'}

@@ -109,7 +109,7 @@ export function SaveReportModal({ onClose, onSuccess }: SaveReportModalProps) {
                 value={form.name}
                 onChange={(e) => setField('name', e.target.value)}
                 className="w-full"
-                placeholder="Ex: Headcount Tecnologia — Q1"
+                placeholder="Ex: Número de colaboradores Tecnologia — Q1"
               />
             </FormField>
 

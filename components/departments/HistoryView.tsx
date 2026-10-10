@@ -92,7 +92,6 @@ export function HistoryView() {
           }}
           className="w-64"
         />
-        <span className="text-sm text-ink-faint">{data?.total ?? 0} eventos</span>
       </div>
 
       {isLoading && (
@@ -114,8 +113,8 @@ export function HistoryView() {
 
       {!isLoading && !error && data && data.data.length > 0 && (
         <Table>
-          <TableHead>
-            <TableRow>
+          <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
+            <TableRow className="hover:bg-transparent">
               <TableHeaderCell>Data/Hora</TableHeaderCell>
               <TableHeaderCell>Tipo de alteração</TableHeaderCell>
               <TableHeaderCell>Departamento</TableHeaderCell>
