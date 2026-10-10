@@ -404,7 +404,7 @@ export function RelatoriosTab() {
             </div>
             <div className="rounded-lg border border-border bg-surface px-5 py-4.5">
               <div className="text-xs font-bold text-danger-ink uppercase tracking-wider mb-3.5">
-                Principais gaps
+                Principais lacunas
               </div>
               {data.topGaps.length === 0 && (
                 <div className="text-sm text-ink-muted">
