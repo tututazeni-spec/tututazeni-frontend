@@ -112,10 +112,10 @@ export function RunListView({ onSelect }: RunListViewProps) {
       )}
 
       {!isLoading && rows.length > 0 && (
-        <div className="overflow-x-auto">
-          <div className="min-w-[900px] overflow-hidden rounded-card border border-border bg-surface">
+        <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+          <div className="min-w-[900px]">
             <div
-              className={`${COLS} border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint`}
+              className={`${COLS} bg-[#0B2D5B] px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
             >
               <div>Período</div>
               <div>Grupo</div>
@@ -129,16 +129,16 @@ export function RunListView({ onSelect }: RunListViewProps) {
             {rows.map((r) => (
               <div
                 key={r.id}
-                className={`${COLS} cursor-pointer items-center border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken`}
+                className={`${COLS} cursor-pointer items-center border-b border-[#6F8FB8]/20 px-4 py-3 text-white transition-colors duration-150 last:border-0 hover:bg-white/5`}
                 onClick={() => onSelect(r.id)}
               >
-                <div className="font-mono text-sm font-medium text-ink">
+                <div className="font-mono text-sm font-semibold text-white">
                   {r.period}
                 </div>
-                <div className="truncate font-body text-sm text-ink-muted">
+                <div className="truncate font-body text-sm text-[#CFE3FF]">
                   {r.payGroup ?? '—'}
                 </div>
-                <div className="font-body text-sm text-ink-muted">
+                <div className="font-body text-sm text-[#CFE3FF]">
                   {r.countryCode}
                 </div>
                 <div>
@@ -148,21 +148,21 @@ export function RunListView({ onSelect }: RunListViewProps) {
                     variant="dot"
                   />
                 </div>
-                <div className="font-mono text-sm text-ink">
+                <div className="font-mono text-sm text-[#E8EEF7]">
                   {r.employeeCount ?? '—'}
                 </div>
-                <div className="font-mono text-sm font-semibold text-ink">
+                <div className="font-mono text-sm font-semibold text-white">
                   {fmtKz(r.totalNet)}
                 </div>
-                <div className="font-body text-sm text-ink-muted">
+                <div className="font-body text-sm text-[#CFE3FF]">
                   {r.exceptionsCount ?? 0}
                   {(r.errorCount ?? 0) > 0 && (
-                    <span className="ml-1 text-danger">
+                    <span className="ml-1 text-[#FFB4B4]">
                       ({r.errorCount} erro)
                     </span>
                   )}
                 </div>
-                <div className="font-body text-sm text-ink-muted">
+                <div className="font-body text-sm text-[#CFE3FF]">
                   {fmtDate(r.createdAt)}
                 </div>
               </div>
