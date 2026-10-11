@@ -112,7 +112,7 @@ export function CompensationsView({ onOpenDetail }: CompensationsViewProps) {
                     <div className="truncate font-body text-sm font-semibold text-white">
                       {r.user.fullName}
                     </div>
-                    <div className="truncate font-mono text-xs text-[#9DB4D3]">
+                    <div className="truncate font-body text-xs text-[#9DB4D3]">
                       {r.user.employeeNumber ?? '—'}
                     </div>
                   </div>
@@ -120,13 +120,13 @@ export function CompensationsView({ onOpenDetail }: CompensationsViewProps) {
                 <div className="truncate font-body text-sm text-[#CFE3FF]">
                   {r.user.department?.name ?? '—'}
                 </div>
-                <div className="font-mono text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-white">
                   {fmtKz(r.baseSalary)}
                 </div>
-                <div className="font-mono text-sm text-[#CFE3FF]">
+                <div className="font-body text-sm text-[#CFE3FF]">
                   {fmtKz(r.foodAllowance)}
                 </div>
-                <div className="font-mono text-sm text-[#CFE3FF]">
+                <div className="font-body text-sm text-[#CFE3FF]">
                   {fmtKz(r.transportAllowance)}
                 </div>
                 <div className="font-body text-sm text-[#CFE3FF]">

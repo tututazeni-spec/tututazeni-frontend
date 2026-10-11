@@ -103,7 +103,7 @@ export function ClosureView() {
       {data && (
         <div className="space-y-6">
           <div className="flex flex-wrap items-center gap-3 font-body text-sm text-ink-muted">
-            Período <span className="font-mono text-ink">{data.period}</span>
+            Período <span className="font-body text-ink">{data.period}</span>
             <StatusBadge
               value={data.status as keyof typeof RUN_STATUS_MAP}
               map={RUN_STATUS_MAP}

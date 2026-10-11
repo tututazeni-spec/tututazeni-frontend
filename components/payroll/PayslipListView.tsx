@@ -62,7 +62,8 @@ const STATUS_ITEMS = [
   { value: 'DISPUTED', label: PAYSLIP_STATUS_MAP.DISPUTED.label },
 ];
 
-const COLS = 'grid grid-cols-[minmax(0,1fr)_72px_96px_120px_120px_100px_128px] gap-2';
+const COLS =
+  'grid grid-cols-[minmax(0,1fr)_72px_96px_120px_120px_100px_128px] gap-2';
 
 export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
   const confirm = useConfirm();
@@ -215,7 +216,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                     <div className="truncate font-body text-sm font-semibold text-white">
                       {r.user?.fullName ?? '—'}
                     </div>
-                    <div className="truncate font-mono text-xs text-[#9DB4D3]">
+                    <div className="truncate font-body text-xs text-[#9DB4D3]">
                       {r.user?.employeeNumber ?? '—'}
                     </div>
                   </div>
@@ -226,10 +227,10 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                 <div className="font-body text-sm text-[#CFE3FF]">
                   {fmtDate(r.paymentDate)}
                 </div>
-                <div className="font-mono text-sm text-[#CFE3FF]">
+                <div className="font-body text-sm text-[#CFE3FF]">
                   {fmtKz(r.grossSalary)}
                 </div>
-                <div className="font-mono text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-white">
                   {fmtKz(r.netSalary)}
                 </div>
                 <div>

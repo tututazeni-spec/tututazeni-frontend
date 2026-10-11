@@ -108,7 +108,7 @@ export function DisputesView({ onOpenPayslip }: DisputesViewProps) {
                 </div>
                 <button
                   type="button"
-                  className="min-w-0 truncate text-left font-mono text-xs text-primary hover:underline"
+                  className="min-w-0 truncate text-left font-body text-xs text-primary hover:underline"
                   onClick={() => d.payslip && onOpenPayslip(d.payslip.id)}
                 >
                   {d.payslip?.receiptCode ?? `#${d.payslipId}`}

@@ -106,92 +106,98 @@ export function ListView({ onSelect }: ListViewProps) {
       {/* Tabela */}
       <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
         <div className="min-w-[700px]">
-        {/* Cabeçalho */}
-        <div className="grid grid-cols-[1fr_120px_160px_130px_100px] gap-3 bg-[#0B2D5B] px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
-          <div>Período</div>
-          <div>Pagamento</div>
-          <div>Salário líquido</div>
-          <div>Estado</div>
-          <div>Acções</div>
-        </div>
-
-        {loading && (
-          <div className="p-4">
-            <Skeleton
-              rows={5}
-              wrapperClassName="space-y-2 animate-pulse"
-              itemClassName="h-12 rounded-card bg-white/10"
-            />
+          {/* Cabeçalho */}
+          <div className="grid grid-cols-[1fr_120px_160px_130px_100px] gap-3 bg-[#0B2D5B] px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
+            <div>Período</div>
+            <div>Pagamento</div>
+            <div>Salário líquido</div>
+            <div>Estado</div>
+            <div>Acções</div>
           </div>
-        )}
 
-        {error && (
-          <div className="px-4 py-8 text-center font-body text-sm text-[#FFB4B4]">
-            {error}
-          </div>
-        )}
-
-        {!loading && !error && data?.data.length === 0 && (
-          <div className="px-4 py-10 text-center">
-            <div className="font-body text-sm font-semibold text-white">
-              Sem recibos
+          {loading && (
+            <div className="p-4">
+              <Skeleton
+                rows={5}
+                wrapperClassName="space-y-2 animate-pulse"
+                itemClassName="h-12 rounded-card bg-white/10"
+              />
             </div>
-            <div className="mt-1 font-body text-xs text-[#9DB4D3]">
-              {`Não há recibos disponíveis para ${year}.`}
-            </div>
-          </div>
-        )}
+          )}
 
-        {!loading &&
-          data?.data.map((p) => (
-            <div
-              key={p.id}
-              className="grid cursor-pointer grid-cols-[1fr_120px_160px_130px_100px] items-center gap-3 border-b border-[#6F8FB8]/20 px-4 py-3.5 text-white transition-colors duration-150 last:border-0 hover:bg-white/5"
-              onClick={() => onSelect(p.id)}
-            >
-              <div>
+          {error && (
+            <div className="px-4 py-8 text-center font-body text-sm text-[#FFB4B4]">
+              {error}
+            </div>
+          )}
+
+          {!loading && !error && data?.data.length === 0 && (
+            <div className="px-4 py-10 text-center">
+              <div className="font-body text-sm font-semibold text-white">
+                Sem recibos
+              </div>
+              <div className="mt-1 font-body text-xs text-[#9DB4D3]">
+                {`Não há recibos disponíveis para ${year}.`}
+              </div>
+            </div>
+          )}
+
+          {!loading &&
+            data?.data.map((p) => (
+              <div
+                key={p.id}
+                className="grid cursor-pointer grid-cols-[1fr_120px_160px_130px_100px] items-center gap-3 border-b border-[#6F8FB8]/20 px-4 py-3.5 text-white transition-colors duration-150 last:border-0 hover:bg-white/5"
+                onClick={() => onSelect(p.id)}
+              >
+                <div>
+                  <div className="font-body text-sm font-semibold text-white">
+                    {fmtPeriod(p.period)}
+                  </div>
+                  <div className="mt-0.5 font-body text-xs text-[#9DB4D3]">
+                    {p.receiptCode}
+                  </div>
+                </div>
+                <div className="font-body text-sm text-[#CFE3FF]">
+                  {fmtDate(p.paymentDate)}
+                </div>
                 <div className="font-body text-sm font-semibold text-white">
-                  {fmtPeriod(p.period)}
+                  {fmtKz(p.netSalary)}
                 </div>
-                <div className="mt-0.5 font-mono text-xs text-[#9DB4D3]">
-                  {p.receiptCode}
+                <div>
+                  <StatusBadge
+                    value={p.status}
+                    map={PAYSLIP_STATUS_MAP}
+                    variant="dot"
+                  />
+                </div>
+                <div
+                  className="flex gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <IconButton
+                    icon={Eye}
+                    label="Ver detalhe"
+                    intent="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/10"
+                    onClick={() => onSelect(p.id)}
+                  />
+                  <IconButton
+                    icon={Download}
+                    label="Descarregar PDF"
+                    intent="ghost"
+                    size="sm"
+                    className="text-white hover:bg-white/10"
+                    onClick={() =>
+                      window.open(
+                        `${API_BASE}/payslips/my/${p.id}/pdf`,
+                        '_blank',
+                      )
+                    }
+                  />
                 </div>
               </div>
-              <div className="font-body text-sm text-[#CFE3FF]">
-                {fmtDate(p.paymentDate)}
-              </div>
-              <div className="font-mono text-sm font-semibold text-white">
-                {fmtKz(p.netSalary)}
-              </div>
-              <div>
-                <StatusBadge
-                  value={p.status}
-                  map={PAYSLIP_STATUS_MAP}
-                  variant="dot"
-                />
-              </div>
-              <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                <IconButton
-                  icon={Eye}
-                  label="Ver detalhe"
-                  intent="ghost"
-                  size="sm"
-                  className="text-white hover:bg-white/10"
-                  onClick={() => onSelect(p.id)}
-                />
-                <IconButton
-                  icon={Download}
-                  label="Descarregar PDF"
-                  intent="ghost"
-                  size="sm"
-                  className="text-white hover:bg-white/10"
-                  onClick={() =>
-                    window.open(`${API_BASE}/payslips/my/${p.id}/pdf`, '_blank')
-                  }
-                />
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
 

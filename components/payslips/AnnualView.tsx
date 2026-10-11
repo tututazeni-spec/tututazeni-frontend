@@ -111,7 +111,7 @@ export function AnnualView() {
                 <div className="mb-1.5 font-body text-xs text-ink-faint">
                   {label}
                 </div>
-                <div className="font-mono text-lg font-semibold text-ink">
+                <div className="font-body text-lg font-semibold text-ink">
                   {fmtKz(value)}
                 </div>
               </div>
@@ -144,7 +144,7 @@ export function AnnualView() {
                   <div className="mb-1.5 font-body text-xs text-success-ink">
                     {label}
                   </div>
-                  <div className="font-mono text-base font-semibold text-success-ink">
+                  <div className="font-body text-base font-semibold text-success-ink">
                     {fmtKz(value)}
                   </div>
                 </div>
@@ -171,10 +171,10 @@ export function AnnualView() {
                     {fmtPeriod(m.period)}
                   </div>
                   <ProgressBar value={pct} className="flex-1" />
-                  <div className="w-28 text-right font-mono text-xs font-medium text-ink">
+                  <div className="w-28 text-right font-body text-xs font-medium text-ink">
                     {fmtKz(m.netSalary)}
                   </div>
-                  <div className="w-20 text-right font-mono text-xs text-danger">
+                  <div className="w-20 text-right font-body text-xs text-danger">
                     IRT {fmtKz(m.incomeTax)}
                   </div>
                 </div>

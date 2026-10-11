@@ -55,7 +55,7 @@ export function AccessLogsPanel({ payslipId }: AccessLogsPanelProps) {
               <div className="text-ink">
                 {log.user?.fullName ?? `#${log.userId}`}
               </div>
-              <div className="font-mono text-xs text-ink-faint">
+              <div className="font-body text-xs text-ink-faint">
                 {log.ipAddress ?? '—'}
               </div>
               <div className="text-ink-muted">{fmtDate(log.accessedAt)}</div>

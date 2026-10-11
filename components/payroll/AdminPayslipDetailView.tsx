@@ -98,7 +98,7 @@ export function AdminPayslipDetailView({
           </h2>
           <p className="font-body text-sm text-ink-faint">
             {fmtPeriod(data.period)} ·{' '}
-            <span className="font-mono">{data.receiptCode ?? data.id}</span>
+            <span className="font-body">{data.receiptCode ?? data.id}</span>
           </p>
         </div>
         <StatusBadge

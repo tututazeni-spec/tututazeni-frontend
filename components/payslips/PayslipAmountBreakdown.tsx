@@ -48,7 +48,7 @@ function SalaryRow({ label, amount, type = 'neutral', sub }: SalaryRowProps) {
         )}
       </div>
       <span
-        className={`font-mono text-sm font-medium ${
+        className={`font-body text-sm font-medium ${
           type === 'positive'
             ? 'text-success'
             : type === 'deduction'
@@ -125,7 +125,7 @@ export function PayslipAmountBreakdown({
             <span className="font-body text-sm font-medium text-ink">
               Total bruto
             </span>
-            <span className="font-mono text-sm font-semibold text-ink">
+            <span className="font-body text-sm font-semibold text-ink">
               {fmtKz(data.grossSalary)}
             </span>
           </div>
@@ -177,7 +177,7 @@ export function PayslipAmountBreakdown({
             <span className="font-body text-sm font-medium text-ink">
               Total deduções
             </span>
-            <span className="font-mono text-sm font-semibold text-danger">
+            <span className="font-body text-sm font-semibold text-danger">
               − {fmtKz(data.totalDeductions)}
             </span>
           </div>
@@ -195,7 +195,7 @@ export function PayslipAmountBreakdown({
             {fmtKz(data.grossSalary + data.employerInss)}
           </div>
         </div>
-        <div className="font-mono text-2xl font-bold text-primary">
+        <div className="font-body text-2xl font-bold text-primary">
           {fmtKz(data.netSalary)}
         </div>
       </div>

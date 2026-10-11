@@ -193,7 +193,9 @@ export function PaymentsView() {
                   key={p.id}
                   className="border-b border-[#6F8FB8]/20 align-top transition-colors duration-150 last:border-0 hover:bg-white/5"
                 >
-                  <td className={`${TD} font-mono`}>{fmtPeriodNumeric(p.period)}</td>
+                  <td className={`${TD} font-body`}>
+                    {fmtPeriodNumeric(p.period)}
+                  </td>
                   <td className={`${TD} text-[#CFE3FF]`}>
                     {p.bankName ?? '—'}
                   </td>
@@ -201,7 +203,7 @@ export function PaymentsView() {
                     {p.paymentAccount ?? '—'}
                   </td>
                   <td className={TD}>{p.employeeCount}</td>
-                  <td className={`${TD} text-right font-mono`}>
+                  <td className={`${TD} text-right font-body`}>
                     {fmtKz(p.totalAmount)}
                   </td>
                   <td className={`${TD} text-[#CFE3FF]`}>
@@ -222,7 +224,7 @@ export function PaymentsView() {
                       </div>
                     )}
                   </td>
-                  <td className={`${TD} font-mono text-xs text-[#CFE3FF]`}>
+                  <td className={`${TD} font-body text-xs text-[#CFE3FF]`}>
                     {p.reference ?? '—'}
                   </td>
                   <td className={`${TD} text-[#CFE3FF]`}>

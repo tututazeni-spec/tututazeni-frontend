@@ -100,7 +100,7 @@ export function DeductionsView() {
                       <td className="px-4 py-3 text-ink-muted">
                         {t.employeesAffected}
                       </td>
-                      <td className="px-4 py-3 text-right font-mono text-ink">
+                      <td className="px-4 py-3 text-right font-body text-ink">
                         {fmtKz(t.total)}
                       </td>
                     </tr>
@@ -131,7 +131,7 @@ export function DeductionsView() {
                       <td className="px-4 py-3 text-ink-muted">
                         {b.employees}
                       </td>
-                      <td className="px-4 py-3 text-right font-mono text-ink">
+                      <td className="px-4 py-3 text-right font-body text-ink">
                         {fmtKz(b.irt)}
                       </td>
                     </tr>
@@ -164,10 +164,18 @@ export function DeductionsView() {
               <dd>{fmtKz(data.config.minimumWage)}</dd>
             </dl>
             <div className="mt-3 grid grid-cols-[1fr_1fr_80px_1fr] gap-x-4 gap-y-1.5 border-t border-[#6F8FB8]/20 pt-3 text-[#CFE3FF]">
-              <div className="text-xs font-bold uppercase tracking-wide text-white">De</div>
-              <div className="text-xs font-bold uppercase tracking-wide text-white">Até</div>
-              <div className="text-xs font-bold uppercase tracking-wide text-white">Taxa</div>
-              <div className="text-xs font-bold uppercase tracking-wide text-white">Parcela a abater</div>
+              <div className="text-xs font-bold uppercase tracking-wide text-white">
+                De
+              </div>
+              <div className="text-xs font-bold uppercase tracking-wide text-white">
+                Até
+              </div>
+              <div className="text-xs font-bold uppercase tracking-wide text-white">
+                Taxa
+              </div>
+              <div className="text-xs font-bold uppercase tracking-wide text-white">
+                Parcela a abater
+              </div>
               {data.config.irtBrackets.map((b) => (
                 <Fragment key={b.id}>
                   <div>{fmtKz(b.min)}</div>
