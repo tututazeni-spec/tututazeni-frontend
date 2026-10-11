@@ -48,10 +48,14 @@ export function CompareView() {
 
   // useApiMutation em vez de loading/error/data à mão: mesmo padrão usado no
   // resto da página (DetailView usa useApiQuery), com retry/backoff de borla.
-  const compareMut = useApiMutation<CompareResult, void>(() =>
-    apiClient.get<CompareResult>('/payslips/my/compare', {
-      params: { periodA, periodB },
-    }),
+  // `silent`: "recibo de AAAA-MM não encontrado" (404) é um resultado esperado
+  // quando o mês não tem recibo; já é mostrado inline abaixo, sem toast/overlay.
+  const compareMut = useApiMutation<CompareResult, void>(
+    () =>
+      apiClient.get<CompareResult>('/payslips/my/compare', {
+        params: { periodA, periodB },
+      }),
+    { meta: { silent: true } },
   );
   const { data: result, isPending: loading, error } = compareMut;
   const compare = () => compareMut.mutate();
