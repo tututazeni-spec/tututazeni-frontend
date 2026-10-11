@@ -117,7 +117,7 @@ export function ClosureView() {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
             <KpiCard label="Colaboradores" value={data.totals.employees} />
             <KpiCard
               label="Total bruto"

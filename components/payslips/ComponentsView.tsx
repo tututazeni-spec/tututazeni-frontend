@@ -56,13 +56,13 @@ export function ComponentsView() {
   const confirm = useConfirm();
   const notify = useToast();
 
-  const [type, setType] = useState<string>('all');
+  const [type, setType] = useState<string>('');  // '' = nada escolhido: só o cabeçalho
   const [state, setState] = useState<StateFilter>('active');
   const [editing, setEditing] = useState<SalaryComponent | null>(null);
   const [creating, setCreating] = useState(false);
 
   const params: Record<string, string> = {};
-  if (type !== 'all') params.type = type;
+  if (type && type !== 'all') params.type = type;
   if (state === 'active') params.active = 'true';
   if (state === 'inactive') params.active = 'false';
 
@@ -106,7 +106,12 @@ export function ComponentsView() {
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Select items={TYPE_ITEMS} value={type} onValueChange={setType} />
+        <Select
+          items={TYPE_ITEMS}
+          value={type}
+          onValueChange={setType}
+          placeholder="Seleccionar tipo"
+        />
         <Select
           items={STATE_ITEMS}
           value={state}
@@ -130,9 +135,9 @@ export function ComponentsView() {
       )}
 
       {!isLoading && (data?.length ?? 0) > 0 && (
-        <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="grid grid-cols-[120px_1fr_110px_150px_130px_80px_88px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-            <div>Código</div>
+        <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+          <div className="min-w-[860px]">
+          <div className="grid grid-cols-[1fr_110px_150px_130px_80px_88px] gap-3 bg-[#0B2D5B] px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
             <div>Nome</div>
             <div>Tipo</div>
             <div>Cálculo</div>
@@ -140,25 +145,24 @@ export function ComponentsView() {
             <div>Ordem</div>
             <div>Acções</div>
           </div>
-          {data!.map((c) => (
+          {type !== '' && data!.map((c) => (
             <div
               key={c.code}
-              className={`grid grid-cols-[120px_1fr_110px_150px_130px_80px_88px] items-center gap-3 border-b border-border px-4 py-3 last:border-0 ${
+              className={`grid grid-cols-[1fr_110px_150px_130px_80px_88px] items-center gap-3 border-b border-[#6F8FB8]/20 px-4 py-3 text-white transition-colors duration-150 last:border-0 hover:bg-white/5 ${
                 c.active ? '' : 'opacity-55'
               }`}
             >
-              <div className="font-mono text-sm text-ink">{c.code}</div>
               <div className="min-w-0">
-                <div className="truncate font-body text-sm font-medium text-ink">
+                <div className="truncate font-body text-sm font-semibold text-white">
                   {c.name}
                 </div>
                 {c.description && (
-                  <div className="truncate font-body text-xs text-ink-faint">
+                  <div className="truncate font-body text-xs text-[#9DB4D3]">
                     {c.description}
                   </div>
                 )}
                 {!c.active && (
-                  <span className="mt-0.5 inline-block rounded-full bg-surface-sunken px-1.5 py-0.5 font-body text-[10px] font-medium uppercase tracking-wide text-ink-muted">
+                  <span className="mt-0.5 inline-block rounded-full bg-white/10 px-1.5 py-0.5 font-body text-[10px] font-medium uppercase tracking-wide text-[#CFE3FF]">
                     Inactivo
                   </span>
                 )}
@@ -167,15 +171,15 @@ export function ComponentsView() {
                 <span
                   className={`rounded-full px-2 py-0.5 font-body text-xs font-medium ${
                     c.type === 'EARNING'
-                      ? 'bg-success-subtle text-success-ink'
-                      : 'bg-danger-subtle text-danger-ink'
+                      ? 'bg-[#218653]/25 text-[#8FE0B0]'
+                      : 'bg-[#D64545]/25 text-[#FFB4B4]'
                   }`}
                 >
                   {c.type === 'EARNING' ? 'Rendimento' : 'Desconto'}
                 </span>
               </div>
               <div
-                className={`text-sm text-ink-muted ${
+                className={`text-sm text-[#CFE3FF] ${
                   CALC_MONO.includes(c.calcType)
                     ? 'font-mono text-xs'
                     : 'font-body'
@@ -185,23 +189,24 @@ export function ComponentsView() {
               </div>
               <div className="flex flex-wrap gap-1">
                 {c.isTaxable && (
-                  <span className="rounded-full bg-surface-sunken px-1.5 py-0.5 font-body text-[10px] text-ink-muted">
+                  <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-[10px] text-[#CFE3FF]">
                     Tributável
                   </span>
                 )}
                 {c.isMandatory && (
-                  <span className="rounded-full bg-surface-sunken px-1.5 py-0.5 font-body text-[10px] text-ink-muted">
+                  <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-[10px] text-[#CFE3FF]">
                     Obrigatório
                   </span>
                 )}
               </div>
-              <div className="font-body text-sm text-ink-muted">{c.order}</div>
+              <div className="font-body text-sm text-[#E8EEF7]">{c.order}</div>
               <div className="flex gap-1">
-                <Button intent="ghost" size="sm" onClick={() => setEditing(c)}>
+                <Button intent="ghost" size="sm" className="text-white hover:bg-white/10" onClick={() => setEditing(c)}>
                   Editar
                 </Button>
                 <IconButton
                   icon={Trash2}
+                  className="text-white hover:bg-white/10"
                   label="Remover"
                   intent="ghost"
                   size="sm"
@@ -210,6 +215,7 @@ export function ComponentsView() {
               </div>
             </div>
           ))}
+          </div>
         </div>
       )}
 

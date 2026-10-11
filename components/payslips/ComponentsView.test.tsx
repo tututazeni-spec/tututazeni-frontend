@@ -100,10 +100,17 @@ beforeEach(() => {
   invalidateQueries.mockClear();
 });
 
+function selectAllTypes() {
+  fireEvent.change(screen.getAllByRole('combobox')[0], {
+    target: { value: 'all' },
+  });
+}
+
 describe('ComponentsView', () => {
-  test('renders a row per component with code, name and a type badge', () => {
+  test('renders a row per component with name and a type badge', () => {
     render(<ComponentsView />);
-    expect(screen.getByText('BASE')).toBeInTheDocument();
+    selectAllTypes();
+    expect(screen.queryByText('BASE')).not.toBeInTheDocument();
     expect(screen.getByText('Salário Base')).toBeInTheDocument();
     // The filter labels "Rendimento"/"Desconto" also live in the (mocked) Select
     // <option>s, so scope the type-badge assertions to the row <span>s. Two
@@ -116,13 +123,21 @@ describe('ComponentsView', () => {
     ).toBeInTheDocument();
   });
 
+  test('hides rows by default, showing only the header', () => {
+    render(<ComponentsView />);
+    expect(screen.getByText('Nome')).toBeInTheDocument();
+    expect(screen.queryByText('Salário Base')).not.toBeInTheDocument();
+  });
+
   test('formats the calc column by calcType', () => {
     render(<ComponentsView />);
+    selectAllTypes();
     expect(screen.getByText('3%')).toBeInTheDocument(); // PERCENT rate 0.03 → "3%"
   });
 
   test('marks inactive components', () => {
     render(<ComponentsView />);
+    selectAllTypes();
     expect(screen.getByText('Inactivo')).toBeInTheDocument();
   });
 
@@ -140,6 +155,7 @@ describe('ComponentsView', () => {
 
   test('remove asks for confirmation then DELETEs and toasts by the returned active flag', async () => {
     render(<ComponentsView />);
+    selectAllTypes();
     fireEvent.click(screen.getAllByLabelText('Remover')[0]);
     expect(confirm).toHaveBeenCalledTimes(1);
     await vi.waitFor(() =>

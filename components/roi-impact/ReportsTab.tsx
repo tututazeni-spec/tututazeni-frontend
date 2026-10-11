@@ -9,7 +9,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Download } from 'lucide-react';
+import { BarChart3, Download } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { API_URL } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
@@ -18,6 +18,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -626,13 +627,13 @@ function StatCard({
   hint?: string;
 }) {
   return (
-    <Card>
-      <CardBody>
-        <p className="font-display text-xl font-bold text-ink">{value}</p>
-        <p className="font-body text-[10px] text-ink-faint">{label}</p>
-        {hint && <p className="text-[10px] text-ink-faint">{hint}</p>}
-      </CardBody>
-    </Card>
+    <NavyStatCard
+      icon={BarChart3}
+      tone="blue"
+      label={label}
+      value={value}
+      sub={hint}
+    />
   );
 }
 
