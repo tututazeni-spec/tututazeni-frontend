@@ -41,7 +41,12 @@ export interface AdminPayslipRow {
   grossSalary: number;
   netSalary: number;
   status: PayslipStatus;
-  user: { id: number; fullName: string; employeeNumber: string | null } | null;
+  user: {
+    id: number;
+    fullName: string;
+    employeeNumber: string | null;
+    avatarUrl?: string | null;
+  } | null;
 }
 
 export interface PayslipListViewProps {
@@ -196,6 +201,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
                 <div className="flex min-w-0 items-center gap-3">
                   <Avatar
                     name={r.user?.fullName ?? '—'}
+                    url={r.user?.avatarUrl ?? undefined}
                     size="lg"
                     className="shrink-0"
                   />
