@@ -209,7 +209,7 @@ export function ReportsView() {
 
       {data && (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {Object.entries(data.totals).map(([k, v]) => (
               <KpiCard
                 key={k}
@@ -225,14 +225,14 @@ export function ReportsView() {
               description="Ajuste o período ou limpe os filtros."
             />
           ) : (
-            <div className="overflow-x-auto rounded-card border border-border bg-surface">
-              <table className="w-full min-w-[640px] text-left font-body text-sm">
-                <thead className="border-b border-border">
+            <div className="overflow-hidden rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+              <table className="w-full text-left font-body text-xs">
+                <thead className="bg-[#0B2D5B]">
                   <tr>
                     {columns.map((c) => (
                       <th
                         key={c}
-                        className="whitespace-nowrap px-3 py-2.5 text-xs font-medium uppercase tracking-wide text-ink-faint"
+                        className="px-2 py-3 text-xs font-bold uppercase leading-tight tracking-wide text-white"
                       >
                         {COLUMN_LABEL[c] ?? c}
                       </th>
@@ -243,12 +243,12 @@ export function ReportsView() {
                   {data.rows.map((r, i) => (
                     <tr
                       key={`${r.key ?? i}`}
-                      className="border-b border-border last:border-0"
+                      className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
                     >
                       {columns.map((c) => (
                         <td
                           key={c}
-                          className="whitespace-nowrap px-3 py-3 text-ink"
+                          className="px-2 py-3 text-white"
                         >
                           {cell(c, r[c])}
                         </td>

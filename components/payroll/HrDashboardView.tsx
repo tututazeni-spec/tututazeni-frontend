@@ -43,29 +43,33 @@ export function HrDashboardView() {
             <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
               Contagens
             </h3>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-              <KpiCard label="Total" value={data.counts.total} />
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+              <KpiCard className="min-h-[178px]" label="Total" value={data.counts.total} />
               <KpiCard
+                className="min-h-[178px]"
                 label="Emitidos"
                 value={data.counts.issued}
                 intent="success"
               />
               <KpiCard
+                className="min-h-[178px]"
                 label="Confirmados"
                 value={data.counts.acknowledged}
                 intent="info"
               />
               <KpiCard
+                className="min-h-[178px]"
                 label="Em disputa"
                 value={data.counts.disputed}
                 intent="danger"
               />
               <KpiCard
+                className="min-h-[178px]"
                 label="Por confirmar"
                 value={data.counts.notViewed}
                 intent="warning"
               />
-              <KpiCard label="Rascunhos" value={data.counts.draft} />
+              <KpiCard className="min-h-[178px]" label="Rascunhos" value={data.counts.draft} />
             </div>
           </section>
 
@@ -73,7 +77,7 @@ export function HrDashboardView() {
             <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
               Financeiro
             </h3>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <KpiCard
                 label="Bruto total"
                 value={fmtKz(data.financials.totalGross)}
@@ -106,13 +110,15 @@ export function HrDashboardView() {
             <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
               Compliance
             </h3>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
               <KpiCard
+                className="min-h-[178px]"
                 label="Taxa de confirmação"
                 value={data.compliance.viewRate}
                 intent="info"
               />
               <KpiCard
+                className="min-h-[178px]"
                 label="Pendentes de confirmação"
                 value={data.compliance.pendingAcknowledgement}
                 intent="warning"
