@@ -52,9 +52,25 @@ beforeEach(() => {
   useApiQuery.mockClear();
 });
 
+// A tabela só mostra dados depois de o utilizador mexer num filtro.
+function applyFilter() {
+  fireEvent.change(screen.getByPlaceholderText(/Pesquisar/i), {
+    target: { value: 'a' },
+  });
+}
+
 describe('CompensationsView', () => {
+  test('shows only the header, no rows, until the search is changed', () => {
+    render(<CompensationsView onOpenDetail={vi.fn()} />);
+    expect(screen.getByText('Colaborador')).toBeInTheDocument();
+    expect(screen.queryByText('Ana Silva')).not.toBeInTheDocument();
+    applyFilter();
+    expect(screen.getByText('Ana Silva')).toBeInTheDocument();
+  });
+
   test('renders a row with name, employeeNumber, dept, base salary, effectiveFrom, #components', () => {
     render(<CompensationsView onOpenDetail={vi.fn()} />);
+    applyFilter();
     expect(screen.getByText('Ana Silva')).toBeInTheDocument();
     expect(screen.getByText('E-7')).toBeInTheDocument();
     expect(screen.getByText('Financeiro')).toBeInTheDocument();
@@ -74,6 +90,7 @@ describe('CompensationsView', () => {
   test('row click calls onOpenDetail with the userId', () => {
     const onOpenDetail = vi.fn();
     render(<CompensationsView onOpenDetail={onOpenDetail} />);
+    applyFilter();
     fireEvent.click(screen.getByText('Ana Silva'));
     expect(onOpenDetail).toHaveBeenCalledWith(7);
   });
@@ -91,6 +108,7 @@ describe('CompensationsView', () => {
       isLoading: false,
     };
     render(<CompensationsView onOpenDetail={vi.fn()} />);
+    applyFilter();
     expect(
       screen.getByText(/Nenhum colaborador com compensação/i),
     ).toBeInTheDocument();

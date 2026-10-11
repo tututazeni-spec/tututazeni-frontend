@@ -48,6 +48,13 @@ vi.mock('@/components/ui/Select', () => ({
 
 import { PayslipListView } from './PayslipListView';
 
+// A tabela só mostra dados depois de o utilizador mexer num filtro.
+function applyFilter() {
+  fireEvent.change(screen.getByTestId('status-select'), {
+    target: { value: 'DRAFT' },
+  });
+}
+
 const row = {
   id: 1,
   receiptCode: 'REC-1',
@@ -71,6 +78,15 @@ beforeEach(() => {
 });
 
 describe('PayslipListView', () => {
+  test('shows only the header, no rows, until a filter is changed', () => {
+    useApiQuery.mockReturnValue({ data: page, isLoading: false, error: null });
+    render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
+    expect(screen.getByText('Colaborador')).toBeInTheDocument();
+    expect(screen.queryByText('Ana Silva')).not.toBeInTheDocument();
+    applyFilter();
+    expect(screen.getByText('Ana Silva')).toBeInTheDocument();
+  });
+
   test('shows skeleton while loading', () => {
     useApiQuery.mockReturnValue({
       data: undefined,
@@ -80,6 +96,7 @@ describe('PayslipListView', () => {
     const { container } = render(
       <PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />,
     );
+    applyFilter();
     expect(container.querySelector('.animate-pulse')).toBeTruthy();
   });
 
@@ -101,6 +118,7 @@ describe('PayslipListView', () => {
       error: null,
     });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
+    applyFilter();
     expect(screen.getByText(/Sem recibos/i)).toBeInTheDocument();
   });
 
@@ -108,6 +126,7 @@ describe('PayslipListView', () => {
     useApiQuery.mockReturnValue({ data: page, isLoading: false, error: null });
     const onSelect = vi.fn();
     render(<PayslipListView onSelect={onSelect} onCreate={vi.fn()} />);
+    applyFilter();
     fireEvent.click(screen.getByText('Ana Silva'));
     expect(onSelect).toHaveBeenCalledWith(1);
   });
@@ -145,6 +164,7 @@ describe('PayslipListView', () => {
   test('"Emitir" appears only on DRAFT rows and runs confirm + mutation', async () => {
     useApiQuery.mockReturnValue({ data: page, isLoading: false, error: null });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
+    applyFilter();
     fireEvent.click(screen.getByRole('button', { name: 'Emitir' }));
     await waitFor(() => expect(confirm).toHaveBeenCalled());
     await waitFor(() =>
@@ -167,6 +187,7 @@ describe('PayslipListView', () => {
   test('each row has a PDF download link to the admin PDF route', () => {
     useApiQuery.mockReturnValue({ data: page, isLoading: false, error: null });
     render(<PayslipListView onSelect={vi.fn()} onCreate={vi.fn()} />);
+    applyFilter();
     expect(
       screen.getByRole('link', { name: /Descarregar PDF/i }),
     ).toHaveAttribute('href', '/api/payslips/1/pdf');

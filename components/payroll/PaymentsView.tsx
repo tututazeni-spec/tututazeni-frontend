@@ -19,6 +19,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useToast } from '@/providers/ToastProvider';
+import { fmtPeriodNumeric } from '@/components/payslips/format';
 import { RunPicker } from './RunPicker';
 import {
   PAYMENT_NEXT,
@@ -28,8 +29,8 @@ import {
 } from './insightTypes';
 
 const TH =
-  'whitespace-nowrap px-3 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint';
-const TD = 'px-3 py-3';
+  'px-2 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white';
+const TD = 'px-2 py-3 text-white';
 
 const ACTION_LABEL: Record<PaymentStatus, string> = {
   PENDING: 'Reabrir',
@@ -61,6 +62,8 @@ function downloadCsv(file: BankFile) {
 export function PaymentsView() {
   const notify = useToast();
   const [period, setPeriod] = useState('');
+  // Só o cabeçalho até o utilizador mexer num filtro.
+  const [filtered, setFiltered] = useState(false);
   const [creating, setCreating] = useState(false);
   const [runId, setRunId] = useState<number | null>(null);
   const [bankName, setBankName] = useState('');
@@ -136,14 +139,17 @@ export function PaymentsView() {
     setStatus.mutate({ id: p.id, status });
   };
 
-  const rows = data ?? [];
+  const rows = filtered ? (data ?? []) : [];
 
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Input
           value={period}
-          onChange={(e) => setPeriod(e.target.value)}
+          onChange={(e) => {
+            setPeriod(e.target.value);
+            setFiltered(true);
+          }}
           placeholder="Período (AAAA-MM)"
           className="w-44"
         />
@@ -152,21 +158,21 @@ export function PaymentsView() {
         </Button>
       </div>
 
-      {isLoading && <Skeleton rows={6} />}
+      {filtered && isLoading && <Skeleton rows={6} />}
       {error && (
         <div className="font-body text-sm text-danger">{error.message}</div>
       )}
-      {!isLoading && !error && rows.length === 0 && (
+      {filtered && !isLoading && !error && rows.length === 0 && (
         <EmptyState
           title="Sem pagamentos"
           description="Crie um pagamento a partir de um processamento aprovado ou publicado."
         />
       )}
 
-      {rows.length > 0 && (
-        <div className="overflow-x-auto rounded-card border border-border bg-surface">
-          <table className="w-full min-w-[1000px] text-left font-body text-sm">
-            <thead className="border-b border-border">
+      {!error && (
+        <div className="overflow-hidden rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+          <table className="w-full text-left font-body text-xs">
+            <thead className="bg-[#0B2D5B]">
               <tr>
                 <th className={TH}>Período</th>
                 <th className={TH}>Banco</th>
@@ -185,23 +191,23 @@ export function PaymentsView() {
               {rows.map((p) => (
                 <tr
                   key={p.id}
-                  className="border-b border-border align-top last:border-0"
+                  className="border-b border-[#6F8FB8]/20 align-top transition-colors duration-150 last:border-0 hover:bg-white/5"
                 >
-                  <td className={`${TD} font-mono`}>{p.period}</td>
-                  <td className={`${TD} text-ink-muted`}>
+                  <td className={`${TD} font-mono`}>{fmtPeriodNumeric(p.period)}</td>
+                  <td className={`${TD} text-[#CFE3FF]`}>
                     {p.bankName ?? '—'}
                   </td>
-                  <td className={`${TD} text-ink-muted`}>
+                  <td className={`${TD} text-[#CFE3FF]`}>
                     {p.paymentAccount ?? '—'}
                   </td>
                   <td className={TD}>{p.employeeCount}</td>
                   <td className={`${TD} text-right font-mono`}>
                     {fmtKz(p.totalAmount)}
                   </td>
-                  <td className={`${TD} text-ink-muted`}>
+                  <td className={`${TD} text-[#CFE3FF]`}>
                     {p.expectedDate ? fmtDate(p.expectedDate) : '—'}
                   </td>
-                  <td className={`${TD} text-ink-muted`}>
+                  <td className={`${TD} text-[#CFE3FF]`}>
                     {p.effectiveDate ? fmtDate(p.effectiveDate) : '—'}
                   </td>
                   <td className={TD}>
@@ -211,15 +217,15 @@ export function PaymentsView() {
                       variant="dot"
                     />
                     {p.errorMessage && (
-                      <div className="mt-1 max-w-[220px] text-xs text-danger">
+                      <div className="mt-1 max-w-[220px] text-xs text-[#FFB4B4]">
                         {p.errorMessage}
                       </div>
                     )}
                   </td>
-                  <td className={`${TD} font-mono text-xs text-ink-muted`}>
+                  <td className={`${TD} font-mono text-xs text-[#CFE3FF]`}>
                     {p.reference ?? '—'}
                   </td>
-                  <td className={`${TD} text-ink-muted`}>
+                  <td className={`${TD} text-[#CFE3FF]`}>
                     {p.responsibleName ?? '—'}
                   </td>
                   <td className={TD}>
@@ -244,6 +250,11 @@ export function PaymentsView() {
                             next === 'CANCELLED' || next === 'FAILED'
                               ? 'ghost'
                               : 'primary'
+                          }
+                          className={
+                            next === 'CANCELLED' || next === 'FAILED'
+                              ? 'text-white hover:bg-white/10'
+                              : undefined
                           }
                           disabled={setStatus.isPending}
                           onClick={() => onAction(p, next)}

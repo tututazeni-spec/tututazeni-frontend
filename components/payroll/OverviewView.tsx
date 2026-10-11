@@ -35,7 +35,10 @@ function Section({
       <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
         {title}
       </h3>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">{children}</div>
+      {/* Cartas largas: um montante de 7+ dígitos em Kz (ex.: 1 234 567 Kz) tem de caber inteiro. */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {children}
+      </div>
     </section>
   );
 }
