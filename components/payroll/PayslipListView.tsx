@@ -72,6 +72,8 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
   const [year, setYear] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  // Só o cabeçalho até o utilizador mexer num filtro.
+  const [filtered, setFiltered] = useState(false);
   const debouncedSearch = useDebounce(search);
 
   const params: Record<string, string | number> = { page, limit: 20 };
@@ -113,7 +115,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
     if (ok) issue.mutate(r.id);
   };
 
-  const rows = data?.data ?? [];
+  const rows = filtered ? (data?.data ?? []) : [];
   const totalPages = data?.meta.totalPages ?? 0;
 
   return (
@@ -123,6 +125,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
+            setFiltered(true);
             setPage(1);
           }}
           placeholder="Nome ou nº de colaborador"
@@ -133,6 +136,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
           value={status}
           onValueChange={(v) => {
             setStatus(v);
+            setFiltered(true);
             setPage(1);
           }}
           className="w-48"
@@ -141,6 +145,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
           value={period}
           onChange={(e) => {
             setPeriod(e.target.value);
+            setFiltered(true);
             setPage(1);
           }}
           placeholder="Período (AAAA-MM)"
@@ -150,6 +155,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
           value={year}
           onChange={(e) => {
             setYear(e.target.value);
+            setFiltered(true);
             setPage(1);
           }}
           placeholder="Ano (AAAA)"
@@ -160,7 +166,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
         </Button>
       </div>
 
-      {isLoading && (
+      {filtered && isLoading && (
         <Skeleton
           rows={8}
           wrapperClassName="space-y-2 animate-pulse"
@@ -171,14 +177,14 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
         <div className="font-body text-sm text-danger">{error.message}</div>
       )}
 
-      {!isLoading && !error && rows.length === 0 && (
+      {filtered && !isLoading && !error && rows.length === 0 && (
         <EmptyState
           title="Sem recibos"
           description="Nenhum recibo corresponde aos filtros."
         />
       )}
 
-      {!isLoading && rows.length > 0 && (
+      {!error && (
         <div className="overflow-hidden rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
           <div>
             <div
