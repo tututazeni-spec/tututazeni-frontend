@@ -136,8 +136,6 @@ export function ReportsView() {
   const [month, setMonth] = useState('');
   const [status, setStatus] = useState('all');
   const [departmentId, setDepartmentId] = useState('all');
-  // Só o cabeçalho da tabela até o utilizador mexer num filtro.
-  const [filtered, setFiltered] = useState(false);
   const { options: depOptions } = useDepartmentOptions();
 
   const params: Record<string, string> = {};
@@ -160,37 +158,25 @@ export function ReportsView() {
         <Select
           items={REPORT_ITEMS}
           value={type}
-          onValueChange={(v) => {
-            setType(v);
-            setFiltered(true);
-          }}
+          onValueChange={setType}
           className="w-72"
         />
         <Input
           value={year}
-          onChange={(e) => {
-            setYear(e.target.value);
-            setFiltered(true);
-          }}
+          onChange={(e) => setYear(e.target.value)}
           placeholder="Ano"
           className="w-24"
         />
         <Input
           value={month}
-          onChange={(e) => {
-            setMonth(e.target.value);
-            setFiltered(true);
-          }}
+          onChange={(e) => setMonth(e.target.value)}
           placeholder="Mês (1-12)"
           className="w-28"
         />
         <Select
           items={STATUS_ITEMS}
           value={status}
-          onValueChange={(v) => {
-            setStatus(v);
-            setFiltered(true);
-          }}
+          onValueChange={setStatus}
           className="w-44"
         />
         <Select
@@ -202,10 +188,7 @@ export function ReportsView() {
             })),
           ]}
           value={departmentId}
-          onValueChange={(v) => {
-            setDepartmentId(v);
-            setFiltered(true);
-          }}
+          onValueChange={setDepartmentId}
           className="w-56"
         />
         {data && data.rows.length > 0 && (
@@ -236,7 +219,7 @@ export function ReportsView() {
             ))}
           </div>
 
-          {filtered && data.rows.length === 0 ? (
+          {data.rows.length === 0 ? (
             <EmptyState
               title="Sem dados para os filtros escolhidos"
               description="Ajuste o período ou limpe os filtros."
@@ -257,7 +240,7 @@ export function ReportsView() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(filtered ? data.rows : []).map((r, i) => (
+                  {data.rows.map((r, i) => (
                     <tr
                       key={`${r.key ?? i}`}
                       className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
