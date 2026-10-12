@@ -60,7 +60,7 @@ function ChartStatCard({
   children: ReactNode;
 }) {
   return (
-    <div className="flex min-h-[155px] flex-col overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)]">
+    <div className="flex min-h-[155px] flex-col overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
       <div className="flex min-h-[60px] shrink-0 items-center bg-[#152F59] px-4 py-2">
         <h3 className="font-body text-[13px] font-semibold leading-tight text-white">
           {label}
@@ -98,7 +98,7 @@ function DonutStatCard({ label, value }: { label: string; value: number }) {
   const gap = parts.length > 1 ? 1.5 : 0;
   let offset = 0;
   return (
-    <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4">
+    <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
       <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
         {label}
       </h3>
@@ -257,7 +257,7 @@ export function DashboardView() {
             value={data.participationRate}
           />
           <GaugeStatCard label="Taxa de aprovação" value={data.approvalRate} />
-          <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4">
+          <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
             <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
               Satisfação média
             </h3>
