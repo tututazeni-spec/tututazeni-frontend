@@ -21,10 +21,8 @@ import {
   Layers,
   Lock,
   MailCheck,
-  Percent,
   Send,
   Star,
-  Target,
   Users,
   type LucideIcon,
 } from 'lucide-react';
