@@ -42,6 +42,15 @@ import type { Dashboard } from './types';
 
 const RATE_THRESHOLDS = { warning: 70, danger: 50 };
 
+// Faixas do velocímetro das taxas (escala 0–100).
+const RATE_BANDS = [
+  { to: 20, color: '#c0392b' },
+  { to: 40, color: '#e67e22' },
+  { to: 60, color: '#f1c40f' },
+  { to: 80, color: '#8fc23f' },
+  { to: 100, color: '#2f9e63' },
+];
+
 // Faixas do velocímetro de satisfação (escala 0–5).
 const SATISFACTION_BANDS = [
   { to: 1, color: '#c0392b' },
@@ -78,6 +87,40 @@ function GaugeStatCard({ label, value }: { label: string; value: number }) {
     <ChartStatCard label={label}>
       <GaugeChart value={value} thresholds={RATE_THRESHOLDS} size={140} />
     </ChartStatCard>
+  );
+}
+
+// Velocímetro em Card próprio (fora do estilo NavyStatCard).
+function SpeedometerStatCard({
+  label,
+  value,
+  max = 100,
+  bands,
+  display,
+  caption,
+}: {
+  label: string;
+  value: number;
+  max?: number;
+  bands: { to: number; color: string }[];
+  display: string;
+  caption?: string;
+}) {
+  return (
+    <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
+      <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        {label}
+      </h3>
+      <SpeedometerChart
+        value={value}
+        min={0}
+        max={max}
+        bands={bands}
+        size={150}
+        display={display}
+        label={caption}
+      />
+    </Card>
   );
 }
 
@@ -248,29 +291,27 @@ export function DashboardView() {
           Indicadores
         </h3>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <GaugeStatCard
+          <SpeedometerStatCard
             label="Taxa de conclusão"
             value={data.completionRate}
+            bands={RATE_BANDS}
+            display={`${Math.round(data.completionRate)}%`}
           />
-          <GaugeStatCard
+          <SpeedometerStatCard
             label="Taxa de participação"
             value={data.participationRate}
+            bands={RATE_BANDS}
+            display={`${Math.round(data.participationRate)}%`}
           />
           <GaugeStatCard label="Taxa de aprovação" value={data.approvalRate} />
-          <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
-            <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-              Satisfação média
-            </h3>
-            <SpeedometerChart
-              value={data.avgRating}
-              min={0}
-              max={5}
-              bands={SATISFACTION_BANDS}
-              size={150}
-              display={data.avgRating.toFixed(1)}
-              label="em 5.0"
-            />
-          </Card>
+          <SpeedometerStatCard
+            label="Satisfação média"
+            value={data.avgRating}
+            max={5}
+            bands={SATISFACTION_BANDS}
+            display={data.avgRating.toFixed(1)}
+            caption="em 5.0"
+          />
           <DonutStatCard
             label="Execução do plano"
             value={data.planExecutionRate}
