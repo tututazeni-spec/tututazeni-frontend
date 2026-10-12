@@ -14,6 +14,11 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz } from '@/lib/format';
 import { Card } from '@/components/ui/Card';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
+import { ThermometerStatCard } from '@/components/ui/charts/ThermometerStatCard';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -183,21 +188,24 @@ export function ReportsView() {
                 value={data.participants.cancelled}
                 intent="danger"
               />
-              <KpiCard
+              <SpeedometerStatCard
                 label="Taxa de participação"
-                value={`${data.participants.participationRate}%`}
-                intent="info"
+                value={data.participants.participationRate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.participants.participationRate)}%`}
               />
-              <KpiCard
+              <SpeedometerStatCard
                 label="Taxa de conclusão"
-                value={`${data.participants.completionRate}%`}
-                intent="success"
+                value={data.participants.completionRate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.participants.completionRate)}%`}
               />
               <KpiCard label="Horas de formação" value={data.hours.total} />
-              <KpiCard
+              <SpeedometerStatCard
                 label="Execução do plano"
-                value={`${data.planExecution.rate}%`}
-                intent="primary"
+                value={data.planExecution.rate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.planExecution.rate)}%`}
               />
             </div>
           </div>
@@ -245,10 +253,11 @@ export function ReportsView() {
                 }
                 intent="warning"
               />
-              <KpiCard
+              <ThermometerStatCard
                 label="Taxa de aprovação"
-                value={`${data.efficacy.approvalRate}%`}
-                intent="success"
+                value={data.efficacy.approvalRate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.efficacy.approvalRate)}%`}
               />
               <KpiCard
                 label="Competências desenvolvidas"

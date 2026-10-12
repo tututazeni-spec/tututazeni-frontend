@@ -8,17 +8,26 @@
 
 import {
   Banknote,
-  
-  
-  
+  BadgeCheck,
+  BookOpen,
+  CalendarCheck,
+  CalendarClock,
+  CheckCircle2,
+  ClipboardCheck,
+  ClipboardList,
   Clock,
   DoorOpen,
-  
-  
+  GraduationCap,
+  Percent,
+  PlayCircle,
+  ShieldAlert,
   Timer,
   UserCheck,
+  Users,
   UsersRound,
+  XCircle,
 } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -26,7 +35,6 @@ import { formatDateTime, formatKz } from '@/lib/format';
 import { Card } from '@/components/ui/Card';
 import {
   RATE_BANDS,
-  ShareGaugeCard,
   SpeedometerStatCard,
 } from '@/components/ui/charts/SpeedometerStatCard';
 import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
@@ -64,36 +72,41 @@ export function DashboardView() {
     <div className="space-y-6">
       {/* Formações */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <ShareGaugeCard
+        <KpiCard
+          icon={BookOpen}
           label="Total formações"
           value={data.trainings.total}
-          total={data.trainings.total}
+          intent="primary"
         />
-        <ShareGaugeCard
+        <KpiCard
+          icon={ClipboardList}
           label="Planeadas"
           value={data.trainings.planned}
-          total={data.trainings.total}
+          intent="info"
         />
-        <ShareGaugeCard
+        <KpiCard
+          icon={CalendarClock}
           label="Agendadas"
           value={data.trainings.scheduled}
-          total={data.trainings.total}
+          intent="info"
         />
-        <ShareGaugeCard
+        <KpiCard
+          icon={PlayCircle}
           label="Em curso"
           value={data.trainings.inProgress}
-          total={data.trainings.total}
+          intent="warning"
         />
-        <ShareGaugeCard
+        <KpiCard
+          icon={CheckCircle2}
           label="Concluídas"
           value={data.trainings.completed}
-          total={data.trainings.total}
+          intent="success"
         />
-        <ShareGaugeCard
+        <KpiCard
+          icon={XCircle}
           label="Canceladas"
           value={data.trainings.cancelled}
-          total={data.trainings.total}
-          lowerIsBetter
+          intent="danger"
         />
       </div>
 
@@ -113,25 +126,33 @@ export function DashboardView() {
           label="Salas em utilização"
           value={data.roomsInUse}
         />
-        <ShareGaugeCard
+        <KpiCard
+          icon={ShieldAlert}
           label="Obrigatórias"
           value={data.trainings.mandatory}
-          total={data.trainings.total}
+          intent="danger"
         />
       </div>
 
       {/* Participantes */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <ShareGaugeCard label="Participantes inscritos" value={data.participants.registered} total={data.participants.registered} />
-        <ShareGaugeCard
+        <KpiCard
+          icon={Users}
+          label="Participantes inscritos"
+          value={data.participants.registered}
+          intent="primary"
+        />
+        <KpiCard
+          icon={GraduationCap}
           label="Em formação"
           value={data.participants.inTraining}
-          total={data.participants.registered}
+          intent="warning"
         />
-        <DonutStatCard
+        <KpiCard
+          icon={BadgeCheck}
           label="Participações concluídas"
-          value={data.participants.registered > 0 ? (data.participants.completed / data.participants.registered) * 100 : 0}
-          sub={`${data.participants.completed} de ${data.participants.registered}`}
+          value={data.participants.completed}
+          intent="success"
         />
       </div>
 
