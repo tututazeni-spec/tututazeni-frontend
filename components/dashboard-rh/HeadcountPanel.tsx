@@ -6,7 +6,7 @@
 
 'use client';
 
-import { Clock, TrendingDown, Trophy, UserCheck, Users } from 'lucide-react';
+import { Clock, Trophy, UserCheck, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -15,6 +15,11 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  SpeedometerStatCard,
+  TURNOVER_BANDS,
+  TURNOVER_MAX,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import type {
   AnniversaryUser,
@@ -63,11 +68,12 @@ export function HeadcountPanel() {
           tone="green"
           icon={UserCheck}
         />
-        <NavyStatCard
+        <SpeedometerStatCard
           label="Taxa de Rotatividade"
-          value={`${data?.turnoverRate ?? 0}%`}
-          tone="red"
-          icon={TrendingDown}
+          value={data?.turnoverRate ?? 0}
+          max={TURNOVER_MAX}
+          bands={TURNOVER_BANDS}
+          display={`${Math.round(data?.turnoverRate ?? 0)}%`}
         />
         <NavyStatCard
           label="Tempo Médio de Serviço"

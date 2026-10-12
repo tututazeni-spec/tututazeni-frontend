@@ -15,6 +15,16 @@ export const RATE_BANDS = [
   { to: 100, color: '#2f9e63' },
 ];
 
+// Rotatividade (escala 0–30%): mais baixo é melhor, por isso verde → vermelho.
+export const TURNOVER_MAX = 30;
+export const TURNOVER_BANDS = [
+  { to: 5, color: '#2f9e63' },
+  { to: 10, color: '#8fc23f' },
+  { to: 15, color: '#f1c40f' },
+  { to: 25, color: '#e67e22' },
+  { to: 30, color: '#c0392b' },
+];
+
 export function SpeedometerStatCard({
   label,
   value,

@@ -9,7 +9,6 @@
 
 import {
   Users,
-  TrendingDown,
   UserPlus,
   Star,
   Target,
@@ -23,6 +22,11 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  SpeedometerStatCard,
+  TURNOVER_BANDS,
+  TURNOVER_MAX,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { AlertStrip } from './AlertStrip';
 import type { Alert, OverviewData } from './types';
 
@@ -64,12 +68,13 @@ export function OverviewPanel() {
           tone="blue"
           icon={Users}
         />
-        <NavyStatCard
-          icon={TrendingDown}
+        <SpeedometerStatCard
           label="Taxa de Rotatividade"
-          value={`${k.turnover?.rate ?? 0}%`}
-          sub={k.turnover?.status}
-          tone="red"
+          value={k.turnover?.rate ?? 0}
+          max={TURNOVER_MAX}
+          bands={TURNOVER_BANDS}
+          display={`${Math.round(k.turnover?.rate ?? 0)}%`}
+        caption={k.turnover?.status}
         />
         <NavyStatCard
           label="Novas Admissões (mês)"
