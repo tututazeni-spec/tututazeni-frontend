@@ -20,7 +20,6 @@ import {
   AlertTriangle,
   BookOpen,
   ClipboardList,
-  GraduationCap,
   MessageSquare,
   Star,
   Target,
@@ -32,6 +31,10 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AlertBanner } from './AlertBanner';
@@ -70,7 +73,6 @@ export function ManagerDashboard() {
     );
 
   const kpis = data?.kpis ?? {};
-  const mandatoryOk = (kpis.mandatoryRate ?? 0) >= 80;
   const hasPendingEvals = (kpis.pendingEvals ?? 0) > 0;
   const hasOverdueActions = (kpis.overdueActions ?? 0) > 0;
 
@@ -114,11 +116,11 @@ export function ManagerDashboard() {
           value={kpis.avgScore?.toFixed(1) ?? '–'}
           trend={kpis.scoreTrend}
         />
-        <NavyStatCard
-          icon={GraduationCap}
-          tone={mandatoryOk ? 'green' : 'red'}
+        <SpeedometerStatCard
           label="Formação Obrigatória"
-          value={`${kpis.mandatoryRate ?? 0}%`}
+          value={kpis.mandatoryRate ?? 0}
+          bands={RATE_BANDS}
+          display={`${Math.round(kpis.mandatoryRate ?? 0)}%`}
         />
       </div>
 

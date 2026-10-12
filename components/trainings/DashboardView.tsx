@@ -33,20 +33,14 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime, formatKz } from '@/lib/format';
 import { Card } from '@/components/ui/Card';
-import { SpeedometerChart } from '@/components/ui/charts/SpeedometerChart';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TYPE_CFG } from './constants';
 import type { Dashboard } from './types';
-
-// Faixas do velocímetro das taxas (escala 0–100).
-const RATE_BANDS = [
-  { to: 20, color: '#c0392b' },
-  { to: 40, color: '#e67e22' },
-  { to: 60, color: '#f1c40f' },
-  { to: 80, color: '#8fc23f' },
-  { to: 100, color: '#2f9e63' },
-];
 
 // Faixas do velocímetro de satisfação (escala 0–5).
 const SATISFACTION_BANDS = [
@@ -56,40 +50,6 @@ const SATISFACTION_BANDS = [
   { to: 4, color: '#8fc23f' },
   { to: 5, color: '#2f9e63' },
 ];
-
-// Velocímetro em Card próprio (fora do estilo NavyStatCard).
-function SpeedometerStatCard({
-  label,
-  value,
-  max = 100,
-  bands,
-  display,
-  caption,
-}: {
-  label: string;
-  value: number;
-  max?: number;
-  bands: { to: number; color: string }[];
-  display: string;
-  caption?: string;
-}) {
-  return (
-    <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
-      <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-        {label}
-      </h3>
-      <SpeedometerChart
-        value={value}
-        min={0}
-        max={max}
-        bands={bands}
-        size={150}
-        display={display}
-        label={caption}
-      />
-    </Card>
-  );
-}
 
 // Rosca de progresso em Card próprio (fora do estilo NavyStatCard): azul escuro
 // até 50%, azul claro de 50% até ao valor, cinza no restante, separadores
