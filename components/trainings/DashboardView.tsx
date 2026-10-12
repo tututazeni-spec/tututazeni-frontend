@@ -35,12 +35,22 @@ import { formatDateTime, formatKz } from '@/lib/format';
 import { Card } from '@/components/ui/Card';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { GaugeChart } from '@/components/ui/charts/GaugeChart';
+import { SpeedometerChart } from '@/components/ui/charts/SpeedometerChart';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TYPE_CFG } from './constants';
 import type { Dashboard } from './types';
 
 const RATE_THRESHOLDS = { warning: 70, danger: 50 };
+
+// Faixas do velocímetro de satisfação (escala 0–5).
+const SATISFACTION_BANDS = [
+  { to: 1, color: '#c0392b' },
+  { to: 2, color: '#e67e22' },
+  { to: 3, color: '#f1c40f' },
+  { to: 4, color: '#8fc23f' },
+  { to: 5, color: '#2f9e63' },
+];
 
 // Mesmo desenho do NavyStatCard (cabeçalho azul-marinho), com gráfico no corpo.
 function ChartStatCard({
@@ -251,12 +261,14 @@ export function DashboardView() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <ChartStatCard label="Satisfação média">
-          <GaugeChart
-            value={(data.avgRating / 5) * 100}
-            thresholds={RATE_THRESHOLDS}
-            size={140}
+          <SpeedometerChart
+            value={data.avgRating}
+            min={0}
+            max={5}
+            bands={SATISFACTION_BANDS}
+            size={180}
+            display={data.avgRating.toFixed(1)}
             label="em 5.0"
-            format={(v) => ((v / 100) * 5).toFixed(1)}
           />
         </ChartStatCard>
       </div>
