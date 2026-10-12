@@ -12,6 +12,10 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
+import {
   ACTION_CFG,
   STATUS_CFG as PLAN_STATUS_CFG,
 } from '@/components/development-plans/constants';
@@ -20,14 +24,7 @@ import type {
   PlanStatus,
 } from '@/components/development-plans/types';
 import type { PDIAnalytics } from './types';
-import {
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  FileClock,
-  Percent,
-  TrendingUp,
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock, FileClock } from 'lucide-react';
 
 // Ordem do ciclo de vida; estados com 0 também aparecem.
 const STATUS_ORDER: PlanStatus[] = [
@@ -65,11 +62,11 @@ export function PDIAnalyticsView() {
     <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <NavyStatCard
-          icon={TrendingUp}
+        <SpeedometerStatCard
           label="Progresso médio (PDIs activos)"
-          value={`${data.avgProgress}%`}
-          tone="blue"
+          value={data.avgProgress}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.avgProgress)}%`}
         />
         <NavyStatCard
           icon={AlertTriangle}
@@ -83,11 +80,11 @@ export function PDIAnalyticsView() {
           value={data.completedThisMonth}
           tone="green"
         />
-        <NavyStatCard
-          icon={Percent}
+        <SpeedometerStatCard
           label="Taxa de conclusão (excl. rascunhos e cancelados)"
-          value={`${data.completionRate}%`}
-          tone="green"
+          value={data.completionRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.completionRate)}%`}
         />
         <NavyStatCard
           icon={Clock}

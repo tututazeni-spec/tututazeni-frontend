@@ -11,14 +11,16 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
-import { rateTone } from './rateTone';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import {
   ClipboardList,
   FileCheck,
   FileClock,
   FileX,
   ShieldAlert,
-  ShieldCheck,
 } from 'lucide-react';
 import type { ComplianceData, DocumentsDashboardData } from './types';
 
@@ -37,8 +39,6 @@ const RISK_INTENT: Record<string, 'danger' | 'warning' | 'success'> = {
   MEDIUM: 'warning',
   LOW: 'success',
 };
-
-
 
 export function CompliancePanel() {
   const { data, isLoading: loading } = useApiQuery<ComplianceData>(
@@ -60,11 +60,11 @@ export function CompliancePanel() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <NavyStatCard
-          icon={ShieldCheck}
-          tone={rateTone(data?.mandatoryRate ?? 0, { warning: 80, danger: 60 })}
+        <SpeedometerStatCard
           label={`Obrigatórias (${data?.mandatoryDone ?? 0}/${data?.mandatory ?? 0})`}
-          value={`${Math.round(data?.mandatoryRate ?? 0)}%`}
+          value={data?.mandatoryRate ?? 0}
+          bands={RATE_BANDS}
+          display={`${Math.round(data?.mandatoryRate ?? 0)}%`}
         />
         <NavyStatCard
           icon={ShieldAlert}

@@ -11,9 +11,12 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, ShieldCheck, Star, Users } from 'lucide-react';
+import { AlertTriangle, Star, Users } from 'lucide-react';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
-import { rateTone } from './rateTone';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -24,8 +27,6 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import type { TalentData } from './types';
 
 type TabKey = 'succession' | 'hipo' | 'risk';
-
-
 
 export function TalentPanel() {
   const { data, isLoading: loading } = useApiQuery<TalentData>(
@@ -77,11 +78,11 @@ export function TalentPanel() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <NavyStatCard
-          icon={ShieldCheck}
-          tone={rateTone(data?.coverageRate ?? 0, { warning: 60, danger: 30 })}
+        <SpeedometerStatCard
           label="Posições Cobertas"
-          value={`${Math.round(data?.coverageRate ?? 0)}%`}
+          value={data?.coverageRate ?? 0}
+          bands={RATE_BANDS}
+          display={`${Math.round(data?.coverageRate ?? 0)}%`}
         />
         <NavyStatCard
           icon={Users}

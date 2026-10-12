@@ -18,6 +18,12 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+  TURNOVER_BANDS,
+  TURNOVER_MAX,
+} from '@/components/ui/charts/SpeedometerStatCard';
+import {
   Users,
   UserPlus,
   UserMinus,
@@ -27,9 +33,6 @@ import {
   Target,
   Clock,
   Award,
-  TrendingDown,
-  BarChart3,
-  Filter,
 } from 'lucide-react';
 import type { HRDashboard } from './types';
 
@@ -69,11 +72,12 @@ export function HRDashboardView() {
               value={data.people.terminated}
               tone="red"
             />
-            <NavyStatCard
-              icon={TrendingDown}
+            <SpeedometerStatCard
               label="Taxa de Rotatividade"
-              value={`${data.people.turnoverRate}%`}
-              tone="red"
+              value={data.people.turnoverRate}
+              max={TURNOVER_MAX}
+              bands={TURNOVER_BANDS}
+              display={`${Math.round(data.people.turnoverRate)}%`}
             />
           </div>
         </CardBody>
@@ -98,11 +102,11 @@ export function HRDashboardView() {
               value={data.learning.completed}
               tone="green"
             />
-            <NavyStatCard
-              icon={BarChart3}
+            <SpeedometerStatCard
               label="Taxa conclusão"
-              value={`${data.learning.completionRate}%`}
-              tone="green"
+              value={data.learning.completionRate}
+              bands={RATE_BANDS}
+              display={`${Math.round(data.learning.completionRate)}%`}
             />
             <NavyStatCard
               icon={XCircle}
@@ -127,16 +131,16 @@ export function HRDashboardView() {
               value={data.pdi.active}
               tone="blue"
             />
-            <NavyStatCard
-              icon={Filter}
+            <SpeedometerStatCard
               label="Adopção"
-              value={`${data.pdi.adoptionRate}%`}
-              sub={
+              value={data.pdi.adoptionRate}
+              bands={RATE_BANDS}
+              display={`${Math.round(data.pdi.adoptionRate)}%`}
+              caption={
                 data.pdi.funnel
                   ? `${data.pdi.funnel.adopted} de ${data.pdi.funnel.eligible} elegíveis`
                   : undefined
               }
-              tone="orange"
             />
             <NavyStatCard
               icon={Clock}
