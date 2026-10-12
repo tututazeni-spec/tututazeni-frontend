@@ -28,6 +28,22 @@ import type {
   HeadcountTrendPoint,
 } from './types';
 
+// Uma cor distinta por departamento (a paleta CATEGORICAL só tem 4 cores).
+const DEPT_COLORS = [
+  '#1f6fb8',
+  '#d6963a',
+  '#2f9e63',
+  '#b3432e',
+  '#7c4dbd',
+  '#0e9aa7',
+  '#c2437a',
+  '#6b8e23',
+  '#e07b39',
+  '#4a5fc1',
+  '#8c6d46',
+  '#3d8b8b',
+];
+
 export function HeadcountPanel() {
   const dataQ = useApiQuery<HeadcountData>(
     queryKeys.dashboardRh.headcount(),
@@ -42,6 +58,7 @@ export function HeadcountPanel() {
   const data = dataQ.data ?? null;
   const trend = trendQ.data ?? [];
   const loading = dataQ.isLoading;
+  const tenureByDept = (data?.byDepartment ?? []).filter((d) => d.count > 0);
 
   if (loading)
     return (
@@ -98,6 +115,28 @@ export function HeadcountPanel() {
                   values: Object.values(data.byTenure),
                 },
               ]}
+            />
+          </div>
+        )}
+
+        {/* Tempo médio de serviço por departamento — uma cor por departamento */}
+        {tenureByDept.length > 0 && (
+          <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+            <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+              Tempo Médio de Serviço por Departamento (anos)
+            </h4>
+            <BarChart
+              categories={tenureByDept.map((d) => d.name)}
+              series={[
+                {
+                  label: 'Anos',
+                  values: tenureByDept.map((d) => d.avgTenureYears ?? 0),
+                  barColors: tenureByDept.map(
+                    (_, i) => DEPT_COLORS[i % DEPT_COLORS.length],
+                  ),
+                },
+              ]}
+              yFormat={(v) => `${v}`}
             />
           </div>
         )}

@@ -52,6 +52,12 @@ export interface HeadcountData {
   turnoverRate?: number;
   avgTenureMonths?: number;
   byTenure?: Record<string, number>;
+  byDepartment?: {
+    id: number;
+    name: string;
+    count: number;
+    avgTenureYears?: number;
+  }[];
 }
 
 export interface HeadcountTrendPoint {
