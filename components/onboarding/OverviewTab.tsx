@@ -23,6 +23,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { NavyStatGroupCard } from '@/components/ui/NavyStatGroupCard';
@@ -127,10 +128,9 @@ export function OverviewTab({
           value={summary.newHires}
           intent="info"
         />
-        <KpiCard
+        <DonutStatCard
           label="Taxa de conclusão"
-          value={`${summary.completionRate}%`}
-          intent={summary.completionRate >= 70 ? 'success' : 'warning'}
+          value={summary.completionRate}
         />
         <KpiCard
           label="Tarefas atrasadas"
