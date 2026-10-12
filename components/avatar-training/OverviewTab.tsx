@@ -146,13 +146,10 @@ const INDICATOR_STYLE: Record<
   PROVIDER_FAILURES: { icon: ServerCrash, tone: 'red' },
   COST_LIMIT: { icon: Wallet, tone: 'orange' },
 };
-// Taxas e percentagens de progresso/qualidade → rosca (como Execução do plano em Formações).
-const PERCENT_CODES = new Set([
-  'COMPLETION_RATE',
-  'PASS_RATE',
-  'MANDATORY',
-  'ANSWER_QUALITY',
-]);
+// Taxas de conclusão/aprovação → rosca (como Execução do plano em Formações).
+const RATE_CODES = new Set(['COMPLETION_RATE', 'PASS_RATE']);
+// Formações obrigatórias e qualidade das respostas: rosca só quando há dados.
+const PERCENT_CODES = new Set(['MANDATORY', 'ANSWER_QUALITY']);
 const DEFAULT_INDICATOR_STYLE = {
   icon: BarChart3,
   tone: 'blue' as NavyStatTone,
@@ -164,7 +161,7 @@ function IndicatorCard({ i }: { i: Indicator }) {
   const tip = `${i.formula}
 Fonte: ${i.source}
 Actualizado em ${formatDateTime(i.updatedAt)}`;
-  if (PERCENT_CODES.has(i.code)) {
+  if (RATE_CODES.has(i.code)) {
     const ok = !noData && typeof i.value === 'number';
     return (
       <div title={tip}>
@@ -178,6 +175,17 @@ Actualizado em ${formatDateTime(i.updatedAt)}`;
                 ? 'Restrito'
                 : 'Sem dados'
           }
+        />
+      </div>
+    );
+  }
+  if (PERCENT_CODES.has(i.code) && !noData && typeof i.value === 'number') {
+    return (
+      <div title={tip}>
+        <DonutStatCard
+          label={i.label}
+          value={i.value}
+          sub={i.unit.replace(/^%\s*/, '')}
         />
       </div>
     );
