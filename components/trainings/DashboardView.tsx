@@ -231,7 +231,7 @@ export function DashboardView() {
             value={data.participationRate}
           />
           <GaugeStatCard label="Taxa de aprovação" value={data.approvalRate} />
-  <ChartStatCard label="Satisfação média">
+          <ChartStatCard label="Satisfação média">
             <SpeedometerChart
               value={data.avgRating}
               min={0}
