@@ -38,7 +38,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between border-b border-border px-4 py-2.5 last:border-0">
       <dt className="font-body text-sm text-ink-muted">{label}</dt>
-      <dd className="font-mono text-sm font-medium text-ink">{value}</dd>
+      <dd className="font-body text-sm font-medium text-ink">{value}</dd>
     </div>
   );
 }
@@ -211,7 +211,7 @@ export function CompensationDetailView({
                       {fmtDate(r.effectiveFrom)} →{' '}
                       {r.effectiveTo ? fmtDate(r.effectiveTo) : 'actual'}
                     </div>
-                    <div className="font-mono text-sm text-ink-muted">
+                    <div className="font-body text-sm text-ink-muted">
                       {fmtKz(r.baseSalary)}
                     </div>
                     <div className="font-body text-xs text-ink-faint">
@@ -235,10 +235,10 @@ export function CompensationDetailView({
                             key={c.id}
                             className="flex items-center justify-between py-1 font-body text-sm text-ink-muted"
                           >
-                            <span className="font-mono text-xs">
+                            <span className="font-body text-xs">
                               {c.componentCode}
                             </span>
-                            <span className="font-mono">{fmtKz(c.value)}</span>
+                            <span className="font-body">{fmtKz(c.value)}</span>
                           </div>
                         ))
                       )}

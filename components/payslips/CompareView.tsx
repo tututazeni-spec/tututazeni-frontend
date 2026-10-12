@@ -21,11 +21,11 @@ interface DeltaBadgeProps {
 
 function DeltaBadge({ delta, pct }: DeltaBadgeProps) {
   if (delta === 0)
-    return <span className="font-mono text-xs text-ink-faint">—</span>;
+    return <span className="font-body text-xs text-ink-faint">—</span>;
   const up = delta > 0;
   return (
     <span
-      className={`flex items-center gap-1 font-mono text-xs font-medium ${up ? 'text-success' : 'text-danger'}`}
+      className={`flex items-center gap-1 font-body text-xs font-medium ${up ? 'text-success' : 'text-danger'}`}
     >
       {up ? (
         <TrendingUp size={14} strokeWidth={1.75} />
@@ -122,7 +122,7 @@ export function CompareView() {
                       {f.label}
                     </span>
                     <span
-                      className={`font-mono text-xs font-medium ${f.key === 'netSalary' ? 'text-primary' : 'text-ink'}`}
+                      className={`font-body text-xs font-medium ${f.key === 'netSalary' ? 'text-primary' : 'text-ink'}`}
                     >
                       {fmtKz(field.a)}
                     </span>
@@ -172,7 +172,7 @@ export function CompareView() {
                       {f.label}
                     </span>
                     <span
-                      className={`font-mono text-xs font-medium ${f.key === 'netSalary' ? 'text-primary' : 'text-ink'}`}
+                      className={`font-body text-xs font-medium ${f.key === 'netSalary' ? 'text-primary' : 'text-ink'}`}
                     >
                       {fmtKz(field.b)}
                     </span>

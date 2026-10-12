@@ -8,6 +8,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz } from '@/lib/format';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -25,7 +26,8 @@ export interface RunPayslipsTableProps {
   highlightPayslipId?: number | null;
 }
 
-const COLS = 'grid grid-cols-[1.4fr_130px_130px_110px_120px_220px] gap-3';
+const COLS =
+  'grid grid-cols-[minmax(240px,2fr)_110px_110px_100px_80px_190px] gap-2';
 
 export function RunPayslipsTable({
   runId,
@@ -96,10 +98,10 @@ export function RunPayslipsTable({
       )}
 
       {!isLoading && rows.length > 0 && (
-        <div className="overflow-x-auto">
-          <div className="min-w-[900px] overflow-hidden rounded-card border border-border bg-surface">
+        <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+          <div className="min-w-[820px]">
             <div
-              className={`${COLS} border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint`}
+              className={`${COLS} bg-[#0B2D5B] px-3 py-2 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
             >
               <div>Colaborador</div>
               <div>Bruto</div>
@@ -112,34 +114,42 @@ export function RunPayslipsTable({
               <div
                 key={p.id}
                 data-testid={`run-payslip-row-${p.id}`}
-                className={`${COLS} items-center border-b border-border px-4 py-3 last:border-0 ${
-                  highlightPayslipId === p.id ? 'bg-warning-subtle' : ''
+                className={`${COLS} items-center border-b border-[#6F8FB8]/20 px-3 py-2 text-white transition-colors duration-150 last:border-0 hover:bg-white/5 ${
+                  highlightPayslipId === p.id ? 'bg-[#FFB84D]/15' : ''
                 }`}
               >
-                <div className="min-w-0">
-                  <div className="truncate font-body text-sm font-medium text-ink">
-                    {p.user.fullName}
-                  </div>
-                  <div className="truncate font-mono text-xs text-ink-faint">
-                    {p.user.employeeNumber ?? '—'}
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <Avatar
+                    name={p.user.fullName}
+                    url={p.user.avatarUrl ?? undefined}
+                    size="md"
+                    className="shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <div className="break-words font-body text-sm font-medium leading-tight text-white">
+                      {p.user.fullName}
+                    </div>
+                    <div className="font-body text-xs text-[#CFE3FF]">
+                      {p.user.employeeNumber ?? '—'}
+                    </div>
                   </div>
                 </div>
-                <div className="font-mono text-sm text-ink-muted">
+                <div className="font-body text-sm text-[#E8EEF7]">
                   {fmtKz(p.grossSalary)}
                 </div>
-                <div className="font-mono text-sm font-semibold text-ink">
+                <div className="font-body text-sm font-semibold text-white">
                   {fmtKz(p.netSalary)}
                 </div>
                 <div>
                   <StatusBadge
                     value={p.status}
                     map={PAYSLIP_STATUS_MAP}
-                    variant="plain"
+                    variant="dot"
                   />
                 </div>
                 <div>
                   {p.hasExceptions && (
-                    <span className="flex items-center gap-1 text-warning-ink">
+                    <span className="flex items-center gap-1 text-[#FFD28A]">
                       <AlertCircle size={14} strokeWidth={1.75} />
                     </span>
                   )}

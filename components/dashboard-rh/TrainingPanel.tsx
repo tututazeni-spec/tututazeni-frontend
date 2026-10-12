@@ -6,13 +6,16 @@
 
 'use client';
 
-import { CheckCircle2, Clock, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Clock } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
-import { rateTone } from './rateTone';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import type { TrainingData } from './types';
 
 export function TrainingPanel() {
@@ -40,17 +43,17 @@ export function TrainingPanel() {
           tone="blue"
           icon={CheckCircle2}
         />
-        <NavyStatCard
-          icon={CheckCircle2}
-          tone={rateTone(data?.completionRate ?? 0, { warning: 50, danger: 25 })}
+        <SpeedometerStatCard
           label="Taxa de Conclusão"
-          value={`${Math.round(data?.completionRate ?? 0)}%`}
+          value={data?.completionRate ?? 0}
+          bands={RATE_BANDS}
+          display={`${Math.round(data?.completionRate ?? 0)}%`}
         />
-        <NavyStatCard
-          icon={ShieldCheck}
-          tone={rateTone(data?.mandatoryRate ?? 0, { warning: 50, danger: 25 })}
+        <SpeedometerStatCard
           label="Formações Obrigatórias"
-          value={`${Math.round(data?.mandatoryRate ?? 0)}%`}
+          value={data?.mandatoryRate ?? 0}
+          bands={RATE_BANDS}
+          display={`${Math.round(data?.mandatoryRate ?? 0)}%`}
         />
         <NavyStatCard
           label="Horas Estimadas"

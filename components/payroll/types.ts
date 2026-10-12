@@ -62,6 +62,7 @@ export interface RunException {
   payslipId: number;
   userId: number;
   fullName: string;
+  avatarUrl?: string | null;
   code: string;
   severity: 'ERROR' | 'WARNING';
   message: string;
@@ -93,7 +94,12 @@ export interface RunPayslip {
   status: PayslipStatus;
   hasExceptions: boolean;
   calcInputs: RunCalcInputs | null;
-  user: { id: number; fullName: string; employeeNumber: string | null };
+  user: {
+    id: number;
+    fullName: string;
+    employeeNumber: string | null;
+    avatarUrl?: string | null;
+  };
   items: RunPayslipItem[];
 }
 

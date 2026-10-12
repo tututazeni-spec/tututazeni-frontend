@@ -9,10 +9,8 @@
 
 import {
   Users,
-  TrendingDown,
   UserPlus,
   Star,
-  Target,
   CheckCircle2,
   MessageSquare,
   ShieldCheck,
@@ -20,11 +18,61 @@ import {
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  SpeedometerStatCard,
+  TURNOVER_BANDS,
+  TURNOVER_MAX,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { AlertStrip } from './AlertStrip';
-import type { Alert, OverviewData } from './types';
+import type { Alert, OverviewData, PdiCoverageTrendPoint } from './types';
+
+// Cobertura PDI com evolução mensal, em Card próprio (fora do NavyStatCard).
+function PdiCoverageCard({ pct, status }: { pct: number; status?: string }) {
+  const trendQ = useApiQuery<PdiCoverageTrendPoint[]>(
+    queryKeys.dashboardRh.pdiCoverageTrend(),
+    '/dashboard-rh/pdi-coverage-trend',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const trend = trendQ.data ?? [];
+  return (
+    <Card className="col-span-2 flex min-h-[232px] flex-col gap-2 p-5 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
+      <div className="flex items-baseline justify-between gap-2">
+        <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          Cobertura PDI
+        </h3>
+        <span className="font-display text-3xl font-bold text-ink">{pct}%</span>
+      </div>
+      {trend.length > 1 ? (
+        <AreaLineChart
+          height={190}
+          yFormat={(v) => `${v}%`}
+          series={[
+            {
+              label: 'Cobertura PDI',
+              points: trend.map((t, i) => ({
+                x: i,
+                y: t.coverage,
+                xLabel: t.month,
+              })),
+            },
+          ]}
+        />
+      ) : (
+        <p className="font-body text-xs text-ink-faint">
+          Sem dados suficientes.
+        </p>
+      )}
+      {status && (
+        <p className="font-body text-[11px] text-ink-muted">{status}</p>
+      )}
+    </Card>
+  );
+}
 
 export function OverviewPanel() {
   const dataQ = useApiQuery<OverviewData>(
@@ -64,12 +112,13 @@ export function OverviewPanel() {
           tone="blue"
           icon={Users}
         />
-        <NavyStatCard
-          icon={TrendingDown}
+        <SpeedometerStatCard
           label="Taxa de Rotatividade"
-          value={`${k.turnover?.rate ?? 0}%`}
-          sub={k.turnover?.status}
-          tone="red"
+          value={k.turnover?.rate ?? 0}
+          max={TURNOVER_MAX}
+          bands={TURNOVER_BANDS}
+          display={`${Math.round(k.turnover?.rate ?? 0)}%`}
+        caption={k.turnover?.status}
         />
         <NavyStatCard
           label="Novas Admissões (mês)"
@@ -83,12 +132,9 @@ export function OverviewPanel() {
           tone="orange"
           icon={Star}
         />
-        <NavyStatCard
-          icon={Target}
-          label="Cobertura PDI"
-          value={`${k.pdpCoverage?.pct ?? 0}%`}
-          sub={k.pdpCoverage?.status}
-          tone="blue"
+        <PdiCoverageCard
+          pct={k.pdpCoverage?.pct ?? 0}
+          status={k.pdpCoverage?.status}
         />
         <NavyStatCard
           label="Conclusões (mês)"

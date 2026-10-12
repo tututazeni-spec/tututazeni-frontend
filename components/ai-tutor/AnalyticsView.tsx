@@ -11,6 +11,10 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AiTutorAnalytics } from './types';
@@ -41,12 +45,11 @@ export function AnalyticsView() {
           label="Utilizadores do AI Tutor"
           value={data.utilizadoresDoAiTutor}
         />
-        <NavyStatCard
-          tone="blue"
-          icon={Percent}
+        <SpeedometerStatCard
           label="Taxa de utilização"
-          value={`${data.taxaDeUtilizacao}%`}
-          sub="colaboradores activos que já usaram a Ísis"
+          value={data.taxaDeUtilizacao}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.taxaDeUtilizacao)}%`}
         />
         <NavyStatCard
           tone="blue"

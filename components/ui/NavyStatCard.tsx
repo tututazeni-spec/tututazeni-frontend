@@ -10,7 +10,7 @@ import { cn } from '@/lib/cn';
 function valueSize(value: string | number): string {
   const len = String(value).length;
   if (len > 14) return 'text-[20px]';
-  if (len > 10) return 'text-[26px]';
+  if (len > 10) return 'text-[24px]';
   if (len > 7) return 'text-[32px]';
   return 'text-[38px]';
 }
@@ -67,7 +67,7 @@ export function NavyStatCard({
       </span>
       <div className="flex min-h-[95px] flex-1 flex-col items-center justify-center px-3 text-center">
         <p
-          className={`flex items-baseline gap-2 font-display font-bold leading-none ${valueSize(value)} ${t.text}`}
+          className={`flex items-baseline gap-2 whitespace-nowrap font-display font-bold leading-none ${valueSize(value)} ${t.text}`}
         >
           {value}
           {typeof trend === 'number' && trend !== 0 && (

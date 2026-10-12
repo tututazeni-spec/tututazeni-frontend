@@ -17,7 +17,6 @@ import {
   Clock,
   Award,
   Star,
-  TrendingUp,
   CheckCircle2,
   Timer,
   PlusCircle,
@@ -31,8 +30,11 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
 import { AlertCard } from '@/components/ui/AlertCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
-import { rateTone } from '@/components/dashboard-rh/rateTone';
 import { Skeleton, fmtDuration } from './shared';
 import type { AdminDashboard, TopLevelView } from './types';
 
@@ -244,17 +246,17 @@ export function AdminDashboardView({
           tone="blue"
           icon={BookOpen}
         />
-        <NavyStatCard
+        <SpeedometerStatCard
           label="Taxa de Conclusão"
-          value={`${rates.avgCompletionRate}%`}
-          tone={rateTone(rates.avgCompletionRate, { warning: 50, danger: 25 })}
-          icon={TrendingUp}
+          value={rates.avgCompletionRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(rates.avgCompletionRate)}%`}
         />
-        <NavyStatCard
+        <SpeedometerStatCard
           label="Taxa de Aprovação"
-          value={`${rates.avgPassRate}%`}
-          tone={rateTone(rates.avgPassRate, { warning: 50, danger: 25 })}
-          icon={CheckCircle2}
+          value={rates.avgPassRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(rates.avgPassRate)}%`}
         />
         <NavyStatCard
           label="Nota média"

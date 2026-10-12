@@ -366,6 +366,8 @@ export const queryKeys = {
     headcount: () => [...queryKeys.dashboardRh.all, 'headcount'] as const,
     headcountTrend: () =>
       [...queryKeys.dashboardRh.all, 'headcount-trend'] as const,
+    pdiCoverageTrend: () =>
+      [...queryKeys.dashboardRh.all, 'pdi-coverage-trend'] as const,
     anniversaries: () =>
       [...queryKeys.dashboardRh.all, 'anniversaries'] as const,
     performance: () => [...queryKeys.dashboardRh.all, 'performance'] as const,

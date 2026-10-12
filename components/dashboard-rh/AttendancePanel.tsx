@@ -14,7 +14,10 @@ import {
   UserX,
 } from 'lucide-react';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
-import { rateTone } from './rateTone';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import type { LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -46,11 +49,11 @@ export function AttendancePanel() {
       </p>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <NavyStatCard
-          icon={UserCheck}
-          tone={rateTone(k.attendanceRate ?? 0, { warning: 90, danger: 75 })}
+        <SpeedometerStatCard
           label="Taxa de Presença"
-          value={`${Math.round(k.attendanceRate ?? 0)}%`}
+          value={k.attendanceRate ?? 0}
+          bands={RATE_BANDS}
+          display={`${Math.round(k.attendanceRate ?? 0)}%`}
         />
         <NavyStatCard
           icon={UserCheck}
@@ -95,5 +98,3 @@ export function AttendancePanel() {
     </div>
   );
 }
-
-

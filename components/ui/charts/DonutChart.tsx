@@ -25,6 +25,10 @@ export interface DonutChartProps {
   data: DonutChartDatum[];
   size?: number;
   centerLabel?: string;
+  /** Texto central em vez do total (ex.: "72%" numa taxa de execução). */
+  centerValue?: string;
+  /** Esconde a legenda (ex.: um anel de progresso com 2 fatias óbvias). */
+  hideLegend?: boolean;
   valueFormat?: (v: number) => string;
   className?: string;
 }
@@ -63,6 +67,8 @@ export function DonutChart({
   data,
   size = 180,
   centerLabel,
+  centerValue,
+  hideLegend,
   valueFormat = String,
   className,
 }: DonutChartProps) {
@@ -129,7 +135,9 @@ export function DonutChart({
                   rOuter,
                   rInner,
                   start,
-                  Math.max(start, end),
+                  // 360° exactos dão um arco degenerado (início = fim) e a fatia
+                  // única desaparece — fica a 359.99°.
+                  Math.min(start + 359.99, Math.max(start, end)),
                 )}
                 fill={d.color}
                 onMouseEnter={() => setHover(i)}
@@ -140,7 +148,7 @@ export function DonutChart({
         </svg>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
           <p className="font-display text-xl font-bold text-ink">
-            {valueFormat(total)}
+            {centerValue ?? valueFormat(total)}
           </p>
           {centerLabel && (
             <p className="font-body text-[10px] text-ink-faint">
@@ -155,13 +163,15 @@ export function DonutChart({
           </ChartTooltip>
         )}
       </div>
-      <ChartLegend
-        items={withAngles.map((d) => ({
-          label: d.label,
-          color: d.color,
-          value: valueFormat(d.value),
-        }))}
-      />
+      {!hideLegend && (
+        <ChartLegend
+          items={withAngles.map((d) => ({
+            label: d.label,
+            color: d.color,
+            value: valueFormat(d.value),
+          }))}
+        />
+      )}
     </div>
   );
 }

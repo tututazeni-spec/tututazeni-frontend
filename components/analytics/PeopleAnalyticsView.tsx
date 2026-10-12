@@ -11,10 +11,16 @@ import { colorAt } from '@/lib/chartColors';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
-import { TrendingDown, UserMinus, UserPlus, Users } from 'lucide-react';
+import { UserMinus, UserPlus, Users } from 'lucide-react';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+  TURNOVER_BANDS,
+  TURNOVER_MAX,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import type { DepartmentAnalytics, PeopleAnalytics } from './types';
 
 // Barra azul-marinho (#0F1F3D) — o ProgressBar partilhado só tem cores de
@@ -139,11 +145,12 @@ export function PeopleAnalyticsView() {
           value={data.headcount.terminated}
           tone="red"
         />
-        <NavyStatCard
-          icon={TrendingDown}
+        <SpeedometerStatCard
           label="Taxa de rotatividade"
-          value={`${data.headcount.turnoverRate}%`}
-          tone="orange"
+          value={data.headcount.turnoverRate}
+          max={TURNOVER_MAX}
+          bands={TURNOVER_BANDS}
+          display={`${Math.round(data.headcount.turnoverRate)}%`}
         />
       </div>
       {data.headcount.onLeave > 0 && (

@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   Clapperboard,
   Clock,
-  UserCheck,
   Users,
   Video,
   XCircle,
@@ -22,6 +21,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { MODALITY_CFG } from './constants';
@@ -96,11 +96,9 @@ export function DashboardView() {
           label="Participantes"
           value={cards.totalParticipants}
         />
-        <NavyStatCard
-          icon={UserCheck}
-          tone="green"
+        <DonutStatCard
           label="Presença média"
-          value={`${cards.averageAttendancePercent}%`}
+          value={cards.averageAttendancePercent}
         />
         <NavyStatCard
           icon={Clock}

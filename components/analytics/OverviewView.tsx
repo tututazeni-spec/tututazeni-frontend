@@ -15,12 +15,15 @@ import {
   FileBadge,
   Users,
   CheckCircle2,
-  ClipboardList,
   TrendingUp,
   Zap,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import type { OrgOverview } from './types';
 
 function StatGroup({
@@ -59,17 +62,17 @@ export function OverviewView() {
           tone="blue"
           icon={Users}
         />
-        <NavyStatCard
+        <SpeedometerStatCard
           label="Taxa de conclusão"
-          value={`${data.enrollments.completionRate}%`}
-          tone="green"
-          icon={CheckCircle2}
+          value={data.enrollments.completionRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.enrollments.completionRate)}%`}
         />
-        <NavyStatCard
+        <SpeedometerStatCard
           label="Adopção de PDI"
-          value={`${data.pdi.adoptionRate}%`}
-          tone="orange"
-          icon={ClipboardList}
+          value={data.pdi.adoptionRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.pdi.adoptionRate)}%`}
         />
         <NavyStatCard
           label="Performance média"
@@ -103,11 +106,11 @@ export function OverviewView() {
             value={data.enrollments.completed}
             tone="green"
           />
-          <NavyStatCard
-            icon={ClipboardList}
+          <SpeedometerStatCard
             label="Adopção de PDI"
-            value={`${data.pdi.adoptionRate}%`}
-            tone="orange"
+            value={data.pdi.adoptionRate}
+            bands={RATE_BANDS}
+            display={`${Math.round(data.pdi.adoptionRate)}%`}
           />
         </StatGroup>
 

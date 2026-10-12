@@ -5,13 +5,17 @@
 
 'use client';
 
-import { Activity, CheckCircle, Star, Users, Trophy } from 'lucide-react';
+import { Activity, Star, Users, Trophy } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -87,11 +91,11 @@ export function AnalyticsTab() {
           value={data.kpis.avgScore?.toFixed(1) ?? '–'}
           tone="orange"
         />
-        <NavyStatCard
-          icon={CheckCircle}
+        <SpeedometerStatCard
           label="Taxa Participação"
-          value={`${data.kpis.participationRate}%`}
-          tone="green"
+          value={data.kpis.participationRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.kpis.participationRate)}%`}
         />
         <NavyStatCard
           icon={Activity}

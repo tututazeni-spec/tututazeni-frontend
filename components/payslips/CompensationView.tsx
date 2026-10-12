@@ -18,7 +18,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between border-b border-border px-4 py-3 last:border-0">
       <dt className="font-body text-sm text-ink-muted">{label}</dt>
-      <dd className="font-mono text-sm font-medium text-ink">{value}</dd>
+      <dd className="font-body text-sm font-medium text-ink">{value}</dd>
     </div>
   );
 }

@@ -14,7 +14,6 @@ import {
   Clock,
   LogIn,
   LogOut,
-  Repeat,
   Users,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -24,6 +23,7 @@ import { useUnits } from './departmentFormData';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentNode, ReportsData } from './types';
@@ -212,11 +212,9 @@ export function ReportsView() {
               label="Saídas no período"
               value={data.exits.total}
             />
-            <NavyStatCard
-              icon={Repeat}
-              tone="orange"
+            <DonutStatCard
               label="Taxa de rotatividade"
-              value={`${data.turnoverRate.toFixed(1)}%`}
+              value={data.turnoverRate}
               sub="saídas / efectivo actual"
             />
             <NavyStatCard

@@ -12,19 +12,17 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  AlertTriangle,
-  CheckCircle2,
-  ClipboardList,
-  Users,
-  TrendingUp,
-} from 'lucide-react';
+import { AlertTriangle, Users, TrendingUp } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card, CardBody } from '@/components/ui/Card';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BarChart } from '@/components/ui/charts/BarChart';
@@ -74,29 +72,17 @@ export function ManagerView() {
           tone="blue"
           icon={Users}
         />
-        <NavyStatCard
+        <SpeedometerStatCard
           label="PDIs Activos"
-          value={`${metrics.pdiAdoptionRate}%`}
-          tone={
-            metrics.pdiAdoptionRate < 25
-              ? 'red'
-              : metrics.pdiAdoptionRate < 50
-                ? 'orange'
-                : 'green'
-          }
-          icon={ClipboardList}
+          value={metrics.pdiAdoptionRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(metrics.pdiAdoptionRate)}%`}
         />
-        <NavyStatCard
+        <SpeedometerStatCard
           label="Conclusão Cursos"
-          value={`${metrics.completionRate}%`}
-          tone={
-            metrics.completionRate < 25
-              ? 'red'
-              : metrics.completionRate < 50
-                ? 'orange'
-                : 'green'
-          }
-          icon={CheckCircle2}
+          value={metrics.completionRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(metrics.completionRate)}%`}
         />
         <NavyStatCard
           label="Desempenho Médio"

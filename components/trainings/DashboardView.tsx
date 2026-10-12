@@ -6,16 +6,51 @@
 
 'use client';
 
+import {
+  Banknote,
+  BadgeCheck,
+  BookOpen,
+  CalendarCheck,
+  CalendarClock,
+  CheckCircle2,
+  ClipboardCheck,
+  ClipboardList,
+  Clock,
+  DoorOpen,
+  GraduationCap,
+  Percent,
+  PlayCircle,
+  ShieldAlert,
+  Timer,
+  UserCheck,
+  Users,
+  UsersRound,
+  XCircle,
+} from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime, formatKz } from '@/lib/format';
 import { Card } from '@/components/ui/Card';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StarRating } from './StarRating';
 import { TYPE_CFG } from './constants';
 import type { Dashboard } from './types';
+
+// Faixas do velocímetro de satisfação (escala 0–5).
+const SATISFACTION_BANDS = [
+  { to: 1, color: '#c0392b' },
+  { to: 2, color: '#e67e22' },
+  { to: 3, color: '#f1c40f' },
+  { to: 4, color: '#8fc23f' },
+  { to: 5, color: '#2f9e63' },
+];
 
 export function DashboardView() {
   const { data, isLoading } = useApiQuery<Dashboard>(
@@ -36,33 +71,39 @@ export function DashboardView() {
   return (
     <div className="space-y-6">
       {/* Formações */}
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <KpiCard
+          icon={BookOpen}
           label="Total formações"
           value={data.trainings.total}
           intent="primary"
         />
         <KpiCard
+          icon={ClipboardList}
           label="Planeadas"
           value={data.trainings.planned}
           intent="info"
         />
         <KpiCard
+          icon={CalendarClock}
           label="Agendadas"
           value={data.trainings.scheduled}
           intent="info"
         />
         <KpiCard
+          icon={PlayCircle}
           label="Em curso"
           value={data.trainings.inProgress}
           intent="warning"
         />
         <KpiCard
+          icon={CheckCircle2}
           label="Concluídas"
           value={data.trainings.completed}
           intent="success"
         />
         <KpiCard
+          icon={XCircle}
           label="Canceladas"
           value={data.trainings.cancelled}
           intent="danger"
@@ -70,10 +111,23 @@ export function DashboardView() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <KpiCard label="Turmas activas" value={data.trainings.activeClasses} />
-        <KpiCard label="Formadores activos" value={data.activeInstructors} />
-        <KpiCard label="Salas em utilização" value={data.roomsInUse} />
         <KpiCard
+          icon={UsersRound}
+          label="Turmas activas"
+          value={data.trainings.activeClasses}
+        />
+        <KpiCard
+          icon={UserCheck}
+          label="Formadores activos"
+          value={data.activeInstructors}
+        />
+        <KpiCard
+          icon={DoorOpen}
+          label="Salas em utilização"
+          value={data.roomsInUse}
+        />
+        <KpiCard
+          icon={ShieldAlert}
           label="Obrigatórias"
           value={data.trainings.mandatory}
           intent="danger"
@@ -82,30 +136,24 @@ export function DashboardView() {
 
       {/* Participantes */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <Card className="p-4">
-          <div className="mb-1 font-body text-xs text-ink-faint">
-            Participantes inscritos
-          </div>
-          <div className="font-mono text-3xl font-bold text-ink">
-            {data.participants.registered}
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="mb-1 font-body text-xs text-ink-faint">
-            Em formação
-          </div>
-          <div className="font-mono text-3xl font-bold text-ink">
-            {data.participants.inTraining}
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="mb-1 font-body text-xs text-ink-faint">
-            Concluídos
-          </div>
-          <div className="font-mono text-3xl font-bold text-ink">
-            {data.participants.completed}
-          </div>
-        </Card>
+        <KpiCard
+          icon={Users}
+          label="Participantes inscritos"
+          value={data.participants.registered}
+          intent="primary"
+        />
+        <KpiCard
+          icon={GraduationCap}
+          label="Em formação"
+          value={data.participants.inTraining}
+          intent="warning"
+        />
+        <KpiCard
+          icon={BadgeCheck}
+          label="Participações concluídas"
+          value={data.participants.completed}
+          intent="success"
+        />
       </div>
 
       {/* Indicadores */}
@@ -114,51 +162,57 @@ export function DashboardView() {
           Indicadores
         </h3>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <KpiCard
+          <SpeedometerStatCard
             label="Taxa de conclusão"
-            value={`${data.completionRate}%`}
-            intent="success"
+            value={data.completionRate}
+            bands={RATE_BANDS}
+            display={`${Math.round(data.completionRate)}%`}
           />
-          <KpiCard
+          <SpeedometerStatCard
             label="Taxa de participação"
-            value={`${data.participationRate}%`}
-            intent="info"
+            value={data.participationRate}
+            bands={RATE_BANDS}
+            display={`${Math.round(data.participationRate)}%`}
           />
-          <KpiCard
+          <SpeedometerStatCard
             label="Taxa de aprovação"
-            value={`${data.approvalRate}%`}
-            intent="info"
+            value={data.approvalRate}
+            bands={RATE_BANDS}
+            display={`${Math.round(data.approvalRate)}%`}
           />
-          <KpiCard
+          <SpeedometerStatCard
+            label="Satisfação média"
+            value={data.avgRating}
+            max={5}
+            bands={SATISFACTION_BANDS}
+            display={data.avgRating.toFixed(1)}
+            caption="em 5.0"
+          />
+          <DonutStatCard
             label="Execução do plano"
-            value={`${data.planExecutionRate}%`}
-            intent="primary"
+            value={data.planExecutionRate}
           />
-          <KpiCard
+          <DonutStatCard
             label="Execução orçamental"
-            value={`${data.budgetExecutionRate}%`}
-            intent="warning"
+            value={data.budgetExecutionRate}
           />
-          <KpiCard label="Horas/colaborador" value={data.hoursPerEmployee} />
           <KpiCard
+            icon={Clock}
+            label="Horas/colaborador"
+            value={data.hoursPerEmployee}
+          />
+          <KpiCard
+            icon={Banknote}
             label="Custo/participante"
             value={formatKz(data.costPerParticipant)}
           />
-          <KpiCard label="Custo/hora" value={formatKz(data.costPerHour)} />
+          <KpiCard
+            icon={Timer}
+            label="Custo/hora"
+            value={formatKz(data.costPerHour)}
+          />
         </div>
       </div>
-
-      <Card className="p-4">
-        <div className="mb-1 font-body text-xs text-ink-faint">
-          Satisfação média
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="font-mono text-3xl font-bold text-accent">
-            {data.avgRating.toFixed(1)}
-          </div>
-          <StarRating value={data.avgRating} />
-        </div>
-      </Card>
 
       {/* Próximas sessões */}
       {data.upcomingSessions.length > 0 && (

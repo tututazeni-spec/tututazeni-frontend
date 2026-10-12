@@ -109,7 +109,7 @@ export function PayslipDetailView({
                   <span>Pagamento: {fmtDate(data.paymentDate)}</span>
                 )}
               </div>
-              <div className="mt-2 font-mono text-xs text-canvas/60">
+              <div className="mt-2 font-body text-xs text-canvas/60">
                 {data.receiptCode}
               </div>
             </div>
@@ -214,7 +214,7 @@ export function PayslipDetailView({
                 ))}
               </div>
               {data.irtFormula && (
-                <div className="mt-2 rounded-control bg-warning-subtle p-2 font-mono text-xs text-warning-ink">
+                <div className="mt-2 rounded-control bg-warning-subtle p-2 font-body text-xs text-warning-ink">
                   {data.irtFormula}
                 </div>
               )}

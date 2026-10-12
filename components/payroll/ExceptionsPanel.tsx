@@ -3,6 +3,7 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -32,26 +33,32 @@ function Group({
       <h4 className="mb-2 font-body text-sm font-semibold text-ink">
         {title} ({items.length})
       </h4>
-      <div className="overflow-hidden rounded-card border border-border bg-surface">
+      <div className="overflow-hidden rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
         {items.map((e, i) => (
           <button
             key={`${e.payslipId}-${e.code}-${i}`}
             type="button"
             onClick={() => onSelectException?.(e.payslipId)}
-            className="flex w-full items-center gap-3 border-b border-border px-4 py-2.5 text-left last:border-0 hover:bg-surface-sunken"
+            className="flex w-full items-center gap-3 border-b border-[#6F8FB8]/20 px-3 py-2 text-left text-white transition-colors duration-150 last:border-0 hover:bg-white/5"
           >
             <StatusBadge
               value={e.severity}
               map={EXCEPTION_SEVERITY_MAP}
               variant="pill"
             />
-            <span className="font-body text-sm font-medium text-ink">
+            <Avatar
+              name={e.fullName}
+              url={e.avatarUrl ?? undefined}
+              size="md"
+              className="shrink-0"
+            />
+            <span className="font-body text-sm font-medium text-white">
               {e.fullName}
             </span>
-            <span className="font-body text-xs text-ink-faint">
+            <span className="font-body text-xs text-[#9DB4D3]">
               {EXCEPTION_CODE_LABEL[e.code] ?? e.code}
             </span>
-            <span className="ml-auto font-body text-sm text-ink-muted">
+            <span className="ml-auto text-right font-body text-sm text-[#CFE3FF]">
               {e.message}
             </span>
           </button>

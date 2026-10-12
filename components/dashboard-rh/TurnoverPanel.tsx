@@ -11,8 +11,13 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  SpeedometerStatCard,
+  TURNOVER_BANDS,
+  TURNOVER_MAX,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { AlertTriangle, Clock, TrendingDown, UserCheck } from 'lucide-react';
+import { AlertTriangle, Clock, UserCheck } from 'lucide-react';
 import { rateTone } from './rateTone';
 import type { TurnoverData } from './types';
 
@@ -34,11 +39,12 @@ export function TurnoverPanel() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <NavyStatCard
-          icon={TrendingDown}
-          tone={rateTone(data?.turnoverRate ?? 0, { warning: 15, danger: 25 }, true)}
+        <SpeedometerStatCard
           label="Taxa de Rotatividade"
-          value={`${Math.round(data?.turnoverRate ?? 0)}%`}
+          value={data?.turnoverRate ?? 0}
+          max={TURNOVER_MAX}
+          bands={TURNOVER_BANDS}
+          display={`${Math.round(data?.turnoverRate ?? 0)}%`}
         />
         <NavyStatCard
           icon={UserCheck}

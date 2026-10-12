@@ -41,8 +41,6 @@ import {
   LogOut,
   Wallet,
   Handshake,
-  Crown,
-  Network,
   ShieldCheck,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -143,8 +141,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
           'AUDITOR',
         ],
       },
-      { href: '/organization', icon: Network, label: 'Organização' },
-      { href: '/leadership', icon: Crown, label: 'Liderança' },
       {
         // Módulo "Competências" único: integra Competências + Mapa de
         // Competências (ex-/competency-map) como separadores da mesma

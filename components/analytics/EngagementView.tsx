@@ -9,16 +9,13 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
-import {
-  BookOpen,
-  Bot,
-  GraduationCap,
-  UserCheck,
-  Users,
-  Zap,
-} from 'lucide-react';
+import { BookOpen, Bot, GraduationCap, UserCheck, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import type { EngagementMetrics } from './types';
 
 export function EngagementView() {
@@ -45,11 +42,11 @@ export function EngagementView() {
           value={data.activeUsersLast30d}
           tone="green"
         />
-        <NavyStatCard
-          icon={Zap}
+        <SpeedometerStatCard
           label="Taxa de engajamento"
-          value={`${data.engagementRate}%`}
-          tone="orange"
+          value={data.engagementRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.engagementRate)}%`}
         />
       </div>
 

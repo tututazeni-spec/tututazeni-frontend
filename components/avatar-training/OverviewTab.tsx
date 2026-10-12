@@ -31,6 +31,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -58,7 +59,11 @@ function OverviewFilters({
   to: string;
   departmentId: string;
   programId: string;
-  onChange: (patch: Partial<Record<'from' | 'to' | 'departmentId' | 'programId', string>>) => void;
+  onChange: (
+    patch: Partial<
+      Record<'from' | 'to' | 'departmentId' | 'programId', string>
+    >,
+  ) => void;
 }) {
   const deptParams = { limit: 200 };
   const depts = useApiQuery<{ data: { id: number; name: string }[] }>(
@@ -120,7 +125,10 @@ function OverviewFilters({
 }
 
 // Ícone e tom por significado: positivos verde, consumo/tempo laranja, problemas vermelho.
-const INDICATOR_STYLE: Record<string, { icon: LucideIcon; tone: NavyStatTone }> = {
+const INDICATOR_STYLE: Record<
+  string,
+  { icon: LucideIcon; tone: NavyStatTone }
+> = {
   SESSIONS: { icon: MessagesSquare, tone: 'blue' },
   COMPLETION_RATE: { icon: CheckCircle2, tone: 'green' },
   AVG_SCORE: { icon: Target, tone: 'blue' },
@@ -138,21 +146,66 @@ const INDICATOR_STYLE: Record<string, { icon: LucideIcon; tone: NavyStatTone }> 
   PROVIDER_FAILURES: { icon: ServerCrash, tone: 'red' },
   COST_LIMIT: { icon: Wallet, tone: 'orange' },
 };
-const DEFAULT_INDICATOR_STYLE = { icon: BarChart3, tone: 'blue' as NavyStatTone };
+// Taxas de conclusão/aprovação → rosca (como Execução do plano em Formações).
+const RATE_CODES = new Set(['COMPLETION_RATE', 'PASS_RATE']);
+// Formações obrigatórias e qualidade das respostas: rosca só quando há dados.
+const PERCENT_CODES = new Set(['MANDATORY', 'ANSWER_QUALITY']);
+const DEFAULT_INDICATOR_STYLE = {
+  icon: BarChart3,
+  tone: 'blue' as NavyStatTone,
+};
 
 function IndicatorCard({ i }: { i: Indicator }) {
   const noData = i.status !== 'OK' || i.value === null;
   const { icon, tone } = INDICATOR_STYLE[i.code] ?? DEFAULT_INDICATOR_STYLE;
-  return (
-    <div title={`${i.formula}
+  const tip = `${i.formula}
 Fonte: ${i.source}
-Actualizado em ${formatDateTime(i.updatedAt)}`}>
+Actualizado em ${formatDateTime(i.updatedAt)}`;
+  if (RATE_CODES.has(i.code)) {
+    const ok = !noData && typeof i.value === 'number';
+    return (
+      <div title={tip}>
+        <DonutStatCard
+          label={i.label}
+          value={ok ? (i.value as number) : 0}
+          sub={
+            ok
+              ? i.unit.replace(/^%\s*/, '')
+              : i.status === 'RESTRICTED'
+                ? 'Restrito'
+                : undefined
+          }
+        />
+      </div>
+    );
+  }
+  if (PERCENT_CODES.has(i.code) && !noData && typeof i.value === 'number') {
+    return (
+      <div title={tip}>
+        <DonutStatCard
+          label={i.label}
+          value={i.value}
+          sub={i.unit.replace(/^%\s*/, '')}
+        />
+      </div>
+    );
+  }
+  return (
+    <div
+      title={`${i.formula}
+Fonte: ${i.source}
+Actualizado em ${formatDateTime(i.updatedAt)}`}
+    >
       <NavyStatCard
         icon={icon}
         tone={tone}
         label={i.label}
         value={
-          i.status === 'RESTRICTED' ? 'Restrito' : noData ? '' : (i.value as number)
+          i.status === 'RESTRICTED'
+            ? 'Restrito'
+            : noData
+              ? ''
+              : (i.value as number)
         }
         sub={noData ? undefined : i.unit}
       />
@@ -168,14 +221,18 @@ export function OverviewTab() {
     programId: ALL,
   });
   // Datas locais → limites do dia; o backend usa os últimos 30 dias por omissão.
-  const invalidRange = !!filters.from && !!filters.to && filters.from > filters.to;
+  const invalidRange =
+    !!filters.from && !!filters.to && filters.from > filters.to;
   const params: Record<string, string | number> = {};
   // Intervalo inválido: ignora as datas (o backend responderia 400 e a aba perderia os filtros).
   if (!invalidRange) {
-    if (filters.from) params.from = new Date(`${filters.from}T00:00:00`).toISOString();
-    if (filters.to) params.to = new Date(`${filters.to}T23:59:59.999`).toISOString();
+    if (filters.from)
+      params.from = new Date(`${filters.from}T00:00:00`).toISOString();
+    if (filters.to)
+      params.to = new Date(`${filters.to}T23:59:59.999`).toISOString();
   }
-  if (filters.departmentId !== ALL) params.departmentId = Number(filters.departmentId);
+  if (filters.departmentId !== ALL)
+    params.departmentId = Number(filters.departmentId);
   if (filters.programId !== ALL) params.programId = Number(filters.programId);
 
   const { data, isLoading, error, refetch } = useApiQuery<Overview>(

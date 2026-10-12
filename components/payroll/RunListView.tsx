@@ -132,7 +132,7 @@ export function RunListView({ onSelect }: RunListViewProps) {
                 className={`${COLS} cursor-pointer items-center border-b border-[#6F8FB8]/20 px-4 py-3 text-white transition-colors duration-150 last:border-0 hover:bg-white/5`}
                 onClick={() => onSelect(r.id)}
               >
-                <div className="font-mono text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-white">
                   {r.period}
                 </div>
                 <div className="truncate font-body text-sm text-[#CFE3FF]">
@@ -148,10 +148,10 @@ export function RunListView({ onSelect }: RunListViewProps) {
                     variant="dot"
                   />
                 </div>
-                <div className="font-mono text-sm text-[#E8EEF7]">
+                <div className="font-body text-sm text-[#E8EEF7]">
                   {r.employeeCount ?? '—'}
                 </div>
-                <div className="font-mono text-sm font-semibold text-white">
+                <div className="font-body text-sm font-semibold text-white">
                   {fmtKz(r.totalNet)}
                 </div>
                 <div className="font-body text-sm text-[#CFE3FF]">

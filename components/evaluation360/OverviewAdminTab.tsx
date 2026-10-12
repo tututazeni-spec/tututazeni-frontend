@@ -21,14 +21,16 @@ import {
   Layers,
   Lock,
   MailCheck,
-  Percent,
   Send,
   Star,
-  Target,
   Users,
   type LucideIcon,
 } from 'lucide-react';
 import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -163,17 +165,17 @@ export function OverviewAdminTab() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <Stat
+        <SpeedometerStatCard
           label="Taxa de participação"
-          value={`${data.participationRate}%`}
-          icon={Percent}
-          tone="blue"
+          value={data.participationRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.participationRate)}%`}
         />
-        <Stat
+        <SpeedometerStatCard
           label="Taxa de conclusão"
-          value={`${data.completionRate}%`}
-          icon={Target}
-          tone="green"
+          value={data.completionRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.completionRate)}%`}
         />
         <Stat
           label="Média global"
