@@ -131,6 +131,7 @@ export function OverviewTab({
         <DonutStatCard
           label="Taxa de conclusão"
           value={summary.completionRate}
+          color="#1877F2"
         />
         <KpiCard
           label="Tarefas atrasadas"

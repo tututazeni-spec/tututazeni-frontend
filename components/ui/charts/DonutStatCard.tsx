@@ -11,17 +11,23 @@ export function DonutStatCard({
   label,
   value,
   sub,
+  color,
 }: {
   label: string;
   value: number;
   sub?: string;
+  /** Cor única do progresso (omisso: azul-escuro até 50%, azul-claro depois). */
+  color?: string;
 }) {
   const pct = Math.min(100, Math.max(0, value));
-  const parts = [
-    { v: Math.min(pct, 50), color: '#152F59' },
-    { v: Math.max(0, pct - 50), color: '#6FA8DC' },
-    { v: 100 - pct, color: '#CBD2DC' },
-  ].filter((p) => p.v > 0);
+  const parts = (color
+    ? [{ v: pct, color }, { v: 100 - pct, color: '#CBD2DC' }]
+    : [
+        { v: Math.min(pct, 50), color: '#152F59' },
+        { v: Math.max(0, pct - 50), color: '#6FA8DC' },
+        { v: 100 - pct, color: '#CBD2DC' },
+      ]
+  ).filter((p) => p.v > 0);
   const size = 120;
   const stroke = 16;
   const r = (size - stroke) / 2;
