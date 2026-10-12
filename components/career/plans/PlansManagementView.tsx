@@ -7,14 +7,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { ClipboardList, Plus, Trash2 } from 'lucide-react';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useToast } from '@/providers/ToastProvider';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { apiClient } from '@/lib/apiClient';
+import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -22,20 +24,11 @@ import { NewCareerPlanModal } from '../NewCareerPlanModal';
 import { CareerRoadmap } from './CareerRoadmap';
 import type { CareerPlan } from './types';
 
-const STATUS_INTENT: Record<
-  string,
-  'success' | 'warning' | 'info' | 'neutral'
-> = {
-  DRAFT: 'neutral',
-  ACTIVE: 'info',
-  COMPLETED: 'success',
-  PAUSED: 'warning',
-  ARCHIVED: 'neutral',
-};
-
 export function PlansManagementView() {
   const [showNew, setShowNew] = useState(false);
   const [selected, setSelected] = useState<CareerPlan | null>(null);
+  const notify = useToast();
+  const confirm = useConfirm();
   const {
     data: resp,
     isLoading: loading,
@@ -48,6 +41,28 @@ export function PlansManagementView() {
     },
   );
   const plans = resp?.data ?? [];
+
+  const deletePlan = useApiMutation(
+    (id: number) => apiClient.delete(`/career-plans/${id}`),
+    {
+      onSuccess: () => {
+        setSelected(null);
+        refetch();
+        notify({ title: 'Plano de carreira apagado', intent: 'success' });
+      },
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  const handleDelete = async (plan: CareerPlan) => {
+    const ok = await confirm({
+      title: 'Apagar plano de carreira',
+      message: `Tem a certeza que quer apagar "${plan.title}"? O plano deixa de aparecer na lista.`,
+      confirmLabel: 'Apagar',
+      destructive: true,
+    });
+    if (ok) deletePlan.mutate(plan.id);
+  };
 
   return (
     <div>
@@ -71,7 +86,7 @@ export function PlansManagementView() {
         <div className="grid grid-cols-[1fr_1.2fr] gap-5">
           <div className="space-y-2">
             {plans.map((plan) => (
-              <Card
+              <div
                 key={plan.id}
                 onClick={() => setSelected(plan)}
                 role="button"
@@ -82,31 +97,29 @@ export function PlansManagementView() {
                     setSelected(plan);
                   }
                 }}
-                className={`cursor-pointer p-3 transition-shadow duration-150 hover:shadow-hover ${
-                  selected?.id === plan.id
-                    ? 'border-primary bg-primary-subtle'
-                    : ''
-                }`}
+                className={cn(
+                  'flex cursor-pointer items-center gap-3 rounded-[18px] p-3.5 text-white shadow-[0_8px_30px_rgba(11,61,145,0.10)] transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50',
+                  'bg-gradient-to-br from-[#0B3D91] to-[#06275F]',
+                  selected?.id === plan.id && 'ring-2 ring-[#0D6EFD] ring-offset-2',
+                )}
               >
-                <div className="flex items-center gap-3">
                   <Avatar
                     name={plan.user?.fullName ?? '?'}
                     url={plan.user?.avatarUrl ?? undefined}
                     size="sm"
                   />
                   <div className="min-w-0 flex-1">
-                    <div className="truncate font-body text-sm font-medium text-ink">
+                    <div className="truncate font-body text-sm font-semibold">
                       {plan.user?.fullName ?? `Colaborador #${plan.userId}`}
                     </div>
-                    <div className="truncate font-body text-xs text-ink-faint">
+                    <div className="truncate font-body text-xs text-white/80">
                       {plan.title}
                     </div>
                   </div>
-                  <Badge intent={STATUS_INTENT[plan.status] ?? 'neutral'}>
+                  <span className="rounded-full bg-white/15 px-2.5 py-0.5 font-body text-xs font-semibold text-white">
                     {plan.status}
-                  </Badge>
-                </div>
-              </Card>
+                  </span>
+              </div>
             ))}
           </div>
 
@@ -116,45 +129,66 @@ export function PlansManagementView() {
                 Selecciona um plano
               </div>
             ) : (
-              <Card className="p-5">
-                <div className="mb-1 font-display text-lg font-bold text-ink">
-                  {selected.title}
-                </div>
-                <div className="mb-4 font-body text-xs text-ink-faint">
-                  {selected.currentRole?.name ?? '—'} →{' '}
-                  {selected.targetRole?.name ?? '—'}
-                </div>
-                {selected.readiness && (
-                  <div className="mb-4">
-                    <div className="mb-1 flex justify-between font-body text-xs text-ink-faint">
-                      <span>Prontidão</span>
-                      <span>{selected.readiness.score}%</span>
+              <div className="overflow-hidden rounded-[18px] border border-[#D6E4F5] bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
+                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-[#0B3D91] to-[#06275F] px-6 py-4 text-white">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2.5">
+                      <ClipboardList size={20} strokeWidth={1.75} />
+                      <h3 className="truncate font-body text-sm font-semibold uppercase tracking-wider">
+                        {selected.title}
+                      </h3>
                     </div>
-                    <ProgressBar value={selected.readiness.score} />
+                    <div className="mt-2 font-body text-xs text-white/85">
+                      {selected.currentRole?.name ?? '—'} →{' '}
+                      {selected.targetRole?.name ?? '—'}
+                    </div>
                   </div>
-                )}
-                <CareerRoadmap plan={selected} />
-                {(selected.mentoringNotes || selected.coachingNotes) && (
-                  <div className="mt-4 space-y-2">
-                    {selected.mentoringNotes && (
-                      <div className="rounded-control bg-surface-sunken p-2.5 font-body text-xs text-ink-muted">
-                        <span className="font-semibold text-ink">
-                          Mentoring:{' '}
+                  <button
+                    type="button"
+                    disabled={deletePlan.isPending}
+                    onClick={() => handleDelete(selected)}
+                    className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Trash2 size={14} strokeWidth={1.75} /> Apagar
+                  </button>
+                </div>
+                <div className="p-6">
+                  {selected.readiness && (
+                    <div className="mb-4 rounded-xl bg-gradient-to-br from-[#0B3D91] to-[#06275F] px-4 py-3 text-white">
+                      <div className="mb-1 flex justify-between font-body text-xs font-semibold uppercase tracking-widest text-white">
+                        <span>Prontidão</span>
+                        <span className="tabular-nums">
+                          {selected.readiness.score}%
                         </span>
-                        {selected.mentoringNotes}
                       </div>
-                    )}
-                    {selected.coachingNotes && (
-                      <div className="rounded-control bg-surface-sunken p-2.5 font-body text-xs text-ink-muted">
-                        <span className="font-semibold text-ink">
-                          Coaching:{' '}
-                        </span>
-                        {selected.coachingNotes}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Card>
+                      <ProgressBar
+                        value={selected.readiness.score}
+                        color="#F97316"
+                        className="bg-white/20"
+                      />
+                    </div>
+                  )}
+                  <CareerRoadmap plan={selected} />
+                  {(selected.mentoringNotes || selected.coachingNotes) && (
+                    <div className="mt-4 space-y-2 rounded-xl bg-gradient-to-br from-[#0B3D91] to-[#06275F] px-4 py-3 font-body text-xs text-white">
+                      {selected.mentoringNotes && (
+                        <div>
+                          <span className="font-semibold">Mentoria: </span>
+                          {selected.mentoringNotes}
+                        </div>
+                      )}
+                      {selected.coachingNotes && (
+                        <div>
+                          <span className="font-semibold">
+                            Acompanhamento personalizado:{' '}
+                          </span>
+                          {selected.coachingNotes}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </div>

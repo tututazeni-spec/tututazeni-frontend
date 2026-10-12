@@ -51,10 +51,10 @@ function Section({
 }) {
   return (
     <Card className="overflow-hidden p-0">
-      <div className="flex items-center gap-1.5 border-b border-border px-4 py-3 font-body text-sm font-semibold text-ink">
-        <Icon size={16} strokeWidth={1.75} className="text-ink-muted" />
+      <div className="flex items-center gap-1.5 bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
+        <Icon size={16} strokeWidth={1.75} className="text-white" />
         {title}
-        <span className="ml-auto font-body text-xs font-normal text-ink-faint">
+        <span className="ml-auto font-body text-xs font-normal text-white/80">
           {count}
         </span>
       </div>
@@ -144,22 +144,6 @@ export function HistoryTab() {
 function HistoryContent({ history }: { history: CareerHistory }) {
   const { positionHistory, orgChanges, plans, applications, certificates } =
     history;
-  const isEmpty =
-    positionHistory.length === 0 &&
-    orgChanges.length === 0 &&
-    plans.length === 0 &&
-    applications.length === 0 &&
-    certificates.length === 0;
-
-  if (isEmpty) {
-    return (
-      <EmptyState
-        title="Sem histórico de carreira"
-        description="Ainda não há movimentações, planos ou candidaturas registadas."
-      />
-    );
-  }
-
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <Section icon={Briefcase} title="Cargos" count={positionHistory.length}>

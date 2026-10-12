@@ -6,18 +6,20 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, Target, TrendingUp, Users } from 'lucide-react';
+import { AlertTriangle, Target } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
-import { Badge } from '@/components/ui/Badge';
-import { Card } from '@/components/ui/Card';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { CriticalPositionsView } from './CriticalPositionsView';
 import { SuccessionMatrixView } from './SuccessionMatrixView';
-import { RISK_INTENT, RISK_LABEL } from './constants';
 import type { SuccessionDashboard } from './types';
 
 type SubView = 'positions' | 'matrix';
@@ -55,56 +57,39 @@ export function SuccessionTab() {
                 icon={AlertTriangle}
                 label="Sem sucessor"
                 value={dashboard.kpis.withoutSuccessor}
-                intent={
-                  dashboard.kpis.withoutSuccessor > 0 ? 'danger' : 'success'
-                }
+                intent="warning"
               />
-              <KpiCard
-                icon={Users}
+              <SpeedometerStatCard
                 label="Cobertura de sucessão"
-                value={`${dashboard.kpis.coverageRate}%`}
-                intent="info"
+                value={dashboard.kpis.coverageRate}
+                bands={RATE_BANDS}
+                display={`${dashboard.kpis.coverageRate}%`}
               />
-              <KpiCard
-                icon={TrendingUp}
+              <SpeedometerStatCard
                 label="Índice de prontidão"
-                value={`${dashboard.kpis.readinessIndex}%`}
-                sub={`${dashboard.kpis.avgMatchScore}% match médio`}
-                intent="accent"
+                value={dashboard.kpis.readinessIndex}
+                bands={RATE_BANDS}
+                display={`${dashboard.kpis.readinessIndex}%`}
               />
               <KpiCard
                 icon={AlertTriangle}
                 label="Risco alto/crítico"
                 value={dashboard.kpis.highRiskPositions}
-                intent={
-                  dashboard.kpis.highRiskPositions > 0 ? 'warning' : 'success'
-                }
+                intent="danger"
               />
             </div>
 
             {dashboard.criticalAlerts.length > 0 && (
-              <Card className="border-warning bg-warning-subtle p-4">
-                <div className="mb-2 flex items-center gap-1.5 font-body text-sm font-semibold text-warning-ink">
-                  <AlertTriangle size={16} strokeWidth={1.75} />
-                  Alertas Críticos
-                </div>
-                <div className="space-y-1.5">
-                  {dashboard.criticalAlerts.map((a) => (
-                    <div
-                      key={a.id}
-                      className="flex items-center justify-between gap-2 font-body text-xs"
-                    >
-                      <span className="text-warning-ink">
-                        {a.position}
-                        {a.alert ? ` — ${a.alert}` : ''}
-                      </span>
-                      <Badge intent={RISK_INTENT[a.exitRisk]}>
-                        {RISK_LABEL[a.exitRisk]}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </Card>
+              <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
+                {dashboard.criticalAlerts.map((a) => (
+                  <AlertCard
+                    key={a.id}
+                    variant={a.exitRisk === 'CRITICAL' ? 'danger' : 'warning'}
+                    title="Alertas Críticos"
+                    message={`${a.position}${a.alert ? ` — ${a.alert}` : ''}`}
+                  />
+                ))}
+              </div>
             )}
           </>
         )

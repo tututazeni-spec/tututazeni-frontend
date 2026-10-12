@@ -4,7 +4,14 @@
 
 'use client';
 
+import { CheckCircle2, ClipboardList, Target, Trophy } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { apiClient } from '@/lib/apiClient';
+import { reportError } from '@/lib/errorReporting';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { useToast } from '@/providers/ToastProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -29,6 +36,35 @@ export function MyPlansView({ onSelect }: MyPlansViewProps) {
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
+  const queryClient = useQueryClient();
+  const notify = useToast();
+  const confirm = useConfirm();
+  const role = useCurrentRole();
+  const canDelete = role === 'ADMIN' || role === 'RH' || role === 'GESTOR';
+
+  const handleDelete = async (plan: Plan) => {
+    const ok = await confirm({
+      title: 'Apagar PDI',
+      message: `Tem a certeza que quer apagar "${plan.name}"? Esta acção não pode ser desfeita.`,
+      confirmLabel: 'Apagar',
+      destructive: true,
+    });
+    if (!ok) return;
+    try {
+      await apiClient.delete(`/development-plans/${plan.id}`);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.developmentPlans.all,
+      });
+      notify({ title: 'PDI apagado', intent: 'success' });
+    } catch (e) {
+      reportError(e, { source: 'MyPlansView.handleDelete' });
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
+    }
+  };
+
   const plans = plansQuery.data ?? [];
   const stats = statsQuery.data ?? null;
 
@@ -44,21 +80,25 @@ export function MyPlansView({ onSelect }: MyPlansViewProps) {
             label="Total PDIs"
             value={stats.plans.total}
             intent="primary"
+            icon={ClipboardList}
           />
           <KpiCard
             label="Activos"
             value={stats.plans.active}
             intent="success"
+            icon={Target}
           />
           <KpiCard
             label="Concluídos"
             value={stats.plans.completed}
             intent="info"
+            icon={CheckCircle2}
           />
           <KpiCard
             label="Pontos de experiência ganho"
             value={stats.totalXp}
             intent="warning"
+            icon={Trophy}
           />
         </div>
       )}
@@ -72,7 +112,16 @@ export function MyPlansView({ onSelect }: MyPlansViewProps) {
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {plans.map((p) => (
-            <PlanCard key={p.id} plan={p} onClick={() => onSelect(p.id)} />
+            <PlanCard
+              key={p.id}
+              plan={p}
+              onClick={() => onSelect(p.id)}
+              onDelete={
+                canDelete && p.status !== 'ACTIVE'
+                  ? () => handleDelete(p)
+                  : undefined
+              }
+            />
           ))}
         </div>
       )}

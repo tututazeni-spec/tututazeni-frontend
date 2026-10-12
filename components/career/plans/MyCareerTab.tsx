@@ -6,10 +6,9 @@
 
 'use client';
 
-import { ArrowUpRight, BookOpen, ChevronRight } from 'lucide-react';
+import { ArrowUpRight, BookOpen } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CareerRoadmap } from './CareerRoadmap';
 import { GoalCard } from './GoalCard';
@@ -48,57 +47,6 @@ export function MyCareerTab({
 
   return (
     <div className="space-y-4">
-      {/* Header card */}
-      <div className="bg-primary rounded-panel p-6 text-canvas shadow-resting">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <p className="text-canvas/70 text-xs font-medium uppercase tracking-widest">
-              Plano Activo
-            </p>
-            <h2 className="text-xl font-display font-bold mt-1">
-              {myPlan.title}
-            </h2>
-            <div className="flex items-center gap-3 mt-1 text-canvas/70 text-sm">
-              {myPlan.currentRole && <span>{myPlan.currentRole.name}</span>}
-              {myPlan.targetRole && (
-                <>
-                  <ChevronRight size={14} strokeWidth={1.75} />
-                  <span className="text-canvas font-medium">
-                    {myPlan.targetRole.name}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-          {myPlan.readiness && (
-            <div className="text-right bg-canvas/10 rounded-card px-4 py-3">
-              <p className="text-3xl font-bold">{myPlan.readiness.score}%</p>
-              <p className="text-canvas/70 text-xs mt-0.5">
-                {myPlan.readiness.readinessEmoji} Prontidão
-              </p>
-            </div>
-          )}
-        </div>
-
-        {myPlan.readiness && (
-          <div className="mt-2">
-            <div className="flex justify-between text-xs text-canvas/70 mb-1">
-              <span>
-                Progresso para &quot;{myPlan.readiness.targetRoleName}&quot;
-              </span>
-              <span>
-                {myPlan.readiness.metRequirements}/
-                {myPlan.readiness.totalRequirements} requisitos
-              </span>
-            </div>
-            <ProgressBar
-              value={myPlan.readiness.score}
-              className="bg-canvas/20"
-            />
-          </div>
-        )}
-      </div>
-
       {/* Roadmap */}
       <Card className="overflow-hidden">
         <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">

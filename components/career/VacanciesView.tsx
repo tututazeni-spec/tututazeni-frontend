@@ -5,32 +5,30 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { Briefcase, Plus, Trash2 } from 'lucide-react';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useToast } from '@/providers/ToastProvider';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { cn } from '@/lib/cn';
 import { EXECUTIVE_ROLES, isRoleAllowed, type Role } from '@/lib/roles';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { VACANCY_TYPE } from './constants';
+import {
+  APPLICATION_STATUS_INTENT,
+  APPLICATION_STATUS_LABEL,
+  VACANCY_TYPE,
+  type ApplicationStatus,
+} from './constants';
 import { NewOpportunityModal } from './NewOpportunityModal';
 import { VacancyApplicationsModal } from './VacancyApplicationsModal';
 import type { InternalVacancy } from './types';
-
-function scoreClass(score: number): string {
-  if (score >= 80) return 'text-success';
-  if (score >= 60) return 'text-warning';
-  return 'text-ink-faint';
-}
 
 // Só visível a quem gere vagas — colaboradores só veem vagas OPEN, que é o
 // que o backend já devolve por omissão quando `status` não é enviado.
@@ -43,6 +41,7 @@ const MANAGE_STATUS_FILTERS = [
 
 export function VacanciesView() {
   const notify = useToast();
+  const confirm = useConfirm();
   const { data: me } = useCurrentUser();
   const canManage = isRoleAllowed(
     EXECUTIVE_ROLES,
@@ -75,6 +74,32 @@ export function VacanciesView() {
     },
   );
   const vacancies = resp?.data ?? [];
+
+  const deleteVacancy = useApiMutation(
+    (id: number) => apiClient.delete(`/career/vacancies/${id}`),
+    {
+      onSuccess: () => {
+        refetch();
+        notify({ title: 'Oportunidade apagada', intent: 'success' });
+      },
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  const handleDelete = async (v: InternalVacancy) => {
+    const n = v._count.applications;
+    const ok = await confirm({
+      title: 'Apagar oportunidade',
+      message: `Tem a certeza que quer apagar "${v.title}"?${
+        n > 0
+          ? ` As ${n} candidatura${n !== 1 ? 's' : ''} associada${n !== 1 ? 's' : ''} também serão apagadas.`
+          : ''
+      }`,
+      confirmLabel: 'Apagar',
+      destructive: true,
+    });
+    if (ok) deleteVacancy.mutate(v.id);
+  };
 
   const publish = async (vacancyId: number) => {
     setPublishing(vacancyId);
@@ -174,95 +199,114 @@ export function VacanciesView() {
               intent: 'neutral' as const,
             };
             return (
-              <Card
+              <div
                 key={v.id}
-                className="p-4 transition-shadow duration-150 hover:shadow-hover"
+                className="overflow-hidden rounded-[18px] border border-[#D6E4F5] bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]"
               >
-                <div className="mb-2 flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-1.5">
-                    <Badge intent={typeCfg.intent}>{typeCfg.label}</Badge>
-                    {v.status !== 'OPEN' && (
-                      <Badge
-                        intent={v.status === 'DRAFT' ? 'warning' : 'neutral'}
-                      >
-                        {v.status === 'DRAFT'
-                          ? 'Rascunho'
-                          : v.status === 'CLOSED'
-                            ? 'Fechada'
-                            : 'Preenchida'}
-                      </Badge>
-                    )}
-                  </div>
-                  {v.matchScore !== undefined && (
-                    <span
-                      className={cn(
-                        'font-body text-sm font-bold',
-                        scoreClass(v.matchScore),
+                {/* Cabeçalho */}
+                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-[#0B3D91] to-[#06275F] px-5 py-3.5 text-white">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2.5">
+                      <Briefcase size={18} strokeWidth={1.75} />
+                      <h3 className="truncate font-body text-sm font-semibold uppercase tracking-wider">
+                        {v.title}
+                      </h3>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 font-body text-xs text-white/85">
+                      <span className="rounded-full bg-white/15 px-2.5 py-0.5">
+                        {typeCfg.label}
+                      </span>
+                      {v.status !== 'OPEN' && (
+                        <span className="rounded-full bg-white/15 px-2.5 py-0.5">
+                          {v.status === 'DRAFT'
+                            ? 'Rascunho'
+                            : v.status === 'CLOSED'
+                              ? 'Fechada'
+                              : 'Preenchida'}
+                        </span>
                       )}
+                      {v.matchScore !== undefined && (
+                        <span className="rounded-full bg-[#075FE8] px-2.5 py-0.5 font-semibold">
+                          {v.matchScore}% match
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {canManage && (
+                    <button
+                      type="button"
+                      aria-label={`Apagar ${v.title}`}
+                      disabled={deleteVacancy.isPending}
+                      onClick={() => handleDelete(v)}
+                      className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {v.matchScore}% match
-                    </span>
+                      <Trash2 size={14} strokeWidth={1.75} /> Apagar
+                    </button>
                   )}
                 </div>
-                <div className="mb-1 font-body text-sm font-semibold text-ink">
-                  {v.title}
-                </div>
-                <div className="mb-3 font-body text-xs text-ink-faint">
-                  {v.position?.name && <span>{v.position.name} · </span>}
-                  {v.department?.name && <span>{v.department.name}</span>}
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-body text-xs text-ink-faint">
-                    {v._count.applications} candidatura
-                    {v._count.applications !== 1 ? 's' : ''}
-                    {v.closingDate &&
-                      ` · Fecha ${new Date(v.closingDate).toLocaleDateString('pt-AO', { day: '2-digit', month: 'short' })}`}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    {canManage && (
-                      <Button
-                        size="sm"
-                        intent="ghost"
-                        onClick={() => setApplicationsFor(v)}
-                      >
-                        Ver candidaturas
-                      </Button>
-                    )}
-                    {canManage && v.status === 'DRAFT' ? (
-                      <Button
-                        size="sm"
-                        onClick={() => publish(v.id)}
-                        loading={publishing === v.id}
-                      >
-                        Publicar
-                      </Button>
-                    ) : v.status === 'OPEN' ? (
-                      v.applied ? (
-                        <Badge
-                          intent={
-                            v.applicationStatus === 'ACCEPTED'
-                              ? 'success'
-                              : 'neutral'
-                          }
-                        >
-                          {v.applicationStatus ?? 'Candidatado'}
-                        </Badge>
-                      ) : (
+
+                <div className="p-5">
+                  <div className="mb-3 font-body text-xs text-[#0F1F3D]/60">
+                    {v.position?.name && <span>{v.position.name} · </span>}
+                    {v.department?.name && <span>{v.department.name}</span>}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-body text-xs text-[#0F1F3D]/60">
+                      {v._count.applications} candidatura
+                      {v._count.applications !== 1 ? 's' : ''}
+                      {v.closingDate &&
+                        ` · Fecha ${new Date(v.closingDate).toLocaleDateString('pt-AO', { day: '2-digit', month: 'short' })}`}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {canManage && (
                         <Button
                           size="sm"
-                          onClick={() => apply(v.id)}
-                          loading={applying === v.id}
+                          intent="ghost"
+                          onClick={() => setApplicationsFor(v)}
                         >
-                          Candidatar-me
+                          Ver candidaturas
                         </Button>
-                      )
-                    ) : null}
+                      )}
+                      {canManage && v.status === 'DRAFT' ? (
+                        <Button
+                          size="sm"
+                          onClick={() => publish(v.id)}
+                          loading={publishing === v.id}
+                        >
+                          Publicar
+                        </Button>
+                      ) : v.status === 'OPEN' ? (
+                        v.applied ? (
+                          <Badge
+                            intent={
+                              APPLICATION_STATUS_INTENT[
+                                v.applicationStatus as ApplicationStatus
+                              ] ?? 'neutral'
+                            }
+                          >
+                            {APPLICATION_STATUS_LABEL[
+                              v.applicationStatus as ApplicationStatus
+                            ] ??
+                              v.applicationStatus ??
+                              'Candidatado'}
+                          </Badge>
+                        ) : (
+                          <Button
+                            size="sm"
+                            onClick={() => apply(v.id)}
+                            loading={applying === v.id}
+                          >
+                            Candidatar-me
+                          </Button>
+                        )
+                      ) : null}
+                    </div>
                   </div>
+                  {v.matchScore !== undefined && v.matchScore > 0 && (
+                    <ProgressBar value={v.matchScore} className="mt-2" />
+                  )}
                 </div>
-                {v.matchScore !== undefined && v.matchScore > 0 && (
-                  <ProgressBar value={v.matchScore} className="mt-2" />
-                )}
-              </Card>
+              </div>
             );
           })}
           {vacancies.length === 0 && (
@@ -279,7 +323,15 @@ export function VacanciesView() {
       {showNew && (
         <NewOpportunityModal
           onClose={() => setShowNew(false)}
-          onSuccess={() => refetch()}
+          onSuccess={() => {
+            // Nasce como rascunho — o filtro "Abertas" esconderia a vaga acabada de criar.
+            setStatusFilter('DRAFT');
+            refetch();
+            notify({
+              title: 'Oportunidade guardada como rascunho — publique-a para a abrir aos colaboradores',
+              intent: 'success',
+            });
+          }}
         />
       )}
       {applicationsFor && (

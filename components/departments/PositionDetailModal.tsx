@@ -7,6 +7,8 @@
 
 import { Briefcase } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { ADMIN_ROLES, isRoleAllowed, type Role } from '@/lib/roles';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { LEVEL_CFG } from './constants';
@@ -15,6 +17,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { PositionRequirementsPanel } from './PositionRequirementsPanel';
 import type { PositionDetail } from './types';
 
 export interface PositionDetailModalProps {
@@ -36,6 +39,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export function PositionDetailModal({ positionId, onClose }: PositionDetailModalProps) {
+  const { data: me } = useCurrentUser();
+  // Escrita do mapeamento de competências é ADMIN/RH (backend); evita 403 a GESTOR.
+  const canManage = isRoleAllowed(ADMIN_ROLES, me?.role?.name as Role | undefined);
   const { data: p, isLoading } = useApiQuery<PositionDetail>(
     queryKeys.departments.positionDetail(positionId),
     `/positions/${positionId}`,
@@ -117,6 +123,12 @@ export function PositionDetailModal({ positionId, onClose }: PositionDetailModal
                 </div>
               </Field>
             )}
+
+            <PositionRequirementsPanel
+              positionId={positionId}
+              competencies={p.competencies}
+              canManage={canManage}
+            />
 
             {p.subordinates.length > 0 && (
               <Field label="Cargos subordinados">

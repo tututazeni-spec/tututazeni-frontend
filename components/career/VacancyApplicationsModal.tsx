@@ -21,26 +21,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
+import { APPLICATION_STATUS_INTENT, APPLICATION_STATUS_LABEL } from './constants';
 import type { VacancyApplication } from './types';
-
-const STATUS_INTENT: Record<
-  VacancyApplication['status'],
-  'success' | 'warning' | 'info' | 'neutral' | 'danger'
-> = {
-  PENDING: 'neutral',
-  REVIEWING: 'info',
-  SHORTLISTED: 'warning',
-  ACCEPTED: 'success',
-  REJECTED: 'danger',
-};
-
-const STATUS_LABEL: Record<VacancyApplication['status'], string> = {
-  PENDING: 'Pendente',
-  REVIEWING: 'Em revisão',
-  SHORTLISTED: 'Pré-seleccionado',
-  ACCEPTED: 'Aceite',
-  REJECTED: 'Rejeitado',
-};
 
 export interface VacancyApplicationsModalProps {
   vacancyId: number;
@@ -139,8 +121,8 @@ function ApplicationRow({
             <span className="truncate font-body text-sm font-medium text-ink">
               {app.user.fullName}
             </span>
-            <Badge intent={STATUS_INTENT[app.status]}>
-              {STATUS_LABEL[app.status]}
+            <Badge intent={APPLICATION_STATUS_INTENT[app.status]}>
+              {APPLICATION_STATUS_LABEL[app.status]}
             </Badge>
           </div>
           <div className="font-body text-xs text-ink-faint">

@@ -3,13 +3,13 @@
 
 // Módulo "Carreira" — estrutura final por docs/04-modulo-career.md: Visão
 // Geral, A Minha Carreira, Percursos de Carreira, Planos de Carreira,
-// Oportunidades, Sucessão, PDI & Desenvolvimento, Histórico. Sucessão
+// Oportunidades, Sucessão, Histórico. Sucessão
 // NÃO é módulo separado — é um separador deste módulo (components/career/
 // succession/*), reconstruído a partir do motor que sobreviveu à limpeza
 // de "módulos legados" (#295), que apanhou src/succession/ por engano
 // junto com módulos efectivamente mortos — ver [[project_innova_...]].
-// PDI continua um módulo próprio (src/development-plans); o separador
-// "PDI & Desenvolvimento" só resume e liga para lá, não duplica.
+// PDI é um módulo próprio (src/development-plans); o separador "PDI &
+// Desenvolvimento" foi removido deste módulo.
 // Container: gere o separador activo; delega dados+apresentação a cada
 // componente auto-contido (mesmo padrão que components/payslips/page.tsx
 // usa). Ver memory project_innova_component_separation_audit e
@@ -19,13 +19,11 @@ import { useState } from 'react';
 import {
   Briefcase,
   ClipboardList,
-  Compass,
   Crown,
   History,
   LayoutDashboard,
   RefreshCcw,
   Route,
-  Target,
   User,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -41,19 +39,17 @@ import {
   type RoleRestricted,
 } from '@/lib/roles';
 import { useToast } from '@/providers/ToastProvider';
-import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
 import { DashboardView } from '@/components/career/DashboardView';
 import { HistoryTab } from '@/components/career/HistoryTab';
 import { OverviewTab } from '@/components/career/OverviewTab';
 import { PathsView } from '@/components/career/PathsView';
-import { PdiTab } from '@/components/career/PdiTab';
 import { VacanciesView } from '@/components/career/VacanciesView';
 import { MyCareerTab } from '@/components/career/plans/MyCareerTab';
 import { PlansManagementView } from '@/components/career/plans/PlansManagementView';
-import { SimulateModal } from '@/components/career/plans/SimulateModal';
 import { SuccessionTab } from '@/components/career/succession/SuccessionTab';
+import { QualificationsTab } from '@/components/users/QualificationsTab';
 import type {
   CareerPlan as CareerPlansPlan,
   Role as CareerPlansRole,
@@ -66,7 +62,6 @@ type CareerTab =
   | 'plans'
   | 'opportunities'
   | 'succession'
-  | 'pdi'
   | 'history';
 
 const TABS: Array<PillTabItem & { id: CareerTab } & RoleRestricted> = [
@@ -108,12 +103,6 @@ const TABS: Array<PillTabItem & { id: CareerTab } & RoleRestricted> = [
     roles: ['ADMIN', 'RH'],
   },
   {
-    id: 'pdi',
-    label: 'PDI & Desenvolvimento',
-    hint: 'Plano individual',
-    icon: Target,
-  },
-  {
     id: 'history',
     label: 'Histórico',
     hint: 'Movimentos passados',
@@ -127,7 +116,6 @@ export default function CareerPage() {
   const visibleTabs = filterByRole(TABS, role);
 
   const [tab, setTab] = useState<CareerTab>('me');
-  const [showSimulate, setShowSimulate] = useState(false);
   const notify = useToast();
 
   // Dados do bloco "Prontidão & Metas" (ex-módulo career-plans) — mesmo
@@ -144,7 +132,6 @@ export default function CareerPage() {
   );
 
   const myPlan = planQuery.data ?? null;
-  const roles = rolesQuery.data ?? [];
   const plansLoading = planQuery.isLoading || rolesQuery.isLoading;
 
   const refreshPlans = () => {
@@ -176,13 +163,6 @@ export default function CareerPage() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            intent="secondary"
-            size="sm"
-            onClick={() => setShowSimulate(true)}
-          >
-            <Compass size={15} strokeWidth={1.75} /> Simular Carreira
-          </Button>
           <button
             onClick={refreshPlans}
             aria-label="Actualizar"
@@ -212,6 +192,18 @@ export default function CareerPage() {
               myPlan={myPlan}
               onGoalProgress={handleGoalProgress}
             />
+            {/* Dados que o Simulador compara com os requisitos do cargo. */}
+            {me?.id !== undefined && (
+              <section aria-labelledby="my-qualifications">
+                <h2
+                  id="my-qualifications"
+                  className="mb-3 font-display text-base font-semibold text-ink"
+                >
+                  As minhas qualificações
+                </h2>
+                <QualificationsTab userId={me.id} />
+              </section>
+            )}
           </div>
         </TabsContent>
         <TabsContent value="paths">
@@ -226,17 +218,10 @@ export default function CareerPage() {
         <TabsContent value="succession">
           <SuccessionTab />
         </TabsContent>
-        <TabsContent value="pdi">
-          <PdiTab />
-        </TabsContent>
         <TabsContent value="history">
           <HistoryTab />
         </TabsContent>
       </Tabs>
-
-      {showSimulate && (
-        <SimulateModal roles={roles} onClose={() => setShowSimulate(false)} />
-      )}
     </div>
   );
 }

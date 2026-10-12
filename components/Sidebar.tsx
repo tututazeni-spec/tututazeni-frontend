@@ -319,8 +319,8 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div
             style={{
-              width: 36,
-              height: 36,
+              width: 146,
+              height: 47,
               borderRadius: 10,
               overflow: 'hidden',
               display: 'flex',
@@ -332,21 +332,11 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
             <Image
               src="/images/innova-logo.png"
               alt="INNOVA"
-              width={36}
-              height={36}
+              width={146}
+              height={47}
               style={{ objectFit: 'contain', width: '100%', height: '100%' }}
             />
           </div>
-          <span
-            style={{
-              color: NAVY,
-              fontWeight: 800,
-              fontSize: 22,
-              letterSpacing: -0.5,
-            }}
-          >
-            INNOVA
-          </span>
         </div>
       </div>
 

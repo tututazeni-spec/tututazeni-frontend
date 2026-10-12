@@ -21,10 +21,10 @@ export const VACANCY_TYPE: Record<
 
 export const CAREER_PATH_TYPE: Record<string, string> = {
   LINEAR: 'Linear',
-  Y_SHAPED: 'Y-shaped',
-  T_SHAPED: 'T-shaped',
-  W_SHAPED: 'W-shaped',
-  LATTICE: 'Lattice',
+  Y_SHAPED: 'Em Y (ramificado)',
+  T_SHAPED: 'Em T (especialista com amplitude)',
+  W_SHAPED: 'Em W (alternado)',
+  LATTICE: 'Em treliça (multidirecional)',
 };
 
 // 'cls' deixou de existir aqui — no ficheiro original só `.label` era
@@ -49,4 +49,30 @@ export const TITLES: Record<View, string> = {
   vacancies: 'Vagas Internas',
   plan: 'Plano de Carreira',
   succession: 'Planeamento de Sucessão',
+};
+
+export type ApplicationStatus =
+  | 'PENDING'
+  | 'REVIEWING'
+  | 'SHORTLISTED'
+  | 'ACCEPTED'
+  | 'REJECTED';
+
+export const APPLICATION_STATUS_INTENT: Record<
+  ApplicationStatus,
+  'success' | 'warning' | 'info' | 'neutral' | 'danger'
+> = {
+  PENDING: 'neutral',
+  REVIEWING: 'info',
+  SHORTLISTED: 'warning',
+  ACCEPTED: 'success',
+  REJECTED: 'danger',
+};
+
+export const APPLICATION_STATUS_LABEL: Record<ApplicationStatus, string> = {
+  PENDING: 'Pendente',
+  REVIEWING: 'Em revisão',
+  SHORTLISTED: 'Pré-seleccionado',
+  ACCEPTED: 'Aceite',
+  REJECTED: 'Rejeitado',
 };

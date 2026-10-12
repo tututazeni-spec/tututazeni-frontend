@@ -10,6 +10,7 @@ import { AlertTriangle, Briefcase, TrendingUp, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { Card } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -18,33 +19,50 @@ import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import type { CareerOverview } from './types';
 
-// Comparação entre categorias nomeadas (departamento/unidade/cargo) — antes
-// eram barras horizontais desenhadas à mão, sem hover; agora usa o
-// BarChart partilhado do design system (mesma cor de série, tooltip incluído).
+const MOVEMENT_LABELS: Record<string, string> = {
+  PROMOTION: 'Promoção',
+  TRANSFER: 'Transferência',
+  MANAGER_CHANGE: 'Mudança de gestor',
+};
+
+// Comparação entre categorias nomeadas (departamento/unidade/cargo) com os
+// gráficos partilhados do design system: barras verticais, anel ou barras
+// horizontais conforme o `variant`.
 function EvolutionList({
   title,
   items,
+  variant,
 }: {
   title: string;
   items: Array<{ key: string; count: number }>;
+  variant: 'bar-vertical' | 'donut' | 'bar-horizontal';
 }) {
   const top = items.slice(0, 6);
   return (
-    <Card className="p-4">
-      <div className="mb-3 font-body text-sm font-semibold text-ink">
+    <Card className="overflow-hidden p-0">
+      <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
         {title}
       </div>
-      {top.length === 0 ? (
-        <div className="py-3 text-center font-body text-xs text-ink-faint">
-          Sem dados
-        </div>
-      ) : (
-        <BarChart
-          orientation="horizontal"
-          categories={top.map((i) => i.key)}
-          series={[{ label: title, values: top.map((i) => i.count) }]}
-        />
-      )}
+      <div className="p-4">
+        {top.length === 0 ? (
+          <div className="py-3 text-center font-body text-xs text-ink-faint">
+            Sem dados
+          </div>
+        ) : variant === 'donut' ? (
+          <DonutChart
+            data={items.map((i) => ({ label: i.key, value: i.count }))}
+            size={220}
+            centerLabel="Planos"
+          />
+        ) : (
+          <BarChart
+            orientation={variant === 'bar-vertical' ? 'vertical' : 'horizontal'}
+            height={variant === 'bar-vertical' ? 300 : undefined}
+            categories={top.map((i) => i.key)}
+            series={[{ label: title, values: top.map((i) => i.count) }]}
+          />
+        )}
+      </div>
     </Card>
   );
 }
@@ -61,21 +79,19 @@ export function OverviewTab() {
 
   const { careerAnalytics, careerPlansAnalytics, successionDashboard } =
     overview;
+  const movementsTotal = overview.internalMovements.reduce(
+    (sum, m) => sum + m.count,
+    0,
+  );
 
   return (
     <div className="space-y-5">
       {overview.alerts.length > 0 && (
-        <Card className="border-warning bg-warning-subtle p-4">
-          <div className="mb-2 flex items-center gap-1.5 font-body text-sm font-semibold text-warning-ink">
-            <AlertTriangle size={16} strokeWidth={1.75} />
-            Alertas
-          </div>
-          <ul className="space-y-1 font-body text-xs text-warning-ink">
-            {overview.alerts.map((a, i) => (
-              <li key={i}>{a}</li>
-            ))}
-          </ul>
-        </Card>
+        <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
+          {overview.alerts.map((a, i) => (
+            <AlertCard key={i} variant="warning" title="Atenção" message={a} />
+          ))}
+        </div>
       )}
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
@@ -115,7 +131,7 @@ export function OverviewTab() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="flex flex-col items-center justify-center p-4">
           <GaugeChart
             value={successionDashboard.kpis.coverageRate}
@@ -126,33 +142,69 @@ export function OverviewTab() {
         <EvolutionList
           title="Planos por Departamento"
           items={overview.evolutionByDepartment}
+          variant="bar-vertical"
         />
         <EvolutionList
           title="Planos por Unidade"
           items={overview.evolutionByUnit}
+          variant="donut"
         />
         <EvolutionList
           title="Planos por Cargo"
           items={overview.evolutionByPosition}
+          variant="bar-horizontal"
         />
       </div>
 
-      <Card className="p-4">
-        <div className="mb-3 font-body text-sm font-semibold text-ink">
+      <Card className="overflow-hidden p-0">
+        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
           Movimentações Internas (últimos 90 dias)
         </div>
         {overview.internalMovements.length === 0 ? (
-          <div className="py-3 text-center font-body text-xs text-ink-faint">
+          <div className="p-4 py-6 text-center font-body text-xs text-ink-faint">
             Sem movimentações registadas
           </div>
         ) : (
-          <DonutChart
-            centerLabel="Movimentações"
-            data={overview.internalMovements.map((m) => ({
-              label: m.changeType,
-              value: m.count,
-            }))}
-          />
+          <div className="overflow-x-auto bg-[#071D3B]">
+            <table className="w-full border-collapse font-body text-sm text-white">
+              <thead className="bg-[#0F1F3D]/60">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase leading-tight tracking-wide text-white">
+                    Tipo de movimentação
+                  </th>
+                  <th className="px-4 py-3 text-center text-xs font-bold uppercase leading-tight tracking-wide text-white">
+                    Movimentações
+                  </th>
+                  <th className="px-4 py-3 text-center text-xs font-bold uppercase leading-tight tracking-wide text-white">
+                    % do total
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {overview.internalMovements.map((m) => (
+                  <tr
+                    key={m.changeType}
+                    className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
+                  >
+                    <td className="px-4 py-3">
+                      <span className="inline-block whitespace-nowrap rounded-full bg-[#124A88] px-2.5 py-0.5 text-xs font-medium text-[#CFE3FF]">
+                        {MOVEMENT_LABELS[m.changeType] ?? m.changeType}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center font-semibold text-white">
+                      {m.count}
+                    </td>
+                    <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                      {movementsTotal > 0
+                        ? Math.round((m.count / movementsTotal) * 100)
+                        : 0}
+                      %
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Card>
     </div>

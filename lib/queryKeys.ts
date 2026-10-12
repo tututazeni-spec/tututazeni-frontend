@@ -73,6 +73,8 @@ export const queryKeys = {
       [...queryKeys.users.lists(), params] as const,
     detail: (id: number | string) =>
       [...queryKeys.users.all, 'detail', id] as const,
+    qualifications: (id: number) =>
+      [...queryKeys.users.all, 'qualifications', id] as const,
     stats: (id: number | string) =>
       [...queryKeys.users.all, 'stats', id] as const,
     auditLogs: (id: number | string) =>
@@ -689,6 +691,8 @@ export const queryKeys = {
     me: () => [...queryKeys.career.all, 'me'] as const,
     paths: () => [...queryKeys.career.all, 'paths'] as const,
     positions: () => [...queryKeys.career.all, 'positions'] as const,
+    positionRequirements: (id: number) =>
+      [...queryKeys.career.all, 'position-requirements', id] as const,
     vacancies: (type: string, status?: string) =>
       [...queryKeys.career.all, 'vacancies', type, status ?? ''] as const,
     vacancyApplications: (vacancyId: number) =>

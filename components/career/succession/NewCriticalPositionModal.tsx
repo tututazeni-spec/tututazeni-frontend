@@ -190,7 +190,7 @@ export function NewCriticalPositionModal({
               onChange={(e) => setKeyPersonRisk(e.target.checked)}
               className="h-4 w-4 rounded border-border-strong accent-primary"
             />
-            Key Person Risk — detentor de conhecimento único
+            Risco de pessoa-chave — detentor de conhecimento único
           </label>
 
           <label className="flex items-center gap-2 text-sm text-ink-muted">

@@ -40,7 +40,9 @@ export interface CareerUserRef {
 
 export interface CareerPlanSummary {
   title: string;
-  goals?: { id: number }[];
+  goals?: { id: number; progress?: number }[];
+  currentRole?: { id: number; name: string } | null;
+  targetRole?: { id: number; name: string } | null;
   targetDate?: string;
 }
 
@@ -146,15 +148,29 @@ export interface Position {
   level: string | null;
 }
 
+// Linha de GET /career/me/simulate/:id (career.service#simulateNextRole) —
+// `met` booleano, não o `status` de CompetencyGap.
+export interface SimulationGap {
+  competency: { id: number; name: string; category: string };
+  requiredLevel: number;
+  currentLevel: number;
+  gap: number;
+  met: boolean;
+}
+
 export interface SimulationResult {
   targetPosition: { name: string };
   readinessScore: number;
-  competencyGaps: CompetencyGap[];
+  competencyGaps: SimulationGap[];
+  requirementChecks?: RequirementCheck[];
   summary: {
     requirementsMet: number;
     totalRequirements: number;
     ready: boolean;
     estimatedTimeMonths?: number;
+    optionalMet?: number;
+    optionalTotal?: number;
+    noData?: number;
   };
   recommendedCourses: Array<{ id: number; title: string }>;
 }
@@ -266,4 +282,47 @@ export interface CareerOverview {
   evolutionByUnit: Array<{ key: string; count: number }>;
   evolutionByPosition: Array<{ key: string; count: number }>;
   alerts: string[];
+}
+
+// ─── Requisitos estruturados por cargo (spec 2026-10-12) ────────────────────
+export type RequirementCategory =
+  | 'ACADEMIC'
+  | 'EXPERIENCE'
+  | 'LANGUAGE'
+  | 'CERTIFICATION';
+
+export interface PositionRequirement {
+  id: number;
+  positionId: number;
+  category: RequirementCategory;
+  title: string;
+  level: string | null;
+  minYears: number | null;
+  mandatory: boolean;
+  notes: string | null;
+}
+
+export const ACADEMIC_LEVEL_LABEL: Record<string, string> = {
+  TECNICO: 'Curso técnico',
+  BACHARELATO: 'Bacharelato',
+  LICENCIATURA: 'Licenciatura',
+  POS_GRADUACAO: 'Pós-graduação',
+  MESTRADO: 'Mestrado',
+  DOUTORAMENTO: 'Doutoramento',
+};
+
+export const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
+
+export type RequirementStatus = 'MET' | 'NOT_MET' | 'NO_DATA';
+
+// Linha de requirementChecks em GET /career/me/simulate/:id
+// (position-requirements.evaluator#RequirementCheck no backend).
+export interface RequirementCheck {
+  requirementId: number;
+  category: RequirementCategory;
+  title: string;
+  mandatory: boolean;
+  status: RequirementStatus;
+  required: string;
+  actual: string | null;
 }

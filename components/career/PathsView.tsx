@@ -6,16 +6,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Clock, Plus } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { Clock, Plus, Route, Trash2 } from 'lucide-react';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useToast } from '@/providers/ToastProvider';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
 import { EXECUTIVE_ROLES, isRoleAllowed, type Role } from '@/lib/roles';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { CAREER_PATH_TYPE } from './constants';
@@ -25,6 +26,8 @@ import type { CareerPath } from './types';
 export function PathsView() {
   const [selected, setSelected] = useState<CareerPath | null>(null);
   const [showNew, setShowNew] = useState(false);
+  const notify = useToast();
+  const confirm = useConfirm();
   const { data: me } = useCurrentUser();
   const canManage = isRoleAllowed(
     EXECUTIVE_ROLES,
@@ -37,6 +40,28 @@ export function PathsView() {
   } = useApiQuery<CareerPath[]>(queryKeys.career.paths(), '/career/paths', {
     staleTime: STALE_TIME.SEMI_STATIC,
   });
+
+  const deletePath = useApiMutation(
+    (id: number) => apiClient.delete(`/career/paths/${id}`),
+    {
+      invalidateKeys: [queryKeys.career.paths()],
+      onSuccess: () => {
+        setSelected(null);
+        notify({ title: 'Percurso de carreira apagado', intent: 'success' });
+      },
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  const handleDelete = async (path: CareerPath) => {
+    const ok = await confirm({
+      title: 'Apagar percurso de carreira',
+      message: `Tem a certeza que quer apagar "${path.name}"? Esta acção remove o percurso da lista.`,
+      confirmLabel: 'Apagar',
+      destructive: true,
+    });
+    if (ok) deletePath.mutate(path.id);
+  };
 
   if (loading) return <Skeleton />;
 
@@ -53,7 +78,7 @@ export function PathsView() {
         {/* Lista */}
         <div className="space-y-2">
           {paths.map((path) => (
-            <Card
+            <div
               key={path.id}
               onClick={() => setSelected(path)}
               role="button"
@@ -65,22 +90,38 @@ export function PathsView() {
                 }
               }}
               className={cn(
-                'cursor-pointer p-4 transition-shadow duration-150 hover:shadow-hover',
-                selected?.id === path.id && 'border-primary bg-primary-subtle',
+                'flex cursor-pointer items-center gap-3 rounded-[18px] border p-4 shadow-[0_8px_30px_rgba(11,61,145,0.10)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50',
+                selected?.id === path.id
+                  ? 'border-transparent bg-gradient-to-br from-[#0B3D91] to-[#06275F] text-white'
+                  : 'border-[#D6E4F5] bg-white text-[#0F1F3D] hover:border-[#0D6EFD]',
               )}
             >
-              <div className="font-body text-sm font-semibold text-ink">
-                {path.name}
+              <span
+                aria-hidden="true"
+                className={cn(
+                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+                  selected?.id === path.id
+                    ? 'bg-[#075FE8]'
+                    : 'bg-[#E8F0FE]',
+                )}
+              >
+                <Route
+                  size={18}
+                  strokeWidth={1.75}
+                  fill="#FFFFFF"
+                  stroke="#0F1F3D"
+                />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-body text-sm font-semibold">
+                  {path.name}
+                </div>
+                <div className="mt-1 flex items-center justify-between gap-2 font-body text-xs opacity-70">
+                  <span>{CAREER_PATH_TYPE[path.type] ?? path.type}</span>
+                  <span>{path.steps?.length ?? 0} cargos</span>
+                </div>
               </div>
-              <div className="mt-1 flex items-center justify-between">
-                <span className="font-body text-xs text-ink-faint">
-                  {CAREER_PATH_TYPE[path.type] ?? path.type}
-                </span>
-                <span className="font-body text-xs text-ink-faint">
-                  {path.steps?.length ?? 0} cargos
-                </span>
-              </div>
-            </Card>
+            </div>
           ))}
           {paths.length === 0 && (
             <EmptyState
@@ -97,73 +138,97 @@ export function PathsView() {
               Selecciona uma trilha
             </div>
           ) : (
-            <Card className="p-5">
-              <div className="mb-1 font-display text-lg font-bold text-ink">
-                {selected.name}
-              </div>
-              <div className="mb-4 flex gap-2">
-                <Badge intent="info">
-                  {CAREER_PATH_TYPE[selected.type] ?? selected.type}
-                </Badge>
-                <Badge intent="neutral">{selected.steps.length} passos</Badge>
-              </div>
-              {selected.description && (
-                <p className="mb-4 font-body text-sm text-ink-muted">
-                  {selected.description}
-                </p>
-              )}
-
-              {/* Passos / Cargos */}
-              <div className="space-y-3">
-                {selected.steps.map((step, idx) => (
-                  <div key={step.id} className="flex items-start gap-3">
-                    <div className="flex flex-col items-center">
-                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary font-body text-xs font-bold text-canvas">
-                        {step.order}
-                      </div>
-                      {idx < selected.steps.length - 1 && (
-                        <div className="mt-1 h-6 w-0.5 bg-border-strong" />
-                      )}
-                    </div>
-                    <div className="flex-1 rounded-card bg-surface-sunken p-3">
-                      <div className="font-body text-sm font-semibold text-ink">
-                        {step.position?.name}
-                      </div>
-                      <div className="mt-1 flex gap-3 font-body text-xs text-ink-faint">
-                        {step.minMonthsRequired && (
-                          <span className="inline-flex items-center gap-1">
-                            <Clock size={12} strokeWidth={1.75} />{' '}
-                            {step.minMonthsRequired}m mínimos
-                          </span>
-                        )}
-                        {step.minPerformanceScore && (
-                          <span> Score ≥{step.minPerformanceScore}</span>
-                        )}
-                        {(step.requiredCourseIds?.length ?? 0) > 0 && (
-                          <span>
-                            {step.requiredCourseIds?.length} cursos obrigatórios
-                          </span>
-                        )}
-                      </div>
-                      {(step.position?.competencies?.length ?? 0) > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {step.position?.competencies
-                            ?.slice(0, 4)
-                            .map((pc) => (
-                              <span
-                                key={pc.competency.id}
-                                className="rounded bg-info-subtle px-1.5 py-0.5 font-body text-xs text-info-ink"
-                              >
-                                {pc.competency.name}
-                              </span>
-                            ))}
-                        </div>
-                      )}
-                    </div>
+            <div className="overflow-hidden rounded-[18px] border border-[#D6E4F5] bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
+              {/* Cabeçalho */}
+              <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-[#0B3D91] to-[#06275F] px-6 py-4 text-white">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2.5">
+                    <Route size={20} strokeWidth={1.75} />
+                    <h3 className="truncate font-body text-sm font-semibold uppercase tracking-wider">
+                      {selected.name}
+                    </h3>
                   </div>
-                ))}
+                  <div className="mt-2 flex flex-wrap gap-2 font-body text-xs text-white/85">
+                    <span className="rounded-full bg-white/15 px-2.5 py-0.5">
+                      {CAREER_PATH_TYPE[selected.type] ?? selected.type}
+                    </span>
+                    <span className="rounded-full bg-white/15 px-2.5 py-0.5">
+                      {selected.steps.length} passos
+                    </span>
+                  </div>
+                </div>
+                {canManage && (
+                  <button
+                    type="button"
+                    disabled={deletePath.isPending}
+                    onClick={() => handleDelete(selected)}
+                    className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Trash2 size={14} strokeWidth={1.75} /> Apagar
+                  </button>
+                )}
               </div>
-            </Card>
+
+              <div className="p-6">
+                {selected.description && (
+                  <p className="mb-5 font-body text-sm text-[#0F1F3D]/70">
+                    {selected.description}
+                  </p>
+                )}
+
+                {/* Passos / Cargos */}
+                <div className="space-y-3">
+                  {selected.steps.map((step, idx) => (
+                    <div key={step.id} className="flex items-start gap-3">
+                      <div className="flex flex-col items-center">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#075FE8] font-body text-sm font-bold text-white">
+                          {step.order}
+                        </div>
+                        {idx < selected.steps.length - 1 && (
+                          <div className="mt-1 h-6 w-0.5 bg-[#D6E4F5]" />
+                        )}
+                      </div>
+                      <div className="flex-1 rounded-xl border border-[#D6E4F5] bg-[#E8F0FE]/50 p-3">
+                        <div className="font-body text-sm font-semibold text-[#0F1F3D]">
+                          {step.position?.name}
+                        </div>
+                        <div className="mt-1 flex flex-wrap gap-3 font-body text-xs text-[#0F1F3D]/60">
+                          {step.minMonthsRequired && (
+                            <span className="inline-flex items-center gap-1">
+                              <Clock size={12} strokeWidth={1.75} />{' '}
+                              {step.minMonthsRequired}m mínimos
+                            </span>
+                          )}
+                          {step.minPerformanceScore && (
+                            <span> Score ≥{step.minPerformanceScore}</span>
+                          )}
+                          {(step.requiredCourseIds?.length ?? 0) > 0 && (
+                            <span>
+                              {step.requiredCourseIds?.length} cursos
+                              obrigatórios
+                            </span>
+                          )}
+                        </div>
+                        {(step.position?.competencies?.length ?? 0) > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {step.position?.competencies
+                              ?.slice(0, 4)
+                              .map((pc) => (
+                                <span
+                                  key={pc.competency.id}
+                                  className="rounded-full bg-[#075FE8] px-2 py-0.5 font-body text-xs text-white"
+                                >
+                                  {pc.competency.name}
+                                </span>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>

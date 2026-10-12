@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { History, Sparkles } from 'lucide-react';
+import { BookOpen, ChevronRight, History, Sparkles, Zap } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -17,10 +17,68 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Combobox } from '@/components/ui/Combobox';
+import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { READINESS_CFG } from './constants';
-import type { CareerProfile, Position, SimulationResult } from './types';
+import { RequirementChecksPanel } from './RequirementChecksPanel';
+import type {
+  CareerProfile,
+  Position,
+  SimulationGap,
+  SimulationResult,
+} from './types';
+
+function estimatedDate(months: number): string {
+  const d = new Date();
+  d.setMonth(d.getMonth() + months);
+  return d.toLocaleDateString('pt-PT', { month: 'short', year: 'numeric' });
+}
+
+// Competências do cargo alvo ainda não cumpridas: sem nível actual = em falta;
+// com algum nível mas abaixo do exigido = a desenvolver.
+function GapList({
+  title,
+  tone,
+  gaps,
+}: {
+  title: string;
+  tone: 'danger' | 'warning';
+  gaps: SimulationGap[];
+}) {
+  return (
+    <div>
+      <div
+        className={cn(
+          'mb-1.5 font-body text-xs font-bold',
+          tone === 'danger' ? 'text-danger-ink' : 'text-warning-ink',
+        )}
+      >
+        {title}
+      </div>
+      <div className="divide-y divide-border rounded-card border border-border">
+        {gaps.map((g) => (
+          <div
+            key={g.competency.id}
+            className="flex items-center gap-3 px-3 py-2"
+          >
+            <div className="min-w-0 flex-1">
+              <div className="truncate font-body text-sm text-ink">
+                {g.competency.name}
+              </div>
+              <div className="font-body text-xs text-ink-faint">
+                {g.competency.category}
+              </div>
+            </div>
+            <span className="font-data text-xs font-semibold text-ink">
+              {g.currentLevel} / {g.requiredLevel}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function scoreClass(score: number): string {
   if (score >= 80) return 'text-success';
@@ -65,68 +123,83 @@ export function DashboardView() {
     if (simTarget) simulateMutation.mutate(simTarget);
   };
 
+  const missingGaps = (simulation?.competencyGaps ?? []).filter(
+    (g) => !g.met && g.currentLevel === 0,
+  );
+  const partialGaps = (simulation?.competencyGaps ?? []).filter(
+    (g) => !g.met && g.currentLevel > 0,
+  );
+
   if (loading || !profile) return <Skeleton rows={6} />;
 
   const { user, insights, stats, careerPlan, careerHistory } = profile;
   const { competencyGaps, promotionEligibility, matchingVacancies } = insights;
+  const planGoals = careerPlan?.goals ?? [];
+  const planProgress = planGoals.length
+    ? Math.round(
+        planGoals.reduce((sum, g) => sum + (g.progress ?? 0), 0) /
+          planGoals.length,
+      )
+    : 0;
 
   return (
     <div className="space-y-6">
       {/* Header do perfil */}
-      <Card className="p-6">
-        <div className="flex items-start gap-4">
+      <NavyHeroCard className="items-start">
+        <div className="relative">
           <Avatar
             name={user.fullName}
             url={user.avatarUrl ?? undefined}
             size="lg"
           />
-          <div className="flex-1">
-            <h2 className="font-display text-lg font-bold text-ink">
-              {user.fullName}
-            </h2>
-            <div className="font-body text-sm text-ink-muted">
-              {user.position?.name ?? 'Sem cargo'} · {user.department?.name}
-            </div>
-            <div className="mt-2 flex gap-3 font-body text-xs text-ink-faint">
-              <span> {stats.certificates} certificados</span>
-              <span> {stats.enrollments} cursos</span>
-              <span> {stats.userCompetencies} competências</span>
-              <span> {stats.badgeAwards} badges</span>
-            </div>
-            {user.points && (
-              <div className="mt-2 font-body text-xs font-semibold text-primary">
-                {user.points.points} XP
-              </div>
-            )}
+        </div>
+        <div className="flex-1">
+          <h2 className="font-display text-xl font-bold tracking-tight text-white">
+            {user.fullName}
+          </h2>
+          <div className="mt-0.5 font-body text-sm text-white">
+            {user.position?.name ?? 'Sem cargo'} ·{' '}
+            {user.department?.name ?? '—'}
           </div>
-          {promotionEligibility && (
-            <div
-              className={cn(
-                'rounded-card border px-3 py-2 text-center font-body text-xs font-medium',
-                promotionEligibility.eligible
-                  ? 'border-success bg-success-subtle text-success-ink'
-                  : 'border-border bg-surface-sunken text-ink-muted',
-              )}
-            >
-              {promotionEligibility.eligible
-                ? ' Elegível para promoção'
-                : ' Em desenvolvimento'}
-              <div className="mt-0.5 font-body text-xs font-normal text-ink-faint">
-                {READINESS_CFG[promotionEligibility.recommendation]?.label}
-              </div>
+          <div className="mt-2 flex gap-3 font-body text-xs text-white/80">
+            <span> {stats.certificates} certificados</span>
+            <span> {stats.enrollments} cursos</span>
+            <span> {stats.userCompetencies} competências</span>
+            <span> {stats.badgeAwards} badges</span>
+          </div>
+          {user.points && (
+            <div className="mt-2 font-body text-xs font-semibold text-white">
+              {user.points.points} XP
             </div>
           )}
         </div>
-      </Card>
+        {promotionEligibility && (
+          <div
+            className={cn(
+              'rounded-card border px-3 py-2 text-center font-body text-xs font-medium',
+              promotionEligibility.eligible
+                ? 'border-success bg-success-subtle text-success-ink'
+                : 'border-border bg-surface-sunken text-ink-muted',
+            )}
+          >
+            {promotionEligibility.eligible
+              ? ' Elegível para promoção'
+              : ' Em desenvolvimento'}
+            <div className="mt-0.5 font-body text-xs font-normal text-ink-faint">
+              {READINESS_CFG[promotionEligibility.recommendation]?.label}
+            </div>
+          </div>
+        )}
+      </NavyHeroCard>
 
       <div className="grid grid-cols-3 gap-5">
         {/* Gap de Competências */}
         <Card className="col-span-2 overflow-hidden p-0">
-          <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <span className="font-body text-sm font-semibold text-ink">
+          <div className="flex items-center justify-between border-b border-border bg-[#0F1F3D]/60 px-4 py-3">
+            <span className="font-body text-sm font-semibold text-white">
               Lacunas de Competências
             </span>
-            <span className="font-body text-xs text-ink-faint">
+            <span className="font-body text-xs text-white/80">
               {competencyGaps.filter((g) => g.status === 'MET').length}/
               {competencyGaps.length} cumpridas
             </span>
@@ -189,7 +262,7 @@ export function DashboardView() {
         <div className="space-y-4">
           {/* Vagas compatíveis */}
           <Card className="overflow-hidden p-0">
-            <div className="border-b border-border px-4 py-3 font-body text-sm font-semibold text-ink">
+            <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
               Vagas compatíveis
             </div>
             {matchingVacancies.length === 0 ? (
@@ -225,18 +298,33 @@ export function DashboardView() {
 
           {/* Plano de Carreira */}
           {careerPlan && (
-            <Card className="border-primary bg-primary-subtle p-4">
-              <div className="mb-1 font-body text-xs font-semibold text-primary">
+            <NavyHeroCard className="flex-col items-start gap-0">
+              <div className="mb-1 font-body text-xs font-semibold uppercase tracking-widest text-white/80">
                 Plano activo
               </div>
-              <div className="truncate font-body text-sm font-medium text-ink">
+              <div className="w-full truncate font-body text-sm font-medium text-white">
                 {careerPlan.title}
               </div>
-              <div className="mt-1 font-body text-xs text-ink-muted">
+              {(careerPlan.currentRole || careerPlan.targetRole) && (
+                <div className="mt-1 flex items-center gap-2 font-body text-xs text-white/80">
+                  {careerPlan.currentRole && (
+                    <span>{careerPlan.currentRole.name}</span>
+                  )}
+                  {careerPlan.targetRole && (
+                    <>
+                      <ChevronRight size={14} strokeWidth={1.75} />
+                      <span className="font-medium text-white">
+                        {careerPlan.targetRole.name}
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+              <div className="mt-1 font-body text-xs text-white/80">
                 {careerPlan.goals?.length ?? 0} objetivos
               </div>
               {careerPlan.targetDate && (
-                <div className="mt-1 font-body text-xs text-primary">
+                <div className="mt-1 font-body text-xs text-white">
                   Alvo:{' '}
                   {new Date(careerPlan.targetDate).toLocaleDateString('pt-AO', {
                     month: 'short',
@@ -244,7 +332,18 @@ export function DashboardView() {
                   })}
                 </div>
               )}
-            </Card>
+              <div className="mt-3 w-full">
+                <div className="mb-1 flex justify-between font-body text-xs text-white/80">
+                  <span>Progresso</span>
+                  <span>{planProgress}%</span>
+                </div>
+                <ProgressBar
+                  value={planProgress}
+                  color="#FFFFFF"
+                  className="bg-white/20"
+                />
+              </div>
+            </NavyHeroCard>
           )}
         </div>
       </div>
@@ -296,12 +395,15 @@ export function DashboardView() {
         </Card>
       )}
 
-      {/* Simulador de Carreira */}
+      {/* Simulador de Carreira (único — fundiu o antigo modal "Simular Carreira") */}
       <Card className="p-5">
-        <div className="mb-3 flex items-center gap-1.5 font-body text-sm font-semibold text-ink">
+        <div className="mb-1 flex items-center gap-1.5 font-body text-sm font-semibold text-ink">
           <Sparkles size={16} strokeWidth={1.75} className="text-accent" />
           Simulador de Carreira
         </div>
+        <p className="mb-3 font-body text-xs text-ink-muted">
+          Veja o que é necessário para chegar ao próximo nível
+        </p>
         {!posLoading && positionOptions.length === 0 ? (
           <p className="mb-4 font-body text-sm text-ink-faint">
             Sem cargos definidos — o RH pode criá-los em Organização.
@@ -311,7 +413,10 @@ export function DashboardView() {
             <Combobox
               items={positionOptions}
               value={simTarget}
-              onValueChange={setSimTarget}
+              onValueChange={(v) => {
+                setSimTarget(v);
+                simulateMutation.reset();
+              }}
               placeholder={
                 posLoading ? 'A carregar cargos…' : 'Escolha o cargo alvo…'
               }
@@ -324,83 +429,135 @@ export function DashboardView() {
               disabled={!simTarget}
               loading={simLoading}
             >
+              <Zap size={15} strokeWidth={1.75} />
               Simular
             </Button>
           </div>
         )}
 
         {simulation && (
-          <div className="rounded-card bg-primary-subtle p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <div>
-                <div className="font-body text-sm font-bold text-ink">
-                  {simulation.targetPosition.name}
+          <div className="space-y-4">
+            <div className="rounded-card bg-primary-subtle p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <div className="font-body text-sm font-bold text-ink">
+                    Prontidão para &quot;{simulation.targetPosition.name}&quot;
+                  </div>
+                  <div
+                    className={cn(
+                      'font-body text-xs font-semibold',
+                      simulation.summary.ready
+                        ? 'text-success'
+                        : simulation.readinessScore >= 50
+                          ? 'text-warning'
+                          : 'text-danger',
+                    )}
+                  >
+                    {simulation.summary.ready
+                      ? 'Pronto para o cargo'
+                      : simulation.readinessScore >= 50
+                        ? 'Em desenvolvimento'
+                        : 'Lacunas significativas'}
+                  </div>
                 </div>
-                <div className="font-body text-xs text-ink-muted">
-                  Cargo alvo
-                </div>
-              </div>
-              <div
-                className={cn(
-                  'font-data text-3xl font-bold',
-                  scoreClass(simulation.readinessScore),
-                )}
-              >
-                {simulation.readinessScore}%
-              </div>
-            </div>
-            <ProgressBar
-              value={simulation.readinessScore}
-              intent={
-                simulation.summary.ready
-                  ? 'success'
-                  : simulation.readinessScore >= 50
-                    ? 'warning'
-                    : 'danger'
-              }
-              className="mb-3 bg-surface"
-            />
-            <div className="mb-3 grid grid-cols-3 gap-2 font-body text-xs">
-              <div className="rounded-control bg-surface p-2">
-                <div className="text-ink-faint">Requisitos</div>
-                <div className="font-bold text-ink">
-                  {simulation.summary.requirementsMet}/
-                  {simulation.summary.totalRequirements}
-                </div>
-              </div>
-              <div className="rounded-control bg-surface p-2">
-                <div className="text-ink-faint">Pronto?</div>
                 <div
                   className={cn(
-                    'font-bold',
-                    simulation.summary.ready ? 'text-success' : 'text-warning',
+                    'font-data text-3xl font-bold',
+                    scoreClass(simulation.readinessScore),
                   )}
                 >
-                  {simulation.summary.ready
-                    ? 'Sim'
-                    : `~${simulation.summary.estimatedTimeMonths}m`}
+                  {simulation.readinessScore}%
                 </div>
               </div>
-              <div className="rounded-control bg-surface p-2">
-                <div className="text-ink-faint">Cursos rec.</div>
-                <div className="font-bold text-ink">
-                  {simulation.recommendedCourses.length}
+              <ProgressBar
+                value={simulation.readinessScore}
+                intent={
+                  simulation.summary.ready
+                    ? 'success'
+                    : simulation.readinessScore >= 50
+                      ? 'warning'
+                      : 'danger'
+                }
+                className="mb-3 bg-surface"
+              />
+              <div className="grid grid-cols-2 gap-2 font-body text-xs md:grid-cols-4">
+                <div className="rounded-control bg-surface p-2">
+                  <div className="text-ink-faint">Requisitos</div>
+                  <div className="font-bold text-ink">
+                    {simulation.summary.requirementsMet}/
+                    {simulation.summary.totalRequirements}
+                  </div>
+                </div>
+                <div className="rounded-control bg-surface p-2">
+                  <div className="text-ink-faint">Estimativa</div>
+                  <div
+                    className={cn(
+                      'font-bold',
+                      simulation.summary.ready
+                        ? 'text-success'
+                        : 'text-warning',
+                    )}
+                  >
+                    {simulation.summary.ready
+                      ? 'Pronto'
+                      : `${simulation.summary.estimatedTimeMonths ?? 0} meses`}
+                  </div>
+                </div>
+                <div className="rounded-control bg-surface p-2">
+                  <div className="text-ink-faint">Data prevista</div>
+                  <div className="font-bold text-ink">
+                    {simulation.summary.ready
+                      ? 'Agora'
+                      : estimatedDate(
+                          simulation.summary.estimatedTimeMonths ?? 0,
+                        )}
+                  </div>
+                </div>
+                <div className="rounded-control bg-surface p-2">
+                  <div className="text-ink-faint">Cursos rec.</div>
+                  <div className="font-bold text-ink">
+                    {simulation.recommendedCourses.length}
+                  </div>
                 </div>
               </div>
             </div>
+
+            {missingGaps.length > 0 && (
+              <GapList
+                title="Competências obrigatórias em falta"
+                tone="danger"
+                gaps={missingGaps}
+              />
+            )}
+            {partialGaps.length > 0 && (
+              <GapList
+                title="Lacunas a desenvolver"
+                tone="warning"
+                gaps={partialGaps}
+              />
+            )}
+
+            <RequirementChecksPanel
+              checks={simulation.requirementChecks ?? []}
+              noData={simulation.summary.noData}
+            />
+
             {simulation.recommendedCourses.length > 0 && (
               <div>
-                <div className="mb-1 font-body text-xs font-semibold text-ink">
-                  Cursos recomendados para fechar gaps:
+                <div className="mb-1.5 font-body text-xs font-bold text-ink-muted">
+                  Cursos recomendados para fechar gaps
                 </div>
-                {simulation.recommendedCourses.slice(0, 3).map((c) => (
-                  <div
-                    key={c.id}
-                    className="truncate font-body text-xs text-primary"
-                  >
-                    {c.title}
-                  </div>
-                ))}
+                <div className="space-y-1">
+                  {simulation.recommendedCourses.slice(0, 5).map((c) => (
+                    <div
+                      key={c.id}
+                      className="flex items-center gap-2 truncate font-body text-sm text-primary"
+                    >
+                      <BookOpen size={13} strokeWidth={1.75} />
+                      {c.title}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
