@@ -224,10 +224,11 @@ export function ReportsView() {
                 label="Custo/hora"
                 value={formatKz(data.costs.perHour)}
               />
-              <KpiCard
+              <ThermometerStatCard
                 label="Execução orçamental"
-                value={`${data.costs.budgetExecutionRate}%`}
-                intent="warning"
+                value={data.costs.budgetExecutionRate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.costs.budgetExecutionRate)}%`}
               />
             </div>
           </div>
