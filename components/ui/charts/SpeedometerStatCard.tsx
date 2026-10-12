@@ -15,6 +15,11 @@ export const RATE_BANDS = [
   { to: 100, color: '#2f9e63' },
 ];
 
+// Taxas em que mais baixo é melhor (ex.: abandono, escala 0–100).
+export const INVERSE_RATE_BANDS = [...RATE_BANDS]
+  .reverse()
+  .map((b, i) => ({ to: (i + 1) * 20, color: b.color }));
+
 // Rotatividade (escala 0–30%): mais baixo é melhor, por isso verde → vermelho.
 export const TURNOVER_MAX = 30;
 export const TURNOVER_BANDS = [

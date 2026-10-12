@@ -8,11 +8,9 @@
 'use client';
 
 import {
-  CheckCircle2,
   ClipboardList,
   Download,
   Star,
-  Target,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
@@ -23,6 +21,11 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { SCORE_COLOR, SCORE_TONE } from './constants';
 import type { EvaluationReportGroup, EvaluationReportsOverview } from './types';
@@ -225,21 +228,15 @@ export function ReportsTab() {
               value={data.avgScore.toFixed(1)}
               tone={SCORE_TONE(data.avgScore)}
             />
-            <NavyStatCard
-              icon={CheckCircle2}
+            <SpeedometerStatCard
               label="Taxa de Conclusão"
-              value={`${data.completionRate}%`}
-              tone="green"
+              value={data.completionRate}
+              bands={RATE_BANDS}
+              display={`${Math.round(data.completionRate)}%`}
             />
-            <NavyStatCard
-              icon={Target}
+            <DonutStatCard
               label="Objetivos Alcançados"
-              value={
-                data.objectivesAchieved.avgAchievement != null
-                  ? `${data.objectivesAchieved.avgAchievement}%`
-                  : '—'
-              }
-              tone="orange"
+              value={data.objectivesAchieved.avgAchievement ?? 0}
             />
           </div>
 

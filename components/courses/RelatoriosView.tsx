@@ -9,12 +9,8 @@
 'use client';
 
 import {
-  Award,
   BookOpen,
-  CheckCircle2,
   Clock,
-  TrendingDown,
-  TrendingUp,
   Users,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -25,6 +21,12 @@ import {
   CourseProgressList,
   DistributionList,
 } from './relatoriosBarLists';
+import {
+  RATE_BANDS,
+  INVERSE_RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { fmtDuration, Skeleton } from './shared';
 import type { CourseReports } from './types';
@@ -52,23 +54,21 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
           sub="cursos com inscrições"
           tone="blue"
         />
-        <NavyStatCard
-          icon={CheckCircle2}
+        <SpeedometerStatCard
           label="Taxa de aprovação"
-          value={`${data.approvalRate}%`}
-          tone="green"
+          value={data.approvalRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.approvalRate)}%`}
         />
-        <NavyStatCard
-          icon={TrendingDown}
+        <SpeedometerStatCard
           label="Taxa de abandono"
-          value={`${data.abandonmentRate}%`}
-          tone={data.abandonmentRate > 20 ? 'red' : 'orange'}
+          value={data.abandonmentRate}
+          bands={INVERSE_RATE_BANDS}
+          display={`${Math.round(data.abandonmentRate)}%`}
         />
-        <NavyStatCard
-          icon={TrendingUp}
+        <DonutStatCard
           label="Progresso médio"
-          value={`${data.avgProgress}%`}
-          tone="blue"
+          value={data.avgProgress}
         />
         <NavyStatCard
           icon={Clock}
@@ -76,12 +76,10 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
           value={fmtDuration(data.totalLearningHours)}
           tone="blue"
         />
-        <NavyStatCard
-          icon={Award}
+        <DonutStatCard
           label="Resultados das avaliações"
-          value={`${data.evaluationResults.avgScore}%`}
+          value={data.evaluationResults.avgScore}
           sub={`${data.evaluationResults.passRate}% aprovação · ${data.evaluationResults.totalAttempts} tentativas`}
-          tone="green"
         />
         <NavyStatCard
           icon={BookOpen}

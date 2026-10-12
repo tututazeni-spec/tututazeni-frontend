@@ -9,7 +9,6 @@ import {
   MessageCircle,
   Users,
   GraduationCap,
-  CheckCircle2,
   Clock,
   BookOpen,
   Sparkles,
@@ -19,6 +18,10 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AiTutorOverview } from './types';
@@ -82,11 +85,11 @@ export function OverviewView() {
             value={data.cursosApoiados ?? 0}
           />
         )}
-        <NavyStatCard
-          tone="green"
-          icon={CheckCircle2}
+        <SpeedometerStatCard
           label="Taxa de conclusão"
-          value={`${data.taxaConclusao}%`}
+          value={data.taxaConclusao}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.taxaConclusao)}%`}
         />
         <NavyStatCard
           tone="orange"

@@ -19,7 +19,6 @@ import {
   ClipboardCheck,
   Clock,
   Layers,
-  Percent,
   PlayCircle,
   Star,
   Users,
@@ -33,6 +32,10 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -87,11 +90,11 @@ function OrganizationOverview() {
           value={data.kpis.completed}
           tone="green"
         />
-        <NavyStatCard
-          icon={Percent}
+        <SpeedometerStatCard
           label="Taxa Conclusão"
-          value={`${data.kpis.completionRate}%`}
-          tone="blue"
+          value={data.kpis.completionRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.kpis.completionRate)}%`}
         />
         <NavyStatCard
           icon={Star}
@@ -251,11 +254,11 @@ export function OverviewTab({ userId }: OverviewTabProps) {
           value={progress?.pending ?? 0}
           tone="orange"
         />
-        <NavyStatCard
-          icon={Percent}
+        <SpeedometerStatCard
           label="Taxa Conclusão"
-          value={`${progress?.completionRate ?? 0}%`}
-          tone="blue"
+          value={progress?.completionRate ?? 0}
+          bands={RATE_BANDS}
+          display={`${Math.round(progress?.completionRate ?? 0)}%`}
         />
         <NavyStatCard
           icon={Star}

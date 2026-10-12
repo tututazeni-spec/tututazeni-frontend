@@ -9,7 +9,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, Gauge, Sigma } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Sigma } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -18,6 +18,7 @@ import { MGMT_ROLES } from '@/lib/roles';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -89,11 +90,9 @@ export function CompetenciesTab() {
       ) : (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <NavyStatCard
-              icon={Gauge}
+            <DonutStatCard
               label="Prontidão"
-              value={`${data!.readinessPercent}%`}
-              tone="blue"
+              value={data!.readinessPercent}
             />
             <NavyStatCard
               icon={AlertTriangle}

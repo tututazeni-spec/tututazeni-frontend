@@ -18,13 +18,16 @@ import {
   UserCheck,
   UserX,
   Users,
-  Percent,
   CheckCircle2,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -182,11 +185,11 @@ export function ReportsView() {
                 label="Atrasos"
                 value={data.attendance.late}
               />
-              <NavyStatCard
-                icon={Percent}
-                tone="blue"
+              <SpeedometerStatCard
                 label="Taxa de presença"
-                value={`${data.attendance.attendanceRate}%`}
+                value={data.attendance.attendanceRate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.attendance.attendanceRate)}%`}
               />
             </div>
           </div>
