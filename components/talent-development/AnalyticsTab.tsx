@@ -17,6 +17,11 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -72,16 +77,16 @@ export function AnalyticsTab() {
           value={dash?.kpis.totalUsers ?? 0}
           intent="primary"
         />
-        <KpiCard
+        <SpeedometerStatCard
           label="Com PDI Activo"
-          value={`${dash?.kpis.pdpCoverage ?? 0}%`}
-          sub={`${dash?.kpis.usersWithActivePlan} colaboradores`}
-          intent="accent"
+          value={dash?.kpis.pdpCoverage ?? 0}
+          bands={RATE_BANDS}
+          display={`${dash?.kpis.pdpCoverage ?? 0}%`}
+          caption={`${dash?.kpis.usersWithActivePlan ?? 0} colaboradores`}
         />
-        <KpiCard
+        <DonutStatCard
           label="Taxa Conclusão Acções"
-          value={`${dash?.kpis.actionCompletion ?? 0}%`}
-          intent="success"
+          value={dash?.kpis.actionCompletion ?? 0}
         />
         <KpiCard
           label="Acções em Atraso"
