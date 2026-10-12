@@ -23,12 +23,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
 import { EmptyState } from '@/components/ui/EmptyState';
-import {
-  ShareGaugeCard,
-  SpeedometerStatCard,
-  SCORE5_BANDS,
-} from '@/components/ui/charts/SpeedometerStatCard';
-import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
+import { KpiCard } from '@/components/ui/KpiCard';
 import { type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { NavyStatGroupCard } from '@/components/ui/NavyStatGroupCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -125,50 +120,44 @@ export function OverviewTab({
   return (
     <div className="space-y-6">
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4">
-        <ShareGaugeCard
-          label="Total de integrações"
-          value={summary.total}
-          total={summary.total}
-        />
-        <ShareGaugeCard
+      <div className="grid grid-cols-4 gap-3">
+        <KpiCard label="Total de integrações" value={summary.total} />
+        <KpiCard
           label="Novos colaboradores (30d)"
           value={summary.newHires}
-          total={summary.total}
+          intent="info"
         />
-        <DonutStatCard label="Taxa de conclusão" value={summary.completionRate} />
-        <ShareGaugeCard
+        <KpiCard
+          label="Taxa de conclusão"
+          value={`${summary.completionRate}%`}
+          intent={summary.completionRate >= 70 ? 'success' : 'warning'}
+        />
+        <KpiCard
           label="Tarefas atrasadas"
           value={summary.overdueTasks}
-          total={summary.total}
-          lowerIsBetter
+          intent={summary.overdueTasks > 0 ? 'danger' : 'primary'}
         />
-        <ShareGaugeCard
+        <KpiCard
           label="Documentos pendentes"
           value={summary.pendingDocuments}
-          total={summary.total}
-          lowerIsBetter
+          intent={summary.pendingDocuments > 0 ? 'warning' : 'primary'}
         />
-        <ShareGaugeCard
+        <KpiCard
           label="Formações pendentes"
           value={summary.pendingTrainings}
-          total={summary.total}
-          lowerIsBetter
+          intent={summary.pendingTrainings > 0 ? 'warning' : 'primary'}
         />
-        <ShareGaugeCard
+        <KpiCard
           label="Avaliações de integração pendentes"
           value={summary.pendingIntegrationEvals}
-          total={summary.total}
-          lowerIsBetter
+          intent={summary.pendingIntegrationEvals > 0 ? 'warning' : 'primary'}
         />
-        <SpeedometerStatCard
+        <KpiCard
           label="Satisfação média"
-          value={summary.avgSurveyScore}
-          max={5}
-          bands={SCORE5_BANDS}
-          display={
+          value={
             summary.avgSurveyScore > 0 ? `${summary.avgSurveyScore}/5` : '—'
           }
+          intent="warning"
         />
       </div>
 
