@@ -7,12 +7,12 @@
 'use client';
 
 import { useState } from 'react';
-import { CalendarCheck, CalendarClock, CalendarOff, Palmtree } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Input } from '@/components/ui/Input';
-import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { ShareGaugeCard } from '@/components/ui/charts/SpeedometerStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
@@ -208,32 +208,34 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
       {filterBar}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <NavyStatCard
-          icon={Palmtree}
-          tone="green"
+        <ShareGaugeCard
           label="Férias disponíveis"
-          value={cards.vacationAvailable ?? '—'}
-          sub="dias · o seu saldo"
+          value={cards.vacationAvailable ?? 0}
+          total={(cards.vacationAvailable ?? 0) + cards.vacationTaken}
+          display={String(cards.vacationAvailable ?? '—')}
+          caption="dias · o seu saldo"
         />
-        <NavyStatCard
-          icon={CalendarClock}
-          tone="orange"
+        <ShareGaugeCard
           label="Pedidos pendentes"
           value={cards.pendingRequests}
+          total={charts.byStatus.reduce((n, x) => n + x.count, 0)}
+          caption="dos pedidos no período"
+          lowerIsBetter
         />
-        <NavyStatCard
-          icon={CalendarCheck}
-          tone="blue"
+        <ShareGaugeCard
           label="Dias de férias gozados"
           value={cards.vacationTaken}
-          sub="no período"
+          total={(cards.vacationAvailable ?? 0) + cards.vacationTaken}
+          caption="no período"
         />
-        <NavyStatCard
-          icon={CalendarOff}
-          tone="red"
-          label="Ausências no período"
-          value={cards.absences.total}
-          sub={`${cards.absences.justified} justificadas · ${cards.absences.unjustified} injustificadas`}
+        <DonutStatCard
+          label="Ausências justificadas"
+          value={
+            cards.absences.total > 0
+              ? (cards.absences.justified / cards.absences.total) * 100
+              : 0
+          }
+          sub={`${cards.absences.total} ausências · ${cards.absences.unjustified} injustificadas`}
         />
       </div>
 

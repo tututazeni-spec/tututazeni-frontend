@@ -5,11 +5,11 @@
 
 'use client';
 
-import { Building2, CheckCircle2, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { ShareGaugeCard, } from '@/components/ui/charts/SpeedometerStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { ComparativeRow } from './types';
@@ -64,9 +64,13 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
     <div className="space-y-6">
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <NavyStatCard icon={Building2} tone="blue" label="Total departamentos" value={rows.length} />
-        <NavyStatCard icon={CheckCircle2} tone="green" label="Activos" value={activeCount} />
-        <NavyStatCard icon={Users} tone="blue" label="Total colaboradores" value={totalMembers} />
+        <ShareGaugeCard label="Total departamentos" value={rows.length} total={rows.length} />
+        <DonutStatCard
+          label="Activos"
+          value={rows.length > 0 ? (activeCount / rows.length) * 100 : 0}
+          sub={`${activeCount} de ${rows.length}`}
+        />
+        <ShareGaugeCard label="Total colaboradores" value={totalMembers} total={totalMembers} />
       </div>
 
       {/* Distribution chart */}

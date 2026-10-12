@@ -22,11 +22,10 @@
 
 'use client';
 
-import { Scale, User, UserCheck, Users } from 'lucide-react';
 import type { CycleInfo, ParticipantProfile, ParticipantResult } from './types';
 import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
 import { Avatar } from '@/components/ui/Avatar';
-import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { SpeedometerStatCard, SCORE5_BANDS } from '@/components/ui/charts/SpeedometerStatCard';
 import { PendingEvaluationsCard } from './PendingEvaluationsCard';
 
 export interface OverviewTabProps {
@@ -87,33 +86,37 @@ export function OverviewTab({
         <>
           {/* Score cards */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <NavyStatCard
-              icon={Scale}
-              tone="blue"
+            <SpeedometerStatCard
               label="Pontuação Ponderada"
-              value={result.weightedScore.toFixed(1)}
-              sub="/ 5.0"
+              value={result.weightedScore}
+              max={5}
+              bands={SCORE5_BANDS}
+              display={result.weightedScore.toFixed(1)}
+              caption="/ 5.0"
             />
-            <NavyStatCard
-              icon={User}
-              tone="orange"
+            <SpeedometerStatCard
               label="Autoavaliação"
-              value={result.selfScore.toFixed(1)}
-              sub="/ 5.0"
+              value={result.selfScore}
+              max={5}
+              bands={SCORE5_BANDS}
+              display={result.selfScore.toFixed(1)}
+              caption="/ 5.0"
             />
-            <NavyStatCard
-              icon={UserCheck}
-              tone="green"
+            <SpeedometerStatCard
               label="Gestor"
-              value={result.managerScore.toFixed(1)}
-              sub="/ 5.0"
+              value={result.managerScore}
+              max={5}
+              bands={SCORE5_BANDS}
+              display={result.managerScore.toFixed(1)}
+              caption="/ 5.0"
             />
-            <NavyStatCard
-              icon={Users}
-              tone="red"
+            <SpeedometerStatCard
               label="Pares"
-              value={result.peerScore.toFixed(1)}
-              sub="/ 5.0"
+              value={result.peerScore}
+              max={5}
+              bands={SCORE5_BANDS}
+              display={result.peerScore.toFixed(1)}
+              caption="/ 5.0"
             />
           </div>
 

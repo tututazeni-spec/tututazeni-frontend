@@ -62,3 +62,40 @@ export function SpeedometerStatCard({
     </Card>
   );
 }
+
+// Velocímetro para contagens/montantes: o ponteiro mostra a parte `value` do
+// `total` (0–100%) e o número real aparece no centro. `lowerIsBetter` inverte
+// as cores (ex.: pendentes, atrasos, suspensos). Sem total → ponteiro a 0.
+export function ShareGaugeCard({
+  label,
+  value,
+  total,
+  display,
+  caption,
+  lowerIsBetter,
+  showPercent,
+}: {
+  label: string;
+  value: number;
+  total: number;
+  display?: string;
+  caption?: string;
+  lowerIsBetter?: boolean;
+  /** mostra a % no centro (útil para montantes longos, que vão na legenda) */
+  showPercent?: boolean;
+}) {
+  const pct = total > 0 ? Math.min(100, Math.max(0, (value / total) * 100)) : 0;
+  return (
+    <SpeedometerStatCard
+      label={label}
+      value={pct}
+      bands={lowerIsBetter ? INVERSE_RATE_BANDS : RATE_BANDS}
+      display={showPercent ? `${Math.round(pct)}%` : (display ?? String(value))}
+      caption={caption}
+    />
+  );
+}
+
+// Faixas para pontuações 0–5 (ex.: avaliação 360°) e 0–10 (ex.: anos).
+export const SCORE5_BANDS = RATE_BANDS.map((b) => ({ ...b, to: b.to / 20 }));
+export const SCORE10_BANDS = RATE_BANDS.map((b) => ({ ...b, to: b.to / 10 }));

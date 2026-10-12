@@ -10,7 +10,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz } from '@/lib/format';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { KpiCard } from '@/components/ui/KpiCard';
+import { ShareGaugeCard } from '@/components/ui/charts/SpeedometerStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { RUN_STATUS_MAP } from './types';
 import type { PayrollOverview } from './insightTypes';
@@ -104,73 +105,111 @@ export function OverviewView() {
           )}
 
           <Section title="Colaboradores">
-            <KpiCard label="Total" value={data.employees.total} />
-            <KpiCard
+            <ShareGaugeCard
+              label="Total"
+              value={data.employees.total}
+              total={data.employees.total}
+            />
+            <ShareGaugeCard
               label="Processados"
               value={data.employees.processed}
-              intent="success"
+              total={data.employees.total}
             />
-            <KpiCard
+            <ShareGaugeCard
               label="Pendentes"
               value={data.employees.pending}
-              intent={data.employees.pending > 0 ? 'warning' : 'primary'}
+              total={data.employees.total}
+              lowerIsBetter
             />
           </Section>
 
           <Section title="Valores">
-            <KpiCard
+            <ShareGaugeCard
               label="Salário bruto"
-              value={fmtKz(data.financials.totalGross)}
+              value={data.financials.totalGross}
+              total={data.financials.totalGross}
+              caption={fmtKz(data.financials.totalGross)}
+              showPercent
             />
-            <KpiCard
+            <ShareGaugeCard
               label="Salário líquido"
-              value={fmtKz(data.financials.totalNet)}
-              intent="success"
-              trend={data.monthlyVariation?.pct}
-              sub={`Anterior (${data.previous.period}): ${fmtKz(data.previous.totalNet)}`}
+              value={data.financials.totalNet}
+              total={data.financials.totalGross}
+              caption={fmtKz(data.financials.totalNet)}
+              showPercent
             />
-            <KpiCard
+            <ShareGaugeCard
               label="Remunerações"
-              value={fmtKz(data.financials.totalEarnings)}
+              value={data.financials.totalEarnings}
+              total={data.financials.totalGross}
+              caption={fmtKz(data.financials.totalEarnings)}
+              showPercent
             />
-            <KpiCard
+            <ShareGaugeCard
               label="Deduções"
-              value={fmtKz(data.financials.totalDeductions)}
-              intent="warning"
+              value={data.financials.totalDeductions}
+              total={data.financials.totalGross}
+              caption={fmtKz(data.financials.totalDeductions)}
+              showPercent
+              lowerIsBetter
             />
-            <KpiCard label="INSS" value={fmtKz(data.financials.totalInss)} />
-            <KpiCard label="IRT" value={fmtKz(data.financials.totalIrt)} />
-            <KpiCard
+            <ShareGaugeCard
+              label="INSS"
+              value={data.financials.totalInss}
+              total={data.financials.totalGross}
+              caption={fmtKz(data.financials.totalInss)}
+              showPercent
+              lowerIsBetter
+            />
+            <ShareGaugeCard
+              label="IRT"
+              value={data.financials.totalIrt}
+              total={data.financials.totalGross}
+              caption={fmtKz(data.financials.totalIrt)}
+              showPercent
+              lowerIsBetter
+            />
+            <ShareGaugeCard
               label="Encargos patronais"
-              value={fmtKz(data.financials.employerCharges)}
+              value={data.financials.employerCharges}
+              total={data.financials.totalPersonnelCost}
+              caption={fmtKz(data.financials.employerCharges)}
+              showPercent
+              lowerIsBetter
             />
-            <KpiCard
+            <ShareGaugeCard
               label="Custo total com pessoal"
-              value={fmtKz(data.financials.totalPersonnelCost)}
-              intent="info"
+              value={data.financials.totalPersonnelCost}
+              total={data.financials.totalPersonnelCost}
+              caption={fmtKz(data.financials.totalPersonnelCost)}
+              showPercent
             />
-            <KpiCard
+            <ShareGaugeCard
               label="Total a pagar"
-              value={fmtKz(data.financials.totalPayable)}
-              intent="primary"
+              value={data.financials.totalPayable}
+              total={data.financials.totalPersonnelCost}
+              caption={fmtKz(data.financials.totalPayable)}
+              showPercent
             />
           </Section>
 
           <Section title="Recibos e pagamentos">
-            <KpiCard
+            <DonutStatCard
               label="Recibos emitidos"
-              value={data.receipts.issued}
-              intent="success"
+              value={data.receipts.issued + data.receipts.pending > 0 ? (data.receipts.issued / (data.receipts.issued + data.receipts.pending)) * 100 : 0}
+              sub={`${data.receipts.issued} de ${data.receipts.issued + data.receipts.pending}`}
             />
-            <KpiCard
+            <ShareGaugeCard
               label="Recibos pendentes"
               value={data.receipts.pending}
-              intent={data.receipts.pending > 0 ? 'warning' : 'primary'}
+              total={data.receipts.issued + data.receipts.pending}
+              lowerIsBetter
             />
-            <KpiCard
+            <ShareGaugeCard
               label="Pagamentos pendentes"
               value={data.pendingPayments}
-              intent={data.pendingPayments > 0 ? 'warning' : 'primary'}
+              total={data.employees.total}
+              lowerIsBetter
             />
           </Section>
         </div>

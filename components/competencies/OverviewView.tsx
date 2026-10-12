@@ -9,23 +9,20 @@
 'use client';
 
 import {
-  AlertTriangle,
-  Award,
-  Briefcase,
-  CheckCircle2,
+  
+  
   ClipboardList,
-  Clock,
-  Layers,
-  Target,
-  TrendingUp,
+  
+  
   UserCheck,
-  Users,
-  Wrench,
+  
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { ShareGaugeCard, SpeedometerStatCard, SCORE5_BANDS,  } from '@/components/ui/charts/SpeedometerStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -46,79 +43,39 @@ export function OverviewView() {
     <div className="space-y-6">
       {/* KPIs gerais */}
       <div className="grid grid-cols-4 gap-4">
-        <NavyStatCard
-          icon={Layers}
-          tone="blue"
-          label="Total de competências"
-          value={data.total}
-        />
-        <NavyStatCard
-          icon={CheckCircle2}
-          tone="green"
+        <ShareGaugeCard label="Total de competências" value={data.total} total={data.total} />
+        <DonutStatCard
           label="Competências activas"
-          value={data.active}
+          value={data.total > 0 ? (data.active / data.total) * 100 : 0}
+          sub={`${data.active} de ${data.total}`}
         />
-        <NavyStatCard
-          icon={Clock}
-          tone={data.inReview > 0 ? 'orange' : 'blue'}
-          label="Em revisão"
-          value={data.inReview}
-        />
-        <NavyStatCard
-          icon={AlertTriangle}
-          tone={data.critical > 0 ? 'red' : 'blue'}
-          label="Competências críticas"
-          value={data.critical}
-        />
+        <ShareGaugeCard label="Em revisão" value={data.inReview} total={data.total} lowerIsBetter />
+        <ShareGaugeCard label="Competências críticas" value={data.critical} total={data.total} lowerIsBetter />
       </div>
 
       {/* Por categoria */}
       <div className="grid grid-cols-4 gap-4">
-        <NavyStatCard
-          icon={Wrench}
-          tone="blue"
-          label="Técnicas"
-          value={data.byCategory.technical}
-        />
-        <NavyStatCard
-          icon={Users}
-          tone="blue"
-          label="Comportamentais"
-          value={data.byCategory.behavioral}
-        />
-        <NavyStatCard
-          icon={Award}
-          tone="blue"
-          label="Liderança"
-          value={data.byCategory.leadership}
-        />
-        <NavyStatCard
-          icon={Briefcase}
-          tone="orange"
-          label="Funcionais"
-          value={data.byCategory.functional}
-        />
+        <ShareGaugeCard label="Técnicas" value={data.byCategory.technical} total={(data.byCategory.technical + data.byCategory.behavioral + data.byCategory.leadership + data.byCategory.functional)} />
+        <ShareGaugeCard label="Comportamentais" value={data.byCategory.behavioral} total={(data.byCategory.technical + data.byCategory.behavioral + data.byCategory.leadership + data.byCategory.functional)} />
+        <ShareGaugeCard label="Liderança" value={data.byCategory.leadership} total={(data.byCategory.technical + data.byCategory.behavioral + data.byCategory.leadership + data.byCategory.functional)} />
+        <ShareGaugeCard label="Funcionais" value={data.byCategory.functional} total={(data.byCategory.technical + data.byCategory.behavioral + data.byCategory.leadership + data.byCategory.functional)} />
       </div>
 
       {/* Avaliação da organização */}
       <div className="grid grid-cols-4 gap-4">
-        <NavyStatCard
-          icon={Target}
-          tone="blue"
-          label="Competências estratégicas"
-          value={data.strategic}
-        />
+        <ShareGaugeCard label="Competências estratégicas" value={data.strategic} total={data.total} />
         <NavyStatCard
           icon={UserCheck}
           tone="blue"
           label="Colaboradores avaliados"
           value={data.evaluatedUsers}
         />
-        <NavyStatCard
-          icon={TrendingUp}
-          tone="green"
+        <SpeedometerStatCard
           label="Média global de proficiência"
           value={data.avgProficiency}
+          max={5}
+          bands={SCORE5_BANDS}
+          display={String(data.avgProficiency)}
         />
         <NavyStatCard
           icon={ClipboardList}

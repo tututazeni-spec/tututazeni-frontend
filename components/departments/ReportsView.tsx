@@ -9,21 +9,14 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Briefcase,
-  Clock,
-  LogIn,
-  LogOut,
-  Repeat,
-  Users,
-} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useUnits } from './departmentFormData';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { ShareGaugeCard, SpeedometerStatCard, SCORE10_BANDS } from '@/components/ui/charts/SpeedometerStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentNode, ReportsData } from './types';
@@ -186,44 +179,48 @@ export function ReportsView() {
         <div className="space-y-6">
           {/* KPIs */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <NavyStatCard
-              icon={Users}
-              tone="blue"
-              label="Colaboradores"
-              value={data.employeeDistribution.total}
-              sub={`${data.employeeDistribution.active} activos · ${data.employeeDistribution.inactive} inactivos`}
+            <DonutStatCard
+              label="Colaboradores activos"
+              value={
+                data.employeeDistribution.total > 0
+                  ? (data.employeeDistribution.active / data.employeeDistribution.total) * 100
+                  : 0
+              }
+              sub={`${data.employeeDistribution.total} colaboradores · ${data.employeeDistribution.inactive} inactivos`}
             />
-            <NavyStatCard
-              icon={Briefcase}
-              tone={data.positionsOccupiedVsVacant.vacancies > 0 ? 'orange' : 'green'}
-              label="Cargos ocupados vs. vagas"
-              value={`${data.positionsOccupiedVsVacant.occupied}/${data.positionsOccupiedVsVacant.planned}`}
-              sub={`${data.positionsOccupiedVsVacant.vacancies} vagas`}
+            <DonutStatCard
+              label="Cargos ocupados"
+              value={
+                data.positionsOccupiedVsVacant.planned > 0
+                  ? (data.positionsOccupiedVsVacant.occupied / data.positionsOccupiedVsVacant.planned) * 100
+                  : 0
+              }
+              sub={`${data.positionsOccupiedVsVacant.occupied}/${data.positionsOccupiedVsVacant.planned} · ${data.positionsOccupiedVsVacant.vacancies} vagas`}
             />
-            <NavyStatCard
-              icon={LogIn}
-              tone="green"
+            <ShareGaugeCard
               label="Admissões no período"
               value={data.admissions.total}
+              total={data.employeeDistribution.total}
+              caption="face ao efectivo"
             />
-            <NavyStatCard
-              icon={LogOut}
-              tone={data.exits.total > 0 ? 'red' : 'blue'}
+            <ShareGaugeCard
               label="Saídas no período"
               value={data.exits.total}
+              total={data.employeeDistribution.total}
+              caption="face ao efectivo"
+              lowerIsBetter
             />
-            <NavyStatCard
-              icon={Repeat}
-              tone="orange"
+            <DonutStatCard
               label="Taxa de rotatividade"
-              value={`${data.turnoverRate.toFixed(1)}%`}
+              value={data.turnoverRate}
               sub="saídas / efectivo actual"
             />
-            <NavyStatCard
-              icon={Clock}
-              tone="blue"
+            <SpeedometerStatCard
               label="Antiguidade média"
-              value={`${data.seniority.avgYears.toFixed(1)} anos`}
+              value={data.seniority.avgYears}
+              max={10}
+              bands={SCORE10_BANDS}
+              display={`${data.seniority.avgYears.toFixed(1)} anos`}
             />
           </div>
 

@@ -10,17 +10,14 @@
 import { useState } from 'react';
 import {
   AlertTriangle,
-  CalendarClock,
-  CalendarOff,
-  GitCompareArrows,
+  
   Info,
-  Users,
-  UsersRound,
+  
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
-import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { ShareGaugeCard } from '@/components/ui/charts/SpeedometerStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -159,35 +156,34 @@ export function PlanningTab() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
-            <NavyStatCard
-              icon={Users}
-              tone="blue"
+            <ShareGaugeCard
               label="Colaboradores"
               value={data.summary.headcount}
+              total={data.summary.headcount}
             />
-            <NavyStatCard
-              icon={CalendarOff}
-              tone="blue"
+            <ShareGaugeCard
               label="Ausentes hoje"
               value={data.summary.absentToday}
+              total={data.summary.headcount}
+              lowerIsBetter
             />
-            <NavyStatCard
-              icon={CalendarClock}
-              tone="orange"
+            <ShareGaugeCard
               label="Pedidos pendentes"
               value={data.summary.pendingRequests}
+              total={data.summary.pendingRequests + data.summary.approvedRequests}
+              lowerIsBetter
             />
-            <NavyStatCard
-              icon={UsersRound}
-              tone={data.summary.teamsBelowMinimum ? 'red' : 'green'}
+            <ShareGaugeCard
               label="Equipas abaixo do mínimo"
               value={data.summary.teamsBelowMinimum}
+              total={data.teams.length}
+              lowerIsBetter
             />
-            <NavyStatCard
-              icon={GitCompareArrows}
-              tone={data.summary.conflictingRequests ? 'red' : 'green'}
+            <ShareGaugeCard
               label="Pedidos em conflito"
               value={data.summary.conflictingRequests}
+              total={data.summary.pendingRequests + data.summary.approvedRequests}
+              lowerIsBetter
             />
           </div>
 
