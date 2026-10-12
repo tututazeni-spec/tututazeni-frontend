@@ -14,11 +14,25 @@
 'use client';
 
 import {
-  ShareGaugeCard,
+  Activity,
+  CheckCircle2,
+  ClipboardList,
+  FileEdit,
+  Layers,
+  Lock,
+  MailCheck,
+  Percent,
+  Send,
+  Star,
+  Target,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
+import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
+import {
+  RATE_BANDS,
   SpeedometerStatCard,
-  SCORE5_BANDS,
 } from '@/components/ui/charts/SpeedometerStatCard';
-import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -48,6 +62,20 @@ interface RawOverview {
     endDate: string;
     createdByName: string;
   }[];
+}
+
+function Stat({
+  label,
+  value,
+  icon,
+  tone,
+}: {
+  label: string;
+  value: string | number;
+  icon: LucideIcon;
+  tone: NavyStatTone;
+}) {
+  return <NavyStatCard icon={icon} tone={tone} label={label} value={value} />;
 }
 
 export function OverviewAdminTab() {
@@ -82,49 +110,80 @@ export function OverviewAdminTab() {
 
       {/* Estado das avaliações */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <ShareGaugeCard label="Total" value={data.totalCycles} total={data.totalCycles} />
-        <ShareGaugeCard label="Em preparação" value={data.inPreparation} total={data.totalCycles} />
-        <ShareGaugeCard label="Abertas" value={data.open} total={data.totalCycles} />
-        <ShareGaugeCard label="Em preenchimento" value={data.inProgress} total={data.totalCycles} />
-        <ShareGaugeCard label="Concluídas" value={data.completed} total={data.totalCycles} />
-        <ShareGaugeCard label="Encerradas" value={data.closed} total={data.totalCycles} />
+        <Stat
+          label="Total"
+          value={data.totalCycles}
+          icon={Layers}
+          tone="blue"
+        />
+        <Stat
+          label="Em preparação"
+          value={data.inPreparation}
+          icon={FileEdit}
+          tone="orange"
+        />
+        <Stat label="Abertas" value={data.open} icon={Send} tone="blue" />
+        <Stat
+          label="Em preenchimento"
+          value={data.inProgress}
+          icon={Activity}
+          tone="orange"
+        />
+        <Stat
+          label="Concluídas"
+          value={data.completed}
+          icon={CheckCircle2}
+          tone="green"
+        />
+        <Stat label="Encerradas" value={data.closed} icon={Lock} tone="red" />
       </div>
 
       {/* Participação */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <ShareGaugeCard
+        <Stat
           label="Colaboradores avaliados"
           value={data.evaluatedCount}
-          total={data.evaluatedCount}
+          icon={Users}
+          tone="blue"
         />
-        <ShareGaugeCard
+        <Stat
           label="Avaliadores convidados"
           value={data.invitedEvaluatorsCount}
-          total={data.invitedEvaluatorsCount}
+          icon={Send}
+          tone="blue"
         />
-        <ShareGaugeCard
+        <Stat
           label="Avaliadores que responderam"
           value={data.respondedEvaluatorsCount}
-          total={data.invitedEvaluatorsCount}
+          icon={MailCheck}
+          tone="green"
         />
-        <ShareGaugeCard
+        <Stat
           label="Avaliações pendentes"
           value={data.pendingAssignments}
-          total={data.invitedEvaluatorsCount}
-          lowerIsBetter
+          icon={ClipboardList}
+          tone="red"
         />
       </div>
 
-      {/* Taxas */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <DonutStatCard label="Taxa de participação" value={data.participationRate} />
-        <DonutStatCard label="Taxa de conclusão" value={data.completionRate} />
         <SpeedometerStatCard
+          label="Taxa de participação"
+          value={data.participationRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.participationRate)}%`}
+        />
+        <SpeedometerStatCard
+          label="Taxa de conclusão"
+          value={data.completionRate}
+          bands={RATE_BANDS}
+          display={`${Math.round(data.completionRate)}%`}
+        />
+        <Stat
           label="Média global"
-          value={data.avgOverall}
-          max={5}
-          bands={SCORE5_BANDS}
-          display={data.avgOverall > 0 ? data.avgOverall.toFixed(1) : '—'}
+          value={data.avgOverall > 0 ? data.avgOverall.toFixed(1) : '—'}
+          icon={Star}
+          tone="orange"
         />
       </div>
 
