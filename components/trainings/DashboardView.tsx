@@ -8,7 +8,6 @@
 
 import {
   Banknote,
-  Star,
   BadgeCheck,
   BookOpen,
   CalendarCheck,
@@ -37,7 +36,6 @@ import { Card } from '@/components/ui/Card';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { KpiCard } from '@/components/ui/KpiCard';
-import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TYPE_CFG } from './constants';
 import type { Dashboard } from './types';
@@ -252,13 +250,15 @@ export function DashboardView() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <NavyStatCard
-          icon={Star}
-          tone="orange"
-          label="Satisfação média"
-          value={data.avgRating.toFixed(1)}
-          sub="/ 5.0"
-        />
+        <ChartStatCard label="Satisfação média">
+          <GaugeChart
+            value={(data.avgRating / 5) * 100}
+            thresholds={RATE_THRESHOLDS}
+            size={140}
+            label="em 5.0"
+            format={(v) => ((v / 100) * 5).toFixed(1)}
+          />
+        </ChartStatCard>
       </div>
 
       {/* Próximas sessões */}
