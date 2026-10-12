@@ -231,6 +231,17 @@ export function DashboardView() {
             value={data.participationRate}
           />
           <GaugeStatCard label="Taxa de aprovação" value={data.approvalRate} />
+  <ChartStatCard label="Satisfação média">
+            <SpeedometerChart
+              value={data.avgRating}
+              min={0}
+              max={5}
+              bands={SATISFACTION_BANDS}
+              size={150}
+              display={data.avgRating.toFixed(1)}
+              label="em 5.0"
+            />
+          </ChartStatCard>
           <DonutStatCard
             label="Execução do plano"
             value={data.planExecutionRate}
@@ -257,20 +268,6 @@ export function DashboardView() {
             value={formatKz(data.costPerHour)}
           />
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <ChartStatCard label="Satisfação média">
-          <SpeedometerChart
-            value={data.avgRating}
-            min={0}
-            max={5}
-            bands={SATISFACTION_BANDS}
-            size={180}
-            display={data.avgRating.toFixed(1)}
-            label="em 5.0"
-          />
-        </ChartStatCard>
       </div>
 
       {/* Próximas sessões */}
