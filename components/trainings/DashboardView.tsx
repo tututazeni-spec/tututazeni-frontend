@@ -231,7 +231,10 @@ export function DashboardView() {
             value={data.participationRate}
           />
           <GaugeStatCard label="Taxa de aprovação" value={data.approvalRate} />
-          <ChartStatCard label="Satisfação média">
+          <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4">
+            <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              Satisfação média
+            </h3>
             <SpeedometerChart
               value={data.avgRating}
               min={0}
@@ -241,7 +244,7 @@ export function DashboardView() {
               display={data.avgRating.toFixed(1)}
               label="em 5.0"
             />
-          </ChartStatCard>
+          </Card>
           <DonutStatCard
             label="Execução do plano"
             value={data.planExecutionRate}
