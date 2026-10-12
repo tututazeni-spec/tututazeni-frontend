@@ -173,7 +173,7 @@ Actualizado em ${formatDateTime(i.updatedAt)}`;
               ? i.unit.replace(/^%\s*/, '')
               : i.status === 'RESTRICTED'
                 ? 'Restrito'
-                : 'Sem dados'
+                : undefined
           }
         />
       </div>
