@@ -273,7 +273,7 @@ export function ReportsView() {
 
           <div className="grid gap-4 lg:grid-cols-3">
             <Card className="overflow-hidden p-0">
-              <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
                 Por categoria
               </div>
               <RankedList
@@ -285,7 +285,7 @@ export function ReportsView() {
               />
             </Card>
             <Card className="overflow-hidden p-0">
-              <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
                 Por modalidade
               </div>
               <RankedList
@@ -299,7 +299,7 @@ export function ReportsView() {
               />
             </Card>
             <Card className="overflow-hidden p-0">
-              <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
                 Por formador
               </div>
               <RankedList
@@ -313,7 +313,7 @@ export function ReportsView() {
           </div>
 
           <Card className="overflow-hidden p-0">
-            <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
               Horas por departamento
             </div>
             <RankedList
