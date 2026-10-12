@@ -7,8 +7,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz } from '@/lib/format';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { ShareGaugeCard } from '@/components/ui/charts/SpeedometerStatCard';
-import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
+import { KpiCard } from '@/components/ui/KpiCard';
 import type { HrDashboard } from './types';
 
 const thisMonth = () => new Date().toISOString().slice(0, 7);
@@ -45,39 +44,32 @@ export function HrDashboardView() {
               Contagens
             </h3>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
-              <ShareGaugeCard
-                label="Total"
-                value={data.counts.total}
-                total={data.counts.total}
-              />
-              <ShareGaugeCard
+              <KpiCard className="min-h-[178px]" label="Total" value={data.counts.total} />
+              <KpiCard
+                className="min-h-[178px]"
                 label="Emitidos"
                 value={data.counts.issued}
-                total={data.counts.total}
+                intent="success"
               />
-              <ShareGaugeCard
+              <KpiCard
+                className="min-h-[178px]"
                 label="Confirmados"
                 value={data.counts.acknowledged}
-                total={data.counts.total}
+                intent="info"
               />
-              <ShareGaugeCard
+              <KpiCard
+                className="min-h-[178px]"
                 label="Em disputa"
                 value={data.counts.disputed}
-                total={data.counts.total}
-                lowerIsBetter
+                intent="danger"
               />
-              <ShareGaugeCard
+              <KpiCard
+                className="min-h-[178px]"
                 label="Por confirmar"
                 value={data.counts.notViewed}
-                total={data.counts.total}
-                lowerIsBetter
+                intent="warning"
               />
-              <ShareGaugeCard
-                label="Rascunhos"
-                value={data.counts.draft}
-                total={data.counts.total}
-                lowerIsBetter
-              />
+              <KpiCard className="min-h-[178px]" label="Rascunhos" value={data.counts.draft} />
             </div>
           </section>
 
@@ -86,50 +78,30 @@ export function HrDashboardView() {
               Financeiro
             </h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <ShareGaugeCard
+              <KpiCard
                 label="Bruto total"
-                value={data.financials.totalGross}
-                total={data.financials.totalGross}
-                caption={fmtKz(data.financials.totalGross)}
-                showPercent
+                value={fmtKz(data.financials.totalGross)}
               />
-              <ShareGaugeCard
+              <KpiCard
                 label="Líquido total"
-                value={data.financials.totalNet}
-                total={data.financials.totalGross}
-                caption={fmtKz(data.financials.totalNet)}
-                showPercent
+                value={fmtKz(data.financials.totalNet)}
+                intent="success"
               />
-              <ShareGaugeCard
+              <KpiCard
                 label="IRT total"
-                value={data.financials.totalIRT}
-                total={data.financials.totalGross}
-                caption={fmtKz(data.financials.totalIRT)}
-                showPercent
-                lowerIsBetter
+                value={fmtKz(data.financials.totalIRT)}
               />
-              <ShareGaugeCard
+              <KpiCard
                 label="INSS colaborador"
-                value={data.financials.totalINSSEmployee}
-                total={data.financials.totalGross}
-                caption={fmtKz(data.financials.totalINSSEmployee)}
-                showPercent
-                lowerIsBetter
+                value={fmtKz(data.financials.totalINSSEmployee)}
               />
-              <ShareGaugeCard
+              <KpiCard
                 label="INSS empregador"
-                value={data.financials.totalINSSEmployer}
-                total={data.financials.totalGross}
-                caption={fmtKz(data.financials.totalINSSEmployer)}
-                showPercent
-                lowerIsBetter
+                value={fmtKz(data.financials.totalINSSEmployer)}
               />
-              <ShareGaugeCard
+              <KpiCard
                 label="Líquido médio"
-                value={data.financials.avgNet}
-                total={data.financials.totalGross}
-                caption={fmtKz(data.financials.avgNet)}
-                showPercent
+                value={fmtKz(data.financials.avgNet)}
               />
             </div>
           </section>
@@ -139,12 +111,17 @@ export function HrDashboardView() {
               Compliance
             </h3>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
-              <DonutStatCard label="Taxa de confirmação" value={parseFloat(data.compliance.viewRate) || 0} />
-              <ShareGaugeCard
+              <KpiCard
+                className="min-h-[178px]"
+                label="Taxa de confirmação"
+                value={data.compliance.viewRate}
+                intent="info"
+              />
+              <KpiCard
+                className="min-h-[178px]"
                 label="Pendentes de confirmação"
                 value={data.compliance.pendingAcknowledgement}
-                total={data.counts.total}
-                lowerIsBetter
+                intent="warning"
               />
             </div>
           </section>

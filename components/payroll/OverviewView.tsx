@@ -10,8 +10,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatKz as fmtKz } from '@/lib/format';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { ShareGaugeCard } from '@/components/ui/charts/SpeedometerStatCard';
-import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
+import { KpiCard } from '@/components/ui/KpiCard';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { RUN_STATUS_MAP } from './types';
 import type { PayrollOverview } from './insightTypes';
@@ -105,111 +104,73 @@ export function OverviewView() {
           )}
 
           <Section title="Colaboradores">
-            <ShareGaugeCard
-              label="Total"
-              value={data.employees.total}
-              total={data.employees.total}
-            />
-            <ShareGaugeCard
+            <KpiCard label="Total" value={data.employees.total} />
+            <KpiCard
               label="Processados"
               value={data.employees.processed}
-              total={data.employees.total}
+              intent="success"
             />
-            <ShareGaugeCard
+            <KpiCard
               label="Pendentes"
               value={data.employees.pending}
-              total={data.employees.total}
-              lowerIsBetter
+              intent={data.employees.pending > 0 ? 'warning' : 'primary'}
             />
           </Section>
 
           <Section title="Valores">
-            <ShareGaugeCard
+            <KpiCard
               label="Salário bruto"
-              value={data.financials.totalGross}
-              total={data.financials.totalGross}
-              caption={fmtKz(data.financials.totalGross)}
-              showPercent
+              value={fmtKz(data.financials.totalGross)}
             />
-            <ShareGaugeCard
+            <KpiCard
               label="Salário líquido"
-              value={data.financials.totalNet}
-              total={data.financials.totalGross}
-              caption={fmtKz(data.financials.totalNet)}
-              showPercent
+              value={fmtKz(data.financials.totalNet)}
+              intent="success"
+              trend={data.monthlyVariation?.pct}
+              sub={`Anterior (${data.previous.period}): ${fmtKz(data.previous.totalNet)}`}
             />
-            <ShareGaugeCard
+            <KpiCard
               label="Remunerações"
-              value={data.financials.totalEarnings}
-              total={data.financials.totalGross}
-              caption={fmtKz(data.financials.totalEarnings)}
-              showPercent
+              value={fmtKz(data.financials.totalEarnings)}
             />
-            <ShareGaugeCard
+            <KpiCard
               label="Deduções"
-              value={data.financials.totalDeductions}
-              total={data.financials.totalGross}
-              caption={fmtKz(data.financials.totalDeductions)}
-              showPercent
-              lowerIsBetter
+              value={fmtKz(data.financials.totalDeductions)}
+              intent="warning"
             />
-            <ShareGaugeCard
-              label="INSS"
-              value={data.financials.totalInss}
-              total={data.financials.totalGross}
-              caption={fmtKz(data.financials.totalInss)}
-              showPercent
-              lowerIsBetter
-            />
-            <ShareGaugeCard
-              label="IRT"
-              value={data.financials.totalIrt}
-              total={data.financials.totalGross}
-              caption={fmtKz(data.financials.totalIrt)}
-              showPercent
-              lowerIsBetter
-            />
-            <ShareGaugeCard
+            <KpiCard label="INSS" value={fmtKz(data.financials.totalInss)} />
+            <KpiCard label="IRT" value={fmtKz(data.financials.totalIrt)} />
+            <KpiCard
               label="Encargos patronais"
-              value={data.financials.employerCharges}
-              total={data.financials.totalPersonnelCost}
-              caption={fmtKz(data.financials.employerCharges)}
-              showPercent
-              lowerIsBetter
+              value={fmtKz(data.financials.employerCharges)}
             />
-            <ShareGaugeCard
+            <KpiCard
               label="Custo total com pessoal"
-              value={data.financials.totalPersonnelCost}
-              total={data.financials.totalPersonnelCost}
-              caption={fmtKz(data.financials.totalPersonnelCost)}
-              showPercent
+              value={fmtKz(data.financials.totalPersonnelCost)}
+              intent="info"
             />
-            <ShareGaugeCard
+            <KpiCard
               label="Total a pagar"
-              value={data.financials.totalPayable}
-              total={data.financials.totalPersonnelCost}
-              caption={fmtKz(data.financials.totalPayable)}
-              showPercent
+              value={fmtKz(data.financials.totalPayable)}
+              intent="primary"
             />
           </Section>
 
           <Section title="Recibos e pagamentos">
-            <DonutStatCard
+            <KpiCard
               label="Recibos emitidos"
-              value={data.receipts.issued + data.receipts.pending > 0 ? (data.receipts.issued / (data.receipts.issued + data.receipts.pending)) * 100 : 0}
-              sub={`${data.receipts.issued} de ${data.receipts.issued + data.receipts.pending}`}
+              value={data.receipts.issued}
+              intent="success"
             />
-            <ShareGaugeCard
+            <KpiCard
               label="Recibos pendentes"
               value={data.receipts.pending}
-              total={data.receipts.issued + data.receipts.pending}
-              lowerIsBetter
+              intent={data.receipts.pending > 0 ? 'warning' : 'primary'}
             />
-            <ShareGaugeCard
+            <KpiCard
               label="Pagamentos pendentes"
               value={data.pendingPayments}
-              total={data.employees.total}
-              lowerIsBetter
+              intent={data.pendingPayments > 0 ? 'warning' : 'primary'}
             />
           </Section>
         </div>
