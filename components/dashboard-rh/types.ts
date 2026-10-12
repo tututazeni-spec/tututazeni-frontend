@@ -59,6 +59,13 @@ export interface HeadcountTrendPoint {
   count: number;
 }
 
+export interface PdiCoverageTrendPoint {
+  month: string;
+  coverage: number;
+  withPlan: number;
+  total: number;
+}
+
 export interface AnniversaryUser {
   fullName: string;
   avatarUrl?: string;
