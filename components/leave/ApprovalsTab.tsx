@@ -8,9 +8,11 @@
 
 import { useState } from 'react';
 import {
+  AlarmClock,
   Check,
   ChevronDown,
   ChevronRight,
+  Hourglass,
   Repeat2,
   X,
 } from 'lucide-react';
@@ -18,8 +20,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
-import { ShareGaugeCard } from '@/components/ui/charts/SpeedometerStatCard';
-import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -115,22 +116,17 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:max-w-xl">
-        <DonutStatCard
-          label="Em prazo"
-          value={
-            (data?.summary.pending ?? 0) > 0
-              ? (((data?.summary.pending ?? 0) - (data?.summary.overdue ?? 0)) /
-                  (data?.summary.pending ?? 1)) *
-                100
-              : 100
-          }
-          sub={`${data?.summary.pending ?? 0} por decidir`}
+        <NavyStatCard
+          icon={Hourglass}
+          tone="blue"
+          label="Por decidir"
+          value={data?.summary.pending ?? 0}
         />
-        <ShareGaugeCard
+        <NavyStatCard
+          icon={AlarmClock}
+          tone={data?.summary.overdue ? 'red' : 'green'}
           label="Em atraso"
           value={data?.summary.overdue ?? 0}
-          total={data?.summary.pending ?? 0}
-          lowerIsBetter
         />
       </div>
 
