@@ -12,6 +12,10 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { buttonVariants } from '@/components/ui/Button';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -150,10 +154,11 @@ export function ReportsTab() {
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <KpiCard label="Onboardings" value={data.total} intent="primary" />
-            <KpiCard
+            <SpeedometerStatCard
               label="Taxa de conclusão"
-              value={`${data.completionRate}%`}
-              intent="success"
+              value={data.completionRate}
+              bands={RATE_BANDS}
+              display={`${Math.round(data.completionRate)}%`}
             />
             <KpiCard
               label="Duração média (dias)"
