@@ -32,10 +32,6 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
 import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
-import {
-  RATE_BANDS,
-  SpeedometerStatCard,
-} from '@/components/ui/charts/SpeedometerStatCard';
 import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -150,9 +146,13 @@ const INDICATOR_STYLE: Record<
   PROVIDER_FAILURES: { icon: ServerCrash, tone: 'red' },
   COST_LIMIT: { icon: Wallet, tone: 'orange' },
 };
-// Taxas → velocímetro; percentagens de progresso/qualidade → rosca.
-const RATE_CODES = new Set(['COMPLETION_RATE', 'PASS_RATE']);
-const PERCENT_CODES = new Set(['MANDATORY', 'ANSWER_QUALITY']);
+// Taxas e percentagens de progresso/qualidade → rosca (como Execução do plano em Formações).
+const PERCENT_CODES = new Set([
+  'COMPLETION_RATE',
+  'PASS_RATE',
+  'MANDATORY',
+  'ANSWER_QUALITY',
+]);
 const DEFAULT_INDICATOR_STYLE = {
   icon: BarChart3,
   tone: 'blue' as NavyStatTone,
@@ -164,30 +164,23 @@ function IndicatorCard({ i }: { i: Indicator }) {
   const tip = `${i.formula}
 Fonte: ${i.source}
 Actualizado em ${formatDateTime(i.updatedAt)}`;
-  if (!noData && i.status === 'OK' && typeof i.value === 'number') {
-    if (RATE_CODES.has(i.code)) {
-      return (
-        <div title={tip}>
-          <SpeedometerStatCard
-            label={i.label}
-            value={i.value}
-            bands={RATE_BANDS}
-            display={`${Math.round(i.value)}%`}
-          />
-        </div>
-      );
-    }
-    if (PERCENT_CODES.has(i.code)) {
-      return (
-        <div title={tip}>
-          <DonutStatCard
-            label={i.label}
-            value={i.value}
-            sub={i.unit.replace(/^%\s*/, '')}
-          />
-        </div>
-      );
-    }
+  if (PERCENT_CODES.has(i.code)) {
+    const ok = !noData && typeof i.value === 'number';
+    return (
+      <div title={tip}>
+        <DonutStatCard
+          label={i.label}
+          value={ok ? (i.value as number) : 0}
+          sub={
+            ok
+              ? i.unit.replace(/^%\s*/, '')
+              : i.status === 'RESTRICTED'
+                ? 'Restrito'
+                : 'Sem dados'
+          }
+        />
+      </div>
+    );
   }
   return (
     <div
