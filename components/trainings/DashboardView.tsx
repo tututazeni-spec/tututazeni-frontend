@@ -33,14 +33,11 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime, formatKz } from '@/lib/format';
 import { Card } from '@/components/ui/Card';
-import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { SpeedometerChart } from '@/components/ui/charts/SpeedometerChart';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TYPE_CFG } from './constants';
 import type { Dashboard } from './types';
-
-const RATE_THRESHOLDS = { warning: 70, danger: 50 };
 
 // Faixas do velocímetro das taxas (escala 0–100).
 const RATE_BANDS = [
@@ -59,36 +56,6 @@ const SATISFACTION_BANDS = [
   { to: 4, color: '#8fc23f' },
   { to: 5, color: '#2f9e63' },
 ];
-
-// Mesmo desenho do NavyStatCard (cabeçalho azul-marinho), com gráfico no corpo.
-function ChartStatCard({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="flex min-h-[155px] flex-col overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
-      <div className="flex min-h-[60px] shrink-0 items-center bg-[#152F59] px-4 py-2">
-        <h3 className="font-body text-[13px] font-semibold leading-tight text-white">
-          {label}
-        </h3>
-      </div>
-      <div className="flex flex-1 items-center justify-center px-3 py-3">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function GaugeStatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <ChartStatCard label={label}>
-      <GaugeChart value={value} thresholds={RATE_THRESHOLDS} size={140} />
-    </ChartStatCard>
-  );
-}
 
 // Velocímetro em Card próprio (fora do estilo NavyStatCard).
 function SpeedometerStatCard({
@@ -303,7 +270,12 @@ export function DashboardView() {
             bands={RATE_BANDS}
             display={`${Math.round(data.participationRate)}%`}
           />
-          <GaugeStatCard label="Taxa de aprovação" value={data.approvalRate} />
+          <SpeedometerStatCard
+            label="Taxa de aprovação"
+            value={data.approvalRate}
+            bands={RATE_BANDS}
+            display={`${Math.round(data.approvalRate)}%`}
+          />
           <SpeedometerStatCard
             label="Satisfação média"
             value={data.avgRating}
