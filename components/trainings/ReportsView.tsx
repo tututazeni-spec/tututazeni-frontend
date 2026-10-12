@@ -18,6 +18,7 @@ import {
   RATE_BANDS,
   SpeedometerStatCard,
 } from '@/components/ui/charts/SpeedometerStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { ThermometerStatCard } from '@/components/ui/charts/ThermometerStatCard';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Select } from '@/components/ui/Select';
@@ -254,11 +255,9 @@ export function ReportsView() {
                 }
                 intent="warning"
               />
-              <ThermometerStatCard
+              <DonutStatCard
                 label="Taxa de aprovação"
                 value={data.efficacy.approvalRate}
-                bands={RATE_BANDS}
-                display={`${Math.round(data.efficacy.approvalRate)}%`}
               />
               <KpiCard
                 label="Competências desenvolvidas"
