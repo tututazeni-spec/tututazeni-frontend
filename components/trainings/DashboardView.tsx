@@ -6,16 +6,103 @@
 
 'use client';
 
+import {
+  Banknote,
+  Star,
+  BadgeCheck,
+  BookOpen,
+  CalendarCheck,
+  CalendarClock,
+  CheckCircle2,
+  ClipboardCheck,
+  ClipboardList,
+  Clock,
+  DoorOpen,
+  GraduationCap,
+  Percent,
+  PlayCircle,
+  ShieldAlert,
+  Timer,
+  UserCheck,
+  Users,
+  UsersRound,
+  XCircle,
+} from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime, formatKz } from '@/lib/format';
 import { Card } from '@/components/ui/Card';
+import { DonutChart } from '@/components/ui/charts/DonutChart';
+import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StarRating } from './StarRating';
 import { TYPE_CFG } from './constants';
 import type { Dashboard } from './types';
+
+const RATE_THRESHOLDS = { warning: 70, danger: 50 };
+
+// Mesmo desenho do NavyStatCard (cabeçalho azul-marinho), com gráfico no corpo.
+function ChartStatCard({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex min-h-[155px] flex-col overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)]">
+      <div className="flex min-h-[60px] shrink-0 items-center bg-[#152F59] px-4 py-2">
+        <h3 className="font-body text-[13px] font-semibold leading-tight text-white">
+          {label}
+        </h3>
+      </div>
+      <div className="flex flex-1 items-center justify-center px-3 py-3">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function GaugeStatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <ChartStatCard label={label}>
+      <GaugeChart value={value} thresholds={RATE_THRESHOLDS} size={140} />
+    </ChartStatCard>
+  );
+}
+
+// Anel de progresso: executado vs. restante (valores acima de 100% enchem o anel).
+function DonutStatCard({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) {
+  const done = Math.min(100, Math.max(0, value));
+  return (
+    <ChartStatCard label={label}>
+      <DonutChart
+        size={120}
+        hideLegend
+        centerValue={`${Math.round(value)}%`}
+        data={[
+          { label: 'Executado', value: done, color },
+          {
+            label: 'Restante',
+            value: 100 - done,
+            color: '#D8E2F0',
+          },
+        ]}
+      />
+    </ChartStatCard>
+  );
+}
 
 export function DashboardView() {
   const { data, isLoading } = useApiQuery<Dashboard>(
@@ -36,33 +123,39 @@ export function DashboardView() {
   return (
     <div className="space-y-6">
       {/* Formações */}
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <KpiCard
+          icon={BookOpen}
           label="Total formações"
           value={data.trainings.total}
           intent="primary"
         />
         <KpiCard
+          icon={ClipboardList}
           label="Planeadas"
           value={data.trainings.planned}
           intent="info"
         />
         <KpiCard
+          icon={CalendarClock}
           label="Agendadas"
           value={data.trainings.scheduled}
           intent="info"
         />
         <KpiCard
+          icon={PlayCircle}
           label="Em curso"
           value={data.trainings.inProgress}
           intent="warning"
         />
         <KpiCard
+          icon={CheckCircle2}
           label="Concluídas"
           value={data.trainings.completed}
           intent="success"
         />
         <KpiCard
+          icon={XCircle}
           label="Canceladas"
           value={data.trainings.cancelled}
           intent="danger"
@@ -70,10 +163,23 @@ export function DashboardView() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <KpiCard label="Turmas activas" value={data.trainings.activeClasses} />
-        <KpiCard label="Formadores activos" value={data.activeInstructors} />
-        <KpiCard label="Salas em utilização" value={data.roomsInUse} />
         <KpiCard
+          icon={UsersRound}
+          label="Turmas activas"
+          value={data.trainings.activeClasses}
+        />
+        <KpiCard
+          icon={UserCheck}
+          label="Formadores activos"
+          value={data.activeInstructors}
+        />
+        <KpiCard
+          icon={DoorOpen}
+          label="Salas em utilização"
+          value={data.roomsInUse}
+        />
+        <KpiCard
+          icon={ShieldAlert}
           label="Obrigatórias"
           value={data.trainings.mandatory}
           intent="danger"
@@ -82,30 +188,24 @@ export function DashboardView() {
 
       {/* Participantes */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <Card className="p-4">
-          <div className="mb-1 font-body text-xs text-ink-faint">
-            Participantes inscritos
-          </div>
-          <div className="font-mono text-3xl font-bold text-ink">
-            {data.participants.registered}
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="mb-1 font-body text-xs text-ink-faint">
-            Em formação
-          </div>
-          <div className="font-mono text-3xl font-bold text-ink">
-            {data.participants.inTraining}
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="mb-1 font-body text-xs text-ink-faint">
-            Concluídos
-          </div>
-          <div className="font-mono text-3xl font-bold text-ink">
-            {data.participants.completed}
-          </div>
-        </Card>
+        <KpiCard
+          icon={Users}
+          label="Participantes inscritos"
+          value={data.participants.registered}
+          intent="primary"
+        />
+        <KpiCard
+          icon={GraduationCap}
+          label="Em formação"
+          value={data.participants.inTraining}
+          intent="warning"
+        />
+        <KpiCard
+          icon={BadgeCheck}
+          label="Participações concluídas"
+          value={data.participants.completed}
+          intent="success"
+        />
       </div>
 
       {/* Indicadores */}
@@ -114,51 +214,52 @@ export function DashboardView() {
           Indicadores
         </h3>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <KpiCard
+          <GaugeStatCard
             label="Taxa de conclusão"
-            value={`${data.completionRate}%`}
-            intent="success"
+            value={data.completionRate}
           />
-          <KpiCard
+          <GaugeStatCard
             label="Taxa de participação"
-            value={`${data.participationRate}%`}
-            intent="info"
+            value={data.participationRate}
           />
-          <KpiCard
-            label="Taxa de aprovação"
-            value={`${data.approvalRate}%`}
-            intent="info"
-          />
-          <KpiCard
+          <GaugeStatCard label="Taxa de aprovação" value={data.approvalRate} />
+          <DonutStatCard
             label="Execução do plano"
-            value={`${data.planExecutionRate}%`}
-            intent="primary"
+            value={data.planExecutionRate}
+            color="var(--color-accent)"
           />
-          <KpiCard
+          <DonutStatCard
             label="Execução orçamental"
-            value={`${data.budgetExecutionRate}%`}
-            intent="warning"
+            value={data.budgetExecutionRate}
+            color="#1f6fb8"
           />
-          <KpiCard label="Horas/colaborador" value={data.hoursPerEmployee} />
           <KpiCard
+            icon={Clock}
+            label="Horas/colaborador"
+            value={data.hoursPerEmployee}
+          />
+          <KpiCard
+            icon={Banknote}
             label="Custo/participante"
             value={formatKz(data.costPerParticipant)}
           />
-          <KpiCard label="Custo/hora" value={formatKz(data.costPerHour)} />
+          <KpiCard
+            icon={Timer}
+            label="Custo/hora"
+            value={formatKz(data.costPerHour)}
+          />
         </div>
       </div>
 
-      <Card className="p-4">
-        <div className="mb-1 font-body text-xs text-ink-faint">
-          Satisfação média
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="font-mono text-3xl font-bold text-accent">
-            {data.avgRating.toFixed(1)}
-          </div>
-          <StarRating value={data.avgRating} />
-        </div>
-      </Card>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <NavyStatCard
+          icon={Star}
+          tone="orange"
+          label="Satisfação média"
+          value={data.avgRating.toFixed(1)}
+          sub="/ 5.0"
+        />
+      </div>
 
       {/* Próximas sessões */}
       {data.upcomingSessions.length > 0 && (
