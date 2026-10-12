@@ -4,12 +4,12 @@
 
 'use client';
 
+import { Ban, Clock, UserCheck, UserMinus, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card } from '@/components/ui/Card';
-import { ShareGaugeCard } from '@/components/ui/charts/SpeedometerStatCard';
-import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AdminDashboard } from './types';
@@ -49,35 +49,35 @@ export function DashboardView() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
-        <ShareGaugeCard
+        <NavyStatCard
+          icon={Users}
+          tone="blue"
           label="Total colaboradores"
           value={data.users.total}
-          total={data.users.total}
         />
-        <DonutStatCard
+        <NavyStatCard
+          icon={UserCheck}
+          tone="green"
           label="Activos"
-          value={
-            data.users.total > 0 ? (data.users.active / data.users.total) * 100 : 0
-          }
-          sub={`${data.users.active} de ${data.users.total}`}
+          value={data.users.active}
         />
-        <ShareGaugeCard
+        <NavyStatCard
+          icon={UserMinus}
+          tone="orange"
           label="Inactivos"
           value={data.users.inactive}
-          total={data.users.total}
-          lowerIsBetter
         />
-        <ShareGaugeCard
+        <NavyStatCard
+          icon={Clock}
+          tone="blue"
           label="Pendentes"
           value={data.users.pending}
-          total={data.users.total}
-          lowerIsBetter
         />
-        <ShareGaugeCard
+        <NavyStatCard
+          icon={Ban}
+          tone={data.users.suspended > 0 ? 'red' : 'blue'}
           label="Suspensos"
           value={data.users.suspended}
-          total={data.users.total}
-          lowerIsBetter
         />
       </div>
 
