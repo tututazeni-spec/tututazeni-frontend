@@ -203,7 +203,7 @@ export function NewCareerPlanModal({
             onChange={setMentor}
           />
 
-          <FormField label="Mentoring" htmlFor="plan-mentoring">
+          <FormField label="Mentoria" htmlFor="plan-mentoring">
             <Textarea
               id="plan-mentoring"
               value={form.mentoringNotes}
@@ -215,7 +215,7 @@ export function NewCareerPlanModal({
             />
           </FormField>
 
-          <FormField label="Coaching" htmlFor="plan-coaching">
+          <FormField label="Acompanhamento personalizado" htmlFor="plan-coaching">
             <Textarea
               id="plan-coaching"
               value={form.coachingNotes}

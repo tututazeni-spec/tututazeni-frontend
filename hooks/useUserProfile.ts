@@ -30,6 +30,7 @@ export type ProfileTab =
   | 'training'
   | 'courses'
   | 'competencies'
+  | 'qualifications'
   | 'performance'
   | 'evaluations'
   | 'pdi'

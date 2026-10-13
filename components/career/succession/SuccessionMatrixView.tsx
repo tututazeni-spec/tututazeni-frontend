@@ -43,13 +43,13 @@ export function SuccessionMatrixView() {
   return (
     <Table>
       <TableHead>
-        <TableRow>
-          <TableHeaderCell>Posição</TableHeaderCell>
-          <TableHeaderCell>Titular</TableHeaderCell>
-          <TableHeaderCell>Sucessor</TableHeaderCell>
-          <TableHeaderCell>Prontidão</TableHeaderCell>
-          <TableHeaderCell>Gap</TableHeaderCell>
-          <TableHeaderCell>Risco</TableHeaderCell>
+        <TableRow className="bg-[#0F1F3D]/60 hover:bg-[#0F1F3D]/60">
+          <TableHeaderCell className="text-white">Posição</TableHeaderCell>
+          <TableHeaderCell className="text-white">Titular</TableHeaderCell>
+          <TableHeaderCell className="text-white">Sucessor</TableHeaderCell>
+          <TableHeaderCell className="text-white">Prontidão</TableHeaderCell>
+          <TableHeaderCell className="text-white">Gap</TableHeaderCell>
+          <TableHeaderCell className="text-white">Risco</TableHeaderCell>
         </TableRow>
       </TableHead>
       <TableBody>

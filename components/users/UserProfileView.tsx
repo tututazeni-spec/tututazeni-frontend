@@ -55,6 +55,7 @@ import {
   ProfessionalDataTab,
   TrainingTab,
 } from './ProfileTabs';
+import { QualificationsTab } from './QualificationsTab';
 
 export interface UserProfileViewProps {
   userId: number;
@@ -78,6 +79,7 @@ const TABS: Array<{ id: ProfileTab; label: string }> = [
   { id: 'training', label: 'Formação' },
   { id: 'courses', label: 'Cursos' },
   { id: 'competencies', label: 'Competências' },
+  { id: 'qualifications', label: 'Qualificações' },
   { id: 'performance', label: 'Desempenho' },
   { id: 'evaluations', label: 'Avaliações' },
   { id: 'pdi', label: 'PDI' },
@@ -361,6 +363,7 @@ export function UserProfileView({
       {tab === 'training' && <TrainingTab userId={userId} />}
       {tab === 'courses' && <CoursesTab userId={userId} />}
       {tab === 'competencies' && <CompetenciesTab userId={userId} />}
+      {tab === 'qualifications' && <QualificationsTab userId={userId} />}
       {tab === 'performance' && <PerformanceTab userId={userId} />}
       {tab === 'evaluations' && <EvaluationsTab userId={userId} />}
       {tab === 'pdi' && <PdiTab userId={userId} />}

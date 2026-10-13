@@ -206,7 +206,11 @@ export interface PositionDetail {
   reportsTo: { id: number; name: string } | null;
   subordinates: Array<{ id: number; name: string }>;
   users: Array<{ id: number; fullName: string; email: string; active: boolean }>;
-  competencies: Array<{ competency: { id: number; name: string } }>;
+  competencies: Array<{
+    requiredLevel?: number;
+    priority?: string;
+    competency: { id: number; name: string; category?: string };
+  }>;
   internalVacancies: Array<{
     id: number;
     title: string;
