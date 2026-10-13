@@ -24,7 +24,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { NineBoxMatrix } from './NineBoxMatrix';
-import { TIER_CFG, TIER_DOT, TIER_LABEL } from './constants';
+import { TIER_CFG, TIER_LABEL } from './constants';
 import type { NineBoxResponse, PoolMeta, TalentUser, Tier } from './types';
 
 const TIER_SUMMARY: { label: string; key: string; tier: Tier }[] = [
@@ -32,6 +32,14 @@ const TIER_SUMMARY: { label: string; key: string; tier: Tier }[] = [
   { label: TIER_LABEL.MEDIUM, key: 'medium', tier: 'MEDIUM' },
   { label: TIER_LABEL.DEVELOPING, key: 'developing', tier: 'DEVELOPING' },
 ];
+
+// Cores de alerta vivas para o fundo azul-marinho dos cards de resumo
+// (TIER_DOT usa tokens pensados para fundo claro — ink-faint some no azul).
+const TIER_ALERT_DOT: Record<Tier, string> = {
+  HIGH: 'bg-[#34D399]',
+  MEDIUM: 'bg-[#FBBF24]',
+  DEVELOPING: 'bg-[#FB7185]',
+};
 
 function scoreIntent(score: number): string {
   if (score >= 4) return 'text-success-ink';
@@ -82,15 +90,19 @@ export function PoolTab() {
             onClick={() =>
               setTier(tier === t.key.toUpperCase() ? '' : t.key.toUpperCase())
             }
-            className={`rounded-card border-2 bg-surface p-4 text-left transition-all ${
-              tier === t.key.toUpperCase() ? 'border-primary' : 'border-border'
+            className={`rounded-card border-2 bg-[#152F59] p-4 text-left shadow-[0_4px_14px_rgba(21,47,89,0.25)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.35)] motion-reduce:hover:scale-100 ${
+              tier === t.key.toUpperCase()
+                ? 'border-white ring-2 ring-[#1877F2]'
+                : 'border-white'
             }`}
           >
-            <div className={`mb-2 h-3 w-3 rounded-full ${TIER_DOT[t.tier]}`} />
-            <p className="font-display text-xl font-bold text-ink">
+            <div
+              className={`mb-2 h-3 w-3 rounded-full ring-2 ring-white ${TIER_ALERT_DOT[t.tier]}`}
+            />
+            <p className="font-display text-xl font-bold text-white">
               {data?.meta.tierCounts?.[t.key] ?? 0}
             </p>
-            <p className="font-body text-xs text-ink-faint">{t.label}</p>
+            <p className="font-body text-xs text-white">{t.label}</p>
           </button>
         ))}
       </div>
