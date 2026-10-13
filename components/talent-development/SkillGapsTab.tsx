@@ -34,12 +34,21 @@ function gapIntent(avgGap: number): string {
   return 'text-success-ink';
 }
 
-function heatmapCellClass(level: number | null): string {
+// Escala divergente vermelho → laranja → verde claro → verde forte, relativa
+// à própria linha (habilidade): o menor nível da linha é o mais vermelho e o
+// maior o mais verde. Linha sem variação (ou com um só valor) usa a escala
+// absoluta 0–5.
+function heatmapCellClass(
+  level: number | null,
+  min: number,
+  max: number,
+): string {
   if (level === null) return 'bg-surface-sunken';
-  if (level >= 4) return 'bg-success-subtle text-success-ink';
-  if (level >= 3) return 'bg-info-subtle text-info-ink';
-  if (level >= 2) return 'bg-warning-subtle text-warning-ink';
-  return 'bg-danger-subtle text-danger-ink';
+  const t = max > min ? (level - min) / (max - min) : level / 5;
+  if (t >= 0.75) return 'bg-[#58D68D] text-[#0B3D1F]';
+  if (t >= 0.5) return 'bg-[#D5F5E3] text-[#1E8449]';
+  if (t >= 0.25) return 'bg-[#FDEBD0] text-[#9C640C]';
+  return 'bg-[#FADBD8] text-[#922B21]';
 }
 
 export function SkillGapsTab() {
@@ -92,11 +101,11 @@ export function SkillGapsTab() {
 
       {view === 'needs' && (
         <Card>
-          <CardHeader>
-            <h3 className="font-display font-semibold text-ink">
+          <CardHeader className="rounded-t-card bg-[#0F1F3D]/60">
+            <h3 className="font-display font-semibold text-white">
               Top Habilidades Com Maior Lacunas
             </h3>
-            <p className="mt-0.5 font-body text-xs text-ink-faint">
+            <p className="mt-0.5 font-body text-xs text-white">
               Ordenado por Média de Lacunas— colaboradores vs nível alvo
             </p>
           </CardHeader>
@@ -142,21 +151,21 @@ export function SkillGapsTab() {
 
       {view === 'heatmap' && (
         <Card className="overflow-x-auto">
-          <CardHeader>
-            <h3 className="font-display font-semibold text-ink">
+          <CardHeader className="rounded-t-card bg-[#0F1F3D]/60">
+            <h3 className="font-display font-semibold text-white">
               Mapa de calor de habilidades por Departamento
             </h3>
           </CardHeader>
           <table className="min-w-full font-body text-xs">
-            <thead className="bg-surface-sunken">
+            <thead>
               <tr>
-                <th className="px-4 py-2 text-left font-medium text-ink-muted">
+                <th className="bg-[#1267B8]/70 px-4 py-2 text-left font-medium text-white">
                   Habilidade
                 </th>
                 {depts.map((dept) => (
                   <th
                     key={dept}
-                    className="whitespace-nowrap px-3 py-2 text-center font-medium text-ink-muted"
+                    className="whitespace-nowrap bg-[#1267B8]/70 px-3 py-2 text-center font-medium text-white"
                   >
                     {dept}
                   </th>
@@ -164,27 +173,38 @@ export function SkillGapsTab() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {heatmap.map((row, i) => (
-                <tr key={i} className="hover:bg-surface-sunken">
-                  <td className="px-4 py-2 font-medium text-ink">
-                    {row.skill}
-                  </td>
-                  {depts.map((dept) => {
-                    const d = row.departments.find(
-                      (x) => x.department === dept,
-                    );
-                    const lvl = d?.avgLevel ?? null;
-                    return (
-                      <td
-                        key={dept}
-                        className={`px-3 py-2 text-center font-semibold ${heatmapCellClass(lvl)}`}
-                      >
-                        {lvl !== null ? lvl.toFixed(1) : '–'}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
+              {heatmap.map((row, i) => {
+                const levels = depts
+                  .map(
+                    (dept) =>
+                      row.departments.find((x) => x.department === dept)
+                        ?.avgLevel,
+                  )
+                  .filter((v): v is number => typeof v === 'number');
+                const rowMin = Math.min(...levels);
+                const rowMax = Math.max(...levels);
+                return (
+                  <tr key={i}>
+                    <td className="px-4 py-2 font-medium text-ink">
+                      {row.skill}
+                    </td>
+                    {depts.map((dept) => {
+                      const d = row.departments.find(
+                        (x) => x.department === dept,
+                      );
+                      const lvl = d?.avgLevel ?? null;
+                      return (
+                        <td
+                          key={dept}
+                          className={`px-3 py-2 text-center font-semibold ${heatmapCellClass(lvl, rowMin, rowMax)}`}
+                        >
+                          {lvl !== null ? lvl.toFixed(1) : '–'}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
           {heatmap.length === 0 && (
