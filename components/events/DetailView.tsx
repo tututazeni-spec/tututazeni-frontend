@@ -10,7 +10,17 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, GraduationCap, KeyRound } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowLeft,
+  Building2,
+  CalendarDays,
+  GraduationCap,
+  Info,
+  KeyRound,
+  MapPin,
+  Users,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -23,15 +33,21 @@ import { cn } from '@/lib/cn';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
+import {
+  headerBackground,
+  PALETTE,
+} from '@/components/onboarding/TemplateCard';
+import { InfoRow, Metric } from './EventListCard';
+import { LogisticsSummaryCard } from './LogisticsSummaryCard';
+import {
+  EVENT_BADGE_COLORS,
+  EVENT_STATUS_ON_DARK,
+  EventBadge,
+} from './EventBadges';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
-import {
-  MODALITY_CFG,
-  PARTICIPANT_STATUS,
-  STATUS_CFG,
-  TYPE_CFG,
-} from './constants';
+import { MODALITY_CFG, PARTICIPANT_STATUS, TYPE_CFG } from './constants';
 import type {
   EventDetail,
   EventModalidade,
@@ -46,8 +62,8 @@ interface DetailViewProps {
 }
 
 const TABS = [
-  { id: 'info', label: 'Informações' },
-  { id: 'participants', label: 'Participantes' },
+  { id: 'info', label: 'Informações', Icon: Info },
+  { id: 'participants', label: 'Participantes', Icon: Users },
 ] as const;
 
 // Linha de estrelas 1-5 reutilizada pelos vários aspectos do formulário de
@@ -183,6 +199,14 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
   const modalityCfg =
     MODALITY_CFG[event.modalidade as EventModalidade] ?? MODALITY_CFG.ONLINE;
   const isLive = event.status === 'LIVE';
+  const palette = PALETTE[Math.abs(event.id) % PALETTE.length];
+  const subtitle = [
+    event.category ?? typeCfg.label,
+    event.department?.name,
+    event.unit?.name,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
     <div>
@@ -191,12 +215,80 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
         Voltar
       </Button>
 
-      {/* Header */}
-      <Card className={cn('mb-5', isLive && 'border-danger')}>
-        <CardBody>
+      {/* Header — desenho NavyStatCard, cor do cartão de rascunho */}
+      <div
+        className={cn(
+          'relative mb-5 overflow-hidden rounded-2xl border bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)]',
+          isLive ? 'border-danger' : 'border-[#D8E2F0]',
+        )}
+      >
+        <div
+          className="flex min-h-[60px] items-center py-2 pl-[80px] pr-4 text-white"
+          style={{ background: headerBackground(palette) }}
+        >
+          <div className="min-w-0">
+            <div className="mb-1.5 flex flex-wrap items-center gap-2">
+              <EventBadge color={EVENT_BADGE_COLORS.type} icon={TypeIcon}>
+                {typeCfg.label}
+              </EventBadge>
+              <EventBadge
+                color={
+                  (
+                    EVENT_STATUS_ON_DARK[event.status as EventStatus] ??
+                    EVENT_STATUS_ON_DARK.PUBLISHED
+                  ).color
+                }
+              >
+                {
+                  (
+                    EVENT_STATUS_ON_DARK[event.status as EventStatus] ??
+                    EVENT_STATUS_ON_DARK.PUBLISHED
+                  ).label
+                }
+              </EventBadge>
+              <EventBadge color={EVENT_BADGE_COLORS.modality}>
+                {modalityCfg.label}
+              </EventBadge>
+              {event.mandatory && (
+                <EventBadge
+                  color={EVENT_BADGE_COLORS.mandatory}
+                  icon={AlertCircle}
+                >
+                  Obrigatório
+                </EventBadge>
+              )}
+              {event.certificateEnabled && (
+                <EventBadge
+                  color={EVENT_BADGE_COLORS.certificate}
+                  icon={GraduationCap}
+                >
+                  Certificado
+                </EventBadge>
+              )}
+            </div>
+            <h1 className="font-display text-xl font-bold leading-tight">
+              {event.title}
+            </h1>
+            <p className="mt-0.5 text-sm text-white/80">{subtitle}</p>
+          </div>
+        </div>
+        <span
+          aria-hidden
+          className="absolute left-4 top-[32px] z-10 flex h-[58px] w-[58px] items-center justify-center rounded-full border-[3px] border-white text-white shadow-sm"
+          style={{ background: palette[3] }}
+        >
+          <TypeIcon size={26} strokeWidth={1.75} />
+        </span>
+        <div className="p-5 pt-6">
           {isLive && (
-            <div className="mb-3 flex items-center gap-2 text-danger">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-danger" />
+            <div
+              role="status"
+              className="mb-4 flex items-center gap-3 rounded-[14px] border border-[#0F1F3D] bg-danger/10 px-4 py-3 text-danger"
+            >
+              <span className="relative flex h-3 w-3 shrink-0">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-danger opacity-60" />
+                <span className="relative inline-flex h-3 w-3 rounded-full bg-danger" />
+              </span>
               <span className="font-body text-sm font-semibold">
                 Evento ao vivo agora
               </span>
@@ -205,39 +297,8 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
 
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <div className="mb-2 flex flex-wrap items-center gap-2">
-                <span
-                  className={cn(
-                    'inline-flex items-center gap-1 rounded px-2 py-0.5 font-body text-xs',
-                    typeCfg.cls,
-                  )}
-                >
-                  <TypeIcon size={12} strokeWidth={1.75} /> {typeCfg.label}
-                </span>
-                <StatusBadge
-                  value={event.status as EventStatus}
-                  map={STATUS_CFG}
-                  fallback={STATUS_CFG.PUBLISHED}
-                />
-                <span className="font-body text-xs text-ink-faint">
-                  {modalityCfg.label}
-                </span>
-                {event.mandatory && (
-                  <span className="font-body text-xs font-semibold text-danger">
-                    Obrigatório
-                  </span>
-                )}
-                {event.certificateEnabled && (
-                  <span className="inline-flex items-center gap-1 font-body text-xs text-success-ink">
-                    <GraduationCap size={12} strokeWidth={1.75} /> Certificado
-                  </span>
-                )}
-              </div>
-              <h1 className="mb-1 font-display text-xl font-bold text-ink">
-                {event.title}
-              </h1>
               {event.description && (
-                <p className="mt-2 font-body text-sm leading-relaxed text-ink-muted">
+                <p className="font-body text-sm leading-relaxed text-ink-muted">
                   {event.description}
                 </p>
               )}
@@ -297,16 +358,47 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
           </div>
 
           {/* Infos */}
-          <div className="mt-4 flex flex-wrap gap-4 font-body text-xs text-ink-faint">
-            <span>
+          <div className="mt-4 flex flex-wrap items-center gap-y-2 divide-x divide-[#E6ECF4]">
+            <Metric icon={CalendarDays}>
               {fmtDateTime(event.startAt)} → {fmtDateTime(event.endAt)}
-            </span>
-            {event.location && <span>{event.location}</span>}
-            <span>
+            </Metric>
+            <Metric icon={Users}>
               {event._count.participants}/{event.maxCapacity} inscritos
-            </span>
-            {event.avgNps && <span>NPS: {event.avgNps}/10</span>}
-            {event.avgRating && <span>{event.avgRating}/5</span>}
+            </Metric>
+            {event.avgNps && (
+              <span className="px-3 font-body text-xs text-ink-faint">
+                NPS: {event.avgNps}/10
+              </span>
+            )}
+            {event.avgRating && (
+              <span className="px-3 font-body text-xs text-ink-faint">
+                {event.avgRating}/5
+              </span>
+            )}
+          </div>
+          <div className="mt-3 space-y-2">
+            <InfoRow
+              accent={palette[3]}
+              leading={
+                <Avatar
+                  name={event.organizer.fullName}
+                  url={event.organizer.avatarUrl ?? undefined}
+                  size="sm"
+                />
+              }
+            >
+              {event.organizer.fullName}
+            </InfoRow>
+            {event.department?.name && (
+              <InfoRow icon={Building2} accent={palette[3]}>
+                {event.department.name}
+              </InfoRow>
+            )}
+            {event.location && (
+              <InfoRow icon={MapPin} accent={palette[3]}>
+                {event.location}
+              </InfoRow>
+            )}
           </div>
 
           {event.tags?.length > 0 && (
@@ -321,8 +413,8 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
               ))}
             </div>
           )}
-        </CardBody>
-      </Card>
+        </div>
+      </div>
 
       {/* Formulário de feedback */}
       {showFeedback && (
@@ -431,23 +523,30 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
       )}
 
       {/* Tabs */}
-      <div className="mb-4 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
+      <div className="mb-4 flex flex-wrap gap-2">
         {TABS.map((t) => (
-          <Button
+          <button
             key={t.id}
-            size="sm"
-            intent={tab === t.id ? 'primary' : 'ghost'}
+            type="button"
+            aria-pressed={tab === t.id}
             onClick={() => setTab(t.id)}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-lg border-[3px] border-[#0F1F3D] px-3.5 py-1.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F1F3D] focus-visible:ring-offset-2',
+              tab === t.id
+                ? 'bg-[#0F1F3D] text-white'
+                : 'bg-white text-[#0F1F3D] hover:bg-[#EEF4FD]',
+            )}
           >
+            <t.Icon size={14} strokeWidth={1.75} />
             {t.id === 'participants'
               ? `${t.label} (${event._count.participants})`
               : t.label}
-          </Button>
+          </button>
         ))}
       </div>
 
       {tab === 'info' && (
-        <Card>
+        <Card className="border-[#0F1F3D] bg-[#0F1F3D]">
           <CardBody>
             <div className="mb-4 flex items-center gap-3">
               <Avatar
@@ -456,10 +555,10 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
                 size="md"
               />
               <div>
-                <div className="font-body text-sm font-medium text-ink">
+                <div className="font-body text-sm font-medium text-white">
                   Organizado por
                 </div>
-                <div className="font-body text-sm text-ink-muted">
+                <div className="font-body text-sm text-white">
                   {event.organizer.fullName}
                 </div>
               </div>
@@ -476,19 +575,21 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
         </Card>
       )}
 
+      {tab === 'info' && <LogisticsSummaryCard eventId={eventId} />}
+
       {tab === 'participants' && (
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden border-[#0F1F3D] bg-[#0F1F3D]">
           {(event.participants ?? []).map((p) => (
             <div
               key={p.userId}
-              className="flex items-center gap-3 border-b border-border px-4 py-3 last:border-0"
+              className="flex items-center gap-3 border-b border-white/15 px-4 py-3 last:border-0"
             >
               <Avatar
                 name={p.user?.fullName ?? 'U'}
                 url={p.user?.avatarUrl ?? undefined}
                 size="sm"
               />
-              <div className="flex-1 font-body text-sm text-ink">
+              <div className="flex-1 font-body text-sm text-white">
                 {p.user?.fullName}
               </div>
               <StatusBadge
@@ -498,7 +599,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
             </div>
           ))}
           {(event.participants ?? []).length === 0 && (
-            <div className="px-4 py-8 text-center font-body text-sm text-ink-faint">
+            <div className="px-4 py-8 text-center font-body text-sm text-white">
               Sem participantes inscritos
             </div>
           )}

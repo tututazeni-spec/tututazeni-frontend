@@ -11,7 +11,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { Mic2, MoreVertical, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
@@ -41,9 +41,14 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
+import { cn } from '@/lib/cn';
+import { resizeImageKeepAspect, MAX_UPLOAD_BYTES } from '@/lib/image';
+import { formatDate, formatTime } from '@/lib/format';
+import { proximityLevel, relativeLabel } from './proximity';
 import { SPEAKER_STATUS_CFG, SPEAKER_TYPE_CFG } from './constants';
 import { useEventPickerOptions } from './eventFormData';
 import type {
+  Event,
   EventSession,
   EventSpeaker,
   EventSpeakerStatus,
@@ -129,6 +134,26 @@ function toForm(s: EventSpeaker | null): SpeakerFormState {
   };
 }
 
+// Foto ocupa todo o card (sangra sobre o padding do Modal), com zoom de entrada.
+function ZoomedPhoto({ name, url }: { name: string; url: string }) {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setShown(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={url}
+      alt={name}
+      className={cn(
+        '-mb-6 -mx-6 block h-auto max-h-[75vh] w-[calc(100%+3rem)] max-w-none object-contain transition-transform duration-300 ease-out',
+        shown ? 'scale-100' : 'scale-[0.2]',
+      )}
+    />
+  );
+}
+
 export function SpeakersGuestsTab() {
   const role = useCurrentRole();
   const canManage = !!role && MANAGE_ROLES.includes(role);
@@ -142,6 +167,34 @@ export function SpeakersGuestsTab() {
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<EventSpeaker | 'new' | null>(null);
   const [form, setForm] = useState<SpeakerFormState>(EMPTY_FORM);
+  const [zoomed, setZoomed] = useState<EventSpeaker | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [photoProcessing, setPhotoProcessing] = useState(false);
+
+  async function onPhotoFile(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (file.size > MAX_UPLOAD_BYTES) {
+      notify({
+        title: 'Imagem demasiado grande (máx. 8 MB)',
+        intent: 'danger',
+      });
+      return;
+    }
+    setPhotoProcessing(true);
+    try {
+      const dataUrl = await resizeImageKeepAspect(file);
+      setForm((f) => ({ ...f, photoUrl: dataUrl }));
+    } catch {
+      notify({
+        title: 'Não foi possível processar a imagem',
+        intent: 'danger',
+      });
+    } finally {
+      setPhotoProcessing(false);
+    }
+  }
 
   const params = {
     page,
@@ -163,6 +216,12 @@ export function SpeakersGuestsTab() {
     },
   );
   const speakers = data?.data ?? [];
+
+  const { data: event } = useApiQuery<Event>(
+    queryKeys.events.detail(eventId ?? 0),
+    `/events/${eventId}`,
+    { enabled: !!eventId, staleTime: STALE_TIME.DYNAMIC },
+  );
 
   const { data: sessionsData } = useApiQuery<Paginated<EventSession>>(
     queryKeys.events.allSessions({ eventId: eventId ?? 0, limit: 100 }),
@@ -322,59 +381,106 @@ export function SpeakersGuestsTab() {
         />
       ) : (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          {speakers.map((s) => (
-            <div
-              key={s.id}
-              className="flex w-full flex-wrap items-center gap-3 border-b border-border px-4 py-3 last:border-0"
-            >
-              <Avatar name={s.name} url={s.photoUrl ?? undefined} size="sm" />
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-body text-sm font-medium text-ink">
-                  {s.name}
+          {speakers.map((s) => {
+            // Data de referência: sessão associada; sem sessão, início do evento.
+            const refDate = s.session?.startAt ?? event?.startAt;
+            const level = refDate ? proximityLevel(refDate) : null;
+            return (
+              <div
+                key={s.id}
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 last:border-0"
+              >
+                <span
+                  className={cn(
+                    'absolute inset-y-2 left-2 w-1 rounded-full',
+                    level?.bar ?? 'bg-ink-faint',
+                  )}
+                />
+                {s.photoUrl ? (
+                  <button
+                    type="button"
+                    aria-label={`Ampliar foto de ${s.name}`}
+                    onClick={() => setZoomed(s)}
+                    className="shrink-0 cursor-zoom-in rounded-full transition-transform hover:scale-110"
+                  >
+                    <Avatar name={s.name} url={s.photoUrl} size="sm" />
+                  </button>
+                ) : (
+                  <Avatar name={s.name} size="sm" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-body text-sm font-semibold text-white">
+                    {s.name}
+                  </div>
+                  <div className="truncate font-body text-xs text-white">
+                    {SPEAKER_TYPE_CFG[s.type].label}
+                    {s.organization && ` · ${s.organization}`}
+                    {s.position && ` · ${s.position}`}
+                  </div>
                 </div>
-                <div className="truncate font-body text-xs text-ink-faint">
-                  {SPEAKER_TYPE_CFG[s.type].label}
-                  {s.organization && ` · ${s.organization}`}
-                  {s.position && ` · ${s.position}`}
+                <div className="hidden w-40 shrink-0 truncate font-body text-xs text-white sm:block">
+                  {s.topic || '—'}
                 </div>
+                <div className="hidden w-40 shrink-0 font-body text-xs text-white md:block">
+                  {s.session ? (
+                    <>
+                      <span className="block truncate">{s.session.title}</span>
+                      <span className="block truncate">
+                        {formatDate(s.session.startAt)} ·{' '}
+                        {formatTime(s.session.startAt)}–
+                        {formatTime(s.session.endAt)}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="block truncate">{s.schedule || '—'}</span>
+                  )}
+                </div>
+                {level && refDate && (
+                  <span
+                    className={cn(
+                      'inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-body text-xs font-semibold',
+                      level.cls,
+                    )}
+                  >
+                    {relativeLabel(refDate)}
+                  </span>
+                )}
+                <StatusBadge
+                  value={s.status}
+                  map={SPEAKER_STATUS_CFG}
+                  variant="dot"
+                />
+                {canManage && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label="Acções do orador/convidado"
+                        className="shrink-0 rounded-control p-1.5 text-white hover:bg-white/10 hover:text-white"
+                      >
+                        <MoreVertical size={16} strokeWidth={1.75} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => openEdit(s)}>
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        disabled={
+                          remove.isPending && remove.variables?.id === s.id
+                        }
+                        onSelect={() => onDelete(s)}
+                      >
+                        {remove.isPending && remove.variables?.id === s.id
+                          ? 'A remover…'
+                          : 'Remover'}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
-              <div className="hidden w-40 shrink-0 truncate font-body text-xs text-ink-faint sm:block">
-                {s.topic || '—'}
-              </div>
-              <div className="hidden w-40 shrink-0 truncate font-body text-xs text-ink-faint md:block">
-                {s.session ? s.session.title : s.schedule || '—'}
-              </div>
-              <StatusBadge value={s.status} map={SPEAKER_STATUS_CFG} />
-              {canManage && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label="Acções do orador/convidado"
-                      className="shrink-0 rounded-control p-1.5 text-ink-faint hover:bg-surface-sunken hover:text-ink"
-                    >
-                      <MoreVertical size={16} strokeWidth={1.75} />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={() => openEdit(s)}>
-                      Editar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      disabled={
-                        remove.isPending && remove.variables?.id === s.id
-                      }
-                      onSelect={() => onDelete(s)}
-                    >
-                      {remove.isPending && remove.variables?.id === s.id
-                        ? 'A remover…'
-                        : 'Remover'}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -384,6 +490,16 @@ export function SpeakersGuestsTab() {
           totalPages={data.meta.totalPages}
           onPageChange={setPage}
         />
+      )}
+
+      {zoomed && (
+        <Modal open onOpenChange={(open) => !open && setZoomed(null)}>
+          <ModalContent title={zoomed.name} className="max-w-md">
+            <div className="mt-4">
+              <ZoomedPhoto name={zoomed.name} url={zoomed.photoUrl ?? ''} />
+            </div>
+          </ModalContent>
+        </Modal>
       )}
 
       {editing && (
@@ -455,15 +571,57 @@ export function SpeakersGuestsTab() {
                     className="w-full"
                   />
                 </FormField>
-                <FormField label="Fotografia (URL)" htmlFor="spk-photo">
-                  <Input
-                    id="spk-photo"
-                    value={form.photoUrl}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, photoUrl: e.target.value }))
-                    }
-                    className="w-full"
-                  />
+                <FormField label="Fotografia" htmlFor="spk-photo">
+                  <div className="space-y-2">
+                    <Input
+                      id="spk-photo"
+                      value={
+                        form.photoUrl.startsWith('data:') ? '' : form.photoUrl
+                      }
+                      placeholder="URL da imagem"
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, photoUrl: e.target.value }))
+                      }
+                      className="w-full"
+                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        ref={photoInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        hidden
+                        onChange={onPhotoFile}
+                      />
+                      <Button
+                        type="button"
+                        intent="secondary"
+                        size="sm"
+                        loading={photoProcessing}
+                        onClick={() => photoInputRef.current?.click()}
+                      >
+                        Carregar ficheiro
+                      </Button>
+                      {form.photoUrl && (
+                        <>
+                          <Avatar
+                            name={form.name || '?'}
+                            url={form.photoUrl}
+                            size="sm"
+                          />
+                          <Button
+                            type="button"
+                            intent="ghost"
+                            size="sm"
+                            onClick={() =>
+                              setForm((f) => ({ ...f, photoUrl: '' }))
+                            }
+                          >
+                            Remover
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </FormField>
               </div>
               <FormField label="Biografia" htmlFor="spk-bio">

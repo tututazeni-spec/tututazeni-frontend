@@ -36,6 +36,8 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
+import { cn } from '@/lib/cn';
+import { proximityLevel, relativeLabel } from './proximity';
 import {
   COMMUNICATION_CHANNEL_CFG,
   COMMUNICATION_STATUS_CFG,
@@ -156,32 +158,53 @@ export function CommunicationTab() {
         />
       ) : (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          {communications.map((c) => (
-            <div
-              key={c.id}
-              className="flex w-full flex-wrap items-center gap-3 border-b border-border px-4 py-3 last:border-0"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-body text-sm font-medium text-ink">
-                  {c.subject}
+          {communications.map((c) => {
+            const level = proximityLevel(c.event.startAt);
+            return (
+              <div
+                key={c.id}
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 last:border-0"
+              >
+                <span
+                  className={cn(
+                    'absolute inset-y-2 left-2 w-1 rounded-full',
+                    level.bar,
+                  )}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-body text-sm font-semibold text-white">
+                    {c.subject}
+                  </div>
+                  <div className="truncate font-body text-xs text-white">
+                    {c.event.title} · {COMMUNICATION_TYPE_CFG[c.type].label} ·{' '}
+                    {c.recipientCount} destinatário
+                    {c.recipientCount === 1 ? '' : 's'}
+                  </div>
                 </div>
-                <div className="truncate font-body text-xs text-ink-faint">
-                  {c.event.title} · {COMMUNICATION_TYPE_CFG[c.type].label} ·{' '}
-                  {c.recipientCount} destinatário
-                  {c.recipientCount === 1 ? '' : 's'}
+                <div className="hidden w-32 shrink-0 font-body text-xs text-white sm:block">
+                  {COMMUNICATION_CHANNEL_CFG[c.channel].label}
                 </div>
+                <div className="hidden w-40 shrink-0 font-body text-xs text-white md:block">
+                  {c.sentAt
+                    ? `${formatDate(c.sentAt)} · ${formatTime(c.sentAt)}`
+                    : '—'}
+                </div>
+                <span
+                  className={cn(
+                    'inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-body text-xs font-semibold',
+                    level.cls,
+                  )}
+                >
+                  {relativeLabel(c.event.startAt)}
+                </span>
+                <StatusBadge
+                  value={c.status}
+                  map={COMMUNICATION_STATUS_CFG}
+                  variant="dot"
+                />
               </div>
-              <div className="hidden w-32 shrink-0 font-body text-xs text-ink-faint sm:block">
-                {COMMUNICATION_CHANNEL_CFG[c.channel].label}
-              </div>
-              <div className="hidden w-40 shrink-0 font-body text-xs text-ink-faint md:block">
-                {c.sentAt
-                  ? `${formatDate(c.sentAt)} · ${formatTime(c.sentAt)}`
-                  : '—'}
-              </div>
-              <StatusBadge value={c.status} map={COMMUNICATION_STATUS_CFG} />
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

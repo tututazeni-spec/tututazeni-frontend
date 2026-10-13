@@ -43,6 +43,8 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { SESSION_STATUS_CFG } from './constants';
+import { proximityLevel, relativeLabel } from './proximity';
+import { cn } from '@/lib/cn';
 import {
   useDepartmentOptions,
   useEventPickerOptions,
@@ -291,36 +293,54 @@ export function ScheduleTab() {
           {sessions.map((s) => (
             <div
               key={s.id}
-              className="flex w-full flex-wrap items-center gap-3 border-b border-border px-4 py-3 last:border-0"
+              className="relative flex w-full flex-wrap items-center gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 last:border-0"
             >
+              <span
+                className={cn(
+                  'absolute inset-y-2 left-2 w-1 rounded-full',
+                  proximityLevel(s.startAt).bar,
+                )}
+              />
               <div className="min-w-0 flex-1">
-                <div className="truncate font-body text-sm font-medium text-ink">
+                <div className="truncate font-body text-sm font-semibold text-white">
                   {s.title}
                 </div>
-                <div className="truncate font-body text-xs text-ink-faint">
+                <div className="truncate font-body text-xs text-white">
                   {s.event?.title ?? `Evento #${s.eventId}`}
                   {s.speaker && ` · Orador: ${s.speaker}`}
                   {s.responsible && ` · Resp.: ${s.responsible.fullName}`}
                 </div>
               </div>
-              <div className="hidden w-40 shrink-0 font-body text-xs text-ink-faint sm:block">
+              <div className="hidden w-40 shrink-0 font-body text-xs text-white sm:block">
                 {formatDate(s.startAt)} · {formatTime(s.startAt)}–
                 {formatTime(s.endAt)}
               </div>
-              <div className="hidden w-24 shrink-0 font-body text-xs text-ink-faint md:block">
+              <div className="hidden w-24 shrink-0 font-body text-xs text-white md:block">
                 {s.durationMinutes}min
               </div>
-              <div className="hidden w-32 shrink-0 truncate font-body text-xs text-ink-faint lg:block">
+              <div className="hidden w-32 shrink-0 truncate font-body text-xs text-white lg:block">
                 {[s.location, s.room].filter(Boolean).join(' · ') || '—'}
               </div>
-              <StatusBadge value={s.status} map={SESSION_STATUS_CFG} />
+              <span
+                className={cn(
+                  'inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-body text-xs font-semibold',
+                  proximityLevel(s.startAt).cls,
+                )}
+              >
+                {relativeLabel(s.startAt)}
+              </span>
+              <StatusBadge
+                value={s.status}
+                map={SESSION_STATUS_CFG}
+                variant="dot"
+              />
               {canManage && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
                       aria-label="Acções da sessão"
-                      className="shrink-0 rounded-control p-1.5 text-ink-faint hover:bg-surface-sunken hover:text-ink"
+                      className="shrink-0 rounded-control p-1.5 text-white hover:bg-white/10 hover:text-white"
                     >
                       <MoreVertical size={16} strokeWidth={1.75} />
                     </button>

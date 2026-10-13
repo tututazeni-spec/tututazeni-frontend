@@ -10,17 +10,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import {
-  BookOpen,
-  CalendarDays,
-  MapPin,
-  Monitor,
-  MoreHorizontal,
-  Plus,
-  Tag,
-  Users,
-  type LucideIcon,
-} from 'lucide-react';
+import { MoreHorizontal, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -30,6 +20,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { ModuleModal } from '@/components/courses-modulos/ModuleModal';
 import { EnrollUserModal } from '@/components/enrollments/EnrollUserModal';
 import { useDepartmentOptions } from '@/components/enrollments/enrollData';
+import { CourseListCard } from './CourseListCard';
 import { EditCourseModal } from './EditCourseModal';
 import { PendingEnrollmentsModal } from './PendingEnrollmentsModal';
 import { Button } from '@/components/ui/Button';
@@ -43,13 +34,7 @@ import {
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import {
-  COURSE_MODALITY_LABELS,
-  COURSE_STATUS_MAP,
-  COURSE_TYPE_LABELS,
-  fmtDuration,
-  Skeleton,
-} from './shared';
+import { COURSE_MODALITY_LABELS, COURSE_TYPE_LABELS, Skeleton } from './shared';
 import type { Course, PaginatedCourses } from './types';
 
 const LEVEL_ITEMS = [
@@ -82,35 +67,6 @@ const MODALITY_ITEMS = [
     label,
   })),
 ];
-
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '?';
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
-  return (parts[0][0] + last).toUpperCase();
-}
-
-interface CourseInfoProps {
-  icon: LucideIcon;
-  value: string;
-  label: string;
-}
-
-function CourseInfo({ icon: Icon, value, label }: CourseInfoProps) {
-  return (
-    <div className="flex min-w-0 items-center gap-2 px-2 sm:px-4">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD]">
-        <Icon size={15} strokeWidth={1.75} />
-      </span>
-      <div className="min-w-0">
-        <div className="text-xs font-semibold leading-tight text-[#0F1F3D]">
-          {value}
-        </div>
-        <div className="text-[11px] leading-tight text-[#71829B]">{label}</div>
-      </div>
-    </div>
-  );
-}
 
 interface GestaoViewProps {
   onSelect: (id: number) => void;
@@ -366,38 +322,24 @@ export function GestaoView({
 
       {!isLoading && courses.length > 0 && (
         <div>
-          <div className="space-y-3">
-            {courses.map((c) => {
-              const noModules = c._count.modules === 0;
-              const levelLabel = LEVEL_ITEMS.find(
-                (l) => l.value === c.level,
-              )?.label;
-              return (
-                <div
-                  key={c.id}
-                  className="overflow-hidden rounded-2xl border border-[#DCE5F1] bg-white shadow-[0_8px_24px_rgba(15,31,61,0.08)]"
-                >
-                  <div className="bg-gradient-to-br from-[#0F1F3D] to-[#132B52] px-4 py-3">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1 basis-48">
-                        <span className="mb-0.5 inline-block rounded-full bg-white/10 px-2 font-mono text-[10px] font-semibold text-[#C7D4E8]">
-                          {c.internalCode ?? '—'}
-                        </span>
-                        <button
-                          type="button"
-                          className="block w-full min-w-0 text-left"
-                          onClick={() => onSelect(c.id)}
-                        >
-                          <h3 className="line-clamp-1 text-base font-semibold uppercase leading-tight text-white">
-                            {c.title}
-                          </h3>
-                        </button>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#263F67] px-2.5 py-1 text-[11px] text-white">
-                          <span aria-hidden>●</span>
-                          {COURSE_STATUS_MAP[c.status]?.label ?? c.status}
-                        </span>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {[...courses]
+              .sort((x, y) => x.id - y.id)
+              .map((c) => {
+                const noModules = c._count.modules === 0;
+                return (
+                  <CourseListCard
+                    key={c.id}
+                    courseId={c.id}
+                    course={{
+                      ...c,
+                      primaryInstructor: c.primaryInstructor ?? null,
+                    }}
+                    mandatory={c.mandatory}
+                    progress={Math.round(c.avgProgress ?? 0)}
+                    progressLabel="Progresso médio"
+                    onSelect={() => onSelect(c.id)}
+                    actions={
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button
@@ -503,73 +445,10 @@ export function GestaoView({
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      </div>
-                    </div>
-                    <div className="mt-2 flex min-w-0 items-center gap-3">
-                      {c.primaryInstructor?.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={c.primaryInstructor.avatarUrl}
-                          alt=""
-                          className="h-8 w-8 shrink-0 rounded-full object-cover"
-                        />
-                      ) : (
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0D6EFD] text-xs font-bold text-white">
-                          {c.primaryInstructor
-                            ? initials(c.primaryInstructor.fullName)
-                            : '?'}
-                        </span>
-                      )}
-                      <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold leading-tight text-white">
-                          {c.primaryInstructor?.fullName ?? 'Sem instrutor'}
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-[#C7D4E8]">
-                          <Tag size={12} strokeWidth={1.75} className="shrink-0" />
-                          <span className="truncate">
-                            {[c.category, levelLabel].filter(Boolean).join(' · ') ||
-                              '—'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-y-3 px-3 py-3 lg:grid-cols-4 lg:gap-y-0">
-                    <CourseInfo
-                      icon={BookOpen}
-                      value={c.type ? COURSE_TYPE_LABELS[c.type] : '—'}
-                      label="Tipo"
-                    />
-                    <div className="lg:border-l lg:border-[#DCE5F1]">
-                      <CourseInfo
-                        icon={c.modality === 'ONLINE' ? Monitor : MapPin}
-                        value={`${c.modality ? COURSE_MODALITY_LABELS[c.modality] : '—'} · ${fmtDuration(c.workloadHours)}`}
-                        label="Modalidade"
-                      />
-                    </div>
-                    <div className="lg:border-l lg:border-[#DCE5F1]">
-                      <CourseInfo
-                        icon={CalendarDays}
-                        value={
-                          c.publishedAt
-                            ? new Date(c.publishedAt).toLocaleDateString('pt')
-                            : '—'
-                        }
-                        label="Publicação"
-                      />
-                    </div>
-                    <div className="lg:border-l lg:border-[#DCE5F1]">
-                      <CourseInfo
-                        icon={Users}
-                        value={`Formandos: ${c._count.enrollments}`}
-                        label={`Progresso médio: ${Math.round(c.avgProgress ?? 0)}%`}
-                      />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+                    }
+                  />
+                );
+              })}
           </div>
         </div>
       )}

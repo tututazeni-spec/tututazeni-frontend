@@ -32,6 +32,8 @@ import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { cn } from '@/lib/cn';
+import { proximityLevel, relativeLabel } from './proximity';
 import { EVALUATION_STATUS_CFG } from './constants';
 import {
   useDepartmentOptions,
@@ -58,9 +60,18 @@ const ASPECTS: Array<{
   { key: 'communicationRating', label: 'Comunicação' },
 ];
 
-function Stars({ value }: { value: number | null }) {
+function Stars({ value, dark }: { value: number | null; dark?: boolean }) {
   if (value == null)
-    return <span className="font-body text-xs text-ink-faint">—</span>;
+    return (
+      <span
+        className={cn(
+          'font-body text-xs',
+          dark ? 'text-white' : 'text-ink-faint',
+        )}
+      >
+        —
+      </span>
+    );
   return (
     <span className="inline-flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map((n) => (
@@ -69,7 +80,11 @@ function Stars({ value }: { value: number | null }) {
           size={13}
           strokeWidth={1.75}
           className={
-            n <= value ? 'fill-accent text-accent' : 'text-border-strong'
+            n <= value
+              ? 'fill-accent text-accent'
+              : dark
+                ? 'text-white/30'
+                : 'text-border-strong'
           }
         />
       ))}
@@ -182,52 +197,74 @@ export function EvaluationTab() {
         />
       ) : (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          {rows.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => p.evaluation && setDetailRow(p)}
-              disabled={!p.evaluation}
-              className="flex w-full flex-wrap items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 enabled:hover:bg-surface-sunken disabled:cursor-default"
-            >
-              <Avatar name={p.user.fullName} size="sm" />
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-body text-sm font-medium text-ink">
-                  {p.user.fullName}
-                </div>
-                <div className="truncate font-body text-xs text-ink-faint">
-                  {p.event.title}
-                  {p.user.department && ` · ${p.user.department.name}`}
-                  {p.user.unit && ` · ${p.user.unit.name}`}
-                </div>
-              </div>
-
-              <div className="hidden w-32 shrink-0 sm:block">
-                <Stars value={p.evaluation?.rating ?? null} />
-              </div>
-              <div className="hidden w-28 shrink-0 font-body text-xs text-ink-faint md:block">
-                {p.evaluation ? `NPS ${p.evaluation.nps}/10` : '—'}
-              </div>
-              <div className="hidden w-40 shrink-0 font-body text-xs text-ink-faint lg:block">
-                {p.evaluation?.createdAt
-                  ? formatDateTime(p.evaluation.createdAt)
-                  : '—'}
-              </div>
-
-              <StatusBadge
-                value={p.evaluationStatus}
-                map={EVALUATION_STATUS_CFG}
-              />
-
-              {p.evaluation?.comment && (
-                <MessageSquareText
-                  size={14}
-                  strokeWidth={1.75}
-                  className="shrink-0 text-ink-faint"
+          {rows.map((p) => {
+            const level = proximityLevel(p.event.startAt);
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => p.evaluation && setDetailRow(p)}
+                disabled={!p.evaluation}
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 text-left last:border-0 enabled:hover:bg-[#162a50] disabled:cursor-default"
+              >
+                <span
+                  className={cn(
+                    'absolute inset-y-2 left-2 w-1 rounded-full',
+                    level.bar,
+                  )}
                 />
-              )}
-            </button>
-          ))}
+                <Avatar
+                  name={p.user.fullName}
+                  url={p.user.avatarUrl ?? undefined}
+                  size="sm"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-body text-sm font-semibold text-white">
+                    {p.user.fullName}
+                  </div>
+                  <div className="truncate font-body text-xs text-white">
+                    {p.event.title}
+                    {p.user.department && ` · ${p.user.department.name}`}
+                    {p.user.unit && ` · ${p.user.unit.name}`}
+                  </div>
+                </div>
+
+                <div className="hidden w-32 shrink-0 sm:block">
+                  <Stars value={p.evaluation?.rating ?? null} dark />
+                </div>
+                <div className="hidden w-28 shrink-0 font-body text-xs text-white md:block">
+                  {p.evaluation ? `NPS ${p.evaluation.nps}/10` : '—'}
+                </div>
+                <div className="hidden w-40 shrink-0 font-body text-xs text-white lg:block">
+                  {p.evaluation?.createdAt
+                    ? formatDateTime(p.evaluation.createdAt)
+                    : '—'}
+                </div>
+
+                <span
+                  className={cn(
+                    'inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-body text-xs font-semibold',
+                    level.cls,
+                  )}
+                >
+                  {relativeLabel(p.event.startAt)}
+                </span>
+                <StatusBadge
+                  value={p.evaluationStatus}
+                  map={EVALUATION_STATUS_CFG}
+                  variant="dot"
+                />
+
+                {p.evaluation?.comment && (
+                  <MessageSquareText
+                    size={14}
+                    strokeWidth={1.75}
+                    className="shrink-0 text-white"
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
 

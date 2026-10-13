@@ -13,8 +13,15 @@ import {
   Ban,
   CalendarCheck,
   CalendarClock,
+  CalendarDays,
+  CalendarX,
+  ClipboardCheck,
+  ClipboardList,
   FileEdit,
+  Hourglass,
   Radio,
+  UserCheck,
+  UserPlus,
   type LucideIcon,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -22,6 +29,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime as fmtDateTime } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { NavyStatGroupCard } from '@/components/ui/NavyStatGroupCard';
@@ -40,6 +48,16 @@ const STATUS_CARD: Record<string, { icon: LucideIcon; tone: NavyStatTone }> = {
   CANCELLED: { icon: Ban, tone: 'red' },
 };
 
+// Uma cor por linha (até 6, o máximo mostrado em RankedList)
+const ROW_COLORS = [
+  '#1877F2',
+  '#218653',
+  '#E99A16',
+  '#EF4657',
+  '#7C5CD6',
+  '#14A3B8',
+];
+
 function RankedList({
   title,
   rows,
@@ -50,42 +68,52 @@ function RankedList({
   const sorted = [...rows].sort((a, b) => b[1] - a[1]).slice(0, 6);
   const max = Math.max(...sorted.map(([, n]) => n), 1);
   return (
-    <div className="rounded-card border border-border bg-surface p-4">
-      <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+    <div className="overflow-hidden rounded-card border border-border bg-surface">
+      <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
-      {sorted.length === 0 ? (
-        <p className="py-4 text-center font-body text-sm text-ink-faint">
-          Sem dados
-        </p>
-      ) : (
-        <div className="space-y-2">
-          {sorted.map(([label, count]) => (
-            <div key={label} className="flex items-center gap-3">
-              <span
-                className="w-28 shrink-0 truncate font-body text-xs text-ink-muted"
-                title={label}
-              >
-                {label}
-              </span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${Math.round((count / max) * 100)}%` }}
-                />
+      <div className="p-4">
+        {sorted.length === 0 ? (
+          <p className="py-4 text-center font-body text-sm text-ink-faint">
+            Sem dados
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {sorted.map(([label, count], i) => (
+              <div key={label} className="flex items-center gap-3">
+                <span
+                  className="w-28 shrink-0 truncate font-body text-xs text-ink-muted"
+                  title={label}
+                >
+                  {label}
+                </span>
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.round((count / max) * 100)}%`,
+                      backgroundColor: ROW_COLORS[i % ROW_COLORS.length],
+                    }}
+                  />
+                </div>
+                <span className="w-6 text-right font-mono text-xs text-ink-faint">
+                  {count}
+                </span>
               </div>
-              <span className="w-6 text-right font-mono text-xs text-ink-faint">
-                {count}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-export function OverviewTab() {
+export function OverviewTab({
+  onOpenStatus,
+}: {
+  /** Abre a lista de eventos já filtrada por este estado. */
+  onOpenStatus?: (status: EventStatus) => void;
+}) {
   const [detailId, setDetailId] = useState<number | null>(null);
   const { data, isLoading, error, refetch } = useApiQuery<EventDashboard>(
     queryKeys.events.dashboard(),
@@ -118,53 +146,73 @@ export function OverviewTab() {
     <div className="space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
-        <KpiCard label="Total de eventos" value={data.total} />
         <KpiCard
+          icon={CalendarDays}
+          label="Total de eventos"
+          value={data.total}
+        />
+        <KpiCard
+          icon={CalendarClock}
           label="Eventos próximos"
+          iconIntent="caution"
           value={data.upcomingCount}
           intent="info"
         />
         <KpiCard
+          icon={Radio}
           label="Eventos em curso"
           value={data.liveCount}
           intent={data.liveCount > 0 ? 'danger' : 'primary'}
         />
-        <KpiCard label="Eventos concluídos" value={data.endedCount} />
         <KpiCard
+          icon={CalendarCheck}
+          label="Eventos concluídos"
+          iconIntent="success"
+          value={data.endedCount}
+        />
+        <KpiCard
+          icon={CalendarX}
           label="Eventos cancelados"
+          iconIntent="danger"
           value={data.cancelledCount}
           intent={data.cancelledCount > 0 ? 'warning' : 'primary'}
         />
         <KpiCard
+          icon={UserPlus}
           label="Participantes inscritos"
           value={data.registeredParticipants}
           intent="accent"
         />
         <KpiCard
+          icon={UserCheck}
           label="Participantes confirmados"
           value={data.confirmedParticipants}
           intent="success"
         />
-        <KpiCard
+        <DonutStatCard
           label="Taxa de participação"
-          value={`${data.participationRate}%`}
-          intent={data.participationRate >= 70 ? 'success' : 'warning'}
+          value={data.participationRate}
         />
       </div>
 
       <div className="grid grid-cols-3 gap-3">
         <KpiCard
+          icon={Hourglass}
           label="Inscrições pendentes"
+          iconIntent="caution"
           value={data.pendingRegistrations}
           intent={data.pendingRegistrations > 0 ? 'warning' : 'primary'}
         />
         <KpiCard
+          icon={ClipboardCheck}
           label="Check-ins realizados"
           value={data.checkinsDone}
           intent="success"
         />
         <KpiCard
+          icon={ClipboardList}
           label="Avaliações pendentes"
+          iconIntent="warning"
           value={data.pendingEvaluations}
           intent={data.pendingEvaluations > 0 ? 'warning' : 'primary'}
         />
@@ -181,6 +229,9 @@ export function OverviewTab() {
             tone: look.tone,
             label: cfg.label,
             value: data.byStatus[status] ?? 0,
+            onClick: onOpenStatus
+              ? () => onOpenStatus(status as EventStatus)
+              : undefined,
           };
         })}
       />
@@ -200,7 +251,7 @@ export function OverviewTab() {
 
       {/* Próximos eventos */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
           Próximos eventos
         </div>
         {data.upcomingEvents.length === 0 ? (
@@ -222,9 +273,14 @@ export function OverviewTab() {
                 className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
               >
                 <span
-                  className={`inline-flex items-center gap-1 rounded px-2 py-0.5 font-body text-xs ${typeCfg.cls}`}
+                  className={`inline-flex items-center gap-1 rounded px-2 py-0.5 font-body text-xs ${typeCfg.cls} !text-black`}
                 >
-                  <TypeIcon size={12} strokeWidth={1.75} /> {typeCfg.label}
+                  <TypeIcon
+                    size={12}
+                    strokeWidth={1.75}
+                    className="text-black"
+                  />{' '}
+                  {typeCfg.label}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-body text-sm font-medium text-ink">
@@ -240,7 +296,11 @@ export function OverviewTab() {
                 <div className="w-16 shrink-0 text-right font-mono text-xs text-ink-faint">
                   {e._count.participants} insc.
                 </div>
-                <StatusBadge value={e.status as EventStatus} map={STATUS_CFG} />
+                <StatusBadge
+                  value={e.status as EventStatus}
+                  map={STATUS_CFG}
+                  className="!text-black"
+                />
               </button>
             );
           })

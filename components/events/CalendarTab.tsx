@@ -28,6 +28,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { STATUS_CFG, TYPE_CFG } from './constants';
 import { DetailView } from './DetailView';
+import { PROXIMITY_LEVELS, proximityLevel, relativeLabel } from './proximity';
 import { useDepartmentOptions, useUnitOptions } from './eventFormData';
 import type { EventCalendarItem } from './types';
 
@@ -292,19 +293,31 @@ function EventChip({
   ev: EventCalendarItem;
   onSelect: (id: number) => void;
 }) {
-  const typeCfg = TYPE_CFG[ev.type] ?? TYPE_CFG.CORPORATE;
+  const level = proximityLevel(ev.startAt);
+  const past = level === PROXIMITY_LEVELS[0];
+  const tooltip = [
+    ev.title,
+    formatTime(ev.startAt),
+    ev.location,
+    `${ev.participants} inscrito${ev.participants === 1 ? '' : 's'}`,
+  ]
+    .filter(Boolean)
+    .join(' · ');
   return (
     <button
       type="button"
       onClick={() => onSelect(ev.id)}
       className={cn(
-        'flex w-full items-center gap-1 truncate rounded px-1.5 py-0.5 text-left font-body text-[11px]',
-        typeCfg.cls,
+        'flex h-[22px] w-full items-center gap-1.5 overflow-hidden rounded-sm px-1.5 text-left font-body text-[11px] hover:brightness-110',
+        level.cls,
+        past && 'opacity-70',
       )}
-      title={ev.title}
+      title={tooltip}
     >
-      <span className="font-mono">{formatTime(ev.startAt)}</span>
-      <span className="truncate">{ev.title}</span>
+      <span className="shrink-0 font-mono">{formatTime(ev.startAt)}</span>
+      <span className={cn('truncate font-medium', past && 'line-through')}>
+        {ev.title}
+      </span>
     </button>
   );
 }
@@ -330,17 +343,18 @@ function MonthGrid({
     return days;
   }, [range]);
   const today = new Date();
+  const [expandedDay, setExpandedDay] = useState<string | null>(null);
   const WEEKDAY_LABELS = cells
     .slice(0, 7)
     .map((d) => d.toLocaleDateString('pt-AO', { weekday: 'short' }));
 
   return (
     <Card className="overflow-hidden p-0">
-      <div className="grid grid-cols-7 border-b border-border bg-surface-sunken">
+      <div className="grid grid-cols-7 border-b border-border bg-[#0F1F3D]/60">
         {WEEKDAY_LABELS.map((label, i) => (
           <div
             key={i}
-            className="px-2 py-1.5 text-center font-body text-xs font-medium capitalize text-ink-muted"
+            className="cursor-default select-none px-2 py-1.5 text-center font-body text-xs font-medium capitalize text-white"
           >
             {label}
           </div>
@@ -350,21 +364,22 @@ function MonthGrid({
         {cells.map((day) => {
           const events = byDay.get(dayKey(day)) ?? [];
           const inMonth = day.getMonth() === anchor.getMonth();
-          const visible = events.slice(0, 3);
+          const expanded = expandedDay === dayKey(day);
+          const visible = expanded ? events : events.slice(0, 2);
           const overflow = events.length - visible.length;
           return (
             <div
               key={dayKey(day)}
               className={cn(
-                'min-h-[92px] space-y-0.5 border-b border-r border-border p-1',
+                'flex min-h-[92px] flex-col border-b border-r border-border p-1',
                 !inMonth && 'bg-surface-sunken/40',
               )}
             >
               <div
                 className={cn(
-                  'mb-0.5 font-body text-xs',
+                  'mb-0.5 self-start font-body text-xs',
                   isSameDay(day, today)
-                    ? 'font-bold text-primary'
+                    ? 'inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary font-bold text-white'
                     : inMonth
                       ? 'text-ink-muted'
                       : 'text-ink-faint',
@@ -372,17 +387,33 @@ function MonthGrid({
               >
                 {day.getDate()}
               </div>
-              {visible.map((ev) => (
-                <EventChip key={ev.id} ev={ev} onSelect={onSelect} />
-              ))}
-              {overflow > 0 && (
-                <div className="px-1 font-body text-[11px] text-ink-faint">
-                  +{overflow} mais
-                </div>
-              )}
+              <div className="flex flex-1 flex-col justify-center space-y-0.5 pb-1">
+                {visible.map((ev) => (
+                  <EventChip key={ev.id} ev={ev} onSelect={onSelect} />
+                ))}
+                {(overflow > 0 || expanded) && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setExpandedDay(expanded ? null : dayKey(day))
+                    }
+                    className="px-1 font-body text-[11px] text-primary hover:underline"
+                  >
+                    {expanded ? 'Ver menos' : `+${overflow} mais`}
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}
+      </div>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-3 py-2 font-body text-[11px] text-ink-muted">
+        {PROXIMITY_LEVELS.map((l) => (
+          <span key={l.label} className="inline-flex items-center gap-1.5">
+            <span className={cn('h-2.5 w-4 rounded-sm', l.bar)} />
+            {l.label}
+          </span>
+        ))}
       </div>
     </Card>
   );
@@ -395,18 +426,31 @@ function DayEventRow({
   ev: EventCalendarItem;
   onSelect: (id: number) => void;
 }) {
+  const level = proximityLevel(ev.startAt);
+  const typeCfg = TYPE_CFG[ev.type];
+  const TypeIcon = typeCfg?.icon;
   return (
     <button
       type="button"
       onClick={() => onSelect(ev.id)}
-      className="flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left hover:bg-surface-sunken"
+      className="relative flex w-full flex-wrap items-center gap-3 py-3 pl-5 pr-4 text-left transition-colors hover:bg-surface-sunken"
     >
-      <span className="w-14 shrink-0 font-mono text-xs text-ink-faint">
+      <span
+        className={cn('absolute inset-y-2 left-2 w-1 rounded-full', level.bar)}
+      />
+      <span
+        className={cn(
+          'w-16 shrink-0 rounded-md py-1 text-center font-mono text-xs font-semibold',
+          level.cls,
+        )}
+      >
         {formatTime(ev.startAt)}
       </span>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-medium text-ink">{ev.title}</div>
-        <div className="flex flex-wrap items-center gap-2 text-xs text-ink-faint">
+        <div className="truncate text-sm font-semibold text-ink">
+          {ev.title}
+        </div>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-ink-faint">
           {ev.location && <span>{ev.location}</span>}
           {ev.responsible && <span>{ev.responsible.fullName}</span>}
           <span>
@@ -416,13 +460,22 @@ function DayEventRow({
       </div>
       <span
         className={cn(
-          'rounded px-2 py-0.5 font-body text-xs font-medium',
-          TYPE_CFG[ev.type]?.cls,
+          'inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-body text-xs font-semibold',
+          level.cls,
         )}
       >
-        {TYPE_CFG[ev.type]?.label ?? ev.type}
+        {relativeLabel(ev.startAt)}
       </span>
-      <StatusBadge value={ev.status} map={STATUS_CFG} />
+      <span
+        className={cn(
+          'inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 font-body text-xs font-medium',
+          typeCfg?.cls,
+        )}
+      >
+        {TypeIcon && <TypeIcon size={12} strokeWidth={1.75} />}
+        {typeCfg?.label ?? ev.type}
+      </span>
+      <StatusBadge value={ev.status} map={STATUS_CFG} variant="dot" />
     </button>
   );
 }
@@ -452,7 +505,7 @@ function WeekList({
         const events = byDay.get(dayKey(day)) ?? [];
         return (
           <Card key={dayKey(day)} className="overflow-hidden p-0">
-            <div className="border-b border-border bg-surface-sunken px-4 py-2 font-body text-xs font-medium capitalize text-ink-muted">
+            <div className="cursor-default select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-2 font-body text-xs font-medium capitalize text-white">
               {formatDate(day, {
                 weekday: 'long',
                 day: '2-digit',
@@ -528,7 +581,7 @@ function AgendaList({
     <div className="space-y-3">
       {groups.map(([day, events]) => (
         <Card key={day} className="overflow-hidden p-0">
-          <div className="border-b border-border bg-surface-sunken px-4 py-2 font-body text-xs font-medium capitalize text-ink-muted">
+          <div className="cursor-default select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-2 font-body text-xs font-medium capitalize text-white">
             {formatDate(day, {
               weekday: 'long',
               day: '2-digit',

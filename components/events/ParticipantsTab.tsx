@@ -41,6 +41,8 @@ import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { cn } from '@/lib/cn';
+import { proximityLevel, relativeLabel } from './proximity';
 import { PARTICIPANT_STATUS } from './constants';
 import {
   useDepartmentOptions,
@@ -49,6 +51,7 @@ import {
 } from './eventFormData';
 import type {
   AddParticipantsResult,
+  Event,
   EventParticipantRow,
   ParticipantStatus,
 } from './types';
@@ -98,6 +101,13 @@ export function ParticipantsTab() {
       filters.departmentId === 'ALL' ? undefined : filters.departmentId,
     unitId: filters.unitId === 'ALL' ? undefined : filters.unitId,
   };
+
+  const { data: event } = useApiQuery<Event>(
+    queryKeys.events.detail(eventId ?? 0),
+    `/events/${eventId}`,
+    { enabled: !!eventId, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const level = event ? proximityLevel(event.startAt) : null;
 
   const { data, isLoading, error, refetch } = useApiQuery<
     Paginated<EventParticipantRow>
@@ -272,38 +282,44 @@ export function ParticipantsTab() {
             return (
               <div
                 key={p.id}
-                className="flex w-full flex-wrap items-center gap-3 border-b border-border px-4 py-3 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 last:border-0"
               >
+                <span
+                  className={cn(
+                    'absolute inset-y-2 left-2 w-1 rounded-full',
+                    level?.bar ?? 'bg-ink-faint',
+                  )}
+                />
                 <Avatar
                   name={p.user.fullName}
                   url={p.user.avatarUrl ?? undefined}
                   size="sm"
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-medium text-ink">
+                  <div className="truncate font-body text-sm font-semibold text-white">
                     {p.user.fullName}
                     {p.user.employeeNumber && (
-                      <span className="ml-1.5 font-mono text-xs text-ink-faint">
+                      <span className="ml-1.5 font-mono text-xs text-white">
                         #{p.user.employeeNumber}
                       </span>
                     )}
                   </div>
-                  <div className="truncate font-body text-xs text-ink-faint">
+                  <div className="truncate font-body text-xs text-white">
                     {p.user.position?.name ?? '—'}
                     {p.user.department && ` · ${p.user.department.name}`}
                     {p.user.unit && ` · ${p.user.unit.name}`}
                   </div>
                 </div>
 
-                <div className="hidden w-32 shrink-0 font-body text-xs text-ink-faint sm:block">
+                <div className="hidden w-32 shrink-0 font-body text-xs text-white sm:block">
                   Inscrito {formatDate(p.registeredAt)}
                 </div>
-                <div className="hidden w-32 shrink-0 font-body text-xs text-ink-faint md:block">
+                <div className="hidden w-32 shrink-0 font-body text-xs text-white md:block">
                   {p.confirmedAt
                     ? `Confirmado ${formatDate(p.confirmedAt)}`
                     : '—'}
                 </div>
-                <div className="hidden w-32 shrink-0 font-body text-xs text-ink-faint lg:block">
+                <div className="hidden w-32 shrink-0 font-body text-xs text-white lg:block">
                   {p.checkedInAt ? formatTime(p.checkedInAt) : '—'}
                   {p.checkedOutAt ? ` → ${formatTime(p.checkedOutAt)}` : ''}
                 </div>
@@ -320,7 +336,21 @@ export function ParticipantsTab() {
                   )}
                 </div>
 
-                <StatusBadge value={p.status} map={PARTICIPANT_STATUS} />
+                {level && event && (
+                  <span
+                    className={cn(
+                      'inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-body text-xs font-semibold',
+                      level.cls,
+                    )}
+                  >
+                    {relativeLabel(event.startAt)}
+                  </span>
+                )}
+                <StatusBadge
+                  value={p.status}
+                  map={PARTICIPANT_STATUS}
+                  variant="dot"
+                />
 
                 {(canApprove || canReject || canCancel) && (
                   <DropdownMenu>
@@ -328,7 +358,7 @@ export function ParticipantsTab() {
                       <button
                         type="button"
                         aria-label="Acções da inscrição"
-                        className="shrink-0 rounded-control p-1.5 text-ink-faint hover:bg-surface-sunken hover:text-ink"
+                        className="shrink-0 rounded-control p-1.5 text-white hover:bg-white/10 hover:text-white"
                       >
                         <MoreVertical size={16} strokeWidth={1.75} />
                       </button>

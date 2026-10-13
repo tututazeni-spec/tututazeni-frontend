@@ -249,6 +249,7 @@ export interface EventLogistics {
   eventId: number;
   responsibleId: number | null;
   equipment: EventEquipmentType[];
+  customEquipment?: string[];
   resourcesNeeded: string | null;
   suppliers: string | null;
   catering: string | null;
@@ -323,7 +324,7 @@ export interface EventCommunication {
   status: EventCommunicationStatus;
   sentAt: string | null;
   createdAt: string;
-  event: { id: number; title: string };
+  event: { id: number; title: string; startAt: string };
   createdBy: { id: number; fullName: string };
 }
 
@@ -345,10 +346,11 @@ export interface EventCheckinRow {
   checkinNote: string | null;
   checkinState: EventCheckinState;
   durationMinutes: number | null;
-  event: { id: number; title: string };
+  event: { id: number; title: string; startAt: string };
   user: {
     id: number;
     fullName: string;
+    avatarUrl: string | null;
     department: { id: number; name: string } | null;
     unit: { id: number; name: string } | null;
   };
@@ -393,10 +395,11 @@ export interface EventEvaluationRow {
   eventId: number;
   status: ParticipantStatus;
   registeredAt: string;
-  event: { id: number; title: string };
+  event: { id: number; title: string; startAt: string };
   user: {
     id: number;
     fullName: string;
+    avatarUrl: string | null;
     department: { id: number; name: string } | null;
     unit: { id: number; name: string } | null;
   };

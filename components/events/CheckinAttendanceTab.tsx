@@ -49,6 +49,8 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
+import { cn } from '@/lib/cn';
+import { proximityLevel, relativeLabel } from './proximity';
 import {
   CHECKIN_METHOD_CFG,
   CHECKIN_STATE_CFG,
@@ -244,36 +246,59 @@ export function CheckinAttendanceTab() {
               checkoutMutation.variables?.id === p.id;
             const canCheckIn = !p.checkedInAt;
             const canCheckOut = !!p.checkedInAt && !p.checkedOutAt;
+            const level = proximityLevel(p.event.startAt);
 
             return (
               <div
                 key={p.id}
-                className="flex w-full flex-wrap items-center gap-3 border-b border-border px-4 py-3 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 last:border-0"
               >
-                <Avatar name={p.user.fullName} size="sm" />
+                <span
+                  className={cn(
+                    'absolute inset-y-2 left-2 w-1 rounded-full',
+                    level.bar,
+                  )}
+                />
+                <Avatar
+                  name={p.user.fullName}
+                  url={p.user.avatarUrl ?? undefined}
+                  size="sm"
+                />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-medium text-ink">
+                  <div className="truncate font-body text-sm font-semibold text-white">
                     {p.user.fullName}
                   </div>
-                  <div className="truncate font-body text-xs text-ink-faint">
+                  <div className="truncate font-body text-xs text-white">
                     {p.event.title}
                     {p.user.department && ` · ${p.user.department.name}`}
                     {p.user.unit && ` · ${p.user.unit.name}`}
                   </div>
                 </div>
 
-                <div className="hidden w-40 shrink-0 font-body text-xs text-ink-faint md:block">
+                <div className="hidden w-40 shrink-0 font-body text-xs text-white md:block">
                   {p.checkedInAt ? formatTime(p.checkedInAt) : '—'}
                   {p.checkedOutAt ? ` → ${formatTime(p.checkedOutAt)}` : ''}
                   {p.durationMinutes != null && ` (${p.durationMinutes} min)`}
                 </div>
-                <div className="hidden w-32 shrink-0 font-body text-xs text-ink-faint lg:block">
+                <div className="hidden w-32 shrink-0 font-body text-xs text-white lg:block">
                   {p.checkinMethod
                     ? CHECKIN_METHOD_CFG[p.checkinMethod].label
                     : '—'}
                 </div>
 
-                <StatusBadge value={p.checkinState} map={CHECKIN_STATE_CFG} />
+                <span
+                  className={cn(
+                    'inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-body text-xs font-semibold',
+                    level.cls,
+                  )}
+                >
+                  {relativeLabel(p.event.startAt)}
+                </span>
+                <StatusBadge
+                  value={p.checkinState}
+                  map={CHECKIN_STATE_CFG}
+                  variant="dot"
+                />
 
                 {(canCheckIn || canCheckOut) && (
                   <DropdownMenu>
@@ -281,7 +306,7 @@ export function CheckinAttendanceTab() {
                       <button
                         type="button"
                         aria-label="Acções de presença"
-                        className="shrink-0 rounded-control p-1.5 text-ink-faint hover:bg-surface-sunken hover:text-ink"
+                        className="shrink-0 rounded-control p-1.5 text-white hover:bg-white/10 hover:text-white"
                       >
                         <MoreVertical size={16} strokeWidth={1.75} />
                       </button>

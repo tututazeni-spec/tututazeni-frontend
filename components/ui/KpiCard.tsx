@@ -5,7 +5,11 @@
 // ao lado do valor.
 import type { LucideIcon } from 'lucide-react';
 import { BarChart3 } from 'lucide-react';
-import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
+import {
+  NavyStatCard,
+  type NavyIconTone,
+  type NavyStatTone,
+} from '@/components/ui/NavyStatCard';
 
 const INTENT_TONE = {
   primary: 'blue',
@@ -16,6 +20,11 @@ const INTENT_TONE = {
   danger: 'red',
 } as const satisfies Record<string, NavyStatTone>;
 
+const ICON_TONE = {
+  ...INTENT_TONE,
+  caution: 'yellow',
+} as const satisfies Record<string, NavyIconTone>;
+
 export interface KpiCardProps {
   icon?: LucideIcon;
   label: string;
@@ -24,6 +33,8 @@ export interface KpiCardProps {
   /** % — positivo mostra seta a subir a verde, negativo a descer a vermelho. */
   trend?: number;
   intent?: keyof typeof INTENT_TONE;
+  /** Cor só do círculo do ícone (omisso: segue `intent`). */
+  iconIntent?: keyof typeof ICON_TONE;
   className?: string;
 }
 
@@ -34,12 +45,14 @@ export function KpiCard({
   sub,
   trend,
   intent = 'primary',
+  iconIntent,
   className,
 }: KpiCardProps) {
   return (
     <NavyStatCard
       icon={icon ?? BarChart3}
       tone={INTENT_TONE[intent]}
+      iconTone={iconIntent && ICON_TONE[iconIntent]}
       label={label}
       value={value}
       sub={sub}

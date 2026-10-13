@@ -13,6 +13,11 @@
 'use client';
 
 import {
+  headerBackground,
+  PALETTE,
+} from '@/components/onboarding/TemplateCard';
+import type { ComponentType, ReactNode } from 'react';
+import {
   ArrowLeft,
   Check,
   Star,
@@ -29,6 +34,7 @@ import {
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
@@ -201,15 +207,12 @@ export function CourseDetailView({
           </div>
 
           {/* Sidebar — lista de aulas */}
-          <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
-              Conteúdo do curso
-            </div>
-            <div className="overflow-y-auto max-h-[450px]">
+          <Section title="Conteúdo do curso" soft bare className="self-start">
+            <div className="max-h-[450px] overflow-y-auto">
               {(progress?.modules ?? []).map((mod) => (
                 <div key={mod.id}>
-                  <div className="px-4 py-2 bg-surface-sunken border-b border-border">
-                    <div className="text-xs font-medium text-ink-muted">
+                  <div className="border-b border-border bg-surface-sunken px-4 py-2">
+                    <div className="text-xs font-semibold text-ink">
                       {mod.title}
                     </div>
                     <div className="text-xs text-ink-faint">
@@ -220,14 +223,14 @@ export function CourseDetailView({
                     <div
                       key={lesson.id}
                       onClick={() => onSelectLesson(lesson)}
-                      className={`flex items-center gap-3 px-4 py-2.5 border-b border-border cursor-pointer transition-colors ${
+                      className={`flex cursor-pointer items-center gap-3 border-b border-border px-4 py-2.5 transition-colors ${
                         activeLesson?.id === lesson.id
                           ? 'bg-primary-subtle'
                           : 'hover:bg-surface-sunken'
                       }`}
                     >
                       <div
-                        className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${
+                        className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs ${
                           lesson.completed
                             ? 'bg-success-subtle text-success-ink'
                             : 'bg-surface-sunken text-ink-faint'
@@ -239,9 +242,9 @@ export function CourseDetailView({
                           <LessonIcon type={lesson.type} />
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div
-                          className={`text-xs truncate ${activeLesson?.id === lesson.id ? 'text-primary font-medium' : 'text-ink-muted'}`}
+                          className={`truncate text-xs ${activeLesson?.id === lesson.id ? 'font-medium text-primary' : 'text-ink-muted'}`}
                         >
                           {lesson.title}
                         </div>
@@ -256,52 +259,73 @@ export function CourseDetailView({
                 </div>
               ))}
             </div>
-          </Card>
+          </Section>
         </div>
       ) : (
         /* Header do curso (não matriculado) */
         <div className="grid grid-cols-[1fr_320px] gap-6 mb-6">
           <div>
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              {course.category && (
-                <span className="text-xs text-primary font-medium">
-                  {course.category}
-                </span>
-              )}
-              <StatusBadge value={course.level} map={COURSE_LEVEL_MAP} />
-              <StatusBadge
-                value={course.status}
-                map={COURSE_STATUS_MAP}
-                variant="dot"
-              />
-              {course.mandatory && <Badge intent="danger">Obrigatório</Badge>}
-            </div>
-            <h1 className="text-2xl font-semibold text-ink mb-2">
-              {course.title}
-            </h1>
-            {course.shortDescription && (
-              <p className="text-sm text-ink-muted mb-4">
-                {course.shortDescription}
-              </p>
-            )}
-            <div className="flex flex-wrap gap-4 text-sm text-ink-muted mb-4">
-              {course.workloadHours && (
-                <span className="inline-flex items-center gap-1">
-                  <Clock size={12} strokeWidth={1.75} />{' '}
-                  {fmtDuration(course.workloadHours)}
-                </span>
-              )}
-              <span className="inline-flex items-center gap-1">
-                <Users size={12} strokeWidth={1.75} />{' '}
-                {course._count.enrollments} matriculados
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <ClipboardList size={12} strokeWidth={1.75} />{' '}
-                {course._count.modules} módulos
-              </span>
-              {course.internalCode && (
-                <span className="font-mono text-xs">{course.internalCode}</span>
-              )}
+            <div className="mb-4">
+              <NavyHeroCard
+                className="block"
+                surfaceClassName="border-[#0F1F3D] bg-[#0F1F3D]"
+                whiteDrawings
+              >
+                <div>
+                  <div className="mb-3 flex flex-wrap items-center gap-2">
+                    <StatusBadge value={course.level} map={COURSE_LEVEL_MAP} />
+                    <StatusBadge
+                      value={course.status}
+                      map={COURSE_STATUS_MAP}
+                      variant="dot"
+                    />
+                    {course.mandatory && (
+                      <Badge intent="danger">Obrigatório</Badge>
+                    )}
+                  </div>
+                  <h1 className="mb-1 text-3xl font-semibold leading-tight tracking-tight text-white">
+                    {course.title}
+                  </h1>
+                  {course.category && (
+                    <div className="mb-3 text-sm font-medium text-white">
+                      {course.category}
+                    </div>
+                  )}
+                  {course.shortDescription && (
+                    <p className="max-w-[60ch] text-sm leading-relaxed text-white">
+                      {course.shortDescription}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-wrap mt-5 -mb-2 gap-x-6 gap-y-2 text-sm text-white">
+                  {course.workloadHours && (
+                    <span className="inline-flex items-center gap-2 ">
+                      <Clock
+                        size={14}
+                        strokeWidth={1.75}
+                        className="text-white"
+                      />
+                      {fmtDuration(course.workloadHours)}
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-2 ">
+                    <Users
+                      size={14}
+                      strokeWidth={1.75}
+                      className="text-white"
+                    />
+                    {course._count.enrollments} matriculados
+                  </span>
+                  <span className="inline-flex items-center gap-2 ">
+                    <ClipboardList
+                      size={14}
+                      strokeWidth={1.75}
+                      className="text-white"
+                    />
+                    {course._count.modules} módulos
+                  </span>
+                </div>
+              </NavyHeroCard>
             </div>
             {course.learningObjectives.length > 0 && (
               <div className="bg-success-subtle rounded-card p-4 mb-4">
@@ -324,7 +348,14 @@ export function CourseDetailView({
           </div>
 
           {/* CTA card */}
-          <Card className="p-5">
+          <Card
+            className="border-transparent p-5 text-white"
+            style={{
+              background: headerBackground(
+                PALETTE[Math.abs(course.id) % PALETTE.length],
+              ),
+            }}
+          >
             {course.thumbnailUrl && (
               <div className="aspect-video rounded-control overflow-hidden mb-4 relative">
                 <CourseThumbnail src={course.thumbnailUrl} alt={course.title} />
@@ -344,7 +375,10 @@ export function CourseDetailView({
               </Button>
             )}
             {!isEnrolled && course.status !== 'PUBLISHED' && (
-              <Button disabled className="w-full">
+              <Button
+                disabled
+                className="w-full !border-[#0F1F3D] !bg-[#0F1F3D] !text-white !opacity-100"
+              >
                 Curso indisponível
               </Button>
             )}
@@ -357,7 +391,7 @@ export function CourseDetailView({
                 {!pendingApproval && (
                   <>
                     <ProgressBar value={progressPct} className="h-2.5" />
-                    <div className="text-xs text-ink-faint text-center mb-2">
+                    <div className="text-xs text-white/80 text-center mb-2">
                       {progressPct}% concluído
                     </div>
                     {/* docs/06-modulo-courses.md secção 2 — "Continuar curso" /
@@ -419,340 +453,352 @@ export function CourseDetailView({
         </Card>
       )}
 
-      {/* Sobre o curso — secção 3 */}
-      {(course.description ||
-        course.targetAudience.length > 0 ||
-        course.requiredCourse) && (
-        <Card className="p-5 mb-6">
-          <div className="text-sm font-semibold text-ink mb-3">
-            Sobre o curso
-          </div>
-          {course.description && (
-            <p className="text-sm text-ink-muted whitespace-pre-wrap mb-3">
-              {course.description}
-            </p>
+      {/* Corpo: coluna principal + coluna lateral */}
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="space-y-6">
+          {(course.description ||
+            course.targetAudience.length > 0 ||
+            course.requiredCourse) && (
+            <Section title="Sobre o curso" soft>
+              {course.description && (
+                <p className="mb-4 max-w-[68ch] whitespace-pre-wrap text-sm leading-relaxed text-ink">
+                  {course.description}
+                </p>
+              )}
+              {course.targetAudience.length > 0 && (
+                <div className="mb-4">
+                  <div className="mb-1.5 text-xs font-semibold text-ink-muted">
+                    Para quem se destina
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {course.targetAudience.map((t, i) => (
+                      <Badge key={i} intent="neutral">
+                        {t}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {course.requiredCourse && (
+                <div className="rounded-control bg-surface-sunken px-3 py-2 text-xs text-ink-muted">
+                  <span className="font-semibold text-ink">Pré-requisito:</span>{' '}
+                  {course.requiredCourse.title}
+                </div>
+              )}
+            </Section>
           )}
-          {course.targetAudience.length > 0 && (
-            <div className="mb-3">
-              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-1">
-                Para quem se destina
-              </div>
+
+          {course.competencies.length > 0 && (
+            <Section title="Competências desenvolvidas" icon={Layers}>
               <div className="flex flex-wrap gap-1.5">
-                {course.targetAudience.map((t, i) => (
-                  <Badge key={i} intent="neutral">
-                    {t}
+                {course.competencies.map((c) => (
+                  <Badge key={c.competency.id} intent="info">
+                    {c.competency.name}
                   </Badge>
                 ))}
               </div>
-            </div>
+            </Section>
           )}
-          {course.requiredCourse && (
-            <div className="text-xs text-ink-muted">
-              <span className="font-medium">Pré-requisito:</span>{' '}
-              {course.requiredCourse.title}
-            </div>
-          )}
-        </Card>
-      )}
 
-      {/* Competências desenvolvidas — secção 6 */}
-      {course.competencies.length > 0 && (
-        <Card className="p-5 mb-6">
-          <div className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-            <Layers size={16} strokeWidth={1.75} /> Competências desenvolvidas
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {course.competencies.map((c) => (
-              <Badge key={c.competency.id} intent="info">
-                {c.competency.name}
-              </Badge>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {/* Instrutor(es) — secção 7 */}
-      {(course.primaryInstructor || (course.instructors?.length ?? 0) > 0) && (
-        <Card className="p-5 mb-6">
-          <div className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-            <GraduationCap size={16} strokeWidth={1.75} /> Instrutor(es)
-          </div>
-          <div className="space-y-3">
-            {course.primaryInstructor && (
-              <div className="flex items-center gap-3">
-                {course.primaryInstructor.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={course.primaryInstructor.avatarUrl}
-                    alt={course.primaryInstructor.fullName}
-                    className="w-9 h-9 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-primary-subtle flex items-center justify-center text-xs font-semibold text-primary">
-                    {course.primaryInstructor.fullName
-                      .slice(0, 2)
-                      .toUpperCase()}
-                  </div>
-                )}
-                <div>
-                  <div className="text-sm font-medium text-ink">
-                    {course.primaryInstructor.fullName}
-                  </div>
-                  <div className="text-xs text-ink-faint">
-                    Instrutor principal
-                  </div>
-                </div>
-              </div>
-            )}
-            {course.instructors
-              ?.filter((i) => i.userId !== course.primaryInstructorId)
-              .map((i) => (
-                <div key={i.id} className="flex items-center gap-3">
-                  {i.user.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={i.user.avatarUrl}
-                      alt={i.user.fullName}
-                      className="w-9 h-9 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-9 h-9 rounded-full bg-surface-sunken flex items-center justify-center text-xs font-semibold text-ink-muted">
-                      {i.user.fullName.slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
-                  <div className="text-sm text-ink">{i.user.fullName}</div>
-                </div>
-              ))}
-          </div>
-        </Card>
-      )}
-
-      {/* Informações adicionais — secção 8 */}
-      <Card className="p-5 mb-6">
-        <div className="text-sm font-semibold text-ink mb-3">
-          Informações adicionais
-        </div>
-        <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          <div>
-            <dt className="text-xs text-ink-faint">Nível</dt>
-            <dd className="text-sm text-ink">
-              {COURSE_LEVEL_MAP[course.level]?.label ?? course.level}
-            </dd>
-          </div>
-          {course.workloadHours && (
-            <div>
-              <dt className="text-xs text-ink-faint">Duração</dt>
-              <dd className="text-sm text-ink">
-                {fmtDuration(course.workloadHours)}
-              </dd>
-            </div>
-          )}
-          <div>
-            <dt className="text-xs text-ink-faint">Módulos</dt>
-            <dd className="text-sm text-ink">{course._count.modules}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-ink-faint flex items-center gap-1">
-              <Globe size={11} strokeWidth={1.75} /> Idioma
-            </dt>
-            <dd className="text-sm text-ink">{course.language}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-ink-faint">Certificado</dt>
-            <dd className="text-sm text-ink">
-              {course.certificateEnabled ? 'Sim' : 'Não'}
-            </dd>
-          </div>
-          {course.passingScore != null && (
-            <div>
-              <dt className="text-xs text-ink-faint">Nota mínima</dt>
-              <dd className="text-sm text-ink">{course.passingScore}%</dd>
-            </div>
-          )}
-        </dl>
-      </Card>
-
-      {/* Certificação — secção 9 */}
-      {course.certificateEnabled && (
-        <Card className="p-5 mb-6">
-          <div className="text-sm font-semibold text-ink mb-3 flex items-center gap-2">
-            <Award size={16} strokeWidth={1.75} /> Certificação
-          </div>
-          <ul className="space-y-1 text-sm text-ink-muted">
-            {course.certificateCriteria && (
-              <li>{course.certificateCriteria}</li>
-            )}
-            {course.passingScore != null && (
-              <li>Nota mínima: {course.passingScore}%</li>
-            )}
-            {course.minCompletionPercent != null && (
-              <li>Conclusão mínima: {course.minCompletionPercent}%</li>
-            )}
-            {course.certificateValidityDays && (
-              <li>Validade: {course.certificateValidityDays} dias</li>
-            )}
-          </ul>
-        </Card>
-      )}
-
-      {/* Percursos de aprendizagem — secção 12 */}
-      {(course.learningPaths?.length ?? 0) > 0 && (
-        <Card className="p-5 mb-6">
-          <div className="text-sm font-semibold text-ink mb-2 flex items-center gap-2">
-            <Route size={16} strokeWidth={1.75} /> Percursos de aprendizagem
-          </div>
-          {course.learningPaths!.map((lp) => (
-            <p key={lp.id} className="text-sm text-ink-muted">
-              Este curso faz parte de:{' '}
-              <span className="font-medium text-ink">{lp.title}</span>
-            </p>
-          ))}
-        </Card>
-      )}
-
-      {/* Cursos relacionados — secção 11 */}
-      {(course.relatedCourses?.length ?? 0) > 0 && (
-        <Card className="p-5 mb-6">
-          <div className="text-sm font-semibold text-ink mb-3">
-            Cursos relacionados
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {course.relatedCourses!.map((rc) => (
-              <div
-                key={rc.id}
-                className="rounded-card border border-border overflow-hidden"
-              >
-                <div className="aspect-video bg-surface-sunken">
-                  {rc.thumbnailUrl && (
-                    <CourseThumbnail src={rc.thumbnailUrl} alt={rc.title} />
-                  )}
-                </div>
-                <div className="p-2">
-                  <div className="text-xs font-medium text-ink truncate">
-                    {rc.title}
-                  </div>
-                  {rc.category && (
-                    <div className="text-xs text-ink-faint">{rc.category}</div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {/* Módulos accordion */}
-      {(!isEnrolled || pendingApproval) && course.modules && (
-        <Card className="overflow-hidden mb-6">
-          <div className="px-4 py-3 border-b border-border text-sm font-semibold text-ink">
-            Conteúdo do curso
-          </div>
-          {course.modules.map((mod) => (
-            <details
-              key={mod.id}
-              className="border-b border-border last:border-0"
+          {(!isEnrolled || pendingApproval) && course.modules && (
+            <Section
+              title="Conteúdo do curso"
+              soft
+              icon={ClipboardList}
+              aside={`${course.modules.length} módulos`}
+              bare
             >
-              <summary className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-surface-sunken">
-                <span className="text-sm font-medium text-ink">
-                  {mod.title}
-                </span>
-                <span className="text-xs text-ink-faint">
-                  {mod.lessons?.length ?? 0} aulas
-                </span>
-              </summary>
-              <div className="px-4 pb-2">
-                {mod.lessons?.map((l) => (
+              {course.modules.map((mod) => (
+                <details
+                  key={mod.id}
+                  className="group border-b border-border last:border-0"
+                >
+                  <summary className="flex cursor-pointer items-center justify-between px-5 py-3 hover:bg-surface-sunken">
+                    <span className="text-sm font-medium text-ink">
+                      {mod.title}
+                    </span>
+                    <span className="text-xs text-ink-faint">
+                      {mod.lessons?.length ?? 0} aulas
+                    </span>
+                  </summary>
+                  <div className="px-5 pb-2">
+                    {mod.lessons?.map((l) => (
+                      <div
+                        key={l.id}
+                        className="flex items-center gap-2 border-b border-border py-2 text-xs text-ink-muted last:border-0"
+                      >
+                        <LessonIcon type={l.type} />
+                        <span className="flex-1">{l.title}</span>
+                        {l.durationMinutes && (
+                          <span className="text-ink-faint">
+                            {fmtDuration(null, l.durationMinutes)}
+                          </span>
+                        )}
+                        {l.isFree && (
+                          <span className="font-medium text-success">
+                            Grátis
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              ))}
+            </Section>
+          )}
+
+          {(course.relatedCourses?.length ?? 0) > 0 && (
+            <Section title="Cursos relacionados">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {course.relatedCourses!.map((rc) => (
                   <div
-                    key={l.id}
-                    className="flex items-center gap-2 py-1.5 text-xs text-ink-muted border-b border-border last:border-0"
+                    key={rc.id}
+                    className="overflow-hidden rounded-card border border-border"
                   >
-                    <LessonIcon type={l.type} />
-                    <span className="flex-1">{l.title}</span>
-                    {l.durationMinutes && (
-                      <span className="text-ink-faint">
-                        {fmtDuration(null, l.durationMinutes)}
-                      </span>
-                    )}
-                    {l.isFree && (
-                      <span className="text-success font-medium">Grátis</span>
-                    )}
+                    <div className="aspect-video bg-surface-sunken">
+                      {rc.thumbnailUrl && (
+                        <CourseThumbnail src={rc.thumbnailUrl} alt={rc.title} />
+                      )}
+                    </div>
+                    <div className="p-2">
+                      <div className="truncate text-xs font-medium text-ink">
+                        {rc.title}
+                      </div>
+                      {rc.category && (
+                        <div className="text-xs text-ink-faint">
+                          {rc.category}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
-            </details>
-          ))}
-        </Card>
-      )}
+            </Section>
+          )}
 
-      {/* Feedback section */}
-      {isEnrolled && progress?.enrollment.status === 'COMPLETED' && (
-        <Card className="p-5 mb-6">
-          <div className="text-sm font-semibold text-ink mb-3">
-            Avalie este curso
-          </div>
-          <div className="flex gap-1 mb-3">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <button
-                key={s}
-                onClick={() => onRatingChange(s)}
-                className="transition-transform hover:scale-110"
-              >
-                <Star
-                  size={20}
-                  strokeWidth={1.75}
-                  className={
-                    s <= rating
-                      ? 'fill-current text-warning-ink'
-                      : 'text-ink-faint'
-                  }
-                />
-              </button>
-            ))}
-          </div>
-          <Textarea
-            value={comment}
-            onChange={(e) => onCommentChange(e.target.value)}
-            rows={3}
-            placeholder="Partilhe a sua experiência…"
-            className="w-full resize-none mb-3"
-          />
-          <Button onClick={onFeedback} disabled={!rating || feedbackLoading}>
-            {feedbackLoading ? 'A enviar…' : 'Enviar avaliação'}
-          </Button>
-        </Card>
-      )}
-
-      {/* Feedbacks existentes */}
-      {(course.feedbacks?.length ?? 0) > 0 && (
-        <Card className="p-5">
-          <div className="text-sm font-semibold text-ink mb-3">Avaliações</div>
-          <div className="space-y-3">
-            {course.feedbacks?.map((f) => (
-              <div
-                key={f.id}
-                className="border-b border-border pb-3 last:border-0"
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-ink">
-                    {f.user.fullName}
-                  </span>
-                  <span className="flex items-center gap-0.5">
-                    {Array.from({ length: f.rating }).map((_, i) => (
-                      <Star
-                        key={i}
-                        size={14}
-                        strokeWidth={1.75}
-                        className="fill-current text-warning-ink"
-                      />
-                    ))}
-                  </span>
-                </div>
-                <p className="text-xs text-ink-muted">{f.comment}</p>
+          {isEnrolled && progress?.enrollment.status === 'COMPLETED' && (
+            <Section title="Avalie este curso" icon={Star}>
+              <div className="mb-3 flex gap-1">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => onRatingChange(s)}
+                    className="transition-transform hover:scale-110"
+                  >
+                    <Star
+                      size={22}
+                      strokeWidth={1.75}
+                      className={
+                        s <= rating
+                          ? 'fill-current text-warning-ink'
+                          : 'text-ink-faint'
+                      }
+                    />
+                  </button>
+                ))}
               </div>
-            ))}
-          </div>
-        </Card>
+              <Textarea
+                value={comment}
+                onChange={(e) => onCommentChange(e.target.value)}
+                rows={3}
+                placeholder="Partilhe a sua experiência…"
+                className="mb-3 w-full resize-none"
+              />
+              <Button
+                onClick={onFeedback}
+                disabled={!rating || feedbackLoading}
+              >
+                {feedbackLoading ? 'A enviar…' : 'Enviar avaliação'}
+              </Button>
+            </Section>
+          )}
+
+          {(course.feedbacks?.length ?? 0) > 0 && (
+            <Section title="Avaliações">
+              <div className="space-y-3">
+                {course.feedbacks?.map((f) => (
+                  <div
+                    key={f.id}
+                    className="border-b border-border pb-3 last:border-0 last:pb-0"
+                  >
+                    <div className="mb-1 flex items-center gap-2">
+                      <span className="text-sm font-medium text-ink">
+                        {f.user.fullName}
+                      </span>
+                      <span className="flex items-center gap-0.5">
+                        {Array.from({ length: f.rating }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={14}
+                            strokeWidth={1.75}
+                            className="fill-current text-warning-ink"
+                          />
+                        ))}
+                      </span>
+                    </div>
+                    <p className="text-xs text-ink-muted">{f.comment}</p>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          )}
+        </div>
+
+        <div className="space-y-6">
+          <Section title="Informações adicionais" soft>
+            <dl className="-my-2 text-sm">
+              {[
+                [
+                  'Nível',
+                  COURSE_LEVEL_MAP[course.level]?.label ?? course.level,
+                ],
+                course.workloadHours
+                  ? ['Duração', fmtDuration(course.workloadHours)]
+                  : null,
+                ['Módulos', String(course._count.modules)],
+                ['Idioma', course.language],
+                ['Certificado', course.certificateEnabled ? 'Sim' : 'Não'],
+                course.passingScore != null
+                  ? ['Nota mínima', `${course.passingScore}%`]
+                  : null,
+              ]
+                .filter((r): r is string[] => r !== null)
+                .map(([k, v]) => (
+                  <div
+                    key={k}
+                    className="flex items-baseline justify-between gap-4 border-b border-border py-2.5 last:border-0"
+                  >
+                    <dt className="text-ink-muted">{k}</dt>
+                    <dd className="font-medium text-ink">{v}</dd>
+                  </div>
+                ))}
+            </dl>
+          </Section>
+
+          {(course.primaryInstructor ||
+            (course.instructors?.length ?? 0) > 0) && (
+            <Section title="Instrutor(es)" soft icon={GraduationCap}>
+              <div className="space-y-3">
+                {course.primaryInstructor && (
+                  <InstructorRow
+                    name={course.primaryInstructor.fullName}
+                    avatarUrl={course.primaryInstructor.avatarUrl}
+                    role="Instrutor principal"
+                  />
+                )}
+                {course.instructors
+                  ?.filter((i) => i.userId !== course.primaryInstructorId)
+                  .map((i) => (
+                    <InstructorRow
+                      key={i.id}
+                      name={i.user.fullName}
+                      avatarUrl={i.user.avatarUrl}
+                    />
+                  ))}
+              </div>
+            </Section>
+          )}
+
+          {course.certificateEnabled && (
+            <Section title="Certificação" icon={Award}>
+              <ul className="space-y-1.5 text-sm text-ink-muted">
+                {course.certificateCriteria && (
+                  <li>{course.certificateCriteria}</li>
+                )}
+                {course.passingScore != null && (
+                  <li>Nota mínima: {course.passingScore}%</li>
+                )}
+                {course.minCompletionPercent != null && (
+                  <li>Conclusão mínima: {course.minCompletionPercent}%</li>
+                )}
+                {course.certificateValidityDays && (
+                  <li>Validade: {course.certificateValidityDays} dias</li>
+                )}
+              </ul>
+            </Section>
+          )}
+
+          {(course.learningPaths?.length ?? 0) > 0 && (
+            <Section title="Percursos de aprendizagem" icon={Route}>
+              {course.learningPaths!.map((lp) => (
+                <p key={lp.id} className="text-sm text-ink-muted">
+                  Este curso faz parte de:{' '}
+                  <span className="font-medium text-ink">{lp.title}</span>
+                </p>
+              ))}
+            </Section>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Cartão de secção: faixa azul-marinho no topo (padrão dos cartões de
+ *  evaluation360) e corpo claro. `bare` dispensa o padding do corpo. */
+function Section({
+  title,
+  icon: Icon,
+  aside,
+  bare,
+  soft,
+  className,
+  children,
+}: {
+  title: string;
+  icon?: ComponentType<{ size?: number; strokeWidth?: number }>;
+  aside?: string;
+  bare?: boolean;
+  /** Faixa a 60% de opacidade. */
+  soft?: boolean;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <Card className={`overflow-hidden ${className ?? ''}`}>
+      <h3
+        className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold text-white ${
+          soft ? 'bg-[#0F1F3D]/60' : 'bg-[#0F1F3D]'
+        }`}
+      >
+        {Icon && <Icon size={16} strokeWidth={1.75} />}
+        <span className="flex-1">{title}</span>
+        {aside && (
+          <span className="text-xs font-normal text-white/70">{aside}</span>
+        )}
+      </h3>
+      <div className={bare ? '' : 'p-5'}>{children}</div>
+    </Card>
+  );
+}
+
+function InstructorRow({
+  name,
+  avatarUrl,
+  role,
+}: {
+  name: string;
+  avatarUrl: string | null;
+  role?: string;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      {avatarUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={avatarUrl}
+          alt={name}
+          className="h-10 w-10 rounded-full object-cover"
+        />
+      ) : (
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-subtle text-xs font-semibold text-primary">
+          {name.slice(0, 2).toUpperCase()}
+        </div>
       )}
+      <div>
+        <div className="text-sm font-medium text-ink">{name}</div>
+        {role && <div className="text-xs text-ink-faint">{role}</div>}
+      </div>
     </div>
   );
 }
