@@ -40,6 +40,8 @@ const TIER_ALERT_DOT: Record<Tier, string> = {
   DEVELOPING: 'bg-[#FB7185]',
 };
 
+const MAX_LISTED_WITHOUT_SEARCH = 10;
+
 function scoreIntent(score: number): string {
   if (score >= 4) return 'text-success-ink';
   if (score >= 2.5) return 'text-warning-ink';
@@ -65,10 +67,14 @@ export function PoolTab() {
   const data = poolQuery.data ?? null;
   const matrix = matrixQuery.data ?? null;
 
-  const filtered =
-    data?.data.filter((u) =>
-      u.user.fullName.toLowerCase().includes(search.toLowerCase()),
-    ) ?? [];
+  // Sem pesquisa só os primeiros 10 colaboradores; os restantes aparecem
+  // apenas quando pesquisados.
+  const term = search.trim().toLowerCase();
+  const all = data?.data ?? [];
+  const filtered = term
+    ? all.filter((u) => u.user.fullName.toLowerCase().includes(term))
+    : all.slice(0, MAX_LISTED_WITHOUT_SEARCH);
+  const hiddenCount = term ? 0 : all.length - filtered.length;
 
   if (poolQuery.isLoading || matrixQuery.isLoading)
     return (
@@ -163,6 +169,11 @@ export function PoolTab() {
                 </div>
               </div>
             ))}
+            {hiddenCount > 0 && (
+              <p className="px-4 py-3 text-center font-body text-xs text-ink-faint">
+                + {hiddenCount} colaboradores — usa a pesquisa para os encontrar
+              </p>
+            )}
           </div>
         </Card>
 
