@@ -17,6 +17,11 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -30,6 +35,29 @@ const METRIC_LABELS: Record<string, string> = {
   mentoringRate: 'Mentoria',
   hiPoRatio: 'Proporção de Altos Potenciais',
 };
+
+// Uma cor por métrica (mesma paleta dos cartões de PDI), começando em azul
+// para "Cobertura PDI".
+const METRIC_COLORS: Record<string, string> = {
+  pdpCoverage: '#1267B8', // azul
+  skillsAssessment: '#0E9AA7', // turquesa
+  reviewedRate: '#2E9E6B', // verde
+  mentoringRate: '#7B5CD6', // roxo
+  hiPoRatio: '#D9822B', // âmbar
+};
+const METRIC_COLOR_FALLBACK = '#5B7083';
+
+// Cores por posição da linha (azul primeiro), para listas de estados.
+const ROW_COLORS = [
+  '#1267B8', // azul
+  '#0E9AA7', // turquesa
+  '#2E9E6B', // verde
+  '#7B5CD6', // roxo
+  '#D9822B', // âmbar
+  '#D6455D', // carmim
+  '#3F6FD8', // índigo
+  '#5B7083', // ardósia
+];
 
 function metricIntent(value: number): string {
   if (value >= 70) return 'text-success-ink';
@@ -66,32 +94,49 @@ export function AnalyticsTab() {
   return (
     <div className="space-y-6">
       {/* Top KPIs */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <KpiCard
           label="Colaboradores Activos"
           value={dash?.kpis.totalUsers ?? 0}
           intent="primary"
         />
-        <KpiCard
+        <SpeedometerStatCard
           label="Com PDI Activo"
-          value={`${dash?.kpis.pdpCoverage ?? 0}%`}
-          sub={`${dash?.kpis.usersWithActivePlan} colaboradores`}
-          intent="accent"
+          value={dash?.kpis.pdpCoverage ?? 0}
+          bands={RATE_BANDS}
+          display={`${dash?.kpis.pdpCoverage ?? 0}%`}
+          caption={`${dash?.kpis.usersWithActivePlan ?? 0} colaboradores`}
         />
-        <KpiCard
+        <DonutStatCard
           label="Taxa Conclusão Acções"
-          value={`${dash?.kpis.actionCompletion ?? 0}%`}
-          intent="success"
+          value={dash?.kpis.actionCompletion ?? 0}
         />
         <KpiCard
           label="Acções em Atraso"
           value={dash?.kpis.overdueActions ?? 0}
           intent="danger"
         />
+        <KpiCard
+          label="Mentorias Activas"
+          value={dash?.kpis.activeMentorings ?? 0}
+          intent="primary"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Talent Health Score */}
+        {!health && healthQuery.isError && (
+          <Card>
+            <CardBody>
+              <h3 className="mb-2 font-display font-semibold text-ink">
+                Pontuação de Saúde do Talento
+              </h3>
+              <p className="font-body text-xs text-ink-faint">
+                Não foi possível carregar a pontuação de saúde do talento.
+              </p>
+            </CardBody>
+          </Card>
+        )}
         {health && (
           <Card>
             <CardBody className="flex flex-col items-center">
@@ -125,7 +170,10 @@ export function AnalyticsTab() {
                           {value}%
                         </span>
                       </div>
-                      <ProgressBar value={value} />
+                      <ProgressBar
+                        value={value}
+                        color={METRIC_COLORS[k] ?? METRIC_COLOR_FALLBACK}
+                      />
                     </div>
                   );
                 })}
@@ -144,7 +192,7 @@ export function AnalyticsTab() {
           </div>
           <CardBody>
             <div className="space-y-3">
-              {dash?.plansByStatus.map((s) => {
+              {dash?.plansByStatus.map((s, i) => {
                 const total = dash.plansByStatus.reduce(
                   (sum, x) => sum + x.count,
                   0,
@@ -158,7 +206,10 @@ export function AnalyticsTab() {
                         {s.count} ({pct}%)
                       </span>
                     </div>
-                    <ProgressBar value={pct} />
+                    <ProgressBar
+                      value={pct}
+                      color={ROW_COLORS[i % ROW_COLORS.length]}
+                    />
                   </div>
                 );
               })}

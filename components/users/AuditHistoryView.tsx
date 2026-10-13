@@ -106,7 +106,7 @@ export function AuditHistoryView() {
         <>
           <Table>
             <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
-              <TableRow>
+              <TableRow className="hover:bg-transparent">
                 <TableHeaderCell>Data/hora</TableHeaderCell>
                 <TableHeaderCell>Utilizador</TableHeaderCell>
                 <TableHeaderCell>Ação</TableHeaderCell>

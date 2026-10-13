@@ -44,6 +44,14 @@ function headerBackground([c1, c2, c3]: [string, string, string]) {
   ].join(', ');
 }
 
+// Fundo do cabeçalho do plano — partilhado com o cabeçalho da vista de detalhe
+// para que o mesmo PDI tenha a mesma cor nos dois sítios.
+export function planHeaderBackground(plan: Plan) {
+  return headerBackground(
+    PALETTE[Math.abs((plan.user?.id ?? 0) * 3 + plan.id) % PALETTE.length],
+  );
+}
+
 function Metric({
   icon: Icon,
   danger,
@@ -141,8 +149,8 @@ export function PlanCard({ plan, onClick, onDelete }: PlanCardProps) {
       </div>
 
       <div className="flex flex-wrap items-center gap-y-2 divide-x divide-[#E6ECF4] px-7 py-6">
-        <Metric icon={ClipboardList}>{plan._count?.actions ?? 0} acções</Metric>
-        <Metric icon={Target}>{plan._count?.goals ?? 0} metas</Metric>
+        <Metric icon={ClipboardList}>{plan._count?.actions ?? 0} Acções</Metric>
+        <Metric icon={Target}>{plan._count?.goals ?? 0} Metas</Metric>
         {plan.endDate && (
           <Metric icon={CalendarDays} danger={endOverdue}>
             {fmtDate(plan.endDate)}
@@ -153,9 +161,10 @@ export function PlanCard({ plan, onClick, onDelete }: PlanCardProps) {
       <div className="mx-7 border-t border-[#E6ECF4]" />
 
       <div className="space-y-3 px-7 py-6">
-        <div className="flex items-center gap-3 rounded-[14px] bg-[#EEF4FD] px-4 py-3">
+        <div className="flex items-center gap-3 rounded-[14px] bg-white px-4 py-3">
           <div className="flex-1">
-            <ProgressBar value={pct} color="#F28C28" />
+            <ProgressBar value={pct} color={palette[0]} />
+            <p className="mt-1.5 text-xs text-black">Progresso</p>
           </div>
           <span
             className={cn(

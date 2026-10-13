@@ -37,7 +37,7 @@ import type {
 export const STATUS_CFG: StatusBadgeMap<PlanStatus> = {
   DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
   PENDING_APPROVAL: {
-    label: 'Ag. aprovação',
+    label: 'Aguarda Aprovação',
     cls: 'bg-warning-subtle text-warning-ink',
   },
   ACTIVE: { label: 'Activo', cls: 'bg-success-subtle text-success-ink' },
@@ -177,6 +177,40 @@ export const PRIORITY_CFG: StatusBadgeMap<Priority> = {
   MEDIUM: { label: 'Média', cls: 'bg-info-subtle text-info-ink' },
   HIGH: { label: 'Alta', cls: 'bg-warning-subtle text-warning-ink' },
   URGENT: { label: 'Urgente', cls: 'bg-danger-subtle text-danger-ink' },
+};
+
+// Variantes para fundos escuros (cabeçalho do detalhe do PDI): cor sólida
+// saturada + texto branco + anel claro, para os badges se destacarem
+// sobre qualquer cor da paleta do cartão.
+const ON_DARK_RING = 'ring-1 ring-white/70 font-semibold';
+export const STATUS_ON_DARK_CFG: StatusBadgeMap<PlanStatus> = {
+  DRAFT: { label: 'Rascunho', cls: `bg-slate-500 text-white ${ON_DARK_RING}` },
+  PENDING_APPROVAL: {
+    label: 'Aguarda Aprovação',
+    cls: `bg-[#F28C28] text-white ${ON_DARK_RING}`,
+  },
+  ACTIVE: { label: 'Activo', cls: `bg-[#16A765] text-white ${ON_DARK_RING}` },
+  PAUSED: { label: 'Pausado', cls: `bg-slate-500 text-white ${ON_DARK_RING}` },
+  AT_RISK: { label: 'Em risco', cls: `bg-[#F28C28] text-white ${ON_DARK_RING}` },
+  COMPLETED: {
+    label: 'Concluído',
+    cls: `bg-[#1267B8] text-white ${ON_DARK_RING}`,
+  },
+  PARTIALLY_COMPLETED: {
+    label: 'Concluído parcialmente',
+    cls: `bg-[#1267B8] text-white ${ON_DARK_RING}`,
+  },
+  CANCELLED: {
+    label: 'Cancelado',
+    cls: `bg-[#C23A52] text-white ${ON_DARK_RING}`,
+  },
+  OVERDUE: { label: 'Atrasado', cls: `bg-[#C23A52] text-white ${ON_DARK_RING}` },
+};
+export const PRIORITY_ON_DARK_CFG: StatusBadgeMap<Priority> = {
+  LOW: { label: 'Baixa', cls: `bg-slate-500 text-white ${ON_DARK_RING}` },
+  MEDIUM: { label: 'Média', cls: `bg-[#1267B8] text-white ${ON_DARK_RING}` },
+  HIGH: { label: 'Alta', cls: `bg-[#F28C28] text-white ${ON_DARK_RING}` },
+  URGENT: { label: 'Urgente', cls: `bg-[#C23A52] text-white ${ON_DARK_RING}` },
 };
 
 // Separadores de Desenvolvimento de Talentos (ex-/talent-development, módulo

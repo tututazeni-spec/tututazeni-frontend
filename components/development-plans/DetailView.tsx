@@ -45,13 +45,25 @@ import {
   NEXT_STEPS_CFG,
   ORIGIN_CFG,
   OVERALL_RESULT_CFG,
-  PRIORITY_CFG,
-  STATUS_CFG,
+  PRIORITY_ON_DARK_CFG,
+  STATUS_ON_DARK_CFG,
 } from './constants';
-import { isOverdue, progressTextClass } from './utils';
+import { planHeaderBackground } from './PlanCard';
+import { isOverdue } from './utils';
 import type { Action, Plan } from './types';
 
 const MS_PER_DAY = 86_400_000;
+
+// Cor do badge de prioridade das competências a desenvolver:
+// Baixa = verde, Média = laranja, Alta = vermelho.
+const GAP_PRIORITY_BADGE_CLS: Record<
+  keyof typeof GAP_PRIORITY_CFG,
+  string
+> = {
+  LOW: 'bg-[#16A765]',
+  MEDIUM: 'bg-[#F28C28]',
+  HIGH: 'bg-[#C23A52]',
+};
 
 function dayOffset(dateStr: string, referenceStr: string): number {
   return Math.round(
@@ -185,23 +197,34 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       </Button>
 
       {/* Header */}
-      <Card className="mb-5">
-        <CardBody>
+      <div
+        className="mb-5 overflow-hidden rounded-[20px] p-6 text-white shadow-[0_4px_14px_rgba(21,47,89,0.08)]"
+        style={{ background: planHeaderBackground(plan) }}
+      >
+        <div>
           <div className="mb-4 flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="mb-2 flex flex-wrap items-center gap-2">
-                <StatusBadge value={plan.status} map={STATUS_CFG} />
-                <StatusBadge value={plan.priority} map={PRIORITY_CFG} />
+                <StatusBadge
+                  value={plan.status}
+                  map={STATUS_ON_DARK_CFG}
+                  variant="pill"
+                />
+                <StatusBadge
+                  value={plan.priority}
+                  map={PRIORITY_ON_DARK_CFG}
+                  variant="pill"
+                />
                 {plan.period && (
-                  <span className="font-body text-xs text-ink-faint">
+                  <span className="font-body text-xs text-white">
                     {plan.period}
                   </span>
                 )}
               </div>
-              <h1 className="mb-1 font-display text-xl font-bold text-ink">
+              <h1 className="mb-1 font-display text-xl font-bold text-white">
                 {plan.name}
               </h1>
-              <p className="font-body text-sm text-ink-muted">{plan.goal}</p>
+              <p className="font-body text-sm text-white">{plan.goal}</p>
             </div>
             <div className="flex-shrink-0">
               {plan.status === 'DRAFT' && (
@@ -215,22 +238,15 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
 
           {/* Progresso geral */}
           <div className="mb-4">
-            <div className="mb-1 flex justify-between font-body text-xs text-ink-faint">
+            <div className="mb-1 flex justify-between font-body text-xs text-white">
               <span>Progresso geral</span>
-              <span
-                className={cn(
-                  'font-data font-semibold',
-                  progressTextClass(pct),
-                )}
-              >
-                {pct}%
-              </span>
+              <span className="font-data font-semibold text-white">{pct}%</span>
             </div>
             <ProgressBar value={pct} />
           </div>
 
           {/* Meta info */}
-          <div className="flex flex-wrap gap-4 font-body text-xs text-ink-faint">
+          <div className="flex flex-wrap gap-4 font-body text-xs text-white">
             <span className="flex items-center gap-1">
               <Calendar size={14} strokeWidth={1.75} />
               Início: {fmtDate(plan.startDate)}
@@ -241,11 +257,11 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
             </span>
             <span className="flex items-center gap-1">
               <ClipboardList size={14} strokeWidth={1.75} />
-              {plan._count.actions} acções
+              {plan._count.actions} Acções
             </span>
             <span className="flex items-center gap-1">
               <Target size={14} strokeWidth={1.75} />
-              {plan._count.goals} metas
+              {plan._count.goals} Metas
             </span>
             {plan.manager && (
               <span className="flex items-center gap-1">
@@ -254,8 +270,8 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               </span>
             )}
           </div>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
 
       {/* Fecho do PDI (secção 19-20) — só depois de concluído */}
       {(plan.finalResult || plan.overallResult || plan.nextSteps) && (
@@ -293,18 +309,23 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       )}
 
       {/* Tabs */}
-      <div className="mb-5 flex w-fit gap-1 rounded-card bg-surface-sunken p-1">
+      <div className="mb-5 flex flex-wrap gap-2">
         {TABS.map((t) => (
-          <Button
+          <button
             key={t.id}
-            size="sm"
-            intent={activeTab === t.id ? 'primary' : 'ghost'}
+            type="button"
+            aria-pressed={activeTab === t.id}
             onClick={() => setActiveTab(t.id)}
-            className="inline-flex items-center gap-1.5"
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-lg border-[3px] px-3.5 py-1.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F1F3D] focus-visible:ring-offset-2',
+              activeTab === t.id
+                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
+                : 'border-[#1267B8] bg-white text-[#0F1F3D] hover:bg-[#EEF4FD]',
+            )}
           >
             <t.Icon size={14} strokeWidth={1.75} />
             {t.label}
-          </Button>
+          </button>
         ))}
       </div>
 
@@ -590,10 +611,10 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
             <CardBody className="space-y-3">
               {plan.origin && (
                 <div>
-                  <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                  <div className="mb-1.5 inline-block cursor-default select-none rounded-md bg-[#0F1F3D]/60 px-3 py-1 font-body text-xs font-semibold uppercase tracking-wide text-white">
                     Origem
                   </div>
-                  <p className="font-body text-sm text-ink">
+                  <p className="font-body text-sm font-bold text-black">
                     {ORIGIN_CFG[plan.origin]}
                   </p>
                   {plan.originJustification && (
@@ -605,7 +626,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               )}
               {plan.strengths && (
                 <div>
-                  <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                  <div className="font-body text-xs font-bold uppercase tracking-wide text-black">
                     Principais pontos fortes
                   </div>
                   <p className="font-body text-sm text-ink">{plan.strengths}</p>
@@ -613,7 +634,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               )}
               {plan.developmentNeeds && (
                 <div>
-                  <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                  <div className="font-body text-xs font-bold uppercase tracking-wide text-black">
                     Principais necessidades de desenvolvimento
                   </div>
                   <p className="font-body text-sm text-ink">
@@ -656,7 +677,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
           </Card>
 
           <div>
-            <div className="mb-2 font-body text-sm font-semibold text-ink">
+            <div className="mb-3 inline-block cursor-default select-none rounded-md bg-[#0F1F3D]/60 px-3 py-1.5 font-body text-sm font-semibold text-white">
               Competências a desenvolver
             </div>
             <div className="space-y-2">
@@ -673,7 +694,12 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
                         </div>
                       )}
                     </div>
-                    <span className="flex-shrink-0 rounded-full bg-surface-sunken px-2 py-0.5 font-body text-xs text-ink-muted">
+                    <span
+                      className={cn(
+                        'flex-shrink-0 rounded-full px-3 py-1 font-body text-xs font-semibold text-white',
+                        GAP_PRIORITY_BADGE_CLS[g.priority],
+                      )}
+                    >
                       {GAP_PRIORITY_CFG[g.priority]}
                     </span>
                   </CardBody>

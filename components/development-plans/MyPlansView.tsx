@@ -104,27 +104,32 @@ export function MyPlansView({ onSelect }: MyPlansViewProps) {
       )}
 
       {/* Plans */}
-      {plans.length === 0 ? (
-        <EmptyState
-          title="Sem planos de desenvolvimento"
-          description="Ainda não tens nenhum PDI criado."
-        />
-      ) : (
-        <div className="grid grid-cols-2 gap-4">
-          {plans.map((p) => (
-            <PlanCard
-              key={p.id}
-              plan={p}
-              onClick={() => onSelect(p.id)}
-              onDelete={
-                canDelete && p.status !== 'ACTIVE'
-                  ? () => handleDelete(p)
-                  : undefined
-              }
-            />
-          ))}
-        </div>
-      )}
+      <section className="pt-3">
+        <h2 className="mb-6 mt-0 inline-block rounded-full bg-[#0F1F3D] px-5 py-1.5 text-sm font-bold uppercase tracking-wide text-white">
+          Os meus PDIs
+        </h2>
+        {plans.length === 0 ? (
+          <EmptyState
+            title="Sem planos de desenvolvimento"
+            description="Ainda não tens nenhum PDI criado."
+          />
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            {plans.map((p) => (
+              <PlanCard
+                key={p.id}
+                plan={p}
+                onClick={() => onSelect(p.id)}
+                onDelete={
+                  canDelete && p.status !== 'ACTIVE'
+                    ? () => handleDelete(p)
+                    : undefined
+                }
+              />
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

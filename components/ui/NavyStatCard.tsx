@@ -47,6 +47,9 @@ export function NavyStatCard({
   const t = NAVY_TONES[tone];
   // Palavra única longa (ex.: "Colaboradores") não deve partir a meio
   const singleWord = !/\s/.test(label.trim());
+  // Palavra longa dentro de um rótulo com várias palavras ("Colaboradores
+  // Activos") também não parte a meio: fonte menor e quebra só entre palavras.
+  const hasLongWord = label.split(/\s+/).some((w) => w.length > 10);
   return (
     <div
       className={cn(
@@ -56,7 +59,7 @@ export function NavyStatCard({
     >
       <div className="flex min-h-[60px] shrink-0 items-center bg-[#152F59] py-2 pl-[80px] pr-2">
         <h3
-          className={`min-w-0 font-body font-semibold leading-tight text-white ${singleWord && label.length > 10 ? 'whitespace-nowrap text-[12px]' : `break-words ${label.length > 24 ? 'text-[12px]' : label.length > 10 ? 'text-[13px]' : 'text-[15px]'}`}`}
+          className={`min-w-0 font-body font-semibold leading-tight text-white ${singleWord && label.length > 10 ? 'whitespace-nowrap text-[12px]' : `break-normal ${label.length > 24 || hasLongWord ? 'text-[12px]' : label.length > 10 ? 'text-[13px]' : 'text-[15px]'}`}`}
         >
           {label}
         </h3>
