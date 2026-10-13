@@ -48,6 +48,7 @@ export interface DashboardData {
     overdueActions: number;
     actionCompletion: number;
     activeMentorings: number;
+    totalSkillAssessed: number;
   };
   plansByStatus: { status: string; count: number }[];
   topTrainingNeeds: {
