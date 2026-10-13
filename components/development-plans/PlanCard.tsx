@@ -161,9 +161,10 @@ export function PlanCard({ plan, onClick, onDelete }: PlanCardProps) {
       <div className="mx-7 border-t border-[#E6ECF4]" />
 
       <div className="space-y-3 px-7 py-6">
-        <div className="flex items-center gap-3 rounded-[14px] bg-[#EEF4FD] px-4 py-3">
+        <div className="flex items-center gap-3 rounded-[14px] bg-white px-4 py-3">
           <div className="flex-1">
-            <ProgressBar value={pct} color="#F28C28" />
+            <ProgressBar value={pct} color={palette[0]} />
+            <p className="mt-1.5 text-xs text-black">Progresso</p>
           </div>
           <span
             className={cn(
