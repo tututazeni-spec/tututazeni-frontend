@@ -17,6 +17,8 @@ export interface SearchInputProps extends Omit<
   /** Chave para guardar o histórico local; sem ela não há sugestões automáticas. */
   historyKey?: string;
   invalid?: boolean;
+  /** Mostra a lupa à esquerda (por omissão sim). */
+  showIcon?: boolean;
 }
 
 const MAX_SUGGESTIONS = 6;
@@ -64,6 +66,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       suggestions,
       historyKey,
       invalid,
+      showIcon = true,
       value,
       onChange,
       onFocus,
@@ -113,12 +116,14 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             invalid && 'border-danger',
           )}
         >
-          <Search
-            size={16}
-            strokeWidth={1.75}
-            className="shrink-0 text-field"
-            aria-hidden
-          />
+          {showIcon && (
+            <Search
+              size={16}
+              strokeWidth={1.75}
+              className="shrink-0 text-field"
+              aria-hidden
+            />
+          )}
           <input
             ref={ref}
             type="text"

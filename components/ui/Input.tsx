@@ -11,10 +11,12 @@ const SEARCH_PLACEHOLDER = /^\s*(pesquis|buscar|procurar)/i;
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   invalid?: boolean;
+  /** Só para campos de pesquisa: esconde a lupa. */
+  showIcon?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, invalid, ...props }, ref) => {
+  ({ className, invalid, showIcon, ...props }, ref) => {
     const isSearch =
       props.type === 'search' ||
       ((props.type === undefined || props.type === 'text') &&
@@ -26,6 +28,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <SearchInput
           ref={ref}
           invalid={invalid}
+          showIcon={showIcon}
           className={className}
           historyKey={props.placeholder}
           {...rest}

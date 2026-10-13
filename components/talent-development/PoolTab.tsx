@@ -12,7 +12,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -112,21 +111,14 @@ export function PoolTab() {
         <Card className="xl:col-span-2">
           <div className="flex items-center gap-3 border-b border-border p-4">
             <div className="relative flex-1">
-              <Search
-                size={14}
-                strokeWidth={1.75}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
-              />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Pesquisar colaborador..."
-                className="w-full pl-9"
+                showIcon={false}
+                className="w-full"
               />
             </div>
-            <span className="font-body text-xs text-ink-faint">
-              {filtered.length} colaboradores
-            </span>
           </div>
 
           <div className="max-h-[520px] divide-y divide-border overflow-y-auto">
