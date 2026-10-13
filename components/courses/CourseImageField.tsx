@@ -19,9 +19,15 @@ interface CourseImageFieldProps {
   /** data URL da imagem actual, ou null/'' se não houver. */
   value: string | null;
   onChange: (dataUrl: string | null) => void;
+  /** Texto alternativo da pré-visualização (omisso: imagem do curso). */
+  alt?: string;
 }
 
-export function CourseImageField({ value, onChange }: CourseImageFieldProps) {
+export function CourseImageField({
+  value,
+  onChange,
+  alt = 'Pré-visualização da imagem do curso',
+}: CourseImageFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const notify = useToast();
   const [processing, setProcessing] = useState(false);
@@ -63,7 +69,7 @@ export function CourseImageField({ value, onChange }: CourseImageFieldProps) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={value}
-            alt="Pré-visualização da imagem do curso"
+            alt={alt}
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (

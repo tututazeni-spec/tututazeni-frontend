@@ -13,6 +13,8 @@ export interface NavyStatGroupItem {
   tone: NavyStatTone;
   label: string;
   value: string | number;
+  /** Se definido, a divisão passa a botão clicável. */
+  onClick?: () => void;
 }
 
 export function NavyStatGroupCard({
@@ -30,12 +32,14 @@ export function NavyStatGroupCard({
         </h3>
       </div>
       <div className="grid grid-cols-2 divide-x divide-y divide-[#D8E2F0] md:grid-cols-3 md:divide-y-0 xl:grid-cols-5">
-        {items.map(({ key, icon: Icon, tone, label, value }) => {
+        {items.map(({ key, icon: Icon, tone, label, value, onClick }) => {
           const t = NAVY_TONES[tone];
+          const Wrapper = onClick ? 'button' : 'div';
           return (
-            <div
+            <Wrapper
               key={key}
-              className="flex items-center justify-center px-3 py-5"
+              {...(onClick ? { type: 'button' as const, onClick } : {})}
+              className={`flex items-center justify-center px-3 py-5 ${onClick ? 'cursor-pointer hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary' : ''}`}
             >
               {/* Zoom no conteúdo (não na divisão) para o overflow-hidden do card não o cortar */}
               <div className="flex origin-center flex-col items-center gap-1.5 text-center transition-transform duration-200 ease-out hover:scale-110 motion-reduce:hover:scale-100">
@@ -54,7 +58,7 @@ export function NavyStatGroupCard({
                   {label}
                 </p>
               </div>
-            </div>
+            </Wrapper>
           );
         })}
       </div>

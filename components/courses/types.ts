@@ -306,11 +306,17 @@ export interface MyEnrollment {
   status: EnrollmentStatus;
   deadline: string | null;
   mandatory?: boolean;
+  /** Enrollment.progress (0–100). */
+  progress?: number;
   course: {
     title: string;
     thumbnailUrl: string | null;
     category: string | null;
     workloadHours: number | null;
+    level?: CourseLevel;
+    modality?: CourseModality | null;
+    department?: { id: number; name: string } | null;
+    _count?: { enrollments: number };
   };
 }
 

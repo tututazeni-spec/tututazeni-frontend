@@ -23,6 +23,7 @@
 'use client';
 
 import { useState } from 'react';
+import { CourseImageField } from '@/components/courses/CourseImageField';
 import { AlertCircle } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -62,6 +63,9 @@ const VISIBILITY_ITEMS = Object.entries(VISIBILITY_CFG).map(([value, cfg]) => ({
   label: cfg.label,
 }));
 
+// Sentinela do Select "Departamento": evento sem departamento dono (todos).
+const ALL_DEPARTMENTS = 'ALL';
+
 export function CreateEventModal({ onClose }: CreateEventModalProps) {
   const notify = useToast();
 
@@ -75,6 +79,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
   const [responsible, setResponsible] = useState<DirectoryUser | null>(null);
   const [unitId, setUnitId] = useState('');
   const [departmentId, setDepartmentId] = useState('');
+  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
 
   // Data & horário
   const [startAt, setStartAt] = useState('');
@@ -199,8 +204,11 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
         ? { restrictedDeptIds: restrictedDeptIds.map(Number) }
         : {}),
       ...(responsible ? { responsibleId: responsible.id } : {}),
-      ...(departmentId ? { departmentId: Number(departmentId) } : {}),
+      ...(departmentId && departmentId !== ALL_DEPARTMENTS
+        ? { departmentId: Number(departmentId) }
+        : {}),
       ...(unitId ? { unitId: Number(unitId) } : {}),
+      ...(bannerUrl ? { bannerUrl } : {}),
     });
   };
 
@@ -224,6 +232,18 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
             <h3 className="m-0 text-xs font-bold uppercase tracking-wide text-ink-muted">
               Informações gerais
             </h3>
+
+            <FormField
+              label="Imagem do evento"
+              htmlFor="ev-banner"
+              hint="Opcional — aparece no topo do cartão do evento."
+            >
+              <CourseImageField
+                value={bannerUrl}
+                onChange={setBannerUrl}
+                alt="Pré-visualização da imagem do evento"
+              />
+            </FormField>
 
             <FormField label="Nome *" htmlFor="ev-title">
               <Input
@@ -277,7 +297,10 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 hint="Opcional — departamento dono do evento."
               >
                 <Select
-                  items={departmentOptions}
+                  items={[
+                    { value: ALL_DEPARTMENTS, label: 'Todos os departamentos' },
+                    ...departmentOptions,
+                  ]}
                   value={departmentId}
                   onValueChange={setDepartmentId}
                   placeholder={

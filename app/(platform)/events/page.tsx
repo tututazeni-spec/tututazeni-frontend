@@ -43,6 +43,8 @@ export default function EventsPage() {
   const canCreate = !!role && CAN_CREATE_ROLES.includes(role);
 
   const [nav, setNav] = useState<Nav>({ view: 'overview' });
+  // Estado pré-seleccionado ao abrir a lista a partir da Visão Geral
+  const [listStatus, setListStatus] = useState<string | undefined>();
   const [showCreate, setShowCreate] = useState(false);
 
   return (
@@ -66,13 +68,25 @@ export default function EventsPage() {
       <PillNav
         items={NAV}
         value={nav.view}
-        onChange={(id) => setNav({ view: id } as Nav)}
+        onChange={(id) => {
+          setListStatus(undefined);
+          setNav({ view: id } as Nav);
+        }}
         label="Eventos"
         className="mb-6"
       />
 
-      {nav.view === 'overview' && <OverviewTab />}
-      {nav.view === 'events' && <EventsTab />}
+      {nav.view === 'overview' && (
+        <OverviewTab
+          onOpenStatus={(status) => {
+            setListStatus(status);
+            setNav({ view: 'events' });
+          }}
+        />
+      )}
+      {nav.view === 'events' && (
+        <EventsTab key={listStatus ?? 'all'} initialStatus={listStatus} />
+      )}
       {nav.view === 'calendar' && <CalendarTab />}
       {nav.view === 'participants' && <ParticipantsTab />}
       {nav.view === 'schedule' && <ScheduleTab />}

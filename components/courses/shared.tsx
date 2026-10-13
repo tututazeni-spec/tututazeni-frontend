@@ -85,7 +85,7 @@ export const COURSE_MODALITY_LABELS: Record<CourseModality, string> = {
   AUTOAPRENDIZAGEM: 'Autoaprendizagem',
 };
 
-const ENROLLMENT_STATUS_MAP: StatusBadgeMap<EnrollmentStatus> = {
+export const ENROLLMENT_STATUS_MAP: StatusBadgeMap<EnrollmentStatus> = {
   PENDING_APPROVAL: {
     label: 'Pendente de aprovação',
     cls: 'bg-warning-subtle text-warning-ink',

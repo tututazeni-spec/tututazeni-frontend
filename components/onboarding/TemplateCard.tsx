@@ -20,7 +20,7 @@ import type { OnboardingTemplate } from './types';
 
 // Paleta por template (escolhida pelo id, estável entre renders): cada card
 // tem a sua cor. [início, meio, fim do gradiente, cor de destaque das linhas]
-const PALETTE: Array<[string, string, string, string]> = [
+export const PALETTE: Array<[string, string, string, string]> = [
   ['#1267B8', '#0B4F9C', '#0F1F3D', '#1267B8'], // azul
   ['#0E9AA7', '#0B7A86', '#0F3D45', '#0E8794'], // turquesa
   ['#2E9E6B', '#1E7D52', '#0F3D2A', '#1E8A5A'], // verde
@@ -32,7 +32,12 @@ const PALETTE: Array<[string, string, string, string]> = [
 ];
 
 // Fachada de vidro: gradiente + grelha de montantes finos + brilho
-function headerBackground([c1, c2, c3]: [string, string, string, string]) {
+export function headerBackground([c1, c2, c3]: [
+  string,
+  string,
+  string,
+  string,
+]) {
   return [
     'linear-gradient(135deg, rgba(15,31,61,0.35) 0%, rgba(15,31,61,0.10) 60%, rgba(255,255,255,0) 100%)',
     'repeating-linear-gradient(90deg, rgba(255,255,255,0.10) 0 1px, transparent 1px 46px)',

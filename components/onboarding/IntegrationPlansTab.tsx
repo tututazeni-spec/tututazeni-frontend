@@ -39,7 +39,7 @@ export function IntegrationPlansTab({
     return (
       <Skeleton
         rows={3}
-        wrapperClassName="grid grid-cols-3 gap-4"
+        wrapperClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
         itemClassName="h-40 bg-surface-sunken rounded-card animate-pulse"
       />
     );
@@ -54,7 +54,7 @@ export function IntegrationPlansTab({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {data.map((t) => (
         <TemplateCard
           key={t.id}

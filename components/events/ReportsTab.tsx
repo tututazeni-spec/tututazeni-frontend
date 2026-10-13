@@ -7,7 +7,23 @@
 'use client';
 
 import { useState } from 'react';
-import { Download } from 'lucide-react';
+import {
+  CalendarDays,
+  CheckCircle2,
+  ClipboardList,
+  Download,
+  LogIn,
+  MailCheck,
+  Megaphone,
+  Radio,
+  Receipt,
+  ThumbsUp,
+  UserCheck,
+  UserPlus,
+  UserX,
+  Wallet,
+  XCircle,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -15,6 +31,12 @@ import { formatKz } from '@/lib/format';
 import { Card } from '@/components/ui/Card';
 import { Combobox } from '@/components/ui/Combobox';
 import { KpiCard } from '@/components/ui/KpiCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
+import { ThermometerStatCard } from '@/components/ui/charts/ThermometerStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { buttonVariants } from '@/components/ui/Button';
@@ -49,6 +71,29 @@ const STATUS_ITEMS = [
   })),
 ];
 
+// Faixas do velocímetro de satisfação (escala 0–5), como no módulo Formações.
+const SATISFACTION_BANDS = [
+  { to: 1, color: '#c0392b' },
+  { to: 2, color: '#e67e22' },
+  { to: 3, color: '#f1c40f' },
+  { to: 4, color: '#8fc23f' },
+  { to: 5, color: '#2f9e63' },
+];
+
+// Uma cor por linha (cicla se houver mais linhas do que cores).
+const ROW_COLORS = [
+  '#1f6fb8',
+  '#2f9e63',
+  '#d6963a',
+  '#b3432e',
+  '#7c4dbd',
+  '#0f9d9a',
+  '#d6527f',
+  '#6b8e23',
+  '#e67e22',
+  '#4a5fc1',
+];
+
 function RankedList({
   rows,
   empty,
@@ -66,7 +111,7 @@ function RankedList({
   const max = Math.max(...rows.map((r) => r.count), 1);
   return (
     <div className="space-y-2 p-4">
-      {rows.map((r) => (
+      {rows.map((r, i) => (
         <div key={r.label} className="flex items-center gap-3">
           <span
             className="w-32 shrink-0 truncate font-body text-xs text-ink-muted"
@@ -76,8 +121,11 @@ function RankedList({
           </span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
             <div
-              className="h-full rounded-full bg-primary"
-              style={{ width: `${Math.round((r.count / max) * 100)}%` }}
+              className="h-full rounded-full"
+              style={{
+                width: `${Math.round((r.count / max) * 100)}%`,
+                backgroundColor: ROW_COLORS[i % ROW_COLORS.length],
+              }}
             />
           </div>
           <span className="w-8 text-right font-mono text-xs text-ink-faint">
@@ -193,22 +241,31 @@ export function ReportsTab() {
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
             <KpiCard
+              icon={CalendarDays}
               label="Eventos"
               value={data.totals.events}
               intent="primary"
             />
             <KpiCard
+              icon={Megaphone}
               label="Publicados"
               value={data.totals.published}
               intent="info"
             />
-            <KpiCard label="Ao vivo" value={data.totals.live} intent="danger" />
             <KpiCard
+              icon={Radio}
+              label="Ao vivo"
+              value={data.totals.live}
+              intent="danger"
+            />
+            <KpiCard
+              icon={CheckCircle2}
               label="Concluídos"
               value={data.totals.ended}
               intent="success"
             />
             <KpiCard
+              icon={XCircle}
               label="Cancelados"
               value={data.totals.cancelled}
               intent="warning"
@@ -221,43 +278,52 @@ export function ReportsTab() {
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <KpiCard
+                icon={UserPlus}
                 label="Inscritos"
                 value={data.registration.registered}
                 intent="primary"
               />
-              <KpiCard
+              <SpeedometerStatCard
                 label="Taxa de inscrição"
-                value={`${data.registration.rate}%`}
-                intent="info"
+                value={data.registration.rate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.registration.rate)}%`}
               />
               <KpiCard
+                icon={MailCheck}
                 label="Confirmados"
                 value={data.confirmation.confirmed}
                 intent="info"
               />
-              <KpiCard
+              <SpeedometerStatCard
                 label="Taxa de confirmação"
-                value={`${data.confirmation.rate}%`}
-                intent="info"
+                value={data.confirmation.rate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.confirmation.rate)}%`}
               />
               <KpiCard
+                icon={UserCheck}
                 label="Presentes"
                 value={data.participation.present}
                 intent="success"
               />
-              <KpiCard
+              <SpeedometerStatCard
                 label="Taxa de participação"
-                value={`${data.participation.rate}%`}
-                intent="success"
+                value={data.participation.rate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.participation.rate)}%`}
               />
               <KpiCard
+                icon={UserX}
                 label="Ausências"
                 value={data.participation.absences}
                 intent="danger"
               />
               <KpiCard
+                icon={LogIn}
                 label="Check-ins realizados"
                 value={data.checkins.total}
+                intent="primary"
               />
             </div>
           </div>
@@ -268,19 +334,18 @@ export function ReportsTab() {
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <KpiCard
+                icon={ClipboardList}
                 label="Registadas"
                 value={data.sessionAttendance.total}
+                intent="primary"
               />
               <KpiCard
+                icon={LogIn}
                 label="Com check-in"
                 value={data.sessionAttendance.checkedIn}
                 intent="success"
               />
-              <KpiCard
-                label="Taxa"
-                value={`${data.sessionAttendance.rate}%`}
-                intent="info"
-              />
+              <DonutStatCard label="Taxa" value={data.sessionAttendance.rate} />
             </div>
           </div>
 
@@ -289,15 +354,23 @@ export function ReportsTab() {
               Custos
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <KpiCard label="Orçamento" value={formatKz(data.costs.budget)} />
               <KpiCard
-                label="Custo real"
-                value={formatKz(data.costs.actualCost)}
+                icon={Wallet}
+                label="Orçamento"
+                value={formatKz(data.costs.budget)}
+                intent="primary"
               />
               <KpiCard
-                label="Execução orçamental"
-                value={`${data.costs.budgetExecutionRate}%`}
+                icon={Receipt}
+                label="Custo real"
+                value={formatKz(data.costs.actualCost)}
                 intent="warning"
+              />
+              <ThermometerStatCard
+                label="Execução orçamental"
+                value={data.costs.budgetExecutionRate}
+                bands={RATE_BANDS}
+                display={`${Math.round(data.costs.budgetExecutionRate)}%`}
               />
             </div>
           </div>
@@ -307,35 +380,42 @@ export function ReportsTab() {
               Satisfação
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <KpiCard
+              <SpeedometerStatCard
                 label="Satisfação média"
-                value={
+                value={data.satisfaction.avgRating ?? 0}
+                max={5}
+                bands={SATISFACTION_BANDS}
+                display={
                   data.satisfaction.avgRating != null
-                    ? `${data.satisfaction.avgRating} / 5`
+                    ? Number(data.satisfaction.avgRating).toFixed(1)
                     : '—'
                 }
-                intent="accent"
+                caption="em 5.0"
               />
               <KpiCard
+                icon={ThumbsUp}
                 label="NPS do evento"
                 value={data.nps.avg != null ? data.nps.avg : '—'}
-                intent="warning"
+                intent="success"
               />
-              <KpiCard
+              <SpeedometerStatCard
                 label="Avaliação dos oradores"
-                value={
+                value={data.speakers.avgRating ?? 0}
+                max={5}
+                bands={SATISFACTION_BANDS}
+                display={
                   data.speakers.avgRating != null
-                    ? `${data.speakers.avgRating} / 5`
+                    ? Number(data.speakers.avgRating).toFixed(1)
                     : '—'
                 }
-                intent="accent"
+                caption="em 5.0"
               />
             </div>
           </div>
 
           <div className="grid gap-4 lg:grid-cols-3">
             <Card className="overflow-hidden p-0">
-              <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className="cursor-default select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
                 Por unidade
               </div>
               <RankedList
@@ -347,7 +427,7 @@ export function ReportsTab() {
               />
             </Card>
             <Card className="overflow-hidden p-0">
-              <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className="cursor-default select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
                 Por departamento
               </div>
               <RankedList
@@ -359,7 +439,7 @@ export function ReportsTab() {
               />
             </Card>
             <Card className="overflow-hidden p-0">
-              <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div className="cursor-default select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
                 Presencial / online / híbrido
               </div>
               <RankedList
@@ -375,7 +455,7 @@ export function ReportsTab() {
           </div>
 
           <Card className="overflow-hidden p-0">
-            <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="cursor-default select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
               Participantes por evento
             </div>
             <RankedList

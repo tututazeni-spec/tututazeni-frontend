@@ -25,6 +25,13 @@ export const NAVY_TONES: Record<NavyStatTone, { bg: string; text: string }> = {
   red: { bg: 'bg-[#EF4657]', text: 'text-[#EF4657]' },
 };
 
+// Tom extra só para o círculo do ícone (amarelo, distinto do laranja de `orange`)
+export type NavyIconTone = NavyStatTone | 'yellow';
+
+function iconBg(tone: NavyIconTone): string {
+  return tone === 'yellow' ? 'bg-[#F2C230]' : NAVY_TONES[tone].bg;
+}
+
 export function NavyStatCard({
   icon: Icon,
   label,
@@ -32,6 +39,7 @@ export function NavyStatCard({
   sub,
   trend,
   tone,
+  iconTone,
   className,
 }: {
   icon: LucideIcon;
@@ -42,6 +50,8 @@ export function NavyStatCard({
   /** Variação opcional face ao período anterior. */
   trend?: number | null;
   tone: NavyStatTone;
+  /** Cor só do círculo do ícone (omisso: igual a `tone`). */
+  iconTone?: NavyIconTone;
   className?: string;
 }) {
   const t = NAVY_TONES[tone];
@@ -66,7 +76,7 @@ export function NavyStatCard({
       </div>
       <span
         aria-hidden
-        className={`absolute left-4 top-[32px] flex h-[58px] w-[58px] items-center justify-center rounded-full border-[3px] border-white text-white shadow-sm ${t.bg}`}
+        className={`absolute left-4 top-[32px] flex h-[58px] w-[58px] items-center justify-center rounded-full border-[3px] border-white text-white shadow-sm ${iconBg(iconTone ?? tone)}`}
       >
         <Icon size={26} strokeWidth={1.75} />
       </span>

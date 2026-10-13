@@ -69,3 +69,25 @@ export async function resizeImageToDataUrl(
   if (out.length > MAX_AVATAR_DATA_URL_LEN) throw new Error('IMAGE_TOO_LARGE');
   return out;
 }
+
+/**
+ * Redimensiona mantendo a proporção (sem recorte): o lado maior fica com no
+ * máximo `maxSide` px. Para fotos que são mostradas inteiras (ex.: oradores).
+ */
+export async function resizeImageKeepAspect(
+  file: File,
+  maxSide = 1024,
+): Promise<string> {
+  const img = await loadImage(await readFileAsDataUrl(file));
+  const scale = Math.min(
+    1,
+    maxSide / Math.max(img.naturalWidth, img.naturalHeight),
+  );
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(img.naturalWidth * scale);
+  canvas.height = Math.round(img.naturalHeight * scale);
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas 2D indisponível');
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL('image/jpeg', 0.85);
+}

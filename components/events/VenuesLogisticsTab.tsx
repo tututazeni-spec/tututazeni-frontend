@@ -11,7 +11,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MapPin } from 'lucide-react';
+import { MapPin, Plus, X } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useToast } from '@/providers/ToastProvider';
@@ -32,7 +32,10 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
+import { cn } from '@/lib/cn';
 import { EQUIPMENT_CFG, LOGISTICS_STATUS_CFG } from './constants';
+import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
+import { proximityLevel, relativeLabel } from './proximity';
 import { useEventPickerOptions } from './eventFormData';
 import type {
   Event,
@@ -45,6 +48,7 @@ const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 
 interface LogisticsFormState {
   equipment: EventEquipmentType[];
+  customEquipment: string[];
   resourcesNeeded: string;
   suppliers: string;
   catering: string;
@@ -57,8 +61,27 @@ interface LogisticsFormState {
   status: EventLogisticsStatus;
 }
 
+// Recursos sugeridos; qualquer outro texto é aceite como recurso livre.
+// Guardados em EventLogistics.resourcesNeeded, um por linha.
+const RESOURCE_SUGGESTIONS = [
+  'Água',
+  'Café / Coffee break',
+  'Crachás',
+  'Papel e canetas',
+  'Extensões eléctricas',
+  'Material de escritório',
+];
+
+function parseResources(text: string): string[] {
+  return text
+    .split('\n')
+    .map((r) => r.trim())
+    .filter(Boolean);
+}
+
 const EMPTY_FORM: LogisticsFormState = {
   equipment: [],
+  customEquipment: [],
   resourcesNeeded: '',
   suppliers: '',
   catering: '',
@@ -75,6 +98,7 @@ function toForm(l: EventLogistics | null): LogisticsFormState {
   if (!l) return EMPTY_FORM;
   return {
     equipment: l.equipment,
+    customEquipment: l.customEquipment ?? [],
     resourcesNeeded: l.resourcesNeeded ?? '',
     suppliers: l.suppliers ?? '',
     catering: l.catering ?? '',
@@ -95,6 +119,8 @@ export function VenuesLogisticsTab() {
   const eventOptions = useEventPickerOptions('logistics');
 
   const [eventId, setEventId] = useState<number | null>(null);
+  const [newEquipment, setNewEquipment] = useState('');
+  const [newResource, setNewResource] = useState('');
   const [responsible, setResponsible] = useState<DirectoryUser | null>(null);
   const [form, setForm] = useState<LogisticsFormState>(EMPTY_FORM);
 
@@ -136,6 +162,7 @@ export function VenuesLogisticsTab() {
       apiClient.put(`/events/${eventId}/logistics`, {
         responsibleId: responsible?.id,
         equipment: form.equipment,
+        customEquipment: form.customEquipment,
         resourcesNeeded: form.resourcesNeeded || undefined,
         suppliers: form.suppliers || undefined,
         catering: form.catering || undefined,
@@ -154,6 +181,46 @@ export function VenuesLogisticsTab() {
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
+
+  const resources = parseResources(form.resourcesNeeded);
+
+  function addResource(raw: string) {
+    const name = raw.trim();
+    if (!name) return;
+    if (resources.some((r) => r.toLowerCase() === name.toLowerCase())) return;
+    setForm((f) => ({
+      ...f,
+      resourcesNeeded: [...parseResources(f.resourcesNeeded), name].join('\n'),
+    }));
+  }
+
+  function removeResource(name: string) {
+    setForm((f) => ({
+      ...f,
+      resourcesNeeded: parseResources(f.resourcesNeeded)
+        .filter((r) => r !== name)
+        .join('\n'),
+    }));
+  }
+
+  function addCustomEquipment() {
+    const name = newEquipment.trim();
+    if (!name) return;
+    const exists = form.customEquipment.some(
+      (e) => e.toLowerCase() === name.toLowerCase(),
+    );
+    if (!exists) {
+      setForm((f) => ({ ...f, customEquipment: [...f.customEquipment, name] }));
+    }
+    setNewEquipment('');
+  }
+
+  function removeCustomEquipment(name: string) {
+    setForm((f) => ({
+      ...f,
+      customEquipment: f.customEquipment.filter((e) => e !== name),
+    }));
+  }
 
   function toggleEquipment(item: EventEquipmentType) {
     setForm((f) => ({
@@ -209,26 +276,56 @@ export function VenuesLogisticsTab() {
       ) : (
         <>
           {event && (
-            <Card className="grid grid-cols-2 gap-3 p-4 text-sm sm:grid-cols-4">
-              <div>
-                <div className="font-body text-xs text-ink-faint">Local</div>
-                <div className="truncate text-ink">{event.location ?? '—'}</div>
-              </div>
-              <div>
-                <div className="font-body text-xs text-ink-faint">Sala</div>
-                <div className="truncate text-ink">{event.room ?? '—'}</div>
-              </div>
-              <div>
-                <div className="font-body text-xs text-ink-faint">
-                  Capacidade
+            <NavyHeroCard
+              className="block"
+              surfaceClassName="border-[#0F1F3D] bg-[#0F1F3D] !p-4 !pl-9"
+            >
+              <span
+                className={cn(
+                  'absolute -left-6 inset-y-0 w-1 rounded-full',
+                  proximityLevel(event.startAt).bar,
+                )}
+              />
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <div className="truncate font-body text-sm font-semibold text-white">
+                  {event.title}
                 </div>
-                <div className="text-ink">{event.maxCapacity}</div>
+                <span
+                  className={cn(
+                    'inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-body text-xs font-semibold',
+                    proximityLevel(event.startAt).cls,
+                  )}
+                >
+                  {relativeLabel(event.startAt)}
+                </span>
               </div>
-              <div>
-                <div className="font-body text-xs text-ink-faint">Endereço</div>
-                <div className="truncate text-ink">{event.address ?? '—'}</div>
+              <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+                <div>
+                  <div className="font-body text-xs text-white">Local</div>
+                  <div className="truncate font-semibold text-white">
+                    {event.location ?? '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="font-body text-xs text-white">Sala</div>
+                  <div className="truncate font-semibold text-white">
+                    {event.room ?? '—'}
+                  </div>
+                </div>
+                <div>
+                  <div className="font-body text-xs text-white">Capacidade</div>
+                  <div className="font-semibold text-white">
+                    {event.maxCapacity}
+                  </div>
+                </div>
+                <div>
+                  <div className="font-body text-xs text-white">Endereço</div>
+                  <div className="truncate font-semibold text-white">
+                    {event.address ?? '—'}
+                  </div>
+                </div>
               </div>
-            </Card>
+            </NavyHeroCard>
           )}
 
           <Card className="space-y-4 p-4">
@@ -256,7 +353,53 @@ export function VenuesLogisticsTab() {
                     {cfg.label}
                   </label>
                 ))}
+                {form.customEquipment.map((name) => (
+                  <span
+                    key={name}
+                    className="flex items-center gap-1.5 rounded-full border border-primary bg-primary-subtle px-2.5 py-1 text-xs text-primary"
+                  >
+                    {name}
+                    {canManage && (
+                      <button
+                        type="button"
+                        aria-label={`Remover ${name}`}
+                        onClick={() => removeCustomEquipment(name)}
+                        className="rounded-full hover:bg-primary/10"
+                      >
+                        <X size={12} strokeWidth={2} />
+                      </button>
+                    )}
+                  </span>
+                ))}
               </div>
+              {canManage && (
+                <div className="mt-2 flex max-w-sm items-center gap-2">
+                  <Input
+                    value={newEquipment}
+                    onChange={(e) => setNewEquipment(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addCustomEquipment();
+                      }
+                    }}
+                    maxLength={80}
+                    placeholder="Outro equipamento…"
+                    aria-label="Adicionar outro equipamento"
+                    className="w-full"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    intent="secondary"
+                    onClick={addCustomEquipment}
+                    disabled={!newEquipment.trim()}
+                  >
+                    <Plus size={14} strokeWidth={1.75} />
+                    Adicionar
+                  </Button>
+                </div>
+              )}
             </div>
 
             {canManage ? (
@@ -280,18 +423,85 @@ export function VenuesLogisticsTab() {
             )}
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <FormField label="Recursos necessários" htmlFor="log-resources">
-                <Textarea
-                  id="log-resources"
-                  value={form.resourcesNeeded}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, resourcesNeeded: e.target.value }))
-                  }
-                  rows={2}
-                  disabled={!canManage}
-                  className="w-full resize-none"
-                />
-              </FormField>
+              <div>
+                <div className="mb-1.5 font-body text-xs font-medium text-ink">
+                  Recursos necessários
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {RESOURCE_SUGGESTIONS.map((name) => {
+                    const on = resources.includes(name);
+                    return (
+                      <label
+                        key={name}
+                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs text-ink hover:bg-surface-sunken has-[:checked]:border-primary has-[:checked]:bg-primary-subtle has-[:checked]:text-primary"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={on}
+                          onChange={() =>
+                            on ? removeResource(name) : addResource(name)
+                          }
+                          disabled={!canManage}
+                          className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                        />
+                        {name}
+                      </label>
+                    );
+                  })}
+                  {resources
+                    .filter((r) => !RESOURCE_SUGGESTIONS.includes(r))
+                    .map((name) => (
+                      <span
+                        key={name}
+                        className="flex items-center gap-1.5 rounded-full border border-primary bg-primary-subtle px-2.5 py-1 text-xs text-primary"
+                      >
+                        {name}
+                        {canManage && (
+                          <button
+                            type="button"
+                            aria-label={`Remover ${name}`}
+                            onClick={() => removeResource(name)}
+                            className="rounded-full hover:bg-primary/10"
+                          >
+                            <X size={12} strokeWidth={2} />
+                          </button>
+                        )}
+                      </span>
+                    ))}
+                </div>
+                {canManage && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <Input
+                      value={newResource}
+                      onChange={(e) => setNewResource(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addResource(newResource);
+                          setNewResource('');
+                        }
+                      }}
+                      maxLength={120}
+                      placeholder="Outro recurso…"
+                      aria-label="Adicionar outro recurso"
+                      className="w-full"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      intent="secondary"
+                      onClick={() => {
+                        addResource(newResource);
+                        setNewResource('');
+                      }}
+                      disabled={!newResource.trim()}
+                    >
+                      <Plus size={14} strokeWidth={1.75} />
+                      Adicionar
+                    </Button>
+                  </div>
+                )}
+              </div>
               <FormField label="Fornecedores" htmlFor="log-suppliers">
                 <Textarea
                   id="log-suppliers"

@@ -20,7 +20,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from './shared';
-import { CourseCard } from './CourseCard';
+import { CourseListCard } from './CourseListCard';
 import type { PaginatedCourses } from './types';
 
 const LEVEL_ITEMS = [
@@ -149,14 +149,18 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
           <div className="text-xs text-ink-faint mb-4">
             {data.total} cursos encontrados
           </div>
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            {data.data.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                onClick={() => onSelect(course.id)}
-              />
-            ))}
+          <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-2 xl:grid-cols-3">
+            {[...data.data]
+              .sort((a, b) => a.id - b.id)
+              .map((course) => (
+                <CourseListCard
+                  key={course.id}
+                  courseId={course.id}
+                  course={course}
+                  mandatory={course.mandatory}
+                  onSelect={() => onSelect(course.id)}
+                />
+              ))}
           </div>
           {data.data.length === 0 && (
             <EmptyState
