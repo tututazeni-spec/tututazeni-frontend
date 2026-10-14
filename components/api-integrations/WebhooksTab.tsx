@@ -1,5 +1,6 @@
 // components/api-integrations/WebhooksTab.tsx
 
+import { useState } from 'react';
 import { Trash2, Plus, CheckCircle2, XCircle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -13,10 +14,12 @@ import { Button, IconButton } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { NewWebhookModal } from './NewWebhookModal';
 import type { Webhook } from './types';
 
 export function WebhooksTab() {
   const notify = useToast();
+  const [showNew, setShowNew] = useState(false);
   const {
     data: list = [],
     isLoading: loading,
@@ -66,7 +69,7 @@ export function WebhooksTab() {
         <span className="font-body text-sm text-ink-muted">
           {list.length} webhook(s)
         </span>
-        <Button size="sm">
+        <Button size="sm" onClick={() => setShowNew(true)}>
           <Plus size={14} strokeWidth={1.75} />
           Novo Webhook
         </Button>
@@ -143,6 +146,7 @@ export function WebhooksTab() {
           />
         )}
       </div>
+      {showNew && <NewWebhookModal onClose={() => setShowNew(false)} />}
     </div>
   );
 }
