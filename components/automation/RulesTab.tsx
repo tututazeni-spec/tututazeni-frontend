@@ -2,7 +2,7 @@
 // "Todas as Automações" (docs/modulo_automation.md §3): tabela com os campos
 // do spec, filtros enviados ao backend e acções por linha.
 
-import { useDeferredValue, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   Copy,
@@ -17,6 +17,10 @@ import {
   Rocket,
   RefreshCw,
   Trash2,
+  ArrowRight,
+  Clock,
+  User,
+  Zap,
 } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -25,26 +29,18 @@ import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Badge, type BadgeProps } from '@/components/ui/Badge';
+import type { BadgeProps } from '@/components/ui/Badge';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button, IconButton } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
-import {
-  CATEGORY_INTENT,
-  CATEGORY_LABEL,
-  TRIGGER_LABEL,
-} from './constants';
+import { Tooltip } from '@/components/ui/Tooltip';
+import { cn } from '@/lib/cn';
+import { ACTION_ITEMS, CATEGORY_LABEL, TRIGGER_LABEL } from './constants';
+import { TEMPLATE_PALETTES, templateIcon } from './templateTheme';
 import { CreateRuleModal } from './CreateRuleModal';
 import type {
   AutomationRule,
@@ -55,6 +51,36 @@ import type {
 
 const ALL = '__all__';
 
+const MODULE_LABELS: Record<string, string> = {
+  ATTENDANCE: 'Assiduidade',
+  AUTOMATION: 'Automações',
+  AVATAR_TRAINING: 'Treino com Avatar',
+  CAREER: 'Carreira',
+  CERTIFICATION: 'Certificação',
+  COMPETENCIES: 'Competências',
+  COURSES: 'Cursos',
+  DEPARTMENTS: 'Departamentos',
+  DEVELOPMENTPLANS: 'Planos de Desenvolvimento',
+  DOCUMENTS: 'Documentos',
+  EVALUATION: 'Avaliação',
+  EVENTS: 'Eventos',
+  INTEGRATIONS: 'Integrações',
+  LEARNING_PATHS: 'Percursos de Aprendizagem',
+  LEAVE: 'Licenças',
+  NOTIFICATIONS: 'Notificações',
+  ONBOARDING: 'Integração',
+  PAYROLL: 'Salários',
+  PDI: 'PDI',
+  PROCESSES: 'Processos',
+  ROLES: 'Perfis e Permissões',
+  SCHEDULED: 'Agendadas',
+  TRAININGS: 'Formações',
+  USERS: 'Utilizadores',
+};
+
+const moduleLabel = (m: string): string =>
+  MODULE_LABELS[m.toUpperCase().replace(/\s+/g, '_')] ?? m;
+
 const STATUS_META: Record<
   RuleStatus,
   { label: string; intent: BadgeProps['intent'] }
@@ -63,6 +89,14 @@ const STATUS_META: Record<
   ACTIVE: { label: 'Activa', intent: 'success' },
   PAUSED: { label: 'Pausada', intent: 'neutral' },
   ERROR: { label: 'Com erro', intent: 'danger' },
+};
+
+const STATUS_DOT: Record<NonNullable<BadgeProps['intent']>, string> = {
+  success: 'bg-emerald-400',
+  warning: 'bg-amber-400',
+  danger: 'bg-red-400',
+  info: 'bg-sky-400',
+  neutral: 'bg-slate-400',
 };
 
 const STATUS_ITEMS = [
@@ -82,6 +116,9 @@ const CATEGORY_ITEMS = [
 
 const fmt = (iso?: string | null) =>
   iso ? new Date(iso).toLocaleString('pt') : '–';
+
+const fmtDay = (iso?: string | null) =>
+  iso ? new Date(iso).toLocaleDateString('pt') : '–';
 
 export interface RulesTabProps {
   /** Abre o Histórico de Execuções filtrado a uma regra (e, opcionalmente, só falhas). */
@@ -109,7 +146,6 @@ export function RulesTab({
   const [module, setModule] = useState(ALL);
   const [category, setCategory] = useState(ALL);
   const [status, setStatus] = useState(ALL);
-  const [ownerId, setOwnerId] = useState(ALL);
   const [withFailures, setWithFailures] = useState(false);
   const [createdFrom, setCreatedFrom] = useState('');
   const [createdTo, setCreatedTo] = useState('');
@@ -121,7 +157,6 @@ export function RulesTab({
     module: module === ALL ? undefined : module,
     category: category === ALL ? undefined : category,
     status: status === ALL ? undefined : status,
-    ownerId: ownerId === ALL ? undefined : ownerId,
     withFailures: withFailures || undefined,
     createdFrom: createdFrom ? `${createdFrom}T00:00:00.000Z` : undefined,
     createdTo: createdTo ? `${createdTo}T23:59:59.999Z` : undefined,
@@ -145,28 +180,10 @@ export function RulesTab({
     { staleTime: STALE_TIME.STATIC },
   );
 
-  // Responsáveis vistos até agora — as opções não encolhem quando o filtro
-  // de responsável reduz a lista.
-  const ownersSeen = useRef(new Map<string, string>());
-  for (const r of rules) {
-    if (r.ownerId)
-      ownersSeen.current.set(r.ownerId, r.ownerName ?? `#${r.ownerId}`);
-  }
-  const ownerItems = useMemo(
-    () => [
-      { value: ALL, label: 'Todos os responsáveis' },
-      ...[...ownersSeen.current.entries()].map(([value, label]) => ({
-        value,
-        label,
-      })),
-    ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rules],
-  );
   const moduleItems = useMemo(
     () => [
       { value: ALL, label: 'Todos os módulos' },
-      ...modules.map((m) => ({ value: m, label: m })),
+      ...modules.map((m) => ({ value: m, label: moduleLabel(m) })),
     ],
     [modules],
   );
@@ -180,7 +197,6 @@ export function RulesTab({
     setModule(ALL);
     setCategory(ALL);
     setStatus(ALL);
-    setOwnerId(ALL);
     setWithFailures(false);
     setCreatedFrom('');
     setCreatedTo('');
@@ -292,7 +308,10 @@ export function RulesTab({
       URL.revokeObjectURL(url);
     } catch (e) {
       reportError(e, { source: 'RulesTab.exportCsv' });
-      notify({ title: 'Não foi possível exportar a listagem', intent: 'danger' });
+      notify({
+        title: 'Não foi possível exportar a listagem',
+        intent: 'danger',
+      });
     } finally {
       setExporting(false);
     }
@@ -370,12 +389,6 @@ export function RulesTab({
             onValueChange={setStatus}
             className="min-w-[150px]"
           />
-          <Select
-            items={ownerItems}
-            value={ownerId}
-            onValueChange={setOwnerId}
-            className="min-w-[180px]"
-          />
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1 font-body text-xs text-ink-muted">
@@ -442,161 +455,290 @@ export function RulesTab({
           }
         />
       ) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>Nome</TableHeaderCell>
-              <TableHeaderCell>Módulo</TableHeaderCell>
-              <TableHeaderCell>Categoria</TableHeaderCell>
-              <TableHeaderCell>Gatilho</TableHeaderCell>
-              <TableHeaderCell>Responsável</TableHeaderCell>
-              <TableHeaderCell>Estado</TableHeaderCell>
-              <TableHeaderCell>Última execução</TableHeaderCell>
-              <TableHeaderCell>Sucesso</TableHeaderCell>
-              <TableHeaderCell>Criada</TableHeaderCell>
-              <TableHeaderCell>Actualizada</TableHeaderCell>
-              <TableHeaderCell>
-                <span className="sr-only">Acções</span>
-              </TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rules.map((r) => {
-              const st = STATUS_META[
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {rules.map((r) => {
+            const st =
+              STATUS_META[
                 r.status ?? (r.draft ? 'DRAFT' : r.active ? 'ACTIVE' : 'PAUSED')
               ];
-              return (
-                <TableRow key={r.id} className={r.active ? '' : 'opacity-70'}>
-                  <TableCell className="min-w-[220px]">
-                    <p className="font-semibold">{r.name}</p>
-                    <p className="font-data text-[10px] text-ink-faint">
+            const failed = r.stats?.failed ?? 0;
+            const actionLabel =
+              ACTION_ITEMS.find((a) => a.value === r.action)?.label ?? r.action;
+            const iconBtn =
+              'text-[#0F1F3D] hover:bg-[#0F1F3D]/10 hover:text-[#0F1F3D] focus-visible:ring-[#0F1F3D]/40';
+            const dot = STATUS_DOT[st.intent ?? 'neutral'];
+            const c = TEMPLATE_PALETTES[r.id % TEMPLATE_PALETTES.length];
+            const Icon = templateIcon(r);
+            const hasTrigger = Boolean(TRIGGER_LABEL[r.trigger]);
+            return (
+              <li
+                key={r.id}
+                className={cn(
+                  'group flex flex-col overflow-hidden rounded-2xl border bg-surface shadow-resting transition-shadow duration-150 hover:shadow-hover',
+                  c.border,
+                  !r.active && !r.draft && 'opacity-80',
+                )}
+              >
+                <div
+                  className={`relative h-20 overflow-hidden bg-gradient-to-br ${c.header}`}
+                >
+                  <div
+                    className="absolute -right-6 -top-10 h-36 w-36 rounded-full bg-white/15"
+                    aria-hidden
+                  />
+                  <div
+                    className="absolute -bottom-10 right-24 h-24 w-24 rounded-full bg-white/10"
+                    aria-hidden
+                  />
+                  <Icon
+                    size={72}
+                    strokeWidth={1.25}
+                    className="absolute -bottom-2 right-5 rotate-12 text-white/25"
+                    aria-hidden
+                  />
+                  <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 font-body text-[11px] font-medium text-ink shadow-sm">
+                    <span
+                      aria-hidden
+                      className={cn('h-2 w-2 rounded-full', dot)}
+                    />
+                    {st.label}
+                  </span>
+                </div>
+
+                <div className="relative -mt-6 flex flex-1 flex-col gap-3 px-4 pb-4">
+                  <span
+                    className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg ring-[3px] ring-surface ${c.tile}`}
+                    aria-hidden
+                  >
+                    <Icon size={22} strokeWidth={1.75} />
+                  </span>
+
+                  <div className="min-w-0">
+                    <h3 className="break-words font-display text-base font-bold leading-snug text-[#0F1F3D]">
+                      {r.name}
+                    </h3>
+                    <p className="font-data text-[11px] text-ink-muted">
                       {r.code ?? `#${r.id}`}
                     </p>
                     {r.description && (
-                      <p className="line-clamp-2 text-xs text-ink-muted">
+                      <p className="mt-1 line-clamp-2 font-body text-xs leading-relaxed text-ink-muted">
                         {r.description}
                       </p>
                     )}
-                  </TableCell>
-                  <TableCell>{r.module ?? '–'}</TableCell>
-                  <TableCell>
-                    {r.category ? (
-                      <Badge
-                        intent={CATEGORY_INTENT[r.category] ?? 'neutral'}
-                        dot={false}
-                      >
-                        {CATEGORY_LABEL[r.category] ?? r.category}
-                      </Badge>
-                    ) : (
-                      '–'
+                  </div>
+
+                  <dl className={`space-y-2 rounded-xl px-3 py-2.5 ${c.panel}`}>
+                    {hasTrigger && (
+                      <div className="flex items-start gap-2.5">
+                        <Zap
+                          size={14}
+                          strokeWidth={1.75}
+                          className={`mt-0.5 shrink-0 ${c.accent}`}
+                          aria-hidden
+                        />
+                        <dt className="w-12 shrink-0 font-body text-xs text-ink-muted">
+                          Quando
+                        </dt>
+                        <dd className="min-w-0 break-words font-body text-xs font-semibold text-[#0F1F3D]">
+                          {TRIGGER_LABEL[r.trigger]}
+                        </dd>
+                      </div>
                     )}
-                  </TableCell>
-                  <TableCell className="min-w-[160px] text-xs">
-                    {TRIGGER_LABEL[r.trigger] ?? r.trigger}
-                    <span className="block font-data text-[10px] text-ink-faint">
-                      → {r.action}
-                    </span>
-                  </TableCell>
-                  <TableCell>{r.ownerName ?? '–'}</TableCell>
-                  <TableCell>
-                    <Badge intent={st.intent}>{st.label}</Badge>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap text-xs">
-                    {fmt(r.lastRunAt)}
-                  </TableCell>
-                  <TableCell className="text-xs">
-                    {r.stats && r.stats.total > 0 ? (
-                      <>
-                        <span className="font-semibold">
-                          {r.stats.successRate}%
+                    <div
+                      className={cn(
+                        'flex items-start gap-2.5',
+                        hasTrigger && `border-t pt-2.5 ${c.divider}`,
+                      )}
+                    >
+                      <ArrowRight
+                        size={14}
+                        strokeWidth={1.75}
+                        className={`mt-0.5 shrink-0 ${c.accent}`}
+                        aria-hidden
+                      />
+                      <dt className="w-12 shrink-0 font-body text-xs text-ink-muted">
+                        Então
+                      </dt>
+                      <dd className="min-w-0 break-words font-body text-xs font-semibold text-[#0F1F3D]">
+                        {actionLabel}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <div className={`rounded-xl border px-3 py-2.5 ${c.border}`}>
+                    <p className="flex items-center gap-1.5 font-body text-xs text-ink-muted">
+                      <Clock size={12} strokeWidth={1.75} aria-hidden />
+                      Última execução
+                    </p>
+                    <p className="mt-0.5 font-display text-sm font-bold text-[#0F1F3D]">
+                      {fmt(r.lastRunAt)}
+                    </p>
+                    {r.stats && r.stats.total > 0 && (
+                      <div className="mt-2">
+                        <div className="mb-1 flex justify-between font-body text-xs text-ink-muted">
+                          <span>
+                            {r.stats.success} de {r.stats.total} com sucesso
+                          </span>
+                          <span className="font-semibold text-[#0F1F3D]">
+                            {r.stats.successRate}%
+                          </span>
+                        </div>
+                        <div
+                          className="h-1.5 overflow-hidden rounded-full bg-[#0F1F3D]/15"
+                          role="img"
+                          aria-label={`Taxa de sucesso ${r.stats.successRate}%`}
+                        >
+                          <div
+                            className="h-full rounded-full bg-[#0F1F3D]"
+                            style={{ width: `${r.stats.successRate}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <dl className="grid grid-cols-2 divide-x divide-border font-body text-xs text-[#0F1F3D]">
+                    <div className="pr-3">
+                      <dt className="mb-0.5 text-ink-muted">Módulo</dt>
+                      <dd className="break-words">
+                        {r.module ? moduleLabel(r.module) : '–'}
+                        {r.category && (
+                          <span className="block text-ink-muted">
+                            {CATEGORY_LABEL[r.category] ?? r.category}
+                          </span>
+                        )}
+                      </dd>
+                    </div>
+                    <div className="pl-3">
+                      <dt className="mb-0.5 text-ink-muted">Criada</dt>
+                      <dd>
+                        {fmtDay(r.createdAt)}
+                        <span className="block text-ink-muted">
+                          Actualizada {fmtDay(r.updatedAt)}
                         </span>
-                        <span className="block text-[10px] text-ink-faint">
-                          {r.stats.success}/{r.stats.total}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <div className="mt-auto flex items-center gap-2 border-t border-border pt-2.5 font-body text-xs text-[#0F1F3D]">
+                    {r.ownerName ? (
+                      <>
+                        <Avatar
+                          name={r.ownerName}
+                          url={r.ownerAvatarUrl ?? undefined}
+                          size="sm"
+                        />
+                        <span className="min-w-0 truncate">
+                          <span className="block text-[10px] text-ink-muted">
+                            Responsável
+                          </span>
+                          {r.ownerName}
                         </span>
                       </>
                     ) : (
-                      '–'
+                      <span className="text-ink-muted">Sem responsável</span>
                     )}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap text-xs">
-                    {fmt(r.createdAt)}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap text-xs">
-                    {fmt(r.updatedAt)}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex shrink-0 gap-1">
+                  </div>
+
+                  <div className="-ml-2 flex flex-wrap gap-0.5">
+                    <Tooltip content="Ver detalhes">
                       <IconButton
                         icon={Eye}
                         label="Ver detalhes"
                         intent="ghost"
+                        className={iconBtn}
                         onClick={() => setDetail(r)}
                       />
-                      {onEditRule && (
+                    </Tooltip>
+                    {onEditRule && (
+                      <Tooltip content="Editar regra">
                         <IconButton
                           icon={Pencil}
                           label="Editar regra"
                           intent="ghost"
+                          className={iconBtn}
                           onClick={() => onEditRule(r.id)}
                         />
-                      )}
-                      {r.draft ? (
+                      </Tooltip>
+                    )}
+                    {r.draft ? (
+                      <Tooltip content="Publicar regra">
                         <IconButton
                           icon={Rocket}
                           label="Publicar regra"
                           intent="ghost"
+                          className={iconBtn}
                           onClick={() => publish(r)}
                         />
-                      ) : (
-                        <>
+                      </Tooltip>
+                    ) : (
+                      <>
+                        <Tooltip
+                          content={r.active ? 'Pausar regra' : 'Activar regra'}
+                        >
                           <IconButton
                             icon={r.active ? Pause : Play}
                             label={r.active ? 'Pausar regra' : 'Activar regra'}
                             intent="ghost"
+                            className={iconBtn}
                             onClick={() => toggle(r.id)}
                           />
+                        </Tooltip>
+                        <Tooltip content="Executar manualmente">
                           <IconButton
                             icon={PlayCircle}
                             label="Executar manualmente"
                             intent="ghost"
+                            className={iconBtn}
                             onClick={() => runOne(r)}
                           />
-                        </>
-                      )}
+                        </Tooltip>
+                      </>
+                    )}
+                    <Tooltip content="Consultar histórico">
                       <IconButton
                         icon={History}
                         label="Consultar histórico"
                         intent="ghost"
+                        className={iconBtn}
                         onClick={() => onOpenHistory?.(r.id)}
                       />
-                      {(r.stats?.failed ?? 0) > 0 && (
+                    </Tooltip>
+                    {failed > 0 && (
+                      <Tooltip content="Ver erros">
                         <IconButton
                           icon={AlertTriangle}
                           label="Ver erros"
                           intent="ghost"
+                          className={iconBtn}
                           onClick={() => onOpenHistory?.(r.id, true)}
                         />
-                      )}
+                      </Tooltip>
+                    )}
+                    <Tooltip content="Duplicar regra">
                       <IconButton
                         icon={Copy}
                         label="Duplicar regra"
                         intent="ghost"
+                        className={iconBtn}
                         onClick={() => clone(r.id)}
                       />
+                    </Tooltip>
+                    <Tooltip content="Remover regra">
                       <IconButton
                         icon={Trash2}
                         label="Remover regra"
                         intent="ghost"
-                        className="hover:bg-danger-subtle hover:text-danger"
+                        className={iconBtn}
                         onClick={() => remove(r.id)}
                       />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                    </Tooltip>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
 
       {showCreate && <CreateRuleModal onClose={() => setShowCreate(false)} />}
@@ -611,7 +753,7 @@ export function RulesTab({
               <dt className="text-ink-muted">Descrição</dt>
               <dd>{detail.description || '–'}</dd>
               <dt className="text-ink-muted">Módulo</dt>
-              <dd>{detail.module ?? '–'}</dd>
+              <dd>{detail.module ? moduleLabel(detail.module) : '–'}</dd>
               <dt className="text-ink-muted">Gatilho</dt>
               <dd>{TRIGGER_LABEL[detail.trigger] ?? detail.trigger}</dd>
               <dt className="text-ink-muted">Acção</dt>

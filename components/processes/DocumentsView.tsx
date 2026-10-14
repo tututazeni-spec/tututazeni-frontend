@@ -9,7 +9,16 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { FilePlus2, FileText, Send, Sparkles } from 'lucide-react';
+import {
+  AlertTriangle,
+  ClipboardCheck,
+  Clock,
+  FilePlus2,
+  FileText,
+  Send,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -20,6 +29,11 @@ import { Button } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
+import {
+  NavyStatCard,
+  type NavyIconTone,
+  type NavyStatTone,
+} from '@/components/ui/NavyStatCard';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -72,11 +86,17 @@ const ASSIGNED_ITEMS = [
 ];
 
 function SummaryTile({
+  icon,
+  tone,
+  iconTone,
   label,
   value,
   active,
   onClick,
 }: {
+  icon: LucideIcon;
+  tone: NavyStatTone;
+  iconTone?: NavyIconTone;
   label: string;
   value: number;
   active: boolean;
@@ -86,17 +106,20 @@ function SummaryTile({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
-        'rounded-card border bg-[#17306B] px-4 py-3 text-left text-white transition-colors hover:bg-[#17306B]/90',
-        active ? 'border-white ring-2 ring-[#17306B]' : 'border-[#17306B]',
+        'rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#152F59]/50',
+        active && 'ring-2 ring-[#152F59] ring-offset-2',
       )}
     >
-      <div className="font-body text-xs uppercase tracking-wide text-white">
-        {label}
-      </div>
-      <div className="font-display text-2xl font-semibold text-white">
-        {value}
-      </div>
+      <NavyStatCard
+        icon={icon}
+        tone={tone}
+        iconTone={iconTone}
+        label={label}
+        value={value}
+        className="h-full"
+      />
     </button>
   );
 }
@@ -160,6 +183,8 @@ export function DocumentsView({
       {/* Resumo */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <SummaryTile
+          icon={Send}
+          tone="blue"
           label="Pedidos por entregar"
           value={summary?.requested ?? 0}
           active={tile('REQUESTED')}
@@ -169,6 +194,8 @@ export function DocumentsView({
           }}
         />
         <SummaryTile
+          icon={ClipboardCheck}
+          tone="orange"
           label="Por validar"
           value={summary?.pending ?? 0}
           active={tile('PENDING')}
@@ -178,6 +205,9 @@ export function DocumentsView({
           }}
         />
         <SummaryTile
+          icon={Clock}
+          tone="orange"
+          iconTone="yellow"
           label="A expirar (30 dias)"
           value={summary?.expiring ?? 0}
           active={tile('EXPIRING')}
@@ -187,6 +217,8 @@ export function DocumentsView({
           }}
         />
         <SummaryTile
+          icon={AlertTriangle}
+          tone="red"
           label="Expirados"
           value={summary?.expired ?? 0}
           active={tile('EXPIRED')}

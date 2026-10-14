@@ -1,16 +1,31 @@
 // components/automation/StatsTab.tsx
 
-import { AlertTriangle } from 'lucide-react';
+import { Activity, AlertTriangle, XCircle, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { CATEGORY_INTENT } from './constants';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
+import { CATEGORY_LABEL } from './constants';
 import type { AutomationStats } from './types';
+
+// Uma cor distinta por linha da lista "Por Categoria".
+const ROW_COLORS = [
+  '#1877F2',
+  '#218653',
+  '#E99A16',
+  '#EF4657',
+  '#8B5CF6',
+  '#0EA5A4',
+  '#EC4899',
+  '#F2C230',
+];
 
 export function StatsTab() {
   const { data, isLoading: loading } = useApiQuery<AutomationStats>(
@@ -38,20 +53,28 @@ export function StatsTab() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
+          icon={Zap}
           label="Regras Activas"
           value={r.active ?? 0}
-          intent="primary"
-        />
-        <KpiCard label="Total Execuções" value={e.total ?? 0} intent="info" />
-        <KpiCard
-          label="Taxa de Sucesso"
-          value={`${e.successRate ?? 0}%`}
-          intent={(e.successRate ?? 0) >= 90 ? 'success' : 'warning'}
+          intent="success"
         />
         <KpiCard
+          icon={Activity}
+          label="Total Execuções"
+          value={e.total ?? 0}
+          intent="info"
+        />
+        <SpeedometerStatCard
+          label="Taxa de sucesso"
+          value={e.successRate ?? 0}
+          bands={RATE_BANDS}
+          display={`${Math.round(e.successRate ?? 0)}%`}
+        />
+        <KpiCard
+          icon={XCircle}
           label="Falhas"
           value={e.failed ?? 0}
-          intent={(e.failed ?? 0) > 0 ? 'danger' : 'success'}
+          intent="danger"
         />
       </div>
 
@@ -61,19 +84,33 @@ export function StatsTab() {
             Por Categoria
           </div>
           <CardBody>
-            {byCategory.map((c, i) => (
-              <div key={i} className="mb-3 last:mb-0">
-                <div className="mb-1 flex items-center justify-between text-xs">
-                  <Badge intent={CATEGORY_INTENT[c.category] ?? 'neutral'}>
-                    {c.category}
-                  </Badge>
-                  <span className="font-body font-bold text-ink">
-                    {c.count}
-                  </span>
+            {byCategory.map((c, i) => {
+              const color = ROW_COLORS[i % ROW_COLORS.length];
+              return (
+                <div key={i} className="mb-3 last:mb-0">
+                  <div className="mb-1 flex items-center justify-between text-xs">
+                    <span className="flex items-center gap-2 font-body font-semibold text-ink">
+                      <span
+                        aria-hidden
+                        className="h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: color }}
+                      />
+                      {CATEGORY_LABEL[c.category] ?? c.category}
+                    </span>
+                    <span
+                      className="font-body font-bold"
+                      style={{ color }}
+                    >
+                      {c.count}
+                    </span>
+                  </div>
+                  <ProgressBar
+                    value={(c.count / maxCount) * 100}
+                    color={color}
+                  />
                 </div>
-                <ProgressBar value={(c.count / maxCount) * 100} />
-              </div>
-            ))}
+              );
+            })}
           </CardBody>
         </Card>
       )}
@@ -89,7 +126,7 @@ export function StatsTab() {
               key={i}
               className="border-b border-danger/20 py-1 font-body text-xs text-danger-ink last:border-0"
             >
-              Rule #{f.ruleId} — {f.error ?? 'Erro desconhecido'}
+              Regra #{f.ruleId} —{f.error ?? 'Erro desconhecido'}
             </div>
           ))}
         </div>

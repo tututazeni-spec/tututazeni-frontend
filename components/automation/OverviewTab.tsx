@@ -178,7 +178,7 @@ export function OverviewTab() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             <KpiCard
               className="w-full"
               icon={ListChecks}
@@ -211,6 +211,7 @@ export function OverviewTab() {
               label="Execuções com falha"
               value={c.failedExecutions}
               intent={c.failedExecutions > 0 ? 'danger' : 'success'}
+              iconIntent="danger"
             />
             <KpiCard
               className="w-full"
@@ -227,6 +228,7 @@ export function OverviewTab() {
               value={formatTimeSaved(c.timeSaved.minutes)}
               sub={`${c.timeSaved.basisMinutesPerExecution} min por execução com sucesso`}
               intent="accent"
+              iconIntent="neutral"
             />
           </div>
 
