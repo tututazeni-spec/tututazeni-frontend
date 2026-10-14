@@ -44,6 +44,10 @@ export const fmtTime = (iso: string) =>
     minute: '2-digit',
   });
 
+/** Tabela compacta: quebra linhas em vez de gerar scroll horizontal. */
+export const COMPACT_TABLE =
+  'table-fixed [&_th]:px-2 [&_th]:py-2 [&_th]:break-words [&_td]:px-2 [&_td]:py-2 [&_td]:text-xs [&_td]:break-words';
+
 /** Lista paginada alimentada pelos filtros globais; volta à página 1 quando os filtros mudam. */
 export function useHubList<T>(
   keyFn: (params: Record<string, unknown>) => QueryKey,
@@ -121,7 +125,7 @@ export function HubTable<T extends { id: string }>({
   return (
     <div className="space-y-3">
       <p className="text-xs text-ink-faint">{total} registos</p>
-      <Table>
+      <Table className={COMPACT_TABLE}>
         <TableHead>
           <TableRow>
             {columns.map((c) => (
@@ -166,8 +170,8 @@ export function statusBadge(status: string) {
 /** Colunas da linha cronológica central (docs/history.md §2) e das Actividades (§7). */
 export function entryColumns(variant: 'history' | 'activities'): Column<HistoryEntry>[] {
   const common: Column<HistoryEntry>[] = [
-    { header: 'Data', cell: (e) => fmtDate(e.timestamp) },
-    { header: 'Hora', cell: (e) => fmtTime(e.timestamp) },
+    { header: 'Data', className: 'w-[84px]', cell: (e) => fmtDate(e.timestamp) },
+    { header: 'Hora', className: 'w-[56px]', cell: (e) => fmtTime(e.timestamp) },
     { header: 'Utilizador', cell: (e) => dash(e.actor?.fullName) },
   ];
   const affected: Column<HistoryEntry> = {
@@ -183,7 +187,7 @@ export function entryColumns(variant: 'history' | 'activities'): Column<HistoryE
     },
     {
       header: 'Descrição',
-      className: 'min-w-[260px]',
+      className: 'w-[22%]',
       cell: (e) => (
         <div>
           <p className="font-medium text-ink">{e.title}</p>

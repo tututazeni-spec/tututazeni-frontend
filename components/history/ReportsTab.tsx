@@ -24,6 +24,7 @@ import {
 import { useToast } from '@/providers/ToastProvider';
 import { REPORT_CATALOG } from './constants';
 import { useScopeParams } from './filters';
+import { COMPACT_TABLE } from './shared';
 import { downloadHistoryReport, type ReportFormat } from './exportDownload';
 import type { ReportResult } from './types';
 
@@ -103,7 +104,7 @@ export function ReportsTab() {
               ? ` — a mostrar os primeiros ${PREVIEW_ROWS}; a exportação inclui todos`
               : ''}
           </p>
-          <Table>
+          <Table className={COMPACT_TABLE}>
             <TableHead>
               <TableRow>
                 {data.columns.map((c) => (
