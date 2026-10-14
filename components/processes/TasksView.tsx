@@ -36,12 +36,17 @@ const STATE_ITEMS = [
 ];
 
 export function TasksView({ canManage }: TasksViewProps) {
-  const [scope, setScope] = useState<'mine' | 'all'>(canManage ? 'all' : 'mine');
+  const [scope, setScope] = useState<'mine' | 'all'>(
+    canManage ? 'all' : 'mine',
+  );
   const [status, setStatus] = useState('');
   const [overdue, setOverdue] = useState(false);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [open, setOpen] = useState<{ instanceId: number; stepId: number } | null>(null);
+  const [open, setOpen] = useState<{
+    instanceId: number;
+    stepId: number;
+  } | null>(null);
 
   const debounced = useDebounce(search, 300);
   const params = {
@@ -55,24 +60,30 @@ export function TasksView({ canManage }: TasksViewProps) {
   const { data, isLoading, error } = useApiQuery<PaginatedTasks>(
     queryKeys.processes.tasks(params),
     '/processes/tasks',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   const reset = () => setPage(1);
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <Input
-          type="text"
-          placeholder="Pesquisar por tarefa, processo ou código…"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            reset();
-          }}
-          className="min-w-[160px] flex-1"
-        />
+      <div className="mb-4 grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] items-center gap-3">
+        <div className="col-span-full sm:col-span-2">
+          <Input
+            type="text"
+            placeholder="Pesquisar por tarefa, processo ou código…"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              reset();
+            }}
+            className="w-full"
+          />
+        </div>
         {canManage && (
           <Select
             items={[
@@ -84,7 +95,7 @@ export function TasksView({ canManage }: TasksViewProps) {
               setScope(v as 'mine' | 'all');
               reset();
             }}
-            className="w-48"
+            className="w-full"
           />
         )}
         <Select
@@ -94,7 +105,7 @@ export function TasksView({ canManage }: TasksViewProps) {
             setStatus(v === ALL ? '' : v);
             reset();
           }}
-          className="w-44"
+          className="w-full"
         />
         <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
           <input
@@ -107,12 +118,14 @@ export function TasksView({ canManage }: TasksViewProps) {
           />
           Em atraso
         </label>
-        <span className="font-body text-sm text-ink-faint">{data?.total ?? 0} tarefas</span>
+        <span className="font-body text-sm text-ink-faint">
+          {data?.total ?? 0} tarefas
+        </span>
       </div>
 
       <div className="overflow-x-auto rounded-card border border-border bg-surface">
-        <div className="min-w-[980px]">
-          <div className="grid grid-cols-[1.9fr_1.4fr_1.2fr_110px_100px_120px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="min-w-[900px] xl:min-w-0">
+          <div className="grid grid-cols-[minmax(0,1.9fr)_minmax(0,1.4fr)_minmax(0,1.2fr)_96px_96px_110px] cursor-default select-none gap-2 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
             <div>Tarefa</div>
             <div>Processo</div>
             <div>Responsável / Revisor</div>
@@ -145,15 +158,23 @@ export function TasksView({ canManage }: TasksViewProps) {
           {data?.data.map((t) => (
             <div
               key={`${t.instanceId}-${t.stepId}`}
-              className="grid cursor-pointer grid-cols-[1.9fr_1.4fr_1.2fr_110px_100px_120px] items-center gap-3 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken"
-              onClick={() => setOpen({ instanceId: t.instanceId, stepId: t.stepId })}
+              className="grid cursor-pointer grid-cols-[minmax(0,1.9fr)_minmax(0,1.4fr)_minmax(0,1.2fr)_96px_96px_110px] items-center gap-2 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken"
+              onClick={() =>
+                setOpen({ instanceId: t.instanceId, stepId: t.stepId })
+              }
             >
               <div className="min-w-0">
-                <div className="truncate font-body text-sm font-medium text-ink">{t.name}</div>
+                <div className="truncate font-body text-sm font-medium text-ink">
+                  {t.name}
+                </div>
                 <div className="font-mono text-xs text-ink-faint">{t.code}</div>
                 {t.dependencies.some((d) => !d.done) && (
                   <div className="font-body text-xs text-warning-ink">
-                    Aguarda: {t.dependencies.filter((d) => !d.done).map((d) => d.title).join(', ')}
+                    Aguarda:{' '}
+                    {t.dependencies
+                      .filter((d) => !d.done)
+                      .map((d) => d.title)
+                      .join(', ')}
                   </div>
                 )}
               </div>
@@ -166,9 +187,13 @@ export function TasksView({ canManage }: TasksViewProps) {
               </div>
               <div className="font-body text-xs text-ink-muted">
                 <div>{t.assignee?.fullName ?? 'Por atribuir'}</div>
-                <div className="text-ink-faint">{t.reviewer ? `Rev.: ${t.reviewer.fullName}` : ''}</div>
+                <div className="text-ink-faint">
+                  {t.reviewer ? `Rev.: ${t.reviewer.fullName}` : ''}
+                </div>
               </div>
-              <div className={`font-body text-xs ${t.isOverdue ? 'font-medium text-danger' : 'text-ink-muted'}`}>
+              <div
+                className={`font-body text-xs ${t.isOverdue ? 'font-medium text-danger' : 'text-ink-muted'}`}
+              >
                 {formatDate(t.dueAt)}
                 {t.isOverdue && <div>Em atraso</div>}
               </div>
@@ -176,14 +201,24 @@ export function TasksView({ canManage }: TasksViewProps) {
                 <StatusBadge value={t.type} map={STEP_TYPE_MAP} />
               </div>
               <div>
-                <StatusBadge value={t.status} map={TASK_STATE_MAP} variant="dot" />
+                <StatusBadge
+                  value={t.status}
+                  map={TASK_STATE_MAP}
+                  variant="dot"
+                />
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {data && <Pagination page={data.page} totalPages={data.totalPages} onPageChange={setPage} />}
+      {data && (
+        <Pagination
+          page={data.page}
+          totalPages={data.totalPages}
+          onPageChange={setPage}
+        />
+      )}
 
       {open && (
         <TaskPanel

@@ -7,6 +7,7 @@
 'use client';
 
 import { useState } from 'react';
+import { FileStack } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -108,7 +109,7 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
 
       {/* Tabela */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="grid grid-cols-[2fr_100px_120px_90px_100px_90px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="grid grid-cols-[2fr_100px_120px_90px_100px_90px] gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
           <div>Processo</div>
           <div>Versão</div>
           <div>Departamento</div>
@@ -139,31 +140,39 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
           data?.data.map((p) => (
             <div
               key={p.id}
-              className="grid cursor-pointer grid-cols-[2fr_100px_120px_90px_100px_90px] items-center gap-3 border-b border-border px-4 py-3.5 transition-colors last:border-0 hover:bg-surface-sunken"
+              className="relative grid cursor-pointer grid-cols-[2fr_100px_120px_90px_100px_90px] items-center gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 last:border-0"
               onClick={() => onSelect(p.id)}
             >
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-body text-sm font-medium text-ink">
-                    {p.title}
-                  </span>
-                  {p.tags.slice(0, 2).map((t) => (
-                    <span
-                      key={t}
-                      className="rounded-control bg-info-subtle px-1.5 py-0.5 font-body text-xs text-info-ink"
-                    >
-                      {t}
+              <span
+                className={`absolute inset-y-2 left-2 w-1 rounded-full ${p.status === 'ACTIVE' ? 'bg-success' : 'bg-ink-faint'}`}
+              />
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
+                  <FileStack size={16} strokeWidth={1.75} />
+                </span>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate font-body text-sm font-semibold text-white">
+                      {p.title}
                     </span>
-                  ))}
-                </div>
-                <div className="mt-0.5 font-mono text-xs text-ink-faint">
-                  {p.code}
+                    {p.tags.slice(0, 2).map((t) => (
+                      <span
+                        key={t}
+                        className="rounded-control bg-white/15 px-1.5 py-0.5 font-body text-xs text-white"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-0.5 font-mono text-xs text-white">
+                    {p.code}
+                  </div>
                 </div>
               </div>
-              <div className="font-mono text-xs text-ink-muted">
+              <div className="font-mono text-xs text-white">
                 v{p.version}
               </div>
-              <div className="font-body text-xs text-ink-muted">
+              <div className="font-body text-xs text-white">
                 {p.department?.name ?? '—'}
               </div>
               <div>
@@ -176,7 +185,7 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
                   variant="dot"
                 />
               </div>
-              <div className="font-body text-sm text-ink-muted">
+              <div className="font-body text-sm text-white">
                 {p._count.instances}
               </div>
             </div>

@@ -1,6 +1,6 @@
 // components/processes/DashboardView.tsx
 // Aba "Visão Geral" (docs/Modulo_Processes.md §3): KPIs, gráficos e filtros
-// (período, departamento, responsável, tipo, estado). GET /processes/dashboard
+// (período, departamento, tipo, estado). GET /processes/dashboard
 // (ADMIN/RH/GESTOR). Reaproveita o KPI/lista de instâncias recentes que já
 // existiam; os cálculos vivem no backend (src/process-standard/process-overview.ts).
 
@@ -11,6 +11,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
+import { AlarmClock, BadgeCheck, CheckCircle2, FileSearch, FileStack, PencilRuler, PlayCircle, Stamp, Timer } from 'lucide-react';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -22,6 +23,7 @@ import {
   fmtHours,
   INSTANCE_STATUS_LABEL,
   INSTANCE_STATUS_MAP,
+  moduleLabel,
   RISK_LEVEL_MAP,
 } from './constants';
 import { Skeleton } from './Skeleton';
@@ -37,8 +39,6 @@ interface Filters {
   from: string;
   to: string;
   departmentId: string;
-  unitId: string;
-  responsibleId: string;
   category: string;
   status: string;
 }
@@ -47,8 +47,6 @@ const EMPTY_FILTERS: Filters = {
   from: '',
   to: '',
   departmentId: ALL,
-  unitId: ALL,
-  responsibleId: ALL,
   category: ALL,
   status: ALL,
 };
@@ -66,8 +64,6 @@ function toParams(f: Filters): Record<string, string> {
   if (f.from) p.from = f.from;
   if (f.to) p.to = f.to;
   if (f.departmentId !== ALL) p.departmentId = f.departmentId;
-  if (f.unitId !== ALL) p.unitId = f.unitId;
-  if (f.responsibleId !== ALL) p.responsibleId = f.responsibleId;
   if (f.category !== ALL) p.category = f.category;
   if (f.status !== ALL) p.status = f.status;
   return p;
@@ -83,17 +79,19 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-card border border-border bg-surface p-4">
-      <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+    <div className="overflow-hidden rounded-card border border-border bg-surface">
+      <div className="pointer-events-none select-none bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
-      {empty ? (
-        <p className="py-8 text-center font-body text-sm text-ink-faint">
-          Sem dados
-        </p>
-      ) : (
-        children
-      )}
+      <div className="p-4">
+        {empty ? (
+          <p className="py-8 text-center font-body text-sm text-ink-faint">
+            Sem dados
+          </p>
+        ) : (
+          children
+        )}
+      </div>
     </div>
   );
 }
@@ -137,17 +135,6 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
         </label>
         <Select
           items={[
-            { value: ALL, label: 'Todas as unidades' },
-            ...(opts?.units ?? []).map((u) => ({
-              value: String(u.id),
-              label: u.name,
-            })),
-          ]}
-          value={filters.unitId}
-          onValueChange={(v) => set({ unitId: v })}
-        />
-        <Select
-          items={[
             { value: ALL, label: 'Todos os departamentos' },
             ...(opts?.departments ?? []).map((d) => ({
               value: String(d.id),
@@ -156,17 +143,6 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
           ]}
           value={filters.departmentId}
           onValueChange={(v) => set({ departmentId: v })}
-        />
-        <Select
-          items={[
-            { value: ALL, label: 'Todos os responsáveis' },
-            ...(opts?.responsibles ?? []).map((r) => ({
-              value: String(r.id),
-              label: r.fullName,
-            })),
-          ]}
-          value={filters.responsibleId}
-          onValueChange={(v) => set({ responsibleId: v })}
         />
         <Select
           items={[
@@ -229,24 +205,28 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
           {/* Indicadores §3 */}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
             <KpiCard
+              icon={FileStack}
               label="Total de processos"
               value={data.kpis.total}
               sub="Criados e registados"
               intent="primary"
             />
             <KpiCard
+              icon={PlayCircle}
               label="Em execução"
               value={data.kpis.running}
               sub="Actualmente activos"
               intent="info"
             />
             <KpiCard
+              icon={AlarmClock}
               label="Em atraso"
               value={data.kpis.overdue}
               sub="Fora do prazo"
-              intent={data.kpis.overdue > 0 ? 'danger' : 'primary'}
+              intent="danger"
             />
             <KpiCard
+              icon={CheckCircle2}
               label="Concluídos"
               value={data.kpis.completed}
               sub={
@@ -257,12 +237,15 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
               intent="success"
             />
             <KpiCard
+              icon={Stamp}
               label="Aprovações pendentes"
               value={data.kpis.pendingApprovals}
               sub="Aguardam decisão"
               intent="warning"
             />
             <KpiCard
+              icon={Timer}
+              iconIntent="caution"
               label="Tempo médio"
               value={fmtHours(data.kpis.avgDurationHours)}
               sub="Até à conclusão (exclui cancelados e suspensos)"
@@ -332,7 +315,7 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
               empty={data.charts.bySourceModule.length === 0}
             >
               <BarChart
-                categories={data.charts.bySourceModule.map((m) => m.label)}
+                categories={data.charts.bySourceModule.map((m) => moduleLabel(m.label))}
                 series={[
                   {
                     label: 'Processos',
@@ -415,18 +398,22 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
           {/* Biblioteca de modelos (mantido da versão anterior) */}
           <div className="grid grid-cols-3 gap-3">
             <KpiCard
+              icon={BadgeCheck}
               label="Modelos activos"
               value={data.processes.active}
               sub="Em uso"
               intent="success"
             />
             <KpiCard
+              icon={FileSearch}
               label="Modelos em revisão"
               value={data.processes.inReview}
               sub="Aguardam aprovação"
               intent="warning"
             />
             <KpiCard
+              icon={PencilRuler}
+              iconIntent="caution"
               label="Modelos em rascunho"
               value={data.processes.draft}
               sub="Em construção"

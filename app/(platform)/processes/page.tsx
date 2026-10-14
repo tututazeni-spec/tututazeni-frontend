@@ -120,7 +120,9 @@ export default function ProcessesPage() {
     setNav({ view: 'runner', instanceId, processId: null });
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
+    <div
+      className={`mx-auto px-4 py-8 ${['all', 'approvals', 'documents', 'tasks'].includes(nav.view) ? 'max-w-[1500px]' : 'max-w-6xl'}`}
+    >
       {/* Título fixo; a descrição muda com a aba (§21) */}
       <div className="mb-6 flex items-center justify-between">
         <div>

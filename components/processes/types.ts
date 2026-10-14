@@ -92,7 +92,7 @@ export interface Process {
   completionConditions: string | null;
   createdAt: string;
   updatedAt: string;
-  owner: { id: number; fullName: string };
+  owner: { id: number; fullName: string; avatarUrl?: string | null };
   department: { id: number; name: string } | null;
   steps: ProcessStep[];
   _count: { instances: number };

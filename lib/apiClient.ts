@@ -14,6 +14,7 @@
 import { recordRequest, normalizePath } from './performanceMonitor';
 
 import { API_URL } from './api';
+import { getLastRefresh, markRefreshed } from './sessionActivity';
 
 export { API_URL };
 
@@ -113,19 +114,46 @@ function redirectToLoginIfNeeded(status: number): void {
 // por todos os pedidos em voo (single-flight) — o refresh token é de uso único.
 let refreshing: Promise<boolean> | null = null;
 
-function refreshSession(): Promise<boolean> {
-  if (!refreshing) {
-    refreshing = fetch('/api/auth/refresh', {
-      method: 'POST',
-      credentials: 'include',
-    })
-      .then((r) => r.ok)
-      .catch(() => false)
-      .finally(() => {
-        refreshing = null;
+// O refresh token é de uso único e o cookie é partilhado entre separadores:
+// dois separadores a rodar ao mesmo tempo faziam o segundo apresentar um token
+// já gasto, o que o backend trata como roubo e revoga a cadeia inteira
+// (sessão terminada sem razão). Serializamos entre separadores com Web Locks e,
+// dentro do lock, saltamos se outro separador acabou de renovar.
+const CROSS_TAB_SKIP_MS = 10_000;
+
+async function doRefresh(): Promise<boolean> {
+  if (Date.now() - getLastRefresh() < CROSS_TAB_SKIP_MS) return true;
+  // Uma repetição para falhas transitórias (rede/5xx); 401/403 é definitivo.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const r = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        credentials: 'include',
       });
+      if (r.ok) {
+        markRefreshed();
+        return true;
+      }
+      if (r.status < 500) return false;
+    } catch {
+      /* rede — tenta de novo */
+    }
   }
-  return refreshing;
+  return false;
+}
+
+export function refreshSession(): Promise<boolean> {
+  if (!refreshing) {
+    const locks =
+      typeof navigator !== 'undefined' ? navigator.locks : undefined;
+    const run: Promise<boolean> = locks
+      ? (async () => locks.request('innova-auth-refresh', () => doRefresh()))()
+      : doRefresh();
+    refreshing = run.finally(() => {
+      refreshing = null;
+    });
+  }
+  return refreshing as Promise<boolean>;
 }
 
 async function request<T>(

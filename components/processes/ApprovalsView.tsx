@@ -7,12 +7,13 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { CheckCircle2, Clock, Hourglass, Percent, TimerReset } from 'lucide-react';
+import { CheckCircle2, Clock, Hourglass, TimerReset } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate } from '@/lib/format';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { KpiCard } from '@/components/ui/KpiCard';
@@ -20,7 +21,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { ApprovalPanel } from './ApprovalPanel';
-import { APPROVAL_STATUS_MAP, PRIORITY_MAP, fmtHours } from './constants';
+import { APPROVAL_STATUS_MAP, PRIORITY_MAP, fmtHours, moduleLabel } from './constants';
 import { Skeleton } from './Skeleton';
 import { SOURCE_MODULES } from './StartProcessModal';
 import type { PaginatedApprovals } from './approval-types';
@@ -81,12 +82,12 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
   return (
     <div>
       <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        <KpiCard icon={Hourglass} label="Pendentes" value={kpis?.pending ?? '—'} intent="info" />
+        <KpiCard icon={Hourglass} label="Pendentes" value={kpis?.pending ?? '—'} intent="info" iconIntent="caution" />
         <KpiCard
           icon={Clock}
           label="Em atraso"
           value={kpis?.overdue ?? '—'}
-          intent={kpis && kpis.overdue > 0 ? 'danger' : 'success'}
+          intent="danger"
         />
         <KpiCard icon={CheckCircle2} label="Decididas hoje" value={kpis?.decidedToday ?? '—'} intent="success" />
         <KpiCard
@@ -94,14 +95,12 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
           label="Tempo médio de decisão"
           value={kpis ? fmtHours(kpis.avgDecisionHours) : '—'}
           sub="últimos 30 dias"
-          intent="accent"
+          intent="warning"
         />
-        <KpiCard
-          icon={Percent}
+        <DonutStatCard
           label="Taxa de aprovação"
-          value={kpis?.approvalRate != null ? `${kpis.approvalRate}%` : '—'}
-          sub="últimos 30 dias"
-          intent="primary"
+          value={kpis?.approvalRate ?? 0}
+          sub={kpis?.approvalRate != null ? 'últimos 30 dias' : 'sem decisões nos últimos 30 dias'}
         />
       </div>
 
@@ -114,8 +113,9 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
             setSearch(e.target.value);
             reset();
           }}
-          className="min-w-[160px] flex-1"
+          className="w-full"
         />
+        <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
         <Select
           items={scopeItems}
           value={scope}
@@ -123,7 +123,7 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
             setScope(v as Scope);
             reset();
           }}
-          className="w-60"
+          className="w-full"
         />
         <Select
           items={STATE_ITEMS}
@@ -132,20 +132,21 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
             setState(v);
             reset();
           }}
-          className="w-44"
+          className="w-full"
         />
         <Select
           items={[
             { value: ALL, label: 'Todos os módulos' },
-            ...SOURCE_MODULES.map((m) => ({ value: m, label: m })),
+            ...SOURCE_MODULES.map((m) => ({ value: m, label: moduleLabel(m) })),
           ]}
           value={sourceModule || ALL}
           onValueChange={(v) => {
             setSourceModule(v === ALL ? '' : v);
             reset();
           }}
-          className="w-48"
+          className="w-full"
         />
+        </div>
         <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
           <input
             type="checkbox"
@@ -161,8 +162,8 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
       </div>
 
       <div className="overflow-x-auto rounded-card border border-border bg-surface">
-        <div className="min-w-[1000px]">
-          <div className="grid grid-cols-[1.9fr_1.5fr_1.3fr_110px_110px_130px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="min-w-[900px] xl:min-w-0">
+          <div className="grid grid-cols-[minmax(0,1.9fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_96px_96px_120px] gap-2 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
             <div>Pedido</div>
             <div>Processo / etapa</div>
             <div>Solicitante / aprovador</div>
@@ -195,7 +196,7 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
           {data?.data.map((a) => (
             <div
               key={a.id}
-              className="grid cursor-pointer grid-cols-[1.9fr_1.5fr_1.3fr_110px_110px_130px] items-center gap-3 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken"
+              className="grid cursor-pointer grid-cols-[minmax(0,1.9fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_96px_96px_120px] items-center gap-2 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken"
               onClick={() => setOpenId(a.id)}
             >
               <div className="min-w-0">
@@ -205,7 +206,7 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
                 <div className="font-mono text-xs text-ink-faint">{a.code}</div>
                 <div className="font-body text-xs text-ink-faint">
                   {a.entity.target.fullName}
-                  {a.sourceModule ? ` · ${a.sourceModule}` : ''}
+                  {a.sourceModule ? ` · ${moduleLabel(a.sourceModule)}` : ''}
                 </div>
               </div>
               <div className="min-w-0 font-body text-xs text-ink-muted">

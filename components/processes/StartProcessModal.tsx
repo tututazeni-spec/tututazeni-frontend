@@ -20,7 +20,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useToast } from '@/providers/ToastProvider';
-import { PRIORITY_MAP } from './constants';
+import { PRIORITY_MAP, moduleLabel } from './constants';
 import { UserPicker } from './UserPicker';
 import type {
   InstanceRow,
@@ -93,9 +93,13 @@ export function StartProcessModal({
       staleTime: STALE_TIME.SEMI_STATIC,
     },
   );
+  const notYetInForce = (t: { effectiveFrom: string | null }) =>
+    !!t.effectiveFrom && new Date(t.effectiveFrom) > new Date();
   const templateItems = (templates?.data ?? []).map((t) => ({
     value: String(t.id),
-    label: `${t.title} (${t.code})`,
+    label: notYetInForce(t)
+      ? `${t.title} (${t.code}) — em vigor a partir de ${t.effectiveFrom?.slice(0, 10)}`
+      : `${t.title} (${t.code})`,
   }));
   const chosen = templates?.data.find((t) => String(t.id) === template);
 
@@ -129,6 +133,7 @@ export function StartProcessModal({
   );
 
   const canSubmit =
+    !(chosen && notYetInForce(chosen)) &&
     name.trim().length > 0 &&
     template !== '' &&
     sourceModule !== '' &&
@@ -193,7 +198,7 @@ export function StartProcessModal({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField label="Módulo de origem *" htmlFor="sp-module">
               <Select
-                items={SOURCE_MODULES.map((m) => ({ value: m, label: m }))}
+                items={SOURCE_MODULES.map((m) => ({ value: m, label: moduleLabel(m) }))}
                 value={sourceModule}
                 onValueChange={setSourceModule}
                 className="w-full"

@@ -31,14 +31,20 @@ import type { Event } from './types';
 
 export function Metric({
   icon: Icon,
+  iconClassName = 'text-[#49658A]',
   children,
 }: {
   icon: LucideIcon;
+  iconClassName?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex items-center gap-2 px-3 text-[15px] text-[#0F1F3D] first:pl-0 last:pr-0">
-      <Icon size={22} strokeWidth={1.75} className="shrink-0 text-[#49658A]" />
+      <Icon
+        size={22}
+        strokeWidth={1.75}
+        className={`shrink-0 ${iconClassName}`}
+      />
       <span>{children}</span>
     </div>
   );

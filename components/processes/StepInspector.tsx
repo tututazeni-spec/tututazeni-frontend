@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { ActionListEditor, RecipientPicker } from './ActionListEditor';
 import { ConditionEditor, type FieldOption } from './ConditionEditor';
 import { SOURCE_MODULES } from './StartProcessModal';
+import { moduleLabel } from './constants';
 import { UserPicker } from './UserPicker';
 import { BLOCKS, BLOCK_BY_TYPE, type FlowNode } from './workflow-model';
 import type { ApprovalMode, RejectionRule, StepType } from './types';
@@ -189,7 +190,7 @@ export function StepInspector({
               <>
                 <FormField label="Módulo de destino *" htmlFor="si-mod" hint="As regras de Automações que escutam este pedido fazem o trabalho no módulo.">
                   <Select
-                    items={SOURCE_MODULES.map((m) => ({ value: m, label: m }))}
+                    items={SOURCE_MODULES.map((m) => ({ value: m, label: moduleLabel(m) }))}
                     value={node.integrationModule}
                     onValueChange={(v) => onChange({ integrationModule: v })}
                     disabled={readOnly}

@@ -17,6 +17,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/providers/ToastProvider';
+import { RECIPIENT_TOKENS } from './ActionListEditor';
 import { EXECUTION_STATUS_MAP } from './constants';
 import { Skeleton } from './Skeleton';
 import type { AutomationDetail, AutomationTestResult } from './automation-types';
@@ -29,10 +30,28 @@ export interface AutomationPanelProps {
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
-    <div className="font-body text-xs uppercase tracking-wide text-ink-faint">{label}</div>
-    <div className="mt-0.5 font-body text-sm text-ink">{children}</div>
+    <div className="font-body text-xs uppercase tracking-wide text-[#0F1F3D]">{label}</div>
+    <div className="mt-0.5 font-body text-sm text-[#0F1F3D]">{children}</div>
   </div>
 );
+
+// Regra deste painel: tudo o que o utilizador vê tem de estar em português —
+// nunca mostrar tokens/enums crus do backend.
+const RETRY_POLICY_LABELS: Record<string, string> = {
+  NONE: 'Sem repetição',
+  FIXED: 'Intervalo fixo',
+  EXPONENTIAL: 'Intervalo crescente',
+};
+
+const ERROR_HANDLING_LABELS: Record<string, string> = {
+  LOG: 'Apenas registar',
+  NOTIFY_OWNER: 'Notificar o responsável',
+  DISABLE_RULE: 'Desactivar a regra',
+};
+
+const recipientLabel = (token: string): string =>
+  RECIPIENT_TOKENS.find((t) => t.value === token)?.label ??
+  (token.startsWith('ROLE:') ? `Perfil ${token.slice(5)}` : token);
 
 const SAMPLE = `{
   "instanceId": 1,
@@ -104,16 +123,18 @@ export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps
           <Field label="Evento">{r.triggerLabel}</Field>
           <Field label="Acção">{r.actionLabel}</Field>
           <Field label="Estado">{r.active ? 'Activa' : 'Inactiva'}</Field>
-          <Field label="Destinatários">{r.recipients.length ? r.recipients.join(', ') : '—'}</Field>
+          <Field label="Destinatários">{r.recipients.length ? r.recipients.map(recipientLabel).join(', ') : '—'}</Field>
           <Field label="Prioridade">{r.priority}</Field>
           <Field label="Vigência">
             {r.activeFrom || r.activeUntil ? `${formatDate(r.activeFrom)} → ${formatDate(r.activeUntil)}` : 'Sem limite'}
           </Field>
           <Field label="Tentativas">
-            {r.maxRetries ?? 0} · {r.retryPolicy ?? 'NONE'}
+            {r.maxRetries ?? 0} · {RETRY_POLICY_LABELS[r.retryPolicy ?? 'NONE'] ?? r.retryPolicy}
             {r.retryDelayMinutes ? ` · ${r.retryDelayMinutes} min` : ''}
           </Field>
-          <Field label="Em caso de erro">{r.errorHandling ?? 'LOG'}</Field>
+          <Field label="Em caso de erro">
+            {ERROR_HANDLING_LABELS[r.errorHandling ?? 'LOG'] ?? r.errorHandling}
+          </Field>
           <Field label="Última execução">
             {r.lastRunAt ? (
               <>
@@ -128,10 +149,10 @@ export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps
 
         {r.conditions && (
           <div className="mt-4">
-            <div className="mb-1 font-body text-xs uppercase tracking-wide text-ink-faint">
+            <div className="mb-1 font-body text-xs uppercase tracking-wide text-[#0F1F3D]">
               Condições ({r.conditions.logic === 'OR' ? 'qualquer' : 'todas'})
             </div>
-            <ul className="font-body text-sm text-ink-muted">
+            <ul className="font-body text-sm text-[#0F1F3D]">
               {r.conditions.rows.map((c, i) => (
                 <li key={i}>
                   {c.field} {c.operator} {c.value ?? ''}
@@ -142,8 +163,8 @@ export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps
         )}
 
         {canManage && (
-          <div className="mt-5 rounded-card border border-border bg-surface-sunken p-3">
-            <h4 className="mb-2 font-body text-sm font-medium text-ink">Testar a regra</h4>
+          <div className="mt-5 rounded-card border border-[#0F1F3D] bg-[#0F1F3D] p-3 text-white [&_label]:text-white">
+            <h4 className="mb-2 font-body text-sm font-medium text-white">Testar a regra</h4>
             <FormField label="Payload de exemplo do evento (JSON)" htmlFor="ap-payload">
               <Textarea id="ap-payload" rows={7} value={payload} onChange={(e) => setPayload(e.target.value)} className="w-full font-mono text-xs" />
             </FormField>
@@ -183,10 +204,10 @@ export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps
         )}
 
         <div className="mt-5">
-          <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-[#0F1F3D]">
             Registo de execuções
           </h4>
-          {r.executions.length === 0 && <p className="font-body text-sm text-ink-faint">Sem execuções.</p>}
+          {r.executions.length === 0 && <p className="font-body text-sm text-[#0F1F3D]">Sem execuções.</p>}
           <ul className="space-y-2">
             {r.executions.map((e) => (
               <li key={e.id} className="rounded-card border border-border p-2.5">

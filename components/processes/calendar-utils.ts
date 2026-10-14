@@ -116,12 +116,27 @@ export function toneOf(it: CalendarItem): ChipTone {
   return 'normal';
 }
 
+// Mesmo desenho do calendário de eventos: chip de cor sólida + barra lateral.
 export const CHIP_CLASS: Record<ChipTone, string> = {
-  done: 'bg-success-subtle text-success-ink',
-  overdue: 'bg-danger-subtle text-danger-ink',
-  soon: 'bg-warning-subtle text-warning-ink',
-  normal: 'bg-info-subtle text-info-ink',
+  done: 'bg-success text-white',
+  overdue: 'bg-danger text-white',
+  soon: 'bg-warning text-white',
+  normal: 'bg-info text-white',
 };
+
+export const BAR_CLASS: Record<ChipTone, string> = {
+  done: 'bg-success',
+  overdue: 'bg-danger',
+  soon: 'bg-warning',
+  normal: 'bg-info',
+};
+
+export const TONE_LEGEND: Array<{ tone: ChipTone; label: string }> = [
+  { tone: 'normal', label: 'No prazo' },
+  { tone: 'soon', label: 'A vencer (48 h)' },
+  { tone: 'overdue', label: 'Em atraso' },
+  { tone: 'done', label: 'Concluída' },
+];
 
 /** Valor para `<input type="datetime-local">` (fuso local). */
 export function toLocalInput(iso: string | null): string {

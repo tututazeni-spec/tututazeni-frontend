@@ -17,13 +17,16 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { GanttChart, type GanttRow } from '@/components/ui/charts/GanttChart';
 import { useToast } from '@/providers/ToastProvider';
 import {
+  BAR_CLASS,
   CHIP_CLASS,
+  TONE_LEGEND,
   dayKey,
   daysInMonth,
   groupByDay,
@@ -46,6 +49,9 @@ export interface CalendarViewProps {
 
 const ALL = 'ALL';
 const WEEKDAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+// Cabeçalho azul-marinho, igual ao calendário de eventos.
+const NAVY_HEADER =
+  'cursor-default select-none bg-[#0F1F3D]/60 font-body text-xs font-medium capitalize text-white';
 const MODES: Array<{ id: CalendarMode; label: string }> = [
   { id: 'day', label: 'Dia' },
   { id: 'week', label: 'Semana' },
@@ -72,27 +78,60 @@ const timeOf = (iso: string | null) =>
 function Chip({
   item,
   onClick,
-  showTime = false,
+  showTime = true,
 }: {
   item: CalendarItem;
   onClick: () => void;
   showTime?: boolean;
 }) {
+  const tone = toneOf(item);
   return (
     <button
       type="button"
       onClick={onClick}
       title={`${item.code} — ${item.title} (${item.processTitle})`}
       className={cn(
-        'block w-full truncate rounded-control px-1.5 py-0.5 text-left font-body text-xs',
-        CHIP_CLASS[toneOf(item)],
-        item.hasConflict && 'ring-1 ring-warning',
-        item.kind === 'PROCESS' && 'font-semibold',
+        'flex h-[22px] w-full items-center gap-1.5 overflow-hidden rounded-sm px-1.5 text-left font-body text-[11px] hover:brightness-110',
+        CHIP_CLASS[tone],
+        item.hasConflict && 'ring-1 ring-warning ring-offset-1',
+        tone === 'done' && 'opacity-70',
       )}
     >
-      {showTime && <span className="mr-1 opacity-70">{timeOf(item.dueAt)}</span>}
-      {item.kind === 'PROCESS' ? '◆ ' : ''}
-      {item.title}
+      {showTime && <span className="shrink-0 font-mono">{timeOf(item.dueAt)}</span>}
+      <span className={cn('truncate font-medium', tone === 'done' && 'line-through')}>
+        {item.kind === 'PROCESS' ? '◆ ' : ''}
+        {item.title}
+      </span>
+    </button>
+  );
+}
+
+function DayRow({ item, onClick }: { item: CalendarItem; onClick: () => void }) {
+  const tone = toneOf(item);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="relative flex w-full flex-wrap items-center gap-3 py-3 pl-5 pr-4 text-left transition-colors hover:bg-surface-sunken"
+    >
+      <span className={cn('absolute inset-y-2 left-2 w-1 rounded-full', BAR_CLASS[tone])} />
+      <span className={cn('w-16 shrink-0 rounded-md py-1 text-center font-mono text-xs font-semibold', CHIP_CLASS[tone])}>
+        {timeOf(item.dueAt)}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-semibold text-ink">
+          {item.kind === 'PROCESS' ? '◆ ' : ''}
+          {item.title}
+        </div>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-ink-faint">
+          <span>{item.code}</span>
+          <span>{item.processTitle}</span>
+          <span>{item.assignee?.fullName ?? 'Por atribuir'}</span>
+        </div>
+      </div>
+      <span className={cn('inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 font-body text-xs font-semibold', CHIP_CLASS[tone])}>
+        {item.isOverdue ? 'Em atraso' : item.isDueSoon ? 'A vencer' : item.status === 'COMPLETED' ? 'Concluída' : 'No prazo'}
+      </span>
     </button>
   );
 }
@@ -112,6 +151,7 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
   const [selected, setSelected] = useState<CalendarItem | null>(null);
   const [task, setTask] = useState<{ instanceId: number; stepId: number } | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [expandedDay, setExpandedDay] = useState<string | null>(null);
   const debounced = useDebounce(search, 300);
 
   const range = useMemo(() => rangeFor(mode, anchor), [mode, anchor]);
@@ -204,31 +244,25 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
       {/* Barra de navegação */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Button intent="secondary" size="sm" onClick={() => setAnchor(shiftAnchor(mode, anchor, -1))} aria-label="Anterior">
+          <Button intent="ghost" size="sm" onClick={() => setAnchor(shiftAnchor(mode, anchor, -1))} aria-label="Anterior">
             <ChevronLeft size={16} strokeWidth={1.75} />
           </Button>
-          <Button intent="secondary" size="sm" onClick={() => setAnchor(new Date())}>
-            Hoje
-          </Button>
-          <Button intent="secondary" size="sm" onClick={() => setAnchor(shiftAnchor(mode, anchor, 1))} aria-label="Seguinte">
+          <span className="min-w-[160px] text-center font-body text-sm font-medium capitalize text-ink">
+            {titleFor(mode, anchor)}
+          </span>
+          <Button intent="ghost" size="sm" onClick={() => setAnchor(shiftAnchor(mode, anchor, 1))} aria-label="Seguinte">
             <ChevronRight size={16} strokeWidth={1.75} />
           </Button>
-          <h2 className="ml-2 font-display text-base font-semibold text-ink">{titleFor(mode, anchor)}</h2>
+          <Button intent="ghost" size="sm" onClick={() => setAnchor(new Date())}>
+            Hoje
+          </Button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex overflow-hidden rounded-control border border-border">
+          <div className="flex gap-1 rounded-card bg-surface-sunken p-1">
             {MODES.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => setMode(m.id)}
-                className={cn(
-                  'px-3 py-1.5 font-body text-sm',
-                  mode === m.id ? 'bg-primary/10 font-medium text-primary' : 'bg-surface text-ink-muted hover:text-ink',
-                )}
-              >
+              <Button key={m.id} size="sm" intent={mode === m.id ? 'primary' : 'ghost'} onClick={() => setMode(m.id)}>
                 {m.label}
-              </button>
+              </Button>
             ))}
           </div>
           <Button intent="secondary" size="sm" onClick={exportIcs} loading={exporting}>
@@ -334,10 +368,10 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
 
       {/* Mês */}
       {data && mode === 'month' && (
-        <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <div className="grid grid-cols-7 border-b border-border bg-surface-sunken">
+        <Card className="overflow-hidden p-0">
+          <div className="grid grid-cols-7 border-b border-border bg-[#0F1F3D]/60">
             {WEEKDAYS.map((w) => (
-              <div key={w} className="px-2 py-2 text-center font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+              <div key={w} className={'cursor-default select-none px-2 py-1.5 text-center font-body text-xs font-medium capitalize text-white'}>
                 {w}
               </div>
             ))}
@@ -346,13 +380,14 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
             {range.days.map((d) => {
               const items = dayItems(d);
               const k = dayKey(d);
+              const inMonth = d.getMonth() === anchorMonth;
+              const expanded = expandedDay === k;
+              const visible = expanded ? items : items.slice(0, 2);
+              const overflow = items.length - visible.length;
               return (
                 <div
                   key={k}
-                  className={cn(
-                    'min-h-[104px] border-b border-r border-border p-1.5',
-                    d.getMonth() !== anchorMonth && 'bg-surface-sunken/50',
-                  )}
+                  className={cn('flex min-h-[92px] flex-col border-b border-r border-border p-1', !inMonth && 'bg-surface-sunken/40')}
                 >
                   <button
                     type="button"
@@ -361,26 +396,27 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
                       setMode('day');
                     }}
                     className={cn(
-                      'mb-1 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1 font-body text-xs',
-                      k === todayKey ? 'bg-primary text-white' : d.getMonth() !== anchorMonth ? 'text-ink-faint' : 'text-ink',
+                      'mb-0.5 self-start font-body text-xs',
+                      k === todayKey
+                        ? 'inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary font-bold text-white'
+                        : inMonth
+                          ? 'text-ink-muted'
+                          : 'text-ink-faint',
                     )}
                   >
                     {d.getDate()}
                   </button>
-                  <div className="space-y-0.5">
-                    {items.slice(0, 3).map((it) => (
+                  <div className="flex flex-1 flex-col justify-center space-y-0.5 pb-1">
+                    {visible.map((it) => (
                       <Chip key={it.key} item={it} onClick={() => open(it)} />
                     ))}
-                    {items.length > 3 && (
+                    {(overflow > 0 || expanded) && (
                       <button
                         type="button"
-                        onClick={() => {
-                          setAnchor(d);
-                          setMode('day');
-                        }}
-                        className="font-body text-xs text-primary hover:underline"
+                        onClick={() => setExpandedDay(expanded ? null : k)}
+                        className="px-1 text-left font-body text-[11px] text-primary hover:underline"
                       >
-                        +{items.length - 3} mais
+                        {expanded ? 'Ver menos' : `+${overflow} mais`}
                       </button>
                     )}
                   </div>
@@ -388,60 +424,54 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
               );
             })}
           </div>
-        </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-3 py-2 font-body text-[11px] text-ink-muted">
+            {TONE_LEGEND.map((l) => (
+              <span key={l.tone} className="inline-flex items-center gap-1.5">
+                <span className={cn('h-2.5 w-4 rounded-sm', BAR_CLASS[l.tone])} />
+                {l.label}
+              </span>
+            ))}
+          </div>
+        </Card>
       )}
 
       {/* Semana */}
       {data && mode === 'week' && (
-        <div className="grid gap-2 md:grid-cols-7">
-          {range.days.map((d, i) => {
+        <div className="space-y-3">
+          {range.days.map((d) => {
             const items = dayItems(d);
-            const k = dayKey(d);
             return (
-              <div key={k} className={cn('rounded-card border border-border bg-surface p-2', k === todayKey && 'border-primary')}>
-                <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-                  {WEEKDAYS[i]} <span className="text-ink">{d.getDate()}</span>
+              <Card key={dayKey(d)} className={cn('overflow-hidden p-0', dayKey(d) === todayKey && 'ring-1 ring-primary')}>
+                <div className={cn(NAVY_HEADER, 'border-b border-border px-4 py-2')}>
+                  {formatDate(d, { weekday: 'long', day: '2-digit', month: 'long' })}
                 </div>
-                <div className="space-y-1">
-                  {items.length === 0 && <p className="font-body text-xs text-ink-faint">—</p>}
-                  {items.map((it) => (
-                    <Chip key={it.key} item={it} onClick={() => open(it)} showTime />
-                  ))}
-                </div>
-              </div>
+                {items.length === 0 ? (
+                  <div className="px-4 py-4 font-body text-xs text-ink-faint">Sem prazos</div>
+                ) : (
+                  <div className="divide-y divide-border">
+                    {items.map((it) => (
+                      <DayRow key={it.key} item={it} onClick={() => open(it)} />
+                    ))}
+                  </div>
+                )}
+              </Card>
             );
           })}
         </div>
       )}
 
       {/* Dia */}
-      {data && mode === 'day' && (
-        <div className="rounded-card border border-border bg-surface">
-          {dayItems(range.days[0]).length === 0 ? (
-            <EmptyState title="Sem prazos neste dia" description="Nenhuma tarefa ou processo vence nesta data com os filtros actuais." />
-          ) : (
-            dayItems(range.days[0]).map((it) => (
-              <button
-                key={it.key}
-                type="button"
-                onClick={() => open(it)}
-                className="flex w-full items-center gap-4 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
-              >
-                <span className="w-14 shrink-0 font-mono text-sm text-ink-muted">{timeOf(it.dueAt)}</span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-body text-sm font-medium text-ink">{it.title}</span>
-                  <span className="block truncate font-body text-xs text-ink-muted">
-                    {it.code} · {it.processTitle} · {it.assignee?.fullName ?? 'Por atribuir'}
-                  </span>
-                </span>
-                <span className={cn('shrink-0 rounded-control px-2 py-0.5 font-body text-xs', CHIP_CLASS[toneOf(it)])}>
-                  {it.isOverdue ? 'Em atraso' : it.isDueSoon ? 'A vencer' : it.status === 'COMPLETED' ? 'Concluída' : 'No prazo'}
-                </span>
-              </button>
-            ))
-          )}
-        </div>
-      )}
+      {data &&
+        mode === 'day' &&
+        (dayItems(range.days[0]).length === 0 ? (
+          <EmptyState title="Sem prazos neste dia" description="Nenhuma tarefa ou processo vence nesta data com os filtros actuais." />
+        ) : (
+          <Card className="divide-y divide-border overflow-hidden p-0">
+            {dayItems(range.days[0]).map((it) => (
+              <DayRow key={it.key} item={it} onClick={() => open(it)} />
+            ))}
+          </Card>
+        ))}
 
       {/* Cronograma */}
       {data && mode === 'timeline' && (

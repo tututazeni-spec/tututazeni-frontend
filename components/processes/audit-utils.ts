@@ -2,6 +2,7 @@
 // Rótulos partilhados da aba «Histórico e Auditoria» (docs/Modulo_Processes.md §13).
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
+import { INSTANCE_STATUS_LABEL } from './constants';
 import type { AuditSource } from './types';
 
 export const AUDIT_SOURCE_LABEL: Record<AuditSource, string> = {
@@ -33,3 +34,18 @@ export const ATTEMPT_STATUS_MAP: StatusBadgeMap<string> = {
   PENDING: { label: 'Pendente', cls: 'bg-surface-sunken text-ink-muted' },
   SKIPPED: { label: 'Ignorada', cls: 'bg-surface-sunken text-ink-faint' },
 };
+
+const STATUS_PT: Record<string, string> = {
+  ...INSTANCE_STATUS_LABEL,
+  DRAFT: 'Rascunho',
+  ACTIVE: 'Activo',
+  ARCHIVED: 'Arquivado',
+  IN_REVIEW: 'Em revisão',
+  PENDING: 'Pendente',
+  APPROVED: 'Aprovado',
+  REJECTED: 'Rejeitado',
+  INFO_REQUESTED: 'Informação pedida',
+  WAIT_EVENT: 'À espera de evento',
+  SKIPPED: 'Ignorada',
+};
+export const statusPt = (v: string | null) => (v ? (STATUS_PT[v] ?? v) : '—');

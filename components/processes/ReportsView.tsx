@@ -7,7 +7,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Download } from 'lucide-react';
+import { AlarmClock, CalendarCheck, CheckCircle2, ClipboardList, Download, FileStack, ListTodo, RotateCcw, Stamp, Timer, Undo2, XCircle, Zap, type LucideIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { API_URL } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -17,13 +17,14 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { INVERSE_RATE_BANDS, SpeedometerStatCard } from '@/components/ui/charts/SpeedometerStatCard';
+import { ThermometerStatCard } from '@/components/ui/charts/ThermometerStatCard';
 import { Select } from '@/components/ui/Select';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import { useToast } from '@/providers/ToastProvider';
-import { fmtHours } from './constants';
+import { fmtHours, moduleLabel } from './constants';
 import { ReportRecordsPanel } from './ReportRecordsPanel';
 import { Skeleton } from './Skeleton';
-import { UserPicker } from './UserPicker';
 import type {
   InstanceFilterOptions,
   ProcessReport,
@@ -46,13 +47,6 @@ const GROUP_ITEMS: Array<{ value: ReportGroupBy; label: string }> = [
   { value: 'responsible', label: 'Por responsável' },
   { value: 'priority', label: 'Por prioridade' },
   { value: 'month', label: 'Por mês' },
-];
-const PRIORITY_ITEMS = [
-  { value: ALL, label: 'Todas as prioridades' },
-  { value: 'LOW', label: 'Baixa' },
-  { value: 'NORMAL', label: 'Normal' },
-  { value: 'HIGH', label: 'Alta' },
-  { value: 'URGENT', label: 'Urgente' },
 ];
 
 interface Filters {
@@ -97,33 +91,52 @@ const rateSub = (r: RateIndicator) => (r.denominator ? `${r.numerator} de ${r.de
 
 function ChartCard({ title, empty, children }: { title: string; empty: boolean; children: React.ReactNode }) {
   return (
-    <div className="rounded-card border border-border bg-surface p-4">
-      <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">{title}</div>
-      {empty ? <p className="py-8 text-center font-body text-sm text-ink-faint">Sem dados</p> : children}
+    <div className="overflow-hidden rounded-card border border-border bg-surface">
+      <div className="pointer-events-none select-none bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
+        {title}
+      </div>
+      <div className="p-4">
+        {empty ? <p className="py-8 text-center font-body text-sm text-ink-faint">Sem dados</p> : children}
+      </div>
     </div>
   );
 }
 
 function Kpi({
+  icon,
   label,
   value,
   sub,
   intent,
+  iconIntent,
+  gauge,
   indicator,
   definition,
   onDrill,
 }: {
+  icon: LucideIcon;
   label: string;
   value: string | number;
   sub: string;
   intent: 'primary' | 'info' | 'success' | 'warning' | 'danger' | 'accent';
+  iconIntent?: 'caution';
+  /** Taxa em que menos é melhor, desenhada como termómetro ou velocímetro. */
+  gauge?: { kind: 'thermometer' | 'speedometer'; rate: number | null };
   indicator: ReportRecordIndicator;
   definition?: string;
   onDrill: (indicator: ReportRecordIndicator, title: string, definition?: string) => void;
 }) {
   return (
     <button type="button" title={definition} onClick={() => onDrill(indicator, label, definition)} className="text-left">
-      <KpiCard label={label} value={value} sub={sub} intent={intent} className="w-full transition-shadow hover:shadow-md" />
+      {gauge ? (
+        gauge.kind === 'thermometer' ? (
+          <ThermometerStatCard label={label} value={gauge.rate ?? 0} bands={INVERSE_RATE_BANDS} display={String(value)} caption={sub} />
+        ) : (
+          <SpeedometerStatCard label={label} value={gauge.rate ?? 0} bands={INVERSE_RATE_BANDS} display={String(value)} caption={sub} />
+        )
+      ) : (
+        <KpiCard icon={icon} iconIntent={iconIntent} label={label} value={value} sub={sub} intent={intent} className="w-full transition-shadow hover:shadow-md" />
+      )}
     </button>
   );
 }
@@ -190,12 +203,6 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
           <Input type="date" value={filters.to} onChange={(e) => set({ to: e.target.value })} />
         </label>
         <Select
-          items={[{ value: ALL, label: 'Todas as unidades' }, ...(options?.units ?? []).map((u) => ({ value: String(u.id), label: u.name }))]}
-          value={filters.unitId}
-          onValueChange={(v) => set({ unitId: v })}
-          className="w-44"
-        />
-        <Select
           items={[{ value: ALL, label: 'Todos os departamentos' }, ...(options?.departments ?? []).map((d) => ({ value: String(d.id), label: d.name }))]}
           value={filters.departmentId}
           onValueChange={(v) => set({ departmentId: v })}
@@ -214,17 +221,10 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
           className="w-44"
         />
         <Select
-          items={[{ value: ALL, label: 'Todos os módulos' }, ...(options?.sourceModules ?? []).map((m) => ({ value: m, label: m }))]}
+          items={[{ value: ALL, label: 'Todos os módulos' }, ...(options?.sourceModules ?? []).map((m) => ({ value: m, label: moduleLabel(m) }))]}
           value={filters.sourceModule}
           onValueChange={(v) => set({ sourceModule: v })}
           className="w-44"
-        />
-        <Select items={PRIORITY_ITEMS} value={filters.priority} onValueChange={(v) => set({ priority: v })} className="w-48" />
-        <UserPicker
-          value={filters.responsibleId}
-          onChange={(v) => set({ responsibleId: v })}
-          placeholder="Responsável"
-          className="w-48"
         />
         {hasFilters && (
           <button type="button" onClick={() => setFilters(EMPTY)} className="pb-2 font-body text-xs text-primary hover:underline">
@@ -261,15 +261,16 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
               {new Date(data.range.to).toLocaleDateString('pt-PT')}
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-              <Kpi onDrill={openDrill} label="Volume de processos" value={data.indicators.volume.value} sub="Iniciados no período" intent="primary" indicator="total" definition={def.volume} />
-              <Kpi onDrill={openDrill} label="Taxa de conclusão" value={pct(data.indicators.completionRate.value)} sub={rateSub(data.indicators.completionRate)} intent="success" indicator="completed" definition={def.completionRate} />
-              <Kpi onDrill={openDrill} label="Cumprimento de prazo" value={pct(data.indicators.onTimeRate.value)} sub={rateSub(data.indicators.onTimeRate)} intent="success" indicator="onTime" definition={def.onTimeRate} />
-              <Kpi onDrill={openDrill} label="Tempo médio de conclusão" value={fmtHours(data.indicators.avgCompletionHours.value)} sub={`${data.indicators.avgCompletionHours.samples} concluídos (exclui cancelados e suspensos)`} intent="accent" indicator="completed" definition={def.avgCompletionHours} />
-              <Kpi onDrill={openDrill} label="Taxa de rejeição" value={pct(data.indicators.rejectionRate.value)} sub={rateSub(data.indicators.rejectionRate)} intent="danger" indicator="rejected" definition={def.rejectionRate} />
-              <Kpi onDrill={openDrill} label="Taxa de devolução" value={pct(data.indicators.returnRate.value)} sub={rateSub(data.indicators.returnRate)} intent="warning" indicator="returned" definition={def.returnRate} />
-              <Kpi onDrill={openDrill} label="Taxa de reabertura" value={pct(data.indicators.reopenRate.value)} sub={rateSub(data.indicators.reopenRate)} intent="warning" indicator="reopened" definition={def.reopenRate} />
+              <Kpi onDrill={openDrill} icon={FileStack} label="Volume de processos" value={data.indicators.volume.value} sub="Iniciados no período" intent="primary" indicator="total" definition={def.volume} />
+              <Kpi onDrill={openDrill} icon={CheckCircle2} label="Taxa de conclusão" value={pct(data.indicators.completionRate.value)} sub={rateSub(data.indicators.completionRate)} intent="success" indicator="completed" definition={def.completionRate} />
+              <Kpi onDrill={openDrill} icon={CalendarCheck} label="Cumprimento de prazo" value={pct(data.indicators.onTimeRate.value)} sub={rateSub(data.indicators.onTimeRate)} intent="success" indicator="onTime" definition={def.onTimeRate} />
+              <Kpi onDrill={openDrill} icon={Timer} iconIntent="caution" label="Tempo médio de conclusão" value={fmtHours(data.indicators.avgCompletionHours.value)} sub={`${data.indicators.avgCompletionHours.samples} concluídos (exclui cancelados e suspensos)`} intent="accent" indicator="completed" definition={def.avgCompletionHours} />
+              <Kpi onDrill={openDrill} icon={XCircle} gauge={{ kind: 'thermometer', rate: data.indicators.rejectionRate.value }} label="Taxa de rejeição" value={pct(data.indicators.rejectionRate.value)} sub={rateSub(data.indicators.rejectionRate)} intent="danger" indicator="rejected" definition={def.rejectionRate} />
+              <Kpi onDrill={openDrill} icon={Undo2} gauge={{ kind: 'thermometer', rate: data.indicators.returnRate.value }} label="Taxa de devolução" value={pct(data.indicators.returnRate.value)} sub={rateSub(data.indicators.returnRate)} intent="warning" indicator="returned" definition={def.returnRate} />
+              <Kpi onDrill={openDrill} icon={RotateCcw} gauge={{ kind: 'speedometer', rate: data.indicators.reopenRate.value }} label="Taxa de reabertura" value={pct(data.indicators.reopenRate.value)} sub={rateSub(data.indicators.reopenRate)} intent="warning" indicator="reopened" definition={def.reopenRate} />
               <Kpi
                 onDrill={openDrill}
+                icon={Zap}
                 label="Falhas de automação"
                 value={data.automation.failed}
                 sub={data.automation.total ? `${data.automation.failureRate}% de ${data.automation.total} execuções` : 'Sem execuções no período'}
@@ -286,10 +287,10 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
               Estado actual (independente do período)
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <Kpi onDrill={openDrill} label="Backlog de processos" value={data.snapshot.backlogInstances} sub="Em curso ou suspensos" intent="info" indicator="backlogInstances" definition={def.backlog} />
-              <Kpi onDrill={openDrill} label="Backlog de tarefas" value={data.snapshot.backlogTasks} sub={`${data.snapshot.overdueTasks} em atraso`} intent={data.snapshot.overdueTasks ? 'warning' : 'info'} indicator="backlogTasks" definition={def.backlog} />
-              <Kpi onDrill={openDrill} label="Processos em atraso" value={data.snapshot.overdueInstances} sub="Prazo ultrapassado" intent={data.snapshot.overdueInstances ? 'danger' : 'primary'} indicator="overdue" definition={def.overdue} />
-              <Kpi onDrill={openDrill} label="Aprovações pendentes" value={data.snapshot.pendingApprovals} sub="Aguardam decisão" intent="warning" indicator="pendingApprovals" definition={def.pendingApprovals} />
+              <Kpi onDrill={openDrill} icon={ListTodo} label="Backlog de processos" value={data.snapshot.backlogInstances} sub="Em curso ou suspensos" intent="info" indicator="backlogInstances" definition={def.backlog} />
+              <Kpi onDrill={openDrill} icon={ClipboardList} iconIntent="caution" label="Backlog de tarefas" value={data.snapshot.backlogTasks} sub={`${data.snapshot.overdueTasks} em atraso`} intent={data.snapshot.overdueTasks ? 'warning' : 'info'} indicator="backlogTasks" definition={def.backlog} />
+              <Kpi onDrill={openDrill} icon={AlarmClock} label="Processos em atraso" value={data.snapshot.overdueInstances} sub="Prazo ultrapassado" intent={data.snapshot.overdueInstances ? 'danger' : 'primary'} indicator="overdue" definition={def.overdue} />
+              <Kpi onDrill={openDrill} icon={Stamp} label="Aprovações pendentes" value={data.snapshot.pendingApprovals} sub="Aguardam decisão" intent="warning" indicator="pendingApprovals" definition={def.pendingApprovals} />
             </div>
           </div>
 
@@ -311,8 +312,8 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
           </div>
 
           {/* Carga por responsável */}
-          <div className="rounded-card border border-border bg-surface">
-            <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="overflow-hidden rounded-card border border-border bg-surface">
+            <div className="pointer-events-none select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
               Carga por responsável (tarefas por resolver)
             </div>
             {data.workload.length === 0 ? (
@@ -355,7 +356,7 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
             </div>
             <div className="overflow-x-auto">
               <div className="min-w-[720px]">
-                <div className="grid grid-cols-[2fr_80px_100px_90px_90px_110px_120px_110px] gap-3 border-b border-border px-4 py-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                <div className="grid grid-cols-[2fr_80px_100px_90px_90px_110px_120px_110px] gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-2 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
                   <div>Grupo</div>
                   <div>Total</div>
                   <div>Concluídos</div>

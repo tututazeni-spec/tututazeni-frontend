@@ -64,19 +64,21 @@ export function WorkflowsView({ canEdit }: WorkflowsViewProps) {
             key={p.id}
             type="button"
             onClick={() => setSelected(p.id)}
-            className="rounded-card border border-border bg-surface p-4 text-left shadow-resting transition-shadow hover:shadow-hover"
+            className="group flex flex-col rounded-card border border-white/10 bg-[#0F1F3D] p-4 text-left text-white shadow-resting transition-shadow hover:shadow-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8FB3FF]"
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <div className="truncate font-body text-sm font-medium text-ink">{p.title}</div>
-                <div className="font-mono text-xs text-ink-faint">
+                <div className="break-words font-body text-[13px] font-medium leading-tight text-white">
+                  {p.title}
+                </div>
+                <div className="font-body text-xs text-white/70">
                   {p.code} · v{p.version}
                 </div>
               </div>
               <StatusBadge value={p.status} map={PROCESS_STATUS_MAP} variant="dot" />
             </div>
-            <div className="mt-3 font-body text-xs text-ink-muted">
-              {p.steps?.length ?? 0} etapas · {p._count?.instances ?? 0} processos
+            <div className="mt-3 font-body text-xs text-white">
+              {p.steps?.length ?? 0} Etapas · {p._count?.instances ?? 0} Processos
             </div>
           </button>
         ))}

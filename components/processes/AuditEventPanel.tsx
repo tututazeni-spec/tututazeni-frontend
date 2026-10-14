@@ -11,7 +11,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from './Skeleton';
-import { AUDIT_SOURCE_LABEL } from './audit-utils';
+import { AUDIT_SOURCE_LABEL, statusPt } from './audit-utils';
 import type { AuditEventDetail } from './types';
 
 export interface AuditEventPanelProps {
@@ -63,8 +63,8 @@ export function AuditEventPanel({ eventId, onClose, onOpenEvent, onOpenInstance 
                   {e.result === 'FAILED' ? 'Falhou' : 'Sucesso'}
                 </span>
               </Field>
-              <Field label="Estado anterior">{e.previousStatus ?? '—'}</Field>
-              <Field label="Novo estado">{e.newStatus ?? '—'}</Field>
+              <Field label="Estado anterior">{statusPt(e.previousStatus)}</Field>
+              <Field label="Novo estado">{statusPt(e.newStatus)}</Field>
               <Field label="Modelo">{e.template ? `${e.template.code} — ${e.template.title}` : '—'}</Field>
               <Field label="Processo">
                 {e.instance ? (

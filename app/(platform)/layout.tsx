@@ -1,6 +1,7 @@
 import '../globals.css';
 import Sidebar from '../../components/Sidebar';
 import Topbar from '../../components/Topbar';
+import { SessionActivityTracker } from '../../components/SessionActivityTracker';
 import { FrontendPerfReporter } from '../../components/scalability/FrontendPerfReporter';
 
 export default function PlatformLayout({
@@ -11,6 +12,7 @@ export default function PlatformLayout({
   return (
     <div style={{ display: 'flex', margin: 0, padding: 0 }}>
       <FrontendPerfReporter />
+      <SessionActivityTracker />
       <Sidebar />
       <div
         style={{
