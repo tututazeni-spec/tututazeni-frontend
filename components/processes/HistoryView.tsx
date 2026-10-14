@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/Table';
 import { useToast } from '@/providers/ToastProvider';
 import { AuditEventPanel } from './AuditEventPanel';
-import { ATTEMPT_STATUS_MAP, AUDIT_RESULT_MAP, AUDIT_SOURCE_MAP } from './audit-utils';
+import { ATTEMPT_STATUS_MAP, AUDIT_RESULT_MAP, AUDIT_SOURCE_MAP, statusPt } from './audit-utils';
 import { ReasonDialog } from './ReasonDialog';
 import { Skeleton } from './Skeleton';
 import type {
@@ -78,7 +78,6 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
   const [exporting, setExporting] = useState(false);
   const [askExport, setAskExport] = useState(false);
   const [attemptKind, setAttemptKind] = useState('ALL');
-  const [attemptStatus, setAttemptStatus] = useState(ALL);
   const [attemptPage, setAttemptPage] = useState(1);
 
   const baseParams = useMemo(() => toParams(filters), [filters]);
@@ -96,7 +95,6 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
   );
   const attemptParams = {
     kind: attemptKind,
-    ...(attemptStatus !== ALL ? { status: attemptStatus } : {}),
     page: String(attemptPage),
     limit: '20',
   };
@@ -145,8 +143,8 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
             onClick={() => setMode(id)}
             className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
               mode === id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
+                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
+                : 'border-[#0F1F3D] bg-white text-[#0F1F3D]'
             }`}
           >
             {label}
@@ -180,28 +178,6 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
               value={filters.action}
               onValueChange={(v) => set({ action: v })}
               className="w-60"
-            />
-            <Select
-              items={[
-                { value: ALL, label: 'Todas as origens' },
-                { value: 'INTERFACE', label: 'Interface' },
-                { value: 'API', label: 'API / integração' },
-                { value: 'AUTOMATION', label: 'Automação' },
-                { value: 'SYSTEM', label: 'Sistema' },
-              ]}
-              value={filters.source}
-              onValueChange={(v) => set({ source: v })}
-              className="w-48"
-            />
-            <Select
-              items={[
-                { value: ALL, label: 'Qualquer resultado' },
-                { value: 'SUCCESS', label: 'Sucesso' },
-                { value: 'FAILED', label: 'Falhou' },
-              ]}
-              value={filters.result}
-              onValueChange={(v) => set({ result: v })}
-              className="w-44"
             />
             <label className="flex flex-col gap-1 font-body text-xs text-ink-muted">
               De
@@ -238,15 +214,15 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
           {data && data.data.length > 0 && (
             <>
               <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableHeaderCell>Data e hora</TableHeaderCell>
-                    <TableHeaderCell>Evento</TableHeaderCell>
-                    <TableHeaderCell>Utilizador</TableHeaderCell>
-                    <TableHeaderCell>Processo</TableHeaderCell>
-                    <TableHeaderCell>Estado</TableHeaderCell>
-                    <TableHeaderCell>Origem</TableHeaderCell>
-                    <TableHeaderCell>Resultado</TableHeaderCell>
+                <TableHead className="bg-[#0F1F3D]/60">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHeaderCell className="text-white">Data e hora</TableHeaderCell>
+                    <TableHeaderCell className="text-white">Evento</TableHeaderCell>
+                    <TableHeaderCell className="text-white">Utilizador</TableHeaderCell>
+                    <TableHeaderCell className="text-white">Processo</TableHeaderCell>
+                    <TableHeaderCell className="text-white">Estado</TableHeaderCell>
+                    <TableHeaderCell className="text-white">Origem</TableHeaderCell>
+                    <TableHeaderCell className="text-white">Resultado</TableHeaderCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -263,7 +239,7 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
                       </TableCell>
                       <TableCell>{e.instance?.code ?? e.template?.code ?? '—'}</TableCell>
                       <TableCell className="whitespace-nowrap text-xs">
-                        {e.previousStatus || e.newStatus ? `${e.previousStatus ?? '—'} → ${e.newStatus ?? '—'}` : '—'}
+                        {e.previousStatus || e.newStatus ? `${statusPt(e.previousStatus)} → ${statusPt(e.newStatus)}` : '—'}
                       </TableCell>
                       <TableCell>{e.source && <StatusBadge value={e.source} map={AUDIT_SOURCE_MAP} />}</TableCell>
                       <TableCell>
@@ -297,19 +273,6 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
                 setAttemptPage(1);
               }}
               className="w-60"
-            />
-            <Select
-              items={[
-                { value: ALL, label: 'Qualquer resultado' },
-                { value: 'SUCCESS', label: 'Sucesso' },
-                { value: 'FAILED', label: 'Falhas' },
-              ]}
-              value={attemptStatus}
-              onValueChange={(v) => {
-                setAttemptStatus(v);
-                setAttemptPage(1);
-              }}
-              className="w-48"
             />
           </div>
           {attempts.isLoading && <Skeleton rows={4} />}

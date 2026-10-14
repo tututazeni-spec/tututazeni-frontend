@@ -9,7 +9,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Plug } from 'lucide-react';
+import { AlertTriangle, Boxes, Inbox, Plug, PlugZap } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -39,11 +39,66 @@ export interface IntegrationsViewProps {
 
 const ALL = 'ALL';
 const MODULE_STATUS_MAP: StatusBadgeMap<IntegrationModuleStatus> = {
-  ACTIVE: { label: 'Activa', cls: 'bg-success-subtle text-success-ink' },
-  CONFIGURED: { label: 'Modelos configurados', cls: 'bg-info-subtle text-info-ink' },
-  NO_ACTIVITY: { label: 'Sem actividade', cls: 'bg-surface-sunken text-ink-faint' },
-  ERRORS: { label: 'Com falhas', cls: 'bg-danger-subtle text-danger-ink' },
+  ACTIVE: { label: 'Activa', cls: 'bg-[#0F1F3D] text-white ring-1 ring-white/30' },
+  CONFIGURED: { label: 'Modelos configurados', cls: 'bg-[#0F1F3D] text-white ring-1 ring-white/30' },
+  NO_ACTIVITY: { label: 'Sem actividade', cls: 'bg-[#0F1F3D] text-white ring-1 ring-white/30' },
+  ERRORS: { label: 'Com falhas', cls: 'bg-[#0F1F3D] text-white ring-1 ring-white/30' },
 };
+
+// Títulos em português (o backend devolve o nome técnico do módulo).
+const MODULE_LABELS: Record<string, string> = {
+  Auth: 'Autenticação',
+  Users: 'Utilizadores',
+  Departments: 'Departamentos',
+  Organization: 'Organização',
+  Roles: 'Perfis e permissões',
+  Courses: 'Cursos',
+  CourseModules: 'Módulos de curso',
+  LearningPaths: 'Percursos de aprendizagem',
+  Enrollments: 'Matrículas',
+  Evaluation: 'Avaliação',
+  Competencies: 'Competências',
+  Performance: 'Desempenho',
+  Evaluation360: 'Avaliação 360°',
+  CompetencyMap: 'Mapa de competências',
+  DevelopmentPlans: 'Planos de desenvolvimento',
+  CareerPlans: 'Planos de carreira',
+  TalentDevelopment: 'Desenvolvimento de talento',
+  Leadership: 'Liderança',
+  Succession: 'Sucessão',
+  Onboarding: 'Integração de colaboradores',
+  Trainings: 'Formações',
+  Attendance: 'Assiduidade',
+  AITutor: 'Tutor de IA',
+  AvatarTraining: 'Formação com avatar',
+  MicroLearning: 'Microaprendizagem',
+  Knowledge: 'Base de conhecimento',
+  ContentLibrary: 'Biblioteca de conteúdos',
+  Instructor: 'Formadores',
+  Feedback360: 'Feedback 360°',
+  Leave: 'Licenças e ausências',
+  Payroll: 'Processamento salarial',
+  WorkDeclaration: 'Declarações de trabalho',
+  Documents: 'Documentos',
+  Library: 'Biblioteca',
+  Notifications: 'Notificações',
+  History: 'Histórico',
+  Automation: 'Automação',
+  Events: 'Eventos',
+  Engagement: 'Envolvimento',
+  ExecutiveReports: 'Relatórios executivos',
+  Analytics: 'Análises',
+  Monitoring: 'Monitorização',
+  ApiIntegration: 'Integração por API',
+  CrmBeneficiaries: 'CRM — Beneficiários',
+  CrmPartners: 'CRM — Parceiros',
+  CrmFunders: 'CRM — Financiadores',
+  Processes: 'Processos',
+};
+const moduleLabel = (key: string, fallback: string) => MODULE_LABELS[key] ?? fallback;
+
+// Cor própria de cada card, só na linha colada ao cabeçalho.
+const cardHue = (i: number) => Math.round((i * 360) / 47 + 8) % 360;
 
 export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewProps) {
   const notify = useToast();
@@ -81,7 +136,7 @@ export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewP
   const modules = (o?.modules ?? []).filter(
     (m) =>
       (status === ALL || m.status === status) &&
-      (!q || m.label.toLowerCase().includes(q) || m.description.toLowerCase().includes(q)),
+      (!q || moduleLabel(m.key, m.label).toLowerCase().includes(q) || m.label.toLowerCase().includes(q) || m.description.toLowerCase().includes(q)),
   );
 
   return (
@@ -92,10 +147,12 @@ export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewP
       {o && (
         <>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <KpiCard label="Módulos na matriz" value={o.summary.total} sub="integração prevista" intent="primary" />
-            <KpiCard label="Activas" value={o.summary.active} sub="já iniciaram processos" intent="success" />
-            <KpiCard label="Com falhas" value={o.summary.withErrors} sub="eventos por tratar" intent="danger" />
+            <KpiCard icon={Boxes} label="Módulos na matriz" value={o.summary.total} sub="integração prevista" intent="primary" />
+            <KpiCard icon={PlugZap} label="Activas" value={o.summary.active} sub="já iniciaram processos" intent="success" />
+            <KpiCard icon={AlertTriangle} label="Com falhas" value={o.summary.withErrors} sub="eventos por tratar" intent="danger" />
             <KpiCard
+              icon={Inbox}
+              iconIntent="caution"
               label="Recepção de eventos"
               value={o.inboundEnabled ? 'Activa' : 'Desactivada'}
               sub={o.restrictedToModules ? 'restrita a módulos autorizados' : 'todos os módulos'}
@@ -128,45 +185,65 @@ export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewP
             <EmptyState icon={Plug} title="Nenhum módulo" description="Nenhum módulo corresponde aos filtros." className="mx-auto max-w-xl" />
           ) : (
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {modules.map((m) => (
-                <div key={m.key} className="rounded-card border border-border bg-surface p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="font-body text-sm font-semibold text-ink">{m.label}</div>
+              {modules.map((m, i) => {
+                const hue = cardHue(i);
+                return (
+                <div
+                  key={m.key}
+                  className="flex flex-col overflow-hidden rounded-card border border-border bg-surface"
+                >
+                  <div
+                    className="flex h-16 items-center justify-between gap-2 border-b-4 bg-[#0F1F3D]/60 px-4"
+                    style={{ borderBottomColor: `hsl(${hue} 65% 50%)` }}
+                  >
+                    <div className="line-clamp-2 font-body text-sm font-semibold leading-tight text-white">
+                      {moduleLabel(m.key, m.label)}
+                    </div>
                     <StatusBadge value={m.status} map={MODULE_STATUS_MAP} />
                   </div>
-                  <p className="mt-1 font-body text-xs text-ink-muted">{m.description}</p>
-                  {m.note && <p className="mt-1 font-body text-xs text-warning-ink">{m.note}</p>}
-                  <dl className="mt-3 grid grid-cols-4 gap-2 font-body text-xs">
-                    {[
-                      ['Processos', m.instances],
-                      ['Em curso', m.openInstances],
-                      ['Modelos', m.templates],
-                      ['Eventos', m.events],
-                    ].map(([k, v]) => (
-                      <div key={k}>
-                        <dt className="text-ink-faint">{k}</dt>
-                        <dd className="font-medium text-ink">{v}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                  <div className="mt-2 flex items-center justify-between font-body text-xs text-ink-faint">
-                    <span>{m.lastActivityAt ? `Última actividade ${formatDateTime(m.lastActivityAt)}` : 'Sem actividade'}</span>
-                    {m.failedEvents > 0 && (
-                      <button
-                        type="button"
-                        className="text-danger-ink hover:underline"
-                        onClick={() => {
-                          setLogModule(m.key);
-                          setLogStatus('FAILED');
-                          setLogPage(1);
-                        }}
-                      >
-                        {m.failedEvents} falha(s)
-                      </button>
-                    )}
+
+                  <div className="flex flex-1 flex-col gap-3 p-4 text-[#0F1F3D]">
+                    <div className="flex-1 space-y-1.5">
+                      <p className="font-body text-xs leading-relaxed">{m.description}</p>
+                      {m.note && <p className="font-body text-xs text-warning-ink">{m.note}</p>}
+                    </div>
+
+                    <dl className="grid grid-cols-4 divide-x divide-[#0F1F3D]/15 rounded-control border border-[#0F1F3D]/15 bg-[#0F1F3D]/5 py-2 text-center font-body">
+                      {[
+                        ['Processos', m.instances],
+                        ['Em curso', m.openInstances],
+                        ['Modelos', m.templates],
+                        ['Eventos', m.events],
+                      ].map(([k, v]) => (
+                        <div key={k} className="px-1">
+                          <dd className="text-base font-semibold leading-none">{v}</dd>
+                          <dt className="mt-1 text-[11px] opacity-70">{k}</dt>
+                        </div>
+                      ))}
+                    </dl>
+
+                    <div className="flex items-center justify-between gap-2 border-t border-[#0F1F3D]/15 pt-2 font-body text-xs">
+                      <span className="opacity-80">
+                        {m.lastActivityAt ? `Última actividade ${formatDateTime(m.lastActivityAt)}` : 'Sem actividade'}
+                      </span>
+                      {m.failedEvents > 0 && (
+                        <button
+                          type="button"
+                          className="shrink-0 font-medium text-danger-ink hover:underline"
+                          onClick={() => {
+                            setLogModule(m.key);
+                            setLogStatus('FAILED');
+                            setLogPage(1);
+                          }}
+                        >
+                          {m.failedEvents} falha(s)
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -206,7 +283,7 @@ export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewP
               }}
               className="font-body text-xs text-primary hover:underline"
             >
-              Módulo: {logModule} ✕
+              Módulo: {moduleLabel(logModule, logModule)} ✕
             </button>
           )}
         </div>
@@ -221,7 +298,7 @@ export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewP
               <div key={l.id} className="flex flex-wrap items-center justify-between gap-3 p-3">
                 <div className="min-w-0 font-body text-sm text-ink">
                   <div className="font-medium">
-                    {l.module} · {l.event}
+                    {moduleLabel(l.module, l.module)} · {l.event}
                   </div>
                   <div className="text-xs text-ink-muted">
                     {formatDateTime(l.createdAt)} · {l.processCode ?? '—'} · {l.attempts} tentativa(s)

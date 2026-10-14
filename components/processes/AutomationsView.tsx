@@ -7,7 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, Pencil, Plus, Power, Trash2 } from 'lucide-react';
+import { Activity, AlertTriangle, Copy, Pencil, Plus, Power, Trash2, Zap } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
@@ -36,6 +36,17 @@ import type {
 export interface AutomationsViewProps {
   canManage: boolean;
 }
+
+// Uma cor escura por modelo (texto branco legível em todas).
+const TEMPLATE_CARD_COLORS = [
+  '#1D4ED8', // azul
+  '#0F766E', // verde-azulado
+  '#7E22CE', // roxo
+  '#B45309', // âmbar escuro
+  '#BE123C', // carmim
+  '#4D7C0F', // verde-lima escuro
+  '#0E7490', // ciano escuro
+];
 
 export function AutomationsView({ canManage }: AutomationsViewProps) {
   const notify = useToast();
@@ -90,13 +101,14 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
   return (
     <div>
       <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        <KpiCard label="Regras" value={k?.total ?? '—'} intent="primary" />
-        <KpiCard label="Activas" value={k?.active ?? '—'} intent="success" />
-        <KpiCard label="Execuções (24 h)" value={k?.executions24h ?? '—'} intent="info" />
+        <KpiCard icon={Zap} label="Regras" value={k?.total ?? '—'} intent="primary" />
+        <KpiCard icon={Power} label="Activas" value={k?.active ?? '—'} intent="success" />
+        <KpiCard icon={Activity} iconIntent="caution" label="Execuções (24 h)" value={k?.executions24h ?? '—'} intent="info" />
         <KpiCard
+          icon={AlertTriangle}
           label="Falhas (24 h)"
           value={k?.failed24h ?? '—'}
-          intent={k && k.failed24h > 0 ? 'danger' : 'success'}
+          intent="danger"
         />
       </div>
 
@@ -129,11 +141,17 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
 
       {showTemplates && catalog && (
         <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-          {catalog.templates.map((t) => (
-            <div key={t.key} className="rounded-card border border-border bg-surface p-3">
-              <div className="font-body text-sm font-medium text-ink">{t.name}</div>
-              <p className="mt-0.5 font-body text-xs text-ink-muted">{t.description}</p>
-              <Button intent="ghost" size="sm" className="mt-2" onClick={() => setForm({ template: t })}>
+          {catalog.templates.map((t, i) => (
+            <div key={t.key} className="flex flex-col rounded-card border border-[#0F1F3D] p-3"
+              style={{ backgroundColor: TEMPLATE_CARD_COLORS[i % TEMPLATE_CARD_COLORS.length] }}>
+              <div className="font-body text-sm font-bold text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">{t.name}</div>
+              <p className="mt-0.5 mb-3 font-body text-[13px] font-medium text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">{t.description}</p>
+              <Button
+                intent="ghost"
+                size="sm"
+                className="mt-auto self-start border border-[#0F1F3D] bg-black font-semibold text-white hover:bg-neutral-800 hover:text-white"
+                onClick={() => setForm({ template: t })}
+              >
                 Usar este modelo
               </Button>
             </div>
@@ -151,9 +169,9 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
       )}
 
       {data && data.data.length > 0 && (
-        <div className="overflow-x-auto rounded-card border border-border bg-surface">
-          <div className="min-w-[1000px]">
-            <div className="grid grid-cols-[1.8fr_1.4fr_1.2fr_1.3fr_120px_150px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="overflow-hidden rounded-card border border-border bg-surface">
+          <div>
+            <div className="grid grid-cols-[minmax(0,1.8fr)_minmax(0,1.3fr)_minmax(0,1.1fr)_minmax(0,1.3fr)_80px_128px] gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white cursor-default select-none pointer-events-none">
               <div>Regra</div>
               <div>Evento</div>
               <div>Acção</div>
@@ -164,51 +182,59 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
             {data.data.map((r) => (
               <div
                 key={r.id}
-                className="grid cursor-pointer grid-cols-[1.8fr_1.4fr_1.2fr_1.3fr_120px_150px] items-center gap-3 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken"
+                className="relative grid cursor-pointer grid-cols-[minmax(0,1.8fr)_minmax(0,1.3fr)_minmax(0,1.1fr)_minmax(0,1.3fr)_80px_128px] items-center gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 last:border-0"
                 onClick={() => setOpenId(r.id)}
               >
-                <div className="min-w-0">
-                  <div className="truncate font-body text-sm font-medium text-ink">{r.name}</div>
-                  <div className="font-mono text-xs text-ink-faint">{r.code ?? `#${r.id}`}</div>
+                <span
+                  className={`absolute inset-y-2 left-2 w-1 rounded-full ${r.active ? 'bg-success' : 'bg-ink-faint'}`}
+                />
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
+                    <Zap size={16} strokeWidth={1.75} />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate font-body text-sm font-semibold text-white">{r.name}</div>
+                    <div className="font-mono text-xs text-white">{r.code ?? `#${r.id}`}</div>
+                  </div>
                 </div>
-                <div className="font-body text-xs text-ink-muted">
+                <div className="font-body text-xs text-white">
                   <div>{r.triggerLabel}</div>
-                  {r.conditions && <div className="text-ink-faint">{r.conditions.rows.length} condição(ões)</div>}
+                  {r.conditions && <div className="text-white">{r.conditions.rows.length} condição(ões)</div>}
                 </div>
-                <div className="font-body text-xs text-ink-muted">{r.actionLabel}</div>
-                <div className="font-body text-xs text-ink-muted">
+                <div className="font-body text-xs text-white">{r.actionLabel}</div>
+                <div className="font-body text-xs text-white">
                   {r.lastRunAt ? (
                     <>
                       <div>{formatDateTime(r.lastRunAt)}</div>
-                      {r.lastRunStatus && <StatusBadge value={r.lastRunStatus} map={EXECUTION_STATUS_MAP} />}
+                      {r.lastRunStatus && <StatusBadge value={r.lastRunStatus} map={EXECUTION_STATUS_MAP} variant="dot" />}
                     </>
                   ) : (
                     'Nunca'
                   )}
-                  <div className="text-ink-faint">
+                  <div className="text-white">
                     {r.stats.success} ok · {r.stats.failed} falhas
                   </div>
                 </div>
                 <div>
                   <span
                     className={`rounded-full px-2 py-0.5 font-body text-xs font-medium ${
-                      r.active ? 'bg-success-subtle text-success-ink' : 'bg-surface-sunken text-ink-faint'
+                      r.active ? 'bg-success-subtle text-success-ink' : 'bg-white/15 text-white'
                     }`}
                   >
                     {r.active ? 'Activa' : 'Inactiva'}
                   </span>
                 </div>
-                <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                  <button type="button" title="Editar" className="rounded p-1.5 text-ink-muted hover:bg-surface-sunken" onClick={() => setForm({ initial: r })}>
+                <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+                  <button type="button" title="Editar" className="rounded p-1.5 text-white hover:bg-white/10 hover:text-white" onClick={() => setForm({ initial: r })}>
                     <Pencil size={14} strokeWidth={1.75} />
                   </button>
-                  <button type="button" title={r.active ? 'Desactivar' : 'Activar'} className="rounded p-1.5 text-ink-muted hover:bg-surface-sunken" onClick={() => act.mutate({ path: `${r.id}/toggle`, method: 'patch', ok: r.active ? 'Regra desactivada' : 'Regra activada' })}>
+                  <button type="button" title={r.active ? 'Desactivar' : 'Activar'} className="rounded p-1.5 text-white hover:bg-white/10 hover:text-white" onClick={() => act.mutate({ path: `${r.id}/toggle`, method: 'patch', ok: r.active ? 'Regra desactivada' : 'Regra activada' })}>
                     <Power size={14} strokeWidth={1.75} />
                   </button>
-                  <button type="button" title="Clonar" className="rounded p-1.5 text-ink-muted hover:bg-surface-sunken" onClick={() => act.mutate({ path: `${r.id}/clone`, method: 'post', ok: 'Regra clonada (inactiva)' })}>
+                  <button type="button" title="Clonar" className="rounded p-1.5 text-white hover:bg-white/10 hover:text-white" onClick={() => act.mutate({ path: `${r.id}/clone`, method: 'post', ok: 'Regra clonada (inactiva)' })}>
                     <Copy size={14} strokeWidth={1.75} />
                   </button>
-                  <button type="button" title="Remover" className="rounded p-1.5 text-ink-muted hover:bg-danger-subtle hover:text-danger" onClick={() => setToDelete(r)}>
+                  <button type="button" title="Remover" className="rounded p-1.5 text-white hover:bg-white/10 hover:text-white" onClick={() => setToDelete(r)}>
                     <Trash2 size={14} strokeWidth={1.75} />
                   </button>
                 </div>

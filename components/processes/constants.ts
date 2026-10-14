@@ -142,19 +142,19 @@ export const NAV: Array<{
     ready: true,
   },
   {
-    id: 'all',
-    hint: 'Instâncias em curso',
-    icon: ListChecks,
-    label: 'Todos os Processos',
-    description: 'Lista centralizada dos processos existentes.',
-    ready: true,
-  },
-  {
     id: 'templates',
     hint: 'Modelos reutilizáveis',
     icon: FileStack,
     label: 'Modelos de Processos',
     description: 'Criação e gestão de modelos reutilizáveis.',
+    ready: true,
+  },
+  {
+    id: 'all',
+    hint: 'Instâncias em curso',
+    icon: ListChecks,
+    label: 'Todos os Processos',
+    description: 'Lista centralizada dos processos existentes.',
     ready: true,
   },
   {
@@ -306,3 +306,25 @@ export const REQUIREMENT_MAP: StatusBadgeMap<RequirementState> = {
   REJECTED: { label: 'Rejeitado', cls: 'bg-danger-subtle text-danger-ink' },
   EXPIRED: { label: 'Expirado', cls: 'bg-danger-subtle text-danger-ink' },
 };
+
+/** Nomes em português dos módulos de origem (o valor enviado à API mantém-se). */
+export const SOURCE_MODULE_LABEL: Record<string, string> = {
+  Users: 'Utilizadores',
+  Departments: 'Departamentos',
+  Organization: 'Organização',
+  Onboarding: 'Integração',
+  Courses: 'Cursos',
+  Trainings: 'Formações',
+  Enrollments: 'Inscrições',
+  Performance: 'Desempenho',
+  PDI: 'PDI',
+  Career: 'Carreira',
+  Leave: 'Licenças',
+  Attendance: 'Assiduidade',
+  Payroll: 'Processamento salarial',
+  Documentos: 'Documentos',
+  Events: 'Eventos',
+  Processes: 'Processos',
+};
+
+export const moduleLabel = (m: string): string => SOURCE_MODULE_LABEL[m] ?? m;

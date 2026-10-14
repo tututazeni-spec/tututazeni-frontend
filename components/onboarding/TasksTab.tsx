@@ -28,11 +28,19 @@ interface Paginated {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
+const STATUS_LABEL: Record<string, string> = {
+  PENDING: 'Pendente',
+  IN_PROGRESS: 'Em curso',
+  COMPLETED: 'Concluída',
+  BLOCKED: 'Bloqueada',
+  SKIPPED: 'Saltada',
+};
+
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
-  ...Object.entries(TASK_STATUS_CFG).map(([value]) => ({
+  ...Object.keys(TASK_STATUS_CFG).map((value) => ({
     value,
-    label: value,
+    label: STATUS_LABEL[value] ?? value,
   })),
 ];
 
@@ -166,7 +174,7 @@ export function TasksTab({
                   {t.dueDate ? fmtDate(t.dueDate) : '—'}
                 </div>
                 <div className="shrink-0 font-body text-xs text-ink-faint">
-                  {t.status}
+                  {STATUS_LABEL[t.status] ?? t.status}
                 </div>
               </button>
             );

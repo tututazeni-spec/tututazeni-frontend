@@ -90,17 +90,18 @@ function SectionEditor({
       <ModalContent
         title={section.title}
         description={section.description}
-        className="max-h-[90vh] max-w-4xl overflow-y-auto"
+        navyBanner
+        className="left-[calc(50%+120px)] max-h-[90vh] w-[calc(100vw-240px-2rem)] max-w-4xl overflow-y-auto"
       >
-        <div className="mt-2 flex flex-wrap items-center gap-2 font-body text-xs text-ink-muted">
-          <span
-            className={`rounded-control px-2 py-0.5 ${
-              section.enforced ? 'bg-success-subtle text-success-ink' : 'bg-surface-sunken text-ink-muted'
-            }`}
-          >
+        <div className="-mx-6 -mt-4 mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/10 bg-[#0F1F3D] px-6 pb-4 font-body text-xs text-white">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-medium ring-1 ring-white/20">
+            <span
+              aria-hidden
+              className={`h-2 w-2 rounded-full ${section.enforced ? 'bg-emerald-400' : 'bg-amber-300'}`}
+            />
             {section.enforced ? 'Aplicada pelo motor' : 'Política de referência (ainda não aplicada pelo motor)'}
           </span>
-          <span>
+          <span className="text-white/80">
             {section.isDefault ? 'Valores por omissão' : `Versão ${section.version}`}
             {section.updatedAt ? ` · ${formatDateTime(section.updatedAt)}` : ''}
             {section.updatedBy ? ` · ${section.updatedBy}` : ''}
@@ -129,7 +130,7 @@ function SectionEditor({
           </div>
         )}
 
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <div className="-mx-6 mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#0F1F3D]/15 bg-[#0F1F3D]/5 px-6 pt-4">
           <div className="flex gap-2">
             <Button intent="ghost" size="sm" onClick={() => setShowHistory((s) => !s)}>
               <History size={14} strokeWidth={1.75} />
@@ -154,7 +155,8 @@ function SectionEditor({
         </div>
 
         {showHistory && (
-          <div className="mt-4 rounded-card border border-border">
+          <div className="mt-4 overflow-hidden rounded-card border border-[#0F1F3D]/30">
+            <div className="bg-[#0F1F3D] px-3 py-2 font-body text-xs font-medium text-white">Histórico de versões</div>
             {history.isLoading && <div className="p-3"><Skeleton rows={2} /></div>}
             {history.data && history.data.length === 0 && (
               <p className="p-3 font-body text-sm text-ink-faint">Ainda não há versões guardadas.</p>
@@ -215,8 +217,8 @@ export function SettingsView({ canEdit, canRetry, onOpenInstance }: SettingsView
             onClick={() => setMode(id)}
             className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
               mode === id
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
+                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
+                : 'border-[#0F1F3D] bg-white text-[#0F1F3D]'
             }`}
           >
             {label}
@@ -245,19 +247,21 @@ export function SettingsView({ canEdit, canRetry, onOpenInstance }: SettingsView
                   key={s.key}
                   type="button"
                   onClick={() => setOpen(s.key)}
-                  className="rounded-card border border-border bg-surface p-4 text-left transition-shadow hover:shadow-md"
+                  className="group cursor-pointer overflow-hidden rounded-card border border-border bg-surface text-left"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="font-body text-sm font-semibold text-ink">{s.title}</div>
+                  <div className="flex items-start justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3">
+                    <div className="font-body text-sm font-semibold text-white">{s.title}</div>
                     {s.enforced && (
-                      <span title="Aplicada pelo motor" className="shrink-0 text-success-ink">
+                      <span title="Aplicada pelo motor" className="shrink-0 text-white">
                         <CheckCircle2 size={16} strokeWidth={1.75} />
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 font-body text-xs text-ink-muted">{s.description}</p>
-                  <div className="mt-2 font-body text-xs text-ink-faint">
-                    {s.isDefault ? 'Valores por omissão' : `Versão ${s.version} · ${formatDateTime(s.updatedAt)}`}
+                  <div className="p-4 transition-colors group-hover:bg-[#0F1F3D]/10">
+                    <p className="font-body text-xs text-[#0F1F3D]">{s.description}</p>
+                    <div className="mt-2 font-body text-xs text-[#0F1F3D]">
+                      {s.isDefault ? 'Valores por omissão' : `Versão ${s.version} · ${formatDateTime(s.updatedAt)}`}
+                    </div>
                   </div>
                 </button>
               ))}

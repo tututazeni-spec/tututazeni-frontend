@@ -10,14 +10,18 @@
 import { useState } from 'react';
 import {
   ArrowLeft,
+  Building2,
   Check,
+  Clock,
   Copy,
   FlaskConical,
+  Layers,
   Paperclip,
   Pencil,
   Play,
   Plus,
   Send,
+  Timer,
   X,
 } from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
@@ -27,16 +31,19 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import {
   fmtDuration,
+  moduleLabel,
   PROCESS_STATUS_MAP,
   RISK_LEVEL_MAP,
   STEP_TYPE_MAP,
 } from './constants';
+import { InfoRow, Metric } from '@/components/events/EventListCard';
+import { headerBackground } from '@/components/onboarding/TemplateCard';
 import { CreateProcessModal } from './CreateProcessModal';
 import { ReasonDialog } from './ReasonDialog';
 import { Skeleton } from './Skeleton';
@@ -169,6 +176,14 @@ export function ProcessViewer({
       </div>
     );
 
+  // Cor fixa do cartão: azul-marinho da marca (#0F1F3D)
+  const palette: [string, string, string, string] = [
+    '#0F1F3D',
+    '#0F1F3D',
+    '#0F1F3D',
+    '#0F1F3D',
+  ];
+
   return (
     <div>
       <Button intent="ghost" size="sm" onClick={onBack} className="mb-5">
@@ -176,82 +191,92 @@ export function ProcessViewer({
         Voltar aos modelos
       </Button>
 
-      {/* Header */}
-      <Card className="mb-5 p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <div className="mb-2 flex flex-wrap items-center gap-3">
-              <span className="font-mono text-sm text-ink-faint">
-                {process.code}
-              </span>
-              <span className="rounded-control bg-surface-sunken px-2 py-0.5 font-mono text-xs text-ink-muted">
-                v{process.version}
-              </span>
-              <StatusBadge
-                value={process.status}
-                map={PROCESS_STATUS_MAP}
-                variant="dot"
-              />
-              <StatusBadge value={process.riskLevel} map={RISK_LEVEL_MAP} />
+      {/* Header — mesmo desenho do cartão de evento (EventListCard), na horizontal */}
+      <div className="mb-5 flex w-full flex-col overflow-hidden rounded-[20px] border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] lg:flex-row">
+        {/* Base: cor do cartão */}
+        <div
+          className="shrink-0 p-4 text-white lg:w-[38%] lg:p-5"
+          style={{ background: headerBackground(palette) }}
+        >
+          <h2 className="font-display text-[22px] font-semibold leading-tight">
+            {process.title}
+          </h2>
+          <p className="mt-1 font-mono text-sm text-white/70">
+            {process.code} · v{process.version}
+          </p>
+          {process.description && (
+            <p className="mt-1 line-clamp-2 text-[15px] text-white/80">
+              {process.description}
+            </p>
+          )}
+          {process.tags.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {process.tags.map((t) => (
+                <span
+                  key={t}
+                  className="rounded-full bg-white/15 px-2.5 py-0.5 text-xs text-white"
+                >
+                  {t}
+                </span>
+              ))}
             </div>
-            <h2 className="font-display text-lg font-semibold text-ink">
-              {process.title}
-            </h2>
-            {process.description && (
-              <p className="mt-1 font-body text-sm text-ink-muted">
-                {process.description}
-              </p>
-            )}
-            <div className="mt-3 flex flex-wrap gap-3 font-body text-xs text-ink-faint">
-              <span>
-                Responsável:{' '}
-                <strong className="text-ink">{process.owner.fullName}</strong>
-              </span>
-              {process.department && (
-                <span>
-                  Depto:{' '}
-                  <strong className="text-ink">
-                    {process.department.name}
-                  </strong>
-                </span>
-              )}
-              {process.estimatedMinutes && (
-                <span>
-                  Duração est.:{' '}
-                  <strong className="text-ink">
-                    {fmtDuration(process.estimatedMinutes)}
-                  </strong>
-                </span>
-              )}
-              {process.defaultSlaHours && (
-                <span>
-                  SLA:{' '}
-                  <strong className="text-ink">
-                    {process.defaultSlaHours}h
-                  </strong>
-                </span>
-              )}
-              <span>
-                Instâncias:{' '}
-                <strong className="text-ink">{process._count.instances}</strong>
-              </span>
-            </div>
-            {process.tags.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {process.tags.map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-control bg-info-subtle px-2 py-0.5 font-body text-xs text-info-ink"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
+          )}
+        </div>
+
+        <div className="flex min-w-0 flex-1 flex-col justify-center">
+          <div className="flex flex-wrap items-center gap-2 px-6 pt-3">
+            <StatusBadge
+              value={process.status}
+              map={PROCESS_STATUS_MAP}
+              variant="dot"
+              className="!text-[#0F1F3D]"
+            />
+            <StatusBadge
+              value={process.riskLevel}
+              map={RISK_LEVEL_MAP}
+              className="!text-[#0F1F3D]"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-y-2 divide-x divide-[#E6ECF4] px-6 py-2">
+            {process.defaultSlaHours ? (
+              <Metric iconClassName="text-[#0F1F3D]" icon={Clock}>
+                SLA {process.defaultSlaHours}h
+              </Metric>
+            ) : null}
+            {process.estimatedMinutes ? (
+              <Metric iconClassName="text-[#0F1F3D]" icon={Timer}>
+                {fmtDuration(process.estimatedMinutes)}
+              </Metric>
+            ) : null}
+            <Metric iconClassName="text-[#0F1F3D]" icon={Layers}>
+              {process._count.instances}{' '}
+              {process._count.instances === 1 ? 'instância' : 'instâncias'}
+            </Metric>
+          </div>
+
+          <div className="mx-6 border-t border-[#E6ECF4]" />
+
+          <div className="grid gap-2 px-6 py-3 sm:grid-cols-2">
+            <InfoRow
+              accent={palette[3]}
+              leading={
+                <Avatar
+                  name={process.owner.fullName}
+                  url={process.owner.avatarUrl ?? undefined}
+                  size="sm"
+                />
+              }
+            >
+              {process.owner.fullName}
+            </InfoRow>
+            {process.department && (
+              <InfoRow icon={Building2} accent={palette[3]}>
+                {process.department.name}
+              </InfoRow>
             )}
           </div>
 
-          {/* Acções */}
-          <div className="flex flex-shrink-0 flex-col items-end gap-2">
+          <div className="flex flex-wrap gap-2 px-6 pb-3">
             {process.status === 'ACTIVE' && canStart && (
               <Button
                 onClick={() => setShowStart(true)}
@@ -265,6 +290,7 @@ export function ProcessViewer({
             {canEdit && (
               <Button
                 intent="ghost"
+                className="text-[#0F1F3D]"
                 size="sm"
                 onClick={() => setShowValidate(true)}
               >
@@ -273,7 +299,12 @@ export function ProcessViewer({
               </Button>
             )}
             {canEdit && process.status === 'DRAFT' && (
-              <Button intent="ghost" size="sm" onClick={() => setShowEdit(true)}>
+              <Button
+                intent="ghost"
+                className="text-[#0F1F3D]"
+                size="sm"
+                onClick={() => setShowEdit(true)}
+              >
                 <Pencil size={14} strokeWidth={1.75} />
                 Editar rascunho
               </Button>
@@ -281,6 +312,7 @@ export function ProcessViewer({
             {canEdit && (
               <Button
                 intent="ghost"
+                className="text-[#0F1F3D]"
                 size="sm"
                 onClick={() => duplicate.mutate(undefined)}
                 disabled={actionLoading}
@@ -335,7 +367,7 @@ export function ProcessViewer({
             )}
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Tabs */}
       <Tabs
@@ -377,85 +409,107 @@ export function ProcessViewer({
                 </div>
 
                 {/* Step card */}
-                <div className="mb-2 flex-1 rounded-card border border-border bg-surface p-4">
+                <div className="relative mb-2 flex-1 overflow-hidden rounded-card border border-white/10 bg-[#0F1F3D] py-4 pl-6 pr-4">
+                  <span className="absolute inset-y-2 left-2 w-1 rounded-full bg-warning" />
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex-1">
-                      <div className="mb-1 flex items-center gap-2">
-                        <StatusBadge value={step.type} map={STEP_TYPE_MAP} />
-                        <span className="font-body text-sm font-medium text-ink">
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <span
+                          className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 font-body text-xs font-bold shadow-sm ring-1 ring-white/30 ${
+                            STEP_TYPE_MAP[step.type]?.cls ?? 'bg-surface-sunken'
+                          }`}
+                          style={{ color: '#0F1F3D' }}
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                          {STEP_TYPE_MAP[step.type]?.label ?? step.type}
+                        </span>
+                        <span className="font-body text-sm font-semibold text-white">
                           {step.title}
                         </span>
                       </div>
                       {step.description && (
-                        <p className="mb-2 font-body text-xs text-ink-muted">
+                        <p className="mt-1 max-w-prose font-body text-[13px] leading-relaxed text-white/90">
                           {step.description}
                         </p>
                       )}
-                      <div className="flex flex-wrap gap-3 font-body text-xs text-ink-faint">
+                      <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-white/15 pt-3 font-body sm:grid-cols-3">
                         {step.responsible && (
-                          <span>
-                            Responsável:{' '}
-                            <strong className="text-ink">
+                          <div className="min-w-0">
+                            <dt className="text-[11px] text-white/70">
+                              Responsável
+                            </dt>
+                            <dd className="truncate text-sm font-semibold text-white">
                               {step.responsible.fullName}
-                            </strong>
-                          </span>
+                            </dd>
+                          </div>
                         )}
                         {step.responsibleRole && (
-                          <span>
-                            Role:{' '}
-                            <strong className="text-ink">
+                          <div className="min-w-0">
+                            <dt className="text-[11px] text-white/70">Role</dt>
+                            <dd className="truncate text-sm font-semibold text-white">
                               {step.responsibleRole}
-                            </strong>
-                          </span>
+                            </dd>
+                          </div>
                         )}
                         {step.slaHours && (
-                          <span>
-                            SLA:{' '}
-                            <strong className="text-ink">
+                          <div className="min-w-0">
+                            <dt className="text-[11px] text-white/70">SLA</dt>
+                            <dd className="truncate text-sm font-semibold text-white">
                               {step.slaHours}h
-                            </strong>
-                          </span>
+                            </dd>
+                          </div>
                         )}
                         {step.reviewer && (
-                          <span>
-                            Revisor:{' '}
-                            <strong className="text-ink">
+                          <div className="min-w-0">
+                            <dt className="text-[11px] text-white/70">
+                              Revisor
+                            </dt>
+                            <dd className="truncate text-sm font-semibold text-white">
                               {step.reviewer.fullName}
-                            </strong>
-                          </span>
+                            </dd>
+                          </div>
                         )}
                         {step.parallel && (
-                          <span className="font-medium text-info-ink">
-                            Paralela
-                          </span>
+                          <div className="min-w-0">
+                            <dt className="text-[11px] text-white/70">
+                              Execução
+                            </dt>
+                            <dd className="text-sm font-semibold text-white">
+                              Paralela
+                            </dd>
+                          </div>
                         )}
                         {step.dependsOnOrders.length > 0 && (
-                          <span>
-                            Depende de:{' '}
-                            <strong className="text-ink">
+                          <div className="min-w-0">
+                            <dt className="text-[11px] text-white/70">
+                              Depende de
+                            </dt>
+                            <dd className="truncate text-sm font-semibold text-white">
                               {step.dependsOnOrders
                                 .map((o) => o + 1)
                                 .join(', ')}
-                            </strong>
-                          </span>
+                            </dd>
+                          </div>
                         )}
                         {step.estimatedMinutes && (
-                          <span>
-                            Tempo est.:{' '}
-                            <strong className="text-ink">
+                          <div className="min-w-0">
+                            <dt className="text-[11px] text-white/70">
+                              Tempo est.
+                            </dt>
+                            <dd className="truncate text-sm font-semibold text-white">
                               {fmtDuration(step.estimatedMinutes)}
-                            </strong>
-                          </span>
+                            </dd>
+                          </div>
                         )}
-                      </div>
+                      </dl>
                       {step.checklist.length > 0 && (
-                        <div className="mt-2 space-y-1">
+                        <div className="mt-3 space-y-1.5 border-t border-white/15 pt-3">
                           {step.checklist.map((item, i) => (
                             <div
                               key={i}
-                              className="flex items-center gap-2 font-body text-xs text-ink-muted"
+                              className="flex items-center gap-2 font-body text-[13px] text-white"
                             >
-                              <div className="h-3.5 w-3.5 flex-shrink-0 rounded-control border border-border-strong" />
+                              <div className="h-3.5 w-3.5 flex-shrink-0 rounded-control border border-white/60" />
                               {item}
                             </div>
                           ))}
@@ -478,31 +532,35 @@ export function ProcessViewer({
         {/* Info tab */}
         <TabsContent value="info">
           <div className="grid grid-cols-2 gap-5">
-            <Card className="p-5">
-              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="relative overflow-hidden rounded-card border border-white/10 bg-[#0F1F3D] py-5 pl-7 pr-5">
+              <span className="absolute inset-y-2 left-2 w-1 rounded-full bg-warning" />
+              <div className="pointer-events-none relative z-10 -mr-5 -mt-5 mb-4 -ml-7 cursor-default select-none border-b border-white/15 bg-[#6F798B] py-3 pl-7 pr-5 font-body text-sm font-bold text-white">
                 Objetivo e âmbito
               </div>
               {process.objective && (
                 <div className="mb-3">
-                  <div className="mb-1 font-body text-xs text-ink-faint">
+                  <div className="mb-1 font-body text-[11px] text-white/70">
                     Objetivo
                   </div>
-                  <p className="font-body text-sm text-ink">
+                  <p className="font-body text-sm font-semibold text-white">
                     {process.objective}
                   </p>
                 </div>
               )}
               {process.scope && (
                 <div>
-                  <div className="mb-1 font-body text-xs text-ink-faint">
+                  <div className="mb-1 font-body text-[11px] text-white/70">
                     Âmbito
                   </div>
-                  <p className="font-body text-sm text-ink">{process.scope}</p>
+                  <p className="font-body text-sm font-semibold text-white">
+                    {process.scope}
+                  </p>
                 </div>
               )}
-            </Card>
-            <Card className="p-5">
-              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            </div>
+            <div className="relative overflow-hidden rounded-card border border-white/10 bg-[#0F1F3D] py-5 pl-7 pr-5">
+              <span className="absolute inset-y-2 left-2 w-1 rounded-full bg-warning" />
+              <div className="pointer-events-none relative z-10 -mr-5 -mt-5 mb-4 -ml-7 cursor-default select-none border-b border-white/15 bg-[#6F798B] py-3 pl-7 pr-5 font-body text-sm font-bold text-white">
                 Datas e SLA
               </div>
               {[
@@ -519,70 +577,103 @@ export function ProcessViewer({
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="flex justify-between border-b border-border py-1.5 last:border-0"
+                  className="flex justify-between border-b border-white/10 py-2 last:border-0"
                 >
-                  <span className="font-body text-xs text-ink-muted">
+                  <span className="font-body text-[11px] text-white/70">
                     {label}
                   </span>
-                  <span className="font-body text-xs font-medium text-ink">
+                  <span className="font-body text-sm font-semibold text-white">
                     {value}
                   </span>
                 </div>
               ))}
-            </Card>
-            <Card className="col-span-2 p-5">
-              <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            </div>
+            <div className="col-span-2 relative overflow-hidden rounded-card border border-white/10 bg-[#0F1F3D] py-5 pl-7 pr-5">
+              <span className="absolute inset-y-2 left-2 w-1 rounded-full bg-warning" />
+              <div className="pointer-events-none relative z-10 -mr-5 -mt-5 mb-4 -ml-7 cursor-default select-none border-b border-white/15 bg-[#6F798B] py-3 pl-7 pr-5 font-body text-sm font-bold text-white">
                 Configuração do modelo
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {(
                   [
-                    ['Módulos envolvidos', process.involvedModules.join(', ')],
+                    [
+                      'Módulos envolvidos',
+                      process.involvedModules.map(moduleLabel).join(', '),
+                    ],
                     ['Confidencialidade', process.confidentiality],
-                    ['Regras de acesso', process.accessRoles.join(', ') || 'Todas as funções'],
+                    [
+                      'Regras de acesso',
+                      process.accessRoles.join(', ') || 'Todas as funções',
+                    ],
                     ['Política de revisão', process.reviewPolicy],
-                    ['Documentos necessários', process.requiredDocuments.join(' · ')],
+                    [
+                      'Documentos necessários',
+                      process.requiredDocuments.join(' · '),
+                    ],
                     ['Regras de aprovação', process.approvalRules],
                     ['Condições para iniciar', process.startConditions],
                     ['Condições para concluir', process.completionConditions],
                   ] as Array<[string, string | null]>
                 ).map(([label, value]) => (
                   <div key={label}>
-                    <div className="font-body text-xs text-ink-faint">{label}</div>
-                    <p className="font-body text-sm text-ink">{value || '—'}</p>
+                    <div className="font-body text-[11px] text-white/70">
+                      {label}
+                    </div>
+                    <p className="font-body text-sm font-semibold text-white">
+                      {value || '—'}
+                    </p>
                   </div>
                 ))}
               </div>
-            </Card>
+            </div>
           </div>
         </TabsContent>
 
         {/* History tab */}
         <TabsContent value="history">
           <div className="overflow-hidden rounded-card border border-border bg-surface">
-            <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            <div className="pointer-events-none cursor-default select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
               Histórico de versões
             </div>
-            {(versions ?? [{ version: process.version, current: true, status: process.status, createdAt: process.updatedAt }]).map((v) => (
+            {(
+              versions ?? [
+                {
+                  version: process.version,
+                  current: true,
+                  status: process.status,
+                  createdAt: process.updatedAt,
+                },
+              ]
+            ).map((v) => (
               <div
                 key={`${v.version}-${v.current}`}
-                className="flex items-center justify-between border-b border-border px-4 py-3 last:border-0"
+                className="relative flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 last:border-0"
               >
-                <span className="font-mono text-sm text-ink">
-                  v{v.version}
+                <span className="absolute inset-y-2 left-2 w-1 rounded-full bg-warning" />
+                <div className="flex items-center gap-2.5">
+                  <span className="font-mono text-sm font-bold text-white">
+                    v{v.version}
+                  </span>
                   {v.current && (
-                    <span className="ml-2 rounded-control bg-primary-subtle px-1.5 py-0.5 font-body text-xs text-primary">
-                      actual
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-subtle px-2.5 py-0.5 font-body text-xs font-bold text-primary">
+                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                      Actual
                     </span>
                   )}
-                </span>
-                <span className="font-body text-xs text-ink-faint">
-                  {v.current ? 'Publicada/actualizada' : 'Guardada'} em {fmtDate(v.createdAt)}
-                </span>
+                </div>
+                <div className="text-right font-body">
+                  <div className="text-[11px] text-white/70">
+                    {v.current ? 'Publicada/actualizada em' : 'Guardada em'}
+                  </div>
+                  <div className="text-sm font-semibold text-white">
+                    {fmtDate(v.createdAt)}
+                  </div>
+                </div>
               </div>
             ))}
-            <div className="px-4 py-3 font-body text-xs text-ink-faint">
-              Cada processo em execução mantém a versão do modelo com que foi iniciado.
+            <div className="border-t border-white/10 bg-[#0F1F3D] px-5 py-3 font-body text-[13px] leading-relaxed text-white">
+              Cada processo em execução mantém a versão do modelo com que foi
+              iniciado.
             </div>
           </div>
         </TabsContent>
@@ -599,7 +690,10 @@ export function ProcessViewer({
         />
       )}
       {showEdit && (
-        <CreateProcessModal initial={process} onClose={() => setShowEdit(false)} />
+        <CreateProcessModal
+          initial={process}
+          onClose={() => setShowEdit(false)}
+        />
       )}
       {showValidate && (
         <TemplateValidationModal

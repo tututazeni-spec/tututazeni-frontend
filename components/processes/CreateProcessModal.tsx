@@ -24,7 +24,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/providers/ToastProvider';
 import type { DepartmentNode } from '@/components/departments/types';
-import { RISK_LEVEL_MAP, STEP_TYPE_MAP } from './constants';
+import { RISK_LEVEL_MAP, STEP_TYPE_MAP, moduleLabel } from './constants';
 import { SOURCE_MODULES } from './StartProcessModal';
 import { UserPicker } from './UserPicker';
 import { stepExtras } from './workflow-model';
@@ -242,8 +242,8 @@ export function CreateProcessModal({ initial, onClose }: CreateProcessModalProps
       tags: csv(tags),
       involvedModules: modules,
       defaultSlaHours: defaultSla ? Number(defaultSla) : undefined,
-      effectiveFrom: effectiveFrom || undefined,
-      nextReviewDate: nextReview || undefined,
+      effectiveFrom: effectiveFrom || null,
+      nextReviewDate: nextReview || null,
       reviewPolicy: reviewPolicy.trim() || undefined,
       confidentiality,
       accessRoles: csv(accessRoles),
@@ -322,10 +322,10 @@ export function CreateProcessModal({ initial, onClose }: CreateProcessModalProps
 
           <FormField label="Módulos envolvidos" htmlFor="cp-modules">
             <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-              {SOURCE_MODULES.map((m) => (
+              {SOURCE_MODULES.filter((m) => m !== 'Organization').map((m) => (
                 <label key={m} className="flex items-center gap-1.5 font-body text-sm text-ink">
                   <input type="checkbox" checked={modules.includes(m)} onChange={() => toggleModule(m)} />
-                  {m}
+                  {moduleLabel(m)}
                 </label>
               ))}
             </div>

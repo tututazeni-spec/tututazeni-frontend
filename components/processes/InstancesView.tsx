@@ -36,6 +36,7 @@ import {
   INSTANCE_STATUS_MAP,
   PRIORITY_MAP,
   fmtElapsed,
+  moduleLabel,
 } from './constants';
 import {
   AssignInstanceModal,
@@ -44,7 +45,6 @@ import {
 } from './InstanceDialogs';
 import { ReasonDialog } from './ReasonDialog';
 import { Skeleton } from './Skeleton';
-import { UserPicker } from './UserPicker';
 import type {
   InstanceFilterOptions,
   InstanceRow,
@@ -70,13 +70,6 @@ const STATUS_ITEMS = opt('Todos os estados', [
   { value: 'COMPLETED', label: 'Concluído' },
   { value: 'CANCELLED', label: 'Cancelado' },
 ]);
-const PRIORITY_ITEMS = opt(
-  'Todas as prioridades',
-  (Object.keys(PRIORITY_MAP) as ProcessPriority[]).map((p) => ({
-    value: p,
-    label: PRIORITY_MAP[p].label,
-  })),
-);
 const DEADLINE_ITEMS = opt('Qualquer prazo', [
   { value: 'overdue', label: 'Atrasados' },
   { value: 'due_soon', label: 'Vencem em 48h' },
@@ -85,38 +78,22 @@ const DEADLINE_ITEMS = opt('Qualquer prazo', [
 interface Filters {
   search: string;
   status: string;
-  priority: string;
-  sourceModule: string;
   departmentId: string;
-  unitId: string;
-  templateId: string;
   category: string;
   requesterId: string;
   responsibleId: string;
   deadline: string;
-  createdFrom: string;
-  createdTo: string;
-  dueFrom: string;
-  dueTo: string;
   archived: boolean;
 }
 
 const EMPTY: Filters = {
   search: '',
   status: '',
-  priority: '',
-  sourceModule: '',
   departmentId: '',
-  unitId: '',
-  templateId: '',
   category: '',
   requesterId: '',
   responsibleId: '',
   deadline: '',
-  createdFrom: '',
-  createdTo: '',
-  dueFrom: '',
-  dueTo: '',
   archived: false,
 };
 
@@ -251,10 +228,6 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
   const idItems = (label: string, rows: Array<{ id: number; name?: string; title?: string; code?: string }> = []) =>
     opt(label, rows.map((r) => ({ value: String(r.id), label: r.name ?? `${r.title} (${r.code})` })));
 
-  const moduleItems = opt(
-    'Todos os módulos',
-    (options?.sourceModules ?? []).map((m) => ({ value: m, label: m })),
-  );
   const categoryItems = opt(
     'Todos os tipos',
     (options?.categories ?? []).map((c) => ({ value: c, label: c })),
@@ -262,54 +235,24 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
 
   return (
     <div>
-      {/* Filtros */}
+      {/* Filtros: uma só grelha, todas as caixas com a mesma largura e alinhadas por coluna */}
       <div className="mb-4 space-y-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <Input
-            type="text"
-            placeholder="Pesquisar por código, nome ou entidade…"
-            value={filters.search}
-            onChange={(e) => set('search', e.target.value)}
-            className="min-w-[160px] flex-1"
-          />
-          <Select items={STATUS_ITEMS} value={filters.status || ALL} onValueChange={setSelect('status')} className="w-44" />
-          <Select items={PRIORITY_ITEMS} value={filters.priority || ALL} onValueChange={setSelect('priority')} className="w-44" />
-          <Select items={DEADLINE_ITEMS} value={filters.deadline || ALL} onValueChange={setSelect('deadline')} className="w-44" />
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <Select items={moduleItems} value={filters.sourceModule || ALL} onValueChange={setSelect('sourceModule')} className="w-44" />
-          <Select items={categoryItems} value={filters.category || ALL} onValueChange={setSelect('category')} className="w-44" />
-          <Select items={idItems('Todos os modelos', options?.templates)} value={filters.templateId || ALL} onValueChange={setSelect('templateId')} className="w-52" />
-          <Select items={idItems('Todos os departamentos', options?.departments)} value={filters.departmentId || ALL} onValueChange={setSelect('departmentId')} className="w-52" />
-          <Select items={idItems('Todas as unidades', options?.units)} value={filters.unitId || ALL} onValueChange={setSelect('unitId')} className="w-48" />
-        </div>
-        {canManage && (
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="w-52">
-              <UserPicker value={filters.requesterId} onChange={(v) => set('requesterId', v)} placeholder="Solicitante" />
-            </div>
-            <div className="w-52">
-              <UserPicker value={filters.responsibleId} onChange={(v) => set('responsibleId', v)} placeholder="Responsável actual" />
-            </div>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] items-end gap-3">
+          <div className="col-span-full sm:col-span-2">
+            <Input
+              type="text"
+              placeholder="Pesquisar por código, nome ou entidade…"
+              value={filters.search}
+              onChange={(e) => set('search', e.target.value)}
+              className="w-full"
+            />
           </div>
-        )}
+          <Select items={STATUS_ITEMS} value={filters.status || ALL} onValueChange={setSelect('status')} className="w-full" />
+          <Select items={DEADLINE_ITEMS} value={filters.deadline || ALL} onValueChange={setSelect('deadline')} className="w-full" />
+          <Select items={categoryItems} value={filters.category || ALL} onValueChange={setSelect('category')} className="w-full" />
+          <Select items={idItems('Todos os departamentos', options?.departments)} value={filters.departmentId || ALL} onValueChange={setSelect('departmentId')} className="w-full" />
+        </div>
         <div className="flex flex-wrap items-center gap-3 font-body text-xs text-ink-muted">
-          <label className="flex items-center gap-2">
-            Criado de
-            <Input type="date" value={filters.createdFrom} onChange={(e) => set('createdFrom', e.target.value)} className="w-40" />
-          </label>
-          <label className="flex items-center gap-2">
-            até
-            <Input type="date" value={filters.createdTo} onChange={(e) => set('createdTo', e.target.value)} className="w-40" />
-          </label>
-          <label className="flex items-center gap-2">
-            Prazo de
-            <Input type="date" value={filters.dueFrom} onChange={(e) => set('dueFrom', e.target.value)} className="w-40" />
-          </label>
-          <label className="flex items-center gap-2">
-            até
-            <Input type="date" value={filters.dueTo} onChange={(e) => set('dueTo', e.target.value)} className="w-40" />
-          </label>
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -335,8 +278,8 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
 
       {/* Tabela */}
       <div className="overflow-x-auto rounded-card border border-border bg-surface">
-        <div className="min-w-[1180px]">
-          <div className="grid grid-cols-[1.8fr_1.1fr_1.3fr_1.1fr_90px_110px_130px_1.1fr_40px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="min-w-[1040px] xl:min-w-0">
+          <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_84px_104px_110px_minmax(0,1fr)_32px] gap-2 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
             <div>Processo</div>
             <div>Tipo / Origem</div>
             <div>Solicitante → Responsável</div>
@@ -372,7 +315,7 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
           {data?.data.map((r) => (
             <div
               key={r.id}
-              className="grid cursor-pointer grid-cols-[1.8fr_1.1fr_1.3fr_1.1fr_90px_110px_130px_1.1fr_40px] items-center gap-3 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken"
+              className="grid cursor-pointer grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_84px_104px_110px_minmax(0,1fr)_32px] items-center gap-2 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken"
               onClick={() => onOpenInstance(r.id)}
             >
               <div className="min-w-0">
@@ -387,7 +330,7 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
               </div>
               <div className="font-body text-xs text-ink-muted">
                 <div>{r.type ?? '—'}</div>
-                <div className="text-ink-faint">{r.sourceModule ?? '—'}</div>
+                <div className="text-ink-faint">{r.sourceModule ? moduleLabel(r.sourceModule) : '—'}</div>
               </div>
               <div className="font-body text-xs text-ink-muted">
                 <div>{r.requester.fullName}</div>

@@ -21,7 +21,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/providers/ToastProvider';
-import { APPROVAL_STATUS_MAP, PRIORITY_MAP } from './constants';
+import { APPROVAL_STATUS_MAP, PRIORITY_MAP, moduleLabel } from './constants';
 import { Skeleton } from './Skeleton';
 import { UserPicker } from './UserPicker';
 import type { ApprovalDecision, ApprovalDetail } from './approval-types';
@@ -232,7 +232,7 @@ export function ApprovalPanel({ id, onClose }: ApprovalPanelProps) {
             <Field label="Etapa">
               {a.step.order}. {a.step.title}
             </Field>
-            <Field label="Módulo de origem">{a.sourceModule ?? '—'}</Field>
+            <Field label="Módulo de origem">{a.sourceModule ? moduleLabel(a.sourceModule) : '—'}</Field>
             <Field label="Entidade">
               {a.entity.type ? `${a.entity.type} ${a.entity.id ?? ''}` : '—'}
             </Field>

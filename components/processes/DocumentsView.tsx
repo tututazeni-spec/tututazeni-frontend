@@ -23,8 +23,16 @@ import { Input } from '@/components/ui/Input';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { CONFIDENTIALITY_MAP, DOC_STATUS_MAP, REQUIREMENT_MAP } from './constants';
-import { DocumentFormModal, type DocumentFormMode, type DocumentFormPrefill } from './DocumentFormModal';
+import {
+  CONFIDENTIALITY_MAP,
+  DOC_STATUS_MAP,
+  REQUIREMENT_MAP,
+} from './constants';
+import {
+  DocumentFormModal,
+  type DocumentFormMode,
+  type DocumentFormPrefill,
+} from './DocumentFormModal';
 import { DocumentPanel } from './DocumentPanel';
 import { Skeleton } from './Skeleton';
 import type {
@@ -66,13 +74,11 @@ const ASSIGNED_ITEMS = [
 function SummaryTile({
   label,
   value,
-  tone,
   active,
   onClick,
 }: {
   label: string;
   value: number;
-  tone: string;
   active: boolean;
   onClick: () => void;
 }) {
@@ -81,17 +87,24 @@ function SummaryTile({
       type="button"
       onClick={onClick}
       className={cn(
-        'rounded-card border bg-surface px-4 py-3 text-left transition-colors hover:bg-surface-sunken',
-        active ? 'border-primary' : 'border-border',
+        'rounded-card border bg-[#17306B] px-4 py-3 text-left text-white transition-colors hover:bg-[#17306B]/90',
+        active ? 'border-white ring-2 ring-[#17306B]' : 'border-[#17306B]',
       )}
     >
-      <div className="font-body text-xs uppercase tracking-wide text-ink-faint">{label}</div>
-      <div className={cn('font-display text-2xl font-semibold', value > 0 ? tone : 'text-ink')}>{value}</div>
+      <div className="font-body text-xs uppercase tracking-wide text-white">
+        {label}
+      </div>
+      <div className="font-display text-2xl font-semibold text-white">
+        {value}
+      </div>
     </button>
   );
 }
 
-export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps) {
+export function DocumentsView({
+  canManage,
+  onOpenInstance,
+}: DocumentsViewProps) {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState(ALL);
   const [confidentiality, setConfidentiality] = useState(ALL);
@@ -101,7 +114,10 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
   const [archived, setArchived] = useState(false);
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState<ProcessDocumentRow | null>(null);
-  const [form, setForm] = useState<{ mode: DocumentFormMode; prefill?: DocumentFormPrefill } | null>(null);
+  const [form, setForm] = useState<{
+    mode: DocumentFormMode;
+    prefill?: DocumentFormPrefill;
+  } | null>(null);
   const debounced = useDebounce(search, 300);
 
   const params = {
@@ -118,7 +134,11 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
   const { data, isLoading, error } = useApiQuery<PaginatedProcessDocuments>(
     queryKeys.processes.documents(params),
     '/processes/documents',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
   const { data: instances } = useApiQuery<PaginatedInstances>(
     queryKeys.processes.instances({ picker: true }),
@@ -142,7 +162,6 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
         <SummaryTile
           label="Pedidos por entregar"
           value={summary?.requested ?? 0}
-          tone="text-warning-ink"
           active={tile('REQUESTED')}
           onClick={() => {
             setStatus(tile('REQUESTED') ? ALL : 'REQUESTED');
@@ -152,7 +171,6 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
         <SummaryTile
           label="Por validar"
           value={summary?.pending ?? 0}
-          tone="text-info-ink"
           active={tile('PENDING')}
           onClick={() => {
             setStatus(tile('PENDING') ? ALL : 'PENDING');
@@ -162,7 +180,6 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
         <SummaryTile
           label="A expirar (30 dias)"
           value={summary?.expiring ?? 0}
-          tone="text-warning-ink"
           active={tile('EXPIRING')}
           onClick={() => {
             setStatus(tile('EXPIRING') ? ALL : 'EXPIRING');
@@ -172,7 +189,6 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
         <SummaryTile
           label="Expirados"
           value={summary?.expired ?? 0}
-          tone="text-danger-ink"
           active={tile('EXPIRED')}
           onClick={() => {
             setStatus(tile('EXPIRED') ? ALL : 'EXPIRED');
@@ -182,18 +198,20 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
       </div>
 
       {/* Acções */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <Input
-            type="text"
-            placeholder="Pesquisar documento, tipo ou processo…"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              reset();
-            }}
-            className="min-w-[160px] flex-1"
-          />
+      <div className="space-y-3">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] items-center gap-3">
+          <div className="col-span-full sm:col-span-2">
+            <Input
+              type="text"
+              placeholder="Pesquisar documento, tipo ou processo…"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                reset();
+              }}
+              className="w-full"
+            />
+          </div>
           <Select
             items={STATUS_ITEMS}
             value={status}
@@ -201,7 +219,7 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
               setStatus(v);
               reset();
             }}
-            className="w-48"
+            className="w-full"
           />
           <Select
             items={CONF_ITEMS}
@@ -210,7 +228,7 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
               setConfidentiality(v);
               reset();
             }}
-            className="w-56"
+            className="w-full"
           />
           <Select
             items={ASSIGNED_ITEMS}
@@ -219,9 +237,9 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
               setAssigned(v);
               reset();
             }}
-            className="w-44"
+            className="w-full"
           />
-          <div className="w-64">
+          <div>
             <Combobox
               items={[
                 { value: ALL, label: 'Todos os processos' },
@@ -240,33 +258,42 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
               emptyText="Sem resultados"
             />
           </div>
-          <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
-            <input
-              type="checkbox"
-              checked={required}
-              onChange={(e) => {
-                setRequired(e.target.checked);
-                reset();
-              }}
-            />
-            Obrigatórios
-          </label>
-          <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
-            <input
-              type="checkbox"
-              checked={archived}
-              onChange={(e) => {
-                setArchived(e.target.checked);
-                reset();
-              }}
-            />
-            Arquivados
-          </label>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
+              <input
+                type="checkbox"
+                checked={required}
+                onChange={(e) => {
+                  setRequired(e.target.checked);
+                  reset();
+                }}
+              />
+              Obrigatórios
+            </label>
+            <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
+              <input
+                type="checkbox"
+                checked={archived}
+                onChange={(e) => {
+                  setArchived(e.target.checked);
+                  reset();
+                }}
+              />
+              Arquivados
+            </label>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap justify-end gap-2">
           <Button
             size="sm"
-            onClick={() => setForm({ mode: 'attach', prefill: instanceId ? { instanceId: Number(instanceId) } : undefined })}
+            onClick={() =>
+              setForm({
+                mode: 'attach',
+                prefill: instanceId
+                  ? { instanceId: Number(instanceId) }
+                  : undefined,
+              })
+            }
           >
             <FilePlus2 size={14} strokeWidth={1.75} />
             Anexar
@@ -274,7 +301,14 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
           <Button
             size="sm"
             intent="secondary"
-            onClick={() => setForm({ mode: 'request', prefill: instanceId ? { instanceId: Number(instanceId) } : undefined })}
+            onClick={() =>
+              setForm({
+                mode: 'request',
+                prefill: instanceId
+                  ? { instanceId: Number(instanceId) }
+                  : undefined,
+              })
+            }
           >
             <Send size={14} strokeWidth={1.75} />
             Solicitar
@@ -283,7 +317,14 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
             <Button
               size="sm"
               intent="secondary"
-              onClick={() => setForm({ mode: 'generate', prefill: instanceId ? { instanceId: Number(instanceId) } : undefined })}
+              onClick={() =>
+                setForm({
+                  mode: 'generate',
+                  prefill: instanceId
+                    ? { instanceId: Number(instanceId) }
+                    : undefined,
+                })
+              }
             >
               <Sparkles size={14} strokeWidth={1.75} />
               Gerar de modelo
@@ -297,18 +338,31 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
         <div className="rounded-card border border-border bg-surface p-4">
           <div className="mb-2 flex items-center justify-between">
             <div className="font-body text-sm font-medium text-ink">
-              Documentos obrigatórios — {reqs.instance.code ?? `#${reqs.instance.id}`}
+              Documentos obrigatórios —{' '}
+              {reqs.instance.code ?? `#${reqs.instance.id}`}
             </div>
-            <span className={cn('font-body text-xs', reqs.missing ? 'text-warning-ink' : 'text-success-ink')}>
+            <span
+              className={cn(
+                'font-body text-xs',
+                reqs.missing ? 'text-warning-ink' : 'text-success-ink',
+              )}
+            >
               {reqs.missing ? `${reqs.missing} por cumprir` : 'Todos validados'}
             </span>
           </div>
           <ul className="space-y-1.5">
             {reqs.requirements.map((r) => (
-              <li key={r.name} className="flex items-center justify-between gap-3 font-body text-sm">
+              <li
+                key={r.name}
+                className="flex items-center justify-between gap-3 font-body text-sm"
+              >
                 <span className="text-ink">{r.name}</span>
                 <span className="flex items-center gap-3">
-                  <StatusBadge value={r.state} map={REQUIREMENT_MAP} variant="dot" />
+                  <StatusBadge
+                    value={r.state}
+                    map={REQUIREMENT_MAP}
+                    variant="dot"
+                  />
                   {r.state === 'MISSING' && (
                     <button
                       type="button"
@@ -316,7 +370,12 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
                       onClick={() =>
                         setForm({
                           mode: 'request',
-                          prefill: { instanceId: Number(instanceId), name: r.name, docType: r.name, required: true },
+                          prefill: {
+                            instanceId: Number(instanceId),
+                            name: r.name,
+                            docType: r.name,
+                            required: true,
+                          },
                         })
                       }
                     >
@@ -332,8 +391,8 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
 
       {/* Lista */}
       <div className="overflow-x-auto rounded-card border border-border bg-surface">
-        <div className="min-w-[980px]">
-          <div className="grid grid-cols-[2fr_1.5fr_1fr_110px_120px_120px] gap-3 border-b border-border px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="min-w-[900px] xl:min-w-0">
+          <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_96px_110px_110px] gap-2 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
             <div>Documento</div>
             <div>Processo / etapa</div>
             <div>Tipo · versão</div>
@@ -347,7 +406,11 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
               <Skeleton rows={4} />
             </div>
           )}
-          {error && <div className="px-4 py-8 text-center font-body text-sm text-danger">{error.message}</div>}
+          {error && (
+            <div className="px-4 py-8 text-center font-body text-sm text-danger">
+              {error.message}
+            </div>
+          )}
           {!isLoading && data?.data.length === 0 && (
             <EmptyState
               icon={FileText}
@@ -359,17 +422,29 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
           {data?.data.map((d) => (
             <div
               key={d.id}
-              className="grid cursor-pointer grid-cols-[2fr_1.5fr_1fr_110px_120px_120px] items-center gap-3 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken"
+              className="grid cursor-pointer grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_96px_110px_110px] items-center gap-2 border-b border-border px-4 py-3.5 last:border-0 hover:bg-surface-sunken"
               onClick={() => setOpen(d)}
             >
               <div className="min-w-0">
                 <div className="truncate font-body text-sm font-medium text-ink">
                   {d.name}
-                  {d.required && <span className="ml-2 text-xs font-normal text-primary">obrigatório</span>}
+                  {d.required && (
+                    <span className="ml-2 text-xs font-normal text-primary">
+                      obrigatório
+                    </span>
+                  )}
                 </div>
                 <div className="truncate font-body text-xs text-ink-faint">
-                  {d.source?.kind === 'REPOSITORY' ? 'Repositório' : d.source?.kind === 'LIBRARY' ? 'Biblioteca' : d.generated ? 'Gerado de modelo' : 'Aguarda ficheiro'}
-                  {d.requestedFrom && d.validationStatus === 'REQUESTED' ? ` · pedido a ${d.requestedFrom.fullName}` : ''}
+                  {d.source?.kind === 'REPOSITORY'
+                    ? 'Repositório'
+                    : d.source?.kind === 'LIBRARY'
+                      ? 'Biblioteca'
+                      : d.generated
+                        ? 'Gerado de modelo'
+                        : 'Aguarda ficheiro'}
+                  {d.requestedFrom && d.validationStatus === 'REQUESTED'
+                    ? ` · pedido a ${d.requestedFrom.fullName}`
+                    : ''}
                 </div>
               </div>
               <div className="min-w-0 font-body text-xs text-ink-muted">
@@ -386,24 +461,41 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
               <div
                 className={cn(
                   'font-body text-xs',
-                  d.expired ? 'font-medium text-danger' : d.expiringSoon ? 'text-warning-ink' : 'text-ink-muted',
+                  d.expired
+                    ? 'font-medium text-danger'
+                    : d.expiringSoon
+                      ? 'text-warning-ink'
+                      : 'text-ink-muted',
                 )}
               >
                 {formatDate(d.validUntil)}
                 {d.expiringSoon && <div>em {d.daysLeft} d</div>}
               </div>
               <div>
-                <StatusBadge value={d.confidentiality} map={CONFIDENTIALITY_MAP} />
+                <StatusBadge
+                  value={d.confidentiality}
+                  map={CONFIDENTIALITY_MAP}
+                />
               </div>
               <div>
-                <StatusBadge value={d.effectiveStatus} map={DOC_STATUS_MAP} variant="dot" />
+                <StatusBadge
+                  value={d.effectiveStatus}
+                  map={DOC_STATUS_MAP}
+                  variant="dot"
+                />
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {data && <Pagination page={data.page} totalPages={data.totalPages} onPageChange={setPage} />}
+      {data && (
+        <Pagination
+          page={data.page}
+          totalPages={data.totalPages}
+          onPageChange={setPage}
+        />
+      )}
 
       {open && (
         <DocumentPanel
@@ -426,7 +518,13 @@ export function DocumentsView({ canManage, onOpenInstance }: DocumentsViewProps)
           }}
         />
       )}
-      {form && <DocumentFormModal mode={form.mode} prefill={form.prefill} onClose={() => setForm(null)} />}
+      {form && (
+        <DocumentFormModal
+          mode={form.mode}
+          prefill={form.prefill}
+          onClose={() => setForm(null)}
+        />
+      )}
     </div>
   );
 }
