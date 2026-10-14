@@ -33,6 +33,7 @@ export interface AutomationRule {
   status?: RuleStatus;
   ownerId?: string | null;
   ownerName?: string | null;
+  ownerAvatarUrl?: string | null;
   priority?: number;
   lastRunAt?: string | null;
   lastRunStatus?: string | null;
@@ -99,6 +100,8 @@ export interface AutomationTemplate {
   name: string;
   description?: string;
   category?: string;
+  /** Imagem de topo opcional; sem ela, o card usa uma ilustração pelo título. */
+  imageUrl?: string;
   trigger: string;
   action: string;
 }
@@ -255,6 +258,7 @@ export interface AutomationSchedule {
   missedPolicy: 'RUN_ONCE' | 'RUN_ALL' | 'SKIP';
   ownerId?: string | null;
   ownerName?: string | null;
+  ownerAvatarUrl?: string | null;
   rule?: { id: number; name: string; code?: string | null; active: boolean; draft: boolean };
   upcoming?: string[];
 }
@@ -262,4 +266,188 @@ export interface AutomationSchedule {
 export interface Paginated<T> {
   data: T[];
   meta?: { total: number; page: number; limit: number };
+}
+
+// ── Aprovações e Tarefas (§8) ─────────────────────────────────────
+
+export type TaskStatus =
+  | 'PENDING'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'EXPIRED';
+export type TaskKind = 'APPROVAL' | 'TASK';
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+
+export interface TaskPerson {
+  id: number;
+  name: string | null;
+}
+
+export interface AutomationTask {
+  id: string;
+  kind: TaskKind;
+  title: string;
+  description?: string | null;
+  automation: { id: number; name: string | null } | null;
+  executionId?: string | null;
+  module?: string | null;
+  record: { type: string; id: string } | null;
+  approver: TaskPerson;
+  substitute: TaskPerson | null;
+  escalation: {
+    toId: number;
+    toName: string | null;
+    afterHours?: number | null;
+    escalatedAt?: string | null;
+  } | null;
+  priority: TaskPriority;
+  status: TaskStatus;
+  createdAt: string;
+  dueAt?: string | null;
+  overdue: boolean;
+  decidedAt?: string | null;
+  decidedBy: TaskPerson | null;
+  decisionComment?: string | null;
+}
+
+export interface TaskHistoryEntry {
+  at: string;
+  by: number | null;
+  action: string;
+  comment?: string;
+  from?: number;
+  to?: number;
+}
+
+export interface AutomationTaskDetail extends AutomationTask {
+  history: TaskHistoryEntry[];
+  execution: {
+    id: string;
+    status: string;
+    startedAt?: string | null;
+    correlationId?: string | null;
+  } | null;
+  canDecide: boolean;
+}
+
+export interface TaskSummary {
+  pending: number;
+  overdue: number;
+  decidedLast30Days: number;
+  deadline: { onTime: number; late: number; onTimeRate: number | null };
+}
+
+// ── Configurações (§10) ───────────────────────────────────────────
+
+export interface AutomationSettings {
+  maxExecutionsPerMinute: number;
+  maxConcurrentPerRule: number;
+  maxEventDepth: number;
+  requireApprovalCritical: boolean;
+  failureAlertThreshold: number;
+  failureAlertWindowMinutes: number;
+  archiveAfterDays: number;
+  retentionDays: number;
+  deadLetterRetentionDays: number;
+  auditRetentionDays: number;
+  updatedAt: string | null;
+  updatedBy: number | null;
+}
+
+export type PermissionAction =
+  | 'view'
+  | 'create'
+  | 'edit'
+  | 'test'
+  | 'activate'
+  | 'execute'
+  | 'cancel'
+  | 'delete';
+
+export interface RoleGrant {
+  roleCode: string;
+  actions: Record<PermissionAction, boolean>;
+  scope: 'ALL' | 'DEPARTMENT';
+  locked: boolean;
+  custom: boolean;
+}
+
+export interface PermissionMatrix {
+  actions: PermissionAction[];
+  scopes: string[];
+  roles: RoleGrant[];
+}
+
+export interface PendingPublication {
+  id: number;
+  name: string;
+  module?: string | null;
+  trigger?: string | null;
+  version: number;
+  publishRequestedBy?: string | null;
+  publishRequestedAt?: string | null;
+  requestedByName: string | null;
+}
+
+export interface AuditRow {
+  id: string;
+  entity: string;
+  action: string;
+  entityId?: string | null;
+  ruleId?: number | null;
+  userId?: number | null;
+  userName: string | null;
+  before: unknown;
+  after: unknown;
+  note?: string | null;
+  createdAt: string;
+}
+
+export type ConnectionType =
+  | 'HTTP'
+  | 'WEBHOOK'
+  | 'SMTP'
+  | 'SMS'
+  | 'WHATSAPP'
+  | 'OTHER';
+export type ConnectionAuth = 'NONE' | 'BEARER' | 'BASIC' | 'API_KEY_HEADER';
+
+export interface AutomationConnection {
+  id: string;
+  name: string;
+  type: ConnectionType;
+  baseUrl?: string | null;
+  authType: ConnectionAuth;
+  headerName?: string | null;
+  username?: string | null;
+  status: 'ACTIVE' | 'DISABLED';
+  description?: string | null;
+  hasSecret: boolean;
+  lastTestStatus?: string | null;
+  lastTestedAt?: string | null;
+}
+
+export interface DeadLetter {
+  id: string;
+  ruleId: number;
+  ruleName: string | null;
+  executionId?: string | null;
+  attempts: number;
+  errorCode?: string | null;
+  errorMessage?: string | null;
+  status: 'OPEN' | 'REPROCESSED' | 'DISCARDED';
+  createdAt: string;
+}
+
+export interface DeadLetterSummary {
+  open: number;
+  reprocessed: number;
+  discarded: number;
+}
+
+export interface CsvExport {
+  filename: string;
+  content: string;
 }

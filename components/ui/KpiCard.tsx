@@ -23,6 +23,7 @@ const INTENT_TONE = {
 const ICON_TONE = {
   ...INTENT_TONE,
   caution: 'yellow',
+  neutral: 'gray',
 } as const satisfies Record<string, NavyIconTone>;
 
 export interface KpiCardProps {

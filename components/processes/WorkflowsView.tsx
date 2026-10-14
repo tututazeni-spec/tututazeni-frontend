@@ -5,6 +5,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Workflow } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -12,8 +13,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import { PROCESS_STATUS_MAP } from './constants';
+import { ProcessModelCard } from './ProcessModelCard';
 import { Skeleton } from './Skeleton';
 import { WorkflowBuilder } from './WorkflowBuilder';
 import type { PaginatedProcesses } from './types';
@@ -26,16 +26,28 @@ export function WorkflowsView({ canEdit }: WorkflowsViewProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [search, setSearch] = useState('');
   const debounced = useDebounce(search, 300);
-  const params = { page: 1, limit: 30, ...(debounced ? { search: debounced } : {}) };
+  const params = {
+    page: 1,
+    limit: 30,
+    ...(debounced ? { search: debounced } : {}),
+  };
   const { data, isLoading, error } = useApiQuery<PaginatedProcesses>(
     queryKeys.processes.library(params),
     '/processes',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   if (selected !== null) {
     return (
-      <WorkflowBuilder processId={selected} canEdit={canEdit} onBack={() => setSelected(null)} />
+      <WorkflowBuilder
+        processId={selected}
+        canEdit={canEdit}
+        onBack={() => setSelected(null)}
+      />
     );
   }
 
@@ -50,37 +62,28 @@ export function WorkflowsView({ canEdit }: WorkflowsViewProps) {
           className="min-w-[160px] flex-1"
         />
         <span className="font-body text-sm text-ink-faint">
-          Só os rascunhos são editáveis; os restantes abrem para consulta e teste.
+          Só os rascunhos são editáveis; os restantes abrem para consulta e
+          teste.
         </span>
       </div>
       {isLoading && <Skeleton rows={4} />}
-      {error && <p className="font-body text-sm text-danger">{error.message}</p>}
-      {!isLoading && data?.data.length === 0 && (
-        <EmptyState title="Sem modelos" description="Crie um modelo em Modelos de Processos." />
+      {error && (
+        <p className="font-body text-sm text-danger">{error.message}</p>
       )}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+      {!isLoading && data?.data.length === 0 && (
+        <EmptyState
+          title="Sem modelos"
+          description="Crie um modelo em Modelos de Processos."
+        />
+      )}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {data?.data.map((p) => (
-          <button
+          <ProcessModelCard
             key={p.id}
-            type="button"
+            process={p}
+            icon={Workflow}
             onClick={() => setSelected(p.id)}
-            className="group flex flex-col rounded-card border border-white/10 bg-[#0F1F3D] p-4 text-left text-white shadow-resting transition-shadow hover:shadow-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8FB3FF]"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <div className="break-words font-body text-[13px] font-medium leading-tight text-white">
-                  {p.title}
-                </div>
-                <div className="font-body text-xs text-white/70">
-                  {p.code} · v{p.version}
-                </div>
-              </div>
-              <StatusBadge value={p.status} map={PROCESS_STATUS_MAP} variant="dot" />
-            </div>
-            <div className="mt-3 font-body text-xs text-white">
-              {p.steps?.length ?? 0} Etapas · {p._count?.instances ?? 0} Processos
-            </div>
-          </button>
+          />
         ))}
       </div>
     </div>

@@ -9,20 +9,25 @@
 import { useDeferredValue, useState } from 'react';
 import {
   AlertCircle,
+  ArrowRight,
   CalendarClock,
+  Clock,
   Pause,
   Pencil,
   Play,
   PlayCircle,
   Plus,
   Trash2,
+  User,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
-import { Badge, type BadgeProps } from '@/components/ui/Badge';
+import { TEMPLATE_PALETTES } from './templateTheme';
+import { type BadgeProps } from '@/components/ui/Badge';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button, IconButton } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
@@ -30,14 +35,7 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
+import { Tooltip } from '@/components/ui/Tooltip';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import type {
@@ -49,6 +47,14 @@ import type {
 } from './types';
 
 const ALL = '__all__';
+
+const STATUS_DOT: Record<NonNullable<BadgeProps['intent']>, string> = {
+  success: 'bg-emerald-400',
+  warning: 'bg-amber-400',
+  danger: 'bg-red-400',
+  info: 'bg-sky-400',
+  neutral: 'bg-slate-400',
+};
 
 const STATUS_META: Record<
   ScheduleStatus,
@@ -210,112 +216,220 @@ export function SchedulesTab() {
           description="Crie um agendamento para executar uma automação numa data, hora ou periodicidade — por exemplo, lembretes de formação ou alertas semanais de PDI."
         />
       ) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeaderCell>Agendamento</TableHeaderCell>
-              <TableHeaderCell>Automação</TableHeaderCell>
-              <TableHeaderCell>Quando</TableHeaderCell>
-              <TableHeaderCell>Próxima execução</TableHeaderCell>
-              <TableHeaderCell>Última execução</TableHeaderCell>
-              <TableHeaderCell>Estado</TableHeaderCell>
-              <TableHeaderCell>Responsável</TableHeaderCell>
-              <TableHeaderCell>Acções</TableHeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((s) => {
-              const st = STATUS_META[s.status];
-              return (
-                <TableRow key={s.id}>
-                  <TableCell className="min-w-[180px] font-semibold">
-                    {s.name}
-                    <span className="block font-data text-[10px] font-normal text-ink-faint">
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {rows.map((s) => {
+            const st = STATUS_META[s.status];
+            const dot = STATUS_DOT[st.intent ?? 'neutral'];
+            const c = TEMPLATE_PALETTES[s.ruleId % TEMPLATE_PALETTES.length];
+            const iconBtn =
+              'text-[#0F1F3D] hover:bg-[#0F1F3D]/10 hover:text-[#0F1F3D] focus-visible:ring-[#0F1F3D]/40';
+            return (
+              <li
+                key={s.id}
+                className={cn(
+                  'group flex flex-col overflow-hidden rounded-2xl border bg-surface shadow-resting transition-shadow duration-150 hover:shadow-hover',
+                  c.border,
+                  s.status === 'PAUSED' && 'opacity-80',
+                )}
+              >
+                <div
+                  className={`relative h-20 overflow-hidden bg-gradient-to-br ${c.header}`}
+                >
+                  <div
+                    className="absolute -right-6 -top-10 h-36 w-36 rounded-full bg-white/15"
+                    aria-hidden
+                  />
+                  <div
+                    className="absolute -bottom-10 right-24 h-24 w-24 rounded-full bg-white/10"
+                    aria-hidden
+                  />
+                  <CalendarClock
+                    size={72}
+                    strokeWidth={1.25}
+                    className="absolute -bottom-2 right-5 rotate-12 text-white/25"
+                    aria-hidden
+                  />
+                  <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 font-body text-[11px] font-medium text-ink shadow-sm">
+                    <span
+                      aria-hidden
+                      className={cn('h-2 w-2 rounded-full', dot)}
+                    />
+                    {st.label}
+                  </span>
+                </div>
+
+                <div className="relative -mt-6 flex flex-1 flex-col gap-3 px-4 pb-4">
+                  <span
+                    className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg ring-[3px] ring-surface ${c.tile}`}
+                    aria-hidden
+                  >
+                    <CalendarClock size={22} strokeWidth={1.75} />
+                  </span>
+
+                  <div className="min-w-0">
+                    <h3 className="break-words font-display text-base font-bold leading-snug text-[#0F1F3D]">
+                      {s.name}
+                    </h3>
+                    <p className="font-data text-[11px] text-ink-muted">
                       {s.timezone}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-xs">
-                    {s.rule?.name ?? `#${s.ruleId}`}
-                    {s.rule?.draft && (
-                      <span className="block text-warning-ink">Rascunho</span>
-                    )}
-                    {s.rule && !s.rule.draft && !s.rule.active && (
-                      <span className="block text-ink-faint">Pausada</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="min-w-[160px] text-xs">
-                    {describe(s)}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap text-xs">
-                    {fmt(s.nextRunAt)}
-                  </TableCell>
-                  <TableCell className="text-xs">
-                    {fmt(s.lastRunAt)}
-                    {s.lastRunStatus && (
-                      <span
+                    </p>
+                  </div>
+
+                  <dl className={`space-y-2 rounded-xl px-3 py-2.5 ${c.panel}`}>
+                    <div className="flex items-start gap-2.5">
+                      <CalendarClock
+                        size={14}
+                        strokeWidth={1.75}
+                        className={`mt-0.5 shrink-0 ${c.accent}`}
+                        aria-hidden
+                      />
+                      <dt className="w-12 shrink-0 font-body text-xs text-ink-muted">
+                        Quando
+                      </dt>
+                      <dd className="min-w-0 break-words font-body text-xs font-semibold text-[#0F1F3D]">
+                        {describe(s)}
+                      </dd>
+                    </div>
+                    <div
+                      className={`flex items-start gap-2.5 border-t pt-2.5 ${c.divider}`}
+                    >
+                      <ArrowRight
+                        size={14}
+                        strokeWidth={1.75}
+                        className={`mt-0.5 shrink-0 ${c.accent}`}
+                        aria-hidden
+                      />
+                      <dt className="w-12 shrink-0 font-body text-xs text-ink-muted">
+                        Então
+                      </dt>
+                      <dd className="min-w-0 break-words font-body text-xs font-semibold text-[#0F1F3D]">
+                        {s.rule?.name ?? `#${s.ruleId}`}
+                        {s.rule?.draft && (
+                          <span className="font-normal text-ink-muted">
+                            {' '}
+                            (rascunho)
+                          </span>
+                        )}
+                        {s.rule && !s.rule.draft && !s.rule.active && (
+                          <span className="font-normal text-ink-muted">
+                            {' '}
+                            (pausada)
+                          </span>
+                        )}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <div className={`rounded-xl border px-3 py-2.5 ${c.border}`}>
+                    <p className="flex items-center gap-1.5 font-body text-xs text-ink-muted">
+                      <Clock size={12} strokeWidth={1.75} aria-hidden />
+                      Próxima execução
+                    </p>
+                    <p className="mt-0.5 font-display text-sm font-bold text-[#0F1F3D]">
+                      {fmt(s.nextRunAt)}
+                    </p>
+                  </div>
+
+                  <dl className="grid grid-cols-2 divide-x divide-border font-body text-xs text-[#0F1F3D]">
+                    <div className="pr-3">
+                      <dt className="mb-0.5 text-ink-muted">Última execução</dt>
+                      <dd>{fmt(s.lastRunAt)}</dd>
+                    </div>
+                    <div className="pl-3">
+                      <dt className="mb-0.5 text-ink-muted">Resultado</dt>
+                      <dd
                         className={cn(
-                          'block',
                           s.lastRunStatus === 'FAILED' && 'text-danger-ink',
                         )}
                         title={s.lastError ?? undefined}
                       >
-                        {s.lastRunStatus} · {s.runCount}×
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Badge intent={st.intent}>{st.label}</Badge>
-                  </TableCell>
-                  <TableCell className="text-xs">
-                    {s.ownerName ?? '–'}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex shrink-0 gap-1">
-                      {s.status === 'PAUSED' || s.status === 'COMPLETED' ? (
-                        <IconButton
-                          icon={Play}
-                          label="Retomar agendamento"
-                          intent="ghost"
-                          onClick={() =>
-                            action.mutate({ id: s.id, verb: 'resume' })
-                          }
-                        />
-                      ) : (
-                        <IconButton
-                          icon={Pause}
-                          label="Pausar agendamento"
-                          intent="ghost"
-                          onClick={() =>
-                            action.mutate({ id: s.id, verb: 'pause' })
-                          }
-                        />
-                      )}
-                      <IconButton
-                        icon={PlayCircle}
-                        label="Executar agora"
-                        intent="ghost"
-                        onClick={() => void runNow(s)}
-                      />
-                      <IconButton
-                        icon={Pencil}
-                        label="Editar agendamento"
-                        intent="ghost"
-                        onClick={() => setEditing(s)}
-                      />
-                      <IconButton
-                        icon={Trash2}
-                        label="Remover agendamento"
-                        intent="ghost"
-                        className="hover:bg-danger-subtle hover:text-danger"
-                        onClick={() => void remove(s)}
-                      />
+                        {s.lastRunStatus
+                          ? `${s.lastRunStatus} · ${s.runCount}×`
+                          : '–'}
+                      </dd>
                     </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                  </dl>
+
+                  <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-2.5">
+                    <div className="flex min-w-0 items-center gap-2 font-body text-xs text-[#0F1F3D]">
+                      {s.ownerName ? (
+                        <>
+                          <Avatar
+                            name={s.ownerName}
+                            url={s.ownerAvatarUrl ?? undefined}
+                            size="sm"
+                          />
+                          <span className="min-w-0 truncate">
+                            <span className="block text-[10px] text-ink-muted">
+                              Responsável
+                            </span>
+                            {s.ownerName}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-ink-muted">Sem responsável</span>
+                      )}
+                    </div>
+                    <div className="-mr-2 flex shrink-0 gap-0.5">
+                      {s.status === 'PAUSED' || s.status === 'COMPLETED' ? (
+                        <Tooltip content="Retomar agendamento">
+                          <IconButton
+                            icon={Play}
+                            label="Retomar agendamento"
+                            intent="ghost"
+                            className={iconBtn}
+                            onClick={() =>
+                              action.mutate({ id: s.id, verb: 'resume' })
+                            }
+                          />
+                        </Tooltip>
+                      ) : (
+                        <Tooltip content="Pausar agendamento">
+                          <IconButton
+                            icon={Pause}
+                            label="Pausar agendamento"
+                            intent="ghost"
+                            className={iconBtn}
+                            onClick={() =>
+                              action.mutate({ id: s.id, verb: 'pause' })
+                            }
+                          />
+                        </Tooltip>
+                      )}
+                      <Tooltip content="Executar agora">
+                        <IconButton
+                          icon={PlayCircle}
+                          label="Executar agora"
+                          intent="ghost"
+                          className={iconBtn}
+                          onClick={() => void runNow(s)}
+                        />
+                      </Tooltip>
+                      <Tooltip content="Editar agendamento">
+                        <IconButton
+                          icon={Pencil}
+                          label="Editar agendamento"
+                          intent="ghost"
+                          className={iconBtn}
+                          onClick={() => setEditing(s)}
+                        />
+                      </Tooltip>
+                      <Tooltip content="Remover agendamento">
+                        <IconButton
+                          icon={Trash2}
+                          label="Remover agendamento"
+                          intent="ghost"
+                          className={iconBtn}
+                          onClick={() => void remove(s)}
+                        />
+                      </Tooltip>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
 
       {editing && (

@@ -26,9 +26,10 @@ export const NAVY_TONES: Record<NavyStatTone, { bg: string; text: string }> = {
 };
 
 // Tom extra só para o círculo do ícone (amarelo, distinto do laranja de `orange`)
-export type NavyIconTone = NavyStatTone | 'yellow';
+export type NavyIconTone = NavyStatTone | 'yellow' | 'gray';
 
 function iconBg(tone: NavyIconTone): string {
+  if (tone === 'gray') return 'bg-[#8A94A6]';
   return tone === 'yellow' ? 'bg-[#F2C230]' : NAVY_TONES[tone].bg;
 }
 

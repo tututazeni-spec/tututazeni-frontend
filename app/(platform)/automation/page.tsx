@@ -17,12 +17,13 @@ import {
   Workflow,
   Zap,
 } from 'lucide-react';
+import { ApprovalsTab } from '@/components/automation/ApprovalsTab';
 import { BuilderTab } from '@/components/automation/BuilderTab';
 import { ExecutionsTab } from '@/components/automation/ExecutionsTab';
 import { OverviewTab } from '@/components/automation/OverviewTab';
-import { PendingPhaseTab } from '@/components/automation/PendingPhaseTab';
 import { RulesTab } from '@/components/automation/RulesTab';
 import { SchedulesTab } from '@/components/automation/SchedulesTab';
+import { SettingsTab } from '@/components/automation/SettingsTab';
 import { StatsTab } from '@/components/automation/StatsTab';
 import type { Tab } from '@/components/automation/types';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
@@ -147,21 +148,13 @@ export default function AutomationPage() {
             />
           </TabsContent>
           <TabsContent value="approvals">
-            <PendingPhaseTab
-              icon={ClipboardCheck}
-              title="Aprovações e Tarefas"
-              description="Acompanhamento das etapas que dependem de validação humana antes de prosseguir."
-            />
+            <ApprovalsTab />
           </TabsContent>
           <TabsContent value="reports">
             <StatsTab />
           </TabsContent>
           <TabsContent value="settings">
-            <PendingPhaseTab
-              icon={Settings}
-              title="Configurações"
-              description="Permissões, limites de execução, políticas de repetição, alertas e segurança."
-            />
+            <SettingsTab />
           </TabsContent>
         </div>
       </Tabs>

@@ -275,6 +275,22 @@ export const queryKeys = {
       [...queryKeys.automation.all, 'events', params] as const,
     schedules: (params?: Record<string, unknown>) =>
       [...queryKeys.automation.all, 'schedules', params ?? {}] as const,
+    tasks: (params?: Record<string, unknown>) =>
+      [...queryKeys.automation.all, 'tasks', params ?? {}] as const,
+    taskSummary: () => [...queryKeys.automation.all, 'task-summary'] as const,
+    taskDetail: (id: string) =>
+      [...queryKeys.automation.all, 'task', id] as const,
+    govSettings: () => [...queryKeys.automation.all, 'gov-settings'] as const,
+    permissions: () => [...queryKeys.automation.all, 'permissions'] as const,
+    publications: () =>
+      [...queryKeys.automation.all, 'publications'] as const,
+    audit: (params?: Record<string, unknown>) =>
+      [...queryKeys.automation.all, 'audit', params ?? {}] as const,
+    connections: () => [...queryKeys.automation.all, 'connections'] as const,
+    deadLetters: (params?: Record<string, unknown>) =>
+      [...queryKeys.automation.all, 'dead-letters', params ?? {}] as const,
+    deadLetterSummary: () =>
+      [...queryKeys.automation.all, 'dead-letter-summary'] as const,
   },
 
   settings: {

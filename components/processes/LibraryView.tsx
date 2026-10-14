@@ -17,8 +17,7 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import { PROCESS_STATUS_MAP, RISK_LEVEL_MAP } from './constants';
+import { ProcessModelCard } from './ProcessModelCard';
 import { Skeleton } from './Skeleton';
 import type { PaginatedProcesses } from './types';
 
@@ -107,88 +106,27 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
         </span>
       </div>
 
-      {/* Tabela */}
-      <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="grid grid-cols-[2fr_100px_120px_90px_100px_90px] gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
-          <div>Processo</div>
-          <div>Versão</div>
-          <div>Departamento</div>
-          <div>Risco</div>
-          <div>Estado</div>
-          <div>Instâncias</div>
+      {loading && <Skeleton />}
+      {error && (
+        <div className="px-4 py-8 text-center font-body text-sm text-danger">
+          {error.message}
         </div>
-
-        {loading && (
-          <div className="p-4">
-            <Skeleton />
-          </div>
-        )}
-        {error && (
-          <div className="px-4 py-8 text-center font-body text-sm text-danger">
-            {error.message}
-          </div>
-        )}
-
-        {!loading && data?.data.length === 0 && (
-          <EmptyState
-            title="Sem processos"
-            description="Nenhum processo encontrado com estes filtros."
-          />
-        )}
-
+      )}
+      {!loading && data?.data.length === 0 && (
+        <EmptyState
+          title="Sem processos"
+          description="Nenhum processo encontrado com estes filtros."
+        />
+      )}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {!loading &&
           data?.data.map((p) => (
-            <div
+            <ProcessModelCard
               key={p.id}
-              className="relative grid cursor-pointer grid-cols-[2fr_100px_120px_90px_100px_90px] items-center gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 last:border-0"
+              process={p}
+              icon={FileStack}
               onClick={() => onSelect(p.id)}
-            >
-              <span
-                className={`absolute inset-y-2 left-2 w-1 rounded-full ${p.status === 'ACTIVE' ? 'bg-success' : 'bg-ink-faint'}`}
-              />
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
-                  <FileStack size={16} strokeWidth={1.75} />
-                </span>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="truncate font-body text-sm font-semibold text-white">
-                      {p.title}
-                    </span>
-                    {p.tags.slice(0, 2).map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-control bg-white/15 px-1.5 py-0.5 font-body text-xs text-white"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mt-0.5 font-mono text-xs text-white">
-                    {p.code}
-                  </div>
-                </div>
-              </div>
-              <div className="font-mono text-xs text-white">
-                v{p.version}
-              </div>
-              <div className="font-body text-xs text-white">
-                {p.department?.name ?? '—'}
-              </div>
-              <div>
-                <StatusBadge value={p.riskLevel} map={RISK_LEVEL_MAP} />
-              </div>
-              <div>
-                <StatusBadge
-                  value={p.status}
-                  map={PROCESS_STATUS_MAP}
-                  variant="dot"
-                />
-              </div>
-              <div className="font-body text-sm text-white">
-                {p._count.instances}
-              </div>
-            </div>
+            />
           ))}
       </div>
 
