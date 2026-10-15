@@ -154,7 +154,7 @@ export function RoiAnalysisTab() {
           description="Cria a primeira análise para começar a medir o retorno de uma iniciativa."
         />
       ) : (
-        <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4">
           {pageRows.map((a) => {
             const insufficient = a.status === 'DADOS_INSUFICIENTES';
             return (
@@ -175,7 +175,7 @@ export function RoiAnalysisTab() {
                   {INITIATIVE_TYPE_LABELS[a.initiativeType] ?? a.initiativeType}
                   {a.initiative ? ` · ${a.initiative}` : ''}
                 </p>
-                <ul className="grid grid-cols-1 gap-2 font-semibold text-white">
+                <ul className="grid grid-cols-1 gap-2 font-semibold text-white md:grid-cols-2 xl:grid-cols-3">
                   <NavyPanelRow
                     iconBadge
                     iconClassName="text-white"
