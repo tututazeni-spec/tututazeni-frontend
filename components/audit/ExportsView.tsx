@@ -506,6 +506,7 @@ export function ExportsView() {
           icon={Files}
           label="Relatórios exportados"
           value={summary?.reports ?? 0}
+          intent="success"
         />
         <KpiCard
           icon={Paperclip}
@@ -516,13 +517,15 @@ export function ExportsView() {
           icon={Archive}
           label="Expirados"
           value={summary?.expired ?? 0}
-          intent={summary && summary.expired > 0 ? 'warning' : 'primary'}
+          intent="danger"
           sub="A eliminar pela política"
         />
         <KpiCard
           icon={HardDrive}
           label="Espaço ocupado"
           value={fmtSize(summary?.sizeBytes ?? 0)}
+          intent="warning"
+          iconIntent="caution"
         />
       </div>
 
@@ -575,70 +578,93 @@ export function ExportsView() {
           <Skeleton rows={8} />
         ) : (
           <>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHead>
-                  <TableRow>
+            <div>
+              <Table
+                wrapperClassName="overflow-x-hidden"
+                className="table-fixed"
+              >
+                <TableHead className="bg-[#0F1F3D]/60">
+                  <TableRow className="hover:bg-transparent">
                     {[
-                      'Código',
-                      'Ficheiro',
-                      'Tipo',
-                      'Autor',
-                      'Criado em',
-                      'Registos',
-                      'Confidencialidade',
-                      'Retenção até',
-                      'Estado',
-                    ].map((h) => (
-                      <TableHeaderCell key={h}>{h}</TableHeaderCell>
+                      ['Ficheiro', 'w-[35%]'],
+                      ['Autor', 'w-[20%]'],
+                      ['Registos', 'w-[10%] text-right'],
+                      ['Confidencialidade e retenção', 'w-[22%]'],
+                      ['Estado', 'w-[13%]'],
+                    ].map(([h, w]) => (
+                      <TableHeaderCell
+                        key={h}
+                        className={`px-3 py-2.5 align-bottom text-white ${w}`}
+                      >
+                        {h}
+                      </TableHeaderCell>
                     ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {data.data.map((e) => (
-                    <tr
-                      key={e.id}
-                      onClick={() => setOpenId(e.id)}
-                      className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-sunken"
-                    >
-                      <td className="whitespace-nowrap px-3 py-2.5 font-data text-xs text-ink">
-                        {e.code}
-                      </td>
-                      <td className="max-w-[220px] truncate px-3 py-2.5 font-body text-xs text-ink">
-                        {e.fileName}
-                      </td>
-                      <td className="px-3 py-2.5 font-body text-xs text-ink-muted">
-                        {e.kind === 'REPORT' ? 'Relatório' : 'Evidência'} ·{' '}
-                        {e.format.toUpperCase()}
-                      </td>
-                      <td className="px-3 py-2.5 font-body text-xs text-ink-muted">
-                        {e.author?.fullName ?? '—'}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-2.5 font-body text-xs text-ink-muted">
-                        {fmtTs(e.createdAt)}
-                      </td>
-                      <td className="px-3 py-2.5 font-body text-xs text-ink-muted">
-                        {e.recordCount}
-                      </td>
-                      <td className="px-3 py-2.5">
-                        <Badge intent={CONF_BADGE[e.confidentiality]}>
-                          {CONF_LABEL[e.confidentiality]}
-                        </Badge>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-2.5 font-body text-xs text-ink-muted">
-                        {fmtDay(e.retentionUntil)}
-                      </td>
-                      <td className="px-3 py-2.5">
-                        <Badge intent={STATUS_BADGE[e.status].intent}>
-                          {STATUS_BADGE[e.status].label}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))}
+                  {data.data.map((e) => {
+                    const isReport = e.kind === 'REPORT';
+                    const KindIcon = isReport ? Files : Paperclip;
+                    return (
+                      <tr
+                        key={e.id}
+                        onClick={() => setOpenId(e.id)}
+                        className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-sunken"
+                      >
+                        <td className="px-3 py-3">
+                          <div className="flex items-center gap-3">
+                            <span
+                              aria-hidden
+                              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-control ${isReport ? 'bg-[#218653]/10 text-[#218653]' : 'bg-[#1877F2]/10 text-[#1877F2]'}`}
+                            >
+                              <KindIcon size={17} strokeWidth={1.75} />
+                            </span>
+                            <div className="min-w-0">
+                              <p
+                                className="truncate font-body text-sm font-medium text-ink"
+                                title={e.fileName}
+                              >
+                                {e.fileName}
+                              </p>
+                              <p className="mt-0.5 truncate font-data text-xs text-ink-muted">
+                                {e.code} ·{' '}
+                                {isReport ? 'Relatório' : 'Evidência'}{' '}
+                                {e.format.toUpperCase()}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-3">
+                          <p className="truncate font-body text-sm text-ink">
+                            {e.author?.fullName ?? '—'}
+                          </p>
+                          <p className="mt-0.5 font-body text-xs text-ink-muted">
+                            {fmtTs(e.createdAt)}
+                          </p>
+                        </td>
+                        <td className="px-3 py-3 text-right font-data text-sm tabular-nums text-ink">
+                          {e.recordCount}
+                        </td>
+                        <td className="px-3 py-3">
+                          <Badge intent={CONF_BADGE[e.confidentiality]}>
+                            {CONF_LABEL[e.confidentiality]}
+                          </Badge>
+                          <p className="mt-1 font-body text-xs text-ink-muted">
+                            Retenção até {fmtDay(e.retentionUntil)}
+                          </p>
+                        </td>
+                        <td className="px-3 py-3">
+                          <Badge intent={STATUS_BADGE[e.status].intent}>
+                            {STATUS_BADGE[e.status].label}
+                          </Badge>
+                        </td>
+                      </tr>
+                    );
+                  })}
                   {data.data.length === 0 && (
                     <TableRow>
                       <td
-                        colSpan={9}
+                        colSpan={5}
                         className="px-4 py-10 text-center font-body text-sm text-ink-faint"
                       >
                         <FileCheck2
