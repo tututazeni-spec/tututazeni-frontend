@@ -49,6 +49,21 @@ const SUBCATEGORY_ITEMS = Object.entries(COST_SUBCATEGORY_LABELS).map(
   }),
 );
 
+const SOURCE_BLANK = '__blank';
+const SOURCE_MANUAL = '__manual';
+const SOURCE_PRESETS = [
+  'Fatura do fornecedor',
+  'Folha Salarial',
+  'Formações',
+  'Orçamento aprovado',
+  'Contabilidade',
+];
+const SOURCE_ITEMS = [
+  { value: SOURCE_BLANK, label: 'Deixar em branco' },
+  ...SOURCE_PRESETS.map((v) => ({ value: v, label: v })),
+  { value: SOURCE_MANUAL, label: 'Escrever manualmente…' },
+];
+
 export interface NewCostEntryModalProps {
   onClose: () => void;
 }
@@ -65,6 +80,7 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [source, setSource] = useState('');
+  const [sourceMode, setSourceMode] = useState(SOURCE_BLANK);
   const [incurredAt, setIncurredAt] = useState('');
 
   const [estimateUser, setEstimateUser] = useState<DirectoryUser | null>(null);
@@ -88,11 +104,12 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
     {
       onSuccess: (data) => {
         setAmount(String(data.totalCost));
+        setSourceMode(SOURCE_MANUAL);
         setSource(
-          `Payroll — ${estimateHours}h × salário/hora${data.note ? ` (${data.note})` : ''}`,
+          `Folha Salarial — ${estimateHours}h × salário/hora${data.note ? ` (${data.note})` : ''}`,
         );
         notify({
-          title: 'Custo estimado a partir do Payroll',
+          title: 'Custo estimado a partir da Folha Salarial',
           intent: 'success',
         });
       },
@@ -141,7 +158,7 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
       <ModalContent
         title="Nova Linha de Custo"
         description="Consolida o custo real de uma iniciativa — docs/roi-impact.md §5"
-        className="max-h-[90vh] max-w-2xl overflow-y-auto"
+        className="max-h-[90vh] max-w-2xl overflow-y-auto overflow-x-hidden"
       >
         {error && (
           <div className="mb-4 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
@@ -151,7 +168,7 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
         )}
 
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
             <FormField label="Tipo de iniciativa" htmlFor="ce-init-type">
               <Select
                 items={INITIATIVE_TYPE_ITEMS}
@@ -190,9 +207,9 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
             <div className="space-y-3 rounded-card border border-dashed border-border p-3">
               <p className="flex items-center gap-1.5 font-body text-xs font-medium text-ink">
                 <Calculator size={14} strokeWidth={1.75} />
-                Estimar a partir do salário/hora (Payroll)
+                Estimar a partir do salário/hora (Folha Salarial)
               </p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
                 <DepartmentUserPicker
                   label="Colaborador"
                   htmlFor="ce-estimate-user"
@@ -234,7 +251,7 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
             />
           </FormField>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
             <FormField label="Valor (AOA) *" htmlFor="ce-amount">
               <Input
                 id="ce-amount"
@@ -257,14 +274,25 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
           </div>
 
           <FormField label="Fonte" htmlFor="ce-source">
+            <Select
+              items={SOURCE_ITEMS}
+              value={sourceMode}
+              onValueChange={(v) => {
+                setSourceMode(v);
+                setSource(v === SOURCE_BLANK || v === SOURCE_MANUAL ? '' : v);
+              }}
+              className="w-full"
+            />
+          </FormField>
+          {sourceMode === SOURCE_MANUAL && (
             <Input
               id="ce-source"
-              placeholder="ex.: fatura do fornecedor, Payroll, Trainings…"
+              placeholder="Escrever a fonte…"
               value={source}
               onChange={(e) => setSource(e.target.value)}
               className="w-full"
             />
-          </FormField>
+          )}
         </div>
 
         <div className="mt-6 flex gap-3 border-t border-border pt-4">

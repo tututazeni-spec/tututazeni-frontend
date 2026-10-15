@@ -15,10 +15,10 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Card, CardBody } from '@/components/ui/Card';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { DataTable } from '@/components/ui/DataTable';
-import { DonutChart } from '@/components/ui/charts/DonutChart';
+import { WalletStat } from './WalletStat';
 import { NewCostEntryModal } from './NewCostEntryModal';
 import {
   fmt$,
@@ -27,7 +27,11 @@ import {
   COST_CATEGORY_INTENTS,
   COST_SUBCATEGORY_LABELS,
 } from './utils';
-import type { CostConsolidationData, CostEntryListData } from './types';
+import type {
+  CostConsolidationData,
+  CostConsolidationRow,
+  CostEntryListData,
+} from './types';
 
 export function CostsTab() {
   const notify = useToast();
@@ -45,6 +49,38 @@ export function CostsTab() {
       '/roi-impact/costs',
       { staleTime: STALE_TIME.DYNAMIC },
     );
+
+  const [toDelete, setToDelete] = useState<CostConsolidationRow | null>(null);
+
+  const removeInitiative = useApiMutation(
+    async (row: CostConsolidationRow) => {
+      const ids = (entriesData?.entries ?? [])
+        .filter(
+          (e) =>
+            e.initiativeType === row.initiativeType &&
+            e.initiativeId === row.initiativeId,
+        )
+        .map((e) => e.id);
+      for (const id of ids) await apiClient.delete(`/roi-impact/costs/${id}`);
+    },
+    {
+      invalidateKeys: [
+        queryKeys.roiImpact.costs(),
+        queryKeys.roiImpact.costsConsolidation(),
+      ],
+      onSuccess: () =>
+        notify({
+          title: 'Custos da iniciativa removidos',
+          intent: 'success',
+        }),
+      onError: (e) =>
+        notify({
+          title: 'Erro ao remover',
+          description: e.message,
+          intent: 'danger',
+        }),
+    },
+  );
 
   const remove = useApiMutation(
     (id: number) => apiClient.delete(`/roi-impact/costs/${id}`),
@@ -79,10 +115,11 @@ export function CostsTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="font-body text-sm text-ink-muted">
+      <div className="flex flex-col items-end gap-3">
+        <p className="self-start font-body text-sm text-ink-muted">
           Consolida o custo real de cada iniciativa (direto + indireto +
-          oportunidade) sem duplicar Payroll/Trainings — apenas agrega.
+          oportunidade) sem duplicar Folha de Pagamento/Formações — apenas
+          agrega.
         </p>
         <Button size="sm" onClick={() => setModalOpen(true)}>
           <Plus size={14} strokeWidth={1.75} className="mr-1" />
@@ -91,74 +128,49 @@ export function CostsTab() {
       </div>
 
       {grandTotal && (
-        <div className="flex flex-wrap items-start gap-4">
-          <Card className="shrink-0">
-            <CardBody>
-              <DonutChart
-                size={140}
-                centerLabel="Investimento total"
-                valueFormat={fmt$}
-                data={[
-                  { label: 'Directo', value: grandTotal.direct },
-                  { label: 'Indirecto', value: grandTotal.indirect },
-                  { label: 'Oportunidade', value: grandTotal.opportunity },
-                ]}
-              />
-            </CardBody>
-          </Card>
-          <div className="grid flex-1 grid-cols-2 gap-4 md:grid-cols-4">
-            <Card>
-              <CardBody>
-                <p className="font-display text-xl font-bold text-ink">
-                  {fmt$(grandTotal.direct)}
-                </p>
-                <p className="font-body text-[10px] text-ink-faint">
-                  Custo direto total
-                </p>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <p className="font-display text-xl font-bold text-ink">
-                  {fmt$(grandTotal.indirect)}
-                </p>
-                <p className="font-body text-[10px] text-ink-faint">
-                  Custo indireto total
-                </p>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <p className="font-display text-xl font-bold text-ink">
-                  {fmt$(grandTotal.opportunity)}
-                </p>
-                <p className="font-body text-[10px] text-ink-faint">
-                  Custo de oportunidade total
-                </p>
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <p className="font-display text-xl font-bold text-ink">
-                  {fmt$(grandTotal.total)}
-                </p>
-                <p className="font-body text-[10px] text-ink-faint">
-                  Investimento total
-                </p>
-              </CardBody>
-            </Card>
-          </div>
+        <div className="grid grid-cols-2 items-start gap-6 md:grid-cols-3 xl:grid-cols-5">
+          <WalletStat
+            money="bills"
+            label="Custo direto total"
+            value={fmt$(grandTotal.direct)}
+            tone="blue"
+          />
+          <WalletStat
+            money="coins"
+            label="Custo indireto total"
+            value={fmt$(grandTotal.indirect)}
+            tone="orange"
+          />
+          <WalletStat
+            money="stack"
+            label="Custo de oportunidade total"
+            value={fmt$(grandTotal.opportunity)}
+            tone="green"
+          />
+          <WalletStat
+            money="fan"
+            label="Investimento total"
+            value={fmt$(grandTotal.total)}
+            tone="red"
+          />
+          <WalletStat
+            money="mixed"
+            label="Iniciativas"
+            value={rows.length}
+            tone="blue"
+          />
         </div>
       )}
 
-      <Card>
-        <div className="border-b border-border px-5 py-3">
-          <h4 className="font-display text-sm font-semibold text-ink">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="px-5 py-3">
+          <h4 className="font-display text-sm font-semibold text-white">
             Consolidação por iniciativa
           </h4>
         </div>
-        <div className="p-5">
+        <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
           <DataTable
+            headerClassName="bg-[#0F1F3D]/60 text-white"
             data={rows}
             rowKey={(r) => `${r.initiativeType}:${r.initiativeId}`}
             emptyLabel="Regista a primeira linha de custo para começar a consolidar o investimento por iniciativa."
@@ -213,19 +225,36 @@ export function CostsTab() {
                     ? fmt$(r.costPerParticipant)
                     : '—',
               },
+              {
+                key: 'actions',
+                header: '',
+                render: (r) => (
+                  <Button
+                    size="sm"
+                    intent="ghost"
+                    className="border-0 px-[8.4px] py-[2.8px] leading-none shadow-none"
+                    aria-label="Apagar custos da iniciativa"
+                    loading={removeInitiative.isPending}
+                    onClick={() => setToDelete(r)}
+                  >
+                    <Trash2 size={11} strokeWidth={1.75} />
+                  </Button>
+                ),
+              },
             ]}
           />
         </div>
-      </Card>
+      </div>
 
-      <Card>
-        <div className="border-b border-border px-5 py-3">
-          <h4 className="font-display text-sm font-semibold text-ink">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="px-5 py-3">
+          <h4 className="font-display text-sm font-semibold text-white">
             Linhas de custo
           </h4>
         </div>
-        <div className="p-5">
+        <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
           <DataTable
+            headerClassName="bg-[#0F1F3D]/60 text-white"
             data={entries}
             rowKey={(e) => e.id}
             emptyLabel="As linhas de custo aparecem aqui à medida que forem registadas."
@@ -276,18 +305,33 @@ export function CostsTab() {
                 render: (e) => (
                   <Button
                     size="sm"
-                    intent="secondary"
+                    intent="ghost"
+                    className="border-0 px-[8.4px] py-[2.8px] leading-none shadow-none"
                     loading={remove.isPending}
                     onClick={() => remove.mutate(e.id)}
                   >
-                    <Trash2 size={14} strokeWidth={1.75} />
+                    <Trash2 size={11} strokeWidth={1.75} />
                   </Button>
                 ),
               },
             ]}
           />
         </div>
-      </Card>
+      </div>
+
+      {toDelete && (
+        <ConfirmDialog
+          title="Apagar custos da iniciativa"
+          message={`Apagar as ${toDelete.entryCount} linhas de custo de «${toDelete.initiative ?? 'sem iniciativa'}»? Esta ação não pode ser desfeita.`}
+          confirmLabel="Apagar"
+          destructive
+          onConfirm={() => {
+            removeInitiative.mutate(toDelete);
+            setToDelete(null);
+          }}
+          onCancel={() => setToDelete(null)}
+        />
+      )}
 
       {modalOpen && <NewCostEntryModal onClose={() => setModalOpen(false)} />}
     </div>
