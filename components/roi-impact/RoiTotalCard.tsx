@@ -15,7 +15,8 @@ interface RoiTotalCardProps {
   narrative?: string;
 }
 
-function roiStatus(roi: number) {
+function roiStatus(roi: number, hasBenefit: boolean) {
+  if (!hasBenefit) return { label: 'Sem dados', color: '#9CA3AF' };
   if (roi >= 100) return { label: 'Excelente', color: '#34D399' };
   if (roi >= 0) return { label: 'Atenção', color: '#FBBF24' };
   return { label: 'Crítico', color: '#F87171' };
@@ -28,11 +29,11 @@ export function RoiTotalCard({
   narrative,
 }: RoiTotalCardProps) {
   const gid = useId();
-  const status = roiStatus(roi);
+  const status = roiStatus(roi, totalBenefit > 0);
   const ratio = totalCost > 0 ? (totalBenefit / totalCost).toFixed(2) : '–';
 
-  const size = 170;
-  const stroke = 22;
+  const size = 120;
+  const stroke = 16;
   const r = (size - stroke) / 2;
   const circ = 2 * Math.PI * r;
   // ROI negativo mantém o anel completo mas esmaecido; positivo enche até 100%.
@@ -40,15 +41,15 @@ export function RoiTotalCard({
   const dim = roi < 0;
 
   return (
-    <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-6 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
-      <div className="mb-3 flex items-center gap-3">
-        <BarChart3 className="h-7 w-7" strokeWidth={1.8} aria-hidden />
-        <h3 className="font-display text-lg font-bold uppercase tracking-wide">
+    <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="mb-2 flex items-center gap-3">
+        <BarChart3 className="h-6 w-6" strokeWidth={1.8} aria-hidden />
+        <h3 className="font-display text-base font-bold uppercase tracking-wide">
           ROI Total
         </h3>
       </div>
 
-      <div className="flex flex-col items-center gap-6 md:flex-row md:gap-10">
+      <div className="flex flex-col items-center gap-4 md:flex-row md:gap-8">
         <div
           className="relative shrink-0"
           style={{ width: size, height: size }}
@@ -87,21 +88,21 @@ export function RoiTotalCard({
               opacity={dim ? 0.55 : 1}
             />
           </svg>
-          <span className="absolute inset-0 flex items-center justify-center font-display text-3xl font-bold">
+          <span className="absolute inset-0 flex items-center justify-center font-display text-2xl font-bold">
             {Math.round(roi)}%
           </span>
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="mb-4 font-display text-2xl font-bold leading-snug">
+          <p className="mb-2 font-display text-xl font-bold leading-snug">
             ROI Total do Investimento em Pessoas
           </p>
-          <div className="flex flex-wrap items-stretch gap-x-8 gap-y-4">
+          <div className="flex flex-wrap items-stretch gap-x-8 gap-y-2">
             <div>
               <p className="font-body text-sm text-white/70">
                 Rácio Benefício-Custo
               </p>
-              <p className="font-display text-3xl font-bold">{ratio}</p>
+              <p className="font-display text-2xl font-bold">{ratio}</p>
             </div>
             <div className="hidden w-px bg-white/20 sm:block" />
             <div>
@@ -133,7 +134,7 @@ export function RoiTotalCard({
         </div>
       </div>
 
-      <div className="mt-5 flex items-center gap-3 rounded-card bg-white/10 px-4 py-3 font-body text-sm">
+      <div className="mt-3 flex items-center gap-3 rounded-card bg-white/10 px-4 py-2 font-body text-sm">
         <Info className="h-5 w-5 shrink-0 text-[#7CC4FF]" aria-hidden />
         <span>
           {narrative
