@@ -8,6 +8,7 @@
 
 'use client';
 
+import { PeriodPills } from '@/components/ui/Pills';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
@@ -146,21 +147,11 @@ export function AccessView() {
 
   return (
     <div className="space-y-5">
-      <div className="flex gap-2">
-        {PERIODS.map((d) => (
-          <button
-            key={d}
-            onClick={() => setDays(d)}
-            className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-              days === d
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
-            }`}
-          >
-            {d} dias
-          </button>
-        ))}
-      </div>
+      <PeriodPills
+        options={PERIODS.map((d) => ({ value: d, label: `${d} dias` }))}
+        value={days}
+        onChange={setDays}
+      />
 
       {!summary || !t ? (
         <Skeleton rows={4} />

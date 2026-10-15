@@ -7,7 +7,7 @@
 
 'use client';
 
-import { cn } from '@/lib/cn';
+import { PeriodPills, ShortcutPills } from '@/components/ui/Pills';
 import { AlertCard } from '@/components/ui/AlertCard';
 import { useState } from 'react';
 import { Activity, AlertTriangle, ShieldAlert, UserX } from 'lucide-react';
@@ -41,23 +41,6 @@ const PERIODS = [
   { days: 7, label: '7 dias' },
   { days: 30, label: '30 dias' },
   { days: 90, label: '90 dias' },
-];
-
-// Pílulas no desenho dos separadores do History (Linha de tempo / Marcos / Actividade).
-const PILL =
-  'rounded-pill border-[1.5px] px-3.5 py-1.5 font-body text-sm font-semibold transition-colors';
-const PILL_ACTIVE = 'border-[#0F1F3D] bg-[#0F1F3D] text-white';
-const PILL_IDLE =
-  'border-border-strong bg-surface text-ink-muted hover:bg-surface-sunken';
-
-// Atalhos: ao passar o cursor ficam navy #0F1F3D com letra branca.
-const PILL_HOVER_NAVY =
-  'hover:border-[#0F1F3D] hover:bg-[#0F1F3D] hover:text-white';
-
-const SHORTCUTS: Array<{ view: View; label: string }> = [
-  { view: 'logs', label: 'Pesquisar registos' },
-  { view: 'audits', label: 'Nova auditoria' },
-  { view: 'reports', label: 'Gerar relatório' },
 ];
 
 const SEVERITY_ORDER: Severity[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
@@ -166,37 +149,19 @@ export function OverviewView({
         />
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div
-          className="flex flex-wrap gap-2"
-          role="tablist"
-          aria-label="Período"
-        >
-          {PERIODS.map((p) => (
-            <button
-              key={p.days}
-              type="button"
-              role="tab"
-              aria-selected={days === p.days}
-              onClick={() => setDays(p.days)}
-              className={cn(PILL, days === p.days ? PILL_ACTIVE : PILL_IDLE)}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
+        <PeriodPills
+          options={PERIODS.map((p) => ({ value: p.days, label: p.label }))}
+          value={days}
+          onChange={setDays}
+        />
         {/* Atalhos */}
-        <div className="flex flex-wrap gap-2">
-          {SHORTCUTS.map((sc) => (
-            <button
-              key={sc.view}
-              type="button"
-              onClick={() => onNavigate(sc.view)}
-              className={cn(PILL, PILL_IDLE, PILL_HOVER_NAVY)}
-            >
-              {sc.label}
-            </button>
-          ))}
-        </div>
+        <ShortcutPills
+          items={[
+            { label: 'Pesquisar registos', onClick: () => onNavigate('logs') },
+            { label: 'Nova auditoria', onClick: () => onNavigate('audits') },
+            { label: 'Gerar relatório', onClick: () => onNavigate('reports') },
+          ]}
+        />
       </div>
 
       {/* Cards de indicadores */}
