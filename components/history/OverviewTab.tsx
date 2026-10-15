@@ -33,6 +33,18 @@ import { useScopeParams } from './filters';
 import { fmtDate, fmtTime } from './shared';
 import type { Overview } from './types';
 
+// Uma cor por linha (mesma paleta dos cartões de estatística + extras).
+const ROW_COLORS = [
+  '#1877F2',
+  '#218653',
+  '#E99A16',
+  '#EF4657',
+  '#7C4DDB',
+  '#0EA5B7',
+  '#D9468F',
+  '#8A94A6',
+];
+
 function RankingList({
   title,
   items,
@@ -64,8 +76,11 @@ function RankingList({
                 </span>
                 <div className="h-1.5 flex-1 rounded-pill bg-surface-sunken">
                   <div
-                    className="h-1.5 rounded-pill bg-primary"
-                    style={{ width: `${(i.count / max) * 100}%` }}
+                    className="h-1.5 rounded-pill"
+                    style={{
+                      width: `${(i.count / max) * 100}%`,
+                      backgroundColor: ROW_COLORS[idx % ROW_COLORS.length],
+                    }}
                   />
                 </div>
                 <span className="w-12 text-right text-xs text-ink-muted">
@@ -145,7 +160,7 @@ export function OverviewTab() {
           icon={ArrowRightLeft}
           label="Transferências"
           value={k.transfers}
-          intent="info"
+          intent="warning"
           sub={period}
         />
         <KpiCard

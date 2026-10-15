@@ -81,7 +81,7 @@ export function NavyStatCard({
       >
         <Icon size={26} strokeWidth={1.75} />
       </span>
-      <div className="flex min-h-[95px] flex-1 flex-col items-center justify-center px-3 text-center">
+      <div className="flex min-h-[95px] flex-1 flex-col items-center justify-center px-3 pb-2 pt-8 text-center">
         <p
           className={`flex items-baseline gap-2 whitespace-nowrap font-display font-bold leading-none ${valueSize(value)} ${t.text}`}
         >

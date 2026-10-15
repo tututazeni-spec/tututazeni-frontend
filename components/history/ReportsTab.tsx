@@ -104,24 +104,26 @@ export function ReportsTab() {
               ? ` — a mostrar os primeiros ${PREVIEW_ROWS}; a exportação inclui todos`
               : ''}
           </p>
-          <Table className={COMPACT_TABLE}>
-            <TableHead>
-              <TableRow>
-                {data.columns.map((c) => (
-                  <TableHeaderCell key={c}>{c}</TableHeaderCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.rows.slice(0, PREVIEW_ROWS).map((r, i) => (
-                <TableRow key={i}>
+          <div className="[&>div]:overflow-x-clip">
+            <Table className={COMPACT_TABLE}>
+              <TableHead>
+                <TableRow>
                   {data.columns.map((c) => (
-                    <TableCell key={c}>{r[c] === '' ? '–' : r[c]}</TableCell>
+                    <TableHeaderCell key={c}>{c}</TableHeaderCell>
                   ))}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHead>
+              <TableBody>
+                {data.rows.slice(0, PREVIEW_ROWS).map((r, i) => (
+                  <TableRow key={i}>
+                    {data.columns.map((c) => (
+                      <TableCell key={c}>{r[c] === '' ? '–' : r[c]}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       )}
     </div>

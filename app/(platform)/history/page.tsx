@@ -53,7 +53,7 @@ export default function HistoryPage() {
           </div>
 
           <div className="max-w-7xl mx-auto space-y-5 px-6 py-6">
-            {isAdmin && <HistoryFilterBar tab={active} />}
+            {isAdmin && <HistoryFilterBar />}
 
             <TabsContent value="overview">
               <OverviewTab />
