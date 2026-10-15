@@ -7,7 +7,16 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { AlertCircle, ClipboardCheck, Download, Plus, X } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  ClipboardCheck,
+  Download,
+  Hourglass,
+  Plus,
+  Search,
+  X,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -1073,22 +1082,23 @@ export function AuditsView() {
           value={by.IN_PROGRESS ?? 0}
         />
         <KpiCard
-          icon={ClipboardCheck}
+          icon={Search}
           label="Em revisão"
           value={by.IN_REVIEW ?? 0}
+          intent="warning"
         />
         <KpiCard
-          icon={ClipboardCheck}
+          icon={Hourglass}
           label="A aguardar ações corretivas"
           value={by.AWAITING_CORRECTIVE_ACTIONS ?? 0}
-          intent={
-            (by.AWAITING_CORRECTIVE_ACTIONS ?? 0) > 0 ? 'warning' : 'primary'
-          }
+          intent="warning"
+          iconIntent="caution"
         />
         <KpiCard
-          icon={ClipboardCheck}
+          icon={CheckCircle2}
           label="Concluídas"
           value={by.COMPLETED ?? 0}
+          intent="success"
         />
       </div>
 
@@ -1127,8 +1137,8 @@ export function AuditsView() {
         ) : (
           <>
             <Table>
-              <TableHead>
-                <TableRow>
+              <TableHead className="bg-[#0F1F3D]/60">
+                <TableRow className="hover:bg-transparent">
                   {[
                     'Código',
                     'Título',
@@ -1140,7 +1150,9 @@ export function AuditsView() {
                     'Ações',
                     'Estado',
                   ].map((h) => (
-                    <TableHeaderCell key={h}>{h}</TableHeaderCell>
+                    <TableHeaderCell key={h} className="text-white">
+                      {h}
+                    </TableHeaderCell>
                   ))}
                 </TableRow>
               </TableHead>

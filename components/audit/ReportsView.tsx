@@ -88,7 +88,6 @@ interface Form {
   roles: string[];
   userId: string;
   departmentId: string;
-  eventType: string;
   severity: string;
   result: string;
   state: string;
@@ -103,7 +102,6 @@ const EMPTY: Form = {
   roles: [],
   userId: '',
   departmentId: '',
-  eventType: '',
   severity: 'ALL',
   result: 'ALL',
   state: 'ALL',
@@ -118,7 +116,6 @@ function toParams(f: Form): Record<string, string> {
   if (f.roles.length) p.roles = f.roles.join(',');
   if (f.userId) p.userId = f.userId;
   if (f.departmentId) p.departmentId = f.departmentId;
-  if (f.eventType.trim()) p.eventType = f.eventType.trim();
   if (f.severity !== 'ALL') p.severity = f.severity;
   if (f.result !== 'ALL') p.result = f.result;
   if (f.state !== 'ALL') p.state = f.state;
@@ -256,21 +253,12 @@ export function ReportsView() {
                 onValueChange={(v) => set({ result: v })}
               />
             </FormField>
-            {stateItems ? (
+            {stateItems && (
               <FormField label="Estado" htmlFor="rep-state">
                 <Select
                   items={stateItems}
                   value={form.state}
                   onValueChange={(v) => set({ state: v })}
-                />
-              </FormField>
-            ) : (
-              <FormField label="Tipo de evento (ação)" htmlFor="rep-evt">
-                <Input
-                  id="rep-evt"
-                  placeholder="Ex.: UPDATE, EXPORT"
-                  value={form.eventType}
-                  onChange={(e) => set({ eventType: e.target.value })}
                 />
               </FormField>
             )}
