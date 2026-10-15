@@ -12,15 +12,12 @@ export function DonutStatCard({
   value,
   sub,
   color,
-  bare,
 }: {
   label: string;
   value: number;
   sub?: string;
   /** Cor única do progresso (omisso: azul-escuro até 50%, azul-claro depois). */
   color?: string;
-  /** Sem moldura de Card (para embutir noutro painel). */
-  bare?: boolean;
 }) {
   const pct = Math.min(100, Math.max(0, value));
   const parts = (color
@@ -37,15 +34,8 @@ export function DonutStatCard({
   const circ = 2 * Math.PI * r;
   const gap = parts.length > 1 ? 1.5 : 0;
   let offset = 0;
-  const Wrapper = bare ? 'div' : Card;
   return (
-    <Wrapper
-      className={
-        bare
-          ? 'flex flex-col items-center justify-center gap-2'
-          : 'flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100'
-      }
-    >
+    <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
       <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
         {label}
       </h3>
@@ -84,6 +74,6 @@ export function DonutStatCard({
       {sub && (
         <p className="text-center font-body text-xs text-ink-faint">{sub}</p>
       )}
-    </Wrapper>
+    </Card>
   );
 }
