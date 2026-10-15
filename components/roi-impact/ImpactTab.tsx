@@ -148,7 +148,7 @@ export function ImpactTab() {
           description="Cria o primeiro registo para ligar uma iniciativa a um indicador de negócio real."
         />
       ) : (
-        <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4">
           {pageRows.map((r) => (
             <NavyPanel
               key={r.id}
@@ -167,7 +167,7 @@ export function ImpactTab() {
                 {IMPACT_CATEGORY_LABELS[r.category] ?? r.category}
                 {r.initiative ? ` · ${r.initiative}` : ''}
               </p>
-              <ul className="grid grid-cols-1 gap-2 font-semibold text-white">
+              <ul className="grid grid-cols-1 gap-2 font-semibold text-white md:grid-cols-2 xl:grid-cols-3">
                 <NavyPanelRow iconBadge iconClassName="text-white" icon={Users}>
                   Sujeito:{' '}
                   <strong className="font-extrabold">
