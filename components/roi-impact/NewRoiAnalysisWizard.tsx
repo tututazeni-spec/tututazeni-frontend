@@ -48,6 +48,8 @@ import type {
   RoiInitiativeType,
   RoiBenefitType,
   RoiConfigData,
+  KpiDefinitionRow,
+  RoiEvaluationModelRow,
 } from './types';
 
 const STEPS = [
@@ -71,6 +73,47 @@ const BENEFIT_TYPE_ITEMS = Object.entries(BENEFIT_TYPE_LABELS).map(
   }),
 );
 const DEFAULT_MEASUREMENT_PERIODS = [30, 60, 90, 180];
+
+// O Select (Radix) não aceita itens com value '' — o "deixar em branco" usa
+// este sentinela e é convertido de/para '' à entrada e saída do estado.
+const BLANK = '__blank__';
+const BLANK_LABEL = '— Deixar em branco —';
+const blankItem = { value: BLANK, label: BLANK_LABEL };
+
+const CONVERSION_METHODS = [
+  'Horas poupadas × custo por hora',
+  'Redução de custos operacionais',
+  'Aumento de receita atribuível',
+  'Redução de erros / retrabalho × custo unitário',
+  'Redução de rotatividade × custo de substituição',
+  'Redução de incidentes / acidentes × custo médio',
+  'Valor de mercado / benchmark do setor',
+  'Estimativa validada por gestor ou especialista',
+];
+
+const DATA_SOURCES = [
+  'Sistema de RH / folha salarial',
+  'Plataforma de aprendizagem (LMS)',
+  'Avaliações de desempenho',
+  'Avaliações 360°',
+  'Inquéritos de satisfação / NPS',
+  'Relatórios financeiros / contabilidade',
+  'Sistemas operacionais / produção',
+  'Registos de assiduidade',
+  'Entrevistas / observação de gestores',
+];
+
+const PHILLIPS_MODEL_NAME = 'Phillips ROI';
+
+const ASSUMPTION_EXAMPLES = [
+  'Os participantes mantêm a função durante todo o período de medição.',
+  'O custo por hora médio é de X AOA, segundo a tabela salarial vigente.',
+  '30% da melhoria observada é atribuída à formação (restante a outros fatores).',
+  'A produtividade medida antes da iniciativa mantém-se estável sem intervenção.',
+  'O benefício estimado foi validado pela Direção Financeira.',
+];
+
+const toItems = (list: string[]) => list.map((v) => ({ value: v, label: v }));
 
 interface ComputeResult {
   computedCost: number | null;
@@ -134,21 +177,67 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
   const [result, setResult] = useState<ComputeResult | null>(null);
 
   const { data: deptTree } = useApiQuery<
-    { id: number; name: string; children?: unknown[] }[]
+    {
+      id: number;
+      name: string;
+      unit?: { id: number; name: string } | null;
+      children?: unknown[];
+    }[]
   >(queryKeys.departments.tree(), '/departments/tree', {
     staleTime: STALE_TIME.SEMI_STATIC,
   });
   const departments = useMemo(() => {
-    const flat: { id: number; name: string }[] = [];
+    const flat: {
+      id: number;
+      name: string;
+      unit: { id: number; name: string } | null;
+    }[] = [];
     const walk = (nodes: typeof deptTree) => {
       for (const n of nodes ?? []) {
-        flat.push({ id: n.id, name: n.name });
+        flat.push({ id: n.id, name: n.name, unit: n.unit ?? null });
         walk(n.children as typeof deptTree);
       }
     };
     walk(deptTree);
     return flat;
   }, [deptTree]);
+
+  // Unidade: só a unidade associada ao departamento escolhido.
+  const unitItems = useMemo(() => {
+    const u = departments.find((d) => String(d.id) === departmentId)?.unit;
+    return u ? [blankItem, { value: u.name, label: u.name }] : [];
+  }, [departments, departmentId]);
+
+  const { data: kpiData } = useApiQuery<{ kpis: KpiDefinitionRow[] }>(
+    queryKeys.roiImpact.kpis(),
+    '/roi-impact/kpis',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const indicatorItems = useMemo(
+    () => [
+      blankItem,
+      ...(kpiData?.kpis ?? [])
+        .filter((k) => k.status === 'ACTIVO')
+        .map((k) => ({
+          value: k.name,
+          label: k.unit ? `${k.name} (${k.unit})` : k.name,
+        })),
+    ],
+    [kpiData],
+  );
+
+  const { data: evalModels } = useApiQuery<RoiEvaluationModelRow[]>(
+    queryKeys.roiImpact.evaluationModels(),
+    '/roi-impact/evaluation-models',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const modelItems = useMemo(() => {
+    const names = (evalModels ?? [])
+      .filter((m) => m.status === 'ACTIVO')
+      .map((m) => m.name);
+    if (!names.includes(PHILLIPS_MODEL_NAME)) names.push(PHILLIPS_MODEL_NAME);
+    return [blankItem, ...toItems(names)];
+  }, [evalModels]);
 
   const { data: initiativeOptions } = useApiQuery<InitiativeOption[]>(
     queryKeys.roiImpact.initiativeOptions(initiativeType),
@@ -392,16 +481,29 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                     label: d.name,
                   }))}
                   value={departmentId}
-                  onValueChange={setDepartmentId}
+                  onValueChange={(v) => {
+                    setDepartmentId(v);
+                    // Cada departamento tem no máximo uma unidade — pré-seleciona-a.
+                    setUnit(
+                      departments.find((d) => String(d.id) === v)?.unit?.name ??
+                        '',
+                    );
+                  }}
                   placeholder="Selecionar…"
                   className="w-full"
                 />
               </FormField>
               <FormField label="Unidade" htmlFor="ra-unit">
-                <Input
-                  id="ra-unit"
+                <Select
+                  items={unitItems}
                   value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
+                  onValueChange={(v) => setUnit(v === BLANK ? '' : v)}
+                  placeholder={
+                    departmentId
+                      ? 'Departamento sem unidade'
+                      : 'Escolha primeiro o departamento'
+                  }
+                  disabled={unitItems.length === 0}
                   className="w-full"
                 />
               </FormField>
@@ -507,11 +609,11 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               label="Indicador associado"
               htmlFor="ra-benefit-indicator"
             >
-              <Input
-                id="ra-benefit-indicator"
-                placeholder="ex.: NPS, taxa de erro, produção/hora…"
+              <Select
+                items={indicatorItems}
                 value={benefitIndicator}
-                onChange={(e) => setBenefitIndicator(e.target.value)}
+                onValueChange={(v) => setBenefitIndicator(v === BLANK ? '' : v)}
+                placeholder="Selecionar um KPI…"
                 className="w-full"
               />
             </FormField>
@@ -545,11 +647,13 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               label="Forma de conversão em valor monetário"
               htmlFor="ra-benefit-note"
             >
-              <Textarea
-                id="ra-benefit-note"
-                rows={2}
+              <Select
+                items={[blankItem, ...toItems(CONVERSION_METHODS)]}
                 value={benefitConversionNote}
-                onChange={(e) => setBenefitConversionNote(e.target.value)}
+                onValueChange={(v) =>
+                  setBenefitConversionNote(v === BLANK ? '' : v)
+                }
+                placeholder="Selecionar…"
                 className="w-full"
               />
             </FormField>
@@ -565,11 +669,13 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
         {current.id === 'methodology' && (
           <div className="space-y-4">
             <FormField label="Modelo de avaliação utilizado" htmlFor="ra-model">
-              <Input
-                id="ra-model"
-                placeholder="ex.: Kirkpatrick Nível 3, Phillips ROI…"
+              <Select
+                items={modelItems}
                 value={evaluationModelUsed}
-                onChange={(e) => setEvaluationModelUsed(e.target.value)}
+                onValueChange={(v) =>
+                  setEvaluationModelUsed(v === BLANK ? '' : v)
+                }
+                placeholder="Selecionar…"
                 className="w-full"
               />
             </FormField>
@@ -586,10 +692,11 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               />
             </FormField>
             <FormField label="Fonte de dados" htmlFor="ra-source">
-              <Input
-                id="ra-source"
+              <Select
+                items={[blankItem, ...toItems(DATA_SOURCES)]}
                 value={dataSource}
-                onChange={(e) => setDataSource(e.target.value)}
+                onValueChange={(v) => setDataSource(v === BLANK ? '' : v)}
+                placeholder="Selecionar…"
                 className="w-full"
               />
             </FormField>
@@ -610,6 +717,16 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 className="w-full"
               />
             </FormField>
+            <div className="rounded-card bg-surface-sunken p-3 text-xs text-ink-faint">
+              <p className="mb-1 font-medium text-ink-muted">
+                Exemplos do que preencher:
+              </p>
+              <ul className="list-disc space-y-0.5 pl-4">
+                {ASSUMPTION_EXAMPLES.map((ex) => (
+                  <li key={ex}>{ex}</li>
+                ))}
+              </ul>
+            </div>
           </div>
         )}
 
