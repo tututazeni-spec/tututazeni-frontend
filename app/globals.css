@@ -35,6 +35,13 @@
   }
 }
 
+html {
+  /* reserva sempre o espaço da barra de scroll: abrir um modal (que bloqueia o
+     scroll) deixa de deslocar a página alguns píxeis */
+  scrollbar-gutter: stable;
+  overflow-anchor: none;
+}
+
 body {
   background: var(--content-bg);
   color: var(--text-primary);
