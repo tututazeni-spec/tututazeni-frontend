@@ -249,7 +249,7 @@ export function RoiAnalysisTab() {
                     </strong>
                   </NavyPanelRow>
                 </ul>
-                <div className="mt-auto flex items-center justify-between gap-2 pt-3">
+                <div className="mt-auto flex items-center justify-end gap-2 pt-3">
                   {a.status === 'CALCULADO' ? (
                     <Button
                       size="sm"
@@ -259,9 +259,7 @@ export function RoiAnalysisTab() {
                     >
                       Validar
                     </Button>
-                  ) : (
-                    <span />
-                  )}
+                  ) : null}
                   <button
                     type="button"
                     aria-label={`Apagar a análise ${a.name}`}
