@@ -15,6 +15,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -30,6 +31,12 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { BenchmarkModal } from './BenchmarkModal';
+import { BenchmarkRoiCard } from './BenchmarkRoiCard';
+import {
+  RoiByCycleCard,
+  RoiByDepartmentCard,
+  RoiByUnitCard,
+} from './RoiBreakdownCards';
 import {
   BENCHMARK_TYPE_INTENTS,
   BENCHMARK_TYPE_LABELS,
@@ -105,69 +112,10 @@ export function BenchmarksTab() {
             departamentos/unidades/ciclos.
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <Card>
-              <CardBody>
-                <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                  ROI médio por departamento
-                </p>
-                <BarChart
-                  orientation="horizontal"
-                  categories={(internal?.byDepartment ?? []).map((d) =>
-                    String(d.key),
-                  )}
-                  series={[
-                    {
-                      label: 'ROI médio',
-                      values: (internal?.byDepartment ?? []).map(
-                        (d) => d.avgRoi,
-                      ),
-                    },
-                  ]}
-                  yFormat={(v) => `${v}%`}
-                />
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                  ROI médio por unidade
-                </p>
-                <BarChart
-                  orientation="horizontal"
-                  categories={(internal?.byUnit ?? []).map((d) =>
-                    String(d.key),
-                  )}
-                  series={[
-                    {
-                      label: 'ROI médio',
-                      values: (internal?.byUnit ?? []).map((d) => d.avgRoi),
-                    },
-                  ]}
-                  yFormat={(v) => `${v}%`}
-                />
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                  ROI médio por ciclo/ano
-                </p>
-                <BarChart
-                  orientation="horizontal"
-                  categories={(internal?.byCycle ?? []).map((d) =>
-                    String(d.key),
-                  )}
-                  series={[
-                    {
-                      label: 'ROI médio',
-                      values: (internal?.byCycle ?? []).map((d) => d.avgRoi),
-                    },
-                  ]}
-                  yFormat={(v) => `${v}%`}
-                />
-              </CardBody>
-            </Card>
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+            <RoiByDepartmentCard rows={internal?.byDepartment ?? []} />
+            <RoiByUnitCard rows={internal?.byUnit ?? []} />
+            <RoiByCycleCard rows={internal?.byCycle ?? []} />
           </div>
         )}
 
@@ -219,25 +167,17 @@ export function BenchmarksTab() {
         </h3>
         <Card>
           <CardBody>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-              <div>
-                <p className="text-xs text-ink-faint">
-                  ROI médio da Academia INNOVA
-                </p>
-                <p className="font-display text-xl font-bold text-ink">
-                  {sector?.internalAvgRoi != null
-                    ? `${sector.internalAvgRoi}%`
-                    : '—'}
-                </p>
-                <p className="text-[11px] text-ink-faint">
-                  {sector?.sampleSize ?? 0} análise(s)
-                </p>
-              </div>
-            </div>
+            <BenchmarkRoiCard
+              avgRoi={sector?.internalAvgRoi ?? null}
+              sampleSize={sector?.sampleSize ?? 0}
+            />
             {sector?.note && (
-              <p className="mt-3 rounded-card bg-warning-subtle p-3 text-xs text-warning-ink">
-                {sector.note}
-              </p>
+              <AlertCard
+                variant="warning"
+                className="mt-3"
+                title="Sem benchmarks externos de ROI registados"
+                message="Regista um benchmark externo com fonte para contextualizar a comparação."
+              />
             )}
             {(sector?.externalBenchmarks.length ?? 0) > 0 && (
               <ul className="mt-3 space-y-1 text-sm text-ink">

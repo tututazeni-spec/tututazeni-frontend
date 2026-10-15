@@ -7,12 +7,13 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, ChevronRight, Play, Trash2 } from 'lucide-react';
+import { ChevronRight, Trash2 } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -28,10 +29,12 @@ import {
 } from '@/components/ui/Table';
 import { NewCorrelationModal } from './NewCorrelationModal';
 import { CorrelationDetailModal } from './CorrelationDetailModal';
+import { CorrelationAnalysisCard } from './CorrelationAnalysisCard';
 import { correlationStrengthLabel } from './utils';
 import type {
   CorrelationDefinition,
   CorrelationListData,
+  CorrelationRow,
   CorrelationType,
 } from './types';
 
@@ -75,6 +78,11 @@ export function CorrelationsTab() {
   );
 
   const correlations = data?.correlations ?? [];
+  const latestByType = new Map<CorrelationType, CorrelationRow>();
+  for (const c of correlations) {
+    const prev = latestByType.get(c.type);
+    if (!prev || c.createdAt > prev.createdAt) latestByType.set(c.type, c);
+  }
 
   return (
     <div className="space-y-4">
@@ -88,20 +96,15 @@ export function CorrelationsTab() {
         </Button>
       </div>
 
-      <div className="flex items-start gap-2 rounded-card bg-warning-subtle p-3 text-xs text-warning-ink">
-        <AlertTriangle
-          size={14}
-          strokeWidth={1.75}
-          className="mt-0.5 shrink-0"
-        />
-        Correlação não implica causalidade — leitura interpretativa, nunca
-        automática. Esta aba não deve alimentar automações (módulo Automations)
-        sem validação humana.
-      </div>
+      <AlertCard
+        variant="warning"
+        title="Correlação não implica causalidade"
+        message="Leitura interpretativa, nunca automática. Esta aba não deve alimentar automações (módulo Automations) sem validação humana."
+      />
 
       <Card>
-        <div className="border-b border-border px-5 py-3">
-          <h4 className="font-display text-sm font-semibold text-ink">
+        <div className="rounded-t-panel bg-[#0F1F3D]/60 px-5 py-3">
+          <h4 className="font-display text-sm font-semibold text-white">
             Análises disponíveis
           </h4>
         </div>
@@ -112,127 +115,126 @@ export function CorrelationsTab() {
             itemClassName="h-12 rounded-card bg-surface-sunken"
           />
         ) : (
-          <div className="grid grid-cols-1 gap-3 p-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 xl:grid-cols-3">
             {(definitions ?? []).map((d) => (
-              <div
+              <CorrelationAnalysisCard
                 key={d.type}
-                className="flex items-start justify-between gap-3 rounded-card border border-border p-3"
-              >
-                <div>
-                  <p className="font-medium text-ink">{d.label}</p>
-                  <p className="mt-0.5 text-xs text-ink-faint">
-                    {d.description}
-                  </p>
-                </div>
-                <Button
-                  size="sm"
-                  intent="secondary"
-                  onClick={() => setModalType(d.type)}
-                >
-                  <Play size={13} strokeWidth={1.75} className="mr-1" />
-                  Executar
-                </Button>
-              </div>
+                definition={d}
+                latest={latestByType.get(d.type)}
+                onRun={() => setModalType(d.type)}
+              />
             ))}
           </div>
         )}
       </Card>
 
-      <Card>
-        <div className="border-b border-border px-5 py-3">
-          <h4 className="font-display text-sm font-semibold text-ink">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="px-5 py-3">
+          <h4 className="font-display text-sm font-semibold text-white">
             Histórico de análises
           </h4>
         </div>
-        {loadingHistory ? (
-          <Skeleton
-            rows={4}
-            wrapperClassName="space-y-3 p-4 animate-pulse"
-            itemClassName="h-12 rounded-card bg-surface-sunken"
-          />
-        ) : correlations.length === 0 ? (
-          <EmptyState
-            title="Sem análises executadas ainda"
-            description="Executa a primeira análise de correlação para começar o histórico."
-            className="border-none"
-          />
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell>Análise</TableHeaderCell>
-                  <TableHeaderCell>Período</TableHeaderCell>
-                  <TableHeaderCell>Amostra</TableHeaderCell>
-                  <TableHeaderCell>Coeficiente</TableHeaderCell>
-                  <TableHeaderCell>Significância</TableHeaderCell>
-                  <TableHeaderCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {correlations.map((c) => (
-                  <TableRow
-                    key={c.id}
-                    className="cursor-pointer"
-                    onClick={() => setDetailId(c.id)}
-                  >
-                    <TableCell>
-                      <p className="text-ink">{c.label}</p>
-                      <p className="text-xs text-ink-faint">
-                        {fmtDate(c.createdAt)}
-                      </p>
-                    </TableCell>
-                    <TableCell className="text-xs">
-                      {fmtDate(c.periodStart)} — {fmtDate(c.periodEnd)}
-                    </TableCell>
-                    <TableCell>{c.sampleSize}</TableCell>
-                    <TableCell>
-                      {c.coefficient != null ? (
-                        <span>
-                          {c.coefficient}{' '}
-                          <span className="text-xs text-ink-faint">
-                            ({correlationStrengthLabel(c.coefficient)})
-                          </span>
-                        </span>
-                      ) : (
-                        <Badge intent="warning">Dados insuficientes</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {c.pValue != null ? (
-                        <Badge intent={c.significant ? 'success' : 'neutral'}>
-                          p = {c.pValue}
-                        </Badge>
-                      ) : (
-                        '—'
-                      )}
-                    </TableCell>
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          intent="secondary"
-                          onClick={() => setDetailId(c.id)}
-                        >
-                          <ChevronRight size={14} strokeWidth={1.75} />
-                        </Button>
-                        <Button
-                          size="sm"
-                          intent="secondary"
-                          loading={remove.isPending}
-                          onClick={() => remove.mutate(c.id)}
-                        >
-                          <Trash2 size={14} strokeWidth={1.75} />
-                        </Button>
-                      </div>
-                    </TableCell>
+        <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
+          {loadingHistory ? (
+            <Skeleton
+              rows={4}
+              wrapperClassName="space-y-3 p-4 animate-pulse"
+              itemClassName="h-12 rounded-card bg-surface-sunken"
+            />
+          ) : correlations.length === 0 ? (
+            <EmptyState
+              title="Sem análises executadas ainda"
+              description="Executa a primeira análise de correlação para começar o histórico."
+              className="border-none"
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHead className="bg-[#0F1F3D]/60">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHeaderCell className="text-white">
+                      Análise
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Período
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Amostra
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Coeficiente
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Significância
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white" />
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </Card>
+                </TableHead>
+                <TableBody>
+                  {correlations.map((c) => (
+                    <TableRow
+                      key={c.id}
+                      className="cursor-pointer"
+                      onClick={() => setDetailId(c.id)}
+                    >
+                      <TableCell>
+                        <p className="text-ink">{c.label}</p>
+                        <p className="text-xs text-ink-faint">
+                          {fmtDate(c.createdAt)}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        {fmtDate(c.periodStart)} — {fmtDate(c.periodEnd)}
+                      </TableCell>
+                      <TableCell>{c.sampleSize}</TableCell>
+                      <TableCell>
+                        {c.coefficient != null ? (
+                          <span>
+                            {c.coefficient}{' '}
+                            <span className="text-xs text-ink-faint">
+                              ({correlationStrengthLabel(c.coefficient)})
+                            </span>
+                          </span>
+                        ) : (
+                          <Badge intent="warning">Dados insuficientes</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {c.pValue != null ? (
+                          <Badge intent={c.significant ? 'success' : 'neutral'}>
+                            p = {c.pValue}
+                          </Badge>
+                        ) : (
+                          '—'
+                        )}
+                      </TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            intent="secondary"
+                            onClick={() => setDetailId(c.id)}
+                          >
+                            <ChevronRight size={14} strokeWidth={1.75} />
+                          </Button>
+                          <Button
+                            size="sm"
+                            intent="secondary"
+                            loading={remove.isPending}
+                            onClick={() => remove.mutate(c.id)}
+                          >
+                            <Trash2 size={14} strokeWidth={1.75} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
+      </div>
 
       {modalType && (
         <NewCorrelationModal

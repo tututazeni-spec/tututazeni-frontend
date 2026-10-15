@@ -117,103 +117,122 @@ export function ScenariosTab() {
         </Card>
       )}
 
-      <Card>
-        {isLoading ? (
-          <Skeleton
-            rows={4}
-            wrapperClassName="space-y-3 p-4 animate-pulse"
-            itemClassName="h-12 rounded-card bg-surface-sunken"
-          />
-        ) : scenarios.length === 0 ? (
-          <EmptyState
-            title="Sem cenários simulados ainda"
-            description="Cria o primeiro cenário para projectar o ROI de uma iniciativa futura."
-            className="border-none"
-          />
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell className="w-8" />
-                  <TableHeaderCell>Cenário</TableHeaderCell>
-                  <TableHeaderCell>Iniciativa</TableHeaderCell>
-                  <TableHeaderCell>Público-alvo</TableHeaderCell>
-                  <TableHeaderCell>Custo estimado</TableHeaderCell>
-                  <TableHeaderCell>ROI projectado</TableHeaderCell>
-                  <TableHeaderCell>Payback</TableHeaderCell>
-                  <TableHeaderCell />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {scenarios.map((s) => (
-                  <TableRow
-                    key={s.id}
-                    className="cursor-pointer"
-                    onClick={() => setDetailId(s.id)}
-                  >
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        checked={selected.includes(s.id)}
-                        onChange={() => toggleSelected(s.id)}
-                        aria-label={`Selecionar ${s.name} para comparação`}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-ink">{s.name}</p>
-                      {s.targetAudienceCount != null && (
-                        <p className="text-xs text-ink-faint">
-                          {s.targetAudienceCount} colaboradores
-                        </p>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-xs">
-                      {INITIATIVE_TYPE_LABELS[s.initiativeType] ??
-                        s.initiativeType}
-                    </TableCell>
-                    <TableCell>{s.targetAudienceCount ?? '—'}</TableCell>
-                    <TableCell>{fmt$(s.estimatedCost)}</TableCell>
-                    <TableCell>
-                      {s.roiPercent != null ? (
-                        <span className="font-semibold text-ink">
-                          {s.roiPercent}%
-                        </span>
-                      ) : (
-                        <Badge intent="warning">Sem projecção</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {s.paybackMonths != null
-                        ? `${s.paybackMonths} meses`
-                        : '—'}
-                    </TableCell>
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          intent="secondary"
-                          onClick={() => setDetailId(s.id)}
-                        >
-                          <ChevronRight size={14} strokeWidth={1.75} />
-                        </Button>
-                        <Button
-                          size="sm"
-                          intent="secondary"
-                          loading={remove.isPending}
-                          onClick={() => remove.mutate(s.id)}
-                        >
-                          <Trash2 size={14} strokeWidth={1.75} />
-                        </Button>
-                      </div>
-                    </TableCell>
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="px-5 py-3">
+          <h4 className="font-display text-sm font-semibold text-white">
+            Cenários simulados
+          </h4>
+        </div>
+        <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
+          {isLoading ? (
+            <Skeleton
+              rows={4}
+              wrapperClassName="space-y-3 p-4 animate-pulse"
+              itemClassName="h-12 rounded-card bg-surface-sunken"
+            />
+          ) : scenarios.length === 0 ? (
+            <EmptyState
+              title="Sem cenários simulados ainda"
+              description="Cria o primeiro cenário para projectar o ROI de uma iniciativa futura."
+              className="border-none"
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHead className="bg-[#0F1F3D]/60">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHeaderCell className="w-8 text-white" />
+                    <TableHeaderCell className="text-white">
+                      Cenário
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Iniciativa
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Público-alvo
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Custo estimado
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      ROI projectado
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Payback
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white" />
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </Card>
+                </TableHead>
+                <TableBody>
+                  {scenarios.map((s) => (
+                    <TableRow
+                      key={s.id}
+                      className="cursor-pointer"
+                      onClick={() => setDetailId(s.id)}
+                    >
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selected.includes(s.id)}
+                          onChange={() => toggleSelected(s.id)}
+                          aria-label={`Selecionar ${s.name} para comparação`}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-ink">{s.name}</p>
+                        {s.targetAudienceCount != null && (
+                          <p className="text-xs text-ink-faint">
+                            {s.targetAudienceCount} colaboradores
+                          </p>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        {INITIATIVE_TYPE_LABELS[s.initiativeType] ??
+                          s.initiativeType}
+                      </TableCell>
+                      <TableCell>{s.targetAudienceCount ?? '—'}</TableCell>
+                      <TableCell>{fmt$(s.estimatedCost)}</TableCell>
+                      <TableCell>
+                        {s.roiPercent != null ? (
+                          <span className="font-semibold text-ink">
+                            {s.roiPercent}%
+                          </span>
+                        ) : (
+                          <Badge intent="warning">Sem projecção</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {s.paybackMonths != null
+                          ? `${s.paybackMonths} meses`
+                          : '—'}
+                      </TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            intent="secondary"
+                            onClick={() => setDetailId(s.id)}
+                          >
+                            <ChevronRight size={14} strokeWidth={1.75} />
+                          </Button>
+                          <Button
+                            size="sm"
+                            intent="secondary"
+                            loading={remove.isPending}
+                            onClick={() => remove.mutate(s.id)}
+                          >
+                            <Trash2 size={14} strokeWidth={1.75} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
+      </div>
 
       {showNew && <NewScenarioModal onClose={() => setShowNew(false)} />}
       {detailId != null && (

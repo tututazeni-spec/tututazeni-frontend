@@ -14,6 +14,7 @@ import {
   Plus,
   ShieldCheck,
   Smile,
+  Trash2,
   TrendingUp,
   Users,
 } from 'lucide-react';
@@ -86,6 +87,23 @@ export function KpisTab() {
       onError: (e) =>
         notify({
           title: 'Erro ao actualizar',
+          description: e.message,
+          intent: 'danger',
+        }),
+    },
+  );
+
+  const remove = useApiMutation(
+    (id: number) => apiClient.delete(`/roi-impact/kpis/${id}`),
+    {
+      invalidateKeys: [
+        queryKeys.roiImpact.kpis(),
+        queryKeys.roiImpact.kpisByCategory(),
+      ],
+      onSuccess: () => notify({ title: 'KPI apagado', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: 'Erro ao apagar',
           description: e.message,
           intent: 'danger',
         }),
@@ -237,6 +255,23 @@ export function KpisTab() {
                       onClick={() => toggleStatus.mutate(k)}
                     >
                       {k.status === 'ACTIVO' ? 'Desativar' : 'Ativar'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      aria-label={`Apagar KPI ${k.name}`}
+                      title="Apagar KPI"
+                      loading={remove.isPending}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Apagar o KPI "${k.name}"? Esta ação não pode ser desfeita.`,
+                          )
+                        )
+                          remove.mutate(k.id);
+                      }}
+                    >
+                      <Trash2 size={14} strokeWidth={1.75} />
                     </Button>
                   </div>
                 ),
