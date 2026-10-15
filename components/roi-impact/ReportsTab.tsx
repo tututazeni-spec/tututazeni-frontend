@@ -9,7 +9,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { BarChart3, Download } from 'lucide-react';
+import { BarChart3, Download, Info, Lightbulb } from 'lucide-react';
+import { NavyPanel, NavyPanelRow } from './NavyPanel';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { API_URL } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
@@ -587,28 +588,24 @@ function ReportBody({
               value={String(d.headline?.impactedEmployees ?? '—')}
             />
           </div>
-          {d.headline?.narrative && (
-            <Card>
-              <CardBody>
-                <p className="font-body text-sm text-ink">
-                  {d.headline.narrative}
-                </p>
-              </CardBody>
-            </Card>
-          )}
-          {(d.topInsights?.length ?? 0) > 0 && (
-            <Card>
-              <CardBody>
-                <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                  Principais insights
-                </p>
-                <ul className="list-disc space-y-1 pl-4 text-sm text-ink">
-                  {d.topInsights!.map((insight, i) => (
-                    <li key={i}>{insight}</li>
-                  ))}
-                </ul>
-              </CardBody>
-            </Card>
+          {(d.headline?.narrative || (d.topInsights?.length ?? 0) > 0) && (
+            <NavyPanel
+              title="Principais conclusões automáticas"
+              icon={Lightbulb}
+            >
+              <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                {d.headline?.narrative && (
+                  <NavyPanelRow icon={Info}>
+                    {d.headline.narrative}
+                  </NavyPanelRow>
+                )}
+                {(d.topInsights ?? []).map((insight, i) => (
+                  <NavyPanelRow key={i} icon={Info}>
+                    {insight}
+                  </NavyPanelRow>
+                ))}
+              </ul>
+            </NavyPanel>
           )}
         </div>
       );

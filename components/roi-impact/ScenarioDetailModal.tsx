@@ -8,6 +8,7 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Info, Lightbulb } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -17,6 +18,7 @@ import {
   SCENARIO_CASE_INTENTS,
   SCENARIO_CASE_LABELS,
 } from './utils';
+import { NavyPanel, NavyPanelRow } from './NavyPanel';
 import type { ScenarioDetail, ScenarioProjections } from './types';
 
 export interface ScenarioDetailModalProps {
@@ -79,16 +81,18 @@ export function ScenarioDetailModal({ id, onClose }: ScenarioDetailModalProps) {
             )}
 
             {data.basedOnAnalysis && (
-              <div className="rounded-card border border-border bg-surface-sunken p-3 text-xs text-ink-muted">
-                Benefício projectado a partir da análise de ROI{' '}
-                <span className="font-medium text-ink">
-                  {data.basedOnAnalysis.name}
-                </span>
-                {data.basedOnAnalysis.roiPercent != null && (
-                  <> (ROI medido: {data.basedOnAnalysis.roiPercent}%)</>
-                )}
-                .
-              </div>
+              <NavyPanel title="Base da projecção" icon={Lightbulb}>
+                <ul>
+                  <NavyPanelRow icon={Info}>
+                    Benefício projectado a partir da análise de ROI{' '}
+                    <strong>{data.basedOnAnalysis.name}</strong>
+                    {data.basedOnAnalysis.roiPercent != null && (
+                      <> (ROI medido: {data.basedOnAnalysis.roiPercent}%)</>
+                    )}
+                    .
+                  </NavyPanelRow>
+                </ul>
+              </NavyPanel>
             )}
 
             {data.projections ? (

@@ -40,6 +40,7 @@ import {
   ptInsight,
 } from './utils';
 import { RoiTotalCard } from './RoiTotalCard';
+import { NavyPanel, NavyPanelRow } from './NavyPanel';
 import type { ExecutiveData } from './types';
 
 const ALERT_INTENT_CLASSES = {
@@ -309,15 +310,11 @@ export function ExecutiveTab() {
 
       {/* Top insights */}
       {(data?.topInsights ?? []).length > 0 && (
-        <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <Lightbulb className="h-6 w-6 text-[#7CC4FF]" aria-hidden />
-              <h4 className="font-display text-base font-bold">
-                Principais conclusões automáticas
-              </h4>
-            </div>
-            {data?.confidence && CONFIDENCE_LABELS[data.confidence] && (
+        <NavyPanel
+          title="Principais conclusões automáticas"
+          icon={Lightbulb}
+          aside={
+            data?.confidence && CONFIDENCE_LABELS[data.confidence] ? (
               <span className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-body text-xs font-semibold">
                 <span
                   className="h-2.5 w-2.5 rounded-full"
@@ -328,31 +325,24 @@ export function ExecutiveTab() {
                 />
                 {CONFIDENCE_LABELS[data.confidence]}
               </span>
-            )}
-          </div>
+            ) : undefined
+          }
+        >
           <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
             {(data?.topInsights ?? []).slice(0, 4).map((ins, i) => {
               const warn = ins.includes('⚠');
-              const text = ptInsight(ins).replace(/⚠️?\s*/g, '');
-              const Icon = warn ? TriangleAlert : Info;
               return (
-                <li
+                <NavyPanelRow
                   key={i}
-                  className="flex items-start gap-3 rounded-card bg-white/10 px-4 py-2.5 font-body text-sm leading-snug"
+                  icon={warn ? TriangleAlert : Info}
+                  iconClassName={warn ? 'text-[#FBBF24]' : 'text-[#7CC4FF]'}
                 >
-                  <Icon
-                    className={cn(
-                      'mt-0.5 h-5 w-5 shrink-0',
-                      warn ? 'text-[#FBBF24]' : 'text-[#7CC4FF]',
-                    )}
-                    aria-hidden
-                  />
-                  <span>{text}</span>
-                </li>
+                  {ptInsight(ins).replace(/⚠️?\s*/g, '')}
+                </NavyPanelRow>
               );
             })}
           </ul>
-        </div>
+        </NavyPanel>
       )}
     </div>
   );

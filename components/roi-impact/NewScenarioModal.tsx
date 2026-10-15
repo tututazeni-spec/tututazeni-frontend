@@ -7,7 +7,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, BarChart3, Clock, Lightbulb } from 'lucide-react';
+import { NavyPanel, NavyPanelRow } from './NavyPanel';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -308,24 +309,26 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-card border border-border bg-surface-sunken p-3">
-                <p className="text-ink-faint text-xs">
-                  ROI projectado (Realista)
-                </p>
-                <p className="font-display text-xl font-bold text-ink">
-                  {preview.roiPercent != null ? `${preview.roiPercent}%` : '—'}
-                </p>
-              </div>
-              <div className="rounded-card border border-border bg-surface-sunken p-3">
-                <p className="text-ink-faint text-xs">Payback projectado</p>
-                <p className="font-display text-xl font-bold text-ink">
-                  {preview.paybackMonths != null
-                    ? `${preview.paybackMonths} meses`
-                    : '—'}
-                </p>
-              </div>
-            </div>
+            <NavyPanel title="Projecção do cenário" icon={Lightbulb}>
+              <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <NavyPanelRow icon={BarChart3}>
+                  ROI projectado (Realista):{' '}
+                  <strong>
+                    {preview.roiPercent != null
+                      ? `${preview.roiPercent}%`
+                      : '—'}
+                  </strong>
+                </NavyPanelRow>
+                <NavyPanelRow icon={Clock}>
+                  Payback projectado:{' '}
+                  <strong>
+                    {preview.paybackMonths != null
+                      ? `${preview.paybackMonths} meses`
+                      : '—'}
+                  </strong>
+                </NavyPanelRow>
+              </ul>
+            </NavyPanel>
 
             {preview.projections ? (
               <div className="overflow-x-auto rounded-card border border-border">

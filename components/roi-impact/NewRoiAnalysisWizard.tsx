@@ -10,7 +10,18 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, Check } from 'lucide-react';
+import {
+  AlertCircle,
+  BarChart3,
+  Check,
+  Clock,
+  Info,
+  Lightbulb,
+  TrendingUp,
+  TriangleAlert,
+  Wallet,
+} from 'lucide-react';
+import { NavyPanel, NavyPanelRow } from './NavyPanel';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -23,7 +34,6 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
-import { Badge } from '@/components/ui/Badge';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/departments/departmentFormData';
 import { fmt$ } from './utils';
@@ -31,6 +41,7 @@ import {
   INITIATIVE_TYPE_LABELS,
   BENEFIT_TYPE_LABELS,
   CONFIDENCE_LABELS,
+  ANALYSIS_STATUS_LABELS,
 } from './utils';
 import type {
   InitiativeOption,
@@ -633,59 +644,68 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
             </Button>
 
             {result && (
-              <div className="rounded-card border border-border bg-surface-sunken p-4 space-y-2">
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <p className="text-ink-faint text-xs">Custo total</p>
-                    <p className="font-semibold text-ink">
+              <NavyPanel title="Resultado da análise" icon={Lightbulb}>
+                <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <NavyPanelRow icon={Wallet}>
+                    Custo total:{' '}
+                    <strong>
                       {result.computedCost != null
                         ? fmt$(result.computedCost)
                         : '—'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-ink-faint text-xs">Benefício</p>
-                    <p className="font-semibold text-ink">
+                    </strong>
+                  </NavyPanelRow>
+                  <NavyPanelRow icon={TrendingUp}>
+                    Benefício:{' '}
+                    <strong>
                       {result.computedBenefit != null
                         ? fmt$(result.computedBenefit)
                         : '—'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-ink-faint text-xs">ROI</p>
-                    <p className="font-semibold text-ink">
+                    </strong>
+                  </NavyPanelRow>
+                  <NavyPanelRow icon={BarChart3}>
+                    ROI:{' '}
+                    <strong>
                       {result.roiPercent != null
                         ? `${result.roiPercent}%`
                         : '—'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-ink-faint text-xs">Payback</p>
-                    <p className="font-semibold text-ink">
+                    </strong>
+                  </NavyPanelRow>
+                  <NavyPanelRow icon={Clock}>
+                    Payback:{' '}
+                    <strong>
                       {result.paybackMonths != null
                         ? `${result.paybackMonths} meses`
                         : '—'}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    intent={
+                    </strong>
+                  </NavyPanelRow>
+                  <NavyPanelRow
+                    icon={
                       result.status === 'DADOS_INSUFICIENTES'
-                        ? 'warning'
-                        : 'info'
+                        ? TriangleAlert
+                        : Info
+                    }
+                    iconClassName={
+                      result.status === 'DADOS_INSUFICIENTES'
+                        ? 'text-[#FBBF24]'
+                        : 'text-[#7CC4FF]'
                     }
                   >
-                    {result.status}
-                  </Badge>
+                    Estado:{' '}
+                    <strong>
+                      {ANALYSIS_STATUS_LABELS[result.status] ?? result.status}
+                    </strong>
+                  </NavyPanelRow>
                   {result.confidenceLevel && (
-                    <Badge intent="neutral">
-                      {CONFIDENCE_LABELS[result.confidenceLevel] ??
-                        result.confidenceLevel}
-                    </Badge>
+                    <NavyPanelRow icon={Info}>
+                      Confiança:{' '}
+                      <strong>
+                        {CONFIDENCE_LABELS[result.confidenceLevel] ??
+                          result.confidenceLevel}
+                      </strong>
+                    </NavyPanelRow>
                   )}
-                </div>
-              </div>
+                </ul>
+              </NavyPanel>
             )}
 
             <FormField label="Observações" htmlFor="ra-observations">
