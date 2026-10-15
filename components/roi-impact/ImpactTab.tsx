@@ -13,6 +13,7 @@ import {
   Percent,
   Plus,
   Target,
+  Trash2,
   TrendingUp,
   Users,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -41,6 +43,7 @@ const PAGE_SIZE = 9;
 
 export function ImpactTab() {
   const notify = useToast();
+  const confirm = useConfirm();
   const { data: me } = useCurrentUser();
   const [modalOpen, setModalOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -75,6 +78,36 @@ export function ImpactTab() {
         }),
     },
   );
+
+  const remove = useApiMutation(
+    (id: number) => apiClient.delete(`/roi-impact/impact-records/${id}`),
+    {
+      invalidateKeys: [
+        queryKeys.roiImpact.impactRecords(),
+        queryKeys.roiImpact.impactByCategory(),
+      ],
+      onSuccess: () => notify({ title: 'Registo apagado', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: 'Erro ao apagar',
+          description: e.message,
+          intent: 'danger',
+        }),
+    },
+  );
+
+  const askRemove = async (id: number, name: string) => {
+    if (
+      await confirm({
+        title: `Apagar o registo "${name}"?`,
+        message: 'Esta ação não pode ser desfeita.',
+        confirmLabel: 'Apagar',
+        destructive: true,
+      })
+    ) {
+      remove.mutate(id);
+    }
+  };
 
   if (loading)
     return (
@@ -230,6 +263,16 @@ export function ImpactTab() {
                     Validar
                   </button>
                 )}
+                <button
+                  type="button"
+                  aria-label={`Apagar o registo ${r.indicatorName}`}
+                  title="Apagar"
+                  disabled={remove.isPending && remove.variables === r.id}
+                  onClick={() => askRemove(r.id, r.indicatorName)}
+                  className="rounded-full p-1 text-white/50 transition-colors hover:bg-white/15 hover:text-white disabled:opacity-40"
+                >
+                  <Trash2 size={14} strokeWidth={1.75} />
+                </button>
               </div>
             </NavyPanel>
           ))}
