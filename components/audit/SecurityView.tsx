@@ -8,7 +8,14 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { AlertCircle, Plus, ShieldAlert } from 'lucide-react';
+import {
+  AlertCircle,
+  FolderOpen,
+  Plus,
+  SearchCheck,
+  ShieldCheck,
+  Siren,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -610,26 +617,28 @@ export function SecurityView() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiCard
-          icon={ShieldAlert}
+          icon={FolderOpen}
           label="Abertos"
           value={byStatus.OPEN ?? 0}
-          intent={(byStatus.OPEN ?? 0) > 0 ? 'warning' : 'primary'}
+          intent="info"
         />
         <KpiCard
-          icon={ShieldAlert}
+          icon={SearchCheck}
           label="Em análise"
           value={byStatus.IN_ANALYSIS ?? 0}
+          intent="warning"
         />
         <KpiCard
-          icon={ShieldAlert}
+          icon={Siren}
           label="Críticos por resolver"
           value={openSev.CRITICAL ?? 0}
-          intent={(openSev.CRITICAL ?? 0) > 0 ? 'warning' : 'primary'}
+          intent="danger"
         />
         <KpiCard
-          icon={ShieldAlert}
+          icon={ShieldCheck}
           label="Encerrados"
           value={byStatus.CLOSED ?? 0}
+          intent="success"
         />
       </div>
 
@@ -674,8 +683,8 @@ export function SecurityView() {
         ) : (
           <>
             <Table>
-              <TableHead>
-                <TableRow>
+              <TableHead className="bg-[#0F1F3D]/60">
+                <TableRow className="hover:bg-transparent">
                   {[
                     'Código',
                     'Título',
@@ -686,7 +695,9 @@ export function SecurityView() {
                     'Estado',
                     'Evid.',
                   ].map((h) => (
-                    <TableHeaderCell key={h}>{h}</TableHeaderCell>
+                    <TableHeaderCell key={h} className="text-white">
+                      {h}
+                    </TableHeaderCell>
                   ))}
                 </TableRow>
               </TableHead>
@@ -749,7 +760,7 @@ export function SecurityView() {
       </div>
 
       <div>
-        <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="mb-3 rounded-card bg-[#0F1F3D]/60 px-3 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
           Alertas automáticos e integridade
         </div>
         <p className="mb-3 font-body text-xs text-ink-muted">
