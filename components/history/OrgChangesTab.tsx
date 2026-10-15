@@ -40,15 +40,18 @@ export function OrgChangesTab() {
     '/history/org-changes',
   );
   return (
-    <HubTable
-      columns={COLUMNS}
-      rows={list.rows}
-      loading={list.query.isLoading}
-      error={list.query.error?.message}
-      total={list.total}
-      page={list.page}
-      totalPages={list.totalPages}
-      onPageChange={list.setPage}
-    />
+    // Corpo do card em navy (#0F1F3D) com texto branco; o cabeçalho mantém-se.
+    <div className="[&_tbody]:bg-[#0F1F3D] [&_tbody_*]:!text-white [&_tbody_tr]:border-white/10 [&_tbody_tr:hover]:bg-white/5">
+      <HubTable
+        columns={COLUMNS}
+        rows={list.rows}
+        loading={list.query.isLoading}
+        error={list.query.error?.message}
+        total={list.total}
+        page={list.page}
+        totalPages={list.totalPages}
+        onPageChange={list.setPage}
+      />
+    </div>
   );
 }

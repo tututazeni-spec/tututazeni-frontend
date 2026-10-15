@@ -92,6 +92,63 @@ export function entityLabel(entity: string): string {
   return ENTITY_LABELS[entity] ?? entity;
 }
 
+// Módulos da matriz de auditoria (espelha AUDIT_MODULES no backend, por ordem de
+// declaração) com o nome em português. A posição fixa dá a cada módulo sempre a
+// mesma cor, qualquer que seja a ordenação por nº de eventos.
+export const AUDIT_MODULE_LABELS: Record<string, string> = {
+  Payroll: 'Folha de pagamento',
+  'Roles & Permissions': 'Perfis e permissões',
+  Departments: 'Departamentos',
+  Organization: 'Organização',
+  Attendance: 'Assiduidade',
+  Leave: 'Licenças e ausências',
+  'Evaluation 360': 'Avaliação 360°',
+  Performance: 'Desempenho',
+  Competencies: 'Competências',
+  Onboarding: 'Integração de colaboradores',
+  'Course Modules / Lessons': 'Módulos e lições',
+  Enrollments: 'Matrículas',
+  Assessments: 'Testes e avaliações de curso',
+  'Avatar Training': 'Treino com avatar',
+  'AI Tutor': 'Tutor de IA',
+  Trainings: 'Formações',
+  Courses: 'Cursos',
+  'Development Plans / PDI': 'Planos de desenvolvimento (PDI)',
+  'Career Plans': 'Planos de carreira',
+  Succession: 'Sucessão',
+  'Knowledge / Content Library': 'Biblioteca de conteúdos',
+  'Document Repository': 'Repositório de documentos',
+  'Work Declaration': 'Declarações de trabalho',
+  Events: 'Eventos',
+  Processes: 'Processos',
+  Automations: 'Automações',
+  'Executive Reports': 'Relatórios executivos',
+  Analytics: 'Análises',
+  'Integrations / API': 'Integrações e API',
+  Notifications: 'Notificações',
+  History: 'Histórico',
+  Instructor: 'Formadores',
+  Engagement: 'Envolvimento',
+  Audit: 'Auditoria',
+  Administração: 'Administração',
+  Users: 'Utilizadores',
+  Outros: 'Outros',
+};
+
+const AUDIT_MODULE_KEYS = Object.keys(AUDIT_MODULE_LABELS);
+
+/** Nome PT de um módulo de auditoria (fallback: o nome recebido). */
+export function moduleLabel(module: string): string {
+  return AUDIT_MODULE_LABELS[module] ?? module;
+}
+
+/** Cor própria de cada módulo (ângulo áureo no círculo cromático → tons bem separados). */
+export function moduleColor(module: string): string {
+  const i = AUDIT_MODULE_KEYS.indexOf(module);
+  if (i < 0) return 'var(--color-ink-faint)';
+  return `hsl(${Math.round((i * 137.508) % 360)} 58% 44%)`;
+}
+
 // `roles` espelha exactamente quem o backend deixa entrar em cada separador —
 // as abas 01-09 vêm de AuditController (@Roles(ADMIN, RH) a nível de classe);
 // 'deleted' vem de GET /evaluation360/cycles/deleted (@Roles(ADMIN, DIRECTOR)
