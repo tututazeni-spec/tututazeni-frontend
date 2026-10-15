@@ -387,7 +387,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
       <ModalContent
         title="Nova Análise de ROI"
         description={`Etapa ${step + 1} de ${STEPS.length} — ${current.label}`}
-        className="max-h-[90vh] max-w-2xl overflow-y-auto"
+        className="max-h-[90vh] max-w-2xl overflow-y-auto overflow-x-hidden"
       >
         <ol className="mt-4 mb-4 flex flex-wrap gap-1">
           {STEPS.map((s, i) => {
@@ -437,7 +437,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 className="w-full"
               />
             </FormField>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
               <FormField label="Tipo de iniciativa" htmlFor="ra-type">
                 <Select
                   items={INITIATIVE_TYPE_ITEMS}
@@ -462,7 +462,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 />
               </FormField>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
               <FormField label="Departamento" htmlFor="ra-dept">
                 <Select
                   items={departments.map((d) => ({
@@ -503,7 +503,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               value={responsible}
               onChange={setResponsible}
             />
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-3 [&>*]:min-w-0">
               <FormField
                 label="Período de referência — início"
                 htmlFor="ra-ref-start"
@@ -606,7 +606,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 className="w-full"
               />
             </FormField>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
               <FormField
                 label="Valor de referência (antes)"
                 htmlFor="ra-benefit-before"

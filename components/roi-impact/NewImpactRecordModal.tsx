@@ -178,7 +178,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
       <ModalContent
         title="Novo Registo de Impacto"
         description="Liga uma iniciativa a um indicador de negócio real (docs/roi-impact.md §3)"
-        className="max-h-[90vh] max-w-2xl overflow-y-auto"
+        className="max-h-[90vh] max-w-2xl overflow-y-auto overflow-x-hidden"
       >
         {error && (
           <div className="mb-4 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
@@ -188,7 +188,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
         )}
 
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
             <FormField label="Sujeito do impacto" htmlFor="ir-subject-type">
               <Select
                 items={SUBJECT_TYPE_ITEMS}
@@ -240,7 +240,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
             </FormField>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
             <FormField label="Tipo de iniciativa" htmlFor="ir-init-type">
               <Select
                 items={INITIATIVE_TYPE_ITEMS}
@@ -279,7 +279,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
             />
           </FormField>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
             <FormField label="Valor antes" htmlFor="ir-before">
               <Input
                 id="ir-before"
@@ -300,7 +300,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
             </FormField>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
             <FormField
               label="Período de observação — início"
               htmlFor="ir-obs-start"
@@ -324,7 +324,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
             </FormField>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
             <FormField
               label="Grau de atribuição — % atribuível"
               htmlFor="ir-attribution"
