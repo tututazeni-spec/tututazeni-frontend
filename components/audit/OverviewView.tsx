@@ -221,6 +221,8 @@ export function OverviewView({
                   barColors: data.byModule.map((m) => moduleColor(m.module)),
                 },
               ]}
+              labelWidth={210}
+              barSize={12}
               height={Math.max(160, data.byModule.length * 30 + 16)}
             />
           )}
@@ -276,12 +278,12 @@ export function OverviewView({
       </div>
 
       {/* Alertas de segurança pendentes */}
-      <div className="flex items-center justify-between rounded-card border border-border bg-surface p-4">
+      <div className="flex items-center justify-between rounded-card border border-[#0F1F3D] bg-[#0F1F3D] p-4">
         <div>
-          <div className="font-body text-sm font-semibold text-ink">
+          <div className="font-body text-sm font-semibold text-white">
             Alertas de segurança pendentes
           </div>
-          <div className="font-body text-xs text-ink-muted">
+          <div className="font-body text-xs text-white">
             {data.anomalies.suspiciousLogins.length} logins suspeitos ·{' '}
             {data.anomalies.massExports.length} exportações em massa ·{' '}
             {data.anomalies.massDeletes.length} eliminações em massa
@@ -290,6 +292,7 @@ export function OverviewView({
         <Button
           intent="secondary"
           size="sm"
+          className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
           onClick={() => onNavigate('security')}
         >
           Ver incidentes

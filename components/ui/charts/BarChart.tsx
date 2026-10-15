@@ -27,6 +27,10 @@ export interface BarChartProps {
   height?: number;
   yFormat?: (v: number) => string;
   className?: string;
+  /** Só horizontal: largura reservada aos nomes das categorias (omissão 120). */
+  labelWidth?: number;
+  /** Só horizontal: espessura máxima de cada barra (omissão 20). */
+  barSize?: number;
 }
 
 const PADDING_V = { top: 16, right: 16, bottom: 32, left: 44 };
@@ -58,6 +62,8 @@ export function BarChart({
   height = 240,
   yFormat = String,
   className,
+  labelWidth,
+  barSize = 20,
 }: BarChartProps) {
   const [hover, setHover] = useState<{
     seriesIdx: number;
@@ -71,7 +77,9 @@ export function BarChart({
     [series],
   );
   const isHorizontal = orientation === 'horizontal';
-  const padding = isHorizontal ? PADDING_H : PADDING_V;
+  const padding = isHorizontal
+    ? { ...PADDING_H, left: labelWidth ?? PADDING_H.left }
+    : PADDING_V;
   const resolvedHeight = isHorizontal
     ? categories.length * ROW_HEIGHT + padding.top + padding.bottom
     : height;
@@ -107,7 +115,7 @@ export function BarChart({
             })}
             {categories.map((cat, ci) => {
               const groupH = plotH / groupCount;
-              const barH = Math.min(20, (groupH * 0.7) / seriesCount);
+              const barH = Math.min(barSize, (groupH * 0.7) / seriesCount);
               return (
                 <g key={cat}>
                   <text
