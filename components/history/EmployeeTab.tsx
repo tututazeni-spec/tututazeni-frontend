@@ -9,18 +9,27 @@
 import { useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { MGMT_ROLES } from '@/lib/roles';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { cn } from '@/lib/cn';
 import { PersonPicker } from './filters';
 import { MilestonesTab } from './MilestonesTab';
 import { StatsTab } from './StatsTab';
 import { TimelineTab } from './TimelineTab';
 import type { PersonRef } from './types';
 
+type Section = 'timeline' | 'milestones' | 'stats';
+
+const SECTIONS: { id: Section; label: string }[] = [
+  { id: 'timeline', label: 'Linha de tempo' },
+  { id: 'milestones', label: 'Marcos' },
+  { id: 'stats', label: 'Actividade' },
+];
+
 export function EmployeeTab() {
   const role = useCurrentRole();
   const canPick = !!role && MGMT_ROLES.includes(role);
   const [person, setPerson] = useState<PersonRef | null>(null);
   const userId = person?.id;
+  const [section, setSection] = useState<Section>('timeline');
 
   return (
     <div className="space-y-4">
@@ -37,24 +46,31 @@ export function EmployeeTab() {
         )}
       </div>
 
-      <Tabs defaultValue="timeline">
-        <TabsList>
-          <TabsTrigger value="timeline">Linha de tempo</TabsTrigger>
-          <TabsTrigger value="milestones">Marcos</TabsTrigger>
-          <TabsTrigger value="stats">Actividade</TabsTrigger>
-        </TabsList>
-        <div className="pt-4">
-          <TabsContent value="timeline">
-            <TimelineTab key={userId ?? 'me'} userId={userId} />
-          </TabsContent>
-          <TabsContent value="milestones">
-            <MilestonesTab userId={userId} />
-          </TabsContent>
-          <TabsContent value="stats">
-            <StatsTab userId={userId} />
-          </TabsContent>
-        </div>
-      </Tabs>
+      <div className="flex flex-wrap gap-2" role="tablist">
+        {SECTIONS.map((s) => (
+          <button
+            key={s.id}
+            type="button"
+            role="tab"
+            aria-selected={section === s.id}
+            onClick={() => setSection(s.id)}
+            className={cn(
+              'rounded-pill border-[1.5px] px-3.5 py-1.5 font-body text-sm font-semibold transition-colors',
+              section === s.id
+                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
+                : 'border-border-strong bg-surface text-ink-muted hover:bg-surface-sunken',
+            )}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {section === 'timeline' && (
+        <TimelineTab key={userId ?? 'me'} userId={userId} />
+      )}
+      {section === 'milestones' && <MilestonesTab userId={userId} />}
+      {section === 'stats' && <StatsTab userId={userId} />}
     </div>
   );
 }

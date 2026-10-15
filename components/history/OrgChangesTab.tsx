@@ -6,7 +6,13 @@
 'use client';
 
 import { queryKeys } from '@/lib/queryKeys';
-import { HubTable, fmtDate, useHubList, type Column } from './shared';
+import {
+  HubTable,
+  PersonCell,
+  fmtDate,
+  useHubList,
+  type Column,
+} from './shared';
 import type { OrgChange } from './types';
 
 const COLUMNS: Column<OrgChange>[] = [
@@ -24,7 +30,7 @@ const COLUMNS: Column<OrgChange>[] = [
   },
   { header: 'Valor anterior', cell: (o) => o.before ?? '–' },
   { header: 'Novo valor', cell: (o) => o.after ?? '–' },
-  { header: 'Responsável', cell: (o) => o.responsible?.fullName ?? '–' },
+  { header: 'Responsável', cell: (o) => <PersonCell person={o.responsible} /> },
   { header: 'Motivo', cell: (o) => o.reason ?? '–' },
 ];
 

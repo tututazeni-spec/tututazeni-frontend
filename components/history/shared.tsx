@@ -28,7 +28,7 @@ import {
   MODULE_LABEL,
 } from './constants';
 import { useScopeParams } from './filters';
-import type { HistoryEntry, PagedResult } from './types';
+import type { HistoryEntry, PagedResult, PersonRef } from './types';
 
 const PAGE_SIZE = 30;
 
@@ -180,7 +180,7 @@ export function statusBadge(status: string) {
   return <Badge intent={intent}>{label}</Badge>;
 }
 
-function PersonCell({ person }: { person: HistoryEntry['actor'] }) {
+export function PersonCell({ person }: { person: PersonRef | null | undefined }) {
   if (!person) return <span className="text-ink-faint">–</span>;
   return (
     <div className="flex items-center gap-2">
