@@ -93,7 +93,7 @@ export function Select({
           sideOffset={4}
           collisionPadding={8}
         >
-          <RadixSelect.Viewport className="p-1 max-h-[var(--radix-select-content-available-height)] overflow-y-auto">
+          <RadixSelect.Viewport className="list-scroll p-1 max-h-[min(16rem,var(--radix-select-content-available-height))]">
             {items.map((item) => (
               <RadixSelect.Item
                 key={item.value}

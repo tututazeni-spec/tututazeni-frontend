@@ -183,7 +183,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           <ul
             id={listId}
             role="listbox"
-            className="absolute left-0 right-0 top-full z-[60] mt-1 overflow-hidden rounded-card border border-field bg-surface p-1 shadow-elevated"
+            className="absolute left-0 right-0 top-full z-[60] mt-1 list-scroll max-h-64 rounded-card border border-field bg-surface p-1 shadow-elevated"
           >
             {options.map((opt, i) => (
               <li

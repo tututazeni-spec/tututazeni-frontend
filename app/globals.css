@@ -58,6 +58,34 @@ body {
   border-radius: 4px;
 }
 
+/* Listas de filtros/selecção (Select, Combobox, DropdownMenu): barra vertical
+   sempre visível à direita. O Radix esconde a do Select via
+   [data-radix-select-viewport], por isso o override precisa de maior
+   especificidade. */
+.list-scroll,
+.list-scroll[data-radix-select-viewport] {
+  overflow-y: scroll;
+  scrollbar-width: auto;
+  -ms-overflow-style: auto;
+}
+.list-scroll::-webkit-scrollbar,
+.list-scroll[data-radix-select-viewport]::-webkit-scrollbar {
+  display: block;
+  width: 10px;
+}
+.list-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+.list-scroll::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 8px;
+  border: 2px solid #f1f5f9;
+}
+.list-scroll::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
 @theme {
   /* TODO(phase-b): type scale from spec section 2 not yet encoded as tokens; components currently use ad-hoc Tailwind text sizes. */
 
