@@ -305,7 +305,8 @@ export function RulesTab({
       a.href = url;
       a.download = filename;
       a.click();
-      URL.revokeObjectURL(url);
+      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e) {
       reportError(e, { source: 'RulesTab.exportCsv' });
       notify({

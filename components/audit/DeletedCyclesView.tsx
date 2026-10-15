@@ -12,13 +12,16 @@
 
 'use client';
 
+import { Archive, RotateCcw, Trash2, UserRound } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 
 interface RawDeletedCycle {
@@ -42,6 +45,10 @@ interface RawDeletedCycle {
   competencies: { competency: { name: string; category: string } }[];
   _count: { participants: number; assignments: number; responses: number };
 }
+
+// Mesmo desenho dos contentores de «Gerar relatório» e «Políticas e retenção».
+const NAVY_CARD =
+  'overflow-hidden border-[#0F1F3D]/70 bg-[#0F1F3D]/70 text-white';
 
 export function DeletedCyclesView() {
   const notify = useToast();
@@ -82,83 +89,84 @@ export function DeletedCyclesView() {
 
   if (!data || data.length === 0) {
     return (
-      <div className="rounded-lg border border-border bg-surface p-6 text-sm text-ink-muted">
-        Sem ciclos de avaliação 360º eliminados.
-      </div>
+      <Card className={NAVY_CARD}>
+        <div className="flex items-center gap-3 px-5 py-4">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+            <Trash2 size={16} strokeWidth={1.75} />
+          </span>
+          <p className="font-body text-sm">
+            Sem ciclos de avaliação 360º eliminados.
+          </p>
+        </div>
+      </Card>
     );
   }
 
+  const fmtDay = (d: string) => new Date(d).toLocaleDateString('pt-PT');
+
   return (
     <div className="flex flex-col gap-4">
-      <p className="m-0 text-xs text-ink-faint">
-        Eliminação de ciclos é soft delete: o registo (config, competências,
-        participantes, respostas) continua completo na base de dados — só fica
-        escondido do separador Ciclos até ser restaurado.
-      </p>
+      <AlertCard
+        variant="info"
+        title="Ciclos eliminados continuam guardados"
+        message="Nada se perde: configuração, competências, participantes e respostas ficam intactos. Ao restaurar, o ciclo volta ao separador Ciclos."
+      />
       {data.map((c) => (
-        <div
-          key={c.id}
-          className="rounded-lg border border-border bg-surface p-5"
-        >
-          <div className="mb-3 flex items-start justify-between gap-3">
-            <div>
-              <div className="text-sm font-semibold text-ink">{c.name}</div>
-              <div className="mt-0.5 text-xs text-ink-muted">
-                {c.model} · {c.type} · {c.startDate.slice(0, 10)} →{' '}
-                {c.endDate.slice(0, 10)}
-              </div>
-              <div className="mt-1 text-xs text-danger-ink">
-                Eliminado em {new Date(c.deletedAt).toLocaleString('pt-PT')}
-                {c.deletedById ? ` · por utilizador #${c.deletedById}` : ''}
-              </div>
+        <Card key={c.id} className={NAVY_CARD}>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-[#0F1F3D] px-4 py-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10">
+              <Archive size={15} strokeWidth={1.75} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate font-display text-base font-semibold leading-tight">
+                {c.name}
+              </h2>
+              <p className="font-body text-xs">
+                {c.model} · {c.type} · {fmtDay(c.startDate)} a{' '}
+                {fmtDay(c.endDate)}
+              </p>
             </div>
+            <p className="font-body text-xs">
+              <span className="font-semibold">{c._count.participants}</span>{' '}
+              participantes ·{' '}
+              <span className="font-semibold">{c._count.assignments}</span>{' '}
+              atribuições ·{' '}
+              <span className="font-semibold">{c._count.responses}</span>{' '}
+              respostas
+            </p>
             <Button
-              intent="secondary"
+              className="bg-white text-[#0F1F3D] hover:bg-white/90"
               size="sm"
               onClick={() => handleRestore(c)}
             >
-              Restaurar
+              <RotateCcw size={14} strokeWidth={1.75} className="mr-1.5" />
+              Restaurar ciclo
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-xs text-ink-muted sm:grid-cols-4">
-            <div>
-              <span className="font-semibold text-ink">
-                {c._count.participants}
-              </span>{' '}
-              participantes
-            </div>
-            <div>
-              <span className="font-semibold text-ink">
-                {c._count.assignments}
-              </span>{' '}
-              atribuições
-            </div>
-            <div>
-              <span className="font-semibold text-ink">
-                {c._count.responses}
-              </span>{' '}
-              respostas
-            </div>
-            <div>
-              Criado por utilizador #{c.createdBy} em{' '}
-              {new Date(c.createdAt).toLocaleDateString('pt-PT')}
-            </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 bg-black/15 px-4 py-2 font-body text-xs">
+            <span className="flex items-center gap-1.5">
+              <UserRound size={13} strokeWidth={1.75} />
+              Criado por #{c.createdBy} em {fmtDay(c.createdAt)}
+            </span>
+            <span>
+              Eliminado em {new Date(c.deletedAt).toLocaleString('pt-PT')}
+              {c.deletedById ? ` por #${c.deletedById}` : ''}
+            </span>
+            {c.competencies.length > 0 && (
+              <span className="flex flex-wrap items-center gap-1">
+                {c.competencies.map((cc) => (
+                  <span
+                    key={cc.competency.name}
+                    className="rounded-full border border-white/40 px-2 py-px"
+                  >
+                    {cc.competency.name}
+                  </span>
+                ))}
+              </span>
+            )}
           </div>
-
-          {c.competencies.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {c.competencies.map((cc) => (
-                <span
-                  key={cc.competency.name}
-                  className="rounded-full border border-border px-2.5 py-0.5 text-xs text-ink-muted"
-                >
-                  {cc.competency.name}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
+        </Card>
       ))}
     </div>
   );

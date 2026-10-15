@@ -7,6 +7,8 @@
 
 'use client';
 
+import { PeriodPills, ShortcutPills } from '@/components/ui/Pills';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { useState } from 'react';
 import { Activity, AlertTriangle, ShieldAlert, UserX } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -19,7 +21,13 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
-import { SEVERITY_CFG, actionLabel, entityLabel } from './constants';
+import {
+  SEVERITY_CFG,
+  actionLabel,
+  entityLabel,
+  moduleColor,
+  moduleLabel,
+} from './constants';
 import { fmtTs } from './utils';
 import type {
   AuditLog,
@@ -62,6 +70,11 @@ function EventRow({ log }: { log: AuditLog }) {
   );
 }
 
+// Cabeçalho dos cards do painel: navy #0F1F3D a 60%, letra branca, sem
+// qualquer efeito de cursor/hover (é só um rótulo).
+const PANEL_HEADER =
+  'cursor-default select-none bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-semibold text-white';
+
 function Panel({
   title,
   children,
@@ -70,13 +83,9 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <Card>
-      <CardBody>
-        <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-          {title}
-        </div>
-        {children}
-      </CardBody>
+    <Card className="overflow-hidden">
+      <div className={PANEL_HEADER}>{title}</div>
+      <CardBody>{children}</CardBody>
     </Card>
   );
 }
@@ -116,64 +125,43 @@ export function OverviewView({
   return (
     <div className="space-y-5">
       {health && health.status !== 'OK' && (
-        <div
-          role="alert"
-          className="rounded-control bg-danger-subtle px-3 py-2 font-body text-sm text-danger-ink"
-        >
-          {health.status === 'UNAVAILABLE'
-            ? 'A fila de gravação da auditoria está indisponível — novos eventos podem não ser registados.'
-            : `${health.failed} evento(s) de auditoria não foram gravados.`}
-          {health.lastFailure?.reason && (
-            <span className="ml-1 text-xs">
-              Última falha
-              {health.lastFailure.entity
-                ? ` (${health.lastFailure.entity}/${health.lastFailure.action})`
-                : ''}
-              : {health.lastFailure.reason}
-            </span>
-          )}
-        </div>
+        <AlertCard
+          variant="danger"
+          title={
+            health.status === 'UNAVAILABLE'
+              ? 'Fila de auditoria indisponível'
+              : 'Eventos de auditoria por gravar'
+          }
+          message={
+            health.status === 'UNAVAILABLE'
+              ? 'Novos eventos podem não ser registados até a fila voltar a responder.'
+              : `${health.failed} ${health.failed === 1 ? 'evento não foi gravado' : 'eventos não foram gravados'} no registo de auditoria.`
+          }
+          detail={
+            health.lastFailure?.reason
+              ? `Última falha${
+                  health.lastFailure.entity
+                    ? ` em ${health.lastFailure.entity}/${health.lastFailure.action}`
+                    : ''
+                }: ${health.lastFailure.reason.replace(/\s+/g, ' ').trim()}`
+              : undefined
+          }
+        />
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-2">
-          {PERIODS.map((p) => (
-            <button
-              key={p.days}
-              onClick={() => setDays(p.days)}
-              className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-                days === p.days
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border bg-white text-ink-muted hover:text-ink'
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
+        <PeriodPills
+          options={PERIODS.map((p) => ({ value: p.days, label: p.label }))}
+          value={days}
+          onChange={setDays}
+        />
         {/* Atalhos */}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            intent="secondary"
-            size="sm"
-            onClick={() => onNavigate('logs')}
-          >
-            Pesquisar registos
-          </Button>
-          <Button
-            intent="secondary"
-            size="sm"
-            onClick={() => onNavigate('audits')}
-          >
-            Nova auditoria
-          </Button>
-          <Button
-            intent="secondary"
-            size="sm"
-            onClick={() => onNavigate('reports')}
-          >
-            Gerar relatório
-          </Button>
-        </div>
+        <ShortcutPills
+          items={[
+            { label: 'Pesquisar registos', onClick: () => onNavigate('logs') },
+            { label: 'Nova auditoria', onClick: () => onNavigate('audits') },
+            { label: 'Gerar relatório', onClick: () => onNavigate('reports') },
+          ]}
+        />
       </div>
 
       {/* Cards de indicadores */}
@@ -225,71 +213,77 @@ export function OverviewView({
           ) : (
             <BarChart
               orientation="horizontal"
-              categories={data.byModule.map((m) => entityLabel(m.module))}
+              categories={data.byModule.map((m) => moduleLabel(m.module))}
               series={[
                 {
                   label: 'Eventos',
                   values: data.byModule.map((m) => m.count),
+                  barColors: data.byModule.map((m) => moduleColor(m.module)),
                 },
               ]}
-              height={Math.max(160, data.byModule.length * 32 + 16)}
+              labelWidth={210}
+              barSize={12}
+              height={Math.max(160, data.byModule.length * 30 + 16)}
             />
           )}
         </Panel>
 
-        <Panel title="Distribuição por gravidade">
-          {severityData.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem eventos no período.
-            </p>
-          ) : (
-            <DonutChart data={severityData} centerLabel="Eventos" />
-          )}
-        </Panel>
+        <div className="space-y-4">
+          <Panel title="Distribuição por gravidade">
+            {severityData.length === 0 ? (
+              <p className="font-body text-xs text-ink-faint">
+                Sem eventos no período.
+              </p>
+            ) : (
+              <DonutChart data={severityData} centerLabel="Eventos" />
+            )}
+          </Panel>
 
-        <Panel title="Acessos bem-sucedidos vs. falhados">
-          <BarChart
-            categories={['Bem-sucedidos', 'Falhados']}
-            series={[
-              {
-                label: 'Acessos',
-                values: [data.access.success, data.access.failed],
-              },
-            ]}
-            height={200}
-          />
-        </Panel>
+          <Panel title="Acessos bem-sucedidos vs. falhados">
+            <BarChart
+              categories={['Bem-sucedidos', 'Falhados']}
+              series={[
+                {
+                  label: 'Acessos',
+                  values: [data.access.success, data.access.failed],
+                  barColors: ['var(--color-success)', 'var(--color-danger)'],
+                },
+              ]}
+              height={200}
+            />
+          </Panel>
 
-        <Panel title="Atividade por utilizador">
-          {data.topUsers.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem atividade no período.
-            </p>
-          ) : (
-            data.topUsers.map((u) => (
-              <div
-                key={u.userId}
-                className="flex items-center gap-2 border-b border-border py-1.5 last:border-0"
-              >
-                <span className="flex-1 truncate font-body text-xs text-ink-muted">
-                  {u.user?.fullName ?? `Utilizador #${u.userId}`}
-                </span>
-                <span className="font-data text-xs font-bold text-ink">
-                  {u.count}
-                </span>
-              </div>
-            ))
-          )}
-        </Panel>
+          <Panel title="Atividade por utilizador">
+            {data.topUsers.length === 0 ? (
+              <p className="font-body text-xs text-ink-faint">
+                Sem atividade no período.
+              </p>
+            ) : (
+              data.topUsers.map((u) => (
+                <div
+                  key={u.userId}
+                  className="flex items-center gap-2 border-b border-border py-1.5 last:border-0"
+                >
+                  <span className="flex-1 truncate font-body text-xs text-ink-muted">
+                    {u.user?.fullName ?? `Utilizador #${u.userId}`}
+                  </span>
+                  <span className="font-data text-xs font-bold text-ink">
+                    {u.count}
+                  </span>
+                </div>
+              ))
+            )}
+          </Panel>
+        </div>
       </div>
 
       {/* Alertas de segurança pendentes */}
-      <div className="flex items-center justify-between rounded-card border border-border bg-surface p-4">
+      <div className="flex items-center justify-between rounded-card border border-[#0F1F3D] bg-[#0F1F3D] p-4">
         <div>
-          <div className="font-body text-sm font-semibold text-ink">
+          <div className="font-body text-sm font-semibold text-white">
             Alertas de segurança pendentes
           </div>
-          <div className="font-body text-xs text-ink-muted">
+          <div className="font-body text-xs text-white">
             {data.anomalies.suspiciousLogins.length} logins suspeitos ·{' '}
             {data.anomalies.massExports.length} exportações em massa ·{' '}
             {data.anomalies.massDeletes.length} eliminações em massa
@@ -298,6 +292,7 @@ export function OverviewView({
         <Button
           intent="secondary"
           size="sm"
+          className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
           onClick={() => onNavigate('security')}
         >
           Ver incidentes
@@ -307,9 +302,7 @@ export function OverviewView({
       {/* Últimos eventos críticos */}
       {data.recentCritical.length > 0 && (
         <div className="overflow-hidden rounded-card border border-danger bg-danger-subtle">
-          <div className="border-b border-danger/30 px-4 py-3 font-body text-xs font-semibold text-danger-ink">
-            Últimos eventos críticos
-          </div>
+          <div className={PANEL_HEADER}>Últimos eventos críticos</div>
           {data.recentCritical.map((log) => (
             <EventRow key={log.id} log={log} />
           ))}
@@ -318,9 +311,7 @@ export function OverviewView({
 
       {/* Atividade recente */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="border-b border-border px-4 py-3 font-body text-xs font-semibold text-ink">
-          Atividade recente
-        </div>
+        <div className={PANEL_HEADER}>Atividade recente</div>
         {data.recent.length === 0 ? (
           <p className="px-4 py-3 font-body text-xs text-ink-faint">
             Sem eventos no período.

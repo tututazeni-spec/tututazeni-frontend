@@ -8,9 +8,11 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { Anomalies, IntegrityCheck } from './types';
+
+const tone = (bad: boolean) =>
+  `rounded-card p-4 transition-transform duration-200 hover:scale-[1.02] font-semibold text-white [text-shadow:0_1px_2px_rgb(0_0_0/0.35)] ${bad ? 'bg-danger/70' : 'bg-success/70'}`;
 
 export function AnomaliesView() {
   const dataQ = useApiQuery<Anomalies>(
@@ -32,14 +34,14 @@ export function AnomaliesView() {
   return (
     <div className="space-y-5">
       {/* Resumo */}
-      <div className="flex items-center gap-3 rounded-card border border-ink bg-surface p-4">
+      <div className={`flex items-center gap-3 ${tone(data.totalAlerts > 0)}`}>
         <div>
-          <div className="font-body text-sm font-semibold text-ink">
+          <div className="font-body text-sm font-bold">
             {data.totalAlerts > 0
               ? `${data.totalAlerts} anomalia(s) detectada(s)`
               : 'Nenhuma anomalia detectada'}
           </div>
-          <div className="font-body text-xs text-ink">
+          <div className="font-body text-xs font-medium">
             Última verificação: agora mesmo
           </div>
         </div>
@@ -47,15 +49,15 @@ export function AnomaliesView() {
 
       {/* Integridade */}
       {integrity && (
-        <div className="flex items-center gap-3 rounded-card border border-ink bg-surface p-4">
+        <div className={`flex items-center gap-3 ${tone(!integrity.valid)}`}>
           <div>
-            <div className="font-body text-sm font-semibold text-ink">
+            <div className="font-body text-sm font-bold">
               {integrity.valid
                 ? `Hash chain íntegra (${integrity.checked} registos verificados)`
                 : `${integrity.broken.length} registo(s) com hash inválida`}
             </div>
             {!integrity.valid && (
-              <div className="mt-0.5 font-body text-xs text-ink">
+              <div className="mt-0.5 font-body text-xs font-medium">
                 IDs afectados: {integrity.broken.join(', ')}
               </div>
             )}
@@ -78,13 +80,11 @@ export function AnomaliesView() {
           items: data.massDeletes,
         },
       ].map(({ label, items }) => (
-        <Card key={label}>
-          <CardBody>
-            <div className="mb-3 font-body text-sm font-semibold text-ink">
-              {label}
-            </div>
+        <div key={label} className={tone(items.length > 0)}>
+          <div>
+            <div className="mb-3 font-body text-sm font-bold">{label}</div>
             {items.length === 0 ? (
-              <div className="font-body text-xs text-ink">
+              <div className="font-body text-xs font-medium">
                 Nenhuma anomalia deste tipo
               </div>
             ) : (
@@ -92,20 +92,20 @@ export function AnomaliesView() {
                 {items.map((item, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between border-b border-border py-2 last:border-0"
+                    className="flex items-center justify-between border-b border-white/30 py-2 last:border-0"
                   >
-                    <span className="font-body text-xs text-ink">
+                    <span className="font-body text-xs font-medium">
                       User ID: {item.userId}
                     </span>
-                    <span className="font-data text-xs font-bold text-ink">
+                    <span className="font-data text-xs font-bold">
                       {item.count}×
                     </span>
                   </div>
                 ))}
               </div>
             )}
-          </CardBody>
-        </Card>
+          </div>
+        </div>
       ))}
     </div>
   );

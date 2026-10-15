@@ -35,7 +35,7 @@ export default function HistoryPage() {
   const active: Tab = isAdmin ? tab : 'employee';
 
   return (
-    <div className="min-h-screen bg-canvas">
+    <div className="min-h-screen overflow-x-clip bg-canvas">
       <div className="border-b border-border bg-surface px-6 py-5">
         <div className="max-w-7xl mx-auto">
           <h1 className="font-display text-xl font-bold text-ink">Histórico</h1>
@@ -53,7 +53,7 @@ export default function HistoryPage() {
           </div>
 
           <div className="max-w-7xl mx-auto space-y-5 px-6 py-6">
-            {isAdmin && <HistoryFilterBar tab={active} />}
+            {isAdmin && <HistoryFilterBar />}
 
             <TabsContent value="overview">
               <OverviewTab />

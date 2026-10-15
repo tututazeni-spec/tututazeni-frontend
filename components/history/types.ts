@@ -15,6 +15,7 @@ export type Tab =
 export interface PersonRef {
   id: number;
   fullName: string;
+  avatarUrl?: string | null;
 }
 
 export interface PagedResult<T> {

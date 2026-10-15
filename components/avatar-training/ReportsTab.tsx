@@ -47,7 +47,8 @@ async function downloadReport(type: string, period: Period, format: 'csv' | 'pdf
   a.href = url;
   a.download = name;
   a.click();
-  URL.revokeObjectURL(url);
+  // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 function ReportView({ type, period }: { type: string; period: Period }) {

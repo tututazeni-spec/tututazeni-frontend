@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { buildCsv } from '@/lib/csv';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { useDepartmentOptions } from './runData';
 import type { ReportResult } from './insightTypes';
@@ -115,19 +116,19 @@ function cell(col: string, v: string | number | null): string {
 }
 
 function exportCsv(report: ReportResult, columns: string[]) {
-  const head = columns.map((c) => COLUMN_LABEL[c] ?? c).join(';');
-  const body = report.rows.map((r) =>
-    columns.map((c) => String(r[c] ?? '').replace(/;/g, ',')).join(';'),
+  const csv = buildCsv(
+    columns.map((c) => COLUMN_LABEL[c] ?? c),
+    report.rows.map((r) => columns.map((c) => r[c])),
+    ';',
   );
-  const blob = new Blob([[head, ...body].join('\n')], {
-    type: 'text/csv;charset=utf-8',
-  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = `payroll-${report.type}.csv`;
   a.click();
-  URL.revokeObjectURL(url);
+  // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 export function ReportsView() {

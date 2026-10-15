@@ -12,6 +12,7 @@
 
 'use client';
 
+import { PeriodPills } from '@/components/ui/Pills';
 import { useState } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
@@ -2620,22 +2621,16 @@ function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
       </div>
       <Card>
         <CardBody>
-          <div className="mb-3 flex flex-wrap gap-2">
-            {GROWTH_WINDOWS.map((w) => (
-              <button
-                key={w.key}
-                type="button"
-                onClick={() => setWin(w.key)}
-                className={`rounded-pill px-3 py-1 font-body text-xs font-medium ${
-                  win === w.key
-                    ? 'bg-ink text-surface'
-                    : 'bg-surface-sunken text-ink-muted'
-                }`}
-              >
-                {w.label}
-              </button>
-            ))}
-          </div>
+          <PeriodPills
+            className="mb-3"
+            label="Janela de crescimento"
+            options={GROWTH_WINDOWS.map((w) => ({
+              value: w.key,
+              label: w.label,
+            }))}
+            value={win}
+            onChange={setWin}
+          />
           {series.length < 2 ? (
             <EmptyState
               title="Histórico insuficiente"

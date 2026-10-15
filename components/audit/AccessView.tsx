@@ -8,6 +8,7 @@
 
 'use client';
 
+import { PeriodPills } from '@/components/ui/Pills';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
@@ -24,6 +25,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -69,6 +71,9 @@ const ACTION_TEXT: Record<string, string> = {
 
 const label = (a: string) => ACTION_TEXT[a] ?? actionLabel(a);
 
+const HEADER_BG = 'cursor-default select-none bg-[#0F1F3D]/60 text-white';
+const PANEL_HEADER = `${HEADER_BG} px-4 py-3 font-body text-xs font-semibold`;
+
 function Panel({
   title,
   children,
@@ -77,13 +82,9 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <Card>
-      <CardBody>
-        <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-          {title}
-        </div>
-        {children}
-      </CardBody>
+    <Card className="overflow-hidden">
+      <div className={PANEL_HEADER}>{title}</div>
+      <CardBody>{children}</CardBody>
     </Card>
   );
 }
@@ -146,21 +147,11 @@ export function AccessView() {
 
   return (
     <div className="space-y-5">
-      <div className="flex gap-2">
-        {PERIODS.map((d) => (
-          <button
-            key={d}
-            onClick={() => setDays(d)}
-            className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-              days === d
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
-            }`}
-          >
-            {d} dias
-          </button>
-        ))}
-      </div>
+      <PeriodPills
+        options={PERIODS.map((d) => ({ value: d, label: `${d} dias` }))}
+        value={days}
+        onChange={setDays}
+      />
 
       {!summary || !t ? (
         <Skeleton rows={4} />
@@ -177,7 +168,7 @@ export function AccessView() {
               icon={UserX}
               label="Tentativas falhadas"
               value={t.failedLogins}
-              intent={t.failedLogins > 0 ? 'warning' : 'primary'}
+              intent="danger"
             />
             <KpiCard
               icon={MonitorSmartphone}
@@ -194,7 +185,7 @@ export function AccessView() {
               icon={AlertTriangle}
               label="Alterações de permissões"
               value={t.permissionChanges}
-              intent={t.permissionChanges > 0 ? 'warning' : 'primary'}
+              intent="warning"
             />
           </div>
 
@@ -247,32 +238,35 @@ export function AccessView() {
         ) : (
           <>
             {sessions.data.map((s) => (
-              <div
-                key={s.id}
-                className="flex items-center gap-3 border-b border-border py-2 last:border-0"
-              >
-                <Avatar
-                  name={s.user.fullName}
-                  url={s.user.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-xs font-medium text-ink">
-                    {s.user.fullName}
+              <div key={s.id} className="mb-3 last:mb-0">
+                <NavyHeroCard
+                  surfaceClassName="border-[#0A2342]/80 bg-[#0A2342]/80 p-2.5"
+                  className="flex-wrap"
+                >
+                  <Avatar
+                    name={s.user.fullName}
+                    url={s.user.avatarUrl ?? undefined}
+                    size="md"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-base font-bold tracking-tight text-white">
+                      {s.user.fullName}
+                    </div>
+                    <div className="mt-0.5 truncate text-xs text-white">
+                      {s.user.email} · {s.user.role?.name ?? '—'}
+                    </div>
                   </div>
-                  <div className="truncate font-body text-xs text-ink-faint">
-                    {s.user.email} · {s.user.role?.name ?? '—'}
-                  </div>
-                </div>
-                <span className="flex-shrink-0 font-body text-xs text-ink-muted">
-                  Última actividade {fmtTs(s.lastActivity)}
-                </span>
+                  <span className="flex-shrink-0 font-body text-xs text-white">
+                    Última actividade {fmtTs(s.lastActivity)}
+                  </span>
+                </NavyHeroCard>
               </div>
             ))}
             <Pagination
               page={sessionPage}
               totalPages={sessions.totalPages}
               onPageChange={setSessionPage}
+              compact
             />
           </>
         )}
@@ -322,8 +316,8 @@ export function AccessView() {
         ) : (
           <>
             <Table>
-              <TableHead>
-                <TableRow>
+              <TableHead className={HEADER_BG}>
+                <TableRow className="hover:bg-transparent">
                   {[
                     'Data e hora',
                     'Utilizador',
@@ -332,7 +326,9 @@ export function AccessView() {
                     'IP',
                     'Navegador',
                   ].map((h) => (
-                    <TableHeaderCell key={h}>{h}</TableHeaderCell>
+                    <TableHeaderCell key={h} className="text-white">
+                      {h}
+                    </TableHeaderCell>
                   ))}
                 </TableRow>
               </TableHead>
@@ -383,6 +379,7 @@ export function AccessView() {
               page={page}
               totalPages={events.totalPages}
               onPageChange={setPage}
+              compact
             />
           </>
         )}

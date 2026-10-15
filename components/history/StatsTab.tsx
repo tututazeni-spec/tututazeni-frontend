@@ -10,6 +10,7 @@
 
 'use client';
 
+import { CalendarCheck, Flame, Trophy, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -54,22 +55,33 @@ export function StatsTab({ userId }: { userId?: number }) {
     <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="group flex min-h-[155px] flex-col items-center justify-center rounded-2xl border border-[#D8E2F0] bg-white px-3 py-4 text-center shadow-[0_4px_14px_rgba(21,47,89,0.08)]">
+          <Flame
+            aria-hidden
+            className="h-20 w-20 fill-[#F59E0B] text-[#E85D04] drop-shadow-[0_4px_10px_rgba(232,93,4,0.45)] transition-transform duration-200 ease-out group-hover:scale-125 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            strokeWidth={1.5}
+          />
+          <p className="mt-1 font-display text-[28px] font-bold leading-none text-[#E85D04]">
+            {data?.streak ?? 0} dias
+          </p>
+          <p className="mt-1.5 font-body text-xs font-semibold text-ink-faint">
+            Sequência
+          </p>
+        </div>
         <KpiCard
-          label="Sequência"
-          value={`${data?.streak ?? 0} dias`}
-          intent="warning"
-        />
-        <KpiCard
+          icon={CalendarCheck}
           label="Dias Activos"
           value={data?.activeDays ?? 0}
           intent="primary"
         />
         <KpiCard
+          icon={Trophy}
           label="Conclusões"
           value={data?.completions ?? 0}
           intent="success"
         />
         <KpiCard
+          icon={Zap}
           label="Pontos de Experiência Total"
           value={data?.xpPoints ?? 0}
           intent="accent"

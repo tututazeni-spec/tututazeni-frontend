@@ -139,7 +139,7 @@ export function Combobox({
               }}
             />
           </div>
-          <div className="max-h-[min(16rem,var(--radix-popover-content-available-height))] overflow-y-auto p-1">
+          <div className="list-scroll max-h-[min(16rem,var(--radix-popover-content-available-height))] p-1">
             {filteredItems.length === 0 && (
               <div className="px-3 py-2 font-body text-sm text-ink-muted">
                 {emptyText}

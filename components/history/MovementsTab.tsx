@@ -11,7 +11,13 @@ import { queryKeys } from '@/lib/queryKeys';
 import { Select } from '@/components/ui/Select';
 import { Badge } from '@/components/ui/Badge';
 import { MOVEMENT_TYPE_LABEL } from './constants';
-import { HubTable, fmtDate, useHubList, type Column } from './shared';
+import {
+  HubTable,
+  PersonCell,
+  fmtDate,
+  useHubList,
+  type Column,
+} from './shared';
 import type { Movement } from './types';
 
 const ALL = 'ALL';
@@ -21,7 +27,7 @@ const change = (a: string | null, b: string | null) =>
 
 const COLUMNS: Column<Movement>[] = [
   { header: 'Data', cell: (m) => fmtDate(m.timestamp) },
-  { header: 'Colaborador', cell: (m) => m.employee?.fullName ?? '–' },
+  { header: 'Colaborador', cell: (m) => <PersonCell person={m.employee} /> },
   {
     header: 'Tipo de movimento',
     cell: (m) => <Badge intent="info">{m.typeLabel}</Badge>,
@@ -36,7 +42,7 @@ const COLUMNS: Column<Movement>[] = [
     cell: (m) => change(m.prevManager, m.newManager),
   },
   { header: 'Motivo', cell: (m) => m.reason ?? '–' },
-  { header: 'Registado por', cell: (m) => m.registeredBy?.fullName ?? '–' },
+  { header: 'Registado por', cell: (m) => <PersonCell person={m.registeredBy} /> },
   { header: 'Observação', cell: (m) => m.notes ?? '–' },
 ];
 

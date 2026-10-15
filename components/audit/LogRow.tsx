@@ -5,7 +5,6 @@
 'use client';
 
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import {
   SEVERITY_CFG,
@@ -29,13 +28,7 @@ export function LogRow({ log, onOpen }: LogRowProps) {
       onClick={() => onOpen(log.id)}
       className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-sunken"
     >
-      <td className="px-3 py-2.5">
-        <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 flex-shrink-0 rounded-full ${sevCfg.dot}`} />
-          <span className="font-data text-xs text-ink-faint">{log.id}</span>
-        </div>
-      </td>
-      <td className="whitespace-nowrap px-3 py-2.5 font-body text-xs text-ink-muted">
+      <td className="px-3 py-2.5 font-body text-xs text-ink-muted">
         {fmtTs(log.timestamp)}
       </td>
       <td className="px-3 py-2.5">
@@ -62,7 +55,7 @@ export function LogRow({ log, onOpen }: LogRowProps) {
       <td className="px-3 py-2.5 font-body text-xs text-ink-muted">
         {entityLabel(log.entity)}
       </td>
-      <td className="px-3 py-2.5">
+      <td className="py-2.5 pl-6 pr-3">
         <span className="font-body text-xs font-medium text-ink">
           {actionLabel(log.action)}
         </span>
@@ -82,16 +75,16 @@ export function LogRow({ log, onOpen }: LogRowProps) {
         {log.ip ?? '—'}
       </td>
       <td className="px-3 py-2.5">
-        <Button
-          intent="secondary"
-          size="sm"
+        <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             onOpen(log.id);
           }}
+          className="rounded-pill border-[1.5px] border-border-strong bg-surface px-2.5 py-1 font-body text-xs font-semibold text-ink-muted transition-colors hover:border-[#0F1F3D] hover:bg-[#0F1F3D] hover:text-white"
         >
           Ver detalhes
-        </Button>
+        </button>
       </td>
     </tr>
   );

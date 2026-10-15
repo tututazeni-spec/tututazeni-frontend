@@ -33,6 +33,18 @@ import { useScopeParams } from './filters';
 import { fmtDate, fmtTime } from './shared';
 import type { Overview } from './types';
 
+// Uma cor por linha (mesma paleta dos cartões de estatística + extras).
+const ROW_COLORS = [
+  '#1877F2',
+  '#218653',
+  '#E99A16',
+  '#EF4657',
+  '#7C4DDB',
+  '#0EA5B7',
+  '#D9468F',
+  '#8A94A6',
+];
+
 function RankingList({
   title,
   items,
@@ -59,13 +71,16 @@ function RankingList({
                 <span className="w-5 text-right text-xs text-ink-faint">
                   #{idx + 1}
                 </span>
-                <span className="w-44 truncate text-xs font-medium text-ink">
+                <span className="w-32 shrink-0 truncate text-xs font-medium text-ink sm:w-44">
                   {i.label}
                 </span>
                 <div className="h-1.5 flex-1 rounded-pill bg-surface-sunken">
                   <div
-                    className="h-1.5 rounded-pill bg-primary"
-                    style={{ width: `${(i.count / max) * 100}%` }}
+                    className="h-1.5 rounded-pill"
+                    style={{
+                      width: `${(i.count / max) * 100}%`,
+                      backgroundColor: ROW_COLORS[idx % ROW_COLORS.length],
+                    }}
                   />
                 </div>
                 <span className="w-12 text-right text-xs text-ink-muted">
@@ -115,7 +130,7 @@ export function OverviewTab() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5 [&>*]:min-w-0">
         <KpiCard
           icon={History}
           label="Total de eventos"
@@ -145,7 +160,7 @@ export function OverviewTab() {
           icon={ArrowRightLeft}
           label="Transferências"
           value={k.transfers}
-          intent="info"
+          intent="warning"
           sub={period}
         />
         <KpiCard
@@ -206,7 +221,7 @@ export function OverviewTab() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
         <RankingList
           title="Utilizadores mais activos"
           items={data.topUsers.map((u) => ({
@@ -235,14 +250,17 @@ export function OverviewTab() {
           ) : (
             <ul className="divide-y divide-border">
               {data.recent.map((e) => (
-                <li key={e.id} className="flex items-start gap-4 py-2 text-sm">
+                <li
+                  key={e.id}
+                  className="flex flex-wrap items-start gap-x-4 gap-y-1 py-2 text-sm"
+                >
                   <span className="w-28 shrink-0 text-xs text-ink-faint">
                     {fmtDate(e.timestamp)} {fmtTime(e.timestamp)}
                   </span>
-                  <span className="w-40 shrink-0 truncate text-xs text-ink-muted">
+                  <span className="w-40 max-w-full shrink-0 truncate text-xs text-ink-muted">
                     {e.actor?.fullName ?? '–'}
                   </span>
-                  <span className="min-w-0 flex-1">
+                  <span className="min-w-0 basis-full break-words sm:basis-0 sm:flex-1">
                     <span className="font-medium text-ink">{e.title}</span>
                     {e.description && (
                       <span className="block text-xs text-ink-muted">

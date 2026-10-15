@@ -21,8 +21,6 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { useDirectoryUsers } from '@/components/departments/departmentFormData';
 import {
-  AUDIT_STATUS_LABEL,
-  DOC_STATUS_LABEL,
   EVENT_TYPE_LABEL,
   MODULE_LABEL,
   PERIOD_PRESET_LABEL,
@@ -220,7 +218,7 @@ const toItems = (map: Record<string, string>, allLabel: string) => [
   ...Object.entries(map).map(([value, label]) => ({ value, label })),
 ];
 
-export function HistoryFilterBar({ tab }: { tab: Tab }) {
+export function HistoryFilterBar() {
   const { filters: f, setFilters, reset } = useHistoryFilters();
 
   const depts = useApiQuery<{ data: { id: number; name: string }[] }>(
@@ -228,14 +226,7 @@ export function HistoryFilterBar({ tab }: { tab: Tab }) {
     '/departments',
     { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const units = useApiQuery<{ id: number; name: string }[]>(
-    queryKeys.departments.units(),
-    '/units',
-    { staleTime: STALE_TIME.SEMI_STATIC },
-  );
-
   const sel = (v: string) => (v === ALL ? '' : v);
-  const statusMap = tab === 'documents' ? DOC_STATUS_LABEL : AUDIT_STATUS_LABEL;
 
   return (
     <div className="space-y-3 rounded-card border border-border bg-surface p-4">
@@ -279,22 +270,10 @@ export function HistoryFilterBar({ tab }: { tab: Tab }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {tab !== 'employee' && (
-          <PersonPicker
-            label="Colaborador"
-            value={f.affected}
-            onChange={(p) => setFilters({ affected: p })}
-          />
-        )}
         <PersonPicker
           label="Utilizador"
           value={f.actor}
           onChange={(p) => setFilters({ actor: p })}
-        />
-        <PersonPicker
-          label="Responsável"
-          value={f.responsible}
-          onChange={(p) => setFilters({ responsible: p })}
         />
         <Select
           className="w-44"
@@ -318,36 +297,10 @@ export function HistoryFilterBar({ tab }: { tab: Tab }) {
         />
         <Select
           className="w-44"
-          placeholder="Unidade"
-          value={f.unitId || ALL}
-          onValueChange={(v) => setFilters({ unitId: sel(v) })}
-          items={[
-            { value: ALL, label: 'Todas as unidades' },
-            ...(units.data ?? []).map((u) => ({
-              value: String(u.id),
-              label: u.name,
-            })),
-          ]}
-        />
-        <Select
-          className="w-44"
           placeholder="Tipo de evento"
           value={f.eventType || ALL}
           onValueChange={(v) => setFilters({ eventType: sel(v) })}
           items={toItems(EVENT_TYPE_LABEL, 'Todos os tipos')}
-        />
-        <Select
-          className="w-44"
-          placeholder="Estado"
-          value={f.status || ALL}
-          onValueChange={(v) => setFilters({ status: sel(v) })}
-          items={toItems(statusMap, 'Todos os estados')}
-        />
-        <Input
-          value={f.entity}
-          placeholder="Entidade"
-          onChange={(e) => setFilters({ entity: e.target.value })}
-          className="w-36"
         />
       </div>
     </div>

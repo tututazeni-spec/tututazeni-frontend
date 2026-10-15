@@ -8,13 +8,19 @@
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Download, FileSpreadsheet, FileText, Play } from 'lucide-react';
+import {
+  Download,
+  FileSpreadsheet,
+  FileText,
+  Play,
+  SlidersHorizontal,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import { Card, CardBody } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -43,6 +49,15 @@ const MODULES = [
   { value: 'security', label: 'Segurança' },
 ];
 const ROLES = ['ADMIN', 'RH', 'GESTOR', 'DIRECTOR', 'LIDER', 'COLABORADOR'];
+// Uma cor por perfil — o ponto/contorno identifica-o, o preenchimento marca-o activo.
+const ROLE_COLORS: Record<string, string> = {
+  ADMIN: '#E5484D',
+  RH: '#8E4EC6',
+  GESTOR: '#E99A16',
+  DIRECTOR: '#3E8EF7',
+  LIDER: '#12A594',
+  COLABORADOR: '#30A46C',
+};
 const SEVERITY_ITEMS = [
   { value: 'ALL', label: 'Todas as gravidades' },
   { value: 'LOW', label: 'Baixa' },
@@ -88,7 +103,6 @@ interface Form {
   roles: string[];
   userId: string;
   departmentId: string;
-  eventType: string;
   severity: string;
   result: string;
   state: string;
@@ -103,7 +117,6 @@ const EMPTY: Form = {
   roles: [],
   userId: '',
   departmentId: '',
-  eventType: '',
   severity: 'ALL',
   result: 'ALL',
   state: 'ALL',
@@ -118,7 +131,6 @@ function toParams(f: Form): Record<string, string> {
   if (f.roles.length) p.roles = f.roles.join(',');
   if (f.userId) p.userId = f.userId;
   if (f.departmentId) p.departmentId = f.departmentId;
-  if (f.eventType.trim()) p.eventType = f.eventType.trim();
   if (f.severity !== 'ALL') p.severity = f.severity;
   if (f.result !== 'ALL') p.result = f.result;
   if (f.state !== 'ALL') p.state = f.state;
@@ -128,20 +140,34 @@ function toParams(f: Form): Record<string, string> {
 function Chip({
   active,
   onClick,
+  color,
   children,
 }: {
   active: boolean;
   onClick: () => void;
+  color?: string;
   children: React.ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
-        active
-          ? 'border-primary bg-primary/10 text-primary'
-          : 'border-border bg-white text-ink-muted hover:text-ink'
+      aria-pressed={active}
+      style={
+        color
+          ? {
+              borderColor: color,
+              backgroundColor: active ? color : `${color}26`,
+              color: '#fff',
+            }
+          : undefined
+      }
+      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 ${
+        color
+          ? 'hover:brightness-125'
+          : active
+            ? 'border-white bg-white text-[#0F1F3D]'
+            : 'border-white/25 bg-white/5 text-white/80 hover:border-white/50 hover:bg-white/10 hover:text-white'
       }`}
     >
       {children}
@@ -213,146 +239,185 @@ export function ReportsView() {
 
   return (
     <div className="space-y-5">
-      <Card>
-        <CardBody>
-          <div className="grid gap-3 md:grid-cols-3">
-            <FormField label="Relatório" htmlFor="rep-type">
-              <Select
-                items={(catalog ?? []).map((c) => ({
-                  value: c.type,
-                  label: c.title,
-                }))}
-                value={form.type}
-                onValueChange={(v) => set({ type: v, state: 'ALL' })}
-              />
-            </FormField>
-            <FormField label="Data inicial" htmlFor="rep-from">
-              <Input
-                id="rep-from"
-                type="date"
-                value={form.from}
-                onChange={(e) => set({ from: e.target.value })}
-              />
-            </FormField>
-            <FormField label="Data final" htmlFor="rep-to">
-              <Input
-                id="rep-to"
-                type="date"
-                value={form.to}
-                onChange={(e) => set({ to: e.target.value })}
-              />
-            </FormField>
-            <FormField label="Gravidade" htmlFor="rep-sev">
-              <Select
-                items={SEVERITY_ITEMS}
-                value={form.severity}
-                onValueChange={(v) => set({ severity: v })}
-              />
-            </FormField>
-            <FormField label="Resultado" htmlFor="rep-res">
-              <Select
-                items={RESULT_ITEMS}
-                value={form.result}
-                onValueChange={(v) => set({ result: v })}
-              />
-            </FormField>
-            {stateItems ? (
-              <FormField label="Estado" htmlFor="rep-state">
-                <Select
-                  items={stateItems}
-                  value={form.state}
-                  onValueChange={(v) => set({ state: v })}
-                />
-              </FormField>
-            ) : (
-              <FormField label="Tipo de evento (ação)" htmlFor="rep-evt">
-                <Input
-                  id="rep-evt"
-                  placeholder="Ex.: UPDATE, EXPORT"
-                  value={form.eventType}
-                  onChange={(e) => set({ eventType: e.target.value })}
-                />
-              </FormField>
-            )}
-            <FormField label="Utilizador (ID)" htmlFor="rep-user">
-              <Input
-                id="rep-user"
-                type="number"
-                min={1}
-                value={form.userId}
-                onChange={(e) => set({ userId: e.target.value })}
-              />
-            </FormField>
-            <FormField label="Unidade / departamento (ID)" htmlFor="rep-dep">
-              <Input
-                id="rep-dep"
-                type="number"
-                min={1}
-                value={form.departmentId}
-                onChange={(e) => set({ departmentId: e.target.value })}
-              />
-            </FormField>
-            <FormField
-              label="Confidencialidade da exportação"
-              htmlFor="rep-conf"
+      <Card className="overflow-hidden border-[#0F1F3D] bg-[#0F1F3D] text-white [&_label]:text-white/85">
+        <div className="flex items-center gap-3 border-b border-white px-5 py-4">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+            <SlidersHorizontal size={16} strokeWidth={1.75} />
+          </span>
+          <div>
+            <h2 className="font-display text-base font-semibold">
+              Gerar relatório
+            </h2>
+            <p className="font-body text-xs text-white/65">
+              Escolha o relatório, defina o período e os critérios, e
+              pré-visualize antes de exportar.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-6 px-5 py-5">
+          <section aria-labelledby="rep-sec-period" className="space-y-3">
+            <h3
+              id="rep-sec-period"
+              className="font-body text-sm font-semibold text-white"
             >
-              <Select
-                items={CONFIDENTIALITY_ITEMS}
-                value={form.confidentiality}
-                onValueChange={(v) => set({ confidentiality: v })}
-              />
-            </FormField>
-          </div>
+              Relatório e período
+            </h3>
+            <div className="grid gap-3 md:grid-cols-3">
+              <FormField label="Relatório" htmlFor="rep-type">
+                <Select
+                  items={(catalog ?? []).map((c) => ({
+                    value: c.type,
+                    label: c.title,
+                  }))}
+                  value={form.type}
+                  onValueChange={(v) => set({ type: v, state: 'ALL' })}
+                />
+              </FormField>
+              <FormField label="Data inicial" htmlFor="rep-from">
+                <Input
+                  id="rep-from"
+                  type="date"
+                  value={form.from}
+                  onChange={(e) => set({ from: e.target.value })}
+                />
+              </FormField>
+              <FormField label="Data final" htmlFor="rep-to">
+                <Input
+                  id="rep-to"
+                  type="date"
+                  value={form.to}
+                  onChange={(e) => set({ to: e.target.value })}
+                />
+              </FormField>
+            </div>
+          </section>
 
-          <div className="mt-4 space-y-3">
-            <div>
-              <div className="mb-1.5 font-body text-xs text-ink-faint">
-                Módulos (vazio = todos)
+          <section
+            aria-labelledby="rep-sec-criteria"
+            className="space-y-3 border-t border-white pt-5"
+          >
+            <h3
+              id="rep-sec-criteria"
+              className="font-body text-sm font-semibold text-white"
+            >
+              Critérios
+            </h3>
+            <div className="grid gap-3 md:grid-cols-3">
+              <FormField label="Gravidade" htmlFor="rep-sev">
+                <Select
+                  items={SEVERITY_ITEMS}
+                  value={form.severity}
+                  onValueChange={(v) => set({ severity: v })}
+                />
+              </FormField>
+              <FormField label="Resultado" htmlFor="rep-res">
+                <Select
+                  items={RESULT_ITEMS}
+                  value={form.result}
+                  onValueChange={(v) => set({ result: v })}
+                />
+              </FormField>
+              {stateItems && (
+                <FormField label="Estado" htmlFor="rep-state">
+                  <Select
+                    items={stateItems}
+                    value={form.state}
+                    onValueChange={(v) => set({ state: v })}
+                  />
+                </FormField>
+              )}
+              <FormField label="Utilizador (ID)" htmlFor="rep-user">
+                <Input
+                  id="rep-user"
+                  type="number"
+                  min={1}
+                  value={form.userId}
+                  onChange={(e) => set({ userId: e.target.value })}
+                />
+              </FormField>
+              <FormField label="Unidade / departamento (ID)" htmlFor="rep-dep">
+                <Input
+                  id="rep-dep"
+                  type="number"
+                  min={1}
+                  value={form.departmentId}
+                  onChange={(e) => set({ departmentId: e.target.value })}
+                />
+              </FormField>
+              <FormField
+                label="Confidencialidade da exportação"
+                htmlFor="rep-conf"
+              >
+                <Select
+                  items={CONFIDENTIALITY_ITEMS}
+                  value={form.confidentiality}
+                  onValueChange={(v) => set({ confidentiality: v })}
+                />
+              </FormField>
+            </div>
+
+            <div className="grid gap-4 pt-1 md:grid-cols-2">
+              <div>
+                <div className="mb-2 font-body text-xs text-white/65">
+                  Módulos (vazio = todos)
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {MODULES.map((m) => (
+                    <Chip
+                      key={m.value}
+                      active={form.modules.includes(m.value)}
+                      onClick={() =>
+                        set({ modules: toggle(form.modules, m.value) })
+                      }
+                    >
+                      {m.label}
+                    </Chip>
+                  ))}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-1.5">
-                {MODULES.map((m) => (
-                  <Chip
-                    key={m.value}
-                    active={form.modules.includes(m.value)}
-                    onClick={() =>
-                      set({ modules: toggle(form.modules, m.value) })
-                    }
-                  >
-                    {m.label}
-                  </Chip>
-                ))}
+              <div>
+                <div className="mb-2 font-body text-xs text-white/65">
+                  Perfis (vazio = todos)
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {ROLES.map((r) => (
+                    <Chip
+                      key={r}
+                      color={ROLE_COLORS[r]}
+                      active={form.roles.includes(r)}
+                      onClick={() => set({ roles: toggle(form.roles, r) })}
+                    >
+                      {r}
+                    </Chip>
+                  ))}
+                </div>
               </div>
             </div>
-            <div>
-              <div className="mb-1.5 font-body text-xs text-ink-faint">
-                Perfis (vazio = todos)
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {ROLES.map((r) => (
-                  <Chip
-                    key={r}
-                    active={form.roles.includes(r)}
-                    onClick={() => set({ roles: toggle(form.roles, r) })}
-                  >
-                    {r}
-                  </Chip>
-                ))}
-              </div>
-            </div>
-          </div>
+          </section>
+        </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="border-t border-white bg-black/15 px-5 py-4">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
+              className="bg-white text-[#0F1F3D] hover:bg-white/90"
               onClick={() => setApplied(toParams(form))}
               loading={isFetching}
             >
               <Play size={14} strokeWidth={1.75} className="mr-1.5" />
               Pré-visualizar
             </Button>
-            <Button intent="ghost" onClick={() => setForm(EMPTY)}>
+            <Button
+              intent="ghost"
+              className="text-white/80 hover:bg-white/10 hover:text-white"
+              onClick={() => setForm(EMPTY)}
+            >
               Limpar filtros
             </Button>
-            <div className="ml-auto flex gap-2">
+            <div className="ml-auto flex flex-wrap items-center gap-2">
+              <span className="mr-1 font-body text-xs text-white/65">
+                Exportar
+              </span>
               <Button
                 intent="secondary"
                 loading={exporting === 'pdf'}
@@ -383,11 +448,11 @@ export function ReportsView() {
               </Button>
             </div>
           </div>
-          <p className="mt-2 font-body text-xs text-ink-faint">
+          <p className="mt-3 font-body text-xs text-white/60">
             Cada exportação regista quem exportou, quando, os filtros usados e o
             resultado. Os ficheiros podem conter dados pessoais ou salariais.
           </p>
-        </CardBody>
+        </div>
       </Card>
 
       {error && (

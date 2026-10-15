@@ -39,6 +39,7 @@ import {
 } from '@/hooks/useEmployees';
 import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
+import { buildCsv } from '@/lib/csv';
 import { reportError } from '@/lib/errorReporting';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -58,6 +59,22 @@ import { EmployeeDrawer } from '@/components/employees/EmployeeDrawer';
 import { EmployeeRow } from '@/components/employees/EmployeeRow';
 import { FilterPanel } from '@/components/employees/FilterPanel';
 import { Pagination } from '@/components/ui/Pagination';
+
+// Colunas devolvidas por GET /employees/export (employees.service.ts#exportEmployees)
+const EXPORT_COLUMNS = [
+  { key: 'matricula', label: 'Matrícula' },
+  { key: 'name', label: 'Nome' },
+  { key: 'email', label: 'Email' },
+  { key: 'role', label: 'Cargo' },
+  { key: 'department', label: 'Departamento' },
+  { key: 'seniority', label: 'Senioridade' },
+  { key: 'status', label: 'Estado' },
+  { key: 'joinedAt', label: 'Data de admissão' },
+  { key: 'contractType', label: 'Tipo de contrato' },
+  { key: 'workMode', label: 'Modo de trabalho' },
+  { key: 'location', label: 'Localização' },
+  { key: 'manager', label: 'Gestor' },
+] as const;
 
 const LIST_COLUMNS = [
   'Colaborador',
@@ -102,17 +119,19 @@ export function EmployeesView() {
       const result = await apiClient.get<{
         data: Array<Record<string, unknown>>;
       }>('/employees/export');
-      const csv = [
-        Object.keys(result.data[0] ?? {}).join(','),
-        ...result.data.map((row) => Object.values(row).join(',')),
-      ].join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
+      const columns = EXPORT_COLUMNS;
+      const csv = buildCsv(
+        columns.map((c) => c.label),
+        result.data.map((row) => columns.map((c) => row[c.key])),
+      );
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `colaboradores-${Date.now()}.csv`;
       a.click();
-      URL.revokeObjectURL(url);
+      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e) {
       reportError(e, { source: 'EmployeesView.handleExport' });
     }

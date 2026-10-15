@@ -192,14 +192,15 @@ export function EvaluationsTab() {
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
         .join(','),
     );
-    const csv = [header.join(','), ...lines].join('\n');
+    const csv = `﻿${[header.join(','), ...lines].join('\r\n')}`;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'avaliacoes.csv';
     a.click();
-    URL.revokeObjectURL(url);
+    // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
   };
 
   if (!canManage) {

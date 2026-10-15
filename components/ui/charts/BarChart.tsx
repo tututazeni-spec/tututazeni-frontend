@@ -27,6 +27,10 @@ export interface BarChartProps {
   height?: number;
   yFormat?: (v: number) => string;
   className?: string;
+  /** Só horizontal: largura reservada aos nomes das categorias (omissão 120). */
+  labelWidth?: number;
+  /** Só horizontal: espessura máxima de cada barra (omissão 20). */
+  barSize?: number;
 }
 
 const PADDING_V = { top: 16, right: 16, bottom: 32, left: 44 };
@@ -58,6 +62,8 @@ export function BarChart({
   height = 240,
   yFormat = String,
   className,
+  labelWidth,
+  barSize = 20,
 }: BarChartProps) {
   const [hover, setHover] = useState<{
     seriesIdx: number;
@@ -71,7 +77,9 @@ export function BarChart({
     [series],
   );
   const isHorizontal = orientation === 'horizontal';
-  const padding = isHorizontal ? PADDING_H : PADDING_V;
+  const padding = isHorizontal
+    ? { ...PADDING_H, left: labelWidth ?? PADDING_H.left }
+    : PADDING_V;
   const resolvedHeight = isHorizontal
     ? categories.length * ROW_HEIGHT + padding.top + padding.bottom
     : height;
@@ -79,6 +87,12 @@ export function BarChart({
   const plotH = resolvedHeight - padding.top - padding.bottom;
   const groupCount = Math.max(1, categories.length);
   const seriesCount = Math.max(1, series.length);
+  // Eixo X vertical: com muitas categorias, mostra só 1 rótulo em cada `labelStep`
+  // para não se sobreporem (o tooltip continua a dar a data de cada barra).
+  const maxLabelLen = Math.max(1, ...categories.map((c) => c.length));
+  const labelStep = isHorizontal
+    ? 1
+    : Math.max(1, Math.ceil((maxLabelLen * 5.5 + 10) / (plotW / groupCount)));
 
   return (
     <div className={cn('relative', className)}>
@@ -107,7 +121,7 @@ export function BarChart({
             })}
             {categories.map((cat, ci) => {
               const groupH = plotH / groupCount;
-              const barH = Math.min(20, (groupH * 0.7) / seriesCount);
+              const barH = Math.min(barSize, (groupH * 0.7) / seriesCount);
               return (
                 <g key={cat}>
                   <text
@@ -190,14 +204,16 @@ export function BarChart({
               const barW = Math.min(28, (groupW * 0.6) / seriesCount);
               return (
                 <g key={cat}>
-                  <text
-                    x={padding.left + groupW * ci + groupW / 2}
-                    y={resolvedHeight - padding.bottom + 16}
-                    textAnchor="middle"
-                    className="fill-ink-faint text-[9px]"
-                  >
-                    {cat}
-                  </text>
+                  {ci % labelStep === 0 && (
+                    <text
+                      x={padding.left + groupW * ci + groupW / 2}
+                      y={resolvedHeight - padding.bottom + 16}
+                      textAnchor="middle"
+                      className="fill-ink-faint text-[9px]"
+                    >
+                      {cat}
+                    </text>
+                  )}
                   {series.map((s, si) => {
                     const v = s.values[ci] ?? 0;
                     const h = (v / max) * plotH;

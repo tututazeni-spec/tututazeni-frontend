@@ -9,6 +9,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { EVENT_TYPE_LABEL } from './constants';
 import {
   HubTable,
+  PersonCell,
   fmtDate,
   fmtTime,
   statusBadge,
@@ -34,7 +35,7 @@ const COLUMNS: Column<DocRecord>[] = [
     ),
   },
   { header: 'Versão actual', cell: (d) => d.version ?? '–' },
-  { header: 'Utilizador', cell: (d) => d.user?.fullName ?? '–' },
+  { header: 'Utilizador', cell: (d) => <PersonCell person={d.user} /> },
   { header: 'Estado do documento', cell: (d) => statusBadge(d.status) },
 ];
 
