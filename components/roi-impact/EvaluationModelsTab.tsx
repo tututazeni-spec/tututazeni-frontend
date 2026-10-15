@@ -91,8 +91,7 @@ export function EvaluationModelsTab() {
           {rows.map((m) => (
             <NavyPanel
               key={m.id}
-              variant={m.id}
-              soft
+              variant={0}
               className="flex min-w-0 flex-col"
               title={m.name}
               icon={ClipboardCheck}
