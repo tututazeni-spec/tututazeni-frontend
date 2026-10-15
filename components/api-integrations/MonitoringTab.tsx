@@ -5,7 +5,12 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Badge, type BadgeProps } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
+import { Activity, PlugZap, Timer } from 'lucide-react';
 import { KpiCard } from '@/components/ui/KpiCard';
+import {
+  INVERSE_RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { MonitoringStats } from './types';
 
@@ -32,34 +37,39 @@ export function MonitoringTab() {
       />
     );
   const s = data?.summary ?? {};
-  const errorRateHigh = (s.errorRate24h ?? 0) > 5;
+  const errorRate = Math.min(100, Math.max(0, s.errorRate24h ?? 0));
 
   return (
     <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
+          icon={PlugZap}
           label="Integrações Activas"
           value={s.activeIntegrations ?? 0}
-          intent="primary"
+          intent="success"
           className="w-full"
         />
         <KpiCard
+          icon={Activity}
           label="Chamadas (24h)"
           value={s.totalLogs24h ?? 0}
-          intent="accent"
+          intent="warning"
           className="w-full"
         />
-        <KpiCard
+        {/* Verde no início da escala (mais baixo é melhor) */}
+        <SpeedometerStatCard
           label="Taxa de Erro"
-          value={`${s.errorRate24h ?? 0}%`}
-          intent={errorRateHigh ? 'danger' : 'success'}
-          className="w-full"
+          value={errorRate}
+          bands={INVERSE_RATE_BANDS}
+          display={`${s.errorRate24h ?? 0}%`}
         />
         <KpiCard
+          icon={Timer}
           label="Latência Média"
           value={s.avgLatencyMs ? `${s.avgLatencyMs}ms` : '–'}
-          intent="warning"
+          intent="primary"
+          iconIntent="caution"
           className="w-full"
         />
       </div>
