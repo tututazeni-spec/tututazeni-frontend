@@ -29,7 +29,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { NavyPanel, NavyPanelRow } from './NavyPanel';
+import { NavyPanel, NavyPanelRow, NAVY_PANEL_VARIANTS_SOFT } from './NavyPanel';
+import { cn } from '@/lib/cn';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { NewImpactRecordModal } from './NewImpactRecordModal';
 import {
@@ -154,23 +155,54 @@ export function ImpactTab() {
             </CardBody>
           </Card>
           <div className="grid flex-1 grid-cols-2 gap-4 md:grid-cols-4">
-            {byCategory!.map((c) => (
-              <Card key={c.category}>
-                <CardBody>
-                  <p className="font-display text-xl font-bold text-ink">
-                    {c.count}
-                  </p>
-                  <p className="font-body text-[10px] text-ink-faint">
-                    {IMPACT_CATEGORY_LABELS[c.category] ?? c.category}
-                  </p>
-                  <p className="mt-1 font-body text-[10px] text-ink-faint">
-                    {c.avgAttributionPercent != null
-                      ? `${c.avgAttributionPercent}% atribuição média`
-                      : '—'}
-                  </p>
-                </CardBody>
-              </Card>
-            ))}
+            {byCategory!.map((c, i) => {
+              const pct =
+                c.avgAttributionPercent != null
+                  ? Math.max(0, Math.min(100, c.avgAttributionPercent))
+                  : null;
+              return (
+                <div
+                  key={c.category}
+                  className={cn(
+                    'flex min-w-0 flex-col justify-between gap-4 rounded-panel bg-gradient-to-br p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]',
+                    NAVY_PANEL_VARIANTS_SOFT[
+                      i % NAVY_PANEL_VARIANTS_SOFT.length
+                    ],
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-display text-sm font-semibold leading-snug">
+                      {IMPACT_CATEGORY_LABELS[c.category] ?? c.category}
+                    </p>
+                    <span className="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 font-body text-xs font-semibold">
+                      {c.count} {c.count === 1 ? 'registo' : 'registos'}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-display text-3xl font-extrabold leading-none">
+                      {pct != null ? `${c.avgAttributionPercent}%` : '—'}
+                    </p>
+                    <p className="mt-1 font-body text-xs font-medium text-white/80">
+                      atribuição média
+                    </p>
+                    <div
+                      className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/15"
+                      role="img"
+                      aria-label={
+                        pct != null
+                          ? `Atribuição média de ${pct}%`
+                          : 'Sem atribuição registada'
+                      }
+                    >
+                      <div
+                        className="h-full rounded-full bg-white"
+                        style={{ width: `${pct ?? 0}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
