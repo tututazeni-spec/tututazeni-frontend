@@ -234,6 +234,7 @@ export function HistoryFilterBar({ tab }: { tab: Tab }) {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
+  const overview = tab === 'overview';
   const sel = (v: string) => (v === ALL ? '' : v);
   const statusMap = tab === 'documents' ? DOC_STATUS_LABEL : AUDIT_STATUS_LABEL;
 
@@ -279,7 +280,7 @@ export function HistoryFilterBar({ tab }: { tab: Tab }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {tab !== 'employee' && (
+        {tab !== 'employee' && !overview && (
           <PersonPicker
             label="Colaborador"
             value={f.affected}
@@ -291,11 +292,13 @@ export function HistoryFilterBar({ tab }: { tab: Tab }) {
           value={f.actor}
           onChange={(p) => setFilters({ actor: p })}
         />
-        <PersonPicker
-          label="Responsável"
-          value={f.responsible}
-          onChange={(p) => setFilters({ responsible: p })}
-        />
+        {!overview && (
+          <PersonPicker
+            label="Responsável"
+            value={f.responsible}
+            onChange={(p) => setFilters({ responsible: p })}
+          />
+        )}
         <Select
           className="w-44"
           placeholder="Módulo"
@@ -316,19 +319,21 @@ export function HistoryFilterBar({ tab }: { tab: Tab }) {
             })),
           ]}
         />
-        <Select
-          className="w-44"
-          placeholder="Unidade"
-          value={f.unitId || ALL}
-          onValueChange={(v) => setFilters({ unitId: sel(v) })}
-          items={[
-            { value: ALL, label: 'Todas as unidades' },
-            ...(units.data ?? []).map((u) => ({
-              value: String(u.id),
-              label: u.name,
-            })),
-          ]}
-        />
+        {!overview && (
+          <Select
+            className="w-44"
+            placeholder="Unidade"
+            value={f.unitId || ALL}
+            onValueChange={(v) => setFilters({ unitId: sel(v) })}
+            items={[
+              { value: ALL, label: 'Todas as unidades' },
+              ...(units.data ?? []).map((u) => ({
+                value: String(u.id),
+                label: u.name,
+              })),
+            ]}
+          />
+        )}
         <Select
           className="w-44"
           placeholder="Tipo de evento"
@@ -336,19 +341,23 @@ export function HistoryFilterBar({ tab }: { tab: Tab }) {
           onValueChange={(v) => setFilters({ eventType: sel(v) })}
           items={toItems(EVENT_TYPE_LABEL, 'Todos os tipos')}
         />
-        <Select
-          className="w-44"
-          placeholder="Estado"
-          value={f.status || ALL}
-          onValueChange={(v) => setFilters({ status: sel(v) })}
-          items={toItems(statusMap, 'Todos os estados')}
-        />
-        <Input
-          value={f.entity}
-          placeholder="Entidade"
-          onChange={(e) => setFilters({ entity: e.target.value })}
-          className="w-36"
-        />
+        {!overview && (
+          <>
+            <Select
+              className="w-44"
+              placeholder="Estado"
+              value={f.status || ALL}
+              onValueChange={(v) => setFilters({ status: sel(v) })}
+              items={toItems(statusMap, 'Todos os estados')}
+            />
+            <Input
+              value={f.entity}
+              placeholder="Entidade"
+              onChange={(e) => setFilters({ entity: e.target.value })}
+              className="w-36"
+            />
+          </>
+        )}
       </div>
     </div>
   );
