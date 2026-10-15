@@ -254,6 +254,7 @@ export function RoiAnalysisTab() {
                     <Button
                       size="sm"
                       intent="secondary"
+                      className="px-2.5 py-1 text-[11px]"
                       loading={approve.isPending}
                       onClick={() => approve.mutate(a.id)}
                     >
