@@ -9,10 +9,16 @@ import { cn } from '@/lib/cn';
 
 export function Table({
   className,
+  wrapperClassName,
   ...props
-}: TableHTMLAttributes<HTMLTableElement>) {
+}: TableHTMLAttributes<HTMLTableElement> & { wrapperClassName?: string }) {
   return (
-    <div className="overflow-x-auto rounded-card border border-border">
+    <div
+      className={cn(
+        'overflow-x-auto rounded-card border border-border',
+        wrapperClassName,
+      )}
+    >
       <table
         className={cn(
           'w-full border-collapse font-body text-sm text-ink',

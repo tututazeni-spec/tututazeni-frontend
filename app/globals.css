@@ -42,6 +42,14 @@ html {
   overflow-anchor: none;
 }
 
+/* Radix (Select, Dialog…) compensa o scroll bloqueado com margin/padding-right
+   no body; como a barra já está reservada acima, essa compensação só faz a
+   página deslizar para os lados ao abrir um filtro. */
+body[data-scroll-locked][data-scroll-locked] {
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+}
+
 body {
   background: var(--content-bg);
   color: var(--text-primary);

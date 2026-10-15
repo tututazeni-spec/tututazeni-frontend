@@ -27,12 +27,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
-import {
-  SEVERITY_CFG,
-  STATUS_CFG,
-  actionLabel,
-  entityLabel,
-} from './constants';
+import { STATUS_CFG, actionLabel, entityLabel } from './constants';
 import { EventDetailModal } from './EventDetailModal';
 import { LogRow } from './LogRow';
 import type { AuditFilterOptions, AuditLog, Paginated } from './types';
@@ -42,7 +37,6 @@ const EMPTY = {
   entity: '',
   entityId: '',
   action: '',
-  severity: '',
   status: '',
   actorType: '',
   departmentId: '',
@@ -50,14 +44,6 @@ const EMPTY = {
   to: '',
   criticalOnly: false,
 };
-
-const SEVERITY_ITEMS = [
-  { value: 'ALL', label: 'Gravidade' },
-  ...(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const).map((s) => ({
-    value: s,
-    label: SEVERITY_CFG[s].label,
-  })),
-];
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Resultado' },
@@ -74,7 +60,6 @@ const ACTOR_ITEMS = [
 ];
 
 const HEADERS = [
-  '#',
   'Data e hora',
   'Utilizador',
   'Perfil',
@@ -85,6 +70,20 @@ const HEADERS = [
   'Gravidade',
   'IP',
   'Acções',
+];
+
+// Larguras fixas (somam 100%) para a tabela caber sem barra horizontal.
+const HEADER_WIDTHS = [
+  'w-[12%]',
+  'w-[16%]',
+  'w-[8%]',
+  'w-[10%]',
+  'w-[11%]',
+  'w-[8%]',
+  'w-[8%]',
+  'w-[8%]',
+  'w-[8%]',
+  'w-[12%]',
 ];
 
 export function LogsView() {
@@ -109,7 +108,6 @@ export function LogsView() {
     entity: filters.entity,
     entityId: filters.entityId,
     action: filters.action,
-    severity: filters.severity,
     status: filters.status,
     actorType: filters.actorType,
     departmentId: filters.departmentId,
@@ -225,12 +223,6 @@ export function LogsView() {
           onValueChange={(v) => set({ status: v === 'ALL' ? '' : v })}
           className="w-36"
         />
-        <Select
-          items={SEVERITY_ITEMS}
-          value={filters.severity || 'ALL'}
-          onValueChange={(v) => set({ severity: v === 'ALL' ? '' : v })}
-          className="w-40"
-        />
         {advanced && (
           <>
           <Select
@@ -304,20 +296,24 @@ export function LogsView() {
             {exporting ? 'A exportar…' : 'Exportar relatório'}
           </Button>
         )}
-        <span className="ml-auto self-center font-body text-xs text-ink-faint">
-          {data?.total ?? 0} registos
-        </span>
       </div>
 
       {loading ? (
         <Skeleton rows={10} />
       ) : (
         <>
-          <Table>
-            <TableHead>
-              <TableRow>
-                {HEADERS.map((h) => (
-                  <TableHeaderCell key={h}>{h}</TableHeaderCell>
+          <Table className="table-fixed" wrapperClassName="overflow-x-hidden">
+            <TableHead className="bg-[#0F1F3D]/60">
+              <TableRow className="hover:bg-transparent">
+                {HEADERS.map((h, i) => (
+                  <TableHeaderCell
+                    key={h}
+                    className={`px-3 text-white ${HEADER_WIDTHS[i]} ${
+                      HEADERS[i] === 'Acção' ? 'pl-6' : ''
+                    }`}
+                  >
+                    {h}
+                  </TableHeaderCell>
                 ))}
               </TableRow>
             </TableHead>

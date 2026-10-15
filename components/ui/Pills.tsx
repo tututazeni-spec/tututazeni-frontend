@@ -4,6 +4,8 @@
 // letra branca.
 //  - <PeriodPills>   → seletor de período (7/30/90 dias, janelas…): uma activa.
 //  - <ShortcutPills> → atalhos: pílula inactiva que fica navy ao passar o cursor.
+// Hover do <PeriodPills>: pílula não seleccionada muda o fundo para
+// bg-surface-sunken (borda e letra mantêm-se); a seleccionada não muda.
 // Sem lógica própria: quem usa decide o que cada opção/atalho faz.
 
 import { cn } from '@/lib/cn';
