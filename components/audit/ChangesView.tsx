@@ -40,6 +40,22 @@ import type {
 
 const PERIODS = [7, 30, 90];
 
+const HEADER_BG = 'cursor-default select-none bg-[#0F1F3D]/60 text-white';
+
+// Uma cor por entidade (o BarChart partilhado só tem 4 tons categóricos).
+const ENTITY_COLORS = [
+  '#1f6fb8',
+  '#2f9e63',
+  '#d6963a',
+  '#b3432e',
+  '#7b4fb5',
+  '#1b9aaa',
+  '#c2549a',
+  '#6b7a1f',
+  '#e0662b',
+  '#5a6b8c',
+];
+
 const show = (v: unknown): string => {
   if (v === null || v === undefined) return '—';
   return typeof v === 'string' ? v : JSON.stringify(v);
@@ -157,6 +173,7 @@ export function ChangesView() {
               label="Alterações registadas"
               value={summary.totals.changes}
               sub={`Últimos ${summary.periodDays} dias`}
+              iconIntent="caution"
             />
             <KpiCard
               icon={Users}
@@ -167,15 +184,17 @@ export function ChangesView() {
               icon={FilePenLine}
               label="Operações falhadas / negadas"
               value={summary.totals.failed}
-              intent={summary.totals.failed > 0 ? 'warning' : 'primary'}
+              intent="danger"
             />
           </div>
           {summary.byEntity.length > 0 && (
-            <Card>
+            <Card className="overflow-hidden">
+              <div
+                className={`${HEADER_BG} px-4 py-3 font-body text-xs font-semibold`}
+              >
+                Entidades mais alteradas
+              </div>
               <CardBody>
-                <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-                  Entidades mais alteradas
-                </div>
                 <BarChart
                   categories={summary.byEntity.map((e) =>
                     entityLabel(e.entity),
@@ -184,6 +203,9 @@ export function ChangesView() {
                     {
                       label: 'Alterações',
                       values: summary.byEntity.map((e) => e.count),
+                      barColors: summary.byEntity.map(
+                        (_, i) => ENTITY_COLORS[i % ENTITY_COLORS.length],
+                      ),
                     },
                   ]}
                   height={200}
@@ -244,8 +266,8 @@ export function ChangesView() {
         ) : (
           <>
             <Table>
-              <TableHead>
-                <TableRow>
+              <TableHead className={HEADER_BG}>
+                <TableRow className="hover:bg-transparent">
                   {[
                     '',
                     'Data e hora',
@@ -256,7 +278,9 @@ export function ChangesView() {
                     'Campos',
                     'Resultado',
                   ].map((h, i) => (
-                    <TableHeaderCell key={`${h}${i}`}>{h}</TableHeaderCell>
+                    <TableHeaderCell key={`${h}${i}`} className="text-white">
+                      {h}
+                    </TableHeaderCell>
                   ))}
                 </TableRow>
               </TableHead>
