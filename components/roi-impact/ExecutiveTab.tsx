@@ -33,6 +33,7 @@ import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BarChart } from '@/components/ui/charts/BarChart';
+import { categoricalColor } from '@/components/ui/charts/palette';
 import {
   CONFIDENCE_LABELS,
   INITIATIVE_TYPE_LABELS,
@@ -216,6 +217,9 @@ export function ExecutiveTab() {
                     {
                       label: 'ROI médio',
                       values: data!.byInitiativeType!.map((b) => b.avgRoi),
+                      barColors: data!.byInitiativeType!.map((_, i) =>
+                        categoricalColor(i),
+                      ),
                     },
                   ]}
                   yFormat={(v) => `${v}%`}
@@ -240,6 +244,9 @@ export function ExecutiveTab() {
                     {
                       label: 'ROI médio',
                       values: data!.byDepartment!.map((b) => b.avgRoi),
+                      barColors: data!.byDepartment!.map((_, i) =>
+                        categoricalColor(i),
+                      ),
                     },
                   ]}
                   yFormat={(v) => `${v}%`}
