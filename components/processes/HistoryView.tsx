@@ -121,7 +121,8 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
       a.href = url;
       a.download = 'auditoria-processos.csv';
       a.click();
-      URL.revokeObjectURL(url);
+      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
       setAskExport(false);
     } catch (e) {
       notify({ title: e instanceof Error ? e.message : 'Falha ao exportar', intent: 'danger' });

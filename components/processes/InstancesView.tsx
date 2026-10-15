@@ -217,7 +217,8 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
       a.href = url;
       a.download = 'processos.csv';
       a.click();
-      URL.revokeObjectURL(url);
+      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e) {
       notify({ title: e instanceof Error ? e.message : 'Falha ao exportar', intent: 'danger' });
     } finally {

@@ -38,5 +38,6 @@ export async function downloadAuditFile(
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }

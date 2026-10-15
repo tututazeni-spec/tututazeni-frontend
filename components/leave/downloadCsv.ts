@@ -10,5 +10,6 @@ export function downloadCsv(filename: string, content: string): void {
   a.href = url;
   a.download = filename;
   a.click();
-  URL.revokeObjectURL(url);
+  // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }

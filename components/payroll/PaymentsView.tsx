@@ -50,13 +50,14 @@ interface BankFile {
 }
 
 function downloadCsv(file: BankFile) {
-  const blob = new Blob([file.content], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob(['﻿', file.content], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = file.filename;
   a.click();
-  URL.revokeObjectURL(url);
+  // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 export function PaymentsView() {
