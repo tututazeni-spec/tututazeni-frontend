@@ -42,6 +42,7 @@ import {
   BENEFIT_TYPE_LABELS,
   CONFIDENCE_LABELS,
   ANALYSIS_STATUS_LABELS,
+  DATA_SOURCES,
 } from './utils';
 import type {
   InitiativeOption,
@@ -89,18 +90,6 @@ const CONVERSION_METHODS = [
   'Redução de incidentes / acidentes × custo médio',
   'Valor de mercado / benchmark do setor',
   'Estimativa validada por gestor ou especialista',
-];
-
-const DATA_SOURCES = [
-  'Sistema de RH / folha salarial',
-  'Plataforma de aprendizagem (LMS)',
-  'Avaliações de desempenho',
-  'Avaliações 360°',
-  'Inquéritos de satisfação / NPS',
-  'Relatórios financeiros / contabilidade',
-  'Sistemas operacionais / produção',
-  'Registos de assiduidade',
-  'Entrevistas / observação de gestores',
 ];
 
 const PHILLIPS_MODEL_NAME = 'Phillips ROI';
