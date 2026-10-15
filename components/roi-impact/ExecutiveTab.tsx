@@ -11,7 +11,6 @@ import { cn } from '@/lib/cn';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import {
   CONFIDENCE_INTENTS,
@@ -20,6 +19,7 @@ import {
   fmt$,
   ptInsight,
 } from './utils';
+import { RoiTotalCard } from './RoiTotalCard';
 import type { ExecutiveData } from './types';
 
 const ALERT_INTENT_CLASSES = {
@@ -75,46 +75,12 @@ export function ExecutiveTab() {
 
   return (
     <div className="space-y-6">
-      {/* ROI Hero */}
-      <div className="rounded-panel border border-border bg-surface p-6 text-ink">
-        <div className="mb-4 flex items-start justify-between">
-          <div className="flex items-center gap-5">
-            <GaugeChart
-              value={h.overallRoi ?? 0}
-              format={(v) => `${v}%`}
-              size={140}
-            />
-            <div>
-              <p className="mb-1 font-body text-sm text-ink-muted">
-                ROI Total do Investimento em Pessoas
-              </p>
-              <p className="font-body text-sm text-ink-muted">
-                Rácio Benefício-Custo:{' '}
-                {(h.totalCost ?? 0) > 0
-                  ? ((h.totalBenefit ?? 0) / (h.totalCost ?? 1)).toFixed(2)
-                  : '–'}{' '}
-                · Status: {h.status}
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="mb-1 font-body text-xs text-ink-muted">
-              Benefício Total
-            </p>
-            <p className="font-display text-3xl font-bold">
-              {fmt$(h.totalBenefit ?? 0)}
-            </p>
-            <p className="mt-1 font-body text-xs text-ink-muted">
-              Custo: {fmt$(h.totalCost ?? 0)}
-            </p>
-          </div>
-        </div>
-        {h.narrative && (
-          <p className="rounded-card bg-ink/5 px-4 py-3 font-body text-sm leading-relaxed text-ink">
-            {ptInsight(h.narrative)}
-          </p>
-        )}
-      </div>
+      <RoiTotalCard
+        roi={h.overallRoi ?? 0}
+        totalBenefit={h.totalBenefit ?? 0}
+        totalCost={h.totalCost ?? 0}
+        narrative={h.narrative}
+      />
 
       {/* Domain breakdown */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
