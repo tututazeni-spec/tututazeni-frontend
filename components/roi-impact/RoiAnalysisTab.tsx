@@ -251,15 +251,14 @@ export function RoiAnalysisTab() {
                 </ul>
                 <div className="mt-auto flex items-center justify-end gap-2 pt-3">
                   {a.status === 'CALCULADO' ? (
-                    <Button
-                      size="sm"
-                      intent="secondary"
-                      className="px-2.5 py-1 text-[11px]"
-                      loading={approve.isPending}
+                    <button
+                      type="button"
+                      disabled={approve.isPending}
                       onClick={() => approve.mutate(a.id)}
+                      className="rounded-full border border-white/40 px-2.5 py-0.5 font-body text-[11px] font-medium text-white/90 transition-colors hover:border-white hover:bg-white/15 hover:text-white disabled:opacity-40"
                     >
                       Validar
-                    </Button>
+                    </button>
                   ) : null}
                   <button
                     type="button"
