@@ -16,7 +16,7 @@ import {
   Workflow,
   Zap,
 } from 'lucide-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
@@ -183,7 +183,13 @@ export default function MonitoringPage() {
   const canAct = !!role && CAN_ACT.includes(role);
 
   const opts = { staleTime: STALE_TIME.DYNAMIC, refetchInterval: REFRESH_MS };
-  const on = (t: string) => ({ ...opts, enabled: !blocked && tab === t });
+  // keepPreviousData: ao mudar um filtro (dias, tipo, área…) a key muda; sem isto
+  // o Body voltava ao skeleton e a página inteira piscava.
+  const on = (t: string) => ({
+    ...opts,
+    enabled: !blocked && tab === t,
+    placeholderData: keepPreviousData,
+  });
 
   const overview = useApiQuery<OverviewData>(
     queryKeys.monitoring.overview(),
