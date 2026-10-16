@@ -4,6 +4,9 @@
 import {
   CalendarClock,
   CalendarX,
+  Database,
+  Timer,
+  WifiOff,
   Plug,
   Hourglass,
   PlayCircle,
@@ -331,25 +334,33 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
       />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <NavyStatCard
+          icon={WifiOff}
           label="Indisponíveis"
           value={s.unavailable}
           sub={`${s.stale} sem sincronização recente`}
-          intent={tone(s.unavailable)}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={RefreshCw}
           label="Sincronizações (24h)"
           value={s.syncs24h}
           sub={`${s.failures24h} falhas`}
-          intent={tone(s.failures24h, 'warning')}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={Database}
           label="Registos processados (24h)"
           value={s.recordsProcessed24h}
           sub={`${s.recordsFailed24h} com falha`}
-          intent={tone(s.recordsFailed24h, 'warning')}
+          tone="green"
         />
-        <Tile label="Tempo de resposta" value={fmtMs(s.avgResponseMs)} />
+        <NavyStatCard
+          icon={Timer}
+          label="Tempo de resposta"
+          value={fmtMs(s.avgResponseMs)}
+          tone="blue"
+        />
       </div>
 
       <Section title="Por família">
