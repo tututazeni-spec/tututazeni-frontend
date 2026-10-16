@@ -13,6 +13,9 @@ const TONES: Record<WalletTone, { body: string; flap: string }> = {
   red: { body: '#EF4657', flap: '#B52C3B' },
 };
 
+const ZOOM =
+  'transition-transform duration-200 ease-out hover:scale-[1.06] motion-reduce:hover:scale-100';
+
 function Bill({ x, y, r }: { x: number; y: number; r: number }) {
   return (
     <g transform={`rotate(${r} ${x + 22} ${y + 12})`}>
@@ -103,15 +106,20 @@ export function WalletStat({
   value,
   tone,
   money,
+  zoom = false,
 }: {
   label: string;
   value: string | number;
   tone: WalletTone;
   money: WalletMoney;
+  /** Efeito zoom ao passar o cursor (como o NavyStatCard). */
+  zoom?: boolean;
 }) {
   const t = TONES[tone];
   return (
-    <div className="flex flex-col items-center gap-1 text-center">
+    <div
+      className={`flex flex-col items-center gap-1 text-center ${zoom ? ZOOM : ''}`}
+    >
       <h3 className="min-h-[2.5rem] font-body text-sm font-semibold leading-tight text-[#152F59]">
         {label}
       </h3>
@@ -136,6 +144,72 @@ export function WalletStat({
         style={{ color: t.body }}
       >
         {value}
+      </p>
+    </div>
+  );
+}
+
+/** Donut com a percentagem de ROI ao centro; mesmo esqueleto do WalletStat. */
+export function RoiDonutStat({
+  label,
+  roi,
+  zoom = false,
+}: {
+  label: string;
+  roi: number | null | undefined;
+  zoom?: boolean;
+}) {
+  const size = 100;
+  const stroke = 14;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const has = roi != null;
+  const pct = !has ? 0 : roi < 0 ? 100 : Math.min(100, roi);
+  const color = !has ? '#9CA3AF' : roi < 0 ? '#EF4657' : '#1877F2';
+
+  return (
+    <div
+      className={`flex flex-col items-center gap-1 text-center ${zoom ? ZOOM : ''}`}
+    >
+      <h3 className="min-h-[2.5rem] font-body text-sm font-semibold leading-tight text-[#152F59]">
+        {label}
+      </h3>
+      <div className="relative" style={{ width: size, height: 100 }}>
+        <svg
+          width={size}
+          height={size}
+          viewBox={`0 0 ${size} ${size}`}
+          role="img"
+          aria-label={has ? `${label}: ${roi}%` : `${label}: sem dados`}
+          className="-rotate-90"
+        >
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            fill="none"
+            stroke="#E5ECF6"
+            strokeWidth={stroke}
+          />
+          {pct > 0 && (
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={r}
+              fill="none"
+              stroke={color}
+              strokeWidth={stroke}
+              strokeLinecap="round"
+              strokeDasharray={`${(pct / 100) * circ} ${circ}`}
+            />
+          )}
+        </svg>
+      </div>
+      <p
+        className="font-display text-2xl font-bold leading-none"
+        style={{ color }}
+      >
+        {has ? `${roi}%` : '—'}
       </p>
     </div>
   );

@@ -44,7 +44,7 @@ function CardShell({
   children: ReactNode;
 }) {
   return (
-    <Card>
+    <Card className="transition-transform duration-200 ease-out hover:scale-[1.06] motion-reduce:hover:scale-100">
       <CardBody>
         <div className="mb-4 flex items-center gap-3">
           <Icon

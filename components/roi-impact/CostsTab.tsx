@@ -130,30 +130,35 @@ export function CostsTab() {
       {grandTotal && (
         <div className="grid grid-cols-2 items-start gap-6 md:grid-cols-3 xl:grid-cols-5">
           <WalletStat
+            zoom
             money="bills"
             label="Custo direto total"
             value={fmt$(grandTotal.direct)}
             tone="blue"
           />
           <WalletStat
+            zoom
             money="coins"
             label="Custo indireto total"
             value={fmt$(grandTotal.indirect)}
             tone="orange"
           />
           <WalletStat
+            zoom
             money="stack"
             label="Custo de oportunidade total"
             value={fmt$(grandTotal.opportunity)}
             tone="green"
           />
           <WalletStat
+            zoom
             money="fan"
             label="Investimento total"
             value={fmt$(grandTotal.total)}
             tone="red"
           />
           <WalletStat
+            zoom
             money="mixed"
             label="Iniciativas"
             value={rows.length}

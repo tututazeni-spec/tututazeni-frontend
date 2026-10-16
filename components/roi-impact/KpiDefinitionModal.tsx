@@ -30,7 +30,7 @@ const FREQUENCY_ITEMS = Object.entries(KPI_FREQUENCY_LABELS).map(
   ([value, label]) => ({ value, label }),
 );
 
-const UNIT_OPTIONS = [
+export const UNIT_OPTIONS = [
   '%',
   'AOA',
   'AOA/hora',

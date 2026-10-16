@@ -110,7 +110,7 @@ export function CorrelationAnalysisCard({
 
   return (
     <div
-      className={`flex flex-col overflow-hidden rounded-panel bg-gradient-to-br ${theme.gradient} ${theme.shadow} p-4 text-white`}
+      className={`transition-transform duration-200 ease-out hover:scale-[1.06] motion-reduce:hover:scale-100 flex flex-col overflow-hidden rounded-panel bg-gradient-to-br ${theme.gradient} ${theme.shadow} p-4 text-white`}
     >
       <div className="mb-2 flex min-h-[3.75rem] items-start gap-3">
         <Icon
