@@ -1,6 +1,17 @@
 // modulo_monitoring.md §4-6 — vistas apresentacionais (Automações, Integrações,
 // Performance). Os dados chegam por props do container (app/(platform)/monitoring).
 
+import {
+  CalendarClock,
+  CalendarX,
+  CheckCircle2,
+  Hourglass,
+  PlayCircle,
+  RefreshCw,
+  Skull,
+  Zap,
+} from 'lucide-react';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -62,51 +73,63 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <NavyStatCard
+          icon={Zap}
           label="Execuções (24h)"
           value={s.executed24h}
           sub={`${s.activeRules} regras activas`}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={CheckCircle2}
           label="Taxa de sucesso"
-          value={pct(s.successRatePercent)}
+          value={pct(s.successRatePercent) ?? '—'}
           sub={`${s.success24h} sucesso · ${s.failed24h} falhas`}
-          intent={tone(s.failed24h, 'warning')}
+          tone="green"
         />
-        <Tile
+        <NavyStatCard
+          icon={PlayCircle}
           label="Em execução"
           value={s.running}
           sub={`${s.pending} pendentes · ${s.waitingFlows} fluxos em espera`}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={RefreshCw}
           label="Retries (24h)"
           value={s.retries24h}
           sub={`${s.retriesScheduled} agendados`}
-          intent={tone(s.retries24h, 'warning')}
+          tone="orange"
         />
-        <Tile
+        <NavyStatCard
+          icon={Hourglass}
           label="Tempo médio"
           value={fmtMs(s.avgExecutionMs)}
           sub="execuções terminadas"
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={Skull}
           label="Dead letters abertas"
           value={s.deadLettersOpen}
-          intent={tone(s.deadLettersOpen)}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={CalendarX}
           label="Agendamentos com erro"
           value={s.schedulesInError}
-          intent={tone(s.schedulesInError, 'warning')}
+          tone="orange"
         />
-        <Tile
+        <NavyStatCard
+          icon={CalendarClock}
           label="Próxima execução"
-          value={s.nextExecutionAt ? fmtDate(s.nextExecutionAt) : null}
+          value={s.nextExecutionAt ? fmtDate(s.nextExecutionAt) : '—'}
           sub={
             s.lastExecutionAt
               ? `última ${fmtDate(s.lastExecutionAt)}`
               : 'sem execuções'
           }
+          tone="blue"
         />
       </div>
 
