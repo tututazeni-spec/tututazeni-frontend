@@ -2,6 +2,14 @@
 // Processos). Os dados chegam por props do container (app/(platform)/monitoring).
 
 import { Card, CardBody } from '@/components/ui/Card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import {
@@ -277,88 +285,113 @@ export function ModulesTab({ data }: { data: ModulesData }) {
           />
         ))}
       </div>
-      <Card>
-        <CardBody>
-          <div className="w-full">
-            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
-              <thead className="text-xs uppercase text-ink-muted">
-                <tr>
-                  <th className="py-2 pr-3">Módulo</th>
-                  <th className="pr-3">Estado</th>
-                  <th className="pr-3">Disponib.</th>
-                  <th className="pr-3">Operações 24h</th>
-                  <th className="pr-3">7d</th>
-                  <th className="pr-3">Erros 24h</th>
-                  <th className="pr-3">Latência</th>
-                  <th>Dependências</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {data.modules.map((m) => (
-                  <tr key={m.key} className="align-top">
-                    <td className="py-2 pr-3">
-                      <div className="font-medium text-ink">{m.module}</div>
-                      <div className="text-xs text-ink-faint">{m.metric}</div>
-                    </td>
-                    <td className="pr-3">
-                      <StatusBadge status={m.status} />
-                      {m.reasons.map((r) => (
-                        <div key={r} className="mt-1 text-xs text-ink-muted">
-                          {r}
-                        </div>
-                      ))}
-                    </td>
-                    <td className="pr-3">{m.availability ? 'Sim' : 'Não'}</td>
-                    <td className="pr-3 tabular-nums">
-                      {m.operations.last24h ?? '—'}
-                      {m.operations.previous24h !== null && (
-                        <span className="ml-1 text-xs text-ink-faint">
-                          (dia anterior {m.operations.previous24h})
-                        </span>
-                      )}
-                    </td>
-                    <td className="pr-3 tabular-nums">
-                      {m.operations.last7d ?? '—'}
-                    </td>
-                    <td className="pr-3 tabular-nums">
-                      {m.errors.tracked
-                        ? `${m.errors.last24h ?? '—'}${
-                            m.errors.ratePercent !== null
-                              ? ` (${m.errors.ratePercent}%)`
-                              : ''
-                          }`
-                        : 'n/d'}
-                    </td>
-                    <td className="pr-3 tabular-nums">
-                      {m.latencyMs === null ? '—' : `${m.latencyMs} ms`}
-                    </td>
-                    <td>
-                      <div className="flex flex-wrap gap-1">
-                        {m.dependencies.length === 0 && (
-                          <span className="text-ink-faint">—</span>
-                        )}
-                        {m.dependencies.map((d) => (
-                          <Badge
-                            key={d.key}
-                            intent={STATUS[d.status].intent}
-                            dot={false}
-                          >
-                            {d.module}
-                          </Badge>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="px-5 py-3">
+          <h4 className="font-display text-sm font-semibold text-white">
+            Módulos monitorizados
+          </h4>
+        </div>
+        <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_td]:align-top [&_th]:px-2 [&_th]:text-[11px]">
+          <Table>
+            <TableHead className="bg-[#0F1F3D]/60">
+              <TableRow className="hover:bg-transparent">
+                {[
+                  'Módulo',
+                  'Estado',
+                  'Disponib.',
+                  'Operações 24h',
+                  '7d',
+                  'Erros 24h',
+                  'Latência',
+                  'Dependências',
+                ].map((h) => (
+                  <TableHeaderCell key={h} className="text-white">
+                    {h}
+                  </TableHeaderCell>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.modules.map((m) => (
+                <TableRow key={m.key}>
+                  <TableCell>
+                    <p className="font-medium text-ink">{m.module}</p>
+                    <p className="text-xs text-ink-faint">{m.metric}</p>
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge status={m.status} />
+                    {m.reasons.map((r) => (
+                      <p key={r} className="mt-1 text-xs text-ink-muted">
+                        {r}
+                      </p>
+                    ))}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      intent={m.availability ? 'success' : 'danger'}
+                      dot={false}
+                    >
+                      {m.availability ? 'Sim' : 'Não'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="tabular-nums">
+                    <span className="font-semibold text-ink">
+                      {m.operations.last24h ?? '—'}
+                    </span>
+                    {m.operations.previous24h !== null && (
+                      <p className="text-xs text-ink-faint">
+                        dia anterior {m.operations.previous24h}
+                      </p>
+                    )}
+                  </TableCell>
+                  <TableCell className="tabular-nums">
+                    {m.operations.last7d ?? '—'}
+                  </TableCell>
+                  <TableCell className="tabular-nums">
+                    {m.errors.tracked ? (
+                      <>
+                        <span className="font-semibold text-ink">
+                          {m.errors.last24h ?? '—'}
+                        </span>
+                        {m.errors.ratePercent !== null && (
+                          <p className="text-xs text-ink-faint">
+                            {m.errors.ratePercent}%
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      'n/d'
+                    )}
+                  </TableCell>
+                  <TableCell className="tabular-nums">
+                    {m.latencyMs === null ? '—' : `${m.latencyMs} ms`}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {m.dependencies.length === 0 && (
+                        <span className="text-ink-faint">—</span>
+                      )}
+                      {m.dependencies.map((d) => (
+                        <Badge
+                          key={d.key}
+                          intent={STATUS[d.status].intent}
+                          dot={false}
+                        >
+                          {d.module}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           <p className="mt-3 font-body text-xs text-ink-faint">
             n/d = o módulo não regista falhas de forma fiável, por isso não é
             apresentada taxa de erros.
           </p>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
