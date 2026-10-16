@@ -4,6 +4,7 @@
 import {
   CalendarClock,
   CalendarX,
+  Plug,
   Hourglass,
   PlayCircle,
   RefreshCw,
@@ -11,6 +12,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
+import { StatusHeroCard } from './StatusHeroCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -302,27 +304,31 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
   const s = data.summary;
   return (
     <div className="space-y-6">
-      <Card>
-        <CardBody>
-          <div className="flex flex-wrap items-center gap-3 font-body text-sm">
-            <h2 className="font-display text-lg font-bold text-ink">
-              Estado das integrações
-            </h2>
-            <StatusBadge status={s.overall} />
-            <span className="text-ink-muted">
-              {s.active} activas de {s.total}
-            </span>
-            {data.sso && (
-              <Badge intent={data.sso.enabled ? 'success' : 'neutral'}>
-                SSO{' '}
-                {data.sso.enabled
-                  ? (data.sso.provider ?? 'activo')
-                  : 'desligado'}
-              </Badge>
-            )}
-          </div>
-        </CardBody>
-      </Card>
+      <StatusHeroCard
+        icon={Plug}
+        title="Estado das integrações"
+        headline="Integrações com sistemas externos"
+        status={s.overall}
+        percent={s.total > 0 ? (s.active / s.total) * 100 : 0}
+        ringLabel={`${s.active} de ${s.total} integrações activas`}
+        stats={[
+          { label: 'Activas', value: `${s.active} / ${s.total}` },
+          {
+            label: 'SSO',
+            value: data.sso
+              ? data.sso.enabled
+                ? (data.sso.provider ?? 'Activo')
+                : 'Desligado'
+              : '—',
+          },
+          { label: 'Tempo de resposta', value: fmtMs(s.avgResponseMs) },
+        ]}
+        info={
+          s.unavailable > 0 || s.stale > 0
+            ? `${s.unavailable} indisponíveis · ${s.stale} sem sincronização recente.`
+            : 'Todas as integrações estão disponíveis e sincronizadas.'
+        }
+      />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Tile
