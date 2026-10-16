@@ -26,7 +26,6 @@ import {
   Zap,
 } from 'lucide-react';
 import { ThermometerStatCard } from '@/components/ui/charts/ThermometerStatCard';
-import { INVERSE_RATE_BANDS } from '@/components/ui/charts/SpeedometerStatCard';
 import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { StatusHeroCard } from './StatusHeroCard';
 import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
@@ -520,6 +519,13 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
 
 const statusIntent = (s: MonitoringStatus | null | undefined) =>
   s ? STATUS[s].intent : undefined;
+// Termómetro da taxa de erros: 0–40 verde, 40–70 amarelo, 70–100 vermelho.
+const ERROR_RATE_BANDS = [
+  { to: 40, color: '#2f9e63' },
+  { to: 70, color: '#f1c40f' },
+  { to: 100, color: '#c0392b' },
+];
+
 const navyTone = (i: Intent | undefined, base: NavyStatTone): NavyStatTone =>
   i === 'danger' ? 'red' : i === 'warning' ? 'orange' : base;
 const tileIntent = (s: MonitoringStatus | null | undefined) => {
@@ -605,7 +611,7 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
             <ThermometerStatCard
               label="Taxa de erros"
               value={api.errorRatePercent ?? 0}
-              bands={INVERSE_RATE_BANDS}
+              bands={ERROR_RATE_BANDS}
               display={pct(api.errorRatePercent) ?? '—'}
               caption={`${api.http4xx} × 4xx · ${api.http5xx} × 5xx`}
             />
