@@ -7,6 +7,7 @@ import {
   Bell,
   CheckCircle2,
   Flame,
+  HeartPulse,
   List,
   Siren,
   Timer,
@@ -14,6 +15,7 @@ import {
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
+import { StatusHeroCard } from './StatusHeroCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -884,40 +886,50 @@ export function HealthTab({
   const groups = Object.keys(GROUP_LABEL);
   return (
     <div className="space-y-6">
-      <Card>
-        <CardBody>
-          <div className="flex flex-wrap items-center gap-3 font-body text-sm">
-            <h2 className="font-display text-lg font-bold text-ink">
-              Estado dos componentes
-            </h2>
-            <StatusBadge status={data.overall.status} />
-            <span className="text-ink-muted">
-              {data.summary.monitored} monitorizados
-              {data.summary.notMonitored > 0 &&
-                ` · ${data.summary.notMonitored} não monitorizados`}
-            </span>
-            <span className="text-xs text-ink-faint">
-              verificado {fmtDate(data.generatedAt)}
-            </span>
-            <Button
-              className="ml-auto"
-              size="sm"
-              intent="secondary"
-              loading={refreshing}
-              onClick={onRefresh}
-            >
-              Verificar agora
-            </Button>
-          </div>
-          {data.overall.reasons.length > 0 && (
-            <ul className="mt-3 list-disc space-y-1 pl-5 font-body text-sm text-ink-muted">
+      <StatusHeroCard
+        icon={HeartPulse}
+        title="Estado dos componentes"
+        headline="Saúde dos componentes"
+        status={data.overall.status}
+        percent={
+          data.summary.monitored > 0
+            ? ((data.summary.counts.NORMAL ?? 0) / data.summary.monitored) * 100
+            : 0
+        }
+        ringLabel={`${data.summary.counts.NORMAL ?? 0} de ${data.summary.monitored} componentes em estado normal`}
+        stats={[
+          {
+            label: 'Componentes normais',
+            value: `${data.summary.counts.NORMAL ?? 0} / ${data.summary.monitored}`,
+          },
+          {
+            label: 'Não monitorizados',
+            value: String(data.summary.notMonitored),
+          },
+          { label: 'Verificado', value: fmtDate(data.generatedAt) },
+        ]}
+        action={
+          <Button
+            size="sm"
+            intent="secondary"
+            loading={refreshing}
+            onClick={onRefresh}
+          >
+            Verificar agora
+          </Button>
+        }
+        info={
+          data.overall.reasons.length > 0 ? (
+            <ul className="space-y-1">
               {data.overall.reasons.map((r) => (
                 <li key={r}>{r}</li>
               ))}
             </ul>
-          )}
-        </CardBody>
-      </Card>
+          ) : (
+            'Todos os componentes monitorizados estão a funcionar.'
+          )
+        }
+      />
 
       {groups.map((g) => {
         const items = data.components.filter((c) => c.group === g);

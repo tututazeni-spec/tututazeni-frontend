@@ -34,6 +34,7 @@ export function StatusHeroCard({
   ringLabel,
   stats,
   info,
+  action,
 }: {
   icon: LucideIcon;
   title: string;
@@ -44,6 +45,8 @@ export function StatusHeroCard({
   ringLabel: string;
   stats: HeroStat[];
   info: ReactNode;
+  /** Botão opcional à direita do título. */
+  action?: ReactNode;
 }) {
   const gid = useId();
   const view = STATUS_VIEW[status];
@@ -61,6 +64,7 @@ export function StatusHeroCard({
         <h2 className="font-display text-sm font-bold uppercase tracking-wide">
           {title}
         </h2>
+        {action && <div className="ml-auto">{action}</div>}
       </div>
 
       <div className="flex flex-col items-center gap-2 md:flex-row md:gap-5">
