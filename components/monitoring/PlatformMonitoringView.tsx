@@ -6,6 +6,12 @@ import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import {
   AlarmClock,
+  AlertTriangle,
+  CheckCircle2,
+  ShieldAlert,
+  TrendingDown,
+  WifiOff,
+  type LucideIcon,
   Ban,
   Clock,
   Cog,
@@ -18,7 +24,11 @@ import {
   Zap,
   ZapOff,
 } from 'lucide-react';
-import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  NavyStatCard,
+  type NavyIconTone,
+  type NavyStatTone,
+} from '@/components/ui/NavyStatCard';
 import { PlatformStatusCard } from './PlatformStatusCard';
 import type {
   ModulesData,
@@ -240,17 +250,30 @@ export function OverviewTab({ data }: { data: OverviewData }) {
 
 // ── §2 Módulos ───────────────────────────────────────────────────────────────
 
+const MODULE_STATUS_CARD: Record<
+  MonitoringStatus,
+  { icon: LucideIcon; tone: NavyStatTone; iconTone?: NavyIconTone }
+> = {
+  NORMAL: { icon: CheckCircle2, tone: 'green' },
+  ATENCAO: { icon: AlertTriangle, tone: 'orange', iconTone: 'yellow' },
+  DEGRADADO: { icon: TrendingDown, tone: 'orange' },
+  CRITICO: { icon: ShieldAlert, tone: 'red' },
+  INDISPONIVEL: { icon: WifiOff, tone: 'red', iconTone: 'gray' },
+};
+
 export function ModulesTab({ data }: { data: ModulesData }) {
   const c = data.summary.counts;
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         {(Object.keys(STATUS) as MonitoringStatus[]).map((s) => (
-          <Tile
+          <NavyStatCard
             key={s}
+            icon={MODULE_STATUS_CARD[s].icon}
             label={STATUS[s].label}
             value={c[s]}
-            intent={c[s] > 0 && s !== 'NORMAL' ? STATUS[s].intent : undefined}
+            tone={MODULE_STATUS_CARD[s].tone}
+            iconTone={MODULE_STATUS_CARD[s].iconTone}
           />
         ))}
       </div>
