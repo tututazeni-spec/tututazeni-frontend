@@ -580,23 +580,41 @@ function EndpointTable({
 
 export function PerformanceTab({ data }: { data: PerformanceData }) {
   const { api, system, database: db, queues, storage } = data;
+  // Componentes com estado conhecido; o anel conta os que estão Normal.
+  const components = [
+    api.available ? api.status : null,
+    system.available ? system.status : null,
+    db.available ? db.status : null,
+    queues.available ? queues.status : null,
+    storage.available ? storage.status : null,
+  ].filter((st): st is MonitoringStatus => st !== null);
+  const normal = components.filter((st) => st === 'NORMAL').length;
   return (
     <div className="space-y-6">
-      <Card>
-        <CardBody>
-          <div className="flex flex-wrap items-center gap-3 font-body text-sm">
-            <h2 className="font-display text-lg font-bold text-ink">
-              Performance geral
-            </h2>
-            <StatusBadge status={data.overall.status} />
-            {data.overall.unavailableSources.length > 0 && (
-              <span className="text-ink-muted">
-                Sem dados: {data.overall.unavailableSources.join(', ')}
-              </span>
-            )}
-          </div>
-        </CardBody>
-      </Card>
+      <StatusHeroCard
+        icon={Gauge}
+        title="Performance geral"
+        headline="Desempenho da plataforma"
+        status={data.overall.status}
+        percent={components.length > 0 ? (normal / components.length) * 100 : 0}
+        ringLabel={`${normal} de ${components.length} componentes em estado normal`}
+        stats={[
+          {
+            label: 'Componentes normais',
+            value: `${normal} / ${components.length}`,
+          },
+          {
+            label: 'Latência da API',
+            value: api.available ? fmtMs(api.avgLatencyMs) : '—',
+          },
+          { label: 'CPU', value: pct(system.cpuPercent) ?? '—' },
+        ]}
+        info={
+          data.overall.unavailableSources.length > 0
+            ? `Sem dados: ${data.overall.unavailableSources.join(', ')}.`
+            : 'Todas as fontes de métricas estão a responder.'
+        }
+      />
 
       <Section title="API">
         {api.available ? (
