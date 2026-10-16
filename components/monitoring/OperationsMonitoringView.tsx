@@ -4,6 +4,8 @@
 import {
   CalendarClock,
   AlarmClock,
+  Archive,
+  History,
   Bell,
   Flame,
   List,
@@ -29,7 +31,7 @@ import {
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { fmtDate, Tile, tone } from './PlatformMonitoringView';
+import { fmtDate } from './PlatformMonitoringView';
 import type { Intent } from './PlatformMonitoringView';
 import type {
   HistoryData,
@@ -664,29 +666,36 @@ export function HistoryTab({
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <NavyStatCard
+          icon={History}
           label="Ocorrências"
           value={data.summary.events}
           sub={`últimos ${data.windowDays} dias`}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={Siren}
           label="Críticas"
           value={data.summary.critical}
-          intent={tone(data.summary.critical)}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={Archive}
           label="Retenção"
           value={`${data.retention.retentionDays} d`}
           sub={`horárias ${data.retention.hourlyRetentionDays} d`}
+          tone="green"
         />
-        <Tile
+        <NavyStatCard
+          icon={CalendarClock}
           label="Mais antigo (horário)"
           value={
             data.retention.oldestHourlyAt
               ? fmtDate(data.retention.oldestHourlyAt)
-              : null
+              : '—'
           }
           sub={`${data.retention.hourlyRows} linhas horárias`}
+          tone="orange"
         />
       </div>
 
