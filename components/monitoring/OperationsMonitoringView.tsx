@@ -4,6 +4,7 @@
 import {
   CalendarClock,
   AlarmClock,
+  CalendarDays,
   CheckCircle2,
   Clock,
   Siren,
@@ -345,23 +346,25 @@ export function SlaTab({
   const c = data.current;
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2 font-body text-sm">
-        <span className="text-ink-muted">Janela:</span>
-        {[7, 30, 90].map((d) => (
-          <button
-            key={d}
-            type="button"
-            onClick={() => onDaysChange(d)}
-            className={`rounded-md border px-3 py-1 ${
-              d === days
-                ? 'border-brand bg-brand-soft text-ink'
-                : 'border-border text-ink-muted hover:bg-surface-muted'
-            }`}
-          >
-            {d} dias
-          </button>
-        ))}
-        <span className="ml-2 text-xs text-ink-faint">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex min-w-0 flex-1 gap-1 rounded-panel border border-border bg-surface p-1.5 shadow-sm">
+          {[7, 30, 90].map((d) => (
+            <button
+              key={d}
+              type="button"
+              onClick={() => onDaysChange(d)}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-control py-2 font-body text-sm font-medium transition-colors ${
+                d === days
+                  ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                  : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
+              }`}
+            >
+              <CalendarDays size={15} strokeWidth={1.75} />
+              <span>{d} dias</span>
+            </button>
+          ))}
+        </div>
+        <span className="font-body text-xs text-ink-faint">
           {data.sla.name}
           {!data.sla.configured && ' (por omissão — sem SLA configurado)'}
         </span>
