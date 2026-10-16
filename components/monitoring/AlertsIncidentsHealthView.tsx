@@ -367,27 +367,30 @@ export function AlertsTab({
 
 // ── §8 Incidentes ────────────────────────────────────────────────────────────
 
-const INCIDENT_CATEGORIES = [
-  'OVERLOAD',
-  'SLOW_API',
-  'DB_SATURATED',
-  'STORAGE_FULL',
-  'QUEUE_CONGESTED',
-  'TIMEOUT',
-  'MEMORY_LEAK',
-  'HIGH_CPU',
-  'SCALING_FAILURE',
-  'DEGRADATION',
-];
-const INCIDENT_COMPONENTS = [
-  'API',
-  'DATABASE',
-  'STORAGE',
-  'QUEUE',
-  'FRONTEND',
-  'INTEGRATIONS',
-  'INFRASTRUCTURE',
-];
+const INCIDENT_CATEGORY_LABEL: Record<string, string> = {
+  OVERLOAD: 'Sobrecarga',
+  SLOW_API: 'API lenta',
+  DB_SATURATED: 'Base de dados saturada',
+  STORAGE_FULL: 'Armazenamento cheio',
+  QUEUE_CONGESTED: 'Fila congestionada',
+  TIMEOUT: 'Tempo limite excedido',
+  MEMORY_LEAK: 'Fuga de memória',
+  HIGH_CPU: 'CPU elevado',
+  SCALING_FAILURE: 'Falha de escalamento',
+  DEGRADATION: 'Degradação de serviço',
+};
+const INCIDENT_COMPONENT_LABEL: Record<string, string> = {
+  API: 'API',
+  DATABASE: 'Base de dados',
+  STORAGE: 'Armazenamento',
+  QUEUE: 'Filas',
+  FRONTEND: 'Interface (frontend)',
+  INTEGRATIONS: 'Integrações',
+  INFRASTRUCTURE: 'Infraestrutura',
+};
+const INCIDENT_CATEGORIES = Object.keys(INCIDENT_CATEGORY_LABEL);
+const INCIDENT_COMPONENTS = Object.keys(INCIDENT_COMPONENT_LABEL);
+const componentLabel = (c: string) => INCIDENT_COMPONENT_LABEL[c] ?? c;
 const OP_STATUSES = [
   'OPEN',
   'INVESTIGATING',
@@ -444,7 +447,9 @@ function NewIncidentModal({
                 onChange={(e) => set('category', e.target.value)}
               >
                 {INCIDENT_CATEGORIES.map((c) => (
-                  <option key={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {INCIDENT_CATEGORY_LABEL[c]}
+                  </option>
                 ))}
               </select>
             </FormField>
@@ -456,7 +461,9 @@ function NewIncidentModal({
                 onChange={(e) => set('component', e.target.value)}
               >
                 {INCIDENT_COMPONENTS.map((c) => (
-                  <option key={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {INCIDENT_COMPONENT_LABEL[c]}
+                  </option>
                 ))}
               </select>
             </FormField>
@@ -548,7 +555,8 @@ function IncidentDetailModal({
                 {detail.status}
               </Badge>
               <span className="text-ink-muted">
-                {detail.component} · responsável {detail.ownerName ?? '—'}
+                {componentLabel(detail.component)} · responsável{' '}
+                {detail.ownerName ?? '—'}
               </span>
             </div>
             <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -813,7 +821,7 @@ export function IncidentsTab({
                         </Badge>
                       </td>
                       <td className="pr-3">{i.status}</td>
-                      <td className="pr-3">{i.component}</td>
+                      <td className="pr-3">{componentLabel(i.component)}</td>
                       <td className="pr-3">{i.ownerName ?? '—'}</td>
                       <td className="pr-3 tabular-nums">
                         {fmtDate(i.occurredAt)}
