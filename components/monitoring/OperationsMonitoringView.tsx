@@ -1,10 +1,38 @@
 // modulo_monitoring.md §10-12 — vistas apresentacionais (Jobs, SLA & SLO,
 // Histórico). Os dados chegam por props do container (app/(platform)/monitoring).
 
+import {
+  CalendarClock,
+  AlarmClock,
+  Archive,
+  History,
+  Bell,
+  Flame,
+  List,
+  Plug,
+  type LucideIcon,
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  Siren,
+  Hourglass,
+  PlayCircle,
+  Timer,
+  WifiOff,
+  XCircle,
+  Zap,
+} from 'lucide-react';
+import { CompactTabs, type CompactTabItem } from './CompactTabs';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  INVERSE_RATE_BANDS,
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { fmtDate, Tile, tone } from './PlatformMonitoringView';
+import { fmtDate } from './PlatformMonitoringView';
 import type { Intent } from './PlatformMonitoringView';
 import type {
   HistoryData,
@@ -48,6 +76,15 @@ function SlaBadge({ state }: { state: SlaState }) {
 
 // ── §10 Jobs & Background Tasks ──────────────────────────────────────────────
 
+// Nomes legíveis das filas Bull (chaves técnicas vindas do backend).
+const QUEUE_LABEL: Record<string, string> = {
+  audit: 'Auditoria',
+  email: 'Email',
+  notifications: 'Notificações',
+  webhooks: 'Webhooks',
+};
+const queueLabel = (key: string) => QUEUE_LABEL[key] ?? key;
+
 const JOB_TITLES: {
   key: keyof Pick<
     JobsData,
@@ -56,11 +93,11 @@ const JOB_TITLES: {
   title: string;
   state: JobState;
 }[] = [
-  { key: 'failed', title: 'Jobs falhados', state: 'failed' },
-  { key: 'running', title: 'Jobs em execução', state: 'active' },
-  { key: 'scheduled', title: 'Jobs agendados', state: 'delayed' },
-  { key: 'waiting', title: 'Jobs em espera', state: 'waiting' },
-  { key: 'executed', title: 'Últimos jobs executados', state: 'completed' },
+  { key: 'failed', title: 'Tarefas falhadas', state: 'failed' },
+  { key: 'running', title: 'Tarefas em execução', state: 'active' },
+  { key: 'scheduled', title: 'Tarefas agendadas', state: 'delayed' },
+  { key: 'waiting', title: 'Tarefas em espera', state: 'waiting' },
+  { key: 'executed', title: 'Últimas tarefas executadas', state: 'completed' },
 ];
 
 function JobTable({
@@ -81,11 +118,11 @@ function JobTable({
         {rows.length === 0 ? (
           <p className="font-body text-sm text-ink-muted">Nenhum.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
-                  <th className="py-2 pr-3">Job</th>
+                  <th className="py-2 pr-3">Tarefa</th>
                   <th className="pr-3">Fila</th>
                   <th className="pr-3">Tentativas</th>
                   <th className="pr-3">Duração</th>
@@ -107,12 +144,12 @@ function JobTable({
                         <div className="font-medium text-ink">{j.name}</div>
                         <div className="text-xs text-ink-faint">#{j.id}</div>
                       </td>
-                      <td className="pr-3">{j.queue}</td>
+                      <td className="pr-3">{queueLabel(j.queue)}</td>
                       <td className="pr-3 tabular-nums">
                         {j.attemptsMade}/{j.attemptsMax}
                         {j.retrying && (
                           <Badge intent="warning" dot={false}>
-                            retry
+                            nova tentativa
                           </Badge>
                         )}
                       </td>
@@ -137,23 +174,33 @@ function JobTable({
   );
 }
 
+const DAYS_ITEMS: CompactTabItem<number>[] = [7, 30, 90].map((d) => ({
+  value: d,
+  label: `${d} dias`,
+  icon: CalendarDays,
+}));
+
 export function JobsTab({ data }: { data: JobsData }) {
   const s = data.summary;
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <NavyStatCard
+          icon={PlayCircle}
           label="Em execução"
           value={s.running}
           sub={`${s.waiting} em espera`}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={XCircle}
           label="Falhados"
           value={s.failed}
-          sub={`${s.retrying} com retry`}
-          intent={tone(s.failed)}
+          sub={`${s.retrying} com nova tentativa`}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={CalendarClock}
           label="Agendados"
           value={s.scheduled}
           sub={
@@ -161,33 +208,41 @@ export function JobsTab({ data }: { data: JobsData }) {
               ? `próximo ${fmtDate(s.nextExecutionAt)}`
               : 'sem agendamentos'
           }
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={CheckCircle2}
           label="Executados (retidos)"
           value={s.executed}
           sub={`sucesso ${s.successRatePercent === null ? '—' : `${s.successRatePercent}%`}`}
+          tone="green"
         />
-        <Tile
+        <NavyStatCard
+          icon={Hourglass}
           label="Duração média"
           value={fmtMs(s.avgDurationMs)}
-          sub="jobs concluídos"
+          sub="tarefas concluídas"
+          tone="blue"
         />
-        <Tile
-          label="Cron jobs"
+        <NavyStatCard
+          icon={Timer}
+          label="Tarefas periódicas"
           value={s.cronJobs}
           sub={`${s.cronJobsStopped} parado(s)`}
-          intent={tone(s.cronJobsStopped, 'warning')}
+          tone="orange"
         />
-        <Tile
+        <NavyStatCard
+          icon={Zap}
           label="Automações"
           value={data.automations.running}
           sub={`${data.automations.pending} pendentes · ${data.automations.failed24h} falhadas (24h)`}
-          intent={tone(data.automations.failed24h, 'warning')}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={WifiOff}
           label="Filas inacessíveis"
           value={s.queuesUnavailable}
-          intent={tone(s.queuesUnavailable, 'warning')}
+          tone="orange"
         />
       </div>
 
@@ -196,8 +251,8 @@ export function JobsTab({ data }: { data: JobsData }) {
           Filas
         </div>
         <CardBody>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Fila</th>
@@ -212,7 +267,7 @@ export function JobsTab({ data }: { data: JobsData }) {
                 {data.queues.map((q) => (
                   <tr key={q.key}>
                     <td className="py-2 pr-3 font-medium text-ink">
-                      {q.key}
+                      {queueLabel(q.key)}
                       {!q.available && (
                         <Badge intent="danger" dot={false}>
                           inacessível
@@ -243,16 +298,16 @@ export function JobsTab({ data }: { data: JobsData }) {
 
       <Card className="overflow-hidden">
         <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
-          Cron jobs (esta instância)
+          Tarefas periódicas (esta instância)
         </div>
         <CardBody>
           {data.crons.length === 0 ? (
             <p className="font-body text-sm text-ink-muted">
-              Sem cron jobs registados.
+              Sem tarefas periódicas registadas.
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] text-left font-body text-sm">
+            <div className="w-full">
+              <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
                 <thead className="text-xs uppercase text-ink-muted">
                   <tr>
                     <th className="py-2 pr-3">Nome</th>
@@ -305,77 +360,70 @@ export function SlaTab({
   const c = data.current;
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2 font-body text-sm">
-        <span className="text-ink-muted">Janela:</span>
-        {[7, 30, 90].map((d) => (
-          <button
-            key={d}
-            type="button"
-            onClick={() => onDaysChange(d)}
-            className={`rounded-md border px-3 py-1 ${
-              d === days
-                ? 'border-brand bg-brand-soft text-ink'
-                : 'border-border text-ink-muted hover:bg-surface-muted'
-            }`}
-          >
-            {d} dias
-          </button>
-        ))}
-        <span className="ml-2 text-xs text-ink-faint">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="font-body text-sm text-ink-muted">Janela:</span>
+        <CompactTabs items={DAYS_ITEMS} value={days} onChange={onDaysChange} />
+        <span className="font-body text-xs text-ink-faint">
           {data.sla.name}
           {!data.sla.configured && ' (por omissão — sem SLA configurado)'}
         </span>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <SpeedometerStatCard
           label="Disponibilidade"
-          value={`${c.availabilityPercent}%`}
-          sub={`objectivo ${data.sla.uptimePercent}%`}
-          intent={
-            c.state === 'VIOLADO'
-              ? 'danger'
-              : c.state === 'EM_RISCO'
-                ? 'warning'
-                : undefined
-          }
+          value={c.availabilityPercent}
+          bands={RATE_BANDS}
+          display={`${c.availabilityPercent}%`}
+          caption={`objectivo ${data.sla.uptimePercent}%`}
         />
-        <Tile
+        <SpeedometerStatCard
+          label="Orçamento de erro usado"
+          value={Math.min(100, c.errorBudgetUsedPercent ?? 0)}
+          bands={INVERSE_RATE_BANDS}
+          display={pct(c.errorBudgetUsedPercent) ?? '—'}
+          caption={`restam ${fmtMin(Math.round(c.errorBudgetRemainingMinutes))}`}
+        />
+        <SpeedometerStatCard
+          label="Latência dentro do limite"
+          value={c.latencyCompliancePercent ?? 0}
+          bands={RATE_BANDS}
+          display={pct(c.latencyCompliancePercent) ?? '—'}
+          caption={`≤ ${data.sla.maxLatencyMs} ms`}
+        />
+        <SpeedometerStatCard
+          label="Erros dentro do limite"
+          value={c.errorCompliancePercent ?? 0}
+          bands={RATE_BANDS}
+          display={pct(c.errorCompliancePercent) ?? '—'}
+          caption={`≤ ${data.sla.maxErrorRatePercent}%`}
+        />
+        <NavyStatCard
+          icon={Clock}
           label="Indisponibilidade"
           value={fmtMin(c.downtimeMinutes)}
           sub={`permitido ${fmtMin(Math.round(c.allowedDowntimeMinutes))}`}
-          intent={tone(c.downtimeMinutes, 'warning')}
+          tone="orange"
         />
-        <Tile
-          label="Orçamento de erro usado"
-          value={pct(c.errorBudgetUsedPercent)}
-          sub={`restam ${fmtMin(Math.round(c.errorBudgetRemainingMinutes))}`}
-        />
-        <Tile
+        <NavyStatCard
+          icon={Timer}
           label="Tempo médio de resolução"
           value={fmtMin(c.mttrMinutes)}
           sub={`${c.resolvedIncidents} incidente(s) resolvido(s)`}
+          tone="blue"
         />
-        <Tile
-          label="Latência dentro do limite"
-          value={pct(c.latencyCompliancePercent)}
-          sub={`≤ ${data.sla.maxLatencyMs} ms`}
-        />
-        <Tile
-          label="Erros dentro do limite"
-          value={pct(c.errorCompliancePercent)}
-          sub={`≤ ${data.sla.maxErrorRatePercent}%`}
-        />
-        <Tile
+        <NavyStatCard
+          icon={Siren}
           label="Incidentes críticos"
           value={data.violations.criticalIncidents}
-          intent={tone(data.violations.criticalIncidents)}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={AlarmClock}
           label="Respostas fora de prazo"
           value={data.violations.responseMissed}
           sub={`prazo ${data.sla.incidentResponseMinutes} min`}
-          intent={tone(data.violations.responseMissed, 'warning')}
+          tone="orange"
         />
       </div>
 
@@ -403,8 +451,8 @@ export function SlaTab({
           Cumprimento por serviço
         </div>
         <CardBody>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Serviço</th>
@@ -522,6 +570,13 @@ const KIND_LABEL: Record<HistoryKind, string> = {
   INTEGRACAO: 'Integrações',
 };
 
+const KIND_ICON: Record<HistoryKind, LucideIcon> = {
+  ALERTA: Bell,
+  INCIDENTE: Flame,
+  AUTOMACAO: Zap,
+  INTEGRACAO: Plug,
+};
+
 export function HistoryTab({
   data,
   days,
@@ -535,72 +590,63 @@ export function HistoryTab({
   onDaysChange: (d: number) => void;
   onKindChange: (k: HistoryKind | null) => void;
 }) {
-  const chip = (active: boolean) =>
-    `rounded-md border px-3 py-1 ${
-      active
-        ? 'border-brand bg-brand-soft text-ink'
-        : 'border-border text-ink-muted hover:bg-surface-muted'
-    }`;
+  const kindItems: CompactTabItem<HistoryKind | null>[] = [
+    { value: null, label: 'Todos', icon: List },
+    ...(Object.keys(KIND_LABEL) as HistoryKind[]).map((k) => ({
+      value: k,
+      label: KIND_LABEL[k],
+      icon: KIND_ICON[k],
+      count: data.summary.byKind[k],
+    })),
+  ];
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2 font-body text-sm">
-        <span className="text-ink-muted">Janela:</span>
-        {[7, 30, 90].map((d) => (
-          <button
-            key={d}
-            type="button"
-            className={chip(d === days)}
-            onClick={() => onDaysChange(d)}
-          >
-            {d} dias
-          </button>
-        ))}
-        <span className="ml-3 text-ink-muted">Tipo:</span>
-        <button
-          type="button"
-          className={chip(kind === null)}
-          onClick={() => onKindChange(null)}
-        >
-          Todos
-        </button>
-        {(Object.keys(KIND_LABEL) as HistoryKind[]).map((k) => (
-          <button
-            key={k}
-            type="button"
-            className={chip(kind === k)}
-            onClick={() => onKindChange(k)}
-          >
-            {KIND_LABEL[k]}
-            {data.summary.byKind[k] !== undefined &&
-              ` (${data.summary.byKind[k]})`}
-          </button>
-        ))}
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-body text-sm text-ink-muted">Janela:</span>
+          <CompactTabs
+            items={DAYS_ITEMS}
+            value={days}
+            onChange={onDaysChange}
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-body text-sm text-ink-muted">Tipo:</span>
+          <CompactTabs items={kindItems} value={kind} onChange={onKindChange} />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <NavyStatCard
+          icon={History}
           label="Ocorrências"
           value={data.summary.events}
           sub={`últimos ${data.windowDays} dias`}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={Siren}
           label="Críticas"
           value={data.summary.critical}
-          intent={tone(data.summary.critical)}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={Archive}
           label="Retenção"
           value={`${data.retention.retentionDays} d`}
           sub={`horárias ${data.retention.hourlyRetentionDays} d`}
+          tone="green"
         />
-        <Tile
+        <NavyStatCard
+          icon={CalendarClock}
           label="Mais antigo (horário)"
           value={
             data.retention.oldestHourlyAt
               ? fmtDate(data.retention.oldestHourlyAt)
-              : null
+              : '—'
           }
           sub={`${data.retention.hourlyRows} linhas horárias`}
+          tone="orange"
         />
       </div>
 
@@ -655,8 +701,8 @@ export function HistoryTab({
               Sem métricas na janela.
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-left font-body text-sm">
+            <div className="w-full">
+              <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
                 <thead className="text-xs uppercase text-ink-muted">
                   <tr>
                     <th className="py-2 pr-3">Dia</th>
@@ -701,8 +747,8 @@ export function HistoryTab({
             Filas por dia (picos)
           </div>
           <CardBody>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[480px] text-left font-body text-sm">
+            <div className="w-full">
+              <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
                 <thead className="text-xs uppercase text-ink-muted">
                   <tr>
                     <th className="py-2 pr-3">Dia</th>

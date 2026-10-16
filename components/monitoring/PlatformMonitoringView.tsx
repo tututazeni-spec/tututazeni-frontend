@@ -2,9 +2,46 @@
 // Processos). Os dados chegam por props do container (app/(platform)/monitoring).
 
 import { Card, CardBody } from '@/components/ui/Card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Activity } from 'lucide-react';
+import {
+  AlarmClock,
+  Gauge,
+  Hourglass,
+  ListTodo,
+  PlayCircle,
+  AlertTriangle,
+  CheckCircle2,
+  ShieldAlert,
+  TrendingDown,
+  WifiOff,
+  type LucideIcon,
+  Ban,
+  Clock,
+  Cog,
+  Flame,
+  ListX,
+  Plug,
+  Siren,
+  Timer,
+  Users,
+  Zap,
+  ZapOff,
+} from 'lucide-react';
+import {
+  NavyStatCard,
+  type NavyIconTone,
+  type NavyStatTone,
+} from '@/components/ui/NavyStatCard';
+import { PlatformStatusCard } from './PlatformStatusCard';
 import type {
   ModulesData,
   MonitoringStatus,
@@ -88,46 +125,25 @@ export function OverviewTab({ data }: { data: OverviewData }) {
   const p = data.platform;
   return (
     <div className="space-y-6">
-      <Card>
-        <CardBody>
-          <div className="flex flex-wrap items-center gap-3">
-            <Activity size={20} />
-            <h2 className="font-display text-lg font-bold text-ink">
-              Estado geral da plataforma
-            </h2>
-            <StatusBadge status={p.status} />
-            <span className="font-body text-sm text-ink-muted">
-              BD:{' '}
-              {p.database.available
-                ? `${p.database.latencyMs} ms`
-                : 'sem resposta'}{' '}
-              · {p.modules.total} módulos
-            </span>
-          </div>
-          {p.reasons.length > 0 && (
-            <ul className="mt-3 list-disc space-y-1 pl-5 font-body text-sm text-ink-muted">
-              {p.reasons.map((r) => (
-                <li key={r}>{r}</li>
-              ))}
-            </ul>
-          )}
-        </CardBody>
-      </Card>
+      <PlatformStatusCard platform={p} />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <NavyStatCard
+          icon={Siren}
           label="Alertas críticos"
           value={data.criticalAlerts.critical}
           sub={`${data.criticalAlerts.open} por resolver`}
-          intent={tone(data.criticalAlerts.critical)}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={Clock}
           label="Processos em atraso"
           value={data.processes.overdue}
           sub={`${data.processes.urgentInProgress} urgentes em curso`}
-          intent={tone(data.processes.overdue, 'warning')}
+          tone="orange"
         />
-        <Tile
+        <NavyStatCard
+          icon={Zap}
           label="Automações com erro (24h)"
           value={data.automations.failed24h}
           sub={
@@ -135,35 +151,43 @@ export function OverviewTab({ data }: { data: OverviewData }) {
               ? 'sem execuções'
               : `${data.automations.failureRatePercent}% de ${data.automations.total24h}`
           }
-          intent={tone(data.automations.failed24h, 'warning')}
+          tone="orange"
         />
-        <Tile
-          label="Integrações indisponíveis"
-          value={data.integrations.unavailable}
-          sub={`${data.integrations.active} activas · ${data.integrations.syncFailed24h} sync falhadas (24h)`}
-          intent={tone(data.integrations.unavailable, 'warning')}
+        <NavyStatCard
+          icon={Plug}
+          label="Integrações disponíveis"
+          value={data.integrations.active}
+          sub={`${data.integrations.unavailable} indisponíveis · ${data.integrations.syncFailed24h} sync falhadas (24h)`}
+          tone="green"
         />
-        <Tile
-          label="Jobs em execução"
+        <NavyStatCard
+          icon={Cog}
+          label="Tarefas em execução"
           value={data.jobs.running}
           sub={`${data.jobs.queues.waiting} em fila · ${data.jobs.queues.failed} falhados`}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={Users}
           label="Utilizadores activos"
           value={data.activeUsers.count}
           sub={`sessões dos últimos ${data.activeUsers.windowMinutes} min`}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={Timer}
           label="SLA em risco"
           value={data.sla.atRisk}
           sub={`${data.sla.breached} já violados`}
-          intent={tone(data.sla.atRisk, 'warning')}
+          tone="orange"
         />
-        <Tile
+        <NavyStatCard
+          icon={Flame}
           label="Incidentes abertos"
           value={data.incidents.open}
           sub={`${data.incidents.critical} críticos · ${data.incidents.security} de segurança`}
-          intent={tone(data.incidents.critical)}
+          tone="orange"
+          iconTone="yellow"
         />
       </div>
 
@@ -173,21 +197,29 @@ export function OverviewTab({ data }: { data: OverviewData }) {
         </div>
         <CardBody>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <Tile
+            <NavyStatCard
+              icon={Ban}
               label="Etapas bloqueadas"
               value={data.pendingCritical.blockedSteps}
+              tone="red"
             />
-            <Tile
+            <NavyStatCard
+              icon={AlarmClock}
               label="Processos em atraso"
               value={data.pendingCritical.overdueProcesses}
+              tone="orange"
             />
-            <Tile
+            <NavyStatCard
+              icon={ZapOff}
               label="Automações falhadas"
               value={data.pendingCritical.failedAutomations}
+              tone="red"
             />
-            <Tile
-              label="Jobs de fila falhados"
+            <NavyStatCard
+              icon={ListX}
+              label="Tarefas de fila falhadas"
               value={data.pendingCritical.failedQueueJobs}
+              tone={data.pendingCritical.failedQueueJobs > 0 ? 'red' : 'blue'}
             />
           </div>
         </CardBody>
@@ -230,102 +262,140 @@ export function OverviewTab({ data }: { data: OverviewData }) {
 
 // ── §2 Módulos ───────────────────────────────────────────────────────────────
 
+const MODULE_STATUS_CARD: Record<
+  MonitoringStatus,
+  { icon: LucideIcon; tone: NavyStatTone; iconTone?: NavyIconTone }
+> = {
+  NORMAL: { icon: CheckCircle2, tone: 'green' },
+  ATENCAO: { icon: AlertTriangle, tone: 'orange', iconTone: 'yellow' },
+  DEGRADADO: { icon: TrendingDown, tone: 'orange' },
+  CRITICO: { icon: ShieldAlert, tone: 'red' },
+  INDISPONIVEL: { icon: WifiOff, tone: 'red', iconTone: 'gray' },
+};
+
 export function ModulesTab({ data }: { data: ModulesData }) {
   const c = data.summary.counts;
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         {(Object.keys(STATUS) as MonitoringStatus[]).map((s) => (
-          <Tile
+          <NavyStatCard
             key={s}
+            icon={MODULE_STATUS_CARD[s].icon}
             label={STATUS[s].label}
             value={c[s]}
-            intent={c[s] > 0 && s !== 'NORMAL' ? STATUS[s].intent : undefined}
+            tone={MODULE_STATUS_CARD[s].tone}
+            iconTone={MODULE_STATUS_CARD[s].iconTone}
           />
         ))}
       </div>
-      <Card>
-        <CardBody>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left font-body text-sm">
-              <thead className="text-xs uppercase text-ink-muted">
-                <tr>
-                  <th className="py-2 pr-3">Módulo</th>
-                  <th className="pr-3">Estado</th>
-                  <th className="pr-3">Disponib.</th>
-                  <th className="pr-3">Operações 24h</th>
-                  <th className="pr-3">7d</th>
-                  <th className="pr-3">Erros 24h</th>
-                  <th className="pr-3">Latência</th>
-                  <th>Dependências</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {data.modules.map((m) => (
-                  <tr key={m.key} className="align-top">
-                    <td className="py-2 pr-3">
-                      <div className="font-medium text-ink">{m.module}</div>
-                      <div className="text-xs text-ink-faint">{m.metric}</div>
-                    </td>
-                    <td className="pr-3">
-                      <StatusBadge status={m.status} />
-                      {m.reasons.map((r) => (
-                        <div key={r} className="mt-1 text-xs text-ink-muted">
-                          {r}
-                        </div>
-                      ))}
-                    </td>
-                    <td className="pr-3">{m.availability ? 'Sim' : 'Não'}</td>
-                    <td className="pr-3 tabular-nums">
-                      {m.operations.last24h ?? '—'}
-                      {m.operations.previous24h !== null && (
-                        <span className="ml-1 text-xs text-ink-faint">
-                          (dia anterior {m.operations.previous24h})
-                        </span>
-                      )}
-                    </td>
-                    <td className="pr-3 tabular-nums">
-                      {m.operations.last7d ?? '—'}
-                    </td>
-                    <td className="pr-3 tabular-nums">
-                      {m.errors.tracked
-                        ? `${m.errors.last24h ?? '—'}${
-                            m.errors.ratePercent !== null
-                              ? ` (${m.errors.ratePercent}%)`
-                              : ''
-                          }`
-                        : 'n/d'}
-                    </td>
-                    <td className="pr-3 tabular-nums">
-                      {m.latencyMs === null ? '—' : `${m.latencyMs} ms`}
-                    </td>
-                    <td>
-                      <div className="flex flex-wrap gap-1">
-                        {m.dependencies.length === 0 && (
-                          <span className="text-ink-faint">—</span>
-                        )}
-                        {m.dependencies.map((d) => (
-                          <Badge
-                            key={d.key}
-                            intent={STATUS[d.status].intent}
-                            dot={false}
-                          >
-                            {d.module}
-                          </Badge>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="px-5 py-3">
+          <h4 className="font-display text-sm font-semibold text-white">
+            Módulos monitorizados
+          </h4>
+        </div>
+        <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_td]:align-top [&_th]:px-2 [&_th]:text-[11px]">
+          <Table>
+            <TableHead className="bg-[#0F1F3D]/60">
+              <TableRow className="hover:bg-transparent">
+                {[
+                  'Módulo',
+                  'Estado',
+                  'Disponib.',
+                  'Operações 24h',
+                  '7d',
+                  'Erros 24h',
+                  'Latência',
+                  'Dependências',
+                ].map((h) => (
+                  <TableHeaderCell key={h} className="text-white">
+                    {h}
+                  </TableHeaderCell>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.modules.map((m) => (
+                <TableRow key={m.key}>
+                  <TableCell>
+                    <p className="font-medium text-ink">{m.module}</p>
+                    <p className="text-xs text-ink-faint">{m.metric}</p>
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge status={m.status} />
+                    {m.reasons.map((r) => (
+                      <p key={r} className="mt-1 text-xs text-ink-muted">
+                        {r}
+                      </p>
+                    ))}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      intent={m.availability ? 'success' : 'danger'}
+                      dot={false}
+                    >
+                      {m.availability ? 'Sim' : 'Não'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="tabular-nums">
+                    <span className="font-semibold text-ink">
+                      {m.operations.last24h ?? '—'}
+                    </span>
+                    {m.operations.previous24h !== null && (
+                      <p className="text-xs text-ink-faint">
+                        dia anterior {m.operations.previous24h}
+                      </p>
+                    )}
+                  </TableCell>
+                  <TableCell className="tabular-nums">
+                    {m.operations.last7d ?? '—'}
+                  </TableCell>
+                  <TableCell className="tabular-nums">
+                    {m.errors.tracked ? (
+                      <>
+                        <span className="font-semibold text-ink">
+                          {m.errors.last24h ?? '—'}
+                        </span>
+                        {m.errors.ratePercent !== null && (
+                          <p className="text-xs text-ink-faint">
+                            {m.errors.ratePercent}%
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      'n/d'
+                    )}
+                  </TableCell>
+                  <TableCell className="tabular-nums">
+                    {m.latencyMs === null ? '—' : `${m.latencyMs} ms`}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {m.dependencies.length === 0 && (
+                        <span className="text-ink-faint">—</span>
+                      )}
+                      {m.dependencies.map((d) => (
+                        <Badge
+                          key={d.key}
+                          intent={STATUS[d.status].intent}
+                          dot={false}
+                        >
+                          {d.module}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           <p className="mt-3 font-body text-xs text-ink-faint">
             n/d = o módulo não regista falhas de forma fiável, por isso não é
             apresentada taxa de erros.
           </p>
-        </CardBody>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
@@ -348,8 +418,8 @@ function InstanceTable({
         {rows.length === 0 ? (
           <p className="font-body text-sm text-ink-muted">Nenhum.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Processo</th>
@@ -392,52 +462,70 @@ export function ProcessesTab({ data }: { data: ProcessesData }) {
   const pct = (v: number | null) => (v === null ? null : `${v}%`);
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <NavyStatCard
+          icon={PlayCircle}
           label="Em execução"
           value={s.running}
           sub={`${s.onHold} em pausa`}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={CheckCircle2}
           label="Concluídos (30d)"
           value={s.completed30d}
           sub={`${s.cancelled30d} cancelados`}
+          tone="green"
         />
-        <Tile
+        <NavyStatCard
+          icon={AlarmClock}
           label="Atrasados"
           value={s.overdue}
           sub={`${s.atRisk} em risco nas próximas 24h`}
-          intent={tone(s.overdue, 'warning')}
+          tone="orange"
         />
-        <Tile
+        <NavyStatCard
+          icon={Ban}
           label="Bloqueados"
           value={s.blocked}
           sub={`${s.blockedSteps} etapas bloqueadas`}
-          intent={tone(s.blocked, 'warning')}
+          tone="red"
         />
-        <Tile label="Etapas pendentes" value={s.pendingSteps} />
-        <Tile
+        <NavyStatCard
+          icon={ListTodo}
+          label="Etapas pendentes"
+          value={s.pendingSteps}
+          tone="blue"
+        />
+        <NavyStatCard
+          icon={Timer}
           label="SLA cumprido (30d)"
-          value={pct(s.slaCompliancePercent)}
+          value={pct(s.slaCompliancePercent) ?? '—'}
           sub="dos concluídos com prazo"
+          tone="green"
         />
-        <Tile
+        <NavyStatCard
+          icon={Hourglass}
           label="Tempo médio"
           value={
-            s.avgCompletionHours === null ? null : `${s.avgCompletionHours} h`
+            s.avgCompletionHours === null ? '—' : `${s.avgCompletionHours} h`
           }
           sub="processos concluídos (30d)"
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={Gauge}
           label="Taxa de conclusão"
-          value={pct(s.completionRatePercent)}
+          value={pct(s.completionRatePercent) ?? '—'}
           sub={`${s.started30d} iniciados (30d)`}
+          tone="green"
         />
-        <Tile
+        <NavyStatCard
+          icon={AlertTriangle}
           label="Falhas (30d)"
           value={s.failures.total30d}
           sub={`${s.failures.rejectedSteps30d} etapas rejeitadas · ${s.failures.integrationFailures30d} integrações`}
-          intent={tone(s.failures.total30d, 'warning')}
+          tone="red"
         />
       </div>
 

@@ -3,6 +3,29 @@
 // aqui só há estado de UI (filtros, modais).
 
 import { useState } from 'react';
+import {
+  Bell,
+  CheckCircle2,
+  Eye,
+  Flame,
+  HeartPulse,
+  List,
+  Plug,
+  Server,
+  ShieldAlert,
+  Workflow,
+  Zap,
+  Siren,
+  Timer,
+  UserX,
+  Wrench,
+  type LucideIcon,
+} from 'lucide-react';
+import { CompactTabs } from './CompactTabs';
+import { StatusHeroCard } from './StatusHeroCard';
+import { cn } from '@/lib/cn';
+import { NAVY_PANEL_VARIANTS_SOFT } from '@/components/roi-impact/NavyPanel';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -12,14 +35,16 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { fmtDate, SEVERITY, STATUS, StatusBadge, Tile, tone } from './PlatformMonitoringView';
+import { fmtDate, SEVERITY, StatusBadge } from './PlatformMonitoringView';
 import type { Intent } from './PlatformMonitoringView';
+import type { MonitoringStatus } from './platformTypes';
 import type {
   AlertArea,
   AlertRow,
   AlertsData,
   AlertState,
   CreateIncidentPayload,
+  HealthComponentRow,
   HealthData,
   IncidentDetail,
   IncidentRow,
@@ -34,13 +59,6 @@ const fmtMin = (m: number | null) => {
   return `${Math.floor(m / 1440)} d ${Math.floor((m % 1440) / 60)} h`;
 };
 
-const chip = (active: boolean) =>
-  `rounded-md border px-3 py-1 font-body text-sm ${
-    active
-      ? 'border-brand bg-brand-soft text-ink'
-      : 'border-border text-ink-muted hover:bg-surface-muted'
-  }`;
-
 const selectCls =
   'w-full rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink';
 
@@ -53,6 +71,22 @@ const AREA_LABEL: Record<AlertArea, string> = {
   AUTOMACAO: 'Automação',
   SLA: 'SLA',
   SEGURANCA: 'Segurança',
+};
+
+const AREA_ICON: Record<AlertArea, LucideIcon> = {
+  SISTEMA: Server,
+  PROCESSOS: Workflow,
+  INTEGRACAO: Plug,
+  AUTOMACAO: Zap,
+  SLA: Timer,
+  SEGURANCA: ShieldAlert,
+};
+
+const STATE_ICON: Record<AlertState, LucideIcon> = {
+  ABERTO: Bell,
+  RECONHECIDO: Eye,
+  EM_TRATAMENTO: Wrench,
+  RESOLVIDO: CheckCircle2,
 };
 
 const STATE_LABEL: Record<AlertState, { label: string; intent: Intent }> = {
@@ -247,61 +281,64 @@ export function AlertsTab({
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile label="Alertas abertos" value={s.open} />
-        <Tile
+        <NavyStatCard
+          icon={Bell}
+          label="Alertas abertos"
+          value={s.open}
+          tone="blue"
+        />
+        <NavyStatCard
+          icon={Siren}
           label="Críticos abertos"
           value={s.openCritical}
-          intent={tone(s.openCritical)}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={UserX}
           label="Sem responsável"
           value={s.unassigned}
           sub="abertos ou só reconhecidos"
-          intent={tone(s.unassigned, 'warning')}
+          tone="orange"
         />
-        <Tile label="Em tratamento" value={s.byState.EM_TRATAMENTO} />
+        <NavyStatCard
+          icon={Wrench}
+          label="Em tratamento"
+          value={s.byState.EM_TRATAMENTO}
+          tone="green"
+        />
       </div>
 
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-body text-sm text-ink-muted">Área:</span>
-          <button
-            type="button"
-            className={chip(filters.area === null)}
-            onClick={() => onFiltersChange({ ...filters, area: null })}
-          >
-            Todas
-          </button>
-          {(Object.keys(AREA_LABEL) as AlertArea[]).map((a) => (
-            <button
-              key={a}
-              type="button"
-              className={chip(filters.area === a)}
-              onClick={() => onFiltersChange({ ...filters, area: a })}
-            >
-              {AREA_LABEL[a]} ({s.byArea[a]})
-            </button>
-          ))}
+          <CompactTabs
+            items={[
+              { value: null, label: 'Todas', icon: List },
+              ...(Object.keys(AREA_LABEL) as AlertArea[]).map((a) => ({
+                value: a,
+                label: AREA_LABEL[a],
+                icon: AREA_ICON[a],
+                count: s.byArea[a],
+              })),
+            ]}
+            value={filters.area}
+            onChange={(area) => onFiltersChange({ ...filters, area })}
+          />
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-body text-sm text-ink-muted">Estado:</span>
-          <button
-            type="button"
-            className={chip(filters.state === null)}
-            onClick={() => onFiltersChange({ ...filters, state: null })}
-          >
-            Todos
-          </button>
-          {(Object.keys(STATE_LABEL) as AlertState[]).map((st) => (
-            <button
-              key={st}
-              type="button"
-              className={chip(filters.state === st)}
-              onClick={() => onFiltersChange({ ...filters, state: st })}
-            >
-              {STATE_LABEL[st].label}
-            </button>
-          ))}
+          <CompactTabs
+            items={[
+              { value: null, label: 'Todos', icon: List },
+              ...(Object.keys(STATE_LABEL) as AlertState[]).map((st) => ({
+                value: st,
+                label: STATE_LABEL[st].label,
+                icon: STATE_ICON[st],
+              })),
+            ]}
+            value={filters.state}
+            onChange={(state) => onFiltersChange({ ...filters, state })}
+          />
         </div>
       </div>
 
@@ -338,28 +375,37 @@ export function AlertsTab({
 
 // ── §8 Incidentes ────────────────────────────────────────────────────────────
 
-const INCIDENT_CATEGORIES = [
-  'OVERLOAD',
-  'SLOW_API',
-  'DB_SATURATED',
-  'STORAGE_FULL',
-  'QUEUE_CONGESTED',
-  'TIMEOUT',
-  'MEMORY_LEAK',
-  'HIGH_CPU',
-  'SCALING_FAILURE',
-  'DEGRADATION',
+const INCIDENT_CATEGORY_LABEL: Record<string, string> = {
+  OVERLOAD: 'Sobrecarga',
+  SLOW_API: 'API lenta',
+  DB_SATURATED: 'Base de dados saturada',
+  STORAGE_FULL: 'Armazenamento cheio',
+  QUEUE_CONGESTED: 'Fila congestionada',
+  TIMEOUT: 'Tempo limite excedido',
+  MEMORY_LEAK: 'Fuga de memória',
+  HIGH_CPU: 'CPU elevado',
+  SCALING_FAILURE: 'Falha de escalamento',
+  DEGRADATION: 'Degradação de serviço',
+};
+const INCIDENT_COMPONENT_LABEL: Record<string, string> = {
+  API: 'API',
+  DATABASE: 'Base de dados',
+  STORAGE: 'Armazenamento',
+  QUEUE: 'Filas',
+  FRONTEND: 'Interface (frontend)',
+  INTEGRATIONS: 'Integrações',
+  INFRASTRUCTURE: 'Infraestrutura',
+};
+const INCIDENT_CATEGORIES = Object.keys(INCIDENT_CATEGORY_LABEL);
+const INCIDENT_COMPONENTS = Object.keys(INCIDENT_COMPONENT_LABEL);
+const componentLabel = (c: string) => INCIDENT_COMPONENT_LABEL[c] ?? c;
+const OP_STATUSES = [
+  'OPEN',
+  'INVESTIGATING',
+  'MITIGATING',
+  'RESOLVED',
+  'CLOSED',
 ];
-const INCIDENT_COMPONENTS = [
-  'API',
-  'DATABASE',
-  'STORAGE',
-  'QUEUE',
-  'FRONTEND',
-  'INTEGRATIONS',
-  'INFRASTRUCTURE',
-];
-const OP_STATUSES = ['OPEN', 'INVESTIGATING', 'MITIGATING', 'RESOLVED', 'CLOSED'];
 
 const UNIFIED_INTENT: Record<string, Intent> = {
   CRITICAL: 'danger',
@@ -409,7 +455,9 @@ function NewIncidentModal({
                 onChange={(e) => set('category', e.target.value)}
               >
                 {INCIDENT_CATEGORIES.map((c) => (
-                  <option key={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {INCIDENT_CATEGORY_LABEL[c]}
+                  </option>
                 ))}
               </select>
             </FormField>
@@ -421,7 +469,9 @@ function NewIncidentModal({
                 onChange={(e) => set('component', e.target.value)}
               >
                 {INCIDENT_COMPONENTS.map((c) => (
-                  <option key={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {INCIDENT_COMPONENT_LABEL[c]}
+                  </option>
                 ))}
               </select>
             </FormField>
@@ -431,7 +481,10 @@ function NewIncidentModal({
                 className={selectCls}
                 value={form.severity}
                 onChange={(e) =>
-                  set('severity', e.target.value as CreateIncidentPayload['severity'])
+                  set(
+                    'severity',
+                    e.target.value as CreateIncidentPayload['severity'],
+                  )
                 }
               >
                 <option value="INFO">Baixa</option>
@@ -510,7 +563,8 @@ function IncidentDetailModal({
                 {detail.status}
               </Badge>
               <span className="text-ink-muted">
-                {detail.component} · responsável {detail.ownerName ?? '—'}
+                {componentLabel(detail.component)} · responsável{' '}
+                {detail.ownerName ?? '—'}
               </span>
             </div>
             <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -615,6 +669,16 @@ function IncidentDetailModal({
   );
 }
 
+const INCIDENT_GROUPS: {
+  value: 'ACTIVE' | 'RESOLVED' | null;
+  label: string;
+  icon: LucideIcon;
+}[] = [
+  { value: null, label: 'Todos', icon: List },
+  { value: 'ACTIVE', label: 'Activos', icon: Flame },
+  { value: 'RESOLVED', label: 'Resolvidos', icon: CheckCircle2 },
+];
+
 export function IncidentsTab({
   data,
   group,
@@ -649,53 +713,79 @@ export function IncidentsTab({
   const s = data.summary;
   return (
     <div className="space-y-6">
+      {canAct && (
+        <div className="flex justify-end">
+          <Button size="sm" onClick={onCreateClick}>
+            Novo incidente
+          </Button>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <NavyStatCard
+          icon={Flame}
           label="Incidentes activos"
           value={s.active}
           sub={`${s.byKind.OPERATIONAL} operacionais · ${s.byKind.SECURITY} segurança`}
-          intent={tone(s.active, 'warning')}
+          tone="orange"
         />
-        <Tile
+        <NavyStatCard
+          icon={Siren}
           label="Críticos activos"
           value={s.activeCritical}
-          intent={tone(s.activeCritical)}
+          tone="red"
         />
-        <Tile label="Resolvidos" value={s.resolved} />
-        <Tile
+        <NavyStatCard
+          icon={CheckCircle2}
+          label="Resolvidos"
+          value={s.resolved}
+          tone="green"
+        />
+        <NavyStatCard
+          icon={Timer}
           label="Tempo médio de resolução"
           value={fmtMin(s.meanTimeToResolveMinutes)}
           sub={`últimos ${s.mttrWindowDays} dias`}
+          tone="blue"
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          className={chip(group === null)}
-          onClick={() => onGroupChange(null)}
-        >
-          Todos
-        </button>
-        <button
-          type="button"
-          className={chip(group === 'ACTIVE')}
-          onClick={() => onGroupChange('ACTIVE')}
-        >
-          Activos
-        </button>
-        <button
-          type="button"
-          className={chip(group === 'RESOLVED')}
-          onClick={() => onGroupChange('RESOLVED')}
-        >
-          Resolvidos
-        </button>
-        {canAct && (
-          <Button className="ml-auto" size="sm" onClick={onCreateClick}>
-            Novo incidente
-          </Button>
-        )}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex min-w-0 flex-1 gap-1 rounded-panel border border-border bg-surface p-1.5 shadow-sm">
+          {INCIDENT_GROUPS.map((g) => {
+            const count =
+              g.value === 'ACTIVE'
+                ? s.active
+                : g.value === 'RESOLVED'
+                  ? s.resolved
+                  : s.active + s.resolved;
+            const on = group === g.value;
+            return (
+              <button
+                key={g.label}
+                type="button"
+                onClick={() => onGroupChange(g.value)}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-control py-2 font-body text-sm font-medium transition-colors ${
+                  on
+                    ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                    : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
+                }`}
+              >
+                <g.icon size={15} strokeWidth={1.75} />
+                <span className="hidden sm:inline">{g.label}</span>
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                    on
+                      ? 'bg-canvas/20 text-canvas'
+                      : 'bg-surface-sunken text-ink-faint'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <Card>
@@ -706,8 +796,8 @@ export function IncidentsTab({
               description="Nenhum incidente corresponde ao filtro."
             />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[820px] text-left font-body text-sm">
+            <div className="w-full">
+              <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
                 <thead className="text-xs uppercase text-ink-muted">
                   <tr>
                     <th className="py-2 pr-3">Incidente</th>
@@ -739,7 +829,7 @@ export function IncidentsTab({
                         </Badge>
                       </td>
                       <td className="pr-3">{i.status}</td>
-                      <td className="pr-3">{i.component}</td>
+                      <td className="pr-3">{componentLabel(i.component)}</td>
                       <td className="pr-3">{i.ownerName ?? '—'}</td>
                       <td className="pr-3 tabular-nums">
                         {fmtDate(i.occurredAt)}
@@ -759,7 +849,11 @@ export function IncidentsTab({
       </Card>
 
       {creating && (
-        <NewIncidentModal busy={busy} onCreate={onCreate} onClose={onCloseCreate} />
+        <NewIncidentModal
+          busy={busy}
+          onCreate={onCreate}
+          onClose={onCloseCreate}
+        />
       )}
       {selected && (
         <IncidentDetailModal
@@ -778,6 +872,25 @@ export function IncidentsTab({
 
 // ── §9 Health Check ──────────────────────────────────────────────────────────
 
+// Rótulos em português dos componentes (a chave vem do backend).
+const COMPONENT_LABEL: Record<string, string> = {
+  frontend: 'Interface (frontend)',
+  storage: 'Armazenamento',
+  workers: 'Processadores em segundo plano',
+  cron: 'Tarefas periódicas',
+};
+const componentName = (c: HealthComponentRow) =>
+  COMPONENT_LABEL[c.key] ?? c.label;
+
+// Termos técnicos em inglês que o backend devolve no detalhe.
+const translateDetail = (d: string) =>
+  d
+    .replace('Sem cron jobs registados', 'Sem tarefas periódicas registadas')
+    .replace('event-loop', 'ciclo de eventos')
+    .replace(/^Heap /, 'Memória (heap) ')
+    .replace(/^PING em/, 'Resposta em')
+    .replace(/^SELECT 1 em/, 'Consulta de teste em');
+
 const GROUP_LABEL: Record<string, string> = {
   APLICACAO: 'Aplicação',
   DADOS: 'Dados',
@@ -785,6 +898,68 @@ const GROUP_LABEL: Record<string, string> = {
   EXTERNO: 'Serviços externos',
   PROCESSAMENTO: 'Processamento',
 };
+
+// Cor do card por estado, na paleta do card "Satisfação do cliente" (roi-impact).
+const HEALTH_VARIANT: Record<MonitoringStatus, number> = {
+  NORMAL: 1,
+  ATENCAO: 2,
+  DEGRADADO: 2,
+  CRITICO: 5,
+  INDISPONIVEL: 5,
+};
+
+function HealthComponentCard({ c }: { c: HealthComponentRow }) {
+  const pct =
+    c.uptimePercent24h != null
+      ? Math.max(0, Math.min(100, c.uptimePercent24h))
+      : null;
+  const variant = c.status ? HEALTH_VARIANT[c.status] : 0;
+  return (
+    <div
+      className={cn(
+        'flex min-w-0 flex-col justify-between gap-4 rounded-panel bg-gradient-to-br p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]',
+        NAVY_PANEL_VARIANTS_SOFT[variant],
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="font-display text-sm font-semibold leading-snug">
+          {componentName(c)}
+        </p>
+        <span className="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 font-body text-xs font-semibold">
+          {c.status ? c.statusLabel : 'Não monitorizado'}
+        </span>
+      </div>
+      <div>
+        <p className="font-display text-3xl font-extrabold leading-none">
+          {pct != null ? `${pct}%` : '—'}
+        </p>
+        <p className="mt-1 font-body text-xs font-medium text-white/80">
+          {pct != null
+            ? `disponibilidade 24h · ${c.samples24h} amostras`
+            : 'sem histórico 24h'}
+        </p>
+        <div
+          className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/15"
+          role="img"
+          aria-label={
+            pct != null
+              ? `Disponibilidade de ${pct}% nas últimas 24h`
+              : 'Sem histórico de disponibilidade'
+          }
+        >
+          <div
+            className="h-full rounded-full bg-white"
+            style={{ width: `${pct ?? 0}%` }}
+          />
+        </div>
+        <p className="mt-3 break-words font-body text-xs text-white/85">
+          {c.latencyMs !== null && `${c.latencyMs} ms · `}
+          {translateDetail(c.detail)}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export function HealthTab({
   data,
@@ -798,40 +973,50 @@ export function HealthTab({
   const groups = Object.keys(GROUP_LABEL);
   return (
     <div className="space-y-6">
-      <Card>
-        <CardBody>
-          <div className="flex flex-wrap items-center gap-3 font-body text-sm">
-            <h2 className="font-display text-lg font-bold text-ink">
-              Estado dos componentes
-            </h2>
-            <StatusBadge status={data.overall.status} />
-            <span className="text-ink-muted">
-              {data.summary.monitored} monitorizados
-              {data.summary.notMonitored > 0 &&
-                ` · ${data.summary.notMonitored} não monitorizados`}
-            </span>
-            <span className="text-xs text-ink-faint">
-              verificado {fmtDate(data.generatedAt)}
-            </span>
-            <Button
-              className="ml-auto"
-              size="sm"
-              intent="secondary"
-              loading={refreshing}
-              onClick={onRefresh}
-            >
-              Verificar agora
-            </Button>
-          </div>
-          {data.overall.reasons.length > 0 && (
-            <ul className="mt-3 list-disc space-y-1 pl-5 font-body text-sm text-ink-muted">
+      <StatusHeroCard
+        icon={HeartPulse}
+        title="Estado dos componentes"
+        headline="Saúde dos componentes"
+        status={data.overall.status}
+        percent={
+          data.summary.monitored > 0
+            ? ((data.summary.counts.NORMAL ?? 0) / data.summary.monitored) * 100
+            : 0
+        }
+        ringLabel={`${data.summary.counts.NORMAL ?? 0} de ${data.summary.monitored} componentes em estado normal`}
+        stats={[
+          {
+            label: 'Componentes normais',
+            value: `${data.summary.counts.NORMAL ?? 0} / ${data.summary.monitored}`,
+          },
+          {
+            label: 'Não monitorizados',
+            value: String(data.summary.notMonitored),
+          },
+          { label: 'Verificado', value: fmtDate(data.generatedAt) },
+        ]}
+        action={
+          <Button
+            size="sm"
+            intent="secondary"
+            loading={refreshing}
+            onClick={onRefresh}
+          >
+            Verificar agora
+          </Button>
+        }
+        info={
+          data.overall.reasons.length > 0 ? (
+            <ul className="space-y-1">
               {data.overall.reasons.map((r) => (
                 <li key={r}>{r}</li>
               ))}
             </ul>
-          )}
-        </CardBody>
-      </Card>
+          ) : (
+            'Todos os componentes monitorizados estão a funcionar.'
+          )
+        }
+      />
 
       {groups.map((g) => {
         const items = data.components.filter((c) => c.group === g);
@@ -843,31 +1028,7 @@ export function HealthTab({
             </h3>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {items.map((c) => (
-                <Card key={c.key}>
-                  <CardBody>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium text-ink">{c.label}</span>
-                      {c.status ? (
-                        <Badge intent={STATUS[c.status].intent}>
-                          {c.statusLabel}
-                        </Badge>
-                      ) : (
-                        <Badge intent="neutral" dot={false}>
-                          Não monitorizado
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="mt-2 font-body text-sm text-ink-muted">
-                      {c.detail}
-                    </p>
-                    <p className="mt-2 font-body text-xs text-ink-faint">
-                      {c.latencyMs !== null && `${c.latencyMs} ms · `}
-                      {c.uptimePercent24h !== null
-                        ? `disponibilidade 24h ${c.uptimePercent24h}% (${c.samples24h} amostras)`
-                        : 'sem histórico 24h'}
-                    </p>
-                  </CardBody>
-                </Card>
+                <HealthComponentCard key={c.key} c={c} />
               ))}
             </div>
           </div>

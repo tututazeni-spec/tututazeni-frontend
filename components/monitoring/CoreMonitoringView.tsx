@@ -1,16 +1,38 @@
 // modulo_monitoring.md §4-6 — vistas apresentacionais (Automações, Integrações,
 // Performance). Os dados chegam por props do container (app/(platform)/monitoring).
 
+import {
+  Activity,
+  Cpu,
+  Gauge,
+  HardDrive,
+  ListTodo,
+  Lock,
+  MemoryStick,
+  Network,
+  Snail,
+  TrendingUp,
+  XCircle,
+  CalendarClock,
+  CalendarX,
+  Database,
+  Timer,
+  WifiOff,
+  Plug,
+  Hourglass,
+  PlayCircle,
+  RefreshCw,
+  Skull,
+  Zap,
+} from 'lucide-react';
+import { ThermometerStatCard } from '@/components/ui/charts/ThermometerStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
+import { StatusHeroCard } from './StatusHeroCard';
+import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
-import {
-  fmtDate,
-  STATUS,
-  StatusBadge,
-  Tile,
-  tone,
-} from './PlatformMonitoringView';
+import { fmtDate, STATUS, StatusBadge, tone } from './PlatformMonitoringView';
 import type { Intent } from './PlatformMonitoringView';
 import type {
   AutomationsData,
@@ -62,51 +84,62 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <NavyStatCard
+          icon={Zap}
           label="Execuções (24h)"
           value={s.executed24h}
           sub={`${s.activeRules} regras activas`}
+          tone="blue"
         />
-        <Tile
+        <DonutStatCard
           label="Taxa de sucesso"
-          value={pct(s.successRatePercent)}
+          value={s.successRatePercent ?? 0}
           sub={`${s.success24h} sucesso · ${s.failed24h} falhas`}
-          intent={tone(s.failed24h, 'warning')}
+          color="#218653"
         />
-        <Tile
+        <NavyStatCard
+          icon={PlayCircle}
           label="Em execução"
           value={s.running}
           sub={`${s.pending} pendentes · ${s.waitingFlows} fluxos em espera`}
+          tone="blue"
         />
-        <Tile
-          label="Retries (24h)"
+        <NavyStatCard
+          icon={RefreshCw}
+          label="Novas tentativas (24h)"
           value={s.retries24h}
           sub={`${s.retriesScheduled} agendados`}
-          intent={tone(s.retries24h, 'warning')}
+          tone="orange"
         />
-        <Tile
+        <NavyStatCard
+          icon={Hourglass}
           label="Tempo médio"
           value={fmtMs(s.avgExecutionMs)}
           sub="execuções terminadas"
+          tone="blue"
         />
-        <Tile
-          label="Dead letters abertas"
+        <NavyStatCard
+          icon={Skull}
+          label="Falhas irrecuperáveis abertas"
           value={s.deadLettersOpen}
-          intent={tone(s.deadLettersOpen)}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={CalendarX}
           label="Agendamentos com erro"
           value={s.schedulesInError}
-          intent={tone(s.schedulesInError, 'warning')}
+          tone="orange"
         />
-        <Tile
+        <NavyStatCard
+          icon={CalendarClock}
           label="Próxima execução"
-          value={s.nextExecutionAt ? fmtDate(s.nextExecutionAt) : null}
+          value={s.nextExecutionAt ? fmtDate(s.nextExecutionAt) : '—'}
           sub={
             s.lastExecutionAt
               ? `última ${fmtDate(s.lastExecutionAt)}`
               : 'sem execuções'
           }
+          tone="blue"
         />
       </div>
 
@@ -134,14 +167,14 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
             Sem falhas nas últimas 24 horas.
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Quando</th>
                   <th className="pr-3">Regra</th>
                   <th className="pr-3">Tentativa</th>
-                  <th className="pr-3">Próximo retry</th>
+                  <th className="pr-3">Próxima tentativa</th>
                   <th>Erro</th>
                 </tr>
               </thead>
@@ -199,8 +232,8 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
       </Section>
 
       <Section title="Últimas execuções">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[560px] text-left font-body text-sm">
+        <div className="w-full">
+          <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
             <thead className="text-xs uppercase text-ink-muted">
               <tr>
                 <th className="py-2 pr-3">Início</th>
@@ -280,53 +313,65 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
   const s = data.summary;
   return (
     <div className="space-y-6">
-      <Card>
-        <CardBody>
-          <div className="flex flex-wrap items-center gap-3 font-body text-sm">
-            <h2 className="font-display text-lg font-bold text-ink">
-              Estado das integrações
-            </h2>
-            <StatusBadge status={s.overall} />
-            <span className="text-ink-muted">
-              {s.active} activas de {s.total}
-            </span>
-            {data.sso && (
-              <Badge intent={data.sso.enabled ? 'success' : 'neutral'}>
-                SSO{' '}
-                {data.sso.enabled
-                  ? (data.sso.provider ?? 'activo')
-                  : 'desligado'}
-              </Badge>
-            )}
-          </div>
-        </CardBody>
-      </Card>
+      <StatusHeroCard
+        icon={Plug}
+        title="Estado das integrações"
+        headline="Integrações com sistemas externos"
+        status={s.overall}
+        percent={s.total > 0 ? (s.active / s.total) * 100 : 0}
+        ringLabel={`${s.active} de ${s.total} integrações activas`}
+        stats={[
+          { label: 'Activas', value: `${s.active} / ${s.total}` },
+          {
+            label: 'SSO',
+            value: data.sso
+              ? data.sso.enabled
+                ? (data.sso.provider ?? 'Activo')
+                : 'Desligado'
+              : '—',
+          },
+          { label: 'Tempo de resposta', value: fmtMs(s.avgResponseMs) },
+        ]}
+        info={
+          s.unavailable > 0 || s.stale > 0
+            ? `${s.unavailable} indisponíveis · ${s.stale} sem sincronização recente.`
+            : 'Todas as integrações estão disponíveis e sincronizadas.'
+        }
+      />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <NavyStatCard
+          icon={WifiOff}
           label="Indisponíveis"
           value={s.unavailable}
           sub={`${s.stale} sem sincronização recente`}
-          intent={tone(s.unavailable)}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={RefreshCw}
           label="Sincronizações (24h)"
           value={s.syncs24h}
           sub={`${s.failures24h} falhas`}
-          intent={tone(s.failures24h, 'warning')}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={Database}
           label="Registos processados (24h)"
           value={s.recordsProcessed24h}
           sub={`${s.recordsFailed24h} com falha`}
-          intent={tone(s.recordsFailed24h, 'warning')}
+          tone="green"
         />
-        <Tile label="Tempo de resposta" value={fmtMs(s.avgResponseMs)} />
+        <NavyStatCard
+          icon={Timer}
+          label="Tempo de resposta"
+          value={fmtMs(s.avgResponseMs)}
+          tone="blue"
+        />
       </div>
 
       <Section title="Por família">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left font-body text-sm">
+        <div className="w-full">
+          <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
             <thead className="text-xs uppercase text-ink-muted">
               <tr>
                 <th className="py-2 pr-3">Família</th>
@@ -380,8 +425,8 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
             description="Ainda não há integrações configuradas."
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Integração</th>
@@ -474,6 +519,15 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
 
 const statusIntent = (s: MonitoringStatus | null | undefined) =>
   s ? STATUS[s].intent : undefined;
+// Termómetro da taxa de erros: 0–40 verde, 40–70 amarelo, 70–100 vermelho.
+const ERROR_RATE_BANDS = [
+  { to: 40, color: '#2f9e63' },
+  { to: 70, color: '#f1c40f' },
+  { to: 100, color: '#c0392b' },
+];
+
+const navyTone = (i: Intent | undefined, base: NavyStatTone): NavyStatTone =>
+  i === 'danger' ? 'red' : i === 'warning' ? 'orange' : base;
 const tileIntent = (s: MonitoringStatus | null | undefined) => {
   const i = statusIntent(s);
   return i === 'danger' || i === 'warning' ? i : undefined;
@@ -491,8 +545,8 @@ function EndpointTable({
       {rows.length === 0 ? (
         <p className="font-body text-sm text-ink-muted">Nenhum.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px] text-left font-body text-sm">
+        <div className="w-full">
+          <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
             <thead className="text-xs uppercase text-ink-muted">
               <tr>
                 <th className="py-2 pr-3">Endpoint</th>
@@ -526,40 +580,61 @@ function EndpointTable({
 
 export function PerformanceTab({ data }: { data: PerformanceData }) {
   const { api, system, database: db, queues, storage } = data;
+  // Componentes com estado conhecido; o anel conta os que estão Normal.
+  const components = [
+    api.available ? api.status : null,
+    system.available ? system.status : null,
+    db.available ? db.status : null,
+    queues.available ? queues.status : null,
+    storage.available ? storage.status : null,
+  ].filter((st): st is MonitoringStatus => st !== null);
+  const normal = components.filter((st) => st === 'NORMAL').length;
   return (
     <div className="space-y-6">
-      <Card>
-        <CardBody>
-          <div className="flex flex-wrap items-center gap-3 font-body text-sm">
-            <h2 className="font-display text-lg font-bold text-ink">
-              Performance geral
-            </h2>
-            <StatusBadge status={data.overall.status} />
-            {data.overall.unavailableSources.length > 0 && (
-              <span className="text-ink-muted">
-                Sem dados: {data.overall.unavailableSources.join(', ')}
-              </span>
-            )}
-          </div>
-        </CardBody>
-      </Card>
+      <StatusHeroCard
+        icon={Gauge}
+        title="Performance geral"
+        headline="Desempenho da plataforma"
+        status={data.overall.status}
+        percent={components.length > 0 ? (normal / components.length) * 100 : 0}
+        ringLabel={`${normal} de ${components.length} componentes em estado normal`}
+        stats={[
+          {
+            label: 'Componentes normais',
+            value: `${normal} / ${components.length}`,
+          },
+          {
+            label: 'Latência da API',
+            value: api.available ? fmtMs(api.avgLatencyMs) : '—',
+          },
+          { label: 'CPU', value: pct(system.cpuPercent) ?? '—' },
+        ]}
+        info={
+          data.overall.unavailableSources.length > 0
+            ? `Sem dados: ${data.overall.unavailableSources.join(', ')}.`
+            : 'Todas as fontes de métricas estão a responder.'
+        }
+      />
 
       <Section title="API">
         {api.available ? (
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <Tile
+            <NavyStatCard
+              icon={Activity}
               label="Latência média"
               value={fmtMs(api.avgLatencyMs)}
               sub={`P95 ${fmtMs(api.p95Ms)} · P99 ${fmtMs(api.p99Ms)}`}
-              intent={tileIntent(api.status)}
+              tone={navyTone(tileIntent(api.status), 'blue')}
             />
-            <Tile
+            <ThermometerStatCard
               label="Taxa de erros"
-              value={pct(api.errorRatePercent)}
-              sub={`${api.http4xx} × 4xx · ${api.http5xx} × 5xx`}
-              intent={tone(api.http5xx, 'warning')}
+              value={api.errorRatePercent ?? 0}
+              bands={ERROR_RATE_BANDS}
+              display={pct(api.errorRatePercent) ?? '—'}
+              caption={`${api.http4xx} × 4xx · ${api.http5xx} × 5xx`}
             />
-            <Tile
+            <NavyStatCard
+              icon={Network}
               label="Pedidos"
               value={api.requests}
               sub={
@@ -567,12 +642,14 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
                   ? undefined
                   : `${api.requestsPerMinute}/min`
               }
+              tone="blue"
             />
-            <Tile
+            <NavyStatCard
+              icon={Snail}
               label="Lentos / timeouts"
               value={api.slowRequests}
               sub={`> ${api.slowThresholdMs} ms · ${api.timeouts} timeouts`}
-              intent={tone(api.timeouts, 'warning')}
+              tone={navyTone(tone(api.timeouts, 'warning'), 'orange')}
             />
           </div>
         ) : (
@@ -582,47 +659,74 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
 
       <Section title="Servidor e base de dados">
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <Tile
+          <NavyStatCard
+            icon={Cpu}
             label="CPU"
-            value={pct(system.cpuPercent)}
+            value={pct(system.cpuPercent) ?? '—'}
             sub={system.stale ? 'amostra desactualizada' : undefined}
-            intent={tileIntent(system.status)}
+            tone={navyTone(tileIntent(system.status), 'blue')}
           />
-          <Tile label="Memória" value={pct(system.memoryPercent)} />
-          <Tile label="Disco" value={pct(system.diskPercent)} />
+          <NavyStatCard
+            icon={MemoryStick}
+            label="Memória"
+            value={pct(system.memoryPercent) ?? '—'}
+            tone="blue"
+          />
+          <NavyStatCard
+            icon={HardDrive}
+            label="Disco"
+            value={pct(system.diskPercent) ?? '—'}
+            tone="blue"
+          />
           {db.available ? (
-            <Tile
+            <NavyStatCard
+              icon={Database}
               label="Ligações à BD"
               value={`${db.connections.total}/${db.connections.max}`}
               sub={`${db.connections.usagePercent}% · ${db.connections.active} activas`}
-              intent={tileIntent(db.status)}
+              tone={navyTone(tileIntent(db.status), 'blue')}
             />
           ) : (
-            <Tile label="Ligações à BD" value={null} sub="sem dados" />
+            <NavyStatCard
+              icon={Database}
+              label="Ligações à BD"
+              value="—"
+              sub="sem dados"
+              tone="blue"
+            />
           )}
         </div>
         {db.available && (
           <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <Tile
+            <NavyStatCard
+              icon={Gauge}
               label="Query média (app)"
               value={fmtMs(db.appAvgQueryMs)}
               sub={`P95 ${fmtMs(db.appP95QueryMs)}`}
+              tone="blue"
             />
-            <Tile
+            <NavyStatCard
+              icon={Hourglass}
               label="Queries lentas"
               value={db.slowQueries}
               sub={`> ${db.slowThresholdMs} ms`}
-              intent={tone(db.slowQueries, 'warning')}
+              tone={navyTone(tone(db.slowQueries, 'warning'), 'green')}
             />
-            <Tile
+            <NavyStatCard
+              icon={Lock}
               label="Locks / deadlocks"
               value={`${db.waitingLocks} / ${db.deadlocks}`}
-              intent={tone(db.waitingLocks, 'warning')}
+              tone={navyTone(tone(db.waitingLocks, 'warning'), 'green')}
             />
-            <Tile
+            <NavyStatCard
+              icon={Zap}
               label="Cache hit"
-              value={db.cacheHitRatio === null ? null : `${db.cacheHitRatio}%`}
+              value={
+                (db.cacheHitRatio === null ? null : `${db.cacheHitRatio}%`) ??
+                '—'
+              }
               sub={`${db.sizeGb} GB · ${db.queriesPerSecond ?? '—'} q/s`}
+              tone="green"
             />
           </div>
         )}
@@ -632,25 +736,34 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {queues.available ? (
             <>
-              <Tile
+              <NavyStatCard
+                icon={ListTodo}
                 label="Em fila"
                 value={queues.totals.pending}
                 sub={`${queues.totals.running} em execução`}
-                intent={tileIntent(queues.status)}
+                tone={navyTone(tileIntent(queues.status), 'blue')}
               />
-              <Tile
+              <NavyStatCard
+                icon={XCircle}
                 label="Falhados"
                 value={queues.totals.failed}
                 sub={`${queues.totals.delayed} agendados`}
-                intent={tone(queues.totals.failed, 'warning')}
+                tone={navyTone(tone(queues.totals.failed, 'warning'), 'green')}
               />
             </>
           ) : (
-            <Tile label="Filas" value={null} sub="sem dados" />
+            <NavyStatCard
+              icon={ListTodo}
+              label="Filas"
+              value="—"
+              sub="sem dados"
+              tone="blue"
+            />
           )}
           {storage.available ? (
             <>
-              <Tile
+              <NavyStatCard
+                icon={HardDrive}
                 label="Armazenamento"
                 value={`${storage.usedGb} GB`}
                 sub={
@@ -658,29 +771,37 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
                     ? 'capacidade desconhecida'
                     : `${storage.usagePercent}% de ${storage.totalGb} GB`
                 }
-                intent={tileIntent(storage.status)}
+                tone={navyTone(tileIntent(storage.status), 'blue')}
               />
-              <Tile
+              <NavyStatCard
+                icon={TrendingUp}
                 label="Crescimento mensal"
                 value={
-                  storage.monthlyGrowthMb === null
+                  (storage.monthlyGrowthMb === null
                     ? null
-                    : `${storage.monthlyGrowthMb} MB`
+                    : `${storage.monthlyGrowthMb} MB`) ?? '—'
                 }
                 sub={
                   storage.files === null
                     ? undefined
                     : `${storage.files} ficheiros`
                 }
+                tone="blue"
               />
             </>
           ) : (
-            <Tile label="Armazenamento" value={null} sub="sem dados" />
+            <NavyStatCard
+              icon={HardDrive}
+              label="Armazenamento"
+              value="—"
+              sub="sem dados"
+              tone="blue"
+            />
           )}
         </div>
         {queues.available && queues.queues.length > 0 && (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[520px] text-left font-body text-sm">
+          <div className="mt-4 w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Fila</th>
