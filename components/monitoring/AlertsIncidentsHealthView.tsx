@@ -697,6 +697,14 @@ export function IncidentsTab({
   const s = data.summary;
   return (
     <div className="space-y-6">
+      {canAct && (
+        <div className="flex justify-end">
+          <Button size="sm" onClick={onCreateClick}>
+            Novo incidente
+          </Button>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <NavyStatCard
           icon={Flame}
@@ -762,11 +770,6 @@ export function IncidentsTab({
             );
           })}
         </div>
-        {canAct && (
-          <Button size="sm" onClick={onCreateClick}>
-            Novo incidente
-          </Button>
-        )}
       </div>
 
       <Card>
