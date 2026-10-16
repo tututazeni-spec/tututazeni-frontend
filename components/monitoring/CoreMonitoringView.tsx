@@ -2,6 +2,18 @@
 // Performance). Os dados chegam por props do container (app/(platform)/monitoring).
 
 import {
+  Activity,
+  AlertTriangle,
+  Cpu,
+  Gauge,
+  HardDrive,
+  ListTodo,
+  Lock,
+  MemoryStick,
+  Network,
+  Snail,
+  TrendingUp,
+  XCircle,
   CalendarClock,
   CalendarX,
   Database,
@@ -16,17 +28,11 @@ import {
 } from 'lucide-react';
 import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { StatusHeroCard } from './StatusHeroCard';
-import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
-import {
-  fmtDate,
-  STATUS,
-  StatusBadge,
-  Tile,
-  tone,
-} from './PlatformMonitoringView';
+import { fmtDate, STATUS, StatusBadge, tone } from './PlatformMonitoringView';
 import type { Intent } from './PlatformMonitoringView';
 import type {
   AutomationsData,
@@ -513,6 +519,8 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
 
 const statusIntent = (s: MonitoringStatus | null | undefined) =>
   s ? STATUS[s].intent : undefined;
+const navyTone = (i: Intent | undefined, base: NavyStatTone): NavyStatTone =>
+  i === 'danger' ? 'red' : i === 'warning' ? 'orange' : base;
 const tileIntent = (s: MonitoringStatus | null | undefined) => {
   const i = statusIntent(s);
   return i === 'danger' || i === 'warning' ? i : undefined;
@@ -586,19 +594,22 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
       <Section title="API">
         {api.available ? (
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <Tile
+            <NavyStatCard
+              icon={Activity}
               label="Latência média"
               value={fmtMs(api.avgLatencyMs)}
               sub={`P95 ${fmtMs(api.p95Ms)} · P99 ${fmtMs(api.p99Ms)}`}
-              intent={tileIntent(api.status)}
+              tone={navyTone(tileIntent(api.status), 'blue')}
             />
-            <Tile
+            <NavyStatCard
+              icon={AlertTriangle}
               label="Taxa de erros"
-              value={pct(api.errorRatePercent)}
+              value={pct(api.errorRatePercent) ?? '—'}
               sub={`${api.http4xx} × 4xx · ${api.http5xx} × 5xx`}
-              intent={tone(api.http5xx, 'warning')}
+              tone={navyTone(tone(api.http5xx, 'warning'), 'green')}
             />
-            <Tile
+            <NavyStatCard
+              icon={Network}
               label="Pedidos"
               value={api.requests}
               sub={
@@ -606,12 +617,14 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
                   ? undefined
                   : `${api.requestsPerMinute}/min`
               }
+              tone="blue"
             />
-            <Tile
+            <NavyStatCard
+              icon={Snail}
               label="Lentos / timeouts"
               value={api.slowRequests}
               sub={`> ${api.slowThresholdMs} ms · ${api.timeouts} timeouts`}
-              intent={tone(api.timeouts, 'warning')}
+              tone={navyTone(tone(api.timeouts, 'warning'), 'orange')}
             />
           </div>
         ) : (
@@ -621,47 +634,74 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
 
       <Section title="Servidor e base de dados">
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <Tile
+          <NavyStatCard
+            icon={Cpu}
             label="CPU"
-            value={pct(system.cpuPercent)}
+            value={pct(system.cpuPercent) ?? '—'}
             sub={system.stale ? 'amostra desactualizada' : undefined}
-            intent={tileIntent(system.status)}
+            tone={navyTone(tileIntent(system.status), 'blue')}
           />
-          <Tile label="Memória" value={pct(system.memoryPercent)} />
-          <Tile label="Disco" value={pct(system.diskPercent)} />
+          <NavyStatCard
+            icon={MemoryStick}
+            label="Memória"
+            value={pct(system.memoryPercent) ?? '—'}
+            tone="blue"
+          />
+          <NavyStatCard
+            icon={HardDrive}
+            label="Disco"
+            value={pct(system.diskPercent) ?? '—'}
+            tone="blue"
+          />
           {db.available ? (
-            <Tile
+            <NavyStatCard
+              icon={Database}
               label="Ligações à BD"
               value={`${db.connections.total}/${db.connections.max}`}
               sub={`${db.connections.usagePercent}% · ${db.connections.active} activas`}
-              intent={tileIntent(db.status)}
+              tone={navyTone(tileIntent(db.status), 'blue')}
             />
           ) : (
-            <Tile label="Ligações à BD" value={null} sub="sem dados" />
+            <NavyStatCard
+              icon={Database}
+              label="Ligações à BD"
+              value="—"
+              sub="sem dados"
+              tone="blue"
+            />
           )}
         </div>
         {db.available && (
           <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <Tile
+            <NavyStatCard
+              icon={Gauge}
               label="Query média (app)"
               value={fmtMs(db.appAvgQueryMs)}
               sub={`P95 ${fmtMs(db.appP95QueryMs)}`}
+              tone="blue"
             />
-            <Tile
+            <NavyStatCard
+              icon={Hourglass}
               label="Queries lentas"
               value={db.slowQueries}
               sub={`> ${db.slowThresholdMs} ms`}
-              intent={tone(db.slowQueries, 'warning')}
+              tone={navyTone(tone(db.slowQueries, 'warning'), 'green')}
             />
-            <Tile
+            <NavyStatCard
+              icon={Lock}
               label="Locks / deadlocks"
               value={`${db.waitingLocks} / ${db.deadlocks}`}
-              intent={tone(db.waitingLocks, 'warning')}
+              tone={navyTone(tone(db.waitingLocks, 'warning'), 'green')}
             />
-            <Tile
+            <NavyStatCard
+              icon={Zap}
               label="Cache hit"
-              value={db.cacheHitRatio === null ? null : `${db.cacheHitRatio}%`}
+              value={
+                (db.cacheHitRatio === null ? null : `${db.cacheHitRatio}%`) ??
+                '—'
+              }
               sub={`${db.sizeGb} GB · ${db.queriesPerSecond ?? '—'} q/s`}
+              tone="green"
             />
           </div>
         )}
@@ -671,25 +711,34 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {queues.available ? (
             <>
-              <Tile
+              <NavyStatCard
+                icon={ListTodo}
                 label="Em fila"
                 value={queues.totals.pending}
                 sub={`${queues.totals.running} em execução`}
-                intent={tileIntent(queues.status)}
+                tone={navyTone(tileIntent(queues.status), 'blue')}
               />
-              <Tile
+              <NavyStatCard
+                icon={XCircle}
                 label="Falhados"
                 value={queues.totals.failed}
                 sub={`${queues.totals.delayed} agendados`}
-                intent={tone(queues.totals.failed, 'warning')}
+                tone={navyTone(tone(queues.totals.failed, 'warning'), 'green')}
               />
             </>
           ) : (
-            <Tile label="Filas" value={null} sub="sem dados" />
+            <NavyStatCard
+              icon={ListTodo}
+              label="Filas"
+              value="—"
+              sub="sem dados"
+              tone="blue"
+            />
           )}
           {storage.available ? (
             <>
-              <Tile
+              <NavyStatCard
+                icon={HardDrive}
                 label="Armazenamento"
                 value={`${storage.usedGb} GB`}
                 sub={
@@ -697,24 +746,32 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
                     ? 'capacidade desconhecida'
                     : `${storage.usagePercent}% de ${storage.totalGb} GB`
                 }
-                intent={tileIntent(storage.status)}
+                tone={navyTone(tileIntent(storage.status), 'blue')}
               />
-              <Tile
+              <NavyStatCard
+                icon={TrendingUp}
                 label="Crescimento mensal"
                 value={
-                  storage.monthlyGrowthMb === null
+                  (storage.monthlyGrowthMb === null
                     ? null
-                    : `${storage.monthlyGrowthMb} MB`
+                    : `${storage.monthlyGrowthMb} MB`) ?? '—'
                 }
                 sub={
                   storage.files === null
                     ? undefined
                     : `${storage.files} ficheiros`
                 }
+                tone="blue"
               />
             </>
           ) : (
-            <Tile label="Armazenamento" value={null} sub="sem dados" />
+            <NavyStatCard
+              icon={HardDrive}
+              label="Armazenamento"
+              value="—"
+              sub="sem dados"
+              tone="blue"
+            />
           )}
         </div>
         {queues.available && queues.queues.length > 0 && (
