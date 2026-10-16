@@ -3,7 +3,10 @@
 
 import {
   CalendarClock,
+  AlarmClock,
   CheckCircle2,
+  Clock,
+  Siren,
   Hourglass,
   PlayCircle,
   Timer,
@@ -12,6 +15,11 @@ import {
   Zap,
 } from 'lucide-react';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  INVERSE_RATE_BANDS,
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -360,54 +368,60 @@ export function SlaTab({
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <SpeedometerStatCard
           label="Disponibilidade"
-          value={`${c.availabilityPercent}%`}
-          sub={`objectivo ${data.sla.uptimePercent}%`}
-          intent={
-            c.state === 'VIOLADO'
-              ? 'danger'
-              : c.state === 'EM_RISCO'
-                ? 'warning'
-                : undefined
-          }
+          value={c.availabilityPercent}
+          bands={RATE_BANDS}
+          display={`${c.availabilityPercent}%`}
+          caption={`objectivo ${data.sla.uptimePercent}%`}
         />
-        <Tile
+        <SpeedometerStatCard
+          label="Orçamento de erro usado"
+          value={Math.min(100, c.errorBudgetUsedPercent ?? 0)}
+          bands={INVERSE_RATE_BANDS}
+          display={pct(c.errorBudgetUsedPercent) ?? '—'}
+          caption={`restam ${fmtMin(Math.round(c.errorBudgetRemainingMinutes))}`}
+        />
+        <SpeedometerStatCard
+          label="Latência dentro do limite"
+          value={c.latencyCompliancePercent ?? 0}
+          bands={RATE_BANDS}
+          display={pct(c.latencyCompliancePercent) ?? '—'}
+          caption={`≤ ${data.sla.maxLatencyMs} ms`}
+        />
+        <SpeedometerStatCard
+          label="Erros dentro do limite"
+          value={c.errorCompliancePercent ?? 0}
+          bands={RATE_BANDS}
+          display={pct(c.errorCompliancePercent) ?? '—'}
+          caption={`≤ ${data.sla.maxErrorRatePercent}%`}
+        />
+        <NavyStatCard
+          icon={Clock}
           label="Indisponibilidade"
           value={fmtMin(c.downtimeMinutes)}
           sub={`permitido ${fmtMin(Math.round(c.allowedDowntimeMinutes))}`}
-          intent={tone(c.downtimeMinutes, 'warning')}
+          tone="orange"
         />
-        <Tile
-          label="Orçamento de erro usado"
-          value={pct(c.errorBudgetUsedPercent)}
-          sub={`restam ${fmtMin(Math.round(c.errorBudgetRemainingMinutes))}`}
-        />
-        <Tile
+        <NavyStatCard
+          icon={Timer}
           label="Tempo médio de resolução"
           value={fmtMin(c.mttrMinutes)}
           sub={`${c.resolvedIncidents} incidente(s) resolvido(s)`}
+          tone="blue"
         />
-        <Tile
-          label="Latência dentro do limite"
-          value={pct(c.latencyCompliancePercent)}
-          sub={`≤ ${data.sla.maxLatencyMs} ms`}
-        />
-        <Tile
-          label="Erros dentro do limite"
-          value={pct(c.errorCompliancePercent)}
-          sub={`≤ ${data.sla.maxErrorRatePercent}%`}
-        />
-        <Tile
+        <NavyStatCard
+          icon={Siren}
           label="Incidentes críticos"
           value={data.violations.criticalIncidents}
-          intent={tone(data.violations.criticalIncidents)}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={AlarmClock}
           label="Respostas fora de prazo"
           value={data.violations.responseMissed}
           sub={`prazo ${data.sla.incidentResponseMinutes} min`}
-          intent={tone(data.violations.responseMissed, 'warning')}
+          tone="orange"
         />
       </div>
 
