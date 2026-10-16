@@ -14,6 +14,10 @@ import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import {
   AlarmClock,
+  Gauge,
+  Hourglass,
+  ListTodo,
+  PlayCircle,
   AlertTriangle,
   CheckCircle2,
   ShieldAlert,
@@ -458,52 +462,70 @@ export function ProcessesTab({ data }: { data: ProcessesData }) {
   const pct = (v: number | null) => (v === null ? null : `${v}%`);
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <NavyStatCard
+          icon={PlayCircle}
           label="Em execução"
           value={s.running}
           sub={`${s.onHold} em pausa`}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={CheckCircle2}
           label="Concluídos (30d)"
           value={s.completed30d}
           sub={`${s.cancelled30d} cancelados`}
+          tone="green"
         />
-        <Tile
+        <NavyStatCard
+          icon={AlarmClock}
           label="Atrasados"
           value={s.overdue}
           sub={`${s.atRisk} em risco nas próximas 24h`}
-          intent={tone(s.overdue, 'warning')}
+          tone="orange"
         />
-        <Tile
+        <NavyStatCard
+          icon={Ban}
           label="Bloqueados"
           value={s.blocked}
           sub={`${s.blockedSteps} etapas bloqueadas`}
-          intent={tone(s.blocked, 'warning')}
+          tone="red"
         />
-        <Tile label="Etapas pendentes" value={s.pendingSteps} />
-        <Tile
+        <NavyStatCard
+          icon={ListTodo}
+          label="Etapas pendentes"
+          value={s.pendingSteps}
+          tone="blue"
+        />
+        <NavyStatCard
+          icon={Timer}
           label="SLA cumprido (30d)"
-          value={pct(s.slaCompliancePercent)}
+          value={pct(s.slaCompliancePercent) ?? '—'}
           sub="dos concluídos com prazo"
+          tone="green"
         />
-        <Tile
+        <NavyStatCard
+          icon={Hourglass}
           label="Tempo médio"
           value={
-            s.avgCompletionHours === null ? null : `${s.avgCompletionHours} h`
+            s.avgCompletionHours === null ? '—' : `${s.avgCompletionHours} h`
           }
           sub="processos concluídos (30d)"
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={Gauge}
           label="Taxa de conclusão"
-          value={pct(s.completionRatePercent)}
+          value={pct(s.completionRatePercent) ?? '—'}
           sub={`${s.started30d} iniciados (30d)`}
+          tone="green"
         />
-        <Tile
+        <NavyStatCard
+          icon={AlertTriangle}
           label="Falhas (30d)"
           value={s.failures.total30d}
           sub={`${s.failures.rejectedSteps30d} etapas rejeitadas · ${s.failures.integrationFailures30d} integrações`}
-          intent={tone(s.failures.total30d, 'warning')}
+          tone="red"
         />
       </div>
 
