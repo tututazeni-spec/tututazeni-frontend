@@ -4,7 +4,7 @@
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Activity } from 'lucide-react';
+import { PlatformStatusCard } from './PlatformStatusCard';
 import type {
   ModulesData,
   MonitoringStatus,
@@ -88,31 +88,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
   const p = data.platform;
   return (
     <div className="space-y-6">
-      <Card>
-        <CardBody>
-          <div className="flex flex-wrap items-center gap-3">
-            <Activity size={20} />
-            <h2 className="font-display text-lg font-bold text-ink">
-              Estado geral da plataforma
-            </h2>
-            <StatusBadge status={p.status} />
-            <span className="font-body text-sm text-ink-muted">
-              BD:{' '}
-              {p.database.available
-                ? `${p.database.latencyMs} ms`
-                : 'sem resposta'}{' '}
-              · {p.modules.total} módulos
-            </span>
-          </div>
-          {p.reasons.length > 0 && (
-            <ul className="mt-3 list-disc space-y-1 pl-5 font-body text-sm text-ink-muted">
-              {p.reasons.map((r) => (
-                <li key={r}>{r}</li>
-              ))}
-            </ul>
-          )}
-        </CardBody>
-      </Card>
+      <PlatformStatusCard platform={p} />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Tile
