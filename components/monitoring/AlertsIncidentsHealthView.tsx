@@ -16,6 +16,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { StatusHeroCard } from './StatusHeroCard';
+import { cn } from '@/lib/cn';
+import { NAVY_PANEL_VARIANTS_SOFT } from '@/components/roi-impact/NavyPanel';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -33,12 +35,14 @@ import {
   StatusBadge,
 } from './PlatformMonitoringView';
 import type { Intent } from './PlatformMonitoringView';
+import type { MonitoringStatus } from './platformTypes';
 import type {
   AlertArea,
   AlertRow,
   AlertsData,
   AlertState,
   CreateIncidentPayload,
+  HealthComponentRow,
   HealthData,
   IncidentDetail,
   IncidentRow,
@@ -874,6 +878,68 @@ const GROUP_LABEL: Record<string, string> = {
   PROCESSAMENTO: 'Processamento',
 };
 
+// Cor do card por estado, na paleta do card "Satisfação do cliente" (roi-impact).
+const HEALTH_VARIANT: Record<MonitoringStatus, number> = {
+  NORMAL: 1,
+  ATENCAO: 2,
+  DEGRADADO: 2,
+  CRITICO: 5,
+  INDISPONIVEL: 5,
+};
+
+function HealthComponentCard({ c }: { c: HealthComponentRow }) {
+  const pct =
+    c.uptimePercent24h != null
+      ? Math.max(0, Math.min(100, c.uptimePercent24h))
+      : null;
+  const variant = c.status ? HEALTH_VARIANT[c.status] : 0;
+  return (
+    <div
+      className={cn(
+        'flex min-w-0 flex-col justify-between gap-4 rounded-panel bg-gradient-to-br p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]',
+        NAVY_PANEL_VARIANTS_SOFT[variant],
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="font-display text-sm font-semibold leading-snug">
+          {c.label}
+        </p>
+        <span className="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 font-body text-xs font-semibold">
+          {c.status ? c.statusLabel : 'Não monitorizado'}
+        </span>
+      </div>
+      <div>
+        <p className="font-display text-3xl font-extrabold leading-none">
+          {pct != null ? `${pct}%` : '—'}
+        </p>
+        <p className="mt-1 font-body text-xs font-medium text-white/80">
+          {pct != null
+            ? `disponibilidade 24h · ${c.samples24h} amostras`
+            : 'sem histórico 24h'}
+        </p>
+        <div
+          className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/15"
+          role="img"
+          aria-label={
+            pct != null
+              ? `Disponibilidade de ${pct}% nas últimas 24h`
+              : 'Sem histórico de disponibilidade'
+          }
+        >
+          <div
+            className="h-full rounded-full bg-white"
+            style={{ width: `${pct ?? 0}%` }}
+          />
+        </div>
+        <p className="mt-3 break-words font-body text-xs text-white/85">
+          {c.latencyMs !== null && `${c.latencyMs} ms · `}
+          {c.detail}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function HealthTab({
   data,
   refreshing,
@@ -941,31 +1007,7 @@ export function HealthTab({
             </h3>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {items.map((c) => (
-                <Card key={c.key}>
-                  <CardBody>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium text-ink">{c.label}</span>
-                      {c.status ? (
-                        <Badge intent={STATUS[c.status].intent}>
-                          {c.statusLabel}
-                        </Badge>
-                      ) : (
-                        <Badge intent="neutral" dot={false}>
-                          Não monitorizado
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="mt-2 font-body text-sm text-ink-muted">
-                      {c.detail}
-                    </p>
-                    <p className="mt-2 font-body text-xs text-ink-faint">
-                      {c.latencyMs !== null && `${c.latencyMs} ms · `}
-                      {c.uptimePercent24h !== null
-                        ? `disponibilidade 24h ${c.uptimePercent24h}% (${c.samples24h} amostras)`
-                        : 'sem histórico 24h'}
-                    </p>
-                  </CardBody>
-                </Card>
+                <HealthComponentCard key={c.key} c={c} />
               ))}
             </div>
           </div>
