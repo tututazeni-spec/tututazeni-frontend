@@ -164,7 +164,8 @@ export function OverviewTab({ data }: { data: OverviewData }) {
           label="Incidentes abertos"
           value={data.incidents.open}
           sub={`${data.incidents.critical} críticos · ${data.incidents.security} de segurança`}
-          tone="red"
+          tone="orange"
+          iconTone="yellow"
         />
       </div>
 
