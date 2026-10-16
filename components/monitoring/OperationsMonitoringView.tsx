@@ -1,6 +1,17 @@
 // modulo_monitoring.md §10-12 — vistas apresentacionais (Jobs, SLA & SLO,
 // Histórico). Os dados chegam por props do container (app/(platform)/monitoring).
 
+import {
+  CalendarClock,
+  CheckCircle2,
+  Hourglass,
+  PlayCircle,
+  Timer,
+  WifiOff,
+  XCircle,
+  Zap,
+} from 'lucide-react';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -142,18 +153,22 @@ export function JobsTab({ data }: { data: JobsData }) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <NavyStatCard
+          icon={PlayCircle}
           label="Em execução"
           value={s.running}
           sub={`${s.waiting} em espera`}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={XCircle}
           label="Falhados"
           value={s.failed}
           sub={`${s.retrying} com nova tentativa`}
-          intent={tone(s.failed)}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={CalendarClock}
           label="Agendados"
           value={s.scheduled}
           sub={
@@ -161,33 +176,41 @@ export function JobsTab({ data }: { data: JobsData }) {
               ? `próximo ${fmtDate(s.nextExecutionAt)}`
               : 'sem agendamentos'
           }
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={CheckCircle2}
           label="Executados (retidos)"
           value={s.executed}
           sub={`sucesso ${s.successRatePercent === null ? '—' : `${s.successRatePercent}%`}`}
+          tone="green"
         />
-        <Tile
+        <NavyStatCard
+          icon={Hourglass}
           label="Duração média"
           value={fmtMs(s.avgDurationMs)}
           sub="jobs concluídos"
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={Timer}
           label="Cron jobs"
           value={s.cronJobs}
           sub={`${s.cronJobsStopped} parado(s)`}
-          intent={tone(s.cronJobsStopped, 'warning')}
+          tone="orange"
         />
-        <Tile
+        <NavyStatCard
+          icon={Zap}
           label="Automações"
           value={data.automations.running}
           sub={`${data.automations.pending} pendentes · ${data.automations.failed24h} falhadas (24h)`}
-          intent={tone(data.automations.failed24h, 'warning')}
+          tone="blue"
         />
-        <Tile
+        <NavyStatCard
+          icon={WifiOff}
           label="Filas inacessíveis"
           value={s.queuesUnavailable}
-          intent={tone(s.queuesUnavailable, 'warning')}
+          tone="orange"
         />
       </div>
 
