@@ -37,7 +37,23 @@ const BAR_INTENT: Record<InfraLevel, 'success' | 'warning' | 'danger'> = {
   CRITICO: 'danger',
 };
 
-export function Header({ title, sub }: { title: string; sub?: string }) {
+export function Header({
+  title,
+  sub,
+  banner = false,
+}: {
+  title: string;
+  sub?: string;
+  /** Faixa #0F1F3D a 60% com letra branca (sem efeito de cursor). */
+  banner?: boolean;
+}) {
+  if (banner)
+    return (
+      <div className="rounded-card bg-[#0F1F3D]/60 px-5 py-3 text-white">
+        <h2 className="font-display text-lg font-bold">{title}</h2>
+        {sub && <p className="mt-1 font-body text-sm text-white/80">{sub}</p>}
+      </div>
+    );
   return (
     <div>
       <h2 className="font-display text-lg font-bold text-ink">{title}</h2>
@@ -46,23 +62,38 @@ export function Header({ title, sub }: { title: string; sub?: string }) {
   );
 }
 
+/** Cabeçalho de card: #0F1F3D a 60%, letra branca, sem efeito de cursor. */
+export function CardTitleBar({ children }: { children: React.ReactNode }) {
+  return (
+    <h3 className="flex items-center bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+      {children}
+    </h3>
+  );
+}
+
 export function Tile({
   label,
   value,
   unit,
   sub,
+  headed = false,
 }: {
   label: string;
   value: string | number | null;
   unit?: string;
   sub?: string;
+  /** Mostra o rótulo num cabeçalho navy em vez de texto solto. */
+  headed?: boolean;
 }) {
   return (
-    <Card>
+    <Card className={headed ? 'overflow-hidden' : undefined}>
+      {headed && <CardTitleBar>{label}</CardTitleBar>}
       <CardBody>
-        <p className="font-body text-xs font-medium uppercase tracking-wide text-ink-muted">
-          {label}
-        </p>
+        {!headed && (
+          <p className="font-body text-xs font-medium uppercase tracking-wide text-ink-muted">
+            {label}
+          </p>
+        )}
         <p className="mt-1 font-display text-2xl font-bold tabular-nums text-ink">
           {value === null ? '—' : value}
           {value !== null && unit && (
@@ -194,30 +225,35 @@ export function CapacityTab({
   return (
     <div className="flex flex-col gap-6">
       <Header
+        banner
         title="Capacidade actual"
         sub="Uso real da plataforma neste momento"
       />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile label="Utilizadores totais" value={fmt(c.totalUsers, 0)} />
-        <Tile label="Utilizadores activos" value={fmt(c.activeUsers, 0)} />
+        <Tile headed label="Utilizadores totais" value={fmt(c.totalUsers, 0)} />
+        <Tile headed label="Utilizadores activos" value={fmt(c.activeUsers, 0)} />
         <Tile
+          headed
           label="Concurrent users"
           value={fmt(c.concurrentUsers, 0)}
           sub={`pico 24h: ${fmt(c.concurrentPeak24h, 0)}`}
         />
         <Tile
+          headed
           label="Requests/sec"
           value={fmt(c.requestsPerSecond)}
           unit="req/s"
         />
-        <Tile label="Database connections" value={fmt(c.dbConnections, 0)} />
-        <Tile label="Storage" value={fmt(c.storageGb)} unit="GB" />
+        <Tile headed label="Database connections" value={fmt(c.dbConnections, 0)} />
+        <Tile headed label="Storage" value={fmt(c.storageGb)} unit="GB" />
         <Tile
+          headed
           label="Queue throughput"
           value={fmt(c.queueThroughputPerMin)}
           unit="jobs/min"
         />
         <Tile
+          headed
           label="Gargalo"
           value={capacity.bottleneck?.label ?? null}
           sub={
@@ -229,6 +265,7 @@ export function CapacityTab({
       </div>
 
       <Header
+        banner
         title="Capacidade máxima estimada"
         sub="Uso actual face à capacidade de cada recurso"
       />
@@ -236,11 +273,11 @@ export function CapacityTab({
         <CardBody>
           <table className="w-full font-body text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
-                <th className="py-1.5 font-semibold">Recurso</th>
-                <th className="py-1.5 text-right font-semibold">Actual</th>
-                <th className="py-1.5 text-right font-semibold">Capacidade</th>
-                <th className="w-48 py-1.5 pl-4 font-semibold">Utilização</th>
+              <tr className="bg-[#0F1F3D]/60 text-left text-xs text-white">
+                <th className="rounded-l-card px-3 py-2.5 font-semibold">Recurso</th>
+                <th className="px-3 py-2.5 text-right font-semibold">Actual</th>
+                <th className="px-3 py-2.5 text-right font-semibold">Capacidade</th>
+                <th className="w-48 rounded-r-card px-3 py-2.5 font-semibold">Utilização</th>
               </tr>
             </thead>
             <tbody>
@@ -280,11 +317,9 @@ export function CapacityTab({
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Limites definidos</CardTitleBar>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Limites definidos
-          </p>
           <div className="flex flex-wrap items-end gap-4">
             <NumField
               label="Concurrent users (máx.)"
@@ -717,6 +752,7 @@ export function ResilienceTab({
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-3">
         <Header
+          banner
           title="Resiliência"
           sub="Capacidade de continuar disponível quando um componente falha"
         />
@@ -727,6 +763,7 @@ export function ResilienceTab({
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Tile
+          headed
           label="RPO"
           value={duration(i.rpoMinutes)}
           sub={
@@ -737,9 +774,10 @@ export function ResilienceTab({
                 : 'objectivo EXCEDIDO'
           }
         />
-        <Tile label="RTO" value={duration(i.rtoMinutes)} />
-        <Tile label="Último backup" value={ago(i.lastBackupMinutesAgo)} />
+        <Tile headed label="RTO" value={duration(i.rtoMinutes)} />
+        <Tile headed label="Último backup" value={ago(i.lastBackupMinutesAgo)} />
         <Tile
+          headed
           label="Último teste de recuperação"
           value={ago(i.lastRecoveryTestMinutesAgo)}
           sub={
@@ -752,11 +790,9 @@ export function ResilienceTab({
         />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Verificações</CardTitleBar>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Verificações
-          </p>
           <table className="w-full font-body text-sm">
             <tbody>
               {data.checks.map((c) => (
@@ -778,11 +814,9 @@ export function ResilienceTab({
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Objectivos e infraestrutura declarada</CardTitleBar>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Objectivos e infraestrutura declarada
-          </p>
           <div className="mb-4 flex flex-wrap items-end gap-4">
             <NumField
               label="RPO"

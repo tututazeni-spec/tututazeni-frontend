@@ -6,6 +6,17 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  Archive,
+  CalendarDays,
+  CircleCheck,
+  Clock,
+  ListChecks,
+  Siren,
+  TriangleAlert,
+  type LucideIcon,
+} from 'lucide-react';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -16,7 +27,7 @@ import { FormField } from '@/components/ui/FormField';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
-import { Header, Note, Tile, fmt } from './InfraTabs';
+import { CardTitleBar, Header, Note, Tile, fmt } from './InfraTabs';
 import type {
   CapacityIncident,
   ForecastConfidence,
@@ -439,35 +450,61 @@ export function IncidentsTab({
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile label="Em aberto" value={s.open} sub={`${s.total} no total`} />
-        <Tile label="Críticos em aberto" value={s.openCritical} />
-        <Tile label="Últimos 30 dias" value={s.last30d} />
-        <Tile
+        <NavyStatCard
+          icon={Siren}
+          tone="orange"
+          label="Em aberto"
+          value={s.open}
+          sub={`${s.total} no total`}
+        />
+        <NavyStatCard
+          icon={TriangleAlert}
+          tone="red"
+          label="Críticos em aberto"
+          value={s.openCritical}
+        />
+        <NavyStatCard
+          icon={CalendarDays}
+          tone="blue"
+          label="Últimos 30 dias"
+          value={s.last30d}
+        />
+        <NavyStatCard
+          icon={Clock}
+          tone="green"
           label="Tempo médio de resolução"
           value={
             s.meanTimeToResolveMinutes === null
-              ? null
+              ? '—'
               : duration(s.meanTimeToResolveMinutes)
           }
         />
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      {/* Separadores no desenho do separador Talento (dashboard-rh) */}
+      <div className="flex w-fit flex-wrap gap-1 rounded-panel border border-border bg-surface p-1.5 shadow-sm">
         {(
           [
-            ['ALL', 'Todos'],
-            ['OPEN', 'Em curso'],
-            ['RESOLVED', 'Resolvidos'],
-            ['CLOSED', 'Encerrados'],
-          ] as Array<['ALL' | 'OPEN' | IncidentStatus, string]>
-        ).map(([id, label]) => (
-          <Button
+            ['ALL', 'Todos', ListChecks],
+            ['OPEN', 'Em curso', Siren],
+            ['RESOLVED', 'Resolvidos', CircleCheck],
+            ['CLOSED', 'Encerrados', Archive],
+          ] as Array<['ALL' | 'OPEN' | IncidentStatus, string, LucideIcon]>
+        ).map(([id, label, Icon]) => (
+          <button
             key={id}
-            intent={filter === id ? 'primary' : 'ghost'}
+            type="button"
             onClick={() => setFilter(id)}
+            aria-pressed={filter === id}
+            className={`inline-flex items-center justify-center gap-2 rounded-control px-[18px] py-[9px] font-body text-sm font-semibold transition-colors ${
+              filter === id
+                ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
+            }`}
           >
+            <Icon size={15} strokeWidth={1.75} />
             {label}
-          </Button>
+          </button>
         ))}
       </div>
 
@@ -705,15 +742,15 @@ export function ForecastsTab({
           <div className="overflow-x-auto">
             <table className="w-full font-body text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
-                  <th className="py-1.5 font-semibold">Recurso</th>
-                  <th className="py-1.5 text-right font-semibold">Actual</th>
-                  <th className="py-1.5 text-right font-semibold">+3 m</th>
-                  <th className="py-1.5 text-right font-semibold">+6 m</th>
-                  <th className="py-1.5 text-right font-semibold">+12 m</th>
-                  <th className="py-1.5 pl-4 font-semibold">80% em</th>
-                  <th className="py-1.5 font-semibold">100% em</th>
-                  <th className="py-1.5 font-semibold">Confiança</th>
+                <tr className="bg-[#0F1F3D]/60 text-left text-xs text-white">
+                  <th className="rounded-l-card px-3 py-2.5 font-semibold">Recurso</th>
+                  <th className="px-3 py-2.5 text-right font-semibold">Actual</th>
+                  <th className="px-3 py-2.5 text-right font-semibold">+3 m</th>
+                  <th className="px-3 py-2.5 text-right font-semibold">+6 m</th>
+                  <th className="px-3 py-2.5 text-right font-semibold">+12 m</th>
+                  <th className="px-3 py-2.5 font-semibold">80% em</th>
+                  <th className="px-3 py-2.5 font-semibold">100% em</th>
+                  <th className="rounded-r-card px-3 py-2.5 font-semibold">Confiança</th>
                 </tr>
               </thead>
               <tbody>
@@ -780,11 +817,11 @@ export function ForecastsTab({
       </Card>
 
       {chosen && (
-        <Card>
+        <Card className="overflow-hidden">
+          <CardTitleBar>
+            {chosen.label} — histórico e previsão ({chosen.capacityLabel})
+          </CardTitleBar>
           <CardBody>
-            <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-              {chosen.label} — histórico e previsão ({chosen.capacityLabel})
-            </p>
             <ForecastChart r={chosen} />
           </CardBody>
         </Card>

@@ -15,6 +15,7 @@ import {
   type AreaLineSeries,
 } from '@/components/ui/charts/AreaLineChart';
 import { Header, Note } from './InfraTabs';
+import { endpointLabel } from './endpointLabel';
 
 const fmtTime = (iso: string, withDate: boolean) =>
   new Date(iso).toLocaleString(
@@ -123,7 +124,7 @@ export function QueueHistoryChart() {
   return (
     <Windowed
       title="Histórico das filas"
-      sub="Jobs pendentes por fila (amostra de 5 em 5 minutos)"
+      sub="Tarefas pendentes por fila (amostra de 5 em 5 minutos)"
       options={HOURS}
       value={hours}
       onChange={setHours}
@@ -205,7 +206,7 @@ export function EndpointHistoryChart() {
           >
             {endpoints.map((e) => (
               <option key={e} value={e}>
-                {e}
+                {endpointLabel(e)}
               </option>
             ))}
           </select>

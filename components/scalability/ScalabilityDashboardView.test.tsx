@@ -305,15 +305,15 @@ describe('ScalabilityDashboardView — filas e storage', () => {
       />,
     );
 
-  test('as abas Filas & Jobs e Storage existem', () => {
+  test('as abas Filas & Tarefas e Storage existem', () => {
     renderView('overview');
-    expect(screen.getByText('Filas & Jobs')).toBeInTheDocument();
+    expect(screen.getByText('Filas & Tarefas')).toBeInTheDocument();
     expect(screen.getByText('Storage')).toBeInTheDocument();
   });
 
   test('sem dados mostra estado de carregamento', () => {
     renderView('queues');
-    expect(screen.getByText('A carregar filas e jobs')).toBeInTheDocument();
+    expect(screen.getByText('A carregar filas e tarefas')).toBeInTheDocument();
     renderView('storage');
     expect(
       screen.getByText('A carregar métricas de storage'),
@@ -359,10 +359,10 @@ describe('ScalabilityDashboardView — filas e storage', () => {
         historyHours: 6,
       },
     });
-    expect(screen.getByText('Jobs falhados')).toBeInTheDocument();
+    expect(screen.getByText('Tarefas falhadas')).toBeInTheDocument();
     expect(screen.getByText('1.5 s', { selector: 'p' })).toBeInTheDocument();
     expect(screen.getByText(/SMTP timeout/)).toBeInTheDocument();
-    expect(screen.getByText(/Payroll, Reports/)).toBeInTheDocument();
+    expect(screen.getByText(/Folha de pagamento, Relatórios/)).toBeInTheDocument();
     expect(screen.getByText('Histórico insuficiente')).toBeInTheDocument();
   });
 
