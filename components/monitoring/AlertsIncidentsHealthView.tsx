@@ -21,6 +21,7 @@ import {
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
+import { CompactTabs } from './CompactTabs';
 import { StatusHeroCard } from './StatusHeroCard';
 import { cn } from '@/lib/cn';
 import { NAVY_PANEL_VARIANTS_SOFT } from '@/components/roi-impact/NavyPanel';
@@ -71,59 +72,6 @@ const AREA_LABEL: Record<AlertArea, string> = {
   SLA: 'SLA',
   SEGURANCA: 'Segurança',
 };
-
-// Separadores no desenho da aba Talento do dashboard-rh, mas compactos
-// (tamanho dos botões de filtro anteriores, sem esticar à largura toda).
-interface CompactTabItem<T> {
-  value: T;
-  label: string;
-  icon: LucideIcon;
-  count?: number;
-}
-
-function CompactTabs<T extends string | null>({
-  items,
-  value,
-  onChange,
-}: {
-  items: CompactTabItem<T>[];
-  value: T;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="inline-flex flex-wrap gap-1 rounded-panel border border-border bg-surface p-1 shadow-sm">
-      {items.map((it) => {
-        const on = it.value === value;
-        return (
-          <button
-            key={String(it.value)}
-            type="button"
-            onClick={() => onChange(it.value)}
-            className={`flex items-center gap-1.5 rounded-control px-3 py-1 font-body text-sm font-medium transition-colors ${
-              on
-                ? 'bg-[#0F1F3D] text-canvas shadow-sm'
-                : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
-            }`}
-          >
-            <it.icon size={14} strokeWidth={1.75} />
-            <span>{it.label}</span>
-            {it.count !== undefined && (
-              <span
-                className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
-                  on
-                    ? 'bg-canvas/20 text-canvas'
-                    : 'bg-surface-sunken text-ink-faint'
-                }`}
-              >
-                {it.count}
-              </span>
-            )}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 const AREA_ICON: Record<AlertArea, LucideIcon> = {
   SISTEMA: Server,

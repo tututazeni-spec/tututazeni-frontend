@@ -22,6 +22,7 @@ import {
   XCircle,
   Zap,
 } from 'lucide-react';
+import { CompactTabs, type CompactTabItem } from './CompactTabs';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import {
   INVERSE_RATE_BANDS,
@@ -229,7 +230,7 @@ function TabBar<T extends string | number | null>({
   );
 }
 
-const DAYS_ITEMS: TabBarItem<number>[] = [7, 30, 90].map((d) => ({
+const DAYS_ITEMS: CompactTabItem<number>[] = [7, 30, 90].map((d) => ({
   value: d,
   label: `${d} dias`,
   icon: CalendarDays,
@@ -649,7 +650,7 @@ export function HistoryTab({
   onDaysChange: (d: number) => void;
   onKindChange: (k: HistoryKind | null) => void;
 }) {
-  const kindItems: TabBarItem<HistoryKind | null>[] = [
+  const kindItems: CompactTabItem<HistoryKind | null>[] = [
     { value: null, label: 'Todos', icon: List },
     ...(Object.keys(KIND_LABEL) as HistoryKind[]).map((k) => ({
       value: k,
@@ -660,9 +661,19 @@ export function HistoryTab({
   ];
   return (
     <div className="space-y-6">
-      <div className="space-y-3">
-        <TabBar items={DAYS_ITEMS} value={days} onChange={onDaysChange} />
-        <TabBar items={kindItems} value={kind} onChange={onKindChange} />
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-body text-sm text-ink-muted">Janela:</span>
+          <CompactTabs
+            items={DAYS_ITEMS}
+            value={days}
+            onChange={onDaysChange}
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-body text-sm text-ink-muted">Tipo:</span>
+          <CompactTabs items={kindItems} value={kind} onChange={onKindChange} />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
