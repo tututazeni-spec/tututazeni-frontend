@@ -31,7 +31,6 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import {
   fmtDate,
   SEVERITY,
-  STATUS,
   StatusBadge,
 } from './PlatformMonitoringView';
 import type { Intent } from './PlatformMonitoringView';
