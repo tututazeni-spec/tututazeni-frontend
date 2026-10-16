@@ -6,9 +6,15 @@ import { useState } from 'react';
 import {
   Bell,
   CheckCircle2,
+  Eye,
   Flame,
   HeartPulse,
   List,
+  Plug,
+  Server,
+  ShieldAlert,
+  Workflow,
+  Zap,
   Siren,
   Timer,
   UserX,
@@ -52,13 +58,6 @@ const fmtMin = (m: number | null) => {
   return `${Math.floor(m / 1440)} d ${Math.floor((m % 1440) / 60)} h`;
 };
 
-const chip = (active: boolean) =>
-  `rounded-md border px-3 py-1 font-body text-sm ${
-    active
-      ? 'border-brand bg-brand-soft text-ink'
-      : 'border-border text-ink-muted hover:bg-surface-muted'
-  }`;
-
 const selectCls =
   'w-full rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink';
 
@@ -71,6 +70,75 @@ const AREA_LABEL: Record<AlertArea, string> = {
   AUTOMACAO: 'Automação',
   SLA: 'SLA',
   SEGURANCA: 'Segurança',
+};
+
+// Separadores no desenho da aba Talento do dashboard-rh, mas compactos
+// (tamanho dos botões de filtro anteriores, sem esticar à largura toda).
+interface CompactTabItem<T> {
+  value: T;
+  label: string;
+  icon: LucideIcon;
+  count?: number;
+}
+
+function CompactTabs<T extends string | null>({
+  items,
+  value,
+  onChange,
+}: {
+  items: CompactTabItem<T>[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div className="inline-flex flex-wrap gap-1 rounded-panel border border-border bg-surface p-1 shadow-sm">
+      {items.map((it) => {
+        const on = it.value === value;
+        return (
+          <button
+            key={String(it.value)}
+            type="button"
+            onClick={() => onChange(it.value)}
+            className={`flex items-center gap-1.5 rounded-control px-3 py-1 font-body text-sm font-medium transition-colors ${
+              on
+                ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
+            }`}
+          >
+            <it.icon size={14} strokeWidth={1.75} />
+            <span>{it.label}</span>
+            {it.count !== undefined && (
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                  on
+                    ? 'bg-canvas/20 text-canvas'
+                    : 'bg-surface-sunken text-ink-faint'
+                }`}
+              >
+                {it.count}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+const AREA_ICON: Record<AlertArea, LucideIcon> = {
+  SISTEMA: Server,
+  PROCESSOS: Workflow,
+  INTEGRACAO: Plug,
+  AUTOMACAO: Zap,
+  SLA: Timer,
+  SEGURANCA: ShieldAlert,
+};
+
+const STATE_ICON: Record<AlertState, LucideIcon> = {
+  ABERTO: Bell,
+  RECONHECIDO: Eye,
+  EM_TRATAMENTO: Wrench,
+  RESOLVIDO: CheckCircle2,
 };
 
 const STATE_LABEL: Record<AlertState, { label: string; intent: Intent }> = {
@@ -295,43 +363,34 @@ export function AlertsTab({
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-body text-sm text-ink-muted">Área:</span>
-          <button
-            type="button"
-            className={chip(filters.area === null)}
-            onClick={() => onFiltersChange({ ...filters, area: null })}
-          >
-            Todas
-          </button>
-          {(Object.keys(AREA_LABEL) as AlertArea[]).map((a) => (
-            <button
-              key={a}
-              type="button"
-              className={chip(filters.area === a)}
-              onClick={() => onFiltersChange({ ...filters, area: a })}
-            >
-              {AREA_LABEL[a]} ({s.byArea[a]})
-            </button>
-          ))}
+          <CompactTabs
+            items={[
+              { value: null, label: 'Todas', icon: List },
+              ...(Object.keys(AREA_LABEL) as AlertArea[]).map((a) => ({
+                value: a,
+                label: AREA_LABEL[a],
+                icon: AREA_ICON[a],
+                count: s.byArea[a],
+              })),
+            ]}
+            value={filters.area}
+            onChange={(area) => onFiltersChange({ ...filters, area })}
+          />
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-body text-sm text-ink-muted">Estado:</span>
-          <button
-            type="button"
-            className={chip(filters.state === null)}
-            onClick={() => onFiltersChange({ ...filters, state: null })}
-          >
-            Todos
-          </button>
-          {(Object.keys(STATE_LABEL) as AlertState[]).map((st) => (
-            <button
-              key={st}
-              type="button"
-              className={chip(filters.state === st)}
-              onClick={() => onFiltersChange({ ...filters, state: st })}
-            >
-              {STATE_LABEL[st].label}
-            </button>
-          ))}
+          <CompactTabs
+            items={[
+              { value: null, label: 'Todos', icon: List },
+              ...(Object.keys(STATE_LABEL) as AlertState[]).map((st) => ({
+                value: st,
+                label: STATE_LABEL[st].label,
+                icon: STATE_ICON[st],
+              })),
+            ]}
+            value={filters.state}
+            onChange={(state) => onFiltersChange({ ...filters, state })}
+          />
         </div>
       </div>
 
