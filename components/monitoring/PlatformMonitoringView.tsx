@@ -42,12 +42,40 @@ export function Tile({
   value,
   sub,
   intent,
+  navy,
 }: {
   label: string;
   value: string | number | null;
   sub?: string;
   intent?: Intent;
+  /** Desenho do card "ROI Total" (gradiente azul-marinho, texto branco). */
+  navy?: boolean;
 }) {
+  if (navy) {
+    const navyTone =
+      intent === 'danger'
+        ? 'text-[#F87171]'
+        : intent === 'warning'
+          ? 'text-[#FBBF24]'
+          : 'text-white';
+    return (
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <p className="font-body text-xs font-semibold uppercase tracking-wide text-white/70">
+          {label}
+        </p>
+        <p
+          className={`mt-1 font-display text-3xl font-bold tabular-nums ${navyTone}`}
+        >
+          {value ?? '—'}
+        </p>
+        {sub && (
+          <p className="mt-2 break-words rounded-card bg-white/10 px-3 py-1.5 font-body text-xs text-white/80">
+            {sub}
+          </p>
+        )}
+      </div>
+    );
+  }
   const valueTone =
     intent === 'danger'
       ? 'text-danger-ink'
@@ -92,18 +120,21 @@ export function OverviewTab({ data }: { data: OverviewData }) {
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Tile
+          navy
           label="Alertas críticos"
           value={data.criticalAlerts.critical}
           sub={`${data.criticalAlerts.open} por resolver`}
           intent={tone(data.criticalAlerts.critical)}
         />
         <Tile
+          navy
           label="Processos em atraso"
           value={data.processes.overdue}
           sub={`${data.processes.urgentInProgress} urgentes em curso`}
           intent={tone(data.processes.overdue, 'warning')}
         />
         <Tile
+          navy
           label="Automações com erro (24h)"
           value={data.automations.failed24h}
           sub={
@@ -114,28 +145,33 @@ export function OverviewTab({ data }: { data: OverviewData }) {
           intent={tone(data.automations.failed24h, 'warning')}
         />
         <Tile
+          navy
           label="Integrações indisponíveis"
           value={data.integrations.unavailable}
           sub={`${data.integrations.active} activas · ${data.integrations.syncFailed24h} sync falhadas (24h)`}
           intent={tone(data.integrations.unavailable, 'warning')}
         />
         <Tile
+          navy
           label="Jobs em execução"
           value={data.jobs.running}
           sub={`${data.jobs.queues.waiting} em fila · ${data.jobs.queues.failed} falhados`}
         />
         <Tile
+          navy
           label="Utilizadores activos"
           value={data.activeUsers.count}
           sub={`sessões dos últimos ${data.activeUsers.windowMinutes} min`}
         />
         <Tile
+          navy
           label="SLA em risco"
           value={data.sla.atRisk}
           sub={`${data.sla.breached} já violados`}
           intent={tone(data.sla.atRisk, 'warning')}
         />
         <Tile
+          navy
           label="Incidentes abertos"
           value={data.incidents.open}
           sub={`${data.incidents.critical} críticos · ${data.incidents.security} de segurança`}
@@ -150,18 +186,22 @@ export function OverviewTab({ data }: { data: OverviewData }) {
         <CardBody>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <Tile
+              navy
               label="Etapas bloqueadas"
               value={data.pendingCritical.blockedSteps}
             />
             <Tile
+              navy
               label="Processos em atraso"
               value={data.pendingCritical.overdueProcesses}
             />
             <Tile
+              navy
               label="Automações falhadas"
               value={data.pendingCritical.failedAutomations}
             />
             <Tile
+              navy
               label="Jobs de fila falhados"
               value={data.pendingCritical.failedQueueJobs}
             />
