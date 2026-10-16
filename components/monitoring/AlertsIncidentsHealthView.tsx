@@ -28,11 +28,7 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
-import {
-  fmtDate,
-  SEVERITY,
-  StatusBadge,
-} from './PlatformMonitoringView';
+import { fmtDate, SEVERITY, StatusBadge } from './PlatformMonitoringView';
 import type { Intent } from './PlatformMonitoringView';
 import type { MonitoringStatus } from './platformTypes';
 import type {
@@ -869,6 +865,25 @@ export function IncidentsTab({
 
 // ── §9 Health Check ──────────────────────────────────────────────────────────
 
+// Rótulos em português dos componentes (a chave vem do backend).
+const COMPONENT_LABEL: Record<string, string> = {
+  frontend: 'Interface (frontend)',
+  storage: 'Armazenamento',
+  workers: 'Processadores em segundo plano',
+  cron: 'Tarefas periódicas',
+};
+const componentName = (c: HealthComponentRow) =>
+  COMPONENT_LABEL[c.key] ?? c.label;
+
+// Termos técnicos em inglês que o backend devolve no detalhe.
+const translateDetail = (d: string) =>
+  d
+    .replace('Sem cron jobs registados', 'Sem tarefas periódicas registadas')
+    .replace('event-loop', 'ciclo de eventos')
+    .replace(/^Heap /, 'Memória (heap) ')
+    .replace(/^PING em/, 'Resposta em')
+    .replace(/^SELECT 1 em/, 'Consulta de teste em');
+
 const GROUP_LABEL: Record<string, string> = {
   APLICACAO: 'Aplicação',
   DADOS: 'Dados',
@@ -901,7 +916,7 @@ function HealthComponentCard({ c }: { c: HealthComponentRow }) {
     >
       <div className="flex items-start justify-between gap-2">
         <p className="font-display text-sm font-semibold leading-snug">
-          {c.label}
+          {componentName(c)}
         </p>
         <span className="shrink-0 rounded-full bg-white/10 px-2.5 py-0.5 font-body text-xs font-semibold">
           {c.status ? c.statusLabel : 'Não monitorizado'}
@@ -932,7 +947,7 @@ function HealthComponentCard({ c }: { c: HealthComponentRow }) {
         </div>
         <p className="mt-3 break-words font-body text-xs text-white/85">
           {c.latencyMs !== null && `${c.latencyMs} ms · `}
-          {c.detail}
+          {translateDetail(c.detail)}
         </p>
       </div>
     </div>

@@ -145,8 +145,8 @@ const TABS: PillTabItem[] = [
   },
   {
     id: 'health',
-    label: 'Health Check',
-    hint: 'Verificações',
+    label: 'Verificação de Saúde',
+    hint: 'Estado dos componentes',
     icon: HeartPulse,
   },
   { id: 'jobs', label: 'Tarefas', hint: 'Em fila e agendadas', icon: Cog },
