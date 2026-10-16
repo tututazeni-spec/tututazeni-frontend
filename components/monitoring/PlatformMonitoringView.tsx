@@ -133,10 +133,10 @@ export function OverviewTab({ data }: { data: OverviewData }) {
         />
         <NavyStatCard
           icon={Plug}
-          label="Integrações indisponíveis"
-          value={data.integrations.unavailable}
-          sub={`${data.integrations.active} activas · ${data.integrations.syncFailed24h} sync falhadas (24h)`}
-          tone="orange"
+          label="Integrações disponíveis"
+          value={data.integrations.active}
+          sub={`${data.integrations.unavailable} indisponíveis · ${data.integrations.syncFailed24h} sync falhadas (24h)`}
+          tone="green"
         />
         <NavyStatCard
           icon={Cog}
