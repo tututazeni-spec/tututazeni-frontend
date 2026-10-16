@@ -7,19 +7,41 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { cn } from '@/lib/cn';
-import { Badge } from '@/components/ui/Badge';
-import { Card, CardBody } from '@/components/ui/Card';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { GaugeChart } from '@/components/ui/charts/GaugeChart';
-import { BarChart } from '@/components/ui/charts/BarChart';
 import {
-  CONFIDENCE_INTENTS,
+  CircleAlert,
+  CircleCheck,
+  Clock,
+  GraduationCap,
+  Info,
+  Lightbulb,
+  Target,
+  TrendingUp,
+  TriangleAlert,
+  UserCheck,
+  Users,
+  Wallet,
+  type LucideIcon,
+} from 'lucide-react';
+import { cn } from '@/lib/cn';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
+import {
+  SpeedometerStatCard,
+  TURNOVER_BANDS,
+  TURNOVER_MAX,
+} from '@/components/ui/charts/SpeedometerStatCard';
+import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
+import { Card } from '@/components/ui/Card';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { BarChart } from '@/components/ui/charts/BarChart';
+import { categoricalColor } from '@/components/ui/charts/palette';
+import {
   CONFIDENCE_LABELS,
   INITIATIVE_TYPE_LABELS,
   fmt$,
   ptInsight,
 } from './utils';
+import { RoiTotalCard } from './RoiTotalCard';
+import { NavyPanel, NavyPanelRow } from './NavyPanel';
 import type { ExecutiveData } from './types';
 
 const ALERT_INTENT_CLASSES = {
@@ -32,6 +54,13 @@ const ALERT_INTENT_CLASSES = {
     text: 'text-ink',
   },
 } as const;
+
+// Cor do ponto de confiança, na mesma paleta do estado do ROI Total.
+const CONFIDENCE_DOT: Record<string, string> = {
+  HIGH: '#34D399',
+  MEDIUM: '#FBBF24',
+  LOW: '#F87171',
+};
 
 export function ExecutiveTab() {
   const { data, isLoading: loading } = useApiQuery<ExecutiveData>(
@@ -51,125 +80,119 @@ export function ExecutiveTab() {
   const h = data?.headline ?? {};
   const d = data?.domains ?? {};
 
-  const domains: {
+  const cards: {
     label: string;
     value: string;
-    sub: string;
+    sub?: string;
+    icon: LucideIcon;
+    tone: NavyStatTone;
+    /** Cards com gráfico próprio em vez do NavyStatCard. */
+    chart?: 'donut' | 'speedometer';
+    rate?: number;
   }[] = [
     {
       label: 'Aprendizagem',
       value: `${d.learning?.roi ?? 0}%`,
       sub: `${fmt$(d.learning?.cost ?? 0)} investido · ${d.learning?.completions ?? 0} conclusões`,
+      icon: GraduationCap,
+      tone: 'blue',
+      chart: 'donut',
+      rate: d.learning?.roi ?? 0,
     },
     {
       label: 'Retenção',
       value: fmt$(d.retention?.savedValue ?? 0),
-      sub: `Taxa de Rotatividade: ${d.retention?.turnoverRate ?? 0}%`,
+      sub: `Valor poupado: ${fmt$(d.retention?.savedValue ?? 0)}`,
+      icon: UserCheck,
+      tone: 'green',
+      chart: 'speedometer',
+      rate: d.retention?.turnoverRate ?? 0,
     },
     {
       label: 'Performance',
       value: d.performance?.lift ? `+${d.performance.lift}pts` : '–',
       sub: `Benefício produtivo: ${fmt$(d.performance?.benefit ?? 0)}`,
+      icon: TrendingUp,
+      tone: 'orange',
+    },
+    {
+      label: 'Custo por colaborador formado',
+      value: h.costPerLearner != null ? fmt$(h.costPerLearner) : '—',
+      icon: Wallet,
+      tone: 'blue',
+    },
+    {
+      label: 'Custo por hora de formação',
+      value: h.costPerHour != null ? fmt$(h.costPerHour) : '—',
+      icon: Clock,
+      tone: 'blue',
+    },
+    {
+      label: 'Colaboradores impactados',
+      value: String(h.impactedEmployees ?? 0),
+      icon: Users,
+      tone: 'green',
+    },
+    {
+      label: 'Iniciativas em medição',
+      value: String(h.activeMeasuring ?? 0),
+      icon: Target,
+      tone: 'orange',
+    },
+    {
+      label: 'Iniciativas com ROI positivo',
+      value: String(h.positiveRoiInitiatives ?? 0),
+      icon: CircleCheck,
+      tone: 'green',
+    },
+    {
+      label: 'Iniciativas com ROI negativo/indeterminado',
+      value: String(h.negativeOrIndeterminateInitiatives ?? 0),
+      icon: CircleAlert,
+      tone: 'red',
     },
   ];
 
   return (
     <div className="space-y-6">
-      {/* ROI Hero */}
-      <div className="rounded-panel border border-border bg-surface p-6 text-ink">
-        <div className="mb-4 flex items-start justify-between">
-          <div className="flex items-center gap-5">
-            <GaugeChart
-              value={h.overallRoi ?? 0}
-              format={(v) => `${v}%`}
-              size={140}
+      <RoiTotalCard
+        roi={h.overallRoi ?? 0}
+        totalBenefit={h.totalBenefit ?? 0}
+        totalCost={h.totalCost ?? 0}
+        narrative={h.narrative}
+      />
+
+      {/* 9 cards de visão geral: 3 domínios + custos/colaboradores/iniciativas */}
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {cards.map((c) =>
+          c.chart === 'donut' ? (
+            <DonutStatCard
+              key={c.label}
+              label={c.label}
+              value={c.rate ?? 0}
+              sub={c.sub}
             />
-            <div>
-              <p className="mb-1 font-body text-sm text-ink-muted">
-                ROI Total do Investimento em Pessoas
-              </p>
-              <p className="font-body text-sm text-ink-muted">
-                Rácio Benefício-Custo:{' '}
-                {(h.totalCost ?? 0) > 0
-                  ? ((h.totalBenefit ?? 0) / (h.totalCost ?? 1)).toFixed(2)
-                  : '–'}{' '}
-                · Status: {h.status}
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-            <p className="mb-1 font-body text-xs text-ink-muted">
-              Benefício Total
-            </p>
-            <p className="font-display text-3xl font-bold">
-              {fmt$(h.totalBenefit ?? 0)}
-            </p>
-            <p className="mt-1 font-body text-xs text-ink-muted">
-              Custo: {fmt$(h.totalCost ?? 0)}
-            </p>
-          </div>
-        </div>
-        {h.narrative && (
-          <p className="rounded-card bg-ink/5 px-4 py-3 font-body text-sm leading-relaxed text-ink">
-            {ptInsight(h.narrative)}
-          </p>
+          ) : c.chart === 'speedometer' ? (
+            <SpeedometerStatCard
+              key={c.label}
+              label="Taxa de Rotatividade"
+              value={c.rate ?? 0}
+              max={TURNOVER_MAX}
+              bands={TURNOVER_BANDS}
+              display={`${c.rate ?? 0}%`}
+              caption={c.sub}
+            />
+          ) : (
+            <NavyStatCard
+              key={c.label}
+              tone={c.tone}
+              icon={c.icon}
+              label={c.label}
+              value={c.value}
+              sub={c.sub}
+            />
+          ),
         )}
-      </div>
-
-      {/* Domain breakdown */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {domains.map((item) => (
-          <Card key={item.label}>
-            <CardBody>
-              <p className="font-display text-2xl font-bold text-ink">
-                {item.value}
-              </p>
-              <p className="mb-1 font-body text-xs text-ink-muted">
-                {item.label}
-              </p>
-              <p className="font-body text-[10px] text-ink-faint">{item.sub}</p>
-            </CardBody>
-          </Card>
-        ))}
-      </div>
-
-      {/* Custo/colaboradores/iniciativas — docs/roi-impact.md §1 */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {[
-          {
-            label: 'Custo por colaborador formado',
-            value: h.costPerLearner != null ? fmt$(h.costPerLearner) : '—',
-          },
-          {
-            label: 'Custo por hora de formação',
-            value: h.costPerHour != null ? fmt$(h.costPerHour) : '—',
-          },
-          {
-            label: 'Colaboradores impactados',
-            value: String(h.impactedEmployees ?? 0),
-          },
-          {
-            label: 'Iniciativas em medição',
-            value: String(h.activeMeasuring ?? 0),
-          },
-          {
-            label: 'Iniciativas com ROI positivo',
-            value: String(h.positiveRoiInitiatives ?? 0),
-          },
-          {
-            label: 'Iniciativas com ROI negativo/indeterminado',
-            value: String(h.negativeOrIndeterminateInitiatives ?? 0),
-          },
-        ].map((c) => (
-          <Card key={c.label}>
-            <CardBody>
-              <p className="font-display text-xl font-bold text-ink">
-                {c.value}
-              </p>
-              <p className="font-body text-[10px] text-ink-faint">{c.label}</p>
-            </CardBody>
-          </Card>
-        ))}
       </div>
 
       {/* ROI por tipo de iniciativa / departamento */}
@@ -178,8 +201,8 @@ export function ExecutiveTab() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {(data?.byInitiativeType?.length ?? 0) > 0 && (
             <Card>
-              <div className="border-b border-border px-5 py-3">
-                <h4 className="font-display text-sm font-semibold text-ink">
+              <div className="rounded-t-card bg-[#0F1F3D]/60 px-5 py-3">
+                <h4 className="font-display text-sm font-semibold text-white">
                   ROI por tipo de iniciativa
                 </h4>
               </div>
@@ -194,6 +217,9 @@ export function ExecutiveTab() {
                     {
                       label: 'ROI médio',
                       values: data!.byInitiativeType!.map((b) => b.avgRoi),
+                      barColors: data!.byInitiativeType!.map((_, i) =>
+                        categoricalColor(i),
+                      ),
                     },
                   ]}
                   yFormat={(v) => `${v}%`}
@@ -203,8 +229,8 @@ export function ExecutiveTab() {
           )}
           {(data?.byDepartment?.length ?? 0) > 0 && (
             <Card>
-              <div className="border-b border-border px-5 py-3">
-                <h4 className="font-display text-sm font-semibold text-ink">
+              <div className="rounded-t-card bg-[#0F1F3D]/60 px-5 py-3">
+                <h4 className="font-display text-sm font-semibold text-white">
                   ROI por departamento
                 </h4>
               </div>
@@ -218,6 +244,9 @@ export function ExecutiveTab() {
                     {
                       label: 'ROI médio',
                       values: data!.byDepartment!.map((b) => b.avgRoi),
+                      barColors: data!.byDepartment!.map((_, i) =>
+                        categoricalColor(i),
+                      ),
                     },
                   ]}
                   yFormat={(v) => `${v}%`}
@@ -231,8 +260,8 @@ export function ExecutiveTab() {
       {/* Top 10 iniciativas com maior impacto */}
       {(data?.topInitiatives?.length ?? 0) > 0 && (
         <Card>
-          <div className="border-b border-border px-5 py-3">
-            <h4 className="font-display text-sm font-semibold text-ink">
+          <div className="rounded-t-card bg-[#0F1F3D]/60 px-5 py-3">
+            <h4 className="font-display text-sm font-semibold text-white">
               Top iniciativas com maior impacto
             </h4>
           </div>
@@ -288,23 +317,39 @@ export function ExecutiveTab() {
 
       {/* Top insights */}
       {(data?.topInsights ?? []).length > 0 && (
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h4 className="mb-3 font-display font-semibold text-ink">
-            Principais conclusões autómaticos
-          </h4>
-          {(data?.topInsights ?? []).slice(0, 4).map((ins, i) => (
-            <p key={i} className="mb-1 font-body text-xs text-ink">
-              {ptInsight(ins)}
-            </p>
-          ))}
-          {data?.confidence && CONFIDENCE_LABELS[data.confidence] && (
-            <div className="mt-2">
-              <Badge intent={CONFIDENCE_INTENTS[data.confidence]} dot={false}>
+        <NavyPanel
+          title="Principais conclusões automáticas"
+          icon={Lightbulb}
+          aside={
+            data?.confidence && CONFIDENCE_LABELS[data.confidence] ? (
+              <span className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-body text-xs font-semibold">
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{
+                    backgroundColor:
+                      CONFIDENCE_DOT[data.confidence] ?? '#9CA3AF',
+                  }}
+                />
                 {CONFIDENCE_LABELS[data.confidence]}
-              </Badge>
-            </div>
-          )}
-        </div>
+              </span>
+            ) : undefined
+          }
+        >
+          <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
+            {(data?.topInsights ?? []).slice(0, 4).map((ins, i) => {
+              const warn = ins.includes('⚠');
+              return (
+                <NavyPanelRow
+                  key={i}
+                  icon={warn ? TriangleAlert : Info}
+                  iconClassName={warn ? 'text-[#FBBF24]' : 'text-[#7CC4FF]'}
+                >
+                  {ptInsight(ins).replace(/⚠️?\s*/g, '')}
+                </NavyPanelRow>
+              );
+            })}
+          </ul>
+        </NavyPanel>
       )}
     </div>
   );

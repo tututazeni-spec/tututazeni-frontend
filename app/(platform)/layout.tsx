@@ -18,6 +18,7 @@ export default function PlatformLayout({
         style={{
           marginLeft: '240px',
           flex: 1,
+          minWidth: 0,
           display: 'flex',
           flexDirection: 'column',
           minHeight: '100vh',

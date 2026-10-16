@@ -7,7 +7,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, BarChart3, Clock, Lightbulb } from 'lucide-react';
+import { NavyPanel, NavyPanelRow } from './NavyPanel';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -137,7 +138,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title="Novo Cenário"
-        description="Simula o impacto financeiro de uma decisão futura de investimento — docs/roi-impact.md §8"
+        description="Simula o impacto financeiro de uma decisão futura de investimento"
         className="max-h-[90vh] max-w-2xl overflow-y-auto"
       >
         {error && (
@@ -296,7 +297,11 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
               </p>
             </div>
 
-            <FormField label="Premissas assumidas" htmlFor="sc-assumptions">
+            <FormField
+              label="Premissas assumidas"
+              htmlFor="sc-assumptions"
+              hint="Campo opcional. Escreve as hipóteses em que este cenário se baseia, por exemplo: taxa de adesão esperada, número de participantes, duração da iniciativa ou variação de custos. Servem para quem ler o cenário perceber de onde vêm os valores."
+            >
               <Textarea
                 id="sc-assumptions"
                 rows={2}
@@ -308,30 +313,32 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-card border border-border bg-surface-sunken p-3">
-                <p className="text-ink-faint text-xs">
-                  ROI projectado (Realista)
-                </p>
-                <p className="font-display text-xl font-bold text-ink">
-                  {preview.roiPercent != null ? `${preview.roiPercent}%` : '—'}
-                </p>
-              </div>
-              <div className="rounded-card border border-border bg-surface-sunken p-3">
-                <p className="text-ink-faint text-xs">Payback projectado</p>
-                <p className="font-display text-xl font-bold text-ink">
-                  {preview.paybackMonths != null
-                    ? `${preview.paybackMonths} meses`
-                    : '—'}
-                </p>
-              </div>
-            </div>
+            <NavyPanel title="Projecção do cenário" icon={Lightbulb}>
+              <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <NavyPanelRow icon={BarChart3}>
+                  ROI projectado (Realista):{' '}
+                  <strong>
+                    {preview.roiPercent != null
+                      ? `${preview.roiPercent}%`
+                      : '—'}
+                  </strong>
+                </NavyPanelRow>
+                <NavyPanelRow icon={Clock}>
+                  Payback projectado:{' '}
+                  <strong>
+                    {preview.paybackMonths != null
+                      ? `${preview.paybackMonths} meses`
+                      : '—'}
+                  </strong>
+                </NavyPanelRow>
+              </ul>
+            </NavyPanel>
 
             {preview.projections ? (
               <div className="overflow-x-auto rounded-card border border-border">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-surface-sunken text-left text-xs text-ink-faint">
+                    <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs text-white">
                       <th className="px-3 py-2">Cenário</th>
                       <th className="px-3 py-2">Custo</th>
                       <th className="px-3 py-2">Benefício</th>

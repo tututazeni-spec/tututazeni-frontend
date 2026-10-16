@@ -8,6 +8,7 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { Info, Lightbulb } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -17,6 +18,7 @@ import {
   SCENARIO_CASE_INTENTS,
   SCENARIO_CASE_LABELS,
 } from './utils';
+import { NavyPanel, NavyPanelRow } from './NavyPanel';
 import type { ScenarioDetail, ScenarioProjections } from './types';
 
 export interface ScenarioDetailModalProps {
@@ -35,7 +37,7 @@ export function ScenarioDetailModal({ id, onClose }: ScenarioDetailModalProps) {
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title={data?.name ?? 'Cenário'}
-        description="docs/roi-impact.md §8 — Cenários & Simulações"
+        description="Cenários & Simulações"
         className="max-h-[90vh] max-w-2xl overflow-y-auto"
       >
         {isLoading || !data ? (
@@ -79,23 +81,25 @@ export function ScenarioDetailModal({ id, onClose }: ScenarioDetailModalProps) {
             )}
 
             {data.basedOnAnalysis && (
-              <div className="rounded-card border border-border bg-surface-sunken p-3 text-xs text-ink-muted">
-                Benefício projectado a partir da análise de ROI{' '}
-                <span className="font-medium text-ink">
-                  {data.basedOnAnalysis.name}
-                </span>
-                {data.basedOnAnalysis.roiPercent != null && (
-                  <> (ROI medido: {data.basedOnAnalysis.roiPercent}%)</>
-                )}
-                .
-              </div>
+              <NavyPanel title="Base da projecção" icon={Lightbulb}>
+                <ul>
+                  <NavyPanelRow icon={Info}>
+                    Benefício projectado a partir da análise de ROI{' '}
+                    <strong>{data.basedOnAnalysis.name}</strong>
+                    {data.basedOnAnalysis.roiPercent != null && (
+                      <> (ROI medido: {data.basedOnAnalysis.roiPercent}%)</>
+                    )}
+                    .
+                  </NavyPanelRow>
+                </ul>
+              </NavyPanel>
             )}
 
             {data.projections ? (
               <div className="overflow-x-auto rounded-card border border-border">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-surface-sunken text-left text-xs text-ink-faint">
+                    <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs text-white">
                       <th className="px-3 py-2">Cenário</th>
                       <th className="px-3 py-2">Custo</th>
                       <th className="px-3 py-2">Benefício</th>

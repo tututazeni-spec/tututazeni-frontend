@@ -9,7 +9,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { BarChart3, Download } from 'lucide-react';
+import { BarChart3, Download, Info, Lightbulb } from 'lucide-react';
+import { NavyPanel, NavyPanelRow } from './NavyPanel';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { API_URL } from '@/lib/api';
 import { queryKeys } from '@/lib/queryKeys';
@@ -18,6 +19,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { RoiDonutStat, WalletStat } from './WalletStat';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -247,29 +249,38 @@ function ReportBody({
     case 'roi-consolidated': {
       const d = data as RoiConsolidatedData;
       return (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 items-start gap-4 md:grid-cols-4">
           <StatCard label="Análises" value={String(d.totalAnalyses)} />
-          <StatCard label="Custo total" value={fmt$(d.totalCost)} />
-          <StatCard label="Benefício total" value={fmt$(d.totalBenefit)} />
-          <StatCard
-            label="ROI médio"
-            value={d.avgRoi != null ? `${d.avgRoi}%` : '—'}
+          <WalletStat
+            zoom
+            money="bills"
+            label="Custo total"
+            value={fmt$(d.totalCost)}
+            tone="red"
           />
-          <Card className="col-span-2 md:col-span-4">
-            <CardBody>
-              <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+          <WalletStat
+            zoom
+            money="stack"
+            label="Benefício total"
+            value={fmt$(d.totalBenefit)}
+            tone="green"
+          />
+          <RoiDonutStat zoom label="ROI médio" roi={d.avgRoi} />
+          <div className="col-span-2 overflow-hidden rounded-panel bg-surface text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)] md:col-span-4">
+            <div className="bg-[#0F1F3D]/60 px-5 py-3">
+              <h4 className="font-display text-sm font-semibold text-white">
                 Por estado
-              </p>
-              <ul className="space-y-1 text-sm text-ink">
-                {d.byStatus.map((s) => (
-                  <li key={s.status} className="flex justify-between">
-                    <span className="text-ink-faint">{s.status}</span>
-                    <span className="font-semibold">{s.count}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardBody>
-          </Card>
+              </h4>
+            </div>
+            <ul className="space-y-1 bg-[#0F1F3D] p-4 text-sm text-white">
+              {d.byStatus.map((s) => (
+                <li key={s.status} className="flex justify-between">
+                  <span className="text-white">{s.status}</span>
+                  <span className="font-semibold text-white">{s.count}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       );
     }
@@ -560,55 +571,54 @@ function ReportBody({
       return (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <StatCard
+            <RoiDonutStat
+              zoom
               label="ROI global"
-              value={
-                d.headline?.overallRoi != null
-                  ? `${d.headline.overallRoi}%`
-                  : '—'
-              }
+              roi={d.headline?.overallRoi}
             />
-            <StatCard
+            <WalletStat
+              zoom
+              money="stack"
               label="Benefício total"
               value={
                 d.headline?.totalBenefit != null
                   ? fmt$(d.headline.totalBenefit)
                   : '—'
               }
+              tone="green"
             />
-            <StatCard
+            <WalletStat
+              zoom
+              money="bills"
               label="Custo total"
               value={
                 d.headline?.totalCost != null ? fmt$(d.headline.totalCost) : '—'
               }
+              tone="red"
             />
             <StatCard
               label="Colaboradores impactados"
               value={String(d.headline?.impactedEmployees ?? '—')}
             />
           </div>
-          {d.headline?.narrative && (
-            <Card>
-              <CardBody>
-                <p className="font-body text-sm text-ink">
-                  {d.headline.narrative}
-                </p>
-              </CardBody>
-            </Card>
-          )}
-          {(d.topInsights?.length ?? 0) > 0 && (
-            <Card>
-              <CardBody>
-                <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                  Principais insights
-                </p>
-                <ul className="list-disc space-y-1 pl-4 text-sm text-ink">
-                  {d.topInsights!.map((insight, i) => (
-                    <li key={i}>{insight}</li>
-                  ))}
-                </ul>
-              </CardBody>
-            </Card>
+          {(d.headline?.narrative || (d.topInsights?.length ?? 0) > 0) && (
+            <NavyPanel
+              title="Principais conclusões automáticas"
+              icon={Lightbulb}
+            >
+              <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                {d.headline?.narrative && (
+                  <NavyPanelRow icon={Info}>
+                    {d.headline.narrative}
+                  </NavyPanelRow>
+                )}
+                {(d.topInsights ?? []).map((insight, i) => (
+                  <NavyPanelRow key={i} icon={Info}>
+                    {insight}
+                  </NavyPanelRow>
+                ))}
+              </ul>
+            </NavyPanel>
           )}
         </div>
       );

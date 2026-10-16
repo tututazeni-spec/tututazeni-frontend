@@ -7,7 +7,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import {
+  Banknote,
+  Gauge,
+  HeartHandshake,
+  Plus,
+  ShieldCheck,
+  Smile,
+  Trash2,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -19,7 +30,19 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { DataTable } from '@/components/ui/DataTable';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
+import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { KpiDefinitionModal } from './KpiDefinitionModal';
+
+const KPI_TONES: NavyStatTone[] = ['green', 'orange', 'red', 'blue'];
+const KPI_CATEGORY_ICONS: Record<string, LucideIcon> = {
+  PRODUTIVIDADE: TrendingUp,
+  QUALIDADE: ShieldCheck,
+  PESSOAS: Users,
+  FINANCEIRO: Banknote,
+  CLIENTE: Smile,
+  SEGURANCA: ShieldCheck,
+  COMPLIANCE: HeartHandshake,
+};
 import {
   KPI_CATEGORY_LABELS,
   KPI_FREQUENCY_LABELS,
@@ -70,6 +93,23 @@ export function KpisTab() {
     },
   );
 
+  const remove = useApiMutation(
+    (id: number) => apiClient.delete(`/roi-impact/kpis/${id}`),
+    {
+      invalidateKeys: [
+        queryKeys.roiImpact.kpis(),
+        queryKeys.roiImpact.kpisByCategory(),
+      ],
+      onSuccess: () => notify({ title: 'KPI apagado', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: 'Erro ao apagar',
+          description: e.message,
+          intent: 'danger',
+        }),
+    },
+  );
+
   if (loading)
     return (
       <Skeleton
@@ -82,22 +122,29 @@ export function KpisTab() {
   const kpis = data?.kpis ?? [];
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="font-body text-sm text-ink-muted">
+    <div className="min-w-0 max-w-full space-y-4 overflow-x-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="min-w-0 flex-1 font-body text-sm text-ink-muted">
           {data?.total ?? 0} KPI(s) — biblioteca central que o RH pode associar
           a qualquer iniciativa
         </p>
-        <Button size="sm" onClick={() => setModalKpi('new')}>
+        <Button
+          size="sm"
+          className="shrink-0"
+          onClick={() => setModalKpi('new')}
+        >
           <Plus size={14} strokeWidth={1.75} className="mr-1" />
           Novo KPI
         </Button>
       </div>
 
       {(byCategory?.length ?? 0) > 0 && (
-        <div className="flex flex-wrap items-start gap-4">
-          <Card className="shrink-0">
+        <div className="grid grid-cols-[minmax(0,1fr)] items-stretch gap-4 lg:grid-cols-[auto_minmax(0,1fr)]">
+          <Card className="flex shrink-0 flex-col justify-center justify-self-start lg:justify-self-stretch">
             <CardBody>
+              <h3 className="mb-3 text-center font-display text-sm font-semibold text-ink">
+                KPIs por categoria
+              </h3>
               <DonutChart
                 size={140}
                 centerLabel="KPIs"
@@ -108,26 +155,29 @@ export function KpisTab() {
               />
             </CardBody>
           </Card>
-          <div className="grid flex-1 grid-cols-2 gap-4 md:grid-cols-4">
-            {byCategory!.map((c) => (
-              <Card key={c.category}>
-                <CardBody>
-                  <p className="font-display text-xl font-bold text-ink">
-                    {c.count}
-                  </p>
-                  <p className="font-body text-[10px] text-ink-faint">
-                    {KPI_CATEGORY_LABELS[c.category] ?? c.category}
-                  </p>
-                </CardBody>
-              </Card>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
+            {byCategory!.map((c, i) => (
+              <NavyStatCard
+                key={c.category}
+                icon={KPI_CATEGORY_ICONS[c.category] ?? Gauge}
+                label={KPI_CATEGORY_LABELS[c.category] ?? c.category}
+                value={c.count}
+                tone={KPI_TONES[i % KPI_TONES.length]}
+              />
             ))}
           </div>
         </div>
       )}
 
-      <Card>
-        <div className="p-5">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="px-5 py-3">
+          <h4 className="font-display text-sm font-semibold text-white">
+            Biblioteca de KPIs
+          </h4>
+        </div>
+        <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_table]:w-full [&_table]:table-fixed [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
           <DataTable
+            headerClassName="bg-[#0F1F3D]/60 text-white"
             data={kpis}
             rowKey={(k) => k.id}
             searchKeys={['name', 'code']}
@@ -138,6 +188,7 @@ export function KpisTab() {
                 key: 'name',
                 header: 'Nome',
                 sortable: true,
+                className: 'w-[24%]',
                 render: (k) => (
                   <>
                     <p className="font-medium text-ink">{k.name}</p>
@@ -151,30 +202,34 @@ export function KpisTab() {
                 key: 'code',
                 header: 'Código',
                 sortable: true,
-                className: 'font-mono text-xs',
+                className: 'w-[12%] font-mono text-xs',
               },
               {
                 key: 'category',
                 header: 'Categoria',
                 sortable: true,
+                className: 'w-[12%]',
                 render: (k) => KPI_CATEGORY_LABELS[k.category] ?? k.category,
               },
-              { key: 'unit', header: 'Unidade' },
+              { key: 'unit', header: 'Unidade', className: 'w-[9%]' },
               {
                 key: 'frequency',
                 header: 'Frequência',
+                className: 'w-[11%]',
                 render: (k) => KPI_FREQUENCY_LABELS[k.frequency] ?? k.frequency,
               },
               {
                 key: 'targetValue',
                 header: 'Meta',
                 sortable: true,
+                className: 'w-[8%]',
                 render: (k) => (k.targetValue != null ? k.targetValue : '—'),
               },
               {
                 key: 'status',
                 header: 'Estado',
                 sortable: true,
+                className: 'w-[11%]',
                 render: (k) => (
                   <Badge intent={KPI_STATUS_INTENTS[k.status] ?? 'neutral'}>
                     {KPI_STATUS_LABELS[k.status] ?? k.status}
@@ -184,8 +239,9 @@ export function KpisTab() {
               {
                 key: 'actions',
                 header: '',
+                className: 'w-[13%]',
                 render: (k) => (
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       size="sm"
                       intent="secondary"
@@ -200,13 +256,30 @@ export function KpisTab() {
                     >
                       {k.status === 'ACTIVO' ? 'Desativar' : 'Ativar'}
                     </Button>
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      aria-label={`Apagar KPI ${k.name}`}
+                      title="Apagar KPI"
+                      loading={remove.isPending}
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            `Apagar o KPI "${k.name}"? Esta ação não pode ser desfeita.`,
+                          )
+                        )
+                          remove.mutate(k.id);
+                      }}
+                    >
+                      <Trash2 size={14} strokeWidth={1.75} />
+                    </Button>
                   </div>
                 ),
               },
             ]}
           />
         </div>
-      </Card>
+      </div>
 
       {modalKpi && (
         <KpiDefinitionModal

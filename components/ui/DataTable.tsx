@@ -41,6 +41,8 @@ export interface DataTableProps<T> {
   searchKeys?: (keyof T)[];
   emptyLabel?: string;
   className?: string;
+  /** classes extra do cabeçalho (células e linha), ex.: cor de fundo/letra */
+  headerClassName?: string;
 }
 
 export function DataTable<T>({
@@ -52,6 +54,7 @@ export function DataTable<T>({
   searchKeys,
   emptyLabel = 'Não há registos para mostrar.',
   className,
+  headerClassName,
 }: DataTableProps<T>) {
   const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' } | null>(
     null,
@@ -129,13 +132,14 @@ export function DataTable<T>({
         <>
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow className={headerClassName && 'hover:bg-transparent'}>
                 {columns.map((col) => (
                   <TableHeaderCell
                     key={col.key}
                     className={cn(
                       col.sortable && 'cursor-pointer select-none',
                       col.className,
+                      headerClassName,
                     )}
                     onClick={
                       col.sortable ? () => toggleSort(col.key) : undefined

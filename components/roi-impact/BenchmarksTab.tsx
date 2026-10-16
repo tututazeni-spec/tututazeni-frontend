@@ -15,6 +15,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -30,6 +31,12 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { BenchmarkModal } from './BenchmarkModal';
+import { BenchmarkRoiCard } from './BenchmarkRoiCard';
+import {
+  RoiByCycleCard,
+  RoiByDepartmentCard,
+  RoiByUnitCard,
+} from './RoiBreakdownCards';
 import {
   BENCHMARK_TYPE_INTENTS,
   BENCHMARK_TYPE_LABELS,
@@ -105,85 +112,34 @@ export function BenchmarksTab() {
             departamentos/unidades/ciclos.
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <Card>
-              <CardBody>
-                <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                  ROI médio por departamento
-                </p>
-                <BarChart
-                  orientation="horizontal"
-                  categories={(internal?.byDepartment ?? []).map((d) =>
-                    String(d.key),
-                  )}
-                  series={[
-                    {
-                      label: 'ROI médio',
-                      values: (internal?.byDepartment ?? []).map(
-                        (d) => d.avgRoi,
-                      ),
-                    },
-                  ]}
-                  yFormat={(v) => `${v}%`}
-                />
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                  ROI médio por unidade
-                </p>
-                <BarChart
-                  orientation="horizontal"
-                  categories={(internal?.byUnit ?? []).map((d) =>
-                    String(d.key),
-                  )}
-                  series={[
-                    {
-                      label: 'ROI médio',
-                      values: (internal?.byUnit ?? []).map((d) => d.avgRoi),
-                    },
-                  ]}
-                  yFormat={(v) => `${v}%`}
-                />
-              </CardBody>
-            </Card>
-            <Card>
-              <CardBody>
-                <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                  ROI médio por ciclo/ano
-                </p>
-                <BarChart
-                  orientation="horizontal"
-                  categories={(internal?.byCycle ?? []).map((d) =>
-                    String(d.key),
-                  )}
-                  series={[
-                    {
-                      label: 'ROI médio',
-                      values: (internal?.byCycle ?? []).map((d) => d.avgRoi),
-                    },
-                  ]}
-                  yFormat={(v) => `${v}%`}
-                />
-              </CardBody>
-            </Card>
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+            <RoiByDepartmentCard rows={internal?.byDepartment ?? []} />
+            <RoiByUnitCard rows={internal?.byUnit ?? []} />
+            <RoiByCycleCard rows={internal?.byCycle ?? []} />
           </div>
         )}
 
         {(internal?.bestWorstByType.length ?? 0) > 0 && (
-          <Card>
-            <CardBody>
-              <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
+          <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+            <div className="px-5 py-3">
+              <h4 className="font-display text-sm font-semibold text-white">
                 Melhor e pior desempenho por tipo de iniciativa
-              </p>
+              </h4>
+            </div>
+            <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
               <div className="overflow-x-auto">
                 <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableHeaderCell>Tipo</TableHeaderCell>
-                      <TableHeaderCell>Melhor</TableHeaderCell>
-                      <TableHeaderCell>Pior</TableHeaderCell>
+                  <TableHead className="bg-[#0F1F3D]/60">
+                    <TableRow className="hover:bg-transparent">
+                      <TableHeaderCell className="text-white">
+                        Tipo
+                      </TableHeaderCell>
+                      <TableHeaderCell className="text-white">
+                        Melhor
+                      </TableHeaderCell>
+                      <TableHeaderCell className="text-white">
+                        Pior
+                      </TableHeaderCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -208,8 +164,8 @@ export function BenchmarksTab() {
                   </TableBody>
                 </Table>
               </div>
-            </CardBody>
-          </Card>
+            </div>
+          </div>
         )}
       </section>
 
@@ -219,25 +175,17 @@ export function BenchmarksTab() {
         </h3>
         <Card>
           <CardBody>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-              <div>
-                <p className="text-xs text-ink-faint">
-                  ROI médio da Academia INNOVA
-                </p>
-                <p className="font-display text-xl font-bold text-ink">
-                  {sector?.internalAvgRoi != null
-                    ? `${sector.internalAvgRoi}%`
-                    : '—'}
-                </p>
-                <p className="text-[11px] text-ink-faint">
-                  {sector?.sampleSize ?? 0} análise(s)
-                </p>
-              </div>
-            </div>
+            <BenchmarkRoiCard
+              avgRoi={sector?.internalAvgRoi ?? null}
+              sampleSize={sector?.sampleSize ?? 0}
+            />
             {sector?.note && (
-              <p className="mt-3 rounded-card bg-warning-subtle p-3 text-xs text-warning-ink">
-                {sector.note}
-              </p>
+              <AlertCard
+                variant="warning"
+                className="mt-3"
+                title="Sem benchmarks externos de ROI registados"
+                message="Regista um benchmark externo com fonte para contextualizar a comparação."
+              />
             )}
             {(sector?.externalBenchmarks.length ?? 0) > 0 && (
               <ul className="mt-3 space-y-1 text-sm text-ink">
@@ -259,84 +207,100 @@ export function BenchmarksTab() {
       </section>
 
       <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-display text-sm font-semibold text-ink">
-            Registos de benchmarks
-          </h3>
+        <div className="flex items-center justify-end">
           <Button size="sm" onClick={() => setModalBenchmark('new')}>
             <Plus size={14} strokeWidth={1.75} className="mr-1" />
             Novo benchmark
           </Button>
         </div>
 
-        <Card>
-          {loading ? (
-            <Skeleton
-              rows={3}
-              wrapperClassName="space-y-2 p-4 animate-pulse"
-              itemClassName="h-12 rounded-card bg-surface-sunken"
-            />
-          ) : benchmarks.length === 0 ? (
-            <EmptyState
-              title="Sem benchmarks registados ainda"
-              description="Regista uma referência interna ou externa (com fonte) para contextualizar os resultados."
-              className="border-none"
-            />
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableHeaderCell>Nome</TableHeaderCell>
-                    <TableHeaderCell>Tipo</TableHeaderCell>
-                    <TableHeaderCell>Fonte</TableHeaderCell>
-                    <TableHeaderCell>Ano</TableHeaderCell>
-                    <TableHeaderCell>Valor</TableHeaderCell>
-                    <TableHeaderCell>Aplicável a</TableHeaderCell>
-                    <TableHeaderCell />
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {benchmarks.map((b) => (
-                    <TableRow
-                      key={b.id}
-                      className="cursor-pointer"
-                      onClick={() => setModalBenchmark(b)}
-                    >
-                      <TableCell className="text-ink">{b.name}</TableCell>
-                      <TableCell>
-                        <Badge
-                          intent={BENCHMARK_TYPE_INTENTS[b.type] ?? 'neutral'}
-                        >
-                          {BENCHMARK_TYPE_LABELS[b.type] ?? b.type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-xs">{b.source}</TableCell>
-                      <TableCell>{b.referenceYear}</TableCell>
-                      <TableCell>
-                        {b.value}
-                        {b.unit}
-                      </TableCell>
-                      <TableCell className="text-xs text-ink-faint">
-                        {b.indicatorName ?? '—'}
-                      </TableCell>
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        <Button
-                          size="sm"
-                          intent="secondary"
-                          loading={remove.isPending}
-                          onClick={() => remove.mutate(b.id)}
-                        >
-                          <Trash2 size={14} strokeWidth={1.75} />
-                        </Button>
-                      </TableCell>
+        <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+          <div className="px-5 py-3">
+            <h4 className="font-display text-sm font-semibold text-white">
+              Registos de benchmarks
+            </h4>
+          </div>
+          <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
+            {loading ? (
+              <Skeleton
+                rows={3}
+                wrapperClassName="space-y-2 p-4 animate-pulse"
+                itemClassName="h-12 rounded-card bg-surface-sunken"
+              />
+            ) : benchmarks.length === 0 ? (
+              <EmptyState
+                title="Sem benchmarks registados ainda"
+                description="Regista uma referência interna ou externa (com fonte) para contextualizar os resultados."
+                className="border-none"
+              />
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHead className="bg-[#0F1F3D]/60">
+                    <TableRow className="hover:bg-transparent">
+                      <TableHeaderCell className="text-white">
+                        Nome
+                      </TableHeaderCell>
+                      <TableHeaderCell className="text-white">
+                        Tipo
+                      </TableHeaderCell>
+                      <TableHeaderCell className="text-white">
+                        Fonte
+                      </TableHeaderCell>
+                      <TableHeaderCell className="text-white">
+                        Ano
+                      </TableHeaderCell>
+                      <TableHeaderCell className="text-white">
+                        Valor
+                      </TableHeaderCell>
+                      <TableHeaderCell className="text-white">
+                        Aplicável a
+                      </TableHeaderCell>
+                      <TableHeaderCell className="text-white" />
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </Card>
+                  </TableHead>
+                  <TableBody>
+                    {benchmarks.map((b) => (
+                      <TableRow
+                        key={b.id}
+                        className="cursor-pointer"
+                        onClick={() => setModalBenchmark(b)}
+                      >
+                        <TableCell className="text-ink">{b.name}</TableCell>
+                        <TableCell>
+                          <Badge
+                            intent={BENCHMARK_TYPE_INTENTS[b.type] ?? 'neutral'}
+                          >
+                            {BENCHMARK_TYPE_LABELS[b.type] ?? b.type}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs">{b.source}</TableCell>
+                        <TableCell>{b.referenceYear}</TableCell>
+                        <TableCell>
+                          {b.value}
+                          {b.unit}
+                        </TableCell>
+                        <TableCell className="text-xs text-ink-faint">
+                          {b.indicatorName ?? '—'}
+                        </TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          <Button
+                            size="sm"
+                            intent="secondary"
+                            loading={remove.isPending}
+                            onClick={() => remove.mutate(b.id)}
+                          >
+                            <Trash2 size={14} strokeWidth={1.75} />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+        </div>
       </section>
 
       {modalBenchmark && (

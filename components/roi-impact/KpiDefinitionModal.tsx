@@ -30,6 +30,59 @@ const FREQUENCY_ITEMS = Object.entries(KPI_FREQUENCY_LABELS).map(
   ([value, label]) => ({ value, label }),
 );
 
+export const UNIT_OPTIONS = [
+  '%',
+  'AOA',
+  'AOA/hora',
+  'dias',
+  'horas',
+  'meses',
+  'pontos',
+  'output/colaborador',
+  'acidentes/1000 colaboradores',
+  'colaboradores',
+  'número',
+];
+
+const FORMULA_OPTIONS = [
+  '(Saídas voluntárias ÷ Efetivo médio) × 100',
+  'Custo de recrutamento + integração + perda de produtividade até substituição',
+  'Output total ÷ Nº de colaboradores',
+  '(Promoções internas ÷ Vagas preenchidas) × 100',
+  'Média de dias entre admissão e produtividade plena',
+  '(Formações obrigatórias concluídas ÷ Formações obrigatórias atribuídas) × 100',
+  'Custo total da formação ÷ Total de horas de formação',
+  '% Promotores − % Detratores',
+  '(Dias de ausência ÷ Dias úteis totais) × 100',
+  '(Nº de acidentes ÷ Efetivo) × 1000',
+  'Valor final − Valor inicial',
+  '(Valor final − Valor inicial) ÷ Valor inicial × 100',
+  'Soma dos valores do período',
+  'Média dos valores do período',
+];
+
+const DATA_SOURCE_OPTIONS = [
+  'Onboarding',
+  'Formações e cursos',
+  'Custos e investimento',
+  'Assiduidade',
+  'Recursos humanos',
+  'Processamento salarial',
+  'Avaliação de desempenho',
+  'Planos de desenvolvimento',
+  'Recrutamento',
+  'Inquéritos de satisfação',
+  'Segurança e saúde no trabalho',
+  'Importação manual',
+];
+
+/** Lista de opções; mantém um valor já gravado que não conste da lista. */
+function toItems(options: string[], current?: string | null) {
+  const list =
+    current && !options.includes(current) ? [...options, current] : options;
+  return list.map((o) => ({ value: o, label: o }));
+}
+
 export interface KpiDefinitionModalProps {
   kpi?: KpiDefinitionRow;
   onClose: () => void;
@@ -99,7 +152,6 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title={kpi ? 'Editar KPI' : 'Novo KPI'}
-        description="Biblioteca central de KPIs — docs/roi-impact.md §6"
         className="max-h-[90vh] max-w-2xl overflow-y-auto"
       >
         {error && (
@@ -151,11 +203,11 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
               />
             </FormField>
             <FormField label="Unidade de medida *" htmlFor="kpi-unit">
-              <Input
-                id="kpi-unit"
-                placeholder="ex.: %, AOA, dias…"
-                value={unit}
-                onChange={(e) => setUnit(e.target.value)}
+              <Select
+                items={toItems(UNIT_OPTIONS, kpi?.unit)}
+                value={unit || undefined}
+                onValueChange={setUnit}
+                placeholder="Selecionar unidade"
                 className="w-full"
               />
             </FormField>
@@ -170,22 +222,22 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
           </div>
 
           <FormField label="Fórmula de cálculo" htmlFor="kpi-formula">
-            <Input
-              id="kpi-formula"
-              placeholder="ex.: (Saídas voluntárias ÷ Efetivo médio) × 100"
-              value={formula}
-              onChange={(e) => setFormula(e.target.value)}
+            <Select
+              items={toItems(FORMULA_OPTIONS, kpi?.formula)}
+              value={formula || undefined}
+              onValueChange={setFormula}
+              placeholder="Selecionar fórmula"
               className="w-full"
             />
           </FormField>
 
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Fonte de dados" htmlFor="kpi-source">
-              <Input
-                id="kpi-source"
-                placeholder="ex.: Payroll, Trainings, importação manual…"
-                value={dataSource}
-                onChange={(e) => setDataSource(e.target.value)}
+              <Select
+                items={toItems(DATA_SOURCE_OPTIONS, kpi?.dataSource)}
+                value={dataSource || undefined}
+                onValueChange={setDataSource}
+                placeholder="Selecionar fonte"
                 className="w-full"
               />
             </FormField>

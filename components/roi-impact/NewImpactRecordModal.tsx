@@ -24,9 +24,11 @@ import {
   INITIATIVE_TYPE_LABELS,
   IMPACT_CATEGORY_LABELS,
   IMPACT_SUBJECT_TYPE_LABELS,
+  DATA_SOURCES,
 } from './utils';
 import type {
   ImpactCategory,
+  KpiDefinitionRow,
   ImpactSubjectType,
   InitiativeOption,
   RoiInitiativeType,
@@ -50,6 +52,13 @@ const CATEGORY_ITEMS = Object.entries(IMPACT_CATEGORY_LABELS).map(
     label,
   }),
 );
+
+// O Select (Radix) não aceita value '' — sentinela para "sem fonte".
+const NO_SOURCE = '__none__';
+const DATA_SOURCE_ITEMS = [
+  { value: NO_SOURCE, label: '— Sem fonte —' },
+  ...DATA_SOURCES.map((v) => ({ value: v, label: v })),
+];
 
 export interface NewImpactRecordModalProps {
   onClose: () => void;
@@ -78,6 +87,22 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
   const [observationPeriodEnd, setObservationPeriodEnd] = useState('');
   const [attributionPercent, setAttributionPercent] = useState('');
   const [dataSource, setDataSource] = useState('');
+
+  const { data: kpiData } = useApiQuery<{ kpis: KpiDefinitionRow[] }>(
+    queryKeys.roiImpact.kpis(),
+    '/roi-impact/kpis',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const indicatorItems = useMemo(
+    () =>
+      (kpiData?.kpis ?? [])
+        .filter((k) => k.status === 'ACTIVO')
+        .map((k) => ({
+          value: k.name,
+          label: k.unit ? `${k.name} (${k.unit})` : k.name,
+        })),
+    [kpiData],
+  );
 
   const { data: deptTree } = useApiQuery<
     { id: number; name: string; children?: unknown[] }[]
@@ -153,7 +178,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
       <ModalContent
         title="Novo Registo de Impacto"
         description="Liga uma iniciativa a um indicador de negócio real (docs/roi-impact.md §3)"
-        className="max-h-[90vh] max-w-2xl overflow-y-auto"
+        className="max-h-[90vh] max-w-2xl overflow-y-auto overflow-x-hidden"
       >
         {error && (
           <div className="mb-4 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
@@ -163,7 +188,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
         )}
 
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
             <FormField label="Sujeito do impacto" htmlFor="ir-subject-type">
               <Select
                 items={SUBJECT_TYPE_ITEMS}
@@ -215,7 +240,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
             </FormField>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
             <FormField label="Tipo de iniciativa" htmlFor="ir-init-type">
               <Select
                 items={INITIATIVE_TYPE_ITEMS}
@@ -245,16 +270,16 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
             label="Indicador de negócio afetado *"
             htmlFor="ir-indicator"
           >
-            <Input
-              id="ir-indicator"
-              placeholder="ex.: NPS, taxa de erro, produção/hora…"
+            <Select
+              items={indicatorItems}
               value={indicatorName}
-              onChange={(e) => setIndicatorName(e.target.value)}
+              onValueChange={setIndicatorName}
+              placeholder="Selecionar um KPI…"
               className="w-full"
             />
           </FormField>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
             <FormField label="Valor antes" htmlFor="ir-before">
               <Input
                 id="ir-before"
@@ -275,7 +300,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
             </FormField>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
             <FormField
               label="Período de observação — início"
               htmlFor="ir-obs-start"
@@ -299,7 +324,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
             </FormField>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 [&>*]:min-w-0">
             <FormField
               label="Grau de atribuição — % atribuível"
               htmlFor="ir-attribution"
@@ -315,10 +340,11 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
               />
             </FormField>
             <FormField label="Fonte do dado" htmlFor="ir-source">
-              <Input
-                id="ir-source"
+              <Select
+                items={DATA_SOURCE_ITEMS}
                 value={dataSource}
-                onChange={(e) => setDataSource(e.target.value)}
+                onValueChange={(v) => setDataSource(v === NO_SOURCE ? '' : v)}
+                placeholder="Selecionar…"
                 className="w-full"
               />
             </FormField>

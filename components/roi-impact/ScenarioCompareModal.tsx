@@ -43,7 +43,7 @@ export function ScenarioCompareModal({
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title="Comparação de Cenários"
-        description="docs/roi-impact.md §8 — Cenários & Simulações"
+        description="Cenários & Simulações"
         className="max-h-[90vh] max-w-3xl overflow-y-auto"
       >
         {compare.isPending || !data ? (

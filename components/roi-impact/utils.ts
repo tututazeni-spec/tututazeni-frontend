@@ -264,3 +264,17 @@ export const ROI_REPORT_LABELS: Record<string, string> = {
   'leadership-engagement': 'Impacto da liderança no engajamento',
   'executive-summary': 'Relatório executivo para Administração',
 };
+
+// Fontes de dados oferecidas nas listas de "Fonte de dados" (análise de ROI e
+// registo de impacto).
+export const DATA_SOURCES = [
+  'Sistema de RH / folha salarial',
+  'Plataforma de aprendizagem (LMS)',
+  'Avaliações de desempenho',
+  'Avaliações 360°',
+  'Inquéritos de satisfação / NPS',
+  'Relatórios financeiros / contabilidade',
+  'Sistemas operacionais / produção',
+  'Registos de assiduidade',
+  'Entrevistas / observação de gestores',
+];

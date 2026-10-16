@@ -14,8 +14,18 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
+import {
+  Bell,
+  Calculator,
+  Coins,
+  Filter,
+  Ruler,
+  ShieldCheck,
+  UserCheck,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -44,6 +54,52 @@ const ROLE_LABELS: Record<Role, string> = {
   AUDITOR: 'Auditor',
 };
 
+// Uma cor por perfil (as mesmas do Audit): contorno identifica, preenchimento marca activo.
+const ROLE_COLORS: Record<Role, string> = {
+  ADMIN: '#E5484D',
+  RH: '#8E4EC6',
+  GESTOR: '#E99A16',
+  DIRECTOR: '#3E8EF7',
+  LIDER: '#12A594',
+  COLABORADOR: '#30A46C',
+  INSTRUCTOR: '#D6409F',
+  AUDITOR: '#6E56CF',
+};
+
+/** Card azul-marinho das Configurações (mesmo desenho do «Gerar relatório» do módulo Audit). */
+function ConfigCard({
+  icon: Icon,
+  title,
+  subtitle,
+  children,
+  className,
+}: {
+  icon: LucideIcon;
+  title: string;
+  subtitle?: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <Card
+      className={`flex flex-col overflow-hidden border-[#0F1F3D] bg-[#0F1F3D] text-white [&_label]:text-white/85 ${className ?? ''}`}
+    >
+      <div className="flex items-center gap-3 border-b border-white px-5 py-4">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
+          <Icon size={16} strokeWidth={1.75} />
+        </span>
+        <div className="min-w-0">
+          <h2 className="font-display text-base font-semibold">{title}</h2>
+          {subtitle && (
+            <p className="font-body text-xs text-white">{subtitle}</p>
+          )}
+        </div>
+      </div>
+      <div className="flex-1 px-5 py-5">{children}</div>
+    </Card>
+  );
+}
+
 function RoleCheckboxGroup({
   selected,
   onChange,
@@ -59,21 +115,31 @@ function RoleCheckboxGroup({
     );
   };
   return (
-    <div className="flex flex-wrap gap-3">
-      {AUTHENTICATED_ROLES.map((role) => (
-        <label
-          key={role}
-          className="flex items-center gap-1.5 text-sm text-ink cursor-pointer"
-        >
-          <input
-            type="checkbox"
-            checked={selected.includes(role)}
-            onChange={() => toggle(role)}
-            className="h-4 w-4 rounded border-border-strong accent-primary"
-          />
-          {ROLE_LABELS[role]}
-        </label>
-      ))}
+    <div className="flex flex-wrap gap-2">
+      {AUTHENTICATED_ROLES.map((role) => {
+        const on = selected.includes(role);
+        return (
+          <label
+            key={role}
+            style={{
+              borderColor: ROLE_COLORS[role],
+              backgroundColor: on
+                ? ROLE_COLORS[role]
+                : `${ROLE_COLORS[role]}26`,
+              color: '#fff',
+            }}
+            className="flex cursor-pointer items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors hover:brightness-125 focus-within:ring-2 focus-within:ring-white/70"
+          >
+            <input
+              type="checkbox"
+              checked={on}
+              onChange={() => toggle(role)}
+              className="sr-only"
+            />
+            {ROLE_LABELS[role]}
+          </label>
+        );
+      })}
     </div>
   );
 }
@@ -162,284 +228,329 @@ export function ConfigTab() {
   };
 
   return (
-    <div className="space-y-5 max-w-3xl">
-      <Card className="p-5">
-        <div className="font-body text-sm font-semibold text-ink mb-3">
-          Moeda &amp; custo de capital
+    <div className="max-w-6xl space-y-8">
+      <section aria-label="Metodologia de cálculo" className="space-y-3">
+        <div className="rounded-card bg-[#0F1F3D]/60 px-5 py-3">
+          <h3 className="font-display text-sm font-semibold text-white">
+            Metodologia de cálculo
+          </h3>
+          <p className="font-body text-xs text-white">
+            Valores por omissão que o assistente «Nova Análise de ROI» usa em
+            cada análise.
+          </p>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <FormField label="Moeda" htmlFor="roi-cfg-currency">
-            <Input
-              id="roi-cfg-currency"
-              value={form.currency}
-              onChange={(e) => setForm({ ...form, currency: e.target.value })}
-              className="w-full"
-            />
-          </FormField>
-          <FormField
-            label="Taxa de desconto / custo de capital (%)"
-            htmlFor="roi-cfg-discount"
+        <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+          <ConfigCard
+            className="h-full"
+            icon={Coins}
+            title="Moeda &amp; custo de capital"
+            subtitle="Moeda usada nas análises e taxa de desconto aplicada aos benefícios futuros."
           >
-            <Input
-              id="roi-cfg-discount"
-              type="number"
-              step={0.1}
-              placeholder="Não aplicável"
-              value={form.discountRatePercent ?? ''}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  discountRatePercent: e.target.value
-                    ? Number(e.target.value)
-                    : null,
-                })
-              }
-              className="w-full"
-            />
-          </FormField>
-        </div>
-      </Card>
-
-      <Card className="p-5">
-        <div className="font-body text-sm font-semibold text-ink mb-1">
-          Fator de isolamento padrão por tipo de iniciativa
-        </div>
-        <p className="font-body text-xs text-ink-faint mb-3">
-          Pré-preenche a Etapa 4 (Metodologia) do assistente &quot;Nova Análise
-          de ROI&quot; — quanto do resultado é atribuível à iniciativa (0–1),
-          por omissão.
-        </p>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {Object.entries(INITIATIVE_TYPE_LABELS).map(([type, label]) => (
-            <FormField key={type} label={label} htmlFor={`roi-cfg-iso-${type}`}>
-              <Input
-                id={`roi-cfg-iso-${type}`}
-                type="number"
-                min={0}
-                max={1}
-                step={0.05}
-                placeholder="—"
-                value={form.defaultIsolationFactors[type] ?? ''}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    defaultIsolationFactors: {
-                      ...form.defaultIsolationFactors,
-                      ...(e.target.value
-                        ? { [type]: Number(e.target.value) }
-                        : {}),
-                      ...(e.target.value
-                        ? {}
-                        : Object.fromEntries(
-                            Object.entries(form.defaultIsolationFactors).filter(
-                              ([k]) => k !== type,
-                            ),
-                          )),
-                    },
-                  })
-                }
-                className="w-full"
-              />
-            </FormField>
-          ))}
-        </div>
-      </Card>
-
-      <Card className="p-5">
-        <div className="font-body text-sm font-semibold text-ink mb-3">
-          Medição &amp; obrigatoriedade de Nível 4/5
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            label="Períodos de medição pós-iniciativa (dias, separados por vírgula)"
-            htmlFor="roi-cfg-periods"
-          >
-            <Input
-              id="roi-cfg-periods"
-              value={periodsText}
-              onChange={(e) => setPeriodsText(e.target.value)}
-              placeholder="30, 60, 90, 180"
-              className="w-full"
-            />
-          </FormField>
-          <FormField
-            label="Limiar de custo que obriga medição de Nível 4/5"
-            htmlFor="roi-cfg-threshold"
-          >
-            <Input
-              id="roi-cfg-threshold"
-              type="number"
-              min={0}
-              placeholder="Sem limiar"
-              value={form.level45CostThreshold ?? ''}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  level45CostThreshold: e.target.value
-                    ? Number(e.target.value)
-                    : null,
-                })
-              }
-              className="w-full"
-            />
-          </FormField>
-        </div>
-      </Card>
-
-      <Card className="p-5">
-        <div className="font-body text-sm font-semibold text-ink mb-3">
-          Responsáveis pela validação de benefícios
-        </div>
-        <div className="flex flex-wrap gap-2 mb-3">
-          {form.defaultBenefitValidatorIds.map((id) => (
-            <ValidatorChip
-              key={id}
-              id={id}
-              onRemove={() =>
-                setForm({
-                  ...form,
-                  defaultBenefitValidatorIds:
-                    form.defaultBenefitValidatorIds.filter((v) => v !== id),
-                })
-              }
-            />
-          ))}
-        </div>
-        <DepartmentUserPicker
-          label="Adicionar responsável"
-          htmlFor="roi-cfg-add-validator"
-          value={null}
-          onChange={addValidator}
-        />
-      </Card>
-
-      <Card className="p-5">
-        <div className="font-body text-sm font-semibold text-ink mb-1">
-          Fórmulas de conversão de benefícios não financeiros
-        </div>
-        <p className="font-body text-xs text-ink-faint mb-3">
-          Como converter cada tipo de benefício em valor monetário — texto livre
-          usado como guia na Etapa 3 do assistente &quot;Nova Análise de
-          ROI&quot;.
-        </p>
-        <div className="space-y-2">
-          {Object.entries(BENEFIT_TYPE_LABELS).map(([type, label]) => (
-            <FormField
-              key={type}
-              label={label}
-              htmlFor={`roi-cfg-formula-${type}`}
-            >
-              <Input
-                id={`roi-cfg-formula-${type}`}
-                placeholder="ex.: output/hora × salário/hora"
-                value={form.benefitConversionFormulas[type] ?? ''}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    benefitConversionFormulas: {
-                      ...form.benefitConversionFormulas,
-                      ...(e.target.value
-                        ? { [type]: e.target.value }
-                        : Object.fromEntries(
-                            Object.entries(
-                              form.benefitConversionFormulas,
-                            ).filter(([k]) => k !== type),
-                          )),
-                    },
-                  })
-                }
-                className="w-full"
-              />
-            </FormField>
-          ))}
-        </div>
-      </Card>
-
-      <Card className="p-5">
-        <div className="font-body text-sm font-semibold text-ink mb-1">
-          Permissões de acesso
-        </div>
-        <p className="font-body text-xs text-ink-faint mb-3">
-          Quem vê o ROI financeiro (valores monetários/%) vs. quem vê apenas os
-          indicadores operacionais.
-        </p>
-        <div className="space-y-3">
-          <div>
-            <div className="font-body text-xs text-ink-muted mb-1">
-              Vê o ROI financeiro
+            <div className="grid grid-cols-1 gap-4">
+              <FormField label="Moeda" htmlFor="roi-cfg-currency">
+                <Input
+                  id="roi-cfg-currency"
+                  value={form.currency}
+                  onChange={(e) =>
+                    setForm({ ...form, currency: e.target.value })
+                  }
+                  className="w-full"
+                />
+              </FormField>
+              <FormField
+                label="Taxa de desconto / custo de capital (%)"
+                htmlFor="roi-cfg-discount"
+              >
+                <Input
+                  id="roi-cfg-discount"
+                  type="number"
+                  step={0.1}
+                  placeholder="Não aplicável"
+                  value={form.discountRatePercent ?? ''}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      discountRatePercent: e.target.value
+                        ? Number(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-full"
+                />
+              </FormField>
             </div>
-            <RoleCheckboxGroup
-              selected={form.financialAccessRoles}
-              onChange={(roles) =>
-                setForm({ ...form, financialAccessRoles: roles })
-              }
-            />
-          </div>
-          <div>
-            <div className="font-body text-xs text-ink-muted mb-1">
-              Vê apenas indicadores operacionais
+          </ConfigCard>
+
+          <ConfigCard
+            className="h-full"
+            icon={Ruler}
+            title="Medição &amp; obrigatoriedade de Nível 4/5"
+            subtitle="Quando medir os resultados depois da iniciativa e a partir de que custo a medição passa a ser obrigatória."
+          >
+            <div className="grid grid-cols-1 gap-4">
+              <FormField
+                label="Períodos de medição pós-iniciativa (dias, separados por vírgula)"
+                htmlFor="roi-cfg-periods"
+              >
+                <Input
+                  id="roi-cfg-periods"
+                  value={periodsText}
+                  onChange={(e) => setPeriodsText(e.target.value)}
+                  placeholder="30, 60, 90, 180"
+                  className="w-full"
+                />
+              </FormField>
+              <FormField
+                label="Limiar de custo que obriga medição de Nível 4/5"
+                htmlFor="roi-cfg-threshold"
+              >
+                <Input
+                  id="roi-cfg-threshold"
+                  type="number"
+                  min={0}
+                  placeholder="Sem limiar"
+                  value={form.level45CostThreshold ?? ''}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      level45CostThreshold: e.target.value
+                        ? Number(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-full"
+                />
+              </FormField>
             </div>
-            <RoleCheckboxGroup
-              selected={form.operationalOnlyRoles}
-              onChange={(roles) =>
-                setForm({ ...form, operationalOnlyRoles: roles })
-              }
-            />
+          </ConfigCard>
+        </div>
+
+        <ConfigCard
+          icon={Filter}
+          title="Fator de isolamento padrão por tipo de iniciativa"
+          subtitle='Pré-preenche a Etapa 4 (Metodologia) do assistente "Nova Análise de ROI" — quanto do resultado é atribuível à iniciativa (0–1), por omissão.'
+        >
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {Object.entries(INITIATIVE_TYPE_LABELS).map(([type, label]) => (
+              <FormField
+                key={type}
+                label={label}
+                htmlFor={`roi-cfg-iso-${type}`}
+              >
+                <Input
+                  id={`roi-cfg-iso-${type}`}
+                  type="number"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  placeholder="—"
+                  value={form.defaultIsolationFactors[type] ?? ''}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      defaultIsolationFactors: {
+                        ...form.defaultIsolationFactors,
+                        ...(e.target.value
+                          ? { [type]: Number(e.target.value) }
+                          : {}),
+                        ...(e.target.value
+                          ? {}
+                          : Object.fromEntries(
+                              Object.entries(
+                                form.defaultIsolationFactors,
+                              ).filter(([k]) => k !== type),
+                            )),
+                      },
+                    })
+                  }
+                  className="w-full"
+                />
+              </FormField>
+            ))}
           </div>
-        </div>
-      </Card>
+        </ConfigCard>
 
-      <Card className="p-5">
-        <div className="font-body text-sm font-semibold text-ink mb-3">
-          Alertas &amp; notificações
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            label="Iniciativa sem medição há X dias"
-            htmlFor="roi-cfg-alert-days"
-          >
-            <Input
-              id="roi-cfg-alert-days"
-              type="number"
-              min={1}
-              placeholder="Desactivado"
-              value={form.alertNoMeasurementDays ?? ''}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  alertNoMeasurementDays: e.target.value
-                    ? Number(e.target.value)
-                    : null,
-                })
-              }
-              className="w-full"
-            />
-          </FormField>
-          <FormField
-            label="ROI abaixo do esperado (%)"
-            htmlFor="roi-cfg-alert-roi"
-          >
-            <Input
-              id="roi-cfg-alert-roi"
-              type="number"
-              placeholder="Desactivado"
-              value={form.alertRoiBelowExpectedPercent ?? ''}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  alertRoiBelowExpectedPercent: e.target.value
-                    ? Number(e.target.value)
-                    : null,
-                })
-              }
-              className="w-full"
-            />
-          </FormField>
-        </div>
-      </Card>
+        <ConfigCard
+          icon={Calculator}
+          title="Fórmulas de conversão de benefícios não financeiros"
+          subtitle='Como converter cada tipo de benefício em valor monetário — texto livre usado como guia na Etapa 3 do assistente "Nova Análise de ROI".'
+        >
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            {Object.entries(BENEFIT_TYPE_LABELS).map(([type, label]) => (
+              <FormField
+                key={type}
+                label={label}
+                htmlFor={`roi-cfg-formula-${type}`}
+              >
+                <Input
+                  id={`roi-cfg-formula-${type}`}
+                  placeholder="ex.: output/hora × salário/hora"
+                  value={form.benefitConversionFormulas[type] ?? ''}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      benefitConversionFormulas: {
+                        ...form.benefitConversionFormulas,
+                        ...(e.target.value
+                          ? { [type]: e.target.value }
+                          : Object.fromEntries(
+                              Object.entries(
+                                form.benefitConversionFormulas,
+                              ).filter(([k]) => k !== type),
+                            )),
+                      },
+                    })
+                  }
+                  className="w-full"
+                />
+              </FormField>
+            ))}
+          </div>
+        </ConfigCard>
+      </section>
 
-      <div className="flex justify-end">
-        <Button onClick={handleSave} loading={saveMutation.isPending}>
+      <section aria-label="Validação e avisos" className="space-y-3">
+        <div className="rounded-card bg-[#0F1F3D]/60 px-5 py-3">
+          <h3 className="font-display text-sm font-semibold text-white">
+            Validação e avisos
+          </h3>
+          <p className="font-body text-xs text-white">
+            Quem confirma os benefícios e quando o sistema avisa o RH.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+          <ConfigCard
+            className="h-full"
+            icon={UserCheck}
+            title="Responsáveis pela validação de benefícios"
+            subtitle="Pessoas que confirmam os benefícios declarados numa análise de ROI."
+          >
+            <div className="mb-3 flex flex-wrap gap-2">
+              {form.defaultBenefitValidatorIds.map((id) => (
+                <ValidatorChip
+                  key={id}
+                  id={id}
+                  onRemove={() =>
+                    setForm({
+                      ...form,
+                      defaultBenefitValidatorIds:
+                        form.defaultBenefitValidatorIds.filter((v) => v !== id),
+                    })
+                  }
+                />
+              ))}
+            </div>
+            <DepartmentUserPicker
+              label="Adicionar responsável"
+              htmlFor="roi-cfg-add-validator"
+              value={null}
+              onChange={addValidator}
+            />
+          </ConfigCard>
+
+          <ConfigCard
+            className="h-full"
+            icon={Bell}
+            title="Alertas &amp; notificações"
+            subtitle="Avisos automáticos quando uma iniciativa fica sem medição ou o ROI fica abaixo do esperado."
+          >
+            <div className="grid grid-cols-1 gap-4">
+              <FormField
+                label="Iniciativa sem medição há X dias"
+                htmlFor="roi-cfg-alert-days"
+              >
+                <Input
+                  id="roi-cfg-alert-days"
+                  type="number"
+                  min={1}
+                  placeholder="Desactivado"
+                  value={form.alertNoMeasurementDays ?? ''}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      alertNoMeasurementDays: e.target.value
+                        ? Number(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-full"
+                />
+              </FormField>
+              <FormField
+                label="ROI abaixo do esperado (%)"
+                htmlFor="roi-cfg-alert-roi"
+              >
+                <Input
+                  id="roi-cfg-alert-roi"
+                  type="number"
+                  placeholder="Desactivado"
+                  value={form.alertRoiBelowExpectedPercent ?? ''}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      alertRoiBelowExpectedPercent: e.target.value
+                        ? Number(e.target.value)
+                        : null,
+                    })
+                  }
+                  className="w-full"
+                />
+              </FormField>
+            </div>
+          </ConfigCard>
+        </div>
+      </section>
+
+      <section aria-label="Acesso" className="space-y-3">
+        <div className="rounded-card bg-[#0F1F3D]/60 px-5 py-3">
+          <h3 className="font-display text-sm font-semibold text-white">
+            Acesso
+          </h3>
+          <p className="font-body text-xs text-white">
+            Define quem vê os valores financeiros do módulo.
+          </p>
+        </div>
+        <ConfigCard
+          icon={ShieldCheck}
+          title="Permissões de acesso"
+          subtitle="Quem vê o ROI financeiro (valores monetários/%) vs. quem vê apenas os indicadores operacionais."
+        >
+          <div className="grid gap-5 md:grid-cols-2 md:gap-0 md:divide-x md:divide-white/25">
+            <div className="md:pr-6">
+              <div className="mb-2 font-body text-xs text-white">
+                Vê o ROI financeiro
+              </div>
+              <RoleCheckboxGroup
+                selected={form.financialAccessRoles}
+                onChange={(roles) =>
+                  setForm({ ...form, financialAccessRoles: roles })
+                }
+              />
+            </div>
+            <div className="md:pl-6">
+              <div className="mb-2 font-body text-xs text-white">
+                Vê apenas indicadores operacionais
+              </div>
+              <RoleCheckboxGroup
+                selected={form.operationalOnlyRoles}
+                onChange={(roles) =>
+                  setForm({ ...form, operationalOnlyRoles: roles })
+                }
+              />
+            </div>
+          </div>
+        </ConfigCard>
+      </section>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-panel border border-[#0F1F3D] bg-[#0F1F3D] px-5 py-3 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <p className="font-body text-xs text-white/65">
+          As alterações só se aplicam depois de guardar.
+        </p>
+        <Button
+          className="bg-white text-[#0F1F3D] hover:bg-white/90"
+          onClick={handleSave}
+          loading={saveMutation.isPending}
+        >
           Guardar configurações
         </Button>
       </div>

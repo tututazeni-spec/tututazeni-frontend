@@ -453,11 +453,18 @@ export interface BenchmarkBestWorst {
   worst: { id: number; name: string; roiPercent: number | null } | null;
 }
 
+/** Média de ROI por grupo, como o backend a devolve em /benchmarks/internal-comparisons. */
+export interface BenchmarkGroupAvg {
+  key: string | number;
+  avgValue: number;
+  count: number;
+}
+
 export interface BenchmarkInternalComparisonsData {
   totalAnalyses: number;
-  byDepartment: RoiBreakdown[];
-  byUnit: RoiBreakdown[];
-  byCycle: RoiBreakdown[];
+  byDepartment: BenchmarkGroupAvg[];
+  byUnit: BenchmarkGroupAvg[];
+  byCycle: BenchmarkGroupAvg[];
   bestWorstByType: BenchmarkBestWorst[];
 }
 

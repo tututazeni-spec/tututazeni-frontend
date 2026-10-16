@@ -9,9 +9,10 @@
 
 import { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
-import { useApiMutation } from '@/hooks/useApiQuery';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
@@ -19,8 +20,81 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { UNIT_OPTIONS } from './KpiDefinitionModal';
 import { BENCHMARK_TYPE_LABELS } from './utils';
-import type { BenchmarkRow, BenchmarkType } from './types';
+import type {
+  BenchmarkRow,
+  BenchmarkType,
+  KpiDefinitionListData,
+} from './types';
+
+const MANUAL = '__manual__';
+
+const INDICATOR_OPTIONS = [
+  'ROI médio anual',
+  'ROI médio da formação',
+  'Taxa de rotatividade voluntária',
+  'Custo de substituição por saída',
+  'Produtividade por colaborador',
+  'Taxa de conclusão de formações obrigatórias',
+  'Custo por hora de formação',
+  'Taxa de absentismo',
+  'Tempo até à produtividade plena',
+];
+
+/** Lista de opções com a possibilidade de escrever o valor manualmente. */
+function ListOrManual({
+  id,
+  value,
+  onChange,
+  options,
+  placeholder,
+  manualPlaceholder,
+}: {
+  id: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  placeholder: string;
+  manualPlaceholder: string;
+}) {
+  const [manual, setManual] = useState(
+    value !== '' && !options.includes(value),
+  );
+  const items = [
+    ...options.map((o) => ({ value: o, label: o })),
+    { value: MANUAL, label: 'Outro — escrever manualmente' },
+  ];
+
+  return (
+    <div className="space-y-2">
+      <Select
+        items={items}
+        value={manual ? MANUAL : value || undefined}
+        onValueChange={(v) => {
+          if (v === MANUAL) {
+            setManual(true);
+            onChange('');
+          } else {
+            setManual(false);
+            onChange(v);
+          }
+        }}
+        placeholder={placeholder}
+        className="w-full"
+      />
+      {manual && (
+        <Input
+          id={id}
+          placeholder={manualPlaceholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full"
+        />
+      )}
+    </div>
+  );
+}
 
 const TYPE_ITEMS = Object.entries(BENCHMARK_TYPE_LABELS).map(
   ([value, label]) => ({ value, label }),
@@ -50,6 +124,18 @@ export function BenchmarkModal({ benchmark, onClose }: BenchmarkModalProps) {
   );
   const [observations, setObservations] = useState(
     benchmark?.observations ?? '',
+  );
+
+  const { data: kpiData } = useApiQuery<KpiDefinitionListData>(
+    queryKeys.roiImpact.kpis(),
+    '/roi-impact/kpis',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const indicatorOptions = Array.from(
+    new Set([
+      ...(kpiData?.kpis ?? []).map((k) => k.name),
+      ...INDICATOR_OPTIONS,
+    ]),
   );
 
   const save = useApiMutation(
@@ -95,7 +181,7 @@ export function BenchmarkModal({ benchmark, onClose }: BenchmarkModalProps) {
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
         title={benchmark ? 'Editar benchmark' : 'Novo benchmark'}
-        description="Referências internas/externas para contextualizar ROI — docs/roi-impact.md §9"
+        description="Referências internas/externas para contextualizar ROI"
         className="max-h-[90vh] max-w-2xl overflow-y-auto"
       >
         {error && (
@@ -156,23 +242,25 @@ export function BenchmarkModal({ benchmark, onClose }: BenchmarkModalProps) {
               />
             </FormField>
             <FormField label="Unidade de medida *" htmlFor="bm-unit">
-              <Input
+              <ListOrManual
                 id="bm-unit"
-                placeholder="ex.: %, AOA, dias…"
                 value={unit}
-                onChange={(e) => setUnit(e.target.value)}
-                className="w-full"
+                onChange={setUnit}
+                options={UNIT_OPTIONS}
+                placeholder="Selecionar unidade"
+                manualPlaceholder="ex.: pontos percentuais"
               />
             </FormField>
           </div>
 
           <FormField label="Aplicável a (KPI/indicador)" htmlFor="bm-indicator">
-            <Input
+            <ListOrManual
               id="bm-indicator"
-              placeholder="ex.: ROI médio anual, Taxa de rotatividade…"
               value={indicatorName}
-              onChange={(e) => setIndicatorName(e.target.value)}
-              className="w-full"
+              onChange={setIndicatorName}
+              options={indicatorOptions}
+              placeholder="Selecionar KPI/indicador"
+              manualPlaceholder="Escreve o nome do indicador"
             />
           </FormField>
 
