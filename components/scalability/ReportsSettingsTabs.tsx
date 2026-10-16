@@ -6,6 +6,9 @@
 'use client';
 
 import { useState } from 'react';
+import { INVERSE_RATE_BANDS } from '@/components/ui/charts/SpeedometerStatCard';
+import { ThermometerStatCard } from '@/components/ui/charts/ThermometerStatCard';
+import { BarChart3 } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -93,16 +96,21 @@ export function ReportsTab({
               type="button"
               onClick={() => onSelect(r.type)}
               aria-pressed={active}
-              className={`rounded-lg border p-4 text-left transition-colors ${
+              className={`rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-left text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7CC4FF] ${
                 active
-                  ? 'border-primary bg-primary/10'
-                  : 'border-border bg-surface hover:border-border-strong'
+                  ? 'outline outline-2 outline-offset-2 outline-[#0F1F3D]'
+                  : ''
               }`}
             >
-              <p className="font-body text-sm font-semibold text-ink">
-                {r.title}
-              </p>
-              <p className="mt-1 font-body text-xs text-ink-muted">
+              <div className="flex items-center gap-3">
+                <BarChart3
+                  className="h-5 w-5 shrink-0 text-[#7CC4FF]"
+                  strokeWidth={1.8}
+                  aria-hidden
+                />
+                <p className="font-display text-sm font-bold">{r.title}</p>
+              </div>
+              <p className="mt-1 font-body text-xs text-white/70">
                 {r.description}
               </p>
             </button>
@@ -140,7 +148,9 @@ export function ReportsTab({
                   disabled={exporting !== null}
                   onClick={() => onExport(report.type, f.value)}
                 >
-                  {exporting === f.value ? 'A exportar…' : `Exportar ${f.label}`}
+                  {exporting === f.value
+                    ? 'A exportar…'
+                    : `Exportar ${f.label}`}
                 </Button>
               ))}
             </div>
@@ -148,18 +158,30 @@ export function ReportsTab({
 
           {report.summary.length > 0 && (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {report.summary.map((s) => (
-                <Card key={s.label}>
-                  <CardBody>
-                    <p className="font-body text-xs font-medium uppercase tracking-wide text-ink-muted">
-                      {s.label}
-                    </p>
-                    <p className="mt-1 font-display text-lg font-bold tabular-nums text-ink">
-                      {cellText(s.value)}
-                    </p>
-                  </CardBody>
-                </Card>
-              ))}
+              {report.summary.map((s) =>
+                /^Taxa de erro/i.test(s.label) &&
+                typeof s.value === 'number' ? (
+                  // escala 0–5% do erro mapeada para 0–100 do termómetro
+                  <ThermometerStatCard
+                    key={s.label}
+                    label={s.label}
+                    value={(s.value / 5) * 100}
+                    bands={INVERSE_RATE_BANDS}
+                    display={`${s.value.toLocaleString('pt-PT')}%`}
+                  />
+                ) : (
+                  <Card key={s.label}>
+                    <CardBody>
+                      <p className="font-body text-xs font-medium uppercase tracking-wide text-ink-muted">
+                        {s.label}
+                      </p>
+                      <p className="mt-1 font-display text-lg font-bold tabular-nums text-ink">
+                        {cellText(s.value)}
+                      </p>
+                    </CardBody>
+                  </Card>
+                ),
+              )}
             </div>
           )}
 
@@ -246,18 +268,78 @@ function thresholdRows(s: SettingsData): Array<{
 }> {
   return [
     { group: 'Limites', field: s.limits.cpu, label: 'CPU', unit: '%' },
-    { group: 'Limites', field: s.limits.memory, label: 'Memória (RAM)', unit: '%' },
-    { group: 'Limites', field: s.limits.storage, label: 'Storage', unit: '% do plano' },
-    { group: 'Limites', field: s.limits.dbConnections, label: 'Ligações à BD', unit: '%' },
-    { group: 'Latência', field: s.limits.latencyP95Ms, label: 'Latência P95', unit: 'ms' },
-    { group: 'Latência', field: s.limits.latencyP99Ms, label: 'Latência P99', unit: 'ms' },
-    { group: 'Erros', field: s.limits.errorRate, label: 'Taxa de erros 5xx', unit: '%' },
-    { group: 'Erros', field: s.limits.slowQueryShare, label: 'Queries lentas', unit: '% das queries' },
-    { group: 'Erros', field: s.limits.slowEndpoints, label: 'Endpoints críticos', unit: 'endpoints' },
-    { group: 'Filas', field: s.limits.queuePending, label: 'Jobs pendentes', unit: 'jobs' },
-    { group: 'Crescimento', field: s.growth.growthFactor, label: 'Crescimento de utilizadores', unit: '× a média' },
-    { group: 'Crescimento', field: s.growth.storageGrowthFactor, label: 'Crescimento de storage', unit: '× a média' },
-    { group: 'Crescimento', field: s.growth.usersNearLimitMonths, label: 'Aviso de limite de utilizadores', unit: 'meses' },
+    {
+      group: 'Limites',
+      field: s.limits.memory,
+      label: 'Memória (RAM)',
+      unit: '%',
+    },
+    {
+      group: 'Limites',
+      field: s.limits.storage,
+      label: 'Storage',
+      unit: '% do plano',
+    },
+    {
+      group: 'Limites',
+      field: s.limits.dbConnections,
+      label: 'Ligações à BD',
+      unit: '%',
+    },
+    {
+      group: 'Latência',
+      field: s.limits.latencyP95Ms,
+      label: 'Latência P95',
+      unit: 'ms',
+    },
+    {
+      group: 'Latência',
+      field: s.limits.latencyP99Ms,
+      label: 'Latência P99',
+      unit: 'ms',
+    },
+    {
+      group: 'Erros',
+      field: s.limits.errorRate,
+      label: 'Taxa de erros 5xx',
+      unit: '%',
+    },
+    {
+      group: 'Erros',
+      field: s.limits.slowQueryShare,
+      label: 'Queries lentas',
+      unit: '% das queries',
+    },
+    {
+      group: 'Erros',
+      field: s.limits.slowEndpoints,
+      label: 'Endpoints críticos',
+      unit: 'endpoints',
+    },
+    {
+      group: 'Filas',
+      field: s.limits.queuePending,
+      label: 'Jobs pendentes',
+      unit: 'jobs',
+    },
+    {
+      group: 'Crescimento',
+      field: s.growth.growthFactor,
+      label: 'Crescimento de utilizadores',
+      unit: '× a média',
+    },
+    {
+      group: 'Crescimento',
+      field: s.growth.storageGrowthFactor,
+      label: 'Crescimento de storage',
+      unit: '× a média',
+    },
+    {
+      group: 'Crescimento',
+      field: s.growth.usersNearLimitMonths,
+      label: 'Aviso de limite de utilizadores',
+      unit: 'meses',
+    },
   ];
 }
 
@@ -323,7 +405,9 @@ function SettingsForm({
   const [thresholds, setThresholds] = useState<Record<string, string>>(() =>
     Object.fromEntries(rows.map((r) => [r.field.key, String(r.field.value)])),
   );
-  const [maxUsers, setMaxUsers] = useState(String(data.limits.maxConcurrentUsers));
+  const [maxUsers, setMaxUsers] = useState(
+    String(data.limits.maxConcurrentUsers),
+  );
   const [maxRps, setMaxRps] = useState(String(data.limits.maxApiRps));
   const [retention, setRetention] = useState(
     String(data.retention.metricRetentionDays),
@@ -392,7 +476,9 @@ function SettingsForm({
       const start = new Date(w.startsAt);
       const end = new Date(w.endsAt);
       if (!(end.getTime() > start.getTime()))
-        return setError(`Janela "${w.name}": o fim tem de ser posterior ao início.`);
+        return setError(
+          `Janela "${w.name}": o fim tem de ser posterior ao início.`,
+        );
       wins.push({
         id: w.id.startsWith('new-') ? undefined : w.id,
         name: w.name.trim(),
@@ -767,7 +853,10 @@ function SettingsForm({
           </p>
           <div className="flex flex-wrap gap-4">
             {data.grantableRoles.map((r) => (
-              <label key={r} className="flex items-center gap-2 font-body text-sm text-ink">
+              <label
+                key={r}
+                className="flex items-center gap-2 font-body text-sm text-ink"
+              >
                 <input
                   type="checkbox"
                   checked={roles.has(r)}

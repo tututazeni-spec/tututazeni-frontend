@@ -61,6 +61,7 @@ export function WhatIfPanel() {
   return (
     <div className="flex flex-col gap-4">
       <Header
+        banner
         title="Simulação de crescimento"
         sub="O que acontece se tivermos mais utilizadores? Extrapolação a partir do consumo actual."
       />

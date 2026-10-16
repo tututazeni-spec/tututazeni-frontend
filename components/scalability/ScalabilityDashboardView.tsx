@@ -13,16 +13,24 @@
 'use client';
 
 import { PeriodPills } from '@/components/ui/Pills';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { ThermometerStatCard } from '@/components/ui/charts/ThermometerStatCard';
+import {
+  INVERSE_RATE_BANDS,
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import {
+  Activity,
   Bell,
   Boxes,
   Database,
@@ -37,7 +45,16 @@ import {
   Siren,
   FlaskConical,
   Wallet,
+  Info,
   Pencil,
+  Clock,
+  Timer,
+  CalendarDays,
+  BarChart3,
+  TrendingUp,
+  RefreshCw,
+  RotateCcw,
+  TriangleAlert,
   Plug,
   Scaling,
   Server,
@@ -53,7 +70,12 @@ import { CreateRuleModal } from '@/components/automation/CreateRuleModal';
 import { ImportUsersModal } from './ImportUsersModal';
 import { NewIntegrationModal } from './NewIntegrationModal';
 import { LoadTestModal } from './LoadTestModal';
-import { AutoScalingTab, CapacityTab, ResilienceTab } from './InfraTabs';
+import {
+  AutoScalingTab,
+  CapacityTab,
+  CardTitleBar,
+  ResilienceTab,
+} from './InfraTabs';
 import { ForecastsTab, IncidentsTab } from './IncidentsForecastsTabs';
 import {
   AlertRulesSection,
@@ -145,9 +167,18 @@ const INTENT_TEXT: Record<StateIntent, string> = {
 interface SectionHeaderProps {
   title: string;
   sub?: string;
+  /** Faixa #0F1F3D a 60% com letra branca (sem efeito de cursor). */
+  banner?: boolean;
 }
 
-function SectionHeader({ title, sub }: SectionHeaderProps) {
+function SectionHeader({ title, sub, banner = false }: SectionHeaderProps) {
+  if (banner)
+    return (
+      <div className="rounded-card bg-[#0F1F3D]/60 px-5 py-3 text-white">
+        <h2 className="font-display text-lg font-bold">{title}</h2>
+        {sub && <p className="mt-1 font-body text-sm text-white/80">{sub}</p>}
+      </div>
+    );
   return (
     <div>
       <h2 className="font-display text-lg font-bold text-ink">{title}</h2>
@@ -188,6 +219,78 @@ function ThresholdBar({ pct, state, className }: ThresholdBarProps) {
   );
 }
 
+// Taxa de erro (escala 0–5%): mais baixo é melhor.
+const ERROR_RATE_BANDS = [
+  { to: 1, color: '#2f9e63' },
+  { to: 2, color: '#8fc23f' },
+  { to: 3, color: '#f1c40f' },
+  { to: 4, color: '#e67e22' },
+  { to: 5, color: '#c0392b' },
+];
+
+// Cards "Crescimento" (public/images/crescimento diario…): fundo sólido,
+// ícone em círculo, valor grande, variação e traço de tendência decorativo.
+const GROWTH_TONES = {
+  blue: 'bg-[#1E4A9E]',
+  green: 'bg-[#1F8A5F]',
+  purple: 'bg-[#4B2FA3]',
+} as const;
+
+function GrowthCard({
+  icon: Icon,
+  tone,
+  label,
+  value,
+  chip,
+  caption,
+}: {
+  icon: typeof Users;
+  tone: keyof typeof GROWTH_TONES;
+  label: string;
+  value: string;
+  /** Linha de variação (com ▲); omitida quando não há dados. */
+  chip?: string;
+  caption: string;
+}) {
+  return (
+    <div
+      className={cn(
+        'relative flex min-h-[155px] flex-col justify-between overflow-hidden rounded-panel p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100',
+        GROWTH_TONES[tone],
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
+          <Icon className="h-5 w-5" strokeWidth={2} aria-hidden />
+        </span>
+        <h3 className="font-body text-sm font-semibold">{label}</h3>
+      </div>
+      <div>
+        <p className="font-display text-4xl font-bold leading-none">{value}</p>
+        {chip && (
+          <p className="mt-3 flex items-center gap-1 font-body text-xs font-semibold text-[#6EE7A8]">
+            <span aria-hidden>▲</span> {chip}
+          </p>
+        )}
+        <p className="mt-0.5 font-body text-xs text-white/80">{caption}</p>
+      </div>
+      <svg
+        aria-hidden
+        viewBox="0 0 100 50"
+        className="absolute bottom-4 right-4 h-12 w-24 text-white"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polyline points="2,44 22,30 36,36 56,18 70,24 94,4" />
+        <polyline points="82,4 94,4 94,16" />
+      </svg>
+    </div>
+  );
+}
+
 interface MetricTileProps {
   label: string;
   value: string | number;
@@ -197,6 +300,8 @@ interface MetricTileProps {
   barMax?: number;
   barWarn?: number;
   barDanger?: number;
+  /** Rótulo num cabeçalho navy (#0F1F3D a 60%) em vez de texto solto. */
+  headed?: boolean;
 }
 
 function MetricTile({
@@ -208,6 +313,7 @@ function MetricTile({
   barMax,
   barWarn,
   barDanger,
+  headed = false,
 }: MetricTileProps) {
   const hasBar = barValue !== undefined && barMax !== undefined;
   const pct = hasBar ? (barValue! / barMax!) * 100 : 0;
@@ -220,11 +326,14 @@ function MetricTile({
     barValue >= barWarn;
 
   return (
-    <Card>
+    <Card className={headed ? 'overflow-hidden' : undefined}>
+      {headed && <CardTitleBar>{label}</CardTitleBar>}
       <CardBody>
-        <p className="font-body text-xs font-medium uppercase tracking-wide text-ink-muted">
-          {label}
-        </p>
+        {!headed && (
+          <p className="font-body text-xs font-medium uppercase tracking-wide text-ink-muted">
+            {label}
+          </p>
+        )}
         <p className="mt-1 font-display text-2xl font-bold text-ink">
           {value}
           {unit && (
@@ -261,11 +370,11 @@ interface StatusCardProps {
 
 function StatusCard({ title, rows }: StatusCardProps) {
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <h3 className="flex items-center bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+        {title}
+      </h3>
       <CardBody>
-        <p className="mb-4 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-          {title}
-        </p>
         <div className="flex flex-col gap-2.5">
           {rows.map((r, i) => (
             <div key={i} className="flex items-center justify-between">
@@ -354,8 +463,15 @@ function capacityState(pct: number): {
   return { label: 'Saudável', intent: 'success' };
 }
 
-function CapacityIndicator({ data }: { data: DashboardData }) {
+function CapacityIndicator({
+  data,
+  onRename,
+}: {
+  data: DashboardData;
+  onRename: () => void;
+}) {
   const { tenantInfo: t, performanceSummary: p } = data;
+  const gid = useId();
   // A capacidade global é ditada pelo recurso mais utilizado (o gargalo).
   const resources = [
     { name: 'CPU', pct: p.cpuUsagePercent },
@@ -371,36 +487,132 @@ function CapacityIndicator({ data }: { data: DashboardData }) {
   const estimate = data.capacityEstimate;
   const supported = estimate?.concurrentUsers ?? null;
 
+  const statusColor =
+    state.intent === 'danger'
+      ? '#F87171'
+      : state.intent === 'warning'
+        ? '#FBBF24'
+        : '#34D399';
+
+  const size = 120;
+  const stroke = 16;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+
   return (
-    <Card>
-      <CardBody>
-        <div className="flex items-center justify-between gap-3">
-          <p className="font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Capacidade da INNOVA
-          </p>
-          <Badge intent={state.intent} dot={false}>
-            {state.label}
-          </Badge>
+    <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="mb-2 flex items-center gap-3">
+        <Server className="h-6 w-6" strokeWidth={1.8} aria-hidden />
+        <h3 className="font-display text-base font-bold uppercase tracking-wide">
+          Tenant activo e capacidade
+        </h3>
+      </div>
+
+      <div className="flex flex-col items-center gap-4 md:flex-row md:gap-8">
+        <div className="relative shrink-0" style={{ width: size, height: size }}>
+          <svg
+            width={size}
+            height={size}
+            viewBox={`0 0 ${size} ${size}`}
+            role="img"
+            aria-label={`Capacidade da INNOVA: ${pct}%`}
+            className="-rotate-90"
+          >
+            <defs>
+              <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#7CC4FF" />
+                <stop offset="100%" stopColor="#2F80ED" />
+              </linearGradient>
+            </defs>
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={r}
+              fill="none"
+              stroke="rgba(255,255,255,0.12)"
+              strokeWidth={stroke}
+            />
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={r}
+              fill="none"
+              stroke={`url(#${gid})`}
+              strokeWidth={stroke}
+              strokeLinecap="round"
+              strokeDasharray={`${(pct / 100) * circ} ${circ}`}
+            />
+          </svg>
+          <span className="absolute inset-0 flex items-center justify-center font-display text-2xl font-bold">
+            {pct}%
+          </span>
         </div>
-        <p className="mt-2 font-display text-3xl font-bold text-ink">{pct}%</p>
-        <ThresholdBar pct={pct} state={state.bar} className="mt-3" />
-        <p className="mt-3 font-body text-sm text-ink-muted">
+
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <p className="font-display text-xl font-bold leading-snug">
+              {t.tenantName}
+            </p>
+            <button
+              type="button"
+              onClick={onRename}
+              aria-label="Editar nome da empresa"
+              className="rounded-control p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7CC4FF]"
+            >
+              <Pencil size={16} strokeWidth={1.75} />
+            </button>
+            <span className="rounded-full bg-white/15 px-2.5 py-0.5 font-body text-xs font-semibold">
+              {t.plan}
+            </span>
+          </div>
+          <div className="flex flex-wrap items-stretch gap-x-8 gap-y-2">
+            <div>
+              <p className="font-body text-sm text-white/70">Estado</p>
+              <p
+                className="mt-1 flex items-center gap-2 font-display text-xl font-semibold"
+                style={{ color: statusColor }}
+              >
+                <span
+                  className="h-4 w-4 rounded-full"
+                  style={{ backgroundColor: statusColor }}
+                />
+                {state.label}
+              </p>
+            </div>
+            <div className="hidden w-px bg-white/20 sm:block" />
+            <div>
+              <p className="font-body text-sm text-white/70">
+                Utilizadores simultâneos
+              </p>
+              <p className="font-display text-2xl font-bold">
+                {supported !== null ? supported.toLocaleString() : '–'}
+              </p>
+            </div>
+            <div className="hidden w-px bg-white/20 sm:block" />
+            <div>
+              <p className="font-body text-sm text-white/70">
+                Recurso mais utilizado
+              </p>
+              <p className="font-display text-xl font-bold capitalize">
+                {bottleneck.name}
+              </p>
+              <p className="font-body text-xs text-white/70">{pct}% em uso</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-3 flex items-center gap-3 rounded-card bg-white/10 px-4 py-2 font-body text-sm">
+        <Info className="h-5 w-5 shrink-0 text-[#7CC4FF]" aria-hidden />
+        <span>
           {supported !== null
             ? `A infraestrutura atual suporta aproximadamente ${supported.toLocaleString()} utilizadores simultâneos nas condições atuais.`
             : 'Estimativa de capacidade indisponível.'}
-        </p>
-        {estimate && (
-          <p className="mt-1 font-body text-xs text-ink-faint">
-            {estimate.method === 'MEASURED' ? 'Valor medido' : 'Estimativa teórica'}
-            {' — '}
-            {estimate.basis}
-          </p>
-        )}
-        <p className="mt-1 font-body text-xs text-ink-faint">
-          Recurso mais utilizado: {bottleneck.name} ({pct}%)
-        </p>
-      </CardBody>
-    </Card>
+          {estimate &&
+            ` ${estimate.method === 'MEASURED' ? 'Valor medido' : 'Estimativa teórica'} — ${estimate.basis}`}
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -652,30 +864,7 @@ function OverviewTab({ data, charts }: OverviewTabProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Tenant banner */}
-      <div className="flex items-center justify-between rounded-panel border border-border bg-surface p-6">
-        <div>
-          <p className="mb-1 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Tenant Activo
-          </p>
-          <div className="flex items-center gap-2">
-            <p className="font-display text-2xl font-bold text-ink">
-              {t.tenantName}
-            </p>
-            <button
-              type="button"
-              onClick={() => setRenaming(true)}
-              aria-label="Editar nome da empresa"
-              className="rounded-control p-1 text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            >
-              <Pencil size={16} strokeWidth={1.75} />
-            </button>
-          </div>
-        </div>
-        <Badge intent="neutral" dot={false}>
-          {t.plan}
-        </Badge>
-      </div>
+      <CapacityIndicator data={data} onRename={() => setRenaming(true)} />
 
       {renaming && (
         <RenameTenantModal
@@ -694,101 +883,89 @@ function OverviewTab({ data, charts }: OverviewTabProps) {
         </div>
       )}
 
-      <CapacityIndicator data={data} />
-
       {/* Primary metrics */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricTile
+        <NavyStatCard
+          icon={Users}
+          tone="blue"
           label="Utilizadores Registados"
           value={(t.registeredUsersCount ?? t.activeUsersCount).toLocaleString()}
         />
-        <MetricTile
-          label="Utilizadores Activos"
-          value={t.activeUsersCount.toLocaleString()}
-          sub={`de ${t.maxUsers.toLocaleString()} licenças`}
-          barValue={userPct}
-          barMax={100}
-          barWarn={75}
-          barDanger={90}
-        />
-        <MetricTile
+        <NavyStatCard
+          icon={Boxes}
+          tone="green"
           label="Capacidade Estimada"
           value={t.maxUsers.toLocaleString()}
-          unit="utilizadores"
+          sub="utilizadores"
         />
-        <MetricTile
-          label="Utilização da Capacidade"
-          value={formatPercent(userPct, 0)}
-          sub={`${t.activeUsersCount.toLocaleString()} de ${t.maxUsers.toLocaleString()}`}
-          barValue={userPct}
-          barMax={100}
-          barWarn={75}
-          barDanger={90}
-        />
-        <MetricTile
-          label="CPU"
-          value={formatPercent(p.cpuUsagePercent, 0)}
-          barValue={p.cpuUsagePercent}
-          barMax={100}
-          barWarn={70}
-          barDanger={85}
-        />
-        <MetricTile
-          label="Memória"
-          value={formatPercent(p.memoryUsagePercent, 0)}
-          barValue={p.memoryUsagePercent}
-          barMax={100}
-          barWarn={75}
-          barDanger={90}
-        />
-        <MetricTile
-          label="Base de Dados"
-          value={formatPercent(p.dbUsagePercent ?? 0, 0)}
-          sub="ligações abertas / máximo"
-          barValue={p.dbUsagePercent ?? 0}
-          barMax={100}
-          barWarn={70}
-          barDanger={90}
-        />
-        <MetricTile
-          label="Uptime"
-          value={formatPercent(p.uptimePercent, 2)}
-          sub={`SLA: ≥${formatPercent(slaCompliance.slaTarget, 1)}`}
-          barValue={p.uptimePercent}
-          barMax={100}
-        />
-        <MetricTile
+        <NavyStatCard
+          icon={Gauge}
+          tone="orange"
           label="Latência Média"
-          value={p.avgLatencyMs}
-          unit="ms"
+          value={`${p.avgLatencyMs} ms`}
           sub={`Limite SLA: ${slaCompliance.latencyTarget}ms`}
-          barValue={p.avgLatencyMs}
-          barMax={slaCompliance.latencyTarget * 1.5}
-          barWarn={slaCompliance.latencyTarget * 0.7}
-          barDanger={slaCompliance.latencyTarget}
         />
-        <MetricTile
+        <NavyStatCard
+          icon={Activity}
+          tone="blue"
           label="Sessões Simultâneas"
           value={p.activeSessionsNow.toLocaleString()}
           sub="em tempo real"
         />
-        <MetricTile
-          label="Armazenamento"
-          value={`${t.storageUsedGb}GB`}
-          sub={`de ${t.maxStorageGb}GB`}
-          barValue={storagePct}
-          barMax={100}
-          barWarn={70}
-          barDanger={90}
+        <SpeedometerStatCard
+          label="Utilizadores Activos"
+          value={userPct}
+          bands={INVERSE_RATE_BANDS}
+          display={formatPercent(userPct, 0)}
+          caption={`${t.activeUsersCount.toLocaleString()} de ${t.maxUsers.toLocaleString()} licenças`}
         />
-        <MetricTile
+        <SpeedometerStatCard
+          label="Utilização da Capacidade"
+          value={userPct}
+          bands={INVERSE_RATE_BANDS}
+          display={formatPercent(userPct, 0)}
+          caption={`${t.activeUsersCount.toLocaleString()} de ${t.maxUsers.toLocaleString()}`}
+        />
+        <SpeedometerStatCard
+          label="CPU"
+          value={p.cpuUsagePercent}
+          bands={INVERSE_RATE_BANDS}
+          display={formatPercent(p.cpuUsagePercent, 0)}
+        />
+        <SpeedometerStatCard
+          label="Memória"
+          value={p.memoryUsagePercent}
+          bands={INVERSE_RATE_BANDS}
+          display={formatPercent(p.memoryUsagePercent, 0)}
+        />
+        <SpeedometerStatCard
+          label="Base de Dados"
+          value={p.dbUsagePercent ?? 0}
+          bands={INVERSE_RATE_BANDS}
+          display={formatPercent(p.dbUsagePercent ?? 0, 0)}
+          caption="ligações abertas / máximo"
+        />
+        <SpeedometerStatCard
+          label="Armazenamento"
+          value={storagePct}
+          bands={INVERSE_RATE_BANDS}
+          display={formatPercent(storagePct, 0)}
+          caption={`${t.storageUsedGb}GB de ${t.maxStorageGb}GB`}
+        />
+        <SpeedometerStatCard
+          label="Uptime"
+          value={p.uptimePercent}
+          bands={RATE_BANDS}
+          display={formatPercent(p.uptimePercent, 2)}
+          caption={`SLA: ≥${formatPercent(slaCompliance.slaTarget, 1)}`}
+        />
+        <SpeedometerStatCard
           label="Taxa de Erro"
-          value={formatPercent(p.errorRate, 2)}
-          sub="últimos 60 min"
-          barValue={p.errorRate}
-          barMax={5}
-          barWarn={1}
-          barDanger={3}
+          value={p.errorRate}
+          max={5}
+          bands={ERROR_RATE_BANDS}
+          display={formatPercent(p.errorRate, 2)}
+          caption="últimos 60 min"
         />
       </div>
 
@@ -880,7 +1057,10 @@ function PerformanceKpis({ perf }: { perf: PerformanceMetricsData }) {
       </div>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
         {perf.kpis.map((k) => (
-          <Card key={k.key}>
+          <Card
+            key={k.key}
+            className="transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100"
+          >
             <CardBody>
               <div className="flex items-center justify-between gap-2">
                 <span className="font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
@@ -983,6 +1163,7 @@ function PerformanceTab({ data, perf = null }: PerformanceTabProps) {
   return (
     <div className="flex flex-col gap-6">
       <SectionHeader
+        banner
         title="Performance em Tempo Real"
         sub="Últimos dados capturados pelo sistema de monitorização"
       />
@@ -997,12 +1178,10 @@ function PerformanceTab({ data, perf = null }: PerformanceTabProps) {
               ? 'warning'
               : undefined;
           return (
-            <Card key={m.label}>
+            <Card key={m.label} className="overflow-hidden">
+              <CardTitleBar>{m.label}</CardTitleBar>
               <CardBody>
-                <div className="mb-3 flex items-center justify-between">
-                  <span className="font-body text-sm font-semibold text-ink-muted">
-                    {m.label}
-                  </span>
+                <div className="mb-3 flex items-center justify-end">
                   <span
                     className={cn(
                       'font-display text-xl font-bold tabular-nums',
@@ -1085,36 +1264,63 @@ function IntegrationMetrics({ m }: { m: IntegrationMetricsData }) {
         sub={`Sincronizações das últimas ${m.windowHours}h`}
       />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <MetricTile
+        <NavyStatCard
+          icon={Plug}
+          tone="green"
           label="Integrações activas"
           value={`${t.active}/${t.total}`}
         />
-        <MetricTile
+        <NavyStatCard
+          icon={Activity}
+          tone="blue"
           label="Requests"
           value={fmt(t.requests)}
           sub="execuções de sync"
         />
-        <MetricTile label="Sincronizações" value={fmt(t.syncs)} />
-        <MetricTile
+        <NavyStatCard
+          icon={RefreshCw}
+          tone="blue"
+          label="Sincronizações"
+          value={fmt(t.syncs)}
+        />
+        <NavyStatCard
+          icon={TriangleAlert}
+          tone="red"
           label="Falhas"
           value={fmt(t.failures)}
           sub={`${t.errorRate}% de erro`}
         />
-        <MetricTile label="Latência média" value={lat(t.avgLatencyMs)} />
-        <MetricTile label="Retries" value={fmt(t.retries)} />
-        <MetricTile label="Jobs pendentes" value={fmt(t.pendingJobs)} />
-        <MetricTile
+        <NavyStatCard
+          icon={Gauge}
+          tone="orange"
+          label="Latência média"
+          value={lat(t.avgLatencyMs)}
+        />
+        <NavyStatCard
+          icon={RotateCcw}
+          tone="orange"
+          label="Novas tentativas"
+          value={fmt(t.retries)}
+        />
+        <NavyStatCard
+          icon={ListChecks}
+          tone="blue"
+          label="Tarefas pendentes"
+          value={fmt(t.pendingJobs)}
+        />
+        <NavyStatCard
+          icon={Database}
+          tone="green"
           label="Volume transferido"
           value={fmt(t.recordsTransferred)}
-          unit="registos"
-          sub="sem contagem de bytes"
+          sub="registos, sem contagem de bytes"
         />
       </div>
-      <Card>
+      <Card className="overflow-hidden">
+        <h3 className="flex items-center bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+          Por integração
+        </h3>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Por integração
-          </p>
           {m.integrations.length === 0 ? (
             <p className="font-body text-xs text-ink-faint">
               Sem integrações configuradas.
@@ -1386,6 +1592,16 @@ interface AlertsTabProps {
 
 type AlertFilter = 'ALL' | 'CRITICAL' | 'WARNING';
 
+const ALERT_FILTERS: Array<{
+  key: AlertFilter;
+  label: string;
+  icon: typeof Bell;
+}> = [
+  { key: 'ALL', label: 'Todos', icon: ListChecks },
+  { key: 'CRITICAL', label: 'Críticos', icon: TriangleAlert },
+  { key: 'WARNING', label: 'Avisos', icon: Bell },
+];
+
 function AlertsTab({ alerts, onResolve }: AlertsTabProps) {
   const [filter, setFilter] = useState<AlertFilter>('ALL');
   const shown =
@@ -1398,48 +1614,26 @@ function AlertsTab({ alerts, onResolve }: AlertsTabProps) {
           title="Alertas de Sistema"
           sub="Monitorização automática de performance, integrações e compliance"
         />
-        {/* Filtros secundários mantêm-se em estilo "pílula" — não são as
-            abas principais do módulo, e agora dispostos verticalmente. */}
-        <div className="flex flex-col gap-1 rounded-card bg-surface-sunken p-1">
-          <button
-            type="button"
-            onClick={() => setFilter('ALL')}
-            aria-pressed={filter === 'ALL'}
-            className={cn(
-              'rounded-pill px-3 py-1 font-body text-xs font-medium transition-colors',
-              filter === 'ALL'
-                ? 'bg-surface text-ink shadow-resting'
-                : 'text-ink-muted hover:text-ink',
-            )}
-          >
-            Todos
-          </button>
-          <button
-            type="button"
-            onClick={() => setFilter('CRITICAL')}
-            aria-pressed={filter === 'CRITICAL'}
-            className={cn(
-              'rounded-pill px-3 py-1 font-body text-xs font-medium transition-colors',
-              filter === 'CRITICAL'
-                ? 'bg-surface text-ink shadow-resting'
-                : 'text-ink-muted hover:text-ink',
-            )}
-          >
-            Críticos
-          </button>
-          <button
-            type="button"
-            onClick={() => setFilter('WARNING')}
-            aria-pressed={filter === 'WARNING'}
-            className={cn(
-              'rounded-pill px-3 py-1 font-body text-xs font-medium transition-colors',
-              filter === 'WARNING'
-                ? 'bg-surface text-ink shadow-resting'
-                : 'text-ink-muted hover:text-ink',
-            )}
-          >
-            Avisos
-          </button>
+        {/* Separadores no desenho do separador Talento (dashboard-rh):
+            moldura com borda, activo em navy #0F1F3D. */}
+        <div className="flex flex-col gap-1 rounded-panel border border-border bg-surface p-1.5 shadow-sm">
+          {ALERT_FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              onClick={() => setFilter(f.key)}
+              aria-pressed={filter === f.key}
+              className={cn(
+                'flex items-center justify-center gap-2 rounded-control px-3 py-1 font-body text-xs font-medium transition-colors',
+                filter === f.key
+                  ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                  : 'text-ink-muted hover:bg-surface-sunken hover:text-ink',
+              )}
+            >
+              <f.icon size={13} strokeWidth={1.75} />
+              {f.label}
+            </button>
+          ))}
         </div>
       </div>
       {shown.length === 0 && (
@@ -1504,9 +1698,14 @@ function SlaTab({ data, slaConfigs }: SlaTabProps) {
     100,
     (s.currentUptimePercent / s.slaTarget) * 100,
   );
-  const ringColor = s.isBreached
-    ? 'var(--color-danger)'
-    : 'var(--color-success)';
+  const slaGid = useId();
+  const statusColor = s.isBreached ? '#F87171' : '#34D399';
+  const slaRing = (() => {
+    const size = 120;
+    const stroke = 16;
+    const r = (size - stroke) / 2;
+    return { size, stroke, r, circ: 2 * Math.PI * r };
+  })();
 
   return (
     <div className="flex flex-col gap-6">
@@ -1528,40 +1727,102 @@ function SlaTab({ data, slaConfigs }: SlaTabProps) {
         <SlaConfigModal tenantId={t.id} onClose={() => setConfiguring(false)} />
       )}
 
-      {/* SLA score */}
-      <div className="flex items-center gap-8 rounded-panel border border-border bg-surface p-6">
-        <div
-          className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full"
-          style={{
-            background: `conic-gradient(${ringColor} ${complianceScore * 3.6}deg, var(--color-surface-sunken) 0deg)`,
-          }}
-        >
-          <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-surface font-display text-lg font-bold text-ink">
-            {complianceScore.toFixed(0)}%
+      {/* Conformidade SLA — desenho do card "ROI Total" */}
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="mb-2 flex items-center gap-3">
+          <ShieldCheck className="h-6 w-6" strokeWidth={1.8} aria-hidden />
+          <h3 className="font-display text-base font-bold uppercase tracking-wide">
+            Conformidade SLA
+          </h3>
+        </div>
+
+        <div className="flex flex-col items-center gap-4 md:flex-row md:gap-8">
+          <div
+            className="relative shrink-0"
+            style={{ width: slaRing.size, height: slaRing.size }}
+          >
+            <svg
+              width={slaRing.size}
+              height={slaRing.size}
+              viewBox={`0 0 ${slaRing.size} ${slaRing.size}`}
+              role="img"
+              aria-label={`Conformidade SLA: ${complianceScore.toFixed(0)}%`}
+              className="-rotate-90"
+            >
+              <defs>
+                <linearGradient id={slaGid} x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#7CC4FF" />
+                  <stop offset="100%" stopColor="#2F80ED" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx={slaRing.size / 2}
+                cy={slaRing.size / 2}
+                r={slaRing.r}
+                fill="none"
+                stroke="rgba(255,255,255,0.12)"
+                strokeWidth={slaRing.stroke}
+              />
+              <circle
+                cx={slaRing.size / 2}
+                cy={slaRing.size / 2}
+                r={slaRing.r}
+                fill="none"
+                stroke={`url(#${slaGid})`}
+                strokeWidth={slaRing.stroke}
+                strokeLinecap="round"
+                strokeDasharray={`${(complianceScore / 100) * slaRing.circ} ${slaRing.circ}`}
+                opacity={s.isBreached ? 0.55 : 1}
+              />
+            </svg>
+            <span className="absolute inset-0 flex items-center justify-center font-display text-2xl font-bold">
+              {complianceScore.toFixed(0)}%
+            </span>
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <p className="mb-2 font-display text-xl font-bold leading-snug">
+              Cumprimento do acordo de nível de serviço
+            </p>
+            <div className="flex flex-wrap items-stretch gap-x-8 gap-y-2">
+              <div>
+                <p className="font-body text-sm text-white/70">Estado</p>
+                <p
+                  className="mt-1 flex items-center gap-2 font-display text-xl font-semibold"
+                  style={{ color: statusColor }}
+                >
+                  <span
+                    className="h-4 w-4 rounded-full"
+                    style={{ backgroundColor: statusColor }}
+                  />
+                  {s.isBreached ? 'SLA Violado' : 'SLA Cumprido'}
+                </p>
+              </div>
+              <div className="hidden w-px bg-white/20 sm:block" />
+              <div>
+                <p className="font-body text-sm text-white/70">Uptime actual</p>
+                <p className="font-display text-2xl font-bold">
+                  {formatPercent(s.currentUptimePercent, 3)}
+                </p>
+              </div>
+              <div className="hidden w-px bg-white/20 sm:block" />
+              <div>
+                <p className="font-body text-sm text-white/70">Meta</p>
+                <p className="font-display text-xl font-bold">
+                  {formatPercent(s.slaTarget, 1)}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-        <div>
-          <p className="mb-1 font-body text-sm text-ink-muted">
-            Conformidade SLA
-          </p>
-          <p
-            className={cn(
-              'font-display text-2xl font-bold',
-              s.isBreached ? 'text-danger' : 'text-success',
-            )}
-          >
-            {s.isBreached ? 'SLA Violado' : 'SLA Cumprido'}
-          </p>
-          <p className="mt-1 font-body text-sm text-ink-muted">
-            Uptime actual:{' '}
-            <strong className="text-ink">
-              {formatPercent(s.currentUptimePercent, 3)}
-            </strong>{' '}
-            · Meta:{' '}
-            <strong className="text-ink">
-              {formatPercent(s.slaTarget, 1)}
-            </strong>
-          </p>
+
+        <div className="mt-3 flex items-center gap-3 rounded-card bg-white/10 px-4 py-2 font-body text-sm">
+          <Info className="h-5 w-5 shrink-0 text-[#7CC4FF]" aria-hidden />
+          <span>
+            {s.isBreached
+              ? `O uptime actual está abaixo da meta contratada de ${formatPercent(s.slaTarget, 1)}.`
+              : `O uptime actual cumpre a meta contratada de ${formatPercent(s.slaTarget, 1)}.`}
+          </span>
         </div>
       </div>
 
@@ -1718,20 +1979,25 @@ function UsersTab({ data, load }: UsersTabProps) {
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <MetricTile
+        <NavyStatCard
+          icon={Users}
+          tone="blue"
           label="Utilizadores Activos"
           value={t.activeUsersCount.toLocaleString()}
           sub={`de ${t.maxUsers.toLocaleString()} licenças`}
-          barValue={(t.activeUsersCount / t.maxUsers) * 100}
-          barMax={100}
-          barWarn={75}
-          barDanger={90}
         />
-        <MetricTile
+        <NavyStatCard
+          icon={Boxes}
+          tone="green"
           label="Licenças Disponíveis"
           value={(t.maxUsers - t.activeUsersCount).toLocaleString()}
         />
-        <MetricTile label="Plano Actual" value={t.plan} />
+        <NavyStatCard
+          icon={Scaling}
+          tone="orange"
+          label="Plano Actual"
+          value={t.plan}
+        />
       </div>
 
       {!load ? (
@@ -1742,39 +2008,55 @@ function UsersTab({ data, load }: UsersTabProps) {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <MetricTile
+            <NavyStatCard
+              icon={Users}
+              tone="blue"
               label="Total de utilizadores"
               value={fmt(load.totals.total)}
             />
-            <MetricTile
+            <NavyStatCard
+              icon={ShieldCheck}
+              tone="green"
               label="Utilizadores activos"
               value={fmt(load.totals.active)}
             />
-            <MetricTile
+            <NavyStatCard
+              icon={Activity}
+              tone="blue"
               label="Activos diariamente"
               value={fmt(load.totals.activeDaily)}
               sub="com sessão nas últimas 24h"
             />
-            <MetricTile
+            <NavyStatCard
+              icon={Activity}
+              tone="green"
               label="Activos mensalmente"
               value={fmt(load.totals.activeMonthly)}
               sub="com sessão nos últimos 30 dias"
             />
-            <MetricTile
+            <NavyStatCard
+              icon={Globe}
+              tone="orange"
               label="Simultâneos agora"
               value={fmt(load.concurrent.current)}
             />
-            <MetricTile
+            <NavyStatCard
+              icon={LineChart}
+              tone="red"
               label="Pico de simultâneos"
               value={fmt(load.concurrent.peak24h)}
               sub={`histórico: ${fmt(load.concurrent.historicPeak)}`}
             />
-            <MetricTile
+            <NavyStatCard
+              icon={Workflow}
+              tone="blue"
               label="Média de sessões"
               value={load.sessions.avgPerUser30d.toLocaleString()}
               sub="logins por utilizador activo / 30d"
             />
-            <MetricTile
+            <NavyStatCard
+              icon={Gauge}
+              tone="orange"
               label="Duração média da sessão"
               value={
                 load.sessions.avgDurationMinutes === null
@@ -1787,7 +2069,9 @@ function UsersTab({ data, load }: UsersTabProps) {
                   : undefined
               }
             />
-            <MetricTile
+            <NavyStatCard
+              icon={Server}
+              tone="green"
               label="Requests por utilizador"
               value={
                 load.sessions.requestsPerUserPerMin === null
@@ -1800,20 +2084,29 @@ function UsersTab({ data, load }: UsersTabProps) {
                   : undefined
               }
             />
-            <MetricTile
-              label="Crescimento diário"
-              value={`+${fmt(load.growth.daily.newUsers)}`}
-              sub={growthSub(load.growth.daily)}
+            <GrowthCard
+              icon={TrendingUp}
+              tone="blue"
+              label="Crescimento Diário"
+              value={`+${load.growth.daily.percent}%`}
+              chip={`+${load.growth.daily.newUsers.toLocaleString()} novos`}
+              caption="da base de utilizadores, hoje"
             />
-            <MetricTile
-              label="Crescimento mensal"
-              value={`+${fmt(load.growth.monthly.newUsers)}`}
-              sub={growthSub(load.growth.monthly)}
+            <GrowthCard
+              icon={CalendarDays}
+              tone="green"
+              label="Crescimento Mensal"
+              value={`+${load.growth.monthly.percent}%`}
+              chip={`+${load.growth.monthly.newUsers.toLocaleString()} novos`}
+              caption="da base de utilizadores, este mês"
             />
-            <MetricTile
-              label="Crescimento anual"
-              value={`+${fmt(load.growth.yearly.newUsers)}`}
-              sub={growthSub(load.growth.yearly)}
+            <GrowthCard
+              icon={BarChart3}
+              tone="purple"
+              label="Crescimento Anual"
+              value={`+${load.growth.yearly.percent}%`}
+              chip={`+${load.growth.yearly.newUsers.toLocaleString()} novos`}
+              caption="da base de utilizadores, este ano"
             />
           </div>
 
@@ -1857,11 +2150,9 @@ function UsersTab({ data, load }: UsersTabProps) {
             </CardBody>
           </Card>
 
-          <Card>
+          <Card className="overflow-hidden">
+            <CardTitleBar>Segmentação</CardTitleBar>
             <CardBody>
-              <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                Segmentação
-              </p>
               <div className="mb-4 flex flex-wrap gap-2">
                 {SEGMENT_TABS.map((s) => (
                   <button
@@ -1891,23 +2182,22 @@ function UsersTab({ data, load }: UsersTabProps) {
       )}
 
       {/* Role grid */}
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Perfis de Acesso (RBAC)</CardTitleBar>
         <CardBody>
-          <p className="mb-4 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Perfis de Acesso (RBAC)
-          </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { role: 'Admin', desc: 'Acesso total à plataforma' },
-              { role: 'RH', desc: 'Gestão de utilizadores e relatórios' },
-              { role: 'Gestor', desc: 'Equipa e relatórios de departamento' },
-              { role: 'Instrutor', desc: 'Criação e gestão de conteúdo' },
-              { role: 'Colaborador', desc: 'Acesso a cursos e trilhas' },
-              { role: 'Auditor', desc: 'Leitura de logs e compliance' },
+              { role: 'Admin', color: '#EF4657', desc: 'Acesso total à plataforma' },
+              { role: 'RH', color: '#1877F2', desc: 'Gestão de utilizadores e relatórios' },
+              { role: 'Gestor', color: '#E99A16', desc: 'Equipa e relatórios de departamento' },
+              { role: 'Instrutor', color: '#7C3AED', desc: 'Criação e gestão de conteúdo' },
+              { role: 'Colaborador', color: '#218653', desc: 'Acesso a cursos e trilhas' },
+              { role: 'Auditor', color: '#0F766E', desc: 'Leitura de logs e compliance' },
             ].map((r) => (
               <div
                 key={r.role}
-                className="rounded-card border border-border border-l-2 border-l-border-strong bg-surface p-3"
+                className="rounded-card border border-border border-l-4 bg-surface p-3"
+                style={{ borderLeftColor: r.color }}
               >
                 <p className="font-body text-sm font-semibold text-ink">
                   {r.role}
@@ -2081,11 +2371,9 @@ function FrontendPerfSection({ data }: { data: FrontendMetricsData | null }) {
         </div>
       )}
 
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Páginas críticas</CardTitleBar>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Páginas críticas
-          </p>
           <PageTable
             rows={data.criticalPages.map((p) => ({
               key: p.path,
@@ -2097,11 +2385,9 @@ function FrontendPerfSection({ data }: { data: FrontendMetricsData | null }) {
       </Card>
 
       {!noData && (
-        <Card>
+        <Card className="overflow-hidden">
+          <CardTitleBar>Tempo de carregamento por página</CardTitleBar>
           <CardBody>
-            <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-              Tempo de carregamento por página
-            </p>
             {data.slowPages.length > 0 && (
               <p className="mb-3 font-body text-xs text-ink-muted">
                 {data.slowPages.length} página(s) lentas detectadas (≥ 3
@@ -2303,10 +2589,13 @@ function ApiTab({ api }: { api: ApiMetricsData | null }) {
         <MetricTile label="P50" value={`${api.totals.p50Ms} ms`} />
         <MetricTile label="P95" value={`${api.totals.p95Ms} ms`} />
         <MetricTile label="P99" value={`${api.totals.p99Ms} ms`} />
-        <MetricTile
+        <ThermometerStatCard
           label="Taxa de erro"
-          value={`${api.totals.errorRate}%`}
-          sub="4xx + 5xx sobre o total"
+          // escala 0–5% do erro mapeada para 0–100 do termómetro
+          value={(api.totals.errorRate / 5) * 100}
+          bands={INVERSE_RATE_BANDS}
+          display={`${api.totals.errorRate}%`}
+          caption="4xx + 5xx sobre o total"
         />
         <MetricTile label="HTTP 4xx" value={fmt(api.totals.http4xx)} />
         <MetricTile
@@ -2340,11 +2629,9 @@ function ApiTab({ api }: { api: ApiMetricsData | null }) {
         />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Por endpoint</CardTitleBar>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Por endpoint
-          </p>
           {api.endpoints.length === 0 ? (
             <EmptyState
               title="Sem pedidos registados"
@@ -2419,13 +2706,17 @@ function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
   const rate = (v: number | null, unit: string) =>
     v === null ? '—' : `${v.toLocaleString()}${unit}`;
   const growthTile = (
+    icon: typeof Users,
+    tone: keyof typeof GROWTH_TONES,
     label: string,
     g: DatabaseMetricsData['growth']['daily'],
   ) => (
-    <MetricTile
+    <GrowthCard
+      icon={icon}
+      tone={tone}
       label={label}
       value={g ? `${g.growthGb >= 0 ? '+' : ''}${g.growthGb} GB` : '—'}
-      sub={g ? `${g.coverageDays} dias de histórico` : 'a acumular histórico'}
+      caption={g ? `${g.coverageDays} dias de histórico` : 'a acumular histórico'}
     />
   );
   const series = db.growth.series[win];
@@ -2499,11 +2790,9 @@ function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
         />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Queries lentas</CardTitleBar>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Queries lentas
-          </p>
           {db.slowQueries === null ? (
             <EmptyState
               title="pg_stat_statements não está instalada"
@@ -2541,11 +2830,9 @@ function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
       </Card>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
+        <Card className="overflow-hidden">
+          <CardTitleBar>Tabelas maiores</CardTitleBar>
           <CardBody>
-            <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-              Tabelas maiores
-            </p>
             <table className="w-full font-body text-sm">
               <tbody>
                 {db.largestTables.map((t) => (
@@ -2559,11 +2846,9 @@ function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
             </table>
           </CardBody>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
+          <CardTitleBar>Tabelas que mais crescem</CardTitleBar>
           <CardBody>
-            <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-              Tabelas que mais crescem
-            </p>
             {db.growth.growingTables.length === 0 ? (
               <p className="font-body text-xs text-ink-faint">
                 A acumular histórico — aparece após duas ou mais amostras horárias com crescimento.
@@ -2584,11 +2869,9 @@ function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
         </Card>
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Índices inutilizados</CardTitleBar>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Índices inutilizados
-          </p>
           {db.indexes.unused.length === 0 ? (
             <p className="font-body text-xs text-ink-faint">
               Nenhum índice sem leituras (excluindo únicos e chaves primárias).
@@ -2610,14 +2893,21 @@ function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
       </Card>
 
       {/* §9 Crescimento da base de dados */}
-      <SectionHeader
-        title="Crescimento da base de dados"
-        sub="Database Growth — amostra horária do tamanho da BD"
-      />
+      <div className="overflow-hidden rounded-card bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] px-5 py-3 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="flex items-center gap-3">
+          <Database className="h-6 w-6 shrink-0 text-[#7CC4FF]" strokeWidth={1.8} aria-hidden />
+          <h2 className="font-display text-lg font-bold">
+            Crescimento da base de dados
+          </h2>
+        </div>
+        <p className="mt-1 font-body text-sm text-white/80">
+          Database Growth — amostra horária do tamanho da BD
+        </p>
+      </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {growthTile('Crescimento diário', db.growth.daily)}
-        {growthTile('Crescimento mensal', db.growth.monthly)}
-        {growthTile('Crescimento anual', db.growth.yearly)}
+        {growthTile(TrendingUp, 'blue', 'Crescimento Diário', db.growth.daily)}
+        {growthTile(CalendarDays, 'green', 'Crescimento Mensal', db.growth.monthly)}
+        {growthTile(BarChart3, 'purple', 'Crescimento Anual', db.growth.yearly)}
       </div>
       <Card>
         <CardBody>
@@ -2649,11 +2939,9 @@ function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
           )}
         </CardBody>
       </Card>
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Previsão</CardTitleBar>
         <CardBody>
-          <p className="mb-2 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Previsão
-          </p>
           {f ? (
             <ul className="font-body text-sm text-ink">
               <li>Base de dados atual: {f.currentGb} GB</li>
@@ -2681,11 +2969,22 @@ function formatDuration(ms: number | null): string {
   return ms >= 1000 ? `${(ms / 1000).toFixed(1)} s` : `${ms} ms`;
 }
 
+// Nomes em português dos domínios síncronos (o backend devolve-os em inglês).
+const SYNC_DOMAIN_LABELS: Record<string, string> = {
+  Processes: 'Processos',
+  Payroll: 'Folha de pagamento',
+  Reports: 'Relatórios',
+  Imports: 'Importações',
+  Exports: 'Exportações',
+  'AI Tutor': 'Tutor de IA',
+  'Avatar Training': 'Formação com avatar',
+};
+
 function QueuesTab({ queues }: { queues: QueueMetricsData | null }) {
   if (!queues) {
     return (
       <EmptyState
-        title="A carregar filas e jobs"
+        title="A carregar filas e tarefas"
         description="Os indicadores aparecem aqui assim que estiverem disponíveis."
       />
     );
@@ -2703,8 +3002,8 @@ function QueuesTab({ queues }: { queues: QueueMetricsData | null }) {
   return (
     <div className="flex flex-col gap-6">
       <SectionHeader
-        title="Filas & Jobs"
-        sub="Filas Bull (Redis) e jobs persistidos em base de dados"
+        title="Filas & Tarefas"
+        sub="Filas Bull (Redis) e tarefas persistidas em base de dados"
       />
       {queues.mode === 'SYNC' && (
         <Card>
@@ -2721,40 +3020,43 @@ function QueuesTab({ queues }: { queues: QueueMetricsData | null }) {
           <CardBody>
             <p className="font-body text-sm text-danger">
               Redis indisponível — as filas Bull não responderam. Os valores
-              abaixo incluem apenas os jobs guardados em base de dados.
+              abaixo incluem apenas as tarefas guardadas em base de dados.
             </p>
           </CardBody>
         </Card>
       )}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <MetricTile label="Jobs executados" value={fmt(t.executed)} />
-        <MetricTile label="Jobs pendentes" value={fmt(t.pending)} />
-        <MetricTile label="Jobs em execução" value={fmt(t.running)} />
-        <MetricTile label="Jobs falhados" value={fmt(t.failed)} />
-        <MetricTile label="Jobs atrasados" value={fmt(t.delayed)} />
-        <MetricTile
+        <NavyStatCard icon={ListChecks} tone="green" label="Tarefas executadas" value={fmt(t.executed)} />
+        <NavyStatCard icon={Clock} tone="orange" label="Tarefas pendentes" value={fmt(t.pending)} />
+        <NavyStatCard icon={Workflow} tone="blue" label="Tarefas em execução" value={fmt(t.running)} />
+        <NavyStatCard icon={TriangleAlert} tone="red" label="Tarefas falhadas" value={fmt(t.failed)} />
+        <NavyStatCard icon={Timer} tone="orange" label="Tarefas atrasadas" value={fmt(t.delayed)} />
+        <NavyStatCard
+          icon={Gauge}
+          tone="blue"
           label="Tempo médio de execução"
           value={formatDuration(t.avgDurationMs)}
         />
-        <MetricTile
+        <NavyStatCard
+          icon={Activity}
+          tone="green"
           label="Throughput"
           value={t.throughputPerMin.toLocaleString()}
-          unit="jobs/min"
-          sub="filas Bull, últimos 5 min"
+          sub="tarefas/min · filas Bull, últimos 5 min"
         />
-        <MetricTile label="Tamanho da fila" value={fmt(t.queueSize)} />
-        <MetricTile
-          label="Retry count"
+        <NavyStatCard icon={Boxes} tone="blue" label="Tamanho da fila" value={fmt(t.queueSize)} />
+        <NavyStatCard
+          icon={RotateCcw}
+          tone="orange"
+          label="Novas tentativas"
           value={fmt(t.retries)}
           sub="tentativas além da primeira"
         />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Queue Depth</CardTitleBar>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Queue Depth
-          </p>
           {points.length < 2 ? (
             <EmptyState
               title="Histórico insuficiente"
@@ -2762,23 +3064,21 @@ function QueuesTab({ queues }: { queues: QueueMetricsData | null }) {
             />
           ) : (
             <AreaLineChart
-              series={[{ label: 'Jobs em espera', points }]}
+              series={[{ label: 'Tarefas em espera', points }]}
               yFormat={(v) => `${v}`}
             />
           )}
           <p className="mt-3 font-body text-xs text-ink-faint">
-            Jobs em espera + atrasados nas filas Bull, últimas{' '}
+            Tarefas em espera + atrasadas nas filas Bull, últimas{' '}
             {queues.historyHours} h. O histórico é guardado em memória e
             reinicia com o servidor.
           </p>
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Por fila</CardTitleBar>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Por fila
-          </p>
           <div className="overflow-x-auto">
             <table className="w-full font-body text-sm">
               <thead>
@@ -2844,11 +3144,9 @@ function QueuesTab({ queues }: { queues: QueueMetricsData | null }) {
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Tarefas em base de dados (últimas 24 h)</CardTitleBar>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Jobs em base de dados (últimas 24 h)
-          </p>
           <div className="overflow-x-auto">
             <table className="w-full font-body text-sm">
               <thead>
@@ -2889,8 +3187,8 @@ function QueuesTab({ queues }: { queues: QueueMetricsData | null }) {
             </table>
           </div>
           <p className="mt-3 font-body text-xs text-ink-faint">
-            Sem fila nem registo de jobs (executam de forma síncrona):{' '}
-            {queues.synchronousDomains.join(', ')}.
+            Sem fila nem registo de tarefas (executam de forma síncrona):{' '}
+            {queues.synchronousDomains.map((d) => SYNC_DOMAIN_LABELS[d] ?? d).join(', ')}.
           </p>
         </CardBody>
       </Card>
@@ -2913,11 +3211,9 @@ function StorageBreakdown({
   rows: StorageMetricsData['byModule'];
 }) {
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <CardTitleBar>{title}</CardTitleBar>
       <CardBody>
-        <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-          {title}
-        </p>
         {rows.length === 0 ? (
           <p className="font-body text-xs text-ink-faint">Sem ficheiros registados.</p>
         ) : (
@@ -2995,6 +3291,7 @@ function StorageTab({ storage }: { storage: StorageMetricsData | null }) {
           }
         />
         <MetricTile
+          headed
           label="Crescimento mensal"
           value={`${storage.monthlyGrowthMb >= 0 ? '+' : ''}${formatSize(storage.monthlyGrowthMb)}`}
           sub="carregado no último mês com dados"
@@ -3005,11 +3302,9 @@ function StorageTab({ storage }: { storage: StorageMetricsData | null }) {
         />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Crescimento acumulado</CardTitleBar>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Crescimento acumulado
-          </p>
           {growthPoints.length < 2 ? (
             <EmptyState
               title="Histórico insuficiente"
@@ -3031,11 +3326,9 @@ function StorageTab({ storage }: { storage: StorageMetricsData | null }) {
         <StorageBreakdown title="Storage por unidade" rows={storage.byUnit} />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <CardTitleBar>Maiores ficheiros</CardTitleBar>
         <CardBody>
-          <p className="mb-3 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-            Maiores ficheiros
-          </p>
           {storage.largestFiles.length === 0 ? (
             <p className="font-body text-xs text-ink-faint">
               Sem ficheiros com tamanho registado.
@@ -3088,7 +3381,7 @@ const TABS: PillTabItem[] = [
   { id: 'api', label: 'API & Backend', hint: 'Pedidos e rotas', icon: Server },
   { id: 'database', label: 'Base de Dados', hint: 'Consultas e ligações', icon: Database },
   { id: 'content', label: 'Conteúdo & CDN', hint: 'Entrega de conteúdo', icon: Globe },
-  { id: 'queues', label: 'Filas & Jobs', hint: 'Tarefas em fila', icon: ListChecks },
+  { id: 'queues', label: 'Filas & Tarefas', hint: 'Tarefas em fila', icon: ListChecks },
   { id: 'storage', label: 'Storage', hint: 'Espaço e ficheiros', icon: HardDrive },
   { id: 'capacity', label: 'Capacidade', hint: 'Recursos disponíveis', icon: Boxes },
   { id: 'autoscaling', label: 'Auto Scaling', hint: 'Escala automática', icon: Scaling },

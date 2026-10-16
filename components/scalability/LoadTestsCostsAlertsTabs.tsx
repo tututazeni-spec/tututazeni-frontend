@@ -7,6 +7,9 @@
 'use client';
 
 import { useState } from 'react';
+import { CalendarClock, CircleCheck, Gauge } from 'lucide-react';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -17,7 +20,7 @@ import { FormField } from '@/components/ui/FormField';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
-import { Header, Note, Tile, fmt } from './InfraTabs';
+import { CardTitleBar, Header, Note, Tile, fmt } from './InfraTabs';
 import type {
   AlertRule,
   AlertRuleGroup,
@@ -529,21 +532,34 @@ export function LoadTestsTab({
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <NavyStatCard
+          icon={CircleCheck}
+          tone="green"
           label="Concluídos"
           value={s.completed}
           sub={`${s.total} no total`}
         />
-        <Tile label="Planeados" value={s.planned} />
-        <Tile
-          label="Taxa de aprovação"
-          value={s.passRatePercent}
-          unit={s.passRatePercent === null ? undefined : '%'}
-          sub="com veredicto atribuído"
+        <NavyStatCard
+          icon={CalendarClock}
+          tone="blue"
+          label="Planeados"
+          value={s.planned}
         />
-        <Tile
+        <DonutStatCard
+          label="Taxa de aprovação"
+          value={s.passRatePercent ?? 0}
+          color="#218653"
+          sub={
+            s.passRatePercent === null
+              ? 'sem testes com veredicto'
+              : 'com veredicto atribuído'
+          }
+        />
+        <NavyStatCard
+          icon={Gauge}
+          tone="orange"
           label="Último teste"
-          value={last ? labelOf(TYPES, last.type) : null}
+          value={last ? labelOf(TYPES, last.type) : '—'}
           sub={
             last
               ? `${dateTime(last.finishedAt)}${last.verdict ? ` · ${VERDICT[last.verdict].label}` : ''}`
@@ -552,23 +568,22 @@ export function LoadTestsTab({
         />
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Button
-          size="sm"
-          intent={typeFilter === 'ALL' ? 'primary' : 'ghost'}
-          onClick={() => setTypeFilter('ALL')}
-        >
-          Todos
-        </Button>
-        {TYPES.map((t) => (
-          <Button
+      {/* Separadores no desenho do separador Talento (dashboard-rh) */}
+      <div className="flex w-fit flex-wrap gap-1 rounded-panel border border-border bg-surface p-1.5 shadow-sm">
+        {[{ value: 'ALL', label: 'Todos' }, ...TYPES].map((t) => (
+          <button
             key={t.value}
-            size="sm"
-            intent={typeFilter === t.value ? 'primary' : 'ghost'}
-            onClick={() => setTypeFilter(t.value)}
+            type="button"
+            onClick={() => setTypeFilter(t.value as typeof typeFilter)}
+            aria-pressed={typeFilter === t.value}
+            className={`inline-flex items-center justify-center rounded-control px-3 py-1.5 font-body text-xs font-semibold transition-colors ${
+              typeFilter === t.value
+                ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
+            }`}
           >
             {t.label}
-          </Button>
+          </button>
         ))}
       </div>
 
@@ -914,11 +929,9 @@ export function CostsTab({
             />
           </div>
 
-          <Card>
+          <Card className="overflow-hidden">
+            <CardTitleBar>Por categoria</CardTitleBar>
             <CardBody>
-              <p className="mb-3 font-body text-sm font-semibold text-ink">
-                Por categoria
-              </p>
               <div className="overflow-x-auto">
                 <table className="w-full font-body text-sm">
                   <thead>
@@ -949,11 +962,9 @@ export function CostsTab({
           </Card>
 
           {data.history.length >= 2 && (
-            <Card>
+            <Card className="overflow-hidden">
+              <CardTitleBar>Evolução do custo mensal</CardTitleBar>
               <CardBody>
-                <p className="mb-3 font-body text-sm font-semibold text-ink">
-                  Evolução do custo mensal
-                </p>
                 <AreaLineChart
                   series={[
                     {
@@ -972,11 +983,9 @@ export function CostsTab({
             </Card>
           )}
 
-          <Card>
+          <Card className="overflow-hidden">
+            <CardTitleBar>Previsão por número de utilizadores</CardTitleBar>
             <CardBody>
-              <p className="mb-3 font-body text-sm font-semibold text-ink">
-                Previsão por número de utilizadores
-              </p>
               <div className="overflow-x-auto">
                 <table className="w-full font-body text-sm">
                   <thead>
@@ -1061,7 +1070,12 @@ export function AlertRulesSection({
           sub={`${s.triggered} disparada(s) de ${s.total} · ${s.unavailable} sem dados · avaliado às ${new Date(data.evaluatedAt).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}`}
         />
         {canEdit && (
-          <Button intent="secondary" onClick={onEvaluate} disabled={evaluating}>
+          <Button
+            intent="secondary"
+            onClick={onEvaluate}
+            disabled={evaluating}
+            className="border-[#0F1F3D] bg-[#0F1F3D] text-white transition-colors duration-200 hover:border-[#0F1F3D] hover:bg-white hover:text-[#0F1F3D]"
+          >
             {evaluating ? 'A avaliar…' : 'Avaliar agora'}
           </Button>
         )}
