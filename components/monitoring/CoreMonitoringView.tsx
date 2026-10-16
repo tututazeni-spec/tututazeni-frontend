@@ -4,13 +4,13 @@
 import {
   CalendarClock,
   CalendarX,
-  CheckCircle2,
   Hourglass,
   PlayCircle,
   RefreshCw,
   Skull,
   Zap,
 } from 'lucide-react';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -80,12 +80,11 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
           sub={`${s.activeRules} regras activas`}
           tone="blue"
         />
-        <NavyStatCard
-          icon={CheckCircle2}
+        <DonutStatCard
           label="Taxa de sucesso"
-          value={pct(s.successRatePercent) ?? '—'}
+          value={s.successRatePercent ?? 0}
           sub={`${s.success24h} sucesso · ${s.failed24h} falhas`}
-          tone="green"
+          color="#218653"
         />
         <NavyStatCard
           icon={PlayCircle}
@@ -96,7 +95,7 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
         />
         <NavyStatCard
           icon={RefreshCw}
-          label="Retries (24h)"
+          label="Novas tentativas (24h)"
           value={s.retries24h}
           sub={`${s.retriesScheduled} agendados`}
           tone="orange"
@@ -110,7 +109,7 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
         />
         <NavyStatCard
           icon={Skull}
-          label="Dead letters abertas"
+          label="Falhas irrecuperáveis abertas"
           value={s.deadLettersOpen}
           tone="red"
         />
@@ -164,7 +163,7 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
                   <th className="py-2 pr-3">Quando</th>
                   <th className="pr-3">Regra</th>
                   <th className="pr-3">Tentativa</th>
-                  <th className="pr-3">Próximo retry</th>
+                  <th className="pr-3">Próxima tentativa</th>
                   <th>Erro</th>
                 </tr>
               </thead>

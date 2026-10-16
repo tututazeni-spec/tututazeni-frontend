@@ -112,7 +112,7 @@ function JobTable({
                         {j.attemptsMade}/{j.attemptsMax}
                         {j.retrying && (
                           <Badge intent="warning" dot={false}>
-                            retry
+                            nova tentativa
                           </Badge>
                         )}
                       </td>
@@ -150,7 +150,7 @@ export function JobsTab({ data }: { data: JobsData }) {
         <Tile
           label="Falhados"
           value={s.failed}
-          sub={`${s.retrying} com retry`}
+          sub={`${s.retrying} com nova tentativa`}
           intent={tone(s.failed)}
         />
         <Tile
