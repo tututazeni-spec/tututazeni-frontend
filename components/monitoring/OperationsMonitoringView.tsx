@@ -174,62 +174,6 @@ function JobTable({
   );
 }
 
-// Barra de separadores no desenho da aba Talento do dashboard-rh.
-interface TabBarItem<T> {
-  value: T;
-  label: string;
-  icon: LucideIcon;
-  count?: number;
-}
-
-function TabBar<T extends string | number | null>({
-  items,
-  value,
-  onChange,
-  className,
-}: {
-  items: TabBarItem<T>[];
-  value: T;
-  onChange: (v: T) => void;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`flex min-w-0 gap-1 rounded-panel border border-border bg-surface p-1.5 shadow-sm ${className ?? ''}`}
-    >
-      {items.map((it) => {
-        const on = it.value === value;
-        return (
-          <button
-            key={String(it.value)}
-            type="button"
-            onClick={() => onChange(it.value)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-control py-2 font-body text-sm font-medium transition-colors ${
-              on
-                ? 'bg-[#0F1F3D] text-canvas shadow-sm'
-                : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
-            }`}
-          >
-            <it.icon size={15} strokeWidth={1.75} />
-            <span className="hidden sm:inline">{it.label}</span>
-            {it.count !== undefined && (
-              <span
-                className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
-                  on
-                    ? 'bg-canvas/20 text-canvas'
-                    : 'bg-surface-sunken text-ink-faint'
-                }`}
-              >
-                {it.count}
-              </span>
-            )}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 const DAYS_ITEMS: CompactTabItem<number>[] = [7, 30, 90].map((d) => ({
   value: d,
   label: `${d} dias`,
@@ -417,12 +361,8 @@ export function SlaTab({
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
-        <TabBar
-          className="flex-1"
-          items={DAYS_ITEMS}
-          value={days}
-          onChange={onDaysChange}
-        />
+        <span className="font-body text-sm text-ink-muted">Janela:</span>
+        <CompactTabs items={DAYS_ITEMS} value={days} onChange={onDaysChange} />
         <span className="font-body text-xs text-ink-faint">
           {data.sla.name}
           {!data.sla.configured && ' (por omissão — sem SLA configurado)'}
