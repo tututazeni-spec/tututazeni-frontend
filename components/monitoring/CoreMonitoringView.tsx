@@ -3,7 +3,6 @@
 
 import {
   Activity,
-  AlertTriangle,
   Cpu,
   Gauge,
   HardDrive,
@@ -26,6 +25,8 @@ import {
   Skull,
   Zap,
 } from 'lucide-react';
+import { ThermometerStatCard } from '@/components/ui/charts/ThermometerStatCard';
+import { INVERSE_RATE_BANDS } from '@/components/ui/charts/SpeedometerStatCard';
 import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { StatusHeroCard } from './StatusHeroCard';
 import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
@@ -601,12 +602,12 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
               sub={`P95 ${fmtMs(api.p95Ms)} · P99 ${fmtMs(api.p99Ms)}`}
               tone={navyTone(tileIntent(api.status), 'blue')}
             />
-            <NavyStatCard
-              icon={AlertTriangle}
+            <ThermometerStatCard
               label="Taxa de erros"
-              value={pct(api.errorRatePercent) ?? '—'}
-              sub={`${api.http4xx} × 4xx · ${api.http5xx} × 5xx`}
-              tone={navyTone(tone(api.http5xx, 'warning'), 'green')}
+              value={api.errorRatePercent ?? 0}
+              bands={INVERSE_RATE_BANDS}
+              display={pct(api.errorRatePercent) ?? '—'}
+              caption={`${api.http4xx} × 4xx · ${api.http5xx} × 5xx`}
             />
             <NavyStatCard
               icon={Network}
