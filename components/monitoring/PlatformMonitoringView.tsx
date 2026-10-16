@@ -162,7 +162,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
         />
         <NavyStatCard
           icon={Cog}
-          label="Jobs em execução"
+          label="Tarefas em execução"
           value={data.jobs.running}
           sub={`${data.jobs.queues.waiting} em fila · ${data.jobs.queues.failed} falhados`}
           tone="blue"
@@ -217,7 +217,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
             />
             <NavyStatCard
               icon={ListX}
-              label="Jobs de fila falhados"
+              label="Tarefas de fila falhadas"
               value={data.pendingCritical.failedQueueJobs}
               tone={data.pendingCritical.failedQueueJobs > 0 ? 'red' : 'blue'}
             />

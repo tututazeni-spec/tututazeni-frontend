@@ -59,6 +59,15 @@ function SlaBadge({ state }: { state: SlaState }) {
 
 // ── §10 Jobs & Background Tasks ──────────────────────────────────────────────
 
+// Nomes legíveis das filas Bull (chaves técnicas vindas do backend).
+const QUEUE_LABEL: Record<string, string> = {
+  audit: 'Auditoria',
+  email: 'Email',
+  notifications: 'Notificações',
+  webhooks: 'Webhooks',
+};
+const queueLabel = (key: string) => QUEUE_LABEL[key] ?? key;
+
 const JOB_TITLES: {
   key: keyof Pick<
     JobsData,
@@ -67,11 +76,11 @@ const JOB_TITLES: {
   title: string;
   state: JobState;
 }[] = [
-  { key: 'failed', title: 'Jobs falhados', state: 'failed' },
-  { key: 'running', title: 'Jobs em execução', state: 'active' },
-  { key: 'scheduled', title: 'Jobs agendados', state: 'delayed' },
-  { key: 'waiting', title: 'Jobs em espera', state: 'waiting' },
-  { key: 'executed', title: 'Últimos jobs executados', state: 'completed' },
+  { key: 'failed', title: 'Tarefas falhadas', state: 'failed' },
+  { key: 'running', title: 'Tarefas em execução', state: 'active' },
+  { key: 'scheduled', title: 'Tarefas agendadas', state: 'delayed' },
+  { key: 'waiting', title: 'Tarefas em espera', state: 'waiting' },
+  { key: 'executed', title: 'Últimas tarefas executadas', state: 'completed' },
 ];
 
 function JobTable({
@@ -96,7 +105,7 @@ function JobTable({
             <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
-                  <th className="py-2 pr-3">Job</th>
+                  <th className="py-2 pr-3">Tarefa</th>
                   <th className="pr-3">Fila</th>
                   <th className="pr-3">Tentativas</th>
                   <th className="pr-3">Duração</th>
@@ -118,7 +127,7 @@ function JobTable({
                         <div className="font-medium text-ink">{j.name}</div>
                         <div className="text-xs text-ink-faint">#{j.id}</div>
                       </td>
-                      <td className="pr-3">{j.queue}</td>
+                      <td className="pr-3">{queueLabel(j.queue)}</td>
                       <td className="pr-3 tabular-nums">
                         {j.attemptsMade}/{j.attemptsMax}
                         {j.retrying && (
@@ -189,12 +198,12 @@ export function JobsTab({ data }: { data: JobsData }) {
           icon={Hourglass}
           label="Duração média"
           value={fmtMs(s.avgDurationMs)}
-          sub="jobs concluídos"
+          sub="tarefas concluídas"
           tone="blue"
         />
         <NavyStatCard
           icon={Timer}
-          label="Cron jobs"
+          label="Tarefas periódicas"
           value={s.cronJobs}
           sub={`${s.cronJobsStopped} parado(s)`}
           tone="orange"
@@ -235,7 +244,7 @@ export function JobsTab({ data }: { data: JobsData }) {
                 {data.queues.map((q) => (
                   <tr key={q.key}>
                     <td className="py-2 pr-3 font-medium text-ink">
-                      {q.key}
+                      {queueLabel(q.key)}
                       {!q.available && (
                         <Badge intent="danger" dot={false}>
                           inacessível
@@ -266,12 +275,12 @@ export function JobsTab({ data }: { data: JobsData }) {
 
       <Card className="overflow-hidden">
         <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
-          Cron jobs (esta instância)
+          Tarefas periódicas (esta instância)
         </div>
         <CardBody>
           {data.crons.length === 0 ? (
             <p className="font-body text-sm text-ink-muted">
-              Sem cron jobs registados.
+              Sem tarefas periódicas registadas.
             </p>
           ) : (
             <div className="w-full">

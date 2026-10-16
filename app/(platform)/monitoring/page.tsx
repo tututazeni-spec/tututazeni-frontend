@@ -149,7 +149,7 @@ const TABS: PillTabItem[] = [
     hint: 'Verificações',
     icon: HeartPulse,
   },
-  { id: 'jobs', label: 'Jobs', hint: 'Tarefas em fila', icon: Cog },
+  { id: 'jobs', label: 'Tarefas', hint: 'Em fila e agendadas', icon: Cog },
   { id: 'sla', label: 'SLA', hint: 'Cumprimento de prazos', icon: Clock },
   {
     id: 'history',
