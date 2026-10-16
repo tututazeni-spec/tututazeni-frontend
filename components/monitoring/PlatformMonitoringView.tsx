@@ -178,19 +178,19 @@ export function OverviewTab({ data }: { data: OverviewData }) {
               icon={Ban}
               label="Etapas bloqueadas"
               value={data.pendingCritical.blockedSteps}
-              tone={data.pendingCritical.blockedSteps > 0 ? 'red' : 'blue'}
+              tone="red"
             />
             <NavyStatCard
               icon={AlarmClock}
               label="Processos em atraso"
               value={data.pendingCritical.overdueProcesses}
-              tone={data.pendingCritical.overdueProcesses > 0 ? 'red' : 'blue'}
+              tone="orange"
             />
             <NavyStatCard
               icon={ZapOff}
               label="Automações falhadas"
               value={data.pendingCritical.failedAutomations}
-              tone={data.pendingCritical.failedAutomations > 0 ? 'red' : 'blue'}
+              tone="red"
             />
             <NavyStatCard
               icon={ListX}
