@@ -134,8 +134,8 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
             Sem falhas nas últimas 24 horas.
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Quando</th>
@@ -199,8 +199,8 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
       </Section>
 
       <Section title="Últimas execuções">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[560px] text-left font-body text-sm">
+        <div className="w-full">
+          <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
             <thead className="text-xs uppercase text-ink-muted">
               <tr>
                 <th className="py-2 pr-3">Início</th>
@@ -325,8 +325,8 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
       </div>
 
       <Section title="Por família">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left font-body text-sm">
+        <div className="w-full">
+          <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
             <thead className="text-xs uppercase text-ink-muted">
               <tr>
                 <th className="py-2 pr-3">Família</th>
@@ -380,8 +380,8 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
             description="Ainda não há integrações configuradas."
           />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Integração</th>
@@ -491,8 +491,8 @@ function EndpointTable({
       {rows.length === 0 ? (
         <p className="font-body text-sm text-ink-muted">Nenhum.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px] text-left font-body text-sm">
+        <div className="w-full">
+          <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
             <thead className="text-xs uppercase text-ink-muted">
               <tr>
                 <th className="py-2 pr-3">Endpoint</th>
@@ -679,8 +679,8 @@ export function PerformanceTab({ data }: { data: PerformanceData }) {
           )}
         </div>
         {queues.available && queues.queues.length > 0 && (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[520px] text-left font-body text-sm">
+          <div className="mt-4 w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Fila</th>

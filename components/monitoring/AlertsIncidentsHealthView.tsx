@@ -12,7 +12,14 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { fmtDate, SEVERITY, STATUS, StatusBadge, Tile, tone } from './PlatformMonitoringView';
+import {
+  fmtDate,
+  SEVERITY,
+  STATUS,
+  StatusBadge,
+  Tile,
+  tone,
+} from './PlatformMonitoringView';
 import type { Intent } from './PlatformMonitoringView';
 import type {
   AlertArea,
@@ -359,7 +366,13 @@ const INCIDENT_COMPONENTS = [
   'INTEGRATIONS',
   'INFRASTRUCTURE',
 ];
-const OP_STATUSES = ['OPEN', 'INVESTIGATING', 'MITIGATING', 'RESOLVED', 'CLOSED'];
+const OP_STATUSES = [
+  'OPEN',
+  'INVESTIGATING',
+  'MITIGATING',
+  'RESOLVED',
+  'CLOSED',
+];
 
 const UNIFIED_INTENT: Record<string, Intent> = {
   CRITICAL: 'danger',
@@ -431,7 +444,10 @@ function NewIncidentModal({
                 className={selectCls}
                 value={form.severity}
                 onChange={(e) =>
-                  set('severity', e.target.value as CreateIncidentPayload['severity'])
+                  set(
+                    'severity',
+                    e.target.value as CreateIncidentPayload['severity'],
+                  )
                 }
               >
                 <option value="INFO">Baixa</option>
@@ -706,8 +722,8 @@ export function IncidentsTab({
               description="Nenhum incidente corresponde ao filtro."
             />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[820px] text-left font-body text-sm">
+            <div className="w-full">
+              <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
                 <thead className="text-xs uppercase text-ink-muted">
                   <tr>
                     <th className="py-2 pr-3">Incidente</th>
@@ -759,7 +775,11 @@ export function IncidentsTab({
       </Card>
 
       {creating && (
-        <NewIncidentModal busy={busy} onCreate={onCreate} onClose={onCloseCreate} />
+        <NewIncidentModal
+          busy={busy}
+          onCreate={onCreate}
+          onClose={onCloseCreate}
+        />
       )}
       {selected && (
         <IncidentDetailModal

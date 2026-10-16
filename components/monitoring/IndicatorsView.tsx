@@ -45,7 +45,7 @@ export function IndicatorsView({
         <p className="font-body text-ink-muted">{total} indicadores activos</p>
       </div>
 
-      <Table>
+      <Table wrapperClassName="overflow-x-visible">
         <TableHead>
           <TableRow>
             <TableHeaderCell>Código</TableHeaderCell>

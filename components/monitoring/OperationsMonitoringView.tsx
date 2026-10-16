@@ -81,8 +81,8 @@ function JobTable({
         {rows.length === 0 ? (
           <p className="font-body text-sm text-ink-muted">Nenhum.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Job</th>
@@ -196,8 +196,8 @@ export function JobsTab({ data }: { data: JobsData }) {
           Filas
         </div>
         <CardBody>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Fila</th>
@@ -251,8 +251,8 @@ export function JobsTab({ data }: { data: JobsData }) {
               Sem cron jobs registados.
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] text-left font-body text-sm">
+            <div className="w-full">
+              <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
                 <thead className="text-xs uppercase text-ink-muted">
                   <tr>
                     <th className="py-2 pr-3">Nome</th>
@@ -403,8 +403,8 @@ export function SlaTab({
           Cumprimento por serviço
         </div>
         <CardBody>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Serviço</th>
@@ -655,8 +655,8 @@ export function HistoryTab({
               Sem métricas na janela.
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-left font-body text-sm">
+            <div className="w-full">
+              <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
                 <thead className="text-xs uppercase text-ink-muted">
                   <tr>
                     <th className="py-2 pr-3">Dia</th>
@@ -701,8 +701,8 @@ export function HistoryTab({
             Filas por dia (picos)
           </div>
           <CardBody>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[480px] text-left font-body text-sm">
+            <div className="w-full">
+              <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
                 <thead className="text-xs uppercase text-ink-muted">
                   <tr>
                     <th className="py-2 pr-3">Dia</th>

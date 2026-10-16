@@ -246,8 +246,8 @@ export function ModulesTab({ data }: { data: ModulesData }) {
       </div>
       <Card>
         <CardBody>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Módulo</th>
@@ -348,8 +348,8 @@ function InstanceTable({
         {rows.length === 0 ? (
           <p className="font-body text-sm text-ink-muted">Nenhum.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] text-left font-body text-sm">
+          <div className="w-full">
+            <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
               <thead className="text-xs uppercase text-ink-muted">
                 <tr>
                   <th className="py-2 pr-3">Processo</th>
