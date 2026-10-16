@@ -3,7 +3,17 @@
 // aqui só há estado de UI (filtros, modais).
 
 import { useState } from 'react';
-import { Bell, Siren, UserX, Wrench } from 'lucide-react';
+import {
+  Bell,
+  CheckCircle2,
+  Flame,
+  List,
+  Siren,
+  Timer,
+  UserX,
+  Wrench,
+  type LucideIcon,
+} from 'lucide-react';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -19,8 +29,6 @@ import {
   SEVERITY,
   STATUS,
   StatusBadge,
-  Tile,
-  tone,
 } from './PlatformMonitoringView';
 import type { Intent } from './PlatformMonitoringView';
 import type {
@@ -645,6 +653,16 @@ function IncidentDetailModal({
   );
 }
 
+const INCIDENT_GROUPS: {
+  value: 'ACTIVE' | 'RESOLVED' | null;
+  label: string;
+  icon: LucideIcon;
+}[] = [
+  { value: null, label: 'Todos', icon: List },
+  { value: 'ACTIVE', label: 'Activos', icon: Flame },
+  { value: 'RESOLVED', label: 'Resolvidos', icon: CheckCircle2 },
+];
+
 export function IncidentsTab({
   data,
   group,
@@ -680,49 +698,72 @@ export function IncidentsTab({
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
+        <NavyStatCard
+          icon={Flame}
           label="Incidentes activos"
           value={s.active}
           sub={`${s.byKind.OPERATIONAL} operacionais · ${s.byKind.SECURITY} segurança`}
-          intent={tone(s.active, 'warning')}
+          tone="orange"
         />
-        <Tile
+        <NavyStatCard
+          icon={Siren}
           label="Críticos activos"
           value={s.activeCritical}
-          intent={tone(s.activeCritical)}
+          tone="red"
         />
-        <Tile label="Resolvidos" value={s.resolved} />
-        <Tile
+        <NavyStatCard
+          icon={CheckCircle2}
+          label="Resolvidos"
+          value={s.resolved}
+          tone="green"
+        />
+        <NavyStatCard
+          icon={Timer}
           label="Tempo médio de resolução"
           value={fmtMin(s.meanTimeToResolveMinutes)}
           sub={`últimos ${s.mttrWindowDays} dias`}
+          tone="blue"
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          className={chip(group === null)}
-          onClick={() => onGroupChange(null)}
-        >
-          Todos
-        </button>
-        <button
-          type="button"
-          className={chip(group === 'ACTIVE')}
-          onClick={() => onGroupChange('ACTIVE')}
-        >
-          Activos
-        </button>
-        <button
-          type="button"
-          className={chip(group === 'RESOLVED')}
-          onClick={() => onGroupChange('RESOLVED')}
-        >
-          Resolvidos
-        </button>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex min-w-0 flex-1 gap-1 rounded-panel border border-border bg-surface p-1.5 shadow-sm">
+          {INCIDENT_GROUPS.map((g) => {
+            const count =
+              g.value === 'ACTIVE'
+                ? s.active
+                : g.value === 'RESOLVED'
+                  ? s.resolved
+                  : s.active + s.resolved;
+            const on = group === g.value;
+            return (
+              <button
+                key={g.label}
+                type="button"
+                onClick={() => onGroupChange(g.value)}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-control py-2 font-body text-sm font-medium transition-colors ${
+                  on
+                    ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                    : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
+                }`}
+              >
+                <g.icon size={15} strokeWidth={1.75} />
+                <span className="hidden sm:inline">{g.label}</span>
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                    on
+                      ? 'bg-canvas/20 text-canvas'
+                      : 'bg-surface-sunken text-ink-faint'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
         {canAct && (
-          <Button className="ml-auto" size="sm" onClick={onCreateClick}>
+          <Button size="sm" onClick={onCreateClick}>
             Novo incidente
           </Button>
         )}
