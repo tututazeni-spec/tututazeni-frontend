@@ -3,6 +3,8 @@
 // aqui só há estado de UI (filtros, modais).
 
 import { useState } from 'react';
+import { Bell, Siren, UserX, Wrench } from 'lucide-react';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -254,19 +256,31 @@ export function AlertsTab({
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile label="Alertas abertos" value={s.open} />
-        <Tile
+        <NavyStatCard
+          icon={Bell}
+          label="Alertas abertos"
+          value={s.open}
+          tone="blue"
+        />
+        <NavyStatCard
+          icon={Siren}
           label="Críticos abertos"
           value={s.openCritical}
-          intent={tone(s.openCritical)}
+          tone="red"
         />
-        <Tile
+        <NavyStatCard
+          icon={UserX}
           label="Sem responsável"
           value={s.unassigned}
           sub="abertos ou só reconhecidos"
-          intent={tone(s.unassigned, 'warning')}
+          tone="orange"
         />
-        <Tile label="Em tratamento" value={s.byState.EM_TRATAMENTO} />
+        <NavyStatCard
+          icon={Wrench}
+          label="Em tratamento"
+          value={s.byState.EM_TRATAMENTO}
+          tone="green"
+        />
       </div>
 
       <div className="space-y-2">
