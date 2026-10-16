@@ -4,6 +4,11 @@
 import {
   CalendarClock,
   AlarmClock,
+  Bell,
+  Flame,
+  List,
+  Plug,
+  type LucideIcon,
   CalendarDays,
   CheckCircle2,
   Clock,
@@ -165,6 +170,68 @@ function JobTable({
     </Card>
   );
 }
+
+// Barra de separadores no desenho da aba Talento do dashboard-rh.
+interface TabBarItem<T> {
+  value: T;
+  label: string;
+  icon: LucideIcon;
+  count?: number;
+}
+
+function TabBar<T extends string | number | null>({
+  items,
+  value,
+  onChange,
+  className,
+}: {
+  items: TabBarItem<T>[];
+  value: T;
+  onChange: (v: T) => void;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`flex min-w-0 gap-1 rounded-panel border border-border bg-surface p-1.5 shadow-sm ${className ?? ''}`}
+    >
+      {items.map((it) => {
+        const on = it.value === value;
+        return (
+          <button
+            key={String(it.value)}
+            type="button"
+            onClick={() => onChange(it.value)}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-control py-2 font-body text-sm font-medium transition-colors ${
+              on
+                ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
+            }`}
+          >
+            <it.icon size={15} strokeWidth={1.75} />
+            <span className="hidden sm:inline">{it.label}</span>
+            {it.count !== undefined && (
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                  on
+                    ? 'bg-canvas/20 text-canvas'
+                    : 'bg-surface-sunken text-ink-faint'
+                }`}
+              >
+                {it.count}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+const DAYS_ITEMS: TabBarItem<number>[] = [7, 30, 90].map((d) => ({
+  value: d,
+  label: `${d} dias`,
+  icon: CalendarDays,
+}));
 
 export function JobsTab({ data }: { data: JobsData }) {
   const s = data.summary;
@@ -347,23 +414,12 @@ export function SlaTab({
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex min-w-0 flex-1 gap-1 rounded-panel border border-border bg-surface p-1.5 shadow-sm">
-          {[7, 30, 90].map((d) => (
-            <button
-              key={d}
-              type="button"
-              onClick={() => onDaysChange(d)}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-control py-2 font-body text-sm font-medium transition-colors ${
-                d === days
-                  ? 'bg-[#0F1F3D] text-canvas shadow-sm'
-                  : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
-              }`}
-            >
-              <CalendarDays size={15} strokeWidth={1.75} />
-              <span>{d} dias</span>
-            </button>
-          ))}
-        </div>
+        <TabBar
+          className="flex-1"
+          items={DAYS_ITEMS}
+          value={days}
+          onChange={onDaysChange}
+        />
         <span className="font-body text-xs text-ink-faint">
           {data.sla.name}
           {!data.sla.configured && ' (por omissão — sem SLA configurado)'}
@@ -571,6 +627,13 @@ const KIND_LABEL: Record<HistoryKind, string> = {
   INTEGRACAO: 'Integrações',
 };
 
+const KIND_ICON: Record<HistoryKind, LucideIcon> = {
+  ALERTA: Bell,
+  INCIDENTE: Flame,
+  AUTOMACAO: Zap,
+  INTEGRACAO: Plug,
+};
+
 export function HistoryTab({
   data,
   days,
@@ -584,46 +647,20 @@ export function HistoryTab({
   onDaysChange: (d: number) => void;
   onKindChange: (k: HistoryKind | null) => void;
 }) {
-  const chip = (active: boolean) =>
-    `rounded-md border px-3 py-1 ${
-      active
-        ? 'border-brand bg-brand-soft text-ink'
-        : 'border-border text-ink-muted hover:bg-surface-muted'
-    }`;
+  const kindItems: TabBarItem<HistoryKind | null>[] = [
+    { value: null, label: 'Todos', icon: List },
+    ...(Object.keys(KIND_LABEL) as HistoryKind[]).map((k) => ({
+      value: k,
+      label: KIND_LABEL[k],
+      icon: KIND_ICON[k],
+      count: data.summary.byKind[k],
+    })),
+  ];
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2 font-body text-sm">
-        <span className="text-ink-muted">Janela:</span>
-        {[7, 30, 90].map((d) => (
-          <button
-            key={d}
-            type="button"
-            className={chip(d === days)}
-            onClick={() => onDaysChange(d)}
-          >
-            {d} dias
-          </button>
-        ))}
-        <span className="ml-3 text-ink-muted">Tipo:</span>
-        <button
-          type="button"
-          className={chip(kind === null)}
-          onClick={() => onKindChange(null)}
-        >
-          Todos
-        </button>
-        {(Object.keys(KIND_LABEL) as HistoryKind[]).map((k) => (
-          <button
-            key={k}
-            type="button"
-            className={chip(kind === k)}
-            onClick={() => onKindChange(k)}
-          >
-            {KIND_LABEL[k]}
-            {data.summary.byKind[k] !== undefined &&
-              ` (${data.summary.byKind[k]})`}
-          </button>
-        ))}
+      <div className="space-y-3">
+        <TabBar items={DAYS_ITEMS} value={days} onChange={onDaysChange} />
+        <TabBar items={kindItems} value={kind} onChange={onKindChange} />
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
