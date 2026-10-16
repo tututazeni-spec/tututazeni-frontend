@@ -4,6 +4,21 @@
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
+import {
+  AlarmClock,
+  Ban,
+  Clock,
+  Cog,
+  Flame,
+  ListX,
+  Plug,
+  Siren,
+  Timer,
+  Users,
+  Zap,
+  ZapOff,
+} from 'lucide-react';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { PlatformStatusCard } from './PlatformStatusCard';
 import type {
   ModulesData,
@@ -42,40 +57,12 @@ export function Tile({
   value,
   sub,
   intent,
-  navy,
 }: {
   label: string;
   value: string | number | null;
   sub?: string;
   intent?: Intent;
-  /** Desenho do card "ROI Total" (gradiente azul-marinho, texto branco). */
-  navy?: boolean;
 }) {
-  if (navy) {
-    const navyTone =
-      intent === 'danger'
-        ? 'text-[#F87171]'
-        : intent === 'warning'
-          ? 'text-[#FBBF24]'
-          : 'text-white';
-    return (
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
-        <p className="font-body text-xs font-semibold uppercase tracking-wide text-white/70">
-          {label}
-        </p>
-        <p
-          className={`mt-1 font-display text-3xl font-bold tabular-nums ${navyTone}`}
-        >
-          {value ?? '—'}
-        </p>
-        {sub && (
-          <p className="mt-2 break-words rounded-card bg-white/10 px-3 py-1.5 font-body text-xs text-white/80">
-            {sub}
-          </p>
-        )}
-      </div>
-    );
-  }
   const valueTone =
     intent === 'danger'
       ? 'text-danger-ink'
@@ -119,22 +106,22 @@ export function OverviewTab({ data }: { data: OverviewData }) {
       <PlatformStatusCard platform={p} />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Tile
-          navy
+        <NavyStatCard
+          icon={Siren}
           label="Alertas críticos"
           value={data.criticalAlerts.critical}
           sub={`${data.criticalAlerts.open} por resolver`}
-          intent={tone(data.criticalAlerts.critical)}
+          tone="red"
         />
-        <Tile
-          navy
+        <NavyStatCard
+          icon={Clock}
           label="Processos em atraso"
           value={data.processes.overdue}
           sub={`${data.processes.urgentInProgress} urgentes em curso`}
-          intent={tone(data.processes.overdue, 'warning')}
+          tone="orange"
         />
-        <Tile
-          navy
+        <NavyStatCard
+          icon={Zap}
           label="Automações com erro (24h)"
           value={data.automations.failed24h}
           sub={
@@ -142,40 +129,42 @@ export function OverviewTab({ data }: { data: OverviewData }) {
               ? 'sem execuções'
               : `${data.automations.failureRatePercent}% de ${data.automations.total24h}`
           }
-          intent={tone(data.automations.failed24h, 'warning')}
+          tone="orange"
         />
-        <Tile
-          navy
+        <NavyStatCard
+          icon={Plug}
           label="Integrações indisponíveis"
           value={data.integrations.unavailable}
           sub={`${data.integrations.active} activas · ${data.integrations.syncFailed24h} sync falhadas (24h)`}
-          intent={tone(data.integrations.unavailable, 'warning')}
+          tone="orange"
         />
-        <Tile
-          navy
+        <NavyStatCard
+          icon={Cog}
           label="Jobs em execução"
           value={data.jobs.running}
           sub={`${data.jobs.queues.waiting} em fila · ${data.jobs.queues.failed} falhados`}
+          tone="blue"
         />
-        <Tile
-          navy
+        <NavyStatCard
+          icon={Users}
           label="Utilizadores activos"
           value={data.activeUsers.count}
           sub={`sessões dos últimos ${data.activeUsers.windowMinutes} min`}
+          tone="blue"
         />
-        <Tile
-          navy
+        <NavyStatCard
+          icon={Timer}
           label="SLA em risco"
           value={data.sla.atRisk}
           sub={`${data.sla.breached} já violados`}
-          intent={tone(data.sla.atRisk, 'warning')}
+          tone="orange"
         />
-        <Tile
-          navy
+        <NavyStatCard
+          icon={Flame}
           label="Incidentes abertos"
           value={data.incidents.open}
           sub={`${data.incidents.critical} críticos · ${data.incidents.security} de segurança`}
-          intent={tone(data.incidents.critical)}
+          tone="red"
         />
       </div>
 
@@ -185,25 +174,29 @@ export function OverviewTab({ data }: { data: OverviewData }) {
         </div>
         <CardBody>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <Tile
-              navy
+            <NavyStatCard
+              icon={Ban}
               label="Etapas bloqueadas"
               value={data.pendingCritical.blockedSteps}
+              tone={data.pendingCritical.blockedSteps > 0 ? 'red' : 'blue'}
             />
-            <Tile
-              navy
+            <NavyStatCard
+              icon={AlarmClock}
               label="Processos em atraso"
               value={data.pendingCritical.overdueProcesses}
+              tone={data.pendingCritical.overdueProcesses > 0 ? 'red' : 'blue'}
             />
-            <Tile
-              navy
+            <NavyStatCard
+              icon={ZapOff}
               label="Automações falhadas"
               value={data.pendingCritical.failedAutomations}
+              tone={data.pendingCritical.failedAutomations > 0 ? 'red' : 'blue'}
             />
-            <Tile
-              navy
+            <NavyStatCard
+              icon={ListX}
               label="Jobs de fila falhados"
               value={data.pendingCritical.failedQueueJobs}
+              tone={data.pendingCritical.failedQueueJobs > 0 ? 'red' : 'blue'}
             />
           </div>
         </CardBody>
