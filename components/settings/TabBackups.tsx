@@ -14,6 +14,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
+import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -49,6 +50,15 @@ const HEALTH: Record<
   NEVER: { label: 'Nunca executado', intent: 'warning' },
   DISABLED: { label: 'Desactivado', intent: 'neutral' },
 };
+
+// O browser não consegue escolher pastas do servidor — sugerem-se caminhos
+// comuns e aceita-se qualquer caminho absoluto escrito à mão (o backend cria-o).
+const DESTINATION_SUGGESTIONS = [
+  'C:\\Backups\\innova',
+  'D:\\Backups\\innova',
+  'E:\\Backups\\innova',
+  '/var/backups/innova',
+].map((v) => ({ value: v, label: v }));
 
 // Cores de estado do card ROI Total.
 const HEALTH_COLORS: Record<string, string> = {
@@ -308,11 +318,13 @@ export function TabBackups() {
                 htmlFor="bk-dir"
                 hint="Caminho absoluto no servidor, ex.: /var/backups/innova ou D:\Backups\innova. Monte aqui o volume/partilha externa."
               >
-                <Input
-                  id="bk-dir"
-                  className="w-full"
+                <Combobox
+                  items={DESTINATION_SUGGESTIONS}
+                  allowCustom
+                  placeholder="Escolher ou escrever o caminho…"
+                  searchPlaceholder="Escreva o caminho no servidor…"
                   value={form.destinationDir}
-                  onChange={(e) => set('destinationDir', e.target.value)}
+                  onValueChange={(v) => set('destinationDir', v)}
                 />
               </FormField>
               <div className="grid grid-cols-2 gap-4">
