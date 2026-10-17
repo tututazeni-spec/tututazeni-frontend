@@ -29,7 +29,6 @@ import {
   Star,
   Target,
   Users,
-  Wallet,
 } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -43,6 +42,7 @@ import { AlertCard } from '@/components/ui/AlertCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { WalletStat } from '@/components/roi-impact/WalletStat';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
@@ -486,12 +486,12 @@ export function OrgDashboard() {
             label="Beneficiários"
             value={summary.crm.beneficiaries}
           />
-          <NavyStatCard
-            icon={Wallet}
-            tone="orange"
+          <WalletStat
+            zoom
+            money="bills"
+            tone="blue"
             label="Financiamento"
             value={`AOA ${(summary.crm.totalFunding / 1_000_000).toFixed(1)}M`}
-            sub="Activo · início por trimestre"
           />
           <NavyStatCard
             icon={Building2}
