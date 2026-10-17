@@ -10,7 +10,6 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
@@ -183,61 +182,65 @@ export function TabWhatsApp() {
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <Card>
-        <CardBody>
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">
-              Estado da integração
-            </h3>
-            <Badge
-              intent={
-                !st.enabled ? 'neutral' : st.connected ? 'success' : 'danger'
-              }
-            >
-              {!st.enabled
-                ? 'Desactivada'
+      {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
+            Estado da integração
+          </h3>
+          <span
+            className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold"
+            style={{
+              color: !st.enabled
+                ? '#9CA3AF'
                 : st.connected
-                  ? 'Ligada'
-                  : 'Sem ligação'}
-            </Badge>
+                  ? '#34D399'
+                  : '#F87171',
+            }}
+          >
+            {!st.enabled
+              ? 'Desactivada'
+              : st.connected
+                ? 'Ligada'
+                : 'Sem ligação'}
+          </span>
+        </div>
+        <dl className="grid grid-cols-2 gap-3 text-sm text-white md:grid-cols-4">
+          {st.displayPhoneNumber && (
+            <div>
+              <dt className="text-xs text-white/70">Número</dt>
+              <dd className="font-display font-bold">{st.displayPhoneNumber}</dd>
+            </div>
+          )}
+          {st.verifiedName && (
+            <div>
+              <dt className="text-xs text-white/70">Nome verificado</dt>
+              <dd className="font-display font-bold">{st.verifiedName}</dd>
+            </div>
+          )}
+          {st.qualityRating && (
+            <div>
+              <dt className="text-xs text-white/70">Qualidade</dt>
+              <dd className="font-display font-bold">{st.qualityRating}</dd>
+            </div>
+          )}
+          <div>
+            <dt className="text-xs text-white/70">Última hora</dt>
+            <dd className="font-display font-bold">
+              {st.usage.lastHour}
+              {st.usage.hourlyLimit > 0 && ` / ${st.usage.hourlyLimit}`}
+            </dd>
           </div>
-          <dl className="grid grid-cols-2 gap-3 text-sm text-ink md:grid-cols-4">
-            {st.displayPhoneNumber && (
-              <div>
-                <dt className="text-xs text-ink-faint">Número</dt>
-                <dd>{st.displayPhoneNumber}</dd>
-              </div>
-            )}
-            {st.verifiedName && (
-              <div>
-                <dt className="text-xs text-ink-faint">Nome verificado</dt>
-                <dd>{st.verifiedName}</dd>
-              </div>
-            )}
-            {st.qualityRating && (
-              <div>
-                <dt className="text-xs text-ink-faint">Qualidade</dt>
-                <dd>{st.qualityRating}</dd>
-              </div>
-            )}
-            <div>
-              <dt className="text-xs text-ink-faint">Última hora</dt>
-              <dd>
-                {st.usage.lastHour}
-                {st.usage.hourlyLimit > 0 && ` / ${st.usage.hourlyLimit}`}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs text-ink-faint">Últimas 24 h</dt>
-              <dd>
-                {st.usage.lastDay}
-                {st.usage.dailyLimit > 0 && ` / ${st.usage.dailyLimit}`}
-              </dd>
-            </div>
-          </dl>
-          {st.error && <p className="mt-3 text-sm text-danger">{st.error}</p>}
-        </CardBody>
-      </Card>
+          <div>
+            <dt className="text-xs text-white/70">Últimas 24 h</dt>
+            <dd className="font-display font-bold">
+              {st.usage.lastDay}
+              {st.usage.dailyLimit > 0 && ` / ${st.usage.dailyLimit}`}
+            </dd>
+          </div>
+        </dl>
+        {st.error && <p className="mt-3 text-sm text-[#F87171]">{st.error}</p>}
+      </div>
 
       <Card className="overflow-hidden">
         <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">

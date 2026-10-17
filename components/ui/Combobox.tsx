@@ -26,6 +26,8 @@ export interface ComboboxProps {
   invalid?: boolean;
   disabled?: boolean;
   className?: string;
+  /** Permite escrever um valor que não está na lista (Enter ou "Usar «texto»"). */
+  allowCustom?: boolean;
 }
 
 function normalize(text: string): string {
@@ -47,12 +49,20 @@ export function Combobox({
   invalid,
   disabled,
   className,
+  allowCustom,
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const selected = items.find((i) => i.value === value);
+  const selected =
+    items.find((i) => i.value === value) ??
+    (allowCustom && value ? { value, label: value } : undefined);
+  const customText = query.trim();
+  const showCustom =
+    allowCustom &&
+    customText !== '' &&
+    !items.some((i) => normalize(i.label) === normalize(customText));
 
   const filteredItems = useMemo(() => {
     const q = normalize(query);
@@ -130,9 +140,15 @@ export function Combobox({
               placeholder={searchPlaceholder}
               className="w-full bg-transparent font-body text-sm text-field-ink outline-none placeholder:text-ink-muted"
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && filteredItems.length > 0) {
-                  onValueChange?.(filteredItems[0].value);
-                  setOpen(false);
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  if (filteredItems.length > 0) {
+                    onValueChange?.(filteredItems[0].value);
+                    setOpen(false);
+                  } else if (showCustom) {
+                    onValueChange?.(customText);
+                    setOpen(false);
+                  }
                 } else if (e.key === 'Escape') {
                   setOpen(false);
                 }
@@ -140,7 +156,19 @@ export function Combobox({
             />
           </div>
           <div className="list-scroll max-h-[min(16rem,var(--radix-popover-content-available-height))] p-1">
-            {filteredItems.length === 0 && (
+            {showCustom && (
+              <button
+                type="button"
+                onClick={() => {
+                  onValueChange?.(customText);
+                  setOpen(false);
+                }}
+                className="flex w-full cursor-pointer items-center rounded-control px-3 py-2 text-left font-body text-sm font-medium text-primary outline-none hover:bg-field-soft"
+              >
+                Usar «{customText}»
+              </button>
+            )}
+            {filteredItems.length === 0 && !showCustom && (
               <div className="px-3 py-2 font-body text-sm text-ink-muted">
                 {emptyText}
               </div>

@@ -415,16 +415,14 @@ export function TabCertificados() {
         </div>
       </form>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
+          Biblioteca de templates
+          <Button type="button" onClick={openCreate}>
+            Novo template
+          </Button>
+        </div>
         <CardBody>
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">
-              Biblioteca de templates
-            </h3>
-            <Button type="button" onClick={openCreate}>
-              Novo template
-            </Button>
-          </div>
           {templates.isLoading ? (
             <p className="text-sm text-ink-faint">A carregar…</p>
           ) : !list.length ? (

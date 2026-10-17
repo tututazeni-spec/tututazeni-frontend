@@ -133,13 +133,13 @@ export function MatrixTab() {
       </div>
 
       <Table>
-        <TableHead>
-          <TableRow>
-            <TableHeaderCell>Permissão</TableHeaderCell>
+        <TableHead className="bg-[#0F1F3D]/60">
+          <TableRow className="hover:bg-transparent">
+            <TableHeaderCell className="text-white">Permissão</TableHeaderCell>
             {(data?.roles ?? []).map((r) => (
               <TableHeaderCell
                 key={r.id}
-                className="text-center whitespace-nowrap"
+                className="text-center whitespace-nowrap text-white"
               >
                 {r.name}
               </TableHeaderCell>

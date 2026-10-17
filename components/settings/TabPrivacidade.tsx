@@ -237,14 +237,17 @@ export function TabPrivacidade() {
           ],
           ['Pedidos por resolver', data?.openRequests ?? 0],
         ].map(([label, value]) => (
-          <Card key={String(label)}>
-            <CardBody>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
-                {label}
-              </p>
-              <p className="mt-1 text-2xl font-bold text-ink">{value}</p>
-            </CardBody>
-          </Card>
+          <div
+            key={String(label)}
+            className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
+          >
+            <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              {label}
+            </p>
+            <p className="mt-1 font-display text-2xl font-bold text-white">
+              {value}
+            </p>
+          </div>
         ))}
       </div>
 
@@ -335,16 +338,14 @@ export function TabPrivacidade() {
         </div>
       </form>
 
-      <Card>
-        <CardBody>
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">
-              Texto de consentimento
-            </h3>
-            <div className="flex gap-2">
+      <Card className="overflow-hidden">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          Texto de consentimento
+          <div className="flex gap-2">
               <Button
                 type="button"
                 intent="ghost"
+                className="text-white hover:bg-white/10"
                 onClick={() => setHistoryOpen((o) => !o)}
               >
                 {historyOpen ? 'Ocultar histórico' : 'Ver histórico'}
@@ -353,9 +354,10 @@ export function TabPrivacidade() {
                 Publicar nova versão
               </Button>
             </div>
-          </div>
+        </div>
+        <CardBody>
           {current ? (
-            <div className="rounded-control border border-border bg-surface-sunken p-3 text-sm text-ink whitespace-pre-wrap">
+            <div className="rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-sm text-white whitespace-pre-wrap shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
               {current.text}
             </div>
           ) : (
@@ -392,13 +394,10 @@ export function TabPrivacidade() {
         </CardBody>
       </Card>
 
-      <Card>
-        <CardBody>
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">
-              Pedidos de direitos dos titulares
-            </h3>
-            <div className="flex items-center gap-2">
+      <Card className="overflow-hidden">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          Pedidos de direitos dos titulares
+          <div className="flex items-center gap-2">
               <Select
                 className="w-44"
                 items={[
@@ -415,7 +414,8 @@ export function TabPrivacidade() {
                 Novo pedido
               </Button>
             </div>
-          </div>
+        </div>
+        <CardBody>
           {requests.isLoading ? (
             <p className="text-sm text-ink-faint">A carregar…</p>
           ) : !requests.data?.items.length ? (

@@ -154,14 +154,14 @@ export function TabAutenticacao() {
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          Login único (SSO)
+          <Badge intent={form.ssoEnabled ? 'success' : 'neutral'}>
+            {form.ssoEnabled ? 'Activo' : 'Inactivo'}
+          </Badge>
+        </div>
         <CardBody>
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">Login único (SSO)</h3>
-            <Badge intent={form.ssoEnabled ? 'success' : 'neutral'}>
-              {form.ssoEnabled ? 'Activo' : 'Inactivo'}
-            </Badge>
-          </div>
           <div className="space-y-4">
             <Toggle
               id="sso-enabled"
@@ -281,16 +281,14 @@ export function TabAutenticacao() {
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          LDAP / Active Directory
+          <Badge intent={form.ldap.enabled ? 'success' : 'neutral'}>
+            {form.ldap.enabled ? 'Activo' : 'Inactivo'}
+          </Badge>
+        </div>
         <CardBody>
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">
-              LDAP / Active Directory
-            </h3>
-            <Badge intent={form.ldap.enabled ? 'success' : 'neutral'}>
-              {form.ldap.enabled ? 'Activo' : 'Inactivo'}
-            </Badge>
-          </div>
           <div className="space-y-4">
             <Toggle
               id="ldap-enabled"

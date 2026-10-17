@@ -6,7 +6,6 @@
 
 import type { CurrentUser as Me } from '@/hooks/useCurrentUser';
 import { AvatarUploader } from '@/components/ui/AvatarUploader';
-import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 
 interface TabPerfilProps {
@@ -17,46 +16,52 @@ export function TabPerfil({ user }: TabPerfilProps) {
   return (
     <div className="grid grid-cols-2 gap-4">
       {/* Cartão principal */}
-      <Card className="col-span-2">
-        <CardBody>
-          <div className="flex items-center gap-5">
-            {/* Avatar */}
-            <AvatarUploader
-              name={user.fullName}
-              url={user.avatarUrl ?? undefined}
-              size="lg"
-            />
-            <div className="flex-1">
-              <h2 className="m-0 text-2xl font-bold text-ink">
-                {user.fullName}
-              </h2>
-              <p className="mt-1 text-sm text-ink-muted">{user.email}</p>
-              <div className="flex gap-2 mt-3 flex-wrap">
-                {user.role && <Badge intent="info">{user.role.name}</Badge>}
-                <Badge intent={user.active ? 'success' : 'danger'}>
-                  {user.active ? 'Activo' : 'Inactivo'}
-                </Badge>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="m-0 text-xs text-ink font-bold uppercase tracking-wider">
-                Pontos
-              </p>
-              <p className="mt-1 text-3xl font-bold text-ink">
-                {user.points?.points?.toLocaleString('pt-PT') ?? 0}
-              </p>
+      {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
+      <div className="col-span-2 overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="flex items-center gap-5">
+          {/* Avatar */}
+          <AvatarUploader
+            name={user.fullName}
+            url={user.avatarUrl ?? undefined}
+            size="lg"
+          />
+          <div className="flex-1">
+            <h2 className="m-0 font-display text-2xl font-bold text-white">
+              {user.fullName}
+            </h2>
+            <p className="mt-1 text-sm text-white">{user.email}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {user.role && (
+                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-[#7CC4FF]">
+                  {user.role.name}
+                </span>
+              )}
+              <span
+                className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold"
+                style={{ color: user.active ? '#34D399' : '#F87171' }}
+              >
+                {user.active ? 'Activo' : 'Inactivo'}
+              </span>
             </div>
           </div>
+          <div className="text-right">
+            <p className="m-0 text-xs font-bold uppercase tracking-wider text-white/70">
+              Pontos
+            </p>
+            <p className="mt-1 font-display text-3xl font-bold text-white">
+              {user.points?.points?.toLocaleString('pt-PT') ?? 0}
+            </p>
+          </div>
+        </div>
 
-          {user.profile?.bio && (
-            <div className="mt-4 p-3 bg-surface-sunken rounded-lg">
-              <p className="m-0 text-sm text-ink-muted italic">
-                &quot;{user.profile.bio}&quot;
-              </p>
-            </div>
-          )}
-        </CardBody>
-      </Card>
+        {user.profile?.bio && (
+          <div className="mt-4 rounded-card bg-white/10 px-4 py-3">
+            <p className="m-0 text-sm italic text-white/90">
+              &quot;{user.profile.bio}&quot;
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Info organizacional */}
       <Card className="overflow-hidden">

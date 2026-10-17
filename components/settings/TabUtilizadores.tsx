@@ -10,7 +10,10 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
+import { Clock, Lock, UserCheck, UserX } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
+import { DonutChart } from '@/components/ui/charts/DonutChart';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
@@ -171,22 +174,52 @@ export function TabUtilizadores() {
     <div className="space-y-4">
       {o && (
         <div className="grid grid-cols-5 gap-4">
-          {[
-            ['Total', `${o.total} / ${o.maxUsers}`],
-            ['Activos', o.active],
-            ['Pendentes', o.pending],
-            ['Inactivos', o.inactive],
-            ['Suspensos/Bloqueados', o.suspended],
-          ].map(([label, value]) => (
-            <Card key={String(label)}>
-              <CardBody>
-                <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
-                  {label}
-                </p>
-                <p className="mt-1 text-2xl font-bold text-ink">{value}</p>
-              </CardBody>
-            </Card>
-          ))}
+          {/* Donut solto, sem moldura de card */}
+          <div className="flex items-center justify-center">
+            <DonutChart
+              size={150}
+              hideLegend
+              data={[
+                {
+                  label: 'Utilizadores',
+                  value: o.total,
+                  color: '#1877F2',
+                },
+                {
+                  label: 'Vagas livres',
+                  value: Math.max(o.maxUsers - o.total, 0),
+                  color: '#D8E2F0',
+                },
+              ]}
+              centerValue={String(o.total)}
+              centerLabel={`de ${o.maxUsers.toLocaleString('pt-PT')}`}
+            />
+          </div>
+          <NavyStatCard
+            icon={UserCheck}
+            label="Activos"
+            value={o.active}
+            tone="green"
+          />
+          <NavyStatCard
+            icon={Clock}
+            label="Pendentes"
+            value={o.pending}
+            tone="orange"
+          />
+          <NavyStatCard
+            icon={UserX}
+            label="Inactivos"
+            value={o.inactive}
+            tone="blue"
+            iconTone="gray"
+          />
+          <NavyStatCard
+            icon={Lock}
+            label="Suspensos / Bloqueados"
+            value={o.suspended}
+            tone="red"
+          />
         </div>
       )}
 
@@ -302,19 +335,17 @@ export function TabUtilizadores() {
         </div>
       </form>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          Utilizadores inactivos
+          {inactive.data && (
+            <Badge intent={inactive.data.total ? 'warning' : 'success'}>
+              {inactive.data.total} sem login há mais de{' '}
+              {inactive.data.thresholdDays} dias
+            </Badge>
+          )}
+        </div>
         <CardBody>
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">
-              Utilizadores inactivos
-            </h3>
-            {inactive.data && (
-              <Badge intent={inactive.data.total ? 'warning' : 'success'}>
-                {inactive.data.total} sem login há mais de{' '}
-                {inactive.data.thresholdDays} dias
-              </Badge>
-            )}
-          </div>
           {inactive.isLoading ? (
             <p className="text-sm text-ink-faint">A carregar…</p>
           ) : !inactive.data?.items.length ? (
