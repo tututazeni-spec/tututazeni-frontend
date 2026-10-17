@@ -1,5 +1,5 @@
 // components/executive-reports/ExecutiveFiltersBar.tsx
-// Filtros globais do módulo (docs/Executive_Reports.md §5): período, unidade,
+// Filtros globais do módulo (docs/Executive_Reports.md §5): período,
 // departamento e comparação. Partilhados por todos os separadores — o estado
 // vive na página e é passado a cada painel.
 
@@ -20,7 +20,6 @@ import type {
   FilterOptions,
   KpiState,
   PeriodFilter,
-  Unit,
 } from './dashboardTypes';
 
 // Sentinel 'ALL' porque o Select (Radix) não aceita value="" num Item.
@@ -56,10 +55,6 @@ export function ExecutiveFiltersBar({
   onChange,
   restrictedScope,
 }: ExecutiveFiltersBarProps) {
-  const unitsQ = useApiQuery<Unit[]>(queryKeys.departments.units(), '/units', {
-    staleTime: STALE_TIME.SEMI_STATIC,
-    enabled: !restrictedScope,
-  });
   const deptParams = { limit: 200 };
   const deptsQ = useApiQuery<{ data: DeptOption[] }>(
     queryKeys.departments.list(deptParams),
@@ -87,13 +82,6 @@ export function ExecutiveFiltersBar({
   const set = (patch: Partial<ExecutiveFilters>) =>
     onChange({ ...filters, ...patch });
 
-  const unitItems = [
-    { value: ALL, label: 'Todas as unidades' },
-    ...(unitsQ.data ?? []).map((u) => ({
-      value: String(u.id),
-      label: u.name,
-    })),
-  ];
   const deptItems = [
     { value: ALL, label: 'Todos os departamentos' },
     ...(deptsQ.data?.data ?? []).map((d) => ({
@@ -162,14 +150,6 @@ export function ExecutiveFiltersBar({
           </span>
         ) : (
           <>
-            <Select
-              className="min-w-[11rem]"
-              items={unitItems}
-              value={filters.unitId ? String(filters.unitId) : ALL}
-              onValueChange={(v) =>
-                set({ unitId: v === ALL ? undefined : Number(v) })
-              }
-            />
             <Select
               className="min-w-[13rem]"
               items={deptItems}

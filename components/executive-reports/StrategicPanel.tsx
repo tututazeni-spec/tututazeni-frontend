@@ -24,6 +24,7 @@ import {
   changeIsGood,
   formatDateTime,
   formatKpiValue,
+  moduleLabel,
 } from './kpiFormat';
 
 export interface StrategicPanelProps {
@@ -60,33 +61,37 @@ export function StrategicPanel({ filters }: StrategicPanelProps) {
   return (
     <div className="space-y-5">
       {goals && goals.vsTarget.length > 0 && (
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-4 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface">
+          <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Realizado vs. meta
           </h3>
-          <ProgressBars
-            rows={goals.vsTarget.map((g) => ({
-              label: g.label,
-              actual: g.actual,
-              target: g.target,
-              direction: g.direction === 'NEUTRAL' ? undefined : g.direction,
-            }))}
-          />
+          <div className="p-5">
+            <ProgressBars
+              rows={goals.vsTarget.map((g) => ({
+                label: g.label,
+                actual: g.actual,
+                target: g.target,
+                direction: g.direction === 'NEUTRAL' ? undefined : g.direction,
+              }))}
+            />
+          </div>
         </div>
       )}
 
       {goals && (
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-4 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface">
+          <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Execução de planos
           </h3>
-          <ProgressBars
-            rows={goals.execution.map((e) => ({
-              label: e.label,
-              actual: e.pct,
-              detail: `${e.done} de ${e.total}`,
-            }))}
-          />
+          <div className="p-5">
+            <ProgressBars
+              rows={goals.execution.map((e) => ({
+                label: e.label,
+                actual: e.pct,
+                detail: `${e.done} de ${e.total}`,
+              }))}
+            />
+          </div>
         </div>
       )}
 
@@ -96,70 +101,76 @@ export function StrategicPanel({ filters }: StrategicPanelProps) {
           return (
             <div
               key={k.code}
-              className="rounded-card border border-border bg-surface p-5"
+              className="overflow-hidden rounded-card border border-border bg-surface"
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h4 className="font-display text-base font-semibold text-ink">
-                    {k.name}
-                  </h4>
-                  <p className="mt-0.5 font-body text-xs text-ink-muted">
-                    {k.description}
+              <h4 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+                {k.name}
+              </h4>
+              <div className="p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-body text-xs text-ink-muted">
+                      {k.description}
+                    </p>
+                  </div>
+                  <span
+                    className={`rounded-full px-2.5 py-1 font-body text-xs font-medium ${STATE_BADGE[k.state]}`}
+                  >
+                    {STATE_LABEL[k.state]}
+                  </span>
+                </div>
+
+                <dl className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-5">
+                  <Stat
+                    label="Resultado"
+                    value={formatKpiValue(k.value, k.unit)}
+                  />
+                  <Stat
+                    label="Comparação"
+                    value={formatKpiValue(k.previousValue, k.unit)}
+                  />
+                  <Stat
+                    label="Variação"
+                    value={
+                      k.change === null
+                        ? 'Sem dados'
+                        : `${k.change > 0 ? '+' : ''}${k.change.toLocaleString('pt-PT')}`
+                    }
+                    tone={good === null ? undefined : good ? 'good' : 'bad'}
+                  />
+                  <Stat label="Meta" value={formatKpiValue(k.target, k.unit)} />
+                  <Stat
+                    label="Desvio"
+                    value={
+                      k.deviation === null
+                        ? '—'
+                        : `${k.deviation > 0 ? '+' : ''}${k.deviation.toLocaleString('pt-PT')}`
+                    }
+                  />
+                </dl>
+
+                <div className="mt-4 grid gap-1 border-t border-border pt-3 font-body text-xs text-ink-muted">
+                  <p>
+                    <span className="font-medium text-ink">Fórmula: </span>
+                    {k.formula}
+                  </p>
+                  {k.target !== null && (
+                    <p>
+                      <span className="font-medium text-ink">Limiares: </span>
+                      alerta {k.direction === 'HIGHER_IS_BETTER'
+                        ? '<'
+                        : '>'}{' '}
+                      {formatKpiValue(k.warningThreshold, k.unit)} · crítico{' '}
+                      {k.direction === 'HIGHER_IS_BETTER' ? '<' : '>'}{' '}
+                      {formatKpiValue(k.criticalThreshold, k.unit)}
+                    </p>
+                  )}
+                  <p>
+                    <span className="font-medium text-ink">Origem: </span>
+                    {k.sourceModules.map(moduleLabel).join(', ')} · actualizado{' '}
+                    {formatDateTime(k.lastUpdatedAt)}
                   </p>
                 </div>
-                <span
-                  className={`rounded-full px-2.5 py-1 font-body text-xs font-medium ${STATE_BADGE[k.state]}`}
-                >
-                  {STATE_LABEL[k.state]}
-                </span>
-              </div>
-
-              <dl className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-5">
-                <Stat label="Resultado" value={formatKpiValue(k.value, k.unit)} />
-                <Stat
-                  label="Comparação"
-                  value={formatKpiValue(k.previousValue, k.unit)}
-                />
-                <Stat
-                  label="Variação"
-                  value={
-                    k.change === null
-                      ? 'Sem dados'
-                      : `${k.change > 0 ? '+' : ''}${k.change.toLocaleString('pt-PT')}`
-                  }
-                  tone={good === null ? undefined : good ? 'good' : 'bad'}
-                />
-                <Stat label="Meta" value={formatKpiValue(k.target, k.unit)} />
-                <Stat
-                  label="Desvio"
-                  value={
-                    k.deviation === null
-                      ? '—'
-                      : `${k.deviation > 0 ? '+' : ''}${k.deviation.toLocaleString('pt-PT')}`
-                  }
-                />
-              </dl>
-
-              <div className="mt-4 grid gap-1 border-t border-border pt-3 font-body text-xs text-ink-muted">
-                <p>
-                  <span className="font-medium text-ink">Fórmula: </span>
-                  {k.formula}
-                </p>
-                {k.target !== null && (
-                  <p>
-                    <span className="font-medium text-ink">Limiares: </span>
-                    alerta{' '}
-                    {k.direction === 'HIGHER_IS_BETTER' ? '<' : '>'}{' '}
-                    {formatKpiValue(k.warningThreshold, k.unit)} · crítico{' '}
-                    {k.direction === 'HIGHER_IS_BETTER' ? '<' : '>'}{' '}
-                    {formatKpiValue(k.criticalThreshold, k.unit)}
-                  </p>
-                )}
-                <p>
-                  <span className="font-medium text-ink">Origem: </span>
-                  {k.sourceModules.join(', ')} · actualizado{' '}
-                  {formatDateTime(k.lastUpdatedAt)}
-                </p>
               </div>
             </div>
           );

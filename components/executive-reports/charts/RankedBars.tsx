@@ -24,6 +24,8 @@ export interface RankedBarsProps {
   /** Define a cor: dentro/fora da meta. Sem meta → cor neutra. */
   direction?: 'HIGHER_IS_BETTER' | 'LOWER_IS_BETTER';
   onSelect?: (row: RankedRow) => void;
+  /** Cor própria por linha (índice na lista original); tem precedência sobre meta/direcção. */
+  rowColor?: (index: number) => string;
 }
 
 type SortKey = 'desc' | 'asc' | 'name';
@@ -40,6 +42,7 @@ export function RankedBars({
   target = null,
   direction,
   onSelect,
+  rowColor,
 }: RankedBarsProps) {
   const [sort, setSort] = useState<SortKey>('desc');
 
@@ -100,9 +103,14 @@ export function RankedBars({
                   <span
                     className={cn(
                       'absolute inset-y-0 left-0 rounded-full',
-                      barColor(r.value),
+                      !rowColor && barColor(r.value),
                     )}
-                    style={{ width: `${(r.value / max) * 100}%` }}
+                    style={{
+                      width: `${(r.value / max) * 100}%`,
+                      backgroundColor: rowColor
+                        ? rowColor(rows.indexOf(r))
+                        : undefined,
+                    }}
                   />
                 )}
                 {target !== null && (

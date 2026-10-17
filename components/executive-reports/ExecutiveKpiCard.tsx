@@ -18,7 +18,8 @@ export function ExecutiveKpiCard({
   icon,
   showComparison,
 }: ExecutiveKpiCardProps) {
-  const parts: string[] = [STATE_LABEL[kpi.state]];
+  const parts: string[] =
+    kpi.state === 'NO_DATA' ? [] : [STATE_LABEL[kpi.state]];
   if (showComparison && kpi.change !== null) {
     parts.push(
       `${kpi.change > 0 ? '+' : ''}${kpi.change.toLocaleString('pt-PT')}${
@@ -35,7 +36,7 @@ export function ExecutiveKpiCard({
       icon={icon}
       tone={STATE_TONE[kpi.state]}
       label={kpi.shortLabel}
-      value={formatKpiValue(kpi.value, kpi.unit)}
+      value={kpi.value === null ? '-' : formatKpiValue(kpi.value, kpi.unit)}
       sub={parts.join(' · ')}
     />
   );

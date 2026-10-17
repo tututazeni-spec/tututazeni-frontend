@@ -13,9 +13,17 @@ export interface StackedSeries {
 export interface StackedBarsProps {
   categories: string[];
   series: StackedSeries[];
+  /** Cor própria por categoria: cada série passa a ser um tom (opacidade) dessa cor. */
+  categoryColor?: (categoryIndex: number) => string;
 }
 
-export function StackedBars({ categories, series }: StackedBarsProps) {
+const SHADES = [1, 0.7, 0.45, 0.25];
+
+export function StackedBars({
+  categories,
+  series,
+  categoryColor,
+}: StackedBarsProps) {
   const totals = categories.map((_, i) =>
     series.reduce((s, x) => s + (x.values[i] ?? 0), 0),
   );
@@ -32,7 +40,14 @@ export function StackedBars({ categories, series }: StackedBarsProps) {
             <span
               aria-hidden
               className="h-2.5 w-2.5 rounded-sm"
-              style={{ background: CATEGORICAL[si % CATEGORICAL.length] }}
+              style={
+                categoryColor
+                  ? {
+                      background: 'var(--color-ink-muted)',
+                      opacity: SHADES[si % SHADES.length],
+                    }
+                  : { background: CATEGORICAL[si % CATEGORICAL.length] }
+              }
             />
             {s.label}
           </li>
@@ -64,7 +79,12 @@ export function StackedBars({ categories, series }: StackedBarsProps) {
                       title={`${s.label}: ${v}`}
                       style={{
                         width: `${(v / totals[ci]) * 100}%`,
-                        background: CATEGORICAL[si % CATEGORICAL.length],
+                        background: categoryColor
+                          ? categoryColor(ci)
+                          : CATEGORICAL[si % CATEGORICAL.length],
+                        opacity: categoryColor
+                          ? SHADES[si % SHADES.length]
+                          : undefined,
                       }}
                     />
                   );

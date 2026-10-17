@@ -15,6 +15,7 @@ import { QueryError } from '@/components/ui/QueryError';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Building2 } from 'lucide-react';
+import { deptColor } from './deptColor';
 import { RankedBars } from './charts/RankedBars';
 import { StackedBars } from './charts/StackedBars';
 import type {
@@ -111,61 +112,69 @@ export function DepartmentsPanel({
     );
 
   const def = METRICS[metric];
-  const target =
-    metric === 'headcount' ? null : (d.targets[metric] ?? null);
+  const target = metric === 'headcount' ? null : (d.targets[metric] ?? null);
   const fmt = (v: number) => `${v.toLocaleString('pt-PT')}${def.unit}`;
 
   return (
     <div className="space-y-5">
-      <div className="rounded-card border border-border bg-surface p-5">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h3 className="font-body font-semibold text-ink-muted">
-            Comparação entre departamentos
-          </h3>
-          <Select
-            className="min-w-[15rem]"
-            items={METRIC_ITEMS}
-            value={metric}
-            onValueChange={(v) => setMetric(v as MetricKey)}
+      <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          Comparação entre departamentos
+        </h3>
+        <div className="p-5">
+          <div className="mb-4 flex flex-wrap items-center justify-end gap-3">
+            <Select
+              className="min-w-[15rem]"
+              items={METRIC_ITEMS}
+              value={metric}
+              onValueChange={(v) => setMetric(v as MetricKey)}
+            />
+          </div>
+          <RankedBars
+            rows={d.departments.map((r) => ({
+              id: r.id,
+              label: r.name,
+              value: def.value(r),
+            }))}
+            format={fmt}
+            target={target}
+            direction={def.direction}
+            rowColor={deptColor}
+            onSelect={(row) =>
+              onFiltersChange({ ...filters, departmentId: Number(row.id) })
+            }
           />
+          <p className="mt-3 font-body text-xs text-ink-faint">
+            Os {d.departments.length} departamentos com mais colaboradores.
+            {filters.departmentId
+              ? ' Filtro de departamento activo — remova-o nos filtros globais para voltar à comparação completa.'
+              : ' Clique num departamento para o seleccionar como filtro global.'}
+          </p>
         </div>
-        <RankedBars
-          rows={d.departments.map((r) => ({
-            id: r.id,
-            label: r.name,
-            value: def.value(r),
-          }))}
-          format={fmt}
-          target={target}
-          direction={def.direction}
-          onSelect={(row) =>
-            onFiltersChange({ ...filters, departmentId: Number(row.id) })
-          }
-        />
-        <p className="mt-3 font-body text-xs text-ink-faint">
-          Os {d.departments.length} departamentos com mais colaboradores.
-          {filters.departmentId
-            ? ' Filtro de departamento activo — remova-o nos filtros globais para voltar à comparação completa.'
-            : ' Clique num departamento para o seleccionar como filtro global.'}
-        </p>
       </div>
 
-      <div className="rounded-card border border-border bg-surface p-5">
-        <h3 className="mb-4 font-body font-semibold text-ink-muted">
+      <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
           Composição por tipo de vínculo
         </h3>
-        {d.composition.categories.length === 0 ? (
-          <p className="font-body text-sm text-ink-faint">Sem dados</p>
-        ) : (
-          <StackedBars
-            categories={d.composition.categories}
-            series={d.composition.series.map((s) => ({
-              key: s.key,
-              label: CONTRACT_LABEL[s.key] ?? s.key,
-              values: s.values,
-            }))}
-          />
-        )}
+        <div className="p-5">
+          {d.composition.categories.length === 0 ? null : (
+            <StackedBars
+              categories={d.composition.categories}
+              categoryColor={(ci) => {
+                const idx = d.departments.findIndex(
+                  (x) => x.name === d.composition.categories[ci],
+                );
+                return deptColor(idx >= 0 ? idx : ci);
+              }}
+              series={d.composition.series.map((s) => ({
+                key: s.key,
+                label: CONTRACT_LABEL[s.key] ?? s.key,
+                values: s.values,
+              }))}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

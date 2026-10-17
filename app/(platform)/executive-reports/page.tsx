@@ -14,7 +14,6 @@ import {
   BarChart2,
   Building2,
   CalendarClock,
-  CircleCheck,
   Clock,
   FileText,
   FolderKanban,
@@ -35,7 +34,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { IconButton } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { PillTabsList } from '@/components/ui/PillTabs';
 import { AlertsPanel } from '@/components/executive-reports/AlertsPanel';
 import { CustomReportsPanel } from '@/components/executive-reports/CustomReportsPanel';
 import { DepartmentsPanel } from '@/components/executive-reports/DepartmentsPanel';
@@ -173,48 +173,16 @@ export default function ExecutiveReportsPage() {
           value={active.id}
           onValueChange={(v) => setActiveTab(v as ExecutiveTabId)}
         >
-          {/* Barra de abas — mesma "glassmorphism" do dashboard-rh. */}
-          <div className="relative bg-surface px-6 py-5">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 overflow-hidden"
-            >
-              <div className="absolute -left-16 top-0 h-40 w-72 rounded-full bg-primary/20 blur-3xl" />
-              <div className="absolute -right-10 bottom-0 h-40 w-72 rounded-full bg-primary/15 blur-3xl" />
-            </div>
-
-            <div className="relative mx-auto max-w-7xl rounded-3xl border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
-              <TabsList className="grid h-auto w-full grid-cols-1 gap-2 border-b-0 bg-transparent p-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {tabs.map((t) => {
-                  const Icon = TAB_ICONS[t.id];
-                  return (
-                    <TabsTrigger
-                      key={t.id}
-                      value={t.id}
-                      className="group flex h-auto w-full min-w-0 items-center gap-3 rounded-full border border-white/70 bg-white/60 py-2 pl-2 pr-4 text-left text-ink shadow-sm backdrop-blur transition-all
-                               hover:bg-white/80
-                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40
-                               data-[state=active]:border-transparent data-[state=active]:bg-[#0F1F3D] data-[state=active]:text-white data-[state=active]:shadow-lg"
-                    >
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/70 text-ink/70 group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
-                        <Icon size={16} strokeWidth={1.75} />
-                      </span>
-                      <span className="flex min-w-0 flex-1 flex-col items-start leading-tight">
-                        <span className="w-full break-words text-sm font-semibold">{t.label}</span>
-                        <span className="w-full break-words text-xs opacity-70 group-data-[state=active]:opacity-85">
-                          {t.hint}
-                        </span>
-                      </span>
-                      <CircleCheck
-                        size={16}
-                        strokeWidth={2}
-                        className="hidden shrink-0 group-data-[state=active]:block"
-                      />
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </div>
+          {/* Barra de abas — mesma pílula do módulo scalability. */}
+          <div className="mx-auto max-w-7xl px-6 py-3">
+            <PillTabsList
+              items={tabs.map((t) => ({
+                id: t.id,
+                label: t.label,
+                hint: t.hint,
+                icon: TAB_ICONS[t.id],
+              }))}
+            />
           </div>
 
           {/* Conteúdo */}

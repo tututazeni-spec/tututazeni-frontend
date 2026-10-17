@@ -64,3 +64,48 @@ export const CONTRACT_LABEL: Record<string, string> = {
   NOT_SET: 'Não definido',
   OTHER: 'Outros',
 };
+
+// Nomes técnicos dos módulos (slug do backend) → português
+const MODULE_LABEL: Record<string, string> = {
+  users: 'Utilizadores',
+  departments: 'Departamentos',
+  organization: 'Organização',
+  attendance: 'Assiduidade',
+  leave: 'Licenças e ausências',
+  'payroll / payslips': 'Folha salarial / recibos',
+  'work-declaration': 'Declarações de trabalho',
+  trainings: 'Formações',
+  courses: 'Cursos',
+  'course-modules': 'Módulos de curso',
+  enrollments: 'Inscrições',
+  assessments: 'Avaliações',
+  competencies: 'Competências',
+  'competency-map': 'Mapa de competências',
+  performance: 'Desempenho',
+  '360 feedback': 'Feedback 360°',
+  'development-plans': 'Planos de desenvolvimento',
+  'career-plans': 'Planos de carreira',
+  'talent-development': 'Desenvolvimento de talento',
+  onboarding: 'Integração de colaboradores',
+  'avatar-training': 'Formação com avatar',
+  leadership: 'Liderança',
+  'micro-learning': 'Microaprendizagem',
+  'learning-paths': 'Percursos de aprendizagem',
+  knowledge: 'Conhecimento',
+  'content-library': 'Biblioteca de conteúdos',
+  'document-repository': 'Repositório de documentos',
+  engagement: 'Envolvimento',
+  succession: 'Sucessão',
+  instructor: 'Formadores',
+  events: 'Eventos',
+  processes: 'Processos',
+  automations: 'Automações',
+  notifications: 'Notificações',
+  history: 'Histórico',
+  'API Integration': 'Integrações de API',
+  auth: 'Autenticação',
+  'executive-reports': 'Relatórios executivos',
+};
+
+/** Nome em português de um módulo (slug do backend); desconhecido → o próprio slug. */
+export const moduleLabel = (slug: string): string => MODULE_LABEL[slug] ?? slug;
