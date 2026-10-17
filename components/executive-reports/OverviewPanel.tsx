@@ -31,6 +31,9 @@ import { BarChart } from '@/components/ui/charts/BarChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { AlertStrip } from '@/components/dashboard-rh/AlertStrip';
 import { ExecutiveKpiCard } from './ExecutiveKpiCard';
+import { deptColor } from './deptColor';
+import { DonutStatCard } from './DonutStatCard';
+import { SpeedometerRateCard } from './SpeedometerRateCard';
 import type { ExecutiveFilters, ExecutiveOverview } from './dashboardTypes';
 import { filtersToParams } from './filtersToParams';
 
@@ -42,6 +45,9 @@ const KPI_ICONS: Record<string, LucideIcon> = {
   TURNOVER: TrendingDown,
   PDI_OVERDUE: Target,
 };
+
+// KPIs principais apresentados como donut, numa linha própria
+const DONUT_KPI_CODES = ['TRAINING_COMPLETION', 'ATTENDANCE'];
 
 const CONTRACT_LABEL: Record<string, string> = {
   INDEFINITE: 'Efectivo',
@@ -57,8 +63,6 @@ const CONTRACT_LABEL: Record<string, string> = {
 export interface OverviewPanelProps {
   filters: ExecutiveFilters;
 }
-
-const pct = (v: number | null) => (v === null ? 'Sem dados' : `${v}%`);
 
 export function OverviewPanel({ filters }: OverviewPanelProps) {
   const params = filtersToParams(filters);
@@ -77,9 +81,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
       />
     );
   if (q.error || !q.data)
-    return (
-      <QueryError error={q.error} onRetry={() => q.refetch()} />
-    );
+    return <QueryError error={q.error} onRetry={() => q.refetch()} />;
 
   const d = q.data;
   const showComparison = d.context.compareWith !== 'target';
@@ -88,7 +90,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
     severity: a.severity,
     message: a.message,
   }));
-  const deptRows = d.workforce.byDepartment.slice(0, 10);
+  const deptRows = d.workforce.byDepartment;
   const contracts = d.workforce.byContractType.map((c) => ({
     label: CONTRACT_LABEL[c.label] ?? c.label,
     value: c.value,
@@ -100,14 +102,77 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
 
       {/* 6 KPIs principais (§3.1) */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {d.kpis.map((k) => (
-          <ExecutiveKpiCard
-            key={k.code}
-            kpi={k}
-            icon={KPI_ICONS[k.code] ?? Target}
-            showComparison={showComparison}
-          />
-        ))}
+        {d.kpis
+          .filter((k) => !DONUT_KPI_CODES.includes(k.code))
+          .map((k) =>
+            k.code === 'TURNOVER' ? (
+              <DonutStatCard
+                key={k.code}
+                label={k.shortLabel}
+                percent={k.value}
+                color="#EF4657"
+                sub={k.target !== null ? `Meta ${k.target}%` : undefined}
+              />
+            ) : (
+              <ExecutiveKpiCard
+                key={k.code}
+                kpi={k}
+                icon={KPI_ICONS[k.code] ?? Target}
+                showComparison={showComparison}
+              />
+            ),
+          )}
+        <NavyStatCard
+          label="Avaliações concluídas"
+          value={
+            d.performance.completionPct === null
+              ? ''
+              : `${d.performance.completionPct}%`
+          }
+          tone="orange"
+          icon={CheckCircle2}
+        />
+        <NavyStatCard
+          label="Inscrições / concluídas"
+          value={`${d.training.enrollmentsEligible} / ${d.training.enrollmentsCompleted}`}
+          tone="blue"
+          icon={GraduationCap}
+        />
+      </div>
+
+      {/* Taxas em donut: formação, assiduidade, rotatividade, competências */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {DONUT_KPI_CODES.map((code) => {
+          const k = d.kpis.find((x) => x.code === code);
+          if (k && code === 'ATTENDANCE')
+            return (
+              <SpeedometerRateCard
+                key={code}
+                label={k.shortLabel}
+                percent={k.value}
+                sub={k.target !== null ? `Meta ${k.target}%` : undefined}
+              />
+            );
+          return k ? (
+            <DonutStatCard
+              key={code}
+              label={k.shortLabel}
+              percent={k.value}
+              color={code === 'TRAINING_COMPLETION' ? '#1877F2' : '#218653'}
+              sub={k.target !== null ? `Meta ${k.target}%` : undefined}
+            />
+          ) : null;
+        })}
+        <DonutStatCard
+          label="Rotatividade (12 meses)"
+          percent={d.workforce.turnoverLast12Months}
+          color="#E99A16"
+        />
+        <DonutStatCard
+          label="Competências avaliadas"
+          percent={d.competencies.evaluatedPct}
+          color="#1877F2"
+        />
       </div>
 
       {/* Indicadores complementares (§3.1, lista adicional) */}
@@ -131,34 +196,10 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
           icon={Users}
         />
         <NavyStatCard
-          label="Rotatividade (12 meses)"
-          value={pct(d.workforce.turnoverLast12Months)}
-          tone="orange"
-          icon={TrendingDown}
-        />
-        <NavyStatCard
-          label="Inscrições / concluídas"
-          value={`${d.training.enrollmentsEligible} / ${d.training.enrollmentsCompleted}`}
-          tone="blue"
-          icon={GraduationCap}
-        />
-        <NavyStatCard
           label="Participantes · horas"
           value={`${d.training.participants} · ${d.training.hours}h`}
           tone="green"
           icon={BookOpen}
-        />
-        <NavyStatCard
-          label="Avaliações concluídas"
-          value={pct(d.performance.completionPct)}
-          tone="orange"
-          icon={CheckCircle2}
-        />
-        <NavyStatCard
-          label="Competências avaliadas"
-          value={pct(d.competencies.evaluatedPct)}
-          tone="blue"
-          icon={Wrench}
         />
         <NavyStatCard
           label="Lacunas de competências"
@@ -187,55 +228,64 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
       </div>
 
       {/* Pendências críticas */}
-      <div className="rounded-card border border-border bg-surface p-5">
-        <h3 className="mb-3 font-body font-semibold text-ink-muted">
+      <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
           Pendências críticas
         </h3>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {[
-            ['Formações obrigatórias em atraso', d.pending.overdueMandatoryTraining],
-            ['Acções de PDI atrasadas', d.pending.overdueActions],
-            ['Pedidos de licença por aprovar', d.pending.pendingLeaveApprovals],
-          ].map(([label, n]) => (
-            <div
-              key={label as string}
-              className="rounded-control bg-surface-sunken px-4 py-3"
-            >
-              <p className="font-display text-2xl font-bold text-ink">{n}</p>
-              <p className="font-body text-xs text-ink-muted">{label}</p>
-            </div>
-          ))}
+        <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-3">
+          <NavyStatCard
+            label="Formações obrigatórias em atraso"
+            value={d.pending.overdueMandatoryTraining}
+            tone="red"
+            icon={GraduationCap}
+          />
+          <NavyStatCard
+            label="Acções de PDI atrasadas"
+            value={d.pending.overdueActions}
+            tone="orange"
+            icon={Clock}
+          />
+          <NavyStatCard
+            label="Pedidos de licença por aprovar"
+            value={d.pending.pendingLeaveApprovals}
+            tone="blue"
+            icon={CalendarClock}
+          />
         </div>
       </div>
 
       {/* Distribuição e composição (§6.2/6.3) */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-4 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface">
+          <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Colaboradores por departamento
           </h3>
-          {deptRows.length === 0 ? (
-            <p className="font-body text-sm text-ink-faint">Sem dados</p>
-          ) : (
-            <BarChart
-              orientation="horizontal"
-              categories={deptRows.map((r) => r.label)}
-              series={[
-                { label: 'Colaboradores', values: deptRows.map((r) => r.value) },
-              ]}
-              height={Math.max(160, deptRows.length * 34)}
-            />
-          )}
+          <div className="p-5">
+            {deptRows.length === 0 ? null : (
+              <BarChart
+                orientation="horizontal"
+                categories={deptRows.map((r) => r.label)}
+                series={[
+                  {
+                    label: 'Colaboradores',
+                    values: deptRows.map((r) => r.value),
+                    barColors: deptRows.map((_, i) => deptColor(i)),
+                  },
+                ]}
+                height={Math.max(160, deptRows.length * 34)}
+              />
+            )}
+          </div>
         </div>
-        <div className="rounded-card border border-border bg-surface p-5">
-          <h3 className="mb-4 font-body font-semibold text-ink-muted">
+        <div className="overflow-hidden rounded-card border border-border bg-surface">
+          <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
             Tipo de vínculo
           </h3>
-          {contracts.length === 0 ? (
-            <p className="font-body text-sm text-ink-faint">Sem dados</p>
-          ) : (
-            <DonutChart centerLabel="Colaboradores" data={contracts} />
-          )}
+          <div className="p-5">
+            {contracts.length === 0 ? null : (
+              <DonutChart centerLabel="Colaboradores" data={contracts} />
+            )}
+          </div>
         </div>
       </div>
     </div>

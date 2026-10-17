@@ -12,7 +12,6 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { SECTION_LABEL, TYPE_CFG } from './constants';
 import type { Report, ReportTemplate, ReportType } from './types';
 
@@ -47,37 +46,35 @@ export function GenerateView({ onSuccess }: GenerateViewProps) {
   const handleGenerate = () => generateMutation.mutate(type);
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <Card className="mb-5 p-6">
-        <div className="mb-4 font-body text-base font-semibold text-ink">
+    <div className="mx-auto max-w-4xl">
+      <div className="mb-5 rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-6 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="mb-4 font-display text-base font-bold uppercase tracking-wide">
           Geração automática de relatório
         </div>
-        <p className="mb-5 font-body text-sm text-ink-muted">
+        <p className="mb-5 font-body text-sm text-white/70">
           O sistema irá consolidar automaticamente todos os KPIs da plataforma e
           gerar um relatório executivo com narrativa incluída.
         </p>
 
         {/* Tipo de relatório */}
         <div className="mb-5">
-          <div className="mb-2 font-body text-xs font-medium text-ink">
+          <div className="mb-2 font-body text-xs font-medium text-white/80">
             Tipo de relatório
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {templates.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setType(t.type)}
                 className={cn(
-                  'rounded-card border p-3 text-left transition-colors',
+                  'group rounded-card border p-3 text-left text-white transition-all duration-200 ease-out hover:scale-[1.06] hover:border-white hover:bg-white hover:text-[#0F1F3D] hover:shadow-[0_10px_24px_rgba(0,0,0,0.25)] motion-reduce:hover:scale-100',
                   type === t.type
-                    ? 'border-primary bg-primary-subtle'
-                    : 'border-border hover:border-border-strong',
+                    ? 'border-[#7CC4FF] bg-white/20'
+                    : 'border-white/25 bg-white/10',
                 )}
               >
-                <div className="font-body text-xs font-semibold text-ink">
-                  {t.name}
-                </div>
-                <div className="mt-0.5 font-body text-xs text-ink-faint">
+                <div className="font-body text-xs font-semibold">{t.name}</div>
+                <div className="mt-0.5 font-body text-xs text-white/70 group-hover:text-[#0F1F3D]/70">
                   {t.description}
                 </div>
               </button>
@@ -87,8 +84,8 @@ export function GenerateView({ onSuccess }: GenerateViewProps) {
 
         {/* Secções incluídas */}
         {templates.find((t) => t.type === type) && (
-          <div className="mb-5 rounded-control bg-info-subtle p-3">
-            <div className="mb-2 font-body text-xs font-medium text-info-ink">
+          <div className="mb-5 rounded-control bg-white/10 p-3">
+            <div className="mb-2 font-body text-xs font-medium text-white">
               Secções incluídas neste relatório:
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -97,7 +94,7 @@ export function GenerateView({ onSuccess }: GenerateViewProps) {
                 ?.sections.map((s: string) => (
                   <span
                     key={s}
-                    className="rounded bg-surface px-2 py-0.5 font-body text-xs text-info-ink"
+                    className="rounded bg-white/15 px-2 py-0.5 font-body text-xs text-white"
                   >
                     {SECTION_LABEL[s] ?? s.replace('_', ' ')}
                   </span>
@@ -110,18 +107,18 @@ export function GenerateView({ onSuccess }: GenerateViewProps) {
           onClick={handleGenerate}
           loading={generating}
           disabled={generating}
-          className="w-full"
+          className="w-full !bg-white !text-[#0F1F3D] hover:!bg-white/90"
         >
           {generating
             ? 'A gerar relatório…'
             : `Gerar ${TYPE_CFG[type]?.label} automaticamente`}
         </Button>
 
-        <p className="mt-3 text-center font-body text-xs text-ink-faint">
+        <p className="mt-3 text-center font-body text-xs text-white/70">
           O relatório incluirá narrativa executiva gerada automaticamente com
           base nos dados actuais da plataforma.
         </p>
-      </Card>
+      </div>
     </div>
   );
 }

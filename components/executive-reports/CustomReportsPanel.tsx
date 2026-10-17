@@ -200,11 +200,11 @@ export function CustomReportsPanel({ filters }: CustomReportsPanelProps) {
         </div>
       </section>
 
-      <section>
-        <h2 className="mb-3 font-display text-lg font-semibold text-ink">
+      <section className="overflow-hidden rounded-card border border-border">
+        <h2 className="bg-[#0F1F3D]/60 px-5 py-3 font-display text-lg font-semibold text-white">
           Construtor de relatório personalizado
         </h2>
-        <Card className="space-y-4 p-5">
+        <Card className="space-y-4 rounded-none border-0 p-5 shadow-none">
           <div>
             <div className="mb-2 font-body text-xs font-medium text-ink">
               1. Módulos e indicadores

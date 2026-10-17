@@ -23,6 +23,8 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ExecutiveKpiCard } from './ExecutiveKpiCard';
+import { DonutStatCard } from './DonutStatCard';
+import { SpeedometerRateCard } from './SpeedometerRateCard';
 import { SectionTables } from './SectionTable';
 import type { DomainResponse, ExecutiveFilters } from './dashboardTypes';
 import { filtersToParams } from './filtersToParams';
@@ -42,6 +44,12 @@ const KPI_ICONS: Record<string, LucideIcon> = {
   ATTENDANCE: Clock,
   TURNOVER: TrendingDown,
   PDI_OVERDUE: Target,
+};
+
+// KPIs apresentados como donut (cor do anel por código)
+const DONUT_COLOR: Record<string, string> = {
+  TURNOVER: '#EF4657',
+  TRAINING_COMPLETION: '#1877F2',
 };
 
 export interface DomainPanelProps {
@@ -82,14 +90,31 @@ export function DomainPanel({ domain, filters }: DomainPanelProps) {
     <div className="space-y-5">
       {d.kpis.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {d.kpis.map((k) => (
-            <ExecutiveKpiCard
-              key={k.code}
-              kpi={k}
-              icon={KPI_ICONS[k.code] ?? Target}
-              showComparison={d.context.compareWith !== 'target'}
-            />
-          ))}
+          {d.kpis.map((k) =>
+            k.code === 'ATTENDANCE' ? (
+              <SpeedometerRateCard
+                key={k.code}
+                label={k.shortLabel}
+                percent={k.value}
+                sub={k.target !== null ? `Meta ${k.target}%` : undefined}
+              />
+            ) : k.code in DONUT_COLOR ? (
+              <DonutStatCard
+                key={k.code}
+                label={k.shortLabel}
+                percent={k.value}
+                color={DONUT_COLOR[k.code]}
+                sub={k.target !== null ? `Meta ${k.target}%` : undefined}
+              />
+            ) : (
+              <ExecutiveKpiCard
+                key={k.code}
+                kpi={k}
+                icon={KPI_ICONS[k.code] ?? Target}
+                showComparison={d.context.compareWith !== 'target'}
+              />
+            ),
+          )}
         </div>
       )}
       <SectionTables sections={d.sections} omitted={d.omitted} />

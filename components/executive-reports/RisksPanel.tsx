@@ -54,7 +54,8 @@ export function RisksPanel({ filters, onFiltersChange }: RisksPanelProps) {
 
   const scatter = d.heatmap
     .filter(
-      (r) => r.cells.absenteeism.value !== null && r.cells.turnover.value !== null,
+      (r) =>
+        r.cells.absenteeism.value !== null && r.cells.turnover.value !== null,
     )
     .map((r) => ({
       x: r.cells.absenteeism.value as number,
@@ -64,32 +65,36 @@ export function RisksPanel({ filters, onFiltersChange }: RisksPanelProps) {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-card border border-border bg-surface p-5">
-        <h3 className="mb-4 font-body font-semibold text-ink-muted">
+      <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
           Mapa de calor — risco por departamento
         </h3>
-        <RiskHeatmap
-          data={d}
-          onSelectDepartment={(id) =>
-            onFiltersChange({ ...filters, departmentId: id })
-          }
-        />
+        <div className="p-5">
+          <RiskHeatmap
+            data={d}
+            onSelectDepartment={(id) =>
+              onFiltersChange({ ...filters, departmentId: id })
+            }
+          />
+        </div>
       </div>
 
-      <div className="rounded-card border border-border bg-surface p-5">
-        <h3 className="mb-1 font-body font-semibold text-ink-muted">
+      <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
           Dispersão — absentismo × rotatividade
         </h3>
-        <p className="mb-3 font-body text-xs text-ink-faint">
-          Cada ponto é um departamento (eixo X: absentismo %, eixo Y:
-          rotatividade %). Departamentos sem dados num dos eixos não aparecem.
-        </p>
-        <ScatterChart
-          points={scatter}
-          xLabel="Absentismo (%)"
-          yLabel="Rotatividade (%)"
-          height={220}
-        />
+        <div className="p-5">
+          <p className="mb-3 font-body text-xs text-ink-faint">
+            Cada ponto é um departamento (eixo X: absentismo %, eixo Y:
+            rotatividade %). Departamentos sem dados num dos eixos não aparecem.
+          </p>
+          <ScatterChart
+            points={scatter}
+            xLabel="Absentismo (%)"
+            yLabel="Rotatividade (%)"
+            height={220}
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">

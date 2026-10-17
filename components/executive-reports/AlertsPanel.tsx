@@ -6,9 +6,16 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import Link from 'next/link';
-import { Bell, ChevronDown, ChevronRight, ExternalLink } from 'lucide-react';
+import {
+  Bell,
+  ChevronDown,
+  ChevronRight,
+  ExternalLink,
+  GraduationCap,
+  Info,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useToast } from '@/providers/ToastProvider';
@@ -22,6 +29,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { moduleLabel } from './kpiFormat';
 import type {
   AlertEvent,
   AlertRule,
@@ -67,6 +75,69 @@ function day(iso: string | null) {
   return iso ? new Date(iso).toLocaleDateString('pt-PT') : '—';
 }
 
+const HERO_RULE = 'TRAINING_TARGET_LATE';
+const SEVERITY_COLOR: Record<AlertSeverity, string> = {
+  CRITICAL: '#F87171',
+  HIGH: '#F87171',
+  MEDIUM: '#FBBF24',
+  LOW: '#7CC4FF',
+};
+
+// A % actual vem na descrição do alerta ("… em 0% (limiar …)").
+function percentFromDescription(text: string) {
+  const m = /\bem (\d+(?:[.,]\d+)?)\s*%/.exec(text);
+  return m ? Number(m[1].replace(',', '.')) : 0;
+}
+
+function HeroRing({ percent, label }: { percent: number; label: string }) {
+  const gid = useId();
+  const size = 96;
+  const stroke = 13;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const pct = Math.min(100, Math.max(0, percent));
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        role="img"
+        aria-label={label}
+        className="-rotate-90"
+      >
+        <defs>
+          <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#7CC4FF" />
+            <stop offset="100%" stopColor="#2F80ED" />
+          </linearGradient>
+        </defs>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="rgba(255,255,255,0.12)"
+          strokeWidth={stroke}
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke={`url(#${gid})`}
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={`${(pct / 100) * circ} ${circ}`}
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center font-display text-xl font-bold">
+        {pct.toLocaleString('pt-PT')}%
+      </span>
+    </div>
+  );
+}
+
 function AlertRow({ alert }: { alert: ExecutiveAlert }) {
   const notify = useToast();
   const role = useCurrentRole();
@@ -93,6 +164,167 @@ function AlertRow({ alert }: { alert: ExecutiveAlert }) {
 
   const active = alert.status === 'OPEN' || alert.status === 'ACKNOWLEDGED';
   const sev = SEVERITY[alert.severity];
+
+  const expandedBlock = open ? (
+    <div className="mt-3 space-y-3 border-t border-border pt-3">
+      {alert.link && (
+        <Link
+          href={alert.link}
+          className="inline-flex items-center gap-1 font-body text-xs text-primary hover:underline"
+        >
+          <ExternalLink size={12} /> Abrir registo de origem
+        </Link>
+      )}
+
+      {active && (
+        <div className="flex flex-wrap items-end gap-2">
+          <Input
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Comentário (obrigatório para dispensar)"
+            aria-label="Comentário"
+            className="min-w-[20rem] flex-1"
+          />
+          {alert.status === 'OPEN' && (
+            <Button
+              size="sm"
+              intent="secondary"
+              disabled={act.isPending}
+              onClick={() => act.mutate('acknowledge')}
+            >
+              Reconhecer
+            </Button>
+          )}
+          <Button
+            size="sm"
+            intent="success"
+            disabled={act.isPending}
+            onClick={() => act.mutate('resolve')}
+          >
+            Resolver
+          </Button>
+          {canManage && (
+            <Button
+              size="sm"
+              intent="ghost"
+              disabled={act.isPending || comment.trim().length === 0}
+              onClick={() => act.mutate('dismiss')}
+            >
+              Dispensar
+            </Button>
+          )}
+        </div>
+      )}
+      {!active && canManage && (
+        <Button
+          size="sm"
+          intent="secondary"
+          disabled={act.isPending}
+          onClick={() => act.mutate('reopen')}
+        >
+          Reabrir
+        </Button>
+      )}
+
+      <div>
+        <div className="mb-1 font-body text-xs font-medium text-ink">
+          Histórico
+        </div>
+        {detail.isLoading && (
+          <p className="font-body text-xs text-ink-faint">A carregar…</p>
+        )}
+        <ul className="space-y-1">
+          {(detail.data?.events ?? []).map((ev) => (
+            <li key={ev.id} className="font-body text-xs text-ink-muted">
+              {new Date(ev.createdAt).toLocaleString('pt-PT')} —{' '}
+              {ACTION_LABEL[ev.action] ?? ev.action}
+              {ev.user ? ` por ${ev.user.fullName}` : ''}
+              {ev.comment ? `: ${ev.comment}` : ''}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  ) : null;
+
+  if (alert.ruleCode === HERO_RULE) {
+    const pct = percentFromDescription(alert.description);
+    const color = SEVERITY_COLOR[alert.severity];
+    return (
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="block w-full text-left"
+          aria-expanded={open}
+        >
+          <div className="mb-2 flex items-center gap-3">
+            <GraduationCap className="h-6 w-6" strokeWidth={1.8} aria-hidden />
+            <h3 className="font-display text-base font-bold uppercase tracking-wide">
+              {alert.title}
+            </h3>
+            {open ? (
+              <ChevronDown size={18} className="ml-auto" />
+            ) : (
+              <ChevronRight size={18} className="ml-auto" />
+            )}
+          </div>
+          <div className="flex flex-col items-center gap-4 md:flex-row md:gap-8">
+            <HeroRing
+              percent={pct}
+              label={`Taxa de conclusão de formação: ${pct}%`}
+            />
+            <div className="min-w-0 flex-1">
+              <p className="mb-2 font-display text-xl font-bold leading-snug">
+                Taxa de conclusão de formação
+              </p>
+              <div className="flex flex-wrap items-stretch gap-x-8 gap-y-2">
+                <div>
+                  <p className="font-body text-sm text-white/70">Gravidade</p>
+                  <p
+                    className="mt-1 flex items-center gap-2 font-display text-xl font-semibold"
+                    style={{ color }}
+                  >
+                    <span
+                      className="h-4 w-4 rounded-full"
+                      style={{ backgroundColor: color }}
+                    />
+                    {sev.label}
+                  </p>
+                </div>
+                <div className="hidden w-px bg-white/20 sm:block" />
+                <div>
+                  <p className="font-body text-sm text-white/70">Estado</p>
+                  <p className="font-display text-xl font-bold">
+                    {STATUS_LABEL[alert.status]}
+                  </p>
+                </div>
+                <div className="hidden w-px bg-white/20 sm:block" />
+                <div>
+                  <p className="font-body text-sm text-white/70">Prazo</p>
+                  <p className="font-display text-xl font-bold">
+                    {day(alert.dueDate)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-3 flex items-center gap-3 rounded-card bg-white/10 px-4 py-2 font-body text-sm">
+            <Info className="h-5 w-5 shrink-0 text-[#7CC4FF]" aria-hidden />
+            <span>
+              {alert.description} · Detectado em {day(alert.detectedAt)} ·
+              Responsável: {alert.owner?.fullName ?? 'Por atribuir'}
+            </span>
+          </div>
+        </button>
+        {expandedBlock && (
+          <div className="mt-3 rounded-card bg-surface p-3 text-ink">
+            {expandedBlock}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <Card className="p-4">
@@ -126,94 +358,15 @@ function AlertRow({ alert }: { alert: ExecutiveAlert }) {
             {alert.description}
           </p>
           <p className="mt-0.5 font-body text-xs text-ink-faint">
-            Origem: {alert.sourceModule} · Detectado em {day(alert.detectedAt)}{' '}
-            · Responsável: {alert.owner?.fullName ?? 'Por atribuir'} · Prazo:{' '}
+            Origem: {moduleLabel(alert.sourceModule)} · Detectado em{' '}
+            {day(alert.detectedAt)} · Responsável:{' '}
+            {alert.owner?.fullName ?? 'Por atribuir'} · Prazo:{' '}
             {day(alert.dueDate)}
           </p>
         </div>
       </button>
 
-      {open && (
-        <div className="mt-3 space-y-3 border-t border-border pt-3">
-          {alert.link && (
-            <Link
-              href={alert.link}
-              className="inline-flex items-center gap-1 font-body text-xs text-primary hover:underline"
-            >
-              <ExternalLink size={12} /> Abrir registo de origem
-            </Link>
-          )}
-
-          {active && (
-            <div className="flex flex-wrap items-end gap-2">
-              <Input
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Comentário (obrigatório para dispensar)"
-                aria-label="Comentário"
-                className="max-w-sm"
-              />
-              {alert.status === 'OPEN' && (
-                <Button
-                  size="sm"
-                  intent="secondary"
-                  disabled={act.isPending}
-                  onClick={() => act.mutate('acknowledge')}
-                >
-                  Reconhecer
-                </Button>
-              )}
-              <Button
-                size="sm"
-                intent="success"
-                disabled={act.isPending}
-                onClick={() => act.mutate('resolve')}
-              >
-                Resolver
-              </Button>
-              {canManage && (
-                <Button
-                  size="sm"
-                  intent="ghost"
-                  disabled={act.isPending || comment.trim().length === 0}
-                  onClick={() => act.mutate('dismiss')}
-                >
-                  Dispensar
-                </Button>
-              )}
-            </div>
-          )}
-          {!active && canManage && (
-            <Button
-              size="sm"
-              intent="secondary"
-              disabled={act.isPending}
-              onClick={() => act.mutate('reopen')}
-            >
-              Reabrir
-            </Button>
-          )}
-
-          <div>
-            <div className="mb-1 font-body text-xs font-medium text-ink">
-              Histórico
-            </div>
-            {detail.isLoading && (
-              <p className="font-body text-xs text-ink-faint">A carregar…</p>
-            )}
-            <ul className="space-y-1">
-              {(detail.data?.events ?? []).map((ev) => (
-                <li key={ev.id} className="font-body text-xs text-ink-muted">
-                  {new Date(ev.createdAt).toLocaleString('pt-PT')} —{' '}
-                  {ACTION_LABEL[ev.action] ?? ev.action}
-                  {ev.user ? ` por ${ev.user.fullName}` : ''}
-                  {ev.comment ? `: ${ev.comment}` : ''}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
+      {expandedBlock}
     </Card>
   );
 }
@@ -248,7 +401,7 @@ function RuleThreshold({
         <div className="font-body text-xs text-ink-faint">{rule.condition}</div>
       </td>
       <td className="py-2 pr-3 font-body text-xs text-ink-muted">
-        {rule.sourceModule}
+        {moduleLabel(rule.sourceModule)}
       </td>
       <td className="py-2 pr-3">
         {rule.available && rule.threshold !== null ? (
@@ -403,31 +556,34 @@ export function AlertsPanel() {
       )}
 
       {isFull && rulesQ.data && (
-        <Card className="p-4">
-          <div className="mb-1 font-body text-sm font-semibold text-ink">
+        <Card className="overflow-hidden">
+          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
             Regras e limiares
           </div>
-          <p className="mb-3 font-body text-xs text-ink-faint">
-            Os limiares são configuráveis e só ADMIN/DIRECTOR os aprovam. A
-            gravidade sobe para crítica quando o valor atinge o dobro do limiar.
-          </p>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left">
-              <thead>
-                <tr className="border-b border-border font-body text-xs text-ink-muted">
-                  <th className="pb-2 pr-3 font-medium">Regra</th>
-                  <th className="pb-2 pr-3 font-medium">Origem</th>
-                  <th className="pb-2 pr-3 font-medium">Limiar</th>
-                  <th className="pb-2 font-medium">Aprovação</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {rulesQ.data.map((r) => (
-                  <RuleThreshold key={r.code} rule={r} canEdit={canApprove} />
-                ))}
-              </tbody>
-            </table>
+          <div className="p-4">
+            <p className="mb-3 font-body text-xs text-ink-faint">
+              Os limiares são configuráveis e só ADMIN/DIRECTOR os aprovam. A
+              gravidade sobe para crítica quando o valor atinge o dobro do
+              limiar.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left">
+                <thead>
+                  <tr className="border-b border-border font-body text-xs text-ink-muted">
+                    <th className="pb-2 pr-3 font-medium">Regra</th>
+                    <th className="pb-2 pr-3 font-medium">Origem</th>
+                    <th className="pb-2 pr-3 font-medium">Limiar</th>
+                    <th className="pb-2 font-medium">Aprovação</th>
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {rulesQ.data.map((r) => (
+                    <RuleThreshold key={r.code} rule={r} canEdit={canApprove} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </Card>
       )}

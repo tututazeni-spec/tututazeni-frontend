@@ -6,11 +6,12 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
+import { CheckCircle2, Clock, FilePen, FileText } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -63,29 +64,32 @@ export function ListView({ onSelect, onGenerate }: ListViewProps) {
     <div>
       {/* Stats */}
       {stats && (
-        <div className="mb-6 grid grid-cols-4 gap-3">
-          {[
-            { label: 'Total', value: stats.total },
-            {
-              label: 'Publicados',
-              value: stats.byStatus['PUBLISHED'] ?? 0,
-            },
-            {
-              label: 'Em revisão',
-              value: stats.byStatus['IN_REVIEW'] ?? 0,
-            },
-            { label: 'Rascunhos', value: stats.byStatus['DRAFT'] ?? 0 },
-          ].map(({ label, value }) => (
-            <Card
-              key={label}
-              className="border-transparent bg-surface-sunken p-4 shadow-none"
-            >
-              <div className="font-body text-xs text-ink-faint">{label}</div>
-              <div className="font-mono text-2xl font-bold text-ink">
-                {value}
-              </div>
-            </Card>
-          ))}
+        <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <NavyStatCard
+            label="Total"
+            value={stats.total}
+            tone="blue"
+            icon={FileText}
+          />
+          <NavyStatCard
+            label="Publicados"
+            value={stats.byStatus['PUBLISHED'] ?? 0}
+            tone="green"
+            icon={CheckCircle2}
+          />
+          <NavyStatCard
+            label="Em revisão"
+            value={stats.byStatus['IN_REVIEW'] ?? 0}
+            tone="orange"
+            icon={Clock}
+          />
+          <NavyStatCard
+            label="Rascunhos"
+            value={stats.byStatus['DRAFT'] ?? 0}
+            tone="blue"
+            iconTone="gray"
+            icon={FilePen}
+          />
         </div>
       )}
 
