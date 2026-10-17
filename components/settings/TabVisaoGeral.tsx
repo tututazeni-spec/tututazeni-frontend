@@ -11,6 +11,7 @@ import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
+import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -43,6 +44,47 @@ const TIMEZONES = [
   'America/Sao_Paulo',
   'UTC',
 ].map((v) => ({ value: v, label: v }));
+
+// Sugestões para os campos "Sector" e "País"; ambos aceitam texto livre.
+const SECTORS = [
+  'Agricultura e Pescas',
+  'Banca e Seguros',
+  'Comércio e Distribuição',
+  'Construção e Imobiliário',
+  'Consultoria',
+  'Educação e Formação',
+  'Energia e Águas',
+  'Hotelaria e Turismo',
+  'Indústria Transformadora',
+  'Mineração e Petróleo',
+  'Saúde',
+  'Serviços Públicos',
+  'Tecnologia e Telecomunicações',
+  'Transportes e Logística',
+].map((v) => ({ value: v, label: v }));
+const COUNTRIES = [
+  'Angola',
+  'Brasil',
+  'Cabo Verde',
+  'Guiné-Bissau',
+  'Moçambique',
+  'Portugal',
+  'São Tomé e Príncipe',
+  'Timor-Leste',
+  'África do Sul',
+  'Alemanha',
+  'Espanha',
+  'Estados Unidos',
+  'França',
+  'Itália',
+  'Namíbia',
+  'Reino Unido',
+  'República Democrática do Congo',
+  'Zâmbia',
+  'Zimbabué',
+]
+  .sort((a, b) => a.localeCompare(b, 'pt'))
+  .map((v) => ({ value: v, label: v }));
 
 // Imagens (logo/favicon) guardadas como data-URL — mesmo padrão do avatar.
 const MAX_IMAGE_BYTES = 1024 * 1024;
@@ -210,11 +252,12 @@ export function TabVisaoGeral() {
               />
             </FormField>
             <FormField label="Sector" htmlFor="sector">
-              <Input
-                id="sector"
-                className="w-full"
+              <Combobox
+                items={SECTORS}
+                allowCustom
+                placeholder="Selecionar ou escrever…"
                 value={text('sector')}
-                onChange={(e) => set('sector', e.target.value)}
+                onValueChange={(v) => set('sector', v)}
               />
             </FormField>
             <FormField label="Morada" htmlFor="address">
@@ -226,11 +269,12 @@ export function TabVisaoGeral() {
               />
             </FormField>
             <FormField label="País" htmlFor="country">
-              <Input
-                id="country"
-                className="w-full"
+              <Combobox
+                items={COUNTRIES}
+                allowCustom
+                placeholder="Selecionar ou escrever…"
                 value={text('country')}
-                onChange={(e) => set('country', e.target.value)}
+                onValueChange={(v) => set('country', v)}
               />
             </FormField>
             <FormField label="Telefone" htmlFor="phone">

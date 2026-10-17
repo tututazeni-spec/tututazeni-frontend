@@ -150,16 +150,14 @@ export function TabNotificacoes() {
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          Templates das mensagens
+          {data && (
+            <Badge intent="info">{data.activeTemplates} activos</Badge>
+          )}
+        </div>
         <CardBody>
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">
-              Templates das mensagens
-            </h3>
-            {data && (
-              <Badge intent="info">{data.activeTemplates} activos</Badge>
-            )}
-          </div>
           <p className="text-sm text-ink-muted">
             A edição dos templates continua em Notificações &gt; Templates. Aqui
             controlas só que eventos os disparam e em que canais/horário.

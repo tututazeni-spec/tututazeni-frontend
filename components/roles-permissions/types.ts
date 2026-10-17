@@ -2,7 +2,7 @@
 // Tipos do domínio de RBAC: roles, matriz de permissões, simulação
 // e governança. Extraído de app/(platform)/roles-permissions/page.tsx.
 
-export type Tab = 'roles' | 'matrix' | 'simulator' | 'governance';
+export type Tab = 'roles' | 'matrix' | 'governance';
 
 export interface RolePermission {
   name: string;

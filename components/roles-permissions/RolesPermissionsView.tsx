@@ -11,16 +11,15 @@ import { TABS } from '@/components/roles-permissions/constants';
 import { GovernanceTab } from '@/components/roles-permissions/GovernanceTab';
 import { MatrixTab } from '@/components/roles-permissions/MatrixTab';
 import { RolesTab } from '@/components/roles-permissions/RolesTab';
-import { SimulatorTab } from '@/components/roles-permissions/SimulatorTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 
 export function RolesPermissionsView() {
   return (
     <div className="min-h-screen bg-canvas">
-      <div className="bg-surface border-b border-border px-6 py-5">
+      <div className="bg-[#0F1F3D]/60 border-b border-border px-6 py-5">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-xl font-display font-bold text-ink">
+            <h1 className="text-xl font-display font-bold text-white">
               Funções e Permissões
             </h1>
           </div>
@@ -57,9 +56,6 @@ export function RolesPermissionsView() {
           </TabsContent>
           <TabsContent value="matrix">
             <MatrixTab />
-          </TabsContent>
-          <TabsContent value="simulator">
-            <SimulatorTab />
           </TabsContent>
           <TabsContent value="governance">
             <GovernanceTab />

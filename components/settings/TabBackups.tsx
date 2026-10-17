@@ -14,6 +14,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
+import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -48,6 +49,23 @@ const HEALTH: Record<
   FAILED: { label: 'Último falhou', intent: 'danger' },
   NEVER: { label: 'Nunca executado', intent: 'warning' },
   DISABLED: { label: 'Desactivado', intent: 'neutral' },
+};
+
+// O browser não consegue escolher pastas do servidor — sugerem-se caminhos
+// comuns e aceita-se qualquer caminho absoluto escrito à mão (o backend cria-o).
+const DESTINATION_SUGGESTIONS = [
+  'C:\\Backups\\innova',
+  'D:\\Backups\\innova',
+  'E:\\Backups\\innova',
+  '/var/backups/innova',
+].map((v) => ({ value: v, label: v }));
+
+// Cores de estado do card ROI Total.
+const HEALTH_COLORS: Record<string, string> = {
+  success: '#34D399',
+  warning: '#FBBF24',
+  danger: '#F87171',
+  neutral: '#9CA3AF',
 };
 
 const RUN_STATUS: Record<
@@ -160,41 +178,48 @@ export function TabBackups() {
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardBody>
+      {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">Estado</h3>
-            <Badge intent={health.intent}>{health.label}</Badge>
+            <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
+              Estado
+            </h3>
+            <span
+              className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold"
+              style={{ color: HEALTH_COLORS[health.intent] ?? '#9CA3AF' }}
+            >
+              {health.label}
+            </span>
           </div>
-          <dl className="grid grid-cols-2 gap-3 text-sm text-ink md:grid-cols-4">
+          <dl className="grid grid-cols-2 gap-3 text-sm text-white md:grid-cols-4">
             <div>
-              <dt className="text-xs text-ink-faint">
+              <dt className="text-xs text-white/70">
                 Último backup com sucesso
               </dt>
-              <dd>{fmtDate(data.lastSuccessAt)}</dd>
+              <dd className="font-display font-bold">{fmtDate(data.lastSuccessAt)}</dd>
             </div>
             <div>
-              <dt className="text-xs text-ink-faint">Próximo agendado</dt>
-              <dd>{fmtDate(data.nextRunAt)}</dd>
+              <dt className="text-xs text-white/70">Próximo agendado</dt>
+              <dd className="font-display font-bold">{fmtDate(data.nextRunAt)}</dd>
             </div>
             <div>
-              <dt className="text-xs text-ink-faint">Cópias guardadas</dt>
-              <dd>
+              <dt className="text-xs text-white/70">Cópias guardadas</dt>
+              <dd className="font-display font-bold">
                 {data.storedCopies} ({fmtBytes(data.storedBytes)})
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-ink-faint">
+              <dt className="text-xs text-white/70">
                 Ferramentas no servidor
               </dt>
-              <dd>
+              <dd className="font-display font-bold">
                 pg_dump {data.tools.pgDump ? '✓' : '✗'} · pg_restore{' '}
                 {data.tools.pgRestore ? '✓' : '✗'}
               </dd>
             </div>
           </dl>
           {!data.tools.pgDump && (
-            <p className="mt-3 text-sm text-danger">
+            <p className="mt-3 text-sm text-[#F87171]">
               pg_dump não foi encontrado no servidor. Instale o cliente
               PostgreSQL ou defina PG_DUMP_PATH.
             </p>
@@ -202,6 +227,7 @@ export function TabBackups() {
           <div className="mt-4">
             <Button
               type="button"
+              className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
               disabled={
                 runNow.isPending ||
                 !data.settings.destinationDir ||
@@ -212,13 +238,12 @@ export function TabBackups() {
               {runNow.isPending ? 'A executar…' : 'Executar backup agora'}
             </Button>
             {!data.settings.destinationDir && (
-              <span className="ml-3 text-xs text-ink-faint">
+              <span className="ml-3 text-xs text-white/70">
                 Defina e guarde a pasta de destino primeiro.
               </span>
             )}
           </div>
-        </CardBody>
-      </Card>
+      </div>
 
       <form onSubmit={submit}>
         <Card className="overflow-hidden">
@@ -293,11 +318,13 @@ export function TabBackups() {
                 htmlFor="bk-dir"
                 hint="Caminho absoluto no servidor, ex.: /var/backups/innova ou D:\Backups\innova. Monte aqui o volume/partilha externa."
               >
-                <Input
-                  id="bk-dir"
-                  className="w-full"
+                <Combobox
+                  items={DESTINATION_SUGGESTIONS}
+                  allowCustom
+                  placeholder="Escolher ou escrever o caminho…"
+                  searchPlaceholder="Escreva o caminho no servidor…"
                   value={form.destinationDir}
-                  onChange={(e) => set('destinationDir', e.target.value)}
+                  onValueChange={(v) => set('destinationDir', v)}
                 />
               </FormField>
               <div className="grid grid-cols-2 gap-4">

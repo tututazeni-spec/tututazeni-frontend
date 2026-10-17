@@ -11,7 +11,6 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { LicenseSettings } from './types';
@@ -43,6 +42,13 @@ const TRIAL_LABELS: Record<
   NONE: { label: 'Sem trial', intent: 'neutral' },
   ACTIVE: { label: 'Trial activo', intent: 'success' },
   EXPIRED: { label: 'Trial expirado', intent: 'danger' },
+};
+
+// Cores de estado do card ROI Total (verde / vermelho / cinzento).
+const TRIAL_COLORS = {
+  neutral: '#9CA3AF',
+  success: '#34D399',
+  danger: '#F87171',
 };
 
 export function TabLicenca() {
@@ -81,68 +87,74 @@ export function TabLicenca() {
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardBody>
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">Plano actual</h3>
-            <p className="m-0 text-xs text-ink-faint">
-              Plano, utilizadores e validade geridos em Escalabilidade {'>'}{' '}
-              Inquilinos.
+      {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
+            Plano actual
+          </h3>
+          <p className="m-0 text-xs text-white/70">
+            Plano, utilizadores e validade geridos em Escalabilidade {'>'}{' '}
+            Inquilinos.
+          </p>
+        </div>
+        <div className="grid grid-cols-5 gap-4">
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              Plano
+            </p>
+            <p className="mt-1 font-display text-lg font-bold text-white">
+              {data.plan}
             </p>
           </div>
-          <div className="grid grid-cols-5 gap-4">
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
-                Plano
-              </p>
-              <p className="mt-1 text-lg font-bold text-ink">{data.plan}</p>
-            </div>
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
-                Estado
-              </p>
-              <Badge
-                intent={data.isActive ? 'success' : 'danger'}
-                className="mt-1"
-              >
-                {data.isActive ? 'Activo' : 'Inactivo'}
-              </Badge>
-            </div>
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
-                Utilizadores
-              </p>
-              <p className="mt-1 text-lg font-bold text-ink">
-                {data.currentUsers} / {data.maxUsers}
-              </p>
-            </div>
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
-                Trial
-              </p>
-              <Badge intent={trial.intent} className="mt-1">
-                {trial.label}
-                {data.trialEndsAt &&
-                  ` · ${new Date(data.trialEndsAt).toLocaleDateString('pt-PT')}`}
-              </Badge>
-            </div>
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
-                Contrato
-              </p>
-              <p className="mt-1 text-sm text-ink">
-                {data.contractStartDate
-                  ? new Date(data.contractStartDate).toLocaleDateString('pt-PT')
-                  : '—'}
-                {' → '}
-                {data.contractEndDate
-                  ? new Date(data.contractEndDate).toLocaleDateString('pt-PT')
-                  : '—'}
-              </p>
-            </div>
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              Estado
+            </p>
+            <span
+              className="mt-1 inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold"
+              style={{ color: data.isActive ? '#34D399' : '#F87171' }}
+            >
+              {data.isActive ? 'Activo' : 'Inactivo'}
+            </span>
           </div>
-        </CardBody>
-      </Card>
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              Utilizadores
+            </p>
+            <p className="mt-1 font-display text-lg font-bold text-white">
+              {data.currentUsers} / {data.maxUsers}
+            </p>
+          </div>
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              Trial
+            </p>
+            <span
+              className="mt-1 inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold"
+              style={{ color: TRIAL_COLORS[trial.intent] }}
+            >
+              {trial.label}
+              {data.trialEndsAt &&
+                ` · ${new Date(data.trialEndsAt).toLocaleDateString('pt-PT')}`}
+            </span>
+          </div>
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              Contrato
+            </p>
+            <p className="mt-1 text-sm text-white">
+              {data.contractStartDate
+                ? new Date(data.contractStartDate).toLocaleDateString('pt-PT')
+                : '—'}
+              {' → '}
+              {data.contractEndDate
+                ? new Date(data.contractEndDate).toLocaleDateString('pt-PT')
+                : '—'}
+            </p>
+          </div>
+        </div>
+      </div>
 
       <Card className="overflow-hidden">
         <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">

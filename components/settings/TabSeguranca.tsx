@@ -392,21 +392,27 @@ function TwoFactorCard({
   const mode = status.data?.mode;
 
   return (
-    <Card>
-      <CardBody>
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-bold text-ink">
+    <Card className="overflow-hidden border-0 bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
+      <div className="px-5 pt-4">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="font-display text-base font-bold text-white">
             Autenticação de dois factores (2FA)
           </h3>
-          <Badge intent={enabled ? 'success' : 'neutral'}>
+          <span
+            className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold"
+            style={{ color: enabled ? '#34D399' : '#FBBF24' }}
+          >
             {enabled ? 'Activo' : 'Inactivo'}
-          </Badge>
+          </span>
         </div>
         {mode && (
-          <p className="mb-4 text-xs text-ink-faint">
+          <p className="mt-1 text-sm text-white/70">
             Política da organização: {TWO_FACTOR_LABELS[mode]}
           </p>
         )}
+      </div>
+      <CardBody>
 
         {enabled ? (
           <div className="max-w-sm space-y-3">
@@ -432,7 +438,7 @@ function TwoFactorCard({
           </div>
         ) : setup ? (
           <div className="max-w-sm space-y-3">
-            <p className="text-sm text-ink-muted">
+            <p className="text-sm text-white/80">
               Adiciona esta chave numa app de autenticação (Google
               Authenticator, Authy…) e confirma com o código gerado.
             </p>
@@ -458,20 +464,20 @@ function TwoFactorCard({
             </FormField>
             <div className="flex gap-2">
               <Button
-                intent="primary"
+                intent="primary" className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
                 disabled={enableMutation.isPending || code.length !== 6}
                 onClick={() => enableMutation.mutate(code)}
               >
                 Confirmar e activar
               </Button>
-              <Button intent="ghost" onClick={() => setSetup(null)}>
+              <Button intent="ghost" className="text-white hover:bg-white/10" onClick={() => setSetup(null)}>
                 Cancelar
               </Button>
             </div>
           </div>
         ) : (
           <Button
-            intent="primary"
+            intent="primary" className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
             disabled={setupMutation.isPending}
             onClick={() => setupMutation.mutate(undefined)}
           >
@@ -569,11 +575,10 @@ function LoginHistoryCard({
   );
 
   return (
-    <Card>
-      <CardBody>
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-bold text-ink">{title}</h3>
-          {showOutcomeFilter && (
+    <Card className="overflow-hidden">
+      <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        {title}
+        {showOutcomeFilter && (
             <Select
               className="w-44"
               items={[
@@ -588,7 +593,8 @@ function LoginHistoryCard({
               }}
             />
           )}
-        </div>
+      </div>
+      <CardBody>
         {history.isLoading ? (
           <p className="text-sm text-ink-faint">A carregar…</p>
         ) : !history.data?.data.length ? (
@@ -837,16 +843,16 @@ function LockedUsersCard({
   );
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        Contas bloqueadas
+        {query.data && (
+          <Badge intent={query.data.total ? 'danger' : 'success'}>
+            {query.data.total}
+          </Badge>
+        )}
+      </div>
       <CardBody>
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-bold text-ink">Contas bloqueadas</h3>
-          {query.data && (
-            <Badge intent={query.data.total ? 'danger' : 'success'}>
-              {query.data.total}
-            </Badge>
-          )}
-        </div>
         {query.isLoading ? (
           <p className="text-sm text-ink-faint">A carregar…</p>
         ) : !query.data?.items.length ? (
@@ -924,14 +930,12 @@ function AllSessionsCard({
   );
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        Sessões activas (organização)
+        {query.data && <Badge intent="info">{query.data.total}</Badge>}
+      </div>
       <CardBody>
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-bold text-ink">
-            Sessões activas (organização)
-          </h3>
-          {query.data && <Badge intent="info">{query.data.total}</Badge>}
-        </div>
         {query.isLoading ? (
           <p className="text-sm text-ink-faint">A carregar…</p>
         ) : !query.data?.items.length ? (

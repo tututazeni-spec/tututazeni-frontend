@@ -22,6 +22,26 @@ const HEALTH_LABELS: Record<
   DISABLED: { label: 'Desactivada', intent: 'neutral' },
 };
 
+// Eventos obrigatórios da política ("tipo de evento" técnico) em português.
+const EVENT_PT: Record<string, string> = {
+  LOGIN: 'Início de sessão',
+  FAILED: 'Operação falhada',
+  CREATE: 'Criação',
+  UPDATE: 'Alteração',
+  DELETE: 'Eliminação',
+  APPROVE: 'Aprovação',
+  REJECT: 'Rejeição',
+  EXPORT: 'Exportação',
+  PERMISSION: 'Alteração de permissões',
+};
+
+// Cores de estado do card ROI Total.
+const HEALTH_COLORS = {
+  success: '#34D399',
+  danger: '#F87171',
+  neutral: '#9CA3AF',
+};
+
 export function TabAuditoria() {
   const { data, isLoading, error } = useApiQuery<AuditDataOverview>(
     queryKeys.settings.auditOverview(),
@@ -41,42 +61,48 @@ export function TabAuditoria() {
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardBody>
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">Registo de logs</h3>
-            <Badge intent={health.intent}>{health.label}</Badge>
+            <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
+              Registo de logs
+            </h3>
+            <span
+              className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold"
+              style={{ color: HEALTH_COLORS[health.intent] }}
+            >
+              {health.label}
+            </span>
           </div>
           <div className="grid grid-cols-4 gap-4">
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
+              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
                 Eventos (24h)
               </p>
-              <p className="mt-1 text-2xl font-bold text-ink">
+              <p className="mt-1 text-2xl font-display font-bold text-white">
                 {data.events24h}
               </p>
             </div>
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
+              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
                 Falhas (24h)
               </p>
-              <p className="mt-1 text-2xl font-bold text-ink">
+              <p className="mt-1 text-2xl font-display font-bold text-white">
                 {data.failedOperations24h}
               </p>
             </div>
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
+              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
                 Acessos negados (24h)
               </p>
-              <p className="mt-1 text-2xl font-bold text-ink">
+              <p className="mt-1 text-2xl font-display font-bold text-white">
                 {data.deniedOperations24h}
               </p>
             </div>
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
+              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
                 Último evento
               </p>
-              <p className="mt-1 text-sm text-ink">
+              <p className="mt-1 text-sm text-white">
                 {data.lastEventAt
                   ? new Date(data.lastEventAt).toLocaleString('pt-PT')
                   : '—'}
@@ -85,13 +111,12 @@ export function TabAuditoria() {
           </div>
           <div className="mt-4">
             <Link href={data.links.logs}>
-              <Button type="button" intent="secondary">
+              <Button type="button" intent="secondary" className="border-white bg-white text-[#0F1F3D] hover:bg-white/90">
                 Ver registo completo de logs
               </Button>
             </Link>
           </div>
-        </CardBody>
-      </Card>
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <Card className="overflow-hidden">
@@ -116,18 +141,16 @@ export function TabAuditoria() {
           </CardBody>
         </Card>
 
-        <Card>
+        <Card className="overflow-hidden">
+          <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
+            Exportação de dados
+            <Link href={data.links.exports}>
+              <Button type="button" intent="secondary">
+                Gerir exportações
+              </Button>
+            </Link>
+          </div>
           <CardBody>
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-bold text-ink">
-                Exportação de dados
-              </h3>
-              <Link href={data.links.exports}>
-                <Button type="button" intent="secondary">
-                  Gerir exportações
-                </Button>
-              </Link>
-            </div>
             <div className="flex flex-wrap gap-2">
               {data.exports.byStatus.map((s) => (
                 <Badge key={s.status} intent="neutral">
@@ -144,21 +167,20 @@ export function TabAuditoria() {
         </Card>
       </div>
 
-      <Card>
-        <CardBody>
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-base font-bold text-ink">
+            <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
               Política de auditoria
             </h3>
             <Link href={data.links.policy}>
-              <Button type="button" intent="secondary">
+              <Button type="button" intent="secondary" className="border-white bg-white text-[#0F1F3D] hover:bg-white/90">
                 Editar regras de auditoria
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-4 text-sm text-ink">
+          <div className="grid grid-cols-2 gap-4 text-sm text-white">
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
+              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
                 Módulos cobertos
               </p>
               <p className="mt-1">
@@ -166,28 +188,29 @@ export function TabAuditoria() {
               </p>
             </div>
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
+              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
                 Eventos obrigatórios
               </p>
               <p className="mt-1">
-                {data.policy.requiredEvents.join(', ') || '—'}
+                {data.policy.requiredEvents
+                  .map((e) => EVENT_PT[e.toUpperCase()] ?? e)
+                  .join(', ') || '—'}
               </p>
             </div>
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
+              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
                 Pode consultar
               </p>
               <p className="mt-1">{data.policy.viewRoles.join(', ')}</p>
             </div>
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-ink-faint">
+              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
                 Pode exportar
               </p>
               <p className="mt-1">{data.policy.exportRoles.join(', ')}</p>
             </div>
           </div>
-        </CardBody>
-      </Card>
+      </div>
     </div>
   );
 }
