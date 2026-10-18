@@ -12,9 +12,9 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BarChart } from '@/components/ui/charts/BarChart';
-import { rateTone } from './rateTone';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import type { EngagementData } from './types';
-import { Activity, Award, ClipboardList, ThumbsUp } from 'lucide-react';
+import { Activity, Award, ThumbsUp } from 'lucide-react';
 
 export function EngagementPanel() {
   const { data, isLoading: loading } = useApiQuery<EngagementData>(
@@ -44,11 +44,10 @@ export function EngagementPanel() {
           tone="blue"
           icon={Activity}
         />
-        <NavyStatCard
-          icon={ClipboardList}
-          tone={rateTone(data?.participationRate ?? 0, { warning: 50, danger: 25 })}
+        <DonutStatCard
           label="Participação em Pesquisas"
-          value={`${Math.round(data?.participationRate ?? 0)}%`}
+          value={data?.participationRate ?? 0}
+          bare
         />
         <NavyStatCard
           label="Reconhecimentos (mês)"

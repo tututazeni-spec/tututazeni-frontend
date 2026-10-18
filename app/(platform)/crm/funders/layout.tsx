@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 
+import { FundersShell } from '@/components/crm/funders/FundersShell';
+
 export const metadata: Metadata = { title: 'Financiadores' };
 
 export default function CrmFundersLayout({
@@ -7,5 +9,5 @@ export default function CrmFundersLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <FundersShell>{children}</FundersShell>;
 }

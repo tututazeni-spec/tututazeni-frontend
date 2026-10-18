@@ -6,6 +6,8 @@ import { Select } from '@/components/ui/Select';
 import { Combobox } from '@/components/ui/Combobox';
 import { Textarea } from '@/components/ui/Textarea';
 import { Field } from '@/components/crm/shared';
+import { PhotoField } from './PhotoField';
+import { UserSearchField } from './UserSearchField';
 import { COUNTRY_OPTIONS } from '@/lib/countries';
 import { provinceOptions, type FieldDef } from './formConfig';
 
@@ -18,14 +20,24 @@ interface FieldRendererProps {
 export function FieldRenderer({ def, value, onChange }: FieldRendererProps) {
   let control: React.ReactNode;
   switch (def.kind) {
-    case 'select':
+    case 'select': {
+      // Valor já guardado que já não consta da lista (dados antigos) continua
+      // visível em vez de desaparecer.
+      const base = def.options ?? [];
+      const items =
+        value && !base.some((o) => o.value === value)
+          ? [...base, { value, label: value }]
+          : base;
       control = (
-        <Select
-          value={value}
-          onValueChange={onChange}
-          items={def.options ?? []}
-        />
+        <Select value={value} onValueChange={onChange} items={items} label="" />
       );
+      break;
+    }
+    case 'photo':
+      control = <PhotoField value={value} onChange={onChange} />;
+      break;
+    case 'user':
+      control = <UserSearchField value={value} onChange={onChange} />;
       break;
     case 'province':
       control = (

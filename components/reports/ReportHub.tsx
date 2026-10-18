@@ -76,9 +76,9 @@ export function ReportHub({ onRun }: ReportHubProps) {
           itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
         />
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((t) => (
-            <TemplateCard key={t.id} tpl={t} onRun={onRun} />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          {filtered.map((t, i) => (
+            <TemplateCard key={t.id} tpl={t} index={i} onRun={onRun} />
           ))}
         </div>
       )}

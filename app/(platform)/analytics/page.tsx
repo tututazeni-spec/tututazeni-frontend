@@ -16,11 +16,11 @@
 // src/analytics/analytics.controller.ts) realmente deixa passar — evita
 // mostrar um separador que só vai devolver 403 (ver constants.ts).
 
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useMemo, useState } from 'react';
-import type { LucideIcon } from 'lucide-react';
 import { CircleCheck } from 'lucide-react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
-import { NAV, TITLES } from '@/components/analytics/constants';
+import { NAV } from '@/components/analytics/constants';
 import { CompetencyGapsView } from '@/components/analytics/CompetencyGapsView';
 import { CoursesPerformanceView } from '@/components/analytics/CoursesPerformanceView';
 import { EngagementView } from '@/components/analytics/EngagementView';
@@ -64,34 +64,14 @@ export default function AnalyticsPage() {
     [role],
   );
   const activeNav = nav.find((item) => item.id === view) ?? nav[0];
-  const ActiveIcon = activeNav?.icon as LucideIcon | undefined;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            {ActiveIcon && (
-              <ActiveIcon
-                size={22}
-                strokeWidth={1.8}
-                className="transition-all duration-300"
-              />
-            )}
-          </div>
-
-          <div>
-            <h1 className="font-display text-xl font-semibold text-ink">
-              Indicadores de Desempenho
-            </h1>
-            {activeNav?.label && activeNav.label !== TITLES[view] && (
-              <p className="mt-0.5 font-body text-xs text-ink-muted">
-                {activeNav.label}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
+      <ModuleBanner
+        src="/images/indicadores de desempenho.jpg"
+        title="Indicadores de Desempenho"
+        hint={activeNav ? NAV_HINTS[activeNav.id] : undefined}
+      />
 
       <Tabs value={view} onValueChange={(v) => setView(v as View)}>
         {/* Abas em "glassmorphism": contentor translúcido com desfoque
@@ -100,7 +80,7 @@ export default function AnalyticsPage() {
             gradiente azul, sombra e um visto à direita. As manchas
             desfocadas atrás existem só para o efeito de vidro ser visível
             sobre o fundo claro. */}
-        <div className="relative mb-6">
+        <div className={`relative ${BANNER_TABS_CLASS}`}>
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl"

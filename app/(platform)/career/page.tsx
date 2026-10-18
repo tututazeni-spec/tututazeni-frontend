@@ -22,7 +22,6 @@ import {
   Crown,
   History,
   LayoutDashboard,
-  RefreshCcw,
   Route,
   User,
 } from 'lucide-react';
@@ -41,6 +40,7 @@ import {
 import { useToast } from '@/providers/ToastProvider';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { DashboardView } from '@/components/career/DashboardView';
 import { HistoryTab } from '@/components/career/HistoryTab';
 import { OverviewTab } from '@/components/career/OverviewTab';
@@ -156,30 +156,15 @@ export default function CareerPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-xl font-semibold text-ink">
-            Carreira
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={refreshPlans}
-            aria-label="Actualizar"
-            className="p-2 rounded-control border border-border bg-surface text-ink-muted hover:bg-surface-sunken"
-          >
-            <RefreshCcw
-              size={15}
-              strokeWidth={1.75}
-              className={plansLoading ? 'animate-spin' : ''}
-            />
-          </button>
-        </div>
-      </div>
+      <ModuleBanner
+        src="/images/carreira.jpg"
+        title="Carreira"
+        hint={visibleTabs.find((t) => t.id === tab)?.hint}
+      />
 
       {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
       <Tabs value={tab} onValueChange={(v) => setTab(v as CareerTab)}>
-        <PillTabsList items={visibleTabs} className="mb-6" />
+        <PillTabsList items={visibleTabs} className={BANNER_TABS_CLASS} />
 
         <TabsContent value="overview">
           <OverviewTab />

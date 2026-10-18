@@ -30,6 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
+import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import {
   NAVY_ACTION,
@@ -210,7 +211,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
       {/* Filtros — grid de largura uniforme (mesmo padrão da aba "Cursos",
           ver components/courses/GestaoView.tsx): todos os campos com
           w-full em vez de larguras w-* ad-hoc, alinhados em colunas. */}
-      <div className="mb-5 rounded-2xl border border-[#0F1F3D]/20 bg-[#0F1F3D]/8 p-4">
+      <Card className="mb-5 p-4">
         <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <Select
             items={STATUS_ITEMS}
@@ -267,7 +268,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             {data?.total ?? 0} matrículas
           </span>
         </div>
-      </div>
+      </Card>
 
       {/* Bulk deadline */}
       {selected.length > 0 && (

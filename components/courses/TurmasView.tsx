@@ -7,19 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Briefcase,
-  CalendarDays,
-  DoorOpen,
-  PlayCircle,
-  Clock,
-  MapPin,
-  Plus,
-  Trash2,
-  Users,
-  Users2,
-  type LucideIcon,
-} from 'lucide-react';
+import { Plus, Trash2, Users2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -33,6 +21,10 @@ import { useCourseOptions } from '@/components/enrollments/enrollData';
 import { CohortDetailModal } from './CohortDetailModal';
 import { CreateCohortModal } from './CreateCohortModal';
 import { Skeleton } from './shared';
+import { NAVY_ROW_ACTION, NAVY_ROW_BADGE, NavyRow, NavyRowList } from './NavyRow';
+import { proximityLevel } from '@/components/events/proximity';
+import { PeriodPills } from '@/components/ui/Pills';
+import { cn } from '@/lib/cn';
 import type { Cohort, CohortDetail, CohortStatus } from './types';
 
 const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> =
@@ -49,36 +41,6 @@ function fmtDate(d: string | null) {
   return new Date(d).toLocaleDateString('pt-PT');
 }
 
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '?';
-  const first = parts[0][0];
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
-  return (first + last).toUpperCase();
-}
-
-interface CohortInfoProps {
-  icon: LucideIcon;
-  value: string;
-  label: string;
-}
-
-function CohortInfo({ icon: Icon, value, label }: CohortInfoProps) {
-  return (
-    <div className="flex min-w-0 items-center gap-2 px-2 sm:px-4">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD]">
-        <Icon size={15} strokeWidth={1.75} />
-      </span>
-      <div className="min-w-0">
-        <div className="text-xs font-semibold leading-tight text-[#0F1F3D]">
-          {value}
-        </div>
-        <div className="text-[11px] leading-tight text-[#71829B]">{label}</div>
-      </div>
-    </div>
-  );
-}
-
 interface CohortCardProps {
   c: Cohort;
   onOpen: () => void;
@@ -88,122 +50,71 @@ interface CohortCardProps {
 
 function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
   const place = [c.location, c.room].filter(Boolean).join(' · ');
-  const statusLabel = COHORT_STATUS_MAP[c.status]?.label ?? c.status;
-  const actionCls =
-    'inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-medium text-[#C7D4E8] hover:bg-white/10 hover:text-white';
+  const statusCfg = COHORT_STATUS_MAP[c.status];
   return (
-    <div
+    <NavyRow
       onClick={onOpen}
-      className="cursor-pointer overflow-hidden rounded-2xl border border-[#DCE5F1] bg-white shadow-[0_8px_24px_rgba(15,31,61,0.08)]"
-    >
-      <div className="bg-gradient-to-br from-[#0F1F3D] to-[#132B52] px-4 py-3">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <h3 className="min-w-0 flex-1 basis-48 text-base font-semibold uppercase leading-tight text-white">
-            {c.name}
-          </h3>
-          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#263F67] px-2.5 py-1 text-[11px] text-white">
-            <span aria-hidden>●</span>
-            {statusLabel}
-          </span>
-        </div>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
-            {c.instructor ? (
-              <>
-                {c.instructor.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={c.instructor.avatarUrl}
-                    alt=""
-                    className="h-8 w-8 shrink-0 rounded-full object-cover"
-                  />
-                ) : (
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0D6EFD] text-xs font-bold text-white">
-                    {initials(c.instructor.fullName)}
-                  </span>
-                )}
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold leading-tight text-white">
-                    {c.instructor.fullName}
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-[#C7D4E8]">
-                    <MapPin size={12} strokeWidth={1.75} className="shrink-0" />
-                    <span className="truncate">{place || '—'}</span>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="min-w-0">
-                <div className="text-sm font-semibold leading-tight text-white">
-                  Sem formador
-                </div>
-                <div className="flex items-center gap-1 text-xs text-[#C7D4E8]">
-                  <MapPin size={12} strokeWidth={1.75} className="shrink-0" />
-                  <span className="truncate">{place || '—'}</span>
-                </div>
-              </div>
-            )}
-          </div>
-          <div
-            className="flex shrink-0 items-center gap-1"
-            onClick={(e) => e.stopPropagation()}
+      barClass={proximityLevel(c.startDate).bar}
+      title={c.name}
+      subtitle={[c.instructor?.fullName ?? 'Sem formador', place]
+        .filter(Boolean)
+        .join(' · ')}
+      meta={[
+        {
+          key: 'period',
+          className: 'w-44',
+          node: `${fmtDate(c.startDate)} — ${fmtDate(c.endDate)}`,
+        },
+        { key: 'schedule', className: 'w-32', node: c.schedule ?? '—' },
+        {
+          key: 'enrolled',
+          className: 'w-28',
+          node: `${c.enrolled}/${c.capacity} inscritos`,
+        },
+        {
+          key: 'slots',
+          className: 'w-24',
+          node: `Vagas: ${c.availableSlots}`,
+        },
+      ]}
+      badge={
+        <span className={cn(NAVY_ROW_BADGE, statusCfg?.cls)}>
+          <span className="h-1.5 w-1.5 rounded-full bg-current" />
+          {statusCfg?.label ?? c.status}
+        </span>
+      }
+      actions={
+        <>
+          <button
+            type="button"
+            className={NAVY_ROW_ACTION}
+            aria-label="Ver participantes"
+            title="Ver participantes"
+            onClick={onOpen}
           >
+            <Users2 size={15} strokeWidth={1.75} />
+          </button>
+          <button
+            type="button"
+            className={NAVY_ROW_ACTION}
+            aria-label={`Eliminar turma ${c.name}`}
+            title="Eliminar turma"
+            onClick={onDelete}
+          >
+            <Trash2 size={15} strokeWidth={1.75} />
+          </button>
+          {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
             <button
               type="button"
-              className={actionCls}
-              aria-label="Ver participantes"
-              title="Ver participantes"
-              onClick={onOpen}
+              className={`${NAVY_ROW_ACTION} border border-white/25`}
+              onClick={onClose}
             >
-              <Users2 size={15} strokeWidth={1.75} />
+              Encerrar
             </button>
-            <button
-              type="button"
-              className={actionCls}
-              aria-label={`Eliminar turma ${c.name}`}
-              title="Eliminar turma"
-              onClick={onDelete}
-            >
-              <Trash2 size={15} strokeWidth={1.75} />
-            </button>
-            {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
-              <button
-                type="button"
-                className={`${actionCls} border border-white/25`}
-                onClick={onClose}
-              >
-                Encerrar
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-y-3 px-3 py-3 lg:grid-cols-4 lg:gap-y-0">
-        <CohortInfo
-          icon={CalendarDays}
-          value={`${fmtDate(c.startDate)} — ${fmtDate(c.endDate)}`}
-          label="Período"
-        />
-        <div className="lg:border-l lg:border-[#DCE5F1]">
-          <CohortInfo icon={Clock} value={c.schedule ?? '—'} label="Horário" />
-        </div>
-        <div className="lg:border-l lg:border-[#DCE5F1]">
-          <CohortInfo
-            icon={Users}
-            value={`${c.enrolled}/${c.capacity}`}
-            label="Inscritos"
-          />
-        </div>
-        <div className="lg:border-l lg:border-[#DCE5F1]">
-          <CohortInfo
-            icon={Briefcase}
-            value={`Vagas: ${c.availableSlots}`}
-            label="Disponíveis"
-          />
-        </div>
-      </div>
-    </div>
+          )}
+        </>
+      }
+    />
   );
 }
 
@@ -234,19 +145,16 @@ export function TurmasView() {
   const panelCards: Array<{
     key: 'OPEN' | 'ACTIVE';
     label: string;
-    icon: LucideIcon;
     count: number;
   }> = [
     {
       key: 'OPEN',
       label: 'Turmas Abertas',
-      icon: DoorOpen,
       count: openQuery.data?.length ?? 0,
     },
     {
       key: 'ACTIVE',
       label: 'Turmas Activas',
-      icon: PlayCircle,
       count: activeQuery.data?.length ?? 0,
     },
   ];
@@ -319,29 +227,15 @@ export function TurmasView() {
               emptyText="Nenhum curso encontrado"
             />
           </div>
-          {panelCards.map(({ key, label, icon: Icon, count }) => (
-            <button
-              key={key}
-              type="button"
-              aria-pressed={panel === key}
-              onClick={() => setPanel((p) => (p === key ? null : key))}
-              className={`flex h-10 items-center gap-2.5 rounded-xl border px-3 text-left transition-colors ${
-                panel === key
-                  ? 'border-[#0D6EFD] bg-[#EAF2FF]'
-                  : 'border-[#DCE5F1] bg-white hover:bg-[#F5F8FD]'
-              }`}
-            >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD]">
-                <Icon size={15} strokeWidth={1.75} />
-              </span>
-              <span className="text-sm font-semibold text-[#0F1F3D]">
-                {label}
-              </span>
-              <span className="rounded-full bg-[#0D6EFD] px-2 py-0.5 text-[11px] font-semibold text-white">
-                {count}
-              </span>
-            </button>
-          ))}
+          <PeriodPills
+            label="Turmas"
+            value={panel ?? ''}
+            onChange={(v) => setPanel((p) => (p === v ? null : v || null))}
+            options={panelCards.map(({ key, label, count }) => ({
+              value: key as 'OPEN' | 'ACTIVE' | '',
+              label: `${label} (${count})`,
+            }))}
+          />
         </div>
         <Button
           size="sm"
@@ -369,21 +263,17 @@ export function TurmasView() {
             />
           )}
           {!openLoading && openCohorts.length > 0 && (
-            <div className="space-y-5">
+            <NavyRowList>
               {openCohorts.map((c) => (
-                <div key={c.id}>
-                  <div className="mb-1 px-1 text-xs font-medium text-[#71829B]">
-                    {c.course.title}
-                  </div>
-                  <CohortCard
-                    c={c}
-                    onOpen={() => setDetailId(c.id)}
-                    onDelete={() => onDelete(c)}
-                    onClose={() => onClose(c)}
-                  />
-                </div>
+                <CohortCard
+                  key={c.id}
+                  c={{ ...c, name: `${c.name} · ${c.course.title}` }}
+                  onOpen={() => setDetailId(c.id)}
+                  onDelete={() => onDelete(c)}
+                  onClose={() => onClose(c)}
+                />
               ))}
-            </div>
+            </NavyRowList>
           )}
         </div>
       )}
@@ -406,7 +296,7 @@ export function TurmasView() {
 
       {!showOpen && courseId && !isLoading && data.length > 0 && (
         <div>
-          <div className="space-y-5">
+          <NavyRowList>
             {data.map((c) => (
               <CohortCard
                 key={c.id}
@@ -416,7 +306,7 @@ export function TurmasView() {
                 onClose={() => onClose(c)}
               />
             ))}
-          </div>
+          </NavyRowList>
         </div>
       )}
 

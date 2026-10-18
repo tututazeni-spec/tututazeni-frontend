@@ -6,7 +6,12 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Field } from '@/components/crm/shared';
-import { TYPE_LABELS, PROVINCES } from './types';
+import {
+  TYPE_LABELS,
+  PROVINCES,
+  CONTACT_TITLES,
+  REVENUE_SHARING_OPTIONS,
+} from './types';
 
 interface PartnerForm {
   type: string;
@@ -124,9 +129,13 @@ export function PartnerCreateView({
             </Field>
 
             <Field label="Cargo do contacto">
-              <Input
+              <Select
                 value={form.contactTitle}
-                onChange={(e) => setField('contactTitle', e.target.value)}
+                onValueChange={(value) => setField('contactTitle', value)}
+                items={[
+                  { value: '', label: '—' },
+                  ...CONTACT_TITLES.map((t) => ({ value: t, label: t })),
+                ]}
               />
             </Field>
 
@@ -204,12 +213,16 @@ export function PartnerCreateView({
             </Field>
 
             <Field label="Partilha de receita (%)">
-              <Input
-                type="number"
-                min={0}
-                max={100}
+              <Select
                 value={form.revenueSharing}
-                onChange={(e) => setField('revenueSharing', e.target.value)}
+                onValueChange={(value) => setField('revenueSharing', value)}
+                items={[
+                  { value: '', label: '—' },
+                  ...REVENUE_SHARING_OPTIONS.map((n) => ({
+                    value: String(n),
+                    label: `${n}%`,
+                  })),
+                ]}
               />
             </Field>
 

@@ -8,7 +8,7 @@ import { Combobox } from '@/components/ui/Combobox';
 import { Textarea } from '@/components/ui/Textarea';
 import { Field } from '@/components/crm/shared';
 import { COUNTRY_OPTIONS } from '@/lib/countries';
-import { TYPE_LABELS } from './types';
+import { TYPE_LABELS, REPORTING_REQUIREMENTS } from './types';
 
 interface FunderForm {
   type: string;
@@ -197,9 +197,16 @@ export function FunderCreateView({
 
             <div className="md:col-span-2">
               <Field label="Requisitos de reporte">
-                <Input
+                <Select
                   value={form.reportingReqs}
-                  onChange={(e) => setField('reportingReqs', e.target.value)}
+                  onValueChange={(value) => setField('reportingReqs', value)}
+                  items={[
+                    { value: '', label: '—' },
+                    ...REPORTING_REQUIREMENTS.map((r) => ({
+                      value: r,
+                      label: r,
+                    })),
+                  ]}
                 />
               </Field>
             </div>

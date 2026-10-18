@@ -2,6 +2,7 @@
 'use client';
 
 import { PillNav } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
@@ -34,20 +35,20 @@ export default function DevelopmentPlansPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="mb-1 font-display text-xl font-semibold text-ink">
-            {TITLES[nav.view]}
-          </h1>
-          <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
-        </div>
-        {nav.view !== 'detail' && canCreate && (
-          <Button size="sm" onClick={() => setShowWizard(true)}>
-            <Plus size={14} strokeWidth={1.75} />
-            Novo PDI
-          </Button>
-        )}
-      </div>
+      <ModuleBanner
+        src="/images/planos de desenvolvimento.jpg"
+        title={TITLES[nav.view]}
+        hint={NAV.find((n) => n.id === nav.view)?.hint}
+        className={nav.view === 'detail' ? 'mb-6' : undefined}
+        action={
+          nav.view !== 'detail' && canCreate ? (
+            <Button size="sm" onClick={() => setShowWizard(true)}>
+              <Plus size={14} strokeWidth={1.75} />
+              Novo PDI
+            </Button>
+          ) : undefined
+        }
+      />
 
       {nav.view !== 'detail' && (
         <PillNav
@@ -55,7 +56,7 @@ export default function DevelopmentPlansPage() {
           value={nav.view}
           onChange={(id) => setNav({ view: id } as Nav)}
           label="Planos de desenvolvimento"
-          className="mb-6"
+          className={BANNER_TABS_CLASS}
         />
       )}
 

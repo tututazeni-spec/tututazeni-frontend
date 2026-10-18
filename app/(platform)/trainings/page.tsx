@@ -7,6 +7,7 @@
 // project_innova_component_separation_audit.
 
 import { PillNav } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import {
@@ -59,14 +60,18 @@ export default function TrainingsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-xl font-semibold text-ink">
-            {TITLES[nav.view]}
-          </h1>
-          <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
-        </div>
-      </div>
+      <ModuleBanner
+        src="/images/gestão de formações.jpg"
+        title={TITLES[nav.view]}
+        hint={visibleNav.find((n) => n.id === nav.view)?.hint}
+        className={
+          nav.view === 'detail' ||
+          nav.view === 'manage-detail' ||
+          nav.view === 'plan-detail'
+            ? 'mb-6'
+            : undefined
+        }
+      />
 
       {nav.view !== 'detail' &&
         nav.view !== 'manage-detail' &&
@@ -76,7 +81,7 @@ export default function TrainingsPage() {
             value={nav.view}
             onChange={(id) => setNav({ view: id } as Nav)}
             label="Formações"
-            className="mb-6"
+            className={BANNER_TABS_CLASS}
           />
         )}
 

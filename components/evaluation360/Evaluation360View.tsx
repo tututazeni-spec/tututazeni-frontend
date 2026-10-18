@@ -31,6 +31,7 @@ import { RelatoriosTab } from './RelatoriosTab';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { EVAL_OVERVIEW_ROLES, EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { Tabs } from '@/components/ui/Tabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
 import {
   BarChart3,
@@ -45,15 +46,55 @@ import {
 } from 'lucide-react';
 
 const TABS: (PillTabItem & { id: TabId })[] = [
-  { id: 'overview', label: 'Visão Geral', hint: 'O meu resultado', icon: LayoutDashboard },
-  { id: 'adminOverview', label: 'Painel Geral', hint: 'Visão agregada', icon: BarChart3 },
-  { id: 'cycles', label: 'Avaliações 360°', hint: 'Ciclos de avaliação', icon: Layers },
+  {
+    id: 'overview',
+    label: 'Visão Geral',
+    hint: 'O meu resultado',
+    icon: LayoutDashboard,
+  },
+  {
+    id: 'adminOverview',
+    label: 'Painel Geral',
+    hint: 'Visão agregada',
+    icon: BarChart3,
+  },
+  {
+    id: 'cycles',
+    label: 'Avaliações 360°',
+    hint: 'Ciclos de avaliação',
+    icon: Layers,
+  },
   { id: 'evaluated', label: 'Avaliados', hint: 'Participantes', icon: Users },
-  { id: 'evaluators', label: 'Avaliadores', hint: 'Quem avalia', icon: UserCog },
-  { id: 'questionnaires', label: 'Questionários', hint: 'Perguntas e modelos', icon: FileText },
-  { id: 'results', label: 'Resultados', hint: 'Scores e análises', icon: LineChart },
-  { id: 'feedback', label: 'Feedback', hint: 'Comentários', icon: MessageSquare },
-  { id: 'reports', label: 'Relatórios', hint: 'Exportar relatórios', icon: ClipboardList },
+  {
+    id: 'evaluators',
+    label: 'Avaliadores',
+    hint: 'Quem avalia',
+    icon: UserCog,
+  },
+  {
+    id: 'questionnaires',
+    label: 'Questionários',
+    hint: 'Perguntas e modelos',
+    icon: FileText,
+  },
+  {
+    id: 'results',
+    label: 'Resultados',
+    hint: 'Scores e análises',
+    icon: LineChart,
+  },
+  {
+    id: 'feedback',
+    label: 'Feedback',
+    hint: 'Comentários',
+    icon: MessageSquare,
+  },
+  {
+    id: 'reports',
+    label: 'Relatórios',
+    hint: 'Exportar relatórios',
+    icon: ClipboardList,
+  },
 ];
 
 // Abas "Avaliados"/"Avaliadores" (docs/evaluation360.md §4/§5) são vistas de
@@ -134,22 +175,16 @@ export function Evaluation360View({
 
   return (
     <div className="min-h-screen bg-surface font-body text-ink">
-      {/* Header */}
-      <div className="border-b border-border bg-surface px-6 py-5">
-        <div className="mx-auto flex max-w-7xl items-start justify-between gap-4">
-          <h1 className="font-display text-xl font-bold text-ink">
-            Avaliação 360°
-          </h1>
-          {cycle && (
-            <p className="mt-0.5 shrink-0 text-sm text-ink-muted">
-              Ciclo: <strong className="text-ink">{cycle.name}</strong>
-            </p>
-          )}
-        </div>
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <ModuleBanner
+          src="/images/avaliação 360.jpg"
+          title="Avaliação 360°"
+          hint={cycle ? `Ciclo: ${cycle.name}` : undefined}
+        />
       </div>
 
       <Tabs value={activeTab} onValueChange={(v) => onTabChange(v as TabId)}>
-        <div className="mx-auto max-w-7xl px-6 py-3">
+        <div className={`mx-auto max-w-7xl ${BANNER_TABS_CLASS}`}>
           <PillTabsList items={visibleTabs} />
         </div>
 

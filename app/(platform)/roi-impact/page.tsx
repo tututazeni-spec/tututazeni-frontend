@@ -7,6 +7,7 @@
 // page.tsx usa para as suas tabs). Ver memory
 // project_innova_component_separation_audit.
 
+import { useState } from 'react';
 import {
   BarChart3,
   Briefcase,
@@ -35,6 +36,7 @@ import { ConfigTab } from '@/components/roi-impact/ConfigTab';
 import type { Tab } from '@/components/roi-impact/types';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 
 // docs/roi-impact.md — "Visão Geral", "ROI da Formação", "Impacto no
 // Negócio", "Modelos de Avaliação", "Custos & Investimento", "Indicadores
@@ -105,23 +107,20 @@ const TABS: {
 ];
 
 export default function RoiImpactPage() {
+  const [tab, setTab] = useState('executive');
   return (
     <div className="min-h-screen bg-canvas">
-      <div className="border-b border-border bg-surface px-6 py-5">
-        <div className="mx-auto flex max-w-7xl items-start justify-between">
-          <div>
-            <div className="mb-1 flex items-center gap-2">
-              <h1 className="font-display text-xl font-bold text-ink">
-                ROI & Impacto
-              </h1>
-            </div>
-          </div>
-        </div>
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <ModuleBanner
+          src="/images/roi impact.jpg"
+          title="ROI & Impacto"
+          hint={TABS.find((t) => t.id === tab)?.hint}
+        />
       </div>
 
-      <Tabs defaultValue="executive">
-        <div className="bg-surface px-6 py-5">
-          <PillTabsList items={TABS} className="mx-auto max-w-7xl" />
+      <Tabs value={tab} onValueChange={setTab}>
+        <div className={`mx-auto max-w-7xl ${BANNER_TABS_CLASS}`}>
+          <PillTabsList items={TABS} />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">

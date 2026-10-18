@@ -15,7 +15,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useLeaveTypes, usePendingApprovals } from '@/hooks/useLeave';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -32,14 +31,14 @@ import {
   LayoutDashboard,
   Palmtree,
   Plus,
-  RefreshCcw,
   ScrollText,
   Settings,
   Users,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { Button, IconButton } from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { PillNav } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { AbsenceCalendarTab } from '@/components/leave/AbsenceCalendarTab';
 import { AbsencesTab } from '@/components/leave/AbsencesTab';
 import { ApprovalsTab } from '@/components/leave/ApprovalsTab';
@@ -79,13 +78,12 @@ export default function LeavePage() {
   // lib/roles.ts para a distinção.
   const isApprover = !!role && LEAVE_APPROVER_ROLES.includes(role);
 
-  const queryClient = useQueryClient();
   const leaveTypes = useLeaveTypes();
   // Licenças: tudo menos férias (que têm o seu próprio fluxo na aba Férias).
   const licenseTypes = leaveTypes.filter(
     (t) => t.code !== 'VACATION' && t.active,
   );
-  const { data: pending, refetch: pRefetch } = usePendingApprovals(isApprover);
+  const { data: pending } = usePendingApprovals(isApprover);
 
   const cancel = useApiMutation(
     (id: number) => apiClient.patch(`/leave/${id}/cancel`, {}),
@@ -153,35 +151,20 @@ export default function LeavePage() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      {/* Header */}
-      <div className="bg-surface border-b border-border px-6 py-5 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-display font-bold text-ink">
-              Férias e Ausências
-            </h1>
-            <p className="text-sm text-ink-muted">
-              Férias, licenças e gestão de ausências
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <IconButton
-              icon={RefreshCcw}
-              label="Actualizar"
-              intent="secondary"
-              onClick={() => {
-                pRefetch();
-                queryClient.invalidateQueries({ queryKey: queryKeys.leave.all });
-              }}
-            />
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <ModuleBanner
+          src="/images/ferias e licenças.jpg"
+          title="Férias e Ausências"
+          hint="Férias, licenças e gestão de ausências"
+          action={
             <Button onClick={() => setShowModal(true)}>
               <Plus size={15} strokeWidth={1.75} /> Nova licença
             </Button>
-          </div>
-        </div>
+          }
+        />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6 space-y-5">
+      <div className="max-w-7xl mx-auto px-6 pb-6 space-y-5">
         <PillNav
           items={tabs.map((t) => ({
             id: t.key,
@@ -198,6 +181,7 @@ export default function LeavePage() {
           value={tab}
           onChange={(id) => setTab(id as TabKey)}
           label="Férias e Ausências"
+          className={BANNER_TABS_CLASS}
         />
 
         {tab === 'overview' && <OverviewTab leaveTypes={leaveTypes} />}

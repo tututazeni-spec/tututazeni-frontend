@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 
+import { PartnersShell } from '@/components/crm/partners/PartnersShell';
+
 export const metadata: Metadata = { title: 'Parceiros' };
 
 export default function CrmPartnersLayout({
@@ -7,5 +9,5 @@ export default function CrmPartnersLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <PartnersShell>{children}</PartnersShell>;
 }

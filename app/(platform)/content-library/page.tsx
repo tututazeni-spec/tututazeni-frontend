@@ -29,6 +29,7 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import type { Role } from '@/lib/roles';
 
 // Espelha AUTHOR_ROLES em src/content-library/content-library.controller.ts
@@ -80,33 +81,28 @@ export default function ContentLibraryPage() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      {/* Header */}
-      <div className="border-b border-border bg-surface px-6 py-5">
-        <div className="mx-auto flex max-w-7xl items-start justify-between">
-          <div>
-            <div className="mb-1 flex items-center gap-2">
-              <h1 className="font-display text-xl font-bold text-ink">
-                Biblioteca
-              </h1>
-            </div>
-          </div>
-          {canAddContent && (
-            <div className="flex gap-2">
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <ModuleBanner
+          src="/images/biblioteca.jpg"
+          title="Biblioteca"
+          position="center 40%"
+          action={
+            canAddContent && (
               <Button size="sm" onClick={() => setShowAdd(true)}>
                 <Plus size={14} strokeWidth={1.75} />
                 Adicionar Conteúdo
               </Button>
-            </div>
-          )}
-        </div>
+            )
+          }
+        />
       </div>
 
       {showAdd && <AddContentModal onClose={() => setShowAdd(false)} />}
 
       {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
       <Tabs defaultValue="home">
-        <div className="bg-surface px-6 py-5">
-          <PillTabsList items={tabs} className="mx-auto max-w-7xl" />
+        <div className={`mx-auto max-w-7xl ${BANNER_TABS_CLASS}`}>
+          <PillTabsList items={tabs} />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">

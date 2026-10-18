@@ -28,6 +28,7 @@ import { StatsTab } from '@/components/automation/StatsTab';
 import type { Tab } from '@/components/automation/types';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 
 // Estrutura do spec (docs/modulo_automation.md §1).
 const TABS: Array<PillTabItem & { id: Tab }> = [
@@ -105,21 +106,18 @@ export default function AutomationPage() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      <div className="border-b border-border bg-surface px-6 py-5">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-1 flex items-center gap-2">
-            <h1 className="font-display text-xl font-bold text-ink">
-              Automação
-            </h1>
-          </div>
-          <p className="font-body text-sm text-ink-faint"></p>
-        </div>
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <ModuleBanner
+          src="/images/automações.jpg"
+          title="Automação"
+          hint={TABS.find((t) => t.id === tab)?.hint}
+        />
       </div>
 
       {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
-        <div className="bg-surface px-6 py-5">
-          <PillTabsList items={TABS} className="mx-auto max-w-7xl" />
+        <div className={`mx-auto max-w-7xl ${BANNER_TABS_CLASS}`}>
+          <PillTabsList items={TABS} />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">

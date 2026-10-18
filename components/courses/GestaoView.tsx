@@ -24,6 +24,7 @@ import { CourseListCard } from './CourseListCard';
 import { EditCourseModal } from './EditCourseModal';
 import { PendingEnrollmentsModal } from './PendingEnrollmentsModal';
 import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,13 +37,6 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { COURSE_MODALITY_LABELS, COURSE_TYPE_LABELS, Skeleton } from './shared';
 import type { Course, PaginatedCourses } from './types';
-
-const LEVEL_ITEMS = [
-  { value: 'ALL', label: 'Todos os níveis' },
-  { value: 'BEGINNER', label: 'Iniciante' },
-  { value: 'INTERMEDIATE', label: 'Intermédio' },
-  { value: 'ADVANCED', label: 'Avançado' },
-];
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
@@ -86,12 +80,10 @@ export function GestaoView({
   const [filters, setFilters] = useState({
     search: '',
     category: '',
-    level: '',
     status: '',
     type: '',
     modality: '',
     departmentId: '',
-    unit: '',
     page: 1,
   });
   const [addModuleFor, setAddModuleFor] = useState<number | null>(null);
@@ -110,12 +102,10 @@ export function GestaoView({
     limit: 20,
     search: filters.search || undefined,
     category: filters.category || undefined,
-    level: filters.level || undefined,
     status: filters.status || undefined,
     type: filters.type || undefined,
     modality: filters.modality || undefined,
     departmentId: filters.departmentId || undefined,
-    unit: filters.unit || undefined,
   };
 
   const { data, isLoading } = useApiQuery<PaginatedCourses>(
@@ -239,77 +229,68 @@ export function GestaoView({
       {/* Filtros — grid de largura uniforme (8 campos: 2 pesquisas + 6
           selects, em 1/2/3 colunas; departamentos ocupa 2 no ecrã largo para o texto caber sem ser cortado) em vez de larguras w-* ad-hoc por campo, para que todos
           os controlos fiquem com o mesmo tamanho e alinhados em colunas. */}
-      {/* Painel de filtros: cartão com #0F1F3D a 8% de opacidade */}
-      <div className="mb-5 rounded-2xl border border-[#0F1F3D]/20 bg-[#0F1F3D]/8 p-4">
-        <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <Input
-            type="text"
-            placeholder="Pesquisar cursos…"
-            value={filters.search}
-            onChange={(e) => updateFilters({ search: e.target.value })}
-            className="w-full"
-          />
-          <Input
-            type="text"
-            placeholder="Unidade…"
-            value={filters.unit}
-            onChange={(e) => updateFilters({ unit: e.target.value })}
-            className="w-full"
-          />
-          <Select
-            items={categoryItems}
-            value={filters.category || 'ALL'}
-            onValueChange={(v) =>
-              updateFilters({ category: v === 'ALL' ? '' : v })
-            }
-            className="w-full"
-          />
-          <Select
-            items={TYPE_ITEMS}
-            value={filters.type || 'ALL'}
-            onValueChange={(v) => updateFilters({ type: v === 'ALL' ? '' : v })}
-            className="w-full"
-          />
-          <Select
-            items={MODALITY_ITEMS}
-            value={filters.modality || 'ALL'}
-            onValueChange={(v) =>
-              updateFilters({ modality: v === 'ALL' ? '' : v })
-            }
-            className="w-full"
-          />
-          <Select
-            items={STATUS_ITEMS}
-            value={filters.status || 'ALL'}
-            onValueChange={(v) =>
-              updateFilters({ status: v === 'ALL' ? '' : v })
-            }
-            className="w-full"
-          />
-          <Select
-            items={LEVEL_ITEMS}
-            value={filters.level || 'ALL'}
-            onValueChange={(v) =>
-              updateFilters({ level: v === 'ALL' ? '' : v })
-            }
-            className="w-full"
-          />
-          <Select
-            items={[
-              { value: 'ALL', label: 'Todos os departamentos' },
-              ...departmentOptions,
-            ]}
-            value={filters.departmentId || 'ALL'}
-            onValueChange={(v) =>
-              updateFilters({ departmentId: v === 'ALL' ? '' : v })
-            }
-            className="w-full lg:col-span-2"
-          />
-        </div>
-        <div className="flex justify-end">
-          <span className="text-sm text-black">{data?.total ?? 0} cursos</span>
-        </div>
-      </div>
+      {/* Painel de filtros: Card + CardBody (padrão do separador Relatórios do roi-impact) */}
+      <Card className="mb-5">
+        <CardBody>
+          <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <Input
+              type="text"
+              placeholder="Pesquisar cursos…"
+              value={filters.search}
+              onChange={(e) => updateFilters({ search: e.target.value })}
+              className="w-full"
+            />
+            <Select
+              items={categoryItems}
+              value={filters.category || 'ALL'}
+              onValueChange={(v) =>
+                updateFilters({ category: v === 'ALL' ? '' : v })
+              }
+              className="w-full"
+            />
+            <Select
+              items={TYPE_ITEMS}
+              value={filters.type || 'ALL'}
+              onValueChange={(v) =>
+                updateFilters({ type: v === 'ALL' ? '' : v })
+              }
+              className="w-full"
+            />
+            <Select
+              items={MODALITY_ITEMS}
+              value={filters.modality || 'ALL'}
+              onValueChange={(v) =>
+                updateFilters({ modality: v === 'ALL' ? '' : v })
+              }
+              className="w-full"
+            />
+            <Select
+              items={STATUS_ITEMS}
+              value={filters.status || 'ALL'}
+              onValueChange={(v) =>
+                updateFilters({ status: v === 'ALL' ? '' : v })
+              }
+              className="w-full"
+            />
+            <Select
+              items={[
+                { value: 'ALL', label: 'Todos os departamentos' },
+                ...departmentOptions,
+              ]}
+              value={filters.departmentId || 'ALL'}
+              onValueChange={(v) =>
+                updateFilters({ departmentId: v === 'ALL' ? '' : v })
+              }
+              className="w-full lg:col-span-2"
+            />
+          </div>
+          <div className="flex justify-end">
+            <span className="text-sm text-black">
+              {data?.total ?? 0} cursos
+            </span>
+          </div>
+        </CardBody>
+      </Card>
 
       {isLoading && <Skeleton rows={4} />}
 

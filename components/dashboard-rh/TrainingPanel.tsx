@@ -40,7 +40,7 @@ export function TrainingPanel() {
         <NavyStatCard
           label="Conclusões (mês)"
           value={data?.completed ?? 0}
-          tone="blue"
+          tone="green"
           icon={CheckCircle2}
         />
         <SpeedometerStatCard

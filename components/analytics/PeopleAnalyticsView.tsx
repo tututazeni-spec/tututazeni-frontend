@@ -48,6 +48,11 @@ function NavyBar({ value, color }: { value: number; color?: string }) {
 
 // Espelha o enum Gender em prisma/schema.prisma; 'N/D' é o fallback do
 // próprio backend (analytics.service.ts#getPeopleAnalytics) para género nulo.
+const GENDER_BG: Record<string, string> = {
+  MALE: 'bg-[#2563EB]',
+  FEMALE: 'bg-[#EC4899]',
+};
+
 const GENDER_LABELS: Record<string, string> = {
   MALE: 'Masculino',
   FEMALE: 'Feminino',
@@ -160,7 +165,6 @@ export function PeopleAnalyticsView() {
       )}
 
       {/* Diversidade */}
-      {/* Diversidade */}
       <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
         <div className="h-1.5 w-full bg-[#0F1F3D]" />
         <div className="p-5">
@@ -171,7 +175,7 @@ export function PeopleAnalyticsView() {
             {Object.entries(data.diversity.gender).map(([gender, count]) => (
               <div
                 key={gender}
-                className="rounded-2xl bg-[#0F1F3D] p-4 opacity-70"
+                className={`rounded-2xl p-4 ${GENDER_BG[gender] ? `${GENDER_BG[gender]} opacity-80` : 'bg-[#0F1F3D] opacity-70'}`}
               >
                 <Users size={18} strokeWidth={1.75} className="text-white" />
                 <p className="mt-2 font-display text-2xl font-bold text-white">

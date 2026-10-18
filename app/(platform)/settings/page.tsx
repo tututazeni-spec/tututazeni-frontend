@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { logout } from '@/lib/apiClient';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useToast } from '@/providers/ToastProvider';
@@ -22,6 +23,7 @@ import { TabSistema } from '@/components/settings/TabSistema';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -37,6 +39,7 @@ export default function SettingsPage() {
       ? 'perfil'
       : (new URLSearchParams(window.location.search).get('tab') ?? 'perfil');
   const error = queryError?.message ?? '';
+  const [tab, setTab] = useState(initialTab);
 
   if (loading)
     return (
@@ -62,19 +65,23 @@ export default function SettingsPage() {
 
   return (
     <div>
-      {/* ── Header ── */}
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-ink m-0">Definições</h1>
-        </div>
-        <Button onClick={() => logout()} intent="ghost" className="text-ink">
-          Terminar Sessão
-        </Button>
-      </div>
+      <ModuleBanner
+        src="/images/modulo definições.jpg"
+        title="Definições"
+        hint={visibleNav.find((t) => t.key === tab)?.hint}
+        action={
+          <Button onClick={() => logout()} intent="ghost">
+            Terminar Sessão
+          </Button>
+        }
+      />
 
       {/* ── Tabs — barra glassmorphism partilhada (components/ui/PillTabs). ── */}
-      <Tabs defaultValue={initialTab} className="mb-6">
-        <PillTabsList items={visibleNav.map((t) => ({ ...t, id: t.key }))} />
+      <Tabs value={tab} onValueChange={setTab} className="mb-6">
+        <PillTabsList
+          items={visibleNav.map((t) => ({ ...t, id: t.key }))}
+          className={BANNER_TABS_CLASS}
+        />
 
         {/* ── Conteúdo ── */}
         <TabsContent value="perfil">

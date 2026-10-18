@@ -21,6 +21,7 @@ import { ReportsTab } from '@/components/history/ReportsTab';
 import type { Tab } from '@/components/history/types';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
 import { useState } from 'react';
@@ -36,20 +37,18 @@ export default function HistoryPage() {
 
   return (
     <div className="min-h-screen overflow-x-clip bg-canvas">
-      <div className="border-b border-border bg-surface px-6 py-5">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="font-display text-xl font-bold text-ink">Histórico</h1>
-          <p className="font-body text-sm text-ink-faint">
-            Registo transversal de alterações e acontecimentos relevantes —
-            todos os dados vêm dos módulos da plataforma.
-          </p>
-        </div>
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <ModuleBanner
+          src="/images/historico.jpg"
+          title="Histórico"
+          hint={"Registo transversal de alterações e acontecimentos relevantes"}
+        />
       </div>
 
       <HistoryFiltersProvider>
         <Tabs value={active} onValueChange={(v) => setTab(v as Tab)}>
-          <div className="bg-surface px-6 py-5">
-            <PillTabsList items={visibleTabs} className="mx-auto max-w-7xl" />
+          <div className={`mx-auto max-w-7xl ${BANNER_TABS_CLASS}`}>
+            <PillTabsList items={visibleTabs} />
           </div>
 
           <div className="max-w-7xl mx-auto space-y-5 px-6 py-6">

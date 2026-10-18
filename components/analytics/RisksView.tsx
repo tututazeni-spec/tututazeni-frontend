@@ -21,7 +21,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { PeriodPills } from '@/components/ui/Pills';
 import type { RiskAlert } from './types';
 
 export function RisksView() {
@@ -60,130 +60,129 @@ export function RisksView() {
         />
       </div>
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-        <TabsList className="mb-6 w-fit gap-10">
-          <TabsTrigger value="inactive">Inactivos</TabsTrigger>
-          <TabsTrigger value="pdis">PDIs</TabsTrigger>
-          <TabsTrigger value="actions">Acções</TabsTrigger>
-        </TabsList>
+      <PeriodPills
+        label="Riscos"
+        value={tab}
+        onChange={setTab}
+        options={[
+          { value: 'inactive', label: 'Inactivos' },
+          { value: 'pdis', label: 'PDIs' },
+          { value: 'actions', label: 'Acções' },
+        ]}
+      />
 
-        <TabsContent value="inactive">
-          <Card className="overflow-hidden">
-            {data.inactiveCollaborators.map((u) => (
-              <div
-                key={u.id}
-                className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0"
-              >
-                <Avatar
-                  name={u.fullName}
-                  url={u.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="flex-1 text-sm text-ink">{u.fullName}</div>
-                <span className="text-xs text-black font-medium">
-                  Sem actividade há +60 dias
-                </span>
-              </div>
-            ))}
-            {data.inactiveCollaborators.length === 0 && (
-              <div className="px-4 py-8 text-center text-sm text-ink-faint">
-                <CheckCircle2
-                  size={13}
-                  strokeWidth={1.75}
-                  className="inline align-[-2px]"
-                />{' '}
-                Sem colaboradores inactivos
-              </div>
-            )}
-          </Card>
-        </TabsContent>
+      {tab === 'inactive' && (
+        <Card className="overflow-hidden">
+          {data.inactiveCollaborators.map((u) => (
+            <div
+              key={u.id}
+              className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0"
+            >
+              <Avatar
+                name={u.fullName}
+                url={u.avatarUrl ?? undefined}
+                size="sm"
+              />
+              <div className="flex-1 text-sm text-ink">{u.fullName}</div>
+              <span className="text-xs text-black font-medium">
+                Sem actividade há +60 dias
+              </span>
+            </div>
+          ))}
+          {data.inactiveCollaborators.length === 0 && (
+            <div className="px-4 py-8 text-center text-sm text-ink-faint">
+              <CheckCircle2
+                size={13}
+                strokeWidth={1.75}
+                className="inline align-[-2px]"
+              />{' '}
+              Sem colaboradores inactivos
+            </div>
+          )}
+        </Card>
+      )}
 
-        <TabsContent value="pdis">
-          <Card className="overflow-hidden">
-            {data.overduePDIs.map((p) => (
-              <div
-                key={p.planId}
-                className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0"
-              >
-                <Avatar
-                  name={p.user.fullName}
-                  url={p.user.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-ink truncate">
-                    {p.planName}
-                  </div>
-                  <div className="text-xs text-ink-faint">
-                    {p.user.fullName}
-                  </div>
+      {tab === 'pdis' && (
+        <Card className="overflow-hidden">
+          {data.overduePDIs.map((p) => (
+            <div
+              key={p.planId}
+              className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0"
+            >
+              <Avatar
+                name={p.user.fullName}
+                url={p.user.avatarUrl ?? undefined}
+                size="sm"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-ink truncate">
+                  {p.planName}
                 </div>
-                <span className="text-xs text-danger font-medium flex-shrink-0">
-                  <AlertTriangle
-                    size={13}
-                    strokeWidth={1.75}
-                    className="inline align-[-2px]"
-                  />{' '}
-                  {p.daysOverdue} dias em atraso
-                </span>
+                <div className="text-xs text-ink-faint">{p.user.fullName}</div>
               </div>
-            ))}
-            {data.overduePDIs.length === 0 && (
-              <div className="px-4 py-8 text-center text-sm text-ink-faint">
-                <CheckCircle2
+              <span className="text-xs text-danger font-medium flex-shrink-0">
+                <AlertTriangle
                   size={13}
                   strokeWidth={1.75}
                   className="inline align-[-2px]"
                 />{' '}
-                Sem PDIs atrasados
-              </div>
-            )}
-          </Card>
-        </TabsContent>
+                {p.daysOverdue} dias em atraso
+              </span>
+            </div>
+          ))}
+          {data.overduePDIs.length === 0 && (
+            <div className="px-4 py-8 text-center text-sm text-ink-faint">
+              <CheckCircle2
+                size={13}
+                strokeWidth={1.75}
+                className="inline align-[-2px]"
+              />{' '}
+              Sem PDIs atrasados
+            </div>
+          )}
+        </Card>
+      )}
 
-        <TabsContent value="actions">
-          <Card className="overflow-hidden">
-            {data.criticalActions.map((a) => (
-              <div
-                key={a.actionId}
-                className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0"
-              >
-                <Avatar
-                  name={a.user.fullName}
-                  url={a.user.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-ink truncate">
-                    {a.actionTitle}
-                  </div>
-                  <div className="text-xs text-ink-faint">
-                    {a.user.fullName}
-                  </div>
+      {tab === 'actions' && (
+        <Card className="overflow-hidden">
+          {data.criticalActions.map((a) => (
+            <div
+              key={a.actionId}
+              className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0"
+            >
+              <Avatar
+                name={a.user.fullName}
+                url={a.user.avatarUrl ?? undefined}
+                size="sm"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-ink truncate">
+                  {a.actionTitle}
                 </div>
-                <span className="text-xs text-danger font-medium flex-shrink-0">
-                  <Circle
-                    size={11}
-                    strokeWidth={1.75}
-                    className="inline align-[-1px] fill-danger text-danger"
-                  />{' '}
-                  {a.daysOverdue} dias
-                </span>
+                <div className="text-xs text-ink-faint">{a.user.fullName}</div>
               </div>
-            ))}
-            {data.criticalActions.length === 0 && (
-              <div className="px-4 py-8 text-center text-sm text-ink-faint">
-                <CheckCircle2
-                  size={13}
+              <span className="text-xs text-danger font-medium flex-shrink-0">
+                <Circle
+                  size={11}
                   strokeWidth={1.75}
-                  className="inline align-[-2px]"
+                  className="inline align-[-1px] fill-danger text-danger"
                 />{' '}
-                Sem acções críticas
-              </div>
-            )}
-          </Card>
-        </TabsContent>
-      </Tabs>
+                {a.daysOverdue} dias
+              </span>
+            </div>
+          ))}
+          {data.criticalActions.length === 0 && (
+            <div className="px-4 py-8 text-center text-sm text-ink-faint">
+              <CheckCircle2
+                size={13}
+                strokeWidth={1.75}
+                className="inline align-[-2px]"
+              />{' '}
+              Sem acções críticas
+            </div>
+          )}
+        </Card>
+      )}
     </div>
   );
 }

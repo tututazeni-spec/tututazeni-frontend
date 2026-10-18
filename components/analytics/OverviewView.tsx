@@ -77,7 +77,7 @@ export function OverviewView() {
         <NavyStatCard
           label="Performance média"
           value={data.performance.avgScore}
-          tone="red"
+          tone="orange"
           icon={TrendingUp}
         />
       </div>

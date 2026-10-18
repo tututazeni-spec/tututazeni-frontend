@@ -34,7 +34,7 @@ import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPic
 import type { DirectoryUser } from '@/components/users/types';
 import type { DepartmentNode } from '@/components/departments/types';
 import { CourseImageField } from './CourseImageField';
-import type { PaginatedCourses } from './types';
+import type { CourseCategoryManaged, PaginatedCourses } from './types';
 
 export interface CreateCourseModalProps {
   onClose: () => void;
@@ -76,8 +76,37 @@ const MODALITY_ITEMS = [
   { value: 'AUTOAPRENDIZAGEM', label: 'Autoaprendizagem' },
 ];
 
+// Listas fixas para "Área de conhecimento" e "Público-alvo" — o backend guarda
+// texto livre (knowledgeArea: string, targetAudience: string[]), por isso os
+// valores são os próprios rótulos.
+const KNOWLEDGE_AREAS = [
+  'Tecnologia',
+  'Compliance e Legal',
+  'Liderança e Gestão',
+  'Vendas e Marketing',
+  'Finanças',
+  'Recursos Humanos',
+  'Operações',
+  'Saúde e Segurança',
+  'Atendimento ao Cliente',
+  'Idiomas',
+  'Outra',
+].map((a) => ({ value: a, label: a }));
+
+const TARGET_AUDIENCES = [
+  'Todos os colaboradores',
+  'Novos colaboradores',
+  'Colaboradores',
+  'Líderes de equipa',
+  'Gestores',
+  'Diretores',
+  'Recursos Humanos',
+  'Estagiários',
+];
+
 const NO_DEPT = 'NONE';
 const NO_PREREQUISITE = 'NONE';
+const NO_SELECTION = 'NONE';
 
 function flattenTree(
   nodes: DepartmentNode[],
@@ -103,8 +132,8 @@ export function CreateCourseModal({
       title: '',
       shortDescription: '',
       description: '',
-      category: '',
-      knowledgeArea: '',
+      category: NO_SELECTION,
+      knowledgeArea: NO_SELECTION,
       internalCode: '',
       level: '',
       type: '',
@@ -118,7 +147,7 @@ export function CreateCourseModal({
       thumbnailUrl: '',
       tags: '',
       targetAudience: '',
-      unit: '',
+      unit: NO_SELECTION,
       departmentId: NO_DEPT,
       passingScore: '',
       minCompletionPercent: '',
@@ -135,7 +164,45 @@ export function CreateCourseModal({
   );
   const [submitError, setSubmitError] = useState('');
   const [instructor, setInstructor] = useState<DirectoryUser | null>(null);
+  const [audiences, setAudiences] = useState<string[]>([]);
   const error = validationError || submitError;
+
+  const toggleAudience = (a: string) =>
+    setAudiences((prev) =>
+      prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a],
+    );
+
+  // Categorias geridas (ADMIN/RH) + categorias já usadas em cursos existentes.
+  const { data: managedCategories } = useApiQuery<CourseCategoryManaged[]>(
+    queryKeys.courses.categoriesManaged(),
+    '/courses/categories/manage',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const { data: usedCategories } = useApiQuery<
+    Array<{ category: string | null; count: number }>
+  >(queryKeys.courses.categories(), '/courses/categories', {
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
+  const categoryNames = Array.from(
+    new Set([
+      ...(managedCategories ?? []).filter((c) => c.isActive).map((c) => c.name),
+      ...(usedCategories ?? []).map((c) => c.category).filter(Boolean),
+    ] as string[]),
+  ).sort((a, b) => a.localeCompare(b, 'pt'));
+  const categoryItems = [
+    { value: NO_SELECTION, label: 'Sem categoria' },
+    ...categoryNames.map((n) => ({ value: n, label: n })),
+  ];
+
+  const { data: units } = useApiQuery<Array<{ id: number; name: string }>>(
+    queryKeys.departments.units(),
+    '/units',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const unitItems = [
+    { value: NO_SELECTION, label: 'Sem unidade' },
+    ...(units ?? []).map((u) => ({ value: u.name, label: u.name })),
+  ];
 
   const { data: tree } = useApiQuery<DepartmentNode[]>(
     queryKeys.departments.tree(),
@@ -167,9 +234,9 @@ export function CreateCourseModal({
       if (str(form.shortDescription))
         payload.shortDescription = form.shortDescription.trim();
       if (str(form.description)) payload.description = form.description.trim();
-      if (str(form.category)) payload.category = form.category.trim();
-      if (str(form.knowledgeArea))
-        payload.knowledgeArea = form.knowledgeArea.trim();
+      if (form.category !== NO_SELECTION) payload.category = form.category;
+      if (form.knowledgeArea !== NO_SELECTION)
+        payload.knowledgeArea = form.knowledgeArea;
       if (str(form.internalCode))
         payload.internalCode = form.internalCode.trim();
       if (form.level) payload.level = form.level;
@@ -209,7 +276,7 @@ export function CreateCourseModal({
 
       if (form.startDate) payload.startDate = form.startDate;
       if (form.endDate) payload.endDate = form.endDate;
-      if (str(form.unit)) payload.unit = form.unit.trim();
+      if (form.unit !== NO_SELECTION) payload.unit = form.unit;
       if (form.departmentId !== NO_DEPT)
         payload.departmentId = Number(form.departmentId);
       if (form.requiredCourseId !== NO_PREREQUISITE)
@@ -221,11 +288,7 @@ export function CreateCourseModal({
         .map((t) => t.trim())
         .filter(Boolean);
       if (tags.length) payload.tags = tags;
-      const targetAudience = form.targetAudience
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean);
-      if (targetAudience.length) payload.targetAudience = targetAudience;
+      if (audiences.length) payload.targetAudience = audiences;
 
       if (form.thumbnailUrl) payload.thumbnailUrl = form.thumbnailUrl;
       return apiClient.post('/courses', payload);
@@ -301,24 +364,25 @@ export function CreateCourseModal({
 
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="Categoria" htmlFor="cc-category">
-                  <Input
-                    id="cc-category"
+                  <Select
+                    items={categoryItems}
                     value={form.category}
-                    onChange={(e) => setField('category', e.target.value)}
+                    onValueChange={(v) => setField('category', v)}
                     className="w-full"
-                    placeholder="Ex: Compliance"
                   />
                 </FormField>
                 <FormField
                   label="Área de conhecimento"
                   htmlFor="cc-knowledgeArea"
                 >
-                  <Input
-                    id="cc-knowledgeArea"
+                  <Select
+                    items={[
+                      { value: NO_SELECTION, label: 'Sem área' },
+                      ...KNOWLEDGE_AREAS,
+                    ]}
                     value={form.knowledgeArea}
-                    onChange={(e) => setField('knowledgeArea', e.target.value)}
+                    onValueChange={(v) => setField('knowledgeArea', v)}
                     className="w-full"
-                    placeholder="Ex: Tecnologia"
                   />
                 </FormField>
               </div>
@@ -587,10 +651,10 @@ export function CreateCourseModal({
                 />
               </FormField>
               <FormField label="Unidade" htmlFor="cc-unit">
-                <Input
-                  id="cc-unit"
+                <Select
+                  items={unitItems}
                   value={form.unit}
-                  onChange={(e) => setField('unit', e.target.value)}
+                  onValueChange={(v) => setField('unit', v)}
                   className="w-full"
                 />
               </FormField>
@@ -605,17 +669,31 @@ export function CreateCourseModal({
               />
             </FormField>
 
-            <FormField
-              label="Público-alvo (separado por vírgula)"
-              htmlFor="cc-targetAudience"
-            >
-              <Input
+            <FormField label="Público-alvo" htmlFor="cc-targetAudience">
+              <div
                 id="cc-targetAudience"
-                value={form.targetAudience}
-                onChange={(e) => setField('targetAudience', e.target.value)}
-                className="w-full"
-                placeholder="Ex: Novos colaboradores, Gestores"
-              />
+                role="group"
+                className="flex flex-wrap gap-2"
+              >
+                {TARGET_AUDIENCES.map((a) => {
+                  const active = audiences.includes(a);
+                  return (
+                    <button
+                      key={a}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => toggleAudience(a)}
+                      className={
+                        active
+                          ? 'rounded-full border-[1.5px] border-[#0F1F3D] bg-[#0F1F3D] px-3 py-1.5 text-sm text-white'
+                          : 'rounded-full border-[1.5px] border-field bg-surface px-3 py-1.5 text-sm text-field-ink hover:bg-field-soft'
+                      }
+                    >
+                      {a}
+                    </button>
+                  );
+                })}
+              </div>
             </FormField>
           </section>
         </div>

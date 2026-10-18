@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { PillNav } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { TABS } from '@/components/avatar-training/constants';
 import { AvatarsTab } from '@/components/avatar-training/AvatarsTab';
@@ -35,16 +36,19 @@ export default function AvatarTrainingPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <h1 className="mb-6 font-display text-xl font-semibold text-ink">
-        Avatar Training
-      </h1>
+      <ModuleBanner
+        src="/images/avatar training.jpg"
+        title="Avatar Training"
+        hint={visible.find((t) => t.id === current)?.hint}
+        position="center 38%"
+      />
 
       <PillNav
         items={visible}
         value={current}
         onChange={(id) => setTab(id as TabId)}
         label="Avatar Training"
-        className="mb-6"
+        className={BANNER_TABS_CLASS}
       />
 
       {current === 'overview' && <OverviewTab />}

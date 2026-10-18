@@ -113,13 +113,7 @@ const noop = () => {};
 
 describe('AdminDashboardView — cobre docs/06-modulo-courses.md "Dashboard Admin → Cursos"', () => {
   test('mostra os KPIs principais para além de total/publicados/matrículas/conclusão', () => {
-    render(
-      <AdminDashboardView
-        onSelect={noop}
-        onNavigate={noop}
-        onCreateCourse={noop}
-      />,
-    );
+    render(<AdminDashboardView onSelect={noop} />);
     expect(screen.getByText('Rascunhos')).toBeInTheDocument();
     expect(screen.getByText('Em pausa')).toBeInTheDocument();
     expect(screen.getByText('Arquivados')).toBeInTheDocument();
@@ -131,26 +125,14 @@ describe('AdminDashboardView — cobre docs/06-modulo-courses.md "Dashboard Admi
   });
 
   test('mostra alertas e pendências', () => {
-    render(
-      <AdminDashboardView
-        onSelect={noop}
-        onNavigate={noop}
-        onCreateCourse={noop}
-      />,
-    );
+    render(<AdminDashboardView onSelect={noop} />);
     expect(
       screen.getByText('3 inscrições pendentes de aprovação'),
     ).toBeInTheDocument();
   });
 
   test('não mostra distribuições nem rankings de taxa de conclusão', () => {
-    render(
-      <AdminDashboardView
-        onSelect={noop}
-        onNavigate={noop}
-        onCreateCourse={noop}
-      />,
-    );
+    render(<AdminDashboardView onSelect={noop} />);
     expect(screen.queryByText('Por categoria')).not.toBeInTheDocument();
     expect(screen.queryByText('Por departamento')).not.toBeInTheDocument();
     expect(screen.queryByText('Por instrutor')).not.toBeInTheDocument();
@@ -159,53 +141,29 @@ describe('AdminDashboardView — cobre docs/06-modulo-courses.md "Dashboard Admi
     ).not.toBeInTheDocument();
   });
 
-  test('atalho "Criar curso" chama onCreateCourse', () => {
-    const onCreateCourse = vi.fn();
-    render(
-      <AdminDashboardView
-        onSelect={noop}
-        onNavigate={noop}
-        onCreateCourse={onCreateCourse}
-      />,
-    );
-    screen.getByRole('button', { name: /criar curso/i }).click();
-    expect(onCreateCourse).toHaveBeenCalled();
-  });
-
-  test('atalho "Gerir certificados" navega para a aba certificates', () => {
-    const onNavigate = vi.fn();
-    render(
-      <AdminDashboardView
-        onSelect={noop}
-        onNavigate={onNavigate}
-        onCreateCourse={noop}
-      />,
-    );
-    screen.getByRole('button', { name: /gerir certificados/i }).click();
-    expect(onNavigate).toHaveBeenCalledWith('certificates');
+  test('não mostra os botões de atalho removidos', () => {
+    render(<AdminDashboardView onSelect={noop} />);
+    for (const name of [
+      /criar curso/i,
+      /gerir cursos/i,
+      /gerir módulos e lições/i,
+      /gerir inscrições/i,
+      /gerir certificados/i,
+      /ver progresso/i,
+    ]) {
+      expect(screen.queryByRole('button', { name })).not.toBeInTheDocument();
+    }
   });
 
   test('clicar num curso do ranking chama onSelect com o id', () => {
     const onSelect = vi.fn();
-    render(
-      <AdminDashboardView
-        onSelect={onSelect}
-        onNavigate={noop}
-        onCreateCourse={noop}
-      />,
-    );
+    render(<AdminDashboardView onSelect={onSelect} />);
     screen.getAllByText('Liderança')[0].click();
     expect(onSelect).toHaveBeenCalledWith(1);
   });
 
   test('mostra próximas sessões ao vivo e actividade recente', () => {
-    render(
-      <AdminDashboardView
-        onSelect={noop}
-        onNavigate={noop}
-        onCreateCourse={noop}
-      />,
-    );
+    render(<AdminDashboardView onSelect={noop} />);
     expect(screen.getByText('Sessão ao vivo')).toBeInTheDocument();
     expect(screen.getByText('Bruno')).toBeInTheDocument();
     expect(screen.getByText('Diana')).toBeInTheDocument();

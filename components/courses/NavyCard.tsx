@@ -15,7 +15,7 @@ export function initials(name: string) {
 
 /** Classes para botões/triggers sobre o cabeçalho escuro. */
 export const NAVY_ACTION =
-  'inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-medium text-[#C7D4E8] hover:bg-white/10 hover:text-white disabled:opacity-50';
+  'inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-medium text-white/80 hover:bg-white/10 hover:text-white disabled:opacity-50';
 
 export function NavyBadge({
   children,
@@ -25,12 +25,12 @@ export function NavyBadge({
   onClick?: () => void;
 }) {
   const cls =
-    'inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#263F67] px-2.5 py-1 text-[11px] text-white';
+    'inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] text-white';
   if (onClick)
     return (
       <button
         type="button"
-        className={`${cls} hover:bg-[#2f4d7c]`}
+        className={`${cls} hover:bg-white/25`}
         onClick={onClick}
       >
         <span aria-hidden>●</span>
@@ -57,16 +57,16 @@ export interface NavyInfo {
 function Info({ icon: Icon, value, label, danger }: NavyInfo) {
   return (
     <div className="flex min-w-0 items-center gap-2 px-2 text-left sm:px-4">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#0D6EFD]">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/25 text-[#7CC4FF]">
         <Icon size={15} strokeWidth={1.75} />
       </span>
       <div className="min-w-0">
         <div
-          className={`text-xs font-semibold leading-tight ${danger ? 'text-red-600' : 'text-[#0F1F3D]'}`}
+          className={`text-xs font-semibold leading-tight ${danger ? 'text-red-300' : 'text-white'}`}
         >
           {value}
         </div>
-        <div className="text-[11px] leading-tight text-[#71829B]">{label}</div>
+        <div className="text-[11px] leading-tight text-white/70">{label}</div>
       </div>
     </div>
   );
@@ -106,9 +106,9 @@ export function NavyCard({
   return (
     <div
       onClick={onClick}
-      className={`overflow-hidden rounded-2xl border border-[#DCE5F1] bg-white shadow-[0_8px_24px_rgba(15,31,61,0.08)] ${onClick ? 'cursor-pointer' : ''}`}
+      className={`overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)] ${onClick ? 'cursor-pointer' : ''}`}
     >
-      <div className="bg-gradient-to-br from-[#0F1F3D] to-[#132B52] px-4 py-3">
+      <div className="mb-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 flex-1 basis-48 items-center gap-3">
             {lead}
@@ -135,7 +135,7 @@ export function NavyCard({
                   className="h-8 w-8 shrink-0 rounded-full object-cover"
                 />
               ) : (
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0D6EFD] text-xs font-bold text-white">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/25 text-xs font-bold text-white">
                   {initials(avatar.name)}
                 </span>
               ))}
@@ -146,7 +146,7 @@ export function NavyCard({
                 </div>
               )}
               {subtitle && (
-                <div className="flex items-center gap-1 text-xs text-[#C7D4E8]">
+                <div className="flex items-center gap-1 text-xs text-white/70">
                   {SubIcon && (
                     <SubIcon size={12} strokeWidth={1.75} className="shrink-0" />
                   )}
@@ -159,12 +159,12 @@ export function NavyCard({
       </div>
 
       <div
-        className={`grid grid-cols-2 gap-y-3 px-3 py-3 lg:gap-y-0 ${COLS[Math.min(infos.length, 4)]}`}
+        className={`grid grid-cols-2 gap-y-3 rounded-card bg-white/10 px-3 py-3 lg:gap-y-0 ${COLS[Math.min(infos.length, 4)]}`}
       >
         {infos.map((info, i) => (
           <div
             key={info.label + i}
-            className={i > 0 ? 'lg:border-l lg:border-[#DCE5F1]' : ''}
+            className={i > 0 ? 'lg:border-l lg:border-white/15' : ''}
           >
             {info.onClick ? (
               <button
@@ -174,7 +174,7 @@ export function NavyCard({
                   e.stopPropagation();
                   info.onClick?.();
                 }}
-                className="w-full rounded-lg enabled:cursor-pointer enabled:hover:bg-[#F3F7FD]"
+                className="w-full rounded-lg enabled:cursor-pointer enabled:hover:bg-white/10"
               >
                 <Info {...info} />
               </button>

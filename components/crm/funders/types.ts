@@ -96,6 +96,18 @@ export const REPORT_COLORS: Record<string, string> = {
   OVERDUE: 'bg-warning-subtle text-warning-ink',
 };
 
+export const REPORTING_REQUIREMENTS = [
+  'Relatório mensal',
+  'Relatório trimestral',
+  'Relatório semestral',
+  'Relatório anual',
+  'Relatório financeiro',
+  'Relatório de impacto',
+  'Relatório final do projecto',
+  'Auditoria externa',
+  'Visitas de monitorização',
+] as const;
+
 export const TYPE_LABELS: Record<string, string> = {
   GOVERNMENT: 'Governo',
   BILATERAL: 'Bilateral',

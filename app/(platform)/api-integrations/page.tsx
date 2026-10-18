@@ -1,6 +1,7 @@
 'use client';
 // app/(platform)/api-integrations/page.tsx
 
+import { useState } from 'react';
 import { Plug, Key, Zap, BarChart2 } from 'lucide-react';
 import { ApiKeysTab } from '@/components/api-integrations/ApiKeysTab';
 import { IntegrationsTab } from '@/components/api-integrations/IntegrationsTab';
@@ -9,6 +10,7 @@ import { WebhooksTab } from '@/components/api-integrations/WebhooksTab';
 import type { Tab } from '@/components/api-integrations/types';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 
 const TABS: Array<PillTabItem & { id: Tab }> = [
   {
@@ -33,20 +35,21 @@ const TABS: Array<PillTabItem & { id: Tab }> = [
 ];
 
 export default function ApiIntegrationsPage() {
+  const [tab, setTab] = useState('integrations');
   return (
     <div className="min-h-screen bg-canvas">
-      <div className="border-b border-border bg-surface px-6 py-5">
-        <div className="mx-auto max-w-7xl">
-          <h1 className="font-display text-xl font-bold text-ink">
-            Integrações de API
-          </h1>
-        </div>
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <ModuleBanner
+          src="/images/integrações com sistemas externos.jpg"
+          title="Integrações de API"
+          hint={TABS.find((t) => t.id === tab)?.hint}
+        />
       </div>
 
       {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
-      <Tabs defaultValue="integrations">
-        <div className="bg-surface px-6 py-5">
-          <PillTabsList items={TABS} className="mx-auto max-w-7xl" />
+      <Tabs value={tab} onValueChange={setTab}>
+        <div className={`mx-auto max-w-7xl ${BANNER_TABS_CLASS}`}>
+          <PillTabsList items={TABS} />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">

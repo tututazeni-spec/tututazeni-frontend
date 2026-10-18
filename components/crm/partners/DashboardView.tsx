@@ -2,8 +2,6 @@
 // Separador "Dashboard" — GET /crm/partners/dashboard, só ADMIN/RH/GESTOR.
 // Endpoint já existia no backend sem UI.
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { formatKz } from '@/lib/format';
 import {
@@ -38,29 +36,6 @@ export function DashboardView({
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Dashboard — Parceiros
-          </h1>
-          <p className="font-body text-ink-muted">Visão geral do CRM</p>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/crm/partners/expiring-contracts">
-            <Button intent="secondary">Contratos a expirar</Button>
-          </Link>
-          <Link href="/crm/partners/overdue-milestones">
-            <Button intent="secondary">Marcos em atraso</Button>
-          </Link>
-          <Link href="/crm/partners/report">
-            <Button intent="secondary">Relatório por período</Button>
-          </Link>
-          <Link href="/crm/partners">
-            <Button intent="secondary">← Lista</Button>
-          </Link>
-        </div>
-      </div>
-
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <SummaryCard
           label="Total"

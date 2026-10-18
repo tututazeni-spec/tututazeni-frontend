@@ -23,7 +23,6 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { colorAt } from '@/lib/chartColors';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Card, CardBody } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
@@ -182,34 +181,38 @@ export function MyDashboardView() {
 
       {/* Streak + Badges */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-2xl border border-border bg-white p-5 pt-6 shadow-resting text-black">
-          <div className="mb-1 flex items-baseline justify-between">
-            <div className="font-body text-sm font-semibold text-black">
+        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting text-black">
+          <div className="flex items-baseline justify-between bg-[#0F1F3D]/60 px-5 py-3 text-white">
+            <div className="font-body text-sm font-semibold">
               Sequência de Aprendizagem
             </div>
-            <div className="font-body text-xs text-ink-faint">
+            <div className="font-body text-xs">
               {data.streak.current} dias · recorde {data.streak.longest}
             </div>
           </div>
-          {data.learningSequence &&
-          data.learningSequence.milestones.length > 0 ? (
-            <>
-              <div className="mb-2 font-body text-xs text-ink-faint">
-                {data.learningSequence.title}
+          <div className="p-5">
+            {data.learningSequence &&
+            data.learningSequence.milestones.length > 0 ? (
+              <>
+                <div className="mb-2 font-body text-xs text-ink-faint">
+                  {data.learningSequence.title}
+                </div>
+                <LearningSequenceChart
+                  milestones={data.learningSequence.milestones}
+                />
+              </>
+            ) : (
+              <div className="py-6 text-center font-body text-xs text-ink-faint">
+                Sem percurso de aprendizagem activo.
               </div>
-              <LearningSequenceChart
-                milestones={data.learningSequence.milestones}
-              />
-            </>
-          ) : (
-            <div className="py-6 text-center font-body text-xs text-ink-faint">
-              Sem percurso de aprendizagem activo.
-            </div>
-          )}
+            )}
+          </div>
         </div>
-        <Card>
-          <CardBody>
-            <div className="text-xs text-ink-faint mb-3">Competências Top</div>
+        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+          <div className="bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+            Competências Top
+          </div>
+          <div className="p-5">
             <div className="space-y-2">
               {data.competencies.slice(0, 4).map((c, idx) => {
                 const behind =
@@ -245,17 +248,17 @@ export function MyDashboardView() {
                 );
               })}
             </div>
-          </CardBody>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* PDI */}
       {data.pdi.length > 0 && (
-        <Card>
-          <CardBody>
-            <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-              Os meus PDIs activos
-            </div>
+        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
+          <div className="bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+            Os meus PDIs activos
+          </div>
+          <div className="p-5">
             <div className="space-y-3">
               {data.pdi.map((p) => (
                 <div key={p.id} className="flex items-center gap-3">
@@ -289,8 +292,8 @@ export function MyDashboardView() {
                 </div>
               ))}
             </div>
-          </CardBody>
-        </Card>
+          </div>
+        </div>
       )}
     </div>
   );

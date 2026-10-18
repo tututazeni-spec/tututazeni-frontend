@@ -41,6 +41,7 @@ import { IntegrationEvaluationTab } from '@/components/onboarding/IntegrationEva
 import { ReportsTab } from '@/components/onboarding/ReportsTab';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { PillTabsList } from '@/components/ui/PillTabs';
 
 export default function OnboardingPage() {
@@ -59,17 +60,17 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      <div className="border-b border-border bg-surface px-6 py-5">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <h1 className="font-display text-xl font-bold text-ink">
-            Onboarding
-          </h1>
-        </div>
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <ModuleBanner
+          src="/images/onboarding.jpg"
+          title="Onboarding"
+          hint="Integração de novos colaboradores"
+        />
       </div>
 
       <Tabs defaultValue="my-plan">
-        <div className="bg-surface px-6 py-5">
-          <PillTabsList items={visibleTabs} className="mx-auto max-w-7xl" />
+        <div className={`mx-auto max-w-7xl ${BANNER_TABS_CLASS}`}>
+          <PillTabsList items={visibleTabs} />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
