@@ -110,6 +110,7 @@ const EMPTY_FORM: WizardForm = {
   startDate: '',
   endDate: '',
   durationPreset: '',
+  imageUrl: null,
   origin: '',
   originJustification: '',
   strengths: '',
@@ -274,6 +275,7 @@ export function CreatePlanWizard({
       period: form.period.trim() || undefined,
       startDate: form.startDate || undefined,
       endDate: form.endDate || undefined,
+      imageUrl: form.imageUrl ?? undefined,
     });
     setPlanId(created.id);
     return created.id;
@@ -288,6 +290,7 @@ export function CreatePlanWizard({
       period: form.period.trim() || undefined,
       startDate: form.startDate || undefined,
       endDate: form.endDate || undefined,
+      imageUrl: form.imageUrl,
     });
 
   const putDiagnosis = (id: number) =>

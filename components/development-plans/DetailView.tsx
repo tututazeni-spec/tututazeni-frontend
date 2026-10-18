@@ -19,8 +19,10 @@ import {
   MapPin,
   MessageCircle,
   Paperclip,
+  Layers,
   Star,
   Target,
+  TrendingUp,
   TriangleAlert,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -29,6 +31,11 @@ import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
+import {
+  NavyBadge,
+  NavyCard,
+  type NavyTone,
+} from '@/components/courses/NavyCard';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -48,22 +55,20 @@ import {
   PRIORITY_ON_DARK_CFG,
   STATUS_ON_DARK_CFG,
 } from './constants';
-import { planHeaderBackground } from './PlanCard';
+import { planHeaderBackground, planPalette } from './PlanCard';
 import { isOverdue } from './utils';
 import type { Action, Plan } from './types';
 
 const MS_PER_DAY = 86_400_000;
 
-// Cor do badge de prioridade das competências a desenvolver:
-// Baixa = verde, Média = laranja, Alta = vermelho.
-const GAP_PRIORITY_BADGE_CLS: Record<
-  keyof typeof GAP_PRIORITY_CFG,
-  string
-> = {
-  LOW: 'bg-[#16A765]',
-  MEDIUM: 'bg-[#F28C28]',
-  HIGH: 'bg-[#C23A52]',
-};
+// Cada linha do texto (opções escolhidas da lista ou escritas à mão) vira
+// uma informação do cartão.
+function textLines(text?: string | null): string[] {
+  return (text ?? '')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+}
 
 function dayOffset(dateStr: string, referenceStr: string): number {
   return Math.round(
@@ -188,6 +193,14 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
   if (loading || !plan) return <Skeleton rows={5} />;
 
   const pct = plan.actionProgress ?? plan.overallProgress;
+  // Mesma cor-base do PDI; cada cartão do diagnóstico avança na paleta.
+  const hasDiagnosis =
+    !!plan.origin ||
+    !!plan.strengths ||
+    !!plan.developmentNeeds ||
+    !!plan.originJustification ||
+    (plan.competencyGaps?.length ?? 0) > 0;
+  const diagSeed = Math.abs((plan.user?.id ?? 0) * 3 + plan.id);
 
   return (
     <div>
@@ -196,81 +209,101 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
         Voltar
       </Button>
 
-      {/* Header */}
-      <div
-        className="mb-5 overflow-hidden rounded-[20px] p-6 text-white shadow-[0_4px_14px_rgba(21,47,89,0.08)]"
-        style={{ background: planHeaderBackground(plan) }}
-      >
-        <div>
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <div className="mb-2 flex flex-wrap items-center gap-2">
-                <StatusBadge
-                  value={plan.status}
-                  map={STATUS_ON_DARK_CFG}
-                  variant="pill"
-                />
-                <StatusBadge
-                  value={plan.priority}
-                  map={PRIORITY_ON_DARK_CFG}
-                  variant="pill"
-                />
-                {plan.period && (
-                  <span className="font-body text-xs text-white">
-                    {plan.period}
-                  </span>
-                )}
-              </div>
-              <h1 className="mb-1 font-display text-xl font-bold text-white">
-                {plan.name}
-              </h1>
-              <p className="font-body text-sm text-white">{plan.goal}</p>
-            </div>
-            <div className="flex-shrink-0">
-              {plan.status === 'DRAFT' && (
-                <Button size="sm" onClick={handleSubmit}>
-                  Submeter para aprovação
-                  <ArrowRight size={14} strokeWidth={1.75} />
-                </Button>
-              )}
-            </div>
+      {/* Header — mesmo desenho do detalhe de curso no catálogo: cartão
+          principal com o gradiente do PDI + cartão lateral com a imagem. */}
+      <div className="mb-5 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div
+          className="overflow-hidden rounded-panel p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
+          style={{
+            background: (([c1, c2, c3]) =>
+              `linear-gradient(160deg, ${c1} 0%, ${c2} 55%, ${c3} 100%)`)(
+              planPalette(plan),
+            ),
+          }}
+        >
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <StatusBadge
+              value={plan.status}
+              map={STATUS_ON_DARK_CFG}
+              variant="pill"
+            />
+            <StatusBadge
+              value={plan.priority}
+              map={PRIORITY_ON_DARK_CFG}
+              variant="pill"
+            />
+            {plan.period && (
+              <span className="font-body text-xs text-white">
+                {plan.period}
+              </span>
+            )}
           </div>
-
-          {/* Progresso geral */}
-          <div className="mb-4">
-            <div className="mb-1 flex justify-between font-body text-xs text-white">
-              <span>Progresso geral</span>
-              <span className="font-data font-semibold text-white">{pct}%</span>
+          <h1 className="mb-1 font-display text-xl font-bold leading-snug text-white">
+            {plan.name}
+          </h1>
+          {plan.user && (
+            <div className="mb-3 text-sm font-medium text-white">
+              {plan.user.fullName}
             </div>
-            <ProgressBar value={pct} />
-          </div>
-
-          {/* Meta info */}
-          <div className="flex flex-wrap gap-4 font-body text-xs text-white">
-            <span className="flex items-center gap-1">
+          )}
+          <p className="max-w-[60ch] whitespace-pre-line text-sm leading-relaxed text-white">
+            {plan.goal}
+          </p>
+          <div className="-mb-2 mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white">
+            <span className="inline-flex items-center gap-2">
               <Calendar size={14} strokeWidth={1.75} />
               Início: {fmtDate(plan.startDate)}
             </span>
-            <span className="flex items-center gap-1">
+            <span className="inline-flex items-center gap-2">
               <Calendar size={14} strokeWidth={1.75} />
               Fim: {fmtDate(plan.endDate)}
             </span>
-            <span className="flex items-center gap-1">
+            <span className="inline-flex items-center gap-2">
               <ClipboardList size={14} strokeWidth={1.75} />
               {plan._count.actions} Acções
             </span>
-            <span className="flex items-center gap-1">
+            <span className="inline-flex items-center gap-2">
               <Target size={14} strokeWidth={1.75} />
               {plan._count.goals} Metas
             </span>
             {plan.manager && (
-              <span className="flex items-center gap-1">
+              <span className="inline-flex items-center gap-2">
                 <Avatar name={plan.manager.fullName} size="sm" />
                 Gestor: {plan.manager.fullName}
               </span>
             )}
           </div>
         </div>
+
+        {/* Cartão lateral: imagem do PDI, progresso e acção principal */}
+        <Card
+          className="border-transparent p-5 text-white"
+          style={{ background: planHeaderBackground(plan) }}
+        >
+          <div className="relative mb-4 flex aspect-video items-center justify-center overflow-hidden rounded-control bg-white/10 text-white/60">
+            {plan.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={plan.imageUrl}
+                alt={plan.name}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : (
+              <Target size={48} strokeWidth={1.25} aria-hidden />
+            )}
+          </div>
+          <div className="mb-1 flex justify-between font-body text-xs text-white">
+            <span>Progresso geral</span>
+            <span className="font-data font-semibold">{pct}%</span>
+          </div>
+          <ProgressBar value={pct} className="mb-3 h-2.5" />
+          {plan.status === 'DRAFT' && (
+            <Button size="sm" onClick={handleSubmit} className="w-full">
+              Submeter para aprovação
+              <ArrowRight size={14} strokeWidth={1.75} />
+            </Button>
+          )}
+        </Card>
       </div>
 
       {/* Fecho do PDI (secção 19-20) — só depois de concluído */}
@@ -309,23 +342,18 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       )}
 
       {/* Tabs */}
-      <div className="mb-5 flex flex-wrap gap-2">
+      <div className="mb-5 flex gap-2">
         {TABS.map((t) => (
-          <button
+          <Button
             key={t.id}
-            type="button"
+            size="sm"
+            intent={activeTab === t.id ? 'primary' : 'ghost'}
             aria-pressed={activeTab === t.id}
             onClick={() => setActiveTab(t.id)}
-            className={cn(
-              'inline-flex items-center gap-1.5 rounded-lg border-[3px] px-3.5 py-1.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F1F3D] focus-visible:ring-offset-2',
-              activeTab === t.id
-                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
-                : 'border-[#1267B8] bg-white text-[#0F1F3D] hover:bg-[#EEF4FD]',
-            )}
           >
             <t.Icon size={14} strokeWidth={1.75} />
             {t.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -604,114 +632,80 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
         </div>
       )}
 
-      {/* Diagnóstico (origem, pontos fortes/necessidades, competências, carreira) */}
+      {/* Diagnóstico (origem, pontos fortes/necessidades, competências, carreira)
+          — cartões pequenos, o mesmo desenho (NavyCard compact) do detalhe de
+          uma formação. */}
       {activeTab === 'diagnosis' && (
-        <div className="space-y-4">
-          <Card>
-            <CardBody className="space-y-3">
-              {plan.origin && (
-                <div>
-                  <div className="mb-1.5 inline-block cursor-default select-none rounded-md bg-[#0F1F3D]/60 px-3 py-1 font-body text-xs font-semibold uppercase tracking-wide text-white">
-                    Origem
-                  </div>
-                  <p className="font-body text-sm font-bold text-black">
-                    {ORIGIN_CFG[plan.origin]}
-                  </p>
-                  {plan.originJustification && (
-                    <p className="mt-0.5 font-body text-xs text-ink-muted">
-                      {plan.originJustification}
-                    </p>
-                  )}
-                </div>
-              )}
-              {plan.strengths && (
-                <div>
-                  <div className="font-body text-xs font-bold uppercase tracking-wide text-black">
-                    Principais pontos fortes
-                  </div>
-                  <p className="font-body text-sm text-ink">{plan.strengths}</p>
-                </div>
-              )}
-              {plan.developmentNeeds && (
-                <div>
-                  <div className="font-body text-xs font-bold uppercase tracking-wide text-black">
-                    Principais necessidades de desenvolvimento
-                  </div>
-                  <p className="font-body text-sm text-ink">
-                    {plan.developmentNeeds}
-                  </p>
-                </div>
-              )}
-              {plan.careerPlan && (
-                <div>
-                  <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-                    Objectivo de carreira associado
-                  </div>
-                  <p className="font-body text-sm text-ink">
-                    {plan.careerPlan.title}
-                    {plan.careerPlan.currentRole &&
-                      plan.careerPlan.targetRole && (
-                        <span className="text-ink-muted">
-                          {' '}
-                          — {plan.careerPlan.currentRole.name} →{' '}
-                          {plan.careerPlan.targetRole.name}
-                        </span>
-                      )}
-                  </p>
-                  {plan.careerReadinessPercent != null && (
-                    <p className="mt-0.5 font-body text-xs text-ink-muted">
-                      Prontidão actual: {plan.careerReadinessPercent}%
-                    </p>
-                  )}
-                </div>
-              )}
-              {!plan.origin &&
-                !plan.strengths &&
-                !plan.developmentNeeds &&
-                !plan.careerPlan && (
-                  <p className="font-body text-sm text-ink-faint">
-                    Sem diagnóstico registado.
-                  </p>
-                )}
-            </CardBody>
-          </Card>
-
-          <div>
-            <div className="mb-3 inline-block cursor-default select-none rounded-md bg-[#0F1F3D]/60 px-3 py-1.5 font-body text-sm font-semibold text-white">
-              Competências a desenvolver
+        <div className="space-y-3">
+          {hasDiagnosis && (
+            <NavyCard
+              compact
+              seed={diagSeed}
+              kicker="Diagnóstico"
+              kickerIcon={FileText}
+              title="Diagnóstico"
+              badge={
+                plan.origin ? (
+                  <NavyBadge tone="info">{ORIGIN_CFG[plan.origin]}</NavyBadge>
+                ) : undefined
+              }
+              infos={[
+                ...textLines(plan.originJustification).map((l) => ({
+                  icon: FileText,
+                  value: l,
+                  label: 'Justificação',
+                })),
+                ...textLines(plan.strengths).map((l) => ({
+                  icon: Star,
+                  value: l,
+                  label: 'Ponto forte',
+                })),
+                ...textLines(plan.developmentNeeds).map((l) => ({
+                  icon: Target,
+                  value: l,
+                  label: 'Necessidade de desenvolvimento',
+                })),
+                ...(plan.competencyGaps ?? []).map((g) => ({
+                  icon: Layers,
+                  value: g.competency?.name ?? `Competência #${g.competencyId}`,
+                  label: `Nível ${g.currentLevel ?? '—'} → ${g.targetLevel ?? '—'} · ${GAP_PRIORITY_CFG[g.priority]}`,
+                })),
+              ]}
+            />
+          )}
+          {plan.careerPlan && (
+            <NavyCard
+              compact
+              seed={diagSeed + 3}
+              kicker="Carreira"
+              kickerIcon={TrendingUp}
+              title="Objectivo de carreira associado"
+              infos={[
+                {
+                  icon: TrendingUp,
+                  value: plan.careerPlan.title,
+                  label:
+                    plan.careerPlan.currentRole && plan.careerPlan.targetRole
+                      ? `${plan.careerPlan.currentRole.name} → ${plan.careerPlan.targetRole.name}`
+                      : '',
+                },
+                ...(plan.careerReadinessPercent != null
+                  ? [
+                      {
+                        icon: BarChart3,
+                        value: `${plan.careerReadinessPercent}%`,
+                        label: 'Prontidão actual',
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          )}
+          {!hasDiagnosis && !plan.careerPlan && (
+            <div className="rounded-card border border-dashed border-border-strong py-6 text-center font-body text-sm text-ink-faint">
+              Sem diagnóstico registado.
             </div>
-            <div className="space-y-2">
-              {plan.competencyGaps?.map((g) => (
-                <Card key={g.id}>
-                  <CardBody className="flex items-center justify-between gap-4">
-                    <div>
-                      <div className="font-body text-sm text-ink">
-                        {g.competency?.name ?? `Competência #${g.competencyId}`}
-                      </div>
-                      {(g.currentLevel != null || g.targetLevel != null) && (
-                        <div className="font-body text-xs text-ink-faint">
-                          Nível {g.currentLevel ?? '—'} → {g.targetLevel ?? '—'}
-                        </div>
-                      )}
-                    </div>
-                    <span
-                      className={cn(
-                        'flex-shrink-0 rounded-full px-3 py-1 font-body text-xs font-semibold text-white',
-                        GAP_PRIORITY_BADGE_CLS[g.priority],
-                      )}
-                    >
-                      {GAP_PRIORITY_CFG[g.priority]}
-                    </span>
-                  </CardBody>
-                </Card>
-              ))}
-              {(!plan.competencyGaps || plan.competencyGaps.length === 0) && (
-                <div className="rounded-card border border-dashed border-border-strong py-6 text-center font-body text-sm text-ink-faint">
-                  Sem competências associadas
-                </div>
-              )}
-            </div>
-          </div>
+          )}
         </div>
       )}
     </div>

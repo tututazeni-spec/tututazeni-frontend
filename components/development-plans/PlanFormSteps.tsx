@@ -15,6 +15,15 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { CourseImageField } from '@/components/courses/CourseImageField';
+import { SuggestionField } from './SuggestionField';
+import {
+  GOAL_SUGGESTIONS,
+  JUSTIFICATION_SUGGESTIONS,
+  NEED_SUGGESTIONS,
+  STRENGTH_SUGGESTIONS,
+  SUCCESS_INDICATOR_SUGGESTIONS,
+} from './suggestions';
 import { cn } from '@/lib/cn';
 import {
   ACTION_CFG,
@@ -293,13 +302,19 @@ export function PlanFormSteps({
             />
           </FormField>
           <FormField label="Objectivo geral (SMART) *" htmlFor="pdi-goal">
-            <Textarea
+            <SuggestionField
               id="pdi-goal"
               value={form.goal}
-              onChange={(e) => setField('goal', e.target.value)}
+              onChange={(v) => setField('goal', v)}
+              suggestions={GOAL_SUGGESTIONS}
               placeholder="O que o colaborador deverá ser capaz de fazer/alcançar após concluir o PDI?"
-              rows={2}
-              className="w-full"
+            />
+          </FormField>
+          <FormField label="Imagem do cartão do PDI" htmlFor="pdi-image">
+            <CourseImageField
+              value={form.imageUrl}
+              onChange={(v) => setField('imageUrl', v)}
+              alt="Pré-visualização da imagem do PDI"
             />
           </FormField>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -373,36 +388,33 @@ export function PlanFormSteps({
             label="Justificação para a criação do PDI"
             htmlFor="pdi-origin-just"
           >
-            <Textarea
+            <SuggestionField
               id="pdi-origin-just"
               value={form.originJustification}
-              onChange={(e) => setField('originJustification', e.target.value)}
+              onChange={(v) => setField('originJustification', v)}
+              suggestions={JUSTIFICATION_SUGGESTIONS}
               placeholder="Descreva o motivo pelo qual o colaborador necessita deste plano."
-              rows={2}
-              className="w-full"
             />
           </FormField>
           <FormField label="Principais pontos fortes" htmlFor="pdi-strengths">
-            <Textarea
+            <SuggestionField
               id="pdi-strengths"
               value={form.strengths}
-              onChange={(e) => setField('strengths', e.target.value)}
+              onChange={(v) => setField('strengths', v)}
+              suggestions={STRENGTH_SUGGESTIONS}
               placeholder="Competências, conhecimentos, comportamentos e resultados em que o colaborador já se destaca."
-              rows={2}
-              className="w-full"
             />
           </FormField>
           <FormField
             label="Principais necessidades de desenvolvimento"
             htmlFor="pdi-needs"
           >
-            <Textarea
+            <SuggestionField
               id="pdi-needs"
               value={form.developmentNeeds}
-              onChange={(e) => setField('developmentNeeds', e.target.value)}
+              onChange={(v) => setField('developmentNeeds', v)}
+              suggestions={NEED_SUGGESTIONS}
               placeholder="Competências técnicas/comportamentais, liderança, comunicação, gestão…"
-              rows={2}
-              className="w-full"
             />
           </FormField>
         </div>
@@ -544,14 +556,14 @@ export function PlanFormSteps({
                   rows={2}
                   className="w-full sm:col-span-2"
                 />
-                <Input
+                <SuggestionField
+                  id={`pdi-goal-indicator-${i}`}
+                  multiline={false}
                   placeholder="Indicador de sucesso"
                   value={row.successIndicator}
                   disabled={locked}
-                  onChange={(e) =>
-                    setRow('goals', i, { successIndicator: e.target.value })
-                  }
-                  className="w-full"
+                  suggestions={SUCCESS_INDICATOR_SUGGESTIONS}
+                  onChange={(v) => setRow('goals', i, { successIndicator: v })}
                 />
                 <Input
                   type="date"

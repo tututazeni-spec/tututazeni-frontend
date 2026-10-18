@@ -11,7 +11,12 @@
 
 'use client';
 
-import { CheckCircle } from 'lucide-react';
+import {
+  CheckCircle,
+  HeartHandshake,
+  TriangleAlert,
+  Users,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -96,6 +101,7 @@ export function AnalyticsTab() {
       {/* Top KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <KpiCard
+          icon={Users}
           label="Colaboradores Activos"
           value={dash?.kpis.totalUsers ?? 0}
           intent="primary"
@@ -112,11 +118,13 @@ export function AnalyticsTab() {
           value={dash?.kpis.actionCompletion ?? 0}
         />
         <KpiCard
+          icon={TriangleAlert}
           label="Acções em Atraso"
           value={dash?.kpis.overdueActions ?? 0}
           intent="danger"
         />
         <KpiCard
+          icon={HeartHandshake}
           label="Mentorias Activas"
           value={dash?.kpis.activeMentorings ?? 0}
           intent="primary"
