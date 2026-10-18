@@ -36,6 +36,7 @@ import {
   PROGRAM_STATUS,
   SOURCE_LABEL,
 } from './constants';
+import { CARD_BTN, CARD_BTN_GHOST, CardGrid, ProgramCard } from './cards';
 import { NO_USER, useUserOptions } from './useUserOptions';
 import type {
   AvatarProgram,
@@ -47,14 +48,18 @@ import type {
 
 const ALL = 'ALL';
 
-const DIFFICULTY_ITEMS = Object.entries(DIFFICULTY_LABEL).map(([value, label]) => ({
-  value,
-  label,
-}));
-const EXPERIENCE_ITEMS = Object.entries(EXPERIENCE_LABEL).map(([value, label]) => ({
-  value,
-  label,
-}));
+const DIFFICULTY_ITEMS = Object.entries(DIFFICULTY_LABEL).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
+const EXPERIENCE_ITEMS = Object.entries(EXPERIENCE_LABEL).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
 
 function CheckList({
   legend,
@@ -123,9 +128,13 @@ function ProgramFormModal({
   const users = useUserOptions();
   const [title, setTitle] = useState(program?.title ?? '');
   const [description, setDescription] = useState(program?.description ?? '');
-  const [objectives, setObjectives] = useState((program?.objectives ?? []).join('\n'));
+  const [objectives, setObjectives] = useState(
+    (program?.objectives ?? []).join('\n'),
+  );
   const [category, setCategory] = useState(program?.category ?? '');
-  const [difficulty, setDifficulty] = useState(program?.difficulty ?? 'BEGINNER');
+  const [difficulty, setDifficulty] = useState(
+    program?.difficulty ?? 'BEGINNER',
+  );
   const [experienceType, setExperienceType] = useState<string>(
     program?.experienceType ?? 'GUIDED_LESSON',
   );
@@ -134,21 +143,37 @@ function ProgramFormModal({
   const [duration, setDuration] = useState(
     program?.durationMinutes ? String(program.durationMinutes) : '',
   );
-  const [courseId, setCourseId] = useState(program?.courseId ? String(program.courseId) : ALL);
-  const [moduleId, setModuleId] = useState(program?.moduleId ? String(program.moduleId) : ALL);
-  const [avatarId, setAvatarId] = useState(program?.avatarId ? String(program.avatarId) : ALL);
+  const [courseId, setCourseId] = useState(
+    program?.courseId ? String(program.courseId) : ALL,
+  );
+  const [moduleId, setModuleId] = useState(
+    program?.moduleId ? String(program.moduleId) : ALL,
+  );
+  const [avatarId, setAvatarId] = useState(
+    program?.avatarId ? String(program.avatarId) : ALL,
+  );
   const [responsible, setResponsible] = useState(
     program?.responsibleId ? String(program.responsibleId) : NO_USER,
   );
   const [prerequisites, setPrerequisites] = useState<number[]>(
     program?.prerequisiteCourseIds ?? [],
   );
-  const [departments, setDepartments] = useState<number[]>(program?.targetDepartmentIds ?? []);
-  const [roleNames, setRoleNames] = useState((program?.targetRoleNames ?? []).join(', '));
-  const [competencies, setCompetencies] = useState<number[]>(program?.competencyIds ?? []);
-  const [certificate, setCertificate] = useState(program?.certificateEnabled ?? false);
+  const [departments, setDepartments] = useState<number[]>(
+    program?.targetDepartmentIds ?? [],
+  );
+  const [roleNames, setRoleNames] = useState(
+    (program?.targetRoleNames ?? []).join(', '),
+  );
+  const [competencies, setCompetencies] = useState<number[]>(
+    program?.competencyIds ?? [],
+  );
+  const [certificate, setCertificate] = useState(
+    program?.certificateEnabled ?? false,
+  );
   const [minScore, setMinScore] = useState(
-    program?.certificateMinScore != null ? String(program.certificateMinScore) : '',
+    program?.certificateMinScore != null
+      ? String(program.certificateMinScore)
+      : '',
   );
   const [allSessions, setAllSessions] = useState(
     program?.certificateRequireAllSessions ?? true,
@@ -160,12 +185,14 @@ function ProgramFormModal({
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
   // Módulos do curso escolhido (o detalhe do curso traz-os).
-  const courseDetail = useApiQuery<{ modules?: { id: number; title: string }[] }>(
-    ['avatar-training', 'course-modules', courseId],
-    `/courses/${courseId}`,
-    { enabled: courseId !== ALL, staleTime: STALE_TIME.SEMI_STATIC },
-  );
-  const moduleOptions = courseId === ALL ? [] : (courseDetail.data?.modules ?? []);
+  const courseDetail = useApiQuery<{
+    modules?: { id: number; title: string }[];
+  }>(['avatar-training', 'course-modules', courseId], `/courses/${courseId}`, {
+    enabled: courseId !== ALL,
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
+  const moduleOptions =
+    courseId === ALL ? [] : (courseDetail.data?.modules ?? []);
 
   const courseParams = { limit: 100 };
   const courses = useApiQuery<{ data: { id: number; title: string }[] }>(
@@ -204,7 +231,8 @@ function ProgramFormModal({
         courseId: courseId === ALL ? undefined : Number(courseId),
         moduleId: moduleId === ALL ? undefined : Number(moduleId),
         avatarId: avatarId === ALL ? undefined : Number(avatarId),
-        responsibleId: responsible === NO_USER ? undefined : Number(responsible),
+        responsibleId:
+          responsible === NO_USER ? undefined : Number(responsible),
         prerequisiteCourseIds: prerequisites,
         targetDepartmentIds: departments,
         targetRoleNames: roleNames
@@ -213,7 +241,8 @@ function ProgramFormModal({
           .filter(Boolean),
         competencyIds: competencies,
         certificateEnabled: certificate,
-        certificateMinScore: certificate && minScore !== '' ? Number(minScore) : undefined,
+        certificateMinScore:
+          certificate && minScore !== '' ? Number(minScore) : undefined,
         certificateRequireAllSessions: allSessions,
       };
       return program
@@ -241,7 +270,9 @@ function ProgramFormModal({
 
   const minScoreInvalid =
     minScore !== '' &&
-    (!Number.isInteger(Number(minScore)) || Number(minScore) < 0 || Number(minScore) > 100);
+    (!Number.isInteger(Number(minScore)) ||
+      Number(minScore) < 0 ||
+      Number(minScore) > 100);
 
   const durationInvalid =
     duration !== '' &&
@@ -252,7 +283,9 @@ function ProgramFormModal({
   return (
     <Modal open onOpenChange={(o) => !o && onClose()}>
       <ModalContent
-        title={program ? 'Editar formação com avatar' : 'Nova formação com avatar'}
+        title={
+          program ? 'Editar formação com avatar' : 'Nova formação com avatar'
+        }
         description={
           program?.status === 'IN_REVIEW'
             ? 'Editar uma formação em revisão devolve-a a rascunho.'
@@ -331,7 +364,11 @@ function ProgramFormModal({
                 onChange={(e) => setDuration(e.target.value)}
               />
             </FormField>
-            <FormField label="Variante do idioma" htmlFor="ap-variant" hint="Ex.: PT-AO, PT-PT.">
+            <FormField
+              label="Variante do idioma"
+              htmlFor="ap-variant"
+              hint="Ex.: PT-AO, PT-PT."
+            >
               <Input
                 id="ap-variant"
                 value={variant}
@@ -363,7 +400,10 @@ function ProgramFormModal({
                 disabled={courseId === ALL}
                 items={[
                   { value: ALL, label: 'Curso inteiro' },
-                  ...moduleOptions.map((m) => ({ value: String(m.id), label: m.title })),
+                  ...moduleOptions.map((m) => ({
+                    value: String(m.id),
+                    label: m.title,
+                  })),
                 ]}
               />
             </FormField>
@@ -374,13 +414,19 @@ function ProgramFormModal({
                 items={[
                   { value: ALL, label: 'Sem avatar por defeito' },
                   ...(avatars.data ?? [])
-                    .filter((a) => a.status === 'ACTIVE' || String(a.id) === avatarId)
+                    .filter(
+                      (a) => a.status === 'ACTIVE' || String(a.id) === avatarId,
+                    )
                     .map((a) => ({ value: String(a.id), label: a.name })),
                 ]}
               />
             </FormField>
             <FormField label="Formador responsável" htmlFor="ap-resp">
-              <Select value={responsible} onValueChange={setResponsible} items={users} />
+              <Select
+                value={responsible}
+                onValueChange={setResponsible}
+                items={users}
+              />
             </FormField>
           </div>
           <CheckList
@@ -505,7 +551,10 @@ function ProgramSheetModal({
   const cert = useApiQuery<CertificationStatus>(
     [...queryKeys.avatarTraining.program(programId), 'certification'],
     `/avatar-training/programs/${programId}/certification`,
-    { enabled: data?.status === 'PUBLISHED' && !!data?.certificateEnabled, staleTime: 0 },
+    {
+      enabled: data?.status === 'PUBLISHED' && !!data?.certificateEnabled,
+      staleTime: 0,
+    },
   );
 
   const links = useApiQuery<ProgramLinks>(
@@ -524,15 +573,24 @@ function ProgramSheetModal({
           {error ? (
             <QueryError error={error} onRetry={() => refetch()} />
           ) : !data ? (
-            <Skeleton rows={4} itemClassName="h-6 rounded bg-surface-sunken animate-pulse" />
+            <Skeleton
+              rows={4}
+              itemClassName="h-6 rounded bg-surface-sunken animate-pulse"
+            />
           ) : (
             <>
               <dl className="space-y-2">
                 <Row label="Estado">
-                  <StatusBadge value={data.status} map={PROGRAM_STATUS} variant="dot" /> · v
-                  {data.version}
+                  <StatusBadge
+                    value={data.status}
+                    map={PROGRAM_STATUS}
+                    variant="dot"
+                  />{' '}
+                  · v{data.version}
                 </Row>
-                {data.description && <Row label="Descrição">{data.description}</Row>}
+                {data.description && (
+                  <Row label="Descrição">{data.description}</Row>
+                )}
                 {data.objectives.length > 0 && (
                   <Row label="Objectivos">
                     <ul className="list-disc pl-4">
@@ -543,16 +601,23 @@ function ProgramSheetModal({
                   </Row>
                 )}
                 <Row label="Categoria e nível">
-                  {data.category ?? '—'} · {DIFFICULTY_LABEL[data.difficulty] ?? data.difficulty}
+                  {data.category ?? '—'} ·{' '}
+                  {DIFFICULTY_LABEL[data.difficulty] ?? data.difficulty}
                 </Row>
-                <Row label="Experiência">{EXPERIENCE_LABEL[data.experienceType]}</Row>
+                <Row label="Experiência">
+                  {EXPERIENCE_LABEL[data.experienceType]}
+                </Row>
                 <Row label="Idioma e duração">
                   {(data.language ?? 'pt').toUpperCase()}
                   {data.languageVariant ? ` (${data.languageVariant})` : ''}
                   {data.durationMinutes ? ` · ${data.durationMinutes} min` : ''}
                 </Row>
-                <Row label="Avatar">{data.avatar?.name ?? 'Sem avatar por defeito'}</Row>
-                <Row label="Formador responsável">{data.responsibleName ?? '—'}</Row>
+                <Row label="Avatar">
+                  {data.avatar?.name ?? 'Sem avatar por defeito'}
+                </Row>
+                <Row label="Formador responsável">
+                  {data.responsibleName ?? '—'}
+                </Row>
                 <Row label="Curso associado">
                   {data.course?.title ?? '—'}
                   {data.moduleId ? ` · módulo #${data.moduleId}` : ''}
@@ -577,7 +642,9 @@ function ProgramSheetModal({
                       {links.data.trainings.map((t) => (
                         <li key={t.id}>
                           {t.title}
-                          {t.trainingPlanId ? ` · plano #${t.trainingPlanId}` : ''}
+                          {t.trainingPlanId
+                            ? ` · plano #${t.trainingPlanId}`
+                            : ''}
                         </li>
                       ))}
                     </ul>
@@ -615,7 +682,9 @@ function ProgramSheetModal({
                   Sessões, avaliação e fontes aprovadas
                 </h3>
                 {data.sessions.length === 0 ? (
-                  <p className="font-body text-xs text-ink-faint">Sem sessões.</p>
+                  <p className="font-body text-xs text-ink-faint">
+                    Sem sessões.
+                  </p>
                 ) : (
                   <div className="space-y-2">
                     {data.sessions.map((s) => (
@@ -639,7 +708,11 @@ function ProgramSheetModal({
                         <div className="text-ink-faint">
                           {s.knowledgeSources.length
                             ? `Fontes: ${s.knowledgeSources
-                                .map((k) => k.title ?? `${SOURCE_LABEL[k.sourceType]} ${k.id}`)
+                                .map(
+                                  (k) =>
+                                    k.title ??
+                                    `${SOURCE_LABEL[k.sourceType]} ${k.id}`,
+                                )
                                 .join('; ')}`
                             : 'Sem fontes aprovadas'}
                         </div>
@@ -702,7 +775,8 @@ export function ProgramsTab() {
       apiClient.post(`/avatar-training/programs/${v.id}/${v.verb}`),
     {
       invalidateKeys: [queryKeys.avatarTraining.all],
-      onSuccess: () => notify({ title: 'Formação actualizada', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Formação actualizada', intent: 'success' }),
       onError: (e) =>
         notify({
           title: 'Não foi possível actualizar',
@@ -800,68 +874,66 @@ export function ProgramsTab() {
           }
         />
       ) : (
-        <div className="space-y-3">
+        <CardGrid>
           {data.map((p) => (
-            <div
+            <ProgramCard
               key={p.id}
-              className="flex items-center justify-between gap-4 rounded-card border border-border bg-surface p-4"
-            >
-              <div className="min-w-0">
-                <div className="truncate font-display text-sm font-semibold text-ink">
-                  {p.title}
-                </div>
-                <div className="font-body text-xs text-ink-muted">
-                  {p.code} · {EXPERIENCE_LABEL[p.experienceType]} · v{p.version}
-                  {p._count ? ` · ${p._count.sessions} sessão(ões)` : ''}
-                  {p.avatar ? ` · ${p.avatar.name}` : ''}
-                  {p.course ? ` · curso: ${p.course.title}` : ''}
-                </div>
-                <div className="font-body text-xs text-ink-faint">
-                  {DIFFICULTY_LABEL[p.difficulty] ?? p.difficulty}
-                  {p.durationMinutes ? ` · ${p.durationMinutes} min` : ''}
-                  {p.language ? ` · ${p.language.toUpperCase()}` : ''}
-                  {p.category ? ` · ${p.category}` : ''}
-                </div>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <StatusBadge value={p.status} map={PROGRAM_STATUS} variant="dot" />
-                <Button size="sm" intent="ghost" onClick={() => setSheetId(p.id)}>
-                  Ficha
-                </Button>
-                {manage && p.status === 'DRAFT' && (
-                  <Button
-                    size="sm"
-                    intent="secondary"
-                    onClick={() => action.mutate({ id: p.id, verb: 'submit-review' })}
+              program={p}
+              onSelect={() => setSheetId(p.id)}
+              footer={
+                <>
+                  <button
+                    type="button"
+                    className={CARD_BTN_GHOST}
+                    onClick={() => setSheetId(p.id)}
                   >
-                    Submeter a revisão
-                  </Button>
-                )}
-                {manage && isAdmin && p.status === 'IN_REVIEW' && (
-                  <Button
-                    size="sm"
-                    onClick={() => action.mutate({ id: p.id, verb: 'publish' })}
-                  >
-                    Publicar
-                  </Button>
-                )}
-                {manage && p.status !== 'ARCHIVED' && (
-                  <Button
-                    size="sm"
-                    intent="ghost"
-                    onClick={() => action.mutate({ id: p.id, verb: 'archive' })}
-                  >
-                    Arquivar
-                  </Button>
-                )}
-              </div>
-            </div>
+                    Ficha
+                  </button>
+                  {manage && p.status === 'DRAFT' && (
+                    <button
+                      type="button"
+                      className={CARD_BTN}
+                      onClick={() =>
+                        action.mutate({ id: p.id, verb: 'submit-review' })
+                      }
+                    >
+                      Submeter a revisão
+                    </button>
+                  )}
+                  {manage && isAdmin && p.status === 'IN_REVIEW' && (
+                    <button
+                      type="button"
+                      className={CARD_BTN}
+                      onClick={() =>
+                        action.mutate({ id: p.id, verb: 'publish' })
+                      }
+                    >
+                      Publicar
+                    </button>
+                  )}
+                  {manage && p.status !== 'ARCHIVED' && (
+                    <button
+                      type="button"
+                      className={CARD_BTN_GHOST}
+                      onClick={() =>
+                        action.mutate({ id: p.id, verb: 'archive' })
+                      }
+                    >
+                      Arquivar
+                    </button>
+                  )}
+                </>
+              }
+            />
           ))}
-        </div>
+        </CardGrid>
       )}
 
       {showCreate && (
-        <ProgramFormModal onClose={() => setShowCreate(false)} onSaved={() => refetch()} />
+        <ProgramFormModal
+          onClose={() => setShowCreate(false)}
+          onSaved={() => refetch()}
+        />
       )}
       {editing && (
         <ProgramFormModal

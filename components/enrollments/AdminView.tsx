@@ -36,6 +36,7 @@ import {
   NAVY_ACTION,
   NavyBadge,
   NavyCard,
+  type NavyTone,
 } from '@/components/courses/NavyCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -45,6 +46,15 @@ import { ORIGIN_LABELS, STATUS_CFG } from './constants';
 import { useCourseOptions, useDepartmentOptions } from './enrollData';
 import { deadlineCountdown } from './utils';
 import type { Enrollment } from './types';
+
+const STATUS_TONE: Record<string, NavyTone> = {
+  NOT_STARTED: 'warning',
+  IN_PROGRESS: 'info',
+  COMPLETED: 'success',
+  OVERDUE: 'danger',
+  CANCELLED: 'neutral',
+  EXPIRED: 'neutral',
+};
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
@@ -324,47 +334,47 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                   />
                 }
                 badge={
-                  <NavyBadge>{STATUS_CFG[e.status]?.label ?? e.status}</NavyBadge>
+                  <NavyBadge tone={STATUS_TONE[e.status] ?? 'neutral'}>
+                    {STATUS_CFG[e.status]?.label ?? e.status}
+                  </NavyBadge>
                 }
                 actions={
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          className={NAVY_ACTION}
-                          disabled={rowBusy(e.id)}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        className={NAVY_ACTION}
+                        disabled={rowBusy(e.id)}
+                      >
+                        <MoreHorizontal size={16} strokeWidth={1.75} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => remind.mutate(e.id)}>
+                        Enviar lembrete
+                      </DropdownMenuItem>
+                      {(e.status === 'CANCELLED' || e.status === 'EXPIRED') && (
+                        <DropdownMenuItem
+                          onSelect={() => reenroll.mutate(e.id)}
                         >
-                          <MoreHorizontal size={16} strokeWidth={1.75} />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onSelect={() => remind.mutate(e.id)}>
-                          Enviar lembrete
+                          Reinscrever
                         </DropdownMenuItem>
-                        {(e.status === 'CANCELLED' ||
-                          e.status === 'EXPIRED') && (
-                          <DropdownMenuItem
-                            onSelect={() => reenroll.mutate(e.id)}
-                          >
-                            Reinscrever
-                          </DropdownMenuItem>
-                        )}
-                        {e.status !== 'CANCELLED' && (
-                          <DropdownMenuItem onSelect={() => onResetProgress(e)}>
-                            Reiniciar progresso
-                          </DropdownMenuItem>
-                        )}
-                        {e.status !== 'COMPLETED' &&
-                          e.status !== 'CANCELLED' && (
-                            <DropdownMenuItem
-                              className="text-danger-ink"
-                              onSelect={() => onRemove(e)}
-                            >
-                              Remover inscrição
-                            </DropdownMenuItem>
-                          )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      )}
+                      {e.status !== 'CANCELLED' && (
+                        <DropdownMenuItem onSelect={() => onResetProgress(e)}>
+                          Reiniciar progresso
+                        </DropdownMenuItem>
+                      )}
+                      {e.status !== 'COMPLETED' && e.status !== 'CANCELLED' && (
+                        <DropdownMenuItem
+                          className="text-danger-ink"
+                          onSelect={() => onRemove(e)}
+                        >
+                          Remover inscrição
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 }
                 avatar={{
                   name: e.user?.fullName ?? '',

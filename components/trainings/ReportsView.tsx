@@ -8,7 +8,23 @@
 'use client';
 
 import { useState } from 'react';
-import { Download } from 'lucide-react';
+import {
+  Award,
+  CalendarClock,
+  CheckCircle2,
+  Clock,
+  Download,
+  GraduationCap,
+  Lightbulb,
+  Megaphone,
+  Star,
+  ThumbsUp,
+  UserCheck,
+  UserMinus,
+  UserX,
+  Users,
+  XCircle,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -21,6 +37,7 @@ import {
 import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { ThermometerStatCard } from '@/components/ui/charts/ThermometerStatCard';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { WalletStat } from '@/components/roi-impact/WalletStat';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { buttonVariants } from '@/components/ui/Button';
@@ -138,26 +155,31 @@ export function ReportsView() {
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
             <KpiCard
+              icon={GraduationCap}
               label="Formações"
               value={data.totals.trainings}
               intent="primary"
             />
             <KpiCard
+              icon={CalendarClock}
               label="Planeadas"
               value={data.totals.planned}
               intent="info"
             />
             <KpiCard
+              icon={Megaphone}
               label="Publicadas"
               value={data.totals.published}
               intent="info"
             />
             <KpiCard
+              icon={CheckCircle2}
               label="Concluídas"
               value={data.totals.completed}
               intent="success"
             />
             <KpiCard
+              icon={XCircle}
               label="Canceladas"
               value={data.totals.cancelled}
               intent="danger"
@@ -170,21 +192,25 @@ export function ReportsView() {
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <KpiCard
+                icon={Users}
                 label="Inscritos"
                 value={data.participants.enrolled}
                 intent="primary"
               />
               <KpiCard
+                icon={UserCheck}
                 label="Concluíram"
                 value={data.participants.completed}
                 intent="success"
               />
               <KpiCard
+                icon={UserMinus}
                 label="Não concluíram"
                 value={data.participants.notCompleted}
                 intent="warning"
               />
               <KpiCard
+                icon={UserX}
                 label="Cancelados"
                 value={data.participants.cancelled}
                 intent="danger"
@@ -201,7 +227,11 @@ export function ReportsView() {
                 bands={RATE_BANDS}
                 display={`${Math.round(data.participants.completionRate)}%`}
               />
-              <KpiCard label="Horas de formação" value={data.hours.total} />
+              <KpiCard
+                icon={Clock}
+                label="Horas de formação"
+                value={data.hours.total}
+              />
               <SpeedometerStatCard
                 label="Execução do plano"
                 value={data.planExecution.rate}
@@ -216,12 +246,24 @@ export function ReportsView() {
               Custos
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <KpiCard label="Custo total" value={formatKz(data.costs.total)} />
-              <KpiCard
+              <WalletStat
+                zoom
+                money="stack"
+                tone="blue"
+                label="Custo total"
+                value={formatKz(data.costs.total)}
+              />
+              <WalletStat
+                zoom
+                money="mixed"
+                tone="green"
                 label="Custo/participante"
                 value={formatKz(data.costs.perParticipant)}
               />
-              <KpiCard
+              <WalletStat
+                zoom
+                money="coins"
+                tone="orange"
                 label="Custo/hora"
                 value={formatKz(data.costs.perHour)}
               />
@@ -240,6 +282,7 @@ export function ReportsView() {
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <KpiCard
+                icon={Star}
                 label="Satisfação média"
                 value={
                   data.satisfaction.avgRating != null
@@ -249,6 +292,7 @@ export function ReportsView() {
                 intent="accent"
               />
               <KpiCard
+                icon={ThumbsUp}
                 label="NPS"
                 value={
                   data.satisfaction.nps != null ? data.satisfaction.nps : '—'
@@ -260,10 +304,12 @@ export function ReportsView() {
                 value={data.efficacy.approvalRate}
               />
               <KpiCard
+                icon={Lightbulb}
                 label="Competências desenvolvidas"
                 value={data.competenciesDeveloped}
               />
               <KpiCard
+                icon={Award}
                 label="Certificados emitidos"
                 value={data.certificatesIssued}
                 intent="primary"

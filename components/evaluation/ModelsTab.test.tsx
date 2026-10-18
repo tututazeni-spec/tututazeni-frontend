@@ -68,7 +68,9 @@ describe('ModelsTab', () => {
     render(<ModelsTab />);
     expect(screen.getByText('Modelo Anual')).toBeInTheDocument();
     expect(screen.queryByText('Novo Modelo')).not.toBeInTheDocument();
-    expect(screen.queryByText('Remover')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^Remover/ }),
+    ).not.toBeInTheDocument();
   });
 
   test('remover um modelo pede confirmação e chama o DELETE', async () => {
@@ -84,7 +86,7 @@ describe('ModelsTab', () => {
       },
     ];
     render(<ModelsTab />);
-    fireEvent.click(screen.getByText('Remover'));
+    fireEvent.click(screen.getByRole('button', { name: /^Remover/ }));
     expect(confirmFn).toHaveBeenCalled();
     await waitFor(() =>
       expect(del).toHaveBeenCalledWith('/evaluations/templates/5'),

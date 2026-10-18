@@ -10,7 +10,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2, FileText } from 'lucide-react';
+import { CheckCircle2, Clock, LogIn, LogOut } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -18,9 +18,13 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
 import { useToast } from '@/providers/ToastProvider';
-import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import {
+  NAVY_BTN,
+  NavyBadge,
+  NavyCard,
+  type NavyTone,
+} from '@/components/courses/NavyCard';
 import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
@@ -35,6 +39,14 @@ import type {
   LiveParticipant,
   PaginatedMeta,
 } from './types';
+
+const ATTENDANCE_TONE: Record<string, NavyTone> = {
+  PRESENTE: 'success',
+  AUSENTE: 'danger',
+  ATRASADO: 'warning',
+  PARCIAL: 'warning',
+  JUSTIFICADO: 'info',
+};
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
@@ -201,70 +213,79 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
         />
       ) : (
         <>
-          <Card className="divide-y divide-border">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {rows.map((p) => (
-              <div
+              <NavyCard
                 key={p.id}
-                className="flex flex-wrap items-center gap-3 px-4 py-3"
-              >
-                <Avatar name={p.user.fullName} size="sm" />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-ink">
-                    {p.user.fullName}
-                  </div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 font-body text-xs text-ink-faint">
-                    <span>{p.liveClass.topic}</span>
-                    {p.session && <span>· Sessão {p.session.seq}</span>}
-                    <span>
-                      · Entrada: {p.joinedAt ? formatDateTime(p.joinedAt) : '—'}
-                    </span>
-                    <span>
-                      · Saída: {p.leftAt ? formatDateTime(p.leftAt) : '—'}
-                    </span>
-                    {p.durationMinutes != null && (
-                      <span>
-                        · {p.durationMinutes}min ({p.attendancePercent ?? 0}%)
-                      </span>
-                    )}
-                  </div>
-                  {p.justification && (
-                    <div className="mt-0.5 flex items-center gap-1 font-body text-xs text-info">
-                      <FileText size={11} strokeWidth={1.75} />{' '}
-                      {p.justification}
-                    </div>
-                  )}
-                </div>
-                <span
-                  className={`rounded px-2 py-0.5 font-body text-xs font-medium ${LIVE_ATTENDANCE_STATUS_CFG[p.computedStatus]?.cls ?? ''}`}
-                >
-                  {LIVE_ATTENDANCE_STATUS_CFG[p.computedStatus]?.label ??
-                    p.computedStatus}
-                </span>
-                {canManage && (
-                  <div className="flex gap-2">
-                    <Button
-                      intent="ghost"
-                      size="sm"
-                      onClick={() => openRegister(p)}
-                    >
-                      <CheckCircle2 size={14} strokeWidth={1.75} />
-                      Registar
-                    </Button>
-                    <Button
-                      intent="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setJustifying(p);
-                        setJustification(p.justification ?? '');
-                      }}
-                    >
-                      Justificar
-                    </Button>
-                  </div>
-                )}
-              </div>
+                seed={p.liveClassId}
+                avatar={{ name: p.user.fullName }}
+                title={p.liveClass.topic}
+                subtitle={
+                  p.justification
+                    ? `Justificação: ${p.justification}`
+                    : p.session
+                      ? `Sessão ${p.session.seq}`
+                      : undefined
+                }
+                badge={
+                  <NavyBadge
+                    tone={ATTENDANCE_TONE[p.computedStatus] ?? 'neutral'}
+                  >
+                    {LIVE_ATTENDANCE_STATUS_CFG[p.computedStatus]?.label ??
+                      p.computedStatus}
+                  </NavyBadge>
+                }
+                infos={[
+                  {
+                    icon: LogIn,
+                    value: p.joinedAt ? formatDateTime(p.joinedAt) : '—',
+                    label: 'Entrada',
+                  },
+                  {
+                    icon: LogOut,
+                    value: p.leftAt ? formatDateTime(p.leftAt) : '—',
+                    label: 'Saída',
+                  },
+                  {
+                    icon: Clock,
+                    value:
+                      p.durationMinutes != null
+                        ? `${p.durationMinutes}min`
+                        : '—',
+                    label: `Presença ${p.attendancePercent ?? 0}%`,
+                  },
+                ]}
+                footer={
+                  canManage && (
+                    <>
+                      <button
+                        type="button"
+                        className={NAVY_BTN}
+                        onClick={() => openRegister(p)}
+                      >
+                        <CheckCircle2
+                          size={14}
+                          strokeWidth={1.75}
+                          className="mr-1.5"
+                        />
+                        Registar
+                      </button>
+                      <button
+                        type="button"
+                        className={NAVY_BTN}
+                        onClick={() => {
+                          setJustifying(p);
+                          setJustification(p.justification ?? '');
+                        }}
+                      >
+                        Justificar
+                      </button>
+                    </>
+                  )
+                }
+              />
             ))}
-          </Card>
+          </div>
 
           {totalPages > 1 && (
             <div className="flex justify-center gap-2">

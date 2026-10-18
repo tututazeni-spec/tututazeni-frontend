@@ -5,8 +5,16 @@
 
 'use client';
 
-import { useState } from 'react';
-import { Bot, History, Pencil, Plus, Trash2 } from 'lucide-react';
+import { useRef, useState } from 'react';
+import {
+  Bot,
+  History,
+  ImageIcon,
+  Pencil,
+  Plus,
+  Trash2,
+  Upload,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
@@ -32,6 +40,11 @@ import {
   LANGUAGE_ITEMS,
   SOURCE_LABEL,
 } from './constants';
+import {
+  IMAGE_ACCEPT,
+  imageFileToDataUrl,
+  validateImageFile,
+} from './imageFile';
 import { NO_USER, useUserOptions } from './useUserOptions';
 import type {
   AvatarHistoryEntry,
@@ -42,10 +55,115 @@ import type {
   TrainingAvatar,
 } from './types';
 
-const TYPE_ITEMS = (Object.keys(AVATAR_TYPE_LABEL) as AvatarType[]).map((t) => ({
-  value: t,
-  label: AVATAR_TYPE_LABEL[t],
-}));
+const TYPE_ITEMS = (Object.keys(AVATAR_TYPE_LABEL) as AvatarType[]).map(
+  (t) => ({
+    value: t,
+    label: AVATAR_TYPE_LABEL[t],
+  }),
+);
+
+// Imagem do avatar: ligação (URL) ou ficheiro até 5 MB (guardado inline).
+function ImageField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const notify = useToast();
+  const input = useRef<HTMLInputElement>(null);
+  const [reading, setReading] = useState(false);
+  const inline = value.startsWith('data:');
+
+  async function pick(file: File | undefined) {
+    if (!file) return;
+    const problem = validateImageFile(file);
+    if (problem) {
+      notify({
+        title: 'Imagem não aceite',
+        description: problem,
+        intent: 'danger',
+      });
+      return;
+    }
+    setReading(true);
+    try {
+      onChange(await imageFileToDataUrl(file));
+    } catch {
+      notify({ title: 'Não foi possível ler a imagem', intent: 'danger' });
+    } finally {
+      setReading(false);
+    }
+  }
+
+  return (
+    <FormField
+      label="Imagem"
+      htmlFor="av-img"
+      hint="Indique uma ligação (URL) ou carregue um ficheiro PNG, JPEG, WebP ou GIF até 5 MB."
+    >
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-sunken text-ink-faint">
+          {value ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={value}
+              alt="Pré-visualização do avatar"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <ImageIcon size={22} strokeWidth={1.5} />
+          )}
+        </div>
+        <div className="min-w-[200px] flex-1">
+          {inline ? (
+            <p className="font-body text-sm text-ink-muted">
+              Ficheiro carregado
+            </p>
+          ) : (
+            <Input
+              id="av-img"
+              value={value}
+              placeholder="https://…"
+              onChange={(e) => onChange(e.target.value)}
+            />
+          )}
+        </div>
+        <input
+          ref={input}
+          type="file"
+          accept={IMAGE_ACCEPT}
+          className="sr-only"
+          aria-label="Carregar imagem do avatar"
+          onChange={(e) => {
+            void pick(e.target.files?.[0]);
+            e.target.value = '';
+          }}
+        />
+        <Button
+          type="button"
+          size="sm"
+          intent="secondary"
+          loading={reading}
+          onClick={() => input.current?.click()}
+        >
+          <Upload size={14} />{' '}
+          {inline ? 'Substituir ficheiro' : 'Carregar ficheiro'}
+        </Button>
+        {value && (
+          <Button
+            type="button"
+            size="sm"
+            intent="ghost"
+            onClick={() => onChange('')}
+          >
+            Remover
+          </Button>
+        )}
+      </div>
+    </FormField>
+  );
+}
 
 function AvatarFormModal({
   avatar,
@@ -61,7 +179,9 @@ function AvatarFormModal({
   const users = useUserOptions();
   const [name, setName] = useState(avatar?.name ?? '');
   const [description, setDescription] = useState(avatar?.description ?? '');
-  const [avatarType, setAvatarType] = useState<string>(avatar?.avatarType ?? 'IMAGE');
+  const [avatarType, setAvatarType] = useState<string>(
+    avatar?.avatarType ?? 'IMAGE',
+  );
   const [imageUrl, setImageUrl] = useState(avatar?.imageUrl ?? '');
   const [voiceId, setVoiceId] = useState(avatar?.voiceConfig?.voiceId ?? '');
   const [language, setLanguage] = useState(avatar?.language ?? 'pt');
@@ -69,7 +189,9 @@ function AvatarFormModal({
   const [tone, setTone] = useState(avatar?.tone ?? '');
   const [specialty, setSpecialty] = useState(avatar?.specialty ?? '');
   const [provider, setProvider] = useState(avatar?.provider ?? '');
-  const [providerModel, setProviderModel] = useState(avatar?.providerModel ?? '');
+  const [providerModel, setProviderModel] = useState(
+    avatar?.providerModel ?? '',
+  );
   const [responsible, setResponsible] = useState(
     avatar?.responsibleId ? String(avatar.responsibleId) : NO_USER,
   );
@@ -93,7 +215,8 @@ function AvatarFormModal({
         specialty: specialty.trim() || undefined,
         provider: provider.trim() || undefined,
         providerModel: providerModel.trim() || undefined,
-        responsibleId: responsible === NO_USER ? undefined : Number(responsible),
+        responsibleId:
+          responsible === NO_USER ? undefined : Number(responsible),
         knowledgeBase: knowledge.map((k) => ({
           sourceType: k.sourceType,
           sourceId: k.sourceId,
@@ -123,7 +246,10 @@ function AvatarFormModal({
 
   const addSource = () => {
     const id = srcId.trim();
-    if (!id || knowledge.some((k) => k.sourceType === srcType && k.sourceId === id))
+    if (
+      !id ||
+      knowledge.some((k) => k.sourceType === srcType && k.sourceId === id)
+    )
       return;
     setKnowledge([...knowledge, { sourceType: srcType, sourceId: id }]);
     setSrcId('');
@@ -158,20 +284,27 @@ function AvatarFormModal({
           </FormField>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormField label="Tipo" htmlFor="av-type">
-              <Select value={avatarType} onValueChange={setAvatarType} items={TYPE_ITEMS} />
-            </FormField>
-            <FormField label="Imagem (URL)" htmlFor="av-img">
-              <Input
-                id="av-img"
-                value={imageUrl}
-                placeholder="https://…"
-                onChange={(e) => setImageUrl(e.target.value)}
+              <Select
+                value={avatarType}
+                onValueChange={setAvatarType}
+                items={TYPE_ITEMS}
               />
             </FormField>
+            <div className="sm:col-span-2">
+              <ImageField value={imageUrl} onChange={setImageUrl} />
+            </div>
             <FormField label="Idioma" htmlFor="av-lang">
-              <Select value={language} onValueChange={setLanguage} items={LANGUAGE_ITEMS} />
+              <Select
+                value={language}
+                onValueChange={setLanguage}
+                items={LANGUAGE_ITEMS}
+              />
             </FormField>
-            <FormField label="Variante" htmlFor="av-variant" hint="Ex.: PT-AO, PT-PT.">
+            <FormField
+              label="Variante"
+              htmlFor="av-variant"
+              hint="Ex.: PT-AO, PT-PT."
+            >
               <Input
                 id="av-variant"
                 value={variant}
@@ -202,7 +335,11 @@ function AvatarFormModal({
               />
             </FormField>
             <FormField label="Responsável" htmlFor="av-resp">
-              <Select value={responsible} onValueChange={setResponsible} items={users} />
+              <Select
+                value={responsible}
+                onValueChange={setResponsible}
+                items={users}
+              />
             </FormField>
             <FormField label="Fornecedor" htmlFor="av-prov">
               <Input
@@ -235,14 +372,16 @@ function AvatarFormModal({
                   className="flex items-center justify-between gap-2 rounded-control border border-border bg-surface px-2 py-1 font-body text-sm text-ink"
                 >
                   <span className="truncate">
-                    {k.title ?? SOURCE_LABEL[k.sourceType]} · {SOURCE_LABEL[k.sourceType]} #
-                    {k.sourceId}
+                    {k.title ?? SOURCE_LABEL[k.sourceType]} ·{' '}
+                    {SOURCE_LABEL[k.sourceType]} #{k.sourceId}
                   </span>
                   <Button
                     size="sm"
                     intent="ghost"
                     aria-label="Remover fonte"
-                    onClick={() => setKnowledge(knowledge.filter((x) => x !== k))}
+                    onClick={() =>
+                      setKnowledge(knowledge.filter((x) => x !== k))
+                    }
                   >
                     <Trash2 size={14} />
                   </Button>
@@ -254,10 +393,12 @@ function AvatarFormModal({
                 <Select
                   value={srcType}
                   onValueChange={(v) => setSrcType(v as SourceType)}
-                  items={(Object.keys(SOURCE_LABEL) as SourceType[]).map((t) => ({
-                    value: t,
-                    label: SOURCE_LABEL[t],
-                  }))}
+                  items={(Object.keys(SOURCE_LABEL) as SourceType[]).map(
+                    (t) => ({
+                      value: t,
+                      label: SOURCE_LABEL[t],
+                    }),
+                  )}
                 />
               </FormField>
               <FormField label="ID da fonte" htmlFor="av-src-id">
@@ -267,7 +408,12 @@ function AvatarFormModal({
                   onChange={(e) => setSrcId(e.target.value)}
                 />
               </FormField>
-              <Button size="sm" intent="secondary" disabled={!srcId.trim()} onClick={addSource}>
+              <Button
+                size="sm"
+                intent="secondary"
+                disabled={!srcId.trim()}
+                onClick={addSource}
+              >
                 Adicionar
               </Button>
             </div>
@@ -313,7 +459,10 @@ function HistoryModal({
           {error ? (
             <QueryError error={error} onRetry={() => refetch()} />
           ) : !data ? (
-            <Skeleton rows={3} itemClassName="h-10 rounded-card bg-surface-sunken animate-pulse" />
+            <Skeleton
+              rows={3}
+              itemClassName="h-10 rounded-card bg-surface-sunken animate-pulse"
+            />
           ) : data.length === 0 ? (
             <p className="font-body text-sm text-ink-faint">Sem registos.</p>
           ) : (
@@ -327,8 +476,12 @@ function HistoryModal({
                 >
                   <div className="font-medium text-ink">
                     {AUDIT_ACTION_LABEL[h.action] ?? h.action}
-                    {to ? ` → ${AVATAR_STATUS[to as AvatarStatus]?.label ?? to}` : ''}
-                    {h.action === 'TEST' && h.detail?.ok === false ? ' (falhou)' : ''}
+                    {to
+                      ? ` → ${AVATAR_STATUS[to as AvatarStatus]?.label ?? to}`
+                      : ''}
+                    {h.action === 'TEST' && h.detail?.ok === false
+                      ? ' (falhou)'
+                      : ''}
                   </div>
                   <div className="text-xs text-ink-muted">
                     {formatDate(h.at)}
@@ -428,7 +581,11 @@ export function AvatarsTab() {
                       className="h-10 w-10 shrink-0 rounded-full object-cover"
                     />
                   ) : (
-                    <Bot size={20} className="shrink-0 text-ink-muted" aria-hidden />
+                    <Bot
+                      size={20}
+                      className="shrink-0 text-ink-muted"
+                      aria-hidden
+                    />
                   )}
                   <div className="min-w-0">
                     <div className="truncate font-display text-sm font-semibold text-ink">
@@ -442,7 +599,11 @@ export function AvatarsTab() {
                     </div>
                   </div>
                 </div>
-                <StatusBadge value={a.status} map={AVATAR_STATUS} variant="dot" />
+                <StatusBadge
+                  value={a.status}
+                  map={AVATAR_STATUS}
+                  variant="dot"
+                />
               </div>
               {a.description && (
                 <p className="mt-2 line-clamp-2 font-body text-xs text-ink-muted">
@@ -451,18 +612,32 @@ export function AvatarsTab() {
               )}
               {isAdmin && (
                 <div className="mt-2 font-body text-xs text-ink-faint">
-                  {a.provider ? `${a.provider}${a.providerModel ? ` ${a.providerModel}` : ''}` : 'Sem fornecedor'}
-                  {a.responsibleName ? ` · responsável: ${a.responsibleName}` : ''}
+                  {a.provider
+                    ? `${a.provider}${a.providerModel ? ` ${a.providerModel}` : ''}`
+                    : 'Sem fornecedor'}
+                  {a.responsibleName
+                    ? ` · responsável: ${a.responsibleName}`
+                    : ''}
                   {` · ${a.knowledgeBase?.length ?? 0} fonte(s)`}
-                  {a.lastTestedAt ? ` · testado ${formatDate(a.lastTestedAt)}` : ' · por testar'}
+                  {a.lastTestedAt
+                    ? ` · testado ${formatDate(a.lastTestedAt)}`
+                    : ' · por testar'}
                 </div>
               )}
               {isAdmin && (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <Button size="sm" intent="secondary" onClick={() => setEditing(a)}>
+                  <Button
+                    size="sm"
+                    intent="secondary"
+                    onClick={() => setEditing(a)}
+                  >
                     <Pencil size={14} /> Editar
                   </Button>
-                  <Button size="sm" intent="ghost" onClick={() => setHistoryOf(a)}>
+                  <Button
+                    size="sm"
+                    intent="ghost"
+                    onClick={() => setHistoryOf(a)}
+                  >
                     <History size={14} /> Histórico
                   </Button>
                   <Button
@@ -482,7 +657,9 @@ export function AvatarsTab() {
                           ? undefined
                           : 'É obrigatório testar o avatar antes de o activar'
                       }
-                      onClick={() => setStatus.mutate({ id: a.id, status: 'ACTIVE' })}
+                      onClick={() =>
+                        setStatus.mutate({ id: a.id, status: 'ACTIVE' })
+                      }
                     >
                       Activar
                     </Button>
@@ -490,7 +667,9 @@ export function AvatarsTab() {
                     <Button
                       size="sm"
                       intent="ghost"
-                      onClick={() => setStatus.mutate({ id: a.id, status: 'INACTIVE' })}
+                      onClick={() =>
+                        setStatus.mutate({ id: a.id, status: 'INACTIVE' })
+                      }
                     >
                       Desactivar
                     </Button>
@@ -511,7 +690,9 @@ export function AvatarsTab() {
           onSaved={() => refetch()}
         />
       )}
-      {historyOf && <HistoryModal avatar={historyOf} onClose={() => setHistoryOf(null)} />}
+      {historyOf && (
+        <HistoryModal avatar={historyOf} onClose={() => setHistoryOf(null)} />
+      )}
     </div>
   );
 }

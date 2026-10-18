@@ -83,7 +83,9 @@ describe('CriteriaTab', () => {
     ];
     render(<CriteriaTab />);
     expect(screen.queryByText('Novo Critério')).not.toBeInTheDocument();
-    expect(screen.queryByText('Remover')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /^Remover/ }),
+    ).not.toBeInTheDocument();
   });
 
   test('linha existente permite remover com confirmação', async () => {
@@ -99,7 +101,7 @@ describe('CriteriaTab', () => {
       },
     ];
     render(<CriteriaTab />);
-    fireEvent.click(screen.getByText('Remover'));
+    fireEvent.click(screen.getByRole('button', { name: /^Remover/ }));
     expect(confirmFn).toHaveBeenCalled();
     await waitFor(() =>
       expect(del).toHaveBeenCalledWith('/evaluations/criteria/1'),

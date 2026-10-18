@@ -19,6 +19,15 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { FileOrLinkField } from './FileOrLinkField';
+import { MultiPickField, parsePickValue } from './plans/MultiPickField';
+import {
+  TRAINER_AREA_OPTIONS,
+  TRAINER_CERTIFICATION_OPTIONS,
+  TRAINER_PROFESSIONAL_EXPERIENCE_OPTIONS,
+  TRAINER_SPECIALTY_OPTIONS,
+  TRAINER_TRAINING_EXPERIENCE_OPTIONS,
+} from './trainingOptions';
 import type { Trainer } from './types';
 
 export interface TrainerFormModalProps {
@@ -46,13 +55,6 @@ function n(value: string): number | undefined {
   if (value.trim() === '') return undefined;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-function listField(value: string): string[] {
-  return value
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
 }
 
 export function TrainerFormModal({
@@ -86,8 +88,8 @@ export function TrainerFormModal({
       nif: trainer?.nif ?? '',
       email: trainer?.email ?? '',
       phone: trainer?.phone ?? '',
-      specialties: trainer?.specialties?.join(', ') ?? '',
-      trainingAreas: trainer?.trainingAreas?.join(', ') ?? '',
+      specialties: trainer?.specialties?.join('\n') ?? '',
+      trainingAreas: trainer?.trainingAreas?.join('\n') ?? '',
       certifications: trainer?.certifications ?? '',
       professionalExperience: trainer?.professionalExperience ?? '',
       trainerExperience: trainer?.trainerExperience ?? '',
@@ -107,8 +109,8 @@ export function TrainerFormModal({
       type: form.type,
       name: form.name.trim(),
       status: form.status || 'ACTIVE',
-      specialties: listField(form.specialties),
-      trainingAreas: listField(form.trainingAreas),
+      specialties: parsePickValue(form.specialties),
+      trainingAreas: parsePickValue(form.trainingAreas),
     };
     const str = (key: keyof typeof form) => {
       const v = (form[key] as string).trim();
@@ -241,68 +243,66 @@ export function TrainerFormModal({
             </FormField>
           </div>
 
-          <FormField
-            label="Especialidades (separadas por vírgula)"
-            htmlFor="tf-specialties"
-          >
-            <Input
+          <FormField label="Especialidades" htmlFor="tf-specialties">
+            <MultiPickField
               id="tf-specialties"
+              options={TRAINER_SPECIALTY_OPTIONS}
               value={form.specialties}
-              onChange={(e) => setField('specialties', e.target.value)}
-              className="w-full"
+              onChange={(v) => setField('specialties', v)}
+              allowManual
+              manualPlaceholder="Escrever outra especialidade"
             />
           </FormField>
 
-          <FormField
-            label="Áreas de formação (separadas por vírgula)"
-            htmlFor="tf-trainingAreas"
-          >
-            <Input
+          <FormField label="Áreas de formação" htmlFor="tf-trainingAreas">
+            <MultiPickField
               id="tf-trainingAreas"
+              options={TRAINER_AREA_OPTIONS}
               value={form.trainingAreas}
-              onChange={(e) => setField('trainingAreas', e.target.value)}
-              className="w-full"
+              onChange={(v) => setField('trainingAreas', v)}
+              allowManual
+              manualPlaceholder="Escrever outra área de formação"
             />
           </FormField>
 
           <FormField label="Certificações" htmlFor="tf-certifications">
-            <Textarea
+            <MultiPickField
               id="tf-certifications"
+              options={TRAINER_CERTIFICATION_OPTIONS}
               value={form.certifications}
-              onChange={(e) => setField('certifications', e.target.value)}
-              rows={2}
-              className="w-full resize-none"
+              onChange={(v) => setField('certifications', v)}
+              allowManual
+              manualPlaceholder="Escrever outra certificação"
             />
           </FormField>
 
-          <div className="grid grid-cols-2 gap-3">
-            <FormField
-              label="Experiência profissional"
-              htmlFor="tf-professionalExperience"
-            >
-              <Textarea
-                id="tf-professionalExperience"
-                value={form.professionalExperience}
-                onChange={(e) =>
-                  setField('professionalExperience', e.target.value)
-                }
-                rows={2}
-                className="w-full resize-none"
-              />
-            </FormField>
-            <FormField
-              label="Experiência como formador"
-              htmlFor="tf-trainerExperience"
-            >
-              <Textarea
-                id="tf-trainerExperience"
-                value={form.trainerExperience}
-                onChange={(e) => setField('trainerExperience', e.target.value)}
-                rows={2}
-                className="w-full resize-none"
-              />
-            </FormField>
-          </div>
+          <FormField
+            label="Experiência profissional"
+            htmlFor="tf-professionalExperience"
+          >
+            <MultiPickField
+              id="tf-professionalExperience"
+              options={TRAINER_PROFESSIONAL_EXPERIENCE_OPTIONS}
+              value={form.professionalExperience}
+              onChange={(v) => setField('professionalExperience', v)}
+              allowManual
+              manualPlaceholder="Descrever outra experiência profissional"
+            />
+          </FormField>
+
+          <FormField
+            label="Experiência como formador"
+            htmlFor="tf-trainerExperience"
+          >
+            <MultiPickField
+              id="tf-trainerExperience"
+              options={TRAINER_TRAINING_EXPERIENCE_OPTIONS}
+              value={form.trainerExperience}
+              onChange={(v) => setField('trainerExperience', v)}
+              allowManual
+              manualPlaceholder="Descrever outra experiência como formador"
+            />
+          </FormField>
 
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Disponibilidade" htmlFor="tf-availability">
@@ -314,7 +314,7 @@ export function TrainerFormModal({
                 placeholder="Ex: Seg-Sex, 09h-18h"
               />
             </FormField>
-            <FormField label="Custo/hora (Kz)" htmlFor="tf-hourlyCost">
+            <FormField label="Custo/hora (AOA)" htmlFor="tf-hourlyCost">
               <Input
                 id="tf-hourlyCost"
                 type="number"
@@ -326,13 +326,11 @@ export function TrainerFormModal({
             </FormField>
           </div>
 
-          <FormField label="URL de documentação" htmlFor="tf-documentUrl">
-            <Input
+          <FormField label="Documentação" htmlFor="tf-documentUrl">
+            <FileOrLinkField
               id="tf-documentUrl"
               value={form.documentUrl}
-              onChange={(e) => setField('documentUrl', e.target.value)}
-              className="w-full"
-              placeholder="https://…"
+              onChange={(v) => setField('documentUrl', v)}
             />
           </FormField>
 

@@ -17,6 +17,7 @@ import {
   FORMAT_ICON,
   LEVEL_CLS,
 } from './constants';
+import { openContent } from './inlineFile';
 import type { Content } from './types';
 
 export interface ContentCardProps {
@@ -49,7 +50,9 @@ export function ContentCard({
     await apiClient
       .patch(`/content-library/${content.id}/view`, {})
       .catch((err) => reportError(err, { source: 'ContentCard.handleView' }));
-    window.open(content.url, '_blank');
+    await openContent(content).catch((err) =>
+      reportError(err, { source: 'ContentCard.openContent' }),
+    );
   };
 
   if (compact)

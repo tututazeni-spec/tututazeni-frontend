@@ -1,15 +1,13 @@
 // components/evaluation360/QuestionariosTab.tsx
-// Separador "Questionários" (docs/evaluation360.md §6) — banco reutilizável
-// de questionários, distinto das perguntas soltas de um ciclo (Eval360Question,
-// aba não exposta directamente). Publicar aqui torna o questionário elegível
-// para ser escolhido em CreateCycleModal ("Questionário"), que clona as suas
-// competências+perguntas para o novo ciclo (evaluation360.service.ts#createCycle).
+// Separador "Questionários" (docs/evaluation360.md §6) — lista dos
+// questionários 360° existentes, com publicar/arquivar. A criação e a escolha
+// de questionário no "Novo ciclo" foram removidas.
 
 'use client';
 
 import { FilterPanelCard } from './FilterPanelCard';
 import { useState } from 'react';
-import { FileText, Plus } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import type { QuestionnaireListItem, QuestionnaireStatus } from './types';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -18,9 +16,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { EVAL_CREATOR_ROLES } from '@/lib/roles';
-import { Button } from '@/components/ui/Button';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
-import { CreateQuestionnaireModal } from './CreateQuestionnaireModal';
 
 const ALL = 'ALL';
 
@@ -43,12 +39,11 @@ export function QuestionariosTab() {
   const canManage = !!role && EVAL_CREATOR_ROLES.includes(role);
 
   const [status, setStatus] = useState(ALL);
-  const [showCreate, setShowCreate] = useState(false);
 
   const params: Record<string, string> = { tenantId: 'default', limit: '50' };
   if (status !== ALL) params.status = status;
 
-  const { data, isLoading, refetch } = useApiQuery<{
+  const { data, isLoading } = useApiQuery<{
     data: QuestionnaireListItem[];
     total: number;
   }>(
@@ -91,18 +86,9 @@ export function QuestionariosTab() {
         <div>
           <h2 className="m-0 text-lg font-bold text-ink">Questionários</h2>
           <p className="m-0 mt-1 text-sm text-ink-muted">
-            Banco reutilizável de questionários 360° — escolhe um ao criar um
-            novo ciclo.
+            Banco de questionários utilizados nas avaliações 360°.
           </p>
         </div>
-        {canManage && (
-          <Button
-            onClick={() => setShowCreate(true)}
-            className="shrink-0 gap-2"
-          >
-            <Plus size={16} strokeWidth={2} /> Novo Questionário
-          </Button>
-        )}
       </div>
 
       <FilterPanelCard>
@@ -212,13 +198,6 @@ export function QuestionariosTab() {
             </tbody>
           </table>
         </div>
-      )}
-
-      {showCreate && (
-        <CreateQuestionnaireModal
-          onClose={() => setShowCreate(false)}
-          onSuccess={() => refetch()}
-        />
       )}
     </div>
   );

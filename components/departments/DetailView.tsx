@@ -349,7 +349,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                   <span>
                     Budget formação:{' '}
                     <strong className="text-ink">
-                      {dept.trainingBudget.toLocaleString('pt-AO')} Kz
+                      {dept.trainingBudget.toLocaleString('pt-AO')} AOA
                     </strong>
                   </span>
                 )}

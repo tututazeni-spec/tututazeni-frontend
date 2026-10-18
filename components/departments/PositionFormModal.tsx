@@ -319,7 +319,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
             </FormField>
             <div />
             <FormField
-              label="Salário mín. (Kz)"
+              label="Salário mín. (AOA)"
               htmlFor="pf-salary-min"
               error={salaryInvalid ? 'Deve ser ≤ ao máx.' : undefined}
             >
@@ -332,7 +332,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
                 invalid={salaryInvalid}
               />
             </FormField>
-            <FormField label="Salário máx. (Kz)" htmlFor="pf-salary-max">
+            <FormField label="Salário máx. (AOA)" htmlFor="pf-salary-max">
               <Input
                 id="pf-salary-max"
                 type="number"

@@ -5,6 +5,8 @@
 
 'use client';
 
+import { openDataUrl } from '@/lib/openDataUrl';
+
 export function DocumentLink({
   fileUrl,
   className,
@@ -20,15 +22,12 @@ export function DocumentLink({
     );
   }
 
-  const open = async () => {
-    const blob = await (await fetch(fileUrl)).blob();
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank', 'noopener');
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  };
-
   return (
-    <button type="button" onClick={open} className={className}>
+    <button
+      type="button"
+      onClick={() => openDataUrl(fileUrl)}
+      className={className}
+    >
       Abrir documento
     </button>
   );

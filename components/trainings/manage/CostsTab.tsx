@@ -13,7 +13,7 @@ function kz(value: number | null | undefined): string {
   if (value == null) return '—';
   return (
     new Intl.NumberFormat('pt-PT', { maximumFractionDigits: 2 }).format(value) +
-    ' Kz'
+    ' AOA'
   );
 }
 

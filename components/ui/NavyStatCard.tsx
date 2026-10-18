@@ -6,7 +6,7 @@
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
-// Valores longos (ex.: montantes em Kz) encolhem para caberem inteiros no cartão.
+// Valores longos (ex.: montantes em AOA) encolhem para caberem inteiros no cartão.
 function valueSize(value: string | number): string {
   const len = String(value).length;
   if (len > 14) return 'text-[20px]';

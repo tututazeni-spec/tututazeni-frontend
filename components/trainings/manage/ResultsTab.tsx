@@ -8,6 +8,17 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import {
+  Award,
+  BadgeCheck,
+  CheckCircle2,
+  ClipboardList,
+  Smile,
+  ThumbsUp,
+  UserCheck,
+} from 'lucide-react';
+import { WalletStat } from '@/components/roi-impact/WalletStat';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { TrainingResults } from '../types';
@@ -15,7 +26,7 @@ import type { TrainingResults } from '../types';
 function kz(value: number): string {
   return (
     new Intl.NumberFormat('pt-PT', { maximumFractionDigits: 2 }).format(value) +
-    ' Kz'
+    ' AOA'
   );
 }
 
@@ -41,50 +52,72 @@ export function ResultsTab({ trainingId }: ResultsTabProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <KpiCard label="Inscritos" value={data.enrolled} intent="primary" />
-      <KpiCard label="Participantes" value={data.participants} intent="info" />
-      <KpiCard label="Concluíram" value={data.completed} intent="success" />
-      <KpiCard
-        label="Taxa de conclusão"
-        value={`${data.completionRate}%`}
-        intent="success"
-      />
-      <KpiCard
-        label="Presença"
-        value={`${data.attendanceRate}%`}
-        intent="info"
-      />
-      <KpiCard
-        label="Nota média"
-        value={data.avgScore != null ? data.avgScore : '—'}
-        intent="accent"
-      />
-      <KpiCard
-        label="Taxa de aprovação"
-        value={data.approvalRate != null ? `${data.approvalRate}%` : '—'}
-        intent="success"
-      />
-      <KpiCard
-        label="Satisfação"
-        value={`${data.satisfaction} / 5`}
-        intent="warning"
-      />
-      <KpiCard
-        label="Taxa de resposta"
-        value={`${data.responseRate}%`}
-        intent="info"
-      />
-      <KpiCard
-        label="NPS"
-        value={data.nps != null ? data.nps : '—'}
-        intent="warning"
-      />
-      <KpiCard
-        label="Custo por participante"
-        value={kz(data.costPerParticipant)}
-        intent="danger"
-      />
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 items-center gap-3 sm:grid-cols-4">
+        <KpiCard
+          icon={ClipboardList}
+          label="Inscritos"
+          value={data.enrolled}
+          intent="primary"
+        />
+        <KpiCard
+          icon={UserCheck}
+          label="Participantes"
+          value={data.participants}
+          intent="info"
+        />
+        <KpiCard
+          icon={CheckCircle2}
+          label="Concluíram"
+          value={data.completed}
+          intent="success"
+        />
+        <KpiCard
+          icon={Award}
+          label="Nota média"
+          value={data.avgScore != null ? data.avgScore : '—'}
+          intent="accent"
+        />
+        <KpiCard
+          icon={BadgeCheck}
+          label="Taxa de aprovação"
+          value={data.approvalRate != null ? `${data.approvalRate}%` : '—'}
+          intent="success"
+        />
+        <KpiCard
+          icon={Smile}
+          label="Satisfação"
+          value={`${data.satisfaction} / 5`}
+          intent="warning"
+        />
+        <KpiCard
+          icon={ThumbsUp}
+          label="NPS"
+          value={data.nps != null ? data.nps : '—'}
+          intent="warning"
+        />
+        <WalletStat
+          zoom
+          money="bills"
+          tone="red"
+          label="Custo por participante"
+          value={kz(data.costPerParticipant)}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <DonutStatCard
+          bare
+          label="Taxa de conclusão"
+          value={data.completionRate}
+        />
+        <DonutStatCard
+          bare
+          label="Taxa de resposta"
+          value={data.responseRate}
+        />
+        <DonutStatCard bare label="Presença" value={data.attendanceRate} />
+      </div>
     </div>
   );
 }

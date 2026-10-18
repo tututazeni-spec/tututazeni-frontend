@@ -7,7 +7,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Download } from 'lucide-react';
+import {
+  AlarmClock,
+  CheckCircle2,
+  Clock,
+  Download,
+  FileText,
+  Star,
+  Users,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -153,7 +161,12 @@ export function ReportsTab() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <KpiCard label="Onboardings" value={data.total} intent="primary" />
+            <KpiCard
+              icon={Users}
+              label="Onboardings"
+              value={data.total}
+              intent="primary"
+            />
             <SpeedometerStatCard
               label="Taxa de conclusão"
               value={data.completionRate}
@@ -161,26 +174,31 @@ export function ReportsTab() {
               display={`${Math.round(data.completionRate)}%`}
             />
             <KpiCard
+              icon={Clock}
               label="Duração média (dias)"
               value={data.avgDurationDays}
               intent="info"
             />
             <KpiCard
+              icon={Star}
               label="Feedback médio"
               value={data.avgFeedback > 0 ? `${data.avgFeedback}/5` : '—'}
               intent="warning"
             />
             <KpiCard
+              icon={CheckCircle2}
               label="Tarefas concluídas"
               value={data.tasksCompleted}
               intent="success"
             />
             <KpiCard
+              icon={AlarmClock}
               label="Tarefas em aberto"
               value={data.tasksOverdue}
               intent="warning"
             />
             <KpiCard
+              icon={FileText}
               label="Documentos pendentes"
               value={data.documentsPending}
               intent="warning"

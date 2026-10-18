@@ -11,8 +11,14 @@
 
 'use client';
 
-import { useState } from 'react';
-import { Clapperboard } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
+import {
+  CalendarDays,
+  ClipboardList,
+  Clapperboard,
+  Clock,
+  ListChecks,
+} from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -25,11 +31,11 @@ import { Badge } from '@/components/ui/Badge';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
+import { Metric } from '@/components/courses/CourseListCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { PeriodPills } from '@/components/ui/Pills';
 import { Textarea } from '@/components/ui/Textarea';
 import {
   PHASE_LABELS,
@@ -64,6 +70,23 @@ const DOC_STATUS_LABEL: Record<DocStatus, string> = {
   REJECTED: '✗ Rejeitado',
   PENDING: 'Pendente',
 };
+
+function SectionCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
+      <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+        {title}
+      </h4>
+      {children}
+    </div>
+  );
+}
 
 function paceLabel(pct: number): string {
   if (pct >= 100) return 'Concluído';
@@ -209,59 +232,76 @@ export function MyPlanView() {
         </div>
       )}
 
-      {/* Header */}
-      <NavyHeroCard
-        className="block"
-        surfaceClassName="border-[#0F1F3D]/80 bg-[#0F1F3D]/80"
-      >
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div>
-            <div className="mb-0.5 text-sm text-white">Plano de integração</div>
-            <div className="text-xl font-bold tracking-tight text-white">
-              {plan.template.name}
-            </div>
-            <div className="mt-1 text-xs text-white">
-              Início: {fmtDate(plan.startDate)} · {plan.template.durationDays}{' '}
-              dias
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="font-mono text-3xl font-bold text-white">
-              {pct}%
-            </div>
-            <div className="text-xs text-white">
+      {/* Header — mesmo desenho do cartão de inscrições (CourseListCard) */}
+      <div className="relative overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div
+          aria-hidden
+          className="absolute -right-10 -top-8 h-[260px] w-[42%] rotate-6 rounded-[48px] opacity-80"
+          style={{ background: '#0B3A75' }}
+        />
+        <div
+          aria-hidden
+          className="absolute right-0 top-0 hidden h-[240px] w-[38%] items-center justify-center rounded-bl-[56px] rounded-tl-[48px] bg-white/10 sm:flex"
+        >
+          <div className="text-center">
+            <div className="font-mono text-5xl font-bold">{pct}%</div>
+            <div className="mt-1 text-xs text-[#C7D4E8]">
               {plan.completedTasks}/{plan.totalTasks} tarefas
             </div>
-            {plan.xpEarned > 0 && (
-              <div className="mt-1 text-xs font-medium text-white">
-                {plan.xpEarned} Ponto de Experiência ganho
-              </div>
-            )}
           </div>
         </div>
-        <ProgressBar value={pct} />
-        <div className="mt-1 text-right text-xs text-white">
-          {paceLabel(pct)}
+
+        <div className="relative z-10 px-6 pt-5 sm:w-[60%]">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
+              <ClipboardList size={20} strokeWidth={1.75} />
+            </span>
+            <span className="text-sm font-medium">Plano de integração</span>
+          </div>
+          <h3 className="m-0 pt-5 font-body text-3xl font-extrabold uppercase leading-tight tracking-wide">
+            {plan.template.name}
+          </h3>
+          <p className="m-0 pt-2 text-sm text-[#C7D4E8]">
+            Início: {fmtDate(plan.startDate)} · {plan.template.durationDays}{' '}
+            dias
+          </p>
         </div>
-      </NavyHeroCard>
+
+        <div className="relative z-10 flex min-h-[28px] flex-wrap items-center gap-2 px-6 pt-4">
+          <Badge intent={pct >= 100 ? 'success' : 'info'}>
+            {paceLabel(pct)}
+          </Badge>
+        </div>
+
+        <div className="relative z-10 mx-6 mt-4 grid grid-cols-1 gap-3 rounded-2xl bg-white/10 px-4 py-3 sm:grid-cols-3">
+          <Metric icon={CalendarDays}>{fmtDate(plan.startDate)}</Metric>
+          <Metric icon={Clock}>{plan.template.durationDays} dias</Metric>
+          <Metric icon={ListChecks}>
+            {plan.completedTasks}/{plan.totalTasks} tarefas
+            {plan.xpEarned > 0 && ` · ${plan.xpEarned} XP`}
+          </Metric>
+        </div>
+
+        <div className="relative z-10 m-4 mt-3 space-y-2 rounded-2xl bg-white/10 px-4 py-3">
+          <p className="m-0 text-xs text-[#C7D4E8]">Progresso do plano</p>
+          <div className="flex items-center gap-3">
+            <ProgressBar value={pct} color="#3B82F6" className="flex-1" />
+            <span className="text-xs tabular-nums text-[#C7D4E8]">{pct}%</span>
+          </div>
+        </div>
+      </div>
 
       {/* Tabs */}
-      <Tabs
+      <PeriodPills
+        label="O meu plano"
         value={activeTab}
-        onValueChange={(v) =>
-          setActiveTab(v as (typeof SUB_TABS)[number]['id'])
-        }
-      >
-        <TabsList>
-          {SUB_TABS.map((t) => (
-            <TabsTrigger key={t.id} value={t.id}>
-              {t.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        onChange={setActiveTab}
+        options={SUB_TABS.map((t) => ({ value: t.id, label: t.label.trim() }))}
+      />
 
-        {/* Tarefas por fase */}
-        <TabsContent value="tasks">
+      {/* Tarefas por fase */}
+      {activeTab === 'tasks' && (
+        <SectionCard title="Tarefas">
           <div className="space-y-5">
             {PHASE_ORDER.map((phase) => {
               const phaseTasks = tasksByPhase[phase] ?? [];
@@ -300,10 +340,12 @@ export function MyPlanView() {
               );
             })}
           </div>
-        </TabsContent>
+        </SectionCard>
+      )}
 
-        {/* Documentos */}
-        <TabsContent value="docs">
+      {/* Documentos */}
+      {activeTab === 'docs' && (
+        <SectionCard title="Documentos">
           <div className="space-y-3">
             <OnboardingDocUploadForm planId={plan.id} onUploaded={refetch} />
 
@@ -351,10 +393,12 @@ export function MyPlanView() {
               </p>
             )}
           </div>
-        </TabsContent>
+        </SectionCard>
+      )}
 
-        {/* Equipa de apoio */}
-        <TabsContent value="team">
+      {/* Equipa de apoio */}
+      {activeTab === 'team' && (
+        <SectionCard title="Equipa de apoio">
           <div className="grid grid-cols-3 gap-4">
             {[
               { label: 'Gestor directo', person: plan.manager },
@@ -363,9 +407,9 @@ export function MyPlanView() {
             ].map(({ label, person }) => (
               <Card
                 key={label}
-                className="p-5 text-center !bg-[#0F1F3D]/80 !border-[#0F1F3D]/80 text-white"
+                className="overflow-hidden rounded-panel border-0 bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-center text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
               >
-                <div className="text-xs text-white mb-3">{label}</div>
+                <div className="text-sm text-[#C7D4E8] mb-3">{label}</div>
                 {person ? (
                   <div className="flex flex-col items-center gap-2">
                     <Avatar
@@ -373,11 +417,11 @@ export function MyPlanView() {
                       url={person.avatarUrl ?? undefined}
                       size="lg"
                     />
-                    <div className="text-sm font-medium text-white">
+                    <div className="text-sm text-[#C7D4E8]">
                       {person.fullName}
                     </div>
                     {person.position && (
-                      <div className="text-xs text-white/80">
+                      <div className="text-sm text-[#C7D4E8]">
                         {person.position.name}
                       </div>
                     )}
@@ -386,24 +430,26 @@ export function MyPlanView() {
                         href={`mailto:${person.email}?subject=${encodeURIComponent(
                           `Onboarding — ${plan.template.name}`,
                         )}`}
-                        className="text-xs text-white underline-offset-2 hover:underline mt-1"
+                        className="text-sm text-[#C7D4E8] underline-offset-2 hover:underline mt-1"
                       >
                         Enviar mensagem
                       </a>
                     )}
                   </div>
                 ) : (
-                  <div className="text-xs text-white mt-4">
+                  <div className="text-sm text-[#C7D4E8] mt-4">
                     Não atribuído
                   </div>
                 )}
               </Card>
             ))}
           </div>
-        </TabsContent>
+        </SectionCard>
+      )}
 
-        {/* Pesquisa de feedback */}
-        <TabsContent value="survey">
+      {/* Pesquisa de feedback */}
+      {activeTab === 'survey' && (
+        <SectionCard title="Feedback">
           <div className="space-y-4">
             {/* Pesquisas anteriores */}
             {plan.surveys.length > 0 && (
@@ -503,8 +549,8 @@ export function MyPlanView() {
               </div>
             )}
           </div>
-        </TabsContent>
-      </Tabs>
+        </SectionCard>
+      )}
     </div>
   );
 }

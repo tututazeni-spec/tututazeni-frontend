@@ -17,7 +17,8 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
-import { SessionPicker, useSessionDetail } from './SessionPicker';
+import { SessionCardPicker } from './cards';
+import { useSessionDetail } from './SessionPicker';
 import { SOURCE_LABEL } from './constants';
 import type { SourceType } from './types';
 
@@ -55,7 +56,7 @@ export function KnowledgeTab() {
 
   return (
     <div className="space-y-4">
-      <SessionPicker value={sessionId} onChange={setSessionId} />
+      <SessionCardPicker value={sessionId} onChange={setSessionId} />
 
       {sessionId === null ? (
         <EmptyState
@@ -82,7 +83,8 @@ export function KnowledgeTab() {
                   >
                     <div className="min-w-0">
                       <div className="truncate font-display text-sm font-semibold text-ink">
-                        {s.title ?? `${SOURCE_LABEL[s.sourceType]} ${s.sourceId}`}
+                        {s.title ??
+                          `${SOURCE_LABEL[s.sourceType]} ${s.sourceId}`}
                       </div>
                       <div className="font-body text-xs text-ink-muted">
                         {SOURCE_LABEL[s.sourceType]} #{s.sourceId} · {s.status}
@@ -107,10 +109,12 @@ export function KnowledgeTab() {
                 <Select
                   value={sourceType}
                   onValueChange={(v) => setSourceType(v as SourceType)}
-                  items={(Object.keys(SOURCE_LABEL) as SourceType[]).map((t) => ({
-                    value: t,
-                    label: SOURCE_LABEL[t],
-                  }))}
+                  items={(Object.keys(SOURCE_LABEL) as SourceType[]).map(
+                    (t) => ({
+                      value: t,
+                      label: SOURCE_LABEL[t],
+                    }),
+                  )}
                 />
               </FormField>
               <FormField label="ID da fonte" htmlFor="ks-id">

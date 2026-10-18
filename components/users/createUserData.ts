@@ -15,6 +15,10 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { DirectoryUser } from '@/components/users/types';
 import type { Position } from '@/components/departments/types';
+import {
+  translateAction,
+  translateResource,
+} from '@/components/roles-permissions/permissionLabels';
 
 export type { DirectoryUser };
 
@@ -95,7 +99,7 @@ export function usePermissionOptions(enabled = true) {
   });
   const options: Option[] = (query.data ?? []).map((p) => ({
     value: String(p.id),
-    label: `${p.subject} · ${p.action}`,
+    label: `${translateAction(p.action)} · ${translateResource(p.subject)}`,
   }));
   return { options, loading: query.isLoading };
 }

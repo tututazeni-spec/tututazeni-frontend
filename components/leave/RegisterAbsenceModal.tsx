@@ -7,7 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, Plus, Trash2 } from 'lucide-react';
+import { AlertCircle, Paperclip, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
@@ -20,6 +20,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { ABSENCE_TYPE_LABELS, TIMED_ABSENCE_TYPES } from './constants';
+import { DOC_ACCEPT, useDocUpload } from './useDocUpload';
 import {
   CAN_PICK_EMPLOYEE_ABSENCE,
   useEmployeeOptions,
@@ -29,6 +30,9 @@ import type { AbsenceOccurrenceType } from './types';
 interface DocDraft {
   name: string;
   fileUrl: string;
+  /** Preenchido só quando o comprovativo veio de upload (data URL). */
+  mimeType?: string;
+  fileName?: string;
 }
 
 const EMPTY_DOC: DocDraft = { name: '', fileUrl: '' };
@@ -59,6 +63,21 @@ export function RegisterAbsenceModal({
     justification: '',
   });
   const [docs, setDocs] = useState<DocDraft[]>([{ ...EMPTY_DOC }]);
+  const updateDoc = (i: number, patch: Partial<DocDraft>) =>
+    setDocs((all) => all.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  const upload = useDocUpload((i, doc) =>
+    setDocs((all) =>
+      all.map((x, j) =>
+        j === i
+          ? {
+              ...x,
+              name: x.name.trim() ? x.name : doc.fileName.slice(0, 200),
+              ...doc,
+            }
+          : x,
+      ),
+    ),
+  );
   const [submitError, setSubmitError] = useState('');
   const set = (patch: Partial<typeof form>) =>
     setForm((f) => ({ ...f, ...patch }));
@@ -90,6 +109,7 @@ export function RegisterAbsenceModal({
           ? filledDocs.map((d) => ({
               name: d.name.trim(),
               fileUrl: d.fileUrl.trim(),
+              mimeType: d.mimeType,
             }))
           : undefined,
       }),
@@ -116,7 +136,7 @@ export function RegisterAbsenceModal({
             : timesInvalid
               ? 'A hora de fim tem de ser posterior ao início.'
               : docsIncomplete
-                ? 'Preencha o nome e o endereço (https) de cada comprovativo.'
+                ? 'Preencha o nome e o endereço (https) ou carregue o ficheiro de cada comprovativo.'
                 : '';
 
   return (
@@ -230,34 +250,50 @@ export function RegisterAbsenceModal({
 
           <div className="space-y-2">
             <p className="text-sm font-medium text-ink">Comprovativo</p>
+            <input
+              ref={upload.inputRef}
+              type="file"
+              accept={DOC_ACCEPT}
+              hidden
+              onChange={upload.onChange}
+            />
+            <p className="text-xs text-ink-faint">
+              Carregue um ficheiro (PDF, PNG, JPG ou WebP, máx. 4 MB) ou indique
+              um endereço https.
+            </p>
             {docs.map((d, i) => (
               <div key={i} className="flex items-start gap-2">
                 <Input
                   aria-label={`Nome do comprovativo ${i + 1}`}
                   placeholder="Nome do documento"
                   value={d.name}
-                  onChange={(e) =>
-                    setDocs((all) =>
-                      all.map((x, j) =>
-                        j === i ? { ...x, name: e.target.value } : x,
-                      ),
-                    )
-                  }
+                  onChange={(e) => updateDoc(i, { name: e.target.value })}
                   className="w-full"
                 />
-                <Input
-                  aria-label={`Endereço do comprovativo ${i + 1}`}
-                  placeholder="https://…"
-                  value={d.fileUrl}
-                  onChange={(e) =>
-                    setDocs((all) =>
-                      all.map((x, j) =>
-                        j === i ? { ...x, fileUrl: e.target.value } : x,
-                      ),
-                    )
-                  }
-                  className="w-full"
-                />
+                {d.mimeType ? (
+                  <div className="flex min-h-[48px] w-full items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 text-sm text-ink">
+                    <Paperclip size={14} strokeWidth={1.75} />
+                    <span className="min-w-0 flex-1 truncate">
+                      {d.fileName}
+                    </span>
+                  </div>
+                ) : (
+                  <Input
+                    aria-label={`Endereço do comprovativo ${i + 1}`}
+                    placeholder="https://… ou carregue um ficheiro"
+                    value={d.fileUrl}
+                    onChange={(e) => updateDoc(i, { fileUrl: e.target.value })}
+                    className="w-full"
+                  />
+                )}
+                <Button
+                  intent="secondary"
+                  size="sm"
+                  className="shrink-0"
+                  onClick={() => upload.pick(i)}
+                >
+                  Carregar
+                </Button>
                 <IconButton
                   icon={Trash2}
                   label="Remover comprovativo"

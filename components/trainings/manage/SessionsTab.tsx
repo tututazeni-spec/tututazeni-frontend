@@ -5,20 +5,33 @@
 'use client';
 
 import { useState } from 'react';
-import { Clock, MapPin, Plus, Trash2 } from 'lucide-react';
+import {
+  CalendarClock,
+  Clock,
+  MapPin,
+  Pencil,
+  Plus,
+  Trash2,
+  Users,
+} from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import {
+  NAVY_ACTION,
+  NavyBadge,
+  NavyCard,
+} from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { INVERT_ON_HOVER } from '../buttonStyles';
 import { fmtDate } from '../utils';
 import type { Session, Training } from '../types';
 
@@ -27,6 +40,10 @@ const MODALITY_ITEMS = [
   { value: 'ONLINE', label: 'Online' },
   { value: 'HYBRID', label: 'Híbrida' },
 ];
+
+const MODALITY_LABEL: Record<string, string> = Object.fromEntries(
+  MODALITY_ITEMS.map((m) => [m.value, m.label]),
+);
 
 interface SessionsTabProps {
   training: Training;
@@ -130,7 +147,7 @@ export function SessionsTab({ training }: SessionsTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button size="sm" onClick={openNew}>
+        <Button size="sm" className={INVERT_ON_HOVER} onClick={openNew}>
           <Plus size={14} strokeWidth={1.75} />
           Nova sessão
         </Button>
@@ -142,43 +159,75 @@ export function SessionsTab({ training }: SessionsTabProps) {
           description="Cria a primeira sessão desta formação."
         />
       ) : (
-        <Card className="divide-y divide-border">
-          {sessions.map((s) => (
-            <div
-              key={s.id}
-              className="flex flex-wrap items-center gap-3 px-4 py-3"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium text-ink">
-                  {fmtDate(s.sessionDate)}
-                </div>
-                <div className="mt-1 flex items-center gap-3 font-body text-xs text-ink-faint">
-                  <span className="inline-flex items-center gap-1">
-                    <Clock size={12} strokeWidth={1.75} /> {s.durationMinutes}
-                    min
-                  </span>
-                  {s.location && (
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin size={12} strokeWidth={1.75} /> {s.location}
-                    </span>
-                  )}
-                  <span>{s._count.participants} inscritos</span>
-                </div>
-              </div>
-              <Button intent="ghost" size="sm" onClick={() => openEdit(s)}>
-                Editar
-              </Button>
-              <Button
-                intent="danger"
-                size="sm"
-                onClick={() => onDelete(s)}
-                loading={remove.isPending && remove.variables === s.id}
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </Button>
-            </div>
-          ))}
-        </Card>
+        <div className="space-y-3">
+          {sessions.map((s) => {
+            const busy = remove.isPending && remove.variables === s.id;
+            return (
+              <NavyCard
+                key={s.id}
+                compact
+                seed={training.colorIndex ?? training.id}
+                image={training.thumbnailUrl}
+                kicker="Sessão"
+                kickerIcon={CalendarClock}
+                title={fmtDate(s.sessionDate)}
+                badge={
+                  <>
+                    <NavyBadge tone="info">
+                      {MODALITY_LABEL[s.modality] ?? s.modality}
+                    </NavyBadge>
+                    {s.waitlistEnabled && (
+                      <NavyBadge tone="neutral">Lista de espera</NavyBadge>
+                    )}
+                  </>
+                }
+                infos={[
+                  {
+                    icon: Clock,
+                    value: `${s.durationMinutes} min`,
+                    label: 'Duração',
+                  },
+                  {
+                    icon: MapPin,
+                    value: s.location ?? '—',
+                    label: 'Local',
+                  },
+                  {
+                    icon: Users,
+                    value:
+                      s.maxParticipants > 0
+                        ? `${s._count.participants}/${s.maxParticipants}`
+                        : String(s._count.participants),
+                    label: 'Inscritos',
+                  },
+                ]}
+                actions={
+                  <>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
+                      aria-label={`Editar sessão de ${fmtDate(s.sessionDate)}`}
+                      title="Editar"
+                      onClick={() => openEdit(s)}
+                    >
+                      <Pencil size={15} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      className={`${NAVY_ACTION} hover:!bg-red-500 hover:!text-white`}
+                      aria-label={`Eliminar sessão de ${fmtDate(s.sessionDate)}`}
+                      title="Eliminar"
+                      disabled={busy}
+                      onClick={() => onDelete(s)}
+                    >
+                      <Trash2 size={15} strokeWidth={1.75} />
+                    </button>
+                  </>
+                }
+              />
+            );
+          })}
+        </div>
       )}
 
       {editing && (

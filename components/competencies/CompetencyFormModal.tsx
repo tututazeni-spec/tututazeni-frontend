@@ -30,12 +30,29 @@ import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
+import { Combobox } from '@/components/ui/Combobox';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/users/types';
 import { CATEGORY_CFG } from './constants';
 import type { CompetencyDetail } from './types';
+
+/** Famílias de competências sugeridas; o Combobox também aceita outra escrita à mão. */
+const FAMILY_OPTIONS = [
+  'Liderança e Gestão',
+  'Comunicação e Relacionamento',
+  'Orientação para Resultados',
+  'Inovação e Pensamento Crítico',
+  'Trabalho em Equipa',
+  'Atendimento ao Cliente',
+  'Competências Técnicas',
+  'Competências Digitais',
+  'Ética e Compliance',
+  'Segurança e Qualidade',
+  'Gestão Financeira',
+  'Desenvolvimento Pessoal',
+].map((label) => ({ value: label, label }));
 
 export interface CompetencyFormModalProps {
   /** Ausente/null → criar; número → editar essa competência. */
@@ -256,13 +273,13 @@ function CompetencyForm({
             />
           </FormField>
           <FormField label="Família" htmlFor="cf-family">
-            <Input
-              id="cf-family"
-              value={family}
-              onChange={(e) => setFamily(e.target.value)}
-              placeholder="Ex.: Liderança e Gestão"
-              maxLength={120}
-              className="w-full"
+            <Combobox
+              items={FAMILY_OPTIONS}
+              value={family || undefined}
+              onValueChange={setFamily}
+              placeholder="Selecionar família"
+              searchPlaceholder="Escreva para filtrar ou indicar outra…"
+              allowCustom
             />
           </FormField>
         </div>

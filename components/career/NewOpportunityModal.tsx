@@ -20,6 +20,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useUnits } from '@/components/departments/departmentFormData';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
+import { SinglePickField } from '@/components/trainings/SinglePickField';
 import type { DirectoryUser } from '@/components/users/types';
 import { useDepartmentOptions, usePositionOptions } from './careerFormData';
 
@@ -40,6 +41,27 @@ const CAREER_LEVEL_OPTIONS = [
   { value: 'MANAGER', label: 'Gestor' },
   { value: 'DIRECTOR', label: 'Director' },
   { value: 'EXECUTIVE', label: 'Executivo' },
+];
+
+const LOCATION_OPTIONS = [
+  'Remoto',
+  'Híbrido',
+  'Presencial — sede',
+  'Luanda',
+  'Benguela',
+  'Huambo',
+  'Lubango',
+  'Cabinda',
+];
+
+const REQUIRED_TRAINING_OPTIONS = [
+  'Ensino médio / técnico',
+  'Licenciatura',
+  'Pós-graduação',
+  'Mestrado',
+  'Doutoramento',
+  'Certificação profissional',
+  'Formação interna específica',
 ];
 
 export interface NewOpportunityModalProps {
@@ -210,14 +232,12 @@ export function NewOpportunityModal({
           </div>
 
           <FormField label="Localização" htmlFor="opp-location">
-            <Input
+            <SinglePickField
               id="opp-location"
+              options={LOCATION_OPTIONS}
               value={form.location}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, location: e.target.value }))
-              }
-              placeholder="Remoto, híbrido, cidade…"
-              className="w-full"
+              onChange={(v) => setForm((f) => ({ ...f, location: v }))}
+              manualPlaceholder="Escrever outra localização"
             />
           </FormField>
 
@@ -241,13 +261,12 @@ export function NewOpportunityModal({
           </FormField>
 
           <FormField label="Formação exigida" htmlFor="opp-training">
-            <Input
+            <SinglePickField
               id="opp-training"
+              options={REQUIRED_TRAINING_OPTIONS}
               value={form.requiredTraining}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, requiredTraining: e.target.value }))
-              }
-              className="w-full"
+              onChange={(v) => setForm((f) => ({ ...f, requiredTraining: v }))}
+              manualPlaceholder="Escrever outra formação exigida"
             />
           </FormField>
 

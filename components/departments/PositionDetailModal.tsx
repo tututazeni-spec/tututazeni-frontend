@@ -26,7 +26,7 @@ export interface PositionDetailModalProps {
 }
 
 function fmtMoney(value: number | null) {
-  return value != null ? `${value.toLocaleString('pt-AO')} Kz` : '—';
+  return value != null ? `${value.toLocaleString('pt-AO')} AOA` : '—';
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {

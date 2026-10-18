@@ -30,15 +30,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
 import { useUnits } from '@/components/departments/departmentFormData';
+import { EVAL_CARD_ACTION, EvaluationCard } from './EvaluationCard';
 import { EvaluationDetailModal } from './EvaluationDetailModal';
 import { NewEvaluationWizard } from './NewEvaluationWizard';
 import { SubmitEvaluationModal } from './SubmitEvaluationModal';
@@ -294,148 +287,80 @@ export function EvaluationsTab() {
           description="Nenhuma avaliação corresponde aos filtros seleccionados."
         />
       ) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              {[
-                'Colaborador',
-                'Departamento',
-                'Cargo',
-                'Avaliador',
-                'Tipo',
-                'Ciclo',
-                'Estado',
-                'Prazo',
-                'Resultado',
-                'Ações',
-              ].map((h) => (
-                <TableHeaderCell key={h}>{h}</TableHeaderCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data?.data.map((r) => {
-              const isOverdue =
-                r.dueDate &&
-                r.status !== 'COMPLETED' &&
-                new Date(r.dueDate) < new Date();
-              const canContinue =
-                r.status !== 'COMPLETED' && r.evaluator?.id === me?.id;
-              return (
-                <TableRow key={r.key}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar
-                        name={r.evaluated.fullName}
-                        url={r.evaluated.avatarUrl}
-                        size="sm"
-                      />
-                      <div>
-                        <p className="text-sm font-medium text-ink">
-                          {r.evaluated.fullName}
-                        </p>
-                        {r.evaluated.employeeNumber && (
-                          <p className="text-[11px] text-ink-faint">
-                            #{r.evaluated.employeeNumber}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-ink-muted">
-                    {r.evaluated.department?.name ?? '—'}
-                  </TableCell>
-                  <TableCell className="text-sm text-ink-muted">
-                    {r.evaluated.position?.name ?? '—'}
-                  </TableCell>
-                  <TableCell className="text-sm text-ink-muted">
-                    {r.evaluator?.fullName ?? '—'}
-                  </TableCell>
-                  <TableCell className="text-xs text-ink-muted">
-                    {r.purpose ? PURPOSE_LABEL[r.purpose] : '—'}
-                  </TableCell>
-                  <TableCell className="text-sm text-ink-muted">
-                    {r.cycle?.name ?? '—'}
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge
-                      value={r.status}
-                      map={REQUEST_STATUS_MAP}
-                      variant="pill"
-                    />
-                  </TableCell>
-                  <TableCell
-                    className={
-                      isOverdue
-                        ? 'text-xs font-medium text-danger-ink'
-                        : 'text-xs text-ink-muted'
-                    }
-                  >
-                    {r.dueDate
-                      ? new Date(r.dueDate).toLocaleDateString('pt')
-                      : '—'}
-                  </TableCell>
-                  <TableCell className="text-sm text-ink-muted">
-                    {r.result != null ? r.result.toFixed(1) : '—'}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <IconButton
-                        icon={Eye}
-                        label="Ver"
-                        size="sm"
-                        intent="ghost"
-                        onClick={() => setViewingId(r.id)}
-                      />
-                      {canContinue && (
-                        <IconButton
-                          icon={Sparkles}
-                          label="Continuar avaliação"
-                          size="sm"
-                          intent="ghost"
-                          onClick={() => setSubmittingRow(r)}
-                        />
-                      )}
-                      {r.status !== 'COMPLETED' && (
-                        <IconButton
-                          icon={Bell}
-                          label="Enviar lembrete"
-                          size="sm"
-                          intent="ghost"
-                          onClick={() => remind.mutate(r.id)}
-                        />
-                      )}
-                      {r.status !== 'COMPLETED' ? (
-                        <IconButton
-                          icon={CheckCircle2}
-                          label="Finalizar"
-                          size="sm"
-                          intent="ghost"
-                          onClick={() => finish.mutate(r.id)}
-                        />
-                      ) : (
-                        <IconButton
-                          icon={RotateCcw}
-                          label="Reabrir"
-                          size="sm"
-                          intent="ghost"
-                          onClick={() => reopen.mutate(r.id)}
-                        />
-                      )}
-                      {isOverdue && (
-                        <AlarmClock
-                          size={14}
-                          strokeWidth={1.75}
-                          className="text-danger-ink"
-                        />
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {data?.data.map((r) => {
+            const isOverdue =
+              !!r.dueDate &&
+              r.status !== 'COMPLETED' &&
+              new Date(r.dueDate) < new Date();
+            const canContinue =
+              r.status !== 'COMPLETED' && r.evaluator?.id === me?.id;
+            return (
+              <EvaluationCard
+                key={r.key}
+                row={r}
+                overdue={isOverdue}
+                onSelect={() => setViewingId(r.id)}
+                actions={
+                  <>
+                    <button
+                      type="button"
+                      className={EVAL_CARD_ACTION}
+                      aria-label="Ver"
+                      title="Ver"
+                      onClick={() => setViewingId(r.id)}
+                    >
+                      <Eye size={15} strokeWidth={1.75} />
+                    </button>
+                    {canContinue && (
+                      <button
+                        type="button"
+                        className={EVAL_CARD_ACTION}
+                        aria-label="Continuar avaliação"
+                        title="Continuar avaliação"
+                        onClick={() => setSubmittingRow(r)}
+                      >
+                        <Sparkles size={15} strokeWidth={1.75} />
+                      </button>
+                    )}
+                    {r.status !== 'COMPLETED' && (
+                      <button
+                        type="button"
+                        className={EVAL_CARD_ACTION}
+                        aria-label="Enviar lembrete"
+                        title="Enviar lembrete"
+                        onClick={() => remind.mutate(r.id)}
+                      >
+                        <Bell size={15} strokeWidth={1.75} />
+                      </button>
+                    )}
+                    {r.status !== 'COMPLETED' ? (
+                      <button
+                        type="button"
+                        className={EVAL_CARD_ACTION}
+                        aria-label="Finalizar"
+                        title="Finalizar"
+                        onClick={() => finish.mutate(r.id)}
+                      >
+                        <CheckCircle2 size={15} strokeWidth={1.75} />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className={EVAL_CARD_ACTION}
+                        aria-label="Reabrir"
+                        title="Reabrir"
+                        onClick={() => reopen.mutate(r.id)}
+                      >
+                        <RotateCcw size={15} strokeWidth={1.75} />
+                      </button>
+                    )}
+                  </>
+                }
+              />
+            );
+          })}
+        </div>
       )}
 
       {data && data.meta.totalPages > 1 && (

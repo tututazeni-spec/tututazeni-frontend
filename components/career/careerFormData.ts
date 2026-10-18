@@ -37,7 +37,9 @@ export function useJobFamilyOptions(enabled = true) {
     queryKeys.career.jobFamilies(),
     '/career/job-families',
     {
-      staleTime: STALE_TIME.STATIC,
+      // Lista curta e editável no próprio modal: não a manter 1h em cache
+      // (uma lista vazia antiga escondia as famílias entretanto criadas).
+      staleTime: 0,
       enabled,
     },
   );

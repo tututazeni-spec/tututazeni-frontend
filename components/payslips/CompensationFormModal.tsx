@@ -211,7 +211,7 @@ export function CompensationFormModal({
           )}
 
           <div className="grid grid-cols-2 gap-3">
-            <FormField label="Salário base (Kz) *" htmlFor="cfm-base">
+            <FormField label="Salário base (AOA) *" htmlFor="cfm-base">
               <Input
                 id="cfm-base"
                 type="number"

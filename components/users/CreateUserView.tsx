@@ -8,11 +8,13 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ArrowLeft, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
+import { useToast } from '@/providers/ToastProvider';
+import { resizeImageToDataUrl } from '@/lib/image';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import {
   email as emailValidator,
@@ -42,6 +44,19 @@ import {
   useUnitOptions,
   type Option,
 } from './createUserData';
+import {
+  CONTENT_ACCESS_LEVEL_OPTIONS,
+  COST_CENTER_OPTIONS,
+  COUNTRY_OPTIONS,
+  JOB_FUNCTION_OPTIONS,
+  LEARNING_PROFILE_OPTIONS,
+  PROFESSIONAL_CATEGORY_OPTIONS,
+  SYSTEM_FUNCTION_OPTIONS,
+  WORK_SCHEDULE_OPTIONS,
+} from './createUserOptions';
+
+/** Limite da fotografia carregada por ficheiro (3 MB). */
+const MAX_PHOTO_BYTES = 3 * 1024 * 1024;
 
 interface CreateUserViewProps {
   onBack: () => void;
@@ -170,6 +185,39 @@ function EnumSelect({
         onValueChange={onChange}
         placeholder={placeholder ?? 'Selecionar…'}
         className="w-full"
+      />
+    </FormField>
+  );
+}
+
+/** Lista de escolha pesquisável que também aceita um valor escrito à mão
+ *  (Combobox allowCustom): serve os campos "lista ou manual". */
+function ListField({
+  id,
+  label,
+  value,
+  onChange,
+  options,
+  custom = false,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: ComboboxOption[];
+  custom?: boolean;
+}) {
+  return (
+    <FormField label={label} htmlFor={id}>
+      <Combobox
+        items={options}
+        value={value || undefined}
+        onValueChange={onChange}
+        placeholder="Selecionar…"
+        searchPlaceholder={
+          custom ? 'Escreva para filtrar ou indicar outro…' : undefined
+        }
+        allowCustom={custom}
       />
     </FormField>
   );
@@ -329,6 +377,34 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
       email: [requiredRule(), emailValidator()],
     },
   );
+  const notify = useToast();
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [photoProcessing, setPhotoProcessing] = useState(false);
+
+  async function onPhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // permite re-seleccionar o mesmo ficheiro
+    if (!file) return;
+    if (file.size > MAX_PHOTO_BYTES) {
+      notify({
+        title: 'Fotografia demasiado grande (máx. 3 MB)',
+        intent: 'danger',
+      });
+      return;
+    }
+    setPhotoProcessing(true);
+    try {
+      setField('avatarUrl', await resizeImageToDataUrl(file));
+    } catch {
+      notify({
+        title: 'Não foi possível processar a fotografia',
+        intent: 'danger',
+      });
+    } finally {
+      setPhotoProcessing(false);
+    }
+  }
+
   const [submitError, setSubmitError] = useState('');
   const error = validationError || submitError;
 
@@ -469,12 +545,57 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
             value={form.preferredName}
             onChange={handle('preferredName')}
           />
-          <Field
-            label="Fotografia (URL)"
-            id="avatarUrl"
-            value={form.avatarUrl}
-            onChange={handle('avatarUrl')}
-          />
+          <FormField
+            label="Fotografia (URL ou ficheiro até 3 MB)"
+            htmlFor="avatarUrl"
+          >
+            <div className="flex items-center gap-2">
+              {form.avatarUrl.startsWith('data:') ? (
+                <div className="flex min-h-[48px] w-full items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5">
+                  <Avatar
+                    name={form.fullName || '?'}
+                    url={form.avatarUrl}
+                    size="sm"
+                  />
+                  <div className="min-w-0 flex-1 truncate text-sm text-ink">
+                    Fotografia carregada
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="Remover fotografia"
+                    onClick={() => setField('avatarUrl', '')}
+                    className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
+                  >
+                    <X size={16} strokeWidth={1.75} />
+                  </button>
+                </div>
+              ) : (
+                <Input
+                  id="avatarUrl"
+                  value={form.avatarUrl}
+                  onChange={handle('avatarUrl')}
+                  className="w-full"
+                  placeholder="https://…"
+                />
+              )}
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                hidden
+                onChange={onPhotoChange}
+              />
+              <Button
+                type="button"
+                intent="secondary"
+                size="sm"
+                loading={photoProcessing}
+                onClick={() => photoInputRef.current?.click()}
+              >
+                Carregar
+              </Button>
+            </div>
+          </FormField>
           <EnumSelect
             id="gender"
             label="Género"
@@ -489,17 +610,19 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
             value={form.birthDate}
             onChange={handle('birthDate')}
           />
-          <Field
-            label="Nacionalidade"
+          <ListField
             id="nationality"
+            label="Nacionalidade"
             value={form.nationality}
-            onChange={handle('nationality')}
+            onChange={(v) => setField('nationality', v)}
+            options={COUNTRY_OPTIONS}
           />
-          <Field
-            label="País de residência"
+          <ListField
             id="country"
+            label="País de residência"
             value={form.country}
-            onChange={handle('country')}
+            onChange={(v) => setField('country', v)}
+            options={COUNTRY_OPTIONS}
           />
           <Field
             label="Número de identificação"
@@ -564,17 +687,21 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
               disabled={positionsLoading}
             />
           </FormField>
-          <Field
-            label="Função"
+          <ListField
             id="jobFunction"
+            label="Função"
             value={form.jobFunction}
-            onChange={handle('jobFunction')}
+            onChange={(v) => setField('jobFunction', v)}
+            options={JOB_FUNCTION_OPTIONS}
+            custom
           />
-          <Field
-            label="Categoria profissional"
+          <ListField
             id="professionalCategory"
+            label="Categoria profissional"
             value={form.professionalCategory}
-            onChange={handle('professionalCategory')}
+            onChange={(v) => setField('professionalCategory', v)}
+            options={PROFESSIONAL_CATEGORY_OPTIONS}
+            custom
           />
 
           <FormField label="Gestor direto" htmlFor="managerSearch">
@@ -757,11 +884,12 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
               disabled={rolesLoading}
             />
           </FormField>
-          <Field
-            label="Função no sistema"
+          <ListField
             id="systemFunction"
+            label="Função no sistema"
             value={form.systemFunction}
-            onChange={handle('systemFunction')}
+            onChange={(v) => setField('systemFunction', v)}
+            options={SYSTEM_FUNCTION_OPTIONS}
           />
           <EnumSelect
             id="accountStatus"
@@ -805,17 +933,19 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
           </div>
 
           <SectionTitle>Academia</SectionTitle>
-          <Field
-            label="Perfil de aprendizagem"
+          <ListField
             id="learningProfile"
+            label="Perfil de aprendizagem"
             value={form.learningProfile}
-            onChange={handle('learningProfile')}
+            onChange={(v) => setField('learningProfile', v)}
+            options={LEARNING_PROFILE_OPTIONS}
           />
-          <Field
-            label="Nível de acesso aos conteúdos"
+          <ListField
             id="contentAccessLevel"
+            label="Nível de acesso aos conteúdos"
             value={form.contentAccessLevel}
-            onChange={handle('contentAccessLevel')}
+            onChange={(v) => setField('contentAccessLevel', v)}
+            options={CONTENT_ACCESS_LEVEL_OPTIONS}
           />
           <label className="col-span-2 flex items-center gap-2 pb-1 text-sm text-ink-muted">
             <input
@@ -861,11 +991,12 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
           </div>
 
           <SectionTitle>RH</SectionTitle>
-          <Field
-            label="Centro de custo"
+          <ListField
             id="costCenter"
+            label="Centro de custo"
             value={form.costCenter}
-            onChange={handle('costCenter')}
+            onChange={(v) => setField('costCenter', v)}
+            options={COST_CENTER_OPTIONS}
           />
           <Field
             label="Data de fim"
@@ -874,11 +1005,12 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
             value={form.exitDate}
             onChange={handle('exitDate')}
           />
-          <Field
-            label="Horário"
+          <ListField
             id="workSchedule"
+            label="Horário"
             value={form.workSchedule}
-            onChange={handle('workSchedule')}
+            onChange={(v) => setField('workSchedule', v)}
+            options={WORK_SCHEDULE_OPTIONS}
           />
         </div>
 

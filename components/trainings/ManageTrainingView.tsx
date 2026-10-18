@@ -7,16 +7,23 @@
 
 'use client';
 
-import { ArrowLeft } from 'lucide-react';
+import {
+  ArrowLeft,
+  CalendarDays,
+  Clock,
+  GraduationCap,
+  UserCheck,
+  Users,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
-import { LEVEL_CFG, TYPE_CFG } from './constants';
+import { LEVEL_CFG, STATUS_CFG, TYPE_CFG } from './constants';
+import { LEVEL_TONE, STATUS_TONE } from './trainingTones';
 import { fmtDate, fmtHours } from './utils';
 import { SessionsTab } from './manage/SessionsTab';
 import { ParticipantsTab } from './manage/ParticipantsTab';
@@ -59,47 +66,68 @@ export function ManageTrainingView({
         />
       ) : (
         <>
-          <Card className="mb-5 p-5">
-            <div className="mb-1 flex flex-wrap items-center gap-2">
-              <h2 className="font-display text-lg font-semibold text-ink">
-                {training.title}
-              </h2>
-              <StatusBadge value={training.level} map={LEVEL_CFG} />
-              <span
-                className={`rounded px-2 py-0.5 font-body text-xs font-medium ${TYPE_CFG[training.type]?.cls}`}
-              >
-                {TYPE_CFG[training.type]?.label}
-              </span>
-              {training.code && (
-                <span className="font-body text-xs text-ink-faint">
-                  {training.code}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-4 font-body text-xs text-ink-faint">
-              <span>{fmtHours(training.workloadHours)}</span>
-              {training.startDate && (
-                <span>
-                  {fmtDate(training.startDate)}
-                  {training.endDate ? ` – ${fmtDate(training.endDate)}` : ''}
-                </span>
-              )}
-              <span>{training._count.participants} inscritos</span>
-              {training.instructor && (
-                <span>Formador: {training.instructor.fullName}</span>
-              )}
-              {!training.instructor && training.externalInstructor && (
-                <span>
-                  Formador externo: {training.externalInstructor.name}
-                </span>
-              )}
-              {training.requiresApproval && (
-                <span className="text-warning-ink">
-                  Inscrições requerem aprovação
-                </span>
-              )}
-            </div>
-          </Card>
+          <div className="mb-5">
+            <NavyCard
+              seed={training.colorIndex ?? training.id}
+              image={training.thumbnailUrl}
+              flushFirstInfo
+              compact
+              kicker={training.category ?? TYPE_CFG[training.type]?.label}
+              kickerIcon={GraduationCap}
+              title={training.title}
+              subtitle={
+                training.shortDescription ?? training.thematicArea ?? undefined
+              }
+              badge={
+                <>
+                  <NavyBadge tone={STATUS_TONE[training.status]}>
+                    {STATUS_CFG[training.status].label}
+                  </NavyBadge>
+                  <NavyBadge tone={LEVEL_TONE[training.level]}>
+                    {LEVEL_CFG[training.level].label}
+                  </NavyBadge>
+                  <NavyBadge tone="neutral">
+                    {TYPE_CFG[training.type]?.label ?? training.type}
+                  </NavyBadge>
+                  {training.code && (
+                    <NavyBadge tone="neutral">{training.code}</NavyBadge>
+                  )}
+                  {training.requiresApproval && (
+                    <NavyBadge tone="warning">
+                      Inscrições requerem aprovação
+                    </NavyBadge>
+                  )}
+                </>
+              }
+              infos={[
+                {
+                  icon: Clock,
+                  value: fmtHours(training.workloadHours),
+                  label: 'Carga horária',
+                },
+                {
+                  icon: CalendarDays,
+                  value: training.startDate ? fmtDate(training.startDate) : '—',
+                  label: training.endDate
+                    ? `até ${fmtDate(training.endDate)}`
+                    : 'Data de início',
+                },
+                {
+                  icon: Users,
+                  value: String(training._count.participants),
+                  label: 'Inscritos',
+                },
+                {
+                  icon: UserCheck,
+                  value:
+                    training.instructor?.fullName ??
+                    training.externalInstructor?.name ??
+                    'Sem formador',
+                  label: training.instructor ? 'Formador' : 'Formador externo',
+                },
+              ]}
+            />
+          </div>
 
           <Tabs defaultValue="sessions">
             <TabsList className="flex-wrap">

@@ -35,6 +35,12 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { ASSIGNMENT_STATUS, EXPERIENCE_LABEL } from './constants';
+import {
+  AssignmentNavyCard,
+  AssignmentPhotoCard,
+  CARD_BTN,
+  CardGrid,
+} from './cards';
 import { useDictation, useRoomVoice, type RoomVoice } from './useRoomVoice';
 import type {
   CertificateRequestResult,
@@ -57,11 +63,17 @@ const BUBBLE: Record<string, string> = {
 };
 
 /** Reforço após uma resposta errada (§7): mensagem, etapa a rever e conteúdo complementar. */
-function ReinforcementNote({ reinforcement }: { reinforcement: StepReinforcementPayload }) {
+function ReinforcementNote({
+  reinforcement,
+}: {
+  reinforcement: StepReinforcementPayload;
+}) {
   return (
     <div className="mt-2 space-y-1 border-t border-border pt-2 text-xs">
       {reinforcement.message && <p>{reinforcement.message}</p>}
-      {reinforcement.reviewStepTitle && <p>Reveja a etapa «{reinforcement.reviewStepTitle}».</p>}
+      {reinforcement.reviewStepTitle && (
+        <p>Reveja a etapa «{reinforcement.reviewStepTitle}».</p>
+      )}
       {reinforcement.resourceUrl && (
         <a
           href={reinforcement.resourceUrl}
@@ -75,7 +87,10 @@ function ReinforcementNote({ reinforcement }: { reinforcement: StepReinforcement
       {reinforcement.retry && (
         <p className="font-medium">
           Tente de novo para avançar ({reinforcement.retriesLeft}{' '}
-          {reinforcement.retriesLeft === 1 ? 'tentativa restante' : 'tentativas restantes'}).
+          {reinforcement.retriesLeft === 1
+            ? 'tentativa restante'
+            : 'tentativas restantes'}
+          ).
         </p>
       )}
     </div>
@@ -188,7 +203,9 @@ function DictateButton({
       size="sm"
       intent={listening ? 'primary' : 'ghost'}
       aria-pressed={listening}
-      aria-label={listening ? 'Parar ditado por voz' : 'Ditar por voz (microfone)'}
+      aria-label={
+        listening ? 'Parar ditado por voz' : 'Ditar por voz (microfone)'
+      }
       onClick={toggle}
     >
       <Mic size={14} /> {listening ? 'A ouvir…' : 'Ditar'}
@@ -323,7 +340,9 @@ function AvatarHeader({
       {/* O anel pulsa enquanto o instrutor «fala» (animação sincronizada com a voz). */}
       <div
         className={`shrink-0 rounded-full p-1 ${
-          voice.speaking ? 'animate-pulse ring-2 ring-primary' : 'ring-1 ring-border'
+          voice.speaking
+            ? 'animate-pulse ring-2 ring-primary'
+            : 'ring-1 ring-border'
         }`}
       >
         {avatar?.imageUrl ? (
@@ -355,8 +374,11 @@ function AvatarHeader({
       <div className="text-right font-body text-xs text-ink-muted">
         <div>
           Etapa{' '}
-          {Math.min(room.attempt.currentStep + 1, Math.max(room.steps.length, 1))} de{' '}
-          {room.steps.length}
+          {Math.min(
+            room.attempt.currentStep + 1,
+            Math.max(room.steps.length, 1),
+          )}{' '}
+          de {room.steps.length}
         </div>
         <div className="font-mono" aria-label={`Tempo de sessão ${elapsed}`}>
           {elapsed}
@@ -390,7 +412,12 @@ function RoomView({
 
   const language = room?.session.avatar?.language ?? 'pt';
   const voiceOn = !!room && !room.attempt.textOnly;
-  const voice = useRoomVoice({ attemptId, enabled: voiceOn, captions, language });
+  const voice = useRoomVoice({
+    attemptId,
+    enabled: voiceOn,
+    captions,
+    language,
+  });
   const elapsed = useElapsed(
     room?.attempt ?? {
       id: attemptId,
@@ -405,7 +432,10 @@ function RoomView({
   );
 
   const certification = useApiQuery<CertificationStatus>(
-    [...queryKeys.avatarTraining.program(room?.session.program.id ?? 0), 'certification'],
+    [
+      ...queryKeys.avatarTraining.program(room?.session.program.id ?? 0),
+      'certification',
+    ],
     `/avatar-training/programs/${room?.session.program.id}/certification`,
     { enabled: !!result && result.passed !== false && !!room, staleTime: 0 },
   );
@@ -518,11 +548,17 @@ function RoomView({
   const open = room.attempt.status === 'IN_PROGRESS' || paused;
   const allDone = open && !room.currentStep;
   const step = room.currentStep;
-  const stepText = step ? [step.title, step.content, step.question?.prompt].filter(Boolean).join('. ') : '';
+  const stepText = step
+    ? [step.title, step.content, step.question?.prompt]
+        .filter(Boolean)
+        .join('. ')
+    : '';
   // Última resposta do instrutor — vem de interacções do tipo AVATAR_MESSAGE.
   const lastAvatar = [...room.interactions]
     .reverse()
-    .find((i) => i.interactionType === 'AVATAR_MESSAGE' && i.metadata?.aiMessageId);
+    .find(
+      (i) => i.interactionType === 'AVATAR_MESSAGE' && i.metadata?.aiMessageId,
+    );
 
   async function endSession() {
     const ok = await confirm({
@@ -626,7 +662,11 @@ function RoomView({
             >
               Compreendo e quero activar a voz
             </Button>
-            <Button size="sm" intent="ghost" onClick={() => setAskNotice(false)}>
+            <Button
+              size="sm"
+              intent="ghost"
+              onClick={() => setAskNotice(false)}
+            >
               Continuar só por texto
             </Button>
           </div>
@@ -649,7 +689,9 @@ function RoomView({
                 ` (mínimo ${result.passingScore})`}
             </p>
           )}
-          {result.reinforcement && <FailureReinforcementNote data={result.reinforcement} />}
+          {result.reinforcement && (
+            <FailureReinforcementNote data={result.reinforcement} />
+          )}
           {certification.data?.enabled && (
             <p className="mt-1 text-ink-muted">
               {certification.data.eligible
@@ -778,7 +820,9 @@ function RoomView({
             size="sm"
             intent="secondary"
             disabled={paused || !step}
-            loading={ask.isPending && ask.variables?.mode === 'EXPLAIN_DIFFERENTLY'}
+            loading={
+              ask.isPending && ask.variables?.mode === 'EXPLAIN_DIFFERENTLY'
+            }
             onClick={() => ask.mutate({ mode: 'EXPLAIN_DIFFERENTLY' })}
           >
             <RefreshCw size={14} /> Repetir explicação
@@ -805,7 +849,8 @@ function RoomView({
               record.mutate(
                 {
                   interactionType: 'HELP_REQUEST',
-                  content: question.trim() || 'Pedido de ajuda de um formador humano.',
+                  content:
+                    question.trim() || 'Pedido de ajuda de um formador humano.',
                   stepKey: step?.key,
                 },
                 {
@@ -849,7 +894,10 @@ function RoomView({
 export function RoomTab({
   only,
   emptyTitle = 'Sem sessões atribuídas',
+  variant = 'photo',
 }: {
+  /** photo = design "cursos criados" (Sala); navy = design "inscrições" (Simulações). */
+  variant?: 'photo' | 'navy';
   /** Restringe a lista a certos tipos de experiência (ex.: Simulações). */
   only?: readonly ExperienceType[];
   emptyTitle?: string;
@@ -900,55 +948,28 @@ export function RoomTab({
     );
 
   return (
-    <div className="space-y-3">
+    <CardGrid>
       {list.map((a) => {
         const last = a.attempts[0];
         const done = a.status === 'COMPLETED';
         const resuming =
           last && (last.status === 'IN_PROGRESS' || last.status === 'PAUSED');
-        return (
-          <div
-            key={a.id}
-            className="flex items-center justify-between gap-4 rounded-card border border-border bg-surface p-4"
+        const footer = !done && (
+          <button
+            type="button"
+            className={CARD_BTN}
+            disabled={start.isPending && start.variables === a.sessionId}
+            onClick={() => start.mutate(a.sessionId)}
           >
-            <div className="min-w-0">
-              <div className="truncate font-display text-sm font-semibold text-ink">
-                {a.session.title}
-              </div>
-              <div className="font-body text-xs text-ink-muted">
-                {a.session.program.title} ·{' '}
-                {EXPERIENCE_LABEL[a.session.experienceType]}
-                {a.session.durationMinutes
-                  ? ` · ${a.session.durationMinutes} min`
-                  : ''}
-                {a.dueDate ? ` · prazo ${formatDate(a.dueDate)}` : ''}
-                {a.mandatory ? ' · obrigatória' : ''}
-              </div>
-            </div>
-            <div className="flex shrink-0 items-center gap-3">
-              <StatusBadge
-                value={a.status}
-                map={ASSIGNMENT_STATUS}
-                variant="dot"
-              />
-              {last?.score != null && (
-                <span className="font-mono text-xs text-ink-muted">
-                  {last.score}
-                </span>
-              )}
-              {!done && (
-                <Button
-                  size="sm"
-                  loading={start.isPending && start.variables === a.sessionId}
-                  onClick={() => start.mutate(a.sessionId)}
-                >
-                  {resuming ? 'Retomar' : 'Iniciar'}
-                </Button>
-              )}
-            </div>
-          </div>
+            {resuming ? 'Retomar' : 'Iniciar'}
+          </button>
+        );
+        return variant === 'navy' ? (
+          <AssignmentNavyCard key={a.id} assignment={a} footer={footer} />
+        ) : (
+          <AssignmentPhotoCard key={a.id} assignment={a} footer={footer} />
         );
       })}
-    </div>
+    </CardGrid>
   );
 }

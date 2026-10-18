@@ -17,7 +17,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { QueryError } from '@/components/ui/QueryError';
-import { SessionPicker, useSessionDetail } from './SessionPicker';
+import { SessionCardPicker } from './cards';
+import { useSessionDetail } from './SessionPicker';
 import type { RubricCriterion, SessionDetail } from './types';
 
 function AssessmentForm({ session }: { session: SessionDetail }) {
@@ -47,7 +48,8 @@ function AssessmentForm({ session }: { session: SessionDetail }) {
       }),
     {
       invalidateKeys: [queryKeys.avatarTraining.session(session.id)],
-      onSuccess: () => notify({ title: 'Avaliação guardada', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Avaliação guardada', intent: 'success' }),
       onError: (e) =>
         notify({
           title: 'Não foi possível guardar a avaliação',
@@ -219,7 +221,7 @@ export function AssessmentsTab() {
 
   return (
     <div className="space-y-4">
-      <SessionPicker value={sessionId} onChange={setSessionId} />
+      <SessionCardPicker value={sessionId} onChange={setSessionId} />
       {sessionId === null ? (
         <EmptyState
           icon={ClipboardCheck}
@@ -229,7 +231,9 @@ export function AssessmentsTab() {
       ) : error ? (
         <QueryError error={error} onRetry={() => refetch()} />
       ) : (
-        data && <AssessmentForm key={`${data.id}-${data.version}`} session={data} />
+        data && (
+          <AssessmentForm key={`${data.id}-${data.version}`} session={data} />
+        )
       )}
     </div>
   );

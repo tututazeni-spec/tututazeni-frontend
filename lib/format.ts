@@ -71,9 +71,9 @@ export function getInitials(name: string): string {
 }
 
 /**
- * Formata um valor em Kwanza — ex: 150000 → "150.000 Kz". Sem casas decimais
+ * Formata um valor em Kwanza — ex: 150000 → "150.000 AOA". Sem casas decimais
  * (padrão usado em toda a app). `null`/`undefined` devolvem '—'; 0 é um valor
- * válido e mostra "0 Kz" (não é tratado como ausência de valor).
+ * válido e mostra "0 AOA" (não é tratado como ausência de valor).
  */
 export function formatKz(value: number | null | undefined): string {
   if (value === null || value === undefined) return '—';
@@ -83,6 +83,6 @@ export function formatKz(value: number | null | undefined): string {
     maximumFractionDigits: 0,
   })
     .format(value)
-    .replace('AOA', 'Kz')
+    .replace('Kz', 'AOA')
     .trim();
 }

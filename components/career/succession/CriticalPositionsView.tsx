@@ -83,6 +83,14 @@ function ScoreBar({
   );
 }
 
+// Cores de estado do card ROI Total (verde / âmbar / vermelho).
+const RISK_COLOR: Record<string, string> = {
+  LOW: '#34D399',
+  MEDIUM: '#FBBF24',
+  HIGH: '#F87171',
+  CRITICAL: '#F87171',
+};
+
 const PRIORITY_LABEL: Record<string, string> = {
   PRIMARY: '1º sucessor',
   SECONDARY: '2º sucessor',
@@ -217,8 +225,8 @@ export function CriticalPositionsView() {
                   }
                 }}
                 className={cn(
-                  'cursor-pointer rounded-[18px] border p-4 shadow-[0_8px_30px_rgba(11,61,145,0.10)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50',
-                  'border-transparent bg-gradient-to-br from-[#0B3D91] to-[#06275F] text-white',
+                  'cursor-pointer rounded-[18px] border p-4 shadow-[0_8px_24px_rgba(15,31,61,0.25)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50',
+                  'border-transparent bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] text-white',
                   selectedId === cp.id && 'ring-2 ring-[#0D6EFD] ring-offset-2',
                 )}
               >
@@ -235,7 +243,7 @@ export function CriticalPositionsView() {
                     />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate font-body text-sm font-semibold">
+                    <div className="break-words font-body text-sm font-semibold leading-snug">
                       {cp.position.name}
                     </div>
                     <div className="mt-1 flex items-center justify-between gap-2 font-body text-xs opacity-70">
@@ -247,11 +255,18 @@ export function CriticalPositionsView() {
                       </span>
                     </div>
                   </div>
-                  <span className="shrink-0 rounded-full bg-white/15 px-2.5 py-0.5 font-body text-xs font-semibold text-white">
+                  <span
+                    className="flex shrink-0 items-center gap-1.5 font-display text-xs font-semibold"
+                    style={{ color: RISK_COLOR[cp.exitRisk] }}
+                  >
+                    <span
+                      className="h-2.5 w-2.5 rounded-full"
+                      style={{ backgroundColor: RISK_COLOR[cp.exitRisk] }}
+                    />
                     {RISK_LABEL[cp.exitRisk]}
                   </span>
                 </div>
-                <div className="mt-2 font-body text-xs opacity-70">
+                <div className="mt-2 rounded-card bg-white/10 px-3 py-1 font-body text-xs text-white/80">
                   {COVERAGE_LABEL[cp.coverageStatus]}
                 </div>
                 {cp.alert && (
@@ -272,11 +287,11 @@ export function CriticalPositionsView() {
               <Skeleton rows={4} />
             ) : (
               <div className="overflow-hidden rounded-[18px] border border-[#D6E4F5] bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
-                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-[#0B3D91] to-[#06275F] px-6 py-4 text-white">
+                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] px-6 py-4 text-white">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2.5">
                       <Crown size={20} strokeWidth={1.75} />
-                      <h3 className="truncate font-body text-sm font-semibold uppercase tracking-wider">
+                      <h3 className="break-words font-body text-sm font-semibold uppercase tracking-wider">
                         {detail.position.name}
                       </h3>
                     </div>
@@ -301,13 +316,13 @@ export function CriticalPositionsView() {
                 </div>
                 <div className="p-6">
                   <div className="mt-3 grid grid-cols-2 gap-3 font-body text-xs">
-                    <div className="rounded-control bg-gradient-to-br from-[#0B3D91] to-[#06275F] p-3 text-white">
+                    <div className="rounded-control bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-3 text-white">
                       <div className="text-white/80">Impacto no negócio</div>
                       <div className="font-semibold text-white">
                         {BUSINESS_IMPACT_LABEL[detail.businessImpact]}
                       </div>
                     </div>
-                    <div className="rounded-control bg-gradient-to-br from-[#0B3D91] to-[#06275F] p-3 text-white">
+                    <div className="rounded-control bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-3 text-white">
                       <div className="text-white/80">Tempo de substituição</div>
                       <div className="font-semibold text-white">
                         {REPLACEMENT_TIME_LABEL[detail.replacementTime]}

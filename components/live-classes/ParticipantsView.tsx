@@ -8,7 +8,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, UserCheck } from 'lucide-react';
+import {
+  BookOpen,
+  CalendarDays,
+  Clock,
+  Plus,
+  Star,
+  Trash2,
+  UserCheck,
+} from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -16,9 +24,13 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import {
+  NAVY_BTN,
+  NavyBadge,
+  NavyCard,
+  type NavyTone,
+} from '@/components/courses/NavyCard';
 import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
@@ -33,6 +45,14 @@ import type {
   LiveParticipant,
   PaginatedMeta,
 } from './types';
+
+const ATTENDANCE_TONE: Record<string, NavyTone> = {
+  PRESENTE: 'success',
+  AUSENTE: 'danger',
+  ATRASADO: 'warning',
+  PARCIAL: 'warning',
+  JUSTIFICADO: 'info',
+};
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
@@ -254,77 +274,100 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
         />
       ) : (
         <>
-          <Card className="divide-y divide-border">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {rows.map((p) => (
-              <div
+              <NavyCard
                 key={p.id}
-                className="flex flex-wrap items-center gap-3 px-4 py-3"
-              >
-                <Avatar name={p.user.fullName} size="sm" />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-ink">
-                    {p.user.fullName}
-                    {p.user.employeeNumber
-                      ? ` · Nº ${p.user.employeeNumber}`
-                      : ''}
-                  </div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 font-body text-xs text-ink-faint">
-                    <span>{p.user.department?.name ?? '—'}</span>
-                    {p.user.unit && <span>· {p.user.unit.name}</span>}
-                    <span>· {p.liveClass.course?.title ?? '—'}</span>
-                    <span>· {p.liveClass.topic}</span>
-                    {p.session && <span>· Sessão {p.session.seq}</span>}
-                    {p.durationMinutes != null && (
-                      <span>· {p.durationMinutes}min</span>
-                    )}
-                    {p.liveClass.postEvaluation && (
-                      <span>
-                        · {p.liveClass.postEvaluation.averageScore.toFixed(1)}/5
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <span
-                  className={`rounded px-2 py-0.5 font-body text-xs font-medium ${LIVE_ATTENDANCE_STATUS_CFG[p.computedStatus]?.cls ?? ''}`}
-                >
-                  {LIVE_ATTENDANCE_STATUS_CFG[p.computedStatus]?.label ??
-                    p.computedStatus}
-                </span>
-                {canManage && (
-                  <div className="flex gap-2">
-                    <Button
-                      intent="ghost"
-                      size="sm"
-                      onClick={() => openRegister(p)}
-                    >
-                      <UserCheck size={14} strokeWidth={1.75} />
-                      Registar presença
-                    </Button>
-                    <Button
-                      intent="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setJustifying(p);
-                        setJustification(p.justification ?? '');
-                      }}
-                    >
-                      Justificar
-                    </Button>
-                    <Button
-                      intent="danger"
-                      size="sm"
-                      onClick={() => onRemove(p)}
-                      loading={
-                        remove.isPending && remove.variables?.id === p.id
-                      }
-                    >
-                      <Trash2 size={14} strokeWidth={1.75} />
-                    </Button>
-                  </div>
-                )}
-              </div>
+                seed={p.liveClassId}
+                avatar={{ name: p.user.fullName }}
+                title={p.liveClass.topic}
+                subtitle={
+                  [
+                    p.user.employeeNumber && `Nº ${p.user.employeeNumber}`,
+                    p.user.department?.name,
+                    p.user.unit?.name,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ') || undefined
+                }
+                badge={
+                  <NavyBadge
+                    tone={ATTENDANCE_TONE[p.computedStatus] ?? 'neutral'}
+                  >
+                    {LIVE_ATTENDANCE_STATUS_CFG[p.computedStatus]?.label ??
+                      p.computedStatus}
+                  </NavyBadge>
+                }
+                infos={[
+                  {
+                    icon: BookOpen,
+                    value: p.liveClass.course?.title ?? '—',
+                    label: 'Curso',
+                  },
+                  {
+                    icon: CalendarDays,
+                    value: p.session ? `Sessão ${p.session.seq}` : '—',
+                    label: 'Sessão',
+                  },
+                  {
+                    icon: Clock,
+                    value:
+                      p.durationMinutes != null
+                        ? `${p.durationMinutes}min`
+                        : '—',
+                    label: 'Duração',
+                  },
+                  {
+                    icon: Star,
+                    value: p.liveClass.postEvaluation
+                      ? `${p.liveClass.postEvaluation.averageScore.toFixed(1)}/5`
+                      : '—',
+                    label: 'Avaliação',
+                  },
+                ]}
+                footer={
+                  canManage && (
+                    <>
+                      <button
+                        type="button"
+                        className={NAVY_BTN}
+                        onClick={() => openRegister(p)}
+                      >
+                        <UserCheck
+                          size={14}
+                          strokeWidth={1.75}
+                          className="mr-1.5"
+                        />
+                        Registar presença
+                      </button>
+                      <button
+                        type="button"
+                        className={NAVY_BTN}
+                        onClick={() => {
+                          setJustifying(p);
+                          setJustification(p.justification ?? '');
+                        }}
+                      >
+                        Justificar
+                      </button>
+                      <button
+                        type="button"
+                        className={NAVY_BTN}
+                        aria-label="Remover participante"
+                        title="Remover participante"
+                        disabled={
+                          remove.isPending && remove.variables?.id === p.id
+                        }
+                        onClick={() => onRemove(p)}
+                      >
+                        <Trash2 size={14} strokeWidth={1.75} />
+                      </button>
+                    </>
+                  )
+                }
+              />
             ))}
-          </Card>
+          </div>
 
           {totalPages > 1 && (
             <div className="flex justify-center gap-2">

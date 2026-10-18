@@ -20,7 +20,15 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { CourseImageField } from '@/components/courses/CourseImageField';
 import type { TrainingPlan } from '../types';
+import { MultiPickField } from './MultiPickField';
+import {
+  PLAN_AUDIENCE_OPTIONS,
+  PLAN_NEED_OPTIONS,
+  PLAN_OBJECTIVE_OPTIONS,
+  PLAN_PRIORITY_OPTIONS,
+} from './planOptions';
 
 export interface PlanFormModalProps {
   /** null = criar; um TrainingPlan existente = editar. */
@@ -86,6 +94,9 @@ export function PlanFormModal({
   }));
   const competencyOptions = competenciesResp?.data ?? [];
 
+  const [imageUrl, setImageUrl] = useState<string | null>(
+    plan?.imageUrl ?? null,
+  );
   const [competencyIds, setCompetencyIds] = useState<number[]>(
     plan?.competencies?.map((c) => c.competency.id) ?? [],
   );
@@ -149,6 +160,8 @@ export function PlanFormModal({
     if (form.startDate)
       payload.startDate = new Date(form.startDate).toISOString();
     if (form.endDate) payload.endDate = new Date(form.endDate).toISOString();
+    // Ao editar, null remove a imagem; ao criar, só envia se houver.
+    if (imageUrl || editing) payload.imageUrl = imageUrl;
     payload.priority = form.priority || 'MEDIUM';
     payload.competencyIds = competencyIds;
     return payload;
@@ -243,6 +256,14 @@ export function PlanFormModal({
             </FormField>
           </div>
 
+          <FormField label="Imagem do plano" htmlFor="pf-image">
+            <CourseImageField
+              value={imageUrl}
+              onChange={setImageUrl}
+              alt="Pré-visualização da imagem do plano"
+            />
+          </FormField>
+
           <FormField label="Descrição" htmlFor="pf-description">
             <Textarea
               id="pf-description"
@@ -254,12 +275,13 @@ export function PlanFormModal({
           </FormField>
 
           <FormField label="Objetivos" htmlFor="pf-objectives">
-            <Textarea
+            <MultiPickField
               id="pf-objectives"
+              options={PLAN_OBJECTIVE_OPTIONS}
               value={form.objectives}
-              onChange={(e) => setField('objectives', e.target.value)}
-              rows={2}
-              className="w-full resize-none"
+              onChange={(v) => setField('objectives', v)}
+              allowManual
+              manualPlaceholder="Escrever outro objetivo"
             />
           </FormField>
 
@@ -267,12 +289,13 @@ export function PlanFormModal({
             label="Necessidades de formação identificadas"
             htmlFor="pf-identifiedNeeds"
           >
-            <Textarea
+            <MultiPickField
               id="pf-identifiedNeeds"
+              options={PLAN_NEED_OPTIONS}
               value={form.identifiedNeeds}
-              onChange={(e) => setField('identifiedNeeds', e.target.value)}
-              rows={2}
-              className="w-full resize-none"
+              onChange={(v) => setField('identifiedNeeds', v)}
+              allowManual
+              manualPlaceholder="Escrever outra necessidade"
             />
           </FormField>
 
@@ -280,22 +303,24 @@ export function PlanFormModal({
             label="Prioridades estratégicas"
             htmlFor="pf-strategicPriorities"
           >
-            <Textarea
+            <MultiPickField
               id="pf-strategicPriorities"
+              options={PLAN_PRIORITY_OPTIONS}
               value={form.strategicPriorities}
-              onChange={(e) => setField('strategicPriorities', e.target.value)}
-              rows={2}
-              className="w-full resize-none"
+              onChange={(v) => setField('strategicPriorities', v)}
+              allowManual
+              manualPlaceholder="Escrever outra prioridade"
             />
           </FormField>
 
           <FormField label="Público-alvo" htmlFor="pf-targetAudience">
-            <Textarea
+            <MultiPickField
               id="pf-targetAudience"
+              options={PLAN_AUDIENCE_OPTIONS}
               value={form.targetAudience}
-              onChange={(e) => setField('targetAudience', e.target.value)}
-              rows={2}
-              className="w-full resize-none"
+              onChange={(v) => setField('targetAudience', v)}
+              allowManual
+              manualPlaceholder="Escrever outro público-alvo"
             />
           </FormField>
 
@@ -366,7 +391,7 @@ export function PlanFormModal({
               />
             </FormField>
             <FormField
-              label="Orçamento previsto (Kz)"
+              label="Orçamento previsto (AOA)"
               htmlFor="pf-plannedBudget"
             >
               <Input

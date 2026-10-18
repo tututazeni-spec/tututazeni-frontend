@@ -16,7 +16,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
-import { Card } from '@/components/ui/Card';
+import { NavyCard } from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -45,49 +45,44 @@ export function InstructorsView() {
 
   return (
     <div className="space-y-4">
-      <Card className="divide-y divide-border">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {instructors.map((t) => (
-          <button
+          <NavyCard
             key={t.id}
+            seed={t.id}
             onClick={() => setViewing(t)}
-            className="flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-sunken"
-          >
-            <Avatar
-              name={t.name}
-              url={t.user?.avatarUrl ?? undefined}
-              size="sm"
-            />
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-medium text-ink">
-                {t.name}
-              </div>
-              <div className="text-xs text-ink-faint">
-                {t.specialties.length > 0
-                  ? t.specialties.join(', ')
-                  : (t.entity ?? '—')}
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-4 font-body text-xs text-ink-muted">
-              <span className="inline-flex items-center gap-1">
-                <BookOpen size={12} strokeWidth={1.75} />{' '}
-                {t.liveClassStats.completed} realizadas
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <Clock size={12} strokeWidth={1.75} />{' '}
-                {t.liveClassStats.hoursMinistered}h
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <UsersIcon size={12} strokeWidth={1.75} />{' '}
-                {t.liveClassStats.participants}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <Star size={12} strokeWidth={1.75} />{' '}
-                {t.liveClassStats.avgRating || '—'}
-              </span>
-            </div>
-          </button>
+            avatar={{ name: t.name, url: t.user?.avatarUrl }}
+            title={
+              t.specialties.length > 0
+                ? t.specialties.join(', ')
+                : (t.entity ?? 'Formador')
+            }
+            subtitle={t.email ?? undefined}
+            infos={[
+              {
+                icon: BookOpen,
+                value: String(t.liveClassStats.completed),
+                label: 'Realizadas',
+              },
+              {
+                icon: Clock,
+                value: `${t.liveClassStats.hoursMinistered}h`,
+                label: 'Horas',
+              },
+              {
+                icon: UsersIcon,
+                value: String(t.liveClassStats.participants),
+                label: 'Participantes',
+              },
+              {
+                icon: Star,
+                value: String(t.liveClassStats.avgRating || '—'),
+                label: 'Avaliação',
+              },
+            ]}
+          />
         ))}
-      </Card>
+      </div>
 
       {viewing && (
         <Modal open onOpenChange={(open) => !open && setViewing(null)}>

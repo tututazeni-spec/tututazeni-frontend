@@ -34,7 +34,6 @@ import {
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
@@ -266,10 +265,16 @@ export function CourseDetailView({
         <div className="grid grid-cols-[1fr_320px] gap-6 mb-6">
           <div>
             <div className="mb-4">
-              <NavyHeroCard
-                className="block"
-                surfaceClassName="border-[#0F1F3D] bg-[#0F1F3D]"
-                whiteDrawings
+              {/* Desenho do cartão ROI Total (roi-impact/RoiTotalCard), com o
+                  gradiente da cor do cartão do curso na lista. */}
+              <div
+                className="overflow-hidden rounded-panel p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
+                style={{
+                  background: (([c1, c2, c3]) =>
+                    `linear-gradient(160deg, ${c1} 0%, ${c2} 55%, ${c3} 100%)`)(
+                    PALETTE[Math.abs(course.id) % PALETTE.length],
+                  ),
+                }}
               >
                 <div>
                   <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -283,7 +288,7 @@ export function CourseDetailView({
                       <Badge intent="danger">Obrigatório</Badge>
                     )}
                   </div>
-                  <h1 className="mb-1 text-3xl font-semibold leading-tight tracking-tight text-white">
+                  <h1 className="mb-1 font-display text-xl font-bold leading-snug text-white">
                     {course.title}
                   </h1>
                   {course.category && (
@@ -325,7 +330,7 @@ export function CourseDetailView({
                     {course._count.modules} módulos
                   </span>
                 </div>
-              </NavyHeroCard>
+              </div>
             </div>
             {course.learningObjectives.length > 0 && (
               <div className="bg-success-subtle rounded-card p-4 mb-4">

@@ -18,9 +18,19 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
-import { Textarea } from '@/components/ui/Textarea';
+import { SinglePickField } from '@/components/trainings/SinglePickField';
 import { usePositionOptions } from '../careerFormData';
 import { BUSINESS_IMPACT_OPTIONS, REPLACEMENT_TIME_OPTIONS } from './constants';
+
+const CRITICAL_REASON_OPTIONS = [
+  'Conhecimento técnico único ou especializado',
+  'Impacto directo na receita ou operação',
+  'Difícil de substituir no mercado',
+  'Função regulada ou com exigência de certificação',
+  'Relação estratégica com clientes ou parceiros',
+  'Liderança de equipa crítica',
+  'Reforma ou saída prevista a curto prazo',
+];
 
 export interface NewCriticalPositionModalProps {
   onClose: () => void;
@@ -172,14 +182,12 @@ export function NewCriticalPositionModal({
           </div>
 
           <FormField label="Motivo da classificação" htmlFor="cp-reason">
-            <Textarea
+            <SinglePickField
               id="cp-reason"
+              options={CRITICAL_REASON_OPTIONS}
               value={form.criticalReason}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, criticalReason: e.target.value }))
-              }
-              rows={2}
-              className="w-full resize-none"
+              onChange={(v) => setForm((f) => ({ ...f, criticalReason: v }))}
+              manualPlaceholder="Escrever outro motivo"
             />
           </FormField>
 

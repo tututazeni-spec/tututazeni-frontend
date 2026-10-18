@@ -7,7 +7,19 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import {
+  Archive,
+  BookOpen,
+  CalendarDays,
+  ClipboardList,
+  Clock,
+  Copy,
+  Download,
+  Pencil,
+  Plus,
+  Users,
+  Wallet,
+} from 'lucide-react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -15,13 +27,21 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { Button, buttonVariants } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { formatKz } from '@/lib/format';
+import {
+  NAVY_ACTION,
+  NAVY_BTN,
+  NavyBadge,
+} from '@/components/courses/NavyCard';
+import { PHOTO_CARD_ACTION, PhotoCard } from '@/components/courses/PhotoCard';
+import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PLAN_PERIOD_LABEL, PLAN_STATUS_CFG, PRIORITY_CFG } from '../constants';
 import type { TrainingPlan } from '../types';
+import { INVERT_ON_HOVER } from '../buttonStyles';
 import { PlanFormModal } from './PlanFormModal';
+import { PLAN_TONE, PRIORITY_TONE } from './planTones';
 
 interface PlansResponse {
   data: TrainingPlan[];
@@ -135,7 +155,7 @@ export function PlansView({ onOpen }: PlansViewProps) {
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Button onClick={() => setShowCreate(true)}>
+        <Button className={INVERT_ON_HOVER} onClick={() => setShowCreate(true)}>
           <Plus size={14} strokeWidth={1.75} />
           Novo Plano de Formação
         </Button>
@@ -147,131 +167,149 @@ export function PlansView({ onOpen }: PlansViewProps) {
           description="Os planos de formação (anuais, trimestrais ou extraordinários) aparecem aqui."
         />
       ) : (
-        <Card className="divide-y divide-border">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {list.map((p) => {
-            const statusCfg = PLAN_STATUS_CFG[p.status];
-            const priorityCfg = PRIORITY_CFG[p.priority];
+            const busy = rowBusy(p.id);
+            const trainingsCount = p._count?.trainings ?? 0;
             return (
-              <div
+              <PhotoCard
                 key={p.id}
-                className="flex flex-wrap items-center gap-3 px-4 py-3"
-              >
-                <button
-                  type="button"
-                  className="min-w-0 flex-1 text-left"
-                  onClick={() => onOpen(p.id)}
-                >
-                  <div className="truncate text-sm font-medium text-ink">
-                    {p.name}
-                  </div>
-                  <div className="text-xs text-ink-faint">
-                    {p.code ? `${p.code} · ` : ''}
-                    {p.year} · {PLAN_PERIOD_LABEL[p.period]}
-                    {p._count ? ` · ${p._count.trainings} formação(ões)` : ''}
-                  </div>
-                </button>
-                <span
-                  className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${priorityCfg.cls}`}
-                >
-                  {priorityCfg.label}
-                </span>
-                <span
-                  className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}
-                >
-                  {statusCfg.label}
-                </span>
-                <div className="flex flex-shrink-0 items-center gap-2">
-                  <Button intent="ghost" size="sm" onClick={() => onOpen(p.id)}>
-                    Ver
-                  </Button>
-                  {(p.status === 'DRAFT' || p.status === 'REJECTED') && (
-                    <>
-                      <Button
-                        intent="ghost"
-                        size="sm"
+                seed={p.id}
+                onSelect={() => onOpen(p.id)}
+                kicker={p.code ?? `Plano ${p.year}`}
+                kickerIcon={ClipboardList}
+                title={p.name}
+                subtitle={p.description}
+                image={p.imageUrl}
+                fallback={<ClipboardList size={64} strokeWidth={1.25} />}
+                badges={
+                  <>
+                    <NavyBadge tone={PLAN_TONE[p.status]}>
+                      {PLAN_STATUS_CFG[p.status].label}
+                    </NavyBadge>
+                    <NavyBadge tone={PRIORITY_TONE[p.priority]}>
+                      {PRIORITY_CFG[p.priority].label}
+                    </NavyBadge>
+                  </>
+                }
+                metrics={[
+                  {
+                    icon: CalendarDays,
+                    text: `${p.year} · ${PLAN_PERIOD_LABEL[p.period] ?? p.period}`,
+                  },
+                  { icon: BookOpen, text: `Formações: ${trainingsCount}` },
+                  {
+                    icon: Users,
+                    text: `Participantes: ${p.expectedParticipants ?? '—'}`,
+                  },
+                ]}
+                rows={[
+                  {
+                    icon: Wallet,
+                    text:
+                      p.plannedBudget != null
+                        ? `Orçamento · ${formatKz(p.plannedBudget)}`
+                        : 'Orçamento · —',
+                  },
+                  {
+                    icon: Clock,
+                    text: `Horas previstas · ${p.expectedHours ?? '—'}`,
+                  },
+                ]}
+                actions={
+                  <>
+                    {(p.status === 'DRAFT' || p.status === 'REJECTED') && (
+                      <button
+                        type="button"
+                        className={PHOTO_CARD_ACTION}
+                        aria-label={`Editar ${p.name}`}
+                        title="Editar"
+                        disabled={busy}
                         onClick={() => setEditPlan(p)}
-                        disabled={rowBusy(p.id)}
                       >
-                        Editar
-                      </Button>
-                      <Button
-                        intent="primary"
-                        size="sm"
+                        <Pencil size={15} strokeWidth={1.75} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className={PHOTO_CARD_ACTION}
+                      aria-label={`Duplicar ${p.name}`}
+                      title="Duplicar"
+                      disabled={busy}
+                      onClick={() => duplicate.mutate(p.id)}
+                    >
+                      <Copy size={15} strokeWidth={1.75} />
+                    </button>
+                    <a
+                      href={`/api/training-plans/${p.id}/export`}
+                      className={PHOTO_CARD_ACTION}
+                      aria-label={`Exportar ${p.name}`}
+                      title="Exportar"
+                    >
+                      <Download size={15} strokeWidth={1.75} />
+                    </a>
+                    {p.status !== 'ARCHIVED' && (
+                      <button
+                        type="button"
+                        className={PHOTO_CARD_ACTION}
+                        aria-label={`Arquivar ${p.name}`}
+                        title="Arquivar"
+                        disabled={busy}
+                        onClick={() => onArchive(p)}
+                      >
+                        <Archive size={15} strokeWidth={1.75} />
+                      </button>
+                    )}
+                  </>
+                }
+                footer={
+                  <>
+                    {(p.status === 'DRAFT' || p.status === 'REJECTED') && (
+                      <button
+                        type="button"
+                        className={NAVY_BTN}
+                        disabled={busy}
                         onClick={() => onSubmit(p)}
-                        disabled={rowBusy(p.id)}
-                        loading={submit.isPending && submit.variables === p.id}
                       >
                         Submeter
-                      </Button>
-                    </>
-                  )}
-                  {isAdminOrRh && p.status === 'SUBMITTED' && (
-                    <>
-                      <Button
-                        intent="success"
-                        size="sm"
-                        onClick={() => approve.mutate(p.id)}
-                        disabled={rowBusy(p.id)}
-                        loading={
-                          approve.isPending && approve.variables === p.id
-                        }
+                      </button>
+                    )}
+                    {isAdminOrRh && p.status === 'SUBMITTED' && (
+                      <>
+                        <button
+                          type="button"
+                          className={NAVY_BTN}
+                          disabled={busy}
+                          onClick={() => approve.mutate(p.id)}
+                        >
+                          Aprovar
+                        </button>
+                        <button
+                          type="button"
+                          className={`${NAVY_ACTION} h-9 border border-white/25 px-4 text-sm`}
+                          disabled={busy}
+                          onClick={() => onReject(p)}
+                        >
+                          Rejeitar
+                        </button>
+                      </>
+                    )}
+                    {p.status === 'APPROVED' && (
+                      <button
+                        type="button"
+                        className={NAVY_BTN}
+                        disabled={busy}
+                        onClick={() => publish.mutate(p.id)}
                       >
-                        Aprovar
-                      </Button>
-                      <Button
-                        intent="danger"
-                        size="sm"
-                        onClick={() => onReject(p)}
-                        disabled={rowBusy(p.id)}
-                        loading={reject.isPending && reject.variables === p.id}
-                      >
-                        Rejeitar
-                      </Button>
-                    </>
-                  )}
-                  {p.status === 'APPROVED' && (
-                    <Button
-                      intent="success"
-                      size="sm"
-                      onClick={() => publish.mutate(p.id)}
-                      disabled={rowBusy(p.id)}
-                      loading={publish.isPending && publish.variables === p.id}
-                    >
-                      Publicar
-                    </Button>
-                  )}
-                  {p.status !== 'ARCHIVED' && (
-                    <Button
-                      intent="ghost"
-                      size="sm"
-                      onClick={() => onArchive(p)}
-                      disabled={rowBusy(p.id)}
-                    >
-                      Arquivar
-                    </Button>
-                  )}
-                  <Button
-                    intent="ghost"
-                    size="sm"
-                    onClick={() => duplicate.mutate(p.id)}
-                    disabled={rowBusy(p.id)}
-                    loading={
-                      duplicate.isPending && duplicate.variables === p.id
-                    }
-                  >
-                    Duplicar
-                  </Button>
-                  <a
-                    href={`/api/training-plans/${p.id}/export`}
-                    className={buttonVariants({ intent: 'ghost', size: 'sm' })}
-                  >
-                    Exportar
-                  </a>
-                </div>
-              </div>
+                        Publicar
+                      </button>
+                    )}
+                  </>
+                }
+              />
             );
           })}
-        </Card>
+        </div>
       )}
 
       {showCreate && (

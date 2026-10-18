@@ -99,7 +99,7 @@ export function ComponentFormModal({
 
   const condLabel =
     calcType === 'FIXED'
-      ? 'Valor fixo (Kz)'
+      ? 'Valor fixo (AOA)'
       : calcType === 'PERCENT'
         ? 'Taxa'
         : calcType === 'FORMULA'

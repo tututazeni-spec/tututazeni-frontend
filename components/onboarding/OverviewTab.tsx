@@ -10,7 +10,14 @@
 
 import { useState } from 'react';
 import {
+  AlarmClock,
   CheckCircle2,
+  ClipboardCheck,
+  FileText,
+  GraduationCap,
+  Smile,
+  UserPlus,
+  Users,
   Circle,
   Loader,
   PauseCircle,
@@ -122,11 +129,17 @@ export function OverviewTab({
     <div className="space-y-6">
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
-        <KpiCard label="Total de integrações" value={summary.total} />
         <KpiCard
+          icon={Users}
+          label="Total de integrações"
+          value={summary.total}
+          intent="info"
+        />
+        <KpiCard
+          icon={UserPlus}
           label="Novos colaboradores (30d)"
           value={summary.newHires}
-          intent="info"
+          intent="success"
         />
         <DonutStatCard
           label="Taxa de conclusão"
@@ -134,31 +147,37 @@ export function OverviewTab({
           color="#1877F2"
         />
         <KpiCard
+          icon={AlarmClock}
           label="Tarefas atrasadas"
           value={summary.overdueTasks}
-          intent={summary.overdueTasks > 0 ? 'danger' : 'primary'}
+          intent="danger"
         />
         <KpiCard
+          icon={FileText}
           label="Documentos pendentes"
           value={summary.pendingDocuments}
-          intent={summary.pendingDocuments > 0 ? 'warning' : 'primary'}
+          intent="warning"
         />
         <KpiCard
+          icon={GraduationCap}
           label="Formações pendentes"
           value={summary.pendingTrainings}
-          intent={summary.pendingTrainings > 0 ? 'warning' : 'primary'}
+          intent="warning"
         />
         <KpiCard
+          icon={ClipboardCheck}
           label="Avaliações de integração pendentes"
           value={summary.pendingIntegrationEvals}
-          intent={summary.pendingIntegrationEvals > 0 ? 'warning' : 'primary'}
+          intent="warning"
         />
         <KpiCard
+          icon={Smile}
           label="Satisfação média"
           value={
             summary.avgSurveyScore > 0 ? `${summary.avgSurveyScore}/5` : '—'
           }
           intent="warning"
+          iconIntent="caution"
         />
       </div>
 

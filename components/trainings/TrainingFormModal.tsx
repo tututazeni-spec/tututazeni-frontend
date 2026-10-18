@@ -27,6 +27,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { Textarea } from '@/components/ui/Textarea';
 import { CourseImageField } from '../courses/CourseImageField';
 import type { Training } from './types';
+import { PALETTE } from '@/components/onboarding/TemplateCard';
+import { MultiPickField, parsePickValue } from './plans/MultiPickField';
+import {
+  ScheduleField,
+  formatSchedule,
+  parseSchedule,
+  type ScheduleValue,
+} from './ScheduleField';
+import { SinglePickField } from './SinglePickField';
+import {
+  TRAINING_AUDIENCE_OPTIONS,
+  TRAINING_CATEGORY_OPTIONS,
+  TRAINING_MODALITY_DETAIL_OPTIONS,
+  TRAINING_OBJECTIVE_OPTIONS,
+  TRAINING_PREREQUISITE_OPTIONS,
+  TRAINING_RESOURCE_OPTIONS,
+  TRAINING_THEMATIC_AREA_OPTIONS,
+} from './trainingOptions';
 
 export interface TrainingFormModalProps {
   /** null = criar; um Training existente = editar. */
@@ -189,6 +207,7 @@ export function TrainingFormModal({
       language: training?.language ?? 'pt',
       workloadHours: training?.workloadHours?.toString() ?? '',
       thumbnailUrl: training?.thumbnailUrl ?? '',
+      colorIndex: training?.colorIndex?.toString() ?? '',
       prerequisites: training?.prerequisites ?? '',
       instructorId: training?.instructor?.id?.toString() ?? '',
       externalInstructorId: training?.externalInstructorId?.toString() ?? '',
@@ -211,7 +230,7 @@ export function TrainingFormModal({
       capacity: training?.capacity?.toString() ?? '',
       plannedSessionsCount: training?.plannedSessionsCount?.toString() ?? '',
       requiresApproval: training?.requiresApproval ?? false,
-      requiredResources: training?.requiredResources?.join(', ') ?? '',
+      requiredResources: training?.requiredResources?.join('\n') ?? '',
       instructorCost: training?.instructorCost?.toString() ?? '',
       materialCost: training?.materialCost?.toString() ?? '',
       transportCost: training?.transportCost?.toString() ?? '',
@@ -221,6 +240,15 @@ export function TrainingFormModal({
     },
     { title: [required()], type: [required()], level: [required()] },
   );
+  const parsedSchedule = training?.schedule
+    ? parseSchedule(training.schedule)
+    : null;
+  const [schedule, setSchedule] = useState<ScheduleValue>(
+    parsedSchedule ?? { start: '', end: '', days: [] },
+  );
+  // Horário antigo em texto livre: mantém-se até se escolher horas ou dias.
+  const legacySchedule =
+    training?.schedule && !parsedSchedule ? training.schedule : undefined;
   const [submitError, setSubmitError] = useState('');
   const error = validationError || submitError;
 
@@ -247,8 +275,10 @@ export function TrainingFormModal({
     str('trainingEntity');
     str('classDescription');
     str('modalityDetails');
-    str('schedule');
     str('roomLocation');
+
+    const scheduleText = formatSchedule(schedule) || legacySchedule;
+    if (scheduleText) payload.schedule = scheduleText;
 
     if (form.tags.trim()) {
       payload.tags = form.tags
@@ -257,10 +287,7 @@ export function TrainingFormModal({
         .filter(Boolean);
     }
     if (form.requiredResources.trim()) {
-      payload.requiredResources = form.requiredResources
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean);
+      payload.requiredResources = parsePickValue(form.requiredResources);
     }
     if (form.instructorId) payload.instructorId = n(form.instructorId);
     if (form.externalInstructorId)
@@ -268,6 +295,7 @@ export function TrainingFormModal({
     if (form.responsibleId) payload.responsibleId = n(form.responsibleId);
     if (form.courseId) payload.courseId = n(form.courseId);
     if (form.plannedBudget) payload.plannedBudget = n(form.plannedBudget);
+    payload.colorIndex = form.colorIndex === '' ? null : n(form.colorIndex);
     payload.priority = form.priority || 'MEDIUM';
     payload.targetDeptIds = targetDeptIds;
     payload.targetUnitIds = targetUnitIds;
@@ -389,11 +417,12 @@ export function TrainingFormModal({
                   />
                 </FormField>
                 <FormField label="Categoria" htmlFor="tf-category">
-                  <Input
+                  <SinglePickField
                     id="tf-category"
+                    options={TRAINING_CATEGORY_OPTIONS}
                     value={form.category}
-                    onChange={(e) => setField('category', e.target.value)}
-                    className="w-full"
+                    onChange={(v) => setField('category', v)}
+                    manualPlaceholder="Escrever outra categoria"
                   />
                 </FormField>
               </div>
@@ -418,22 +447,24 @@ export function TrainingFormModal({
               </FormField>
 
               <FormField label="Objetivo da formação" htmlFor="tf-objectives">
-                <Textarea
+                <MultiPickField
                   id="tf-objectives"
+                  options={TRAINING_OBJECTIVE_OPTIONS}
                   value={form.objectives}
-                  onChange={(e) => setField('objectives', e.target.value)}
-                  rows={2}
-                  className="w-full resize-none"
+                  onChange={(v) => setField('objectives', v)}
+                  allowManual
+                  manualPlaceholder="Escrever outro objetivo"
                 />
               </FormField>
 
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="Área temática" htmlFor="tf-thematicArea">
-                  <Input
+                  <SinglePickField
                     id="tf-thematicArea"
+                    options={TRAINING_THEMATIC_AREA_OPTIONS}
                     value={form.thematicArea}
-                    onChange={(e) => setField('thematicArea', e.target.value)}
-                    className="w-full"
+                    onChange={(v) => setField('thematicArea', v)}
+                    manualPlaceholder="Escrever outra área temática"
                   />
                 </FormField>
                 <FormField
@@ -505,12 +536,12 @@ export function TrainingFormModal({
                 label="Detalhes da modalidade (plataforma/link, sala virtual ou instruções de acesso)"
                 htmlFor="tf-modalityDetails"
               >
-                <Textarea
+                <SinglePickField
                   id="tf-modalityDetails"
+                  options={TRAINING_MODALITY_DETAIL_OPTIONS}
                   value={form.modalityDetails}
-                  onChange={(e) => setField('modalityDetails', e.target.value)}
-                  rows={2}
-                  className="w-full resize-none"
+                  onChange={(v) => setField('modalityDetails', v)}
+                  manualPlaceholder="Escrever link, sala virtual ou instruções de acesso"
                 />
               </FormField>
 
@@ -644,6 +675,22 @@ export function TrainingFormModal({
                 </FormField>
               </div>
 
+              <FormField label="Cor da formação" htmlFor="tf-color">
+                <div className="flex flex-wrap gap-2">
+                  {PALETTE.map((p, i) => (
+                    <button
+                      key={p[0]}
+                      type="button"
+                      aria-label={`Cor ${i + 1}`}
+                      aria-pressed={form.colorIndex === String(i)}
+                      onClick={() => setField('colorIndex', String(i))}
+                      className={`h-8 w-8 rounded-full border-2 ${form.colorIndex === String(i) ? 'border-ink ring-2 ring-accent' : 'border-transparent'}`}
+                      style={{ background: p[0] }}
+                    />
+                  ))}
+                </div>
+              </FormField>
+
               <FormField label="Imagem/capa" htmlFor="tf-thumbnail">
                 <CourseImageField
                   value={form.thumbnailUrl || null}
@@ -676,12 +723,10 @@ export function TrainingFormModal({
               </div>
 
               <FormField label="Horário" htmlFor="tf-schedule">
-                <Input
-                  id="tf-schedule"
-                  value={form.schedule}
-                  onChange={(e) => setField('schedule', e.target.value)}
-                  className="w-full"
-                  placeholder="Ex: 09h00–13h00, Seg. a Qui."
+                <ScheduleField
+                  value={schedule}
+                  onChange={setSchedule}
+                  legacy={legacySchedule}
                 />
               </FormField>
 
@@ -740,27 +785,29 @@ export function TrainingFormModal({
               </div>
 
               <FormField label="Pré-requisitos" htmlFor="tf-prerequisites">
-                <Textarea
+                <MultiPickField
                   id="tf-prerequisites"
+                  options={TRAINING_PREREQUISITE_OPTIONS}
                   value={form.prerequisites}
-                  onChange={(e) => setField('prerequisites', e.target.value)}
-                  rows={2}
-                  className="w-full resize-none"
+                  onChange={(v) => setField('prerequisites', v)}
+                  allowManual
+                  manualPlaceholder="Escrever outro pré-requisito"
                 />
               </FormField>
 
               <FormField label="Público-alvo" htmlFor="tf-targetAudience">
-                <Textarea
+                <MultiPickField
                   id="tf-targetAudience"
+                  options={TRAINING_AUDIENCE_OPTIONS}
                   value={form.targetAudience}
-                  onChange={(e) => setField('targetAudience', e.target.value)}
-                  rows={2}
-                  className="w-full resize-none"
+                  onChange={(v) => setField('targetAudience', v)}
+                  allowManual
+                  manualPlaceholder="Escrever outro público-alvo"
                 />
               </FormField>
 
               <FormField
-                label="Orçamento previsto (Kz)"
+                label="Orçamento previsto (AOA)"
                 htmlFor="tf-plannedBudget"
               >
                 <Input
@@ -911,17 +958,16 @@ export function TrainingFormModal({
             {/* ── Operação ─────────────────────────────────────────────── */}
             <TabsContent value="operation" className="space-y-4">
               <FormField
-                label="Recursos necessários (separados por vírgula)"
+                label="Recursos necessários"
                 htmlFor="tf-requiredResources"
               >
-                <Input
+                <MultiPickField
                   id="tf-requiredResources"
+                  options={TRAINING_RESOURCE_OPTIONS}
                   value={form.requiredResources}
-                  onChange={(e) =>
-                    setField('requiredResources', e.target.value)
-                  }
-                  className="w-full"
-                  placeholder="Ex: Projector, Portáteis, Flipchart"
+                  onChange={(v) => setField('requiredResources', v)}
+                  allowManual
+                  manualPlaceholder="Escrever outro recurso"
                 />
               </FormField>
               <p className="text-xs text-ink-faint">
@@ -934,7 +980,7 @@ export function TrainingFormModal({
             <TabsContent value="costs" className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <FormField
-                  label="Custo do formador (Kz)"
+                  label="Custo do formador (AOA)"
                   htmlFor="tf-instructorCost"
                 >
                   <Input
@@ -946,7 +992,7 @@ export function TrainingFormModal({
                     className="w-full"
                   />
                 </FormField>
-                <FormField label="Material (Kz)" htmlFor="tf-materialCost">
+                <FormField label="Material (AOA)" htmlFor="tf-materialCost">
                   <Input
                     id="tf-materialCost"
                     type="number"
@@ -956,7 +1002,7 @@ export function TrainingFormModal({
                     className="w-full"
                   />
                 </FormField>
-                <FormField label="Transporte (Kz)" htmlFor="tf-transportCost">
+                <FormField label="Transporte (AOA)" htmlFor="tf-transportCost">
                   <Input
                     id="tf-transportCost"
                     type="number"
@@ -966,7 +1012,7 @@ export function TrainingFormModal({
                     className="w-full"
                   />
                 </FormField>
-                <FormField label="Alimentação (Kz)" htmlFor="tf-foodCost">
+                <FormField label="Alimentação (AOA)" htmlFor="tf-foodCost">
                   <Input
                     id="tf-foodCost"
                     type="number"
@@ -976,7 +1022,7 @@ export function TrainingFormModal({
                     className="w-full"
                   />
                 </FormField>
-                <FormField label="Alojamento (Kz)" htmlFor="tf-lodgingCost">
+                <FormField label="Alojamento (AOA)" htmlFor="tf-lodgingCost">
                   <Input
                     id="tf-lodgingCost"
                     type="number"
@@ -986,7 +1032,7 @@ export function TrainingFormModal({
                     className="w-full"
                   />
                 </FormField>
-                <FormField label="Outros custos (Kz)" htmlFor="tf-otherCosts">
+                <FormField label="Outros custos (AOA)" htmlFor="tf-otherCosts">
                   <Input
                     id="tf-otherCosts"
                     type="number"

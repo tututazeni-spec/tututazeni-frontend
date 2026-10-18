@@ -8,7 +8,13 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, AlertTriangle, Plus, Trash2 } from 'lucide-react';
+import {
+  AlertCircle,
+  AlertTriangle,
+  Paperclip,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -24,6 +30,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { PAY_REGIME_LABELS } from './constants';
+import { DOC_ACCEPT, useDocUpload } from './useDocUpload';
 import {
   CAN_PICK_EMPLOYEE_LEAVE,
   useEmployeeOptions,
@@ -39,6 +46,9 @@ import type {
 interface DocDraft {
   name: string;
   fileUrl: string;
+  /** Preenchido só quando o documento veio de upload (data URL). */
+  mimeType?: string;
+  fileName?: string;
 }
 
 const EMPTY_DOC: DocDraft = { name: '', fileUrl: '' };
@@ -91,6 +101,23 @@ export function NewLicenseModal({
   const hasTimes = sameDay && !!form.startTime && !!form.endTime;
   const timesInvalid = hasTimes && form.endTime <= form.startTime;
 
+  const updateDoc = (i: number, patch: Partial<DocDraft>) =>
+    setDocs((all) => all.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+
+  const upload = useDocUpload((i, doc) =>
+    setDocs((all) =>
+      all.map((x, j) =>
+        j === i
+          ? {
+              ...x,
+              name: x.name.trim() ? x.name : doc.fileName.slice(0, 200),
+              ...doc,
+            }
+          : x,
+      ),
+    ),
+  );
+
   const filledDocs = docs.filter((d) => d.name.trim() && d.fileUrl.trim());
   const docsIncomplete = docs.some(
     (d) => !!d.name.trim() !== !!d.fileUrl.trim(),
@@ -140,7 +167,10 @@ export function NewLicenseModal({
   const r = type ? (route.data ?? null) : null;
 
   const reason =
-    [form.reason.trim(), form.notes.trim() && `Observações: ${form.notes.trim()}`]
+    [
+      form.reason.trim(),
+      form.notes.trim() && `Observações: ${form.notes.trim()}`,
+    ]
       .filter(Boolean)
       .join('\n\n') || undefined;
 
@@ -158,6 +188,7 @@ export function NewLicenseModal({
           ? filledDocs.map((d) => ({
               name: d.name.trim(),
               fileUrl: d.fileUrl.trim(),
+              mimeType: d.mimeType,
             }))
           : undefined,
         saveAsDraft,
@@ -181,7 +212,7 @@ export function NewLicenseModal({
         : timesInvalid
           ? 'A hora de fim tem de ser posterior ao início.'
           : docsIncomplete
-            ? 'Preencha o nome e o endereço (https) de cada documento.'
+            ? 'Preencha o nome e o endereço (https) ou carregue o ficheiro de cada documento.'
             : '';
   const needsDoc = !!type?.requiresDocument && filledDocs.length === 0;
   const blocked = !!p?.exceedsBalance || !!p?.selfOverlap;
@@ -310,15 +341,17 @@ export function NewLicenseModal({
               )}
               {p.exceedsBalance && (
                 <p className="flex items-center gap-2 p-3 rounded-card bg-danger-subtle text-danger-ink">
-                  <AlertTriangle size={14} strokeWidth={1.75} />
-                  O pedido excede o saldo disponível.
+                  <AlertTriangle size={14} strokeWidth={1.75} />O pedido excede
+                  o saldo disponível.
                 </p>
               )}
               {p.selfOverlap && (
                 <p className="flex items-center gap-2 p-3 rounded-card bg-danger-subtle text-danger-ink">
                   <AlertTriangle size={14} strokeWidth={1.75} />
-                  Já existe um pedido de {formatDate(p.selfOverlap.startDate)} a{' '}
-                  {formatDate(p.selfOverlap.endDate)} que sobrepõe este período.
+                  Já existe um pedido de {formatDate(
+                    p.selfOverlap.startDate,
+                  )} a {formatDate(p.selfOverlap.endDate)} que sobrepõe este
+                  período.
                 </p>
               )}
             </div>
@@ -352,34 +385,50 @@ export function NewLicenseModal({
                 acessíveis ao colaborador e ao RH.
               </p>
             )}
+            <input
+              ref={upload.inputRef}
+              type="file"
+              accept={DOC_ACCEPT}
+              hidden
+              onChange={upload.onChange}
+            />
+            <p className="text-xs text-ink-faint">
+              Carregue um ficheiro (PDF, PNG, JPG ou WebP, máx. 4 MB) ou indique
+              um endereço https.
+            </p>
             {docs.map((d, i) => (
               <div key={i} className="flex items-start gap-2">
                 <Input
                   aria-label={`Nome do documento ${i + 1}`}
                   placeholder="Nome (ex.: Atestado médico)"
                   value={d.name}
-                  onChange={(e) =>
-                    setDocs((all) =>
-                      all.map((x, j) =>
-                        j === i ? { ...x, name: e.target.value } : x,
-                      ),
-                    )
-                  }
+                  onChange={(e) => updateDoc(i, { name: e.target.value })}
                   className="w-full"
                 />
-                <Input
-                  aria-label={`Endereço do documento ${i + 1}`}
-                  placeholder="https://…"
-                  value={d.fileUrl}
-                  onChange={(e) =>
-                    setDocs((all) =>
-                      all.map((x, j) =>
-                        j === i ? { ...x, fileUrl: e.target.value } : x,
-                      ),
-                    )
-                  }
-                  className="w-full"
-                />
+                {d.mimeType ? (
+                  <div className="flex min-h-[48px] w-full items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 text-sm text-ink">
+                    <Paperclip size={14} strokeWidth={1.75} />
+                    <span className="min-w-0 flex-1 truncate">
+                      {d.fileName}
+                    </span>
+                  </div>
+                ) : (
+                  <Input
+                    aria-label={`Endereço do documento ${i + 1}`}
+                    placeholder="https://… ou carregue um ficheiro"
+                    value={d.fileUrl}
+                    onChange={(e) => updateDoc(i, { fileUrl: e.target.value })}
+                    className="w-full"
+                  />
+                )}
+                <Button
+                  intent="secondary"
+                  size="sm"
+                  className="shrink-0"
+                  onClick={() => upload.pick(i)}
+                >
+                  Carregar
+                </Button>
                 <IconButton
                   icon={Trash2}
                   label="Remover documento"
@@ -436,7 +485,9 @@ export function NewLicenseModal({
 
           {type && (
             <div className="rounded-card border border-border p-3 text-sm space-y-1.5">
-              <p className="font-medium text-ink">Encaminhamento para aprovação</p>
+              <p className="font-medium text-ink">
+                Encaminhamento para aprovação
+              </p>
               {r === null ? (
                 <p className="text-ink-faint">A calcular…</p>
               ) : r.autoApprove ? (
@@ -445,15 +496,17 @@ export function NewLicenseModal({
                 </p>
               ) : r.steps.length === 0 ? (
                 <p className="text-ink-muted">
-                  Sem gestor atribuído — o pedido será aprovado
-                  automaticamente na submissão.
+                  Sem gestor atribuído — o pedido será aprovado automaticamente
+                  na submissão.
                 </p>
               ) : (
                 <ol className="space-y-0.5 text-ink-muted">
                   {r.steps.map((s) => (
                     <li key={s.level}>
                       {s.level}.º nível ({s.role === 'RH' ? 'RH' : 'Gestor'}):{' '}
-                      <strong className="text-ink">{s.approver.fullName}</strong>
+                      <strong className="text-ink">
+                        {s.approver.fullName}
+                      </strong>
                     </li>
                   ))}
                 </ol>

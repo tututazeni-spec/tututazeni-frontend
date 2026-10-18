@@ -5,7 +5,16 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, Plus } from 'lucide-react';
+import {
+  ArrowLeft,
+  BadgeCheck,
+  CalendarDays,
+  ClipboardList,
+  Clock,
+  Download,
+  Plus,
+  UserCheck,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -27,6 +36,14 @@ import {
   STATUS_CFG,
 } from '../constants';
 import type { Training, TrainingPlan, TrainingPlanExecution } from '../types';
+import {
+  NAVY_ACTION,
+  NavyBadge,
+  NavyCard,
+} from '@/components/courses/NavyCard';
+import { NavyPanel } from './NavyPanel';
+import { PLAN_TONE, PRIORITY_TONE } from './planTones';
+import { parsePickValue } from './MultiPickField';
 
 interface PlanDetailViewProps {
   planId: number;
@@ -101,6 +118,28 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
   const priorityCfg = PRIORITY_CFG[plan.priority];
   const trainings = plan.trainings ?? [];
 
+  const rates = execution
+    ? Object.values(execution.executionRate).filter(
+        (r): r is number => typeof r === 'number',
+      )
+    : [];
+  const overallRate = rates.length
+    ? Math.round(rates.reduce((a, b) => a + b, 0) / rates.length)
+    : null;
+
+  const detailBlocks = [
+    { label: 'Objetivos', items: parsePickValue(plan.objectives ?? '') },
+    {
+      label: 'Necessidades de formação identificadas',
+      items: parsePickValue(plan.identifiedNeeds ?? ''),
+    },
+    {
+      label: 'Prioridades estratégicas',
+      items: parsePickValue(plan.strategicPriorities ?? ''),
+    },
+    { label: 'Público-alvo', items: parsePickValue(plan.targetAudience ?? '') },
+  ].filter((b) => b.items.length > 0);
+
   return (
     <div className="space-y-6">
       <Button intent="ghost" size="sm" onClick={onBack}>
@@ -108,66 +147,92 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
         Voltar aos planos
       </Button>
 
-      <Card className="p-5">
-        <div className="mb-3 flex items-start justify-between gap-3">
-          <div>
-            <h2 className="font-display text-lg font-semibold text-ink">
-              {plan.name}
-            </h2>
-            <p className="text-xs text-ink-faint">
-              {plan.code ? `${plan.code} · ` : ''}
-              {plan.year} · {PLAN_PERIOD_LABEL[plan.period]}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <span
-              className={`rounded px-2 py-0.5 font-body text-xs font-medium ${priorityCfg.cls}`}
-            >
-              {priorityCfg.label}
-            </span>
-            <span
-              className={`rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}
-            >
+      <NavyCard
+        seed={plan.id}
+        image={plan.imageUrl}
+        flushFirstInfo
+        kicker={plan.code ?? `Plano ${plan.year}`}
+        kickerIcon={ClipboardList}
+        title={plan.name}
+        subtitle={plan.description ?? undefined}
+        badge={
+          <>
+            <NavyBadge tone={PLAN_TONE[plan.status]}>
               {statusCfg.label}
-            </span>
-          </div>
+            </NavyBadge>
+            <NavyBadge tone={PRIORITY_TONE[plan.priority]}>
+              {priorityCfg.label}
+            </NavyBadge>
+          </>
+        }
+        actions={
+          <a
+            href={`/api/training-plans/${plan.id}/export`}
+            className={NAVY_ACTION}
+            aria-label="Exportar plano"
+            title="Exportar"
+          >
+            <Download size={15} strokeWidth={1.75} />
+          </a>
+        }
+        infos={[
+          {
+            icon: CalendarDays,
+            value: String(plan.year),
+            label: PLAN_PERIOD_LABEL[plan.period] ?? plan.period,
+          },
+          {
+            icon: UserCheck,
+            value: plan.responsible?.fullName ?? '—',
+            label: 'Responsável',
+          },
+          {
+            icon: BadgeCheck,
+            value: plan.approver?.fullName ?? '—',
+            label: 'Aprovador',
+          },
+          {
+            icon: Clock,
+            value: `${plan.startDate?.slice(0, 10) ?? '—'} → ${plan.endDate?.slice(0, 10) ?? '—'}`,
+            label: 'Início e fim',
+          },
+        ]}
+        progress={
+          overallRate != null
+            ? { value: overallRate, label: 'Execução do plano' }
+            : undefined
+        }
+      />
+      {plan.status === 'REJECTED' && plan.rejectionReason && (
+        <p className="rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+          Motivo da rejeição: {plan.rejectionReason}
+        </p>
+      )}
+
+      {/* Detalhes do plano */}
+      {detailBlocks.length > 0 && (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          {detailBlocks.map((b) => (
+            <NavyPanel key={b.label} seed={plan.id} title={b.label}>
+              <ul className="space-y-1.5 font-body text-[15px] font-medium text-white">
+                {b.items.map((it) => (
+                  <li key={it} className="flex gap-2">
+                    <span
+                      aria-hidden
+                      className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-white/70"
+                    />
+                    {it}
+                  </li>
+                ))}
+              </ul>
+            </NavyPanel>
+          ))}
         </div>
-        {plan.description && (
-          <p className="mb-2 text-sm text-ink-muted">{plan.description}</p>
-        )}
-        <div className="grid grid-cols-2 gap-3 text-xs text-ink-faint sm:grid-cols-4">
-          <div>
-            <div className="text-ink-faint">Responsável</div>
-            <div className="text-ink">{plan.responsible?.fullName ?? '—'}</div>
-          </div>
-          <div>
-            <div className="text-ink-faint">Aprovador</div>
-            <div className="text-ink">{plan.approver?.fullName ?? '—'}</div>
-          </div>
-          <div>
-            <div className="text-ink-faint">Início</div>
-            <div className="text-ink">
-              {plan.startDate?.slice(0, 10) ?? '—'}
-            </div>
-          </div>
-          <div>
-            <div className="text-ink-faint">Fim</div>
-            <div className="text-ink">{plan.endDate?.slice(0, 10) ?? '—'}</div>
-          </div>
-        </div>
-        {plan.status === 'REJECTED' && plan.rejectionReason && (
-          <p className="mt-3 rounded-card bg-danger-subtle p-2 text-xs text-danger-ink">
-            Motivo da rejeição: {plan.rejectionReason}
-          </p>
-        )}
-      </Card>
+      )}
 
       {/* Execução: planeado vs. realizado */}
       {execution && (
-        <Card className="p-5">
-          <h3 className="mb-3 font-body text-sm font-medium text-ink">
-            Execução — planeado vs. realizado
-          </h3>
+        <NavyPanel seed={plan.id} title="Execução — planeado vs. realizado">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <ExecutionStat
               label="Participantes"
@@ -195,23 +260,27 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
               rate={execution.executionRate.trainings}
             />
           </div>
-        </Card>
+        </NavyPanel>
       )}
 
       {/* Formações previstas */}
       <Card className="overflow-hidden p-0">
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <span className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <div className="flex items-center justify-between bg-[#0F1F3D]/60 px-4 py-3">
+          <span className="font-body text-xs font-medium uppercase tracking-wide text-white">
             Formações previstas
           </span>
           <div className="flex gap-2">
             <a
               href={`/api/training-plans/${plan.id}/export`}
-              className={buttonVariants({ intent: 'ghost', size: 'sm' })}
+              className={`${buttonVariants({ intent: 'ghost', size: 'sm' })} !text-white`}
             >
               Exportar
             </a>
-            <Button size="sm" onClick={() => setShowAddTraining(true)}>
+            <Button
+              size="sm"
+              className="border border-white/40 hover:!bg-white hover:!text-[#0F1F3D]"
+              onClick={() => setShowAddTraining(true)}
+            >
               <Plus size={14} strokeWidth={1.75} />
               Adicionar formação
             </Button>
@@ -324,17 +393,19 @@ function ExecutionStat({
   const fmt = (v: number) => (money ? formatKz(v) : v.toLocaleString('pt-PT'));
   return (
     <div>
-      <div className="text-xs text-ink-faint">{label}</div>
-      <div className="font-mono text-lg font-bold text-ink">
+      <div className="font-body text-[15px] font-medium text-white">
+        {label}
+      </div>
+      <div className="font-body text-lg font-bold text-white">
         {fmt(realized)}
-        <span className="text-xs font-normal text-ink-faint">
+        <span className="text-[15px] font-medium text-white/70">
           {' '}
           / {fmt(planned)}
         </span>
       </div>
       {rate !== null && (
         <div
-          className={`text-xs ${rate >= 100 ? 'text-success-ink' : 'text-ink-faint'}`}
+          className={`text-xs ${rate >= 100 ? 'text-sky-300' : 'text-white/70'}`}
         >
           {rate}% executado
         </div>

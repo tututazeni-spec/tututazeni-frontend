@@ -57,6 +57,7 @@ export default function AvatarTrainingPage() {
       {current === 'simulations' && (
         <RoomTab
           only={SIMULATION_TYPES}
+          variant="navy"
           emptyTitle="Sem simulações atribuídas"
         />
       )}

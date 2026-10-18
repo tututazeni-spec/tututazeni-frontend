@@ -20,12 +20,22 @@ import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { Button } from '@/components/ui/Button';
+import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
-import { PROFICIENCY_SCALE_PRESET } from './constants';
+import {
+  LEVEL_AUTONOMY_OPTIONS,
+  LEVEL_BEHAVIORS_OPTIONS,
+  LEVEL_COMPLEXITY_OPTIONS,
+  LEVEL_CRITERIA_OPTIONS,
+  LEVEL_DEMONSTRATED_OPTIONS,
+  LEVEL_EVIDENCE_OPTIONS,
+  LEVEL_NAME_OPTIONS,
+  PROFICIENCY_SCALE_PRESET,
+} from './constants';
 import { useCompetencyOptions } from './modelFormData';
 import type { ProficiencyLevelWithCompetency } from './types';
 
@@ -212,13 +222,13 @@ export function LevelFormModal({
           <div className="flex items-end gap-3">
             <div className="flex-1">
               <FormField label="Nome *" htmlFor="lf-name">
-                <Input
-                  id="lf-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Ex.: Intermédio"
-                  maxLength={80}
-                  className="w-full"
+                <Combobox
+                  items={LEVEL_NAME_OPTIONS}
+                  value={name || undefined}
+                  onValueChange={setName}
+                  placeholder="Selecionar ou escrever"
+                  searchPlaceholder="Escreva para filtrar ou indicar outro…"
+                  allowCustom
                 />
               </FormField>
             </div>
@@ -265,61 +275,69 @@ export function LevelFormModal({
           </div>
 
           <FormField label="Comportamentos esperados" htmlFor="lf-behaviors">
-            <Textarea
-              id="lf-behaviors"
-              value={expectedBehaviors}
-              onChange={(e) => setExpectedBehaviors(e.target.value)}
-              rows={2}
-              className="w-full"
+            <Combobox
+              items={LEVEL_BEHAVIORS_OPTIONS}
+              value={expectedBehaviors || undefined}
+              onValueChange={setExpectedBehaviors}
+              placeholder="Selecionar ou escrever"
+              searchPlaceholder="Escreva para filtrar ou indicar outro…"
+              allowCustom
             />
           </FormField>
 
           <FormField label="Conhecimentos demonstrados" htmlFor="lf-knowledge">
-            <Textarea
-              id="lf-knowledge"
-              value={knowledgeDemonstrated}
-              onChange={(e) => setKnowledgeDemonstrated(e.target.value)}
-              rows={2}
-              className="w-full"
+            <Combobox
+              items={LEVEL_DEMONSTRATED_OPTIONS}
+              value={knowledgeDemonstrated || undefined}
+              onValueChange={setKnowledgeDemonstrated}
+              placeholder="Selecionar ou escrever"
+              searchPlaceholder="Escreva para filtrar ou indicar outro…"
+              allowCustom
             />
           </FormField>
 
           <div className="grid grid-cols-2 gap-4">
             <FormField label="Autonomia" htmlFor="lf-autonomy">
-              <Input
-                id="lf-autonomy"
-                value={autonomy}
-                onChange={(e) => setAutonomy(e.target.value)}
-                className="w-full"
+              <Combobox
+                items={LEVEL_AUTONOMY_OPTIONS}
+                value={autonomy || undefined}
+                onValueChange={setAutonomy}
+                placeholder="Selecionar ou escrever"
+                searchPlaceholder="Escreva para filtrar ou indicar outro…"
+                allowCustom
               />
             </FormField>
             <FormField label="Complexidade das tarefas" htmlFor="lf-complexity">
-              <Input
-                id="lf-complexity"
-                value={taskComplexity}
-                onChange={(e) => setTaskComplexity(e.target.value)}
-                className="w-full"
+              <Combobox
+                items={LEVEL_COMPLEXITY_OPTIONS}
+                value={taskComplexity || undefined}
+                onValueChange={setTaskComplexity}
+                placeholder="Selecionar ou escrever"
+                searchPlaceholder="Escreva para filtrar ou indicar outro…"
+                allowCustom
               />
             </FormField>
           </div>
 
           <FormField label="Evidências observáveis" htmlFor="lf-evidence">
-            <Textarea
-              id="lf-evidence"
-              value={observableEvidence}
-              onChange={(e) => setObservableEvidence(e.target.value)}
-              rows={2}
-              className="w-full"
+            <Combobox
+              items={LEVEL_EVIDENCE_OPTIONS}
+              value={observableEvidence || undefined}
+              onValueChange={setObservableEvidence}
+              placeholder="Selecionar ou escrever"
+              searchPlaceholder="Escreva para filtrar ou indicar outro…"
+              allowCustom
             />
           </FormField>
 
           <FormField label="Critérios de avaliação" htmlFor="lf-criteria">
-            <Textarea
-              id="lf-criteria"
-              value={evaluationCriteria}
-              onChange={(e) => setEvaluationCriteria(e.target.value)}
-              rows={2}
-              className="w-full"
+            <Combobox
+              items={LEVEL_CRITERIA_OPTIONS}
+              value={evaluationCriteria || undefined}
+              onValueChange={setEvaluationCriteria}
+              placeholder="Selecionar ou escrever"
+              searchPlaceholder="Escreva para filtrar ou indicar outro…"
+              allowCustom
             />
           </FormField>
 

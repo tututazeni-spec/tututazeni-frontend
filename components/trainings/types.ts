@@ -92,6 +92,7 @@ export interface Training {
   language: string;
   workloadHours: number | null;
   thumbnailUrl: string | null;
+  colorIndex: number | null;
   prerequisites: string | null;
   trainingEntity: string | null;
   classDescription: string | null;
@@ -247,6 +248,7 @@ export interface TrainingPlan {
   code: string | null;
   year: number;
   period: TrainingPlanPeriod;
+  imageUrl?: string | null;
   description: string | null;
   objectives: string | null;
   identifiedNeeds: string | null;
@@ -323,6 +325,7 @@ export interface CalendarEvent {
   title: string;
   trainingType: TrainingType;
   status: TrainingStatus;
+  colorIndex: number | null;
   start: string | null;
   end: string | null;
   modality: string | null;

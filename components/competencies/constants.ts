@@ -351,3 +351,109 @@ export const DEV_RESULT_CFG: StatusBadgeMap<DevelopmentResult> = {
   },
   PENDENTE: { label: 'Pendente', cls: 'bg-info-subtle text-info-ink' },
 };
+
+// Listas de escolha do formulário "Novo nível de proficiência". Os campos são
+// texto livre no backend: são sugestões, o Combobox (allowCustom) também
+// aceita um texto escrito à mão.
+const asOptions = (labels: string[]) =>
+  labels.map((label) => ({ value: label, label }));
+
+export const LEVEL_NAME_OPTIONS = asOptions([
+  'Inicial',
+  'Básico',
+  'Intermédio',
+  'Avançado',
+  'Especialista',
+  'Mestre / Referência',
+]);
+
+export const LEVEL_AUTONOMY_OPTIONS = asOptions([
+  'Trabalha sempre com supervisão direta',
+  'Precisa de orientação frequente',
+  'Trabalha com autonomia em tarefas habituais',
+  'Totalmente autónomo, decide sem supervisão',
+  'Orienta e supervisiona outras pessoas',
+  'Define diretrizes e referências para a organização',
+]);
+
+export const LEVEL_COMPLEXITY_OPTIONS = asOptions([
+  'Tarefas simples e rotineiras',
+  'Tarefas padronizadas com alguma variação',
+  'Tarefas variadas que exigem análise',
+  'Situações complexas com vários fatores',
+  'Problemas novos e de alta complexidade',
+  'Desafios estratégicos e de impacto organizacional',
+]);
+
+export const LEVEL_EVIDENCE_OPTIONS = asOptions([
+  'Cumpre procedimentos e instruções recebidas',
+  'Entrega tarefas dentro do prazo com qualidade aceitável',
+  'Resolve problemas habituais sem apoio',
+  'Propõe melhorias e partilha boas práticas',
+  'Forma e orienta colegas',
+  'Resultados mensuráveis e reconhecidos na área',
+]);
+
+export const LEVEL_CRITERIA_OPTIONS = asOptions([
+  'Observação direta do desempenho',
+  'Avaliação do gestor',
+  'Avaliação 360°',
+  'Teste teórico ou prático',
+  'Análise de resultados e indicadores',
+  'Portefólio de trabalhos e certificações',
+]);
+
+export const LEVEL_BEHAVIORS_OPTIONS = asOptions([
+  'Segue instruções e pede ajuda quando necessário',
+  'Executa o trabalho com atenção e cumpre as regras',
+  'Age com iniciativa e assume responsabilidade pelos resultados',
+  'Antecipa problemas e propõe soluções',
+  'Inspira e desenvolve os outros através do exemplo',
+  'Influencia decisões e lidera mudanças',
+]);
+
+export const LEVEL_DEMONSTRATED_OPTIONS = asOptions([
+  'Conhece os conceitos e a terminologia básicos',
+  'Aplica os conceitos em situações simples',
+  'Aplica os conceitos com segurança em situações variadas',
+  'Domina os conceitos e adapta-os a contextos complexos',
+  'Cria métodos, ensina e é referência na área',
+]);
+
+// Listas de escolha do formulário "Novo modelo de competências" (sugestões;
+// o Combobox também aceita um texto escrito à mão).
+export const MODEL_TYPE_OPTIONS = asOptions([
+  'Liderança',
+  'Vendas',
+  'Recursos Humanos',
+  'Técnico',
+  'Operacional',
+  'Administrativo',
+  'Atendimento ao Cliente',
+  'Tecnologias de Informação',
+  'Finanças',
+  'Transversal (todos os colaboradores)',
+]);
+
+export const MODEL_OBJECTIVE_OPTIONS = asOptions([
+  'Definir o perfil de competências esperado para o cargo',
+  'Apoiar o recrutamento e a seleção',
+  'Orientar a avaliação de desempenho',
+  'Identificar lacunas e necessidades de formação',
+  'Apoiar o plano de carreira e a sucessão',
+  'Alinhar as competências com a estratégia da organização',
+]);
+
+export const MODEL_POSITION_FAMILY_OPTIONS = asOptions([
+  'Direção e Gestão',
+  'Chefia e Coordenação',
+  'Técnico Superior',
+  'Técnico',
+  'Comercial',
+  'Administrativo',
+  'Operacional',
+  'Apoio e Serviços Gerais',
+  'Tecnologias de Informação',
+  'Finanças e Contabilidade',
+  'Recursos Humanos',
+]);

@@ -38,6 +38,51 @@ const STATUS_ITEMS = [
   { value: 'MAINTENANCE', label: 'Manutenção' },
 ];
 
+const ROOM_TYPE_PRESETS = [
+  'Sala de formação',
+  'Sala de reuniões',
+  'Auditório',
+  'Laboratório',
+  'Sala de informática',
+  'Espaço exterior',
+];
+const RESOURCE_CATEGORY_PRESETS = [
+  'Audiovisual',
+  'Informática',
+  'Mobiliário',
+  'Material didáctico',
+  'Alimentação',
+  'Transporte',
+  'Alojamento',
+];
+const LOCATION_PRESETS = [
+  'Sede',
+  'Centro de formação',
+  'Delegação',
+  'Online',
+  'Externo',
+];
+const NONE = '__none__';
+
+/** Presets + valores já usados noutros recursos + valor actual, sem duplicados. */
+function buildOptions(
+  presets: string[],
+  used: (string | null | undefined)[],
+  current: string,
+  noneLabel: string,
+) {
+  const all = [...presets, ...used, current]
+    .map((v) => v?.trim())
+    .filter((v): v is string => !!v);
+  const unique = Array.from(new Set(all)).sort((a, b) =>
+    a.localeCompare(b, 'pt'),
+  );
+  return [
+    { value: NONE, label: noneLabel },
+    ...unique.map((v) => ({ value: v, label: v })),
+  ];
+}
+
 interface UserOption {
   id: number;
   fullName: string;
@@ -60,6 +105,11 @@ export function ResourceFormModal({
     ['training-resources', 'users-picker'],
     '/users',
     { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const { data: existing } = useApiQuery<{ data: TrainingResourceItem[] }>(
+    queryKeys.trainingResources.list({ limit: 100 }),
+    '/training-resources',
+    { params: { limit: 100 }, staleTime: STALE_TIME.DYNAMIC },
   );
   const userItems = (usersResp?.data ?? []).map((u) => ({
     value: String(u.id),
@@ -91,6 +141,19 @@ export function ResourceFormModal({
   const [submitError, setSubmitError] = useState('');
   const error = validationError || submitError;
   const isRoom = form.kind === 'ROOM';
+  const used = existing?.data ?? [];
+  const categoryItems = buildOptions(
+    isRoom ? ROOM_TYPE_PRESETS : RESOURCE_CATEGORY_PRESETS,
+    used.map((r) => r.category),
+    form.category,
+    isRoom ? 'Sem tipo de sala' : 'Sem categoria',
+  );
+  const locationItems = buildOptions(
+    LOCATION_PRESETS,
+    used.map((r) => r.location),
+    form.location,
+    'Sem localização',
+  );
 
   function buildPayload(): Record<string, unknown> {
     const payload: Record<string, unknown> = {
@@ -191,20 +254,24 @@ export function ResourceFormModal({
               label={isRoom ? 'Tipo de sala' : 'Categoria'}
               htmlFor="rf-category"
             >
-              <Input
-                id="rf-category"
-                value={form.category}
-                onChange={(e) => setField('category', e.target.value)}
+              <Combobox
+                items={categoryItems}
+                value={form.category || undefined}
+                onValueChange={(v) => setField('category', v === NONE ? '' : v)}
+                placeholder="Opcional"
+                allowCustom
                 className="w-full"
               />
             </FormField>
           </div>
 
           <FormField label="Localização / Unidade" htmlFor="rf-location">
-            <Input
-              id="rf-location"
-              value={form.location}
-              onChange={(e) => setField('location', e.target.value)}
+            <Combobox
+              items={locationItems}
+              value={form.location || undefined}
+              onValueChange={(v) => setField('location', v === NONE ? '' : v)}
+              placeholder="Opcional"
+              allowCustom
               className="w-full"
             />
           </FormField>
@@ -233,7 +300,7 @@ export function ResourceFormModal({
                 />
               </FormField>
             )}
-            <FormField label="Custo (Kz)" htmlFor="rf-cost">
+            <FormField label="Custo (AOA)" htmlFor="rf-cost">
               <Input
                 id="rf-cost"
                 type="number"

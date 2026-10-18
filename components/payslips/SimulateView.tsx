@@ -144,7 +144,7 @@ export function SimulateView() {
                     htmlFor={`sim-${key}`}
                     className="mb-1 block font-body text-xs text-[#0F1F3D]/70"
                   >
-                    {label} (Kz)
+                    {label} (AOA)
                   </label>
                   <div className="relative">
                     <input
@@ -161,7 +161,7 @@ export function SimulateView() {
                       className="h-10 w-full rounded-lg border border-[#D6E4F5] bg-white pl-3 pr-10 font-body tabular-nums text-sm text-[#0F1F3D] outline-none focus-visible:border-[#0D6EFD] focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/30"
                     />
                     <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-body text-xs text-[#0F1F3D]/50">
-                      Kz
+                      AOA
                     </span>
                   </div>
                 </div>

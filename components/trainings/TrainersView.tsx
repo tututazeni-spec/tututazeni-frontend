@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { INVERT_ON_HOVER } from './buttonStyles';
 import { TRAINER_STATUS_CFG, TRAINER_TYPE_LABEL } from './constants';
 import type { Trainer } from './types';
 import { TrainerFormModal } from './TrainerFormModal';
@@ -66,7 +67,7 @@ export function TrainersView() {
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Button onClick={() => setShowCreate(true)}>
+        <Button className={INVERT_ON_HOVER} onClick={() => setShowCreate(true)}>
           <Plus size={14} strokeWidth={1.75} />
           Novo formador
         </Button>

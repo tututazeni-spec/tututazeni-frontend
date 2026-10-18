@@ -12,13 +12,13 @@
 
 import { useState } from 'react';
 import { useToast } from '@/providers/ToastProvider';
-import Image from 'next/image';
 import {
   ArrowLeft,
   Clock,
+  GraduationCap,
   Globe,
   Star,
-  Trophy,
+  UserCheck,
   Users,
   MapPin,
 } from 'lucide-react';
@@ -26,14 +26,14 @@ import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
-import { StarRating } from './StarRating';
 import { LEVEL_CFG, TYPE_CFG } from './constants';
+import { LEVEL_TONE } from './trainingTones';
 import { fmtDate, fmtHours } from './utils';
 import type { Training, TrainingType } from './types';
 
@@ -152,89 +152,71 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
         Voltar ao catálogo
       </Button>
 
-      {/* Header */}
-      <Card className="mb-5 overflow-hidden">
-        <div className="relative h-40 overflow-hidden bg-gradient-to-br from-primary to-primary-active">
-          {training.thumbnailUrl && (
-            <Image
-              src={training.thumbnailUrl}
-              alt=""
-              fill
-              className="object-cover opacity-40"
-            />
-          )}
-          <div className="absolute inset-0 flex items-end p-5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={`rounded px-2 py-0.5 font-body text-xs font-medium ${typeCfg.cls}`}
-              >
-                {typeCfg.icon} {typeCfg.label}
-              </span>
-              <StatusBadge value={training.level} map={LEVEL_CFG} />
+      {/* Header — mesmo cartão compacto do Calendário */}
+      <div className="mb-5 space-y-3">
+        <NavyCard
+          compact
+          seed={training.colorIndex ?? training.id}
+          image={training.thumbnailUrl}
+          kicker={training.category ?? typeCfg?.label}
+          kickerIcon={GraduationCap}
+          title={training.title}
+          badge={
+            <>
+              <NavyBadge tone={LEVEL_TONE[training.level]}>
+                {LEVEL_CFG[training.level].label}
+              </NavyBadge>
+              {typeCfg && <NavyBadge tone="neutral">{typeCfg.label}</NavyBadge>}
               {training.mandatory && (
-                <span className="rounded bg-danger px-2 py-0.5 font-body text-xs text-canvas">
-                  Obrigatório
-                </span>
+                <NavyBadge tone="danger">Obrigatório</NavyBadge>
               )}
               {training.issueCertificate && (
-                <span className="flex items-center gap-1 rounded bg-accent px-2 py-0.5 font-body text-xs text-canvas">
-                  <Trophy size={12} strokeWidth={1.75} /> Certificado
-                </span>
+                <NavyBadge tone="warning">Certificado</NavyBadge>
               )}
-            </div>
-          </div>
-        </div>
-
-        <div className="p-5">
-          <h1 className="mb-2 font-display text-xl font-bold text-ink">
-            {training.title}
-          </h1>
-          {training.shortDescription && (
-            <p className="mb-3 font-body text-sm text-ink-muted">
-              {training.shortDescription}
-            </p>
-          )}
-
-          <div className="mb-4 flex flex-wrap items-center gap-4 font-body text-xs text-ink-faint">
-            <span className="flex items-center gap-1">
-              <Clock size={14} strokeWidth={1.75} />
-              {fmtHours(training.workloadHours)}
-            </span>
-            <span className="flex items-center gap-1">
-              <Globe size={14} strokeWidth={1.75} />
-              {training.language.toUpperCase()}
-            </span>
-            <span className="flex items-center gap-1">
-              <Users size={14} strokeWidth={1.75} />
-              {training._count.participants} inscritos
-            </span>
-            <StarRating value={training.avgRating ?? null} />
-          </div>
-
-          {training.instructor && (
-            <div className="flex items-center gap-3 rounded-control bg-surface-sunken p-3">
-              <Avatar
-                name={training.instructor.fullName}
-                url={training.instructor.avatarUrl ?? undefined}
-                size="md"
-              />
-              <div>
-                <div className="font-body text-sm font-medium text-ink">
-                  {training.instructor.fullName}
-                </div>
-                <div className="font-body text-xs text-ink-faint">
-                  {training.instructor.position?.name ?? 'Instrutor'}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </Card>
+            </>
+          }
+          infos={[
+            {
+              icon: Clock,
+              value: fmtHours(training.workloadHours),
+              label: 'Carga horária',
+            },
+            {
+              icon: Globe,
+              value: training.language.toUpperCase(),
+              label: 'Idioma',
+            },
+            {
+              icon: Users,
+              value: String(training._count.participants),
+              label: 'Inscritos',
+            },
+            {
+              icon: Star,
+              value:
+                training.avgRating != null
+                  ? `${training.avgRating.toFixed(1)} / 5`
+                  : 'Sem avaliação',
+              label: 'Avaliação',
+            },
+            {
+              icon: UserCheck,
+              value: training.instructor?.fullName ?? 'Sem formador',
+              label: training.instructor?.position?.name ?? 'Instrutor',
+            },
+          ]}
+        />
+        {training.shortDescription && (
+          <p className="font-body text-sm text-ink-muted">
+            {training.shortDescription}
+          </p>
+        )}
+      </div>
 
       {/* Sessões */}
       {training.sessions && training.sessions.length > 0 && (
         <Card className="mb-5 overflow-hidden">
-          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Sessões disponíveis ({training.sessions.length})
           </div>
           {training.sessions.map((session) => {
@@ -326,25 +308,27 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
       )}
 
       {/* Avaliar */}
-      <Card className="mb-5 p-5">
-        <div className="mb-3 font-body text-sm font-semibold text-ink">
+      <Card className="mb-5 overflow-hidden">
+        <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
           Avaliar este treinamento
         </div>
-        <StarPicker rating={rating} onPick={setRating} />
-        <Textarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          rows={2}
-          placeholder="Comentário (opcional)…"
-          className="mb-3 w-full resize-none"
-        />
-        <Button
-          onClick={handleRate}
-          disabled={!rating || submittingRating}
-          loading={submittingRating}
-        >
-          {submittingRating ? 'A enviar…' : 'Enviar avaliação'}
-        </Button>
+        <div className="p-5">
+          <StarPicker rating={rating} onPick={setRating} />
+          <Textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            rows={2}
+            placeholder="Comentário (opcional)…"
+            className="mb-3 w-full resize-none"
+          />
+          <Button
+            onClick={handleRate}
+            disabled={!rating || submittingRating}
+            loading={submittingRating}
+          >
+            {submittingRating ? 'A enviar…' : 'Enviar avaliação'}
+          </Button>
+        </div>
       </Card>
 
       {/* Avaliações dos outros */}

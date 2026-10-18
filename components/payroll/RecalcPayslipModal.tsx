@@ -95,7 +95,7 @@ export function RecalcPayslipModal({
               className="w-full"
             />
           </FormField>
-          <FormField label="Bónus (Kz)" htmlFor="rpm-bonus">
+          <FormField label="Bónus (AOA)" htmlFor="rpm-bonus">
             <Input
               id="rpm-bonus"
               type="number"
@@ -105,7 +105,7 @@ export function RecalcPayslipModal({
               className="w-full"
             />
           </FormField>
-          <FormField label="Adiantamento (Kz)" htmlFor="rpm-advance">
+          <FormField label="Adiantamento (AOA)" htmlFor="rpm-advance">
             <Input
               id="rpm-advance"
               type="number"

@@ -54,7 +54,8 @@ body {
   background: var(--content-bg);
   color: var(--text-primary);
   font-family:
-    'Segoe UI',
+    var(--font-inter),
+    'Inter',
     system-ui,
     -apple-system,
     sans-serif;
@@ -160,7 +161,9 @@ body {
      --font-mono nativa, e 123 ficheiros pré-existentes usam a utility
      `font-mono` a contar com a stack default do Tailwind; usar o mesmo
      nome aqui reskinava-os todos silenciosamente. */
-  --font-display: var(--font-sora);
+  /* Inter em todo o projecto: display aponta para a mesma fonte do corpo
+     (a classe font-display continua a existir, só deixou de ser Sora). */
+  --font-display: var(--font-inter);
   --font-body: var(--font-inter);
   --font-data: var(--font-plex-mono);
 }

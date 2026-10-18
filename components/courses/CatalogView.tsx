@@ -133,7 +133,7 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
           <div className="text-xs text-ink-faint mb-4">
             {data.total} cursos encontrados
           </div>
-          <div className="grid grid-cols-1 gap-4 mb-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid auto-rows-fr grid-cols-1 gap-4 mb-6 md:grid-cols-2 xl:grid-cols-3">
             {[...data.data]
               .sort((a, b) => a.id - b.id)
               .map((course) => (

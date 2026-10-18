@@ -23,7 +23,9 @@ const course: CourseCardData = {
 describe('CourseListCard', () => {
   test('mostra título, imagem e metadados', () => {
     render(<CourseListCard courseId={1} course={course} onSelect={() => {}} />);
-    expect(screen.getByText('Segurança no Trabalho')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Segurança no Trabalho' }),
+    ).toBeInTheDocument();
     expect(screen.queryByText(/^#/)).not.toBeInTheDocument();
     expect(screen.getByRole('img')).toHaveAttribute(
       'src',

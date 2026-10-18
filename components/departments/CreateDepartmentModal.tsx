@@ -18,6 +18,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Button } from '@/components/ui/Button';
+import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -26,6 +27,10 @@ import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/providers/ToastProvider';
 import type { DepartmentNode } from './types';
 import { DepartmentUserPicker } from './DepartmentUserPicker';
+import {
+  COST_CENTER_OPTIONS,
+  FUNCTIONAL_AREA_OPTIONS,
+} from './departmentOptions';
 import { useUnits, type DirectoryUser } from './departmentFormData';
 
 export interface CreateDepartmentModalProps {
@@ -238,12 +243,13 @@ export function CreateDepartmentModal({
             </FormField>
 
             <FormField label="Área funcional" htmlFor="cd-functional-area">
-              <Input
-                id="cd-functional-area"
-                value={functionalArea}
-                onChange={(e) => setFunctionalArea(e.target.value)}
-                placeholder="Ex.: Gestão de Pessoas"
-                maxLength={120}
+              <Combobox
+                items={FUNCTIONAL_AREA_OPTIONS}
+                value={functionalArea || undefined}
+                onValueChange={setFunctionalArea}
+                placeholder="Selecionar área funcional"
+                searchPlaceholder="Escreva para filtrar ou indicar outra…"
+                allowCustom
               />
             </FormField>
 
@@ -349,15 +355,17 @@ export function CreateDepartmentModal({
 
           <Section title="Orçamento e capacidade">
             <FormField label="Centro de custo" htmlFor="cd-cost-center">
-              <Input
-                id="cd-cost-center"
-                value={costCenter}
-                onChange={(e) => setCostCenter(e.target.value)}
-                placeholder="Ex.: CC-100"
+              <Combobox
+                items={COST_CENTER_OPTIONS}
+                value={costCenter || undefined}
+                onValueChange={setCostCenter}
+                placeholder="Selecionar centro de custo"
+                searchPlaceholder="Escreva para filtrar ou indicar outro…"
+                allowCustom
               />
             </FormField>
 
-            <FormField label="Orçamento anual (Kz)" htmlFor="cd-budget">
+            <FormField label="Orçamento anual (AOA)" htmlFor="cd-budget">
               <Input
                 id="cd-budget"
                 type="number"
