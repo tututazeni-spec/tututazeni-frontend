@@ -20,6 +20,7 @@ import {
   MessageCircle,
   Paperclip,
   Layers,
+  type LucideIcon,
   Star,
   Target,
   TrendingUp,
@@ -31,11 +32,7 @@ import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
-import {
-  NavyBadge,
-  NavyCard,
-  type NavyTone,
-} from '@/components/courses/NavyCard';
+import { EventBadge } from '@/components/events/EventBadges';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -117,6 +114,72 @@ const TABS = [
   { id: 'checkpoints', label: 'Checkpoints', Icon: MapPin },
   { id: 'diagnosis', label: 'Diagnóstico', Icon: FileText },
 ] as const;
+
+interface DiagnosisRow {
+  icon: LucideIcon;
+  value: string;
+  label: string;
+}
+
+// Cartão claro do separador Diagnóstico: círculo com ícone na cor do PDI,
+// título azul-marinho, etiqueta opcional e linhas com valor + legenda.
+function DiagnosisCard({
+  palette,
+  icon: Icon,
+  title,
+  badge,
+  rows,
+}: {
+  palette: readonly string[];
+  icon: LucideIcon;
+  title: string;
+  badge?: React.ReactNode;
+  rows: DiagnosisRow[];
+}) {
+  return (
+    <section className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="flex flex-wrap items-center gap-4 px-6 pt-6">
+        <span
+          aria-hidden
+          className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full text-white"
+          style={{ background: palette[3] }}
+        >
+          <Icon size={24} strokeWidth={1.75} />
+        </span>
+        <h3 className="min-w-0 flex-1 break-words font-display text-xl font-bold text-[#0F1F3D]">
+          {title}
+        </h3>
+        {badge}
+      </div>
+      {rows.length > 0 && (
+        <div className="mt-4 divide-y divide-[#E6ECF4] border-t border-[#E6ECF4]">
+          {rows.map((r, i) => (
+            <div key={i} className="flex items-center gap-3 px-6 py-3.5">
+              <span
+                aria-hidden
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EEF4FD]"
+                style={{ color: palette[0] }}
+              >
+                <r.icon size={18} strokeWidth={1.75} />
+              </span>
+              <div className="min-w-0">
+                <div className="break-words font-body text-[15px] font-medium text-[#0F1F3D]">
+                  {r.value}
+                </div>
+                {r.label && (
+                  <div className="break-words font-body text-xs text-[#49658A]">
+                    {r.label}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {rows.length === 0 && <div className="pb-6" />}
+    </section>
+  );
+}
 
 export function DetailView({ planId, onBack }: DetailViewProps) {
   const notify = useToast();
@@ -648,23 +711,23 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       )}
 
       {/* Diagnóstico (origem, pontos fortes/necessidades, competências, carreira)
-          — cartões pequenos, o mesmo desenho (NavyCard compact) do detalhe de
-          uma formação. */}
+          — cartões claros, o mesmo desenho do cartão principal do PDI
+          (workshop de inovação.jpeg). */}
       {activeTab === 'diagnosis' && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {hasDiagnosis && (
-            <NavyCard
-              compact
-              seed={diagSeed}
-              kicker="Diagnóstico"
-              kickerIcon={FileText}
+            <DiagnosisCard
+              palette={palette}
+              icon={FileText}
               title="Diagnóstico"
               badge={
                 plan.origin ? (
-                  <NavyBadge tone="info">{ORIGIN_CFG[plan.origin]}</NavyBadge>
+                  <EventBadge color="#1267B8">
+                    {ORIGIN_CFG[plan.origin]}
+                  </EventBadge>
                 ) : undefined
               }
-              infos={[
+              rows={[
                 ...textLines(plan.originJustification).map((l) => ({
                   icon: FileText,
                   value: l,
@@ -689,13 +752,11 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
             />
           )}
           {plan.careerPlan && (
-            <NavyCard
-              compact
-              seed={diagSeed + 3}
-              kicker="Carreira"
-              kickerIcon={TrendingUp}
+            <DiagnosisCard
+              palette={palette}
+              icon={TrendingUp}
               title="Objectivo de carreira associado"
-              infos={[
+              rows={[
                 {
                   icon: TrendingUp,
                   value: plan.careerPlan.title,
