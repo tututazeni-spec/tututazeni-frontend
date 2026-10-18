@@ -1,8 +1,9 @@
 // components/events/EventListCard.tsx
-// Cartão de evento da aba "Eventos". Mesmo desenho do TemplateCard do
-// onboarding ("Planos de Integração"), mas com a cor na parte de baixo e,
-// no topo, a imagem do evento (Event.bannerUrl, carregada no CreateEventModal).
-// Sem imagem, o topo mostra um fundo neutro com o ícone do tipo de evento.
+// Cartão de evento da aba "Eventos", no desenho de public/images/card para
+// cursos criados.jpeg: a imagem do evento (Event.bannerUrl) ocupa o topo e
+// desvanece para azul-marinho; por baixo, data/participantes e
+// organizador/local, e o título com barra azul e botão redondo de abrir.
+// Sem imagem, o topo mostra o ícone do tipo de evento.
 
 'use client';
 
@@ -11,10 +12,10 @@ import {
   ChevronRight,
   MapPin,
   MoreVertical,
+  User,
   Users,
   type LucideIcon,
 } from 'lucide-react';
-import { Avatar } from '@/components/ui/Avatar';
 import { formatDate as fmtDate } from '@/lib/format';
 import {
   DropdownMenu,
@@ -22,10 +23,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import {
-  headerBackground,
-  PALETTE,
-} from '@/components/onboarding/TemplateCard';
+import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { STATUS_CFG, TYPE_CFG } from './constants';
 import type { Event } from './types';
 
@@ -84,6 +82,21 @@ export function InfoRow({
   );
 }
 
+function Fact({
+  icon: Icon,
+  children,
+}: {
+  icon: LucideIcon;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex min-w-0 items-center gap-3 text-[15px] font-medium text-white">
+      <Icon size={22} strokeWidth={1.5} className="shrink-0" aria-hidden />
+      <span className="line-clamp-1 break-words">{children}</span>
+    </div>
+  );
+}
+
 export function EventListCard({
   event: e,
   onOpen,
@@ -97,10 +110,6 @@ export function EventListCard({
   const palette = PALETTE[Math.abs(e.id) % PALETTE.length];
   const typeCfg = TYPE_CFG[e.type] ?? TYPE_CFG.CORPORATE;
   const TypeIcon = typeCfg.icon;
-  // Referência visível: código interno ou, se não houver, o id do evento
-  const reference = e.code
-    ? `#${e.code}`
-    : `#EVT-${String(e.id).padStart(4, '0')}`;
   const place = e.location ?? (e.modalidade === 'ONLINE' ? 'Online' : null);
   const subtitle = [
     e.category ?? typeCfg.label,
@@ -108,7 +117,7 @@ export function EventListCard({
     e.unit?.name,
   ]
     .filter(Boolean)
-    .join(' · ');
+    .join(' - ');
 
   return (
     <div
@@ -122,10 +131,13 @@ export function EventListCard({
           onOpen();
         }
       }}
-      className="flex cursor-pointer flex-col overflow-hidden rounded-[20px] border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-shadow duration-150 hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+      className="relative flex cursor-pointer flex-col overflow-hidden rounded-[20px] text-white shadow-[0_4px_14px_rgba(21,47,89,0.25)] transition-all duration-200 ease-out hover:shadow-[0_10px_24px_rgba(21,47,89,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+      style={{
+        background: `linear-gradient(180deg, ${palette[1]} 0%, ${palette[2]} 60%, ${palette[2]} 100%)`,
+      }}
     >
-      {/* Topo: imagem do evento */}
-      <div className="relative h-[190px] shrink-0 bg-[#E3EAF4]">
+      {/* Topo: imagem do evento a desvanecer para o azul-marinho */}
+      <div className="relative h-[230px] shrink-0">
         {e.bannerUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -134,10 +146,17 @@ export function EventListCard({
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-[#49658A]">
-            <TypeIcon size={48} strokeWidth={1.5} aria-hidden />
+          <div className="flex h-full w-full items-center justify-center text-white/50">
+            <TypeIcon size={56} strokeWidth={1.25} aria-hidden />
           </div>
         )}
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(180deg, ${palette[2]}00 40%, ${palette[2]}D9 80%, ${palette[1]} 100%)`,
+          }}
+        />
         <div className="absolute right-4 top-4 flex items-center gap-2">
           <StatusBadge value={e.status} map={STATUS_CFG} />
           {menu && (
@@ -148,9 +167,9 @@ export function EventListCard({
                   aria-label="Acções do evento"
                   onClick={(ev) => ev.stopPropagation()}
                   onKeyDown={(ev) => ev.stopPropagation()}
-                  className="rounded-full bg-white/90 p-1.5 text-[#0F1F3D] shadow-sm hover:bg-white"
+                  className="rounded-full bg-[#0F1F3D] p-2.5 text-white shadow-sm hover:bg-[#162B52]"
                 >
-                  <MoreVertical size={16} strokeWidth={1.75} />
+                  <MoreVertical size={18} strokeWidth={1.75} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">{menu}</DropdownMenuContent>
@@ -159,49 +178,36 @@ export function EventListCard({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-y-2 divide-x divide-[#E6ECF4] px-7 py-6">
-        <Metric icon={CalendarDays}>{fmtDate(e.startAt)}</Metric>
-        <Metric icon={Users}>
-          {e.confirmedCount ?? 0}/{e._count.participants} · {e.maxCapacity}
-        </Metric>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-4 px-6 pt-1">
+        <Fact icon={CalendarDays}>{fmtDate(e.startAt)}</Fact>
+        <Fact icon={Users}>
+          {e.confirmedCount ?? 0}/{e._count.participants} - {e.maxCapacity}
+        </Fact>
+        <Fact icon={User}>{e.organizer.fullName}</Fact>
+        {place ? <Fact icon={MapPin}>{place}</Fact> : <span />}
       </div>
 
-      <div className="mx-7 border-t border-[#E6ECF4]" />
-
-      <div className="flex-1 space-y-2 px-7 py-6">
-        <InfoRow
-          accent={palette[3]}
-          leading={
-            <Avatar
-              name={e.organizer.fullName}
-              url={e.organizer.avatarUrl ?? undefined}
-              size="sm"
-            />
-          }
+      <div className="mt-6 flex flex-1 items-center gap-4 px-6 pb-6">
+        <span
+          aria-hidden
+          className="h-16 w-1 shrink-0 self-stretch rounded-full"
+          style={{ background: palette[0] }}
+        />
+        <div className="min-w-0 flex-1">
+          <h3 className="line-clamp-2 font-display text-[24px] font-semibold leading-tight">
+            {e.title}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-[15px] text-[#C7D4E8]">
+            {subtitle}
+          </p>
+        </div>
+        <span
+          aria-hidden
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white"
+          style={{ background: palette[0] }}
         >
-          {e.organizer.fullName}
-        </InfoRow>
-        {place && (
-          <InfoRow icon={MapPin} accent={palette[3]}>
-            {place}
-          </InfoRow>
-        )}
-      </div>
-
-      {/* Base: cor do cartão */}
-      <div
-        className="h-[180px] shrink-0 overflow-hidden p-6 text-white"
-        style={{ background: headerBackground(palette) }}
-      >
-        <h3 className="line-clamp-2 font-display text-[22px] font-semibold leading-tight">
-          {e.title}
-        </h3>
-        <p className="mt-1 min-h-5 font-mono text-sm text-white/70">
-          {e.status !== 'PUBLISHED' ? reference : null}
-        </p>
-        <p className="mt-1 line-clamp-2 text-[17px] text-white/80">
-          {subtitle}
-        </p>
+          <ChevronRight size={26} strokeWidth={2} />
+        </span>
       </div>
     </div>
   );
