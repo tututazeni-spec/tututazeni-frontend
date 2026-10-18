@@ -13,7 +13,9 @@ export type FieldKind =
   | 'textarea'
   | 'select'
   | 'country'
-  | 'province';
+  | 'province'
+  | 'photo'
+  | 'user';
 
 export interface FieldOption {
   value: string;
@@ -37,6 +39,160 @@ export interface SectionDef {
 }
 
 const EMPTY: FieldOption = { value: '', label: '—' };
+
+/** Opção para deixar o campo em branco, sempre a primeira da lista. */
+const BLANK: FieldOption = { value: '', label: 'Não escolher (em branco)' };
+
+/** Lista de escolha em que o valor guardado é o próprio texto. */
+const list = (labels: string[]): FieldOption[] => [
+  BLANK,
+  ...labels.map((l) => ({ value: l, label: l })),
+];
+
+/** Tamanho máximo da fotografia (4 MB). */
+export const PHOTO_MAX_BYTES = 4 * 1024 * 1024;
+
+const ID_DOCUMENT_OPTIONS = list([
+  'Bilhete de Identidade',
+  'Passaporte',
+  'Cartão de Residente',
+  'Cédula Pessoal',
+  'Cartão de Eleitor',
+  'Carta de Condução',
+  'Cartão de Contribuinte (NIF)',
+  'Outro',
+]);
+
+const CATEGORY_OPTIONS = list([
+  'Aluno',
+  'Antigo aluno',
+  'Família',
+  'Comunidade',
+  'Instituição parceira',
+  'Colaborador',
+  'Outra',
+]);
+
+const SEGMENT_OPTIONS = list([
+  'Criança',
+  'Jovem',
+  'Adulto',
+  'Idoso',
+  'Pessoa com deficiência',
+  'Mulher',
+  'Família vulnerável',
+  'Outro',
+]);
+
+const PROFILE_OPTIONS = list([
+  'Em situação de vulnerabilidade',
+  'Em risco de abandono escolar',
+  'Em procura de emprego',
+  'Empreendedor',
+  'Estudante',
+  'Líder comunitário',
+  'Outro',
+]);
+
+const SOURCE_OPTIONS = list([
+  'Candidatura espontânea',
+  'Indicação de parceiro',
+  'Indicação de beneficiário',
+  'Campanha de divulgação',
+  'Evento',
+  'Redes sociais',
+  'Website',
+  'Instituição pública',
+  'Outra',
+]);
+
+const PROGRAM_OPTIONS = list([
+  'Apoio Educativo',
+  'Apoio Social',
+  'Formação Profissional',
+  'Emprego e Empreendedorismo',
+  'Saúde e Bem-Estar',
+  'Apoio Alimentar',
+  'Habitação',
+  'Outro',
+]);
+
+const UNIT_OPTIONS = list([
+  'Acção Social',
+  'Educação',
+  'Formação',
+  'Saúde',
+  'Comunidade',
+  'Apoio Jurídico',
+  'Sede',
+]);
+
+const EMPLOYMENT_OPTIONS = list([
+  'Empregado por conta de outrem',
+  'Trabalhador por conta própria',
+  'Desempregado',
+  'Estudante',
+  'Reformado',
+  'Doméstico(a)',
+  'Incapacitado para o trabalho',
+  'Outra',
+]);
+
+const HOUSEHOLD_RELATION_OPTIONS = list([
+  'O próprio',
+  'Cônjuge',
+  'Filho(a)',
+  'Pai / Mãe',
+  'Irmão(ã)',
+  'Avô / Avó',
+  'Outro familiar',
+  'Sem parentesco',
+]);
+
+const INCOME_SOURCE_OPTIONS = list([
+  'Salário',
+  'Negócio próprio',
+  'Biscates',
+  'Agricultura',
+  'Pensão / Reforma',
+  'Apoio familiar',
+  'Apoio social',
+  'Sem rendimento',
+  'Outra',
+]);
+
+const HOUSING_OPTIONS = list([
+  'Casa própria',
+  'Arrendada',
+  'Cedida',
+  'Casa de familiares',
+  'Casa partilhada',
+  'Abrigo / alojamento temporário',
+  'Sem abrigo',
+  'Outra',
+]);
+
+const ELIGIBILITY_OPTIONS = list([
+  'Agregado em situação de vulnerabilidade',
+  'Rendimento mensal abaixo do limiar definido',
+  'Desempregado há mais de 6 meses',
+  'Residente na área de intervenção',
+  'Criança ou jovem em idade escolar',
+  'Pessoa com deficiência',
+  'Idoso sem apoio familiar',
+  'Encaminhado por instituição parceira',
+]);
+
+const FOLLOW_UP_PLAN_OPTIONS = list([
+  'Contacto semanal',
+  'Contacto quinzenal',
+  'Contacto mensal',
+  'Visita domiciliária',
+  'Acompanhamento psicossocial',
+  'Acompanhamento escolar',
+  'Orientação profissional',
+  'Reavaliação trimestral',
+]);
 
 export const PRIORITY_OPTIONS: FieldOption[] = [
   EMPTY,
@@ -156,12 +312,22 @@ export const CREATE_SECTIONS: SectionDef[] = [
       },
       { key: 'nationality', label: 'Nacionalidade', kind: 'country' },
       { key: 'nif', label: 'NIF' },
-      { key: 'idDocumentType', label: 'Documento de identificação' },
+      {
+        key: 'idDocumentType',
+        label: 'Documento de identificação',
+        kind: 'select',
+        options: ID_DOCUMENT_OPTIONS,
+      },
       { key: 'idDocumentNumber', label: 'Número do documento' },
       { key: 'idDocumentIssuedAt', label: 'Data de emissão', kind: 'date' },
       { key: 'idDocumentExpiresAt', label: 'Data de validade', kind: 'date' },
       { key: 'idDocumentCountry', label: 'País de emissão', kind: 'country' },
-      { key: 'photoUrl', label: 'Fotografia (URL)' },
+      {
+        key: 'photoUrl',
+        label: 'Fotografia (máx. 4 MB)',
+        kind: 'photo',
+        wide: true,
+      },
       { key: 'email', label: 'E-mail', kind: 'email' },
       { key: 'phone', label: 'Telefone' },
       { key: 'mobile', label: 'Telemóvel' },
@@ -189,11 +355,36 @@ export const CREATE_SECTIONS: SectionDef[] = [
     id: 'classificacao',
     title: 'Classificação CRM',
     fields: [
-      { key: 'category', label: 'Categoria' },
-      { key: 'segment', label: 'Segmento' },
-      { key: 'profile', label: 'Perfil' },
-      { key: 'source', label: 'Origem' },
-      { key: 'programName', label: 'Programa associado' },
+      {
+        key: 'category',
+        label: 'Categoria',
+        kind: 'select',
+        options: CATEGORY_OPTIONS,
+      },
+      {
+        key: 'segment',
+        label: 'Segmento',
+        kind: 'select',
+        options: SEGMENT_OPTIONS,
+      },
+      {
+        key: 'profile',
+        label: 'Perfil',
+        kind: 'select',
+        options: PROFILE_OPTIONS,
+      },
+      {
+        key: 'source',
+        label: 'Origem',
+        kind: 'select',
+        options: SOURCE_OPTIONS,
+      },
+      {
+        key: 'programName',
+        label: 'Programa associado',
+        kind: 'select',
+        options: PROGRAM_OPTIONS,
+      },
       { key: 'originInstitution', label: 'Instituição de origem' },
       {
         key: 'status',
@@ -204,14 +395,19 @@ export const CREATE_SECTIONS: SectionDef[] = [
       { key: 'registeredAt', label: 'Data de registo', kind: 'date' },
       {
         key: 'assignedToId',
-        label: 'Responsável pelo acompanhamento (ID utilizador)',
-        kind: 'number',
+        label: 'Responsável pelo acompanhamento (nome ou ID)',
+        kind: 'user',
       },
-      { key: 'responsibleUnit', label: 'Unidade responsável' },
+      {
+        key: 'responsibleUnit',
+        label: 'Unidade responsável',
+        kind: 'select',
+        options: UNIT_OPTIONS,
+      },
       {
         key: 'accountManagerId',
-        label: 'Gestor de conta (ID utilizador)',
-        kind: 'number',
+        label: 'Gestor de conta (nome ou ID)',
+        kind: 'user',
       },
       {
         key: 'priority',
@@ -236,13 +432,33 @@ export const CREATE_SECTIONS: SectionDef[] = [
         kind: 'number',
       },
       { key: 'householdHeadName', label: 'Responsável pelo agregado' },
-      { key: 'householdHeadRelation', label: 'Relação com o responsável' },
-      { key: 'employmentStatus', label: 'Situação profissional' },
+      {
+        key: 'householdHeadRelation',
+        label: 'Relação com o responsável',
+        kind: 'select',
+        options: HOUSEHOLD_RELATION_OPTIONS,
+      },
+      {
+        key: 'employmentStatus',
+        label: 'Situação profissional',
+        kind: 'select',
+        options: EMPLOYMENT_OPTIONS,
+      },
       { key: 'employer', label: 'Entidade empregadora' },
       { key: 'jobTitle', label: 'Cargo' },
       { key: 'monthlyIncome', label: 'Rendimento mensal', kind: 'number' },
-      { key: 'incomeSource', label: 'Fonte de rendimento' },
-      { key: 'housingSituation', label: 'Situação habitacional' },
+      {
+        key: 'incomeSource',
+        label: 'Fonte de rendimento',
+        kind: 'select',
+        options: INCOME_SOURCE_OPTIONS,
+      },
+      {
+        key: 'housingSituation',
+        label: 'Situação habitacional',
+        kind: 'select',
+        options: HOUSING_OPTIONS,
+      },
     ],
   },
   {
@@ -259,8 +475,8 @@ export const CREATE_SECTIONS: SectionDef[] = [
       {
         key: 'eligibilityCriteria',
         label: 'Critérios de elegibilidade',
-        kind: 'textarea',
-        wide: true,
+        kind: 'select',
+        options: ELIGIBILITY_OPTIONS,
       },
       {
         key: 'goals',
@@ -271,8 +487,8 @@ export const CREATE_SECTIONS: SectionDef[] = [
       {
         key: 'followUpPlan',
         label: 'Plano de acompanhamento',
-        kind: 'textarea',
-        wide: true,
+        kind: 'select',
+        options: FOLLOW_UP_PLAN_OPTIONS,
       },
       { key: 'notes', label: 'Observações', kind: 'textarea', wide: true },
     ],

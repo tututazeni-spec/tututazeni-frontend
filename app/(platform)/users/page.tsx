@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { PillNav } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { NAV, TITLES } from '@/components/users/constants';
 import { CreateUserView } from '@/components/users/CreateUserView';
 import { DashboardView } from '@/components/users/DashboardView';
@@ -39,42 +40,42 @@ export default function UsersPage() {
   const handleCreated = () => setNav({ view: 'list' });
 
   const hasOwnHeader = nav.view === 'permissions';
+  const hasTabs = nav.view !== 'detail' && nav.view !== 'create';
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Header */}
       {!hasOwnHeader && (
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-xl font-semibold text-ink">
-              {TITLES[nav.view]}
-            </h1>
-            <p className="text-sm text-ink-faint mt-0.5"></p>
-          </div>
-          {nav.view === 'list' && (
-            <div className="flex gap-2">
-              <Button onClick={handleCreate}>
-                <Plus size={16} strokeWidth={1.75} />
-                Novo utilizador
-              </Button>
-              <Button
-                intent="secondary"
-                onClick={() => setNav({ view: 'import' })}
-              >
-                Importar
-              </Button>
-            </div>
-          )}
-        </div>
+        <ModuleBanner
+          src="/images/utilizadores.jpg"
+          title={TITLES[nav.view]}
+          hint={NAV.find((n) => n.id === nav.view)?.hint}
+          className={hasTabs ? undefined : 'mb-6'}
+          action={
+            nav.view === 'list' ? (
+              <div className="flex gap-2">
+                <Button onClick={handleCreate}>
+                  <Plus size={16} strokeWidth={1.75} />
+                  Novo utilizador
+                </Button>
+                <Button
+                  intent="secondary"
+                  onClick={() => setNav({ view: 'import' })}
+                >
+                  Importar
+                </Button>
+              </div>
+            ) : undefined
+          }
+        />
       )}
 
-      {nav.view !== 'detail' && nav.view !== 'create' && (
+      {hasTabs && (
         <PillNav
           items={NAV}
           value={nav.view}
           onChange={(id) => setNav({ view: id } as Nav)}
           label="Utilizadores"
-          className="mb-6"
+          className={BANNER_TABS_CLASS}
         />
       )}
 

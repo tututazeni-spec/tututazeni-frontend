@@ -19,10 +19,6 @@ import {
   Star,
   CheckCircle2,
   Timer,
-  PlusCircle,
-  Settings,
-  ClipboardCheck,
-  FileBarChart,
   Radio,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -36,12 +32,10 @@ import {
 } from '@/components/ui/charts/SpeedometerStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton, fmtDuration } from './shared';
-import type { AdminDashboard, TopLevelView } from './types';
+import type { AdminDashboard } from './types';
 
 interface AdminDashboardViewProps {
   onSelect: (id: number) => void;
-  onNavigate: (view: TopLevelView) => void;
-  onCreateCourse: () => void;
 }
 
 const ALERT_TITLE = {
@@ -94,36 +88,7 @@ function CourseRankList({
   );
 }
 
-const SHORTCUTS: Array<{
-  icon: typeof PlusCircle;
-  label: string;
-  action: (nav: (v: TopLevelView) => void, create: () => void) => void;
-}> = [
-  { icon: PlusCircle, label: 'Criar curso', action: (_n, create) => create() },
-  { icon: Settings, label: 'Gerir cursos', action: (n) => n('catalog') },
-  {
-    icon: Layers,
-    label: 'Gerir módulos e lições',
-    action: (n) => n('catalog'),
-  },
-  {
-    icon: ClipboardCheck,
-    label: 'Gerir inscrições',
-    action: (n) => n('inscricoes'),
-  },
-  {
-    icon: Award,
-    label: 'Gerir certificados',
-    action: (n) => n('certificates'),
-  },
-  { icon: FileBarChart, label: 'Ver progresso', action: (n) => n('progresso') },
-];
-
-export function AdminDashboardView({
-  onSelect,
-  onNavigate,
-  onCreateCourse,
-}: AdminDashboardViewProps) {
+export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
   const { data, isLoading } = useApiQuery<AdminDashboard>(
     queryKeys.courses.adminDashboard(),
     '/courses/admin/dashboard',
@@ -136,21 +101,6 @@ export function AdminDashboardView({
 
   return (
     <div className="space-y-6">
-      {/* Atalhos */}
-      <div className="flex flex-wrap gap-2">
-        {SHORTCUTS.map((s) => (
-          <button
-            key={s.label}
-            type="button"
-            onClick={() => s.action(onNavigate, onCreateCourse)}
-            className="inline-flex min-h-11 items-center gap-2.5 rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 active:bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
-          >
-            <s.icon size={16} strokeWidth={1.75} />
-            {s.label}
-          </button>
-        ))}
-      </div>
-
       {/* Alertas e pendências */}
       {data.alerts.length > 0 && (
         <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
@@ -195,7 +145,7 @@ export function AdminDashboardView({
         <NavyStatCard
           label="Arquivados"
           value={counts.archived}
-          tone="red"
+          tone="gray"
           icon={Trash2}
         />
         <NavyStatCard

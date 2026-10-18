@@ -26,6 +26,7 @@ import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import {
@@ -370,17 +371,14 @@ export default function MonitoringPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-4 p-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-ink">
-          Monitorização
-        </h1>
-        <p className="font-body text-sm text-ink-muted">
-          O que está a acontecer agora e o que está em risco.
-        </p>
-      </div>
+    <div className="mx-auto max-w-7xl p-6">
+      <ModuleBanner
+        src="/images/monitorização.jpg"
+        title="Monitorização"
+        hint="O que está a acontecer agora e o que está em risco."
+      />
       <Tabs value={tab} onValueChange={setTab}>
-        <PillTabsList items={TABS} className="mb-4" />
+        <PillTabsList items={TABS} className={BANNER_TABS_CLASS} />
         <TabsContent value="overview" className="mt-4">
           <Body query={overview}>{(d) => <OverviewTab data={d} />}</Body>
         </TabsContent>

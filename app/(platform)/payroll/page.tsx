@@ -1,6 +1,7 @@
 'use client';
 
 import { PillNav } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import {
   Banknote,
   BarChart3,
@@ -244,11 +245,12 @@ export default function PayrollPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="mb-6">
-        <h1 className="font-display text-xl font-semibold text-ink">
-          {TITLES[nav.tab]}
-        </h1>
-      </div>
+      <ModuleBanner
+        src="/images/folha de pagamento.jpg"
+        title={TITLES[nav.tab]}
+        hint={visibleTabs.find((t) => t.id === nav.tab)?.hint}
+        className={isDetail ? 'mb-6' : undefined}
+      />
 
       {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
       {!isDetail && (
@@ -257,7 +259,7 @@ export default function PayrollPage() {
           value={nav.tab}
           onChange={(id) => selectTab(id as Nav['tab'])}
           label="Folha salarial"
-          className="mb-6"
+          className={BANNER_TABS_CLASS}
         />
       )}
 

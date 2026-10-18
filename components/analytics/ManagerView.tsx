@@ -26,7 +26,7 @@ import {
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BarChart } from '@/components/ui/charts/BarChart';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { PeriodPills } from '@/components/ui/Pills';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { NineBox } from './NineBox';
 import type { ManagerDashboard } from './types';
@@ -98,105 +98,107 @@ export function ManagerView() {
       )}
 
       {/* Tabs */}
-      <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-        <TabsList className="mb-6 w-fit gap-10">
-          <TabsTrigger value="overview">Equipa</TabsTrigger>
-          <TabsTrigger value="ninebox">
-            Matriz de Desempenho e Potencial (9-Box)
-          </TabsTrigger>
-          <TabsTrigger value="gaps">Lacunas de Competências</TabsTrigger>
-        </TabsList>
+      <PeriodPills
+        label="Equipa"
+        value={tab}
+        onChange={setTab}
+        options={[
+          { value: 'overview', label: 'Equipa' },
+          {
+            value: 'ninebox',
+            label: 'Matriz de Desempenho e Potencial (9-Box)',
+          },
+          { value: 'gaps', label: 'Lacunas de Competências' },
+        ]}
+      />
 
-        <TabsContent value="overview">
-          <div className="space-y-2">
-            {data.team.map((u) => (
-              <div
-                key={u.id}
-                className="flex items-center gap-3 rounded-card border border-border bg-surface px-4 py-3"
-              >
-                <Avatar
-                  name={u.fullName}
-                  url={u.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-ink">
-                    {u.fullName}
-                  </div>
-                  <div className="text-xs text-ink-faint">
-                    {u.position?.name} · {u.department?.name}
-                  </div>
+      {tab === 'overview' && (
+        <div className="space-y-2">
+          {data.team.map((u) => (
+            <div
+              key={u.id}
+              className="flex items-center gap-3 rounded-card border border-border bg-surface px-4 py-3"
+            >
+              <Avatar
+                name={u.fullName}
+                url={u.avatarUrl ?? undefined}
+                size="sm"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-ink">{u.fullName}</div>
+                <div className="text-xs text-ink-faint">
+                  {u.position?.name} · {u.department?.name}
                 </div>
               </div>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="ninebox">
-          <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
-              Matriz 9-Box
             </div>
-            <CardBody>
-              <ErrorBoundary source="analytics.NineBox">
-                <NineBox data={nineBox} />
-              </ErrorBoundary>
-              {nineBox.length === 0 && (
-                <div className="text-center text-sm text-ink-faint py-6">
-                  Sem dados de 9-box para a equipa
+          ))}
+        </div>
+      )}
+
+      {tab === 'ninebox' && (
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Matriz 9-Box
+          </div>
+          <CardBody>
+            <ErrorBoundary source="analytics.NineBox">
+              <NineBox data={nineBox} />
+            </ErrorBoundary>
+            {nineBox.length === 0 && (
+              <div className="text-center text-sm text-ink-faint py-6">
+                Sem dados de 9-box para a equipa
+              </div>
+            )}
+          </CardBody>
+        </Card>
+      )}
+
+      {tab === 'gaps' && (
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            Top De Lacunas de Competências
+          </div>
+          <CardBody>
+            {competencyGaps.length > 0 && (
+              <BarChart
+                orientation="horizontal"
+                categories={competencyGaps.map((g) => g.name)}
+                series={[
+                  {
+                    label: 'Lacuna média',
+                    values: competencyGaps.map((g) => g.avgGap),
+                  },
+                ]}
+                yFormat={(v) => v.toFixed(1)}
+                className="mb-4"
+              />
+            )}
+            <div className="space-y-3">
+              {competencyGaps.map((g) => (
+                <div key={g.name} className="flex items-center gap-3">
+                  <div className="text-xs text-ink-muted w-40 truncate">
+                    {g.name}
+                  </div>
+                  <div className="flex-1">
+                    <ProgressBar value={Math.min(g.avgGap * 20, 100)} />
+                  </div>
+                  <div className="text-xs font-data text-black flex-shrink-0 w-12 text-right">
+                    Lacuna: {g.avgGap}
+                  </div>
+                  <div className="text-xs text-black flex-shrink-0">
+                    {g.count} pessoas
+                  </div>
+                </div>
+              ))}
+              {competencyGaps.length === 0 && (
+                <div className="text-center text-sm text-ink-faint py-4">
+                  Sem lacunas identificadas
                 </div>
               )}
-            </CardBody>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="gaps">
-          <Card>
-            <CardBody>
-              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-4">
-                Top De Lacunas de Competências
-              </div>
-              {competencyGaps.length > 0 && (
-                <BarChart
-                  orientation="horizontal"
-                  categories={competencyGaps.map((g) => g.name)}
-                  series={[
-                    {
-                      label: 'Lacuna média',
-                      values: competencyGaps.map((g) => g.avgGap),
-                    },
-                  ]}
-                  yFormat={(v) => v.toFixed(1)}
-                  className="mb-4"
-                />
-              )}
-              <div className="space-y-3">
-                {competencyGaps.map((g) => (
-                  <div key={g.name} className="flex items-center gap-3">
-                    <div className="text-xs text-ink-muted w-40 truncate">
-                      {g.name}
-                    </div>
-                    <div className="flex-1">
-                      <ProgressBar value={Math.min(g.avgGap * 20, 100)} />
-                    </div>
-                    <div className="text-xs font-data text-black flex-shrink-0 w-12 text-right">
-                      Lacuna: {g.avgGap}
-                    </div>
-                    <div className="text-xs text-black flex-shrink-0">
-                      {g.count} pessoas
-                    </div>
-                  </div>
-                ))}
-                {competencyGaps.length === 0 && (
-                  <div className="text-center text-sm text-ink-faint py-4">
-                    Sem lacunas identificadas
-                  </div>
-                )}
-              </div>
-            </CardBody>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </div>
+          </CardBody>
+        </Card>
+      )}
     </div>
   );
 }

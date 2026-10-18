@@ -197,6 +197,8 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
       case 'participants': {
         if (populationType === 'GROUP' && selectedUsers.length === 0)
           return ['selecciona pelo menos um colaborador'];
+        if (populationType === 'GROUP' && !primaryEvaluator)
+          return ['selecciona o avaliador principal'];
         if (populationType === 'DEPARTMENT' && !departmentId)
           return ['selecciona um departamento'];
         if (populationType === 'UNIT' && !unitId)
@@ -325,10 +327,18 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
           }
           return rows;
         });
-        await apiClient.post('/evaluations/bulk-assign', {
+        const result = await apiClient.post<{
+          succeeded: number;
+          failed: number;
+        }>('/evaluations/bulk-assign', {
           cycleId,
           assignments,
         });
+        if (result && result.succeeded === 0 && result.failed > 0) {
+          throw new Error(
+            'O ciclo foi criado, mas não foi possível atribuir as avaliações. Verifica os avaliadores e tenta de novo.',
+          );
+        }
       }
 
       qc.invalidateQueries({ queryKey: queryKeys.evaluation.cycles() });
@@ -571,7 +581,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                   ))}
                 </div>
                 <DepartmentUserPicker
-                  label="Avaliador principal"
+                  label="Avaliador principal *"
                   htmlFor="ne-primary-eval"
                   value={primaryEvaluator}
                   onChange={setPrimaryEvaluator}

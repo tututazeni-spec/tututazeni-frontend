@@ -6,6 +6,7 @@ import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
+import { ModuleBanner } from '@/components/ui/ModuleBanner';
 import { Select } from '@/components/ui/Select';
 import { GridSkeleton } from './shared';
 import { TYPE_ICONS, TYPE_LABELS } from './types';
@@ -70,26 +71,23 @@ export function LibraryListView({
 
   return (
     <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Repositório
-          </h1>
-          <p className="font-body text-ink-muted">
-            {total} recursos disponíveis
-          </p>
-        </div>
-        {canAdd && (
-          <Link
-            href="/library/novo"
-            className={buttonVariants({ intent: 'primary', size: 'md' })}
-          >
-            <Plus size={16} strokeWidth={1.75} />
-            Adicionar Recurso
-          </Link>
-        )}
-      </div>
+      <ModuleBanner
+        src="/images/biblioteca.jpg"
+        title="Repositório"
+        hint={`${total} recursos disponíveis`}
+        position="center 40%"
+        action={
+          canAdd && (
+            <Link
+              href="/library/novo"
+              className={buttonVariants({ intent: 'primary', size: 'md' })}
+            >
+              <Plus size={16} strokeWidth={1.75} />
+              Adicionar Recurso
+            </Link>
+          )
+        }
+      />
 
       {/* Filtros */}
       <div className="flex flex-wrap gap-4">

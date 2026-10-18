@@ -3,10 +3,14 @@
 // já existia no backend sem UI). Só ADMIN/RH/GESTOR, espelha @Roles no
 // controller (ver components/Sidebar.tsx).
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
-import { AlertTriangle, CalendarClock, CircleCheck, UserPlus, Users } from 'lucide-react';
+import {
+  AlertTriangle,
+  CalendarClock,
+  CircleCheck,
+  UserPlus,
+  Users,
+} from 'lucide-react';
 import {
   DistributionList,
   ListSkeleton,
@@ -40,26 +44,6 @@ export function DashboardView({
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Dashboard — Beneficiários
-          </h1>
-          <p className="font-body text-ink-muted">Visão geral do CRM</p>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/crm/beneficiaries/follow-ups">
-            <Button intent="secondary">Acompanhamentos</Button>
-          </Link>
-          <Link href="/crm/beneficiaries/report">
-            <Button intent="secondary">Relatório por período</Button>
-          </Link>
-          <Link href="/crm/beneficiaries">
-            <Button intent="secondary">← Lista</Button>
-          </Link>
-        </div>
-      </div>
-
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <NavyStatCard
           label="Total"

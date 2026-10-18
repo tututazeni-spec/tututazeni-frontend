@@ -2,8 +2,6 @@
 // Separador "Relatório" — GET /crm/partners/report?start&end, só ADMIN/RH.
 // Endpoint já existia no backend sem UI.
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
 import { formatKz } from '@/lib/format';
 import {
   DateRangeForm,
@@ -36,20 +34,6 @@ export function ReportView({
 }: ReportViewProps) {
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Relatório por Período
-          </h1>
-          <p className="font-body text-ink-muted">
-            Parceiros e actividade no intervalo
-          </p>
-        </div>
-        <Link href="/crm/partners">
-          <Button intent="secondary">← Parceiros</Button>
-        </Link>
-      </div>
-
       <DateRangeForm
         value={range}
         onChange={setRange}

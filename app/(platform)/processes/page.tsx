@@ -10,6 +10,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { PillNav } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useState } from 'react';
 import { Hammer, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -124,30 +125,27 @@ export default function ProcessesPage() {
       className={`mx-auto px-4 py-8 ${['all', 'approvals', 'documents', 'tasks'].includes(nav.view) ? 'max-w-[1500px]' : 'max-w-6xl'}`}
     >
       {/* Título fixo; a descrição muda com a aba (§21) */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-xl font-semibold text-ink">
-            Processos
-          </h1>
-          {activeTab && (
-            <p className="mt-1 font-body text-sm text-ink-muted">
-              {activeTab.description}
-            </p>
-          )}
-        </div>
-        {nav.view === 'all' && canStart && (
-          <Button onClick={() => setShowStart(true)}>
-            <Plus size={16} strokeWidth={1.75} />
-            Novo processo
-          </Button>
-        )}
-        {nav.view === 'templates' && canCreate && (
-          <Button onClick={() => setShowCreate(true)}>
-            <Plus size={16} strokeWidth={1.75} />
-            Novo modelo
-          </Button>
-        )}
-      </div>
+      <ModuleBanner
+        src="/images/processos.jpg"
+        title="Processos"
+        hint={activeTab?.description}
+        className={
+          nav.view === 'viewer' || nav.view === 'runner' ? 'mb-6' : undefined
+        }
+        action={
+          nav.view === 'all' && canStart ? (
+            <Button onClick={() => setShowStart(true)}>
+              <Plus size={16} strokeWidth={1.75} />
+              Novo processo
+            </Button>
+          ) : nav.view === 'templates' && canCreate ? (
+            <Button onClick={() => setShowCreate(true)}>
+              <Plus size={16} strokeWidth={1.75} />
+              Novo modelo
+            </Button>
+          ) : undefined
+        }
+      />
 
       {/* Abas (escondidas em viewer/runner) */}
       {nav.view !== 'viewer' && nav.view !== 'runner' && (
@@ -156,7 +154,7 @@ export default function ProcessesPage() {
           value={nav.view}
           onChange={(id) => setNav({ view: id } as Nav)}
           label="Processos"
-          className="mb-6"
+          className={BANNER_TABS_CLASS}
         />
       )}
 

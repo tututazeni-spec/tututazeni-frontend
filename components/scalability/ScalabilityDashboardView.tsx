@@ -16,6 +16,7 @@ import { PeriodPills } from '@/components/ui/Pills';
 import { useId, useState } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
@@ -3534,37 +3535,23 @@ export function ScalabilityDashboardView({
 
   return (
     <div className="min-h-screen bg-canvas">
-      {/* Header */}
-      <div className="border-b border-border bg-surface px-6 py-5">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <h1 className="font-display text-xl font-bold text-ink">
-              Escalabilidade
-            </h1>
-            {criticalCount > 0 && (
-              <Badge intent="danger">
-                {criticalCount} Alerta{criticalCount > 1 ? 's' : ''} Crítico
-                {criticalCount > 1 ? 's' : ''}
-              </Badge>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="font-body text-xs text-ink-faint">
-              Actualizado:{' '}
-              {lastRefresh.toLocaleTimeString('pt-PT', {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </span>
-            <Button intent="secondary" size="sm" onClick={onRefresh}>
-              Actualizar
-            </Button>
-          </div>
-        </div>
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <ModuleBanner
+          src="/images/escalabilidade.jpg"
+          title="Escalabilidade"
+          hint={`${
+            criticalCount > 0
+              ? `${criticalCount} alerta${criticalCount > 1 ? 's' : ''} crítico${criticalCount > 1 ? 's' : ''} · `
+              : ''
+          }Actualizado: ${lastRefresh.toLocaleTimeString('pt-PT', {
+            hour: '2-digit',
+            minute: '2-digit',
+          })}`}
+        />
       </div>
 
       <Tabs value={activeTab} onValueChange={onTabChange}>
-        <div className="mx-auto max-w-7xl px-6 py-3">
+        <div className={`mx-auto max-w-7xl ${BANNER_TABS_CLASS}`}>
           <PillTabsList
             items={TABS.map((tab) =>
               tab.id === 'alerts' && openAlertCount > 0

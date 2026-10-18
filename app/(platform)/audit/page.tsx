@@ -2,6 +2,7 @@
 'use client';
 
 import { PillNav } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useEffect, useMemo, useState } from 'react';
 import { AccessView } from '@/components/audit/AccessView';
 import { AuditsView } from '@/components/audit/AuditsView';
@@ -50,20 +51,18 @@ export default function AuditPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-xl font-semibold text-ink">
-            {TITLES[view]}
-          </h1>
-        </div>
-      </div>
+      <ModuleBanner
+        src="/images/auditoria.jpg"
+        title={TITLES[view]}
+        hint={nav.find((n) => n.id === view)?.hint}
+      />
 
       <PillNav
         items={nav}
         value={view}
         onChange={(id) => setView(id as typeof view)}
         label="Auditoria"
-        className="mb-6"
+        className={BANNER_TABS_CLASS}
       />
 
       {view === 'logs' && <LogsView />}

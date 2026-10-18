@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import {
   Award,
   BookOpen,
-  CircleCheck,
   ClipboardList,
   FileBarChart,
   GraduationCap,
@@ -33,6 +33,7 @@ import type { Nav, TopLevelView } from '@/components/courses/types';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
+import { PillNav } from '@/components/ui/PillTabs';
 import { useToast } from '@/providers/ToastProvider';
 
 // Ícone e subtítulo de cada aba, indexados pelo `id` definido em NAV
@@ -106,84 +107,54 @@ export default function CoursesPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
-          <p className="text-sm text-ink-faint mt-0.5"></p>
+      {/* Banner: a foto ocupa a largura toda (proporção ~3,5:1, por isso
+          object-cover recorta pelos lados em ecrãs estreitos e mantém o
+          orador ao centro). O gradiente azul-escuro só cobre a metade
+          inferior — o ecrã com o gráfico, à esquerda, fica intacto — e dá
+          contraste ao título e ao botão. As abas sobem 2rem para cima da
+          foto (-mt-8 + z-10) para banner e navegação lerem-se como um bloco. */}
+      <header className="relative h-44 overflow-hidden rounded-3xl shadow-[0_8px_32px_rgba(15,31,61,0.18)] sm:h-56">
+        <Image
+          src="/images/cursos.jpg"
+          alt=""
+          fill
+          priority
+          sizes="(min-width: 1152px) 1152px, 100vw"
+          className="object-cover object-[40%_center]"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-t from-[#0F1F3D]/90 via-[#0F1F3D]/35 to-transparent"
+        />
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 pb-10 sm:px-7">
+          <h1 className="font-display text-2xl font-bold text-white sm:text-3xl">
+            {TITLES[nav.view]}
+          </h1>
+          {nav.view === 'catalog' && isAdmin && (
+            <Button onClick={() => setShowCreate(true)}>+ Criar curso</Button>
+          )}
         </div>
-        {nav.view === 'catalog' && isAdmin && (
-          <Button onClick={() => setShowCreate(true)}>+ Criar curso</Button>
-        )}
-      </div>
+      </header>
 
-           {/* Abas em "glassmorphism": contentor translúcido com desfoque
-          (backdrop-blur) e botões em forma de pílula com ícone, título e
-          subtítulo. A aba activa usa a mesma condição `nav.view === n.id`
-          de sempre para ganhar gradiente azul, sombra e um visto à
-          direita. As manchas desfocadas atrás existem só para o efeito de
-          vidro ser visível sobre o fundo claro. Escondida na vista de
-          detalhe, como antes. */}
+      {/* Abas: mesma barra de pílulas do Dashboard (components/ui/PillTabs),
+          para a tipografia (font-body, título + subtítulo) ser única. Escondida
+          na vista de detalhe, como antes. */}
       {nav.view !== 'detail' && (
-        <div className="relative mb-6">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl"
-          >
-            <div className="absolute -left-16 top-0 h-40 w-72 rounded-full bg-primary/20 blur-3xl" />
-            <div className="absolute -right-10 bottom-0 h-40 w-72 rounded-full bg-primary/15 blur-3xl" />
-          </div>
-
-          <div className="relative rounded-3xl border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {visibleNav.map((n) => {
-                const meta = NAV_META[n.id];
-                const Icon = meta?.icon ?? BookOpen;
-                const active = nav.view === n.id;
-                return (
-                  <button
-                    key={n.id}
-                    onClick={() => setNav({ view: n.id })}
-                    className={`flex items-center gap-3 whitespace-nowrap rounded-full border py-2 pl-2 pr-4 text-left backdrop-blur transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
-                      active
-                        ? 'border-transparent bg-[#0F1F3D] text-white shadow-lg'
-                        : 'border-white/70 bg-white/60 text-ink shadow-sm duration-200 hover:scale-105 hover:border-primary hover:bg-white/80 hover:shadow-md motion-reduce:hover:scale-100'
-                    }`}
-                  >
-                    <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
-                        active
-                          ? 'bg-white/20 text-white'
-                          : 'bg-white/70 text-ink/70'
-                      }`}
-                    >
-                      <Icon size={16} strokeWidth={1.75} />
-                    </span>
-                    <span className="flex flex-col items-start leading-tight">
-                      <span className="text-sm font-semibold">{n.label}</span>
-                      {meta?.hint && (
-                        <span
-                          className={`text-xs ${active ? 'opacity-85' : 'opacity-70'}`}
-                        >
-                          {meta.hint}
-                        </span>
-                      )}
-                    </span>
-                    {active && (
-                      <CircleCheck
-                        size={16}
-                        strokeWidth={2}
-                        className="shrink-0"
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        <PillNav
+          className="relative z-10 -mt-8 mb-6 px-3 sm:px-6"
+          label="Secções de Cursos"
+          items={visibleNav.map((n) => ({
+            id: n.id,
+            label: n.label,
+            hint: NAV_META[n.id]?.hint,
+            icon: NAV_META[n.id]?.icon ?? BookOpen,
+          }))}
+          value={nav.view}
+          onChange={(id) => setNav({ view: id as TopLevelView })}
+        />
       )}
 
+      {nav.view === 'detail' && <div className="mb-6" />}
       {nav.view === 'catalog' &&
         (isAdmin ? (
           <GestaoView
@@ -202,11 +173,7 @@ export default function CoursesPage() {
       )}
       {nav.view === 'certificates' && <CertificatesView />}
       {nav.view === 'dashboard' && isAdmin && (
-        <AdminDashboardView
-          onSelect={handleSelect}
-          onNavigate={(view) => setNav({ view })}
-          onCreateCourse={() => setShowCreate(true)}
-        />
+        <AdminDashboardView onSelect={handleSelect} />
       )}
       {nav.view === 'inscricoes' && (
         <InscricoesView initialCourseId={enrollmentsCourseId} />

@@ -15,7 +15,7 @@ function valueSize(value: string | number): string {
   return 'text-[38px]';
 }
 
-export type NavyStatTone = 'blue' | 'green' | 'orange' | 'red';
+export type NavyStatTone = 'blue' | 'green' | 'orange' | 'red' | 'gray';
 
 // Classes completas: o Tailwind não detecta nomes montados dinamicamente
 export const NAVY_TONES: Record<NavyStatTone, { bg: string; text: string }> = {
@@ -23,13 +23,13 @@ export const NAVY_TONES: Record<NavyStatTone, { bg: string; text: string }> = {
   green: { bg: 'bg-[#218653]', text: 'text-[#218653]' },
   orange: { bg: 'bg-[#E99A16]', text: 'text-[#E99A16]' },
   red: { bg: 'bg-[#EF4657]', text: 'text-[#EF4657]' },
+  gray: { bg: 'bg-[#8A94A6]', text: 'text-[#8A94A6]' },
 };
 
 // Tom extra só para o círculo do ícone (amarelo, distinto do laranja de `orange`)
-export type NavyIconTone = NavyStatTone | 'yellow' | 'gray';
+export type NavyIconTone = NavyStatTone | 'yellow';
 
 function iconBg(tone: NavyIconTone): string {
-  if (tone === 'gray') return 'bg-[#8A94A6]';
   return tone === 'yellow' ? 'bg-[#F2C230]' : NAVY_TONES[tone].bg;
 }
 

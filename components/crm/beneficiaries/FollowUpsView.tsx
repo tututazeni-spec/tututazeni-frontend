@@ -4,7 +4,6 @@
 // beneficiários atribuídos/criados por si). Endpoint já existia sem UI.
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ListSkeleton, ErrorBanner, formatDate } from '@/components/crm/shared';
 import type { FollowUp } from './types';
@@ -29,22 +28,6 @@ export function FollowUpsView({
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Acompanhamentos Pendentes
-          </h1>
-          <p className="font-body text-ink-muted">
-            {followUps.length}{' '}
-            {followUps.length === 1 ? 'beneficiário' : 'beneficiários'}{' '}
-            atribuídos a si com acompanhamento a vencer
-          </p>
-        </div>
-        <Link href="/crm/beneficiaries">
-          <Button intent="secondary">← Beneficiários</Button>
-        </Link>
-      </div>
-
       <Card>
         <div className="divide-y divide-border">
           {followUps.length === 0 ? (

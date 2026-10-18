@@ -7,6 +7,7 @@
 // project_innova_component_separation_audit.
 
 import { PillNav } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { queryKeys } from '@/lib/queryKeys';
@@ -35,19 +36,20 @@ export default function DepartmentsPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-ink">{TITLES[nav.view]}</h1>
-          <p className="mt-0.5 text-sm text-ink-faint"></p>
-        </div>
-        {nav.view === 'list' && (
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus size={16} strokeWidth={1.75} />
-            Novo departamento
-          </Button>
-        )}
-      </div>
+      <ModuleBanner
+        src="/images/departamentos.jpg"
+        title={TITLES[nav.view]}
+        hint={NAV.find((n) => n.id === nav.view)?.hint}
+        className={nav.view === 'detail' ? 'mb-6' : undefined}
+        action={
+          nav.view === 'list' ? (
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus size={16} strokeWidth={1.75} />
+              Novo departamento
+            </Button>
+          ) : undefined
+        }
+      />
 
       {createOpen && (
         <CreateDepartmentModal
@@ -63,7 +65,7 @@ export default function DepartmentsPage() {
           value={nav.view}
           onChange={(id) => setNav({ view: id } as Nav)}
           label="Departamentos"
-          className="mb-6"
+          className={BANNER_TABS_CLASS}
         />
       )}
 

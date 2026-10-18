@@ -4,8 +4,9 @@
 // letra branca.
 //  - <PeriodPills>   → seletor de período (7/30/90 dias, janelas…): uma activa.
 //  - <ShortcutPills> → atalhos: pílula inactiva que fica navy ao passar o cursor.
-// Hover do <PeriodPills>: pílula não seleccionada muda o fundo para
-// bg-surface-sunken (borda e letra mantêm-se); a seleccionada não muda.
+// Hover do <PeriodPills>: inverte as cores — a não seleccionada (fundo branco,
+// letra escura) fica navy com letra branca; a seleccionada fica branca com
+// letra navy.
 // Sem lógica própria: quem usa decide o que cada opção/atalho faz.
 
 import { cn } from '@/lib/cn';
@@ -17,6 +18,14 @@ const PILL_IDLE =
   'border-border-strong bg-surface text-ink-muted hover:bg-surface-sunken';
 const PILL_HOVER_NAVY =
   'hover:border-[#0F1F3D] hover:bg-[#0F1F3D] hover:text-white';
+
+/** Hover da pílula activa: inverte (fundo branco, letra navy). */
+const PILL_ACTIVE_HOVER_INVERT =
+  'hover:border-[#0F1F3D] hover:bg-surface hover:text-[#0F1F3D]';
+
+/** Classes da pílula, para pílulas que são links (navegação entre rotas). */
+export const pillClass = (active: boolean) =>
+  cn(PILL, active ? PILL_ACTIVE : PILL_IDLE);
 
 export interface PeriodPillOption<T extends string | number> {
   value: T;
@@ -51,7 +60,12 @@ export function PeriodPills<T extends string | number>({
             role="tab"
             aria-selected={active}
             onClick={() => onChange(o.value)}
-            className={cn(PILL, active ? PILL_ACTIVE : PILL_IDLE)}
+            className={cn(
+              PILL,
+              active
+                ? cn(PILL_ACTIVE, PILL_ACTIVE_HOVER_INVERT)
+                : cn(PILL_IDLE, PILL_HOVER_NAVY),
+            )}
           >
             {o.label}
           </button>

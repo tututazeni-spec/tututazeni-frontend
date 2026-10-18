@@ -1,12 +1,16 @@
 // components/dashboard-rh/SkillsPanel.tsx
-// Painel "Competências" — gaps críticos e forças da organização. Dados
+// Painel "Competências" — lacunas críticas e forças da organização. Dados
 // próprios (useApiQuery) + apresentação. Mesmo padrão de
 // components/dashboard-rh/TrainingPanel.tsx.
 
 'use client';
 
-import { AlertTriangle, Layers, ListChecks } from 'lucide-react';
+import { AlertTriangle, Layers } from 'lucide-react';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import {
+  RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { colorAt } from '@/lib/chartColors';
 import { queryKeys } from '@/lib/queryKeys';
@@ -41,11 +45,11 @@ export function SkillsPanel() {
     <div className="space-y-5">
       {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <NavyStatCard
+        <SpeedometerStatCard
           label="Colaboradores Avaliados"
-          value={`${data?.assessmentRate ?? 0}%`}
-          tone="blue"
-          icon={ListChecks}
+          value={data?.assessmentRate ?? 0}
+          bands={RATE_BANDS}
+          display={`${Math.round(data?.assessmentRate ?? 0)}%`}
         />
         <NavyStatCard
           label="Competências Mapeadas"
@@ -54,7 +58,7 @@ export function SkillsPanel() {
           icon={Layers}
         />
         <NavyStatCard
-          label="Gaps Críticos"
+          label="Lacunas Críticas"
           value={data?.criticalGaps ?? 0}
           tone="red"
           icon={AlertTriangle}
@@ -64,11 +68,11 @@ export function SkillsPanel() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="rounded-card border border-border bg-surface p-5">
           <h4 className="mb-3 font-body font-semibold text-ink-muted">
-            Maiores Gaps de Competência
+            Maiores Lacunas de Competência
           </h4>
           {sortedGaps.length === 0 ? (
             <p className="font-body text-xs text-ink-faint">
-              Sem gaps identificados.
+              Sem lacunas identificadas.
             </p>
           ) : (
             <BarChart
@@ -78,7 +82,7 @@ export function SkillsPanel() {
               )}
               series={[
                 {
-                  label: 'Gap médio',
+                  label: 'Lacuna média',
                   values: sortedGaps.map((s) => s.avgGap),
                   barColors: sortedGaps.map((_, i) => colorAt(i)),
                 },
@@ -102,7 +106,7 @@ export function SkillsPanel() {
                   </p>
                 </div>
                 <span className="font-body text-xs font-bold text-black">
-                  gap {s.avgGap}
+                  lacuna {s.avgGap}
                 </span>
               </div>
             ))}

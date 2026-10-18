@@ -8,6 +8,7 @@
 // abaixo, mesmo comportamento do `tab === t.id && !activeTemplate`
 // original) — um padrão que TabsContent por valor não modela bem.
 
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useState } from 'react';
 import { CircleCheck, Plus } from 'lucide-react';
 import { InsightsTab } from '@/components/reports/InsightsTab';
@@ -19,7 +20,6 @@ import { TABS } from '@/components/reports/constants';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/providers/ToastProvider';
 import type { Tab, Template } from '@/components/reports/types';
-import type { LucideIcon } from 'lucide-react';
 
 // Subtítulo mostrado por baixo do título de cada aba, indexado pelo `id`
 // definido em TABS (components/reports/constants). Se algum id não estiver
@@ -35,7 +35,6 @@ export default function ReportsPage() {
   const [activeTemplate, setActiveTemplate] = useState<Template | null>(null);
   const [showSave, setShowSave] = useState(false);
   const activeTab = TABS.find((item) => item.id === tab) ?? TABS[0];
-  const ActiveIcon = activeTab?.icon as LucideIcon | undefined;
 
   const handleRun = (t: Template) => {
     setActiveTemplate(t);
@@ -44,35 +43,18 @@ export default function ReportsPage() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      <div className="border-b border-border bg-surface px-6 py-5">
-        <div className="mx-auto flex max-w-7xl items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              {ActiveIcon && (
-                <ActiveIcon
-                  size={22}
-                  strokeWidth={1.8}
-                  className="transition-all duration-300"
-                />
-              )}
-            </div>
-
-            <div>
-              <h1 className="font-display text-xl font-bold text-ink">
-                Relatórios
-              </h1>
-              {activeTab?.label && (
-                <p className="mt-0.5 font-body text-xs text-ink-muted">
-                  {activeTab.label}
-                </p>
-              )}
-            </div>
-          </div>
-          <Button size="sm" onClick={() => setShowSave(true)}>
-            <Plus size={14} strokeWidth={1.75} />
-            Criar Relatório
-          </Button>
-        </div>
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <ModuleBanner
+          src="/images/relatórios.jpg"
+          title="Relatórios"
+          hint={activeTab ? TAB_HINTS[activeTab.id] : undefined}
+          action={
+            <Button size="sm" onClick={() => setShowSave(true)}>
+              <Plus size={14} strokeWidth={1.75} />
+              Criar Relatório
+            </Button>
+          }
+        />
       </div>
 
       {/* Abas em "glassmorphism": contentor translúcido com desfoque
@@ -81,7 +63,7 @@ export default function ReportsPage() {
           (tab === t.id && !activeTemplate) para ganhar gradiente azul,
           sombra e um visto à direita. As manchas desfocadas atrás existem
           só para o efeito de vidro ser visível sobre o fundo claro. */}
-      <div className="relative bg-canvas px-6 py-5">
+      <div className="relative z-10 -mt-8 px-6 pb-5">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 overflow-hidden"

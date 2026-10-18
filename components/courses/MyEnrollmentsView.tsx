@@ -11,6 +11,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { PeriodPills } from '@/components/ui/Pills';
 import { CourseListCard } from './CourseListCard';
 import { Skeleton, isOverdue } from './shared';
 import type { MyEnrollment } from './types';
@@ -65,31 +66,12 @@ export function MyEnrollmentsView({ onSelect }: MyEnrollmentsViewProps) {
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-2xl font-medium text-ink">Meus cursos</h2>
 
-        <div
-          role="tablist"
-          aria-label="Filtrar cursos"
-          className="inline-flex max-w-full gap-1 overflow-x-auto rounded-full bg-zinc-900 p-1"
-        >
-          {FILTERS.map(({ id, label }) => {
-            const active = filter === id;
-            return (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setFilter(id)}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                  active
-                    ? 'bg-amber-200 font-medium text-zinc-900'
-                    : 'text-white hover:bg-zinc-800'
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
+        <PeriodPills
+          label="Filtrar cursos"
+          value={filter}
+          onChange={setFilter}
+          options={FILTERS.map(({ id, label }) => ({ value: id, label }))}
+        />
       </div>
 
       {filtered.length === 0 ? (

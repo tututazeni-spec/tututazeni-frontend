@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { UserPlus } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
-import { BeneficiariesNav, NewBeneficiaryButton } from './BeneficiariesNav';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -66,22 +65,6 @@ export function BeneficiariesListView({
 
   return (
     <div className="p-6 space-y-6">
-           {/* Header: título à esquerda, acção principal à direita */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Beneficiários
-          </h1>
-          <p className="font-body text-ink-muted">
-            {total} beneficiários registados
-          </p>
-        </div>
-        <NewBeneficiaryButton />
-      </div>
-
-      {/* Navegação */}
-      <BeneficiariesNav />
-
       {/* Filtros */}
       <div className="flex gap-4 flex-wrap items-center">
         <Input
@@ -240,4 +223,3 @@ export function BeneficiariesListView({
     </div>
   );
 }
-

@@ -15,6 +15,7 @@
 // (espelha @Roles em src/events/events.controller.ts#create).
 
 import { PillNav } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
@@ -49,21 +50,19 @@ export default function EventsPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <div className="mb-1">
-            <h1 className="font-display text-xl font-semibold text-ink">
-              {TITLES[nav.view]}
-            </h1>
-          </div>
-        </div>
-        {canCreate && (
-          <Button size="sm" onClick={() => setShowCreate(true)}>
-            <Plus size={14} strokeWidth={1.75} />
-            Criar evento
-          </Button>
-        )}
-      </div>
+      <ModuleBanner
+        src="/images/eventos corporativos.jpg"
+        title={TITLES[nav.view]}
+        hint={NAV.find((n) => n.id === nav.view)?.hint}
+        action={
+          canCreate ? (
+            <Button size="sm" onClick={() => setShowCreate(true)}>
+              <Plus size={14} strokeWidth={1.75} />
+              Criar evento
+            </Button>
+          ) : undefined
+        }
+      />
 
       <PillNav
         items={NAV}
@@ -73,7 +72,7 @@ export default function EventsPage() {
           setNav({ view: id } as Nav);
         }}
         label="Eventos"
-        className="mb-6"
+        className={BANNER_TABS_CLASS}
       />
 
       {nav.view === 'overview' && (

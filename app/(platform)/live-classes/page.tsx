@@ -12,6 +12,7 @@
 // por separador).
 
 import { PillNav } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -221,6 +222,13 @@ export default function LivePage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      <ModuleBanner
+        src="/images/aulas ao vivo.jpg"
+        title="Aulas ao vivo"
+        hint={visibleNav.find((n) => n.id === nav)?.hint}
+        position="center 35%"
+      />
+
       {/* Abas em formato de "cartão": cada botão é um cartão independente
           (borda + fundo branco + rounded), sem o fundo/pill de grupo
           anterior. Alinhadas horizontal e verticalmente (justify-center +
@@ -232,7 +240,7 @@ export default function LivePage() {
         value={nav}
         onChange={(id) => setNav(id as NavId)}
         label="Aulas ao vivo"
-        className="mb-6"
+        className={BANNER_TABS_CLASS}
       />
 
       {nav === 'dashboard' && <DashboardView />}

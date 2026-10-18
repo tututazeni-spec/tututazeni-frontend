@@ -17,7 +17,7 @@ import {
   RATE_BANDS,
   SpeedometerStatCard,
 } from '@/components/ui/charts/SpeedometerStatCard';
-import type { LucideIcon } from 'lucide-react';
+import { PeriodPills } from '@/components/ui/Pills';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -49,28 +49,20 @@ export function TalentPanel() {
   const hiPoList = data?.hiPoList ?? [];
   const positionsAtRisk = data?.positionsAtRisk ?? [];
 
-  const tabs: Array<{
-    key: TabKey;
-    label: string;
-    icon: LucideIcon;
-    count: number;
-  }> = [
+  const tabs: Array<{ key: TabKey; label: string; count: number }> = [
     {
       key: 'succession',
       label: 'Planos de Sucessão',
-      icon: Users,
       count: successionPlans.length,
     },
     {
       key: 'hipo',
       label: 'Alto Potencial',
-      icon: Star,
       count: data?.hiPoCount ?? hiPoList.length,
     },
     {
       key: 'risk',
       label: 'Posições em Risco',
-      icon: AlertTriangle,
       count: positionsAtRisk.length,
     },
   ];
@@ -105,31 +97,15 @@ export function TalentPanel() {
       </div>
 
       {/* Tab bar */}
-      <div className="flex gap-1 rounded-panel border border-border bg-surface p-1.5 shadow-sm">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-control py-2 font-body text-sm font-medium transition-colors ${
-              tab === t.key
-                ? 'bg-[#0F1F3D] text-canvas shadow-sm'
-                : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
-            }`}
-          >
-            <t.icon size={15} strokeWidth={1.75} />
-            <span className="hidden sm:inline">{t.label}</span>
-            <span
-              className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
-                tab === t.key
-                  ? 'bg-canvas/20 text-canvas'
-                  : 'bg-surface-sunken text-ink-faint'
-              }`}
-            >
-              {t.count}
-            </span>
-          </button>
-        ))}
-      </div>
+      <PeriodPills
+        label="Talento"
+        value={tab}
+        onChange={setTab}
+        options={tabs.map((t) => ({
+          value: t.key,
+          label: `${t.label} (${t.count})`,
+        }))}
+      />
 
       {/* Succession plans */}
       {tab === 'succession' && (

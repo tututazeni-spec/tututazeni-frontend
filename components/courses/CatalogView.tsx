@@ -16,24 +16,28 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { Skeleton } from './shared';
+import { COURSE_MODALITY_LABELS, COURSE_TYPE_LABELS, Skeleton } from './shared';
 import { CourseListCard } from './CourseListCard';
 import type { PaginatedCourses } from './types';
 
-const LEVEL_ITEMS = [
-  { value: 'ALL', label: 'Todos os níveis' },
-  { value: 'BEGINNER', label: 'Iniciante' },
-  { value: 'INTERMEDIATE', label: 'Intermédio' },
-  { value: 'ADVANCED', label: 'Avançado' },
+const TYPE_ITEMS = [
+  { value: 'ALL', label: 'Todos os tipos' },
+  ...Object.entries(COURSE_TYPE_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  })),
 ];
 
-const MANDATORY_ITEMS = [
-  { value: 'ALL', label: 'Obrigatório e opcional' },
-  { value: 'true', label: 'Apenas obrigatórios' },
-  { value: 'false', label: 'Apenas opcionais' },
+const MODALITY_ITEMS = [
+  { value: 'ALL', label: 'Todas as modalidades' },
+  ...Object.entries(COURSE_MODALITY_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  })),
 ];
 
 // Um só objecto para os filtros + page: mudar qualquer filtro tem sempre de
@@ -41,16 +45,14 @@ const MANDATORY_ITEMS = [
 // repetido (e potencialmente esquecido) em cada handler.
 interface CatalogFilters {
   search: string;
-  category: string;
-  level: string;
-  mandatory: string;
+  type: string;
+  modality: string;
   page: number;
 }
 const INITIAL_CATALOG_FILTERS: CatalogFilters = {
   search: '',
-  category: '',
-  level: '',
-  mandatory: '',
+  type: '',
+  modality: '',
   page: 1,
 };
 
@@ -62,7 +64,7 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
   const [filters, setFilters] = useState<CatalogFilters>(
     INITIAL_CATALOG_FILTERS,
   );
-  const { search, category, level, mandatory, page } = filters;
+  const { search, type, modality, page } = filters;
 
   function updateFilters(patch: Partial<Omit<CatalogFilters, 'page'>>) {
     setFilters((f) => ({ ...f, ...patch, page: 1 }));
@@ -77,9 +79,8 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
     limit: 12,
     status: 'PUBLISHED',
     search: debouncedSearch,
-    category,
-    level,
-    mandatory,
+    type: type || undefined,
+    modality: modality || undefined,
   };
 
   // Lista e categorias correm em paralelo (queries independentes).
@@ -96,49 +97,32 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
       placeholderData: keepPreviousData,
     },
   );
-  // Categorias mudam pouco → cache longa (STATIC).
-  const { data: cats = [] } = useApiQuery<
-    Array<{ category: string; count: number }>
-  >(queryKeys.courses.categories(), '/courses/categories', {
-    staleTime: STALE_TIME.STATIC,
-  });
-  const categories = cats.map((c) => c.category).filter(Boolean) as string[];
-  const categoryItems = [
-    { value: 'ALL', label: 'Todas as categorias' },
-    ...categories.map((c) => ({ value: c, label: c })),
-  ];
-
   return (
     <div>
-      {/* Filtros */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
-        <Input
-          type="text"
-          placeholder="Pesquisar cursos, competências, tópicos…"
-          value={search}
-          onChange={(e) => updateFilters({ search: e.target.value })}
-          className="min-w-[160px] flex-1"
-        />
-        <Select
-          items={categoryItems}
-          value={category || 'ALL'}
-          onValueChange={(v) =>
-            updateFilters({ category: v === 'ALL' ? '' : v })
-          }
-        />
-        <Select
-          items={LEVEL_ITEMS}
-          value={level || 'ALL'}
-          onValueChange={(v) => updateFilters({ level: v === 'ALL' ? '' : v })}
-        />
-        <Select
-          items={MANDATORY_ITEMS}
-          value={mandatory || 'ALL'}
-          onValueChange={(v) =>
-            updateFilters({ mandatory: v === 'ALL' ? '' : v })
-          }
-        />
-      </div>
+      {/* Filtros — Card + CardBody (padrão do separador Relatórios do roi-impact) */}
+      <Card className="mb-6">
+        <CardBody className="flex flex-wrap items-center gap-3">
+          <Input
+            type="text"
+            placeholder="Pesquisar cursos…"
+            value={search}
+            onChange={(e) => updateFilters({ search: e.target.value })}
+            className="min-w-[160px] flex-1"
+          />
+          <Select
+            items={TYPE_ITEMS}
+            value={type || 'ALL'}
+            onValueChange={(v) => updateFilters({ type: v === 'ALL' ? '' : v })}
+          />
+          <Select
+            items={MODALITY_ITEMS}
+            value={modality || 'ALL'}
+            onValueChange={(v) =>
+              updateFilters({ modality: v === 'ALL' ? '' : v })
+            }
+          />
+        </CardBody>
+      </Card>
 
       {error && <div className="text-sm text-black mb-4">{error.message}</div>}
 

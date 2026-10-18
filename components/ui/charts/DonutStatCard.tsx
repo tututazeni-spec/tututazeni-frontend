@@ -12,10 +12,13 @@ export function DonutStatCard({
   value,
   sub,
   color,
+  bare = false,
 }: {
   label: string;
   value: number;
   sub?: string;
+  /** Sem moldura (borda/fundo do Card): só título e rosca. */
+  bare?: boolean;
   /** Cor única do progresso (omisso: azul-escuro até 50%, azul-claro depois). */
   color?: string;
 }) {
@@ -28,14 +31,22 @@ export function DonutStatCard({
         { v: 100 - pct, color: '#CBD2DC' },
       ]
   ).filter((p) => p.v > 0);
-  const size = 120;
-  const stroke = 16;
+  const scale = bare ? 1.1 : 1;
+  const size = 120 * scale;
+  const stroke = 16 * scale;
   const r = (size - stroke) / 2;
   const circ = 2 * Math.PI * r;
   const gap = parts.length > 1 ? 1.5 : 0;
   let offset = 0;
+  const Wrapper = bare ? 'div' : Card;
   return (
-    <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
+    <Wrapper
+      className={
+        bare
+          ? 'flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-transform duration-200 ease-out hover:scale-[1.06] motion-reduce:hover:scale-100'
+          : 'flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100'
+      }
+    >
       <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
         {label}
       </h3>
@@ -74,6 +85,6 @@ export function DonutStatCard({
       {sub && (
         <p className="text-center font-body text-xs text-ink-faint">{sub}</p>
       )}
-    </Card>
+    </Wrapper>
   );
 }

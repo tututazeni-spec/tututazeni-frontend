@@ -89,6 +89,23 @@ export const MILESTONE_COLORS: Record<string, string> = {
 // components/crm/beneficiaries/types.ts).
 export { ANGOLA_PROVINCES as PROVINCES } from '@/lib/provinces';
 
+export const CONTACT_TITLES = [
+  'Director Geral',
+  'Director Comercial',
+  'Director Financeiro',
+  'Director de Recursos Humanos',
+  'Gestor de Parcerias',
+  'Gestor de Conta',
+  'Coordenador',
+  'Responsável Jurídico',
+  'Assistente Administrativo',
+  'Outro',
+] as const;
+
+export const REVENUE_SHARING_OPTIONS = [
+  0, 5, 10, 15, 20, 25, 30, 40, 50,
+] as const;
+
 export const TYPE_LABELS: Record<string, string> = {
   TECHNOLOGY: 'Tecnologia',
   CONTENT: 'Conteúdo',

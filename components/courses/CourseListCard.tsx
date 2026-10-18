@@ -157,13 +157,11 @@ export function CourseListCard({
         />
       </div>
 
-      {(mandatory || c.level || c.status) && (
-        <div className="flex flex-wrap items-center gap-2 px-5 pt-3">
-          {c.status && <StatusBadge value={c.status} map={COURSE_STATUS_MAP} />}
-          {mandatory && <Badge intent="danger">Obrigatório</Badge>}
-          {c.level && <StatusBadge value={c.level} map={COURSE_LEVEL_MAP} />}
-        </div>
-      )}
+      <div className="flex min-h-[28px] flex-wrap items-center gap-2 px-5 pt-3">
+        {c.status && <StatusBadge value={c.status} map={COURSE_STATUS_MAP} />}
+        {mandatory && <Badge intent="danger">Obrigatório</Badge>}
+        {c.level && <StatusBadge value={c.level} map={COURSE_LEVEL_MAP} />}
+      </div>
 
       <div className="flex flex-wrap items-center gap-y-2 divide-x divide-[#E6ECF4] px-5 pt-3">
         <Metric icon={Clock}>{fmtDuration(c.workloadHours)}</Metric>
@@ -195,29 +193,28 @@ export function CourseListCard({
               />
             }
           >
-            {c.primaryInstructor?.fullName ?? 'Sem instrutor'}
+            <span className="line-clamp-1">
+              {c.primaryInstructor?.fullName ?? 'Sem instrutor'}
+            </span>
           </InfoRow>
         )}
-        {managing && categoryLine && (
+        {/* Linhas sempre presentes (com "—" se vazias) para alinhar os cartões */}
+        {managing && (
           <InfoRow icon={Tag} accent={palette[3]}>
-            {categoryLine}
+            <span className="line-clamp-1">{categoryLine || '—'}</span>
           </InfoRow>
         )}
-        {c.type && (
-          <InfoRow icon={BookOpen} accent={palette[3]}>
-            {COURSE_TYPE_LABELS[c.type]}
-          </InfoRow>
-        )}
-        {c.department?.name && (
-          <InfoRow icon={Building2} accent={palette[3]}>
-            {c.department.name}
-          </InfoRow>
-        )}
-        {modality && (
-          <InfoRow icon={MonitorPlay} accent={palette[3]}>
-            {modality}
-          </InfoRow>
-        )}
+        <InfoRow icon={BookOpen} accent={palette[3]}>
+          <span className="line-clamp-1">
+            {c.type ? COURSE_TYPE_LABELS[c.type] : '—'}
+          </span>
+        </InfoRow>
+        <InfoRow icon={Building2} accent={palette[3]}>
+          <span className="line-clamp-1">{c.department?.name || '—'}</span>
+        </InfoRow>
+        <InfoRow icon={MonitorPlay} accent={palette[3]}>
+          <span className="line-clamp-1">{modality || '—'}</span>
+        </InfoRow>
 
         {(myStatus || deadlineLabel) && (
           <div className="flex items-center justify-between pt-1 font-body text-xs">

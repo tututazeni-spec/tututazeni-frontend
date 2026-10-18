@@ -32,6 +32,28 @@ const CATEGORY_ITEMS = CRITERIA_CATEGORY_OPTIONS.map((c) => ({
   label: c,
 }));
 
+// Sugestões para "Indicadores comportamentais". O backend guarda texto livre
+// (um indicador por linha), por isso escolher da lista só acrescenta/remove
+// a linha correspondente no texto.
+const INDICATOR_SUGGESTIONS = [
+  'Cumpre prazos e compromissos assumidos',
+  'Assume responsabilidade pelos resultados',
+  'Comunica de forma clara e respeitosa',
+  'Colabora ativamente com a equipa',
+  'Procura feedback e atua sobre ele',
+  'Propõe soluções e toma iniciativa',
+  'Adapta-se a mudanças com facilidade',
+  'Demonstra orientação para o cliente',
+  'Partilha conhecimento com os colegas',
+  'Atua de acordo com os valores da empresa',
+];
+
+const splitIndicators = (text: string) =>
+  text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+
 export function CriteriaFormModal({
   criteria,
   onClose,
@@ -100,6 +122,14 @@ export function CriteriaFormModal({
     setSubmitError('');
     save.mutate(undefined);
   });
+
+  const selectedIndicators = splitIndicators(form.behavioralIndicators);
+  const toggleIndicator = (text: string) => {
+    const next = selectedIndicators.includes(text)
+      ? selectedIndicators.filter((l) => l !== text)
+      : [...selectedIndicators, text];
+    setField('behavioralIndicators', next.join('\n'));
+  };
 
   const scaleItems = [
     { value: '', label: 'Sem escala definida' },
@@ -186,13 +216,37 @@ export function CriteriaFormModal({
             label="Indicadores comportamentais"
             htmlFor="crit-indicators"
           >
+            <div
+              role="group"
+              aria-label="Indicadores sugeridos"
+              className="mb-2 flex flex-wrap gap-2"
+            >
+              {INDICATOR_SUGGESTIONS.map((s) => {
+                const active = selectedIndicators.includes(s);
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => toggleIndicator(s)}
+                    className={
+                      active
+                        ? 'rounded-full border-[1.5px] border-[#0F1F3D] bg-[#0F1F3D] px-3 py-1 text-xs text-white'
+                        : 'rounded-full border-[1.5px] border-field bg-surface px-3 py-1 text-xs text-field-ink hover:bg-field-soft'
+                    }
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
             <Textarea
               id="crit-indicators"
               value={form.behavioralIndicators}
               onChange={(e) => setField('behavioralIndicators', e.target.value)}
               className="w-full"
               rows={3}
-              placeholder="Comportamentos observáveis que evidenciam este critério…"
+              placeholder="Escolhe acima ou escreve outros — um indicador por linha"
             />
           </FormField>
 

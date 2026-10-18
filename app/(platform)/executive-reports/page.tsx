@@ -20,7 +20,6 @@ import {
   GraduationCap,
   Gauge,
   History,
-  RefreshCw,
   ShieldAlert,
   Star,
   Users,
@@ -31,11 +30,11 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { IconButton } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { AlertsPanel } from '@/components/executive-reports/AlertsPanel';
 import { CustomReportsPanel } from '@/components/executive-reports/CustomReportsPanel';
 import { DepartmentsPanel } from '@/components/executive-reports/DepartmentsPanel';
@@ -116,7 +115,6 @@ export default function ExecutiveReportsPage() {
   );
   const tabs = tabsQ.data ?? [];
   const active = tabs.find((t) => t.id === activeTab) ?? tabs[0];
-  const ActiveIcon = active ? TAB_ICONS[active.id] : FileText;
   const restrictedScope = role === 'GESTOR' || role === 'LIDER';
   // O histórico lista relatórios guardados — não depende dos filtros globais.
   const showFilters =
@@ -124,33 +122,12 @@ export default function ExecutiveReportsPage() {
 
   return (
     <div className="min-h-screen bg-surface">
-      {/* Header */}
-      <div className="border-b border-border bg-surface px-6 py-5">
-        <div className="mx-auto flex max-w-7xl items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <ActiveIcon
-                size={22}
-                strokeWidth={1.8}
-                className="transition-all duration-300"
-              />
-            </div>
-            <div>
-              <h1 className="font-display text-xl font-bold text-ink">
-                Relatórios Executivos
-              </h1>
-              <p className="mt-0.5 font-body text-xs text-ink-muted">
-                {active?.hint ?? 'Relatórios Executivos · INNOVA'}
-              </p>
-            </div>
-          </div>
-          <IconButton
-            icon={RefreshCw}
-            label="Actualizar"
-            intent="secondary"
-            onClick={() => window.location.reload()}
-          />
-        </div>
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <ModuleBanner
+          src="/images/relatorios executivos.jpg"
+          title="Relatórios Executivos"
+          hint={active?.hint ?? 'Relatórios Executivos · INNOVA'}
+        />
       </div>
 
       {tabsQ.isLoading && (
@@ -174,7 +151,7 @@ export default function ExecutiveReportsPage() {
           onValueChange={(v) => setActiveTab(v as ExecutiveTabId)}
         >
           {/* Barra de abas — mesma pílula do módulo scalability. */}
-          <div className="mx-auto max-w-7xl px-6 py-3">
+          <div className={`mx-auto max-w-7xl ${BANNER_TABS_CLASS}`}>
             <PillTabsList
               items={tabs.map((t) => ({
                 id: t.id,

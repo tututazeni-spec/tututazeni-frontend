@@ -48,11 +48,11 @@ export function HRDashboardView() {
   return (
     <div className="space-y-5">
       {/* People */}
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+          Análise de Dados de Pessoas
+        </div>
         <CardBody>
-          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-            Análise de Dados de Pessoas
-          </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <NavyStatCard
               icon={Users}
@@ -84,11 +84,11 @@ export function HRDashboardView() {
       </Card>
 
       {/* Learning */}
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+          Análise da Aprendizagem
+        </div>
         <CardBody>
-          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-            Análise da Aprendizagem
-          </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <NavyStatCard
               icon={BookOpen}
@@ -119,11 +119,11 @@ export function HRDashboardView() {
       </Card>
 
       {/* PDI */}
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+          Análise dos Planos de Desenvolvimento Individual
+        </div>
         <CardBody>
-          <div className="mb-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-            Análise dos Planos de Desenvolvimento Individual
-          </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <NavyStatCard
               icon={Target}

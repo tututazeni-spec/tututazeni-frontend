@@ -38,6 +38,7 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES, MGMT_ROLES, filterByRole } from '@/lib/roles';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 
 // Análises e Calibração espelham exactamente @Roles(ADMIN, RH) de
 // GET /evaluations/analytics/dashboard e GET /evaluations/calibration/:cycleId
@@ -168,26 +169,23 @@ export default function EvaluationsPage() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      {/* Header */}
-      <div className="border-b border-border bg-surface px-6 py-5">
-        <div className="mx-auto flex max-w-7xl items-start justify-between">
-          <div>
-            <h1 className="font-display text-xl font-bold text-ink">
-              Avaliações
-            </h1>
-          </div>
-          {/* "Novo Ciclo" (criar) vive dentro da própria CyclesTab
-              (components/evaluation/CreateCycleModal.tsx → POST
-              /evaluations/cycles). Distinto de evaluation360's próprio
-              "Novo Ciclo" (components/evaluation360/CreateCycleModal.tsx),
-              que fala com o módulo evaluation360 à parte
-              (/evaluation360/cycles) — não confundir os dois. */}
-        </div>
+      {/* "Novo Ciclo" (criar) vive dentro da própria CyclesTab
+          (components/evaluation/CreateCycleModal.tsx → POST
+          /evaluations/cycles). Distinto de evaluation360's próprio
+          "Novo Ciclo" (components/evaluation360/CreateCycleModal.tsx),
+          que fala com o módulo evaluation360 à parte
+          (/evaluation360/cycles) — não confundir os dois. */}
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <ModuleBanner
+          src="/images/avaliações.jpg"
+          title="Avaliações"
+          position="center 35%"
+        />
       </div>
 
       <Tabs defaultValue="overview">
-        <div className="bg-surface px-6 py-5">
-          <PillTabsList items={visibleTabs} className="mx-auto max-w-7xl" />
+        <div className={`mx-auto max-w-7xl ${BANNER_TABS_CLASS}`}>
+          <PillTabsList items={visibleTabs} />
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">

@@ -19,6 +19,7 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import type { View } from '@/components/ai-tutor/types';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 
 const PRIVILEGED_ROLES = new Set(['ADMIN', 'RH']);
 
@@ -30,17 +31,15 @@ export default function AiTutorPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="font-display text-xl font-semibold text-ink">
-            {TITLES[view]}
-          </h1>
-        </div>
-      </div>
+      <ModuleBanner
+        src="/images/tutor de ia.jpg"
+        title={TITLES[view]}
+        position="center 42%"
+      />
 
       {/* Tabs — barra glassmorphism partilhada (components/ui/PillTabs). */}
       <Tabs value={view} onValueChange={(v) => setView(v as View)}>
-        <PillTabsList items={nav} className="mb-6" />
+        <PillTabsList items={nav} className={BANNER_TABS_CLASS} />
 
         <TabsContent value="overview">
           <OverviewView />

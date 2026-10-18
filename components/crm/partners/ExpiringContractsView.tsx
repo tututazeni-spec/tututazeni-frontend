@@ -3,7 +3,6 @@
 // existia no backend sem UI.
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { formatKz } from '@/lib/format';
 import { ListSkeleton, ErrorBanner, formatDate } from '@/components/crm/shared';
@@ -29,21 +28,6 @@ export function ExpiringContractsView({
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Contratos a Expirar
-          </h1>
-          <p className="font-body text-ink-muted">
-            {data.length} {data.length === 1 ? 'contrato' : 'contratos'} nos
-            próximos 30 dias
-          </p>
-        </div>
-        <Link href="/crm/partners">
-          <Button intent="secondary">← Parceiros</Button>
-        </Link>
-      </div>
-
       <Card>
         <div className="overflow-hidden">
           <table className="w-full font-body text-sm">

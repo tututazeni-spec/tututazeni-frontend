@@ -24,6 +24,7 @@
 // entrada de sidebar.
 
 import { PillNav } from '@/components/ui/PillTabs';
+import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useState } from 'react';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES, filterByRole } from '@/lib/roles';
@@ -69,32 +70,29 @@ export default function CompetenciesPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-xl font-semibold text-ink">
-            {TITLES[view]}
-          </h1>
-          <p className="mt-0.5 font-body text-sm text-ink-faint"></p>
-        </div>
-        {view === 'catalog' && canManage && (
-          <Button onClick={() => setForm({ competencyId: null })}>
-            + Nova competência
-          </Button>
-        )}
-        {view === 'models' && canManage && (
-          <Button onClick={() => setModelForm({ modelId: null })}>
-            + Novo modelo
-          </Button>
-        )}
-      </div>
+      <ModuleBanner
+        src="/images/competencias.jpg"
+        title={TITLES[view]}
+        hint={visibleNav.find((n) => n.id === view)?.hint}
+        action={
+          view === 'catalog' && canManage ? (
+            <Button onClick={() => setForm({ competencyId: null })}>
+              + Nova competência
+            </Button>
+          ) : view === 'models' && canManage ? (
+            <Button onClick={() => setModelForm({ modelId: null })}>
+              + Novo modelo
+            </Button>
+          ) : undefined
+        }
+      />
 
       <PillNav
         items={visibleNav}
         value={view}
         onChange={(id) => setView(id as typeof view)}
         label="Competências"
-        className="mb-6"
+        className={BANNER_TABS_CLASS}
       />
 
       {/* Overview/Matrix/etc.: nem montados para quem não tem
