@@ -55,7 +55,8 @@ import {
   PRIORITY_ON_DARK_CFG,
   STATUS_ON_DARK_CFG,
 } from './constants';
-import { planHeaderBackground, planPalette } from './PlanCard';
+import { planPalette } from './PlanCard';
+import { Metric } from '@/components/events/EventListCard';
 import { isOverdue } from './utils';
 import type { Action, Plan } from './types';
 
@@ -200,6 +201,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
     !!plan.developmentNeeds ||
     !!plan.originJustification ||
     (plan.competencyGaps?.length ?? 0) > 0;
+  const palette = planPalette(plan);
   const diagSeed = Math.abs((plan.user?.id ?? 0) * 3 + plan.id);
 
   return (
@@ -209,19 +211,34 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
         Voltar
       </Button>
 
-      {/* Header — mesmo desenho do detalhe de curso no catálogo: cartão
-          principal com o gradiente do PDI + cartão lateral com a imagem. */}
-      <div className="mb-5 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      {/* Header — desenho de "workshop de inovação.jpeg": cartão claro com
+          etiquetas, ícone + título, dados, gestor e acção; a imagem do PDI
+          num recorte inclinado no canto superior direito. */}
+      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div
-          className="overflow-hidden rounded-panel p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
+          aria-hidden
+          className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
           style={{
-            background: (([c1, c2, c3]) =>
-              `linear-gradient(160deg, ${c1} 0%, ${c2} 55%, ${c3} 100%)`)(
-              planPalette(plan),
-            ),
+            clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
+            background: plan.imageUrl
+              ? undefined
+              : `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
           }}
         >
-          <div className="mb-3 flex flex-wrap items-center gap-2">
+          {plan.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={plan.imageUrl}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <Target size={48} strokeWidth={1.25} />
+          )}
+        </div>
+
+        <div className="relative space-y-5 p-6 sm:pr-[36%]">
+          <div className="flex flex-wrap items-center gap-2">
             <StatusBadge
               value={plan.status}
               map={STATUS_ON_DARK_CFG}
@@ -233,77 +250,75 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               variant="pill"
             />
             {plan.period && (
-              <span className="font-body text-xs text-white">
+              <span className="font-body text-xs font-semibold text-[#49658A]">
                 {plan.period}
               </span>
             )}
           </div>
-          <h1 className="mb-1 font-display text-xl font-bold leading-snug text-white">
-            {plan.name}
-          </h1>
-          {plan.user && (
-            <div className="mb-3 text-sm font-medium text-white">
-              {plan.user.fullName}
+
+          <div className="flex items-center gap-4">
+            <span
+              aria-hidden
+              className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full text-white"
+              style={{ background: palette[3] }}
+            >
+              <Target size={28} strokeWidth={1.75} />
+            </span>
+            <div className="min-w-0">
+              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-[#0F1F3D]">
+                {plan.name}
+              </h1>
+              {plan.user && (
+                <p className="mt-0.5 break-words text-base text-[#49658A]">
+                  {plan.user.fullName}
+                </p>
+              )}
             </div>
-          )}
-          <p className="max-w-[60ch] whitespace-pre-line text-sm leading-relaxed text-white">
+          </div>
+
+          <p className="whitespace-pre-line font-body text-sm leading-relaxed text-ink-muted">
             {plan.goal}
           </p>
-          <div className="-mb-2 mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white">
-            <span className="inline-flex items-center gap-2">
-              <Calendar size={14} strokeWidth={1.75} />
-              Início: {fmtDate(plan.startDate)}
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Calendar size={14} strokeWidth={1.75} />
-              Fim: {fmtDate(plan.endDate)}
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <ClipboardList size={14} strokeWidth={1.75} />
-              {plan._count.actions} Acções
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Target size={14} strokeWidth={1.75} />
-              {plan._count.goals} Metas
-            </span>
-            {plan.manager && (
-              <span className="inline-flex items-center gap-2">
-                <Avatar name={plan.manager.fullName} size="sm" />
-                Gestor: {plan.manager.fullName}
-              </span>
-            )}
+
+          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+            <Metric icon={Calendar}>Início: {fmtDate(plan.startDate)}</Metric>
+            <Metric icon={Calendar}>Fim: {fmtDate(plan.endDate)}</Metric>
+            <Metric icon={ClipboardList}>{plan._count.actions} Acções</Metric>
+            <Metric icon={Target}>{plan._count.goals} Metas</Metric>
+          </div>
+
+          <div className="border-t border-[#E6ECF4] pt-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              {plan.manager ? (
+                <span className="inline-flex items-center gap-3 text-[15px] text-[#49658A]">
+                  <Avatar
+                    name={plan.manager.fullName}
+                    url={plan.manager.avatarUrl ?? undefined}
+                    size="sm"
+                  />
+                  Gestor: {plan.manager.fullName}
+                </span>
+              ) : (
+                <span />
+              )}
+              {plan.status === 'DRAFT' && (
+                <Button size="sm" onClick={handleSubmit}>
+                  Submeter para aprovação
+                  <ArrowRight size={14} strokeWidth={1.75} />
+                </Button>
+              )}
+            </div>
+            <div className="mt-4">
+              <div className="mb-1 flex justify-between font-body text-xs text-[#49658A]">
+                <span>Progresso geral</span>
+                <span className="font-data font-semibold text-[#0F1F3D]">
+                  {pct}%
+                </span>
+              </div>
+              <ProgressBar value={pct} color={palette[0]} />
+            </div>
           </div>
         </div>
-
-        {/* Cartão lateral: imagem do PDI, progresso e acção principal */}
-        <Card
-          className="border-transparent p-5 text-white"
-          style={{ background: planHeaderBackground(plan) }}
-        >
-          <div className="relative mb-4 flex aspect-video items-center justify-center overflow-hidden rounded-control bg-white/10 text-white/60">
-            {plan.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={plan.imageUrl}
-                alt={plan.name}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            ) : (
-              <Target size={48} strokeWidth={1.25} aria-hidden />
-            )}
-          </div>
-          <div className="mb-1 flex justify-between font-body text-xs text-white">
-            <span>Progresso geral</span>
-            <span className="font-data font-semibold">{pct}%</span>
-          </div>
-          <ProgressBar value={pct} className="mb-3 h-2.5" />
-          {plan.status === 'DRAFT' && (
-            <Button size="sm" onClick={handleSubmit} className="w-full">
-              Submeter para aprovação
-              <ArrowRight size={14} strokeWidth={1.75} />
-            </Button>
-          )}
-        </Card>
       </div>
 
       {/* Fecho do PDI (secção 19-20) — só depois de concluído */}

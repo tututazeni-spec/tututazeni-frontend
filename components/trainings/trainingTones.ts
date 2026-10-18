@@ -18,3 +18,12 @@ export const LEVEL_TONE: Record<TrainingLevel, NavyTone> = {
   INTERMEDIATE: 'warning',
   ADVANCED: 'danger',
 };
+
+// Cor sólida de cada tom nas etiquetas (EventBadge) sobre cartões claros.
+export const TONE_COLOR: Record<NavyTone, string> = {
+  success: '#16A765',
+  danger: '#C23A52',
+  warning: '#F28C28',
+  info: '#1267B8',
+  neutral: '#64748B',
+};

@@ -36,13 +36,13 @@ import {
   STATUS_CFG,
 } from '../constants';
 import type { Training, TrainingPlan, TrainingPlanExecution } from '../types';
-import {
-  NAVY_ACTION,
-  NavyBadge,
-  NavyCard,
-} from '@/components/courses/NavyCard';
+import { PALETTE } from '@/components/onboarding/TemplateCard';
+import { EventBadge } from '@/components/events/EventBadges';
+import { Metric } from '@/components/events/EventListCard';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { NavyPanel } from './NavyPanel';
 import { PLAN_TONE, PRIORITY_TONE } from './planTones';
+import { TONE_COLOR } from '../trainingTones';
 import { parsePickValue } from './MultiPickField';
 
 interface PlanDetailViewProps {
@@ -114,6 +114,7 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
 
   if (isLoading || !plan) return <Skeleton rows={4} />;
 
+  const palette = PALETTE[Math.abs(plan.id) % PALETTE.length];
   const statusCfg = PLAN_STATUS_CFG[plan.status];
   const priorityCfg = PRIORITY_CFG[plan.priority];
   const trainings = plan.trainings ?? [];
@@ -147,62 +148,114 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
         Voltar aos planos
       </Button>
 
-      <NavyCard
-        seed={plan.id}
-        image={plan.imageUrl}
-        flushFirstInfo
-        kicker={plan.code ?? `Plano ${plan.year}`}
-        kickerIcon={ClipboardList}
-        title={plan.name}
-        subtitle={plan.description ?? undefined}
-        badge={
-          <>
-            <NavyBadge tone={PLAN_TONE[plan.status]}>
+      {/* Cabeçalho — desenho de "workshop de inovação.jpeg": cartão claro com
+          etiquetas, ícone + título, dados, responsável e acção; a imagem do
+          plano num recorte inclinado no canto superior direito. */}
+      <div className="relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div
+          aria-hidden
+          className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
+          style={{
+            clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
+            background: plan.imageUrl
+              ? undefined
+              : `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
+          }}
+        >
+          {plan.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={plan.imageUrl}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <ClipboardList size={48} strokeWidth={1.25} />
+          )}
+        </div>
+
+        <div className="relative space-y-5 p-6 sm:pr-[36%]">
+          <div className="flex flex-wrap items-center gap-2">
+            <EventBadge color={TONE_COLOR[PLAN_TONE[plan.status]]}>
               {statusCfg.label}
-            </NavyBadge>
-            <NavyBadge tone={PRIORITY_TONE[plan.priority]}>
+            </EventBadge>
+            <EventBadge color={TONE_COLOR[PRIORITY_TONE[plan.priority]]}>
               {priorityCfg.label}
-            </NavyBadge>
-          </>
-        }
-        actions={
-          <a
-            href={`/api/training-plans/${plan.id}/export`}
-            className={NAVY_ACTION}
-            aria-label="Exportar plano"
-            title="Exportar"
-          >
-            <Download size={15} strokeWidth={1.75} />
-          </a>
-        }
-        infos={[
-          {
-            icon: CalendarDays,
-            value: String(plan.year),
-            label: PLAN_PERIOD_LABEL[plan.period] ?? plan.period,
-          },
-          {
-            icon: UserCheck,
-            value: plan.responsible?.fullName ?? '—',
-            label: 'Responsável',
-          },
-          {
-            icon: BadgeCheck,
-            value: plan.approver?.fullName ?? '—',
-            label: 'Aprovador',
-          },
-          {
-            icon: Clock,
-            value: `${plan.startDate?.slice(0, 10) ?? '—'} → ${plan.endDate?.slice(0, 10) ?? '—'}`,
-            label: 'Início e fim',
-          },
-        ]}
-        progress={
-          overallRate != null
-            ? { value: overallRate, label: 'Execução do plano' }
-            : undefined
-        }
-      />
+            </EventBadge>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span
+              aria-hidden
+              className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full text-white"
+              style={{ background: palette[3] }}
+            >
+              <ClipboardList size={28} strokeWidth={1.75} />
+            </span>
+            <div className="min-w-0">
+              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-[#0F1F3D]">
+                {plan.name}
+              </h1>
+              <p className="mt-0.5 break-words text-base text-[#49658A]">
+                {plan.code ?? `Plano ${plan.year}`}
+              </p>
+            </div>
+          </div>
+
+          {plan.description && (
+            <p className="font-body text-sm leading-relaxed text-ink-muted">
+              {plan.description}
+            </p>
+          )}
+
+          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+            <Metric icon={CalendarDays}>
+              {plan.year} · {PLAN_PERIOD_LABEL[plan.period] ?? plan.period}
+            </Metric>
+            <Metric icon={Clock}>
+              {plan.startDate?.slice(0, 10) ?? '—'} →{' '}
+              {plan.endDate?.slice(0, 10) ?? '—'}
+            </Metric>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+            <Metric icon={UserCheck}>
+              {plan.responsible?.fullName ?? '—'}{' '}
+              <span className="text-[#49658A]">· Responsável</span>
+            </Metric>
+            <Metric icon={BadgeCheck}>
+              {plan.approver?.fullName ?? '—'}{' '}
+              <span className="text-[#49658A]">· Aprovador</span>
+            </Metric>
+          </div>
+
+          <div className="border-t border-[#E6ECF4] pt-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              {overallRate != null ? (
+                <div className="min-w-[200px] flex-1">
+                  <div className="mb-1 flex justify-between text-xs text-[#49658A]">
+                    <span>Execução do plano</span>
+                    <span className="font-data font-semibold text-[#0F1F3D]">
+                      {overallRate}%
+                    </span>
+                  </div>
+                  <ProgressBar value={overallRate} color={palette[0]} />
+                </div>
+              ) : (
+                <span />
+              )}
+              <a
+                href={`/api/training-plans/${plan.id}/export`}
+                className={buttonVariants({ intent: 'secondary', size: 'sm' })}
+                aria-label="Exportar plano"
+                title="Exportar"
+              >
+                <Download size={15} strokeWidth={1.75} />
+                Exportar
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
       {plan.status === 'REJECTED' && plan.rejectionReason && (
         <p className="rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
           Motivo da rejeição: {plan.rejectionReason}
@@ -214,12 +267,13 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {detailBlocks.map((b) => (
             <NavyPanel key={b.label} seed={plan.id} title={b.label}>
-              <ul className="space-y-1.5 font-body text-[15px] font-medium text-white">
+              <ul className="space-y-1.5 font-body text-[15px] font-medium text-[#0F1F3D]">
                 {b.items.map((it) => (
                   <li key={it} className="flex gap-2">
                     <span
                       aria-hidden
-                      className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-white/70"
+                      className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full"
+                      style={{ background: palette[0] }}
                     />
                     {it}
                   </li>
@@ -393,19 +447,19 @@ function ExecutionStat({
   const fmt = (v: number) => (money ? formatKz(v) : v.toLocaleString('pt-PT'));
   return (
     <div>
-      <div className="font-body text-[15px] font-medium text-white">
+      <div className="font-body text-[15px] font-medium text-[#49658A]">
         {label}
       </div>
-      <div className="font-body text-lg font-bold text-white">
+      <div className="font-body text-lg font-bold text-[#0F1F3D]">
         {fmt(realized)}
-        <span className="text-[15px] font-medium text-white/70">
+        <span className="text-[15px] font-medium text-[#49658A]">
           {' '}
           / {fmt(planned)}
         </span>
       </div>
       {rate !== null && (
         <div
-          className={`text-xs ${rate >= 100 ? 'text-sky-300' : 'text-white/70'}`}
+          className={`text-xs ${rate >= 100 ? 'text-success-ink' : 'text-[#49658A]'}`}
         >
           {rate}% executado
         </div>

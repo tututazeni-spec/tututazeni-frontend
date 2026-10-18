@@ -26,14 +26,16 @@ import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
+import { PALETTE } from '@/components/onboarding/TemplateCard';
+import { EventBadge } from '@/components/events/EventBadges';
+import { Metric } from '@/components/events/EventListCard';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { LEVEL_CFG, TYPE_CFG } from './constants';
-import { LEVEL_TONE } from './trainingTones';
+import { LEVEL_TONE, TONE_COLOR } from './trainingTones';
 import { fmtDate, fmtHours } from './utils';
 import type { Training, TrainingType } from './types';
 
@@ -144,6 +146,8 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
     );
 
   const typeCfg = TYPE_CFG[training.type];
+  const palette =
+    PALETTE[Math.abs(training.colorIndex ?? training.id) % PALETTE.length];
 
   return (
     <div>
@@ -152,65 +156,107 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
         Voltar ao catálogo
       </Button>
 
-      {/* Header — mesmo cartão compacto do Calendário */}
-      <div className="mb-5 space-y-3">
-        <NavyCard
-          compact
-          seed={training.colorIndex ?? training.id}
-          image={training.thumbnailUrl}
-          kicker={training.category ?? typeCfg?.label}
-          kickerIcon={GraduationCap}
-          title={training.title}
-          badge={
-            <>
-              <NavyBadge tone={LEVEL_TONE[training.level]}>
-                {LEVEL_CFG[training.level].label}
-              </NavyBadge>
-              {typeCfg && <NavyBadge tone="neutral">{typeCfg.label}</NavyBadge>}
-              {training.mandatory && (
-                <NavyBadge tone="danger">Obrigatório</NavyBadge>
-              )}
-              {training.issueCertificate && (
-                <NavyBadge tone="warning">Certificado</NavyBadge>
-              )}
-            </>
-          }
-          infos={[
-            {
-              icon: Clock,
-              value: fmtHours(training.workloadHours),
-              label: 'Carga horária',
-            },
-            {
-              icon: Globe,
-              value: training.language.toUpperCase(),
-              label: 'Idioma',
-            },
-            {
-              icon: Users,
-              value: String(training._count.participants),
-              label: 'Inscritos',
-            },
-            {
-              icon: Star,
-              value:
-                training.avgRating != null
-                  ? `${training.avgRating.toFixed(1)} / 5`
-                  : 'Sem avaliação',
-              label: 'Avaliação',
-            },
-            {
-              icon: UserCheck,
-              value: training.instructor?.fullName ?? 'Sem formador',
-              label: training.instructor?.position?.name ?? 'Instrutor',
-            },
-          ]}
-        />
-        {training.shortDescription && (
-          <p className="font-body text-sm text-ink-muted">
-            {training.shortDescription}
-          </p>
-        )}
+      {/* Header — desenho de "workshop de inovação.jpeg" (o mesmo do detalhe
+          do plano de formação): cartão claro com etiquetas, ícone + título,
+          dados e formador; a imagem da formação num recorte inclinado. */}
+      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div
+          aria-hidden
+          className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
+          style={{
+            clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
+            background: training.thumbnailUrl
+              ? undefined
+              : `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
+          }}
+        >
+          {training.thumbnailUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={training.thumbnailUrl}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <GraduationCap size={48} strokeWidth={1.25} />
+          )}
+        </div>
+
+        <div className="relative space-y-5 p-6 sm:pr-[36%]">
+          <div className="flex flex-wrap items-center gap-2">
+            <EventBadge color={TONE_COLOR[LEVEL_TONE[training.level]]}>
+              {LEVEL_CFG[training.level].label}
+            </EventBadge>
+            {typeCfg && (
+              <EventBadge color={TONE_COLOR.neutral}>
+                {typeCfg.label}
+              </EventBadge>
+            )}
+            {training.mandatory && (
+              <EventBadge color={TONE_COLOR.danger}>Obrigatório</EventBadge>
+            )}
+            {training.issueCertificate && (
+              <EventBadge color={TONE_COLOR.warning}>Certificado</EventBadge>
+            )}
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span
+              aria-hidden
+              className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full text-white"
+              style={{ background: palette[3] }}
+            >
+              <GraduationCap size={28} strokeWidth={1.75} />
+            </span>
+            <div className="min-w-0">
+              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-[#0F1F3D]">
+                {training.title}
+              </h1>
+              <p className="mt-0.5 break-words text-base text-[#49658A]">
+                {training.category ?? typeCfg?.label}
+              </p>
+            </div>
+          </div>
+
+          {training.shortDescription && (
+            <p className="font-body text-sm leading-relaxed text-ink-muted">
+              {training.shortDescription}
+            </p>
+          )}
+
+          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+            <Metric icon={Clock}>
+              {fmtHours(training.workloadHours)}{' '}
+              <span className="text-[#49658A]">· Carga horária</span>
+            </Metric>
+            <Metric icon={Globe}>
+              {training.language.toUpperCase()}{' '}
+              <span className="text-[#49658A]">· Idioma</span>
+            </Metric>
+          </div>
+          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+            <Metric icon={Users}>
+              {training._count.participants}{' '}
+              <span className="text-[#49658A]">· Inscritos</span>
+            </Metric>
+            <Metric icon={Star}>
+              {training.avgRating != null
+                ? `${training.avgRating.toFixed(1)} / 5`
+                : 'Sem avaliação'}{' '}
+              <span className="text-[#49658A]">· Avaliação</span>
+            </Metric>
+          </div>
+
+          <div className="border-t border-[#E6ECF4] pt-4">
+            <span className="inline-flex items-center gap-3 text-[15px] text-[#49658A]">
+              <UserCheck size={22} strokeWidth={1.75} aria-hidden />
+              {training.instructor?.fullName ?? 'Sem formador'}
+              <span>
+                · {training.instructor?.position?.name ?? 'Instrutor'}
+              </span>
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Sessões */}
