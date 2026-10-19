@@ -157,17 +157,17 @@ function Chip({
         color
           ? {
               borderColor: color,
-              backgroundColor: active ? color : `${color}26`,
-              color: '#fff',
+              backgroundColor: active ? color : `${color}1A`,
+              color: active ? '#fff' : '#0F1F3D',
             }
           : undefined
       }
-      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 ${
+      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F1F3D]/40 ${
         color
-          ? 'hover:brightness-125'
+          ? 'hover:brightness-95'
           : active
-            ? 'border-white bg-white text-[#0F1F3D]'
-            : 'border-white/25 bg-white/5 text-white/80 hover:border-white/50 hover:bg-white/10 hover:text-white'
+            ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
+            : 'border-[#D8E2F0] bg-white text-[#0F1F3D] hover:border-[#0F1F3D]'
       }`}
     >
       {children}
@@ -239,27 +239,27 @@ export function ReportsView() {
 
   return (
     <div className="space-y-5">
-      <Card className="overflow-hidden border-[#0F1F3D] bg-[#0F1F3D] text-white [&_label]:text-white/85">
-        <div className="flex items-center gap-3 border-b border-white px-5 py-4">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+      <Card className="overflow-hidden rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="flex items-center gap-3 border-b border-[#E6ECF4] px-6 py-5">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF4FD] text-[#0F1F3D]">
             <SlidersHorizontal size={16} strokeWidth={1.75} />
           </span>
           <div>
-            <h2 className="font-display text-base font-semibold">
+            <h2 className="font-display text-lg font-bold text-[#0F1F3D]">
               Gerar relatório
             </h2>
-            <p className="font-body text-xs text-white/65">
+            <p className="font-body text-xs text-[#49658A]">
               Escolha o relatório, defina o período e os critérios, e
               pré-visualize antes de exportar.
             </p>
           </div>
         </div>
 
-        <div className="space-y-6 px-5 py-5">
+        <div className="space-y-6 px-6 py-6">
           <section aria-labelledby="rep-sec-period" className="space-y-3">
             <h3
               id="rep-sec-period"
-              className="font-body text-sm font-semibold text-white"
+              className="font-body text-sm font-semibold text-[#0F1F3D]"
             >
               Relatório e período
             </h3>
@@ -295,11 +295,11 @@ export function ReportsView() {
 
           <section
             aria-labelledby="rep-sec-criteria"
-            className="space-y-3 border-t border-white pt-5"
+            className="space-y-3 border-t border-[#E6ECF4] pt-5"
           >
             <h3
               id="rep-sec-criteria"
-              className="font-body text-sm font-semibold text-white"
+              className="font-body text-sm font-semibold text-[#0F1F3D]"
             >
               Critérios
             </h3>
@@ -359,7 +359,7 @@ export function ReportsView() {
 
             <div className="grid gap-4 pt-1 md:grid-cols-2">
               <div>
-                <div className="mb-2 font-body text-xs text-white/65">
+                <div className="mb-2 font-body text-xs text-[#49658A]">
                   Módulos (vazio = todos)
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -377,7 +377,7 @@ export function ReportsView() {
                 </div>
               </div>
               <div>
-                <div className="mb-2 font-body text-xs text-white/65">
+                <div className="mb-2 font-body text-xs text-[#49658A]">
                   Perfis (vazio = todos)
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -397,25 +397,20 @@ export function ReportsView() {
           </section>
         </div>
 
-        <div className="border-t border-white bg-black/15 px-5 py-4">
+        <div className="border-t border-[#E6ECF4] bg-[#F7FAFE] px-6 py-4">
           <div className="flex flex-wrap items-center gap-2">
             <Button
-              className="bg-white text-[#0F1F3D] hover:bg-white/90"
               onClick={() => setApplied(toParams(form))}
               loading={isFetching}
             >
               <Play size={14} strokeWidth={1.75} className="mr-1.5" />
               Pré-visualizar
             </Button>
-            <Button
-              intent="ghost"
-              className="text-white/80 hover:bg-white/10 hover:text-white"
-              onClick={() => setForm(EMPTY)}
-            >
+            <Button intent="ghost" onClick={() => setForm(EMPTY)}>
               Limpar filtros
             </Button>
             <div className="ml-auto flex flex-wrap items-center gap-2">
-              <span className="mr-1 font-body text-xs text-white/65">
+              <span className="mr-1 font-body text-xs text-[#49658A]">
                 Exportar
               </span>
               <Button
@@ -448,7 +443,7 @@ export function ReportsView() {
               </Button>
             </div>
           </div>
-          <p className="mt-3 font-body text-xs text-white/60">
+          <p className="mt-3 font-body text-xs text-[#49658A]">
             Cada exportação regista quem exportou, quando, os filtros usados e o
             resultado. Os ficheiros podem conter dados pessoais ou salariais.
           </p>

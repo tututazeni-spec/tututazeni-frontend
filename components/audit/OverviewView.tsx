@@ -278,12 +278,12 @@ export function OverviewView({
       </div>
 
       {/* Alertas de segurança pendentes */}
-      <div className="flex items-center justify-between rounded-card border border-[#0F1F3D] bg-[#0F1F3D] p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white px-5 py-4 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div>
-          <div className="font-body text-sm font-semibold text-white">
+          <div className="font-body text-[15px] font-semibold text-[#0F1F3D]">
             Alertas de segurança pendentes
           </div>
-          <div className="font-body text-xs text-white">
+          <div className="font-body text-xs text-[#49658A]">
             {data.anomalies.suspiciousLogins.length} logins suspeitos ·{' '}
             {data.anomalies.massExports.length} exportações em massa ·{' '}
             {data.anomalies.massDeletes.length} eliminações em massa
@@ -292,7 +292,6 @@ export function OverviewView({
         <Button
           intent="secondary"
           size="sm"
-          className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
           onClick={() => onNavigate('security')}
         >
           Ver incidentes
