@@ -13,6 +13,7 @@ import {
   Building2,
   Check,
   Clock,
+  FileStack,
   Copy,
   FlaskConical,
   Layers,
@@ -42,8 +43,8 @@ import {
   RISK_LEVEL_MAP,
   STEP_TYPE_MAP,
 } from './constants';
-import { InfoRow, Metric } from '@/components/events/EventListCard';
-import { headerBackground } from '@/components/onboarding/TemplateCard';
+import { Metric } from '@/components/events/EventListCard';
+import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { CreateProcessModal } from './CreateProcessModal';
 import { ReasonDialog } from './ReasonDialog';
 import { Skeleton } from './Skeleton';
@@ -176,13 +177,8 @@ export function ProcessViewer({
       </div>
     );
 
-  // Cor fixa do cartão: azul-marinho da marca (#0F1F3D)
-  const palette: [string, string, string, string] = [
-    '#0F1F3D',
-    '#0F1F3D',
-    '#0F1F3D',
-    '#0F1F3D',
-  ];
+  // Cor própria do processo (a mesma do cartão na lista de modelos)
+  const palette = PALETTE[Math.abs(process.id) % PALETTE.length];
 
   return (
     <div>
@@ -191,180 +187,186 @@ export function ProcessViewer({
         Voltar aos modelos
       </Button>
 
-      {/* Header — mesmo desenho do cartão de evento (EventListCard), na horizontal */}
-      <div className="mb-5 flex w-full flex-col overflow-hidden rounded-[20px] border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] lg:flex-row">
-        {/* Base: cor do cartão */}
+      {/* Header — desenho de "workshop de inovação.jpeg" (o mesmo do detalhe
+          do evento): cartão claro com etiquetas, ícone + título, dados,
+          responsável e botões de acção. */}
+      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div
-          className="shrink-0 p-4 text-white lg:w-[38%] lg:p-5"
-          style={{ background: headerBackground(palette) }}
+          aria-hidden
+          className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
+          style={{
+            clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
+            background: `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
+          }}
         >
-          <h2 className="font-display text-[22px] font-semibold leading-tight">
-            {process.title}
-          </h2>
-          <p className="mt-1 font-mono text-sm text-white/70">
-            {process.code} · v{process.version}
-          </p>
+          <FileStack size={48} strokeWidth={1.25} />
+        </div>
+
+        <div className="relative space-y-5 p-6 sm:pr-[36%]">
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusBadge
+              value={process.status}
+              map={PROCESS_STATUS_MAP}
+              variant="dot"
+            />
+            <StatusBadge value={process.riskLevel} map={RISK_LEVEL_MAP} />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span
+              aria-hidden
+              className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full text-white"
+              style={{ background: palette[3] }}
+            >
+              <FileStack size={28} strokeWidth={1.75} />
+            </span>
+            <div className="min-w-0">
+              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-[#0F1F3D]">
+                {process.title}
+              </h1>
+              <p className="mt-0.5 break-words font-mono text-base text-[#49658A]">
+                {process.code} · v{process.version}
+              </p>
+            </div>
+          </div>
+
           {process.description && (
-            <p className="mt-1 line-clamp-2 text-[15px] text-white/80">
+            <p className="font-body text-sm leading-relaxed text-ink-muted">
               {process.description}
             </p>
           )}
+
+          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+            {process.defaultSlaHours ? (
+              <Metric icon={Clock}>SLA {process.defaultSlaHours}h</Metric>
+            ) : null}
+            {process.estimatedMinutes ? (
+              <Metric icon={Timer}>
+                {fmtDuration(process.estimatedMinutes)}
+              </Metric>
+            ) : null}
+            <Metric icon={Layers}>
+              {process._count.instances}{' '}
+              {process._count.instances === 1 ? 'instância' : 'instâncias'}
+            </Metric>
+          </div>
+          {process.department && (
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+              <Metric icon={Building2}>{process.department.name}</Metric>
+            </div>
+          )}
+
           {process.tags.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5">
               {process.tags.map((t) => (
                 <span
                   key={t}
-                  className="rounded-full bg-white/15 px-2.5 py-0.5 text-xs text-white"
+                  className="rounded bg-surface-sunken px-2 py-0.5 font-body text-xs text-ink-muted"
                 >
                   {t}
                 </span>
               ))}
             </div>
           )}
-        </div>
 
-        <div className="flex min-w-0 flex-1 flex-col justify-center">
-          <div className="flex flex-wrap items-center gap-2 px-6 pt-3">
-            <StatusBadge
-              value={process.status}
-              map={PROCESS_STATUS_MAP}
-              variant="dot"
-              className="!text-[#0F1F3D]"
-            />
-            <StatusBadge
-              value={process.riskLevel}
-              map={RISK_LEVEL_MAP}
-              className="!text-[#0F1F3D]"
-            />
-          </div>
-          <div className="flex flex-wrap items-center gap-y-2 divide-x divide-[#E6ECF4] px-6 py-2">
-            {process.defaultSlaHours ? (
-              <Metric iconClassName="text-[#0F1F3D]" icon={Clock}>
-                SLA {process.defaultSlaHours}h
-              </Metric>
-            ) : null}
-            {process.estimatedMinutes ? (
-              <Metric iconClassName="text-[#0F1F3D]" icon={Timer}>
-                {fmtDuration(process.estimatedMinutes)}
-              </Metric>
-            ) : null}
-            <Metric iconClassName="text-[#0F1F3D]" icon={Layers}>
-              {process._count.instances}{' '}
-              {process._count.instances === 1 ? 'instância' : 'instâncias'}
-            </Metric>
-          </div>
-
-          <div className="mx-6 border-t border-[#E6ECF4]" />
-
-          <div className="grid gap-2 px-6 py-3 sm:grid-cols-2">
-            <InfoRow
-              accent={palette[3]}
-              leading={
+          <div className="border-t border-[#E6ECF4] pt-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="inline-flex items-center gap-3 text-[15px] text-[#49658A]">
                 <Avatar
                   name={process.owner.fullName}
                   url={process.owner.avatarUrl ?? undefined}
                   size="sm"
                 />
-              }
-            >
-              {process.owner.fullName}
-            </InfoRow>
-            {process.department && (
-              <InfoRow icon={Building2} accent={palette[3]}>
-                {process.department.name}
-              </InfoRow>
-            )}
-          </div>
-
-          <div className="flex flex-wrap gap-2 px-6 pb-3">
-            {process.status === 'ACTIVE' && canStart && (
-              <Button
-                onClick={() => setShowStart(true)}
-                disabled={actionLoading}
-                size="sm"
-              >
-                <Play size={14} strokeWidth={1.75} />
-                Iniciar processo
-              </Button>
-            )}
-            {canEdit && (
-              <Button
-                intent="ghost"
-                className="text-[#0F1F3D]"
-                size="sm"
-                onClick={() => setShowValidate(true)}
-              >
-                <FlaskConical size={14} strokeWidth={1.75} />
-                Testar fluxo
-              </Button>
-            )}
-            {canEdit && process.status === 'DRAFT' && (
-              <Button
-                intent="ghost"
-                className="text-[#0F1F3D]"
-                size="sm"
-                onClick={() => setShowEdit(true)}
-              >
-                <Pencil size={14} strokeWidth={1.75} />
-                Editar rascunho
-              </Button>
-            )}
-            {canEdit && (
-              <Button
-                intent="ghost"
-                className="text-[#0F1F3D]"
-                size="sm"
-                onClick={() => duplicate.mutate(undefined)}
-                disabled={actionLoading}
-              >
-                <Copy size={14} strokeWidth={1.75} />
-                Duplicar
-              </Button>
-            )}
-            {process.status === 'DRAFT' && canEdit && (
-              <Button
-                intent="warning"
-                onClick={handleSubmitReview}
-                disabled={submitting}
-                size="sm"
-              >
-                <Send size={14} strokeWidth={1.75} />
-                {submitting ? 'A submeter…' : 'Submeter para revisão'}
-              </Button>
-            )}
-            {process.status === 'IN_REVIEW' && canEdit && (
-              <div className="flex gap-2">
-                <Button
-                  intent="success"
-                  size="sm"
-                  onClick={() => handleApproval('approve')}
-                  disabled={actionLoading}
-                >
-                  <Check size={14} strokeWidth={1.75} />
-                  Aprovar
-                </Button>
-                <Button
-                  intent="danger"
-                  size="sm"
-                  onClick={() => handleApproval('reject')}
-                  disabled={actionLoading}
-                >
-                  <X size={14} strokeWidth={1.75} />
-                  Rejeitar
-                </Button>
+                {process.owner.fullName}
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                {process.status === 'ACTIVE' && canStart && (
+                  <Button
+                    onClick={() => setShowStart(true)}
+                    disabled={actionLoading}
+                    size="sm"
+                  >
+                    <Play size={14} strokeWidth={1.75} />
+                    Iniciar processo
+                  </Button>
+                )}
+                {canEdit && (
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => setShowValidate(true)}
+                  >
+                    <FlaskConical size={14} strokeWidth={1.75} />
+                    Testar fluxo
+                  </Button>
+                )}
+                {canEdit && process.status === 'DRAFT' && (
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => setShowEdit(true)}
+                  >
+                    <Pencil size={14} strokeWidth={1.75} />
+                    Editar rascunho
+                  </Button>
+                )}
+                {canEdit && (
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => duplicate.mutate(undefined)}
+                    disabled={actionLoading}
+                  >
+                    <Copy size={14} strokeWidth={1.75} />
+                    Duplicar
+                  </Button>
+                )}
+                {process.status === 'DRAFT' && canEdit && (
+                  <Button
+                    intent="warning"
+                    onClick={handleSubmitReview}
+                    disabled={submitting}
+                    size="sm"
+                  >
+                    <Send size={14} strokeWidth={1.75} />
+                    {submitting ? 'A submeter…' : 'Submeter para revisão'}
+                  </Button>
+                )}
+                {process.status === 'IN_REVIEW' && canEdit && (
+                  <div className="flex gap-2">
+                    <Button
+                      intent="success"
+                      size="sm"
+                      onClick={() => handleApproval('approve')}
+                      disabled={actionLoading}
+                    >
+                      <Check size={14} strokeWidth={1.75} />
+                      Aprovar
+                    </Button>
+                    <Button
+                      intent="danger"
+                      size="sm"
+                      onClick={() => handleApproval('reject')}
+                      disabled={actionLoading}
+                    >
+                      <X size={14} strokeWidth={1.75} />
+                      Rejeitar
+                    </Button>
+                  </div>
+                )}
+                {process.status === 'ACTIVE' && canEdit && (
+                  <Button
+                    intent="secondary"
+                    size="sm"
+                    onClick={handleNewVersion}
+                    disabled={actionLoading}
+                  >
+                    <Plus size={14} strokeWidth={1.75} />
+                    Nova versão
+                  </Button>
+                )}
               </div>
-            )}
-            {process.status === 'ACTIVE' && canEdit && (
-              <Button
-                intent="secondary"
-                size="sm"
-                onClick={handleNewVersion}
-                disabled={actionLoading}
-              >
-                <Plus size={14} strokeWidth={1.75} />
-                Nova versão
-              </Button>
-            )}
+            </div>
           </div>
         </div>
       </div>
