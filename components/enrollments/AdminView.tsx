@@ -45,6 +45,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { ORIGIN_LABELS, STATUS_CFG } from './constants';
 import { useCourseOptions, useDepartmentOptions } from './enrollData';
 import { deadlineCountdown } from './utils';
+import { RunsModal } from './RunsModal';
 import type { Enrollment } from './types';
 
 const STATUS_TONE: Record<string, NavyTone> = {
@@ -80,6 +81,7 @@ interface AdminViewProps {
 export function AdminView({ initialCourseId }: AdminViewProps) {
   const notify = useToast();
   const confirm = useConfirm();
+  const [runsFor, setRunsFor] = useState<Enrollment | null>(null);
   const [filters, setFilters] = useState({
     status: '',
     mandatory: '',
@@ -432,6 +434,9 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                             Reinscrever
                           </DropdownMenuItem>
                         )}
+                        <DropdownMenuItem onSelect={() => setRunsFor(e)}>
+                          Histórico de realizações
+                        </DropdownMenuItem>
                         {e.status === 'COMPLETED' && (
                           <DropdownMenuItem onSelect={() => onRecycle(e)}>
                             Reciclar formação
@@ -485,6 +490,13 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             </Button>
           </div>
         </div>
+      )}
+      {runsFor && (
+        <RunsModal
+          enrollmentId={runsFor.id}
+          title={`${runsFor.user.fullName} · ${runsFor.course.title}`}
+          onClose={() => setRunsFor(null)}
+        />
       )}
     </div>
   );
