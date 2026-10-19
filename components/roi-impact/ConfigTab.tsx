@@ -66,7 +66,7 @@ const ROLE_COLORS: Record<Role, string> = {
   AUDITOR: '#6E56CF',
 };
 
-/** Card azul-marinho das Configurações (mesmo desenho do «Gerar relatório» do módulo Audit). */
+/** Card claro das Configurações (mesmo desenho da lista de sessões dos eventos), com faixa de título azul-marinho. */
 function ConfigCard({
   icon: Icon,
   title,
@@ -82,20 +82,20 @@ function ConfigCard({
 }) {
   return (
     <Card
-      className={`flex flex-col overflow-hidden border-[#0F1F3D] bg-[#0F1F3D] text-white [&_label]:text-white/85 ${className ?? ''}`}
+      className={`flex flex-col overflow-hidden rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)] ${className ?? ''}`}
     >
-      <div className="flex items-center gap-3 border-b border-white px-5 py-4">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
+      <div className="pointer-events-none flex cursor-default select-none items-center gap-3 bg-[#0F1F3D]/60 px-5 py-4 text-white">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
           <Icon size={16} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
           <h2 className="font-display text-base font-semibold">{title}</h2>
           {subtitle && (
-            <p className="font-body text-xs text-white">{subtitle}</p>
+            <p className="font-body text-xs text-white/85">{subtitle}</p>
           )}
         </div>
       </div>
-      <div className="flex-1 px-5 py-5">{children}</div>
+      <div className="flex-1 px-6 py-6">{children}</div>
     </Card>
   );
 }
@@ -125,10 +125,10 @@ function RoleCheckboxGroup({
               borderColor: ROLE_COLORS[role],
               backgroundColor: on
                 ? ROLE_COLORS[role]
-                : `${ROLE_COLORS[role]}26`,
-              color: '#fff',
+                : `${ROLE_COLORS[role]}1A`,
+              color: on ? '#fff' : '#0F1F3D',
             }}
-            className="flex cursor-pointer items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors hover:brightness-125 focus-within:ring-2 focus-within:ring-white/70"
+            className="flex cursor-pointer items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors hover:brightness-95 focus-within:ring-2 focus-within:ring-[#0F1F3D]/40"
           >
             <input
               type="checkbox"
@@ -230,7 +230,7 @@ export function ConfigTab() {
   return (
     <div className="max-w-6xl space-y-8">
       <section aria-label="Metodologia de cálculo" className="space-y-3">
-        <div className="rounded-card bg-[#0F1F3D]/60 px-5 py-3">
+        <div className="pointer-events-none cursor-default select-none rounded-card bg-[#0F1F3D]/60 px-5 py-3">
           <h3 className="font-display text-sm font-semibold text-white">
             Metodologia de cálculo
           </h3>
@@ -410,7 +410,7 @@ export function ConfigTab() {
       </section>
 
       <section aria-label="Validação e avisos" className="space-y-3">
-        <div className="rounded-card bg-[#0F1F3D]/60 px-5 py-3">
+        <div className="pointer-events-none cursor-default select-none rounded-card bg-[#0F1F3D]/60 px-5 py-3">
           <h3 className="font-display text-sm font-semibold text-white">
             Validação e avisos
           </h3>
@@ -502,7 +502,7 @@ export function ConfigTab() {
       </section>
 
       <section aria-label="Acesso" className="space-y-3">
-        <div className="rounded-card bg-[#0F1F3D]/60 px-5 py-3">
+        <div className="pointer-events-none cursor-default select-none rounded-card bg-[#0F1F3D]/60 px-5 py-3">
           <h3 className="font-display text-sm font-semibold text-white">
             Acesso
           </h3>
@@ -515,9 +515,9 @@ export function ConfigTab() {
           title="Permissões de acesso"
           subtitle="Quem vê o ROI financeiro (valores monetários/%) vs. quem vê apenas os indicadores operacionais."
         >
-          <div className="grid gap-5 md:grid-cols-2 md:gap-0 md:divide-x md:divide-white/25">
+          <div className="grid gap-5 md:grid-cols-2 md:gap-0 md:divide-x md:divide-[#E6ECF4]">
             <div className="md:pr-6">
-              <div className="mb-2 font-body text-xs text-white">
+              <div className="mb-2 font-body text-xs font-medium text-[#49658A]">
                 Vê o ROI financeiro
               </div>
               <RoleCheckboxGroup
@@ -528,7 +528,7 @@ export function ConfigTab() {
               />
             </div>
             <div className="md:pl-6">
-              <div className="mb-2 font-body text-xs text-white">
+              <div className="mb-2 font-body text-xs font-medium text-[#49658A]">
                 Vê apenas indicadores operacionais
               </div>
               <RoleCheckboxGroup
@@ -542,15 +542,11 @@ export function ConfigTab() {
         </ConfigCard>
       </section>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-panel border border-[#0F1F3D] bg-[#0F1F3D] px-5 py-3 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
-        <p className="font-body text-xs text-white/65">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-[#E3EAF4] bg-white px-6 py-4 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <p className="font-body text-xs text-[#49658A]">
           As alterações só se aplicam depois de guardar.
         </p>
-        <Button
-          className="bg-white text-[#0F1F3D] hover:bg-white/90"
-          onClick={handleSave}
-          loading={saveMutation.isPending}
-        >
+        <Button onClick={handleSave} loading={saveMutation.isPending}>
           Guardar configurações
         </Button>
       </div>
