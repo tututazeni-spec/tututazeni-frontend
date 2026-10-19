@@ -10,7 +10,7 @@
 
 import {
   AlertTriangle,
-  Building2,
+  Bell,
   CalendarDays,
   Hourglass,
   Mail,
@@ -32,12 +32,12 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { type NavyTone } from '@/components/courses/NavyCard';
 import {
-  NAVY_ACTION,
-  NavyBadge,
-  NavyCard,
-  type NavyTone,
-} from '@/components/courses/NavyCard';
+  ADMIN_ENROLLMENT_BTN_GHOST,
+  ADMIN_ENROLLMENT_BTN_PRIMARY,
+  AdminEnrollmentCard,
+} from './AdminEnrollmentCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -321,9 +321,15 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
         <div className="space-y-5">
           {!loading &&
             data?.data?.map((e) => (
-              <NavyCard
+              <AdminEnrollmentCard
                 key={e.id}
+                seed={e.courseId}
                 title={e.course?.title ?? ''}
+                subtitle={e.user?.fullName}
+                avatar={{
+                  name: e.user?.fullName ?? '',
+                  url: e.user?.avatarUrl,
+                }}
                 lead={
                   <input
                     type="checkbox"
@@ -333,68 +339,22 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                     className="h-4 w-4 shrink-0 rounded border-border-strong accent-primary"
                   />
                 }
-                badge={
-                  <NavyBadge tone={STATUS_TONE[e.status] ?? 'neutral'}>
-                    {STATUS_CFG[e.status]?.label ?? e.status}
-                  </NavyBadge>
-                }
-                actions={
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        type="button"
-                        className={NAVY_ACTION}
-                        disabled={rowBusy(e.id)}
-                      >
-                        <MoreHorizontal size={16} strokeWidth={1.75} />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onSelect={() => remind.mutate(e.id)}>
-                        Enviar lembrete
-                      </DropdownMenuItem>
-                      {(e.status === 'CANCELLED' || e.status === 'EXPIRED') && (
-                        <DropdownMenuItem
-                          onSelect={() => reenroll.mutate(e.id)}
-                        >
-                          Reinscrever
-                        </DropdownMenuItem>
-                      )}
-                      {e.status !== 'CANCELLED' && (
-                        <DropdownMenuItem onSelect={() => onResetProgress(e)}>
-                          Reiniciar progresso
-                        </DropdownMenuItem>
-                      )}
-                      {e.status !== 'COMPLETED' && e.status !== 'CANCELLED' && (
-                        <DropdownMenuItem
-                          className="text-danger-ink"
-                          onSelect={() => onRemove(e)}
-                        >
-                          Remover inscrição
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                }
-                avatar={{
-                  name: e.user?.fullName ?? '',
-                  url: e.user?.avatarUrl,
+                status={{
+                  label: STATUS_CFG[e.status]?.label ?? e.status,
+                  tone: STATUS_TONE[e.status] ?? 'neutral',
                 }}
-                subtitle={e.user?.email}
-                subtitleIcon={Mail}
+                tags={[
+                  ...(e.mandatory ? ['Obrigatório'] : []),
+                  ...(ORIGIN_LABELS[e.origin] ? [ORIGIN_LABELS[e.origin]] : []),
+                ]}
                 infos={[
                   {
-                    icon: Building2,
-                    value: e.user.department?.name ?? '—',
-                    label:
-                      [e.user.unit?.name, ORIGIN_LABELS[e.origin]]
-                        .filter(Boolean)
-                        .join(' · ') || '—',
+                    icon: Mail,
+                    text: e.user?.email ?? '—',
                   },
                   {
                     icon: TrendingUp,
-                    value: `${Math.round(e.progressPercent ?? 0)}%`,
-                    label: `Nota: ${
+                    text: `Progresso: ${Math.round(e.progressPercent ?? 0)}% · Nota: ${
                       e.certificate?.score != null
                         ? `${e.certificate.score}%`
                         : '—'
@@ -402,8 +362,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                   },
                   {
                     icon: CalendarDays,
-                    value: `Inscrição: ${new Date(e.enrolledAt).toLocaleDateString('pt')}`,
-                    label: `Conclusão: ${
+                    text: `Inscrição: ${new Date(e.enrolledAt).toLocaleDateString('pt')} → Conclusão: ${
                       e.completedAt
                         ? new Date(e.completedAt).toLocaleDateString('pt')
                         : '—'
@@ -411,11 +370,66 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                   },
                   {
                     icon: e.isOverdue ? AlertTriangle : Hourglass,
-                    value: e.deadline ? deadlineCountdown(e.deadline) : '—',
-                    label: 'Deadline',
+                    text: `Deadline: ${e.deadline ? deadlineCountdown(e.deadline) : '—'}`,
                     danger: !!e.isOverdue,
                   },
                 ]}
+                footerLabel={
+                  [e.user.department?.name, e.user.unit?.name]
+                    .filter(Boolean)
+                    .join(' · ') || '—'
+                }
+                actions={
+                  <>
+                    <button
+                      type="button"
+                      className={ADMIN_ENROLLMENT_BTN_PRIMARY}
+                      disabled={rowBusy(e.id)}
+                      onClick={() => remind.mutate(e.id)}
+                    >
+                      <Bell size={15} strokeWidth={1.75} />
+                      Enviar lembrete
+                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className={ADMIN_ENROLLMENT_BTN_GHOST}
+                          disabled={rowBusy(e.id)}
+                        >
+                          <MoreHorizontal size={16} strokeWidth={1.75} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => remind.mutate(e.id)}>
+                          Enviar lembrete
+                        </DropdownMenuItem>
+                        {(e.status === 'CANCELLED' ||
+                          e.status === 'EXPIRED') && (
+                          <DropdownMenuItem
+                            onSelect={() => reenroll.mutate(e.id)}
+                          >
+                            Reinscrever
+                          </DropdownMenuItem>
+                        )}
+                        {e.status !== 'CANCELLED' && (
+                          <DropdownMenuItem onSelect={() => onResetProgress(e)}>
+                            Reiniciar progresso
+                          </DropdownMenuItem>
+                        )}
+                        {e.status !== 'COMPLETED' &&
+                          e.status !== 'CANCELLED' && (
+                            <DropdownMenuItem
+                              className="text-danger-ink"
+                              onSelect={() => onRemove(e)}
+                            >
+                              Remover inscrição
+                            </DropdownMenuItem>
+                          )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </>
+                }
               />
             ))}
         </div>
