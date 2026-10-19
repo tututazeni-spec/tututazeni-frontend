@@ -39,7 +39,7 @@ export const TITLES: Record<View, string> = {
   catalog: 'Cursos',
   detail: 'Curso',
   'my-courses': 'Os meus cursos',
-  certificates: 'Os meus certificados',
+  certificates: 'Certificados',
   dashboard: 'Visão Geral',
   gestao: 'Cursos',
   inscricoes: 'Inscrições',

@@ -17,7 +17,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { AdminDashboardView } from '@/components/courses/AdminDashboardView';
 import { CatalogView } from '@/components/courses/CatalogView';
-import { CertificatesView } from '@/components/courses/CertificatesView';
+import { CertificatesCenter } from '@/components/certificates/CertificatesCenter';
 import { NAV, TITLES } from '@/components/courses/constants';
 import { CourseDetail } from '@/components/courses/CourseDetail';
 import { CreateCourseModal } from '@/components/courses/CreateCourseModal';
@@ -171,7 +171,7 @@ export default function CoursesPage() {
       {nav.view === 'my-courses' && (
         <MyEnrollmentsView onSelect={handleSelect} />
       )}
-      {nav.view === 'certificates' && <CertificatesView />}
+      {nav.view === 'certificates' && <CertificatesCenter />}
       {nav.view === 'dashboard' && isAdmin && (
         <AdminDashboardView onSelect={handleSelect} />
       )}
