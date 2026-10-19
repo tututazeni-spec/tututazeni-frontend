@@ -102,3 +102,44 @@ export interface HistoryRow {
 /** Estados filtráveis na lista (estado efectivo, calculado no servidor). */
 export type EffectiveStatus =
   'ACTIVE' | 'EXPIRED' | 'REVOKED' | 'PENDING_APPROVAL';
+
+// ─── Área pessoal (GET /certificates/my/summary) ───
+
+export interface MySummary {
+  /** SMTP configurado: só então se oferece "Enviar por e-mail". */
+  emailEnabled: boolean;
+  pending: { id: number; title: string }[];
+  expiringSoon: { id: number; title: string; expiresAt: string }[];
+  mandatoryMissing: {
+    enrollmentId: number;
+    courseId: number;
+    title: string;
+    deadline: string | null;
+    status: string;
+  }[];
+}
+
+export interface TeamMemberRow {
+  userId: number;
+  fullName: string;
+  active: number;
+  expired: number;
+  expiringSoon: number;
+  pendingApproval: number;
+  mandatoryPending: number;
+  inProgress: number;
+}
+
+export interface TeamSummary {
+  members: TeamMemberRow[];
+  totals: {
+    members: number;
+    active: number;
+    expired: number;
+    expiringSoon: number;
+    pendingApproval: number;
+    mandatoryPending: number;
+    inProgress: number;
+    mandatoryCoveragePct: number | null;
+  };
+}

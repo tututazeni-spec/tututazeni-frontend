@@ -1454,6 +1454,9 @@ export const queryKeys = {
     list: (params: unknown) =>
       [...queryKeys.certificates.all, 'list', params] as const,
     rules: () => [...queryKeys.certificates.all, 'rules'] as const,
+    mySummary: () => [...queryKeys.certificates.all, 'my-summary'] as const,
+    teamSummary: (departmentId?: number) =>
+      [...queryKeys.certificates.all, 'team-summary', departmentId ?? null] as const,
     templates: () => [...queryKeys.certificates.all, 'templates'] as const,
     history: (params: unknown) =>
       [...queryKeys.certificates.all, 'history', params] as const,

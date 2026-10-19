@@ -191,6 +191,12 @@ export interface Certificate {
   /** Estado real no momento da consulta (revogação > expiração > gravado). */
   status: 'PENDING' | 'PENDING_APPROVAL' | 'ACTIVE' | 'EXPIRED' | 'REVOKED';
   displayTitle: string;
+  activityKind: string | null;
+  origin: 'INTERNAL' | 'EXTERNAL';
+  /** Ligação pública de verificação (QR/partilha). */
+  verifyUrl: string;
+  /** Fluxo oficial "Add to profile" do LinkedIn; só em certificados válidos. */
+  linkedInUrl?: string;
   issuedAt: string;
   expiresAt: string | null;
   course: {
