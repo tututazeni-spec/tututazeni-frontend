@@ -31,7 +31,9 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Pagination } from '@/components/ui/Pagination';
 import { NewRoiAnalysisWizard } from './NewRoiAnalysisWizard';
-import { NavyPanel, NavyPanelRow } from './NavyPanel';
+import { PALETTE } from '@/components/onboarding/TemplateCard';
+import { EventBadge } from '@/components/events/EventBadges';
+import { Metric } from '@/components/events/EventListCard';
 import {
   fmt$,
   INITIATIVE_TYPE_LABELS,
@@ -39,6 +41,17 @@ import {
   CONFIDENCE_LABELS,
 } from './utils';
 import type { RoiAnalysisListData } from './types';
+
+// Cor sólida da etiqueta de estado da análise.
+const STATUS_COLOR: Record<string, string> = {
+  VALIDADO: '#16A765',
+  CALCULADO: '#1267B8',
+  REVISTO: '#1267B8',
+  DADOS_INSUFICIENTES: '#F28C28',
+  EM_MEDICAO: '#7B5CD6',
+  EM_PREPARACAO: '#64748B',
+  ARQUIVADO: '#64748B',
+};
 
 const PAGE_SIZE = 10;
 
@@ -157,121 +170,113 @@ export function RoiAnalysisTab() {
         <div className="grid grid-cols-1 gap-4">
           {pageRows.map((a) => {
             const insufficient = a.status === 'DADOS_INSUFICIENTES';
+            const palette = PALETTE[Math.abs(a.id) % PALETTE.length];
             return (
-              <NavyPanel
+              <div
                 key={a.id}
-                variant={a.id}
-                soft
-                className="flex h-full flex-col"
-                title={a.name}
-                icon={Lightbulb}
-                aside={
-                  <span className="rounded-full bg-white/10 px-3 py-1 font-body text-xs font-semibold">
-                    {ANALYSIS_STATUS_LABELS[a.status] ?? a.status}
-                  </span>
-                }
+                className="relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
               >
-                <p className="-mt-2 mb-3 font-body text-xs font-medium text-white">
-                  {INITIATIVE_TYPE_LABELS[a.initiativeType] ?? a.initiativeType}
-                  {a.initiative ? ` · ${a.initiative}` : ''}
-                </p>
-                <ul className="grid grid-cols-1 gap-2 font-semibold text-white md:grid-cols-2 xl:grid-cols-3">
-                  <NavyPanelRow
-                    iconBadge
-                    iconClassName="text-white"
-                    icon={Users}
-                  >
-                    Participantes:{' '}
-                    <strong className="font-extrabold">
-                      {a.participants ?? '—'}
-                    </strong>
-                  </NavyPanelRow>
-                  <NavyPanelRow
-                    iconBadge
-                    iconClassName="text-white"
-                    icon={Wallet}
-                  >
-                    Custo total:{' '}
-                    <strong className="font-extrabold">
-                      {fmt$(a.totalCost)}
-                    </strong>
-                    {a.costPerParticipant != null && (
-                      <> ({fmt$(a.costPerParticipant)} / partic.)</>
-                    )}
-                  </NavyPanelRow>
-                  <NavyPanelRow
-                    iconBadge
-                    iconClassName="text-white"
-                    icon={TrendingUp}
-                  >
-                    Benefício realizado:{' '}
-                    <strong className="font-extrabold">
+                <div
+                  aria-hidden
+                  className="absolute right-0 top-0 hidden h-[58%] w-[26%] items-center justify-center text-white/70 sm:flex"
+                  style={{
+                    clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
+                    background: `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
+                  }}
+                >
+                  <TrendingUp size={44} strokeWidth={1.25} />
+                </div>
+
+                <div className="relative space-y-5 p-6 sm:pr-[28%]">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <EventBadge color={STATUS_COLOR[a.status] ?? '#64748B'}>
+                      {ANALYSIS_STATUS_LABELS[a.status] ?? a.status}
+                    </EventBadge>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <span
+                      aria-hidden
+                      className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full text-white"
+                      style={{ background: palette[3] }}
+                    >
+                      <Lightbulb size={28} strokeWidth={1.75} />
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="break-words font-display text-[24px] font-bold leading-tight text-[#0F1F3D]">
+                        {a.name}
+                      </h3>
+                      <p className="mt-0.5 break-words text-base text-[#49658A]">
+                        {INITIATIVE_TYPE_LABELS[a.initiativeType] ??
+                          a.initiativeType}
+                        {a.initiative ? ` · ${a.initiative}` : ''}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+                    <Metric icon={Users}>
+                      Participantes: {a.participants ?? '—'}
+                    </Metric>
+                    <Metric icon={Wallet}>
+                      Custo total: {fmt$(a.totalCost)}
+                      {a.costPerParticipant != null &&
+                        ` (${fmt$(a.costPerParticipant)} / partic.)`}
+                    </Metric>
+                    <Metric icon={TrendingUp}>
+                      Benefício realizado:{' '}
                       {a.realizedBenefit != null
                         ? fmt$(a.realizedBenefit)
                         : '—'}
-                    </strong>
-                  </NavyPanelRow>
-                  <NavyPanelRow
-                    iconBadge
-                    iconClassName="text-white"
-                    icon={BarChart3}
-                  >
-                    ROI:{' '}
-                    <strong className="font-extrabold">
-                      {a.roiPercent != null ? `${a.roiPercent}%` : '—'}
-                    </strong>
-                  </NavyPanelRow>
-                  <NavyPanelRow
-                    iconBadge
-                    iconClassName="text-white"
-                    icon={Clock}
-                  >
-                    Payback:{' '}
-                    <strong className="font-extrabold">
+                    </Metric>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+                    <Metric icon={BarChart3}>
+                      ROI: {a.roiPercent != null ? `${a.roiPercent}%` : '—'}
+                    </Metric>
+                    <Metric icon={Clock}>
+                      Payback:{' '}
                       {a.paybackMonths != null
                         ? `${a.paybackMonths} meses`
                         : '—'}
-                    </strong>
-                  </NavyPanelRow>
-                  <NavyPanelRow
-                    iconBadge
-                    icon={insufficient ? TriangleAlert : Info}
-                    iconClassName={
-                      insufficient ? 'text-[#FDE047]' : 'text-white'
-                    }
-                  >
-                    Confiança:{' '}
-                    <strong className="font-extrabold">
+                    </Metric>
+                    <Metric
+                      icon={insufficient ? TriangleAlert : Info}
+                      iconClassName={
+                        insufficient ? 'text-[#C23A52]' : 'text-[#49658A]'
+                      }
+                    >
+                      Confiança:{' '}
                       {a.confidenceLevel
                         ? (CONFIDENCE_LABELS[a.confidenceLevel] ??
                           a.confidenceLevel)
                         : '—'}
-                    </strong>
-                  </NavyPanelRow>
-                </ul>
-                <div className="mt-auto flex items-center justify-end gap-2 pt-3">
-                  {a.status === 'CALCULADO' ? (
+                    </Metric>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 border-t border-[#E6ECF4] pt-4">
+                    {a.status === 'CALCULADO' ? (
+                      <Button
+                        size="sm"
+                        disabled={approve.isPending}
+                        onClick={() => approve.mutate(a.id)}
+                      >
+                        Validar
+                      </Button>
+                    ) : null}
                     <button
                       type="button"
-                      disabled={approve.isPending}
-                      onClick={() => approve.mutate(a.id)}
-                      className="rounded-full border border-white/40 px-2.5 py-0.5 font-body text-[11px] font-medium text-white/90 transition-colors hover:border-white hover:bg-white/15 hover:text-white disabled:opacity-40"
+                      aria-label={`Apagar a análise ${a.name}`}
+                      title="Apagar"
+                      disabled={remove.isPending && remove.variables === a.id}
+                      onClick={() => askRemove(a.id, a.name)}
+                      className="rounded-full p-2 text-[#49658A] transition-colors hover:bg-[#C23A52]/10 hover:text-[#C23A52] disabled:opacity-40"
                     >
-                      Validar
+                      <Trash2 size={16} strokeWidth={1.75} />
                     </button>
-                  ) : null}
-                  <button
-                    type="button"
-                    aria-label={`Apagar a análise ${a.name}`}
-                    title="Apagar"
-                    disabled={remove.isPending && remove.variables === a.id}
-                    onClick={() => askRemove(a.id, a.name)}
-                    className="rounded-full p-1 text-white/50 transition-colors hover:bg-white/15 hover:text-white disabled:opacity-40"
-                  >
-                    <Trash2 size={14} strokeWidth={1.75} />
-                  </button>
+                  </div>
                 </div>
-              </NavyPanel>
+              </div>
             );
           })}
         </div>
