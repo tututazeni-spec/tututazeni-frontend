@@ -5,63 +5,54 @@
 
 'use client';
 
-import {
-  AlertTriangle,
-  CircleCheck,
-  ListChecks,
-  TrendingUp,
-} from 'lucide-react';
+import { AlertTriangle, CircleCheck, ListChecks } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PILL } from '@/components/courses/cardStyles';
-import { NavyCard } from '@/components/courses/NavyCard';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { ProgressCard } from './ProgressCard';
 import type { DepartmentProgressRow, ProgressByDepartment } from './types';
 
 function ProgressTable({
   title,
+  tag,
   rows,
   pillClassName = 'bg-blue-500/20 text-blue-700',
 }: {
   title: string;
+  tag: string;
   rows: DepartmentProgressRow[];
   pillClassName?: string;
 }) {
   return (
     <div>
-      <span className={`${PILL} mb-3 ${pillClassName}`}>
-        {title}
-      </span>
+      <span className={`${PILL} mb-3 ${pillClassName}`}>{title}</span>
 
       {rows.length === 0 ? (
         <p className="p-4 text-xs text-ink-faint">Sem inscrições registadas</p>
       ) : (
         <div className="space-y-5">
           {rows.map((r) => (
-            <NavyCard
+            <ProgressCard
               key={r.id}
+              seed={r.id}
+              tag={tag}
               title={r.name}
               infos={[
-                { icon: ListChecks, value: String(r.total), label: 'Total' },
-                {
-                  icon: CircleCheck,
-                  value: String(r.completed),
-                  label: 'Concluídas',
-                },
+                { icon: ListChecks, text: `Total: ${r.total}` },
+                { icon: CircleCheck, text: `Concluídas: ${r.completed}` },
                 {
                   icon: AlertTriangle,
-                  value: String(r.overdue),
-                  label: 'Atrasadas',
+                  text: `Atrasadas: ${r.overdue}`,
                   danger: r.overdue > 0,
                 },
-                {
-                  icon: TrendingUp,
-                  value: `${Math.round(r.completionRate)}%`,
-                  label: 'Taxa de conclusão',
-                },
               ]}
+              progress={{
+                value: r.completionRate,
+                label: 'Taxa de conclusão',
+              }}
             />
           ))}
         </div>
@@ -99,10 +90,12 @@ export function DepartmentProgressView() {
     <div className="space-y-4">
       <ProgressTable
         title="Progresso por departamento"
+        tag="Departamento"
         rows={data.byDepartment}
       />
       <ProgressTable
         title="Progresso por unidade"
+        tag="Unidade"
         rows={data.byUnit}
         pillClassName="bg-emerald-500/20 text-emerald-700"
       />
