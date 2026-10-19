@@ -18,6 +18,11 @@ vi.mock('./TemplatesTab', () => ({
 }));
 vi.mock('./RulesTab', () => ({ RulesTab: () => <div>rules-tab</div> }));
 vi.mock('./HistoryTab', () => ({ HistoryTab: () => <div>history-tab</div> }));
+vi.mock('./TeamSummaryTab', () => ({
+  TeamSummaryTab: ({ pickDepartment }: { pickDepartment?: boolean }) => (
+    <div>{pickDepartment ? 'team-tab-department' : 'team-tab'}</div>
+  ),
+}));
 
 describe('CertificatesCenter', () => {
   beforeEach(() => {
@@ -31,19 +36,34 @@ describe('CertificatesCenter', () => {
     expect(screen.queryByRole('tab')).not.toBeInTheDocument();
   });
 
-  test('gestor (sem âmbito de equipa nesta fase) vê só os seus', () => {
-    role = 'GESTOR';
+  test.each(['GESTOR', 'LIDER', 'DIRECTOR'])(
+    '%s vê só "Visão da equipa", "Certificados" e "Os meus"',
+    (r) => {
+      role = r;
+      render(<CertificatesCenter />);
+      expect(screen.getAllByRole('tab').map((t) => t.textContent)).toEqual([
+        'Visão da equipa',
+        'Certificados',
+        'Os meus',
+      ]);
+      expect(screen.getByText('team-tab')).toBeInTheDocument();
+    },
+  );
+
+  test('instrutor continua só com os seus certificados', () => {
+    role = 'INSTRUCTOR';
     render(<CertificatesCenter />);
     expect(screen.getByTestId('my-certificates')).toBeInTheDocument();
     expect(screen.queryByRole('tab')).not.toBeInTheDocument();
   });
 
-  test.each(['RH', 'ADMIN', 'AUDITOR'])('%s vê os 6 separadores', (r) => {
+  test.each(['RH', 'ADMIN', 'AUDITOR'])('%s vê os 7 separadores', (r) => {
     role = r;
     render(<CertificatesCenter />);
     const tabs = screen.getAllByRole('tab').map((t) => t.textContent);
     expect(tabs).toEqual([
       'Visão geral',
+      'Equipa',
       'Certificados',
       'Modelos',
       'Regras',

@@ -37,6 +37,7 @@ import {
 import { ImportExternalModal } from './ImportExternalModal';
 import { BatchIssueModal } from './BatchIssueModal';
 import { ReasonDialog } from './ReasonDialog';
+import { ExportMenu } from './ExportMenu';
 import { KIND_LABEL, STATUS_INTENT, STATUS_LABEL } from './labels';
 import type {
   ActivityKind,
@@ -75,10 +76,12 @@ type RowAction = 'approve' | 'revoke' | 'reissue' | 'resend';
 function RowActions({
   row,
   canManage,
+  canApprove,
   onAction,
 }: {
   row: AdminCertificateRow;
   canManage: boolean;
+  canApprove: boolean;
   onAction: (action: RowAction, row: AdminCertificateRow) => void;
 }) {
   const { download, loading, error } = usePdfDownload(
@@ -102,7 +105,7 @@ function RowActions({
             Descarregar PDF
           </Button>
         )}
-        {canManage && row.status === 'PENDING_APPROVAL' && (
+        {canApprove && row.status === 'PENDING_APPROVAL' && (
           <Button size="sm" onClick={() => onAction('approve', row)}>
             Aprovar
           </Button>
@@ -142,9 +145,13 @@ function RowActions({
 
 export function CertificatesTab({
   canManage,
+  canApprove,
   initialStatus = '',
 }: {
+  /** ADMIN/RH: revogar, reemitir, reenviar, importar e emitir em lote. */
   canManage: boolean;
+  /** ADMIN/RH e gestores (só da sua equipa — o servidor aplica o âmbito). */
+  canApprove: boolean;
   initialStatus?: EffectiveStatus | '';
 }) {
   const confirm = useConfirm();
@@ -292,18 +299,21 @@ export function CertificatesTab({
 
   return (
     <div className="space-y-4">
-      {canManage && (
-        <div className="flex flex-wrap justify-end gap-2">
-          <Button intent="secondary" onClick={() => setModal('import')}>
-            <FileUp size={14} strokeWidth={1.75} />
-            Importar certificado externo
-          </Button>
-          <Button onClick={() => setModal('batch')}>
-            <Layers size={14} strokeWidth={1.75} />
-            Emitir em lote
-          </Button>
-        </div>
-      )}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <ExportMenu params={params} />
+        {canManage && (
+          <div className="flex flex-wrap gap-2">
+            <Button intent="secondary" onClick={() => setModal('import')}>
+              <FileUp size={14} strokeWidth={1.75} />
+              Importar certificado externo
+            </Button>
+            <Button onClick={() => setModal('batch')}>
+              <Layers size={14} strokeWidth={1.75} />
+              Emitir em lote
+            </Button>
+          </div>
+        )}
+      </div>
       <Card className="p-4">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Input
@@ -412,6 +422,7 @@ export function CertificatesTab({
                     <RowActions
                       row={row}
                       canManage={canManage}
+                      canApprove={canApprove}
                       onAction={(a, r) => void onAction(a, r)}
                     />
                   </TableCell>

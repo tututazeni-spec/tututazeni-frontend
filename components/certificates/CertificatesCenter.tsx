@@ -1,8 +1,10 @@
 // components/certificates/CertificatesCenter.tsx
 // Centro de certificados partilhado: montado em Cursos → Certificados e em
 // Gestão de Formações → Certificados, sobre os mesmos endpoints e a mesma cache.
-// Quem não gere certificados (colaborador, gestor, ...) vê só os seus; a
-// autorização real é sempre feita no backend.
+//  - ADMIN/RH/AUDITOR: tudo (RH/ADMIN também gerem; AUDITOR só lê e exporta).
+//  - GESTOR/LIDER/DIRECTOR: só a equipa directa; aprovam, não gerem.
+//  - Restantes papéis: só os seus certificados.
+// A autorização real é sempre feita no backend; aqui só se decide o que mostrar.
 
 'use client';
 
@@ -15,14 +17,18 @@ import { CertificatesTab } from './CertificatesTab';
 import { TemplatesTab } from './TemplatesTab';
 import { RulesTab } from './RulesTab';
 import { HistoryTab } from './HistoryTab';
+import { TeamSummaryTab } from './TeamSummaryTab';
 import type { EffectiveStatus } from './types';
 
-// Leitura: ADMIN/RH/AUDITOR. Escrita (aprovar, regras): ADMIN/RH.
-const READ_ROLES = ['ADMIN', 'RH', 'AUDITOR'];
+const ADMIN_ROLES = ['ADMIN', 'RH', 'AUDITOR'];
+const MANAGER_ROLES = ['GESTOR', 'LIDER', 'DIRECTOR'];
+// Escrita (regras, revogar, importar, lote): ADMIN/RH. Aprovar: também gestores (da equipa).
 const WRITE_ROLES = ['ADMIN', 'RH'];
+const APPROVE_ROLES = ['ADMIN', 'RH', ...MANAGER_ROLES];
 
-const TABS = [
+const ADMIN_TABS = [
   { id: 'overview', label: 'Visão geral' },
+  { id: 'team', label: 'Equipa' },
   { id: 'list', label: 'Certificados' },
   { id: 'templates', label: 'Modelos' },
   { id: 'rules', label: 'Regras' },
@@ -30,29 +36,40 @@ const TABS = [
   { id: 'mine', label: 'Os meus' },
 ] as const;
 
-type TabId = (typeof TABS)[number]['id'];
+const MANAGER_TABS = [
+  { id: 'team', label: 'Visão da equipa' },
+  { id: 'list', label: 'Certificados' },
+  { id: 'mine', label: 'Os meus' },
+] as const;
+
+type TabId = (typeof ADMIN_TABS)[number]['id'];
 
 export function CertificatesCenter() {
   const role = useCurrentRole();
-  const [tab, setTab] = useState<TabId>('overview');
+  const isAdmin = !!role && ADMIN_ROLES.includes(role);
+  const isManager = !!role && MANAGER_ROLES.includes(role);
+  const [tab, setTab] = useState<TabId | null>(null);
   const [status, setStatus] = useState<EffectiveStatus | ''>('');
 
-  if (!role || !READ_ROLES.includes(role)) return <CertificatesView />;
+  if (!isAdmin && !isManager) return <CertificatesView />;
 
-  const canWrite = WRITE_ROLES.includes(role);
+  const tabs = isAdmin ? ADMIN_TABS : MANAGER_TABS;
+  const current: TabId = tab ?? tabs[0].id;
+  const canWrite = !!role && WRITE_ROLES.includes(role);
+  const canApprove = !!role && APPROVE_ROLES.includes(role);
 
   return (
     <div className="space-y-6">
       <PillNav
-        items={TABS}
-        value={tab}
+        items={tabs}
+        value={current}
         onChange={(id) => {
           setStatus('');
           setTab(id as TabId);
         }}
         label="Certificados"
       />
-      {tab === 'overview' && (
+      {current === 'overview' && (
         <OverviewTab
           onOpen={(s) => {
             setStatus(s);
@@ -60,17 +77,19 @@ export function CertificatesCenter() {
           }}
         />
       )}
-      {tab === 'list' && (
+      {current === 'team' && <TeamSummaryTab pickDepartment={isAdmin} />}
+      {current === 'list' && (
         <CertificatesTab
           key={status}
           canManage={canWrite}
+          canApprove={canApprove}
           initialStatus={status}
         />
       )}
-      {tab === 'templates' && <TemplatesTab />}
-      {tab === 'rules' && <RulesTab canEdit={canWrite} />}
-      {tab === 'history' && <HistoryTab />}
-      {tab === 'mine' && <CertificatesView />}
+      {current === 'templates' && <TemplatesTab />}
+      {current === 'rules' && <RulesTab canEdit={canWrite} />}
+      {current === 'history' && <HistoryTab />}
+      {current === 'mine' && <CertificatesView />}
     </div>
   );
 }
