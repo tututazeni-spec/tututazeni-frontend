@@ -137,17 +137,9 @@ export default function DashboardPage() {
             (data-[state=active] do Radix) ganha gradiente azul, sombra e
             um visto à direita. As manchas desfocadas atrás existem só
             para o efeito de vidro ser visível sobre o fundo claro. */}
-        <div className="relative bg-white px-6 py-5">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 overflow-hidden"
-          >
-            <div className="absolute -left-16 top-0 h-40 w-72 rounded-full bg-primary/20 blur-3xl" />
-            <div className="absolute -right-10 bottom-0 h-40 w-72 rounded-full bg-primary/15 blur-3xl" />
-          </div>
-
+        <div className="relative px-6 py-5">
           <div className="relative mx-auto max-w-7xl rounded-3xl border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
-            <TabsList className="flex h-auto w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0">
+            <TabsList className="flex h-auto w-full flex-wrap items-center justify-center gap-2 border-b-0 bg-transparent p-0">
               {availableTabs.map((t) => {
                 const Icon = t.icon;
                 return (
