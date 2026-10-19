@@ -13,7 +13,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
-import { ProcessModelCard } from './ProcessModelCard';
+import { ProcessPhotoCard } from './ProcessPhotoCard';
 import { Skeleton } from './Skeleton';
 import { WorkflowBuilder } from './WorkflowBuilder';
 import type { PaginatedProcesses } from './types';
@@ -78,7 +78,7 @@ export function WorkflowsView({ canEdit }: WorkflowsViewProps) {
       )}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {data?.data.map((p) => (
-          <ProcessModelCard
+          <ProcessPhotoCard
             key={p.id}
             process={p}
             icon={Workflow}

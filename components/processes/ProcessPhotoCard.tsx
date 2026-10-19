@@ -11,6 +11,7 @@ import {
   ListChecks,
   PlayCircle,
   Tag,
+  type LucideIcon,
 } from 'lucide-react';
 import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
 import { PhotoCard } from '@/components/courses/PhotoCard';
@@ -34,11 +35,14 @@ const RISK_TONE: Record<RiskLevel, NavyTone> = {
 interface ProcessPhotoCardProps {
   process: Process;
   onClick: () => void;
+  /** Ícone do espaço da imagem (omisso: ficheiros). */
+  icon?: LucideIcon;
 }
 
 export function ProcessPhotoCard({
   process: p,
   onClick,
+  icon: Icon = FileStack,
 }: ProcessPhotoCardProps) {
   return (
     <PhotoCard
@@ -49,7 +53,7 @@ export function ProcessPhotoCard({
       kickerIcon={Building2}
       title={p.title}
       subtitle={`${p.code} · v${p.version}`}
-      fallback={<FileStack size={64} strokeWidth={1.25} />}
+      fallback={<Icon size={64} strokeWidth={1.25} />}
       badges={
         <>
           <NavyBadge tone={STATUS_TONE[p.status]}>
