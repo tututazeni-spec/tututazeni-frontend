@@ -15,7 +15,7 @@ export function Table({
   return (
     <div
       className={cn(
-        'overflow-x-auto rounded-card border border-border',
+        'overflow-x-auto rounded-card border border-border bg-surface',
         wrapperClassName,
       )}
     >
