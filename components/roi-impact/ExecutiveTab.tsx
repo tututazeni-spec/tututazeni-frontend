@@ -259,31 +259,34 @@ export function ExecutiveTab() {
 
       {/* Top 10 iniciativas com maior impacto */}
       {(data?.topInitiatives?.length ?? 0) > 0 && (
-        <Card>
-          <div className="rounded-t-card bg-[#0F1F3D]/60 px-5 py-3">
+        <Card className="overflow-hidden rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div className="pointer-events-none cursor-default select-none bg-[#0F1F3D]/60 px-5 py-3">
             <h4 className="font-display text-sm font-semibold text-white">
               Top iniciativas com maior impacto
             </h4>
           </div>
-          <div className="divide-y divide-border">
+          <div className="divide-y divide-[#E6ECF4]">
             {data!.topInitiatives!.map((t, i) => (
-              <div key={t.id} className="flex items-center gap-3 px-5 py-2.5">
-                <span className="w-5 text-right font-body text-xs font-bold text-ink-faint">
+              <div
+                key={t.id}
+                className="flex items-center gap-3 bg-white px-5 py-3.5"
+              >
+                <span className="w-6 text-right font-body text-xs font-bold text-[#49658A]">
                   #{i + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-body text-sm font-medium text-ink">
+                  <p className="truncate font-body text-[15px] font-semibold text-[#0F1F3D]">
                     {t.name}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-xs text-[#49658A]">
                     {t.initiative ?? '—'}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <p className="font-body text-sm font-bold text-ink">
+                  <p className="font-body text-[15px] font-bold text-[#0F1F3D]">
                     {t.roiPercent != null ? `${t.roiPercent}%` : '—'}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-xs text-[#49658A]">
                     {t.computedBenefit != null ? fmt$(t.computedBenefit) : '—'}
                   </p>
                 </div>

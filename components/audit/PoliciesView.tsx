@@ -186,13 +186,11 @@ function Section({
 }) {
   return (
     <Card className={NAVY_CARD}>
-      <div className="flex items-center gap-3 border-b border-[#E6ECF4] px-6 py-5">
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF4FD] text-[#0F1F3D]">
+      <div className="pointer-events-none flex cursor-default select-none items-center gap-3 bg-[#0F1F3D]/60 px-6 py-4 text-white">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white">
           <Icon size={16} strokeWidth={1.75} />
         </span>
-        <h2 className="font-display text-lg font-bold text-[#0F1F3D]">
-          {title}
-        </h2>
+        <h2 className="font-display text-lg font-bold text-white">{title}</h2>
       </div>
       <div className="px-6 py-6">{children}</div>
       {footer && (
@@ -584,11 +582,13 @@ export function PoliciesView() {
             </div>
             <div className="overflow-x-auto rounded-card">
               <Table>
-                <TableHead>
+                <TableHead className="pointer-events-none cursor-default select-none bg-[#0F1F3D]/60">
                   <TableRow className="hover:bg-transparent">
                     {['Categoria', 'Retenção', 'Total', 'Fora do prazo'].map(
                       (h) => (
-                        <TableHeaderCell key={h}>{h}</TableHeaderCell>
+                        <TableHeaderCell key={h} className="text-white">
+                          {h}
+                        </TableHeaderCell>
                       ),
                     )}
                   </TableRow>
