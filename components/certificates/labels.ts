@@ -46,15 +46,6 @@ export const ACTION_LABEL: Record<string, string> = {
   CERTIFICATE_BATCH_ISSUED: 'Emissão em lote',
 };
 
-export const TEMPLATE_TYPE_LABEL: Record<string, string> = {
-  COURSE: 'Curso',
-  PROGRAM: 'Programa',
-  COMPETENCY: 'Competência',
-  ATTENDANCE: 'Presença',
-  PARTICIPATION: 'Participação',
-  ACHIEVEMENT: 'Mérito',
-};
-
 /** Texto curto de cada critério de regra, para a lista e o formulário. */
 export function describeCriteria(c: {
   requireFullCompletion?: boolean;

@@ -30,6 +30,7 @@ import type {
   CertificateRuleView,
   IssueMode,
   RuleCriteria,
+  TemplateSummaryRow,
 } from './types';
 
 interface FormState {
@@ -43,6 +44,8 @@ interface FormState {
   requireInstructorApproval: boolean;
   requireManagerApproval: boolean;
   validityDays: string;
+  /** '' = não escolhido (fica o corporativo clássico). */
+  templateId: string;
   active: boolean;
 }
 
@@ -57,6 +60,7 @@ const EMPTY: FormState = {
   requireInstructorApproval: false,
   requireManagerApproval: false,
   validityDays: '',
+  templateId: '',
   active: true,
 };
 
@@ -86,6 +90,7 @@ function fromRule(r: CertificateRuleView): FormState {
     requireInstructorApproval: !!r.criteria.requireInstructorApproval,
     requireManagerApproval: !!r.criteria.requireManagerApproval,
     validityDays: r.validityDays ? String(r.validityDays) : '',
+    templateId: r.templateId ?? '',
     active: r.active,
   };
 }
@@ -187,6 +192,16 @@ function RuleFormModal({
     label: a.title,
   }));
 
+  const templates = useApiQuery<TemplateSummaryRow[]>(
+    queryKeys.certificates.templates(),
+    '/certificates/templates',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const templateItems = (templates.data ?? []).map((t) => ({
+    value: t.id,
+    label: t.name,
+  }));
+
   const save = useApiMutation(
     () =>
       apiClient.put('/certificates/rules', {
@@ -196,6 +211,7 @@ function RuleFormModal({
         criteria: toCriteria(form),
         validityDays:
           form.validityDays === '' ? undefined : Number(form.validityDays),
+        ...(form.templateId ? { templateId: form.templateId } : {}),
         active: form.active,
       }),
     {
@@ -341,6 +357,19 @@ function RuleFormModal({
             />
           </FormField>
 
+          <FormField
+            label="Modelo de certificado"
+            htmlFor="rule-template"
+            hint="Sem escolha, usa o Corporativo clássico."
+          >
+            <Select
+              items={templateItems}
+              value={form.templateId}
+              onValueChange={(v) => set({ templateId: v })}
+              placeholder="Corporativo clássico (predefinido)"
+            />
+          </FormField>
+
           <Check
             id="rule-active"
             label="Regra activa"
@@ -363,6 +392,16 @@ function RuleFormModal({
 }
 
 export function RulesTab({ canEdit }: { canEdit: boolean }) {
+  const templates = useApiQuery<TemplateSummaryRow[]>(
+    queryKeys.certificates.templates(),
+    '/certificates/templates',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const templateName = (id: string | null) =>
+    id
+      ? (templates.data?.find((t) => t.id === id)?.name ??
+        'Modelo personalizado')
+      : 'Corporativo clássico';
   const [editing, setEditing] = useState<CertificateRuleView | 'new' | null>(
     null,
   );
@@ -420,6 +459,9 @@ export function RulesTab({ canEdit }: { canEdit: boolean }) {
                   <li key={c}>{c}</li>
                 ))}
               </ul>
+              <div className="mt-2 text-xs text-ink-muted">
+                Modelo: {templateName(r.templateId)}
+              </div>
               <div className="mt-3 flex items-center justify-between text-xs text-ink-muted">
                 <span>
                   {r.validityDays

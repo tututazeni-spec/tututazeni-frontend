@@ -1458,6 +1458,8 @@ export const queryKeys = {
     teamSummary: (departmentId?: number) =>
       [...queryKeys.certificates.all, 'team-summary', departmentId ?? null] as const,
     templates: () => [...queryKeys.certificates.all, 'templates'] as const,
+    template: (id: string) =>
+      [...queryKeys.certificates.all, 'template', id] as const,
     history: (params: unknown) =>
       [...queryKeys.certificates.all, 'history', params] as const,
   },

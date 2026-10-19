@@ -73,20 +73,10 @@ export interface CertificateRuleView {
   mode: IssueMode;
   criteria: RuleCriteria;
   validityDays: number | null;
+  /** Um dos 9 modelos de sistema; null = corporativo clássico. */
+  templateId: string | null;
   active: boolean;
   updatedAt: string;
-}
-
-export interface CertificateTemplateRow {
-  id: string;
-  name: string;
-  description: string | null;
-  type: string;
-  isDefault: boolean;
-  isActive: boolean;
-  validityDays: number | null;
-  signatoryName: string | null;
-  signatoryTitle: string | null;
 }
 
 export interface HistoryRow {
@@ -142,4 +132,84 @@ export interface TeamSummary {
     inProgress: number;
     mandatoryCoveragePct: number | null;
   };
+}
+
+// ─── Modelos de certificado (nove modelos de sistema, versionados) ───
+
+export type Align = 'left' | 'center' | 'right';
+
+export type ElementKey =
+  | 'logo'
+  | 'title'
+  | 'recognition'
+  | 'name'
+  | 'course'
+  | 'details'
+  | 'signature'
+  | 'qr'
+  | 'code';
+
+export interface ElementTweak {
+  align?: Align;
+  scale?: number;
+  dx?: number;
+  dy?: number;
+  visible?: boolean;
+}
+
+export interface TemplateColors {
+  primary: string;
+  accent: string;
+  text: string;
+  background: string;
+}
+
+export interface TemplateConfigDto {
+  layoutKey: string;
+  colors: TemplateColors;
+  texts: {
+    title: string;
+    recognition: string;
+    courseLine: string;
+    detailsLine: string;
+    footer: string;
+  };
+  assets: { logoId?: string; backgroundId?: string; signatureId?: string };
+  signatory: { name?: string; title?: string };
+  options: {
+    showQr: boolean;
+    showCode: boolean;
+    showHours: boolean;
+    showValidity: boolean;
+    showScore: boolean;
+  };
+  elements: Partial<Record<ElementKey, ElementTweak>>;
+}
+
+export interface TemplateSummaryRow {
+  id: string;
+  name: string;
+  description: string | null;
+  layoutKey: string;
+  currentVersion: number;
+  colors: TemplateColors;
+  updatedAt: string;
+}
+
+export interface TemplateDetailDto extends TemplateSummaryRow {
+  config: TemplateConfigDto;
+  versions: {
+    version: number;
+    createdAt: string;
+    createdByName: string | null;
+  }[];
+}
+
+export interface AssetMeta {
+  id: string;
+  kind: 'LOGO' | 'BACKGROUND' | 'SIGNATURE';
+  mime: string;
+  width: number;
+  height: number;
+  size: number;
 }

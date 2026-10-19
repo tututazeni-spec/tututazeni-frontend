@@ -14,7 +14,7 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { CertificatesView } from '@/components/courses/CertificatesView';
 import { OverviewTab } from './OverviewTab';
 import { CertificatesTab } from './CertificatesTab';
-import { TemplatesTab } from './TemplatesTab';
+import { TemplateGallery } from './TemplateGallery';
 import { RulesTab } from './RulesTab';
 import { HistoryTab } from './HistoryTab';
 import { TeamSummaryTab } from './TeamSummaryTab';
@@ -86,7 +86,7 @@ export function CertificatesCenter() {
           initialStatus={status}
         />
       )}
-      {current === 'templates' && <TemplatesTab />}
+      {current === 'templates' && <TemplateGallery canEdit={canWrite} />}
       {current === 'rules' && <RulesTab canEdit={canWrite} />}
       {current === 'history' && <HistoryTab />}
       {current === 'mine' && <CertificatesView />}

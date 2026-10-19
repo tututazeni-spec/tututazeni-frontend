@@ -13,8 +13,10 @@ vi.mock('./OverviewTab', () => ({
 vi.mock('./CertificatesTab', () => ({
   CertificatesTab: () => <div>certificates-tab</div>,
 }));
-vi.mock('./TemplatesTab', () => ({
-  TemplatesTab: () => <div>templates-tab</div>,
+vi.mock('./TemplateGallery', () => ({
+  TemplateGallery: ({ canEdit }: { canEdit: boolean }) => (
+    <div>{canEdit ? 'templates-edit' : 'templates-read'}</div>
+  ),
 }));
 vi.mock('./RulesTab', () => ({ RulesTab: () => <div>rules-tab</div> }));
 vi.mock('./HistoryTab', () => ({ HistoryTab: () => <div>history-tab</div> }));
