@@ -7,6 +7,7 @@
 // components/reports/constants.ts e components/executive-reports/constants.ts.
 
 import {
+  Award,
   BarChart3,
   BookOpen,
   Calendar,
@@ -134,6 +135,12 @@ export const NAV = [
     label: 'Recursos & Logística',
   },
   { id: 'reports', hint: 'Indicadores', icon: BarChart3, label: 'Relatórios' },
+  {
+    id: 'certificates',
+    hint: 'Emissão, regras e histórico',
+    icon: Award,
+    label: 'Certificados',
+  },
 ] as const;
 
 export type NavId = (typeof NAV)[number]['id'];
@@ -151,6 +158,7 @@ export const TITLES: Record<View, string> = {
   trainers: 'Formadores',
   resources: 'Recursos & Logística',
   reports: 'Relatórios',
+  certificates: 'Certificados',
 };
 
 // docs/trainings-detalhado.md pt.7 — Formadores.

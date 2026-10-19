@@ -186,7 +186,17 @@ export type CourseDetailData = Course & {
 
 export interface Certificate {
   id: number;
-  code: string;
+  code: string | null;
+  validationCode: string;
+  /** Estado real no momento da consulta (revogação > expiração > gravado). */
+  status: 'PENDING' | 'PENDING_APPROVAL' | 'ACTIVE' | 'EXPIRED' | 'REVOKED';
+  displayTitle: string;
+  activityKind: string | null;
+  origin: 'INTERNAL' | 'EXTERNAL';
+  /** Ligação pública de verificação (QR/partilha). */
+  verifyUrl: string;
+  /** Fluxo oficial "Add to profile" do LinkedIn; só em certificados válidos. */
+  linkedInUrl?: string;
   issuedAt: string;
   expiresAt: string | null;
   course: {
@@ -194,7 +204,7 @@ export interface Certificate {
     title: string;
     thumbnailUrl: string | null;
     category: string | null;
-  };
+  } | null;
 }
 
 export interface PaginatedCourses {
@@ -323,8 +333,9 @@ export interface MyEnrollment {
 export interface CertificateVerifyResult {
   valid?: boolean;
   error?: string;
-  user?: { fullName: string };
-  course?: { title: string };
+  status?: Certificate['status'];
+  holderName?: string;
+  title?: string;
 }
 
 // ─── Turmas (docs/modulo_courses.md secção 5) ──────────────────────────────

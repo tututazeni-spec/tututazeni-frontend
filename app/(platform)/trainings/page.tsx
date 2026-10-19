@@ -20,6 +20,7 @@ import { CatalogView } from '@/components/trainings/CatalogView';
 import { DashboardView } from '@/components/trainings/DashboardView';
 import { DetailView } from '@/components/trainings/DetailView';
 import { GestaoView } from '@/components/trainings/GestaoView';
+import { CertificatesCenter } from '@/components/certificates/CertificatesCenter';
 import { ManageTrainingView } from '@/components/trainings/ManageTrainingView';
 import { MyTrainingsView } from '@/components/trainings/MyTrainingsView';
 import { PlanDetailView } from '@/components/trainings/plans/PlanDetailView';
@@ -92,6 +93,7 @@ export default function TrainingsPage() {
       {nav.view === 'my-trainings' && (
         <MyTrainingsView onSelect={handleSelect} />
       )}
+      {nav.view === 'certificates' && <CertificatesCenter />}
       {nav.view === 'manage' && <GestaoView onManage={handleManage} />}
       {nav.view === 'manage-detail' && (
         <ManageTrainingView

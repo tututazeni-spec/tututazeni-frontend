@@ -504,7 +504,8 @@ export type View =
   | 'calendar'
   | 'trainers'
   | 'resources'
-  | 'reports';
+  | 'reports'
+  | 'certificates';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto
 // — um único estado torna "detail sem id" irrepresentável.

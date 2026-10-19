@@ -1447,4 +1447,20 @@ export const queryKeys = {
       [...queryKeys.courses.all, 'categories-managed'] as const,
     reports: () => [...queryKeys.courses.all, 'reports'] as const,
   },
+  // Centro de certificados (admin) — partilhado por Cursos e Gestão de Formações.
+  certificates: {
+    all: ['certificates'] as const,
+    overview: () => [...queryKeys.certificates.all, 'overview'] as const,
+    list: (params: unknown) =>
+      [...queryKeys.certificates.all, 'list', params] as const,
+    rules: () => [...queryKeys.certificates.all, 'rules'] as const,
+    mySummary: () => [...queryKeys.certificates.all, 'my-summary'] as const,
+    teamSummary: (departmentId?: number) =>
+      [...queryKeys.certificates.all, 'team-summary', departmentId ?? null] as const,
+    templates: () => [...queryKeys.certificates.all, 'templates'] as const,
+    template: (id: string) =>
+      [...queryKeys.certificates.all, 'template', id] as const,
+    history: (params: unknown) =>
+      [...queryKeys.certificates.all, 'history', params] as const,
+  },
 } as const;
