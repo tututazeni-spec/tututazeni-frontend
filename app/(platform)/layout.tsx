@@ -30,7 +30,7 @@ export default function PlatformLayout({
             flex: 1,
             padding: '32px',
             marginTop: '56px',
-            background: '#f8fafc',
+            background: 'var(--color-canvas)',
           }}
         >
           {children}
