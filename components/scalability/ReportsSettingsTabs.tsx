@@ -96,21 +96,24 @@ export function ReportsTab({
               type="button"
               onClick={() => onSelect(r.type)}
               aria-pressed={active}
-              className={`rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-left text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7CC4FF] ${
+              className={`rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)] p-5 text-left transition-shadow hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F1F3D]/40 ${
                 active
                   ? 'outline outline-2 outline-offset-2 outline-[#0F1F3D]'
                   : ''
               }`}
             >
               <div className="flex items-center gap-3">
-                <BarChart3
-                  className="h-5 w-5 shrink-0 text-[#7CC4FF]"
-                  strokeWidth={1.8}
+                <span
                   aria-hidden
-                />
-                <p className="font-display text-sm font-bold">{r.title}</p>
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EEF4FD] text-[#0F1F3D]"
+                >
+                  <BarChart3 className="h-5 w-5" strokeWidth={1.8} />
+                </span>
+                <p className="font-display text-[15px] font-bold text-[#0F1F3D]">
+                  {r.title}
+                </p>
               </div>
-              <p className="mt-1 font-body text-xs text-white/70">
+              <p className="mt-2 font-body text-xs text-[#49658A]">
                 {r.description}
               </p>
             </button>
@@ -170,12 +173,15 @@ export function ReportsTab({
                     display={`${s.value.toLocaleString('pt-PT')}%`}
                   />
                 ) : (
-                  <Card key={s.label}>
-                    <CardBody>
-                      <p className="font-body text-xs font-medium uppercase tracking-wide text-ink-muted">
+                  <Card
+                    key={s.label}
+                    className="rounded-[24px] border-[#E3EAF4] shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+                  >
+                    <CardBody className="px-6 py-5">
+                      <p className="font-body text-xs font-medium uppercase tracking-wide text-[#49658A]">
                         {s.label}
                       </p>
-                      <p className="mt-1 font-display text-lg font-bold tabular-nums text-ink">
+                      <p className="mt-1 font-display text-lg font-bold tabular-nums text-[#0F1F3D]">
                         {cellText(s.value)}
                       </p>
                     </CardBody>
@@ -186,11 +192,14 @@ export function ReportsTab({
           )}
 
           {report.tables.map((t) => (
-            <Card key={t.title}>
-              <CardBody>
-                <p className="mb-3 font-body text-sm font-semibold text-ink">
-                  {t.title}
-                </p>
+            <Card
+              key={t.title}
+              className="overflow-hidden rounded-[24px] border-[#E3EAF4] shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+            >
+              <div className="pointer-events-none cursor-default select-none bg-[#0F1F3D]/60 px-6 py-3 font-body text-sm font-semibold text-white">
+                {t.title}
+              </div>
+              <CardBody className="px-6 py-5">
                 {t.rows.length === 0 ? (
                   <p className="font-body text-sm text-ink-muted">
                     Sem registos.
@@ -199,9 +208,9 @@ export function ReportsTab({
                   <div className="overflow-x-auto">
                     <table className="w-full font-body text-sm">
                       <thead>
-                        <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
+                        <tr className="pointer-events-none cursor-default select-none bg-[#0F1F3D]/60 text-left text-xs uppercase tracking-wide text-white">
                           {t.columns.map((c) => (
-                            <th key={c} className="py-1.5 pr-3 font-semibold">
+                            <th key={c} className="px-3 py-1.5 font-semibold">
                               {c}
                             </th>
                           ))}
@@ -209,11 +218,11 @@ export function ReportsTab({
                       </thead>
                       <tbody>
                         {t.rows.slice(0, MAX_PREVIEW_ROWS).map((r, i) => (
-                          <tr key={i} className="border-t border-border">
+                          <tr key={i} className="border-t border-[#E6ECF4]">
                             {t.columns.map((c) => (
                               <td
                                 key={c}
-                                className="py-2 pr-3 tabular-nums text-ink-muted"
+                                className="px-3 py-2 tabular-nums text-[#0F1F3D]"
                               >
                                 {cellText(r[c])}
                               </td>
