@@ -19,7 +19,8 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/cn';
-import { NavyPanel } from './NavyPanel';
+import { PALETTE } from '@/components/onboarding/TemplateCard';
+import { EventBadge } from '@/components/events/EventBadges';
 import { RoiEvaluationModelModal } from './RoiEvaluationModelModal';
 import { INITIATIVE_TYPE_LABELS, ROI_MODEL_STATUS_LABELS } from './utils';
 import type { RoiEvaluationModelRow } from './types';
@@ -88,77 +89,106 @@ export function EvaluationModelsTab() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {rows.map((m) => (
-            <NavyPanel
-              key={m.id}
-              variant={0}
-              className="flex min-w-0 flex-col"
-              title={m.name}
-              icon={ClipboardCheck}
-              aside={
-                <span className="rounded-full bg-white/10 px-3 py-1 font-body text-xs font-semibold">
-                  {ROI_MODEL_STATUS_LABELS[m.status] ?? m.status}
-                </span>
-              }
-            >
-              {m.description && (
-                <p className="-mt-2 mb-3 font-body text-xs font-medium text-white/90">
-                  {m.description}
-                </p>
-              )}
-
-              <ul className="flex flex-wrap gap-1.5">
-                {m.levels.map((l) => (
-                  <li
-                    key={l.level}
-                    className={cn(
-                      'rounded-full px-2.5 py-1 font-body text-[11px] font-semibold text-white',
-                      l.mandatory
-                        ? 'bg-white/25'
-                        : 'border border-white/25 bg-white/5',
-                    )}
-                  >
-                    L{l.level} {l.name} ({l.weight}%)
-                  </li>
-                ))}
-              </ul>
-
-              {m.applicability && (
-                <p className="mt-3 font-body text-[11px] font-medium text-white/80">
-                  Aplicável a:{' '}
-                  {[
-                    m.applicability.initiativeTypes
-                      ?.map((t) => INITIATIVE_TYPE_LABELS[t] ?? t)
-                      .join(', '),
-                    m.applicability.criticality?.join(', '),
-                    m.applicability.minCost != null
-                      ? `custo ≥ AOA ${m.applicability.minCost.toLocaleString()}`
-                      : null,
-                  ]
-                    .filter(Boolean)
-                    .join(' · ') || 'todas as iniciativas'}
-                </p>
-              )}
-
-              <div className="mt-auto flex items-center justify-end gap-2 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setModalModel(m)}
-                  className="rounded-full border border-white/40 px-2.5 py-0.5 font-body text-[11px] font-medium text-white/90 transition-colors hover:border-white hover:bg-white/15 hover:text-white disabled:opacity-40"
+          {rows.map((m) => {
+            const palette = PALETTE[Math.abs(m.id) % PALETTE.length];
+            return (
+              <div
+                key={m.id}
+                className="relative min-w-0 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+              >
+                <div
+                  aria-hidden
+                  className="absolute right-0 top-0 hidden h-[58%] w-[26%] items-center justify-center text-white/70 sm:flex"
+                  style={{
+                    clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
+                    background: `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
+                  }}
                 >
-                  Editar
-                </button>
-                <button
-                  type="button"
-                  disabled={toggleStatus.isPending}
-                  onClick={() => toggleStatus.mutate(m)}
-                  className="rounded-full border border-white/40 px-2.5 py-0.5 font-body text-[11px] font-medium text-white/90 transition-colors hover:border-white hover:bg-white/15 hover:text-white disabled:opacity-40"
-                >
-                  {m.status === 'ACTIVO' ? 'Desativar' : 'Ativar'}
-                </button>
+                  <ClipboardCheck size={44} strokeWidth={1.25} />
+                </div>
+
+                <div className="relative space-y-5 p-6 sm:pr-[28%]">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <EventBadge
+                      color={m.status === 'ACTIVO' ? '#16A765' : '#64748B'}
+                    >
+                      {ROI_MODEL_STATUS_LABELS[m.status] ?? m.status}
+                    </EventBadge>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <span
+                      aria-hidden
+                      className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full text-white"
+                      style={{ background: palette[3] }}
+                    >
+                      <ClipboardCheck size={28} strokeWidth={1.75} />
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="break-words font-display text-[24px] font-bold leading-tight text-[#0F1F3D]">
+                        {m.name}
+                      </h3>
+                      {m.description && (
+                        <p className="mt-0.5 break-words text-base text-[#49658A]">
+                          {m.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <ul className="flex flex-wrap gap-2">
+                    {m.levels.map((l) => (
+                      <li
+                        key={l.level}
+                        className={cn(
+                          'rounded-full border px-3 py-1 font-body text-xs font-semibold',
+                          l.mandatory
+                            ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
+                            : 'border-[#D8E2F0] bg-white text-[#0F1F3D]',
+                        )}
+                      >
+                        L{l.level} {l.name} ({l.weight}%)
+                      </li>
+                    ))}
+                  </ul>
+
+                  {m.applicability && (
+                    <p className="font-body text-xs text-[#49658A]">
+                      Aplicável a:{' '}
+                      {[
+                        m.applicability.initiativeTypes
+                          ?.map((t) => INITIATIVE_TYPE_LABELS[t] ?? t)
+                          .join(', '),
+                        m.applicability.criticality?.join(', '),
+                        m.applicability.minCost != null
+                          ? `custo ≥ AOA ${m.applicability.minCost.toLocaleString()}`
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ') || 'todas as iniciativas'}
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-end gap-2 border-t border-[#E6ECF4] pt-4">
+                    <Button
+                      size="sm"
+                      intent="secondary"
+                      onClick={() => setModalModel(m)}
+                    >
+                      Editar
+                    </Button>
+                    <Button
+                      size="sm"
+                      disabled={toggleStatus.isPending}
+                      onClick={() => toggleStatus.mutate(m)}
+                    >
+                      {m.status === 'ACTIVO' ? 'Desativar' : 'Ativar'}
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </NavyPanel>
-          ))}
+            );
+          })}
         </div>
       )}
 
