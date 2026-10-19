@@ -1,14 +1,14 @@
 // components/certificates/CertificatesTab.tsx
 // Lista administrativa de certificados com pesquisa, filtros, ordenação e
 // paginação no servidor. Acções reais: descarregar PDF (válidos/expirados) e
-// aprovar (só pendentes e só quem pode escrever). Revogar/reemitir chega com
-// a fase de ciclo de vida.
+// aprovar, revogar, reemitir e reenviar (só quem gere), mais importação de
+// certificados externos e emissão em lote.
 
 'use client';
 
 import { useEffect, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Download } from 'lucide-react';
+import { Download, FileUp, Layers } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { usePdfDownload } from '@/hooks/usePdfDownload';
 import { apiClient } from '@/lib/apiClient';
@@ -34,6 +34,9 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@/components/ui/Table';
+import { ImportExternalModal } from './ImportExternalModal';
+import { BatchIssueModal } from './BatchIssueModal';
+import { ReasonDialog } from './ReasonDialog';
 import { KIND_LABEL, STATUS_INTENT, STATUS_LABEL } from './labels';
 import type {
   ActivityKind,
@@ -67,23 +70,27 @@ const SORT_ITEMS = [
   { value: 'holderName:asc', label: 'Nome do titular (A–Z)' },
 ];
 
+type RowAction = 'approve' | 'revoke' | 'reissue' | 'resend';
+
 function RowActions({
   row,
-  canApprove,
-  onApprove,
+  canManage,
+  onAction,
 }: {
   row: AdminCertificateRow;
-  canApprove: boolean;
-  onApprove: (row: AdminCertificateRow) => void;
+  canManage: boolean;
+  onAction: (action: RowAction, row: AdminCertificateRow) => void;
 }) {
   const { download, loading, error } = usePdfDownload(
     'certificate',
     String(row.id),
   );
   const downloadable = row.status === 'ACTIVE' || row.status === 'EXPIRED';
+  const live = row.status !== 'REVOKED';
+  const reissuable = row.origin === 'INTERNAL' && downloadable;
   return (
     <div className="flex flex-col items-end gap-1">
-      <div className="flex gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         {downloadable && (
           <Button
             intent="secondary"
@@ -95,9 +102,36 @@ function RowActions({
             Descarregar PDF
           </Button>
         )}
-        {canApprove && row.status === 'PENDING_APPROVAL' && (
-          <Button size="sm" onClick={() => onApprove(row)}>
+        {canManage && row.status === 'PENDING_APPROVAL' && (
+          <Button size="sm" onClick={() => onAction('approve', row)}>
             Aprovar
+          </Button>
+        )}
+        {canManage && row.status === 'ACTIVE' && (
+          <Button
+            intent="secondary"
+            size="sm"
+            onClick={() => onAction('resend', row)}
+          >
+            Reenviar
+          </Button>
+        )}
+        {canManage && reissuable && (
+          <Button
+            intent="secondary"
+            size="sm"
+            onClick={() => onAction('reissue', row)}
+          >
+            Reemitir
+          </Button>
+        )}
+        {canManage && live && (
+          <Button
+            intent="danger"
+            size="sm"
+            onClick={() => onAction('revoke', row)}
+          >
+            Revogar
           </Button>
         )}
       </div>
@@ -107,10 +141,10 @@ function RowActions({
 }
 
 export function CertificatesTab({
-  canApprove,
+  canManage,
   initialStatus = '',
 }: {
-  canApprove: boolean;
+  canManage: boolean;
   initialStatus?: EffectiveStatus | '';
 }) {
   const confirm = useConfirm();
@@ -190,16 +224,86 @@ export function CertificatesTab({
     },
   );
 
-  async function onApprove(row: AdminCertificateRow) {
+  const invalidate = [
+    queryKeys.certificates.all,
+    queryKeys.courses.myCertificates(),
+  ];
+  const [reasonFor, setReasonFor] = useState<{
+    kind: 'revoke' | 'reissue';
+    row: AdminCertificateRow;
+  } | null>(null);
+  const [reasonError, setReasonError] = useState<string | undefined>();
+  const [modal, setModal] = useState<'import' | 'batch' | null>(null);
+
+  const withReason = useApiMutation(
+    (v: { kind: 'revoke' | 'reissue'; id: number; reason: string }) =>
+      apiClient.post(`/certificates/${v.id}/${v.kind}`, { reason: v.reason }),
+    {
+      invalidateKeys: invalidate,
+      onSuccess: (_r, v) => {
+        setReasonFor(null);
+        setReasonError(undefined);
+        toast({
+          title:
+            v.kind === 'revoke'
+              ? 'Certificado revogado.'
+              : 'Certificado reemitido.',
+          intent: 'success',
+        });
+      },
+      onError: (e) => setReasonError(e.message),
+    },
+  );
+
+  const resend = useApiMutation(
+    (id: number) =>
+      apiClient.post<{ notified: boolean; emailed: boolean }>(
+        `/certificates/${id}/resend`,
+      ),
+    {
+      onSuccess: (r) =>
+        toast({
+          title: r.emailed
+            ? 'Certificado reenviado ao colaborador (notificação e e-mail).'
+            : 'Colaborador notificado. O e-mail não foi enviado.',
+          intent: 'success',
+        }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  async function onAction(action: RowAction, row: AdminCertificateRow) {
+    if (action === 'revoke' || action === 'reissue') {
+      setReasonError(undefined);
+      setReasonFor({ kind: action, row });
+      return;
+    }
     const ok = await confirm({
-      title: `Aprovar o certificado de ${row.holderName}?`,
-      confirmLabel: 'Aprovar',
+      title:
+        action === 'approve'
+          ? `Aprovar o certificado de ${row.holderName}?`
+          : `Reenviar o certificado a ${row.holderName}?`,
+      confirmLabel: action === 'approve' ? 'Aprovar' : 'Reenviar',
     });
-    if (ok) approve.mutate(row.id);
+    if (!ok) return;
+    if (action === 'approve') approve.mutate(row.id);
+    else resend.mutate(row.id);
   }
 
   return (
     <div className="space-y-4">
+      {canManage && (
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button intent="secondary" onClick={() => setModal('import')}>
+            <FileUp size={14} strokeWidth={1.75} />
+            Importar certificado externo
+          </Button>
+          <Button onClick={() => setModal('batch')}>
+            <Layers size={14} strokeWidth={1.75} />
+            Emitir em lote
+          </Button>
+        </div>
+      )}
       <Card className="p-4">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Input
@@ -278,7 +382,14 @@ export function CertificatesTab({
                 <TableRow key={row.id}>
                   <TableCell>{row.holderName}</TableCell>
                   <TableCell>
-                    <div>{row.title}</div>
+                    <div className="flex items-center gap-2">
+                      <span>{row.title}</span>
+                      {row.origin === 'EXTERNAL' && (
+                        <Badge intent="neutral" dot={false}>
+                          Externo
+                        </Badge>
+                      )}
+                    </div>
                     {row.activityKind && (
                       <div className="text-xs text-ink-muted">
                         {KIND_LABEL[row.activityKind as ActivityKind] ??
@@ -300,8 +411,8 @@ export function CertificatesTab({
                   <TableCell>
                     <RowActions
                       row={row}
-                      canApprove={canApprove}
-                      onApprove={(r) => void onApprove(r)}
+                      canManage={canManage}
+                      onAction={(a, r) => void onAction(a, r)}
                     />
                   </TableCell>
                 </TableRow>
@@ -315,6 +426,36 @@ export function CertificatesTab({
           />
         </>
       )}
+
+      {reasonFor && (
+        <ReasonDialog
+          title={
+            reasonFor.kind === 'revoke'
+              ? `Revogar o certificado de ${reasonFor.row.holderName}`
+              : `Reemitir o certificado de ${reasonFor.row.holderName}`
+          }
+          description={
+            reasonFor.kind === 'revoke'
+              ? 'O certificado deixa de ser válido de imediato. O registo é preservado.'
+              : 'O certificado actual é revogado e é emitido um novo, ligado ao anterior.'
+          }
+          confirmLabel={reasonFor.kind === 'revoke' ? 'Revogar' : 'Reemitir'}
+          pending={withReason.isPending}
+          error={reasonError}
+          onClose={() => setReasonFor(null)}
+          onConfirm={(reason) =>
+            withReason.mutate({
+              kind: reasonFor.kind,
+              id: reasonFor.row.id,
+              reason,
+            })
+          }
+        />
+      )}
+      {modal === 'import' && (
+        <ImportExternalModal onClose={() => setModal(null)} />
+      )}
+      {modal === 'batch' && <BatchIssueModal onClose={() => setModal(null)} />}
     </div>
   );
 }

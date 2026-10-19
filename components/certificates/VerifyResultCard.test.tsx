@@ -13,6 +13,7 @@ const base: PublicVerifyResult = {
   issuedAt: '2026-10-01T00:00:00.000Z',
   expiresAt: null,
   type: 'COURSE',
+  origin: 'INTERNAL',
 };
 
 describe('VerifyResultCard', () => {
@@ -51,5 +52,22 @@ describe('VerifyResultCard', () => {
   test('não encontrado usa um aviso claro', () => {
     render(<VerifyResultCard result={{ notFound: true }} />);
     expect(screen.getByText('Certificado não encontrado')).toBeInTheDocument();
+  });
+
+  test('externo diz que foi importado e emitido por outra entidade, não pela academia', () => {
+    render(
+      <VerifyResultCard
+        result={{ ...base, origin: 'EXTERNAL', issuerName: 'Cruz Vermelha' }}
+      />,
+    );
+    expect(screen.getByText('Certificado externo')).toBeInTheDocument();
+    expect(
+      screen.getByText(/emitido por Cruz Vermelha, não pela academia/),
+    ).toBeInTheDocument();
+  });
+
+  test('interno não mostra o aviso de certificado externo', () => {
+    render(<VerifyResultCard result={base} />);
+    expect(screen.queryByText('Certificado externo')).not.toBeInTheDocument();
   });
 });

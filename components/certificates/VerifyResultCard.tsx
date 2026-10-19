@@ -49,9 +49,20 @@ export function VerifyResultCard({ result }: { result: VerifyCardResult }) {
 
   return (
     <Card className="p-6">
-      <Badge intent={view.intent}>{view.label}</Badge>
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge intent={view.intent}>{view.label}</Badge>
+        {r.origin === 'EXTERNAL' && (
+          <Badge intent="neutral">Certificado externo</Badge>
+        )}
+      </div>
       <h1 className="mt-4 text-xl font-semibold text-ink">{r.holderName}</h1>
       <p className="text-ink-muted">{r.title}</p>
+      {r.origin === 'EXTERNAL' && (
+        <p className="mt-2 text-sm text-ink-muted">
+          Importado para a plataforma; emitido por {r.issuerName}, não pela
+          academia.
+        </p>
+      )}
       <div className="mt-4">
         <Row label="Entidade emissora" value={r.issuerName} />
         <Row label="Tipo" value={TYPE_LABEL[r.type] ?? r.type} />

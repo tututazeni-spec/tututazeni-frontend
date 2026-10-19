@@ -12,6 +12,8 @@ export interface PublicVerifyResult {
   issuedAt: string;
   expiresAt: string | null;
   type: string;
+  /** EXTERNAL = importado para a plataforma, não emitido pela academia. */
+  origin: 'INTERNAL' | 'EXTERNAL';
 }
 
 export type VerifyCardResult = PublicVerifyResult | { notFound: true };
@@ -35,6 +37,7 @@ export interface AdminCertificateRow {
   departmentName: string | null;
   title: string;
   activityKind: string | null;
+  origin: 'INTERNAL' | 'EXTERNAL';
   status: CertificateStatus;
   code: string;
   issuedAt: string;

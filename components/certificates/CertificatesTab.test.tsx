@@ -9,6 +9,7 @@ const row = (over: Partial<AdminCertificateRow> = {}): AdminCertificateRow => ({
   departmentName: 'RH',
   title: 'Segurança',
   activityKind: 'COURSE',
+  origin: 'INTERNAL',
   status: 'ACTIVE',
   code: 'ABCD1234EFGH5678',
   issuedAt: '2026-10-01T00:00:00.000Z',
@@ -48,13 +49,13 @@ describe('CertificatesTab', () => {
 
   test('pendente de aprovação mostra "Aprovar" a quem pode aprovar', () => {
     rows = [row({ status: 'PENDING_APPROVAL' })];
-    render(<CertificatesTab canApprove />);
+    render(<CertificatesTab canManage />);
     expect(screen.getByRole('button', { name: 'Aprovar' })).toBeInTheDocument();
   });
 
   test('auditor (só leitura) não vê "Aprovar"', () => {
     rows = [row({ status: 'PENDING_APPROVAL' })];
-    render(<CertificatesTab canApprove={false} />);
+    render(<CertificatesTab canManage={false} />);
     expect(
       screen.queryByRole('button', { name: 'Aprovar' }),
     ).not.toBeInTheDocument();
@@ -65,14 +66,14 @@ describe('CertificatesTab', () => {
       row({ id: 1, status: 'REVOKED' }),
       row({ id: 2, status: 'ACTIVE' }),
     ];
-    render(<CertificatesTab canApprove />);
+    render(<CertificatesTab canManage />);
     expect(
       screen.getAllByRole('button', { name: 'Descarregar PDF' }),
     ).toHaveLength(1);
   });
 
   test('lista vazia mostra o estado vazio', () => {
-    render(<CertificatesTab canApprove />);
+    render(<CertificatesTab canManage />);
     expect(screen.getByText('Sem certificados')).toBeInTheDocument();
   });
 
@@ -81,10 +82,67 @@ describe('CertificatesTab', () => {
       row({ status: 'PENDING_APPROVAL' }),
       row({ id: 2, status: 'ACTIVE' }),
     ];
-    render(<CertificatesTab canApprove />);
+    render(<CertificatesTab canManage />);
     expect(
       screen.queryByText(/PENDING_APPROVAL|^ACTIVE$|COURSE/),
     ).not.toBeInTheDocument();
     expect(screen.getByText('Aguarda aprovação')).toBeInTheDocument();
+  });
+
+  const has = (name: string) => screen.queryByRole('button', { name }) !== null;
+
+  test('válido interno oferece revogar, reemitir e reenviar a quem gere', () => {
+    rows = [row({ status: 'ACTIVE' })];
+    render(<CertificatesTab canManage />);
+    expect(has('Revogar')).toBe(true);
+    expect(has('Reemitir')).toBe(true);
+    expect(has('Reenviar')).toBe(true);
+  });
+
+  test('auditor não vê nenhuma acção de ciclo de vida nem importar/lote', () => {
+    rows = [row({ status: 'ACTIVE' })];
+    render(<CertificatesTab canManage={false} />);
+    for (const n of [
+      'Revogar',
+      'Reemitir',
+      'Reenviar',
+      'Importar certificado externo',
+      'Emitir em lote',
+    ]) {
+      expect(has(n)).toBe(false);
+    }
+  });
+
+  test('externo não se reemite mas pode ser revogado', () => {
+    rows = [row({ origin: 'EXTERNAL', status: 'ACTIVE' })];
+    render(<CertificatesTab canManage />);
+    expect(has('Reemitir')).toBe(false);
+    expect(has('Revogar')).toBe(true);
+  });
+
+  test('revogado não tem acções de ciclo de vida', () => {
+    rows = [row({ status: 'REVOKED' })];
+    render(<CertificatesTab canManage />);
+    expect(has('Revogar') || has('Reemitir') || has('Reenviar')).toBe(false);
+  });
+
+  test('pendente de aprovação pode ser aprovado ou revogado, não reemitido', () => {
+    rows = [row({ status: 'PENDING_APPROVAL' })];
+    render(<CertificatesTab canManage />);
+    expect(has('Aprovar')).toBe(true);
+    expect(has('Revogar')).toBe(true);
+    expect(has('Reemitir')).toBe(false);
+  });
+
+  test('quem gere vê os botões de importar e de emitir em lote', () => {
+    render(<CertificatesTab canManage />);
+    expect(has('Importar certificado externo')).toBe(true);
+    expect(has('Emitir em lote')).toBe(true);
+  });
+
+  test('externo mostra a etiqueta "Externo" na lista', () => {
+    rows = [row({ origin: 'EXTERNAL' })];
+    render(<CertificatesTab canManage />);
+    expect(screen.getByText('Externo')).toBeInTheDocument();
   });
 });

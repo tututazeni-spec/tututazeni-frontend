@@ -63,7 +63,7 @@ export function CertificatesCenter() {
       {tab === 'list' && (
         <CertificatesTab
           key={status}
-          canApprove={canWrite}
+          canManage={canWrite}
           initialStatus={status}
         />
       )}

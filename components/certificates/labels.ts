@@ -39,6 +39,11 @@ export const ACTION_LABEL: Record<string, string> = {
   CERTIFICATE_ISSUED: 'Certificado emitido',
   CERTIFICATE_APPROVED: 'Certificado aprovado',
   CERTIFICATE_RULE_UPSERTED: 'Regra de emissão alterada',
+  CERTIFICATE_REVOKED: 'Certificado revogado',
+  CERTIFICATE_REISSUED: 'Certificado reemitido',
+  CERTIFICATE_RESENT: 'Certificado reenviado',
+  CERTIFICATE_EXTERNAL_IMPORTED: 'Certificado externo importado',
+  CERTIFICATE_BATCH_ISSUED: 'Emissão em lote',
 };
 
 export const TEMPLATE_TYPE_LABEL: Record<string, string> = {
