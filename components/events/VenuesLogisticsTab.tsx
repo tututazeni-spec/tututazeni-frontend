@@ -34,7 +34,6 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { cn } from '@/lib/cn';
 import { EQUIPMENT_CFG, LOGISTICS_STATUS_CFG } from './constants';
-import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
 import { proximityLevel, relativeLabel } from './proximity';
 import { useEventPickerOptions } from './eventFormData';
 import type {
@@ -276,10 +275,7 @@ export function VenuesLogisticsTab() {
       ) : (
         <>
           {event && (
-            <NavyHeroCard
-              className="block"
-              surfaceClassName="border-[#0F1F3D] bg-[#0F1F3D] !p-4 !pl-9"
-            >
+            <div className="relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white p-5 pl-9 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
               <span
                 className={cn(
                   'absolute -left-6 inset-y-0 w-1 rounded-full',
@@ -287,7 +283,7 @@ export function VenuesLogisticsTab() {
                 )}
               />
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <div className="truncate font-body text-sm font-semibold text-white">
+                <div className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
                   {event.title}
                 </div>
                 <span
@@ -301,34 +297,38 @@ export function VenuesLogisticsTab() {
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
                 <div>
-                  <div className="font-body text-xs text-white">Local</div>
-                  <div className="truncate font-semibold text-white">
+                  <div className="font-body text-xs text-[#49658A]">Local</div>
+                  <div className="truncate font-semibold text-[#0F1F3D]">
                     {event.location ?? '—'}
                   </div>
                 </div>
                 <div>
-                  <div className="font-body text-xs text-white">Sala</div>
-                  <div className="truncate font-semibold text-white">
+                  <div className="font-body text-xs text-[#49658A]">Sala</div>
+                  <div className="truncate font-semibold text-[#0F1F3D]">
                     {event.room ?? '—'}
                   </div>
                 </div>
                 <div>
-                  <div className="font-body text-xs text-white">Capacidade</div>
-                  <div className="font-semibold text-white">
+                  <div className="font-body text-xs text-[#49658A]">
+                    Capacidade
+                  </div>
+                  <div className="font-semibold text-[#0F1F3D]">
                     {event.maxCapacity}
                   </div>
                 </div>
                 <div>
-                  <div className="font-body text-xs text-white">Endereço</div>
-                  <div className="truncate font-semibold text-white">
+                  <div className="font-body text-xs text-[#49658A]">
+                    Endereço
+                  </div>
+                  <div className="truncate font-semibold text-[#0F1F3D]">
                     {event.address ?? '—'}
                   </div>
                 </div>
               </div>
-            </NavyHeroCard>
+            </div>
           )}
 
-          <Card className="space-y-4 p-4">
+          <Card className="space-y-4 rounded-[24px] border-[#E3EAF4] p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
             <div>
               <div className="mb-2 font-body text-xs font-medium text-ink">
                 Equipamentos

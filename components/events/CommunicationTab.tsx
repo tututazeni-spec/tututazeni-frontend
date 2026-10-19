@@ -157,13 +157,13 @@ export function CommunicationTab() {
           description="Envia a primeira comunicação a participantes de um evento."
         />
       ) : (
-        <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {communications.map((c) => {
             const level = proximityLevel(c.event.startAt);
             return (
               <div
                 key={c.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-[#E6ECF4] bg-white py-3 pl-5 pr-4 last:border-0"
               >
                 <span
                   className={cn(
@@ -172,19 +172,19 @@ export function CommunicationTab() {
                   )}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-semibold text-white">
+                  <div className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
                     {c.subject}
                   </div>
-                  <div className="truncate font-body text-xs text-white">
+                  <div className="truncate font-body text-xs text-[#49658A]">
                     {c.event.title} · {COMMUNICATION_TYPE_CFG[c.type].label} ·{' '}
                     {c.recipientCount} destinatário
                     {c.recipientCount === 1 ? '' : 's'}
                   </div>
                 </div>
-                <div className="hidden w-32 shrink-0 font-body text-xs text-white sm:block">
+                <div className="hidden w-32 shrink-0 font-body text-xs text-[#49658A] sm:block">
                   {COMMUNICATION_CHANNEL_CFG[c.channel].label}
                 </div>
-                <div className="hidden w-40 shrink-0 font-body text-xs text-white md:block">
+                <div className="hidden w-40 shrink-0 font-body text-xs text-[#49658A] md:block">
                   {c.sentAt
                     ? `${formatDate(c.sentAt)} · ${formatTime(c.sentAt)}`
                     : '—'}
