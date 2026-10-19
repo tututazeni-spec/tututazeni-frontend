@@ -19,7 +19,12 @@ export function usePdfDownload(type: PdfType, id: string) {
     setError(null);
 
     try {
-      const res = await fetch(`${API_URL}/pdf/${type}/${id}`, {
+      // Certificados têm rota própria (dados reais + ownership no backend).
+      const path =
+        type === 'certificate'
+          ? `/certificates/${id}/pdf`
+          : `/pdf/${type}/${id}`;
+      const res = await fetch(`${API_URL}${path}`, {
         method: 'GET',
         credentials: 'include',
       });

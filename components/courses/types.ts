@@ -186,7 +186,11 @@ export type CourseDetailData = Course & {
 
 export interface Certificate {
   id: number;
-  code: string;
+  code: string | null;
+  validationCode: string;
+  /** Estado real no momento da consulta (revogação > expiração > gravado). */
+  status: 'PENDING' | 'PENDING_APPROVAL' | 'ACTIVE' | 'EXPIRED' | 'REVOKED';
+  displayTitle: string;
   issuedAt: string;
   expiresAt: string | null;
   course: {
@@ -194,7 +198,7 @@ export interface Certificate {
     title: string;
     thumbnailUrl: string | null;
     category: string | null;
-  };
+  } | null;
 }
 
 export interface PaginatedCourses {
@@ -323,8 +327,9 @@ export interface MyEnrollment {
 export interface CertificateVerifyResult {
   valid?: boolean;
   error?: string;
-  user?: { fullName: string };
-  course?: { title: string };
+  status?: Certificate['status'];
+  holderName?: string;
+  title?: string;
 }
 
 // ─── Turmas (docs/modulo_courses.md secção 5) ──────────────────────────────

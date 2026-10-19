@@ -10,6 +10,8 @@
 
 import { useState } from 'react';
 import { Download } from 'lucide-react';
+import { usePdfDownload } from '@/hooks/usePdfDownload';
+import { Badge } from '@/components/ui/Badge';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -29,16 +31,14 @@ export function CertificatesView() {
 
   const { data = [], isLoading: loading } = useApiQuery<Certificate[]>(
     queryKeys.courses.myCertificates(),
-    '/courses/my/certificates',
+    '/certificates/my',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
   // Verificação on-demand de um código → mutação (acção pontual, não cacheada).
   const verifyMut = useApiMutation(
     (code: string) =>
-      apiClient.get<CertificateVerifyResult>(
-        `/courses/certificates/verify/${code}`,
-      ),
+      apiClient.get<CertificateVerifyResult>(`/certificates/verify/${code}`),
     {
       onSuccess: (r) => setVerifyResult(r),
       onError: (e) => setVerifyResult({ error: e.message }),
@@ -76,8 +76,10 @@ export function CertificatesView() {
             {verifyResult.error
               ? `${verifyResult.error}`
               : verifyResult.valid
-                ? `Certificado válido — ${verifyResult.user?.fullName} — ${verifyResult.course?.title}`
-                : `Certificado expirado`}
+                ? `Certificado válido — ${verifyResult.holderName} — ${verifyResult.title}`
+                : verifyResult.status === 'REVOKED'
+                  ? 'Certificado revogado'
+                  : 'Certificado expirado'}
           </div>
         )}
       </Card>
@@ -91,42 +93,68 @@ export function CertificatesView() {
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {data.map((cert) => (
-            <Card key={cert.id} className="overflow-hidden">
-              <div className="bg-gradient-to-r from-primary to-primary-active p-5 text-canvas">
-                <div className="text-xs text-canvas/70 mb-1">
-                  Certificado de conclusão
-                </div>
-                <div className="text-base font-semibold">
-                  {cert.course.title}
-                </div>
-                <div className="text-xs text-canvas/70 mt-1 font-mono">
-                  {cert.code}
-                </div>
-              </div>
-              <div className="px-4 py-3">
-                <div className="flex justify-between text-xs text-ink-muted">
-                  <span>Emitido: {fmtDate(cert.issuedAt)}</span>
-                  {cert.expiresAt && (
-                    <span
-                      className={
-                        new Date() > new Date(cert.expiresAt)
-                          ? 'text-danger'
-                          : ''
-                      }
-                    >
-                      Validade: {fmtDate(cert.expiresAt)}
-                    </span>
-                  )}
-                </div>
-                <Button intent="secondary" size="sm" className="mt-2 w-full">
-                  <Download size={14} strokeWidth={1.75} />
-                  Download PDF
-                </Button>
-              </div>
-            </Card>
+            <CertificateCard key={cert.id} cert={cert} />
           ))}
         </div>
       )}
     </div>
+  );
+}
+
+const STATUS_BADGE: Record<
+  Certificate['status'],
+  { label: string; intent: 'success' | 'warning' | 'danger' | 'neutral' }
+> = {
+  ACTIVE: { label: 'Válido', intent: 'success' },
+  EXPIRED: { label: 'Expirado', intent: 'warning' },
+  REVOKED: { label: 'Revogado', intent: 'danger' },
+  PENDING: { label: 'Pendente', intent: 'neutral' },
+  PENDING_APPROVAL: { label: 'Aguarda aprovação', intent: 'neutral' },
+};
+
+function CertificateCard({ cert }: { cert: Certificate }) {
+  const { download, loading, error } = usePdfDownload(
+    'certificate',
+    String(cert.id),
+  );
+  const badge = STATUS_BADGE[cert.status];
+  const downloadable = cert.status === 'ACTIVE' || cert.status === 'EXPIRED';
+
+  return (
+    <Card className="overflow-hidden">
+      <div className="bg-gradient-to-r from-primary to-primary-active p-5 text-canvas">
+        <div className="text-xs text-canvas/70 mb-1">
+          Certificado de conclusão
+        </div>
+        <div className="text-base font-semibold">{cert.displayTitle}</div>
+        <div className="text-xs text-canvas/70 mt-1 font-mono">
+          {cert.validationCode}
+        </div>
+      </div>
+      <div className="px-4 py-3">
+        <div className="flex items-center justify-between text-xs text-ink-muted">
+          <span>Emitido: {fmtDate(cert.issuedAt)}</span>
+          <Badge intent={badge.intent}>{badge.label}</Badge>
+        </div>
+        {cert.expiresAt && (
+          <div className="mt-1 text-xs text-ink-muted">
+            Validade: {fmtDate(cert.expiresAt)}
+          </div>
+        )}
+        {downloadable && (
+          <Button
+            intent="secondary"
+            size="sm"
+            className="mt-2 w-full"
+            onClick={download}
+            disabled={loading}
+          >
+            <Download size={14} strokeWidth={1.75} />
+            {loading ? 'A gerar…' : 'Download PDF'}
+          </Button>
+        )}
+        {error && <p className="mt-2 text-xs text-danger">{error}</p>}
+      </div>
+    </Card>
   );
 }
