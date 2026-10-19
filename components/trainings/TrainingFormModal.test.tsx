@@ -124,6 +124,7 @@ describe('TrainingFormModal — criação', () => {
       targetPositionIds: [],
       coInstructorIds: [],
       competencyIds: [],
+      colorIndex: null,
     });
   });
 
