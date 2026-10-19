@@ -23,6 +23,32 @@ vi.mock('@/hooks/useApiQuery', () => ({
   }),
 }));
 
+// O Select real é Radix (não é um <select> nativo) — troca-se por um nativo.
+vi.mock('@/components/ui/Select', () => ({
+  Select: ({
+    items,
+    value,
+    onValueChange,
+  }: {
+    items: { value: string; label: string }[];
+    value?: string;
+    onValueChange: (v: string) => void;
+  }) => (
+    <select
+      aria-label="Tipo de documento *"
+      value={value ?? ''}
+      onChange={(e) => onValueChange(e.target.value)}
+    >
+      <option value="" />
+      {items.map((it) => (
+        <option key={it.value} value={it.value}>
+          {it.label}
+        </option>
+      ))}
+    </select>
+  ),
+}));
+
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
 
 import { OnboardingDocUploadForm } from './OnboardingDocUploadForm';
@@ -31,7 +57,7 @@ beforeEach(() => post.mockReset().mockResolvedValue({ id: 1 }));
 
 function fill() {
   fireEvent.change(screen.getByLabelText('Tipo de documento *'), {
-    target: { value: '  Cópia do BI  ' },
+    target: { value: 'Cópia do BI' },
   });
   fireEvent.change(screen.getByLabelText('Link do documento *'), {
     target: { value: '  https://drive.example/bi  ' },
@@ -76,10 +102,32 @@ describe('OnboardingDocUploadForm', () => {
     ).toBeInTheDocument();
   });
 
+  test('"Outro…" mostra o campo de texto e envia o tipo trimmed', async () => {
+    render(<OnboardingDocUploadForm planId={7} onUploaded={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText('Tipo de documento *'), {
+      target: { value: '__other__' },
+    });
+    fireEvent.change(
+      screen.getByLabelText('Tipo de documento *', { selector: 'input' }),
+      {
+        target: { value: '  Carta de condução  ' },
+      },
+    );
+    fireEvent.change(screen.getByLabelText('Link do documento *'), {
+      target: { value: 'https://drive.example/cc' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Submeter documento' }));
+
+    await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
+    expect(post.mock.calls[0][1]).toMatchObject({
+      documentType: 'Carta de condução',
+    });
+  });
+
   test('PDF carregado é enviado como data URL no lugar do link', async () => {
     render(<OnboardingDocUploadForm planId={7} onUploaded={vi.fn()} />);
     fireEvent.change(screen.getByLabelText('Tipo de documento *'), {
-      target: { value: 'NIB' },
+      target: { value: 'NIB / IBAN' },
     });
     const file = new File(['%PDF-1.4'], 'nib.pdf', { type: 'application/pdf' });
     fireEvent.change(screen.getByLabelText('Ou carregar documento (PDF)'), {
