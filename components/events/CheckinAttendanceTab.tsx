@@ -251,14 +251,8 @@ export function CheckinAttendanceTab() {
             return (
               <div
                 key={p.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-[#E6ECF4] bg-white py-3 pl-5 pr-4 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-[#E6ECF4] bg-white px-5 py-3 last:border-0"
               >
-                <span
-                  className={cn(
-                    'absolute inset-y-2 left-2 w-1 rounded-full',
-                    level.bar,
-                  )}
-                />
                 <Avatar
                   name={p.user.fullName}
                   url={p.user.avatarUrl ?? undefined}

@@ -163,14 +163,8 @@ export function CommunicationTab() {
             return (
               <div
                 key={c.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-[#E6ECF4] bg-white py-3 pl-5 pr-4 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-[#E6ECF4] bg-white px-5 py-3 last:border-0"
               >
-                <span
-                  className={cn(
-                    'absolute inset-y-2 left-2 w-1 rounded-full',
-                    level.bar,
-                  )}
-                />
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
                     {c.subject}
