@@ -8,7 +8,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Clock, MapPin, Plus, Trash2, User } from 'lucide-react';
+import {
+  BookOpen,
+  Clock,
+  MapPin,
+  Pencil,
+  Plus,
+  Trash2,
+  User,
+  Users,
+  Video,
+} from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -18,7 +28,8 @@ import { formatDateTime } from '@/lib/format';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
+import { PHOTO_CARD_ACTION, PhotoCard } from '@/components/courses/PhotoCard';
 import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
@@ -33,6 +44,15 @@ import type {
   LiveClassStatus,
   PaginatedSessions,
 } from './types';
+
+const STATUS_TONE: Record<string, NavyTone> = {
+  AGENDADA: 'info',
+  EM_PREPARACAO: 'warning',
+  EM_CURSO: 'danger',
+  CONCLUIDA: 'success',
+  CANCELADA: 'neutral',
+  ADIADA: 'warning',
+};
 
 interface SessionFormState {
   liveClassId: string;
@@ -194,68 +214,66 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
         />
       ) : (
         <>
-          <Card className="divide-y divide-border">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {sessions.map((s) => (
-              <div
+              <PhotoCard
                 key={s.id}
-                className="flex flex-wrap items-center gap-3 px-4 py-3"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium text-ink">
-                    {s.liveClass?.topic ?? `Aula #${s.liveClassId}`} · Sessão{' '}
-                    {s.seq}
-                  </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-3 font-body text-xs text-ink-faint">
-                    <span className="inline-flex items-center gap-1">
-                      <Clock size={12} strokeWidth={1.75} />{' '}
-                      {formatDateTime(s.sessionDate)} ({s.durationMinutes}min)
-                    </span>
-                    {s.instructor && (
-                      <span className="inline-flex items-center gap-1">
-                        <User size={12} strokeWidth={1.75} />{' '}
-                        {s.instructor.name}
-                      </span>
-                    )}
-                    {s.location && (
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin size={12} strokeWidth={1.75} /> {s.location}
-                      </span>
-                    )}
-                    {s.liveClass?.course && (
-                      <span>{s.liveClass.course.title}</span>
-                    )}
-                    <span>{s._count?.attendances ?? 0} presenças</span>
-                  </div>
-                </div>
-                <span
-                  className={`rounded px-2 py-0.5 font-body text-xs font-medium ${STATUS_CFG[s.status]?.cls ?? ''}`}
-                >
-                  {STATUS_CFG[s.status]?.label ?? s.status}
-                </span>
-                {canManage && (
-                  <>
-                    <Button
-                      intent="ghost"
-                      size="sm"
-                      onClick={() => openEdit(s)}
-                    >
-                      Editar
-                    </Button>
-                    <Button
-                      intent="danger"
-                      size="sm"
-                      onClick={() => onDelete(s)}
-                      loading={
-                        remove.isPending && remove.variables?.id === s.id
-                      }
-                    >
-                      <Trash2 size={14} strokeWidth={1.75} />
-                    </Button>
-                  </>
-                )}
-              </div>
+                seed={s.id}
+                kicker={s.liveClass?.course?.title ?? 'Aula ao vivo'}
+                kickerIcon={Video}
+                title={s.liveClass?.topic ?? `Aula #${s.liveClassId}`}
+                subtitle={`Sessão ${s.seq}`}
+                fallback={<Video size={56} strokeWidth={1.25} />}
+                badges={
+                  <NavyBadge tone={STATUS_TONE[s.status] ?? 'neutral'}>
+                    {STATUS_CFG[s.status]?.label ?? s.status}
+                  </NavyBadge>
+                }
+                metrics={[
+                  {
+                    icon: Clock,
+                    text: `${formatDateTime(s.sessionDate)} (${s.durationMinutes}min)`,
+                  },
+                  {
+                    icon: Users,
+                    text: `${s._count?.attendances ?? 0} presenças`,
+                  },
+                ]}
+                rows={[
+                  { icon: User, text: s.instructor?.name ?? 'Sem formador' },
+                  { icon: MapPin, text: s.location || '—' },
+                  { icon: BookOpen, text: s.liveClass?.course?.title ?? '—' },
+                ]}
+                actions={
+                  canManage && (
+                    <>
+                      <button
+                        type="button"
+                        className={PHOTO_CARD_ACTION}
+                        aria-label="Editar sessão"
+                        title="Editar sessão"
+                        onClick={() => openEdit(s)}
+                      >
+                        <Pencil size={15} strokeWidth={1.75} />
+                      </button>
+                      <button
+                        type="button"
+                        className={PHOTO_CARD_ACTION}
+                        aria-label="Eliminar sessão"
+                        title="Eliminar sessão"
+                        disabled={
+                          remove.isPending && remove.variables?.id === s.id
+                        }
+                        onClick={() => onDelete(s)}
+                      >
+                        <Trash2 size={15} strokeWidth={1.75} />
+                      </button>
+                    </>
+                  )
+                }
+              />
             ))}
-          </Card>
+          </div>
 
           {totalPages > 1 && (
             <div className="flex justify-center gap-2">

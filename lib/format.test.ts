@@ -80,12 +80,12 @@ describe('getInitials', () => {
 describe('formatKz', () => {
   // Nota: o separador de milhar do CLDR pt-AO é um espaço (não-quebrável),
   // não um ponto — verificado directamente com Intl, não assumido.
-  test('formata com separador de milhar e sufixo Kz, sem casas decimais', () => {
-    expect(formatKz(150000)).toBe('150 000 Kz');
+  test('formata com separador de milhar e sufixo AOA, sem casas decimais', () => {
+    expect(formatKz(150000)).toBe('150 000 AOA');
   });
 
   test('trata 0 como valor válido, não como ausência de valor', () => {
-    expect(formatKz(0)).toBe('0 Kz');
+    expect(formatKz(0)).toBe('0 AOA');
   });
 
   test('devolve — para null', () => {

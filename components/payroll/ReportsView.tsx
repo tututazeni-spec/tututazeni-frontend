@@ -4,6 +4,23 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  AlertTriangle,
+  Banknote,
+  Building2,
+  CheckCircle2,
+  Clock,
+  Coins,
+  CreditCard,
+  FileText,
+  Landmark,
+  ShieldCheck,
+  TrendingDown,
+  Users,
+  Wallet,
+  XCircle,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -95,6 +112,29 @@ const TOTAL_LABEL: Record<string, string> = {
   totalAmount: 'Valor total',
   paid: 'Pagos',
   failed: 'Falhados',
+};
+
+// Ícone e cor por totalizador: azul neutro, verde positivo, laranja
+// deduções/pendentes, vermelho custo/problema.
+const TOTAL_STYLE: Record<
+  string,
+  { icon: LucideIcon; intent: 'primary' | 'success' | 'warning' | 'danger' }
+> = {
+  employees: { icon: Users, intent: 'primary' },
+  payslips: { icon: FileText, intent: 'primary' },
+  totalGross: { icon: Banknote, intent: 'primary' },
+  totalNet: { icon: Wallet, intent: 'success' },
+  totalDeductions: { icon: TrendingDown, intent: 'warning' },
+  totalInss: { icon: ShieldCheck, intent: 'warning' },
+  totalIrt: { icon: Landmark, intent: 'warning' },
+  totalEmployerCost: { icon: Building2, intent: 'danger' },
+  issued: { icon: CheckCircle2, intent: 'success' },
+  pending: { icon: Clock, intent: 'warning' },
+  disputed: { icon: AlertTriangle, intent: 'danger' },
+  payments: { icon: CreditCard, intent: 'primary' },
+  totalAmount: { icon: Coins, intent: 'primary' },
+  paid: { icon: CheckCircle2, intent: 'success' },
+  failed: { icon: XCircle, intent: 'danger' },
 };
 
 const COUNT_TOTALS = new Set([
@@ -214,6 +254,8 @@ export function ReportsView() {
             {Object.entries(data.totals).map(([k, v]) => (
               <KpiCard
                 key={k}
+                icon={TOTAL_STYLE[k]?.icon}
+                intent={TOTAL_STYLE[k]?.intent}
                 label={TOTAL_LABEL[k] ?? k}
                 value={COUNT_TOTALS.has(k) ? v : fmtKz(v)}
               />
@@ -247,10 +289,7 @@ export function ReportsView() {
                       className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
                     >
                       {columns.map((c) => (
-                        <td
-                          key={c}
-                          className="px-2 py-3 text-white"
-                        >
+                        <td key={c} className="px-2 py-3 text-white">
                           {cell(c, r[c])}
                         </td>
                       ))}

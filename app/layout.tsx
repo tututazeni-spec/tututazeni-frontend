@@ -13,16 +13,11 @@ import SplashScreen from '../components/SplashScreen';
 // lenta, bloqueava a emissão do chunk `app/layout.js` para além do timeout de
 // 120s do webpack no browser -> ChunkLoadError. Servir os .woff2 do próprio
 // repo elimina a rede do caminho crítico da compilação (e funciona offline).
-// Sora e Inter são ficheiros variáveis (um .woff2 cobre toda a gama de pesos).
-const sora = localFont({
-  src: './fonts/sora.woff2',
-  weight: '600 800',
-  variable: '--font-sora',
-  display: 'swap',
-});
+// Inter é um ficheiro variável (um .woff2 cobre toda a gama de pesos) e é a
+// única fonte de texto do projecto — também nos títulos (font-display).
 const inter = localFont({
   src: './fonts/inter.woff2',
-  weight: '400 600',
+  weight: '100 900',
   variable: '--font-inter',
   display: 'swap',
 });
@@ -63,7 +58,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt"
-      className={`${sora.variable} ${inter.variable} ${plexMono.variable}`}
+      className={`${inter.variable} ${plexMono.variable}`}
     >
       <body style={{ margin: 0, padding: 0 }}>
         <ClientInit />

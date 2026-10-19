@@ -12,10 +12,7 @@
 
 'use client';
 
-import {
-  headerBackground,
-  PALETTE,
-} from '@/components/onboarding/TemplateCard';
+import { PALETTE } from '@/components/onboarding/TemplateCard';
 import type { ComponentType, ReactNode } from 'react';
 import {
   ArrowLeft,
@@ -30,11 +27,11 @@ import {
   Download,
   Layers,
   Globe,
+  User,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
@@ -102,6 +99,7 @@ export function CourseDetailView({
   // depois de RH/instrutor aprovar (courses.controller.ts:
   // PATCH /courses/enrollments/:id/approve). Ver secção "2. Botão principal"
   // de docs/06-modulo-courses.md.
+  const palette = PALETTE[Math.abs(course.id) % PALETTE.length];
   const pendingApproval = progress?.enrollment.status === 'PENDING_APPROVAL';
 
   const continueOrReviewLesson = () => {
@@ -262,152 +260,179 @@ export function CourseDetailView({
           </Section>
         </div>
       ) : (
-        /* Header do curso (não matriculado) */
-        <div className="grid grid-cols-[1fr_320px] gap-6 mb-6">
-          <div>
-            <div className="mb-4">
-              <NavyHeroCard
-                className="block"
-                surfaceClassName="border-[#0F1F3D] bg-[#0F1F3D]"
-                whiteDrawings
-              >
-                <div>
-                  <div className="mb-3 flex flex-wrap items-center gap-2">
-                    <StatusBadge value={course.level} map={COURSE_LEVEL_MAP} />
-                    <StatusBadge
-                      value={course.status}
-                      map={COURSE_STATUS_MAP}
-                      variant="dot"
-                    />
-                    {course.mandatory && (
-                      <Badge intent="danger">Obrigatório</Badge>
-                    )}
-                  </div>
-                  <h1 className="mb-1 text-3xl font-semibold leading-tight tracking-tight text-white">
+        /* Header do curso (não matriculado) — mesmo desenho do cartão de
+           detalhe do evento (workshop de inovação.jpeg): cartão claro com
+           etiquetas, ícone + título, dados, formador e botões de acção; a
+           imagem do curso num recorte inclinado no canto superior direito. */
+        <div className="mb-6 space-y-4">
+          <div className="relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div
+              aria-hidden
+              className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
+              style={{
+                clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
+                background: course.thumbnailUrl
+                  ? undefined
+                  : `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
+              }}
+            >
+              {course.thumbnailUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={course.thumbnailUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <GraduationCap size={48} strokeWidth={1.25} />
+              )}
+            </div>
+
+            <div className="relative space-y-5 p-6 sm:pr-[36%]">
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge value={course.level} map={COURSE_LEVEL_MAP} />
+                <StatusBadge
+                  value={course.status}
+                  map={COURSE_STATUS_MAP}
+                  variant="dot"
+                />
+                {course.mandatory && <Badge intent="danger">Obrigatório</Badge>}
+              </div>
+
+              <div className="flex items-center gap-4">
+                <span
+                  aria-hidden
+                  className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full text-white"
+                  style={{ background: palette[3] }}
+                >
+                  <GraduationCap size={28} strokeWidth={1.75} />
+                </span>
+                <div className="min-w-0">
+                  <h1 className="break-words font-display text-[28px] font-bold leading-tight text-[#0F1F3D]">
                     {course.title}
                   </h1>
                   {course.category && (
-                    <div className="mb-3 text-sm font-medium text-white">
+                    <p className="mt-0.5 break-words text-base text-[#49658A]">
                       {course.category}
-                    </div>
-                  )}
-                  {course.shortDescription && (
-                    <p className="max-w-[60ch] text-sm leading-relaxed text-white">
-                      {course.shortDescription}
                     </p>
                   )}
                 </div>
-                <div className="flex flex-wrap mt-5 -mb-2 gap-x-6 gap-y-2 text-sm text-white">
-                  {course.workloadHours && (
-                    <span className="inline-flex items-center gap-2 ">
-                      <Clock
-                        size={14}
-                        strokeWidth={1.75}
-                        className="text-white"
-                      />
-                      {fmtDuration(course.workloadHours)}
-                    </span>
-                  )}
-                  <span className="inline-flex items-center gap-2 ">
-                    <Users
-                      size={14}
-                      strokeWidth={1.75}
-                      className="text-white"
-                    />
-                    {course._count.enrollments} matriculados
-                  </span>
-                  <span className="inline-flex items-center gap-2 ">
-                    <ClipboardList
-                      size={14}
-                      strokeWidth={1.75}
-                      className="text-white"
-                    />
-                    {course._count.modules} módulos
-                  </span>
-                </div>
-              </NavyHeroCard>
-            </div>
-            {course.learningObjectives.length > 0 && (
-              <div className="bg-success-subtle rounded-card p-4 mb-4">
-                <div className="text-xs font-medium text-success-ink mb-2 uppercase tracking-wide">
-                  Objectivos de aprendizagem
-                </div>
-                <ul className="space-y-1">
-                  {course.learningObjectives.map((obj, i) => (
-                    <li
-                      key={i}
-                      className="flex items-start gap-2 text-xs text-success-ink"
-                    >
-                      <span className="mt-0.5">✓</span>
-                      {obj}
-                    </li>
-                  ))}
-                </ul>
               </div>
-            )}
-          </div>
 
-          {/* CTA card */}
-          <Card
-            className="border-transparent p-5 text-white"
-            style={{
-              background: headerBackground(
-                PALETTE[Math.abs(course.id) % PALETTE.length],
-              ),
-            }}
-          >
-            {course.thumbnailUrl && (
-              <div className="aspect-video rounded-control overflow-hidden mb-4 relative">
-                <CourseThumbnail src={course.thumbnailUrl} alt={course.title} />
+              {course.shortDescription && (
+                <p className="max-w-[60ch] text-sm leading-relaxed text-ink-muted">
+                  {course.shortDescription}
+                </p>
+              )}
+
+              <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4] text-[15px] text-[#0F1F3D]">
+                {course.workloadHours && (
+                  <span className="inline-flex items-center gap-2 px-3 first:pl-0">
+                    <Clock
+                      size={22}
+                      strokeWidth={1.75}
+                      className="shrink-0 text-[#49658A]"
+                    />
+                    {fmtDuration(course.workloadHours)}
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-2 px-3 first:pl-0">
+                  <Users
+                    size={22}
+                    strokeWidth={1.75}
+                    className="shrink-0 text-[#49658A]"
+                  />
+                  {course._count.enrollments} matriculados
+                </span>
+                <span className="inline-flex items-center gap-2 px-3 first:pl-0">
+                  <ClipboardList
+                    size={22}
+                    strokeWidth={1.75}
+                    className="shrink-0 text-[#49658A]"
+                  />
+                  {course._count.modules} módulos
+                </span>
               </div>
-            )}
-            {!isEnrolled && course.status === 'PUBLISHED' && (
-              <Button
-                onClick={onEnroll}
-                disabled={enrolling}
-                className="w-full"
-              >
-                {enrolling
-                  ? 'A processar…'
-                  : course.requiresApproval
-                    ? 'Solicitar inscrição'
-                    : 'Inscrever-me gratuitamente'}
-              </Button>
-            )}
-            {!isEnrolled && course.status !== 'PUBLISHED' && (
-              <Button
-                disabled
-                className="w-full !border-[#0F1F3D] !bg-[#0F1F3D] !text-white !opacity-100"
-              >
-                Curso indisponível
-              </Button>
-            )}
-            {isEnrolled && (
-              <div className="space-y-2">
-                <EnrollBadge
-                  status={progress!.enrollment.status}
-                  deadline={progress!.enrollment.deadline}
-                />
-                {!pendingApproval && (
-                  <>
-                    <ProgressBar value={progressPct} className="h-2.5" />
-                    <div className="text-xs text-white/80 text-center mb-2">
-                      {progressPct}% concluído
-                    </div>
-                    {/* docs/06-modulo-courses.md secção 2 — "Continuar curso" /
+
+              <div className="border-t border-[#E6ECF4] pt-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <span className="inline-flex items-center gap-3 text-[15px] text-[#49658A]">
+                    {course.instructors?.[0] && (
+                      <>
+                        <User size={22} strokeWidth={1.75} aria-hidden />
+                        {course.instructors[0].user.fullName}
+                      </>
+                    )}
+                  </span>
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    {!isEnrolled && course.status === 'PUBLISHED' && (
+                      <Button onClick={onEnroll} disabled={enrolling}>
+                        {enrolling
+                          ? 'A processar…'
+                          : course.requiresApproval
+                            ? 'Solicitar inscrição'
+                            : 'Inscrever-me gratuitamente'}
+                      </Button>
+                    )}
+                    {!isEnrolled && course.status !== 'PUBLISHED' && (
+                      <Button
+                        disabled
+                        className="w-full !border-[#0F1F3D] !bg-[#0F1F3D] !text-white !opacity-100"
+                      >
+                        Curso indisponível
+                      </Button>
+                    )}
+                    {isEnrolled && (
+                      <div className="space-y-2">
+                        <EnrollBadge
+                          status={progress!.enrollment.status}
+                          deadline={progress!.enrollment.deadline}
+                        />
+                        {!pendingApproval && (
+                          <>
+                            <ProgressBar
+                              value={progressPct}
+                              className="h-2.5"
+                            />
+                            <div className="text-xs text-white/80 text-center mb-2">
+                              {progressPct}% concluído
+                            </div>
+                            {/* docs/06-modulo-courses.md secção 2 — "Continuar curso" /
                         "Rever curso": o resto do CTA card só mostrava o badge
                         de estado, sem acção para entrar no conteúdo quando
                         nenhuma aula estava activa. */}
-                    <Button className="w-full" onClick={continueOrReviewLesson}>
-                      {progress?.enrollment.status === 'COMPLETED'
-                        ? 'Rever curso'
-                        : 'Continuar curso'}
-                    </Button>
-                  </>
-                )}
+                            <Button onClick={continueOrReviewLesson}>
+                              {progress?.enrollment.status === 'COMPLETED'
+                                ? 'Rever curso'
+                                : 'Continuar curso'}
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            )}
-          </Card>
+            </div>
+          </div>
+          {course.learningObjectives.length > 0 && (
+            <div className="bg-success-subtle rounded-card p-4 mb-4">
+              <div className="text-xs font-medium text-success-ink mb-2 uppercase tracking-wide">
+                Objectivos de aprendizagem
+              </div>
+              <ul className="space-y-1">
+                {course.learningObjectives.map((obj, i) => (
+                  <li
+                    key={i}
+                    className="flex items-start gap-2 text-xs text-success-ink"
+                  >
+                    <span className="mt-0.5">✓</span>
+                    {obj}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
 

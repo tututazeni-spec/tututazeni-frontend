@@ -4,6 +4,14 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  CheckCircle2,
+  Clock,
+  FileCheck,
+  FileClock,
+  Hourglass,
+  Users,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -11,6 +19,7 @@ import { formatKz as fmtKz } from '@/lib/format';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { WalletStat } from '@/components/roi-impact/WalletStat';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { RUN_STATUS_MAP } from './types';
 import type { PayrollOverview } from './insightTypes';
@@ -35,7 +44,7 @@ function Section({
       <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
         {title}
       </h3>
-      {/* Cartas largas: um montante de 7+ dígitos em Kz (ex.: 1 234 567 Kz) tem de caber inteiro. */}
+      {/* Cartas largas: um montante de 7+ dígitos em AOA (ex.: 1 234 567 AOA) tem de caber inteiro. */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {children}
       </div>
@@ -104,75 +113,120 @@ export function OverviewView() {
           )}
 
           <Section title="Colaboradores">
-            <KpiCard label="Total" value={data.employees.total} />
+            <KpiCard icon={Users} label="Total" value={data.employees.total} />
             <KpiCard
+              icon={CheckCircle2}
               label="Processados"
               value={data.employees.processed}
               intent="success"
             />
             <KpiCard
+              icon={Clock}
               label="Pendentes"
               value={data.employees.pending}
               intent={data.employees.pending > 0 ? 'warning' : 'primary'}
             />
           </Section>
 
-          <Section title="Valores">
-            <KpiCard
-              label="Salário bruto"
-              value={fmtKz(data.financials.totalGross)}
-            />
-            <KpiCard
-              label="Salário líquido"
-              value={fmtKz(data.financials.totalNet)}
-              intent="success"
-              trend={data.monthlyVariation?.pct}
-              sub={`Anterior (${data.previous.period}): ${fmtKz(data.previous.totalNet)}`}
-            />
-            <KpiCard
-              label="Remunerações"
-              value={fmtKz(data.financials.totalEarnings)}
-            />
-            <KpiCard
-              label="Deduções"
-              value={fmtKz(data.financials.totalDeductions)}
-              intent="warning"
-            />
-            <KpiCard label="INSS" value={fmtKz(data.financials.totalInss)} />
-            <KpiCard label="IRT" value={fmtKz(data.financials.totalIrt)} />
-            <KpiCard
-              label="Encargos patronais"
-              value={fmtKz(data.financials.employerCharges)}
-            />
-            <KpiCard
-              label="Custo total com pessoal"
-              value={fmtKz(data.financials.totalPersonnelCost)}
-              intent="info"
-            />
-            <KpiCard
-              label="Total a pagar"
-              value={fmtKz(data.financials.totalPayable)}
-              intent="primary"
-            />
-          </Section>
-
           <Section title="Recibos e pagamentos">
             <KpiCard
+              icon={FileCheck}
               label="Recibos emitidos"
               value={data.receipts.issued}
               intent="success"
             />
             <KpiCard
+              icon={FileClock}
               label="Recibos pendentes"
               value={data.receipts.pending}
-              intent={data.receipts.pending > 0 ? 'warning' : 'primary'}
+              intent="warning"
             />
             <KpiCard
+              icon={Hourglass}
               label="Pagamentos pendentes"
               value={data.pendingPayments}
-              intent={data.pendingPayments > 0 ? 'warning' : 'primary'}
+              intent="warning"
             />
           </Section>
+
+          <section>
+            <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
+              Valores
+            </h3>
+            <div className="grid grid-cols-2 items-start gap-6 md:grid-cols-3 xl:grid-cols-5">
+              <WalletStat
+                zoom
+                money="bills"
+                tone="blue"
+                label="Salário bruto"
+                value={fmtKz(data.financials.totalGross)}
+              />
+              <WalletStat
+                zoom
+                money="stack"
+                tone="green"
+                label="Salário líquido"
+                value={fmtKz(data.financials.totalNet)}
+                sub={[
+                  data.monthlyVariation?.pct != null
+                    ? `${data.monthlyVariation.pct > 0 ? '+' : ''}${data.monthlyVariation.pct}%`
+                    : null,
+                  `Anterior (${data.previous.period}): ${fmtKz(data.previous.totalNet)}`,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              />
+              <WalletStat
+                zoom
+                money="coins"
+                tone="green"
+                label="Remunerações"
+                value={fmtKz(data.financials.totalEarnings)}
+              />
+              <WalletStat
+                zoom
+                money="mixed"
+                tone="orange"
+                label="Deduções"
+                value={fmtKz(data.financials.totalDeductions)}
+              />
+              <WalletStat
+                zoom
+                money="coins"
+                tone="orange"
+                label="INSS"
+                value={fmtKz(data.financials.totalInss)}
+              />
+              <WalletStat
+                zoom
+                money="coins"
+                tone="orange"
+                label="IRT"
+                value={fmtKz(data.financials.totalIrt)}
+              />
+              <WalletStat
+                zoom
+                money="bills"
+                tone="red"
+                label="Encargos patronais"
+                value={fmtKz(data.financials.employerCharges)}
+              />
+              <WalletStat
+                zoom
+                money="fan"
+                tone="red"
+                label="Custo total com pessoal"
+                value={fmtKz(data.financials.totalPersonnelCost)}
+              />
+              <WalletStat
+                zoom
+                money="fan"
+                tone="blue"
+                label="Total a pagar"
+                value={fmtKz(data.financials.totalPayable)}
+              />
+            </div>
+          </section>
         </div>
       )}
     </div>

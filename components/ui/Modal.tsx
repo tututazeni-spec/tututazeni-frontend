@@ -31,6 +31,8 @@ export interface ModalContentProps {
   navyHeader?: boolean;
   /** Título + descrição num bloco #0F1F3D (100%), com texto e botão de fechar brancos. */
   navyBanner?: boolean;
+  /** Como `navyBanner`, mas no gradiente azul do cartão "Plano de integração" (título em maiúsculas, descrição em #C7D4E8). */
+  gradientBanner?: boolean;
   /** Passthrough para `Dialog.Content` — permite ao consumidor controlar o foco inicial de forma determinística. */
   onOpenAutoFocus?: (event: Event) => void;
 }
@@ -42,9 +44,10 @@ export function ModalContent({
   className,
   navyHeader,
   navyBanner,
+  gradientBanner,
   onOpenAutoFocus,
 }: ModalContentProps) {
-  const onNavy = navyHeader || navyBanner;
+  const onNavy = navyHeader || navyBanner || gradientBanner;
   const heading = (
     <>
       <Dialog.Title
@@ -53,6 +56,8 @@ export function ModalContent({
           navyHeader &&
             '-mx-6 -mt-6 mb-4 bg-[#0F1F3D]/60 px-6 py-4 pr-14 text-white',
           navyBanner && 'pr-0 text-white',
+          gradientBanner &&
+            'pr-0 font-body text-xl font-extrabold uppercase tracking-wide text-white',
         )}
       >
         {title}
@@ -62,6 +67,7 @@ export function ModalContent({
           className={cn(
             'mt-2 font-body text-sm text-ink-muted',
             navyBanner && 'mt-1 text-white/80',
+            gradientBanner && 'mt-1 text-[#C7D4E8]',
           )}
         >
           {description}
@@ -94,7 +100,11 @@ export function ModalContent({
           className,
         )}
       >
-        {navyBanner ? (
+        {gradientBanner ? (
+          <div className="-mx-6 -mt-6 mb-4 bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] px-6 py-4 pr-14">
+            {heading}
+          </div>
+        ) : navyBanner ? (
           <div className="-mx-6 -mt-6 mb-4 bg-[#0F1F3D] px-6 py-4 pr-14">
             {heading}
           </div>

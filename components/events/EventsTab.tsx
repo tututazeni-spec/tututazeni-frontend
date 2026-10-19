@@ -226,7 +226,7 @@ export function EventsTab({ initialStatus }: { initialStatus?: string }) {
           description="Nenhum evento corresponde aos filtros."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {/* Ordem padrão: por referência (id) crescente — #EVT-001, 002, 003… */}
           {[...data.data]
             .sort((a, b) => a.id - b.id)

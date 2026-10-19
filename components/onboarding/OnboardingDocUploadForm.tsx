@@ -24,7 +24,25 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+
+const OTHER = '__other__';
+const DOCUMENT_TYPES = [
+  'Cópia do BI',
+  'NIF',
+  'NIB / IBAN',
+  'Contrato assinado',
+  'Certificado de habilitações',
+  'Registo criminal',
+  'Atestado médico',
+  'Fotografia',
+  'Comprovativo de morada',
+].map((t) => ({ value: t, label: t }));
+const DOCUMENT_TYPE_ITEMS = [
+  ...DOCUMENT_TYPES,
+  { value: OTHER, label: 'Outro…' },
+];
 
 /** Limite do PDF carregado (alinhado com MAX_DOC_PDF_DATA_URL_LEN no backend). */
 const MAX_DOC_PDF_BYTES = 3 * 1024 * 1024;
@@ -40,7 +58,9 @@ export function OnboardingDocUploadForm({
   onUploaded,
 }: OnboardingDocUploadFormProps) {
   const notify = useToast();
-  const [documentType, setDocumentType] = useState('');
+  const [typeChoice, setTypeChoice] = useState('');
+  const [customType, setCustomType] = useState('');
+  const documentType = typeChoice === OTHER ? customType : typeChoice;
   const [fileUrl, setFileUrl] = useState('');
   // PDF carregado (data URL) — alternativa ao link; tem prioridade.
   const [pdf, setPdf] = useState<{ name: string; dataUrl: string } | null>(
@@ -65,7 +85,8 @@ export function OnboardingDocUploadForm({
       invalidateKeys: [queryKeys.onboarding.all],
       onSuccess: () => {
         notify({ title: 'Documento submetido', intent: 'success' });
-        setDocumentType('');
+        setTypeChoice('');
+        setCustomType('');
         setFileUrl('');
         setPdf(null);
         setNotes('');
@@ -116,14 +137,23 @@ export function OnboardingDocUploadForm({
 
         <div className="space-y-3">
           <FormField label="Tipo de documento *" htmlFor="od-type">
-            <Input
-              id="od-type"
-              value={documentType}
-              onChange={(e) => setDocumentType(e.target.value)}
-              placeholder="Ex.: Cópia do BI, Contrato assinado, NIB"
-              maxLength={120}
+            <Select
+              items={DOCUMENT_TYPE_ITEMS}
+              value={typeChoice || undefined}
+              onValueChange={setTypeChoice}
+              placeholder="Seleccione o tipo de documento"
               className="w-full"
             />
+            {typeChoice === OTHER && (
+              <Input
+                id="od-type"
+                value={customType}
+                onChange={(e) => setCustomType(e.target.value)}
+                placeholder="Indique o tipo de documento"
+                maxLength={120}
+                className="mt-2 w-full"
+              />
+            )}
           </FormField>
 
           <FormField

@@ -14,6 +14,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Button } from '@/components/ui/Button';
+import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -21,7 +22,12 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/users/types';
-import { HIERARCHY_LEVEL_CFG } from './constants';
+import {
+  HIERARCHY_LEVEL_CFG,
+  MODEL_OBJECTIVE_OPTIONS,
+  MODEL_POSITION_FAMILY_OPTIONS,
+  MODEL_TYPE_OPTIONS,
+} from './constants';
 import { useDepartmentOptions } from './modelFormData';
 import type { CompetencyModelDetail } from './types';
 
@@ -211,17 +217,14 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
               className="w-full"
             />
           </FormField>
-          <FormField
-            label="Tipo"
-            htmlFor="mf-type"
-            hint="Ex.: Liderança, Vendas, RH."
-          >
-            <Input
-              id="mf-type"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              maxLength={80}
-              className="w-full"
+          <FormField label="Tipo" htmlFor="mf-type">
+            <Combobox
+              items={MODEL_TYPE_OPTIONS}
+              value={type || undefined}
+              onValueChange={setType}
+              placeholder="Selecionar tipo"
+              searchPlaceholder="Escreva para filtrar ou indicar outro…"
+              allowCustom
             />
           </FormField>
         </div>
@@ -237,12 +240,13 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
         </FormField>
 
         <FormField label="Objetivo" htmlFor="mf-objective">
-          <Textarea
-            id="mf-objective"
-            value={objective}
-            onChange={(e) => setObjective(e.target.value)}
-            rows={2}
-            className="w-full"
+          <Combobox
+            items={MODEL_OBJECTIVE_OPTIONS}
+            value={objective || undefined}
+            onValueChange={setObjective}
+            placeholder="Selecionar objetivo"
+            searchPlaceholder="Escreva para filtrar ou indicar outro…"
+            allowCustom
           />
         </FormField>
 
@@ -269,13 +273,13 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
         </div>
 
         <FormField label="Cargo/família profissional" htmlFor="mf-family">
-          <Input
-            id="mf-family"
-            value={positionFamily}
-            onChange={(e) => setPositionFamily(e.target.value)}
-            placeholder="Ex.: Gestores comerciais"
-            maxLength={120}
-            className="w-full"
+          <Combobox
+            items={MODEL_POSITION_FAMILY_OPTIONS}
+            value={positionFamily || undefined}
+            onValueChange={setPositionFamily}
+            placeholder="Selecionar cargo/família"
+            searchPlaceholder="Escreva para filtrar ou indicar outro…"
+            allowCustom
           />
         </FormField>
 

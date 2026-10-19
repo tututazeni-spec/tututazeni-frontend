@@ -94,6 +94,7 @@ export interface Plan {
   _count: { actions: number; goals: number; checkpoints: number };
 
   // ── Origem e diagnóstico (secções 2-3) ──────────────────────────
+  imageUrl?: string | null;
   origin?: PdiOrigin | null;
   originJustification?: string | null;
   strengths?: string | null;
@@ -289,6 +290,7 @@ export interface WizardForm {
   startDate: string;
   endDate: string;
   durationPreset: string;
+  imageUrl: string | null;
   // 2. Diagnóstico
   origin: PdiOrigin | '';
   originJustification: string;

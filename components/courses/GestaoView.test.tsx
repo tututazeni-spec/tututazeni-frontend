@@ -182,9 +182,15 @@ describe('GestaoView', () => {
   test('lista os cursos devolvidos por /courses', () => {
     setData([draftNoModules, draftReady, archivedCourse]);
     render(<GestaoView onSelect={vi.fn()} />);
-    expect(screen.getByText('Curso sem módulos')).toBeInTheDocument();
-    expect(screen.getByText('Curso pronto')).toBeInTheDocument();
-    expect(screen.getByText('Curso antigo')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Curso sem módulos' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Curso pronto' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Curso antigo' }),
+    ).toBeInTheDocument();
   });
 
   test('Publicar fica desativado sem módulos e ativo com módulos', () => {

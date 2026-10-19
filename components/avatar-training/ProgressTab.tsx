@@ -5,7 +5,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Users } from 'lucide-react';
+import { CalendarDays, Repeat, Star, TrendingUp, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -14,8 +14,9 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
 import { ASSIGNMENT_STATUS } from './constants';
+import { ASSIGNMENT_TONE, CardGrid } from './cards';
 import type { Paginated, ProgressRow } from './types';
 
 const LIMIT = 20;
@@ -50,52 +51,47 @@ export function ProgressTab() {
   const pages = Math.max(1, Math.ceil(data.total / LIMIT));
   return (
     <div className="space-y-3">
-      <div className="overflow-x-auto rounded-card border border-border bg-surface">
-        <table className="w-full text-left font-body text-sm">
-          <thead className="border-b border-border text-xs uppercase tracking-wide text-ink-faint">
-            <tr>
-              <th className="px-4 py-2">Formando</th>
-              <th className="px-4 py-2">Sessão</th>
-              <th className="px-4 py-2">Estado</th>
-              <th className="px-4 py-2">Prazo</th>
-              <th className="px-4 py-2 text-right">Tentativas</th>
-              <th className="px-4 py-2 text-right">Melhor nota</th>
-              <th className="px-4 py-2 text-right">Evolução</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.data.map((r) => (
-              <tr key={r.id} className="border-b border-border last:border-0">
-                <td className="px-4 py-2 text-ink">{r.user?.fullName ?? '—'}</td>
-                <td className="px-4 py-2 text-ink-muted">
-                  {r.session?.title ?? '—'}
-                </td>
-                <td className="px-4 py-2">
-                  <StatusBadge
-                    value={r.status}
-                    map={ASSIGNMENT_STATUS}
-                    variant="dot"
-                  />
-                </td>
-                <td className="px-4 py-2 text-ink-muted">
-                  {r.dueDate ? formatDate(r.dueDate) : '—'}
-                </td>
-                <td className="px-4 py-2 text-right font-mono">
-                  {r.attemptsCount}
-                </td>
-                <td className="px-4 py-2 text-right font-mono">
-                  {r.bestScore ?? '—'}
-                </td>
-                <td className="px-4 py-2 text-right font-mono">
-                  {r.evolution === null
+      <CardGrid>
+        {data.data.map((r) => (
+          <NavyCard
+            key={r.id}
+            seed={r.session?.id ?? r.id}
+            kicker={r.user?.fullName ?? '—'}
+            kickerIcon={Users}
+            title={r.session?.title ?? '—'}
+            badge={
+              <NavyBadge tone={ASSIGNMENT_TONE[r.status]}>
+                {ASSIGNMENT_STATUS[r.status].label}
+              </NavyBadge>
+            }
+            infos={[
+              {
+                icon: CalendarDays,
+                value: r.dueDate ? formatDate(r.dueDate) : '—',
+                label: 'Prazo',
+              },
+              {
+                icon: Repeat,
+                value: String(r.attemptsCount),
+                label: 'Tentativas',
+              },
+              {
+                icon: Star,
+                value: String(r.bestScore ?? '—'),
+                label: 'Melhor nota',
+              },
+              {
+                icon: TrendingUp,
+                value:
+                  r.evolution === null
                     ? '—'
-                    : `${r.evolution > 0 ? '+' : ''}${r.evolution}`}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    : `${r.evolution > 0 ? '+' : ''}${r.evolution}`,
+                label: 'Evolução',
+              },
+            ]}
+          />
+        ))}
+      </CardGrid>
       <div className="flex items-center justify-between font-body text-xs text-ink-muted">
         <span>
           {data.total} registo(s) · página {page} de {pages}

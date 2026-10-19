@@ -21,56 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { MatrixData, MatrixPermission } from './types';
-
-// Rótulos PT para os subjects/recursos servidos pela API (todos em
-// maiúsculas). Fallback para o token original se não houver tradução.
-const RESOURCE_LABELS: Record<string, string> = {
-  DASHBOARD: 'Painel',
-  REPORTS: 'Relatórios',
-  USERS: 'Utilizadores',
-  LMS: 'Formação (LMS)',
-  PERFORMANCE: 'Desempenho',
-  ENGAGEMENT: 'Envolvimento',
-  TALENT: 'Talento',
-  EVALUATION: 'Avaliação',
-  CONTENT_LIBRARY: 'Biblioteca de Conteúdos',
-  AVATAR_TRAINING: 'Treino com Avatar',
-  ROI_IMPACT: 'Impacto / ROI',
-  HISTORY: 'Histórico',
-  PAYROLL: 'Folha de Pagamento',
-  SENSITIVE_DATA: 'Dados Sensíveis',
-  ACL: 'Controlo de Acessos (ACL)',
-};
-
-// Rótulos PT para as acções. Fallback para o token original.
-const ACTION_LABELS: Record<string, string> = {
-  CREATE: 'Criar',
-  READ: 'Ver',
-  VIEW: 'Ver',
-  LIST: 'Listar',
-  UPDATE: 'Editar',
-  EDIT: 'Editar',
-  DELETE: 'Eliminar',
-  REMOVE: 'Eliminar',
-  MANAGE: 'Gerir',
-  EXPORT: 'Exportar',
-  IMPORT: 'Importar',
-  APPROVE: 'Aprovar',
-  REJECT: 'Rejeitar',
-  ASSIGN: 'Atribuir',
-  UNASSIGN: 'Remover atribuição',
-  DOWNLOAD: 'Descarregar',
-  UPLOAD: 'Carregar',
-  SUBMIT: 'Submeter',
-  REVIEW: 'Rever',
-  ALL: 'Tudo',
-};
-
-const translateResource = (s: string): string =>
-  RESOURCE_LABELS[(s ?? '').toUpperCase()] ?? s;
-
-const translateAction = (a: string): string =>
-  ACTION_LABELS[(a ?? '').toUpperCase()] ?? a;
+import { translateAction, translateResource } from './permissionLabels';
 
 // O `name` das permissões vem da API em formatos inconsistentes
 // ("READ_USERS", "courses:read", ...); compomos o rótulo a partir de

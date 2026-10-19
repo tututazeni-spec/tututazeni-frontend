@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { ProcessModelCard } from './ProcessModelCard';
+import { ProcessPhotoCard } from './ProcessPhotoCard';
 import { Skeleton } from './Skeleton';
 import type { PaginatedProcesses } from './types';
 
@@ -121,10 +121,9 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {!loading &&
           data?.data.map((p) => (
-            <ProcessModelCard
+            <ProcessPhotoCard
               key={p.id}
               process={p}
-              icon={FileStack}
               onClick={() => onSelect(p.id)}
             />
           ))}

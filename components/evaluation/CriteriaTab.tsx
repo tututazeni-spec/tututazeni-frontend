@@ -7,7 +7,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Pencil, Plus, Power } from 'lucide-react';
+import {
+  Hash,
+  ListChecks,
+  Pencil,
+  Plus,
+  Power,
+  Ruler,
+  Scale,
+  Trash2,
+} from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -16,18 +25,14 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { ADMIN_ROLES } from '@/lib/roles';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
+  NAVY_ACTION,
+  NavyBadge,
+  NavyCard,
+} from '@/components/courses/NavyCard';
 import { CriteriaFormModal } from './CriteriaFormModal';
 import type { EvalCriteria } from './types';
 
@@ -111,82 +116,61 @@ export function CriteriaTab() {
           description="Cria o primeiro critério para o usar em modelos de avaliação."
         />
       ) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              {[
-                'Nome',
-                'Código',
-                'Categoria',
-                'Peso',
-                'Escala',
-                'Estado',
-                '',
-              ].map((h) => (
-                <TableHeaderCell key={h}>{h}</TableHeaderCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {criteria.map((c) => (
-              <TableRow key={c.id}>
-                <TableCell>
-                  <div className="font-medium text-ink">{c.name}</div>
-                  {c.description && (
-                    <div className="text-xs text-ink-faint line-clamp-1">
-                      {c.description}
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell className="text-ink-muted">
-                  {c.code ?? '—'}
-                </TableCell>
-                <TableCell className="text-ink-muted">
-                  {c.category ?? '—'}
-                </TableCell>
-                <TableCell className="text-ink-muted">{c.weight}</TableCell>
-                <TableCell className="text-ink-muted">
-                  {c.scale?.name ?? '—'}
-                </TableCell>
-                <TableCell>
-                  <Badge intent={c.isActive ? 'success' : 'neutral'}>
-                    {c.isActive ? 'Activo' : 'Inactivo'}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {isAdmin && (
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        size="sm"
-                        intent="ghost"
-                        aria-label={`Editar ${c.name}`}
-                        onClick={() => setEditing(c)}
-                      >
-                        <Pencil size={14} strokeWidth={1.75} />
-                      </Button>
-                      <Button
-                        size="sm"
-                        intent="ghost"
-                        aria-label={`${c.isActive ? 'Desactivar' : 'Activar'} ${c.name}`}
-                        onClick={() => toggleActive.mutate(c)}
-                      >
-                        <Power size={14} strokeWidth={1.75} />
-                      </Button>
-                      <Button
-                        size="sm"
-                        intent="ghost"
-                        aria-label={`Remover ${c.name}`}
-                        onClick={() => remove(c)}
-                      >
-                        Remover
-                      </Button>
-                    </div>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {criteria.map((c) => (
+            <NavyCard
+              key={c.id}
+              seed={c.id}
+              kicker={c.category ?? 'Critério'}
+              kickerIcon={ListChecks}
+              title={c.name}
+              subtitle={c.description || undefined}
+              badge={
+                <NavyBadge tone={c.isActive ? 'success' : 'neutral'}>
+                  {c.isActive ? 'Activo' : 'Inactivo'}
+                </NavyBadge>
+              }
+              infos={[
+                { icon: Scale, value: String(c.weight), label: 'Peso' },
+                { icon: Ruler, value: c.scale?.name ?? '—', label: 'Escala' },
+                { icon: Hash, value: c.code ?? '—', label: 'Código' },
+              ]}
+              actions={
+                isAdmin && (
+                  <>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
+                      aria-label={`Editar ${c.name}`}
+                      title="Editar critério"
+                      onClick={() => setEditing(c)}
+                    >
+                      <Pencil size={15} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
+                      aria-label={`${c.isActive ? 'Desactivar' : 'Activar'} ${c.name}`}
+                      title={c.isActive ? 'Desactivar' : 'Activar'}
+                      onClick={() => toggleActive.mutate(c)}
+                    >
+                      <Power size={15} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
+                      aria-label={`Remover ${c.name}`}
+                      title="Remover critério"
+                      onClick={() => remove(c)}
+                    >
+                      <Trash2 size={15} strokeWidth={1.75} />
+                    </button>
+                  </>
+                )
+              }
+            />
+          ))}
+        </div>
       )}
 
       {editing !== undefined && (

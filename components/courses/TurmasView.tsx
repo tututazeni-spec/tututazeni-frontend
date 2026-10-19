@@ -7,7 +7,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, Users2 } from 'lucide-react';
+import {
+  CalendarDays,
+  Clock,
+  Plus,
+  Ticket,
+  Trash2,
+  Users2,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -21,8 +28,7 @@ import { useCourseOptions } from '@/components/enrollments/enrollData';
 import { CohortDetailModal } from './CohortDetailModal';
 import { CreateCohortModal } from './CreateCohortModal';
 import { Skeleton } from './shared';
-import { NAVY_ROW_ACTION, NAVY_ROW_BADGE, NavyRow, NavyRowList } from './NavyRow';
-import { proximityLevel } from '@/components/events/proximity';
+import { NAVY_ACTION, NavyBadge, NavyCard, type NavyTone } from './NavyCard';
 import { PeriodPills } from '@/components/ui/Pills';
 import { cn } from '@/lib/cn';
 import type { Cohort, CohortDetail, CohortStatus } from './types';
@@ -35,6 +41,14 @@ const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> =
     CLOSED: { label: 'Encerrada', cls: 'bg-surface-sunken text-ink-faint' },
     CANCELLED: { label: 'Cancelada', cls: 'bg-danger-subtle text-danger-ink' },
   };
+
+const COHORT_TONE: Record<CohortStatus, NavyTone> = {
+  DRAFT: 'neutral',
+  OPEN: 'info',
+  ACTIVE: 'success',
+  CLOSED: 'neutral',
+  CANCELLED: 'danger',
+};
 
 function fmtDate(d: string | null) {
   if (!d) return '—';
@@ -52,42 +66,41 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
   const place = [c.location, c.room].filter(Boolean).join(' · ');
   const statusCfg = COHORT_STATUS_MAP[c.status];
   return (
-    <NavyRow
+    <NavyCard
       onClick={onOpen}
-      barClass={proximityLevel(c.startDate).bar}
+      seed={c.id}
+      kicker={c.instructor?.fullName ?? 'Sem formador'}
+      kickerIcon={Users2}
       title={c.name}
-      subtitle={[c.instructor?.fullName ?? 'Sem formador', place]
-        .filter(Boolean)
-        .join(' · ')}
-      meta={[
+      subtitle={place || undefined}
+      infos={[
         {
-          key: 'period',
-          className: 'w-44',
-          node: `${fmtDate(c.startDate)} — ${fmtDate(c.endDate)}`,
+          icon: CalendarDays,
+          value: fmtDate(c.startDate),
+          label: `até ${fmtDate(c.endDate)}`,
         },
-        { key: 'schedule', className: 'w-32', node: c.schedule ?? '—' },
+        { icon: Clock, value: c.schedule ?? '—', label: 'Horário' },
         {
-          key: 'enrolled',
-          className: 'w-28',
-          node: `${c.enrolled}/${c.capacity} inscritos`,
+          icon: Users2,
+          value: `${c.enrolled}/${c.capacity}`,
+          label: 'Inscritos',
         },
         {
-          key: 'slots',
-          className: 'w-24',
-          node: `Vagas: ${c.availableSlots}`,
+          icon: Ticket,
+          value: String(c.availableSlots),
+          label: 'Vagas',
         },
       ]}
       badge={
-        <span className={cn(NAVY_ROW_BADGE, statusCfg?.cls)}>
-          <span className="h-1.5 w-1.5 rounded-full bg-current" />
+        <NavyBadge tone={COHORT_TONE[c.status] ?? 'neutral'}>
           {statusCfg?.label ?? c.status}
-        </span>
+        </NavyBadge>
       }
       actions={
         <>
           <button
             type="button"
-            className={NAVY_ROW_ACTION}
+            className={NAVY_ACTION}
             aria-label="Ver participantes"
             title="Ver participantes"
             onClick={onOpen}
@@ -96,7 +109,7 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
           </button>
           <button
             type="button"
-            className={NAVY_ROW_ACTION}
+            className={NAVY_ACTION}
             aria-label={`Eliminar turma ${c.name}`}
             title="Eliminar turma"
             onClick={onDelete}
@@ -106,7 +119,7 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
           {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
             <button
               type="button"
-              className={`${NAVY_ROW_ACTION} border border-white/25`}
+              className={`${NAVY_ACTION} border border-white/25`}
               onClick={onClose}
             >
               Encerrar
@@ -263,7 +276,7 @@ export function TurmasView() {
             />
           )}
           {!openLoading && openCohorts.length > 0 && (
-            <NavyRowList>
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
               {openCohorts.map((c) => (
                 <CohortCard
                   key={c.id}
@@ -273,7 +286,7 @@ export function TurmasView() {
                   onClose={() => onClose(c)}
                 />
               ))}
-            </NavyRowList>
+            </div>
           )}
         </div>
       )}
@@ -296,7 +309,7 @@ export function TurmasView() {
 
       {!showOpen && courseId && !isLoading && data.length > 0 && (
         <div>
-          <NavyRowList>
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             {data.map((c) => (
               <CohortCard
                 key={c.id}
@@ -306,7 +319,7 @@ export function TurmasView() {
                 onClose={() => onClose(c)}
               />
             ))}
-          </NavyRowList>
+          </div>
         </div>
       )}
 

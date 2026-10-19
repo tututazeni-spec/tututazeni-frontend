@@ -81,7 +81,7 @@ export default function DashboardPage() {
   const ActiveIcon = activeTab?.icon;
 
   return (
-    <div className="-mt-6 min-h-screen bg-white">
+    <div className="-mt-6 min-h-screen bg-canvas">
       {/* Container azul: cabeçalho dinâmico + Slideshow no mesmo cartão
           (#0F1F3D), acima das tabs e visível em qualquer separador. */}
       <div className="mx-auto max-w-7xl px-6 pt-2">

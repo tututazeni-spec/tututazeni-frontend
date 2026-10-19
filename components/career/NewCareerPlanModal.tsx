@@ -22,8 +22,27 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/users/types';
+import { MultiPickField } from '@/components/trainings/plans/MultiPickField';
 import type { Role as CareerPlansRole } from './plans/types';
 import type { CareerPath } from './types';
+
+const MENTORING_OPTIONS = [
+  'Sessões de mentoria quinzenais',
+  'Sessões de mentoria mensais',
+  'Mentor interno da área',
+  'Mentor de outra área',
+  'Mentoria em grupo',
+  'Shadowing / acompanhamento no posto',
+];
+
+const COACHING_OPTIONS = [
+  'Coaching individual',
+  'Feedback regular do gestor',
+  'Plano de desenvolvimento de competências',
+  'Revisão trimestral de progresso',
+  'Preparação para a função pretendida',
+  'Rotação ou projecto de desenvolvimento',
+];
 
 export interface NewCareerPlanModalProps {
   onClose: () => void;
@@ -204,26 +223,27 @@ export function NewCareerPlanModal({
           />
 
           <FormField label="Mentoria" htmlFor="plan-mentoring">
-            <Textarea
+            <MultiPickField
               id="plan-mentoring"
+              options={MENTORING_OPTIONS}
               value={form.mentoringNotes}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, mentoringNotes: e.target.value }))
-              }
-              rows={2}
-              className="w-full resize-none"
+              onChange={(v) => setForm((f) => ({ ...f, mentoringNotes: v }))}
+              allowManual
+              manualPlaceholder="Escrever outra forma de mentoria"
             />
           </FormField>
 
-          <FormField label="Acompanhamento personalizado" htmlFor="plan-coaching">
-            <Textarea
+          <FormField
+            label="Acompanhamento personalizado"
+            htmlFor="plan-coaching"
+          >
+            <MultiPickField
               id="plan-coaching"
+              options={COACHING_OPTIONS}
               value={form.coachingNotes}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, coachingNotes: e.target.value }))
-              }
-              rows={2}
-              className="w-full resize-none"
+              onChange={(v) => setForm((f) => ({ ...f, coachingNotes: v }))}
+              allowManual
+              manualPlaceholder="Escrever outro tipo de acompanhamento"
             />
           </FormField>
 

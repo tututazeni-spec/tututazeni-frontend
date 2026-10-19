@@ -7,13 +7,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import {
-  BookOpen,
-  BookPlus,
-  Pencil,
-  Plus,
-  Trash2,
-} from 'lucide-react';
+import { BookPlus, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -26,13 +20,11 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Textarea';
-import { cn } from '@/lib/cn';
 import {
-  NAVY_ROW_ACTION,
-  NAVY_ROW_BADGE,
-  NavyRow,
-  NavyRowList,
-} from './NavyRow';
+  CATEGORY_BTN_GHOST,
+  CATEGORY_BTN_PRIMARY,
+  CategoryCard,
+} from './CategoryCard';
 import { Skeleton } from './shared';
 import type { CourseCategoryManaged } from './types';
 
@@ -182,7 +174,8 @@ function CategoryCoursesModal({
   );
 
   const checked = useMemo(
-    () => selected ?? new Set(data.filter((c) => c.inCategory).map((c) => c.id)),
+    () =>
+      selected ?? new Set(data.filter((c) => c.inCategory).map((c) => c.id)),
     [selected, data],
   );
 
@@ -405,87 +398,52 @@ export function CategoriasView({
         />
       ) : (
         <div>
-          <NavyRowList>
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             {data.map((cat) => (
-              <NavyRow
+              <CategoryCard
                 key={cat.id}
-                barClass={cat.isActive ? 'bg-success' : 'bg-ink-faint'}
+                seed={cat.id}
                 title={cat.name}
-                subtitle={cat.description || undefined}
-                meta={[
-                  {
-                    key: 'courses',
-                    className: 'w-32',
-                    node: (
-                      <button
-                        type="button"
-                        disabled={cat.courseCount === 0}
-                        onClick={() => setListFor(cat)}
-                        title="Ver cursos da categoria"
-                        className="inline-flex items-center gap-1.5 text-white enabled:hover:underline disabled:cursor-default"
-                      >
-                        <BookOpen size={13} strokeWidth={1.75} />
-                        {cat.courseCount}{' '}
-                        {cat.courseCount === 1 ? 'curso' : 'cursos'}
-                      </button>
-                    ),
-                  },
-                ]}
-                badge={
-                  <button
-                    type="button"
-                    title="Alterar estado"
-                    onClick={() =>
-                      toggleActive.mutate({
-                        id: cat.id,
-                        isActive: !cat.isActive,
-                      })
-                    }
-                    className={cn(
-                      NAVY_ROW_BADGE,
-                      cat.isActive
-                        ? 'bg-success-subtle text-success-ink'
-                        : 'bg-surface-sunken text-ink-muted',
-                    )}
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                    {cat.isActive ? 'Activa' : 'Inactiva'}
-                  </button>
+                subtitle={cat.description}
+                active={cat.isActive}
+                onToggleActive={() =>
+                  toggleActive.mutate({ id: cat.id, isActive: !cat.isActive })
                 }
+                createdAt={cat.createdAt}
+                courseCount={cat.courseCount}
+                onViewCourses={() => setListFor(cat)}
                 actions={
                   <>
                     <button
                       type="button"
-                      className={NAVY_ROW_ACTION}
-                      title="Gerir cursos"
-                      aria-label="Gerir cursos"
-                      onClick={() => setCoursesFor(cat)}
-                    >
-                      <BookPlus size={15} strokeWidth={1.75} />
-                    </button>
-                    <button
-                      type="button"
-                      className={NAVY_ROW_ACTION}
-                      title="Editar categoria"
-                      aria-label="Editar categoria"
-                      onClick={() => setModalFor(cat)}
-                    >
-                      <Pencil size={15} strokeWidth={1.75} />
-                    </button>
-                    <button
-                      type="button"
-                      className={NAVY_ROW_ACTION}
+                      className={CATEGORY_BTN_GHOST}
                       title="Eliminar categoria"
                       aria-label="Eliminar categoria"
                       onClick={() => onDelete(cat)}
                     >
                       <Trash2 size={15} strokeWidth={1.75} />
                     </button>
+                    <button
+                      type="button"
+                      className={CATEGORY_BTN_GHOST}
+                      onClick={() => setModalFor(cat)}
+                    >
+                      <Pencil size={15} strokeWidth={1.75} />
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      className={CATEGORY_BTN_PRIMARY}
+                      onClick={() => setCoursesFor(cat)}
+                    >
+                      <BookPlus size={15} strokeWidth={1.75} />
+                      Gerir cursos
+                    </button>
                   </>
                 }
               />
             ))}
-          </NavyRowList>
+          </div>
         </div>
       )}
 

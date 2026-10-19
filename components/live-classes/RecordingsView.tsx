@@ -9,7 +9,21 @@
 'use client';
 
 import { useState } from 'react';
-import { Eye, EyeOff, ExternalLink, Trash2 } from 'lucide-react';
+import {
+  BookOpen,
+  CalendarDays,
+  Clock,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  Hourglass,
+  Pencil,
+  Play,
+  PlayCircle,
+  Trash2,
+  User,
+  Users,
+} from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -19,7 +33,8 @@ import { formatDateTime } from '@/lib/format';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { NavyBadge } from '@/components/courses/NavyCard';
+import { PHOTO_CARD_ACTION, PhotoCard } from '@/components/courses/PhotoCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -27,6 +42,14 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { RecordingModal } from './RecordingModal';
 import type { PaginatedMeta, RecordingRow } from './types';
+
+/** Miniatura do YouTube a partir do URL da gravação (sem ela, ícone). */
+function youtubeThumb(url: string): string | null {
+  const m = url.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/,
+  );
+  return m ? `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg` : null;
+}
 
 function routeFor(r: RecordingRow) {
   return r.sessionId
@@ -146,85 +169,105 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
 
   return (
     <div className="space-y-4">
-      <Card className="divide-y divide-border">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {rows.map((r) => (
-          <div
+          <PhotoCard
             key={`${r.liveClassId}-${r.sessionId ?? 0}`}
-            className="flex flex-wrap items-center gap-3 px-4 py-3"
-          >
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-medium text-ink">
-                {r.topic}
-                {r.sessionSeq ? ` · Sessão ${r.sessionSeq}` : ''}
-              </div>
-              <div className="mt-0.5 flex flex-wrap items-center gap-x-2 font-body text-xs text-ink-faint">
-                <span>{r.course?.title ?? '—'}</span>
-                <span>· {r.instructor?.name ?? 'Sem formador'}</span>
-                <span>· {formatDateTime(r.date)}</span>
-                <span>· {r.durationMinutes}min</span>
-                <span>· {r.participants} participante(s)</span>
-                {r.expiresAt && (
-                  <span>· Expira {formatDateTime(r.expiresAt)}</span>
+            seed={r.liveClassId + (r.sessionId ?? 0)}
+            kicker={r.course?.title ?? 'Aula gravada'}
+            kickerIcon={PlayCircle}
+            title={r.topic}
+            subtitle={r.sessionSeq ? `Sessão ${r.sessionSeq}` : undefined}
+            image={youtubeThumb(r.recordingUrl)}
+            fallback={<PlayCircle size={56} strokeWidth={1.25} />}
+            onSelect={() => setViewing(r)}
+            badges={
+              <NavyBadge tone={r.publishedAt ? 'success' : 'neutral'}>
+                {r.publishedAt
+                  ? `Publicada ${formatDateTime(r.publishedAt)}`
+                  : 'Não publicada'}
+              </NavyBadge>
+            }
+            metrics={[
+              { icon: CalendarDays, text: formatDateTime(r.date) },
+              { icon: Clock, text: `${r.durationMinutes}min` },
+              { icon: Users, text: `${r.participants} participante(s)` },
+            ]}
+            rows={[
+              { icon: User, text: r.instructor?.name ?? 'Sem formador' },
+              { icon: BookOpen, text: r.course?.title ?? '—' },
+              {
+                icon: Hourglass,
+                text: r.expiresAt
+                  ? `Expira ${formatDateTime(r.expiresAt)}`
+                  : 'Sem expiração',
+              },
+            ]}
+            actions={
+              <>
+                <button
+                  type="button"
+                  className={PHOTO_CARD_ACTION}
+                  aria-label="Ver gravação"
+                  title="Ver gravação"
+                  onClick={() => setViewing(r)}
+                >
+                  <Play size={15} strokeWidth={1.75} />
+                </button>
+                <a
+                  href={r.recordingUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={PHOTO_CARD_ACTION}
+                  aria-label="Abrir ligação"
+                  title="Abrir ligação"
+                >
+                  <ExternalLink size={15} strokeWidth={1.75} />
+                </a>
+                {canManage && (
+                  <>
+                    <button
+                      type="button"
+                      className={PHOTO_CARD_ACTION}
+                      aria-label="Editar gravação"
+                      title="Editar gravação"
+                      onClick={() => openEdit(r)}
+                    >
+                      <Pencil size={15} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      className={PHOTO_CARD_ACTION}
+                      aria-label={r.publishedAt ? 'Despublicar' : 'Publicar'}
+                      title={r.publishedAt ? 'Despublicar' : 'Publicar'}
+                      disabled={
+                        togglePublish.isPending && togglePublish.variables === r
+                      }
+                      onClick={() => togglePublish.mutate(r)}
+                    >
+                      {r.publishedAt ? (
+                        <EyeOff size={15} strokeWidth={1.75} />
+                      ) : (
+                        <Eye size={15} strokeWidth={1.75} />
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      className={PHOTO_CARD_ACTION}
+                      aria-label="Eliminar gravação"
+                      title="Eliminar gravação"
+                      disabled={remove.isPending && remove.variables === r}
+                      onClick={() => onRemove(r)}
+                    >
+                      <Trash2 size={15} strokeWidth={1.75} />
+                    </button>
+                  </>
                 )}
-              </div>
-            </div>
-            <span
-              className={`rounded px-2 py-0.5 font-body text-xs font-medium ${
-                r.publishedAt
-                  ? 'bg-success-subtle text-success-ink'
-                  : 'bg-surface-sunken text-ink-faint'
-              }`}
-            >
-              {r.publishedAt
-                ? `Publicada ${formatDateTime(r.publishedAt)}`
-                : 'Não publicada'}
-            </span>
-            <div className="flex gap-2">
-              <Button intent="ghost" size="sm" onClick={() => setViewing(r)}>
-                Ver
-              </Button>
-              <a
-                href={r.recordingUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 rounded-control px-2 py-1 font-body text-xs text-ink-muted hover:bg-surface-sunken"
-              >
-                <ExternalLink size={13} strokeWidth={1.75} />
-              </a>
-              {canManage && (
-                <>
-                  <Button intent="ghost" size="sm" onClick={() => openEdit(r)}>
-                    Editar
-                  </Button>
-                  <Button
-                    intent="ghost"
-                    size="sm"
-                    onClick={() => togglePublish.mutate(r)}
-                    loading={
-                      togglePublish.isPending && togglePublish.variables === r
-                    }
-                  >
-                    {r.publishedAt ? (
-                      <EyeOff size={14} strokeWidth={1.75} />
-                    ) : (
-                      <Eye size={14} strokeWidth={1.75} />
-                    )}
-                    {r.publishedAt ? 'Despublicar' : 'Publicar'}
-                  </Button>
-                  <Button
-                    intent="danger"
-                    size="sm"
-                    onClick={() => onRemove(r)}
-                    loading={remove.isPending && remove.variables === r}
-                  >
-                    <Trash2 size={14} strokeWidth={1.75} />
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
+              </>
+            }
+          />
         ))}
-      </Card>
+      </div>
 
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">

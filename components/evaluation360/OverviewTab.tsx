@@ -24,7 +24,8 @@
 
 import type { CycleInfo, ParticipantProfile, ParticipantResult } from './types';
 import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
-import { Avatar } from '@/components/ui/Avatar';
+import { ProfileRoiCard } from '@/components/ui/ProfileRoiCard';
+import { ClipboardCheck } from 'lucide-react';
 import { SpeedometerStatCard, SCORE5_BANDS } from '@/components/ui/charts/SpeedometerStatCard';
 import { PendingEvaluationsCard } from './PendingEvaluationsCard';
 
@@ -45,29 +46,27 @@ export function OverviewTab({
     <div className="flex flex-col gap-6">
       {/* Participant header — sempre o próprio, independente de já haver
           resultado calculado. */}
-      <NavyHeroCard>
-        {participant ? (
-          <>
-            <div className="relative">
-              <Avatar
-                name={participant.fullName}
-                url={participant.avatarUrl ?? undefined}
-                size="lg"
-              />
-            </div>
-            <div className="relative">
-              <div className="text-xl font-bold text-white tracking-tight">
-                {participant.fullName}
-              </div>
-              <div className="text-sm text-white mt-0.5">
-                {participant.position} · {participant.department}
-              </div>
-            </div>
-          </>
-        ) : (
+      {participant ? (
+        <ProfileRoiCard
+          kicker="Avaliação 360°"
+          kickerIcon={ClipboardCheck}
+          name={participant.fullName}
+          avatarUrl={participant.avatarUrl}
+          stats={[
+            { label: 'Cargo', value: participant.position || '—' },
+            { label: 'Departamento', value: participant.department || '—' },
+          ]}
+          note={
+            cycle
+              ? `Ciclo: ${cycle.name}`
+              : 'Ainda não existe nenhum ciclo de avaliação 360º.'
+          }
+        />
+      ) : (
+        <NavyHeroCard>
           <div className="text-sm text-white">A carregar o teu perfil…</div>
-        )}
-      </NavyHeroCard>
+        </NavyHeroCard>
+      )}
 
       {cycleId && <PendingEvaluationsCard cycleId={cycleId} />}
 

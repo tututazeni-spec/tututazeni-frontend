@@ -182,14 +182,14 @@ export function TabWhatsApp() {
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
-        <div className="mb-4 flex items-center justify-between gap-3">
+      {/* Cartão claro, o mesmo desenho da lista de sessões dos eventos */}
+      <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="pointer-events-none flex cursor-default select-none items-center justify-between gap-3 bg-[#0F1F3D]/60 px-5 py-3">
           <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
             Estado da integração
           </h3>
           <span
-            className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold"
+            className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold"
             style={{
               color: !st.enabled
                 ? '#9CA3AF'
@@ -205,41 +205,41 @@ export function TabWhatsApp() {
                 : 'Sem ligação'}
           </span>
         </div>
-        <dl className="grid grid-cols-2 gap-3 text-sm text-white md:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-3 px-6 py-5 text-sm text-[#0F1F3D] md:grid-cols-4">
           {st.displayPhoneNumber && (
             <div>
-              <dt className="text-xs text-white/70">Número</dt>
+              <dt className="text-xs text-[#49658A]">Número</dt>
               <dd className="font-display font-bold">{st.displayPhoneNumber}</dd>
             </div>
           )}
           {st.verifiedName && (
             <div>
-              <dt className="text-xs text-white/70">Nome verificado</dt>
+              <dt className="text-xs text-[#49658A]">Nome verificado</dt>
               <dd className="font-display font-bold">{st.verifiedName}</dd>
             </div>
           )}
           {st.qualityRating && (
             <div>
-              <dt className="text-xs text-white/70">Qualidade</dt>
+              <dt className="text-xs text-[#49658A]">Qualidade</dt>
               <dd className="font-display font-bold">{st.qualityRating}</dd>
             </div>
           )}
           <div>
-            <dt className="text-xs text-white/70">Última hora</dt>
+            <dt className="text-xs text-[#49658A]">Última hora</dt>
             <dd className="font-display font-bold">
               {st.usage.lastHour}
               {st.usage.hourlyLimit > 0 && ` / ${st.usage.hourlyLimit}`}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-white/70">Últimas 24 h</dt>
+            <dt className="text-xs text-[#49658A]">Últimas 24 h</dt>
             <dd className="font-display font-bold">
               {st.usage.lastDay}
               {st.usage.dailyLimit > 0 && ` / ${st.usage.dailyLimit}`}
             </dd>
           </div>
         </dl>
-        {st.error && <p className="mt-3 text-sm text-[#F87171]">{st.error}</p>}
+        {st.error && <p className="px-6 pb-5 text-sm text-[#C23A52]">{st.error}</p>}
       </div>
 
       <Card className="overflow-hidden">

@@ -13,6 +13,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -34,6 +35,19 @@ const OPTION_FIELDS = [
   ['applyDiscounts', 'Aplicar descontos'],
 ] as const;
 
+// Grupos de pagamento (PayrollRun.payGroup é texto livre; esta lista padroniza
+// o que a UI grava para os filtros por grupo baterem certo).
+const PAY_GROUP_NONE = 'NONE';
+const PAY_GROUP_ITEMS = [
+  { value: PAY_GROUP_NONE, label: 'Sem grupo' },
+  { value: 'Mensais', label: 'Mensais' },
+  { value: 'Quinzenais', label: 'Quinzenais' },
+  { value: 'Semanais', label: 'Semanais' },
+  { value: 'Diaristas', label: 'Diaristas' },
+  { value: 'Estagiários', label: 'Estagiários' },
+  { value: 'Direcção', label: 'Direcção' },
+];
+
 type OptionKey = (typeof OPTION_FIELDS)[number][0];
 type RunOptions = Record<OptionKey, boolean>;
 
@@ -49,7 +63,7 @@ export interface CreateRunModalProps {
 export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
   const notify = useToast();
   const [period, setPeriod] = useState('');
-  const [payGroup, setPayGroup] = useState('');
+  const [payGroup, setPayGroup] = useState(PAY_GROUP_NONE);
   const [countryCode, setCountryCode] = useState('AO');
   const [notes, setNotes] = useState('');
   const [expectedPaymentDate, setExpectedPaymentDate] = useState('');
@@ -83,7 +97,7 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
     if (!valid || create.isPending) return;
     create.mutate({
       period: period.trim(),
-      payGroup: payGroup.trim() || undefined,
+      payGroup: payGroup === PAY_GROUP_NONE ? undefined : payGroup,
       countryCode: countryCode.trim() || undefined,
       notes: notes.trim() || undefined,
       expectedPaymentDate: expectedPaymentDate || undefined,
@@ -111,11 +125,10 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
             />
           </FormField>
           <FormField label="Grupo" htmlFor="crm-paygroup">
-            <Input
-              id="crm-paygroup"
+            <Select
+              items={PAY_GROUP_ITEMS}
               value={payGroup}
-              onChange={(e) => setPayGroup(e.target.value)}
-              placeholder="Mensais"
+              onValueChange={setPayGroup}
               className="w-full"
             />
           </FormField>

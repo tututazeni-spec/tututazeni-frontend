@@ -34,7 +34,8 @@ function matchesFilter(e: MyEnrollment, filter: FilterId) {
 function getProgress(e: MyEnrollment) {
   // Usa o progresso da API se existir; caso contrário, deduz pelo estado.
   const raw = e.progress;
-  if (typeof raw === 'number') return Math.min(100, Math.max(0, Math.round(raw)));
+  if (typeof raw === 'number')
+    return Math.min(100, Math.max(0, Math.round(raw)));
   return e.status === 'COMPLETED' ? 100 : 0;
 }
 
@@ -80,7 +81,7 @@ export function MyEnrollmentsView({ onSelect }: MyEnrollmentsViewProps) {
           description="Inscreve-te num curso do catálogo para começares a aprender."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((e) => (
             <CourseListCard
               key={e.id}

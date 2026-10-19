@@ -8,23 +8,29 @@
 'use client';
 
 import { useState } from 'react';
-import { FileLock2, Paperclip, Plus, X } from 'lucide-react';
-import { Button, IconButton } from '@/components/ui/Button';
+import {
+  CalendarDays,
+  Clock,
+  FileLock2,
+  Paperclip,
+  Plus,
+  UserCheck,
+  Wallet,
+  X,
+} from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRow,
-} from '@/components/ui/Table';
+  NAVY_ACTION,
+  NavyBadge,
+  NavyCard,
+  type NavyTone,
+} from '@/components/courses/NavyCard';
 import { useDepartmentOptions } from '@/components/competencies/modelFormData';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -32,22 +38,20 @@ import { useLicenses, type LicenseFilters } from '@/hooks/useLeave';
 import { formatDate, formatDateTime } from '@/lib/format';
 import { PAY_REGIME_LABELS, PHASE_CFG } from './constants';
 import { NewLicenseModal } from './NewLicenseModal';
-import type { LeaveType, LicenseRow } from './types';
+import type { LeaveType, LicensePhase, LicenseRow } from './types';
+
+const PHASE_TONE: Record<LicensePhase, NavyTone> = {
+  DRAFT: 'neutral',
+  PENDING: 'warning',
+  APPROVED: 'success',
+  REJECTED: 'danger',
+  IN_PROGRESS: 'info',
+  COMPLETED: 'neutral',
+  CANCELLED: 'neutral',
+};
 
 const ALL = 'ALL';
 const VACATION_CODE = 'VACATION';
-const BASE_HEADERS = [
-  'Colaborador',
-  'Tipo',
-  'Período',
-  'Duração',
-  'Regime remuneratório',
-  'Comprovativo',
-  'Submissão',
-  'Aprovador',
-  'Estado',
-];
-
 function periodLabel(r: LicenseRow): string {
   const dates =
     r.startDate.slice(0, 10) === r.endDate.slice(0, 10)
@@ -97,9 +101,6 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
   const licenseTypes = leaveTypes.filter(
     (t) => t.code !== VACATION_CODE && t.active,
   );
-  const headers = showPayroll
-    ? [...BASE_HEADERS, 'Impacto salarial', '']
-    : [...BASE_HEADERS, ''];
 
   return (
     <div className="space-y-5">
@@ -188,101 +189,83 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
         />
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
-                <TableRow>
-                  {headers.map((h, i) => (
-                    <TableHeaderCell key={`${h}-${i}`}>{h}</TableHeaderCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.data.map((r) => (
-                  <TableRow key={r.id}>
-                    <TableCell>
-                      <p className="font-medium text-ink">{r.user.fullName}</p>
-                      <p className="text-xs text-ink-faint">
-                        {r.user.employeeNumber ?? '—'}
-                        {r.registeredBy &&
-                          ` · registada por ${r.registeredBy.fullName ?? '—'}`}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center gap-2">
-                        {r.type.color && (
-                          <span
-                            aria-hidden
-                            className="inline-block h-2.5 w-2.5 rounded-full"
-                            style={{ backgroundColor: r.type.color }}
-                          />
-                        )}
-                        {r.type.name}
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            {data.data.map((r) => (
+              <NavyCard
+                key={r.id}
+                seed={r.id}
+                avatar={{ name: r.user.fullName }}
+                title={r.type.name}
+                subtitle={`${r.user.fullName}${r.user.employeeNumber ? ` · ${r.user.employeeNumber}` : ''}`}
+                badge={
+                  <>
+                    <NavyBadge tone={PHASE_TONE[r.phase]}>
+                      {PHASE_CFG[r.phase].label}
+                    </NavyBadge>
+                    {r.type.requiresDocument &&
+                      !r.hasDocument &&
+                      r.documents.length === 0 && (
+                        <NavyBadge tone="warning">Comprovativo em falta</NavyBadge>
+                      )}
+                  </>
+                }
+                infos={[
+                  { icon: CalendarDays, value: periodLabel(r), label: 'Período' },
+                  { icon: Clock, value: durationLabel(r), label: 'Duração' },
+                  {
+                    icon: Wallet,
+                    value: PAY_REGIME_LABELS[r.payRegime],
+                    label: 'Regime',
+                  },
+                  {
+                    icon: UserCheck,
+                    value: r.approver?.fullName ?? '—',
+                    label: 'Aprovador',
+                  },
+                ]}
+                footer={
+                  <>
+                    <span className="text-xs text-white/70">
+                      Submetida em {formatDateTime(r.submittedAt)}
+                      {r.registeredBy &&
+                        ` · registada por ${r.registeredBy.fullName ?? '—'}`}
+                    </span>
+                    {r.documents.map((d) => (
+                      <a
+                        key={d.id}
+                        href={d.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={NAVY_ACTION}
+                      >
+                        <Paperclip size={12} strokeWidth={1.75} className="mr-1" />
+                        {d.name}
+                      </a>
+                    ))}
+                    {r.documents.length === 0 && r.hasDocument && (
+                      <span
+                        className="inline-flex items-center gap-1 text-xs text-white/70"
+                        title="Documento protegido — acesso restrito ao titular e ao RH"
+                      >
+                        <FileLock2 size={13} strokeWidth={1.75} /> Protegido
                       </span>
-                    </TableCell>
-                    <TableCell>{periodLabel(r)}</TableCell>
-                    <TableCell>{durationLabel(r)}</TableCell>
-                    <TableCell>{PAY_REGIME_LABELS[r.payRegime]}</TableCell>
-                    <TableCell>
-                      {r.documents.length > 0 ? (
-                        <ul className="space-y-0.5">
-                          {r.documents.map((d) => (
-                            <li key={d.id}>
-                              <a
-                                href={d.fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-primary hover:underline"
-                              >
-                                <Paperclip size={12} strokeWidth={1.75} />
-                                {d.name}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : r.hasDocument ? (
-                        <span
-                          className="inline-flex items-center gap-1 text-ink-faint"
-                          title="Documento protegido — acesso restrito ao titular e ao RH"
-                        >
-                          <FileLock2 size={13} strokeWidth={1.75} /> Protegido
-                        </span>
-                      ) : r.type.requiresDocument ? (
-                        <span className="text-warning-ink">Em falta</span>
-                      ) : (
-                        '—'
-                      )}
-                    </TableCell>
-                    <TableCell>{formatDateTime(r.submittedAt)}</TableCell>
-                    <TableCell>{r.approver?.fullName ?? '—'}</TableCell>
-                    <TableCell>
-                      <StatusBadge
-                        value={r.phase}
-                        map={PHASE_CFG}
-                        variant="dot"
-                      />
-                    </TableCell>
-                    {showPayroll && (
-                      <TableCell>
-                        {r.payrollImpact === 'VALIDATION_REQUIRED'
-                          ? 'Validar no Payroll'
-                          : '—'}
-                      </TableCell>
                     )}
-                    <TableCell>
-                      {r.canCancel && (
-                        <IconButton
-                          icon={X}
-                          label="Cancelar pedido"
-                          intent="ghost"
-                          onClick={() => onCancel(r.id)}
-                        />
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    {showPayroll && r.payrollImpact === 'VALIDATION_REQUIRED' && (
+                      <NavyBadge tone="warning">Validar no Payroll</NavyBadge>
+                    )}
+                    {r.canCancel && (
+                      <button
+                        type="button"
+                        className={NAVY_ACTION}
+                        onClick={() => onCancel(r.id)}
+                      >
+                        <X size={12} strokeWidth={1.75} className="mr-1" /> Cancelar pedido
+                      </button>
+                    )}
+                  </>
+                }
+              />
+            ))}
           </div>
           <p className="text-xs text-ink-faint">
             {data.meta.total} licença(s). O motivo e os comprovativos de tipos

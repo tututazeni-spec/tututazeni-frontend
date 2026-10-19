@@ -67,6 +67,8 @@ export function NewCareerPathModal({
   const [steps, setSteps] = useState<StepDraft[]>([emptyStep()]);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [newFamily, setNewFamily] = useState<string | null>(null);
+  const [creatingFamily, setCreatingFamily] = useState(false);
 
   const {
     values: form,
@@ -90,6 +92,27 @@ export function NewCareerPathModal({
     setSteps((prev) =>
       prev.map((s, i) => (i === idx ? { ...s, ...patch } : s)),
     );
+  };
+
+  const createFamily = async () => {
+    const name = (newFamily ?? '').trim();
+    if (!name) return;
+    setSubmitError('');
+    setCreatingFamily(true);
+    try {
+      const family = await apiClient.post<{ id: number }>(
+        '/career/job-families',
+        { name },
+      );
+      await qc.invalidateQueries({ queryKey: queryKeys.career.jobFamilies() });
+      setForm((f) => ({ ...f, jobFamilyId: String(family.id) }));
+      setNewFamily(null);
+    } catch (e) {
+      reportError(e, { source: 'NewCareerPathModal.createFamily' });
+      setSubmitError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCreatingFamily(false);
+    }
   };
 
   const handleSubmit = withValidation(async () => {
@@ -205,6 +228,48 @@ export function NewCareerPathModal({
                 placeholder="Seleccionar…"
                 className="w-full"
               />
+              {newFamily === null ? (
+                <button
+                  type="button"
+                  onClick={() => setNewFamily('')}
+                  className="mt-1.5 inline-flex items-center gap-1 font-body text-xs font-semibold text-primary hover:underline"
+                >
+                  <Plus size={12} strokeWidth={2} /> Nova família
+                </button>
+              ) : (
+                <div className="mt-1.5 flex items-center gap-2">
+                  <Input
+                    aria-label="Nome da nova família profissional"
+                    value={newFamily}
+                    onChange={(e) => setNewFamily(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        void createFamily();
+                      }
+                    }}
+                    placeholder="Nome da família"
+                    className="w-full"
+                    autoFocus
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => void createFamily()}
+                    disabled={creatingFamily || !newFamily.trim()}
+                  >
+                    Criar
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    intent="ghost"
+                    onClick={() => setNewFamily(null)}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              )}
             </FormField>
           </div>
 

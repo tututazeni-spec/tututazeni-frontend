@@ -178,38 +178,38 @@ export function TabBackups() {
 
   return (
     <div className="space-y-4">
-      {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
-          <div className="mb-4 flex items-center justify-between">
+      {/* Cartão claro, o mesmo desenho da lista de sessões dos eventos */}
+      <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-[#0F1F3D]/60 px-5 py-3">
             <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
               Estado
             </h3>
             <span
-              className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold"
+              className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold"
               style={{ color: HEALTH_COLORS[health.intent] ?? '#9CA3AF' }}
             >
               {health.label}
             </span>
           </div>
-          <dl className="grid grid-cols-2 gap-3 text-sm text-white md:grid-cols-4">
+          <dl className="grid grid-cols-2 gap-3 px-6 pt-5 text-sm text-[#0F1F3D] md:grid-cols-4">
             <div>
-              <dt className="text-xs text-white/70">
+              <dt className="text-xs text-[#49658A]">
                 Último backup com sucesso
               </dt>
               <dd className="font-display font-bold">{fmtDate(data.lastSuccessAt)}</dd>
             </div>
             <div>
-              <dt className="text-xs text-white/70">Próximo agendado</dt>
+              <dt className="text-xs text-[#49658A]">Próximo agendado</dt>
               <dd className="font-display font-bold">{fmtDate(data.nextRunAt)}</dd>
             </div>
             <div>
-              <dt className="text-xs text-white/70">Cópias guardadas</dt>
+              <dt className="text-xs text-[#49658A]">Cópias guardadas</dt>
               <dd className="font-display font-bold">
                 {data.storedCopies} ({fmtBytes(data.storedBytes)})
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-white/70">
+              <dt className="text-xs text-[#49658A]">
                 Ferramentas no servidor
               </dt>
               <dd className="font-display font-bold">
@@ -219,15 +219,14 @@ export function TabBackups() {
             </div>
           </dl>
           {!data.tools.pgDump && (
-            <p className="mt-3 text-sm text-[#F87171]">
+            <p className="px-6 pt-3 text-sm text-[#C23A52]">
               pg_dump não foi encontrado no servidor. Instale o cliente
               PostgreSQL ou defina PG_DUMP_PATH.
             </p>
           )}
-          <div className="mt-4">
+          <div className="px-6 pb-5 pt-4">
             <Button
               type="button"
-              className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
               disabled={
                 runNow.isPending ||
                 !data.settings.destinationDir ||
@@ -238,7 +237,7 @@ export function TabBackups() {
               {runNow.isPending ? 'A executar…' : 'Executar backup agora'}
             </Button>
             {!data.settings.destinationDir && (
-              <span className="ml-3 text-xs text-white/70">
+              <span className="ml-3 text-xs text-[#49658A]">
                 Defina e guarde a pasta de destino primeiro.
               </span>
             )}

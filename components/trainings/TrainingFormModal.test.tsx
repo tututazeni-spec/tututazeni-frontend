@@ -45,8 +45,8 @@ vi.mock('@/components/ui/Modal', () => ({
 }));
 
 // Cada Select vira um <select> nativo — identificado pela posição de
-// aparência (Tipo de formação é o 1º, Nível o 2º), já que ambos partilham o
-// mesmo placeholder "Selecionar".
+// aparência (Categoria e Área temática são o 1º e o 2º; Tipo de formação é o
+// 3º, Nível o 4º), já que todos partilham o mesmo placeholder "Selecionar".
 vi.mock('@/components/ui/Select', () => ({
   Select: ({
     items,
@@ -92,8 +92,8 @@ function fillRequired() {
     target: { value: 'Formação Nova' },
   });
   const selects = screen.getAllByTestId('select-mock');
-  fireEvent.change(selects[0], { target: { value: 'ONLINE' } }); // Tipo/Modalidade
-  fireEvent.change(selects[1], { target: { value: 'BEGINNER' } }); // Nível
+  fireEvent.change(selects[2], { target: { value: 'ONLINE' } }); // Tipo/Modalidade
+  fireEvent.change(selects[3], { target: { value: 'BEGINNER' } }); // Nível
 }
 
 describe('TrainingFormModal — criação', () => {
@@ -124,6 +124,7 @@ describe('TrainingFormModal — criação', () => {
       targetPositionIds: [],
       coInstructorIds: [],
       competencyIds: [],
+      colorIndex: null,
     });
   });
 

@@ -106,10 +106,13 @@ export function WalletStat({
   value,
   tone,
   money,
+  sub,
   zoom = false,
 }: {
   label: string;
   value: string | number;
+  /** Linha secundária opcional (contexto do valor). */
+  sub?: string;
   tone: WalletTone;
   money: WalletMoney;
   /** Efeito zoom ao passar o cursor (como o NavyStatCard). */
@@ -145,6 +148,9 @@ export function WalletStat({
       >
         {value}
       </p>
+      {sub && (
+        <p className="font-body text-xs leading-tight text-ink-muted">{sub}</p>
+      )}
     </div>
   );
 }

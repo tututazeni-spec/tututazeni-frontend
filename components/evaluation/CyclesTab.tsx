@@ -6,7 +6,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, Plus } from 'lucide-react';
+import {
+  Building2,
+  Calendar,
+  ClipboardCheck,
+  ClipboardList,
+  Plus,
+  TrendingUp,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
@@ -15,16 +22,28 @@ import { useToast } from '@/providers/ToastProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { ADMIN_ROLES } from '@/lib/roles';
-import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
-import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import {
+  NAVY_BTN,
+  NavyBadge,
+  NavyCard,
+  type NavyTone,
+} from '@/components/courses/NavyCard';
 import { CreateCycleModal } from './CreateCycleModal';
 import { MODEL_LABEL, STATUS_MAP } from './constants';
 import type { Cycle } from './types';
+
+const CYCLE_TONE: Record<string, NavyTone> = {
+  DRAFT: 'neutral',
+  PUBLISHED: 'info',
+  ACTIVE: 'success',
+  PAUSED: 'warning',
+  CALIBRATING: 'warning',
+  COMPLETED: 'info',
+  ARCHIVED: 'neutral',
+};
 
 export function CyclesTab() {
   const notify = useToast();
@@ -100,143 +119,136 @@ export function CyclesTab() {
         />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {data?.data.map((cycle) => (
-          <Card key={cycle.id}>
-            <CardBody>
-              <div className="flex items-start justify-between mb-3">
-                <StatusBadge
-                  value={cycle.status}
-                  map={STATUS_MAP}
-                  variant="pill"
-                />
-                <span className="text-xs text-ink-faint">
-                  {MODEL_LABEL[cycle.model] ?? cycle.model}
-                </span>
-              </div>
-
-              <h4 className="font-semibold text-ink mb-3">{cycle.name}</h4>
-
-              {/* Participation */}
-              <div className="mb-3">
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-ink-muted">Participação</span>
-                  <span
-                    className={cn(
-                      'font-semibold',
-                      cycle.participation.rate >= 75
-                        ? 'text-success-ink'
-                        : 'text-primary',
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {data?.data.map((cycle) => {
+          const participation = cycle.participation ?? {
+            total: 0,
+            completed: 0,
+            rate: 0,
+          };
+          return (
+            <NavyCard
+              key={cycle.id}
+              seed={cycle.id}
+              kicker={MODEL_LABEL[cycle.model] ?? cycle.model}
+              kickerIcon={ClipboardList}
+              title={cycle.name}
+              subtitle={[
+                `${new Date(cycle.startDate).toLocaleDateString('pt')} → ${new Date(cycle.endDate).toLocaleDateString('pt')}`,
+                cycle.selfEvalDueDate &&
+                  `Autoavaliação até ${new Date(cycle.selfEvalDueDate).toLocaleDateString('pt')}`,
+                cycle.managerEvalDueDate &&
+                  `Gestor até ${new Date(cycle.managerEvalDueDate).toLocaleDateString('pt')}`,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+              badge={
+                <NavyBadge tone={CYCLE_TONE[cycle.status] ?? 'neutral'}>
+                  {STATUS_MAP[cycle.status]?.label ?? cycle.status}
+                </NavyBadge>
+              }
+              infos={[
+                {
+                  icon: TrendingUp,
+                  value: `${participation.rate}%`,
+                  label: 'Participação',
+                },
+                {
+                  icon: ClipboardCheck,
+                  value: `${participation.completed}/${participation.total}`,
+                  label: 'Avaliações',
+                },
+                {
+                  icon: Calendar,
+                  value: new Date(cycle.startDate).toLocaleDateString('pt'),
+                  label: 'Início',
+                },
+                {
+                  icon: Building2,
+                  value: String(
+                    (cycle.targetUnitIds?.length ?? 0) +
+                      (cycle.targetDeptIds?.length ?? 0),
+                  ),
+                  label: 'Unidades/departamentos',
+                },
+              ]}
+              progress={{
+                value: Math.round(participation.rate),
+                label: 'Participação',
+              }}
+              footer={
+                <>
+                  {canManageCycle && cycle.status === 'DRAFT' && (
+                    <button
+                      type="button"
+                      className={NAVY_BTN}
+                      onClick={() =>
+                        runCycleAction(cycle.id, 'publish', 'POST')
+                      }
+                    >
+                      Publicar
+                    </button>
+                  )}
+                  {canManageCycle && cycle.status === 'PUBLISHED' && (
+                    <button
+                      type="button"
+                      className={NAVY_BTN}
+                      onClick={() =>
+                        runCycleAction(cycle.id, 'activate', 'POST')
+                      }
+                    >
+                      Activar
+                    </button>
+                  )}
+                  {canManageCycle && cycle.status === 'ACTIVE' && (
+                    <>
+                      <button
+                        type="button"
+                        className={NAVY_BTN}
+                        onClick={() =>
+                          runCycleAction(cycle.id, 'pause', 'PATCH')
+                        }
+                      >
+                        Pausar
+                      </button>
+                      <button
+                        type="button"
+                        className={NAVY_BTN}
+                        onClick={() =>
+                          runCycleAction(cycle.id, 'close', 'PATCH')
+                        }
+                      >
+                        Encerrar
+                      </button>
+                      <button
+                        type="button"
+                        className={NAVY_BTN}
+                        onClick={() =>
+                          runCycleAction(cycle.id, 'remind', 'POST')
+                        }
+                      >
+                        Lembretes
+                      </button>
+                    </>
+                  )}
+                  {canManageCycle &&
+                    (cycle.status === 'PAUSED' ||
+                      cycle.status === 'COMPLETED') && (
+                      <button
+                        type="button"
+                        className={NAVY_BTN}
+                        onClick={() =>
+                          runCycleAction(cycle.id, 'reopen', 'PATCH')
+                        }
+                      >
+                        Reabrir
+                      </button>
                     )}
-                  >
-                    {cycle.participation.rate}%
-                  </span>
-                </div>
-                <ProgressBar value={cycle.participation.rate} />
-                <p className="text-[10px] text-ink-faint mt-1">
-                  {cycle.participation.completed}/{cycle.participation.total}{' '}
-                  avaliações
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3 text-xs text-ink-faint">
-                <span>
-                  <Calendar
-                    size={12}
-                    strokeWidth={1.75}
-                    className="inline align-[-2px]"
-                  />{' '}
-                  {new Date(cycle.startDate).toLocaleDateString('pt')}
-                </span>
-                <span>→</span>
-                <span>{new Date(cycle.endDate).toLocaleDateString('pt')}</span>
-              </div>
-
-              {(cycle.selfEvalDueDate ||
-                cycle.managerEvalDueDate ||
-                cycle.targetUnitIds?.length) && (
-                <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-ink-faint">
-                  {cycle.selfEvalDueDate && (
-                    <span>
-                      Prazo autoavaliação:{' '}
-                      {new Date(cycle.selfEvalDueDate).toLocaleDateString('pt')}
-                    </span>
-                  )}
-                  {cycle.managerEvalDueDate && (
-                    <span>
-                      Prazo gestor:{' '}
-                      {new Date(cycle.managerEvalDueDate).toLocaleDateString(
-                        'pt',
-                      )}
-                    </span>
-                  )}
-                  {!!cycle.targetUnitIds?.length && (
-                    <span>{cycle.targetUnitIds.length} unidade(s)</span>
-                  )}
-                  {!!cycle.targetDeptIds?.length && (
-                    <span>{cycle.targetDeptIds.length} departamento(s)</span>
-                  )}
-                </div>
-              )}
-
-              {/* Actions */}
-              {canManageCycle && cycle.status === 'DRAFT' && (
-                <Button
-                  size="sm"
-                  intent="secondary"
-                  className="mt-3 w-full"
-                  onClick={() => runCycleAction(cycle.id, 'publish', 'POST')}
-                >
-                  Publicar
-                </Button>
-              )}
-              {canManageCycle && cycle.status === 'PUBLISHED' && (
-                <Button
-                  size="sm"
-                  className="mt-3 w-full"
-                  onClick={() => runCycleAction(cycle.id, 'activate', 'POST')}
-                >
-                  Activar
-                </Button>
-              )}
-              {canManageCycle && cycle.status === 'ACTIVE' && (
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <Button
-                    size="sm"
-                    intent="secondary"
-                    onClick={() => runCycleAction(cycle.id, 'pause', 'PATCH')}
-                  >
-                    Pausar
-                  </Button>
-                  <Button
-                    size="sm"
-                    intent="secondary"
-                    onClick={() => runCycleAction(cycle.id, 'close', 'PATCH')}
-                  >
-                    Encerrar
-                  </Button>
-                  <Button
-                    size="sm"
-                    intent="secondary"
-                    onClick={() => runCycleAction(cycle.id, 'remind', 'POST')}
-                  >
-                    Lembretes
-                  </Button>
-                </div>
-              )}
-              {canManageCycle &&
-                (cycle.status === 'PAUSED' || cycle.status === 'COMPLETED') && (
-                  <Button
-                    size="sm"
-                    className="mt-3 w-full"
-                    onClick={() => runCycleAction(cycle.id, 'reopen', 'PATCH')}
-                  >
-                    Reabrir
-                  </Button>
-                )}
-            </CardBody>
-          </Card>
-        ))}
+                </>
+              }
+            />
+          );
+        })}
 
         {(data?.data.length ?? 0) === 0 && (
           <EmptyState

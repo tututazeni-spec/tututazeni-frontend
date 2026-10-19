@@ -8,7 +8,15 @@
 'use client';
 
 import { useState } from 'react';
-import { FileText, Plus, Trash2, ExternalLink } from 'lucide-react';
+import {
+  ExternalLink,
+  FileText,
+  HardDrive,
+  Link2,
+  Plus,
+  Tag,
+  Trash2,
+} from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -18,7 +26,7 @@ import { formatDateTime } from '@/lib/format';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { NAVY_ACTION, NavyCard } from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -261,60 +269,62 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
           description="Os materiais aparecem aqui quando são associados a uma aula ou sessão (Etapa 5 do assistente, ou 'Adicionar material')."
         />
       ) : (
-        <Card className="divide-y divide-border">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {rows.map((row) => (
-            <div
+            <NavyCard
               key={row.document.id}
-              className="flex flex-wrap items-start gap-3 px-4 py-3"
-            >
-              <FileText
-                size={16}
-                strokeWidth={1.75}
-                className="mt-0.5 shrink-0 text-ink-faint"
-              />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="truncate text-sm font-medium text-ink">
-                    {row.document.title}
-                  </span>
-                  <a
-                    href={row.document.fileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-ink-faint hover:text-ink"
-                  >
-                    <ExternalLink size={12} strokeWidth={1.75} />
-                  </a>
-                </div>
-                <div className="mt-0.5 flex flex-wrap items-center gap-x-2 font-body text-xs text-ink-faint">
-                  <span>{row.document.category}</span>
-                  <span>· {formatFileSize(row.document.fileSize)}</span>
-                  <span>· {formatDateTime(row.document.createdAt)}</span>
-                </div>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {row.referencedBy.map((ref) => (
-                    <span
-                      key={`${ref.liveClassId}-${ref.sessionId ?? 0}`}
-                      className="inline-flex items-center gap-1 rounded bg-surface-sunken px-2 py-0.5 font-body text-xs text-ink-muted"
+              seed={row.document.id}
+              kicker={row.document.category}
+              kickerIcon={FileText}
+              title={row.document.title}
+              subtitle={`${formatFileSize(row.document.fileSize)} · ${formatDateTime(row.document.createdAt)}`}
+              badge={row.referencedBy.map((ref) => (
+                <span
+                  key={`${ref.liveClassId}-${ref.sessionId ?? 0}`}
+                  className="inline-flex items-center gap-1 rounded-full bg-white/85 px-3 py-1 text-xs font-semibold text-[#0F1F3D]"
+                >
+                  {ref.topic}
+                  {ref.sessionSeq ? ` · Sessão ${ref.sessionSeq}` : ''}
+                  {canManage && (
+                    <button
+                      type="button"
+                      onClick={() => onRemove(row, ref)}
+                      aria-label={`Remover de ${ref.topic}`}
+                      className="ml-1 text-[#0F1F3D]/60 hover:text-danger-ink"
                     >
-                      {ref.topic}
-                      {ref.sessionSeq ? ` · Sessão ${ref.sessionSeq}` : ''}
-                      {canManage && (
-                        <button
-                          type="button"
-                          onClick={() => onRemove(row, ref)}
-                          className="ml-1 text-ink-faint hover:text-danger-ink"
-                        >
-                          <Trash2 size={11} strokeWidth={1.75} />
-                        </button>
-                      )}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+                      <Trash2 size={12} strokeWidth={1.75} />
+                    </button>
+                  )}
+                </span>
+              ))}
+              infos={[
+                { icon: Tag, value: row.document.category, label: 'Categoria' },
+                {
+                  icon: HardDrive,
+                  value: formatFileSize(row.document.fileSize),
+                  label: 'Tamanho',
+                },
+                {
+                  icon: Link2,
+                  value: String(row.referencedBy.length),
+                  label: 'Aulas/sessões',
+                },
+              ]}
+              actions={
+                <a
+                  href={row.document.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={NAVY_ACTION}
+                  aria-label="Abrir ficheiro"
+                  title="Abrir ficheiro"
+                >
+                  <ExternalLink size={15} strokeWidth={1.75} />
+                </a>
+              }
+            />
           ))}
-        </Card>
+        </div>
       )}
 
       {totalPages > 1 && (

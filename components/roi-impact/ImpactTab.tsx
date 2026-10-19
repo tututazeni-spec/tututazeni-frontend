@@ -29,7 +29,10 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { NavyPanel, NavyPanelRow, NAVY_PANEL_VARIANTS_SOFT } from './NavyPanel';
+import { NavyPanel, NAVY_PANEL_VARIANTS_SOFT } from './NavyPanel';
+import { PALETTE } from '@/components/onboarding/TemplateCard';
+import { EventBadge } from '@/components/events/EventBadges';
+import { Metric } from '@/components/events/EventListCard';
 import { cn } from '@/lib/cn';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import { NewImpactRecordModal } from './NewImpactRecordModal';
@@ -214,100 +217,104 @@ export function ImpactTab() {
         />
       ) : (
         <div className="grid grid-cols-1 gap-4">
-          {pageRows.map((r) => (
-            <NavyPanel
-              key={r.id}
-              variant={r.id}
-              soft
-              className="flex h-full min-w-0 flex-col"
-              title={r.indicatorName}
-              icon={Target}
-              aside={
-                <span className="rounded-full bg-white/10 px-3 py-1 font-body text-xs font-semibold">
-                  {r.validatedById ? 'Validado' : 'Por validar'}
-                </span>
-              }
-            >
-              <p className="-mt-2 mb-3 font-body text-xs font-medium text-white">
-                {IMPACT_CATEGORY_LABELS[r.category] ?? r.category}
-                {r.initiative ? ` · ${r.initiative}` : ''}
-              </p>
-              <ul className="grid grid-cols-1 gap-2 font-semibold text-white md:grid-cols-2 xl:grid-cols-3">
-                <NavyPanelRow iconBadge iconClassName="text-white" icon={Users}>
-                  Sujeito:{' '}
-                  <strong className="font-extrabold">
-                    {r.subjectLabel ?? '—'}
-                  </strong>{' '}
-                  ({IMPACT_SUBJECT_TYPE_LABELS[r.subjectType] ?? r.subjectType})
-                </NavyPanelRow>
-                <NavyPanelRow
-                  iconBadge
-                  iconClassName="text-white"
-                  icon={ArrowRightLeft}
+          {pageRows.map((r) => {
+            const palette = PALETTE[Math.abs(r.id) % PALETTE.length];
+            return (
+              <div
+                key={r.id}
+                className="relative min-w-0 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+              >
+                <div
+                  aria-hidden
+                  className="absolute right-0 top-0 hidden h-[58%] w-[26%] items-center justify-center text-white/70 sm:flex"
+                  style={{
+                    clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
+                    background: `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
+                  }}
                 >
-                  Antes → Depois:{' '}
-                  <strong className="font-extrabold">
-                    {r.valueBefore ?? '—'} → {r.valueAfter ?? '—'}
-                  </strong>
-                  {r.variation != null && <> (variação {r.variation})</>}
-                </NavyPanelRow>
-                <NavyPanelRow
-                  iconBadge
-                  iconClassName="text-white"
-                  icon={Percent}
-                >
-                  Atribuição:{' '}
-                  <strong className="font-extrabold">
-                    {r.attributionPercent != null
-                      ? `${r.attributionPercent}%`
-                      : '—'}
-                  </strong>
-                </NavyPanelRow>
-                <NavyPanelRow
-                  iconBadge
-                  iconClassName="text-white"
-                  icon={TrendingUp}
-                >
-                  Impacto atribuído:{' '}
-                  <strong className="font-extrabold">
-                    {r.attributedImpact != null ? r.attributedImpact : '—'}
-                  </strong>
-                </NavyPanelRow>
-                {r.dataSource && (
-                  <NavyPanelRow
-                    iconBadge
-                    iconClassName="text-white"
-                    icon={Database}
-                  >
-                    Fonte:{' '}
-                    <strong className="font-extrabold">{r.dataSource}</strong>
-                  </NavyPanelRow>
-                )}
-              </ul>
-              <div className="mt-auto flex items-center justify-end gap-2 pt-3">
-                {!r.validatedById && (
-                  <button
-                    type="button"
-                    disabled={validate.isPending}
-                    onClick={() => validate.mutate(r.id)}
-                    className="rounded-full border border-white/40 px-2.5 py-0.5 font-body text-[11px] font-medium text-white/90 transition-colors hover:border-white hover:bg-white/15 hover:text-white disabled:opacity-40"
-                  >
-                    Validar
-                  </button>
-                )}
-                <button
-                  type="button"
-                  aria-label={`Apagar o registo ${r.indicatorName}`}
-                  title="Apagar"
-                  disabled={remove.isPending && remove.variables === r.id}
-                  onClick={() => askRemove(r.id, r.indicatorName)}
-                  className="rounded-full p-1 text-white/50 transition-colors hover:bg-white/15 hover:text-white disabled:opacity-40"
-                >
-                  <Trash2 size={14} strokeWidth={1.75} />
-                </button>
+                  <Target size={44} strokeWidth={1.25} />
+                </div>
+
+                <div className="relative space-y-5 p-6 sm:pr-[28%]">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <EventBadge color={r.validatedById ? '#16A765' : '#F28C28'}>
+                      {r.validatedById ? 'Validado' : 'Por validar'}
+                    </EventBadge>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <span
+                      aria-hidden
+                      className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full text-white"
+                      style={{ background: palette[3] }}
+                    >
+                      <Target size={28} strokeWidth={1.75} />
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="break-words font-display text-[24px] font-bold leading-tight text-[#0F1F3D]">
+                        {r.indicatorName}
+                      </h3>
+                      <p className="mt-0.5 break-words text-base text-[#49658A]">
+                        {IMPACT_CATEGORY_LABELS[r.category] ?? r.category}
+                        {r.initiative ? ` · ${r.initiative}` : ''}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+                    <Metric icon={Users}>
+                      Sujeito: {r.subjectLabel ?? '—'} (
+                      {IMPACT_SUBJECT_TYPE_LABELS[r.subjectType] ??
+                        r.subjectType}
+                      )
+                    </Metric>
+                    <Metric icon={ArrowRightLeft}>
+                      Antes → Depois: {r.valueBefore ?? '—'} →{' '}
+                      {r.valueAfter ?? '—'}
+                      {r.variation != null && ` (variação ${r.variation})`}
+                    </Metric>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+                    <Metric icon={Percent}>
+                      Atribuição:{' '}
+                      {r.attributionPercent != null
+                        ? `${r.attributionPercent}%`
+                        : '—'}
+                    </Metric>
+                    <Metric icon={TrendingUp}>
+                      Impacto atribuído:{' '}
+                      {r.attributedImpact != null ? r.attributedImpact : '—'}
+                    </Metric>
+                    {r.dataSource && (
+                      <Metric icon={Database}>Fonte: {r.dataSource}</Metric>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 border-t border-[#E6ECF4] pt-4">
+                    {!r.validatedById && (
+                      <Button
+                        size="sm"
+                        disabled={validate.isPending}
+                        onClick={() => validate.mutate(r.id)}
+                      >
+                        Validar
+                      </Button>
+                    )}
+                    <button
+                      type="button"
+                      aria-label={`Apagar o registo ${r.indicatorName}`}
+                      title="Apagar"
+                      disabled={remove.isPending && remove.variables === r.id}
+                      onClick={() => askRemove(r.id, r.indicatorName)}
+                      className="rounded-full p-2 text-[#49658A] transition-colors hover:bg-[#C23A52]/10 hover:text-[#C23A52] disabled:opacity-40"
+                    >
+                      <Trash2 size={16} strokeWidth={1.75} />
+                    </button>
+                  </div>
+                </div>
               </div>
-            </NavyPanel>
-          ))}
+            );
+          })}
         </div>
       )}
       <Pagination

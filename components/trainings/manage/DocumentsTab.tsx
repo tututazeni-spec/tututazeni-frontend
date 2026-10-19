@@ -2,8 +2,9 @@
 // Separador "Documentos" (docs/trainings-detalhado.md pt.11 — programa,
 // materiais, lista de presenças, avaliações, documentos administrativos).
 // `fileUrl` é validado no backend por @IsAllowedFileUrl: URL HTTPS para o
-// ficheiro (OneDrive, Google Drive, …), não upload — mesmo padrão de
-// OnboardingDocUploadForm.tsx.
+// ficheiro (OneDrive, Google Drive, …) OU um ficheiro carregado (PDF/PNG/JPG/
+// WebP, máx. 4 MB) enviado inline como data URL — mesmo padrão dos
+// comprovativos do módulo Leave (useDocUpload).
 
 'use client';
 
@@ -15,11 +16,13 @@ import { queryKeys } from '@/lib/queryKeys';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { formatDate } from '@/lib/format';
+import { openDataUrl } from '@/lib/openDataUrl';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { FileOrLinkField } from '../FileOrLinkField';
 import type { Training } from '../types';
 
 interface DocumentsTabProps {
@@ -98,14 +101,15 @@ export function DocumentsTab({ training }: DocumentsTabProps) {
                 className="w-full"
               />
             </FormField>
-            <FormField label="Link (URL HTTPS) *" htmlFor="doc-url">
-              <Input
+            <FormField label="Ficheiro ou link (URL HTTPS) *" htmlFor="doc-url">
+              <FileOrLinkField
                 id="doc-url"
-                type="url"
                 value={fileUrl}
-                onChange={(e) => setFileUrl(e.target.value)}
-                placeholder="https://…"
-                className="w-full"
+                onChange={(value, fileName) => {
+                  setFileUrl(value);
+                  if (fileName)
+                    setName((n) => n || fileName.replace(/\.[^.]+$/, ''));
+                }}
               />
             </FormField>
             <FormField label="Categoria" htmlFor="doc-category">
@@ -154,6 +158,14 @@ export function DocumentsTab({ training }: DocumentsTabProps) {
                   href={d.fileUrl}
                   target="_blank"
                   rel="noreferrer"
+                  onClick={(e) => {
+                    // Os browsers bloqueiam a navegação para data URLs: abre
+                    // os ficheiros carregados através de um blob.
+                    if (d.fileUrl.startsWith('data:')) {
+                      e.preventDefault();
+                      void openDataUrl(d.fileUrl);
+                    }
+                  }}
                   className="truncate font-body text-sm font-medium text-ink hover:underline"
                 >
                   {d.name}

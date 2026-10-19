@@ -1529,18 +1529,21 @@ function AutomationsTab({ rules, onExecute }: AutomationsTabProps) {
               ? { label: 'Última falhou', cls: 'text-danger' }
               : { label: 'OK', cls: 'text-success' };
           return (
-            <Card key={rule.id}>
-              <CardBody className="flex items-center gap-4">
+            <Card
+              key={rule.id}
+              className="overflow-hidden rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+            >
+              <CardBody className="flex flex-wrap items-center gap-4 px-6 py-5">
                 <div className="min-w-0 flex-1">
                   <p
                     className={cn(
-                      'font-body text-sm font-semibold',
-                      rule.isActive ? 'text-ink' : 'text-ink-muted',
+                      'font-body text-[15px] font-semibold',
+                      rule.isActive ? 'text-[#0F1F3D]' : 'text-[#49658A]',
                     )}
                   >
                     {rule.name}
                   </p>
-                  <p className="font-body text-xs text-ink-muted">
+                  <p className="font-body text-xs text-[#49658A]">
                     Gatilho:{' '}
                     {triggerLabel[rule.triggerType] ?? rule.triggerType}
                     {' · '}
@@ -1554,7 +1557,7 @@ function AutomationsTab({ rules, onExecute }: AutomationsTabProps) {
                   {status.label}
                 </span>
                 <Button
-                  intent="ghost"
+                  intent="secondary"
                   size="sm"
                   disabled={!rule.isActive}
                   onClick={() => onExecute(rule.id)}

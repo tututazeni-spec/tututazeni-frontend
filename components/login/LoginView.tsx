@@ -64,7 +64,7 @@ export function LoginView({
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
         .login-root,
         .login-root *,
@@ -159,7 +159,7 @@ export function LoginView({
         }
 
         .login-logo-text {
-          font-family: 'Montserrat', sans-serif;
+          font-family: 'Inter', sans-serif;
           font-size: 32px;
           font-weight: 800;
           color: #fff;
@@ -299,7 +299,7 @@ export function LoginView({
           padding: 15px;
           background: #0F1F3D;
           color: #fff;
-          font-family: 'Montserrat', sans-serif;
+          font-family: 'Inter', sans-serif;
           font-size: 14px;
           font-weight: 700;
           letter-spacing: 1.5px;

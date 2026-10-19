@@ -13,6 +13,7 @@ import {
   Building2,
   Check,
   Clock,
+  FileStack,
   Copy,
   FlaskConical,
   Layers,
@@ -42,8 +43,8 @@ import {
   RISK_LEVEL_MAP,
   STEP_TYPE_MAP,
 } from './constants';
-import { InfoRow, Metric } from '@/components/events/EventListCard';
-import { headerBackground } from '@/components/onboarding/TemplateCard';
+import { Metric } from '@/components/events/EventListCard';
+import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { CreateProcessModal } from './CreateProcessModal';
 import { ReasonDialog } from './ReasonDialog';
 import { Skeleton } from './Skeleton';
@@ -176,13 +177,8 @@ export function ProcessViewer({
       </div>
     );
 
-  // Cor fixa do cartão: azul-marinho da marca (#0F1F3D)
-  const palette: [string, string, string, string] = [
-    '#0F1F3D',
-    '#0F1F3D',
-    '#0F1F3D',
-    '#0F1F3D',
-  ];
+  // Cor própria do processo (a mesma do cartão na lista de modelos)
+  const palette = PALETTE[Math.abs(process.id) % PALETTE.length];
 
   return (
     <div>
@@ -191,180 +187,186 @@ export function ProcessViewer({
         Voltar aos modelos
       </Button>
 
-      {/* Header — mesmo desenho do cartão de evento (EventListCard), na horizontal */}
-      <div className="mb-5 flex w-full flex-col overflow-hidden rounded-[20px] border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] lg:flex-row">
-        {/* Base: cor do cartão */}
+      {/* Header — desenho de "workshop de inovação.jpeg" (o mesmo do detalhe
+          do evento): cartão claro com etiquetas, ícone + título, dados,
+          responsável e botões de acção. */}
+      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div
-          className="shrink-0 p-4 text-white lg:w-[38%] lg:p-5"
-          style={{ background: headerBackground(palette) }}
+          aria-hidden
+          className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
+          style={{
+            clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
+            background: `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
+          }}
         >
-          <h2 className="font-display text-[22px] font-semibold leading-tight">
-            {process.title}
-          </h2>
-          <p className="mt-1 font-mono text-sm text-white/70">
-            {process.code} · v{process.version}
-          </p>
+          <FileStack size={48} strokeWidth={1.25} />
+        </div>
+
+        <div className="relative space-y-5 p-6 sm:pr-[36%]">
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusBadge
+              value={process.status}
+              map={PROCESS_STATUS_MAP}
+              variant="dot"
+            />
+            <StatusBadge value={process.riskLevel} map={RISK_LEVEL_MAP} />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span
+              aria-hidden
+              className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full text-white"
+              style={{ background: palette[3] }}
+            >
+              <FileStack size={28} strokeWidth={1.75} />
+            </span>
+            <div className="min-w-0">
+              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-[#0F1F3D]">
+                {process.title}
+              </h1>
+              <p className="mt-0.5 break-words font-mono text-base text-[#49658A]">
+                {process.code} · v{process.version}
+              </p>
+            </div>
+          </div>
+
           {process.description && (
-            <p className="mt-1 line-clamp-2 text-[15px] text-white/80">
+            <p className="font-body text-sm leading-relaxed text-ink-muted">
               {process.description}
             </p>
           )}
+
+          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+            {process.defaultSlaHours ? (
+              <Metric icon={Clock}>SLA {process.defaultSlaHours}h</Metric>
+            ) : null}
+            {process.estimatedMinutes ? (
+              <Metric icon={Timer}>
+                {fmtDuration(process.estimatedMinutes)}
+              </Metric>
+            ) : null}
+            <Metric icon={Layers}>
+              {process._count.instances}{' '}
+              {process._count.instances === 1 ? 'instância' : 'instâncias'}
+            </Metric>
+          </div>
+          {process.department && (
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+              <Metric icon={Building2}>{process.department.name}</Metric>
+            </div>
+          )}
+
           {process.tags.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5">
               {process.tags.map((t) => (
                 <span
                   key={t}
-                  className="rounded-full bg-white/15 px-2.5 py-0.5 text-xs text-white"
+                  className="rounded bg-surface-sunken px-2 py-0.5 font-body text-xs text-ink-muted"
                 >
                   {t}
                 </span>
               ))}
             </div>
           )}
-        </div>
 
-        <div className="flex min-w-0 flex-1 flex-col justify-center">
-          <div className="flex flex-wrap items-center gap-2 px-6 pt-3">
-            <StatusBadge
-              value={process.status}
-              map={PROCESS_STATUS_MAP}
-              variant="dot"
-              className="!text-[#0F1F3D]"
-            />
-            <StatusBadge
-              value={process.riskLevel}
-              map={RISK_LEVEL_MAP}
-              className="!text-[#0F1F3D]"
-            />
-          </div>
-          <div className="flex flex-wrap items-center gap-y-2 divide-x divide-[#E6ECF4] px-6 py-2">
-            {process.defaultSlaHours ? (
-              <Metric iconClassName="text-[#0F1F3D]" icon={Clock}>
-                SLA {process.defaultSlaHours}h
-              </Metric>
-            ) : null}
-            {process.estimatedMinutes ? (
-              <Metric iconClassName="text-[#0F1F3D]" icon={Timer}>
-                {fmtDuration(process.estimatedMinutes)}
-              </Metric>
-            ) : null}
-            <Metric iconClassName="text-[#0F1F3D]" icon={Layers}>
-              {process._count.instances}{' '}
-              {process._count.instances === 1 ? 'instância' : 'instâncias'}
-            </Metric>
-          </div>
-
-          <div className="mx-6 border-t border-[#E6ECF4]" />
-
-          <div className="grid gap-2 px-6 py-3 sm:grid-cols-2">
-            <InfoRow
-              accent={palette[3]}
-              leading={
+          <div className="border-t border-[#E6ECF4] pt-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="inline-flex items-center gap-3 text-[15px] text-[#49658A]">
                 <Avatar
                   name={process.owner.fullName}
                   url={process.owner.avatarUrl ?? undefined}
                   size="sm"
                 />
-              }
-            >
-              {process.owner.fullName}
-            </InfoRow>
-            {process.department && (
-              <InfoRow icon={Building2} accent={palette[3]}>
-                {process.department.name}
-              </InfoRow>
-            )}
-          </div>
-
-          <div className="flex flex-wrap gap-2 px-6 pb-3">
-            {process.status === 'ACTIVE' && canStart && (
-              <Button
-                onClick={() => setShowStart(true)}
-                disabled={actionLoading}
-                size="sm"
-              >
-                <Play size={14} strokeWidth={1.75} />
-                Iniciar processo
-              </Button>
-            )}
-            {canEdit && (
-              <Button
-                intent="ghost"
-                className="text-[#0F1F3D]"
-                size="sm"
-                onClick={() => setShowValidate(true)}
-              >
-                <FlaskConical size={14} strokeWidth={1.75} />
-                Testar fluxo
-              </Button>
-            )}
-            {canEdit && process.status === 'DRAFT' && (
-              <Button
-                intent="ghost"
-                className="text-[#0F1F3D]"
-                size="sm"
-                onClick={() => setShowEdit(true)}
-              >
-                <Pencil size={14} strokeWidth={1.75} />
-                Editar rascunho
-              </Button>
-            )}
-            {canEdit && (
-              <Button
-                intent="ghost"
-                className="text-[#0F1F3D]"
-                size="sm"
-                onClick={() => duplicate.mutate(undefined)}
-                disabled={actionLoading}
-              >
-                <Copy size={14} strokeWidth={1.75} />
-                Duplicar
-              </Button>
-            )}
-            {process.status === 'DRAFT' && canEdit && (
-              <Button
-                intent="warning"
-                onClick={handleSubmitReview}
-                disabled={submitting}
-                size="sm"
-              >
-                <Send size={14} strokeWidth={1.75} />
-                {submitting ? 'A submeter…' : 'Submeter para revisão'}
-              </Button>
-            )}
-            {process.status === 'IN_REVIEW' && canEdit && (
-              <div className="flex gap-2">
-                <Button
-                  intent="success"
-                  size="sm"
-                  onClick={() => handleApproval('approve')}
-                  disabled={actionLoading}
-                >
-                  <Check size={14} strokeWidth={1.75} />
-                  Aprovar
-                </Button>
-                <Button
-                  intent="danger"
-                  size="sm"
-                  onClick={() => handleApproval('reject')}
-                  disabled={actionLoading}
-                >
-                  <X size={14} strokeWidth={1.75} />
-                  Rejeitar
-                </Button>
+                {process.owner.fullName}
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                {process.status === 'ACTIVE' && canStart && (
+                  <Button
+                    onClick={() => setShowStart(true)}
+                    disabled={actionLoading}
+                    size="sm"
+                  >
+                    <Play size={14} strokeWidth={1.75} />
+                    Iniciar processo
+                  </Button>
+                )}
+                {canEdit && (
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => setShowValidate(true)}
+                  >
+                    <FlaskConical size={14} strokeWidth={1.75} />
+                    Testar fluxo
+                  </Button>
+                )}
+                {canEdit && process.status === 'DRAFT' && (
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => setShowEdit(true)}
+                  >
+                    <Pencil size={14} strokeWidth={1.75} />
+                    Editar rascunho
+                  </Button>
+                )}
+                {canEdit && (
+                  <Button
+                    intent="ghost"
+                    size="sm"
+                    onClick={() => duplicate.mutate(undefined)}
+                    disabled={actionLoading}
+                  >
+                    <Copy size={14} strokeWidth={1.75} />
+                    Duplicar
+                  </Button>
+                )}
+                {process.status === 'DRAFT' && canEdit && (
+                  <Button
+                    intent="warning"
+                    onClick={handleSubmitReview}
+                    disabled={submitting}
+                    size="sm"
+                  >
+                    <Send size={14} strokeWidth={1.75} />
+                    {submitting ? 'A submeter…' : 'Submeter para revisão'}
+                  </Button>
+                )}
+                {process.status === 'IN_REVIEW' && canEdit && (
+                  <div className="flex gap-2">
+                    <Button
+                      intent="success"
+                      size="sm"
+                      onClick={() => handleApproval('approve')}
+                      disabled={actionLoading}
+                    >
+                      <Check size={14} strokeWidth={1.75} />
+                      Aprovar
+                    </Button>
+                    <Button
+                      intent="danger"
+                      size="sm"
+                      onClick={() => handleApproval('reject')}
+                      disabled={actionLoading}
+                    >
+                      <X size={14} strokeWidth={1.75} />
+                      Rejeitar
+                    </Button>
+                  </div>
+                )}
+                {process.status === 'ACTIVE' && canEdit && (
+                  <Button
+                    intent="secondary"
+                    size="sm"
+                    onClick={handleNewVersion}
+                    disabled={actionLoading}
+                  >
+                    <Plus size={14} strokeWidth={1.75} />
+                    Nova versão
+                  </Button>
+                )}
               </div>
-            )}
-            {process.status === 'ACTIVE' && canEdit && (
-              <Button
-                intent="secondary"
-                size="sm"
-                onClick={handleNewVersion}
-                disabled={actionLoading}
-              >
-                <Plus size={14} strokeWidth={1.75} />
-                Nova versão
-              </Button>
-            )}
+            </div>
           </div>
         </div>
       </div>
@@ -409,8 +411,7 @@ export function ProcessViewer({
                 </div>
 
                 {/* Step card */}
-                <div className="relative mb-2 flex-1 overflow-hidden rounded-card border border-white/10 bg-[#0F1F3D] py-4 pl-6 pr-4">
-                  <span className="absolute inset-y-2 left-2 w-1 rounded-full bg-warning" />
+                <div className="relative mb-2 flex-1 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2.5">
@@ -423,68 +424,68 @@ export function ProcessViewer({
                           <span className="h-1.5 w-1.5 rounded-full bg-current" />
                           {STEP_TYPE_MAP[step.type]?.label ?? step.type}
                         </span>
-                        <span className="font-body text-sm font-semibold text-white">
+                        <span className="font-body text-sm font-semibold text-[#0F1F3D]">
                           {step.title}
                         </span>
                       </div>
                       {step.description && (
-                        <p className="mt-1 max-w-prose font-body text-[13px] leading-relaxed text-white/90">
+                        <p className="mt-1 max-w-prose font-body text-[13px] leading-relaxed text-ink-muted">
                           {step.description}
                         </p>
                       )}
-                      <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-white/15 pt-3 font-body sm:grid-cols-3">
+                      <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-[#E6ECF4] pt-3 font-body sm:grid-cols-3">
                         {step.responsible && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-white/70">
+                            <dt className="text-[11px] text-[#49658A]">
                               Responsável
                             </dt>
-                            <dd className="truncate text-sm font-semibold text-white">
+                            <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
                               {step.responsible.fullName}
                             </dd>
                           </div>
                         )}
                         {step.responsibleRole && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-white/70">Role</dt>
-                            <dd className="truncate text-sm font-semibold text-white">
+                            <dt className="text-[11px] text-[#49658A]">Role</dt>
+                            <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
                               {step.responsibleRole}
                             </dd>
                           </div>
                         )}
                         {step.slaHours && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-white/70">SLA</dt>
-                            <dd className="truncate text-sm font-semibold text-white">
+                            <dt className="text-[11px] text-[#49658A]">SLA</dt>
+                            <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
                               {step.slaHours}h
                             </dd>
                           </div>
                         )}
                         {step.reviewer && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-white/70">
+                            <dt className="text-[11px] text-[#49658A]">
                               Revisor
                             </dt>
-                            <dd className="truncate text-sm font-semibold text-white">
+                            <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
                               {step.reviewer.fullName}
                             </dd>
                           </div>
                         )}
                         {step.parallel && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-white/70">
+                            <dt className="text-[11px] text-[#49658A]">
                               Execução
                             </dt>
-                            <dd className="text-sm font-semibold text-white">
+                            <dd className="text-sm font-semibold text-[#0F1F3D]">
                               Paralela
                             </dd>
                           </div>
                         )}
                         {step.dependsOnOrders.length > 0 && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-white/70">
+                            <dt className="text-[11px] text-[#49658A]">
                               Depende de
                             </dt>
-                            <dd className="truncate text-sm font-semibold text-white">
+                            <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
                               {step.dependsOnOrders
                                 .map((o) => o + 1)
                                 .join(', ')}
@@ -493,23 +494,23 @@ export function ProcessViewer({
                         )}
                         {step.estimatedMinutes && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-white/70">
+                            <dt className="text-[11px] text-[#49658A]">
                               Tempo est.
                             </dt>
-                            <dd className="truncate text-sm font-semibold text-white">
+                            <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
                               {fmtDuration(step.estimatedMinutes)}
                             </dd>
                           </div>
                         )}
                       </dl>
                       {step.checklist.length > 0 && (
-                        <div className="mt-3 space-y-1.5 border-t border-white/15 pt-3">
+                        <div className="mt-3 space-y-1.5 border-t border-[#E6ECF4] pt-3">
                           {step.checklist.map((item, i) => (
                             <div
                               key={i}
-                              className="flex items-center gap-2 font-body text-[13px] text-white"
+                              className="flex items-center gap-2 font-body text-[13px] text-[#0F1F3D]"
                             >
-                              <div className="h-3.5 w-3.5 flex-shrink-0 rounded-control border border-white/60" />
+                              <div className="h-3.5 w-3.5 flex-shrink-0 rounded-control border border-[#49658A]" />
                               {item}
                             </div>
                           ))}
@@ -532,35 +533,33 @@ export function ProcessViewer({
         {/* Info tab */}
         <TabsContent value="info">
           <div className="grid grid-cols-2 gap-5">
-            <div className="relative overflow-hidden rounded-card border border-white/10 bg-[#0F1F3D] py-5 pl-7 pr-5">
-              <span className="absolute inset-y-2 left-2 w-1 rounded-full bg-warning" />
-              <div className="pointer-events-none relative z-10 -mr-5 -mt-5 mb-4 -ml-7 cursor-default select-none border-b border-white/15 bg-[#6F798B] py-3 pl-7 pr-5 font-body text-sm font-bold text-white">
+            <div className="relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <div className="pointer-events-none mb-4 cursor-default select-none font-display text-lg font-bold text-[#0F1F3D]">
                 Objetivo e âmbito
               </div>
               {process.objective && (
                 <div className="mb-3">
-                  <div className="mb-1 font-body text-[11px] text-white/70">
+                  <div className="mb-1 font-body text-[11px] text-[#49658A]">
                     Objetivo
                   </div>
-                  <p className="font-body text-sm font-semibold text-white">
+                  <p className="font-body text-sm font-semibold text-[#0F1F3D]">
                     {process.objective}
                   </p>
                 </div>
               )}
               {process.scope && (
                 <div>
-                  <div className="mb-1 font-body text-[11px] text-white/70">
+                  <div className="mb-1 font-body text-[11px] text-[#49658A]">
                     Âmbito
                   </div>
-                  <p className="font-body text-sm font-semibold text-white">
+                  <p className="font-body text-sm font-semibold text-[#0F1F3D]">
                     {process.scope}
                   </p>
                 </div>
               )}
             </div>
-            <div className="relative overflow-hidden rounded-card border border-white/10 bg-[#0F1F3D] py-5 pl-7 pr-5">
-              <span className="absolute inset-y-2 left-2 w-1 rounded-full bg-warning" />
-              <div className="pointer-events-none relative z-10 -mr-5 -mt-5 mb-4 -ml-7 cursor-default select-none border-b border-white/15 bg-[#6F798B] py-3 pl-7 pr-5 font-body text-sm font-bold text-white">
+            <div className="relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <div className="pointer-events-none mb-4 cursor-default select-none font-display text-lg font-bold text-[#0F1F3D]">
                 Datas e SLA
               </div>
               {[
@@ -577,20 +576,19 @@ export function ProcessViewer({
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="flex justify-between border-b border-white/10 py-2 last:border-0"
+                  className="flex justify-between border-b border-[#E6ECF4] py-2 last:border-0"
                 >
-                  <span className="font-body text-[11px] text-white/70">
+                  <span className="font-body text-[11px] text-[#49658A]">
                     {label}
                   </span>
-                  <span className="font-body text-sm font-semibold text-white">
+                  <span className="font-body text-sm font-semibold text-[#0F1F3D]">
                     {value}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="col-span-2 relative overflow-hidden rounded-card border border-white/10 bg-[#0F1F3D] py-5 pl-7 pr-5">
-              <span className="absolute inset-y-2 left-2 w-1 rounded-full bg-warning" />
-              <div className="pointer-events-none relative z-10 -mr-5 -mt-5 mb-4 -ml-7 cursor-default select-none border-b border-white/15 bg-[#6F798B] py-3 pl-7 pr-5 font-body text-sm font-bold text-white">
+            <div className="col-span-2 relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <div className="pointer-events-none mb-4 cursor-default select-none font-display text-lg font-bold text-[#0F1F3D]">
                 Configuração do modelo
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -616,10 +614,10 @@ export function ProcessViewer({
                   ] as Array<[string, string | null]>
                 ).map(([label, value]) => (
                   <div key={label}>
-                    <div className="font-body text-[11px] text-white/70">
+                    <div className="font-body text-[11px] text-[#49658A]">
                       {label}
                     </div>
-                    <p className="font-body text-sm font-semibold text-white">
+                    <p className="font-body text-sm font-semibold text-[#0F1F3D]">
                       {value || '—'}
                     </p>
                   </div>
@@ -631,8 +629,8 @@ export function ProcessViewer({
 
         {/* History tab */}
         <TabsContent value="history">
-          <div className="overflow-hidden rounded-card border border-border bg-surface">
-            <div className="pointer-events-none cursor-default select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+          <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div className="pointer-events-none cursor-default select-none border-b border-[#E6ECF4] px-5 py-4 font-display text-lg font-bold text-[#0F1F3D]">
               Histórico de versões
             </div>
             {(
@@ -647,11 +645,10 @@ export function ProcessViewer({
             ).map((v) => (
               <div
                 key={`${v.version}-${v.current}`}
-                className="relative flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 last:border-0"
+                className="relative flex flex-wrap items-center justify-between gap-3 border-b border-[#E6ECF4] bg-white px-5 py-3.5 last:border-0"
               >
-                <span className="absolute inset-y-2 left-2 w-1 rounded-full bg-warning" />
                 <div className="flex items-center gap-2.5">
-                  <span className="font-mono text-sm font-bold text-white">
+                  <span className="font-mono text-sm font-bold text-[#0F1F3D]">
                     v{v.version}
                   </span>
                   {v.current && (
@@ -662,16 +659,16 @@ export function ProcessViewer({
                   )}
                 </div>
                 <div className="text-right font-body">
-                  <div className="text-[11px] text-white/70">
+                  <div className="text-[11px] text-[#49658A]">
                     {v.current ? 'Publicada/actualizada em' : 'Guardada em'}
                   </div>
-                  <div className="text-sm font-semibold text-white">
+                  <div className="text-sm font-semibold text-[#0F1F3D]">
                     {fmtDate(v.createdAt)}
                   </div>
                 </div>
               </div>
             ))}
-            <div className="border-t border-white/10 bg-[#0F1F3D] px-5 py-3 font-body text-[13px] leading-relaxed text-white">
+            <div className="border-t border-[#E6ECF4] bg-[#F7FAFE] px-5 py-3 font-body text-[13px] leading-relaxed text-[#49658A]">
               Cada processo em execução mantém a versão do modelo com que foi
               iniciado.
             </div>

@@ -9,7 +9,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import {
+  Archive,
+  CalendarDays,
+  Clock,
+  GraduationCap,
+  Pencil,
+  Plus,
+  Trash2,
+  UserCheck,
+  Users,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -17,11 +27,19 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import {
+  NAVY_ACTION,
+  NAVY_BTN,
+  NavyBadge,
+  NavyCard,
+} from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { formatDate } from '@/lib/format';
+import { INVERT_ON_HOVER } from './buttonStyles';
 import { TrainingFormModal } from './TrainingFormModal';
-import { STATUS_CFG, TYPE_CFG } from './constants';
+import { LEVEL_CFG, STATUS_CFG, TYPE_CFG } from './constants';
+import { LEVEL_TONE, STATUS_TONE } from './trainingTones';
 import type { Training } from './types';
 
 interface ManageResponse {
@@ -143,7 +161,7 @@ export function GestaoView({ onManage }: GestaoViewProps) {
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Button onClick={() => setShowCreate(true)}>
+        <Button className={INVERT_ON_HOVER} onClick={() => setShowCreate(true)}>
           <Plus size={14} strokeWidth={1.75} />
           Nova Formação
         </Button>
@@ -155,114 +173,152 @@ export function GestaoView({ onManage }: GestaoViewProps) {
           description="As formações que crias (ou, se fores ADMIN/RH, todas as formações) aparecem aqui."
         />
       ) : (
-        <Card className="divide-y divide-border">
+        <div className="grid grid-cols-1 gap-5">
           {list.map((t) => {
-            const statusCfg = STATUS_CFG[t.status];
+            const busy = rowBusy(t.id);
+            const closed =
+              t.status === 'ARCHIVED' ||
+              t.status === 'CANCELLED' ||
+              t.status === 'COMPLETED';
             return (
-              <div
+              <NavyCard
                 key={t.id}
-                className="flex flex-wrap items-center gap-3 px-4 py-3"
-              >
-                <button
-                  type="button"
-                  className="min-w-0 flex-1 text-left"
-                  onClick={() => onManage(t.id)}
-                >
-                  <div className="truncate text-sm font-medium text-ink">
-                    {t.title}
-                  </div>
-                  <div className="text-xs text-ink-faint">
-                    {t.code ? `${t.code} · ` : ''}
-                    {TYPE_CFG[t.type]?.label}
-                    {t.category ? ` · ${t.category}` : ''}
-                    {t.createdBy ? ` · criado por ${t.createdBy.fullName}` : ''}
-                  </div>
-                </button>
-                <span
-                  className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}
-                >
-                  {statusCfg.label}
-                </span>
-                <div className="flex flex-shrink-0 items-center gap-2">
-                  <Button
-                    intent="ghost"
-                    size="sm"
-                    onClick={() => onManage(t.id)}
-                  >
-                    Gerir
-                  </Button>
-                  <Button
-                    intent="ghost"
-                    size="sm"
-                    onClick={() => setEditTraining(t)}
-                    disabled={rowBusy(t.id)}
-                  >
-                    Editar
-                  </Button>
-                  {t.status !== 'ARCHIVED' &&
-                    t.status !== 'CANCELLED' &&
-                    t.status !== 'COMPLETED' && (
-                      <Button
-                        intent="ghost"
-                        size="sm"
-                        onClick={() => onArchive(t)}
-                        disabled={rowBusy(t.id)}
-                      >
-                        Arquivar
-                      </Button>
+                seed={t.colorIndex ?? t.id}
+                image={t.thumbnailUrl}
+                flushFirstInfo
+                onClick={() => onManage(t.id)}
+                kicker={t.category ?? TYPE_CFG[t.type]?.label}
+                kickerIcon={GraduationCap}
+                title={t.title}
+                subtitle={t.shortDescription ?? t.thematicArea ?? undefined}
+                badge={
+                  <>
+                    <NavyBadge tone={STATUS_TONE[t.status]}>
+                      {STATUS_CFG[t.status].label}
+                    </NavyBadge>
+                    {t.mandatory && (
+                      <NavyBadge tone="danger">Obrigatória</NavyBadge>
                     )}
-                  {t.status === 'DRAFT' && (
-                    <Button
-                      intent="success"
-                      size="sm"
-                      onClick={() => publish.mutate(t.id)}
-                      disabled={rowBusy(t.id)}
-                      loading={publish.isPending && publish.variables === t.id}
+                    <NavyBadge tone={LEVEL_TONE[t.level]}>
+                      {LEVEL_CFG[t.level].label}
+                    </NavyBadge>
+                    <NavyBadge tone="neutral">
+                      {TYPE_CFG[t.type]?.label ?? t.type}
+                    </NavyBadge>
+                  </>
+                }
+                infos={[
+                  {
+                    icon: Clock,
+                    value:
+                      t.workloadHours != null ? `${t.workloadHours}h` : '—',
+                    label: 'Carga horária',
+                  },
+                  {
+                    icon: Users,
+                    value:
+                      t.capacity != null
+                        ? `${t._count.participants}/${t.capacity}`
+                        : String(t._count.participants),
+                    label: 'Participantes',
+                  },
+                  {
+                    icon: CalendarDays,
+                    value: t.startDate ? formatDate(t.startDate) : '—',
+                    label: t.endDate
+                      ? `até ${formatDate(t.endDate)}`
+                      : 'Data de início',
+                  },
+                  {
+                    icon: UserCheck,
+                    value:
+                      t.instructor?.fullName ??
+                      t.externalInstructor?.name ??
+                      'Sem formador',
+                    label: 'Formador',
+                  },
+                ]}
+                actions={
+                  <>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
+                      aria-label={`Editar ${t.title}`}
+                      title="Editar"
+                      disabled={busy}
+                      onClick={() => setEditTraining(t)}
                     >
-                      Publicar
-                    </Button>
-                  )}
-                  {t.status === 'PUBLISHED' && (
-                    <>
-                      <Button
-                        intent="ghost"
-                        size="sm"
-                        onClick={() => onComplete(t)}
-                        disabled={rowBusy(t.id)}
-                        loading={
-                          complete.isPending && complete.variables === t.id
-                        }
+                      <Pencil size={15} strokeWidth={1.75} />
+                    </button>
+                    {!closed && (
+                      <button
+                        type="button"
+                        className={NAVY_ACTION}
+                        aria-label={`Arquivar ${t.title}`}
+                        title="Arquivar"
+                        disabled={busy}
+                        onClick={() => onArchive(t)}
                       >
-                        Concluir
-                      </Button>
-                      <Button
-                        intent="danger"
-                        size="sm"
-                        onClick={() => onCancel(t)}
-                        disabled={rowBusy(t.id)}
-                        loading={
-                          cancelTraining.isPending &&
-                          cancelTraining.variables === t.id
-                        }
+                        <Archive size={15} strokeWidth={1.75} />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className={`${NAVY_ACTION} hover:!bg-red-500 hover:!text-white`}
+                      aria-label={`Eliminar ${t.title}`}
+                      title="Eliminar"
+                      disabled={busy}
+                      onClick={() => onDelete(t)}
+                    >
+                      <Trash2 size={15} strokeWidth={1.75} />
+                    </button>
+                  </>
+                }
+                footer={
+                  <>
+                    <button
+                      type="button"
+                      className={NAVY_BTN}
+                      onClick={() => onManage(t.id)}
+                    >
+                      Gerir
+                    </button>
+                    {t.status === 'DRAFT' && (
+                      <button
+                        type="button"
+                        className={NAVY_BTN}
+                        disabled={busy}
+                        onClick={() => publish.mutate(t.id)}
                       >
-                        Cancelar
-                      </Button>
-                    </>
-                  )}
-                  <Button
-                    intent="danger"
-                    size="sm"
-                    onClick={() => onDelete(t)}
-                    disabled={rowBusy(t.id)}
-                    loading={remove.isPending && remove.variables === t.id}
-                  >
-                    Eliminar
-                  </Button>
-                </div>
-              </div>
+                        Publicar
+                      </button>
+                    )}
+                    {t.status === 'PUBLISHED' && (
+                      <>
+                        <button
+                          type="button"
+                          className={NAVY_BTN}
+                          disabled={busy}
+                          onClick={() => onComplete(t)}
+                        >
+                          Concluir
+                        </button>
+                        <button
+                          type="button"
+                          className={`${NAVY_ACTION} h-9 border border-white/25 px-4 text-sm`}
+                          disabled={busy}
+                          onClick={() => onCancel(t)}
+                        >
+                          Cancelar
+                        </button>
+                      </>
+                    )}
+                  </>
+                }
+              />
             );
           })}
-        </Card>
+        </div>
       )}
 
       {showCreate && (

@@ -66,7 +66,7 @@ function Stars({ value, dark }: { value: number | null; dark?: boolean }) {
       <span
         className={cn(
           'font-body text-xs',
-          dark ? 'text-white' : 'text-ink-faint',
+          dark ? 'text-[#49658A]' : 'text-ink-faint',
         )}
       >
         —
@@ -83,7 +83,7 @@ function Stars({ value, dark }: { value: number | null; dark?: boolean }) {
             n <= value
               ? 'fill-accent text-accent'
               : dark
-                ? 'text-white/30'
+                ? 'text-[#0F1F3D]/20'
                 : 'text-border-strong'
           }
         />
@@ -196,7 +196,7 @@ export function EvaluationTab() {
           description="Nenhum participante corresponde aos filtros escolhidos."
         />
       ) : (
-        <div className="overflow-hidden rounded-card border border-border bg-surface">
+        <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {rows.map((p) => {
             const level = proximityLevel(p.event.startAt);
             return (
@@ -205,24 +205,18 @@ export function EvaluationTab() {
                 type="button"
                 onClick={() => p.evaluation && setDetailRow(p)}
                 disabled={!p.evaluation}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 text-left last:border-0 enabled:hover:bg-[#162a50] disabled:cursor-default"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-[#E6ECF4] bg-white px-5 py-3 text-left last:border-0 enabled:hover:bg-[#EEF4FD] disabled:cursor-default"
               >
-                <span
-                  className={cn(
-                    'absolute inset-y-2 left-2 w-1 rounded-full',
-                    level.bar,
-                  )}
-                />
                 <Avatar
                   name={p.user.fullName}
                   url={p.user.avatarUrl ?? undefined}
                   size="sm"
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-semibold text-white">
+                  <div className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
                     {p.user.fullName}
                   </div>
-                  <div className="truncate font-body text-xs text-white">
+                  <div className="truncate font-body text-xs text-[#49658A]">
                     {p.event.title}
                     {p.user.department && ` · ${p.user.department.name}`}
                     {p.user.unit && ` · ${p.user.unit.name}`}
@@ -232,10 +226,10 @@ export function EvaluationTab() {
                 <div className="hidden w-32 shrink-0 sm:block">
                   <Stars value={p.evaluation?.rating ?? null} dark />
                 </div>
-                <div className="hidden w-28 shrink-0 font-body text-xs text-white md:block">
+                <div className="hidden w-28 shrink-0 font-body text-xs text-[#49658A] md:block">
                   {p.evaluation ? `NPS ${p.evaluation.nps}/10` : '—'}
                 </div>
-                <div className="hidden w-40 shrink-0 font-body text-xs text-white lg:block">
+                <div className="hidden w-40 shrink-0 font-body text-xs text-[#49658A] lg:block">
                   {p.evaluation?.createdAt
                     ? formatDateTime(p.evaluation.createdAt)
                     : '—'}
@@ -259,7 +253,7 @@ export function EvaluationTab() {
                   <MessageSquareText
                     size={14}
                     strokeWidth={1.75}
-                    className="shrink-0 text-white"
+                    className="shrink-0 text-[#49658A]"
                   />
                 )}
               </button>

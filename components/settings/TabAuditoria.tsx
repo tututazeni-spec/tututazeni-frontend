@@ -61,57 +61,57 @@ export function TabAuditoria() {
 
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
-          <div className="mb-4 flex items-center justify-between">
+      <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-[#0F1F3D]/60 px-5 py-3">
             <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
               Registo de logs
             </h3>
             <span
-              className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold"
+              className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold"
               style={{ color: HEALTH_COLORS[health.intent] }}
             >
               {health.label}
             </span>
           </div>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-4 px-6 pt-5">
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
                 Eventos (24h)
               </p>
-              <p className="mt-1 text-2xl font-display font-bold text-white">
+              <p className="mt-1 text-2xl font-display font-bold text-[#0F1F3D]">
                 {data.events24h}
               </p>
             </div>
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
                 Falhas (24h)
               </p>
-              <p className="mt-1 text-2xl font-display font-bold text-white">
+              <p className="mt-1 text-2xl font-display font-bold text-[#0F1F3D]">
                 {data.failedOperations24h}
               </p>
             </div>
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
                 Acessos negados (24h)
               </p>
-              <p className="mt-1 text-2xl font-display font-bold text-white">
+              <p className="mt-1 text-2xl font-display font-bold text-[#0F1F3D]">
                 {data.deniedOperations24h}
               </p>
             </div>
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
                 Último evento
               </p>
-              <p className="mt-1 text-sm text-white">
+              <p className="mt-1 text-sm text-[#0F1F3D]">
                 {data.lastEventAt
                   ? new Date(data.lastEventAt).toLocaleString('pt-PT')
                   : '—'}
               </p>
             </div>
           </div>
-          <div className="mt-4">
+          <div className="px-6 pb-5 pt-4">
             <Link href={data.links.logs}>
-              <Button type="button" intent="secondary" className="border-white bg-white text-[#0F1F3D] hover:bg-white/90">
+              <Button type="button" intent="secondary">
                 Ver registo completo de logs
               </Button>
             </Link>
@@ -167,20 +167,15 @@ export function TabAuditoria() {
         </Card>
       </div>
 
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
-          <div className="mb-4 flex items-center justify-between">
+      <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-[#0F1F3D]/60 px-5 py-3">
             <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
               Política de auditoria
             </h3>
-            <Link href={data.links.policy}>
-              <Button type="button" intent="secondary" className="border-white bg-white text-[#0F1F3D] hover:bg-white/90">
-                Editar regras de auditoria
-              </Button>
-            </Link>
           </div>
-          <div className="grid grid-cols-2 gap-4 text-sm text-white">
+          <div className="grid grid-cols-2 gap-4 px-6 pt-5 text-sm text-[#0F1F3D]">
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
                 Módulos cobertos
               </p>
               <p className="mt-1">
@@ -188,7 +183,7 @@ export function TabAuditoria() {
               </p>
             </div>
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
                 Eventos obrigatórios
               </p>
               <p className="mt-1">
@@ -198,17 +193,24 @@ export function TabAuditoria() {
               </p>
             </div>
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
                 Pode consultar
               </p>
               <p className="mt-1">{data.policy.viewRoles.join(', ')}</p>
             </div>
             <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-white/70">
+              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
                 Pode exportar
               </p>
               <p className="mt-1">{data.policy.exportRoles.join(', ')}</p>
             </div>
+          </div>
+          <div className="px-6 pb-5 pt-4">
+            <Link href={data.links.policy}>
+              <Button type="button" intent="secondary">
+                Editar regras de auditoria
+              </Button>
+            </Link>
           </div>
       </div>
     </div>

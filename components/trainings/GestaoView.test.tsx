@@ -53,8 +53,11 @@ const draft = {
   title: 'Liderança 101',
   status: 'DRAFT',
   type: 'PRESENTIAL',
+  level: 'BEGINNER',
   code: 'FORM-1',
   category: null,
+  mandatory: false,
+  _count: { sessions: 0, participants: 0, ratings: 0 },
   createdBy: { id: 5, fullName: 'Ana Gestora' },
 };
 const published = {
@@ -62,8 +65,11 @@ const published = {
   title: 'Workshop de Vendas',
   status: 'PUBLISHED',
   type: 'WORKSHOP',
+  level: 'INTERMEDIATE',
   code: null,
   category: 'Comercial',
+  mandatory: true,
+  _count: { sessions: 2, participants: 5, ratings: 0 },
   createdBy: null,
 };
 
@@ -79,7 +85,7 @@ describe('GestaoView (trainings)', () => {
     render(<GestaoView onManage={vi.fn()} />);
     expect(screen.getByText('Liderança 101')).toBeInTheDocument();
     expect(screen.getByText('Workshop de Vendas')).toBeInTheDocument();
-    expect(screen.getByText(/criado por Ana Gestora/)).toBeInTheDocument();
+    expect(screen.getByText('Obrigatória')).toBeInTheDocument();
   });
 
   test('estado vazio quando não há formações geríveis', () => {
@@ -98,7 +104,7 @@ describe('GestaoView (trainings)', () => {
 
   test('Arquivar confirma e chama PATCH /trainings/:id/archive', async () => {
     render(<GestaoView onManage={vi.fn()} />);
-    fireEvent.click(screen.getAllByRole('button', { name: 'Arquivar' })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: /^Arquivar/ })[0]);
     await waitFor(() => expect(confirmFn).toHaveBeenCalled());
     await waitFor(() =>
       expect(patch).toHaveBeenCalledWith('/trainings/1/archive'),
@@ -107,7 +113,7 @@ describe('GestaoView (trainings)', () => {
 
   test('Eliminar confirma e chama DELETE /trainings/:id', async () => {
     render(<GestaoView onManage={vi.fn()} />);
-    fireEvent.click(screen.getAllByRole('button', { name: 'Eliminar' })[1]);
+    fireEvent.click(screen.getAllByRole('button', { name: /^Eliminar/ })[1]);
     await waitFor(() => expect(confirmFn).toHaveBeenCalled());
     await waitFor(() => expect(del).toHaveBeenCalledWith('/trainings/2'));
   });
@@ -130,7 +136,7 @@ describe('GestaoView (trainings)', () => {
 
   test('"Editar" abre o modal com a formação da linha', () => {
     render(<GestaoView onManage={vi.fn()} />);
-    fireEvent.click(screen.getAllByRole('button', { name: 'Editar' })[0]);
+    fireEvent.click(screen.getAllByRole('button', { name: /^Editar/ })[0]);
     expect(screen.getByTestId('training-form-modal')).toHaveTextContent(
       'editing-1',
     );

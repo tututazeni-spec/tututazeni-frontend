@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { INVERT_ON_HOVER } from './buttonStyles';
 import { RESOURCE_KIND_LABEL, RESOURCE_STATUS_CFG } from './constants';
 import { fmtDate } from './utils';
 import type { TrainingResourceItem } from './types';
@@ -85,7 +86,7 @@ export function ResourcesView() {
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
-        <Button onClick={() => setShowCreate(true)}>
+        <Button className={INVERT_ON_HOVER} onClick={() => setShowCreate(true)}>
           <Plus size={14} strokeWidth={1.75} />
           Nova sala / recurso
         </Button>

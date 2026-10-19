@@ -5,7 +5,13 @@
 
 'use client';
 
-import { Target } from 'lucide-react';
+import {
+  CalendarDays,
+  GraduationCap,
+  Star,
+  Target,
+  TrendingUp,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -13,6 +19,8 @@ import { formatDate } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
+import { CardGrid } from './cards';
 import { DIFFICULTY_LABEL, LEVEL_FIT_LABEL } from './constants';
 import type { CompetencyResult, Recommendation } from './types';
 
@@ -63,31 +71,39 @@ export function CompetenciesTab() {
             description="Aparecem aqui depois de concluir, com aprovação, sessões ligadas a competências."
           />
         ) : (
-          results.data.data.map((r) => (
-            <div
-              key={r.id}
-              className="flex items-center justify-between gap-4 rounded-card border border-border bg-surface p-3"
-            >
-              <div className="min-w-0">
-                <div className="truncate font-display text-sm font-semibold text-ink">
-                  {r.competencyName ?? `Competência ${r.competencyId}`}
-                </div>
-                <div className="font-body text-xs text-ink-muted">
-                  {formatDate(r.assessedAt)}
-                  {r.evidence ? ` · ${r.evidence}` : ''}
-                </div>
-              </div>
-              <div className="shrink-0 text-right font-mono text-xs text-ink-muted">
-                <div>nota {r.score}</div>
-                {r.levelBefore !== null && r.levelAfter !== null && (
-                  <div>
-                    nível {r.levelBefore} → {r.levelAfter}
-                    {r.applied ? '' : ' (não aplicado)'}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))
+          <CardGrid>
+            {results.data.data.map((r) => (
+              <NavyCard
+                key={r.id}
+                seed={r.competencyId}
+                kicker="Competência demonstrada"
+                kickerIcon={Target}
+                title={r.competencyName ?? `Competência ${r.competencyId}`}
+                subtitle={r.evidence ?? undefined}
+                badge={
+                  <NavyBadge tone={r.applied ? 'success' : 'neutral'}>
+                    {r.applied ? 'Nível aplicado' : 'Não aplicado'}
+                  </NavyBadge>
+                }
+                infos={[
+                  { icon: Star, value: String(r.score), label: 'Nota' },
+                  {
+                    icon: TrendingUp,
+                    value:
+                      r.levelBefore !== null && r.levelAfter !== null
+                        ? `${r.levelBefore} → ${r.levelAfter}`
+                        : '—',
+                    label: 'Nível',
+                  },
+                  {
+                    icon: CalendarDays,
+                    value: formatDate(r.assessedAt),
+                    label: 'Avaliada em',
+                  },
+                ]}
+              />
+            ))}
+          </CardGrid>
         )}
         <p className="font-body text-xs text-ink-faint">{results.data.note}</p>
       </section>
@@ -108,30 +124,28 @@ export function CompetenciesTab() {
             Sem recomendações neste momento.
           </p>
         ) : (
-          recs.data.data.map((r) => (
-            <div
-              key={r.programId}
-              className="rounded-card border border-border bg-surface p-3"
-            >
-              <div className="font-display text-sm font-semibold text-ink">
-                {r.title}
-              </div>
-              <div className="font-body text-xs text-ink-faint">
-                {DIFFICULTY_LABEL[r.difficulty] ?? r.difficulty} ·{' '}
-                {LEVEL_FIT_LABEL[r.levelFit]}
-              </div>
-              <ul className="mt-1 space-y-0.5 font-body text-xs text-ink-muted">
-                {r.reasons.map((x, i) => (
-                  <li key={i}>
-                    <span className="font-medium">
-                      {REASON_LABEL[x.type] ?? x.type}:
-                    </span>{' '}
-                    {x.detail}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))
+          <CardGrid>
+            {recs.data.data.map((r) => (
+              <NavyCard
+                key={r.programId}
+                seed={r.programId}
+                kicker="Formação recomendada"
+                kickerIcon={GraduationCap}
+                title={r.title}
+                subtitle={DIFFICULTY_LABEL[r.difficulty] ?? r.difficulty}
+                badge={
+                  <NavyBadge tone="info">
+                    {LEVEL_FIT_LABEL[r.levelFit]}
+                  </NavyBadge>
+                }
+                infos={r.reasons.slice(0, 3).map((x) => ({
+                  icon: Target,
+                  value: x.detail,
+                  label: REASON_LABEL[x.type] ?? x.type,
+                }))}
+              />
+            ))}
+          </CardGrid>
         )}
         {recs.data && (
           <p className="font-body text-xs text-ink-faint">{recs.data.note}</p>

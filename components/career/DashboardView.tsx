@@ -6,7 +6,14 @@
 'use client';
 
 import { useState } from 'react';
-import { BookOpen, ChevronRight, History, Sparkles, Zap } from 'lucide-react';
+import {
+  BookOpen,
+  ChevronRight,
+  History,
+  Sparkles,
+  TrendingUp,
+  Zap,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -18,6 +25,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Combobox } from '@/components/ui/Combobox';
 import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
+import { ProfileRoiCard } from '@/components/ui/ProfileRoiCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { READINESS_CFG } from './constants';
@@ -145,52 +153,38 @@ export function DashboardView() {
   return (
     <div className="space-y-6">
       {/* Header do perfil */}
-      <NavyHeroCard className="items-start">
-        <div className="relative">
-          <Avatar
-            name={user.fullName}
-            url={user.avatarUrl ?? undefined}
-            size="lg"
-          />
-        </div>
-        <div className="flex-1">
-          <h2 className="font-display text-xl font-bold tracking-tight text-white">
-            {user.fullName}
-          </h2>
-          <div className="mt-0.5 font-body text-sm text-white">
-            {user.position?.name ?? 'Sem cargo'} ·{' '}
-            {user.department?.name ?? '—'}
-          </div>
-          <div className="mt-2 flex gap-3 font-body text-xs text-white/80">
-            <span> {stats.certificates} certificados</span>
-            <span> {stats.enrollments} cursos</span>
-            <span> {stats.userCompetencies} competências</span>
-            <span> {stats.badgeAwards} badges</span>
-          </div>
-          {user.points && (
-            <div className="mt-2 font-body text-xs font-semibold text-white">
-              {user.points.points} XP
-            </div>
-          )}
-        </div>
-        {promotionEligibility && (
-          <div
-            className={cn(
-              'rounded-card border px-3 py-2 text-center font-body text-xs font-medium',
-              promotionEligibility.eligible
-                ? 'border-success bg-success-subtle text-success-ink'
-                : 'border-border bg-surface-sunken text-ink-muted',
-            )}
-          >
-            {promotionEligibility.eligible
-              ? ' Elegível para promoção'
-              : ' Em desenvolvimento'}
-            <div className="mt-0.5 font-body text-xs font-normal text-ink-faint">
-              {READINESS_CFG[promotionEligibility.recommendation]?.label}
-            </div>
-          </div>
-        )}
-      </NavyHeroCard>
+      <ProfileRoiCard
+        kicker="Minha carreira"
+        kickerIcon={TrendingUp}
+        name={user.fullName}
+        avatarUrl={user.avatarUrl}
+        subtitle={`${user.position?.name ?? 'Sem cargo'} · ${user.department?.name ?? '—'}`}
+        stats={[
+          { label: 'Certificados', value: stats.certificates },
+          { label: 'Cursos', value: stats.enrollments },
+          { label: 'Competências', value: stats.userCompetencies },
+          { label: 'Badges', value: stats.badgeAwards },
+          ...(user.points ? [{ label: 'XP', value: user.points.points }] : []),
+          ...(promotionEligibility
+            ? [
+                {
+                  label: 'Promoção',
+                  value: promotionEligibility.eligible
+                    ? 'Elegível'
+                    : 'Em desenvolvimento',
+                  color: promotionEligibility.eligible
+                    ? '#34D399'
+                    : '#FBBF24',
+                },
+              ]
+            : []),
+        ]}
+        note={
+          promotionEligibility
+            ? READINESS_CFG[promotionEligibility.recommendation]?.label
+            : undefined
+        }
+      />
 
       <div className="grid grid-cols-3 gap-5">
         {/* Gap de Competências */}

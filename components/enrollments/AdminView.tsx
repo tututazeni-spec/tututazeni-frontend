@@ -10,7 +10,7 @@
 
 import {
   AlertTriangle,
-  Building2,
+  Bell,
   CalendarDays,
   Hourglass,
   Mail,
@@ -32,11 +32,12 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { type NavyTone } from '@/components/courses/NavyCard';
 import {
-  NAVY_ACTION,
-  NavyBadge,
-  NavyCard,
-} from '@/components/courses/NavyCard';
+  ADMIN_ENROLLMENT_BTN_GHOST,
+  ADMIN_ENROLLMENT_BTN_PRIMARY,
+  AdminEnrollmentCard,
+} from './AdminEnrollmentCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -45,6 +46,15 @@ import { ORIGIN_LABELS, STATUS_CFG } from './constants';
 import { useCourseOptions, useDepartmentOptions } from './enrollData';
 import { deadlineCountdown } from './utils';
 import type { Enrollment } from './types';
+
+const STATUS_TONE: Record<string, NavyTone> = {
+  NOT_STARTED: 'warning',
+  IN_PROGRESS: 'info',
+  COMPLETED: 'success',
+  OVERDUE: 'danger',
+  CANCELLED: 'neutral',
+  EXPIRED: 'neutral',
+};
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
@@ -311,9 +321,15 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
         <div className="space-y-5">
           {!loading &&
             data?.data?.map((e) => (
-              <NavyCard
+              <AdminEnrollmentCard
                 key={e.id}
+                seed={e.courseId}
                 title={e.course?.title ?? ''}
+                subtitle={e.user?.fullName}
+                avatar={{
+                  name: e.user?.fullName ?? '',
+                  url: e.user?.avatarUrl,
+                }}
                 lead={
                   <input
                     type="checkbox"
@@ -323,15 +339,62 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                     className="h-4 w-4 shrink-0 rounded border-border-strong accent-primary"
                   />
                 }
-                badge={
-                  <NavyBadge>{STATUS_CFG[e.status]?.label ?? e.status}</NavyBadge>
+                status={{
+                  label: STATUS_CFG[e.status]?.label ?? e.status,
+                  tone: STATUS_TONE[e.status] ?? 'neutral',
+                }}
+                tags={[
+                  ...(e.mandatory ? ['Obrigatório'] : []),
+                  ...(ORIGIN_LABELS[e.origin] ? [ORIGIN_LABELS[e.origin]] : []),
+                ]}
+                infos={[
+                  {
+                    icon: Mail,
+                    text: e.user?.email ?? '—',
+                  },
+                  {
+                    icon: TrendingUp,
+                    text: `Progresso: ${Math.round(e.progressPercent ?? 0)}% · Nota: ${
+                      e.certificate?.score != null
+                        ? `${e.certificate.score}%`
+                        : '—'
+                    }`,
+                  },
+                  {
+                    icon: CalendarDays,
+                    text: `Inscrição: ${new Date(e.enrolledAt).toLocaleDateString('pt')} → Conclusão: ${
+                      e.completedAt
+                        ? new Date(e.completedAt).toLocaleDateString('pt')
+                        : '—'
+                    }`,
+                  },
+                  {
+                    icon: e.isOverdue ? AlertTriangle : Hourglass,
+                    text: `Deadline: ${e.deadline ? deadlineCountdown(e.deadline) : '—'}`,
+                    danger: !!e.isOverdue,
+                  },
+                ]}
+                footerLabel={
+                  [e.user.department?.name, e.user.unit?.name]
+                    .filter(Boolean)
+                    .join(' · ') || '—'
                 }
                 actions={
+                  <>
+                    <button
+                      type="button"
+                      className={ADMIN_ENROLLMENT_BTN_PRIMARY}
+                      disabled={rowBusy(e.id)}
+                      onClick={() => remind.mutate(e.id)}
+                    >
+                      <Bell size={15} strokeWidth={1.75} />
+                      Enviar lembrete
+                    </button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className={NAVY_ACTION}
+                          className={ADMIN_ENROLLMENT_BTN_GHOST}
                           disabled={rowBusy(e.id)}
                         >
                           <MoreHorizontal size={16} strokeWidth={1.75} />
@@ -365,47 +428,8 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                           )}
                       </DropdownMenuContent>
                     </DropdownMenu>
+                  </>
                 }
-                avatar={{
-                  name: e.user?.fullName ?? '',
-                  url: e.user?.avatarUrl,
-                }}
-                subtitle={e.user?.email}
-                subtitleIcon={Mail}
-                infos={[
-                  {
-                    icon: Building2,
-                    value: e.user.department?.name ?? '—',
-                    label:
-                      [e.user.unit?.name, ORIGIN_LABELS[e.origin]]
-                        .filter(Boolean)
-                        .join(' · ') || '—',
-                  },
-                  {
-                    icon: TrendingUp,
-                    value: `${Math.round(e.progressPercent ?? 0)}%`,
-                    label: `Nota: ${
-                      e.certificate?.score != null
-                        ? `${e.certificate.score}%`
-                        : '—'
-                    }`,
-                  },
-                  {
-                    icon: CalendarDays,
-                    value: `Inscrição: ${new Date(e.enrolledAt).toLocaleDateString('pt')}`,
-                    label: `Conclusão: ${
-                      e.completedAt
-                        ? new Date(e.completedAt).toLocaleDateString('pt')
-                        : '—'
-                    }`,
-                  },
-                  {
-                    icon: e.isOverdue ? AlertTriangle : Hourglass,
-                    value: e.deadline ? deadlineCountdown(e.deadline) : '—',
-                    label: 'Deadline',
-                    danger: !!e.isOverdue,
-                  },
-                ]}
               />
             ))}
         </div>

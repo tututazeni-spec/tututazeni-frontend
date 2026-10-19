@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Layers, Pencil, Plus, Star } from 'lucide-react';
+import { Layers, Pencil, Plus, Tag, Trash2 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -15,9 +15,12 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { ADMIN_ROLES } from '@/lib/roles';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Card, CardBody } from '@/components/ui/Card';
+import {
+  NAVY_ACTION,
+  NavyBadge,
+  NavyCard,
+} from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TemplateFormModal } from './TemplateFormModal';
@@ -98,66 +101,58 @@ export function ModelsTab() {
           description="Cria um modelo para reutilizar em ciclos e avaliações."
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           {templates.map((t) => (
-            <Card key={t.id}>
-              <CardBody>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-ink truncate">
-                        {t.name}
-                      </p>
-                      {t.isDefault && (
-                        <Badge intent="success">
-                          <Star
-                            size={11}
-                            strokeWidth={1.75}
-                            className="inline mr-1"
-                          />
-                          Por omissão
-                        </Badge>
-                      )}
-                      {!t.isActive && <Badge intent="neutral">Inactivo</Badge>}
-                    </div>
-                    <p className="text-xs text-ink-faint mt-0.5">{t.type}</p>
-                    {t.description && (
-                      <p className="text-sm text-ink-muted mt-2 line-clamp-2">
-                        {t.description}
-                      </p>
-                    )}
-                    <p className="text-xs text-ink-faint mt-2">
-                      <Layers
-                        size={13}
-                        strokeWidth={1.75}
-                        className="inline align-[-2px]"
-                      />{' '}
-                      {t._count?.criteria ?? t.criteria?.length ?? 0} critérios
-                    </p>
-                  </div>
-                  {isAdmin && (
-                    <div className="flex shrink-0 gap-1">
-                      <Button
-                        size="sm"
-                        intent="ghost"
-                        aria-label={`Editar ${t.name}`}
-                        onClick={() => setEditingId(t.id)}
-                      >
-                        <Pencil size={14} strokeWidth={1.75} />
-                      </Button>
-                      <Button
-                        size="sm"
-                        intent="ghost"
-                        aria-label={`Remover ${t.name}`}
-                        onClick={() => remove(t)}
-                      >
-                        Remover
-                      </Button>
-                    </div>
+            <NavyCard
+              key={t.id}
+              seed={t.id}
+              kicker="Modelo"
+              kickerIcon={Layers}
+              title={t.name}
+              subtitle={t.description || undefined}
+              badge={
+                <>
+                  {t.isDefault && (
+                    <NavyBadge tone="success">Por omissão</NavyBadge>
                   )}
-                </div>
-              </CardBody>
-            </Card>
+                  {!t.isActive && (
+                    <NavyBadge tone="neutral">Inactivo</NavyBadge>
+                  )}
+                </>
+              }
+              infos={[
+                {
+                  icon: Layers,
+                  value: String(t._count?.criteria ?? t.criteria?.length ?? 0),
+                  label: 'Critérios',
+                },
+                { icon: Tag, value: t.type, label: 'Tipo' },
+              ]}
+              actions={
+                isAdmin && (
+                  <>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
+                      aria-label={`Editar ${t.name}`}
+                      title="Editar modelo"
+                      onClick={() => setEditingId(t.id)}
+                    >
+                      <Pencil size={15} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      className={NAVY_ACTION}
+                      aria-label={`Remover ${t.name}`}
+                      title="Remover modelo"
+                      onClick={() => remove(t)}
+                    >
+                      <Trash2 size={15} strokeWidth={1.75} />
+                    </button>
+                  </>
+                )
+              }
+            />
           ))}
         </div>
       )}

@@ -5,17 +5,11 @@
 
 'use client';
 
-import {
-  AlertTriangle,
-  CircleCheck,
-  ListChecks,
-  Mail,
-  TrendingUp,
-} from 'lucide-react';
+import { AlertTriangle, CircleCheck, ListChecks, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { NavyCard } from '@/components/courses/NavyCard';
+import { ProgressCard } from './ProgressCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { TeamProgress } from './types';
 
@@ -54,35 +48,27 @@ export function TeamView() {
               ? Math.round((member.stats.completed / member.stats.total) * 100)
               : 100;
           return (
-            <NavyCard
+            <ProgressCard
               key={member.id}
+              seed={member.id}
+              tag="Equipa"
+              icon={Users}
               title={member.fullName}
-              avatar={{ name: member.fullName, url: member.avatarUrl }}
               subtitle={member.email}
-              subtitleIcon={Mail}
+              avatar={{ name: member.fullName, url: member.avatarUrl }}
               infos={[
-                {
-                  icon: ListChecks,
-                  value: String(member.stats.total),
-                  label: 'Total',
-                },
+                { icon: ListChecks, text: `Total: ${member.stats.total}` },
                 {
                   icon: CircleCheck,
-                  value: String(member.stats.completed),
-                  label: 'Concluídos',
+                  text: `Concluídos: ${member.stats.completed}`,
                 },
                 {
                   icon: AlertTriangle,
-                  value: String(member.stats.overdue),
-                  label: 'Atrasados',
+                  text: `Atrasados: ${member.stats.overdue}`,
                   danger: member.stats.overdue > 0,
                 },
-                {
-                  icon: TrendingUp,
-                  value: `${compliance}%`,
-                  label: 'Conformidade',
-                },
               ]}
+              progress={{ value: compliance, label: 'Conformidade' }}
             />
           );
         })}

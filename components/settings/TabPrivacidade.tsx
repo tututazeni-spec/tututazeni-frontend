@@ -338,7 +338,7 @@ export function TabPrivacidade() {
         </div>
       </form>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden rounded-[24px] border-[#E3EAF4] shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Texto de consentimento
           <div className="flex gap-2">
@@ -357,7 +357,7 @@ export function TabPrivacidade() {
         </div>
         <CardBody>
           {current ? (
-            <div className="rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-sm text-white whitespace-pre-wrap shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+            <div className="whitespace-pre-wrap rounded-[24px] border border-[#E3EAF4] bg-white p-5 text-[15px] leading-relaxed text-[#0F1F3D] shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
               {current.text}
             </div>
           ) : (
@@ -375,17 +375,17 @@ export function TabPrivacidade() {
                 versions.data.map((v) => (
                   <div
                     key={v.version}
-                    className="rounded-control border border-border p-2 text-xs"
+                    className="rounded-[16px] border border-[#E3EAF4] bg-white p-3 text-xs"
                   >
                     <div className="mb-1 flex items-center justify-between text-ink-faint">
-                      <span className="font-semibold text-ink">
+                      <span className="font-semibold text-[#0F1F3D]">
                         Versão {v.version}
                       </span>
                       <span>
                         {new Date(v.publishedAt).toLocaleString('pt-PT')}
                       </span>
                     </div>
-                    <p className="m-0 whitespace-pre-wrap text-ink">{v.text}</p>
+                    <p className="m-0 whitespace-pre-wrap text-[#0F1F3D]">{v.text}</p>
                   </div>
                 ))
               )}

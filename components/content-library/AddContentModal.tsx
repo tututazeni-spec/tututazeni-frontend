@@ -11,8 +11,8 @@
 
 'use client';
 
-import { useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { AlertCircle, FileUp, Link2, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -23,6 +23,12 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { cn } from '@/lib/cn';
+import {
+  ACCEPT_ATTR,
+  formatBytes,
+  readAsDataUrl,
+  validateUpload,
+} from './inlineFile';
 import { useToast } from '@/providers/ToastProvider';
 
 export interface AddContentModalProps {
@@ -83,7 +89,16 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
 
   const [title, setTitle] = useState('');
   const [format, setFormat] = useState('');
+  const [source, setSource] = useState<'url' | 'file'>('url');
   const [url, setUrl] = useState('');
+  const [file, setFile] = useState<{
+    name: string;
+    size: number;
+    dataUrl: string;
+  } | null>(null);
+  const [fileError, setFileError] = useState('');
+  const [reading, setReading] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState(NONE);
   const [level, setLevel] = useState(NONE);
@@ -102,7 +117,8 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
   const canSubmit =
     title.trim().length > 0 &&
     format.length > 0 &&
-    url.trim().length > 0 &&
+    (source === 'url' ? url.trim().length > 0 : file !== null) &&
+    !reading &&
     durationValid;
 
   const createContent = useApiMutation(
@@ -125,13 +141,32 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
   );
   const loading = createContent.isPending;
 
+  const pickFile = async (f: File | undefined) => {
+    setFileError('');
+    if (!f) return;
+    const problem = validateUpload(f);
+    if (problem) {
+      setFile(null);
+      setFileError(problem);
+      return;
+    }
+    setReading(true);
+    try {
+      setFile({ name: f.name, size: f.size, dataUrl: await readAsDataUrl(f) });
+    } catch {
+      setFileError('Não foi possível ler o ficheiro.');
+    } finally {
+      setReading(false);
+    }
+  };
+
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
     setSubmitError('');
     createContent.mutate({
       title: title.trim(),
       format,
-      url: url.trim(),
+      url: source === 'url' ? url.trim() : file!.dataUrl,
       ...(description.trim() ? { description: description.trim() } : {}),
       ...(category !== NONE ? { category } : {}),
       ...(level !== NONE ? { level } : {}),
@@ -196,18 +231,106 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
             </FormField>
           </div>
 
-          <FormField
-            label="URL *"
-            htmlFor="ac-url"
-            hint="Ligação para o vídeo, ficheiro ou página do recurso."
-          >
-            <Input
-              id="ac-url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://…"
-            />
-          </FormField>
+          <div className="space-y-2">
+            <span className="font-body text-sm font-medium text-ink">
+              Origem do conteúdo *
+            </span>
+            <div
+              className="grid grid-cols-2 gap-2"
+              role="group"
+              aria-label="Origem do conteúdo"
+            >
+              {(
+                [
+                  { key: 'url', label: 'Adicionar por URL', icon: Link2 },
+                  { key: 'file', label: 'Carregar ficheiro', icon: FileUp },
+                ] as const
+              ).map((o) => (
+                <button
+                  key={o.key}
+                  type="button"
+                  aria-pressed={source === o.key}
+                  onClick={() => setSource(o.key)}
+                  className={cn(
+                    'inline-flex items-center justify-center gap-2 rounded-control border px-3 py-2 font-body text-sm transition-colors',
+                    source === o.key
+                      ? 'border-primary bg-primary-subtle text-primary'
+                      : 'border-border-strong bg-surface text-ink-muted',
+                  )}
+                >
+                  <o.icon size={15} strokeWidth={1.75} />
+                  {o.label}
+                </button>
+              ))}
+            </div>
+
+            {source === 'url' ? (
+              <FormField
+                label="URL *"
+                htmlFor="ac-url"
+                hint="Ligação para o vídeo, ficheiro ou página do recurso."
+              >
+                <Input
+                  id="ac-url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://…"
+                />
+              </FormField>
+            ) : (
+              <FormField
+                label="Ficheiro *"
+                htmlFor="ac-file"
+                hint="Tamanho máximo: 5 MB. PDF, Office, imagem, vídeo MP4/WebM ou áudio."
+                error={fileError || undefined}
+              >
+                <input
+                  ref={fileInput}
+                  id="ac-file"
+                  type="file"
+                  accept={ACCEPT_ATTR}
+                  className="sr-only"
+                  onChange={(e) => {
+                    pickFile(e.target.files?.[0]);
+                    e.target.value = '';
+                  }}
+                />
+                {file ? (
+                  <div className="flex items-center gap-3 rounded-control border border-border-strong bg-surface px-3 py-2 text-sm">
+                    <FileUp
+                      size={16}
+                      strokeWidth={1.75}
+                      className="shrink-0 text-ink-muted"
+                    />
+                    <span className="min-w-0 flex-1 truncate text-ink">
+                      {file.name}
+                    </span>
+                    <span className="shrink-0 text-xs text-ink-faint">
+                      {formatBytes(file.size)}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label="Remover ficheiro"
+                      onClick={() => setFile(null)}
+                      className="text-ink-faint hover:text-danger-ink"
+                    >
+                      <X size={14} strokeWidth={1.75} />
+                    </button>
+                  </div>
+                ) : (
+                  <Button
+                    intent="secondary"
+                    type="button"
+                    loading={reading}
+                    onClick={() => fileInput.current?.click()}
+                  >
+                    <FileUp size={15} strokeWidth={1.75} />
+                    Escolher ficheiro…
+                  </Button>
+                )}
+              </FormField>
+            )}
+          </div>
 
           <FormField label="Descrição" htmlFor="ac-description">
             <Textarea

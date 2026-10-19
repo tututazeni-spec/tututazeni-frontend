@@ -31,6 +31,7 @@ import { cn } from '@/lib/cn';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { NAVY_BTN, NavyBadge, NavyCard } from '@/components/courses/NavyCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -99,114 +100,83 @@ function ManagerQueue() {
 
   return (
     <>
-      <Table>
-        <TableHead>
-          <TableRow>
-            {[
-              'Colaborador',
-              'Avaliação',
-              'Prazo',
-              'Progresso',
-              'Estado',
-              '',
-            ].map((h) => (
-              <TableHeaderCell key={h}>{h}</TableHeaderCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((r) => {
-            const isOverdue = r.dueDate && new Date(r.dueDate) < new Date();
-            return (
-              <TableRow key={r.key}>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Avatar
-                      name={r.evaluated.fullName}
-                      url={r.evaluated.avatarUrl}
-                      size="sm"
-                    />
-                    <span className="text-ink">{r.evaluated.fullName}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-ink-muted">
-                  {r.name ?? r.cycle?.name ?? '—'}
-                </TableCell>
-                <TableCell>
-                  {r.dueDate ? (
-                    <span
-                      className={
-                        isOverdue
-                          ? 'text-danger-ink font-medium'
-                          : 'text-ink-muted'
-                      }
-                    >
-                      {isOverdue ? (
-                        <AlertTriangle
-                          size={13}
-                          strokeWidth={1.75}
-                          className="inline mr-1"
-                        />
-                      ) : (
-                        <AlarmClock
-                          size={13}
-                          strokeWidth={1.75}
-                          className="inline mr-1"
-                        />
-                      )}
-                      {new Date(r.dueDate).toLocaleDateString('pt')}
-                    </span>
-                  ) : (
-                    '—'
-                  )}
-                </TableCell>
-                <TableCell className="w-32">
-                  <ProgressBar value={r.progress} />
-                </TableCell>
-                <TableCell>
-                  <StatusBadge
-                    value={r.status}
-                    map={REQUEST_STATUS_MAP}
-                    variant="pill"
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() =>
-                        setToSubmit({
-                          id: r.id,
-                          type: r.type,
-                          status: r.status,
-                          dueDate: r.dueDate ?? undefined,
-                          evaluated: {
-                            id: r.evaluated.id,
-                            fullName: r.evaluated.fullName,
-                            avatarUrl: r.evaluated.avatarUrl,
-                            position: r.evaluated.position ?? undefined,
-                            department: r.evaluated.department ?? undefined,
-                          },
-                          cycle: r.cycle ?? undefined,
-                        })
-                      }
-                    >
-                      {r.status === 'IN_PROGRESS' ? 'Continuar' : 'Avaliar'}
-                    </Button>
-                    <Button
-                      size="sm"
-                      intent="ghost"
-                      onClick={() => remind.mutate(r.id)}
-                    >
-                      Lembrar
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {rows.map((r) => {
+          const isOverdue = !!r.dueDate && new Date(r.dueDate) < new Date();
+          return (
+            <NavyCard
+              key={r.key}
+              seed={r.id}
+              avatar={{
+                name: r.evaluated.fullName,
+                url: r.evaluated.avatarUrl,
+              }}
+              title={r.name ?? r.cycle?.name ?? 'Avaliação'}
+              subtitle={
+                [r.evaluated.position?.name, r.evaluated.department?.name]
+                  .filter(Boolean)
+                  .join(' · ') || undefined
+              }
+              badge={
+                <NavyBadge
+                  tone={r.status === 'IN_PROGRESS' ? 'info' : 'warning'}
+                >
+                  {REQUEST_STATUS_MAP[r.status]?.label ?? r.status}
+                </NavyBadge>
+              }
+              infos={[
+                {
+                  icon: isOverdue ? AlertTriangle : AlarmClock,
+                  value: r.dueDate
+                    ? new Date(r.dueDate).toLocaleDateString('pt')
+                    : '—',
+                  label: 'Prazo',
+                  danger: isOverdue,
+                },
+                {
+                  icon: ClipboardList,
+                  value: r.cycle?.name ?? '—',
+                  label: 'Ciclo',
+                },
+              ]}
+              progress={{ value: Math.round(r.progress) }}
+              footer={
+                <>
+                  <button
+                    type="button"
+                    className={NAVY_BTN}
+                    onClick={() =>
+                      setToSubmit({
+                        id: r.id,
+                        type: r.type,
+                        status: r.status,
+                        dueDate: r.dueDate ?? undefined,
+                        evaluated: {
+                          id: r.evaluated.id,
+                          fullName: r.evaluated.fullName,
+                          avatarUrl: r.evaluated.avatarUrl,
+                          position: r.evaluated.position ?? undefined,
+                          department: r.evaluated.department ?? undefined,
+                        },
+                        cycle: r.cycle ?? undefined,
+                      })
+                    }
+                  >
+                    {r.status === 'IN_PROGRESS' ? 'Continuar' : 'Avaliar'}
+                  </button>
+                  <button
+                    type="button"
+                    className={NAVY_BTN}
+                    onClick={() => remind.mutate(r.id)}
+                  >
+                    Lembrar
+                  </button>
+                </>
+              }
+            />
+          );
+        })}
+      </div>
 
       {toSubmit && (
         <SubmitEvaluationModal
@@ -246,83 +216,53 @@ function MyPendingList() {
     );
 
   return (
-    <div className="space-y-3">
+    <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
       {pending.map((r) => {
-        const isOverdue = r.dueDate && new Date(r.dueDate) < new Date();
+        const isOverdue = !!r.dueDate && new Date(r.dueDate) < new Date();
         return (
-          <Card
+          <NavyCard
             key={r.id}
-            className={isOverdue ? 'border-danger bg-danger-subtle' : undefined}
-          >
-            <CardBody>
-              <div className="flex items-center gap-4">
-                <Avatar
-                  name={r.evaluated.fullName}
-                  url={r.evaluated.avatarUrl}
-                  size="lg"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                    <p className="text-sm font-semibold text-ink">
-                      {r.evaluated.fullName}
-                    </p>
-                    <StatusBadge
-                      value={r.type}
-                      map={EVAL_TYPE_MAP}
-                      variant="pill"
-                    />
-                    {isOverdue && <Badge intent="danger">ATRASADO</Badge>}
-                  </div>
-                  <p className="text-xs text-ink-faint">
-                    {r.evaluated.position?.name} ·{' '}
-                    {r.evaluated.department?.name}
-                  </p>
-                  {r.cycle && (
-                    <p className="text-xs text-ink-faint">
-                      <ClipboardList
-                        size={13}
-                        strokeWidth={1.75}
-                        className="inline align-[-2px]"
-                      />{' '}
-                      {r.cycle.name}
-                    </p>
-                  )}
-                </div>
-                <div className="text-right shrink-0">
-                  {r.dueDate && (
-                    <p
-                      className={cn(
-                        'text-xs font-medium',
-                        isOverdue ? 'text-danger-ink' : 'text-ink-muted',
-                      )}
-                    >
-                      {isOverdue ? (
-                        <AlertTriangle
-                          size={13}
-                          strokeWidth={1.75}
-                          className="inline"
-                        />
-                      ) : (
-                        <AlarmClock
-                          size={13}
-                          strokeWidth={1.75}
-                          className="inline"
-                        />
-                      )}{' '}
-                      {new Date(r.dueDate).toLocaleDateString('pt')}
-                    </p>
-                  )}
-                  <Button
-                    size="sm"
-                    className="mt-2"
-                    onClick={() => setToSubmit(r)}
-                  >
-                    Avaliar →
-                  </Button>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
+            seed={r.id}
+            avatar={{ name: r.evaluated.fullName, url: r.evaluated.avatarUrl }}
+            title={r.cycle?.name ?? 'Avaliação'}
+            subtitle={
+              [r.evaluated.position?.name, r.evaluated.department?.name]
+                .filter(Boolean)
+                .join(' · ') || undefined
+            }
+            badge={
+              <>
+                <NavyBadge tone="info">
+                  {EVAL_TYPE_MAP[r.type]?.label ?? r.type}
+                </NavyBadge>
+                {isOverdue && <NavyBadge tone="danger">ATRASADO</NavyBadge>}
+              </>
+            }
+            infos={[
+              {
+                icon: isOverdue ? AlertTriangle : AlarmClock,
+                value: r.dueDate
+                  ? new Date(r.dueDate).toLocaleDateString('pt')
+                  : '—',
+                label: 'Prazo',
+                danger: isOverdue,
+              },
+              {
+                icon: ClipboardList,
+                value: r.cycle?.name ?? '—',
+                label: 'Ciclo',
+              },
+            ]}
+            footer={
+              <button
+                type="button"
+                className={NAVY_BTN}
+                onClick={() => setToSubmit(r)}
+              >
+                Avaliar →
+              </button>
+            }
+          />
         );
       })}
 

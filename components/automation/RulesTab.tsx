@@ -8,6 +8,8 @@ import {
   Copy,
   Download,
   Eye,
+  Layers,
+  MoreVertical,
   History,
   Pause,
   Play,
@@ -31,16 +33,23 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { BadgeProps } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button, IconButton } from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
+import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
+import { PHOTO_CARD_ACTION, PhotoCard } from '@/components/courses/PhotoCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { Tooltip } from '@/components/ui/Tooltip';
 import { cn } from '@/lib/cn';
 import { ACTION_ITEMS, CATEGORY_LABEL, TRIGGER_LABEL } from './constants';
-import { TEMPLATE_PALETTES, templateIcon } from './templateTheme';
+import { templateIcon } from './templateTheme';
 import { CreateRuleModal } from './CreateRuleModal';
 import type {
   AutomationRule,
@@ -91,12 +100,12 @@ const STATUS_META: Record<
   ERROR: { label: 'Com erro', intent: 'danger' },
 };
 
-const STATUS_DOT: Record<NonNullable<BadgeProps['intent']>, string> = {
-  success: 'bg-emerald-400',
-  warning: 'bg-amber-400',
-  danger: 'bg-red-400',
-  info: 'bg-sky-400',
-  neutral: 'bg-slate-400',
+const STATUS_TONE: Record<NonNullable<BadgeProps['intent']>, NavyTone> = {
+  success: 'success',
+  warning: 'warning',
+  danger: 'danger',
+  info: 'info',
+  neutral: 'neutral',
 };
 
 const STATUS_ITEMS = [
@@ -465,277 +474,166 @@ export function RulesTab({
             const failed = r.stats?.failed ?? 0;
             const actionLabel =
               ACTION_ITEMS.find((a) => a.value === r.action)?.label ?? r.action;
-            const iconBtn =
-              'text-[#0F1F3D] hover:bg-[#0F1F3D]/10 hover:text-[#0F1F3D] focus-visible:ring-[#0F1F3D]/40';
-            const dot = STATUS_DOT[st.intent ?? 'neutral'];
-            const c = TEMPLATE_PALETTES[r.id % TEMPLATE_PALETTES.length];
             const Icon = templateIcon(r);
             const hasTrigger = Boolean(TRIGGER_LABEL[r.trigger]);
+            const total = r.stats?.total ?? 0;
             return (
-              <li
-                key={r.id}
-                className={cn(
-                  'group flex flex-col overflow-hidden rounded-2xl border bg-surface shadow-resting transition-shadow duration-150 hover:shadow-hover',
-                  c.border,
-                  !r.active && !r.draft && 'opacity-80',
-                )}
-              >
-                <div
-                  className={`relative h-20 overflow-hidden bg-gradient-to-br ${c.header}`}
-                >
-                  <div
-                    className="absolute -right-6 -top-10 h-36 w-36 rounded-full bg-white/15"
-                    aria-hidden
-                  />
-                  <div
-                    className="absolute -bottom-10 right-24 h-24 w-24 rounded-full bg-white/10"
-                    aria-hidden
-                  />
-                  <Icon
-                    size={72}
-                    strokeWidth={1.25}
-                    className="absolute -bottom-2 right-5 rotate-12 text-white/25"
-                    aria-hidden
-                  />
-                  <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 font-body text-[11px] font-medium text-ink shadow-sm">
-                    <span
-                      aria-hidden
-                      className={cn('h-2 w-2 rounded-full', dot)}
-                    />
-                    {st.label}
-                  </span>
-                </div>
-
-                <div className="relative -mt-6 flex flex-1 flex-col gap-3 px-4 pb-4">
-                  <span
-                    className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg ring-[3px] ring-surface ${c.tile}`}
-                    aria-hidden
-                  >
-                    <Icon size={22} strokeWidth={1.75} />
-                  </span>
-
-                  <div className="min-w-0">
-                    <h3 className="break-words font-display text-base font-bold leading-snug text-[#0F1F3D]">
-                      {r.name}
-                    </h3>
-                    <p className="font-data text-[11px] text-ink-muted">
-                      {r.code ?? `#${r.id}`}
-                    </p>
-                    {r.description && (
-                      <p className="mt-1 line-clamp-2 font-body text-xs leading-relaxed text-ink-muted">
-                        {r.description}
-                      </p>
-                    )}
-                  </div>
-
-                  <dl className={`space-y-2 rounded-xl px-3 py-2.5 ${c.panel}`}>
-                    {hasTrigger && (
-                      <div className="flex items-start gap-2.5">
-                        <Zap
-                          size={14}
-                          strokeWidth={1.75}
-                          className={`mt-0.5 shrink-0 ${c.accent}`}
-                          aria-hidden
-                        />
-                        <dt className="w-12 shrink-0 font-body text-xs text-ink-muted">
-                          Quando
-                        </dt>
-                        <dd className="min-w-0 break-words font-body text-xs font-semibold text-[#0F1F3D]">
-                          {TRIGGER_LABEL[r.trigger]}
-                        </dd>
-                      </div>
-                    )}
-                    <div
-                      className={cn(
-                        'flex items-start gap-2.5',
-                        hasTrigger && `border-t pt-2.5 ${c.divider}`,
+              <li key={r.id} className="h-full">
+                <PhotoCard
+                  seed={r.id}
+                  onSelect={() => setDetail(r)}
+                  kicker={r.code ?? `#${r.id}`}
+                  kickerIcon={Icon}
+                  title={r.name}
+                  subtitle={r.description}
+                  fallback={<Icon size={64} strokeWidth={1.25} />}
+                  badges={
+                    <>
+                      <NavyBadge tone={STATUS_TONE[st.intent ?? 'neutral']}>
+                        {st.label}
+                      </NavyBadge>
+                      {failed > 0 && (
+                        <NavyBadge tone="danger">{failed} falhadas</NavyBadge>
                       )}
-                    >
-                      <ArrowRight
-                        size={14}
-                        strokeWidth={1.75}
-                        className={`mt-0.5 shrink-0 ${c.accent}`}
-                        aria-hidden
-                      />
-                      <dt className="w-12 shrink-0 font-body text-xs text-ink-muted">
-                        Então
-                      </dt>
-                      <dd className="min-w-0 break-words font-body text-xs font-semibold text-[#0F1F3D]">
-                        {actionLabel}
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <div className={`rounded-xl border px-3 py-2.5 ${c.border}`}>
-                    <p className="flex items-center gap-1.5 font-body text-xs text-ink-muted">
-                      <Clock size={12} strokeWidth={1.75} aria-hidden />
-                      Última execução
-                    </p>
-                    <p className="mt-0.5 font-display text-sm font-bold text-[#0F1F3D]">
-                      {fmt(r.lastRunAt)}
-                    </p>
-                    {r.stats && r.stats.total > 0 && (
-                      <div className="mt-2">
-                        <div className="mb-1 flex justify-between font-body text-xs text-ink-muted">
-                          <span>
-                            {r.stats.success} de {r.stats.total} com sucesso
-                          </span>
-                          <span className="font-semibold text-[#0F1F3D]">
-                            {r.stats.successRate}%
-                          </span>
-                        </div>
-                        <div
-                          className="h-1.5 overflow-hidden rounded-full bg-[#0F1F3D]/15"
-                          role="img"
-                          aria-label={`Taxa de sucesso ${r.stats.successRate}%`}
-                        >
-                          <div
-                            className="h-full rounded-full bg-[#0F1F3D]"
-                            style={{ width: `${r.stats.successRate}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <dl className="grid grid-cols-2 divide-x divide-border font-body text-xs text-[#0F1F3D]">
-                    <div className="pr-3">
-                      <dt className="mb-0.5 text-ink-muted">Módulo</dt>
-                      <dd className="break-words">
-                        {r.module ? moduleLabel(r.module) : '–'}
-                        {r.category && (
-                          <span className="block text-ink-muted">
-                            {CATEGORY_LABEL[r.category] ?? r.category}
-                          </span>
-                        )}
-                      </dd>
-                    </div>
-                    <div className="pl-3">
-                      <dt className="mb-0.5 text-ink-muted">Criada</dt>
-                      <dd>
-                        {fmtDay(r.createdAt)}
-                        <span className="block text-ink-muted">
-                          Actualizada {fmtDay(r.updatedAt)}
-                        </span>
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <div className="mt-auto flex items-center gap-2 border-t border-border pt-2.5 font-body text-xs text-[#0F1F3D]">
-                    {r.ownerName ? (
-                      <>
+                    </>
+                  }
+                  metrics={[
+                    ...(hasTrigger
+                      ? [
+                          {
+                            icon: Zap,
+                            text: `Quando: ${TRIGGER_LABEL[r.trigger]}`,
+                          },
+                        ]
+                      : []),
+                    { icon: ArrowRight, text: `Então: ${actionLabel}` },
+                    {
+                      icon: Clock,
+                      text: `Última execução: ${fmt(r.lastRunAt)}`,
+                    },
+                  ]}
+                  rows={[
+                    {
+                      icon: Layers,
+                      text: `${r.module ? moduleLabel(r.module) : '–'}${
+                        r.category
+                          ? ` · ${CATEGORY_LABEL[r.category] ?? r.category}`
+                          : ''
+                      }`,
+                    },
+                    {
+                      leading: r.ownerName ? (
                         <Avatar
                           name={r.ownerName}
                           url={r.ownerAvatarUrl ?? undefined}
                           size="sm"
                         />
-                        <span className="min-w-0 truncate">
-                          <span className="block text-[10px] text-ink-muted">
-                            Responsável
-                          </span>
-                          {r.ownerName}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-ink-muted">Sem responsável</span>
-                    )}
-                  </div>
-
-                  <div className="-ml-2 flex flex-wrap gap-0.5">
-                    <Tooltip content="Ver detalhes">
-                      <IconButton
-                        icon={Eye}
-                        label="Ver detalhes"
-                        intent="ghost"
-                        className={iconBtn}
+                      ) : undefined,
+                      icon: r.ownerName ? undefined : User,
+                      text: r.ownerName ?? 'Sem responsável',
+                    },
+                    {
+                      icon: Clock,
+                      text: `Criada ${fmtDay(r.createdAt)} · Actualizada ${fmtDay(r.updatedAt)}`,
+                    },
+                  ]}
+                  progress={
+                    r.stats && total > 0
+                      ? {
+                          value: r.stats.successRate,
+                          label: `${r.stats.success} de ${total} com sucesso`,
+                        }
+                      : undefined
+                  }
+                  actions={
+                    <>
+                      <button
+                        type="button"
+                        className={PHOTO_CARD_ACTION}
+                        aria-label="Ver detalhes"
+                        title="Ver detalhes"
                         onClick={() => setDetail(r)}
-                      />
-                    </Tooltip>
-                    {onEditRule && (
-                      <Tooltip content="Editar regra">
-                        <IconButton
-                          icon={Pencil}
-                          label="Editar regra"
-                          intent="ghost"
-                          className={iconBtn}
+                      >
+                        <Eye size={15} strokeWidth={1.75} />
+                      </button>
+                      {onEditRule && (
+                        <button
+                          type="button"
+                          className={PHOTO_CARD_ACTION}
+                          aria-label="Editar regra"
+                          title="Editar regra"
                           onClick={() => onEditRule(r.id)}
-                        />
-                      </Tooltip>
-                    )}
-                    {r.draft ? (
-                      <Tooltip content="Publicar regra">
-                        <IconButton
-                          icon={Rocket}
-                          label="Publicar regra"
-                          intent="ghost"
-                          className={iconBtn}
-                          onClick={() => publish(r)}
-                        />
-                      </Tooltip>
-                    ) : (
-                      <>
-                        <Tooltip
-                          content={r.active ? 'Pausar regra' : 'Activar regra'}
                         >
-                          <IconButton
-                            icon={r.active ? Pause : Play}
-                            label={r.active ? 'Pausar regra' : 'Activar regra'}
-                            intent="ghost"
-                            className={iconBtn}
-                            onClick={() => toggle(r.id)}
-                          />
-                        </Tooltip>
-                        <Tooltip content="Executar manualmente">
-                          <IconButton
-                            icon={PlayCircle}
-                            label="Executar manualmente"
-                            intent="ghost"
-                            className={iconBtn}
-                            onClick={() => runOne(r)}
-                          />
-                        </Tooltip>
-                      </>
-                    )}
-                    <Tooltip content="Consultar histórico">
-                      <IconButton
-                        icon={History}
-                        label="Consultar histórico"
-                        intent="ghost"
-                        className={iconBtn}
-                        onClick={() => onOpenHistory?.(r.id)}
-                      />
-                    </Tooltip>
-                    {failed > 0 && (
-                      <Tooltip content="Ver erros">
-                        <IconButton
-                          icon={AlertTriangle}
-                          label="Ver erros"
-                          intent="ghost"
-                          className={iconBtn}
-                          onClick={() => onOpenHistory?.(r.id, true)}
-                        />
-                      </Tooltip>
-                    )}
-                    <Tooltip content="Duplicar regra">
-                      <IconButton
-                        icon={Copy}
-                        label="Duplicar regra"
-                        intent="ghost"
-                        className={iconBtn}
-                        onClick={() => clone(r.id)}
-                      />
-                    </Tooltip>
-                    <Tooltip content="Remover regra">
-                      <IconButton
-                        icon={Trash2}
-                        label="Remover regra"
-                        intent="ghost"
-                        className={iconBtn}
-                        onClick={() => remove(r.id)}
-                      />
-                    </Tooltip>
-                  </div>
-                </div>
+                          <Pencil size={15} strokeWidth={1.75} />
+                        </button>
+                      )}
+                      {r.draft ? (
+                        <button
+                          type="button"
+                          className={PHOTO_CARD_ACTION}
+                          aria-label="Publicar regra"
+                          title="Publicar regra"
+                          onClick={() => publish(r)}
+                        >
+                          <Rocket size={15} strokeWidth={1.75} />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className={PHOTO_CARD_ACTION}
+                          aria-label={
+                            r.active ? 'Pausar regra' : 'Activar regra'
+                          }
+                          title={r.active ? 'Pausar regra' : 'Activar regra'}
+                          onClick={() => toggle(r.id)}
+                        >
+                          {r.active ? (
+                            <Pause size={15} strokeWidth={1.75} />
+                          ) : (
+                            <Play size={15} strokeWidth={1.75} />
+                          )}
+                        </button>
+                      )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            className={PHOTO_CARD_ACTION}
+                            aria-label="Mais acções"
+                            title="Mais acções"
+                          >
+                            <MoreVertical size={15} strokeWidth={1.75} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {!r.draft && (
+                            <DropdownMenuItem onSelect={() => runOne(r)}>
+                              Executar manualmente
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            onSelect={() => onOpenHistory?.(r.id)}
+                          >
+                            Consultar histórico
+                          </DropdownMenuItem>
+                          {failed > 0 && (
+                            <DropdownMenuItem
+                              onSelect={() => onOpenHistory?.(r.id, true)}
+                            >
+                              Ver erros
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onSelect={() => clone(r.id)}>
+                            Duplicar regra
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => remove(r.id)}>
+                            Remover regra
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </>
+                  }
+                />
               </li>
             );
           })}

@@ -7,7 +7,6 @@
 'use client';
 
 import {
-  Banknote,
   BadgeCheck,
   BookOpen,
   CalendarCheck,
@@ -21,7 +20,7 @@ import {
   Percent,
   PlayCircle,
   ShieldAlert,
-  Timer,
+  Smile,
   UserCheck,
   Users,
   UsersRound,
@@ -39,18 +38,11 @@ import {
 } from '@/components/ui/charts/SpeedometerStatCard';
 import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { NavyStatCard } from '@/components/ui/NavyStatCard';
+import { WalletStat } from '@/components/roi-impact/WalletStat';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TYPE_CFG } from './constants';
 import type { Dashboard } from './types';
-
-// Faixas do velocímetro de satisfação (escala 0–5).
-const SATISFACTION_BANDS = [
-  { to: 1, color: '#c0392b' },
-  { to: 2, color: '#e67e22' },
-  { to: 3, color: '#f1c40f' },
-  { to: 4, color: '#8fc23f' },
-  { to: 5, color: '#2f9e63' },
-];
 
 export function DashboardView() {
   const { data, isLoading } = useApiQuery<Dashboard>(
@@ -180,13 +172,18 @@ export function DashboardView() {
             bands={RATE_BANDS}
             display={`${Math.round(data.approvalRate)}%`}
           />
-          <SpeedometerStatCard
+          <NavyStatCard
+            icon={Smile}
             label="Satisfação média"
-            value={data.avgRating}
-            max={5}
-            bands={SATISFACTION_BANDS}
-            display={data.avgRating.toFixed(1)}
-            caption="em 5.0"
+            value={data.avgRating.toFixed(1)}
+            sub="em 5.0"
+            tone={
+              data.avgRating >= 4
+                ? 'green'
+                : data.avgRating >= 3
+                  ? 'orange'
+                  : 'red'
+            }
           />
           <DonutStatCard
             label="Execução do plano"
@@ -201,13 +198,17 @@ export function DashboardView() {
             label="Horas/colaborador"
             value={data.hoursPerEmployee}
           />
-          <KpiCard
-            icon={Banknote}
+          <WalletStat
+            zoom
+            money="bills"
+            tone="red"
             label="Custo/participante"
             value={formatKz(data.costPerParticipant)}
           />
-          <KpiCard
-            icon={Timer}
+          <WalletStat
+            zoom
+            money="coins"
+            tone="red"
             label="Custo/hora"
             value={formatKz(data.costPerHour)}
           />
@@ -217,7 +218,7 @@ export function DashboardView() {
       {/* Próximas sessões */}
       {data.upcomingSessions.length > 0 && (
         <Card className="overflow-hidden p-0">
-          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Próximas sessões
           </div>
           {data.upcomingSessions.map((s) => (
@@ -242,7 +243,7 @@ export function DashboardView() {
       {/* Top */}
       {data.topTrainings.length > 0 && (
         <Card className="overflow-hidden p-0">
-          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Mais populares
           </div>
           {data.topTrainings.map((t, idx) => (

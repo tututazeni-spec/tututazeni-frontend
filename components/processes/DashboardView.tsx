@@ -11,7 +11,17 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate } from '@/lib/format';
-import { AlarmClock, BadgeCheck, CheckCircle2, FileSearch, FileStack, PencilRuler, PlayCircle, Stamp, Timer } from 'lucide-react';
+import {
+  AlarmClock,
+  BadgeCheck,
+  CheckCircle2,
+  FileSearch,
+  FileStack,
+  PencilRuler,
+  PlayCircle,
+  Stamp,
+  Timer,
+} from 'lucide-react';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -253,6 +263,32 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
             />
           </div>
 
+          {/* Biblioteca de modelos — logo abaixo dos indicadores */}
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+            <KpiCard
+              icon={BadgeCheck}
+              label="Modelos activos"
+              value={data.processes.active}
+              sub="Em uso"
+              intent="success"
+            />
+            <KpiCard
+              icon={FileSearch}
+              label="Modelos em revisão"
+              value={data.processes.inReview}
+              sub="Aguardam aprovação"
+              intent="warning"
+            />
+            <KpiCard
+              icon={PencilRuler}
+              iconIntent="caution"
+              label="Modelos em rascunho"
+              value={data.processes.draft}
+              sub="Em construção"
+              intent="primary"
+            />
+          </div>
+
           {/* Gráficos §3 */}
           <div className="grid gap-4 lg:grid-cols-2">
             <ChartCard
@@ -315,7 +351,9 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
               empty={data.charts.bySourceModule.length === 0}
             >
               <BarChart
-                categories={data.charts.bySourceModule.map((m) => moduleLabel(m.label))}
+                categories={data.charts.bySourceModule.map((m) =>
+                  moduleLabel(m.label),
+                )}
                 series={[
                   {
                     label: 'Processos',
@@ -342,7 +380,9 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
 
             <ChartCard
               title="Cumprimento do prazo (% por mês)"
-              empty={data.charts.onTimeRateByMonth.every((m) => m.rate === null)}
+              empty={data.charts.onTimeRateByMonth.every(
+                (m) => m.rate === null,
+              )}
             >
               <AreaLineChart
                 yFormat={(v) => `${v}%`}
@@ -351,8 +391,9 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
                     label: 'Dentro do prazo',
                     points: data.charts.onTimeRateByMonth
                       .map((m, i) => ({ x: i, y: m.rate, xLabel: m.month }))
-                      .filter((p): p is { x: number; y: number; xLabel: string } =>
-                        p.y !== null,
+                      .filter(
+                        (p): p is { x: number; y: number; xLabel: string } =>
+                          p.y !== null,
                       ),
                   },
                 ]}
@@ -393,32 +434,6 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
                 ]}
               />
             </ChartCard>
-          </div>
-
-          {/* Biblioteca de modelos (mantido da versão anterior) */}
-          <div className="grid grid-cols-3 gap-3">
-            <KpiCard
-              icon={BadgeCheck}
-              label="Modelos activos"
-              value={data.processes.active}
-              sub="Em uso"
-              intent="success"
-            />
-            <KpiCard
-              icon={FileSearch}
-              label="Modelos em revisão"
-              value={data.processes.inReview}
-              sub="Aguardam aprovação"
-              intent="warning"
-            />
-            <KpiCard
-              icon={PencilRuler}
-              iconIntent="caution"
-              label="Modelos em rascunho"
-              value={data.processes.draft}
-              sub="Em construção"
-              intent="primary"
-            />
           </div>
 
           {/* Instâncias recentes */}

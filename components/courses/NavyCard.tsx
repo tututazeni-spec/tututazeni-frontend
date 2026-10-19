@@ -1,10 +1,13 @@
 // components/courses/NavyCard.tsx
-// Cartão compacto "cabeçalho azul-marinho + corpo branco com grupos de
-// informação" (docs/prompt_4_cards.md, Opção 2). Partilhado pelas listas do
-// módulo Cursos (Categorias, Matrículas, Progresso).
+// Cartão "inscrições" do módulo Cursos (public/images/inscrições.jpeg): fundo
+// escuro em gradiente na cor da paleta (ou foto, se vier), linha de topo com
+// ícone + etiqueta e menu, título grande em maiúsculas, badges em pílula e um
+// painel de vidro com as informações. Partilhado pelas listas do módulo Cursos
+// (Categorias, Inscrições, Progresso, Turmas).
 
 import type { ReactNode } from 'react';
-import type { LucideIcon } from 'lucide-react';
+import { GraduationCap, type LucideIcon } from 'lucide-react';
+import { PALETTE } from '@/components/onboarding/TemplateCard';
 
 export function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -13,33 +16,50 @@ export function initials(name: string) {
   return (parts[0][0] + last).toUpperCase();
 }
 
-/** Classes para botões/triggers sobre o cabeçalho escuro. */
+/** Classes para botões/triggers sobre o cartão escuro. */
 export const NAVY_ACTION =
-  'inline-flex h-8 items-center justify-center rounded-lg px-2 text-xs font-medium text-white/80 hover:bg-white/10 hover:text-white disabled:opacity-50';
+  'inline-flex h-8 items-center justify-center rounded-full bg-[#0F1F3D]/70 px-2 text-xs font-medium text-white/80 hover:bg-white/20 hover:text-white disabled:opacity-50';
+
+/** Botão de acção principal sobre o cartão escuro. */
+export const NAVY_BTN =
+  'inline-flex h-9 items-center justify-center rounded-full bg-white/90 px-4 text-sm font-semibold text-[#0F1F3D] hover:bg-white disabled:opacity-50';
+
+export type NavyTone = 'success' | 'danger' | 'warning' | 'info' | 'neutral';
+
+const TONE: Record<NavyTone, { pill: string; dot: string }> = {
+  success: { pill: 'bg-[#DDF5E6] text-[#14532D]', dot: 'bg-[#22A15A]' },
+  danger: { pill: 'bg-[#FFE1E4] text-[#7F1D2B]', dot: 'bg-[#E5384F]' },
+  warning: { pill: 'bg-[#FFF1C9] text-[#6B4A00]', dot: 'bg-[#F2B01E]' },
+  info: { pill: 'bg-[#DCEBFF] text-[#12366B]', dot: 'bg-[#2F7BEA]' },
+  neutral: { pill: 'bg-white/85 text-[#0F1F3D]', dot: 'bg-[#6B7A90]' },
+};
 
 export function NavyBadge({
   children,
   onClick,
+  tone = 'success',
 }: {
   children: ReactNode;
   onClick?: () => void;
+  tone?: NavyTone;
 }) {
-  const cls =
-    'inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[11px] text-white';
+  const t = TONE[tone];
+  const cls = `inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${t.pill}`;
+  const dot = <span aria-hidden className={`h-2 w-2 rounded-full ${t.dot}`} />;
   if (onClick)
     return (
       <button
         type="button"
-        className={`${cls} hover:bg-white/25`}
+        className={`${cls} hover:brightness-95`}
         onClick={onClick}
       >
-        <span aria-hidden>●</span>
+        {dot}
         {children}
       </button>
     );
   return (
     <span className={cls}>
-      <span aria-hidden>●</span>
+      {dot}
       {children}
     </span>
   );
@@ -54,19 +74,30 @@ export interface NavyInfo {
   disabled?: boolean;
 }
 
-function Info({ icon: Icon, value, label, danger }: NavyInfo) {
+function Info({
+  icon: Icon,
+  value,
+  label,
+  danger,
+  flush,
+  compact,
+}: NavyInfo & { flush?: boolean; compact?: boolean }) {
   return (
-    <div className="flex min-w-0 items-center gap-2 px-2 text-left sm:px-4">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/25 text-[#7CC4FF]">
-        <Icon size={15} strokeWidth={1.75} />
+    <div
+      className={`flex min-w-0 items-center text-left px-2 ${compact ? 'gap-2' : 'gap-3'} ${flush ? 'pl-0 sm:pl-0 sm:pr-4' : 'sm:px-4'}`}
+    >
+      <span
+        className={`flex shrink-0 items-center justify-center rounded-full bg-white/90 text-[#0F1F3D] ${compact ? 'h-7 w-7' : 'h-9 w-9'}`}
+      >
+        <Icon size={compact ? 14 : 18} strokeWidth={1.75} />
       </span>
       <div className="min-w-0">
         <div
-          className={`text-xs font-semibold leading-tight ${danger ? 'text-red-300' : 'text-white'}`}
+          className={`text-sm font-semibold leading-tight ${danger ? 'text-red-300' : 'text-white'}`}
         >
           {value}
         </div>
-        <div className="text-[11px] leading-tight text-white/70">{label}</div>
+        <div className="text-xs leading-tight text-white/70">{label}</div>
       </div>
     </div>
   );
@@ -79,6 +110,12 @@ const COLS: Record<number, string> = {
   4: 'lg:grid-cols-4',
 };
 
+function seedFrom(title: string) {
+  let h = 0;
+  for (const ch of title) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return h;
+}
+
 interface NavyCardProps {
   title: string;
   /** Elemento antes do título (ex.: checkbox de selecção). */
@@ -88,7 +125,23 @@ interface NavyCardProps {
   avatar?: { name: string; url?: string | null };
   subtitle?: string;
   subtitleIcon?: LucideIcon;
+  /** Etiqueta da linha de topo, ao lado do ícone (ex.: nome do departamento). */
+  kicker?: string;
+  /** Ícone da linha de topo — por omissão, o capelo de formação. */
+  kickerIcon?: LucideIcon;
+  /** Identificador que escolhe a cor própria do cartão; sem ele usa o título. */
+  seed?: number;
+  /** Foto de fundo (opcional) — fica sob uma película escura. */
+  image?: string | null;
   infos: NavyInfo[];
+  /** Encosta o ícone da 1.ª informação à esquerda do painel de vidro. */
+  flushFirstInfo?: boolean;
+  /** Versão baixa (~metade da altura): margens e título menores, sem subtítulo. */
+  compact?: boolean;
+  /** Painel de progresso no fundo, 0–100. */
+  progress?: { value: number; label?: string };
+  /** Zona de botões de acção por baixo do painel (ex.: Publicar, Avaliar). */
+  footer?: ReactNode;
   onClick?: () => void;
 }
 
@@ -100,90 +153,235 @@ export function NavyCard({
   avatar,
   subtitle,
   subtitleIcon: SubIcon,
+  kicker,
+  kickerIcon: KickerIcon = GraduationCap,
+  seed,
+  image,
   infos,
+  flushFirstInfo,
+  compact,
+  progress,
+  footer,
   onClick,
 }: NavyCardProps) {
+  const palette = PALETTE[Math.abs(seed ?? seedFrom(title)) % PALETTE.length];
+  const hasTop = lead || avatar || kicker || actions;
+
   return (
     <div
       onClick={onClick}
-      className={`overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)] ${onClick ? 'cursor-pointer' : ''}`}
+      className={`relative overflow-hidden rounded-panel text-white ${compact ? 'p-2' : 'p-5'} shadow-[0_8px_24px_rgba(15,31,61,0.25)] ${onClick ? 'cursor-pointer' : ''}`}
+      style={{
+        background: `linear-gradient(135deg, ${palette[1]} 0%, ${palette[2]} 65%, ${palette[2]} 100%)`,
+      }}
     >
-      <div className="mb-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex min-w-0 flex-1 basis-48 items-center gap-3">
-            {lead}
-            <h3 className="line-clamp-1 min-w-0 text-base font-semibold uppercase leading-tight text-white">
+      {image && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={image}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          background: image
+            ? `linear-gradient(90deg, ${palette[2]}F2 0%, ${palette[2]}B3 55%, ${palette[2]}66 100%)`
+            : `radial-gradient(circle at 92% 8%, ${palette[0]}99 0%, transparent 45%)`,
+        }}
+      />
+
+      {compact ? (
+        <div className="relative space-y-1.5">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            {kicker && (
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/15">
+                <KickerIcon size={14} strokeWidth={1.75} />
+              </span>
+            )}
+            <h3 className="break-words font-body text-base font-extrabold uppercase leading-tight tracking-wide">
               {title}
             </h3>
+            {badge && (
+              <div
+                className="flex flex-wrap items-center gap-1.5"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {badge}
+              </div>
+            )}
+            {actions && (
+              <div
+                className="ml-auto flex shrink-0 items-center gap-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {actions}
+              </div>
+            )}
           </div>
-          <div
-            className="flex shrink-0 items-center gap-2"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {badge}
-            {actions}
-          </div>
-        </div>
-        {(avatar || subtitle) && (
-          <div className="mt-2 flex min-w-0 items-center gap-3">
-            {avatar &&
-              (avatar.url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={avatar.url}
-                  alt=""
-                  className="h-8 w-8 shrink-0 rounded-full object-cover"
-                />
-              ) : (
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/25 text-xs font-bold text-white">
-                  {initials(avatar.name)}
+          {infos.length > 0 && (
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-1 rounded-card bg-white/10 px-3 py-1.5 text-xs">
+              {infos.map((info, i) => (
+                <span
+                  key={info.label + i}
+                  className="inline-flex min-w-0 items-center gap-1.5"
+                >
+                  <info.icon
+                    size={14}
+                    strokeWidth={1.75}
+                    className="shrink-0"
+                  />
+                  <span
+                    className={`font-semibold ${info.danger ? 'text-red-300' : 'text-white'}`}
+                  >
+                    {info.value}
+                  </span>
+                  <span className="text-white/70">{info.label}</span>
                 </span>
               ))}
-            <div className="min-w-0">
-              {avatar && (
-                <div className="truncate text-sm font-semibold leading-tight text-white">
-                  {avatar.name}
-                </div>
-              )}
-              {subtitle && (
-                <div className="flex items-center gap-1 text-xs text-white/70">
-                  {SubIcon && (
-                    <SubIcon size={12} strokeWidth={1.75} className="shrink-0" />
-                  )}
-                  <span className="truncate">{subtitle}</span>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="relative">
+          {hasTop && (
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-3">
+                {lead}
+                {avatar ? (
+                  avatar.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={avatar.url}
+                      alt=""
+                      className="h-9 w-9 shrink-0 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-xs font-bold">
+                      {initials(avatar.name)}
+                    </span>
+                  )
+                ) : (
+                  kicker && (
+                    <span
+                      className={`flex shrink-0 items-center justify-center rounded-full bg-white/15 ${compact ? 'h-7 w-7' : 'h-9 w-9'}`}
+                    >
+                      <KickerIcon size={compact ? 16 : 20} strokeWidth={1.75} />
+                    </span>
+                  )
+                )}
+                {(avatar || kicker) && (
+                  <span className="truncate text-sm font-medium">
+                    {avatar?.name ?? kicker}
+                  </span>
+                )}
+              </div>
+              {actions && (
+                <div
+                  className="flex shrink-0 items-center gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {actions}
                 </div>
               )}
             </div>
-          </div>
-        )}
-      </div>
+          )}
 
-      <div
-        className={`grid grid-cols-2 gap-y-3 rounded-card bg-white/10 px-3 py-3 lg:gap-y-0 ${COLS[Math.min(infos.length, 4)]}`}
-      >
-        {infos.map((info, i) => (
-          <div
-            key={info.label + i}
-            className={i > 0 ? 'lg:border-l lg:border-white/15' : ''}
+          <h3
+            className={`break-words font-body font-extrabold uppercase leading-tight tracking-wide ${compact ? 'mt-1.5 text-lg' : 'mt-4 text-2xl'}`}
           >
-            {info.onClick ? (
-              <button
-                type="button"
-                disabled={info.disabled}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  info.onClick?.();
-                }}
-                className="w-full rounded-lg enabled:cursor-pointer enabled:hover:bg-white/10"
+            {title}
+          </h3>
+          {subtitle && !compact && (
+            <div className="mt-1 flex items-center gap-1.5 text-sm text-white/75">
+              {SubIcon && (
+                <SubIcon size={14} strokeWidth={1.75} className="shrink-0" />
+              )}
+              <span className="truncate">{subtitle}</span>
+            </div>
+          )}
+          {badge && (
+            <div
+              className={`flex flex-wrap items-center gap-2 ${compact ? 'mt-2' : 'mt-3'}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {badge}
+            </div>
+          )}
+
+          {infos.length > 0 && (
+            <div
+              className={`grid grid-cols-2 gap-y-2 rounded-card bg-white/10 px-3 backdrop-blur-sm lg:gap-y-0 ${compact ? 'mt-2 py-1.5' : 'mt-4 gap-y-3 py-3'} ${COLS[Math.min(infos.length, 4)]}`}
+            >
+              {infos.map((info, i) => (
+                <div
+                  key={info.label + i}
+                  className={i > 0 ? 'lg:border-l lg:border-white/15' : ''}
+                >
+                  {info.onClick ? (
+                    <button
+                      type="button"
+                      disabled={info.disabled}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        info.onClick?.();
+                      }}
+                      className="w-full rounded-lg enabled:cursor-pointer enabled:hover:bg-white/10"
+                    >
+                      <Info
+                        {...info}
+                        flush={flushFirstInfo && i === 0}
+                        compact={compact}
+                      />
+                    </button>
+                  ) : (
+                    <Info
+                      {...info}
+                      flush={flushFirstInfo && i === 0}
+                      compact={compact}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {progress && (
+            <div className="mt-3 rounded-card bg-white/10 px-4 py-3">
+              <div className="flex items-center justify-between text-sm">
+                <span>{progress.label ?? 'Progresso'}</span>
+                <span className="tabular-nums">{progress.value}%</span>
+              </div>
+              <div
+                role="progressbar"
+                aria-valuenow={progress.value}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                className="mt-2 h-2 overflow-hidden rounded-full bg-white/20"
               >
-                <Info {...info} />
-              </button>
-            ) : (
-              <Info {...info} />
-            )}
-          </div>
-        ))}
-      </div>
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${Math.max(0, Math.min(100, progress.value))}%`,
+                    background: palette[3],
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {footer && (
+            <div
+              className="mt-4 flex flex-wrap items-center gap-2"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {footer}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

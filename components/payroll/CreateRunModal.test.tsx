@@ -40,6 +40,24 @@ vi.mock('./runData', () => ({
   useDepartmentOptions: () => useDepartmentOptions(),
 }));
 
+// components/ui/Select é um listbox Radix custom: mock com <select> nativo
+// (mesmo padrão de DisputesView.test.tsx).
+vi.mock('@/components/ui/Select', () => ({
+  Select: ({ items, value, onValueChange }: any) => (
+    <select
+      aria-label="Grupo"
+      value={value ?? ''}
+      onChange={(e) => onValueChange(e.target.value)}
+    >
+      {items.map((it: any) => (
+        <option key={it.value} value={it.value}>
+          {it.label}
+        </option>
+      ))}
+    </select>
+  ),
+}));
+
 import { CreateRunModal } from './CreateRunModal';
 
 beforeEach(() => {
@@ -156,7 +174,7 @@ describe('CreateRunModal', () => {
       target: { value: '' },
     });
 
-    // payGroup and notes stay blank (initial state '', unchanged)
+    // payGroup stays 'Sem grupo' and notes stay blank (initial state, unchanged)
 
     fireEvent.click(screen.getByRole('button', { name: 'Criar' }));
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));

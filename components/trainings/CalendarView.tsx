@@ -8,17 +8,27 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, MapPin, User } from 'lucide-react';
+import {
+  CalendarClock,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  GraduationCap,
+  MapPin,
+  User,
+  Users,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate, formatTime } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
+import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { STATUS_CFG, TYPE_CFG } from './constants';
+import { STATUS_TONE } from './trainingTones';
 import type { CalendarEvent, CalendarResponse } from './types';
 
 interface CalendarViewProps {
@@ -149,67 +159,66 @@ export function CalendarView({ onSelectTraining }: CalendarViewProps) {
       ) : (
         <div className="space-y-3">
           {groups.map(([day, events]) => (
-            <Card key={day} className="overflow-hidden p-0">
-              <div className="border-b border-border bg-surface-sunken px-4 py-2 font-body text-xs font-medium text-ink-muted">
+            <section key={day} className="space-y-2">
+              <h3 className="font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
                 {formatDate(day, {
                   weekday: 'long',
                   day: '2-digit',
                   month: 'long',
                 })}
-              </div>
-              <div className="divide-y divide-border">
-                {events.map((ev) => (
-                  <button
-                    key={`${ev.kind}-${ev.id}`}
-                    type="button"
-                    onClick={() => onSelectTraining(ev.trainingId)}
-                    className="flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left hover:bg-surface-sunken"
-                  >
-                    <span className="w-14 flex-shrink-0 font-mono text-xs text-ink-faint">
-                      {ev.start ? formatTime(ev.start) : '—'}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-ink">
-                        {ev.title}
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-ink-faint">
-                        {ev.instructor && (
-                          <span className="flex items-center gap-1">
-                            <User size={12} strokeWidth={1.75} />
-                            {ev.instructor.fullName}
-                          </span>
-                        )}
-                        {ev.location && (
-                          <span className="flex items-center gap-1">
-                            <MapPin size={12} strokeWidth={1.75} />
-                            {ev.location}
-                          </span>
-                        )}
-                        {ev.kind === 'session' && (
-                          <span>
-                            {ev.participants}
-                            {ev.maxParticipants
-                              ? `/${ev.maxParticipants}`
-                              : ''}{' '}
-                            participantes
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <span
-                      className={`rounded px-2 py-0.5 font-body text-xs font-medium ${TYPE_CFG[ev.trainingType]?.cls ?? ''}`}
-                    >
-                      {TYPE_CFG[ev.trainingType]?.label ?? ev.trainingType}
-                    </span>
-                    <span
-                      className={`rounded px-2 py-0.5 font-body text-xs font-medium ${STATUS_CFG[ev.status].cls}`}
-                    >
-                      {STATUS_CFG[ev.status].label}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </Card>
+              </h3>
+              {events.map((ev) => (
+                <NavyCard
+                  key={`${ev.kind}-${ev.id}`}
+                  compact
+                  seed={ev.colorIndex ?? ev.trainingId}
+                  onClick={() => onSelectTraining(ev.trainingId)}
+                  kicker={ev.kind === 'session' ? 'Sessão' : 'Formação'}
+                  kickerIcon={
+                    ev.kind === 'session' ? CalendarClock : GraduationCap
+                  }
+                  title={ev.title}
+                  badge={
+                    <>
+                      <NavyBadge tone={STATUS_TONE[ev.status]}>
+                        {STATUS_CFG[ev.status].label}
+                      </NavyBadge>
+                      <NavyBadge tone="neutral">
+                        {TYPE_CFG[ev.trainingType]?.label ?? ev.trainingType}
+                      </NavyBadge>
+                    </>
+                  }
+                  infos={[
+                    {
+                      icon: Clock,
+                      value: ev.start ? formatTime(ev.start) : '—',
+                      label: 'Hora',
+                    },
+                    {
+                      icon: User,
+                      value: ev.instructor?.fullName ?? '—',
+                      label: 'Formador',
+                    },
+                    {
+                      icon: MapPin,
+                      value: ev.location ?? '—',
+                      label: 'Local',
+                    },
+                    ...(ev.kind === 'session'
+                      ? [
+                          {
+                            icon: Users,
+                            value: ev.maxParticipants
+                              ? `${ev.participants}/${ev.maxParticipants}`
+                              : String(ev.participants),
+                            label: 'Participantes',
+                          },
+                        ]
+                      : []),
+                  ]}
+                />
+              ))}
+            </section>
           ))}
         </div>
       )}

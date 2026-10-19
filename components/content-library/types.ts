@@ -16,6 +16,8 @@ export interface Content {
   description?: string;
   type: string;
   url: string;
+  /** O ficheiro está guardado inline; a lista não traz o `url`, só o detalhe. */
+  hasInlineFile?: boolean;
   thumbnailUrl?: string;
   author?: string;
   durationMin?: number;
