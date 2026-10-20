@@ -27,8 +27,9 @@ import {
 } from './visemes';
 
 const TICK_MS = 30;
-// Cada pose fica visível pelo menos isto; abaixo disso a boca "vibra".
-const HOLD_MS = 120;
+// Cada pose fica visível pelo menos isto (~ uma sílaba); abaixo a boca "vibra".
+const HOLD_MS = 190;
+const FADE_MS = 90;
 // Velocidade da voz em caracteres/ms: começa neste valor e ajusta-se com o
 // intervalo real entre fronteiras de palavra.
 const DEFAULT_RATE = 0.013;
@@ -191,19 +192,37 @@ export function LipSyncPortrait({
 
   const active = exprSrc ?? mouthSrc();
 
-  const layer = (src: string, opacity: number, withFade = true) => (
-    <Image
-      key={src}
-      src={src}
-      alt=""
-      aria-hidden
-      fill
-      sizes="320px"
-      onError={() => markMissing(src)}
-      className={`object-cover ${withFade ? 'transition-opacity duration-100' : ''}`}
-      style={{ opacity }}
-    />
-  );
+  // Imagem anterior: fica opaca por baixo enquanto a nova aparece por cima.
+  // Fazer fade-out e fade-in ao mesmo tempo deixa o fundo à mostra a meio
+  // (cada imagem a ~50 %) e a imagem "pisca".
+  const [previous, setPrevious] = useState(active);
+  useEffect(() => {
+    const t = setTimeout(() => setPrevious(active), FADE_MS + 60);
+    return () => clearTimeout(t);
+  }, [active]);
+
+  const layer = (src: string, shown = src === active, topmost = false) => {
+    const onTop = shown || src === previous;
+    return (
+      <Image
+        key={src}
+        src={src}
+        alt=""
+        aria-hidden
+        fill
+        sizes="320px"
+        onError={() => markMissing(src)}
+        className="object-cover"
+        style={{
+          opacity: onTop ? 1 : 0,
+          zIndex: topmost ? 3 : shown ? 2 : onTop ? 1 : 0,
+          // só a imagem que entra tem fade; a que sai é tapada, não desvanece
+          transition:
+            shown && !topmost ? `opacity ${FADE_MS}ms linear` : 'none',
+        }}
+      />
+    );
+  };
 
   return (
     <div
@@ -211,16 +230,15 @@ export function LipSyncPortrait({
       aria-label="Ísis - Tutor IA"
       className={`relative ${className}`}
     >
-      {layer(FALLBACK_CLOSED, FALLBACK_CLOSED === active ? 1 : 0)}
-      {layer(FALLBACK_OPEN, FALLBACK_OPEN === active ? 1 : 0)}
+      {layer(FALLBACK_CLOSED)}
+      {layer(FALLBACK_OPEN)}
       {VISEMES.filter((v) => v !== 'rest' && !missing.has(visemeSrc(v))).map(
-        (v) => layer(visemeSrc(v), visemeSrc(v) === active ? 1 : 0),
+        (v) => layer(visemeSrc(v)),
       )}
       {EXPRESSIONS.filter((e) => !missing.has(expressionSrc(e))).map((e) =>
-        layer(expressionSrc(e), expressionSrc(e) === active ? 1 : 0),
+        layer(expressionSrc(e)),
       )}
-      {!missing.has(BLINK_SRC) &&
-        layer(BLINK_SRC, blinking && !speaking ? 1 : 0, false)}
+      {!missing.has(BLINK_SRC) && layer(BLINK_SRC, blinking && !speaking, true)}
     </div>
   );
 }
