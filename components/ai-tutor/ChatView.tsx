@@ -9,6 +9,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Send, Volume2, VolumeX } from 'lucide-react';
 import Image from 'next/image';
 import { useApiMutation } from '@/hooks/useApiQuery';
+import { unlockSpeech, useSpeech } from '@/hooks/useSpeech';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { Button, IconButton } from '@/components/ui/Button';
@@ -16,6 +18,8 @@ import { Input } from '@/components/ui/Input';
 import { useToast } from '@/providers/ToastProvider';
 import { QUICK_ACTIONS } from './constants';
 import { MessageBubble } from './MessageBubble';
+import { MicButton } from './MicButton';
+import { SpeakingText } from './SpeakingText';
 import type {
   Message,
   SendMessageResponse,
@@ -79,52 +83,13 @@ export function ChatView() {
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const [personality, setPersonality] = useState('FRIENDLY');
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { speak, stop, speaking, charIndex, spokenText } = useSpeech();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, thinking]);
-
-  // Limpa o texto antes de o entregar ao motor de voz: remove emojis e
-  // marcações markdown (**negrito**, *itálico*, listas com "-"/"•", "#"
-  // de títulos, etc.) que algumas vozes leem literalmente em voz alta
-  // ("asterisco", "cardinal"...). A bolha de chat continua a mostrar o
-  // texto original formatado — só a fala é afectada.
-  const sanitizeForSpeech = (text: string) =>
-    text
-      // emojis e outros símbolos pictográficos (inclui variação/ZWJ)
-      .replace(
-        /[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}️‍]/gu,
-        '',
-      )
-      // marcações markdown, mantendo o conteúdo dentro delas
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-      .replace(/\*(.*?)\*/g, '$1')
-      .replace(/`{1,3}(.*?)`{1,3}/g, '$1')
-      .replace(/^#{1,6}\s+/gm, '')
-      .replace(/^[\s]*[-•]\s+/gm, '')
-      .replace(/[*_~`#>]/g, '')
-      .replace(/ +([.,!?;:])/g, '$1')
-      .replace(/\s{2,}/g, ' ')
-      .trim();
-
-  // Faz a Ísis "falar" um texto em voz alta, usando a voz
-  // já incorporada no navegador (não precisa de nenhum serviço externo).
-  const speak = (text: string) => {
-    if (!voiceEnabled) return;
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
-
-    const clean = sanitizeForSpeech(text);
-    if (!clean) return;
-
-    window.speechSynthesis.cancel(); // evita sobrepor falas anteriores
-    const utterance = new SpeechSynthesisUtterance(clean);
-    utterance.lang = 'pt-PT';
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    window.speechSynthesis.speak(utterance);
-  };
 
   const startSession = useApiMutation(
     (p: string) =>
@@ -146,7 +111,6 @@ export function ChatView() {
             agentAction: null,
           },
         ]);
-        speak(res.greeting);
       },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
@@ -154,7 +118,9 @@ export function ChatView() {
   const starting = startSession.isPending;
   const start = () => startSession.mutate(personality);
 
-  const send = async (text?: string) => {
+  // viaVoice: a resposta só é falada quando a pergunta foi feita por voz,
+  // para quem escreve não ser surpreendido com som.
+  const send = async (text?: string, viaVoice = false) => {
     const msg = (text ?? input).trim();
     if (!msg || !session || thinking) return;
     setInput('');
@@ -194,7 +160,7 @@ export function ChatView() {
           sourceLabels: res.sources?.map((s) => s.label),
         },
       ]);
-      speak(res.message.content);
+      if (viaVoice && voiceEnabled) speak(res.message.content);
     } catch (e) {
       reportError(e, { source: 'ChatView.sendMessage' });
       const errMsg = e instanceof Error ? e.message : String(e);
@@ -214,6 +180,18 @@ export function ChatView() {
     } finally {
       setThinking(false);
     }
+  };
+
+  const voice = useVoiceInput((text) => {
+    if (text) void send(text, true);
+  });
+
+  // Ao carregar no microfone o tutor cala-se primeiro; o unlock cobre o
+  // Safari/iPhone, que só fala a partir de um toque.
+  const onMicClick = () => {
+    stop();
+    unlockSpeech();
+    voice.toggle();
   };
 
   const handleRate = async (msgId: number, rating: number) => {
@@ -276,9 +254,16 @@ export function ChatView() {
           </div>
         </div>
         <button
-          onClick={() => setVoiceEnabled((v) => !v)}
+          onClick={() => {
+            if (voiceEnabled) stop();
+            setVoiceEnabled((v) => !v);
+          }}
           className="ml-auto text-canvas/80 hover:text-canvas"
-          title={voiceEnabled ? 'Desligar voz' : 'Ligar voz'}
+          title={
+            voiceEnabled
+              ? 'Desligar resposta por voz'
+              : 'Ligar resposta por voz'
+          }
         >
           {voiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
         </button>
@@ -314,6 +299,17 @@ export function ChatView() {
             </div>
           </div>
         )}
+        {speaking && (
+          <div className="mb-3 rounded-card border border-border bg-surface p-3">
+            <SpeakingText text={spokenText} charIndex={charIndex} />
+            <button
+              onClick={stop}
+              className="mt-2 font-body text-xs text-[#D4A017]"
+            >
+              Parar voz
+            </button>
+          </div>
+        )}
         <div ref={bottomRef} />
       </div>
 
@@ -333,7 +329,23 @@ export function ChatView() {
       </div>
 
       {/* Input */}
+      {(voice.listening || voice.error) && (
+        <div className="px-3 pt-2 bg-surface font-body text-sm">
+          {voice.error ? (
+            <p className="text-red-600">{voice.error}</p>
+          ) : (
+            <p className="text-gray-500">{voice.interim || 'A ouvir…'}</p>
+          )}
+        </div>
+      )}
       <div className="px-3 py-3 bg-surface border-t border-border flex gap-2">
+        {voice.supported && (
+          <MicButton
+            listening={voice.listening}
+            onClick={onMicClick}
+            disabled={thinking}
+          />
+        )}
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
