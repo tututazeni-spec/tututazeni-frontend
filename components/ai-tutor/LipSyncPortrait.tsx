@@ -28,7 +28,7 @@ import {
 
 const TICK_MS = 25;
 // Nenhuma pose fica menos que isto (evita a boca "vibrar" em sílabas curtas).
-const MIN_HOLD_MS = 90;
+const MIN_HOLD_MS = 170;
 const FADE_MS = 90;
 // Velocidade da voz em unidades/ms (ver buildTimeline): começa neste valor e
 // ajusta-se com o intervalo real entre fronteiras de palavra.
