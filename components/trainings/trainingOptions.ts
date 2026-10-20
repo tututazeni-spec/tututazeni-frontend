@@ -157,3 +157,20 @@ export const WEEKDAY_OPTIONS = [
   'Sáb',
   'Dom',
 ];
+
+// Modos de conclusão da formação (backend: TrainingCompletionMode) — decidem
+// quando o participante fica elegível para o certificado.
+export const COMPLETION_MODE_ITEMS = [
+  { value: 'MANUAL', label: 'Manual (o formador marca como concluído)' },
+  { value: 'ATTENDANCE', label: 'Por presença mínima' },
+  { value: 'HYBRID', label: 'Presença mínima + aprovação do formador' },
+];
+
+export const COMPLETION_MODE_HINT: Record<string, string> = {
+  MANUAL:
+    'O certificado é emitido quando o formador ou o administrador marca o participante como concluído. Não precisa de registos de presença.',
+  ATTENDANCE:
+    'O certificado é emitido quando a presença do participante atinge o mínimo definido.',
+  HYBRID:
+    'É preciso atingir a presença mínima e o formador marcar o participante como concluído.',
+};

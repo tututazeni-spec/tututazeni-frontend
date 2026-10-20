@@ -109,6 +109,25 @@ export interface MySummary {
   }[];
 }
 
+// ─── As minhas trilhas (GET /certificates/my/learning-paths) ───
+
+export interface LearningPathUnitProgress {
+  kind: 'COURSE' | 'TRAINING';
+  id: number;
+  title: string;
+  required: boolean;
+  done: boolean;
+}
+
+export interface LearningPathProgress {
+  learningPathId: number;
+  title: string;
+  /** Percentagem das unidades obrigatórias cumpridas (0–100). */
+  completionPct: number;
+  units: LearningPathUnitProgress[];
+  certificate: { id: number; status: CertificateStatus } | null;
+}
+
 export interface TeamMemberRow {
   userId: number;
   fullName: string;
@@ -202,6 +221,7 @@ export interface TemplateDetailDto extends TemplateSummaryRow {
     version: number;
     createdAt: string;
     createdByName: string | null;
+    restoredFromVersion: number | null;
   }[];
 }
 

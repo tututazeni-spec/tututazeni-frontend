@@ -18,7 +18,11 @@ import { formatDate as fmtDate } from '@/lib/format';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { MySummaryPanel } from '@/components/certificates/MySummaryPanel';
-import type { MySummary } from '@/components/certificates/types';
+import { MyLearningPathsPanel } from '@/components/certificates/MyLearningPathsPanel';
+import type {
+  LearningPathProgress,
+  MySummary,
+} from '@/components/certificates/types';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -79,6 +83,12 @@ export function CertificatesView() {
     { staleTime: STALE_TIME.DYNAMIC },
   );
 
+  const { data: learningPaths = [] } = useApiQuery<LearningPathProgress[]>(
+    queryKeys.certificates.myLearningPaths(),
+    '/certificates/my/learning-paths',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+
   // Verificação on-demand de um código → mutação (acção pontual, não cacheada).
   const verifyMut = useApiMutation(
     (code: string) =>
@@ -112,6 +122,7 @@ export function CertificatesView() {
   return (
     <div className="space-y-6">
       {summary && <MySummaryPanel summary={summary} />}
+      <MyLearningPathsPanel paths={learningPaths} />
 
       {/* Verificar certificado */}
       <Card className="p-4">

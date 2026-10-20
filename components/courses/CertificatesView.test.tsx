@@ -30,10 +30,13 @@ let summary: MySummary = {
 };
 
 vi.mock('@/hooks/useApiQuery', () => ({
-  useApiQuery: (_k: unknown, path: string) =>
-    path === '/certificates/my/summary'
-      ? { data: summary, isLoading: false }
-      : { data: certs, isLoading: false },
+  useApiQuery: (_k: unknown, path: string) => {
+    if (path === '/certificates/my/summary')
+      return { data: summary, isLoading: false };
+    if (path === '/certificates/my/learning-paths')
+      return { data: [], isLoading: false };
+    return { data: certs, isLoading: false };
+  },
   useApiMutation: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 vi.mock('@/hooks/usePdfDownload', () => ({

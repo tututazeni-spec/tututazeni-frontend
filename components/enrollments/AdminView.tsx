@@ -45,6 +45,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { ORIGIN_LABELS, STATUS_CFG } from './constants';
 import { useCourseOptions, useDepartmentOptions } from './enrollData';
 import { deadlineCountdown } from './utils';
+import { RunsModal } from './RunsModal';
 import type { Enrollment } from './types';
 
 const STATUS_TONE: Record<string, NavyTone> = {
@@ -80,6 +81,7 @@ interface AdminViewProps {
 export function AdminView({ initialCourseId }: AdminViewProps) {
   const notify = useToast();
   const confirm = useConfirm();
+  const [runsFor, setRunsFor] = useState<Enrollment | null>(null);
   const [filters, setFilters] = useState({
     status: '',
     mandatory: '',
@@ -153,6 +155,15 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
       onError: toastError,
     },
   );
+  const recycle = useApiMutation(
+    (id: number) => apiClient.post(`/enrollments/${id}/recycle`),
+    {
+      invalidateKeys,
+      onSuccess: () =>
+        notify({ title: 'Reciclagem iniciada', intent: 'success' }),
+      onError: toastError,
+    },
+  );
   const remind = useApiMutation(
     (id: number) => apiClient.post(`/enrollments/${id}/remind`),
     {
@@ -165,6 +176,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
     (remove.isPending && remove.variables === id) ||
     (reenroll.isPending && reenroll.variables === id) ||
     (resetProgress.isPending && resetProgress.variables === id) ||
+    (recycle.isPending && recycle.variables === id) ||
     (remind.isPending && remind.variables === id);
 
   // Deadline em massa: dispara os PATCH em paralelo; ao concluir invalida as listas.
@@ -205,6 +217,16 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
       destructive: true,
     });
     if (ok) remove.mutate(e.id);
+  }
+
+  async function onRecycle(e: Enrollment) {
+    const ok = await confirm({
+      title: `Iniciar a reciclagem de "${e.user.fullName}" em "${e.course.title}"?`,
+      message:
+        'A matrícula passa a uma nova realização do curso. O certificado anterior fica no histórico.',
+      confirmLabel: 'Reciclar',
+    });
+    if (ok) recycle.mutate(e.id);
   }
 
   async function onResetProgress(e: Enrollment) {
@@ -412,6 +434,14 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                             Reinscrever
                           </DropdownMenuItem>
                         )}
+                        <DropdownMenuItem onSelect={() => setRunsFor(e)}>
+                          Histórico de realizações
+                        </DropdownMenuItem>
+                        {e.status === 'COMPLETED' && (
+                          <DropdownMenuItem onSelect={() => onRecycle(e)}>
+                            Reciclar formação
+                          </DropdownMenuItem>
+                        )}
                         {e.status !== 'CANCELLED' && (
                           <DropdownMenuItem onSelect={() => onResetProgress(e)}>
                             Reiniciar progresso
@@ -460,6 +490,13 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             </Button>
           </div>
         </div>
+      )}
+      {runsFor && (
+        <RunsModal
+          enrollmentId={runsFor.id}
+          title={`${runsFor.user.fullName} · ${runsFor.course.title}`}
+          onClose={() => setRunsFor(null)}
+        />
       )}
     </div>
   );

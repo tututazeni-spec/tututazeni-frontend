@@ -24,6 +24,23 @@ describe('VerifyResultCard', () => {
     expect(screen.getByText('Certificado válido')).toBeInTheDocument();
   });
 
+  test('válido com downloadUrl mostra o botão; revogado não', () => {
+    const { rerender } = render(
+      <VerifyResultCard result={base} downloadUrl="/x/pdf" />,
+    );
+    expect(screen.getByRole('link', { name: 'Descarregar PDF' })).toHaveAttribute(
+      'href',
+      '/x/pdf',
+    );
+    rerender(
+      <VerifyResultCard
+        result={{ ...base, valid: false, status: 'REVOKED' }}
+        downloadUrl="/x/pdf"
+      />,
+    );
+    expect(screen.queryByRole('link', { name: 'Descarregar PDF' })).not.toBeInTheDocument();
+  });
+
   test('revogado mostra "Revogado" e nunca "válido"', () => {
     render(
       <VerifyResultCard

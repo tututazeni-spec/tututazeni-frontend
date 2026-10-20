@@ -48,14 +48,24 @@ const detail: TemplateDetailDto = {
       version: 2,
       createdAt: '2026-10-21T10:00:00.000Z',
       createdByName: 'Rita RH',
+      restoredFromVersion: null,
     },
-    { version: 1, createdAt: '2026-10-20T10:00:00.000Z', createdByName: null },
+    {
+      version: 1,
+      createdAt: '2026-10-20T10:00:00.000Z',
+      createdByName: null,
+      restoredFromVersion: null,
+    },
   ],
 };
 
 const put = vi.fn();
+const post = vi.fn();
 vi.mock('@/lib/apiClient', () => ({
-  apiClient: { put: (...a: unknown[]) => put(...a) },
+  apiClient: {
+    put: (...a: unknown[]) => put(...a),
+    post: (...a: unknown[]) => post(...a),
+  },
 }));
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiQuery: () => ({ data: detail, isLoading: false, error: null }),
@@ -106,8 +116,14 @@ vi.mock('./ImageUploadField', () => ({
   ),
 }));
 
-const open = (onClose = vi.fn()) => {
-  render(<TemplateEditorModal templateId={detail.id} onClose={onClose} />);
+const open = (onClose = vi.fn(), canEdit = true) => {
+  render(
+    <TemplateEditorModal
+      templateId={detail.id}
+      canEdit={canEdit}
+      onClose={onClose}
+    />,
+  );
   return onClose;
 };
 const tab = (name: string) =>
@@ -298,9 +314,41 @@ describe('TemplateEditorModal', () => {
   test('versões: número, data e autor', () => {
     open();
     tab('Versões');
-    expect(screen.getByText('Versão 2')).toBeInTheDocument();
+    expect(screen.getByText(/Versão 2 \(actual\)/)).toBeInTheDocument();
     expect(screen.getByText(/Rita RH/)).toBeInTheDocument();
     expect(screen.getByText('Versão 1')).toBeInTheDocument();
+  });
+
+  test('restaurar: só nas versões antigas, com confirmação, e chama o endpoint', async () => {
+    post.mockResolvedValue({});
+    const onClose = open();
+    tab('Versões');
+    expect(
+      screen.queryByRole('button', { name: 'Restaurar versão 2' }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Restaurar versão 1' }));
+    expect(
+      screen.getByText(
+        /Será criada uma nova versão com o conteúdo da versão 1/,
+      ),
+    ).toBeInTheDocument();
+    expect(post).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Restaurar' }));
+    await waitFor(() =>
+      expect(post).toHaveBeenCalledWith(
+        `/certificates/templates/${detail.id}/versions/1/restore`,
+        {},
+      ),
+    );
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
+  });
+
+  test('restaurar: sem permissão de edição não há botão', () => {
+    open(vi.fn(), false);
+    tab('Versões');
+    expect(
+      screen.queryByRole('button', { name: /Restaurar versão/ }),
+    ).not.toBeInTheDocument();
   });
 
   test('nenhum identificador técnico aparece no ecrã', () => {
