@@ -3,8 +3,10 @@
 // número centralizado" (docs/prompt_claude_code_cards_estatisticas.md).
 // Hover: zoom subtil (escala 1.06), desactivado com prefers-reduced-motion.
 
-import type { LucideIcon } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronRight, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { goToTab } from '@/lib/tabNavigation';
 
 // Valores longos (ex.: montantes em AOA) encolhem para caberem inteiros no cartão.
 function valueSize(value: string | number): string {
@@ -42,6 +44,9 @@ export function NavyStatCard({
   tone,
   iconTone,
   className,
+  href,
+  tab,
+  onClick,
 }: {
   icon: LucideIcon;
   label: string;
@@ -54,6 +59,12 @@ export function NavyStatCard({
   /** Cor só do círculo do ícone (omisso: igual a `tone`). */
   iconTone?: NavyIconTone;
   className?: string;
+  /** Torna o card clicável: abre esta rota (outro módulo ou página). */
+  href?: string;
+  /** Torna o card clicável: salta para esta aba do módulo onde está. */
+  tab?: string;
+  /** Acção própria (ex.: abrir um filtro ou um modal). */
+  onClick?: () => void;
 }) {
   const t = NAVY_TONES[tone];
   // Palavra única longa (ex.: "Colaboradores") não deve partir a meio
@@ -61,19 +72,28 @@ export function NavyStatCard({
   // Palavra longa dentro de um rótulo com várias palavras ("Colaboradores
   // Activos") também não parte a meio: fonte menor e quebra só entre palavras.
   const hasLongWord = label.split(/\s+/).some((w) => w.length > 10);
-  return (
-    <div
-      className={cn(
-        'relative flex min-h-[155px] flex-col overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100',
-        className,
-      )}
-    >
+  const interactive = !!(href || tab || onClick);
+  const rootClass = cn(
+    'relative flex min-h-[155px] flex-col overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100',
+    interactive &&
+      'group w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1877F2] focus-visible:ring-offset-2',
+    className,
+  );
+  const content = (
+    <>
       <div className="flex min-h-[60px] shrink-0 items-center bg-[#152F59] py-2 pl-[80px] pr-2">
         <h3
           className={`min-w-0 font-body font-semibold leading-tight text-white ${singleWord && label.length > 10 ? 'whitespace-nowrap text-[12px]' : `break-normal ${label.length > 24 || hasLongWord ? 'text-[12px]' : label.length > 10 ? 'text-[13px]' : 'text-[15px]'}`}`}
         >
           {label}
         </h3>
+        {interactive && (
+          <ChevronRight
+            aria-hidden
+            size={18}
+            className="ml-auto shrink-0 text-white/0 transition-colors group-hover:text-white/90 group-focus-visible:text-white/90"
+          />
+        )}
       </div>
       <span
         aria-hidden
@@ -100,6 +120,30 @@ export function NavyStatCard({
           </p>
         )}
       </div>
-    </div>
+    </>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className={rootClass} title="Ver detalhes">
+        {content}
+      </Link>
+    );
+  }
+  if (tab || onClick) {
+    return (
+      <button
+        type="button"
+        className={rootClass}
+        title="Ver detalhes"
+        onClick={(e) => {
+          if (tab) goToTab(tab, e.currentTarget);
+          onClick?.();
+        }}
+      >
+        {content}
+      </button>
+    );
+  }
+  return <div className={rootClass}>{content}</div>;
 }

@@ -37,6 +37,12 @@ export interface KpiCardProps {
   /** Cor só do círculo do ícone (omisso: segue `intent`). */
   iconIntent?: keyof typeof ICON_TONE;
   className?: string;
+  /** Card clicável: abre esta rota. */
+  href?: string;
+  /** Card clicável: salta para esta aba do módulo. */
+  tab?: string;
+  /** Card clicável: acção própria. */
+  onClick?: () => void;
 }
 
 export function KpiCard({
@@ -48,6 +54,9 @@ export function KpiCard({
   intent = 'primary',
   iconIntent,
   className,
+  href,
+  tab,
+  onClick,
 }: KpiCardProps) {
   return (
     <NavyStatCard
@@ -59,6 +68,9 @@ export function KpiCard({
       sub={sub}
       trend={trend}
       className={className}
+      href={href}
+      tab={tab}
+      onClick={onClick}
     />
   );
 }
