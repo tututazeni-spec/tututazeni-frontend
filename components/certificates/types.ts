@@ -221,6 +221,7 @@ export interface TemplateDetailDto extends TemplateSummaryRow {
     version: number;
     createdAt: string;
     createdByName: string | null;
+    restoredFromVersion: number | null;
   }[];
 }
 

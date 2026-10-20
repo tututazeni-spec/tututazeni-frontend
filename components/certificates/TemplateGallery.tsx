@@ -112,6 +112,7 @@ export function TemplateGallery({ canEdit }: { canEdit: boolean }) {
       {editing && (
         <TemplateEditorModal
           templateId={editing}
+          canEdit={canEdit}
           onClose={() => setEditing(null)}
         />
       )}

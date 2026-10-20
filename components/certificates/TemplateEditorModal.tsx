@@ -13,6 +13,7 @@ import { formatDateTime } from '@/lib/format';
 import { useToast } from '@/providers/ToastProvider';
 import { AlertCard } from '@/components/ui/AlertCard';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { PillNav } from '@/components/ui/PillTabs';
@@ -100,9 +101,11 @@ function Section({
 
 function EditorForm({
   detail,
+  canEdit,
   onClose,
 }: {
   detail: TemplateDetailDto;
+  canEdit: boolean;
   onClose: () => void;
 }) {
   const toast = useToast();
@@ -157,6 +160,37 @@ function EditorForm({
         onClose();
       },
       onError: (e) => setErrors([e.message]),
+    },
+  );
+
+  const [restoring, setRestoring] = useState<number | null>(null);
+  const restore = useApiMutation(
+    (version: number) =>
+      apiClient.post(
+        `/certificates/templates/${detail.id}/versions/${version}/restore`,
+        {},
+      ),
+    {
+      invalidateKeys: [
+        queryKeys.certificates.templates(),
+        queryKeys.certificates.template(detail.id),
+      ],
+      onSuccess: () => {
+        toast({
+          title: 'Versão restaurada numa nova versão.',
+          intent: 'success',
+        });
+        setRestoring(null);
+        onClose();
+      },
+      onError: (e) => {
+        setRestoring(null);
+        toast({
+          title: 'Não foi possível restaurar a versão.',
+          description: e.message,
+          intent: 'danger',
+        });
+      },
     },
   );
 
@@ -490,14 +524,32 @@ function EditorForm({
               {detail.versions.map((v) => (
                 <li
                   key={v.version}
-                  className="flex items-center justify-between rounded border border-border px-3 py-2 text-sm"
+                  className="flex items-center justify-between gap-3 rounded border border-border px-3 py-2 text-sm"
                 >
                   <span className="font-medium text-ink">
                     Versão {v.version}
+                    {v.version === detail.currentVersion && ' (actual)'}
+                    {v.restoredFromVersion != null && (
+                      <span className="ml-2 font-normal text-ink-muted">
+                        Restaurada da versão {v.restoredFromVersion}
+                      </span>
+                    )}
                   </span>
-                  <span className="text-ink-muted">
-                    {formatDateTime(v.createdAt)} ·{' '}
-                    {v.createdByName ?? 'Sistema'}
+                  <span className="flex items-center gap-3 text-ink-muted">
+                    <span>
+                      {formatDateTime(v.createdAt)} ·{' '}
+                      {v.createdByName ?? 'Sistema'}
+                    </span>
+                    {canEdit && v.version !== detail.currentVersion && (
+                      <Button
+                        intent="secondary"
+                        size="sm"
+                        aria-label={`Restaurar versão ${v.version}`}
+                        onClick={() => setRestoring(v.version)}
+                      >
+                        Restaurar
+                      </Button>
+                    )}
                   </span>
                 </li>
               ))}
@@ -520,6 +572,15 @@ function EditorForm({
           </div>
         </div>
       </ModalContent>
+      {restoring !== null && (
+        <ConfirmDialog
+          title={`Restaurar a versão ${restoring}?`}
+          message={`Será criada uma nova versão com o conteúdo da versão ${restoring}. As versões anteriores e os certificados já emitidos não são alterados.`}
+          confirmLabel={restore.isPending ? 'A restaurar…' : 'Restaurar'}
+          onConfirm={() => restore.mutate(restoring)}
+          onCancel={() => setRestoring(null)}
+        />
+      )}
       {preview && (
         <TemplatePreviewModal
           config={preview}
@@ -532,9 +593,11 @@ function EditorForm({
 
 export function TemplateEditorModal({
   templateId,
+  canEdit = true,
   onClose,
 }: {
   templateId: string;
+  canEdit?: boolean;
   onClose: () => void;
 }) {
   const { data, isLoading } = useApiQuery<TemplateDetailDto>(
@@ -550,5 +613,5 @@ export function TemplateEditorModal({
       </Modal>
     );
   }
-  return <EditorForm detail={data} onClose={onClose} />;
+  return <EditorForm detail={data} canEdit={canEdit} onClose={onClose} />;
 }

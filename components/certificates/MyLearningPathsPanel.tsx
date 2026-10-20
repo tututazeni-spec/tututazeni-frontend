@@ -19,8 +19,10 @@ const KIND_LABEL: Record<'COURSE' | 'TRAINING', string> = {
 };
 
 function certificateNote(cert: LearningPathProgress['certificate']): string {
-  if (!cert) return 'Certificado emitido ao concluir todas as unidades obrigatórias';
-  if (cert.status === 'PENDING_APPROVAL') return 'Certificado a aguardar aprovação';
+  if (!cert)
+    return 'Certificado emitido ao concluir todas as unidades obrigatórias';
+  if (cert.status === 'PENDING_APPROVAL')
+    return 'Certificado a aguardar aprovação';
   if (cert.status === 'REVOKED') return 'Certificado revogado';
   if (cert.status === 'EXPIRED') return 'Certificado expirado';
   return 'Certificado emitido';
@@ -111,7 +113,9 @@ export function MyLearningPathsPanel({
                     {KIND_LABEL[u.kind]} · {u.title}
                     {u.required ? '' : ' (opcional)'}
                   </span>
-                  <span className={u.done ? 'text-success-ink' : 'text-ink-faint'}>
+                  <span
+                    className={u.done ? 'text-success-ink' : 'text-ink-faint'}
+                  >
                     {u.done ? 'Concluída' : 'Por concluir'}
                   </span>
                 </li>
