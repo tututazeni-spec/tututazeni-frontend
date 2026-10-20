@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { textToVisemes, VISEMES } from './visemes';
+import { pickViseme, textToVisemes, VISEMES } from './visemes';
 
 const at = (text: string) => textToVisemes(text);
 
@@ -35,5 +35,16 @@ describe('textToVisemes', () => {
     const all = new Set<string>(VISEMES);
     for (const v of at('Explicar de outra forma — próximo passo, quinhentos!'))
       expect(all.has(v)).toBe(true);
+  });
+});
+
+describe('pickViseme', () => {
+  it('escolhe a pose mais frequente da janela', () => {
+    expect(pickViseme(['a', 'a', 'i', 'a'])).toBe('a');
+  });
+  it('dá peso aos fechos de lábios e desempata pela mais recente', () => {
+    expect(pickViseme(['mbp', 'a'])).toBe('mbp');
+    expect(pickViseme(['e', 'i'])).toBe('i');
+    expect(pickViseme([])).toBe('rest');
   });
 });

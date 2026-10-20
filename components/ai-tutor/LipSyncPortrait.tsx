@@ -19,15 +19,21 @@ import {
   VISEMES,
   expressionSrc,
   fallbackFor,
+  pickViseme,
   textToVisemes,
   visemeSrc,
   type Expression,
   type Viseme,
 } from './visemes';
 
-const TICK_MS = 60;
-// Caracteres falados por segundo (voz a rate 1); o cursor realinha a cada palavra.
-const CHARS_PER_SEC = 14;
+const TICK_MS = 30;
+// Cada pose fica visível pelo menos isto; abaixo disso a boca "vibra".
+const HOLD_MS = 120;
+// Velocidade da voz em caracteres/ms: começa neste valor e ajusta-se com o
+// intervalo real entre fronteiras de palavra.
+const DEFAULT_RATE = 0.013;
+const MIN_RATE = 0.006;
+const MAX_RATE = 0.03;
 const BLINK_MS = 130;
 const SMILE_AFTER_SPEECH_MS = 2500;
 
@@ -52,29 +58,77 @@ export function LipSyncPortrait({
   const [smiling, setSmiling] = useState(false);
   // Imagens que não existem (404) — sobem-se na cadeia de fallback.
   const [missing, setMissing] = useState<ReadonlySet<string>>(new Set());
-  const cursor = useRef(0);
   const visemes = useMemo(() => textToVisemes(text), [text]);
   const visemesRef = useRef(visemes);
   visemesRef.current = visemes;
+  const textRef = useRef(text);
+  textRef.current = text;
+  // Estado do cursor de fala (fora do render para não re-renderizar a cada tick).
+  const sync = useRef({
+    cursor: 0,
+    rate: DEFAULT_RATE,
+    boundaryAt: 0, // instante da última fronteira de palavra
+    boundaryIdx: 0,
+    limit: Infinity, // até onde o cursor pode ir antes da próxima fronteira
+    hasBoundaries: false,
+  });
 
-  // Cada fronteira de palavra realinha o cursor com a voz real.
+  // Cada fronteira de palavra realinha o cursor com a voz real, mede a
+  // velocidade e impede o cursor de passar do fim da palavra actual: a boca
+  // fecha no fim de cada palavra à espera da seguinte.
   useEffect(() => {
-    cursor.current = charIndex;
-  }, [charIndex]);
+    if (!speaking) return;
+    const s = sync.current;
+    const now = performance.now();
+    if (charIndex > 0 && s.boundaryAt > 0 && charIndex > s.boundaryIdx) {
+      const measured = (charIndex - s.boundaryIdx) / (now - s.boundaryAt);
+      const clamped = Math.min(MAX_RATE, Math.max(MIN_RATE, measured));
+      s.rate = s.rate * 0.5 + clamped * 0.5;
+      s.hasBoundaries = true;
+    }
+    s.boundaryAt = now;
+    s.boundaryIdx = charIndex;
+    s.cursor = charIndex;
+    if (s.hasBoundaries) {
+      const gap = textRef.current.slice(charIndex).search(/\s/);
+      s.limit = gap < 0 ? Infinity : charIndex + gap;
+    }
+  }, [charIndex, speaking]);
 
   useEffect(() => {
     if (!speaking) {
       setViseme('rest');
       return;
     }
-    const step = (CHARS_PER_SEC * TICK_MS) / 1000;
+    const s = sync.current;
+    s.cursor = 0;
+    s.rate = DEFAULT_RATE;
+    s.boundaryAt = 0;
+    s.boundaryIdx = 0;
+    s.limit = Infinity;
+    s.hasBoundaries = false;
+
+    let last = performance.now();
+    let committed = last;
+    let samples: Viseme[] = [];
     const t = setInterval(() => {
+      const now = performance.now();
       const list = visemesRef.current;
-      setViseme(list[Math.floor(cursor.current)] ?? 'rest');
-      cursor.current = Math.min(cursor.current + step, list.length - 1);
+      s.cursor = Math.min(
+        s.cursor + s.rate * (now - last),
+        s.limit,
+        list.length - 1,
+      );
+      last = now;
+      samples.push(list[Math.floor(s.cursor)] ?? 'rest');
+      if (now - committed >= HOLD_MS) {
+        setViseme(pickViseme(samples));
+        samples = [];
+        committed = now;
+      }
     }, TICK_MS);
     return () => clearInterval(t);
-  }, [speaking]);
+  }, [speaking, text]);
 
   // Piscar a cada 3–6 s, a qualquer momento (também a falar).
   useEffect(() => {
@@ -146,7 +200,7 @@ export function LipSyncPortrait({
       fill
       sizes="320px"
       onError={() => markMissing(src)}
-      className={`object-cover ${withFade ? 'transition-opacity duration-75' : ''}`}
+      className={`object-cover ${withFade ? 'transition-opacity duration-100' : ''}`}
       style={{ opacity }}
     />
   );

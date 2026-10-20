@@ -193,3 +193,25 @@ function reduceUnstressed(
     });
   }
 }
+
+// Escolhe a pose a mostrar para uma janela de amostras: a mais frequente, com
+// peso duplo para os fechos de lábios (m/b/p, f/v) para não serem "comidos" pela
+// vogal seguinte; em empate ganha a mais recente.
+export function pickViseme(samples: readonly Viseme[]): Viseme {
+  if (samples.length === 0) return 'rest';
+  const score = new Map<Viseme, number>();
+  let best: Viseme = samples[samples.length - 1];
+  let bestScore = 0;
+  for (const v of samples) {
+    const w = v === 'mbp' || v === 'fv' ? 2 : 1;
+    score.set(v, (score.get(v) ?? 0) + w);
+  }
+  samples.forEach((v) => {
+    const sc = score.get(v) ?? 0;
+    if (sc >= bestScore) {
+      best = v;
+      bestScore = sc;
+    }
+  });
+  return best;
+}
