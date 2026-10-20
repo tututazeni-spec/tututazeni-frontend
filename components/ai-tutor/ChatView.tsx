@@ -334,127 +334,146 @@ export function ChatView() {
   }
 
   return (
-    <div className="flex flex-col h-[75vh] bg-surface border border-border rounded-panel overflow-hidden shadow-resting">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-primary text-canvas">
-        <IsisAvatar size="md" />
-        <div>
-          <div className="font-body text-sm font-semibold">Ísis — Tutor IA</div>
-          <div className="font-body text-xs text-canvas/80 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 bg-success rounded-full" />
-            Online · Sessão #{session.id}
-          </div>
-        </div>
-        <button
-          onClick={() => {
-            if (voiceEnabled) stop();
-            setVoiceEnabled((v) => !v);
-          }}
-          className="ml-auto text-canvas/80 hover:text-canvas"
-          title={
-            voiceEnabled
-              ? 'Desligar resposta por voz'
-              : 'Ligar resposta por voz'
-          }
-        >
-          {voiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
-        </button>
-        <button
-          onClick={() => {
-            endConversation();
-            setSession(null);
-            setMessages([]);
-          }}
-          className="font-body text-xs text-canvas/70 hover:text-canvas"
-        >
-          Nova sessão
-        </button>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 bg-surface-sunken">
-        {messages.map((m) => (
-          <MessageBubble key={m.id} msg={m} onRate={handleRate} />
-        ))}
-        {thinking && (
-          <div className="flex justify-start mb-3">
-            <IsisAvatar size="sm" className="mr-2" />
-            <div className="bg-surface border border-border rounded-card shadow-resting">
-              <div className="flex items-center gap-1 px-4 py-3">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="w-2 h-2 bg-accent rounded-full animate-bounce"
-                    style={{ animationDelay: `${i * 0.15}s` }}
-                  />
-                ))}
-              </div>
+    <div className="flex gap-4 h-[75vh]">
+      <div className="flex flex-col flex-1 min-w-0 bg-surface border border-border rounded-panel overflow-hidden shadow-resting">
+        {/* Header */}
+        <div className="flex items-center gap-3 px-4 py-3 bg-primary text-canvas">
+          <div>
+            <div className="font-body text-sm font-semibold">
+              Ísis — Tutor IA
+            </div>
+            <div className="font-body text-xs text-canvas/80 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-success rounded-full" />
+              Online · Sessão #{session.id}
             </div>
           </div>
-        )}
-        {speaking && (
-          <div className="mb-3 rounded-card border border-border bg-surface p-3">
-            <SpeakingText text={spokenText} charIndex={charIndex} />
-            <button
-              onClick={stop}
-              className="mt-2 font-body text-xs text-[#D4A017]"
+          <button
+            onClick={() => {
+              if (voiceEnabled) stop();
+              setVoiceEnabled((v) => !v);
+            }}
+            className="ml-auto text-canvas/80 hover:text-canvas"
+            title={
+              voiceEnabled
+                ? 'Desligar resposta por voz'
+                : 'Ligar resposta por voz'
+            }
+          >
+            {voiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </button>
+          <button
+            onClick={() => {
+              endConversation();
+              setSession(null);
+              setMessages([]);
+            }}
+            className="font-body text-xs text-canvas/70 hover:text-canvas"
+          >
+            Nova sessão
+          </button>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 bg-surface-sunken">
+          {messages.map((m) => (
+            <MessageBubble key={m.id} msg={m} onRate={handleRate} />
+          ))}
+          {thinking && (
+            <div className="flex justify-start mb-3">
+              <IsisAvatar size="sm" className="mr-2" />
+              <div className="bg-surface border border-border rounded-card shadow-resting">
+                <div className="flex items-center gap-1 px-4 py-3">
+                  {[0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="w-2 h-2 bg-accent rounded-full animate-bounce"
+                      style={{ animationDelay: `${i * 0.15}s` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          {speaking && (
+            <div className="mb-3 rounded-card border border-border bg-surface p-3">
+              <SpeakingText text={spokenText} charIndex={charIndex} />
+              <button
+                onClick={stop}
+                className="mt-2 font-body text-xs text-[#D4A017]"
+              >
+                Parar voz
+              </button>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Quick actions */}
+        <div className="px-3 py-2 bg-surface border-t border-border flex gap-1.5 overflow-x-auto">
+          {QUICK_ACTIONS.map((a) => (
+            <Button
+              key={a.label}
+              size="sm"
+              intent="secondary"
+              onClick={() => send(a.value)}
+              className="flex-shrink-0 whitespace-nowrap"
             >
-              Parar voz
-            </button>
+              {a.label}
+            </Button>
+          ))}
+        </div>
+
+        {/* Input */}
+        {(conversation || voice.error) && (
+          <div className="px-3 pt-2 bg-surface font-body text-sm">
+            {voice.error ? (
+              <p className="text-red-600">{voice.error}</p>
+            ) : (
+              <p className="text-gray-500">
+                {paused
+                  ? 'Conversa activa — o Ísis está a responder…'
+                  : voice.interim ||
+                    'A ouvir… (diz algo; termina após 10 s de silêncio)'}
+              </p>
+            )}
           </div>
         )}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Quick actions */}
-      <div className="px-3 py-2 bg-surface border-t border-border flex gap-1.5 overflow-x-auto">
-        {QUICK_ACTIONS.map((a) => (
-          <Button
-            key={a.label}
-            size="sm"
-            intent="secondary"
-            onClick={() => send(a.value)}
-            className="flex-shrink-0 whitespace-nowrap"
-          >
-            {a.label}
-          </Button>
-        ))}
-      </div>
-
-      {/* Input */}
-      {(conversation || voice.error) && (
-        <div className="px-3 pt-2 bg-surface font-body text-sm">
-          {voice.error ? (
-            <p className="text-red-600">{voice.error}</p>
-          ) : (
-            <p className="text-gray-500">
-              {paused
-                ? 'Conversa activa — o Ísis está a responder…'
-                : voice.interim ||
-                  'A ouvir… (diz algo; termina após 10 s de silêncio)'}
-            </p>
+        <div className="px-3 py-3 bg-surface border-t border-border flex gap-2">
+          {voice.supported && (
+            <MicButton listening={conversation} onClick={onMicClick} />
           )}
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && send()}
+            placeholder="Escreve a tua pergunta…"
+            disabled={thinking}
+            className="flex-1"
+          />
+          <IconButton
+            icon={Send}
+            label="Enviar mensagem"
+            onClick={() => send()}
+            disabled={!input.trim() || thinking}
+          />
         </div>
-      )}
-      <div className="px-3 py-3 bg-surface border-t border-border flex gap-2">
-        {voice.supported && (
-          <MicButton listening={conversation} onClick={onMicClick} />
-        )}
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && send()}
-          placeholder="Escreve a tua pergunta…"
-          disabled={thinking}
-          className="flex-1"
-        />
-        <IconButton
-          icon={Send}
-          label="Enviar mensagem"
-          onClick={() => send()}
-          disabled={!input.trim() || thinking}
-        />
       </div>
+
+      {/* Retrato da Ísis — fica ao lado do chat */}
+      <aside
+        className={`hidden lg:block w-72 xl:w-80 flex-shrink-0 rounded-panel overflow-hidden border-2 shadow-resting transition-colors ${
+          speaking ? 'border-[#D4A017]' : 'border-border'
+        }`}
+      >
+        <Image
+          src="/images/isis-avatar.png"
+          alt="Ísis - Tutor IA"
+          width={640}
+          height={640}
+          priority
+          className="object-cover w-full h-full"
+        />
+      </aside>
     </div>
   );
 }
