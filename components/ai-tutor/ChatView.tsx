@@ -467,6 +467,7 @@ export function ChatView() {
         }`}
       >
         <LipSyncPortrait
+          thinking={thinking}
           speaking={speaking}
           text={spokenText}
           charIndex={charIndex}
