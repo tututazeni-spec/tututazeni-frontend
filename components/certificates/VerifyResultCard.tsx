@@ -4,6 +4,7 @@
 
 import { AlertCard } from '@/components/ui/AlertCard';
 import { Badge } from '@/components/ui/Badge';
+import { buttonVariants } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { formatDate } from '@/lib/format';
 import type { PublicVerifyResult, VerifyCardResult } from './types';
@@ -33,7 +34,14 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function VerifyResultCard({ result }: { result: VerifyCardResult }) {
+export function VerifyResultCard({
+  result,
+  downloadUrl,
+}: {
+  result: VerifyCardResult;
+  /** Ligação pública do PDF; só é mostrada para certificados válidos. */
+  downloadUrl?: string;
+}) {
   if ('notFound' in result) {
     return (
       <AlertCard
@@ -72,6 +80,14 @@ export function VerifyResultCard({ result }: { result: VerifyCardResult }) {
           <Row label="Válido até" value={formatDate(r.expiresAt)} />
         ) : null}
       </div>
+      {downloadUrl && r.status === 'ACTIVE' && (
+        <a
+          href={downloadUrl}
+          className={`${buttonVariants({ intent: 'primary' })} mt-6 w-full rounded-card px-4 py-3`}
+        >
+          Descarregar PDF
+        </a>
+      )}
     </Card>
   );
 }

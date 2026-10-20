@@ -41,7 +41,10 @@ export default function VerifyCertificatePage() {
           Não foi possível verificar agora. Tente novamente dentro de instantes.
         </p>
       ) : result ? (
-        <VerifyResultCard result={result} />
+        <VerifyResultCard
+          result={result}
+          downloadUrl={`${API_URL}/certificates/verify/${encodeURIComponent(code)}/pdf`}
+        />
       ) : (
         <Skeleton
           rows={1}
