@@ -1,18 +1,27 @@
 // components/ai-tutor/LipSyncPortrait.tsx
 // Retrato da Ísis com a boca a mexer ao ritmo da voz. O speechSynthesis só
 // dá eventos por palavra (`charIndex`), por isso entre eventos avança-se um
-// cursor estimado pelo texto: vogal = boca aberta, consoante/pausa = fechada.
+// cursor estimado pelo texto e cada carácter é convertido num dos 12 visemas
+// (ver visemes.ts). As poses sobrepõem-se e fazem cross-fade; um visema sem
+// imagem usa o retrato de boca fechada/aberta que já existe.
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
+import {
+  FALLBACK_CLOSED,
+  FALLBACK_OPEN,
+  VISEMES,
+  fallbackFor,
+  textToVisemes,
+  visemeSrc,
+  type Viseme,
+} from './visemes';
 
-const TICK_MS = 70;
+const TICK_MS = 60;
 // Caracteres falados por segundo (voz a rate 1); o cursor realinha a cada palavra.
 const CHARS_PER_SEC = 14;
-const OPEN_CHARS = /[aeiouáàâãéêíóôõúü]/i;
-const PAUSE_CHARS = /[\s.,;:!?]/;
 
 interface LipSyncPortraitProps {
   speaking: boolean;
@@ -27,10 +36,12 @@ export function LipSyncPortrait({
   charIndex,
   className = '',
 }: LipSyncPortraitProps) {
-  const [open, setOpen] = useState(false);
+  const [viseme, setViseme] = useState<Viseme>('rest');
+  const [missing, setMissing] = useState<ReadonlySet<Viseme>>(new Set());
   const cursor = useRef(0);
-  const textRef = useRef(text);
-  textRef.current = text;
+  const visemes = useMemo(() => textToVisemes(text), [text]);
+  const visemesRef = useRef(visemes);
+  visemesRef.current = visemes;
 
   // Cada fronteira de palavra realinha o cursor com a voz real.
   useEffect(() => {
@@ -39,40 +50,53 @@ export function LipSyncPortrait({
 
   useEffect(() => {
     if (!speaking) {
-      setOpen(false);
+      setViseme('rest');
       return;
     }
     const step = (CHARS_PER_SEC * TICK_MS) / 1000;
     const t = setInterval(() => {
-      const ch = textRef.current.charAt(Math.floor(cursor.current));
-      cursor.current = Math.min(
-        cursor.current + step,
-        textRef.current.length - 1,
-      );
-      setOpen(OPEN_CHARS.test(ch) && !PAUSE_CHARS.test(ch));
+      const list = visemesRef.current;
+      setViseme(list[Math.floor(cursor.current)] ?? 'rest');
+      cursor.current = Math.min(cursor.current + step, list.length - 1);
     }, TICK_MS);
     return () => clearInterval(t);
   }, [speaking]);
 
+  const markMissing = (v: Viseme) => setMissing((prev) => new Set(prev).add(v));
+
+  // Sem imagem própria, 'rest' é o retrato base e os restantes caem no aberto/fechado.
+  const active =
+    viseme === 'rest' || missing.has(viseme)
+      ? fallbackFor(viseme)
+      : visemeSrc(viseme);
+
+  const layer = (src: string, onError?: () => void) => (
+    <Image
+      key={src}
+      src={src}
+      alt=""
+      aria-hidden
+      fill
+      unoptimized
+      priority
+      sizes="320px"
+      onError={onError}
+      className="object-cover transition-opacity duration-75"
+      style={{ opacity: src === active ? 1 : 0 }}
+    />
+  );
+
   return (
-    <div className={`relative ${className}`}>
-      <Image
-        src="/images/isis-avatar.png"
-        alt="Ísis - Tutor IA"
-        fill
-        priority
-        sizes="320px"
-        className="object-cover"
-      />
-      <Image
-        src="/images/isis-avatar-mouth-open.png"
-        alt=""
-        aria-hidden
-        fill
-        sizes="320px"
-        className="object-cover transition-opacity duration-75"
-        style={{ opacity: open ? 1 : 0 }}
-      />
+    <div
+      role="img"
+      aria-label="Ísis - Tutor IA"
+      className={`relative ${className}`}
+    >
+      {layer(FALLBACK_CLOSED)}
+      {layer(FALLBACK_OPEN)}
+      {VISEMES.filter((v) => v !== 'rest' && !missing.has(v)).map((v) =>
+        layer(visemeSrc(v), () => markMissing(v)),
+      )}
     </div>
   );
 }
