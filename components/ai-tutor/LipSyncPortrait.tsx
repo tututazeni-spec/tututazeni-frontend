@@ -1,8 +1,8 @@
 // components/ai-tutor/LipSyncPortrait.tsx
 // Retrato da Ísis com a boca a mexer ao ritmo da voz. O speechSynthesis só
-// dá eventos por palavra (`charIndex`), por isso entre eventos avança-se um
-// cursor estimado pelo texto e cada carácter é convertido num dos visemas
-// (ver visemes.ts). As poses sobrepõem-se e fazem cross-fade; um visema sem
+// dá eventos por palavra, por isso a fala é uma linha de tempo por sílaba
+// (ver buildTimeline em visemes.ts) cujo relógio é re-ancorado a cada palavra
+// e cuja velocidade é medida na própria voz. As poses sobrepõem-se e fazem cross-fade; um visema sem
 // imagem usa o "pai" ou o retrato de boca fechada/aberta que já existe.
 // Por cima, a Ísis pisca (PNG transparente) e, fora da fala, muda de expressão.
 
@@ -19,22 +19,22 @@ import {
   VISEMES,
   expressionSrc,
   fallbackFor,
-  pickViseme,
-  textToVisemes,
+  buildTimeline,
+  visemeAtUnit,
   visemeSrc,
   type Expression,
   type Viseme,
 } from './visemes';
 
-const TICK_MS = 30;
-// Cada pose fica visível pelo menos isto (~ uma sílaba); abaixo a boca "vibra".
-const HOLD_MS = 190;
+const TICK_MS = 25;
+// Nenhuma pose fica menos que isto (evita a boca "vibrar" em sílabas curtas).
+const MIN_HOLD_MS = 90;
 const FADE_MS = 90;
-// Velocidade da voz em caracteres/ms: começa neste valor e ajusta-se com o
-// intervalo real entre fronteiras de palavra.
-const DEFAULT_RATE = 0.013;
-const MIN_RATE = 0.006;
-const MAX_RATE = 0.03;
+// Velocidade da voz em unidades/ms (ver buildTimeline): começa neste valor e
+// ajusta-se com o intervalo real entre fronteiras de palavra.
+const DEFAULT_RATE = 0.019;
+const MIN_RATE = 0.008;
+const MAX_RATE = 0.04;
 const BLINK_MS = 130;
 const SMILE_AFTER_SPEECH_MS = 2500;
 
@@ -42,6 +42,8 @@ interface LipSyncPortraitProps {
   speaking: boolean;
   text: string;
   charIndex: number;
+  /** Nº de fronteiras de palavra recebidas (muda a cada evento). */
+  boundaryCount?: number;
   /** A Ísis está a pensar na resposta. */
   thinking?: boolean;
   className?: string;
@@ -51,6 +53,7 @@ export function LipSyncPortrait({
   speaking,
   text,
   charIndex,
+  boundaryCount = 0,
   thinking = false,
   className = '',
 }: LipSyncPortraitProps) {
@@ -59,42 +62,45 @@ export function LipSyncPortrait({
   const [smiling, setSmiling] = useState(false);
   // Imagens que não existem (404) — sobem-se na cadeia de fallback.
   const [missing, setMissing] = useState<ReadonlySet<string>>(new Set());
-  const visemes = useMemo(() => textToVisemes(text), [text]);
-  const visemesRef = useRef(visemes);
-  visemesRef.current = visemes;
+  const timeline = useMemo(() => buildTimeline(text), [text]);
+  const timelineRef = useRef(timeline);
+  timelineRef.current = timeline;
   const textRef = useRef(text);
   textRef.current = text;
-  // Estado do cursor de fala (fora do render para não re-renderizar a cada tick).
+  // Relógio da fala (fora do render para não re-renderizar a cada tick):
+  // posição em unidades = (agora - t0) * rate.
   const sync = useRef({
-    cursor: 0,
+    t0: 0,
     rate: DEFAULT_RATE,
-    boundaryAt: 0, // instante da última fronteira de palavra
-    boundaryIdx: 0,
-    limit: Infinity, // até onde o cursor pode ir antes da próxima fronteira
+    prevAt: 0, // instante e posição da última fronteira de palavra
+    prevUnit: 0,
     hasBoundaries: false,
+    limit: Infinity, // não passar do fim da palavra actual antes da próxima
   });
 
-  // Cada fronteira de palavra realinha o cursor com a voz real, mede a
-  // velocidade e impede o cursor de passar do fim da palavra actual: a boca
-  // fecha no fim de cada palavra à espera da seguinte.
+  // Cada fronteira de palavra volta a ancorar a boca à voz real, mede a
+  // velocidade e impede a boca de adiantar-se à voz.
   useEffect(() => {
-    if (!speaking) return;
+    if (!speaking || boundaryCount === 0) return;
     const s = sync.current;
+    const tl = timelineRef.current;
     const now = performance.now();
-    if (charIndex > 0 && s.boundaryAt > 0 && charIndex > s.boundaryIdx) {
-      const measured = (charIndex - s.boundaryIdx) / (now - s.boundaryAt);
+    const unit = tl.unitAtChar[Math.min(charIndex, tl.unitAtChar.length - 1)];
+    if (s.prevAt > 0 && unit > s.prevUnit && now > s.prevAt) {
+      const measured = (unit - s.prevUnit) / (now - s.prevAt);
       const clamped = Math.min(MAX_RATE, Math.max(MIN_RATE, measured));
-      s.rate = s.rate * 0.5 + clamped * 0.5;
+      s.rate = s.rate * 0.6 + clamped * 0.4;
       s.hasBoundaries = true;
     }
-    s.boundaryAt = now;
-    s.boundaryIdx = charIndex;
-    s.cursor = charIndex;
+    s.prevAt = now;
+    s.prevUnit = unit;
+    s.t0 = now - unit / s.rate;
     if (s.hasBoundaries) {
       const gap = textRef.current.slice(charIndex).search(/\s/);
-      s.limit = gap < 0 ? Infinity : charIndex + gap;
+      s.limit =
+        gap < 0 ? Infinity : (tl.unitAtChar[charIndex + gap + 1] ?? Infinity);
     }
-  }, [charIndex, speaking]);
+  }, [boundaryCount, charIndex, speaking]);
 
   useEffect(() => {
     if (!speaking) {
@@ -102,30 +108,24 @@ export function LipSyncPortrait({
       return;
     }
     const s = sync.current;
-    s.cursor = 0;
+    s.t0 = performance.now();
     s.rate = DEFAULT_RATE;
-    s.boundaryAt = 0;
-    s.boundaryIdx = 0;
-    s.limit = Infinity;
+    s.prevAt = 0;
+    s.prevUnit = 0;
     s.hasBoundaries = false;
+    s.limit = Infinity;
 
-    let last = performance.now();
-    let committed = last;
-    let samples: Viseme[] = [];
+    let shown: Viseme = 'rest';
+    let changedAt = 0;
     const t = setInterval(() => {
       const now = performance.now();
-      const list = visemesRef.current;
-      s.cursor = Math.min(
-        s.cursor + s.rate * (now - last),
-        s.limit,
-        list.length - 1,
-      );
-      last = now;
-      samples.push(list[Math.floor(s.cursor)] ?? 'rest');
-      if (now - committed >= HOLD_MS) {
-        setViseme(pickViseme(samples));
-        samples = [];
-        committed = now;
+      const tl = timelineRef.current;
+      const u = Math.min((now - s.t0) * s.rate, s.limit, tl.total);
+      const target = visemeAtUnit(tl.frames, u);
+      if (target !== shown && now - changedAt >= MIN_HOLD_MS) {
+        shown = target;
+        changedAt = now;
+        setViseme(target);
       }
     }, TICK_MS);
     return () => clearInterval(t);

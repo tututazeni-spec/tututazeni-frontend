@@ -116,7 +116,8 @@ export function ChatView() {
   const [personality, setPersonality] = useState('FRIENDLY');
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const { speak, stop, speaking, charIndex, spokenText } = useSpeech();
+  const { speak, stop, speaking, charIndex, boundaryCount, spokenText } =
+    useSpeech();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -478,6 +479,7 @@ export function ChatView() {
           speaking={speaking}
           text={spokenText}
           charIndex={charIndex}
+          boundaryCount={boundaryCount}
           className="w-full h-full"
         />
       </aside>

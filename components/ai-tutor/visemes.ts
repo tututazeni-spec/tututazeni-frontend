@@ -215,3 +215,75 @@ export function pickViseme(samples: readonly Viseme[]): Viseme {
   });
   return best;
 }
+
+// ── Linha de tempo da fala ────────────────────────────────────────────────
+// A voz gasta mais tempo em vogais do que em consoantes e faz pausas nas
+// vírgulas e pontos, por isso o tempo mede-se em "unidades" com peso, não em
+// caracteres. A linha de tempo vai de 0 a `total` unidades; o componente
+// converte unidades em milissegundos com a velocidade medida da voz.
+
+export interface TimelineFrame {
+  viseme: Viseme;
+  start: number;
+  end: number;
+}
+
+export interface SpeechTimeline {
+  frames: TimelineFrame[];
+  /** Unidade em que cada carácter começa (tem text.length + 1 entradas). */
+  unitAtChar: number[];
+  total: number;
+}
+
+const VOWEL_VISEMES: ReadonlySet<Viseme> = new Set([
+  'a',
+  'e',
+  'i',
+  'o',
+  'oa',
+  'u',
+  'ao',
+]);
+
+function charWeight(ch: string, v: Viseme): number {
+  if (/[.!?…]/.test(ch)) return 4;
+  if (/[,;:]/.test(ch)) return 2.5;
+  if (/\s/.test(ch)) return 0.8;
+  if (v === 'rest') return 0.5;
+  return VOWEL_VISEMES.has(v) ? 2 : 1;
+}
+
+export function buildTimeline(text: string): SpeechTimeline {
+  const visemes = textToVisemes(text);
+  const unitAtChar: number[] = new Array(text.length + 1).fill(0);
+  const frames: TimelineFrame[] = [];
+  let u = 0;
+  for (let i = 0; i < text.length; i++) {
+    unitAtChar[i] = u;
+    const w = charWeight(text[i], visemes[i]);
+    const last = frames[frames.length - 1];
+    if (last && last.viseme === visemes[i]) last.end = u + w;
+    else frames.push({ viseme: visemes[i], start: u, end: u + w });
+    u += w;
+  }
+  unitAtChar[text.length] = u;
+  return { frames, unitAtChar, total: u };
+}
+
+/** Pose que corresponde à posição `u` (em unidades) da linha de tempo. */
+export function visemeAtUnit(
+  frames: readonly TimelineFrame[],
+  u: number,
+): Viseme {
+  if (frames.length === 0 || u < 0) return 'rest';
+  let lo = 0;
+  let hi = frames.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >> 1;
+    if (frames[mid].start <= u) lo = mid;
+    else hi = mid - 1;
+  }
+  return u >= frames[lo].end && lo === frames.length - 1
+    ? 'rest'
+    : frames[lo].viseme;
+}

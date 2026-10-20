@@ -34,6 +34,9 @@ export function useSpeech(lang = 'pt-PT') {
   const [supported, setSupported] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
+  // Nº de fronteiras de palavra recebidas: muda a cada evento, mesmo que o
+  // `charIndex` repita o valor (ex.: primeira palavra, índice 0).
+  const [boundaryCount, setBoundaryCount] = useState(0);
   const [spokenText, setSpokenText] = useState('');
   const voiceRef = useRef<SpeechSynthesisVoice | null>(null);
 
@@ -76,12 +79,16 @@ export function useSpeech(lang = 'pt-PT') {
 
       setSpokenText(text);
       setCharIndex(0);
+      setBoundaryCount(0);
       // já "a falar" para o modo conversa não reabrir o microfone no intervalo
       // até onstart.
       setSpeaking(true);
 
       u.onstart = () => setSpeaking(true);
-      u.onboundary = (e) => setCharIndex(e.charIndex);
+      u.onboundary = (e) => {
+        setCharIndex(e.charIndex);
+        if (!e.name || e.name === 'word') setBoundaryCount((n) => n + 1);
+      };
       u.onend = () => {
         setSpeaking(false);
         setCharIndex(text.length);
@@ -93,5 +100,13 @@ export function useSpeech(lang = 'pt-PT') {
     [supported, lang],
   );
 
-  return { supported, speaking, charIndex, spokenText, speak, stop };
+  return {
+    supported,
+    speaking,
+    charIndex,
+    boundaryCount,
+    spokenText,
+    speak,
+    stop,
+  };
 }

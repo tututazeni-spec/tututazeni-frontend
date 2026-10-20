@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { pickViseme, textToVisemes, VISEMES } from './visemes';
+import {
+  buildTimeline,
+  pickViseme,
+  textToVisemes,
+  visemeAtUnit,
+  VISEMES,
+} from './visemes';
 
 const at = (text: string) => textToVisemes(text);
 
@@ -46,5 +52,23 @@ describe('pickViseme', () => {
     expect(pickViseme(['mbp', 'a'])).toBe('mbp');
     expect(pickViseme(['e', 'i'])).toBe('i');
     expect(pickViseme([])).toBe('rest');
+  });
+});
+
+describe('buildTimeline', () => {
+  it('dá mais tempo às vogais que às consoantes e pausa nos pontos', () => {
+    const t = buildTimeline('ma. ba');
+    expect(t.unitAtChar).toHaveLength('ma. ba'.length + 1);
+    expect(t.unitAtChar[1] - t.unitAtChar[0]).toBe(1); // m
+    expect(t.unitAtChar[2] - t.unitAtChar[1]).toBe(2); // a
+    expect(t.unitAtChar[3] - t.unitAtChar[2]).toBe(4); // .
+    expect(t.total).toBe(t.unitAtChar['ma. ba'.length]);
+  });
+  it('visemeAtUnit devolve a pose da posição e repouso depois do fim', () => {
+    const t = buildTimeline('ma');
+    expect(visemeAtUnit(t.frames, 0.5)).toBe('mbp');
+    expect(visemeAtUnit(t.frames, 1.5)).toBe('a');
+    expect(visemeAtUnit(t.frames, 99)).toBe('rest');
+    expect(visemeAtUnit([], 1)).toBe('rest');
   });
 });
