@@ -144,8 +144,6 @@ export function LipSyncPortrait({
       alt=""
       aria-hidden
       fill
-      unoptimized
-      priority
       sizes="320px"
       onError={() => markMissing(src)}
       className={`object-cover ${withFade ? 'transition-opacity duration-75' : ''}`}
@@ -167,7 +165,8 @@ export function LipSyncPortrait({
       {EXPRESSIONS.filter((e) => !missing.has(expressionSrc(e))).map((e) =>
         layer(expressionSrc(e), expressionSrc(e) === active ? 1 : 0),
       )}
-      {!missing.has(BLINK_SRC) && layer(BLINK_SRC, blinking ? 1 : 0, false)}
+      {!missing.has(BLINK_SRC) &&
+        layer(BLINK_SRC, blinking && !speaking ? 1 : 0, false)}
     </div>
   );
 }
