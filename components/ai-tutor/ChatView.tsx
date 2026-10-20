@@ -30,6 +30,12 @@ import type {
 // Silêncio máximo (ms) antes de terminar o modo conversa.
 const CONVERSATION_IDLE_MS = 10_000;
 
+// Interromper o Ísis por voz exige que o microfone fique aberto enquanto ela
+// fala. Com colunas ele ouve a voz dela e, se o filtro de eco falha, corta a
+// fala e trata-a como nova pergunta (loop). Por defeito o microfone fica
+// fechado enquanto ela fala; para a calar usa-se "Parar voz" ou o microfone.
+const ALLOW_VOICE_INTERRUPT = false;
+
 // Palavras que interrompem sempre (mesmo que existam no texto falado, ex.: "para").
 const STOP_WORD = /^(pára|para|chega|espera|stop|cala)/i;
 
@@ -212,7 +218,7 @@ export function ChatView() {
     // Enquanto o Ísis fala, o que é só eco da voz dela é ignorado; o resto é
     // o utilizador a interromper: calar a voz e tratar como nova pergunta.
     if (speaking) {
-      if (isEcho(text, spokenText)) return;
+      if (!ALLOW_VOICE_INTERRUPT || isEcho(text, spokenText)) return;
       stop();
     }
     // Só "pára"/"chega": calar sem enviar nada ao tutor.
@@ -249,15 +255,15 @@ export function ChatView() {
 
   // Reabre o microfone quando a conversa está activa e ninguém está a falar.
   useEffect(() => {
-    if (!conversation || thinking || voice.listening || voice.error) return;
+    if (!conversation || paused || voice.listening || voice.error) return;
     const t = setTimeout(startListening, 250);
     return () => clearTimeout(t);
-  }, [conversation, thinking, voice.listening, voice.error, startListening]);
+  }, [conversation, paused, voice.listening, voice.error, startListening]);
 
   // Pausa o microfone enquanto o Ísis pensa ou fala.
   useEffect(() => {
-    if (thinking) stopListening();
-  }, [thinking, stopListening]);
+    if (thinking || (speaking && !ALLOW_VOICE_INTERRUPT)) stopListening();
+  }, [thinking, speaking, stopListening]);
 
   // 10 s de silêncio terminam a conversa; ouvir voz (interim) reinicia a contagem.
   useEffect(() => {
@@ -273,6 +279,7 @@ export function ChatView() {
   // da própria voz, cala-se logo (a pergunta segue quando a frase terminar).
   useEffect(() => {
     if (
+      ALLOW_VOICE_INTERRUPT &&
       conversation &&
       speaking &&
       voice.interim &&
