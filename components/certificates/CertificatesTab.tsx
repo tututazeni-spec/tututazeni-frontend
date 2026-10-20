@@ -8,7 +8,7 @@
 
 import { useEffect, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Download, FileUp, Layers } from 'lucide-react';
+import { Download, FileUp, Layers, Route } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { usePdfDownload } from '@/hooks/usePdfDownload';
 import { apiClient } from '@/lib/apiClient';
@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/Table';
 import { ImportExternalModal } from './ImportExternalModal';
 import { BatchIssueModal } from './BatchIssueModal';
+import { ReconcilePathsModal } from './ReconcilePathsModal';
 import { ReasonDialog } from './ReasonDialog';
 import { ExportMenu } from './ExportMenu';
 import { KIND_LABEL, STATUS_INTENT, STATUS_LABEL } from './labels';
@@ -240,7 +241,7 @@ export function CertificatesTab({
     row: AdminCertificateRow;
   } | null>(null);
   const [reasonError, setReasonError] = useState<string | undefined>();
-  const [modal, setModal] = useState<'import' | 'batch' | null>(null);
+  const [modal, setModal] = useState<'import' | 'batch' | 'paths' | null>(null);
 
   const withReason = useApiMutation(
     (v: { kind: 'revoke' | 'reissue'; id: number; reason: string }) =>
@@ -306,6 +307,10 @@ export function CertificatesTab({
             <Button intent="secondary" onClick={() => setModal('import')}>
               <FileUp size={14} strokeWidth={1.75} />
               Importar certificado externo
+            </Button>
+            <Button intent="secondary" onClick={() => setModal('paths')}>
+              <Route size={14} strokeWidth={1.75} />
+              Reconciliar trilhas
             </Button>
             <Button onClick={() => setModal('batch')}>
               <Layers size={14} strokeWidth={1.75} />
@@ -467,6 +472,9 @@ export function CertificatesTab({
         <ImportExternalModal onClose={() => setModal(null)} />
       )}
       {modal === 'batch' && <BatchIssueModal onClose={() => setModal(null)} />}
+      {modal === 'paths' && (
+        <ReconcilePathsModal onClose={() => setModal(null)} />
+      )}
     </div>
   );
 }
