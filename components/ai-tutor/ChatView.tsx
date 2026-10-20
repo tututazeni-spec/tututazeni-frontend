@@ -29,6 +29,27 @@ import type {
 // Silêncio máximo (ms) antes de terminar o modo conversa.
 const CONVERSATION_IDLE_MS = 10_000;
 
+// Palavras que interrompem sempre (mesmo que existam no texto falado, ex.: "para").
+const STOP_WORD = /^(pára|para|chega|espera|stop|cala)/i;
+
+const words = (t: string) =>
+  t
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+
+// O microfone apanha a voz do Ísis nas colunas: se quase todas as palavras
+// ouvidas estão no texto que ela está a dizer, é eco e não o utilizador.
+function isEcho(heard: string, spoken: string): boolean {
+  const h = words(heard);
+  if (h.length === 0) return true;
+  if (h.length <= 3 && STOP_WORD.test(heard.trim())) return false;
+  const pool = new Set(words(spoken));
+  return h.filter((w) => pool.has(w)).length / h.length >= 0.6;
+}
+
 const PERSONALITIES = [
   { id: 'FRIENDLY', label: 'Amigável' },
   { id: 'PROFESSIONAL', label: 'Profissional' },
@@ -186,7 +207,16 @@ export function ChatView() {
   };
 
   const voice = useVoiceInput((text) => {
-    if (text) void send(text, true);
+    if (!text) return;
+    // Enquanto o Ísis fala, o que é só eco da voz dela é ignorado; o resto é
+    // o utilizador a interromper: calar a voz e tratar como nova pergunta.
+    if (speaking) {
+      if (isEcho(text, spokenText)) return;
+      stop();
+    }
+    // Só "pára"/"chega": calar sem enviar nada ao tutor.
+    if (words(text).length <= 2 && STOP_WORD.test(text.trim())) return;
+    void send(text, true);
   });
 
   // Modo conversa: um clique mantém a conversa activa. O reconhecimento do
@@ -218,15 +248,15 @@ export function ChatView() {
 
   // Reabre o microfone quando a conversa está activa e ninguém está a falar.
   useEffect(() => {
-    if (!conversation || paused || voice.listening || voice.error) return;
+    if (!conversation || thinking || voice.listening || voice.error) return;
     const t = setTimeout(startListening, 250);
     return () => clearTimeout(t);
-  }, [conversation, paused, voice.listening, voice.error, startListening]);
+  }, [conversation, thinking, voice.listening, voice.error, startListening]);
 
   // Pausa o microfone enquanto o Ísis pensa ou fala.
   useEffect(() => {
-    if (paused) stopListening();
-  }, [paused, stopListening]);
+    if (thinking) stopListening();
+  }, [thinking, stopListening]);
 
   // 10 s de silêncio terminam a conversa; ouvir voz (interim) reinicia a contagem.
   useEffect(() => {
@@ -237,6 +267,19 @@ export function ChatView() {
     }, CONVERSATION_IDLE_MS);
     return () => clearTimeout(t);
   }, [conversation, paused, voice.interim, stopListening]);
+
+  // Interromper por voz: se, enquanto fala, o Ísis ouvir algo que não é eco
+  // da própria voz, cala-se logo (a pergunta segue quando a frase terminar).
+  useEffect(() => {
+    if (
+      conversation &&
+      speaking &&
+      voice.interim &&
+      !isEcho(voice.interim, spokenText)
+    ) {
+      stop();
+    }
+  }, [conversation, speaking, voice.interim, spokenText, stop]);
 
   // Sem permissão (ou erro do microfone) não vale a pena continuar.
   useEffect(() => {
