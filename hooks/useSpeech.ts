@@ -76,6 +76,9 @@ export function useSpeech(lang = 'pt-PT') {
 
       setSpokenText(text);
       setCharIndex(0);
+      // já "a falar" para o modo conversa não reabrir o microfone no intervalo
+      // até onstart.
+      setSpeaking(true);
 
       u.onstart = () => setSpeaking(true);
       u.onboundary = (e) => setCharIndex(e.charIndex);

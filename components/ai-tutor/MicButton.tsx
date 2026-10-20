@@ -17,7 +17,7 @@ export function MicButton({ listening, onClick, disabled }: MicButtonProps) {
       type="button"
       onClick={onClick}
       disabled={disabled}
-      aria-label={listening ? 'Parar gravação' : 'Falar com o tutor'}
+      aria-label={listening ? 'Terminar conversa' : 'Falar com o tutor'}
       className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full transition disabled:opacity-50 ${
         listening
           ? 'animate-pulse bg-red-500 text-white'

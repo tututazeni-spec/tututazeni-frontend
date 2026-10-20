@@ -26,6 +26,9 @@ import type {
   StartSessionResponse,
 } from './types';
 
+// Silêncio máximo (ms) antes de terminar o modo conversa.
+const CONVERSATION_IDLE_MS = 10_000;
+
 const PERSONALITIES = [
   { id: 'FRIENDLY', label: 'Amigável' },
   { id: 'PROFESSIONAL', label: 'Profissional' },
@@ -186,13 +189,59 @@ export function ChatView() {
     if (text) void send(text, true);
   });
 
+  // Modo conversa: um clique mantém a conversa activa. O reconhecimento do
+  // browser pára sozinho após cada frase, por isso reabre-se enquanto a
+  // conversa durar. Pausa quando o Ísis pensa ou fala (para não ouvir a
+  // própria voz) e termina após 10 s sem o utilizador falar; a contagem
+  // recomeça sempre que o Ísis acaba de falar.
+  const [conversation, setConversation] = useState(false);
+  const { start: startListening, stop: stopListening } = voice;
+  const paused = thinking || speaking;
+
+  const endConversation = () => {
+    setConversation(false);
+    stopListening();
+    stop();
+  };
+
   // Ao carregar no microfone o tutor cala-se primeiro; o unlock cobre o
   // Safari/iPhone, que só fala a partir de um toque.
   const onMicClick = () => {
+    if (conversation) {
+      endConversation();
+      return;
+    }
     stop();
     unlockSpeech();
-    voice.toggle();
+    setConversation(true);
   };
+
+  // Reabre o microfone quando a conversa está activa e ninguém está a falar.
+  useEffect(() => {
+    if (!conversation || paused || voice.listening || voice.error) return;
+    const t = setTimeout(startListening, 250);
+    return () => clearTimeout(t);
+  }, [conversation, paused, voice.listening, voice.error, startListening]);
+
+  // Pausa o microfone enquanto o Ísis pensa ou fala.
+  useEffect(() => {
+    if (paused) stopListening();
+  }, [paused, stopListening]);
+
+  // 10 s de silêncio terminam a conversa; ouvir voz (interim) reinicia a contagem.
+  useEffect(() => {
+    if (!conversation || paused) return;
+    const t = setTimeout(() => {
+      setConversation(false);
+      stopListening();
+    }, CONVERSATION_IDLE_MS);
+    return () => clearTimeout(t);
+  }, [conversation, paused, voice.interim, stopListening]);
+
+  // Sem permissão (ou erro do microfone) não vale a pena continuar.
+  useEffect(() => {
+    if (voice.error) setConversation(false);
+  }, [voice.error]);
 
   const handleRate = async (msgId: number, rating: number) => {
     try {
@@ -269,6 +318,7 @@ export function ChatView() {
         </button>
         <button
           onClick={() => {
+            endConversation();
             setSession(null);
             setMessages([]);
           }}
@@ -329,22 +379,23 @@ export function ChatView() {
       </div>
 
       {/* Input */}
-      {(voice.listening || voice.error) && (
+      {(conversation || voice.error) && (
         <div className="px-3 pt-2 bg-surface font-body text-sm">
           {voice.error ? (
             <p className="text-red-600">{voice.error}</p>
           ) : (
-            <p className="text-gray-500">{voice.interim || 'A ouvir…'}</p>
+            <p className="text-gray-500">
+              {paused
+                ? 'Conversa activa — o Ísis está a responder…'
+                : voice.interim ||
+                  'A ouvir… (diz algo; termina após 10 s de silêncio)'}
+            </p>
           )}
         </div>
       )}
       <div className="px-3 py-3 bg-surface border-t border-border flex gap-2">
         {voice.supported && (
-          <MicButton
-            listening={voice.listening}
-            onClick={onMicClick}
-            disabled={thinking}
-          />
+          <MicButton listening={conversation} onClick={onMicClick} />
         )}
         <Input
           value={input}

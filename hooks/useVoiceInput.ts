@@ -20,6 +20,7 @@ interface Recognition {
   interimResults: boolean;
   onresult: ((e: RecognitionEvent) => void) | null;
   onerror: ((e: { error: string }) => void) | null;
+  onstart: (() => void) | null;
   onend: (() => void) | null;
   start: () => void;
   stop: () => void;
@@ -71,6 +72,7 @@ export function useVoiceInput(onFinal: (text: string) => void, lang = 'pt-PT') {
       }
       setListening(false);
     };
+    rec.onstart = () => setListening(true);
     rec.onend = () => {
       setListening(false);
       setInterim('');
@@ -81,6 +83,7 @@ export function useVoiceInput(onFinal: (text: string) => void, lang = 'pt-PT') {
     return () => {
       rec.onresult = null;
       rec.onerror = null;
+      rec.onstart = null;
       rec.onend = null;
       try {
         rec.stop();
@@ -90,21 +93,24 @@ export function useVoiceInput(onFinal: (text: string) => void, lang = 'pt-PT') {
     };
   }, [lang]);
 
-  const toggle = useCallback(() => {
+  const start = useCallback(() => {
     const rec = recRef.current;
     if (!rec) return;
     setError(null);
-    if (listening) {
-      rec.stop();
-    } else {
-      try {
-        rec.start();
-        setListening(true);
-      } catch {
-        // start() duplicado enquanto ainda está a terminar
-      }
+    try {
+      rec.start();
+    } catch {
+      // start() duplicado enquanto ainda está a terminar
     }
-  }, [listening]);
+  }, []);
 
-  return { supported, listening, interim, error, toggle };
+  const stop = useCallback(() => {
+    try {
+      recRef.current?.stop();
+    } catch {
+      // já parado
+    }
+  }, []);
+
+  return { supported, listening, interim, error, start, stop };
 }
