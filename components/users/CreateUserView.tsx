@@ -8,9 +8,10 @@
 
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, X } from 'lucide-react';
-import { useApiMutation } from '@/hooks/useApiQuery';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
@@ -20,6 +21,7 @@ import {
   email as emailValidator,
   required as requiredRule,
 } from '@/lib/validation';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -316,6 +318,17 @@ type StringKeys = {
   [K in keyof UserFormValues]: UserFormValues[K] extends string ? K : never;
 }[keyof UserFormValues];
 
+// Resposta de GET /users/email-check (formato de email do tenant).
+interface EmailCheck {
+  enforced: boolean;
+  domain: string | null;
+  mode: 'SUGGEST' | 'ENFORCE' | null;
+  suggestion: string | null;
+  violations: string[];
+  taken: boolean;
+  alternatives: string[];
+}
+
 export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
   const {
     values: form,
@@ -407,6 +420,30 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
 
   const [submitError, setSubmitError] = useState('');
   const error = validationError || submitError;
+
+  // Formato de email do tenant: sugere nome.apelido@domínio a partir do nome
+  // completo, enquanto o Admin não editar o campo à mão.
+  const [emailEdited, setEmailEdited] = useState(false);
+  const debouncedName = useDebounce(form.fullName.trim());
+  const debouncedEmail = useDebounce(form.email.trim());
+  const { data: emailCheck } = useApiQuery<EmailCheck>(
+    queryKeys.users.emailCheck(debouncedName, debouncedEmail),
+    '/users/email-check',
+    {
+      params: { fullName: debouncedName, email: debouncedEmail || undefined },
+      enabled: debouncedName.length >= 2,
+      staleTime: 30_000,
+    },
+  );
+  useEffect(() => {
+    if (
+      emailCheck?.suggestion &&
+      !emailEdited &&
+      form.email !== emailCheck.suggestion
+    ) {
+      setField('email', emailCheck.suggestion);
+    }
+  }, [emailCheck?.suggestion, emailEdited, form.email, setField]);
 
   const handle =
     <K extends StringKeys>(k: K) =>
@@ -812,14 +849,33 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
           />
 
           <SectionTitle>Dados de contacto</SectionTitle>
-          <Field
-            label="Email profissional"
-            id="email"
-            type="email"
-            required
-            value={form.email}
-            onChange={handle('email')}
-          />
+          <div>
+            <FormField
+              label="Email profissional *"
+              htmlFor="email"
+              hint={
+                emailCheck?.enforced && emailCheck.domain
+                  ? `Formato da organização: nome.apelido@${emailCheck.domain}`
+                  : undefined
+              }
+              error={
+                emailCheck?.enforced && form.email.trim() === debouncedEmail
+                  ? emailCheck.violations[0]
+                  : undefined
+              }
+            >
+              <Input
+                id="email"
+                type="email"
+                value={form.email}
+                onChange={(e) => {
+                  setEmailEdited(true);
+                  setField('email', e.target.value);
+                }}
+                className="w-full"
+              />
+            </FormField>
+          </div>
           <Field
             label="Email pessoal"
             id="personalEmail"
@@ -827,6 +883,37 @@ export function CreateUserView({ onBack, onCreated }: CreateUserViewProps) {
             value={form.personalEmail}
             onChange={handle('personalEmail')}
           />
+          {emailCheck?.enforced && emailCheck.taken && (
+            <div className="col-span-2 space-y-2">
+              <AlertCard
+                variant="warning"
+                title="Este email já está em uso"
+                message={
+                  emailCheck.alternatives.length > 0
+                    ? 'Escolha uma das alternativas livres ou edite o email.'
+                    : 'Edite o email para um que ainda não exista.'
+                }
+              />
+              {emailCheck.alternatives.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {emailCheck.alternatives.map((alt) => (
+                    <Button
+                      key={alt}
+                      type="button"
+                      intent="secondary"
+                      size="sm"
+                      onClick={() => {
+                        setEmailEdited(true);
+                        setField('email', alt);
+                      }}
+                    >
+                      {alt}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           <Field
             label="Telefone"
             id="phone"
