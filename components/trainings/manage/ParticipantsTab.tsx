@@ -8,7 +8,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, Plus, Users as UsersIcon } from 'lucide-react';
+import { Award, CheckCircle2, Download, Plus, Users as UsersIcon } from 'lucide-react';
+import { usePdfDownload } from '@/hooks/usePdfDownload';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -43,6 +44,25 @@ const STATUS_ITEMS = [
   { value: 'CANCELLED', label: 'Cancelado' },
 ];
 
+/** Descarrega o PDF do certificado do participante (só quando já está activo). */
+function CertificateButton({ certificateId }: { certificateId: number }) {
+  const { download, loading } = usePdfDownload(
+    'certificate',
+    String(certificateId),
+  );
+  return (
+    <Button
+      intent="secondary"
+      size="sm"
+      onClick={() => void download()}
+      disabled={loading}
+    >
+      <Award size={14} strokeWidth={1.75} />
+      Certificado
+    </Button>
+  );
+}
+
 export function ParticipantsTab({ training }: ParticipantsTabProps) {
   const toast = useToast();
   const sessions = training.sessions ?? [];
@@ -53,6 +73,7 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
   const [addUserIds, setAddUserIds] = useState<number[]>([]);
   const [transferring, setTransferring] = useState<Participant | null>(null);
   const [targetSessionId, setTargetSessionId] = useState<string>('');
+  const [selected, setSelected] = useState<number[]>([]);
 
   const { data: participants = [], refetch } = useApiQuery<Participant[]>(
     ['trainings', 'session-participants', sessionId],
@@ -89,6 +110,24 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
     ({ id, status }: { id: number; status: string }) =>
       apiClient.patch(`/trainings/participants/${id}/status`, { status }),
     { onSuccess: invalidate, onError: onErr },
+  );
+  const bulkComplete = useApiMutation(
+    () =>
+      apiClient.post('/trainings/participants/bulk-complete', {
+        participantIds: selected,
+      }),
+    {
+      onSuccess: (res: unknown) => {
+        const r = res as { completed?: number; failed?: number };
+        toast({
+          title: `${r.completed ?? 0} participante(s) concluído(s)${r.failed ? `, ${r.failed} falharam` : ''}.`,
+          intent: r.failed ? 'info' : 'success',
+        });
+        setSelected([]);
+        invalidate();
+      },
+      onError: onErr,
+    },
   );
   const bulkRegister = useApiMutation(
     () =>
@@ -137,6 +176,19 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
   }
 
   const pending = participants.filter((p) => p.status === 'PENDING_APPROVAL');
+  // Só quem ainda não concluiu pode ser seleccionado para conclusão em lote.
+  const completable = participants.filter(
+    (p) =>
+      p.status === 'REGISTERED' ||
+      p.status === 'ATTENDED' ||
+      p.status === 'ABSENT',
+  );
+  const allSelected =
+    completable.length > 0 && completable.every((p) => selected.includes(p.id));
+  const toggleSelected = (id: number) =>
+    setSelected((ids) =>
+      ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
+    );
   const otherSessions = sessions.filter((s) => s.id !== sessionId);
 
   return (
@@ -204,6 +256,31 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
         </Card>
       )}
 
+      {training.issueCertificate && completable.length > 0 && (
+        <Card className="flex flex-wrap items-center justify-between gap-3 p-3">
+          <label className="flex items-center gap-2 text-sm text-ink-muted">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={() =>
+                setSelected(allSelected ? [] : completable.map((p) => p.id))
+              }
+            />
+            Seleccionar todos ({completable.length})
+          </label>
+          <Button
+            size="sm"
+            disabled={selected.length === 0}
+            loading={bulkComplete.isPending}
+            onClick={() => bulkComplete.mutate(undefined)}
+          >
+            <CheckCircle2 size={14} strokeWidth={1.75} />
+            Marcar como concluído
+            {selected.length > 0 ? ` (${selected.length})` : ''}
+          </Button>
+        </Card>
+      )}
+
       {participants.length === 0 ? (
         <EmptyState
           title="Sem participantes"
@@ -218,6 +295,15 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
                 key={p.id}
                 className="flex flex-wrap items-center gap-3 px-4 py-3"
               >
+                {training.issueCertificate && (
+                  <input
+                    type="checkbox"
+                    aria-label={`Seleccionar ${p.user.fullName}`}
+                    disabled={!completable.some((c) => c.id === p.id)}
+                    checked={selected.includes(p.id)}
+                    onChange={() => toggleSelected(p.id)}
+                  />
+                )}
                 <Avatar
                   name={p.user.fullName}
                   url={p.user.avatarUrl ?? undefined}
@@ -233,6 +319,16 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
                   </div>
                 </div>
                 <StatusBadge value={p.status} map={PARTICIPANT_CFG} />
+                {p.certificate &&
+                  (p.certificate.status === 'ACTIVE' ||
+                    p.certificate.status === 'EXPIRED') && (
+                    <CertificateButton certificateId={p.certificate.id} />
+                  )}
+                {p.certificate?.status === 'PENDING_APPROVAL' && (
+                  <span className="font-body text-xs text-warning-ink">
+                    Certificado a aguardar aprovação
+                  </span>
+                )}
                 <Select
                   items={STATUS_ITEMS}
                   value={p.status}

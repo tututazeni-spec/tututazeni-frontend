@@ -100,6 +100,8 @@ export interface Training {
   mandatory: boolean;
   passingScore: number;
   issueCertificate: boolean;
+  completionMode: TrainingCompletionMode;
+  minAttendancePercent: number;
   cost: number | null;
   completionDeadlineDays: number | null;
   startDate: string | null;
@@ -183,6 +185,9 @@ export interface Session {
   _count: { participants: number };
 }
 
+/** Como a conclusão é decidida para efeitos de certificado. */
+export type TrainingCompletionMode = 'MANUAL' | 'ATTENDANCE' | 'HYBRID';
+
 export interface Participant {
   id: number;
   status: ParticipantStatus;
@@ -190,6 +195,8 @@ export interface Participant {
   attendedHours: number | null;
   completedAt: string | null;
   createdAt: string;
+  /** Certificado desta formação para o participante (o mais recente), se já foi emitido. */
+  certificate?: { id: number; status: string } | null;
   user: {
     id: number;
     fullName: string;

@@ -117,6 +117,8 @@ describe('TrainingFormModal — criação', () => {
       passingScore: 70,
       mandatory: false,
       issueCertificate: false,
+      completionMode: 'MANUAL',
+      minAttendancePercent: 75,
       requiresApproval: false,
       priority: 'MEDIUM',
       targetDeptIds: [],

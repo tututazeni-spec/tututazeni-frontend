@@ -1451,6 +1451,8 @@ export const queryKeys = {
   certificates: {
     all: ['certificates'] as const,
     overview: () => [...queryKeys.certificates.all, 'overview'] as const,
+    myLearningPaths: () =>
+      [...queryKeys.certificates.all, 'my-learning-paths'] as const,
     list: (params: unknown) =>
       [...queryKeys.certificates.all, 'list', params] as const,
     rules: () => [...queryKeys.certificates.all, 'rules'] as const,

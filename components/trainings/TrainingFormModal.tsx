@@ -26,7 +26,7 @@ import { Select } from '@/components/ui/Select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { Textarea } from '@/components/ui/Textarea';
 import { CourseImageField } from '../courses/CourseImageField';
-import type { Training } from './types';
+import type { Training, TrainingCompletionMode } from './types';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { MultiPickField, parsePickValue } from './plans/MultiPickField';
 import {
@@ -37,6 +37,8 @@ import {
 } from './ScheduleField';
 import { SinglePickField } from './SinglePickField';
 import {
+  COMPLETION_MODE_HINT,
+  COMPLETION_MODE_ITEMS,
   TRAINING_AUDIENCE_OPTIONS,
   TRAINING_CATEGORY_OPTIONS,
   TRAINING_MODALITY_DETAIL_OPTIONS,
@@ -221,6 +223,9 @@ export function TrainingFormModal({
       mandatory: training?.mandatory ?? false,
       passingScore: training?.passingScore?.toString() ?? '70',
       issueCertificate: training?.issueCertificate ?? false,
+      completionMode: training?.completionMode ?? 'MANUAL',
+      minAttendancePercent:
+        training?.minAttendancePercent?.toString() ?? '75',
       startDate: training?.startDate?.slice(0, 10) ?? '',
       endDate: training?.endDate?.slice(0, 10) ?? '',
       completionDeadlineDays:
@@ -314,6 +319,10 @@ export function TrainingFormModal({
     if (form.endDate) payload.endDate = new Date(form.endDate).toISOString();
     payload.mandatory = form.mandatory;
     payload.issueCertificate = form.issueCertificate;
+    payload.completionMode = form.completionMode;
+    if (form.minAttendancePercent) {
+      payload.minAttendancePercent = n(form.minAttendancePercent);
+    }
     payload.requiresApproval = form.requiresApproval;
 
     (
@@ -952,6 +961,48 @@ export function TrainingFormModal({
                     className="w-full max-w-[160px]"
                   />
                 </FormField>
+              )}
+
+              {form.issueCertificate && (
+                <>
+                  <FormField
+                    label="Como se decide a conclusão"
+                    htmlFor="tf-completionMode"
+                  >
+                    <Select
+                      items={COMPLETION_MODE_ITEMS}
+                      value={form.completionMode}
+                      onValueChange={(v) =>
+                        setField(
+                          'completionMode',
+                          v as TrainingCompletionMode,
+                        )
+                      }
+                      className="w-full"
+                    />
+                  </FormField>
+                  <p className="text-xs text-ink-faint">
+                    {COMPLETION_MODE_HINT[form.completionMode]}
+                  </p>
+                  {form.completionMode !== 'MANUAL' && (
+                    <FormField
+                      label="Presença mínima (%)"
+                      htmlFor="tf-minAttendancePercent"
+                    >
+                      <Input
+                        id="tf-minAttendancePercent"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={form.minAttendancePercent}
+                        onChange={(e) =>
+                          setField('minAttendancePercent', e.target.value)
+                        }
+                        className="w-full max-w-[160px]"
+                      />
+                    </FormField>
+                  )}
+                </>
               )}
             </TabsContent>
 
