@@ -10,7 +10,10 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { AlertCard } from '@/components/ui/AlertCard';
 import { Button } from '@/components/ui/Button';
+import { FormField } from '@/components/ui/FormField';
 import { Modal, ModalContent } from '@/components/ui/Modal';
+import { Select } from '@/components/ui/Select';
+import { useLearningPathOptions } from '@/components/users/createUserData';
 
 interface ReconcileReport {
   dryRun: boolean;
@@ -25,13 +28,28 @@ interface ReconcileReport {
 }
 
 const URL = '/certificates/reconcile-learning-paths';
+const ALL = 'ALL';
+
+function reconcileUrl(pathId: string, dryRun: boolean): string {
+  const qs = new URLSearchParams();
+  if (pathId !== ALL) qs.set('learningPathId', pathId);
+  if (!dryRun) qs.set('dryRun', 'false');
+  const q = qs.toString();
+  return q ? `${URL}?${q}` : URL;
+}
 
 export function ReconcilePathsModal({ onClose }: { onClose: () => void }) {
   const [report, setReport] = useState<ReconcileReport | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pathId, setPathId] = useState(ALL);
+  const { options } = useLearningPathOptions();
+  const pathItems = [
+    { value: ALL, label: 'Todas as trilhas' },
+    ...options.map((o) => ({ value: o.value, label: o.label })),
+  ];
 
   const simulate = useApiMutation(
-    () => apiClient.post<ReconcileReport>(URL, {}),
+    () => apiClient.post<ReconcileReport>(reconcileUrl(pathId, true), {}),
     {
       onSuccess: (r) => {
         setError(null);
@@ -41,7 +59,7 @@ export function ReconcilePathsModal({ onClose }: { onClose: () => void }) {
     },
   );
   const issue = useApiMutation(
-    () => apiClient.post<ReconcileReport>(`${URL}?dryRun=false`, {}),
+    () => apiClient.post<ReconcileReport>(reconcileUrl(pathId, false), {}),
     {
       invalidateKeys: [queryKeys.certificates.all],
       onSuccess: (r) => {
@@ -71,6 +89,19 @@ export function ReconcilePathsModal({ onClose }: { onClose: () => void }) {
               compact
             />
           )}
+
+          <FormField label="Trilha" htmlFor="reconcile-path">
+            <Select
+              items={pathItems}
+              value={pathId}
+              onValueChange={(v) => {
+                setPathId(v);
+                // A simulação deixa de valer: obriga a simular outra vez antes de emitir.
+                setReport(null);
+              }}
+              disabled={issue.isPending || report?.dryRun === false}
+            />
+          </FormField>
 
           {report && (
             <p className="text-sm text-ink">
