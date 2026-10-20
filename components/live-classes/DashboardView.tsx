@@ -49,48 +49,56 @@ export function DashboardView() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          tab="list"
           icon={Calendar}
           tone="blue"
           label="Agendadas"
           value={cards.scheduled}
         />
         <NavyStatCard
+          tab="list"
           icon={Video}
           tone="red"
           label="Em curso"
           value={cards.inProgress}
         />
         <NavyStatCard
+          tab="list"
           icon={CheckCircle2}
           tone="green"
           label="Concluídas"
           value={cards.completed}
         />
         <NavyStatCard
+          tab="list"
           icon={XCircle}
           tone="orange"
           label="Canceladas"
           value={cards.cancelled}
         />
         <NavyStatCard
+          tab="list"
           icon={CalendarDays}
           tone="blue"
           label="Hoje"
           value={cards.today}
         />
         <NavyStatCard
+          tab="list"
           icon={CalendarRange}
           tone="blue"
           label="Esta semana"
           value={cards.thisWeek}
         />
         <NavyStatCard
+          tab="list"
           icon={CalendarClock}
           tone="blue"
           label="Próximas"
           value={cards.upcoming}
         />
         <NavyStatCard
+          tab="participants"
           icon={Users}
           tone="blue"
           label="Participantes"
@@ -101,12 +109,14 @@ export function DashboardView() {
           value={cards.averageAttendancePercent}
         />
         <NavyStatCard
+          tab="reports"
           icon={Clock}
           tone="orange"
           label="Horas realizadas"
           value={cards.hoursDelivered}
         />
         <NavyStatCard
+          tab="recordings"
           icon={Clapperboard}
           tone="blue"
           label="Gravações disponíveis"

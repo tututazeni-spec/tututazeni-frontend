@@ -69,12 +69,14 @@ export function PDIAnalyticsView() {
           display={`${Math.round(data.avgProgress)}%`}
         />
         <NavyStatCard
+          href="/development-plans?tab=team"
           icon={AlertTriangle}
           label="Acções atrasadas"
           value={data.overdueActions}
           tone="red"
         />
         <NavyStatCard
+          href="/development-plans?tab=team"
           icon={CheckCircle2}
           label="Concluídos este mês"
           value={data.completedThisMonth}
@@ -87,12 +89,14 @@ export function PDIAnalyticsView() {
           display={`${Math.round(data.completionRate)}%`}
         />
         <NavyStatCard
+          href="/development-plans?tab=team"
           icon={Clock}
           label="PDIs activos com prazo ultrapassado"
           value={data.overduePlans}
           tone="red"
         />
         <NavyStatCard
+          href="/development-plans?tab=team"
           icon={FileClock}
           label="Rascunhos parados há mais de 30 dias"
           value={data.staleDrafts}

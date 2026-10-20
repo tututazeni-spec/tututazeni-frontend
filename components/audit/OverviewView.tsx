@@ -167,6 +167,7 @@ export function OverviewView({
       {/* Cards de indicadores */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiCard
+          tab="logs"
           icon={Activity}
           label="Eventos registados"
           value={data.totals.events}
@@ -174,6 +175,7 @@ export function OverviewView({
           intent="primary"
         />
         <KpiCard
+          tab="access"
           icon={UserX}
           label="Acessos falhados"
           value={data.totals.failedAccess}
@@ -181,6 +183,7 @@ export function OverviewView({
           intent={data.totals.failedAccess > 0 ? 'warning' : 'primary'}
         />
         <KpiCard
+          tab="security"
           icon={ShieldAlert}
           label="Ações críticas"
           value={data.totals.criticalActions}
@@ -188,6 +191,7 @@ export function OverviewView({
           intent={data.totals.criticalActions > 0 ? 'danger' : 'primary'}
         />
         <KpiCard
+          tab="security"
           icon={AlertTriangle}
           label="Alertas por analisar"
           value={data.totals.pendingAlerts}

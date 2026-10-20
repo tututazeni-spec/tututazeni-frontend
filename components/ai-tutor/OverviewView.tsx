@@ -52,6 +52,7 @@ export function OverviewView() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          tab="sessions"
           tone="blue"
           icon={MessageCircle}
           label="Conversas hoje"
@@ -59,6 +60,7 @@ export function OverviewView() {
         />
         {isPrivileged && (
           <NavyStatCard
+            tab="analytics"
             tone="blue"
             icon={Users}
             label="Utilizadores activos"
@@ -66,12 +68,14 @@ export function OverviewView() {
           />
         )}
         <NavyStatCard
+          tab="sessions"
           tone="blue"
           icon={Sparkles}
           label="Sessões de aprendizagem"
           value={data.sessoesAprendizagem}
         />
         <NavyStatCard
+          tab="sessions"
           tone="blue"
           icon={MessageCircle}
           label="Perguntas respondidas"
@@ -79,6 +83,7 @@ export function OverviewView() {
         />
         {isPrivileged && (
           <NavyStatCard
+            tab="knowledge"
             tone="green"
             icon={GraduationCap}
             label="Cursos apoiados"
@@ -92,6 +97,7 @@ export function OverviewView() {
           display={`${Math.round(data.taxaConclusao)}%`}
         />
         <NavyStatCard
+          tab="analytics"
           tone="orange"
           icon={Clock}
           label="Horas de aprendizagem com IA"

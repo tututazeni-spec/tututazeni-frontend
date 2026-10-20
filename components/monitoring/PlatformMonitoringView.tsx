@@ -129,6 +129,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <NavyStatCard
+          tab="alerts"
           icon={Siren}
           label="Alertas críticos"
           value={data.criticalAlerts.critical}
@@ -136,6 +137,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
           tone="red"
         />
         <NavyStatCard
+          tab="processes"
           icon={Clock}
           label="Processos em atraso"
           value={data.processes.overdue}
@@ -143,6 +145,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
           tone="orange"
         />
         <NavyStatCard
+          tab="automations"
           icon={Zap}
           label="Automações com erro (24h)"
           value={data.automations.failed24h}
@@ -154,6 +157,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
           tone="orange"
         />
         <NavyStatCard
+          tab="integrations"
           icon={Plug}
           label="Integrações disponíveis"
           value={data.integrations.active}
@@ -161,6 +165,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
           tone="green"
         />
         <NavyStatCard
+          tab="jobs"
           icon={Cog}
           label="Tarefas em execução"
           value={data.jobs.running}
@@ -175,6 +180,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
           tone="blue"
         />
         <NavyStatCard
+          tab="sla"
           icon={Timer}
           label="SLA em risco"
           value={data.sla.atRisk}
@@ -182,6 +188,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
           tone="orange"
         />
         <NavyStatCard
+          tab="incidents"
           icon={Flame}
           label="Incidentes abertos"
           value={data.incidents.open}
@@ -198,24 +205,28 @@ export function OverviewTab({ data }: { data: OverviewData }) {
         <CardBody>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <NavyStatCard
+              tab="processes"
               icon={Ban}
               label="Etapas bloqueadas"
               value={data.pendingCritical.blockedSteps}
               tone="red"
             />
             <NavyStatCard
+              tab="processes"
               icon={AlarmClock}
               label="Processos em atraso"
               value={data.pendingCritical.overdueProcesses}
               tone="orange"
             />
             <NavyStatCard
+              tab="automations"
               icon={ZapOff}
               label="Automações falhadas"
               value={data.pendingCritical.failedAutomations}
               tone="red"
             />
             <NavyStatCard
+              tab="jobs"
               icon={ListX}
               label="Tarefas de fila falhadas"
               value={data.pendingCritical.failedQueueJobs}
@@ -492,12 +503,14 @@ export function ProcessesTab({ data }: { data: ProcessesData }) {
           tone="red"
         />
         <NavyStatCard
+          tab="processes"
           icon={ListTodo}
           label="Etapas pendentes"
           value={s.pendingSteps}
           tone="blue"
         />
         <NavyStatCard
+          tab="sla"
           icon={Timer}
           label="SLA cumprido (30d)"
           value={pct(s.slaCompliancePercent) ?? '—'}

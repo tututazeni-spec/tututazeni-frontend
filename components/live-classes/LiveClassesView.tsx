@@ -146,7 +146,12 @@ export function LiveClassesView({
 
         {/* ── Stats ── */}
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4 mb-5.5">
-          <NavyStatCard icon={Circle} tone="red" label="Ao Vivo" value={liveNow} />
+          <NavyStatCard
+            icon={Circle}
+            tone="red"
+            label="Ao Vivo"
+            value={liveNow}
+          />
           <NavyStatCard
             icon={Calendar}
             tone="blue"
@@ -154,6 +159,7 @@ export function LiveClassesView({
             value={upcomingCount}
           />
           <NavyStatCard
+            tab="recordings"
             icon={Clapperboard}
             tone="blue"
             label="Gravações"

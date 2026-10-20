@@ -65,36 +65,42 @@ export function DashboardView() {
       {/* Formações */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <KpiCard
+          tab="plans"
           icon={BookOpen}
           label="Total formações"
           value={data.trainings.total}
           intent="primary"
         />
         <KpiCard
+          tab="plans"
           icon={ClipboardList}
           label="Planeadas"
           value={data.trainings.planned}
           intent="info"
         />
         <KpiCard
+          tab="plans"
           icon={CalendarClock}
           label="Agendadas"
           value={data.trainings.scheduled}
           intent="info"
         />
         <KpiCard
+          tab="plans"
           icon={PlayCircle}
           label="Em curso"
           value={data.trainings.inProgress}
           intent="warning"
         />
         <KpiCard
+          tab="plans"
           icon={CheckCircle2}
           label="Concluídas"
           value={data.trainings.completed}
           intent="success"
         />
         <KpiCard
+          tab="plans"
           icon={XCircle}
           label="Canceladas"
           value={data.trainings.cancelled}
@@ -104,21 +110,25 @@ export function DashboardView() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <KpiCard
+          tab="trainers"
           icon={UsersRound}
           label="Turmas activas"
           value={data.trainings.activeClasses}
         />
         <KpiCard
+          tab="trainers"
           icon={UserCheck}
           label="Formadores activos"
           value={data.activeInstructors}
         />
         <KpiCard
+          tab="resources"
           icon={DoorOpen}
           label="Salas em utilização"
           value={data.roomsInUse}
         />
         <KpiCard
+          tab="plans"
           icon={ShieldAlert}
           label="Obrigatórias"
           value={data.trainings.mandatory}
@@ -129,18 +139,21 @@ export function DashboardView() {
       {/* Participantes */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <KpiCard
+          tab="manage"
           icon={Users}
           label="Participantes inscritos"
           value={data.participants.registered}
           intent="primary"
         />
         <KpiCard
+          tab="manage"
           icon={GraduationCap}
           label="Em formação"
           value={data.participants.inTraining}
           intent="warning"
         />
         <KpiCard
+          tab="manage"
           icon={BadgeCheck}
           label="Participações concluídas"
           value={data.participants.completed}
@@ -173,6 +186,7 @@ export function DashboardView() {
             display={`${Math.round(data.approvalRate)}%`}
           />
           <NavyStatCard
+            tab="reports"
             icon={Smile}
             label="Satisfação média"
             value={data.avgRating.toFixed(1)}
@@ -194,6 +208,7 @@ export function DashboardView() {
             value={data.budgetExecutionRate}
           />
           <KpiCard
+            tab="reports"
             icon={Clock}
             label="Horas/colaborador"
             value={data.hoursPerEmployee}

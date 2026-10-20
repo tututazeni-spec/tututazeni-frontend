@@ -53,12 +53,14 @@ export function StatsTab() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
+          tab="rules"
           icon={Zap}
           label="Regras Activas"
           value={r.active ?? 0}
           intent="success"
         />
         <KpiCard
+          tab="executions"
           icon={Activity}
           label="Total Execuções"
           value={e.total ?? 0}
@@ -71,6 +73,7 @@ export function StatsTab() {
           display={`${Math.round(e.successRate ?? 0)}%`}
         />
         <KpiCard
+          tab="executions"
           icon={XCircle}
           label="Falhas"
           value={e.failed ?? 0}
@@ -97,10 +100,7 @@ export function StatsTab() {
                       />
                       {CATEGORY_LABEL[c.category] ?? c.category}
                     </span>
-                    <span
-                      className="font-body font-bold"
-                      style={{ color }}
-                    >
+                    <span className="font-body font-bold" style={{ color }}>
                       {c.count}
                     </span>
                   </div>

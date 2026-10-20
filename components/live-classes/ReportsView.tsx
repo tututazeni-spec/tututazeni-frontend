@@ -131,24 +131,28 @@ export function ReportsView() {
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <NavyStatCard
+              tab="list"
               icon={CalendarDays}
               tone="blue"
               label="Aulas"
               value={data.totals.classes}
             />
             <NavyStatCard
+              tab="list"
               icon={CheckCircle2}
               tone="green"
               label="Realizadas"
               value={data.totals.completed}
             />
             <NavyStatCard
+              tab="list"
               icon={Ban}
               tone="red"
               label="Canceladas"
               value={data.totals.cancelled}
             />
             <NavyStatCard
+              tab="list"
               icon={Clock}
               tone="orange"
               label="Horas ministradas"
@@ -162,24 +166,28 @@ export function ReportsView() {
             </h3>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               <NavyStatCard
+                tab="attendance"
                 icon={Users}
                 tone="blue"
                 label="Participantes"
                 value={data.attendance.participants}
               />
               <NavyStatCard
+                tab="attendance"
                 icon={UserCheck}
                 tone="green"
                 label="Presenças"
                 value={data.attendance.present}
               />
               <NavyStatCard
+                tab="attendance"
                 icon={UserX}
                 tone="red"
                 label="Ausências"
                 value={data.attendance.absent}
               />
               <NavyStatCard
+                tab="attendance"
                 icon={TimerReset}
                 tone="orange"
                 label="Atrasos"
@@ -200,6 +208,7 @@ export function ReportsView() {
             </h3>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               <NavyStatCard
+                tab="evaluations"
                 icon={Star}
                 tone="orange"
                 label="Avaliação média"
@@ -212,9 +221,7 @@ export function ReportsView() {
 
           <div className="grid gap-4 lg:grid-cols-3">
             <Card className="overflow-hidden p-0">
-              <div className={REPORT_CARD_HEADER}>
-                Desempenho por formador
-              </div>
+              <div className={REPORT_CARD_HEADER}>Desempenho por formador</div>
               <RankedList
                 rows={data.byInstructor.map((i) => ({
                   label: i.instructor,
@@ -236,9 +243,7 @@ export function ReportsView() {
               />
             </Card>
             <Card className="overflow-hidden p-0">
-              <div className={REPORT_CARD_HEADER}>
-                Participação por unidade
-              </div>
+              <div className={REPORT_CARD_HEADER}>Participação por unidade</div>
               <RankedList
                 rows={data.byUnit.map((u) => ({
                   label: u.unit,

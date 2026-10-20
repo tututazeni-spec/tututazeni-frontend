@@ -503,6 +503,7 @@ export function ExportsView() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiCard
+          tab="reports"
           icon={Files}
           label="Relatórios exportados"
           value={summary?.reports ?? 0}

@@ -75,18 +75,21 @@ export function KnowledgeBaseView() {
       ) : sources ? (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <NavyStatCard
+            href="/courses"
             icon={GraduationCap}
             tone="blue"
             label="Cursos indexados"
             value={sources.courses}
           />
           <NavyStatCard
+            href="/courses"
             icon={BookOpen}
             tone="blue"
             label="Lições com conteúdo"
             value={sources.lessons}
           />
           <NavyStatCard
+            href="/library"
             icon={Library}
             tone="orange"
             label="Itens da Biblioteca"

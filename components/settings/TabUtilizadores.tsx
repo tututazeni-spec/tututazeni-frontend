@@ -196,18 +196,21 @@ export function TabUtilizadores() {
             />
           </div>
           <NavyStatCard
+            href="/users"
             icon={UserCheck}
             label="Activos"
             value={o.active}
             tone="green"
           />
           <NavyStatCard
+            href="/users"
             icon={Clock}
             label="Pendentes"
             value={o.pending}
             tone="orange"
           />
           <NavyStatCard
+            href="/users"
             icon={UserX}
             label="Inactivos"
             value={o.inactive}
@@ -215,6 +218,7 @@ export function TabUtilizadores() {
             iconTone="gray"
           />
           <NavyStatCard
+            href="/users"
             icon={Lock}
             label="Suspensos / Bloqueados"
             value={o.suspended}

@@ -155,30 +155,35 @@ export function ReportsView() {
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
             <KpiCard
+              tab="plans"
               icon={GraduationCap}
               label="Formações"
               value={data.totals.trainings}
               intent="primary"
             />
             <KpiCard
+              tab="plans"
               icon={CalendarClock}
               label="Planeadas"
               value={data.totals.planned}
               intent="info"
             />
             <KpiCard
+              tab="plans"
               icon={Megaphone}
               label="Publicadas"
               value={data.totals.published}
               intent="info"
             />
             <KpiCard
+              tab="plans"
               icon={CheckCircle2}
               label="Concluídas"
               value={data.totals.completed}
               intent="success"
             />
             <KpiCard
+              tab="plans"
               icon={XCircle}
               label="Canceladas"
               value={data.totals.cancelled}
@@ -309,6 +314,7 @@ export function ReportsView() {
                 value={data.competenciesDeveloped}
               />
               <KpiCard
+                tab="certificates"
                 icon={Award}
                 label="Certificados emitidos"
                 value={data.certificatesIssued}

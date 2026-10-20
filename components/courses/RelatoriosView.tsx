@@ -8,11 +8,7 @@
 
 'use client';
 
-import {
-  BookOpen,
-  Clock,
-  Users,
-} from 'lucide-react';
+import { BookOpen, Clock, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -48,6 +44,7 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <NavyStatCard
+          tab="progresso"
           icon={Users}
           label="Formandos por curso"
           value={data.topCourses.length}
@@ -66,10 +63,7 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
           bands={INVERSE_RATE_BANDS}
           display={`${Math.round(data.abandonmentRate)}%`}
         />
-        <DonutStatCard
-          label="Progresso médio"
-          value={data.avgProgress}
-        />
+        <DonutStatCard label="Progresso médio" value={data.avgProgress} />
         <NavyStatCard
           icon={Clock}
           label="Horas de formação"
@@ -82,6 +76,7 @@ export function RelatoriosView({ onSelect }: RelatoriosViewProps) {
           sub={`${data.evaluationResults.passRate}% aprovação · ${data.evaluationResults.totalAttempts} tentativas`}
         />
         <NavyStatCard
+          tab="inscricoes"
           icon={BookOpen}
           label="Formação obrigatória pendente"
           value={data.mandatoryPending.count}

@@ -35,18 +35,21 @@ export function ROIView() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <NavyStatCard
+          href="/trainings?tab=reports"
           icon={Clock}
           label="Horas de formação investidas"
           value={data.totalHoursInvested}
           tone="blue"
         />
         <NavyStatCard
+          href="/enrollments"
           icon={CheckCircle2}
           label="Conclusões totais"
           value={data.totalCompletions}
           tone="green"
         />
         <NavyStatCard
+          href="/courses?tab=certificates"
           icon={Award}
           label="Certificados emitidos"
           value={data.totalCertificates}
@@ -63,8 +66,12 @@ export function ROIView() {
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell className="text-white">Curso</TableHeaderCell>
               <TableHeaderCell className="text-white">Métrica</TableHeaderCell>
-              <TableHeaderCell className="text-white">Taxa de impacto</TableHeaderCell>
-              <TableHeaderCell className="text-white">Calculado em</TableHeaderCell>
+              <TableHeaderCell className="text-white">
+                Taxa de impacto
+              </TableHeaderCell>
+              <TableHeaderCell className="text-white">
+                Calculado em
+              </TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>

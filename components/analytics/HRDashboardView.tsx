@@ -55,18 +55,21 @@ export function HRDashboardView() {
         <CardBody>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <NavyStatCard
+              href="/users"
               icon={Users}
               label="Activos"
               value={data.people.total}
               tone="blue"
             />
             <NavyStatCard
+              href="/users"
               icon={UserPlus}
               label="Admitidos"
               value={data.people.hired}
               tone="green"
             />
             <NavyStatCard
+              href="/users"
               icon={UserMinus}
               label="Saídas"
               value={data.people.terminated}
@@ -91,12 +94,14 @@ export function HRDashboardView() {
         <CardBody>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <NavyStatCard
+              href="/enrollments"
               icon={BookOpen}
               label="Matrículas"
               value={data.learning.enrollments}
               tone="blue"
             />
             <NavyStatCard
+              href="/enrollments"
               icon={CheckCircle2}
               label="Concluídas"
               value={data.learning.completed}
@@ -109,6 +114,7 @@ export function HRDashboardView() {
               display={`${Math.round(data.learning.completionRate)}%`}
             />
             <NavyStatCard
+              href="/enrollments"
               icon={XCircle}
               label="Abandonadas"
               value={data.learning.abandoned}
@@ -126,6 +132,7 @@ export function HRDashboardView() {
         <CardBody>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <NavyStatCard
+              href="/development-plans"
               icon={Target}
               label="PDIs activos"
               value={data.pdi.active}
@@ -143,12 +150,14 @@ export function HRDashboardView() {
               }
             />
             <NavyStatCard
+              href="/development-plans"
               icon={Clock}
               label="Aguardando Aprovação"
               value={data.pdi.pendingApproval}
               tone="orange"
             />
             <NavyStatCard
+              href="/enrollments"
               icon={Award}
               label="Concluídos (mês)"
               value={data.pdi.completed}

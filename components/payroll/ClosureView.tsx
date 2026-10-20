@@ -118,7 +118,11 @@ export function ClosureView() {
           </div>
 
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-            <KpiCard label="Colaboradores" value={data.totals.employees} />
+            <KpiCard
+              tab="employees"
+              label="Colaboradores"
+              value={data.totals.employees}
+            />
             <KpiCard
               label="Total bruto"
               value={fmtKz(data.totals.totalGross)}
@@ -129,18 +133,22 @@ export function ClosureView() {
               intent="success"
             />
             <KpiCard
+              tab="deductions"
               label="Impostos (INSS + IRT)"
               value={fmtKz(data.totals.totalTaxes)}
             />
             <KpiCard
+              tab="deductions"
               label="Encargos patronais"
               value={fmtKz(data.totals.totalEmployerCharges)}
             />
             <KpiCard
+              tab="payslips"
               label="Recibos emitidos"
               value={data.totals.receiptsIssued}
             />
             <KpiCard
+              tab="payments"
               label="Pagamentos processados"
               value={data.totals.paymentsProcessed}
             />

@@ -56,18 +56,21 @@ export function AttendancePanel() {
           display={`${Math.round(k.attendanceRate ?? 0)}%`}
         />
         <NavyStatCard
+          href="/attendance"
           icon={UserCheck}
           label="Presentes Agora"
           value={k.checkedInNow ?? 0}
           tone="green"
         />
         <NavyStatCard
+          href="/attendance"
           icon={UserX}
           label="Ausentes"
           value={k.totalAbsent ?? 0}
           tone="red"
         />
         <NavyStatCard
+          href="/attendance"
           icon={AlarmClock}
           label="Atrasos"
           value={k.totalLate ?? 0}
@@ -77,18 +80,21 @@ export function AttendancePanel() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <NavyStatCard
+          href="/leave?tab=approvals"
           icon={CalendarClock}
           label="Férias/Baixas Pendentes"
           value={k.pendingLeaves ?? 0}
           tone="blue"
         />
         <NavyStatCard
+          href="/attendance"
           icon={FileCheck}
           label="Justificações Pendentes"
           value={k.pendingJustifications ?? 0}
           tone="blue"
         />
         <NavyStatCard
+          href="/attendance"
           icon={Hourglass}
           label="Horas-Extra Pendentes"
           value={k.pendingOvertime ?? 0}

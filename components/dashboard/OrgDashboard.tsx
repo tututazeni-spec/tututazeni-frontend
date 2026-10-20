@@ -442,6 +442,7 @@ export function OrgDashboard() {
       {/* KPIs — organização */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          href="/users"
           icon={Users}
           tone="blue"
           label="Colaboradores Activos"
@@ -450,6 +451,7 @@ export function OrgDashboard() {
           trend={k.headcount?.newTrend}
         />
         <NavyStatCard
+          href="/courses"
           icon={CheckCircle2}
           tone="green"
           label="Conclusões de Cursos"
@@ -457,6 +459,7 @@ export function OrgDashboard() {
           trend={k.learning?.completionsTrend}
         />
         <NavyStatCard
+          href="/development-plans"
           icon={Target}
           tone="orange"
           label="PDIs Activos"
@@ -464,6 +467,7 @@ export function OrgDashboard() {
           sub={`Cobertura: ${k.development?.coverage ?? 0}%`}
         />
         <NavyStatCard
+          href="/evaluation"
           icon={Star}
           tone="orange"
           label="Pontuação Média Geral"
@@ -475,12 +479,14 @@ export function OrgDashboard() {
       {summary && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <NavyStatCard
+            href="/courses"
             icon={BookOpen}
             tone="blue"
             label="Cursos"
             value={summary.learning.courses}
           />
           <NavyStatCard
+            href="/crm"
             icon={HeartHandshake}
             tone="green"
             label="Beneficiários"
@@ -494,18 +500,21 @@ export function OrgDashboard() {
             value={`AOA ${(summary.crm.totalFunding / 1_000_000).toFixed(1)}M`}
           />
           <NavyStatCard
+            href="/crm"
             icon={Building2}
             tone="orange"
             label="Parceiros"
             value={summary.crm.partners}
           />
           <NavyStatCard
+            href="/courses?tab=certificates"
             icon={Award}
             tone="orange"
             label="Certificados"
             value={summary.knowledge.certificates}
           />
           <NavyStatCard
+            href="/library"
             icon={Library}
             tone="blue"
             label="Biblioteca"
@@ -513,6 +522,7 @@ export function OrgDashboard() {
             sub="recursos"
           />
           <NavyStatCard
+            href="/dashboard-rh?tab=engagement"
             icon={Smile}
             tone="green"
             label="eNPS"

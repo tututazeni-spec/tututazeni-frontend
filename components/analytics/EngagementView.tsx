@@ -31,12 +31,14 @@ export function EngagementView() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <NavyStatCard
+          href="/users"
           icon={Users}
           label="Colaboradores"
           value={data.totalUsers}
           tone="blue"
         />
         <NavyStatCard
+          href="/users"
           icon={UserCheck}
           label="Activos (últimos 30 dias)"
           value={data.activeUsersLast30d}
@@ -52,18 +54,21 @@ export function EngagementView() {
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <NavyStatCard
+          href="/ai-tutor?tab=knowledge"
           icon={BookOpen}
           label="Interacções com a base de conhecimento"
           value={data.knowledgeInteractions}
           tone="orange"
         />
         <NavyStatCard
+          href="/ai-tutor?tab=sessions"
           icon={Bot}
           label="Sessões de tutor AI"
           value={data.aiTutorSessions}
           tone="blue"
         />
         <NavyStatCard
+          href="/content-library"
           icon={GraduationCap}
           label="Acessos a micro-learning"
           value={data.microLearningAccess}

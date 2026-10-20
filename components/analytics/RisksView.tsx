@@ -41,18 +41,21 @@ export function RisksView() {
       {/* Summary */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <NavyStatCard
+          href="/users"
           icon={Clock}
           label="Inactivos (+60 dias)"
           value={summary.inactiveCount}
           tone={summary.inactiveCount > 0 ? 'orange' : 'green'}
         />
         <NavyStatCard
+          href="/development-plans?tab=team"
           icon={AlertTriangle}
           label="PDIs atrasados"
           value={summary.overduePDICount}
           tone={summary.overduePDICount > 0 ? 'red' : 'green'}
         />
         <NavyStatCard
+          href="/development-plans?tab=team"
           icon={ShieldAlert}
           label="Acções críticas"
           value={summary.criticalActionCount}

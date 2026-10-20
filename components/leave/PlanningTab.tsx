@@ -110,7 +110,9 @@ export function PlanningTab() {
   return (
     <div className="space-y-5">
       <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
+        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
+          Filtros
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Input
             type="date"
@@ -131,7 +133,10 @@ export function PlanningTab() {
             className="w-full"
             value={filters.unitId || ALL}
             onValueChange={(v) => set({ unitId: pick(v) })}
-            items={[{ value: ALL, label: 'Todas as unidades' }, ...units.options]}
+            items={[
+              { value: ALL, label: 'Todas as unidades' },
+              ...units.options,
+            ]}
           />
           <Select
             className="w-full"
@@ -160,18 +165,21 @@ export function PlanningTab() {
         <>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
             <NavyStatCard
+              href="/users"
               icon={Users}
               tone="blue"
               label="Colaboradores"
               value={data.summary.headcount}
             />
             <NavyStatCard
+              tab="absences"
               icon={CalendarOff}
               tone="blue"
               label="Ausentes hoje"
               value={data.summary.absentToday}
             />
             <NavyStatCard
+              tab="approvals"
               icon={CalendarClock}
               tone="orange"
               label="Pedidos pendentes"
@@ -184,6 +192,7 @@ export function PlanningTab() {
               value={data.summary.teamsBelowMinimum}
             />
             <NavyStatCard
+              tab="approvals"
               icon={GitCompareArrows}
               tone={data.summary.conflictingRequests ? 'red' : 'green'}
               label="Pedidos em conflito"
@@ -210,7 +219,9 @@ export function PlanningTab() {
                     — {a.department ?? 'Sem departamento'}: {a.absent} de{' '}
                     {a.headcount} ausentes ({a.availabilityPercent}% disponível,
                     mínimo {a.minAvailabilityPercent}%)
-                    {a.causedByPending ? ' — se os pendentes forem aprovados' : ''}
+                    {a.causedByPending
+                      ? ' — se os pendentes forem aprovados'
+                      : ''}
                   </li>
                 ))}
               </ul>
@@ -262,7 +273,8 @@ export function PlanningTab() {
                             aria-hidden
                             className="inline-block h-3 w-3 shrink-0 rounded-full"
                             style={{
-                              backgroundColor: DEPT_COLORS[i % DEPT_COLORS.length],
+                              backgroundColor:
+                                DEPT_COLORS[i % DEPT_COLORS.length],
                             }}
                           />
                           {t.department ?? 'Sem departamento'}
@@ -275,7 +287,8 @@ export function PlanningTab() {
                       <TableCell>{t.averageAvailabilityPercent}%</TableCell>
                       <TableCell
                         className={cn(
-                          t.worstAvailabilityPercent < t.minAvailabilityPercent &&
+                          t.worstAvailabilityPercent <
+                            t.minAvailabilityPercent &&
                             'text-danger-ink font-semibold',
                         )}
                       >
@@ -320,7 +333,9 @@ export function PlanningTab() {
                   {data.pendingRequests.map((r) => (
                     <TableRow key={r.id}>
                       <TableCell>
-                        <p className="font-medium text-ink">{r.user.fullName}</p>
+                        <p className="font-medium text-ink">
+                          {r.user.fullName}
+                        </p>
                         <p className="text-xs text-ink-faint">
                           {r.department ?? '—'}
                         </p>

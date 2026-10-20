@@ -56,12 +56,14 @@ export function HrDashboardView() {
             </h3>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
               <KpiCard
+                tab="payslips"
                 className="min-h-[178px]"
                 icon={FileText}
                 label="Total"
                 value={data.counts.total}
               />
               <KpiCard
+                tab="payslips"
                 className="min-h-[178px]"
                 icon={CheckCircle2}
                 label="Emitidos"
@@ -69,6 +71,7 @@ export function HrDashboardView() {
                 intent="success"
               />
               <KpiCard
+                tab="payslips"
                 className="min-h-[178px]"
                 icon={ThumbsUp}
                 label="Confirmados"
@@ -76,6 +79,7 @@ export function HrDashboardView() {
                 intent="info"
               />
               <KpiCard
+                tab="disputes"
                 className="min-h-[178px]"
                 icon={AlertTriangle}
                 label="Em disputa"
@@ -83,6 +87,7 @@ export function HrDashboardView() {
                 intent="danger"
               />
               <KpiCard
+                tab="payslips"
                 className="min-h-[178px]"
                 icon={Eye}
                 label="Por confirmar"
@@ -90,6 +95,7 @@ export function HrDashboardView() {
                 intent="warning"
               />
               <KpiCard
+                tab="payslips"
                 className="min-h-[178px]"
                 icon={FileEdit}
                 label="Rascunhos"
@@ -104,6 +110,7 @@ export function HrDashboardView() {
             </h3>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
               <KpiCard
+                tab="payslips"
                 className="min-h-[178px]"
                 icon={Percent}
                 label="Taxa de confirmação"
@@ -111,6 +118,7 @@ export function HrDashboardView() {
                 intent="info"
               />
               <KpiCard
+                tab="payslips"
                 className="min-h-[178px]"
                 icon={ShieldAlert}
                 label="Pendentes de confirmação"

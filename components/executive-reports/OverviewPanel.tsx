@@ -123,6 +123,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
             ),
           )}
         <NavyStatCard
+          href="/evaluation"
           label="Avaliações concluídas"
           value={
             d.performance.completionPct === null
@@ -133,6 +134,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
           icon={CheckCircle2}
         />
         <NavyStatCard
+          href="/courses?tab=inscricoes"
           label="Inscrições / concluídas"
           value={`${d.training.enrollmentsEligible} / ${d.training.enrollmentsCompleted}`}
           tone="blue"
@@ -178,48 +180,56 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
       {/* Indicadores complementares (§3.1, lista adicional) */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          href="/history?tab=movements"
           label="Admissões"
           value={d.workforce.hires}
           tone="green"
           icon={UserPlus}
         />
         <NavyStatCard
+          href="/history?tab=movements"
           label="Saídas"
           value={d.workforce.exits}
           tone="red"
           icon={UserMinus}
         />
         <NavyStatCard
+          href="/history?tab=movements"
           label="Saldo líquido"
           value={`${d.workforce.netBalance > 0 ? '+' : ''}${d.workforce.netBalance}`}
           tone="blue"
           icon={Users}
         />
         <NavyStatCard
+          href="/trainings"
           label="Participantes · horas"
           value={`${d.training.participants} · ${d.training.hours}h`}
           tone="green"
           icon={BookOpen}
         />
         <NavyStatCard
+          href="/competencies?tab=gaps"
           label="Lacunas de competências"
           value={d.competencies.gapsIdentified}
           tone="red"
           icon={Wrench}
         />
         <NavyStatCard
+          href="/leave?tab=approvals"
           label="Licenças pendentes · em curso"
           value={`${d.leave.pending} · ${d.leave.inCourse}`}
           tone="orange"
           icon={CalendarClock}
         />
         <NavyStatCard
+          href="/onboarding"
           label="Onboarding em curso · concluído"
           value={`${d.onboarding.inProgress} · ${d.onboarding.completed}`}
           tone="green"
           icon={Rocket}
         />
         <NavyStatCard
+          href="/development-plans"
           label="PDIs activos"
           value={d.development.activePlans}
           tone="blue"
@@ -234,12 +244,14 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
         </h3>
         <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-3">
           <NavyStatCard
+            href="/trainings"
             label="Formações obrigatórias em atraso"
             value={d.pending.overdueMandatoryTraining}
             tone="red"
             icon={GraduationCap}
           />
           <NavyStatCard
+            href="/development-plans"
             label="Acções de PDI atrasadas"
             value={d.pending.overdueActions}
             tone="orange"

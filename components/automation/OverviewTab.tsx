@@ -180,6 +180,7 @@ export function OverviewTab() {
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             <KpiCard
+              tab="rules"
               className="w-full"
               icon={ListChecks}
               label="Total de automações"
@@ -187,6 +188,7 @@ export function OverviewTab() {
               intent="primary"
             />
             <KpiCard
+              tab="rules"
               className="w-full"
               icon={Zap}
               label="Automações activas"
@@ -194,6 +196,7 @@ export function OverviewTab() {
               intent="success"
             />
             <KpiCard
+              tab="executions"
               className="w-full"
               icon={Play}
               label="Execuções no período"
@@ -206,6 +209,7 @@ export function OverviewTab() {
               intent="info"
             />
             <KpiCard
+              tab="executions"
               className="w-full"
               icon={AlertTriangle}
               label="Execuções com falha"
@@ -214,6 +218,7 @@ export function OverviewTab() {
               iconIntent="danger"
             />
             <KpiCard
+              tab="executions"
               className="w-full"
               icon={Hourglass}
               label="A aguardar"
@@ -222,6 +227,7 @@ export function OverviewTab() {
               intent="warning"
             />
             <KpiCard
+              tab="reports"
               className="w-full"
               icon={Timer}
               label="Tempo poupado (estimativa)"

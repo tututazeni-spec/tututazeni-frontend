@@ -62,12 +62,14 @@ export function SettingsTab() {
           tone="blue"
         />
         <NavyStatCard
+          tab="criteria"
           icon={ListChecks}
           label="Critérios activos"
           value={data.criteriaCount}
           tone="green"
         />
         <NavyStatCard
+          tab="templates"
           icon={FileText}
           label="Modelos activos"
           value={data.templatesCount}

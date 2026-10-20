@@ -30,24 +30,28 @@ export function OverviewTab() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
+          href="/users"
           icon={Users}
           label="Utilizadores"
           value={stats?.totalUsers ?? 0}
           intent="primary"
         />
         <KpiCard
+          tab="roles"
           icon={Shield}
           label="Roles"
           value={stats?.totalRoles ?? 0}
           intent="accent"
         />
         <KpiCard
+          tab="matrix"
           icon={Key}
           label="Permissões"
           value={stats?.totalPermissions ?? 0}
           intent="info"
         />
         <KpiCard
+          tab="audit"
           icon={AlertTriangle}
           label="Acessos Negados"
           value={stats?.deniedCount ?? 0}

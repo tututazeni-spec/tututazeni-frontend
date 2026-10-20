@@ -74,12 +74,14 @@ export function HeadcountPanel() {
       {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          href="/users"
           label="Total"
           value={data?.total ?? 0}
           tone="blue"
           icon={Users}
         />
         <NavyStatCard
+          href="/users"
           label="Activos"
           value={data?.active ?? 0}
           tone="green"
@@ -93,6 +95,7 @@ export function HeadcountPanel() {
           display={`${Math.round(data?.turnoverRate ?? 0)}%`}
         />
         <NavyStatCard
+          href="/users"
           label="Tempo Médio de Serviço"
           value={`${data?.avgTenureMonths ?? 0}m`}
           tone="orange"

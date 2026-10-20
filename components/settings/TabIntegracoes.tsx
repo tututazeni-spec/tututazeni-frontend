@@ -214,12 +214,14 @@ export function TabIntegracoes() {
                 </Badge>
               </div>
               <NavyStatCard
+                tab="api-keys"
                 icon={KeyRound}
                 label="Chaves de API activas"
                 value={o.activeApiKeys}
                 tone="blue"
               />
               <NavyStatCard
+                tab="webhooks"
                 icon={Webhook}
                 label="Webhooks activos"
                 value={o.activeWebhooks}

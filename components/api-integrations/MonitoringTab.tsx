@@ -44,6 +44,7 @@ export function MonitoringTab() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <KpiCard
+          tab="integrations"
           icon={PlugZap}
           label="Integrações Activas"
           value={s.activeIntegrations ?? 0}
