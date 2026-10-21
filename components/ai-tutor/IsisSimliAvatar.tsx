@@ -49,6 +49,25 @@ interface AvatarSession {
 
 const DEFAULT_POSTER = '/images/isis-avatar.png';
 const POSTER_KEY = 'innova_isis_avatar_poster';
+const POSTER_EVENT = 'innova:isis-poster';
+
+/** Retrato actual da Ísis (o mesmo do quadrado do avatar), sempre sincronizado. */
+export function useIsisPoster(): string {
+  const [poster, setPoster] = useState(DEFAULT_POSTER);
+  useEffect(() => {
+    const read = () => {
+      try {
+        setPoster(localStorage.getItem(POSTER_KEY) || DEFAULT_POSTER);
+      } catch {
+        /* sem localStorage: fica a imagem por omissão */
+      }
+    };
+    read();
+    window.addEventListener(POSTER_EVENT, read);
+    return () => window.removeEventListener(POSTER_EVENT, read);
+  }, []);
+  return poster;
+}
 
 const STATUS_TEXT: Record<AvatarStatus, string> = {
   idle: 'Avatar desligado',
@@ -72,16 +91,7 @@ export const IsisSimliAvatar = forwardRef<
   const [status, setStatusState] = useState<AvatarStatus>('idle');
   // Imagem de repouso = última imagem do próprio avatar (guardada ao ligar),
   // para o retrato inicial já ser o do avatar e não a foto original.
-  const [poster, setPoster] = useState(DEFAULT_POSTER);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(POSTER_KEY);
-      if (saved) setPoster(saved);
-    } catch {
-      /* sem localStorage: fica a imagem por omissão */
-    }
-  }, []);
+  const poster = useIsisPoster();
 
   const capturePoster = useCallback(() => {
     const video = videoRef.current;
@@ -93,7 +103,7 @@ export const IsisSimliAvatar = forwardRef<
       canvas.getContext('2d')?.drawImage(video, 0, 0);
       const url = canvas.toDataURL('image/jpeg', 0.85);
       localStorage.setItem(POSTER_KEY, url);
-      setPoster(url);
+      window.dispatchEvent(new Event(POSTER_EVENT));
     } catch {
       /* canvas/localStorage indisponível: mantém a imagem actual */
     }
