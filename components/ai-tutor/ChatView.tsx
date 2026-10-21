@@ -28,6 +28,7 @@ import { QUICK_ACTIONS } from './constants';
 import { MessageBubble } from './MessageBubble';
 import {
   IsisSimliAvatar,
+  useIsisPoster,
   type AvatarStatus,
   type IsisSimliAvatarHandle,
 } from './IsisSimliAvatar';
@@ -92,6 +93,7 @@ function IsisAvatar({
     lg: 192,
   }[size];
 
+  const poster = useIsisPoster();
   const Wrapper = onClick ? 'button' : 'div';
 
   return (
@@ -105,10 +107,11 @@ function IsisAvatar({
       style={{ width: dimensions, height: dimensions }}
     >
       <Image
-        src="/images/isis-avatar.png"
+        src={poster}
         alt="Ísis - Tutor IA"
         width={dimensions}
         height={dimensions}
+        unoptimized={poster.startsWith('data:')}
         className="object-cover w-full h-full"
       />
     </Wrapper>
