@@ -96,7 +96,7 @@ export function ResultView({
       {/* Progress visual */}
       <Card className="p-5 mb-5">
         <div className="flex justify-between text-xs text-ink-faint mb-2">
-          <span>Score obtido</span>
+          <span>PontuaÃ§Ã£o obtida</span>
           <span>Mínimo: {assessment.passingScore}%</span>
         </div>
         <div className="relative">

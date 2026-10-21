@@ -328,7 +328,7 @@ function thresholdRows(s: SettingsData): Array<{
     {
       group: 'Filas',
       field: s.limits.queuePending,
-      label: 'Jobs pendentes',
+      label: 'Tarefas pendentes',
       unit: 'jobs',
     },
     {

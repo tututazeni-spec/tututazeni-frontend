@@ -349,7 +349,7 @@ export function TabAutenticacao() {
                 />
               </FormField>
               <FormField
-                label="Bind Password"
+                label="Palavra-passe de ligaÃ§Ã£o"
                 htmlFor="ldap-bind-password"
                 hint={
                   form.ldap.hasBindPassword

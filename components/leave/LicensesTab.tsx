@@ -251,7 +251,7 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
                       </span>
                     )}
                     {showPayroll && r.payrollImpact === 'VALIDATION_REQUIRED' && (
-                      <NavyBadge tone="warning">Validar no Payroll</NavyBadge>
+                      <NavyBadge tone="warning">Validar na folha salarial</NavyBadge>
                     )}
                     {r.canCancel && (
                       <button

@@ -309,7 +309,7 @@ export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalP
               />
             </FormField>
             <FormField label="Entidade relacionada (tipo)" htmlFor="doc-entity-type">
-              <Input id="doc-entity-type" value={entityType} onChange={(e) => setEntityType(e.target.value)} placeholder="Ex.: Employee" />
+              <Input id="doc-entity-type" value={entityType} onChange={(e) => setEntityType(e.target.value)} placeholder="Ex.: Colaborador" />
             </FormField>
             <FormField label="Entidade relacionada (id)" htmlFor="doc-entity-id">
               <Input id="doc-entity-id" value={entityId} onChange={(e) => setEntityId(e.target.value)} />

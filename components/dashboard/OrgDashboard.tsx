@@ -557,7 +557,7 @@ export function OrgDashboard() {
                 value: k.engagement?.activeSurveys ?? 0,
               },
               {
-                label: 'Talent Health Score',
+                label: 'Ãndice de saÃºde do talento',
                 value: org.talentHealth
                   ? `${org.talentHealth.healthScore} (${org.talentHealth.grade})`
                   : '—',

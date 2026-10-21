@@ -142,7 +142,7 @@ export function EmployeeCard({ employee, onView, onEdit }: EmployeeCardProps) {
             <p className="text-sm font-bold text-ink">
               {employee._count.employeeSkills}
             </p>
-            <p className="text-xs text-ink-faint">Skills</p>
+            <p className="text-xs text-ink-faint">CompetÃªncias</p>
           </div>
           <div>
             <p className="text-sm font-bold text-ink">{employee._count.pdis}</p>

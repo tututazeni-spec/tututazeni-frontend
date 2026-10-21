@@ -1,5 +1,5 @@
 // components/assessments/ListView.tsx
-// Separador "Disponíveis" — lista de avaliações publicadas + melhor score/
+// Separador "Disponíveis" — lista de avaliações publicadas + melhor pontuaÃ§Ã£o/
 // estado pessoal. Dados próprios (useApiQuery) + apresentação, mesmo
 // padrão auto-contido usado em components/payslips/page.tsx. Extraído de
 // app/(platform)/assessments/page.tsx.
@@ -131,7 +131,7 @@ export function ListView({ onStart }: ListViewProps) {
                   >
                     {bestScore}%
                   </div>
-                  <div className="text-xs text-ink-faint">melhor score</div>
+                  <div className="text-xs text-ink-faint">melhor pontuaÃ§Ã£o</div>
                 </div>
               )}
               <Button

@@ -361,7 +361,7 @@ export function CalibrationTab() {
                               },
                             );
                             notify({
-                              title: 'Score calibrado',
+                              title: 'PontuaÃ§Ã£o calibrada',
                               intent: 'success',
                             });
                           } catch (err) {

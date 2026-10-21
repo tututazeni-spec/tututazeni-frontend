@@ -641,7 +641,7 @@ export function PerformanceTab({ userId }: { userId: number }) {
         <NavyStatCard
           icon={Star}
           tone="blue"
-          label="Score final"
+          label="PontuaÃ§Ã£o final"
           value={data.finalScore}
           sub={data.scoreLabel}
         />
@@ -711,7 +711,7 @@ export function EvaluationsTab({ userId }: { userId: number }) {
           <TableHeaderCell>Ciclo</TableHeaderCell>
           <TableHeaderCell>Período</TableHeaderCell>
           <TableHeaderCell>Estado</TableHeaderCell>
-          <TableHeaderCell>Score final</TableHeaderCell>
+          <TableHeaderCell>PontuaÃ§Ã£o final</TableHeaderCell>
         </TableRow>
       </TableHead>
       <TableBody>

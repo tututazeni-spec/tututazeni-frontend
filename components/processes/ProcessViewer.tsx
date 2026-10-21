@@ -446,7 +446,7 @@ export function ProcessViewer({
                         )}
                         {step.responsibleRole && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-[#49658A]">Role</dt>
+                            <dt className="text-[11px] text-[#49658A]">FunÃ§Ã£o</dt>
                             <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
                               {step.responsibleRole}
                             </dd>

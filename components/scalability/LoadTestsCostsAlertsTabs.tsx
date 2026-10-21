@@ -190,13 +190,13 @@ function LoadTestModal({
 
   const ints: Array<[string, string, boolean]> = [
     ['Utilizadores simulados', f.simulatedUsers, true],
-    ['Requests/sec', f.targetRps, true],
+    ['Pedidos/seg', f.targetRps, true],
     ['Duração', f.durationSec, true],
     ['P95', f.p95Ms, true],
     ['P99', f.p99Ms, true],
     ['Ligações à BD', f.dbPeakConn, true],
-    ['Queue', f.queuePeak, true],
-    ['Concurrent users', f.peakConcurrent, true],
+    ['Fila', f.queuePeak, true],
+    ['Utilizadores simultÃ¢neos', f.peakConcurrent, true],
   ];
   const problems: string[] = [];
   if (!f.name.trim()) problems.push('Indique o nome do teste');
@@ -355,7 +355,7 @@ function LoadTestModal({
             />
           </FormField>
           {numField('Utilizadores simulados', 'simulatedUsers')}
-          {numField('Requests/sec', 'targetRps', 'alvo')}
+          {numField('Pedidos/seg', 'targetRps', 'alvo')}
           {numField('Duração', 'durationSec', 's')}
           <div className="sm:col-span-3">
             <FormField label="Cenário" htmlFor="lt-scenario">
@@ -412,8 +412,8 @@ function LoadTestModal({
               {numField('CPU máx.', 'cpuPeak', '%')}
               {numField('RAM máx.', 'ramPeak', '%')}
               {numField('Ligações à BD (pico)', 'dbPeakConn')}
-              {numField('Queue (pico)', 'queuePeak', 'jobs')}
-              {numField('Concurrent users (pico)', 'peakConcurrent')}
+              {numField('Fila (pico)', 'queuePeak', 'jobs')}
+              {numField('Utilizadores simultÃ¢neos (pico)', 'peakConcurrent')}
               <p className="font-body text-xs text-ink-faint sm:col-span-3">
                 Limiares: P95 &lt; {thresholds.p95Ms} ms · P99 &lt;{' '}
                 {thresholds.p99Ms} ms · erros &lt; {thresholds.errorRatePercent}
@@ -606,7 +606,7 @@ export function LoadTestsTab({
                     <th className="py-1.5 font-semibold">Teste</th>
                     <th className="py-1.5 font-semibold">Ambiente</th>
                     <th className="py-1.5 font-semibold">Estado</th>
-                    <th className="py-1.5 text-right font-semibold">Users</th>
+                    <th className="py-1.5 text-right font-semibold">Utilizadores</th>
                     <th className="py-1.5 text-right font-semibold">Req/s</th>
                     <th className="py-1.5 text-right font-semibold">P95</th>
                     <th className="py-1.5 text-right font-semibold">P99</th>
