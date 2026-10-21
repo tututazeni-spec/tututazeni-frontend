@@ -120,11 +120,13 @@ export const IsisSimliAvatar = forwardRef<
   }, []);
 
   const disconnect = useCallback(
-    async (next: AvatarStatus = 'ended') => {
+    async (next: AvatarStatus = 'ended', serverClosed = false) => {
       const client = clientRef.current;
       clientRef.current = null;
       onSpeakingChange?.(false);
-      if (client) {
+      // Quando foi o Simli a terminar (eventos stop/error) o SDK já fechou a
+      // ligação; chamar stop() outra vez só gera "FAILED TO SEND FINAL MESSAGE".
+      if (client && !serverClosed) {
         try {
           await client.stop();
         } catch (e) {
@@ -162,7 +164,7 @@ export const IsisSimliAvatar = forwardRef<
       client.on('silent', () => onSpeakingChange?.(false));
       // Fim por limite de duração ou inactividade (definidos no backend).
       client.on('stop', () => {
-        if (clientRef.current === client) void disconnect('ended');
+        if (clientRef.current === client) void disconnect('ended', true);
       });
       // O SDK dá o motivo no argumento; sem o registar, o erro final
       // ("Called Disconnect Before A Connection succeeded") esconde a causa.
@@ -170,19 +172,19 @@ export const IsisSimliAvatar = forwardRef<
         reportError(new Error(`Simli error: ${message}`), {
           source: 'IsisSimliAvatar.error',
         });
-        if (clientRef.current === client) void disconnect('error');
+        if (clientRef.current === client) void disconnect('error', true);
       });
       client.on('startup_error', (message: string) => {
         reportError(new Error(`Simli startup_error: ${message}`), {
           source: 'IsisSimliAvatar.startup_error',
         });
-        if (clientRef.current === client) void disconnect('error');
+        if (clientRef.current === client) void disconnect('error', true);
       });
       clientRef.current = client;
       await client.start();
     } catch (e) {
       reportError(e, { source: 'IsisSimliAvatar.connect' });
-      await disconnect('error');
+      await disconnect('error', true);
     }
   }, [capturePoster, disconnect, onSpeakingChange, setStatus]);
 
