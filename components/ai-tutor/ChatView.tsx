@@ -5,11 +5,16 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Send, Volume2, VolumeX } from 'lucide-react';
 import Image from 'next/image';
 import { useApiMutation } from '@/hooks/useApiQuery';
-import { unlockSpeech, useSpeech } from '@/hooks/useSpeech';
+import { toSpeakable, unlockSpeech, useSpeech } from '@/hooks/useSpeech';
+import {
+  fetchIsisSpeech,
+  pcmDurationMs,
+  splitPcm,
+} from '@/lib/isisAvatarSpeech';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
@@ -18,7 +23,11 @@ import { Input } from '@/components/ui/Input';
 import { useToast } from '@/providers/ToastProvider';
 import { QUICK_ACTIONS } from './constants';
 import { MessageBubble } from './MessageBubble';
-import { IsisSimliAvatar } from './IsisSimliAvatar';
+import {
+  IsisSimliAvatar,
+  type AvatarStatus,
+  type IsisSimliAvatarHandle,
+} from './IsisSimliAvatar';
 import { MicButton } from './MicButton';
 import { SpeakingText } from './SpeakingText';
 import type {
@@ -116,8 +125,56 @@ export function ChatView() {
   const [personality, setPersonality] = useState('FRIENDLY');
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const { speak, stop, speaking, charIndex, boundaryCount, spokenText } =
-    useSpeech();
+  const browserVoice = useSpeech();
+  const avatarRef = useRef<IsisSimliAvatarHandle>(null);
+  const avatarTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [avatarStatus, setAvatarStatus] = useState<AvatarStatus>('idle');
+  // A Ísis está a falar pelo avatar (da geração da voz até acabar o áudio).
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [avatarText, setAvatarText] = useState('');
+  const avatarConnected = avatarStatus === 'connected';
+
+  const stopBrowserVoice = browserVoice.stop;
+  const stop = useCallback(() => {
+    if (avatarTimer.current) clearTimeout(avatarTimer.current);
+    avatarTimer.current = null;
+    avatarRef.current?.interrupt();
+    setAvatarBusy(false);
+    stopBrowserVoice();
+  }, [stopBrowserVoice]);
+
+  const speaking = browserVoice.speaking || avatarBusy;
+  const spokenText = avatarBusy ? avatarText : browserVoice.spokenText;
+  // Pelo avatar o texto aparece inteiro; só a voz do browser o vai acendendo.
+  const charIndex = avatarBusy ? avatarText.length : browserVoice.charIndex;
+
+  // Com o avatar ligado a voz vem da ElevenLabs, enviada ao Simli; sem
+  // avatar (ou se a voz falhar) cai na voz do browser — plano B.
+  const speak = useCallback(
+    async (markdown: string) => {
+      const text = toSpeakable(markdown);
+      if (!text) return;
+      if (!avatarConnected) {
+        browserVoice.speak(markdown);
+        return;
+      }
+      setAvatarText(text);
+      setAvatarBusy(true);
+      try {
+        const pcm = await fetchIsisSpeech(text);
+        for (const chunk of splitPcm(pcm)) avatarRef.current?.sendAudio(chunk);
+        avatarTimer.current = setTimeout(
+          () => setAvatarBusy(false),
+          pcmDurationMs(pcm) + 1000,
+        );
+      } catch (e) {
+        reportError(e, { source: 'ChatView.speak' });
+        setAvatarBusy(false);
+        browserVoice.speak(markdown);
+      }
+    },
+    [avatarConnected, browserVoice],
+  );
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -192,7 +249,8 @@ export function ChatView() {
           sourceLabels: res.sources?.map((s) => s.label),
         },
       ]);
-      if (viaVoice && voiceEnabled) speak(res.message.content);
+      if (voiceEnabled && (viaVoice || avatarConnected))
+        void speak(res.message.content);
     } catch (e) {
       reportError(e, { source: 'ChatView.sendMessage' });
       const errMsg = e instanceof Error ? e.message : String(e);
@@ -474,7 +532,11 @@ export function ChatView() {
           speaking ? 'border-[#D4A017]' : 'border-border'
         }`}
       >
-        <IsisSimliAvatar className="w-full aspect-square" />
+        <IsisSimliAvatar
+          ref={avatarRef}
+          onStatusChange={setAvatarStatus}
+          className="w-full aspect-square"
+        />
       </aside>
     </div>
   );
