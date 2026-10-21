@@ -159,29 +159,34 @@ export function AccessView() {
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
             <KpiCard
+              tab="logs"
               icon={LogIn}
               label="Inícios de sessão"
               value={t.successLogins}
               sub={`Últimos ${summary.periodDays} dias`}
             />
             <KpiCard
+              tab="logs"
               icon={UserX}
               label="Tentativas falhadas"
               value={t.failedLogins}
               intent="danger"
             />
             <KpiCard
+              tab="logs"
               icon={MonitorSmartphone}
               label="Sessões activas"
               value={t.activeSessions}
               sub="Agora"
             />
             <KpiCard
+              tab="logs"
               icon={KeyRound}
               label="Palavras-passe alteradas"
               value={t.passwordChanges}
             />
             <KpiCard
+              tab="logs"
               icon={AlertTriangle}
               label="Alterações de permissões"
               value={t.permissionChanges}

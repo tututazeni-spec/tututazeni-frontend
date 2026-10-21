@@ -7,11 +7,7 @@
 
 'use client';
 
-import {
-  ClipboardList,
-  Download,
-  Star,
-} from 'lucide-react';
+import { ClipboardList, Download, Star } from 'lucide-react';
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -217,6 +213,7 @@ export function ReportsTab() {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <NavyStatCard
+              tab="evaluations"
               icon={ClipboardList}
               label="Total de Avaliações"
               value={data.totalEvaluations}

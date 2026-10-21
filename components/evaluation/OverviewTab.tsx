@@ -73,18 +73,21 @@ function OrganizationOverview() {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <NavyStatCard
+          tab="cycles"
           icon={PlayCircle}
           label="Em curso"
           value={data.kpis.inProgress}
           tone="blue"
         />
         <NavyStatCard
+          tab="pending"
           icon={Clock}
           label="Pendentes"
           value={data.kpis.pending}
           tone="orange"
         />
         <NavyStatCard
+          tab="results"
           icon={CheckCircle2}
           label="Concluídas"
           value={data.kpis.completed}
@@ -97,6 +100,7 @@ function OrganizationOverview() {
           display={`${Math.round(data.kpis.completionRate)}%`}
         />
         <NavyStatCard
+          tab="analytics"
           icon={Star}
           label="Média Desempenho"
           value={data.kpis.avgScore.toFixed(1)}
@@ -243,12 +247,14 @@ export function OverviewTab({ userId }: OverviewTabProps) {
       {/* My completion progress */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <NavyStatCard
+          tab="results"
           icon={CheckCircle2}
           label="Concluídas"
           value={progress?.completed ?? 0}
           tone="green"
         />
         <NavyStatCard
+          tab="pending"
           icon={Clock}
           label="Pendentes"
           value={progress?.pending ?? 0}
@@ -261,6 +267,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
           display={`${Math.round(progress?.completionRate ?? 0)}%`}
         />
         <NavyStatCard
+          tab="analytics"
           icon={Star}
           label="Pontuação Mais Recente"
           value={myResults ? myResults.finalScore.toFixed(1) : '–'}

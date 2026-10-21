@@ -37,6 +37,13 @@ const NUMBER_FORMATS = [
   { value: 'pt', label: '1 234,56' },
   { value: 'en', label: '1,234.56' },
 ];
+const EMAIL_MODES = [
+  { value: 'SUGGEST', label: 'Sugerir (aceita e avisa)' },
+  { value: 'ENFORCE', label: 'Obrigar (bloqueia emails fora do formato)' },
+];
+const EMAIL_PATTERNS = [
+  { value: '{primeiroNome}.{apelido}', label: 'nome.apelido' },
+];
 const TIMEZONES = [
   'Africa/Luanda',
   'Africa/Maputo',
@@ -169,7 +176,8 @@ export function TabVisaoGeral() {
     const payload = Object.fromEntries(
       Object.entries(form).filter(([, v]) => v !== null && v !== ''),
     ) as Partial<Form>;
-    save.mutate(payload);
+    // O domínio vazio desactiva a regra, por isso é sempre enviado.
+    save.mutate({ ...payload, emailDomain: form.emailDomain ?? '' });
   }
 
   return (
@@ -365,6 +373,47 @@ export function TabVisaoGeral() {
                 items={NUMBER_FORMATS}
                 value={form.numberFormat}
                 onValueChange={(v) => set('numberFormat', v)}
+              />
+            </FormField>
+          </div>
+        </CardBody>
+      </Card>
+
+      <Card className="col-span-2 overflow-hidden">
+        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          Formato de email dos utilizadores
+        </div>
+        <CardBody>
+          <div className="grid grid-cols-3 gap-4">
+            <FormField
+              label="Domínio de email"
+              htmlFor="emailDomain"
+              hint="Ex.: carrinho-sa.com. Vazio = sem restrições."
+            >
+              <Input
+                id="emailDomain"
+                className="w-full"
+                placeholder="empresa.com"
+                value={text('emailDomain')}
+                onChange={(e) =>
+                  set('emailDomain', e.target.value.trim().toLowerCase())
+                }
+              />
+            </FormField>
+            <FormField label="Padrão" htmlFor="emailPattern">
+              <Select
+                className="w-full"
+                items={EMAIL_PATTERNS}
+                value={form.emailPattern}
+                onValueChange={(v) => set('emailPattern', v)}
+              />
+            </FormField>
+            <FormField label="Regra" htmlFor="emailPolicyMode">
+              <Select
+                className="w-full"
+                items={EMAIL_MODES}
+                value={form.emailPolicyMode}
+                onValueChange={(v) => set('emailPolicyMode', v)}
               />
             </FormField>
           </div>

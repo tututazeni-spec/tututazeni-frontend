@@ -65,24 +65,28 @@ export function PayrollPanel() {
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <NavyStatCard
+              href="/payroll?tab=payslips"
               icon={FileText}
               label="Recibos Processados"
               value={data.headcount}
               tone="blue"
             />
             <NavyStatCard
+              href="/payroll"
               icon={Wallet}
               label="Massa Salarial Bruta"
               value={money(data.totalGross)}
               tone="blue"
             />
             <NavyStatCard
+              href="/payroll"
               icon={Banknote}
               label="Massa Salarial Líquida"
               value={money(data.totalNet)}
               tone="green"
             />
             <NavyStatCard
+              href="/payroll"
               icon={Receipt}
               label="Deduções Totais"
               value={money(data.totalDeductions)}

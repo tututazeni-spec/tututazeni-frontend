@@ -169,6 +169,7 @@ export function ChangesView() {
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
             <KpiCard
+              tab="logs"
               icon={FilePenLine}
               label="Alterações registadas"
               value={summary.totals.changes}
@@ -176,11 +177,13 @@ export function ChangesView() {
               iconIntent="caution"
             />
             <KpiCard
+              tab="logs"
               icon={Users}
               label="Autores distintos"
               value={summary.totals.authors}
             />
             <KpiCard
+              tab="logs"
               icon={FilePenLine}
               label="Operações falhadas / negadas"
               value={summary.totals.failed}

@@ -100,7 +100,12 @@ export function TeamSummaryTab({
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <KpiCard label="Colaboradores" value={t.members} intent="primary" />
+            <KpiCard
+              href="/users"
+              label="Colaboradores"
+              value={t.members}
+              intent="primary"
+            />
             <KpiCard
               label="Cobertura obrigatória"
               value={

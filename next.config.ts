@@ -17,11 +17,15 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
+      `script-src 'self' 'unsafe-inline' blob:${isDev ? " 'unsafe-eval'" : ''}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
-      "connect-src 'self'",
+      // Avatar da Ísis (Simli): sinalização por WebSocket em api.simli.ai e
+      // vídeo/áudio por LiveKit (WebRTC). blob: em script-src e media-src é
+      // para o AudioWorklet do SDK e para o stream do avatar.
+      "connect-src 'self' https://api.simli.ai wss://api.simli.ai https://*.simli.ai wss://*.simli.ai https://*.livekit.cloud wss://*.livekit.cloud",
+      "media-src 'self' blob: mediastream:",
       "frame-src 'self' blob:",
       "frame-ancestors 'none'",
       "base-uri 'self'",
@@ -35,7 +39,7 @@ const securityHeaders = [
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   {
     key: 'Permissions-Policy',
-    value: 'camera=(), microphone=(), geolocation=()',
+    value: 'camera=(), microphone=(self), geolocation=()',
   },
 ];
 
@@ -47,6 +51,25 @@ const nextConfig: NextConfig = {
   images: {
     // https apenas — imagens http:// eram mixed content (achado F2).
     remotePatterns: [{ protocol: 'https', hostname: '**' }],
+  },
+  // simli-client@3.0.3 faz require('./transports/...') e require('../signaling/...')
+  // mas o pacote publica as pastas como `Transports/` e `Signaling/`. Em
+  // Windows/macOS (FS insensível a maiúsculas) funciona; no Linux do
+  // CI/produção o build falha com "Module not found".
+  webpack(config, { webpack }) {
+    config.plugins.push(
+      new webpack.NormalModuleReplacementPlugin(
+        /^(\.\/transports|\.\.\/signaling)\//,
+        (resource: { request: string; context: string }) => {
+          if (resource.context.includes('simli-client')) {
+            resource.request = resource.request
+              .replace('./transports/', './Transports/')
+              .replace('../signaling/', '../Signaling/');
+          }
+        },
+      ),
+    );
+    return config;
   },
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }];

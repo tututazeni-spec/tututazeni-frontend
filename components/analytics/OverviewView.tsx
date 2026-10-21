@@ -57,6 +57,7 @@ export function OverviewView() {
       {/* KPIs principais */}
       <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          href="/users"
           label="Colaboradores activos"
           value={data.users.active}
           tone="blue"
@@ -75,6 +76,7 @@ export function OverviewView() {
           display={`${Math.round(data.pdi.adoptionRate)}%`}
         />
         <NavyStatCard
+          href="/evaluation"
           label="Performance média"
           value={data.performance.avgScore}
           tone="orange"
@@ -86,12 +88,14 @@ export function OverviewView() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <StatGroup title="Cursos">
           <NavyStatCard
+            href="/courses"
             icon={BookOpen}
             label="Total"
             value={data.courses.total}
             tone="blue"
           />
           <NavyStatCard
+            href="/courses"
             icon={CheckCircle2}
             label="Publicados"
             value={data.courses.published}
@@ -101,6 +105,7 @@ export function OverviewView() {
 
         <StatGroup title="Matrículas">
           <NavyStatCard
+            href="/enrollments"
             icon={FileBadge}
             label="Concluídas"
             value={data.enrollments.completed}

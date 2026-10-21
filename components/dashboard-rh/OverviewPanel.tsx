@@ -107,6 +107,7 @@ export function OverviewPanel() {
           circular, número grande, label e sub/trend por baixo. */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          tab="headcount"
           label="Colaboradores Activos"
           value={k.headcount?.total ?? 0}
           tone="blue"
@@ -118,15 +119,17 @@ export function OverviewPanel() {
           max={TURNOVER_MAX}
           bands={TURNOVER_BANDS}
           display={`${Math.round(k.turnover?.rate ?? 0)}%`}
-        caption={k.turnover?.status}
+          caption={k.turnover?.status}
         />
         <NavyStatCard
+          tab="headcount"
           label="Novas Admissões (mês)"
           value={k.newHires?.count ?? 0}
           tone="green"
           icon={UserPlus}
         />
         <NavyStatCard
+          tab="performance"
           label="Performance Média"
           value={k.performance?.avg?.toFixed(1) ?? '–'}
           tone="orange"
@@ -137,18 +140,21 @@ export function OverviewPanel() {
           status={k.pdpCoverage?.status}
         />
         <NavyStatCard
+          tab="training"
           label="Conclusões (mês)"
           value={k.completions?.count ?? 0}
           tone="blue"
           icon={CheckCircle2}
         />
         <NavyStatCard
+          tab="engagement"
           label="Respostas às Pesquisas"
           value={k.engagement?.surveyResponses ?? 0}
           tone="orange"
           icon={MessageSquare}
         />
         <NavyStatCard
+          tab="training"
           label="Formações Obrigatórias"
           value={k.mandatoryCompliance ?? 0}
           tone="red"

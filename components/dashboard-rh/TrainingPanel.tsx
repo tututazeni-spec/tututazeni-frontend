@@ -38,6 +38,7 @@ export function TrainingPanel() {
       {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          href="/trainings"
           label="Conclusões (mês)"
           value={data?.completed ?? 0}
           tone="green"
@@ -56,6 +57,7 @@ export function TrainingPanel() {
           display={`${Math.round(data?.mandatoryRate ?? 0)}%`}
         />
         <NavyStatCard
+          href="/trainings"
           label="Horas Estimadas"
           value={`${data?.estimatedHours ?? 0}h`}
           tone="orange"

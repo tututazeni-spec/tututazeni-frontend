@@ -241,30 +241,35 @@ export function ReportsTab() {
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
             <KpiCard
+              tab="events"
               icon={CalendarDays}
               label="Eventos"
               value={data.totals.events}
               intent="primary"
             />
             <KpiCard
+              tab="events"
               icon={Megaphone}
               label="Publicados"
               value={data.totals.published}
               intent="info"
             />
             <KpiCard
+              tab="events"
               icon={Radio}
               label="Ao vivo"
               value={data.totals.live}
               intent="danger"
             />
             <KpiCard
+              tab="events"
               icon={CheckCircle2}
               label="Concluídos"
               value={data.totals.ended}
               intent="success"
             />
             <KpiCard
+              tab="events"
               icon={XCircle}
               label="Cancelados"
               value={data.totals.cancelled}
@@ -278,6 +283,7 @@ export function ReportsTab() {
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <KpiCard
+                tab="participants"
                 icon={UserPlus}
                 label="Inscritos"
                 value={data.registration.registered}
@@ -290,6 +296,7 @@ export function ReportsTab() {
                 display={`${Math.round(data.registration.rate)}%`}
               />
               <KpiCard
+                tab="participants"
                 icon={MailCheck}
                 label="Confirmados"
                 value={data.confirmation.confirmed}
@@ -302,6 +309,7 @@ export function ReportsTab() {
                 display={`${Math.round(data.confirmation.rate)}%`}
               />
               <KpiCard
+                tab="checkin-attendance"
                 icon={UserCheck}
                 label="Presentes"
                 value={data.participation.present}
@@ -314,12 +322,14 @@ export function ReportsTab() {
                 display={`${Math.round(data.participation.rate)}%`}
               />
               <KpiCard
+                tab="checkin-attendance"
                 icon={UserX}
                 label="Ausências"
                 value={data.participation.absences}
                 intent="danger"
               />
               <KpiCard
+                tab="checkin-attendance"
                 icon={LogIn}
                 label="Check-ins realizados"
                 value={data.checkins.total}
@@ -334,6 +344,7 @@ export function ReportsTab() {
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <KpiCard
+                tab="participants"
                 icon={ClipboardList}
                 label="Registadas"
                 value={data.sessionAttendance.total}
@@ -393,6 +404,7 @@ export function ReportsTab() {
                 caption="em 5.0"
               />
               <KpiCard
+                tab="evaluation"
                 icon={ThumbsUp}
                 label="NPS do evento"
                 value={data.nps.avg != null ? data.nps.avg : '—'}

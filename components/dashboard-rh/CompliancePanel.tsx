@@ -67,12 +67,14 @@ export function CompliancePanel() {
           display={`${Math.round(data?.mandatoryRate ?? 0)}%`}
         />
         <NavyStatCard
+          href="/audit"
           icon={ShieldAlert}
           label="Nível de Risco"
           value={RISK_LABEL[risk]}
           tone={RISK_TONE[risk] ?? 'green'}
         />
         <NavyStatCard
+          href="/audit"
           icon={ClipboardList}
           label="Eventos de Auditoria (mês)"
           value={data?.auditEvents ?? 0}
@@ -127,18 +129,21 @@ function DocumentsExpiryWidget() {
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
       <NavyStatCard
+        href="/documents"
         icon={FileClock}
         label="Documentos a Expirar (30 dias)"
         value={k.expiringSoon ?? 0}
         tone="orange"
       />
       <NavyStatCard
+        href="/documents"
         icon={FileX}
         label="Documentos Expirados"
         value={k.expired ?? 0}
         tone="red"
       />
       <NavyStatCard
+        href="/documents"
         icon={FileCheck}
         label="Documentos Activos"
         value={k.active ?? 0}

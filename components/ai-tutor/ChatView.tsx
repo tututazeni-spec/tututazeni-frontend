@@ -5,10 +5,20 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Send, Volume2, VolumeX } from 'lucide-react';
 import Image from 'next/image';
 import { useApiMutation } from '@/hooks/useApiQuery';
+import { toSpeakable, unlockSpeech, useSpeech } from '@/hooks/useSpeech';
+import { streamAiMessage } from '@/lib/aiMessageStream';
+import { createSpeechQueue, type SpeechQueue } from '@/lib/isisSpeechQueue';
+import {
+  fetchIsisSpeech,
+  splitForSpeech,
+  pcmDurationMs,
+  splitPcm,
+} from '@/lib/isisAvatarSpeech';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { Button, IconButton } from '@/components/ui/Button';
@@ -16,11 +26,47 @@ import { Input } from '@/components/ui/Input';
 import { useToast } from '@/providers/ToastProvider';
 import { QUICK_ACTIONS } from './constants';
 import { MessageBubble } from './MessageBubble';
+import {
+  IsisSimliAvatar,
+  type AvatarStatus,
+  type IsisSimliAvatarHandle,
+} from './IsisSimliAvatar';
+import { SpeakingText } from './SpeakingText';
 import type {
   Message,
   SendMessageResponse,
   StartSessionResponse,
 } from './types';
+
+// Silêncio máximo (ms) antes de terminar o modo conversa.
+const CONVERSATION_IDLE_MS = 90_000;
+
+// Interromper o Ísis por voz exige que o microfone fique aberto enquanto ela
+// fala. Com colunas ele ouve a voz dela e, se o filtro de eco falha, corta a
+// fala e trata-a como nova pergunta (loop). Por defeito o microfone fica
+// fechado enquanto ela fala; para a calar usa-se "Parar voz" ou o microfone.
+const ALLOW_VOICE_INTERRUPT = false;
+
+// Palavras que interrompem sempre (mesmo que existam no texto falado, ex.: "para").
+const STOP_WORD = /^(pára|para|chega|espera|stop|cala)/i;
+
+const words = (t: string) =>
+  t
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+
+// O microfone apanha a voz do Ísis nas colunas: se quase todas as palavras
+// ouvidas estão no texto que ela está a dizer, é eco e não o utilizador.
+function isEcho(heard: string, spoken: string): boolean {
+  const h = words(heard);
+  if (h.length === 0) return true;
+  if (h.length <= 3 && STOP_WORD.test(heard.trim())) return false;
+  const pool = new Set(words(spoken));
+  return h.filter((w) => pool.has(w)).length / h.length >= 0.6;
+}
 
 const PERSONALITIES = [
   { id: 'FRIENDLY', label: 'Amigável' },
@@ -79,52 +125,91 @@ export function ChatView() {
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const [personality, setPersonality] = useState('FRIENDLY');
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const browserVoice = useSpeech();
+  const avatarRef = useRef<IsisSimliAvatarHandle>(null);
+  const speakRun = useRef(0);
+  const speechQueue = useRef<SpeechQueue | null>(null);
+  const flushStream = useRef<(() => void) | null>(null);
+  const avatarTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [avatarStatus, setAvatarStatus] = useState<AvatarStatus>('idle');
+  // A Ísis está a falar pelo avatar (da geração da voz até acabar o áudio).
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [avatarText, setAvatarText] = useState('');
+  const avatarConnected = avatarStatus === 'connected';
+
+  const stopBrowserVoice = browserVoice.stop;
+  const stop = useCallback(() => {
+    speakRun.current++;
+    speechQueue.current?.cancel();
+    speechQueue.current = null;
+    // Voz interrompida: o texto que faltava aparece de uma vez.
+    flushStream.current?.();
+    flushStream.current = null;
+    if (avatarTimer.current) clearTimeout(avatarTimer.current);
+    avatarTimer.current = null;
+    avatarRef.current?.interrupt();
+    setAvatarBusy(false);
+    stopBrowserVoice();
+  }, [stopBrowserVoice]);
+
+  const speaking = browserVoice.speaking || avatarBusy;
+  const spokenText = avatarBusy ? avatarText : browserVoice.spokenText;
+  // Pelo avatar o texto aparece inteiro; só a voz do browser o vai acendendo.
+  const charIndex = avatarBusy ? avatarText.length : browserVoice.charIndex;
+
+  // Com o avatar ligado a voz vem da ElevenLabs, enviada ao Simli; sem
+  // avatar (ou se a voz falhar) cai na voz do browser — plano B.
+  const speak = useCallback(
+    async (markdown: string) => {
+      const text = toSpeakable(markdown);
+      if (!text) return;
+      if (!avatarConnected) {
+        browserVoice.speak(markdown);
+        return;
+      }
+      setAvatarText(text);
+      setAvatarBusy(true);
+      const run = ++speakRun.current;
+      try {
+        // Pede a voz de todos os pedaços já (no máximo 3 em simultâneo) e
+        // envia ao avatar por ordem: a Ísis começa a falar após a 1.ª frase.
+        const pieces = splitForSpeech(text);
+        const pending = new Map<number, Promise<Uint8Array>>();
+        const request = (i: number) => {
+          if (i < pieces.length && !pending.has(i)) {
+            pending.set(i, fetchIsisSpeech(pieces[i]));
+          }
+        };
+        for (let i = 0; i < Math.min(3, pieces.length); i++) request(i);
+        let playUntil = 0;
+        for (let i = 0; i < pieces.length; i++) {
+          const pcm = await pending.get(i)!;
+          if (run !== speakRun.current) return; // interrompida ou nova resposta
+          request(i + 3);
+          for (const chunk of splitPcm(pcm))
+            avatarRef.current?.sendAudio(chunk);
+          playUntil = Math.max(playUntil, Date.now()) + pcmDurationMs(pcm);
+          if (avatarTimer.current) clearTimeout(avatarTimer.current);
+          avatarTimer.current = setTimeout(
+            () => setAvatarBusy(false),
+            playUntil - Date.now() + 1000,
+          );
+        }
+      } catch (e) {
+        if (run !== speakRun.current) return;
+        reportError(e, { source: 'ChatView.speak' });
+        setAvatarBusy(false);
+        browserVoice.speak(markdown);
+      }
+    },
+    [avatarConnected, browserVoice],
+  );
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, thinking]);
-
-  // Limpa o texto antes de o entregar ao motor de voz: remove emojis e
-  // marcações markdown (**negrito**, *itálico*, listas com "-"/"•", "#"
-  // de títulos, etc.) que algumas vozes leem literalmente em voz alta
-  // ("asterisco", "cardinal"...). A bolha de chat continua a mostrar o
-  // texto original formatado — só a fala é afectada.
-  const sanitizeForSpeech = (text: string) =>
-    text
-      // emojis e outros símbolos pictográficos (inclui variação/ZWJ)
-      .replace(
-        /[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}️‍]/gu,
-        '',
-      )
-      // marcações markdown, mantendo o conteúdo dentro delas
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-      .replace(/\*(.*?)\*/g, '$1')
-      .replace(/`{1,3}(.*?)`{1,3}/g, '$1')
-      .replace(/^#{1,6}\s+/gm, '')
-      .replace(/^[\s]*[-•]\s+/gm, '')
-      .replace(/[*_~`#>]/g, '')
-      .replace(/ +([.,!?;:])/g, '$1')
-      .replace(/\s{2,}/g, ' ')
-      .trim();
-
-  // Faz a Ísis "falar" um texto em voz alta, usando a voz
-  // já incorporada no navegador (não precisa de nenhum serviço externo).
-  const speak = (text: string) => {
-    if (!voiceEnabled) return;
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
-
-    const clean = sanitizeForSpeech(text);
-    if (!clean) return;
-
-    window.speechSynthesis.cancel(); // evita sobrepor falas anteriores
-    const utterance = new SpeechSynthesisUtterance(clean);
-    utterance.lang = 'pt-PT';
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    window.speechSynthesis.speak(utterance);
-  };
 
   const startSession = useApiMutation(
     (p: string) =>
@@ -146,7 +231,6 @@ export function ChatView() {
             agentAction: null,
           },
         ]);
-        speak(res.greeting);
       },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
@@ -154,7 +238,9 @@ export function ChatView() {
   const starting = startSession.isPending;
   const start = () => startSession.mutate(personality);
 
-  const send = async (text?: string) => {
+  // viaVoice: a resposta só é falada quando a pergunta foi feita por voz,
+  // para quem escreve não ser surpreendido com som.
+  const send = async (text?: string, viaVoice = false) => {
     const msg = (text ?? input).trim();
     if (!msg || !session || thinking) return;
     setInput('');
@@ -172,12 +258,129 @@ export function ChatView() {
     setMessages((prev) => [...prev, userMsg]);
     setThinking(true);
 
+    // Com o avatar ligado a resposta chega em streaming e é falada frase a
+    // frase: o texto aparece no chat ao ritmo da voz, sem esperar pelo fim.
+    const sendStreaming = async () => {
+      const id = Date.now() + 1;
+      let full = '';
+      let shown = '';
+      let meta: SendMessageResponse | null = null;
+      let started = false;
+      const base: Message = {
+        id,
+        role: 'ASSISTANT',
+        content: '',
+        createdAt: new Date().toISOString(),
+        latencyMs: null,
+        rating: null,
+        provider: null,
+        agentAction: null,
+      };
+      // O id muda para o real quando chega a resposta final.
+      let currentId = id;
+      const write = (content: string, patch: Partial<Message> = {}) => {
+        const matchId = currentId;
+        if (patch.id !== undefined) currentId = patch.id;
+        setMessages((prev) =>
+          prev.some((m) => m.id === matchId)
+            ? prev.map((m) =>
+                m.id === matchId ? { ...m, content, ...patch } : m,
+              )
+            : [...prev, { ...base, id: currentId, content, ...patch }],
+        );
+      };
+      const metaPatch = (): Partial<Message> =>
+        meta
+          ? {
+              id: meta.message.id,
+              createdAt: meta.message.createdAt,
+              latencyMs: meta.latencyMs,
+              provider: meta.provider,
+              agentAction: meta.message.agentAction,
+              sourceLabels: meta.sources?.map((x) => x.label),
+            }
+          : {};
+      // Mostra o texto todo (fim da fala, voz interrompida ou voz em falha).
+      const flush = () => {
+        setAvatarBusy(false);
+        write(meta?.message.content ?? full, metaPatch());
+      };
+      flushStream.current = flush;
+
+      const queue = createSpeechQueue({
+        fetchSpeech: fetchIsisSpeech,
+        sendAudio: (chunk) => {
+          const ok = avatarRef.current?.sendAudio(chunk) ?? false;
+          if (!ok) {
+            reportError(
+              new Error('Áudio da Ísis descartado: avatar não ligado'),
+              {
+                source: 'ChatView.sendStreaming',
+              },
+            );
+          }
+          return ok;
+        },
+        toSpeakable,
+        onReveal: (visible) => {
+          shown = visible;
+          setAvatarText(visible);
+          write(visible);
+        },
+        onIdle: () => {
+          flushStream.current = null;
+          flush();
+        },
+        onError: (e) => {
+          reportError(e, { source: 'ChatView.sendStreaming' });
+          flushStream.current = null;
+          flush();
+        },
+      });
+      speechQueue.current = queue;
+
+      try {
+        meta = await streamAiMessage(
+          {
+            sessionId: session.id,
+            message: msg,
+            maxTokens: 500,
+          },
+          (delta) => {
+            if (!started) {
+              started = true;
+              speakRun.current++;
+              setAvatarText('');
+              setAvatarBusy(true);
+              setThinking(false);
+            }
+            full += delta;
+            queue.push(delta);
+          },
+        );
+        queue.finish();
+        // Metadados (id real, fontes…) já; o texto completo só no fim da fala.
+        write(shown, metaPatch());
+      } catch (e) {
+        queue.cancel();
+        flushStream.current = null;
+        setAvatarBusy(false);
+        throw e;
+      }
+    };
+
     try {
+      if (avatarConnected && voiceEnabled) {
+        await sendStreaming();
+        return;
+      }
       const res = await apiClient.post<SendMessageResponse>(
         '/ai-tutor/sessions/message',
         {
           sessionId: session.id,
           message: msg,
+          // Respostas faladas são curtas: menos texto = a Ísis responde mais depressa.
+          ...(viaVoice || avatarConnected ? { maxTokens: 500 } : {}),
         },
       );
       setMessages((prev) => [
@@ -194,7 +397,8 @@ export function ChatView() {
           sourceLabels: res.sources?.map((s) => s.label),
         },
       ]);
-      speak(res.message.content);
+      if (voiceEnabled && (viaVoice || avatarConnected))
+        void speak(res.message.content);
     } catch (e) {
       reportError(e, { source: 'ChatView.sendMessage' });
       const errMsg = e instanceof Error ? e.message : String(e);
@@ -215,6 +419,100 @@ export function ChatView() {
       setThinking(false);
     }
   };
+
+  const voice = useVoiceInput((text) => {
+    if (!text) return;
+    // Enquanto o Ísis fala, o que é só eco da voz dela é ignorado; o resto é
+    // o utilizador a interromper: calar a voz e tratar como nova pergunta.
+    if (speaking) {
+      if (!ALLOW_VOICE_INTERRUPT || isEcho(text, spokenText)) return;
+      stop();
+    }
+    // Só "pára"/"chega": calar sem enviar nada ao tutor.
+    if (words(text).length <= 2 && STOP_WORD.test(text.trim())) return;
+    void send(text, true);
+  });
+
+  // Modo conversa: um clique mantém a conversa activa. O reconhecimento do
+  // browser pára sozinho após cada frase, por isso reabre-se enquanto a
+  // conversa durar. Pausa quando o Ísis pensa ou fala (para não ouvir a
+  // própria voz) e termina após 10 s sem o utilizador falar; a contagem
+  // recomeça sempre que o Ísis acaba de falar.
+  const [conversation, setConversation] = useState(false);
+  const { start: startListening, stop: stopListening } = voice;
+  const paused = thinking || speaking;
+
+  const endConversation = () => {
+    setConversation(false);
+    stopListening();
+    stop();
+  };
+
+  // "Iniciar" do avatar liga também o microfone: o tutor cala-se primeiro; o
+  // unlock cobre o Safari/iPhone, que só fala a partir de um toque.
+  const startConversation = () => {
+    stop();
+    unlockSpeech();
+    setConversation(true);
+  };
+
+  // Sessão do avatar terminada (limite, inactividade ou erro): desliga o
+  // microfone também, para não ficar a ouvir sem avatar.
+  const onAvatarStatus = (status: AvatarStatus) => {
+    setAvatarStatus(status);
+    if (status === 'ended' || status === 'error') {
+      endConversation();
+      notify({
+        title:
+          status === 'error'
+            ? 'O avatar da Ísis ficou indisponível'
+            : 'Sessão do avatar terminada (tempo ou inactividade)',
+        description: 'Carrega em Iniciar para falar outra vez com a Ísis.',
+        intent: status === 'error' ? 'danger' : 'info',
+      });
+    }
+  };
+
+  // Reabre o microfone quando a conversa está activa e ninguém está a falar.
+  useEffect(() => {
+    if (!conversation || paused || voice.listening || voice.error) return;
+    const t = setTimeout(startListening, 250);
+    return () => clearTimeout(t);
+  }, [conversation, paused, voice.listening, voice.error, startListening]);
+
+  // Pausa o microfone enquanto o Ísis pensa ou fala.
+  useEffect(() => {
+    if (thinking || (speaking && !ALLOW_VOICE_INTERRUPT)) stopListening();
+  }, [thinking, speaking, stopListening]);
+
+  // 10 s de silêncio terminam a conversa; ouvir voz (interim) reinicia a contagem.
+  useEffect(() => {
+    if (!conversation || paused) return;
+    const t = setTimeout(() => {
+      setConversation(false);
+      stopListening();
+    }, CONVERSATION_IDLE_MS);
+    return () => clearTimeout(t);
+  }, [conversation, paused, voice.interim, stopListening]);
+
+  // Interromper por voz: se, enquanto fala, o Ísis ouvir algo que não é eco
+  // da própria voz, cala-se logo (a pergunta segue quando a frase terminar).
+  useEffect(() => {
+    if (
+      ALLOW_VOICE_INTERRUPT &&
+      conversation &&
+      speaking &&
+      voice.interim &&
+      !isEcho(voice.interim, spokenText)
+    ) {
+      stop();
+    }
+  }, [conversation, speaking, voice.interim, spokenText, stop]);
+
+  // Sem permissão (ou erro do microfone) não vale a pena continuar.
+  useEffect(() => {
+    if (voice.error) setConversation(false);
+  }, [voice.error]);
 
   const handleRate = async (msgId: number, rating: number) => {
     try {
@@ -264,91 +562,142 @@ export function ChatView() {
   }
 
   return (
-    <div className="flex flex-col h-[75vh] bg-surface border border-border rounded-panel overflow-hidden shadow-resting">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-primary text-canvas">
-        <IsisAvatar size="md" />
-        <div>
-          <div className="font-body text-sm font-semibold">Ísis — Tutor IA</div>
-          <div className="font-body text-xs text-canvas/80 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 bg-success rounded-full" />
-            Online · Sessão #{session.id}
-          </div>
-        </div>
-        <button
-          onClick={() => setVoiceEnabled((v) => !v)}
-          className="ml-auto text-canvas/80 hover:text-canvas"
-          title={voiceEnabled ? 'Desligar voz' : 'Ligar voz'}
-        >
-          {voiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
-        </button>
-        <button
-          onClick={() => {
-            setSession(null);
-            setMessages([]);
-          }}
-          className="font-body text-xs text-canvas/70 hover:text-canvas"
-        >
-          Nova sessão
-        </button>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 bg-surface-sunken">
-        {messages.map((m) => (
-          <MessageBubble key={m.id} msg={m} onRate={handleRate} />
-        ))}
-        {thinking && (
-          <div className="flex justify-start mb-3">
-            <IsisAvatar size="sm" className="mr-2" />
-            <div className="bg-surface border border-border rounded-card shadow-resting">
-              <div className="flex items-center gap-1 px-4 py-3">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="w-2 h-2 bg-accent rounded-full animate-bounce"
-                    style={{ animationDelay: `${i * 0.15}s` }}
-                  />
-                ))}
-              </div>
+    <div className="flex gap-4 h-[75vh]">
+      <div className="flex flex-col flex-1 min-w-0 bg-surface border border-border rounded-panel overflow-hidden shadow-resting">
+        {/* Header */}
+        <div className="flex items-center gap-3 px-4 py-3 bg-primary text-canvas">
+          <div>
+            <div className="font-body text-sm font-semibold">
+              Ísis — Tutor IA
+            </div>
+            <div className="font-body text-xs text-canvas/80 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-success rounded-full" />
+              Online · Sessão #{session.id}
             </div>
           </div>
-        )}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Quick actions */}
-      <div className="px-3 py-2 bg-surface border-t border-border flex gap-1.5 overflow-x-auto">
-        {QUICK_ACTIONS.map((a) => (
-          <Button
-            key={a.label}
-            size="sm"
-            intent="secondary"
-            onClick={() => send(a.value)}
-            className="flex-shrink-0 whitespace-nowrap"
+          <button
+            onClick={() => {
+              if (voiceEnabled) stop();
+              setVoiceEnabled((v) => !v);
+            }}
+            className="ml-auto text-canvas/80 hover:text-canvas"
+            title={
+              voiceEnabled
+                ? 'Desligar resposta por voz'
+                : 'Ligar resposta por voz'
+            }
           >
-            {a.label}
-          </Button>
-        ))}
+            {voiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </button>
+          <button
+            onClick={() => {
+              endConversation();
+              setSession(null);
+              setMessages([]);
+            }}
+            className="font-body text-xs text-canvas/70 hover:text-canvas"
+          >
+            Nova sessão
+          </button>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 bg-surface-sunken">
+          {messages.map((m) => (
+            <MessageBubble key={m.id} msg={m} onRate={handleRate} />
+          ))}
+          {thinking && (
+            <div className="flex justify-start mb-3">
+              <IsisAvatar size="sm" className="mr-2" />
+              <div className="bg-surface border border-border rounded-card shadow-resting">
+                <div className="flex items-center gap-1 px-4 py-3">
+                  {[0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="w-2 h-2 bg-accent rounded-full animate-bounce"
+                      style={{ animationDelay: `${i * 0.15}s` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          {speaking && (
+            <div className="mb-3 rounded-card border border-border bg-surface p-3">
+              <SpeakingText text={spokenText} charIndex={charIndex} />
+              <button
+                onClick={stop}
+                className="mt-2 font-body text-xs text-[#D4A017]"
+              >
+                Parar voz
+              </button>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Quick actions */}
+        <div className="px-3 py-2 bg-surface border-t border-border flex gap-1.5 overflow-x-auto">
+          {QUICK_ACTIONS.map((a) => (
+            <Button
+              key={a.label}
+              size="sm"
+              intent="secondary"
+              onClick={() => send(a.value)}
+              className="flex-shrink-0 whitespace-nowrap"
+            >
+              {a.label}
+            </Button>
+          ))}
+        </div>
+
+        {/* Input */}
+        {(conversation || voice.error) && (
+          <div className="px-3 pt-2 bg-surface font-body text-sm">
+            {voice.error ? (
+              <p className="text-red-600">{voice.error}</p>
+            ) : (
+              <p className="text-gray-500">
+                {paused
+                  ? 'Conversa activa — o Ísis está a responder…'
+                  : voice.interim ||
+                    'A ouvir… (diz algo; termina após 10 s de silêncio)'}
+              </p>
+            )}
+          </div>
+        )}
+        <div className="px-3 py-3 bg-surface border-t border-border flex gap-2">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && send()}
+            placeholder="Escreve a tua pergunta…"
+            disabled={thinking}
+            className="flex-1"
+          />
+          <IconButton
+            icon={Send}
+            label="Enviar mensagem"
+            onClick={() => send()}
+            disabled={!input.trim() || thinking}
+          />
+        </div>
       </div>
 
-      {/* Input */}
-      <div className="px-3 py-3 bg-surface border-t border-border flex gap-2">
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && send()}
-          placeholder="Escreve a tua pergunta…"
-          disabled={thinking}
-          className="flex-1"
+      {/* Retrato da Ísis — fica ao lado do chat */}
+      <aside
+        className={`hidden lg:block lg:w-64 xl:w-80 2xl:w-96 flex-shrink-0 self-start rounded-panel overflow-hidden border-2 shadow-resting transition-colors ${
+          speaking ? 'border-[#D4A017]' : 'border-border'
+        }`}
+      >
+        <IsisSimliAvatar
+          ref={avatarRef}
+          onStatusChange={onAvatarStatus}
+          onStart={startConversation}
+          onEnd={endConversation}
+          className="w-full aspect-square"
         />
-        <IconButton
-          icon={Send}
-          label="Enviar mensagem"
-          onClick={() => send()}
-          disabled={!input.trim() || thinking}
-        />
-      </div>
+      </aside>
     </div>
   );
 }

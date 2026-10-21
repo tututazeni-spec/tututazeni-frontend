@@ -82,6 +82,8 @@ export const queryKeys = {
     team: (id: number | string) =>
       [...queryKeys.users.all, 'team', id] as const,
     adminDashboard: () => [...queryKeys.users.all, 'admin-dashboard'] as const,
+    emailCheck: (fullName: string, email: string) =>
+      [...queryKeys.users.all, 'email-check', fullName, email] as const,
     directory: (search: string, departmentId?: number | string) =>
       [
         ...queryKeys.users.all,

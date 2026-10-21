@@ -25,6 +25,7 @@ export function TabsTrigger({
 }: ComponentProps<typeof RadixTabs.Trigger>) {
   return (
     <RadixTabs.Trigger
+      data-tab-id={props.value}
       className={cn(
         'border-b-2 border-transparent px-3 py-2 font-body text-sm font-medium text-ink-muted',
         'hover:text-ink',

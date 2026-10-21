@@ -119,78 +119,91 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
       {/* KPIs principais */}
       <div className="grid grid-cols-1 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         <NavyStatCard
+          tab="catalog"
           label="Total de cursos"
           value={counts.total}
           tone="blue"
           icon={BookOpen}
         />
         <NavyStatCard
+          tab="catalog"
           label="Publicados"
           value={counts.published}
           tone="green"
           icon={CheckCircle}
         />
         <NavyStatCard
+          tab="catalog"
           label="Rascunhos"
           value={counts.draft}
           tone="orange"
           icon={FileText}
         />
         <NavyStatCard
+          tab="catalog"
           label="Em pausa"
           value={counts.paused}
           tone="orange"
           icon={Pause}
         />
         <NavyStatCard
+          tab="catalog"
           label="Arquivados"
           value={counts.archived}
           tone="gray"
           icon={Trash2}
         />
         <NavyStatCard
+          tab="catalog"
           label="Módulos"
           value={counts.totalModules}
           tone="blue"
           icon={Layers}
         />
         <NavyStatCard
+          tab="catalog"
           label="Lições"
           value={counts.totalLessons}
           tone="blue"
           icon={ListChecks}
         />
         <NavyStatCard
+          tab="inscricoes"
           label="Inscritos"
           value={counts.totalEnrollments}
           tone="blue"
           icon={Users}
         />
         <NavyStatCard
+          tab="inscricoes"
           label="Formandos"
           value={counts.totalLearners}
           tone="blue"
           icon={GraduationCap}
         />
         <NavyStatCard
+          tab="inscricoes"
           label="Conclusões"
           value={counts.completions}
           tone="green"
           icon={CheckCircle2}
         />
         <NavyStatCard
+          tab="inscricoes"
           label="Inscrições pendentes"
           value={counts.pendingEnrollments}
           tone={counts.pendingEnrollments > 0 ? 'orange' : 'blue'}
           icon={Clock}
         />
         <NavyStatCard
+          tab="certificates"
           label="Certificados emitidos"
           value={counts.certificatesIssued}
           tone="green"
           icon={Award}
         />
         <NavyStatCard
+          tab="catalog"
           label="Obrigatórios / opcionais"
           value={`${counts.mandatoryCourses}/${counts.optionalCourses}`}
           tone="blue"
@@ -209,12 +222,14 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           display={`${Math.round(rates.avgPassRate)}%`}
         />
         <NavyStatCard
+          tab="relatorios"
           label="Nota média"
           value={rates.avgRating || '—'}
           tone="orange"
           icon={Star}
         />
         <NavyStatCard
+          tab="relatorios"
           label="Horas de aprendizagem"
           value={fmtDuration(rates.totalLearningHours)}
           tone="blue"

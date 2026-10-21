@@ -40,18 +40,21 @@ export function LearningAnalyticsView() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <NavyStatCard
+          href="/courses?tab=progresso"
           icon={ClipboardCheck}
           label="Nota média de avaliação"
           value={data.avgAssessmentScore}
           tone="blue"
         />
         <NavyStatCard
+          href="/courses?tab=certificates"
           icon={Award}
           label="Certificados emitidos"
           value={data.certificationCount}
           tone="green"
         />
         <NavyStatCard
+          href="/trainings?tab=reports"
           icon={Clock}
           label="Horas de formação consumidas"
           value={data.totalHoursConsumed}
@@ -105,10 +108,18 @@ export function LearningAnalyticsView() {
             <TableHead className="bg-[#0F1F3D]">
               <TableRow className="hover:bg-transparent">
                 <TableHeaderCell className="text-white">Curso</TableHeaderCell>
-                <TableHeaderCell className="text-white">Categoria</TableHeaderCell>
-                <TableHeaderCell className="text-white">Matrículas</TableHeaderCell>
-                <TableHeaderCell className="text-white">Concluídas</TableHeaderCell>
-                <TableHeaderCell className="text-white">Nota média</TableHeaderCell>
+                <TableHeaderCell className="text-white">
+                  Categoria
+                </TableHeaderCell>
+                <TableHeaderCell className="text-white">
+                  Matrículas
+                </TableHeaderCell>
+                <TableHeaderCell className="text-white">
+                  Concluídas
+                </TableHeaderCell>
+                <TableHeaderCell className="text-white">
+                  Nota média
+                </TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>

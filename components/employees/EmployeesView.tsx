@@ -192,12 +192,14 @@ export function EmployeesView() {
               />
             )}
             <KpiCard
+              href="/departments"
               label="Departamentos"
               value={stats.byDepartment?.length ?? '—'}
               intent="accent"
               className="w-full"
             />
             <KpiCard
+              href="/history?tab=movements"
               label="Admissões Recentes"
               value={stats.recentHires ?? 0}
               intent="success"

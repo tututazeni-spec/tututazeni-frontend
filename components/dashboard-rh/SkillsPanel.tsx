@@ -52,12 +52,14 @@ export function SkillsPanel() {
           display={`${Math.round(data?.assessmentRate ?? 0)}%`}
         />
         <NavyStatCard
+          href="/competencies?tab=catalog"
           label="Competências Mapeadas"
           value={data?.totalCompetencies ?? 0}
           tone="orange"
           icon={Layers}
         />
         <NavyStatCard
+          href="/competencies?tab=gaps"
           label="Lacunas Críticas"
           value={data?.criticalGaps ?? 0}
           tone="red"

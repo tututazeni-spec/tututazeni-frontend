@@ -9,13 +9,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Briefcase,
-  Clock,
-  LogIn,
-  LogOut,
-  Users,
-} from 'lucide-react';
+import { Briefcase, Clock, LogIn, LogOut, Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -76,7 +70,9 @@ function BarList({
           {items.slice(0, 10).map((item, i) => (
             <div key={i}>
               <div className="mb-0.5 flex items-start justify-between text-xs">
-                <span className="min-w-0 break-words pr-2 text-ink-muted">{item.label}</span>
+                <span className="min-w-0 break-words pr-2 text-ink-muted">
+                  {item.label}
+                </span>
                 <span className="flex-shrink-0 font-data text-ink-faint">
                   {item.count}
                   {suffix}
@@ -87,7 +83,9 @@ function BarList({
                   className={`h-full rounded-full ${multiColor ? '' : 'bg-primary'}`}
                   style={{
                     width: `${(item.count / max) * 100}%`,
-                    ...(multiColor && { backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }),
+                    ...(multiColor && {
+                      backgroundColor: BAR_COLORS[i % BAR_COLORS.length],
+                    }),
                   }}
                 />
               </div>
@@ -180,13 +178,18 @@ export function ReportsView() {
       </div>
 
       {isLoading && <Skeleton rows={5} />}
-      {error && <div className="px-4 py-8 text-center text-sm text-danger">{error.message}</div>}
+      {error && (
+        <div className="px-4 py-8 text-center text-sm text-danger">
+          {error.message}
+        </div>
+      )}
 
       {!isLoading && !error && data && (
         <div className="space-y-6">
           {/* KPIs */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <NavyStatCard
+              tab="employees"
               icon={Users}
               tone="blue"
               label="Colaboradores"
@@ -194,19 +197,26 @@ export function ReportsView() {
               sub={`${data.employeeDistribution.active} activos · ${data.employeeDistribution.inactive} inactivos`}
             />
             <NavyStatCard
+              tab="positions"
               icon={Briefcase}
-              tone={data.positionsOccupiedVsVacant.vacancies > 0 ? 'orange' : 'green'}
+              tone={
+                data.positionsOccupiedVsVacant.vacancies > 0
+                  ? 'orange'
+                  : 'green'
+              }
               label="Cargos ocupados vs. vagas"
               value={`${data.positionsOccupiedVsVacant.occupied}/${data.positionsOccupiedVsVacant.planned}`}
               sub={`${data.positionsOccupiedVsVacant.vacancies} vagas`}
             />
             <NavyStatCard
+              tab="historico"
               icon={LogIn}
               tone="green"
               label="Admissões no período"
               value={data.admissions.total}
             />
             <NavyStatCard
+              tab="historico"
               icon={LogOut}
               tone={data.exits.total > 0 ? 'red' : 'blue'}
               label="Saídas no período"
@@ -229,11 +239,17 @@ export function ReportsView() {
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             <BarList
               title="Número de colaboradores por departamento (actual)"
-              items={data.headcountByDepartment.map((d) => ({ label: d.name, count: d.actual }))}
+              items={data.headcountByDepartment.map((d) => ({
+                label: d.name,
+                count: d.actual,
+              }))}
             />
             <BarList
               title="Número de colaboradores por unidade"
-              items={data.headcountByUnit.map((u) => ({ label: u.name, count: u.actual }))}
+              items={data.headcountByUnit.map((u) => ({
+                label: u.name,
+                count: u.actual,
+              }))}
             />
             <BarList
               title="Cargos ocupados vs. vagas"
@@ -273,9 +289,12 @@ export function ReportsView() {
                   key={d.id}
                   className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5 text-sm last:border-0"
                 >
-                  <span className="min-w-0 flex-1 break-words text-ink">{d.name}</span>
+                  <span className="min-w-0 flex-1 break-words text-ink">
+                    {d.name}
+                  </span>
                   <span className="flex-shrink-0 font-mono text-xs text-ink-muted">
-                    {d.actual} actual · {d.expected ?? '—'} previsto · {d.max ?? '—'} limite
+                    {d.actual} actual · {d.expected ?? '—'} previsto ·{' '}
+                    {d.max ?? '—'} limite
                   </span>
                 </div>
               ))

@@ -215,6 +215,7 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
           {/* Indicadores §3 */}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
             <KpiCard
+              tab="all"
               icon={FileStack}
               label="Total de processos"
               value={data.kpis.total}
@@ -222,6 +223,7 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
               intent="primary"
             />
             <KpiCard
+              tab="all"
               icon={PlayCircle}
               label="Em execução"
               value={data.kpis.running}
@@ -229,6 +231,7 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
               intent="info"
             />
             <KpiCard
+              tab="all"
               icon={AlarmClock}
               label="Em atraso"
               value={data.kpis.overdue}
@@ -236,6 +239,7 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
               intent="danger"
             />
             <KpiCard
+              tab="all"
               icon={CheckCircle2}
               label="Concluídos"
               value={data.kpis.completed}
@@ -247,6 +251,7 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
               intent="success"
             />
             <KpiCard
+              tab="approvals"
               icon={Stamp}
               label="Aprovações pendentes"
               value={data.kpis.pendingApprovals}
@@ -266,6 +271,7 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
           {/* Biblioteca de modelos — logo abaixo dos indicadores */}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
             <KpiCard
+              tab="templates"
               icon={BadgeCheck}
               label="Modelos activos"
               value={data.processes.active}
@@ -273,6 +279,7 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
               intent="success"
             />
             <KpiCard
+              tab="templates"
               icon={FileSearch}
               label="Modelos em revisão"
               value={data.processes.inReview}
@@ -280,6 +287,7 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
               intent="warning"
             />
             <KpiCard
+              tab="templates"
               icon={PencilRuler}
               iconIntent="caution"
               label="Modelos em rascunho"

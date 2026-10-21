@@ -45,12 +45,14 @@ export function AnalyticsTab() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          tab="catalogue"
           icon={Library}
           label="Total de Conteúdos"
           value={data?.kpis.totalContent ?? 0}
           tone="blue"
         />
         <NavyStatCard
+          tab="catalogue"
           icon={PlayCircle}
           label="Activos"
           value={data?.kpis.activeContent ?? 0}

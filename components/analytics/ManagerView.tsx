@@ -67,6 +67,7 @@ export function ManagerView() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          href="/users"
           label="Equipa"
           value={metrics.headcount}
           tone="blue"
@@ -85,6 +86,7 @@ export function ManagerView() {
           display={`${Math.round(metrics.completionRate)}%`}
         />
         <NavyStatCard
+          href="/evaluation"
           label="Desempenho Médio"
           value={metrics.avgPerformance}
           tone="orange"

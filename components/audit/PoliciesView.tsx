@@ -350,12 +350,14 @@ export function PoliciesView() {
               }
             />
             <KpiCard
+              tab="logs"
               icon={Clock}
               label="Eventos (24h)"
               value={status.events24h}
               sub={`${status.silentHours24h} h sem eventos`}
             />
             <KpiCard
+              tab="access"
               icon={ShieldAlert}
               label="Falhadas / negadas (24h)"
               value={`${status.failedOperations24h} / ${status.deniedOperations24h}`}

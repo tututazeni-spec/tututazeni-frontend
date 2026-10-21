@@ -96,6 +96,7 @@ export function OverviewTab() {
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
         <KpiCard
+          href="/users"
           icon={Users}
           label="Colaboradores"
           value={careerAnalytics.overview.totalUsers}
@@ -103,18 +104,21 @@ export function OverviewTab() {
           intent="primary"
         />
         <KpiCard
+          tab="plans"
           icon={AlertTriangle}
           label="Sem plano de carreira"
           value={overview.employeesWithoutPlan}
           intent={overview.employeesWithoutPlan > 0 ? 'warning' : 'success'}
         />
         <KpiCard
+          tab="opportunities"
           icon={Briefcase}
           label="Vagas internas abertas"
           value={careerAnalytics.overview.activeVacancies}
           intent="info"
         />
         <KpiCard
+          tab="plans"
           icon={TrendingUp}
           label="Planos activos"
           value={careerPlansAnalytics.plans.active}
@@ -122,6 +126,7 @@ export function OverviewTab() {
           intent="accent"
         />
         <KpiCard
+          tab="succession"
           label="Posições críticas"
           value={successionDashboard.kpis.totalCriticalPositions}
           sub={`${successionDashboard.kpis.withoutSuccessor} sem sucessor`}

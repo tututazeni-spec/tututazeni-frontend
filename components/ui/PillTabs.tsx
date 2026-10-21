@@ -143,6 +143,7 @@ export function PillNav({
               key={item.id}
               type="button"
               role="tab"
+              data-tab-id={item.id}
               aria-selected={active}
               data-state={active ? 'active' : 'inactive'}
               onClick={() => onChange(item.id)}

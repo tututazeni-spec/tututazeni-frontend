@@ -19,8 +19,6 @@ import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { PredictionsData } from './types';
 
-
-
 export function PredictionsPanel() {
   const { data, isLoading: loading } = useApiQuery<PredictionsData>(
     queryKeys.dashboardRh.predictions(),
@@ -40,12 +38,14 @@ export function PredictionsPanel() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
         <NavyStatCard
+          href="/evaluation"
           icon={AlertTriangle}
           label="Em Risco de Saída"
           value={data?.summary?.atRiskCount ?? 0}
           tone="red"
         />
         <NavyStatCard
+          href="/evaluation"
           icon={TrendingDown}
           label="Baixa Performance"
           value={data?.summary?.lowPerfCount ?? 0}

@@ -162,6 +162,7 @@ export function ReportsTab() {
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <KpiCard
+              tab="plans"
               icon={Users}
               label="Onboardings"
               value={data.total}
@@ -186,18 +187,21 @@ export function ReportsTab() {
               intent="warning"
             />
             <KpiCard
+              tab="tasks"
               icon={CheckCircle2}
               label="Tarefas concluídas"
               value={data.tasksCompleted}
               intent="success"
             />
             <KpiCard
+              tab="tasks"
               icon={AlarmClock}
               label="Tarefas em aberto"
               value={data.tasksOverdue}
               intent="warning"
             />
             <KpiCard
+              tab="documents"
               icon={FileText}
               label="Documentos pendentes"
               value={data.documentsPending}

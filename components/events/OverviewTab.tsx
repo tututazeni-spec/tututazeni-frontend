@@ -147,6 +147,7 @@ export function OverviewTab({
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
         <KpiCard
+          tab="events"
           icon={CalendarDays}
           label="Total de eventos"
           value={data.total}
@@ -178,12 +179,14 @@ export function OverviewTab({
           intent={data.cancelledCount > 0 ? 'warning' : 'primary'}
         />
         <KpiCard
+          tab="participants"
           icon={UserPlus}
           label="Participantes inscritos"
           value={data.registeredParticipants}
           intent="accent"
         />
         <KpiCard
+          tab="participants"
           icon={UserCheck}
           label="Participantes confirmados"
           value={data.confirmedParticipants}
@@ -197,6 +200,7 @@ export function OverviewTab({
 
       <div className="grid grid-cols-3 gap-3">
         <KpiCard
+          tab="participants"
           icon={Hourglass}
           label="Inscrições pendentes"
           iconIntent="caution"
@@ -204,12 +208,14 @@ export function OverviewTab({
           intent={data.pendingRegistrations > 0 ? 'warning' : 'primary'}
         />
         <KpiCard
+          tab="checkin-attendance"
           icon={ClipboardCheck}
           label="Check-ins realizados"
           value={data.checkinsDone}
           intent="success"
         />
         <KpiCard
+          tab="evaluation"
           icon={ClipboardList}
           label="Avaliações pendentes"
           iconIntent="warning"

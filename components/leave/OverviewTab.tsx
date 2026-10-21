@@ -7,7 +7,12 @@
 'use client';
 
 import { useState } from 'react';
-import { CalendarCheck, CalendarClock, CalendarOff, Palmtree } from 'lucide-react';
+import {
+  CalendarCheck,
+  CalendarClock,
+  CalendarOff,
+  Palmtree,
+} from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
@@ -87,14 +92,16 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
   const set = (patch: Partial<OverviewFilters>) =>
     setFilters((f) => ({ ...f, ...patch }));
   const pick = (v: string) => (v === ALL ? '' : v);
-  const withAll = (items: { value: string; label: string }[], label: string) => [
-    { value: ALL, label },
-    ...items,
-  ];
+  const withAll = (
+    items: { value: string; label: string }[],
+    label: string,
+  ) => [{ value: ALL, label }, ...items];
 
   const filterBar = (
     <Card className="overflow-hidden p-4">
-      <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
+      <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
+        Filtros
+      </h3>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <label className="text-xs text-ink-muted space-y-1">
           <span>De</span>
@@ -209,6 +216,7 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <NavyStatCard
+          tab="vacations"
           icon={Palmtree}
           tone="green"
           label="Férias disponíveis"
@@ -216,12 +224,14 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
           sub="dias · o seu saldo"
         />
         <NavyStatCard
+          tab="approvals"
           icon={CalendarClock}
           tone="orange"
           label="Pedidos pendentes"
           value={cards.pendingRequests}
         />
         <NavyStatCard
+          tab="vacations"
           icon={CalendarCheck}
           tone="blue"
           label="Dias de férias gozados"
@@ -229,6 +239,7 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
           sub="no período"
         />
         <NavyStatCard
+          tab="absences"
           icon={CalendarOff}
           tone="red"
           label="Ausências no período"

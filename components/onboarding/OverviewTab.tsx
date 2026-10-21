@@ -130,12 +130,14 @@ export function OverviewTab({
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-3">
         <KpiCard
+          tab="plans"
           icon={Users}
           label="Total de integrações"
           value={summary.total}
           intent="info"
         />
         <KpiCard
+          tab="plans"
           icon={UserPlus}
           label="Novos colaboradores (30d)"
           value={summary.newHires}
@@ -147,30 +149,35 @@ export function OverviewTab({
           color="#1877F2"
         />
         <KpiCard
+          tab="tasks"
           icon={AlarmClock}
           label="Tarefas atrasadas"
           value={summary.overdueTasks}
           intent="danger"
         />
         <KpiCard
+          tab="documents"
           icon={FileText}
           label="Documentos pendentes"
           value={summary.pendingDocuments}
           intent="warning"
         />
         <KpiCard
+          tab="training"
           icon={GraduationCap}
           label="Formações pendentes"
           value={summary.pendingTrainings}
           intent="warning"
         />
         <KpiCard
+          tab="integration-evaluations"
           icon={ClipboardCheck}
           label="Avaliações de integração pendentes"
           value={summary.pendingIntegrationEvals}
           intent="warning"
         />
         <KpiCard
+          tab="reports"
           icon={Smile}
           label="Satisfação média"
           value={

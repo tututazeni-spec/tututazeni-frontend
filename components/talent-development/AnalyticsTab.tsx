@@ -101,6 +101,7 @@ export function AnalyticsTab() {
       {/* Top KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <KpiCard
+          href="/users"
           icon={Users}
           label="Colaboradores Activos"
           value={dash?.kpis.totalUsers ?? 0}
@@ -118,12 +119,14 @@ export function AnalyticsTab() {
           value={dash?.kpis.actionCompletion ?? 0}
         />
         <KpiCard
+          href="/development-plans?tab=team"
           icon={TriangleAlert}
           label="Acções em Atraso"
           value={dash?.kpis.overdueActions ?? 0}
           intent="danger"
         />
         <KpiCard
+          href="/development-plans?tab=mentoring"
           icon={HeartHandshake}
           label="Mentorias Activas"
           value={dash?.kpis.activeMentorings ?? 0}

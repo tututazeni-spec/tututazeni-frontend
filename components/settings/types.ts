@@ -39,6 +39,9 @@ export interface OrganizationSettings {
   dateFormat: string;
   timeFormat: string;
   numberFormat: string;
+  emailDomain: string | null;
+  emailPattern: string;
+  emailPolicyMode: 'SUGGEST' | 'ENFORCE';
 }
 
 export interface UserPolicy {

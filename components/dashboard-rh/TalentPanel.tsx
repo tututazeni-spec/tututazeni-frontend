@@ -77,18 +77,21 @@ export function TalentPanel() {
           display={`${Math.round(data?.coverageRate ?? 0)}%`}
         />
         <NavyStatCard
+          href="/career?tab=succession"
           icon={Users}
           label="Planos de Sucessão"
           value={successionPlans.length}
           tone="blue"
         />
         <NavyStatCard
+          href="/development-plans?tab=ninebox"
           icon={Star}
           label="Profissionais de Alto Potencial"
           value={data?.hiPoCount ?? hiPoList.length}
           tone="orange"
         />
         <NavyStatCard
+          href="/career?tab=succession"
           icon={AlertTriangle}
           label="Posições em Risco"
           value={positionsAtRisk.length}

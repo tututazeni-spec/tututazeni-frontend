@@ -200,6 +200,7 @@ export function JobsTab({ data }: { data: JobsData }) {
           tone="red"
         />
         <NavyStatCard
+          tab="jobs"
           icon={CalendarClock}
           label="Agendados"
           value={s.scheduled}
@@ -225,6 +226,7 @@ export function JobsTab({ data }: { data: JobsData }) {
           tone="blue"
         />
         <NavyStatCard
+          tab="jobs"
           icon={Timer}
           label="Tarefas periódicas"
           value={s.cronJobs}
@@ -232,6 +234,7 @@ export function JobsTab({ data }: { data: JobsData }) {
           tone="orange"
         />
         <NavyStatCard
+          tab="automations"
           icon={Zap}
           label="Automações"
           value={data.automations.running}
@@ -413,6 +416,7 @@ export function SlaTab({
           tone="blue"
         />
         <NavyStatCard
+          tab="incidents"
           icon={Siren}
           label="Incidentes críticos"
           value={data.violations.criticalIncidents}

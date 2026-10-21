@@ -47,6 +47,7 @@ export function OverviewView() {
       {/* KPIs gerais */}
       <div className="grid grid-cols-4 gap-4">
         <NavyStatCard
+          tab="catalog"
           icon={Layers}
           tone="blue"
           label="Total de competências"
@@ -75,24 +76,28 @@ export function OverviewView() {
       {/* Por categoria */}
       <div className="grid grid-cols-4 gap-4">
         <NavyStatCard
+          tab="catalog"
           icon={Wrench}
           tone="blue"
           label="Técnicas"
           value={data.byCategory.technical}
         />
         <NavyStatCard
+          tab="catalog"
           icon={Users}
           tone="blue"
           label="Comportamentais"
           value={data.byCategory.behavioral}
         />
         <NavyStatCard
+          tab="catalog"
           icon={Award}
           tone="blue"
           label="Liderança"
           value={data.byCategory.leadership}
         />
         <NavyStatCard
+          tab="catalog"
           icon={Briefcase}
           tone="orange"
           label="Funcionais"
@@ -109,18 +114,21 @@ export function OverviewView() {
           value={data.strategic}
         />
         <NavyStatCard
+          tab="evaluations"
           icon={UserCheck}
           tone="blue"
           label="Colaboradores avaliados"
           value={data.evaluatedUsers}
         />
         <NavyStatCard
+          tab="matrix"
           icon={TrendingUp}
           tone="green"
           label="Média global de proficiência"
           value={data.avgProficiency}
         />
         <NavyStatCard
+          tab="evaluations"
           icon={ClipboardList}
           tone={data.pendingEvaluations > 0 ? 'orange' : 'blue'}
           label="Avaliações pendentes"

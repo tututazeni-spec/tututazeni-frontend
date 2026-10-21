@@ -116,48 +116,56 @@ export function ColaboradorDashboard() {
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          href="/courses?tab=my-courses"
           icon={BookOpen}
           tone="blue"
           label="Cursos em Progresso"
           value={data?.learning?.inProgress ?? 0}
         />
         <NavyStatCard
+          href="/courses?tab=my-courses"
           icon={CheckCircle2}
           tone="green"
           label="Cursos Concluídos"
           value={data?.learning?.completed ?? 0}
         />
         <NavyStatCard
+          href="/courses?tab=my-courses"
           icon={GraduationCap}
           tone="blue"
           label="Cursos Matriculados"
           value={data?.learning?.totalEnrolled ?? 0}
         />
         <NavyStatCard
+          href="/evaluation?tab=pending"
           icon={ClipboardList}
           tone="red"
           label="Avaliações Pendentes"
           value={data?.overview?.pendingEvaluations ?? 0}
         />
         <NavyStatCard
+          href="/live-classes"
           icon={Video}
           tone="orange"
           label="Aulas ao Vivo Agendadas"
           value={data?.overview?.scheduledLiveClasses ?? 0}
         />
         <NavyStatCard
+          href="/ai-tutor"
           icon={Bot}
           tone="orange"
           label="Sessões de Tutor de IA"
           value={data?.overview?.aiTutorSessions ?? 0}
         />
         <NavyStatCard
+          href="/leave?tab=vacations"
           icon={CalendarDays}
           tone="green"
           label="Pedidos de Férias"
           value={data?.overview?.pendingLeaveRequests ?? 0}
         />
         <NavyStatCard
+          href="/trainings?tab=my-trainings"
           icon={Presentation}
           tone="blue"
           label="Os Meus Treinamentos"

@@ -133,18 +133,21 @@ export function PeopleAnalyticsView() {
       {/* Headcount */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          href="/users"
           icon={Users}
           label="Colaboradores activos"
           value={data.headcount.total}
           tone="blue"
         />
         <NavyStatCard
+          href="/history?tab=movements"
           icon={UserPlus}
           label="Admitidos (período)"
           value={data.headcount.hired}
           tone="green"
         />
         <NavyStatCard
+          href="/history?tab=movements"
           icon={UserMinus}
           label="Saídas (período)"
           value={data.headcount.terminated}

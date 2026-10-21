@@ -53,6 +53,7 @@ export function TurnoverPanel() {
           value={`${Math.round(data?.retentionRate ?? 0)}%`}
         />
         <NavyStatCard
+          href="/history?tab=movements"
           label="Saídas (últimos 3 meses)"
           value={data?.leftLast3Months ?? 0}
           tone="red"

@@ -58,6 +58,7 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KpiCard
+          tab="my"
           label="Presentes Hoje"
           value={data.kpis.totalPresent}
           icon={UserCheck}
@@ -65,6 +66,7 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
           trend={5}
         />
         <KpiCard
+          tab="my"
           label="Ausentes"
           value={data.kpis.totalAbsent}
           icon={UserX}
@@ -72,18 +74,21 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
           trend={-3}
         />
         <KpiCard
+          tab="my"
           label="Atrasos"
           value={data.kpis.totalLate}
           icon={Clock}
           intent="warning"
         />
         <KpiCard
+          tab="my"
           label="Activos Agora"
           value={data.kpis.checkedInNow}
           icon={Timer}
           intent="accent"
         />
         <KpiCard
+          tab="leaves"
           label="Pedidos Licença"
           value={data.kpis.pendingLeaves}
           icon={Calendar}
@@ -91,6 +96,7 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
           sub="pendentes"
         />
         <KpiCard
+          tab="my"
           label="Justificativas"
           value={data.kpis.pendingJustifications}
           icon={FileText}
@@ -98,6 +104,7 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
           sub="pendentes"
         />
         <KpiCard
+          tab="my"
           label="Horas Extra"
           value={data.kpis.pendingOvertime}
           icon={Zap}

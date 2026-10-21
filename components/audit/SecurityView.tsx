@@ -617,24 +617,28 @@ export function SecurityView() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiCard
+          tab="logs"
           icon={FolderOpen}
           label="Abertos"
           value={byStatus.OPEN ?? 0}
           intent="info"
         />
         <KpiCard
+          tab="logs"
           icon={SearchCheck}
           label="Em análise"
           value={byStatus.IN_ANALYSIS ?? 0}
           intent="warning"
         />
         <KpiCard
+          tab="logs"
           icon={Siren}
           label="Críticos por resolver"
           value={openSev.CRITICAL ?? 0}
           intent="danger"
         />
         <KpiCard
+          tab="logs"
           icon={ShieldCheck}
           label="Encerrados"
           value={byStatus.CLOSED ?? 0}

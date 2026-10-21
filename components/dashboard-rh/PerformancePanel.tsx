@@ -39,24 +39,28 @@ export function PerformancePanel() {
       {/* KPIs — cartão estilo Udemy/MasterClass */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          href="/evaluation"
           label="Pontuação Média"
           value={data?.avgScore?.toFixed(1) ?? '–'}
           tone="orange"
           icon={Star}
         />
         <NavyStatCard
+          href="/evaluation"
           label="Avaliados"
           value={data?.total ?? 0}
           tone="blue"
           icon={Users}
         />
         <NavyStatCard
+          href="/evaluation"
           label="Profissionais de Alto Potencial"
           value={data?.hiPos ?? 0}
           tone="green"
           icon={Award}
         />
         <NavyStatCard
+          href="/evaluation"
           label="Em Risco"
           value={data?.atRisk ?? 0}
           tone="red"

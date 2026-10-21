@@ -50,30 +50,35 @@ export function DashboardView() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
         <NavyStatCard
+          tab="list"
           icon={Users}
           tone="blue"
           label="Total colaboradores"
           value={data.users.total}
         />
         <NavyStatCard
+          tab="list"
           icon={UserCheck}
           tone="green"
           label="Activos"
           value={data.users.active}
         />
         <NavyStatCard
+          tab="list"
           icon={UserMinus}
           tone="orange"
           label="Inactivos"
           value={data.users.inactive}
         />
         <NavyStatCard
+          tab="list"
           icon={Clock}
           tone="blue"
           label="Pendentes"
           value={data.users.pending}
         />
         <NavyStatCard
+          tab="list"
           icon={Ban}
           tone={data.users.suspended > 0 ? 'red' : 'blue'}
           label="Suspensos"

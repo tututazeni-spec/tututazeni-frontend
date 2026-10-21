@@ -64,9 +64,26 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
     <div className="space-y-6">
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <NavyStatCard icon={Building2} tone="blue" label="Total departamentos" value={rows.length} />
-        <NavyStatCard icon={CheckCircle2} tone="green" label="Activos" value={activeCount} />
-        <NavyStatCard icon={Users} tone="blue" label="Total colaboradores" value={totalMembers} />
+        <NavyStatCard
+          tab="list"
+          icon={Building2}
+          tone="blue"
+          label="Total departamentos"
+          value={rows.length}
+        />
+        <NavyStatCard
+          icon={CheckCircle2}
+          tone="green"
+          label="Activos"
+          value={activeCount}
+        />
+        <NavyStatCard
+          tab="employees"
+          icon={Users}
+          tone="blue"
+          label="Total colaboradores"
+          value={totalMembers}
+        />
       </div>
 
       {/* Distribution chart */}

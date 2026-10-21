@@ -130,9 +130,7 @@ function GroupTable({
 }) {
   return (
     <Card className="overflow-hidden p-0">
-      <div className={CARD_HEADER_CLASS}>
-        {title}
-      </div>
+      <div className={CARD_HEADER_CLASS}>{title}</div>
       {kind === 'competencies' ? (
         <RankedList
           rows={(rows as CompetencyReportGroup[]).map((r) => ({
@@ -308,24 +306,28 @@ export function ReportsView() {
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <NavyStatCard
+              tab="catalog"
               icon={Layers}
               tone="blue"
               label="Competências"
               value={data.mapaGeral.totalCompetencies}
             />
             <NavyStatCard
+              tab="catalog"
               icon={AlertTriangle}
               tone="red"
               label="Críticas"
               value={data.mapaGeral.critical}
             />
             <NavyStatCard
+              tab="catalog"
               icon={Target}
               tone="blue"
               label="Estratégicas"
               value={data.mapaGeral.strategic}
             />
             <NavyStatCard
+              tab="evaluations"
               icon={UserCheck}
               tone="blue"
               label="Colaboradores avaliados"
@@ -345,18 +347,21 @@ export function ReportsView() {
             </h3>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <NavyStatCard
+                tab="gaps"
                 icon={Target}
                 tone="orange"
                 label="Lacunas identificadas"
                 value={data.gaps.total}
               />
               <NavyStatCard
+                tab="gaps"
                 icon={Users}
                 tone="red"
                 label="Colaboradores com lacunas"
                 value={data.gaps.usersWithGap}
               />
               <NavyStatCard
+                tab="gaps"
                 icon={BarChart3}
                 tone="blue"
                 label="Lacuna média"
@@ -377,18 +382,21 @@ export function ReportsView() {
             </h3>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               <NavyStatCard
+                tab="development"
                 icon={CalendarCheck}
                 tone="blue"
                 label="Eventos com evolução"
                 value={data.impactoFormacoes.events}
               />
               <NavyStatCard
+                tab="development"
                 icon={TrendingUp}
                 tone="green"
                 label="Colaboradores que melhoraram"
                 value={data.impactoFormacoes.improved}
               />
               <NavyStatCard
+                tab="development"
                 icon={ArrowUpRight}
                 tone="green"
                 label="Aumento médio de nível"
@@ -436,9 +444,7 @@ export function ReportsView() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <Card className="overflow-hidden p-0">
-              <div className={CARD_HEADER_CLASS}>
-                Competências críticas
-              </div>
+              <div className={CARD_HEADER_CLASS}>Competências críticas</div>
               <RankedList
                 rows={data.competenciasCriticas.map((c) => ({
                   label: c.name,

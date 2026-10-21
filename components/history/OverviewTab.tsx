@@ -132,24 +132,28 @@ export function OverviewTab() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5 [&>*]:min-w-0">
         <KpiCard
+          tab="history"
           icon={History}
           label="Total de eventos"
           value={k.totalEvents}
           sub="Desde sempre"
         />
         <KpiCard
+          tab="history"
           icon={CalendarDays}
           label="Alterações hoje"
           value={k.eventsToday}
           intent="accent"
         />
         <KpiCard
+          tab="history"
           icon={CalendarRange}
           label="Alterações este mês"
           value={k.eventsMonth}
           intent="accent"
         />
         <KpiCard
+          tab="movements"
           icon={UserPlus}
           label="Admissões"
           value={k.admissions}
@@ -157,6 +161,7 @@ export function OverviewTab() {
           sub={period}
         />
         <KpiCard
+          tab="movements"
           icon={ArrowRightLeft}
           label="Transferências"
           value={k.transfers}
@@ -164,6 +169,7 @@ export function OverviewTab() {
           sub={period}
         />
         <KpiCard
+          tab="movements"
           icon={Briefcase}
           label="Alterações de cargo"
           value={k.positionChanges}
@@ -171,6 +177,7 @@ export function OverviewTab() {
           sub={period}
         />
         <KpiCard
+          tab="movements"
           icon={Building2}
           label="Alterações de departamento"
           value={k.departmentChanges}
@@ -178,6 +185,7 @@ export function OverviewTab() {
           sub={period}
         />
         <KpiCard
+          tab="movements"
           icon={Wallet}
           label="Alterações salariais"
           value={k.salaryChanges}
@@ -185,6 +193,7 @@ export function OverviewTab() {
           sub={period}
         />
         <KpiCard
+          tab="activities"
           icon={Star}
           label="Avaliações concluídas"
           value={k.evaluationsCompleted}
@@ -192,6 +201,7 @@ export function OverviewTab() {
           sub={period}
         />
         <KpiCard
+          tab="activities"
           icon={GraduationCap}
           label="Formações concluídas"
           value={k.trainingsCompleted}
@@ -199,6 +209,7 @@ export function OverviewTab() {
           sub={period}
         />
         <KpiCard
+          tab="activities"
           icon={FileText}
           label="Documentos adicionados"
           value={k.documentsAdded}
@@ -206,6 +217,7 @@ export function OverviewTab() {
           sub={period}
         />
         <KpiCard
+          tab="activities"
           icon={ThumbsUp}
           label="Pedidos aprovados"
           value={k.requestsApproved}
@@ -213,6 +225,7 @@ export function OverviewTab() {
           sub={period}
         />
         <KpiCard
+          tab="activities"
           icon={ThumbsDown}
           label="Pedidos rejeitados"
           value={k.requestsRejected}

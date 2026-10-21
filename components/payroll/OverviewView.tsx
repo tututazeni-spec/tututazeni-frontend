@@ -113,14 +113,21 @@ export function OverviewView() {
           )}
 
           <Section title="Colaboradores">
-            <KpiCard icon={Users} label="Total" value={data.employees.total} />
             <KpiCard
+              tab="runs"
+              icon={Users}
+              label="Total"
+              value={data.employees.total}
+            />
+            <KpiCard
+              tab="runs"
               icon={CheckCircle2}
               label="Processados"
               value={data.employees.processed}
               intent="success"
             />
             <KpiCard
+              tab="runs"
               icon={Clock}
               label="Pendentes"
               value={data.employees.pending}
@@ -130,18 +137,21 @@ export function OverviewView() {
 
           <Section title="Recibos e pagamentos">
             <KpiCard
+              tab="payslips"
               icon={FileCheck}
               label="Recibos emitidos"
               value={data.receipts.issued}
               intent="success"
             />
             <KpiCard
+              tab="payslips"
               icon={FileClock}
               label="Recibos pendentes"
               value={data.receipts.pending}
               intent="warning"
             />
             <KpiCard
+              tab="payments"
               icon={Hourglass}
               label="Pagamentos pendentes"
               value={data.pendingPayments}

@@ -97,12 +97,14 @@ export function ManagerDashboard() {
       {/* KPIs — visão geral da equipa */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          href="/users"
           icon={Users}
           tone="blue"
           label="Equipa"
           value={data?.teamSize ?? 0}
         />
         <NavyStatCard
+          href="/development-plans?tab=team"
           icon={Target}
           tone="green"
           label="PDIs Activos"
@@ -110,6 +112,7 @@ export function ManagerDashboard() {
           sub={`Cobertura: ${kpis.pdpCoverage ?? 0}% · ${kpis.completedPlans ?? 0} concluídos`}
         />
         <NavyStatCard
+          href="/evaluation"
           icon={Star}
           tone="orange"
           label="Pontuação Média"
@@ -127,6 +130,7 @@ export function ManagerDashboard() {
       {/* KPIs — accionáveis para o gestor + engagement da equipa */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
+          href="/evaluation?tab=pending"
           icon={ClipboardList}
           tone={hasPendingEvals ? 'red' : 'green'}
           label="Avaliações Pendentes"
@@ -134,6 +138,7 @@ export function ManagerDashboard() {
           sub="Aguardam a tua avaliação"
         />
         <NavyStatCard
+          href="/development-plans?tab=team"
           icon={AlarmClock}
           tone={hasOverdueActions ? 'red' : 'green'}
           label="Ações de PDI Atrasadas"
@@ -141,6 +146,7 @@ export function ManagerDashboard() {
           sub="Da equipa, prazo já passado"
         />
         <NavyStatCard
+          href="/courses?tab=inscricoes"
           icon={BookOpen}
           tone="orange"
           label="Inscrições em Curso"
@@ -148,6 +154,7 @@ export function ManagerDashboard() {
           sub={`${kpis.completedEnrollments ?? 0} concluídas no período`}
         />
         <NavyStatCard
+          href="/dashboard-rh?tab=engagement"
           icon={MessageSquare}
           tone="blue"
           label="Engajamento"
