@@ -309,7 +309,18 @@ export function ChatView() {
 
       const queue = createSpeechQueue({
         fetchSpeech: fetchIsisSpeech,
-        sendAudio: (chunk) => avatarRef.current?.sendAudio(chunk) ?? false,
+        sendAudio: (chunk) => {
+          const ok = avatarRef.current?.sendAudio(chunk) ?? false;
+          if (!ok) {
+            reportError(
+              new Error('Áudio da Ísis descartado: avatar não ligado'),
+              {
+                source: 'ChatView.sendStreaming',
+              },
+            );
+          }
+          return ok;
+        },
         toSpeakable,
         onReveal: (visible) => {
           shown = visible;
@@ -449,7 +460,17 @@ export function ChatView() {
   // microfone também, para não ficar a ouvir sem avatar.
   const onAvatarStatus = (status: AvatarStatus) => {
     setAvatarStatus(status);
-    if (status === 'ended' || status === 'error') endConversation();
+    if (status === 'ended' || status === 'error') {
+      endConversation();
+      notify({
+        title:
+          status === 'error'
+            ? 'O avatar da Ísis ficou indisponível'
+            : 'Sessão do avatar terminada (tempo ou inactividade)',
+        description: 'Carrega em Iniciar para falar outra vez com a Ísis.',
+        intent: status === 'error' ? 'danger' : 'info',
+      });
+    }
   };
 
   // Reabre o microfone quando a conversa está activa e ninguém está a falar.
