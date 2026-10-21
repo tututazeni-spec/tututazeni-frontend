@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/Input';
 import { useToast } from '@/providers/ToastProvider';
 import { QUICK_ACTIONS } from './constants';
 import { MessageBubble } from './MessageBubble';
+import { IsisSimliAvatar } from './IsisSimliAvatar';
 import { MicButton } from './MicButton';
 import { SpeakingText } from './SpeakingText';
 import type {
@@ -469,17 +470,11 @@ export function ChatView() {
 
       {/* Retrato da Ísis — fica ao lado do chat */}
       <aside
-        className={`hidden lg:block w-72 xl:w-80 flex-shrink-0 rounded-panel overflow-hidden border-2 shadow-resting transition-colors ${
+        className={`hidden lg:block lg:w-[22rem] xl:w-[36rem] 2xl:w-[40rem] flex-shrink-0 self-start rounded-panel overflow-hidden border-2 shadow-resting transition-colors ${
           speaking ? 'border-[#D4A017]' : 'border-border'
         }`}
       >
-        <Image
-          src="/images/isis-avatar.png"
-          alt="Ísis - Tutor IA"
-          width={640}
-          height={640}
-          className="w-full h-full object-cover"
-        />
+        <IsisSimliAvatar className="w-full aspect-square" />
       </aside>
     </div>
   );
