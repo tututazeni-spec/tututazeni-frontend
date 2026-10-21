@@ -18,7 +18,6 @@ import { Input } from '@/components/ui/Input';
 import { useToast } from '@/providers/ToastProvider';
 import { QUICK_ACTIONS } from './constants';
 import { MessageBubble } from './MessageBubble';
-import { LipSyncPortrait } from './LipSyncPortrait';
 import { MicButton } from './MicButton';
 import { SpeakingText } from './SpeakingText';
 import type {
@@ -474,13 +473,12 @@ export function ChatView() {
           speaking ? 'border-[#D4A017]' : 'border-border'
         }`}
       >
-        <LipSyncPortrait
-          thinking={thinking}
-          speaking={speaking}
-          text={spokenText}
-          charIndex={charIndex}
-          boundaryCount={boundaryCount}
-          className="w-full h-full"
+        <Image
+          src="/images/isis-avatar.png"
+          alt="Ísis - Tutor IA"
+          width={640}
+          height={640}
+          className="w-full h-full object-cover"
         />
       </aside>
     </div>
