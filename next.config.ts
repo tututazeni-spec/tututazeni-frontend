@@ -17,11 +17,15 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
+      `script-src 'self' 'unsafe-inline' blob:${isDev ? " 'unsafe-eval'" : ''}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
-      "connect-src 'self'",
+      // Avatar da Ísis (Simli): sinalização por WebSocket em api.simli.ai e
+      // vídeo/áudio por LiveKit (WebRTC). blob: em script-src e media-src é
+      // para o AudioWorklet do SDK e para o stream do avatar.
+      "connect-src 'self' https://api.simli.ai wss://api.simli.ai https://*.simli.ai wss://*.simli.ai https://*.livekit.cloud wss://*.livekit.cloud",
+      "media-src 'self' blob: mediastream:",
       "frame-src 'self' blob:",
       "frame-ancestors 'none'",
       "base-uri 'self'",

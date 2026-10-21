@@ -125,10 +125,18 @@ export const IsisSimliAvatar = forwardRef<
       client.on('stop', () => {
         if (clientRef.current === client) void disconnect('ended');
       });
-      client.on('error', () => {
+      // O SDK dá o motivo no argumento; sem o registar, o erro final
+      // ("Called Disconnect Before A Connection succeeded") esconde a causa.
+      client.on('error', (message: string) => {
+        reportError(new Error(`Simli error: ${message}`), {
+          source: 'IsisSimliAvatar.error',
+        });
         if (clientRef.current === client) void disconnect('error');
       });
-      client.on('startup_error', () => {
+      client.on('startup_error', (message: string) => {
+        reportError(new Error(`Simli startup_error: ${message}`), {
+          source: 'IsisSimliAvatar.startup_error',
+        });
         if (clientRef.current === client) void disconnect('error');
       });
       clientRef.current = client;
