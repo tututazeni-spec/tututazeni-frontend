@@ -10,6 +10,8 @@ import { Send, Volume2, VolumeX } from 'lucide-react';
 import Image from 'next/image';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { toSpeakable, unlockSpeech, useSpeech } from '@/hooks/useSpeech';
+import { streamAiMessage } from '@/lib/aiMessageStream';
+import { createSpeechQueue, type SpeechQueue } from '@/lib/isisSpeechQueue';
 import {
   fetchIsisSpeech,
   splitForSpeech,
@@ -128,6 +130,8 @@ export function ChatView() {
   const browserVoice = useSpeech();
   const avatarRef = useRef<IsisSimliAvatarHandle>(null);
   const speakRun = useRef(0);
+  const speechQueue = useRef<SpeechQueue | null>(null);
+  const flushStream = useRef<(() => void) | null>(null);
   const avatarTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [avatarStatus, setAvatarStatus] = useState<AvatarStatus>('idle');
   // A Ísis está a falar pelo avatar (da geração da voz até acabar o áudio).
@@ -138,6 +142,11 @@ export function ChatView() {
   const stopBrowserVoice = browserVoice.stop;
   const stop = useCallback(() => {
     speakRun.current++;
+    speechQueue.current?.cancel();
+    speechQueue.current = null;
+    // Voz interrompida: o texto que faltava aparece de uma vez.
+    flushStream.current?.();
+    flushStream.current = null;
     if (avatarTimer.current) clearTimeout(avatarTimer.current);
     avatarTimer.current = null;
     avatarRef.current?.interrupt();
@@ -249,7 +258,111 @@ export function ChatView() {
     setMessages((prev) => [...prev, userMsg]);
     setThinking(true);
 
+    // Com o avatar ligado a resposta chega em streaming e é falada frase a
+    // frase: o texto aparece no chat ao ritmo da voz, sem esperar pelo fim.
+    const sendStreaming = async () => {
+      const id = Date.now() + 1;
+      let full = '';
+      let shown = '';
+      let meta: SendMessageResponse | null = null;
+      let started = false;
+      const base: Message = {
+        id,
+        role: 'ASSISTANT',
+        content: '',
+        createdAt: new Date().toISOString(),
+        latencyMs: null,
+        rating: null,
+        provider: null,
+        agentAction: null,
+      };
+      // O id muda para o real quando chega a resposta final.
+      let currentId = id;
+      const write = (content: string, patch: Partial<Message> = {}) => {
+        const matchId = currentId;
+        if (patch.id !== undefined) currentId = patch.id;
+        setMessages((prev) =>
+          prev.some((m) => m.id === matchId)
+            ? prev.map((m) =>
+                m.id === matchId ? { ...m, content, ...patch } : m,
+              )
+            : [...prev, { ...base, id: currentId, content, ...patch }],
+        );
+      };
+      const metaPatch = (): Partial<Message> =>
+        meta
+          ? {
+              id: meta.message.id,
+              createdAt: meta.message.createdAt,
+              latencyMs: meta.latencyMs,
+              provider: meta.provider,
+              agentAction: meta.message.agentAction,
+              sourceLabels: meta.sources?.map((x) => x.label),
+            }
+          : {};
+      // Mostra o texto todo (fim da fala, voz interrompida ou voz em falha).
+      const flush = () => {
+        setAvatarBusy(false);
+        write(meta?.message.content ?? full, metaPatch());
+      };
+      flushStream.current = flush;
+
+      const queue = createSpeechQueue({
+        fetchSpeech: fetchIsisSpeech,
+        sendAudio: (chunk) => avatarRef.current?.sendAudio(chunk) ?? false,
+        toSpeakable,
+        onReveal: (visible) => {
+          shown = visible;
+          setAvatarText(visible);
+          write(visible);
+        },
+        onIdle: () => {
+          flushStream.current = null;
+          flush();
+        },
+        onError: (e) => {
+          reportError(e, { source: 'ChatView.sendStreaming' });
+          flushStream.current = null;
+          flush();
+        },
+      });
+      speechQueue.current = queue;
+
+      try {
+        meta = await streamAiMessage(
+          {
+            sessionId: session.id,
+            message: msg,
+            maxTokens: 500,
+          },
+          (delta) => {
+            if (!started) {
+              started = true;
+              speakRun.current++;
+              setAvatarText('');
+              setAvatarBusy(true);
+              setThinking(false);
+            }
+            full += delta;
+            queue.push(delta);
+          },
+        );
+        queue.finish();
+        // Metadados (id real, fontes…) já; o texto completo só no fim da fala.
+        write(shown, metaPatch());
+      } catch (e) {
+        queue.cancel();
+        flushStream.current = null;
+        setAvatarBusy(false);
+        throw e;
+      }
+    };
+
     try {
+      if (avatarConnected && voiceEnabled) {
+        await sendStreaming();
+        return;
+      }
       const res = await apiClient.post<SendMessageResponse>(
         '/ai-tutor/sessions/message',
         {
