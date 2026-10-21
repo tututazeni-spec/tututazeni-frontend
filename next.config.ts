@@ -52,6 +52,25 @@ const nextConfig: NextConfig = {
     // https apenas — imagens http:// eram mixed content (achado F2).
     remotePatterns: [{ protocol: 'https', hostname: '**' }],
   },
+  // simli-client@3.0.3 faz require('./transports/...') mas o pacote publica a
+  // pasta como `Transports/`. Em Windows/macOS (FS insensível a maiúsculas)
+  // funciona; no Linux do CI/produção o build falha com "Module not found".
+  webpack(config, { webpack }) {
+    config.plugins.push(
+      new webpack.NormalModuleReplacementPlugin(
+        /^\.\/transports\//,
+        (resource: { request: string; context: string }) => {
+          if (resource.context.includes('simli-client')) {
+            resource.request = resource.request.replace(
+              './transports/',
+              './Transports/',
+            );
+          }
+        },
+      ),
+    );
+    return config;
+  },
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }];
   },
