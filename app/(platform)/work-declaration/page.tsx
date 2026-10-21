@@ -196,7 +196,7 @@ export default function WorkDeclarationsPage() {
                 <tr>
                   <TableHeaderCell>Declaração</TableHeaderCell>
                   <TableHeaderCell>Colaborador</TableHeaderCell>
-                  <TableHeaderCell>Status</TableHeaderCell>
+                  <TableHeaderCell>Estado</TableHeaderCell>
                   <TableHeaderCell>Datas</TableHeaderCell>
                   <TableHeaderCell>Ações</TableHeaderCell>
                 </tr>

@@ -75,8 +75,8 @@ export default function Topbar({ title }: TopbarProps) {
         <button
           type="button"
           onClick={() => router.push('/dashboard')}
-          aria-label="Dashboard"
-          title="Dashboard"
+          aria-label="Painel"
+          title="Painel"
           style={{
             display: 'flex',
             alignItems: 'center',

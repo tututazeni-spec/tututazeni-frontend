@@ -103,8 +103,8 @@ export function ReviewView() {
               </div>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { label: 'Score', value: `${detail.score ?? '—'}%` },
-                  { label: 'Status', value: detail.status },
+                  { label: 'PontuaÃ§Ã£o', value: `${detail.score ?? '—'}%` },
+                  { label: 'Estado', value: detail.status },
                   {
                     label: 'Tempo',
                     value: detail.timeSpentMinutes

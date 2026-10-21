@@ -274,7 +274,7 @@ export function TabWhatsApp() {
 
             {isMeta ? (
               <div className="grid grid-cols-2 gap-4">
-                <FormField label="Phone Number ID" htmlFor="wa-meta-phone">
+                <FormField label="ID do nÃºmero de telefone" htmlFor="wa-meta-phone">
                   <Input
                     id="wa-meta-phone"
                     className="w-full"
@@ -334,7 +334,7 @@ export function TabWhatsApp() {
                   />
                 </FormField>
                 <FormField
-                  label="Auth Token"
+                  label="Token de autenticaÃ§Ã£o"
                   htmlFor="wa-token"
                   hint={
                     data.hasAuthToken

@@ -20,7 +20,7 @@ const BASE = '/crm/beneficiaries';
 const ITEMS: readonly CrmNavItem[] = [
   { label: 'Lista', hint: 'Todos os beneficiários', icon: Users, href: BASE },
   {
-    label: 'Dashboard',
+    label: 'Painel',
     hint: 'Visão geral do CRM',
     icon: LayoutDashboard,
     href: `${BASE}/dashboard`,

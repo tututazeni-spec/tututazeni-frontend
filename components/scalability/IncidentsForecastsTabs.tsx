@@ -78,7 +78,7 @@ const CATEGORIES: Array<{ value: string; label: string }> = [
   { value: 'SLOW_API', label: 'API lenta' },
   { value: 'DB_SATURATED', label: 'Base de dados saturada' },
   { value: 'STORAGE_FULL', label: 'Storage cheio' },
-  { value: 'QUEUE_CONGESTED', label: 'Queue congestionada' },
+  { value: 'QUEUE_CONGESTED', label: 'Fila congestionada' },
   { value: 'TIMEOUT', label: 'Timeout' },
   { value: 'MEMORY_LEAK', label: 'Memory leak' },
   { value: 'HIGH_CPU', label: 'CPU elevada' },

@@ -20,7 +20,7 @@ const BASE = '/crm/partners';
 const ITEMS: readonly CrmNavItem[] = [
   { label: 'Lista', hint: 'Todos os parceiros', icon: Handshake, href: BASE },
   {
-    label: 'Dashboard',
+    label: 'Painel',
     hint: 'Visão geral',
     icon: LayoutDashboard,
     href: `${BASE}/dashboard`,

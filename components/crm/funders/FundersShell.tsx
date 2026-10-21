@@ -18,7 +18,7 @@ const ITEMS: readonly CrmNavItem[] = [
     href: BASE,
   },
   {
-    label: 'Dashboard',
+    label: 'Painel',
     hint: 'Visão geral',
     icon: LayoutDashboard,
     href: `${BASE}/dashboard`,

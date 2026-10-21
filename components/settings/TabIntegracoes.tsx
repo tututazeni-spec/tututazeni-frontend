@@ -391,7 +391,7 @@ export function TabIntegracoes() {
               />
             </FormField>
             <FormField
-              label="Auth Token"
+              label="Token de autenticaÃ§Ã£o"
               htmlFor="wa-token"
               hint={
                 whatsapp.hasAuthToken

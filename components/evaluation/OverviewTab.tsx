@@ -337,7 +337,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
                 <div
                   className={`rounded-card border p-4 mb-4 ${SCORE_BG(myResults.finalScore)}`}
                 >
-                  <p className="text-xs text-ink-faint mb-0.5">Score Final</p>
+                  <p className="text-xs text-ink-faint mb-0.5">PontuaÃ§Ã£o final</p>
                   <p
                     className={`text-4xl font-black ${SCORE_COLOR(myResults.finalScore)}`}
                   >

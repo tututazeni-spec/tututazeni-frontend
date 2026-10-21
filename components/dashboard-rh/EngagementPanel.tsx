@@ -37,7 +37,7 @@ export function EngagementPanel() {
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <NavyStatCard
-          label="Score de Engajamento"
+          label="PontuaÃ§Ã£o de Engajamento"
           value={
             data?.engagementScore != null ? `${data.engagementScore}%` : '–'
           }

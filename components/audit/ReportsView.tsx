@@ -42,7 +42,7 @@ const MODULES = [
   { value: 'lms', label: 'Formação' },
   { value: 'performance', label: 'Desempenho' },
   { value: 'talent', label: 'Talento e Carreira' },
-  { value: 'payroll', label: 'Payroll' },
+  { value: 'payroll', label: 'Folha salarial' },
   { value: 'attendance-leave', label: 'Assiduidade e Licenças' },
   { value: 'documents', label: 'Documentos' },
   { value: 'integrations', label: 'Integrações' },

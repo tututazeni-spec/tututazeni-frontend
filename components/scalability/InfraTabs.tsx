@@ -234,21 +234,21 @@ export function CapacityTab({
         <Tile headed label="Utilizadores activos" value={fmt(c.activeUsers, 0)} />
         <Tile
           headed
-          label="Concurrent users"
+          label="Utilizadores simultÃ¢neos"
           value={fmt(c.concurrentUsers, 0)}
           sub={`pico 24h: ${fmt(c.concurrentPeak24h, 0)}`}
         />
         <Tile
           headed
-          label="Requests/sec"
+          label="Pedidos/seg"
           value={fmt(c.requestsPerSecond)}
           unit="req/s"
         />
-        <Tile headed label="Database connections" value={fmt(c.dbConnections, 0)} />
-        <Tile headed label="Storage" value={fmt(c.storageGb)} unit="GB" />
+        <Tile headed label="LigaÃ§Ãµes Ã  base de dados" value={fmt(c.dbConnections, 0)} />
+        <Tile headed label="Armazenamento" value={fmt(c.storageGb)} unit="GB" />
         <Tile
           headed
-          label="Queue throughput"
+          label="DÃ©bito da fila"
           value={fmt(c.queueThroughputPerMin)}
           unit="jobs/min"
         />
@@ -445,7 +445,7 @@ export function AutoScalingTab({
         <Tile label="CPU agora" value={fmt(e.cpuNow)} unit="%" />
         <Tile label="Memória agora" value={fmt(e.memoryNow)} unit="%" />
         <Tile
-          label="Requests/sec"
+          label="Pedidos/seg"
           value={fmt(e.requestsPerSecond)}
           unit="req/s"
         />
@@ -519,7 +519,7 @@ export function AutoScalingTab({
               onChange={(v) => set('targetMemory', v)}
             />
             <NumField
-              label="Requests per instance"
+              label="Pedidos por instÃ¢ncia"
               value={p.requestsPerInstance}
               suffix="req/s"
               disabled={!canEdit}
