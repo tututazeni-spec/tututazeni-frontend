@@ -12,6 +12,7 @@ import { useApiMutation } from '@/hooks/useApiQuery';
 import { toSpeakable, unlockSpeech, useSpeech } from '@/hooks/useSpeech';
 import {
   fetchIsisSpeech,
+  splitForSpeech,
   pcmDurationMs,
   splitPcm,
 } from '@/lib/isisAvatarSpeech';
@@ -28,7 +29,6 @@ import {
   type AvatarStatus,
   type IsisSimliAvatarHandle,
 } from './IsisSimliAvatar';
-import { MicButton } from './MicButton';
 import { SpeakingText } from './SpeakingText';
 import type {
   Message,
@@ -37,7 +37,7 @@ import type {
 } from './types';
 
 // Silêncio máximo (ms) antes de terminar o modo conversa.
-const CONVERSATION_IDLE_MS = 10_000;
+const CONVERSATION_IDLE_MS = 90_000;
 
 // Interromper o Ísis por voz exige que o microfone fique aberto enquanto ela
 // fala. Com colunas ele ouve a voz dela e, se o filtro de eco falha, corta a
@@ -127,6 +127,7 @@ export function ChatView() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const browserVoice = useSpeech();
   const avatarRef = useRef<IsisSimliAvatarHandle>(null);
+  const speakRun = useRef(0);
   const avatarTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [avatarStatus, setAvatarStatus] = useState<AvatarStatus>('idle');
   // A Ísis está a falar pelo avatar (da geração da voz até acabar o áudio).
@@ -136,6 +137,7 @@ export function ChatView() {
 
   const stopBrowserVoice = browserVoice.stop;
   const stop = useCallback(() => {
+    speakRun.current++;
     if (avatarTimer.current) clearTimeout(avatarTimer.current);
     avatarTimer.current = null;
     avatarRef.current?.interrupt();
@@ -160,14 +162,34 @@ export function ChatView() {
       }
       setAvatarText(text);
       setAvatarBusy(true);
+      const run = ++speakRun.current;
       try {
-        const pcm = await fetchIsisSpeech(text);
-        for (const chunk of splitPcm(pcm)) avatarRef.current?.sendAudio(chunk);
-        avatarTimer.current = setTimeout(
-          () => setAvatarBusy(false),
-          pcmDurationMs(pcm) + 1000,
-        );
+        // Pede a voz de todos os pedaços já (no máximo 3 em simultâneo) e
+        // envia ao avatar por ordem: a Ísis começa a falar após a 1.ª frase.
+        const pieces = splitForSpeech(text);
+        const pending = new Map<number, Promise<Uint8Array>>();
+        const request = (i: number) => {
+          if (i < pieces.length && !pending.has(i)) {
+            pending.set(i, fetchIsisSpeech(pieces[i]));
+          }
+        };
+        for (let i = 0; i < Math.min(3, pieces.length); i++) request(i);
+        let playUntil = 0;
+        for (let i = 0; i < pieces.length; i++) {
+          const pcm = await pending.get(i)!;
+          if (run !== speakRun.current) return; // interrompida ou nova resposta
+          request(i + 3);
+          for (const chunk of splitPcm(pcm))
+            avatarRef.current?.sendAudio(chunk);
+          playUntil = Math.max(playUntil, Date.now()) + pcmDurationMs(pcm);
+          if (avatarTimer.current) clearTimeout(avatarTimer.current);
+          avatarTimer.current = setTimeout(
+            () => setAvatarBusy(false),
+            playUntil - Date.now() + 1000,
+          );
+        }
       } catch (e) {
+        if (run !== speakRun.current) return;
         reportError(e, { source: 'ChatView.speak' });
         setAvatarBusy(false);
         browserVoice.speak(markdown);
@@ -233,6 +255,8 @@ export function ChatView() {
         {
           sessionId: session.id,
           message: msg,
+          // Respostas faladas são curtas: menos texto = a Ísis responde mais depressa.
+          ...(viaVoice || avatarConnected ? { maxTokens: 500 } : {}),
         },
       );
       setMessages((prev) => [
@@ -300,16 +324,19 @@ export function ChatView() {
     stop();
   };
 
-  // Ao carregar no microfone o tutor cala-se primeiro; o unlock cobre o
-  // Safari/iPhone, que só fala a partir de um toque.
-  const onMicClick = () => {
-    if (conversation) {
-      endConversation();
-      return;
-    }
+  // "Iniciar" do avatar liga também o microfone: o tutor cala-se primeiro; o
+  // unlock cobre o Safari/iPhone, que só fala a partir de um toque.
+  const startConversation = () => {
     stop();
     unlockSpeech();
     setConversation(true);
+  };
+
+  // Sessão do avatar terminada (limite, inactividade ou erro): desliga o
+  // microfone também, para não ficar a ouvir sem avatar.
+  const onAvatarStatus = (status: AvatarStatus) => {
+    setAvatarStatus(status);
+    if (status === 'ended' || status === 'error') endConversation();
   };
 
   // Reabre o microfone quando a conversa está activa e ninguém está a falar.
@@ -506,9 +533,6 @@ export function ChatView() {
           </div>
         )}
         <div className="px-3 py-3 bg-surface border-t border-border flex gap-2">
-          {voice.supported && (
-            <MicButton listening={conversation} onClick={onMicClick} />
-          )}
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -528,13 +552,15 @@ export function ChatView() {
 
       {/* Retrato da Ísis — fica ao lado do chat */}
       <aside
-        className={`hidden lg:block lg:w-[22rem] xl:w-[36rem] 2xl:w-[40rem] flex-shrink-0 self-start rounded-panel overflow-hidden border-2 shadow-resting transition-colors ${
+        className={`hidden lg:block lg:w-64 xl:w-80 2xl:w-96 flex-shrink-0 self-start rounded-panel overflow-hidden border-2 shadow-resting transition-colors ${
           speaking ? 'border-[#D4A017]' : 'border-border'
         }`}
       >
         <IsisSimliAvatar
           ref={avatarRef}
-          onStatusChange={setAvatarStatus}
+          onStatusChange={onAvatarStatus}
+          onStart={startConversation}
+          onEnd={endConversation}
           className="w-full aspect-square"
         />
       </aside>

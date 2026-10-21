@@ -34,6 +34,10 @@ export interface IsisSimliAvatarHandle {
 interface IsisSimliAvatarProps {
   onStatusChange?: (status: AvatarStatus) => void;
   onSpeakingChange?: (speaking: boolean) => void;
+  /** Carregou em Iniciar (o pai liga o microfone). */
+  onStart?: () => void;
+  /** Carregou em Terminar (o pai desliga o microfone). */
+  onEnd?: () => void;
   className?: string;
 }
 
@@ -42,6 +46,9 @@ interface AvatarSession {
   maxSessionLength: number;
   maxIdleTime: number;
 }
+
+const DEFAULT_POSTER = '/images/isis-avatar.png';
+const POSTER_KEY = 'innova_isis_avatar_poster';
 
 const STATUS_TEXT: Record<AvatarStatus, string> = {
   idle: 'Avatar desligado',
@@ -55,7 +62,7 @@ export const IsisSimliAvatar = forwardRef<
   IsisSimliAvatarHandle,
   IsisSimliAvatarProps
 >(function IsisSimliAvatar(
-  { onStatusChange, onSpeakingChange, className = '' },
+  { onStatusChange, onSpeakingChange, onStart, onEnd, className = '' },
   ref,
 ) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -63,6 +70,34 @@ export const IsisSimliAvatar = forwardRef<
   const clientRef = useRef<SimliClient | null>(null);
   const [enabled, setEnabled] = useState<boolean | null>(null);
   const [status, setStatusState] = useState<AvatarStatus>('idle');
+  // Imagem de repouso = última imagem do próprio avatar (guardada ao ligar),
+  // para o retrato inicial já ser o do avatar e não a foto original.
+  const [poster, setPoster] = useState(DEFAULT_POSTER);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(POSTER_KEY);
+      if (saved) setPoster(saved);
+    } catch {
+      /* sem localStorage: fica a imagem por omissão */
+    }
+  }, []);
+
+  const capturePoster = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || !video.videoWidth) return;
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d')?.drawImage(video, 0, 0);
+      const url = canvas.toDataURL('image/jpeg', 0.85);
+      localStorage.setItem(POSTER_KEY, url);
+      setPoster(url);
+    } catch {
+      /* canvas/localStorage indisponível: mantém a imagem actual */
+    }
+  }, []);
 
   const setStatus = useCallback(
     (s: AvatarStatus) => {
@@ -118,7 +153,11 @@ export const IsisSimliAvatar = forwardRef<
         LogLevel.INFO,
         'livekit',
       );
-      client.on('start', () => setStatus('connected'));
+      client.on('start', () => {
+        setStatus('connected');
+        // Dá tempo ao vídeo para ter imagem antes de guardar o fotograma.
+        setTimeout(capturePoster, 2000);
+      });
       client.on('speaking', () => onSpeakingChange?.(true));
       client.on('silent', () => onSpeakingChange?.(false));
       // Fim por limite de duração ou inactividade (definidos no backend).
@@ -145,7 +184,7 @@ export const IsisSimliAvatar = forwardRef<
       reportError(e, { source: 'IsisSimliAvatar.connect' });
       await disconnect('error');
     }
-  }, [disconnect, onSpeakingChange, setStatus]);
+  }, [capturePoster, disconnect, onSpeakingChange, setStatus]);
 
   useImperativeHandle(
     ref,
@@ -179,13 +218,12 @@ export const IsisSimliAvatar = forwardRef<
   return (
     <div className={`relative ${className}`}>
       <Image
-        src="/images/isis-avatar.png"
+        src={poster}
         alt="Ísis - Tutor IA"
         width={640}
         height={640}
-        className={`w-full h-full object-cover ${
-          status === 'connected' ? 'invisible' : ''
-        }`}
+        unoptimized={poster.startsWith('data:')}
+        className="w-full h-full object-cover"
       />
       <video
         ref={videoRef}
@@ -210,7 +248,10 @@ export const IsisSimliAvatar = forwardRef<
             <Button
               size="sm"
               intent="danger"
-              onClick={() => void disconnect('ended')}
+              onClick={() => {
+                void disconnect('ended');
+                onEnd?.();
+              }}
               aria-label="Terminar conversa com o avatar"
             >
               <PhoneOff size={14} /> Terminar
@@ -218,7 +259,10 @@ export const IsisSimliAvatar = forwardRef<
           ) : (
             <Button
               size="sm"
-              onClick={() => void connect()}
+              onClick={() => {
+                onStart?.();
+                void connect();
+              }}
               aria-label="Iniciar conversa com o avatar"
             >
               <Phone size={14} /> Iniciar
