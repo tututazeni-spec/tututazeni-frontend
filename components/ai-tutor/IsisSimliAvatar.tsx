@@ -215,7 +215,10 @@ export const IsisSimliAvatar = forwardRef<
     };
   }, []);
 
-  const live = status === 'connected' || status === 'connecting';
+  // Perfil sem acesso ao avatar (ou Simli não configurado): o botão liga só o
+  // microfone e a Ísis responde por voz do browser.
+  const [micOnly, setMicOnly] = useState(false);
+  const live = status === 'connected' || status === 'connecting' || micOnly;
 
   return (
     <div className={`relative ${className}`}>
@@ -240,17 +243,22 @@ export const IsisSimliAvatar = forwardRef<
 
       <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-black/55 px-3 py-2 text-xs text-white">
         <span role="status" aria-live="polite">
-          {STATUS_TEXT[status]}
+          {enabled === false
+            ? micOnly
+              ? 'Microfone ligado'
+              : 'Avatar não disponível — fala com a Ísis por voz'
+            : STATUS_TEXT[status]}
         </span>
         {status === 'connecting' && (
           <Loader2 size={16} className="animate-spin" />
         )}
-        {enabled &&
+        {enabled !== null &&
           (live ? (
             <Button
               size="sm"
               intent="danger"
               onClick={() => {
+                setMicOnly(false);
                 void disconnect('ended');
                 onEnd?.();
               }}
@@ -263,7 +271,8 @@ export const IsisSimliAvatar = forwardRef<
               size="sm"
               onClick={() => {
                 onStart?.();
-                void connect();
+                if (enabled) void connect();
+                else setMicOnly(true);
               }}
               aria-label="Iniciar conversa com o avatar"
             >
