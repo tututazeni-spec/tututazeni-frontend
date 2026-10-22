@@ -12,7 +12,9 @@ import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { MoreHorizontal, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -77,6 +79,9 @@ export function GestaoView({
 }: GestaoViewProps) {
   const confirm = useConfirm();
   const toast = useToast();
+  // Espelha @Roles(ADMIN, RH) de DELETE /courses/:id.
+  const role = useCurrentRole();
+  const canDelete = !!role && ADMIN_ROLES.includes(role);
   const [filters, setFilters] = useState({
     search: '',
     category: '',
@@ -412,8 +417,7 @@ export function GestaoView({
                               Pedidos de inscrição
                             </DropdownMenuItem>
                           )}
-                          {(c.status === 'DRAFT' ||
-                            c.status === 'ARCHIVED') && (
+                          {canDelete && c._count.enrollments === 0 && (
                             <>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
