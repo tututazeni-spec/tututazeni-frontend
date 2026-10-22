@@ -26,6 +26,7 @@ import { Input } from '@/components/ui/Input';
 import { useToast } from '@/providers/ToastProvider';
 import { QUICK_ACTIONS } from './constants';
 import { MessageBubble } from './MessageBubble';
+import { isEndConversationRequest } from '@/lib/isisEndIntent';
 import {
   IsisSimliAvatar,
   useIsisPoster,
@@ -247,6 +248,14 @@ export function ChatView() {
     const msg = (text ?? input).trim();
     if (!msg || !session || thinking) return;
     setInput('');
+
+    // «Encerrar», «terminar conversa»…: carrega no Terminar do avatar (ou, sem
+    // avatar, termina só a conversa por voz) em vez de enviar a mensagem.
+    if (isEndConversationRequest(msg)) {
+      if (avatarRef.current) avatarRef.current.end();
+      else endConversation();
+      return;
+    }
 
     const userMsg: Message = {
       id: Date.now(),
