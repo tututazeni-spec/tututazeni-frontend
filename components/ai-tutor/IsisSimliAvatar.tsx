@@ -29,6 +29,8 @@ export interface IsisSimliAvatarHandle {
   sendAudio: (pcm16: Uint8Array) => boolean;
   /** Cala o avatar de imediato. */
   interrupt: () => void;
+  /** Faz o mesmo que o botão Terminar (avatar, microfone e conversa). */
+  end: () => void;
 }
 
 interface IsisSimliAvatarProps {
@@ -210,8 +212,13 @@ export const IsisSimliAvatar = forwardRef<
         return true;
       },
       interrupt: () => clientRef.current?.ClearBuffer(),
+      end: () => {
+        setMicOnly(false);
+        void disconnect('ended');
+        onEnd?.();
+      },
     }),
-    [status],
+    [status, disconnect, onEnd],
   );
 
   // Cobra por tempo de uso: fechar o separador ou sair da página termina a sessão.
