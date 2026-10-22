@@ -445,7 +445,11 @@ export function GestaoView({
                               Pedidos de inscrição
                             </DropdownMenuItem>
                           )}
-                          {canDelete && c._count.enrollments === 0 && (
+                          {canDelete &&
+                            !(
+                              c.status === 'PUBLISHED' &&
+                              c._count.enrollments > 0
+                            ) && (
                             <>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
