@@ -21,8 +21,21 @@ export const SUGGESTED_OBJECTIVES = [
   'Avaliar resultados e identificar oportunidades de melhoria',
 ];
 
+export const SUGGESTED_LESSON_OBJECTIVES = [
+  'Reconhecer os principais conceitos apresentados na lição',
+  'Descrever o processo ou procedimento passo a passo',
+  'Aplicar o conteúdo num exemplo prático',
+  'Distinguir situações correctas de situações incorrectas',
+  'Resolver o exercício proposto no final da lição',
+  'Resumir as ideias-chave da lição',
+  'Relacionar o tema com a função desempenhada',
+  'Preparar-se para a avaliação do módulo',
+];
+
 interface ObjectivesPickerProps {
   value: string[];
+  /** Sugestões base; por omissão, as de módulo. */
+  suggestions?: string[];
   onChange: (next: string[]) => void;
   /** Objectivos de outros módulos do curso, oferecidos como sugestões. */
   extraSuggestions?: string[];
@@ -31,13 +44,12 @@ interface ObjectivesPickerProps {
 export function ObjectivesPicker({
   value,
   onChange,
+  suggestions: baseSuggestions = SUGGESTED_OBJECTIVES,
   extraSuggestions = [],
 }: ObjectivesPickerProps) {
   const [manual, setManual] = useState('');
 
-  const suggestions = [
-    ...new Set([...extraSuggestions, ...SUGGESTED_OBJECTIVES]),
-  ];
+  const suggestions = [...new Set([...extraSuggestions, ...baseSuggestions])];
   const lower = (s: string) => s.trim().toLowerCase();
   const has = (s: string) => value.some((v) => lower(v) === lower(s));
 

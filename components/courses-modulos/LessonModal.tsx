@@ -34,6 +34,10 @@ import { FormField } from '@/components/ui/FormField';
 import { Card, CardBody } from '@/components/ui/Card';
 import { cn } from '@/lib/cn';
 import type { Lesson, LessonActivityType } from './types';
+import {
+  ObjectivesPicker,
+  SUGGESTED_LESSON_OBJECTIVES,
+} from './ObjectivesPicker';
 
 interface LessonModalProps {
   moduleId: number;
@@ -82,6 +86,9 @@ export function LessonModal({
   onRefresh,
 }: LessonModalProps) {
   const notify = useToast();
+  const [objectives, setObjectives] = useState<string[]>(
+    editing?.learningObjectives ?? [],
+  );
   const [form, setForm] = useState({
     title: editing?.title ?? '',
     code: editing?.code ?? '',
@@ -312,12 +319,13 @@ export function LessonModal({
               label="Objectivos de aprendizagem"
               htmlFor="lesson-objectives"
             >
-              <Textarea
-                id="lesson-objectives"
-                value={form.learningObjectives}
-                onChange={(e) => set('learningObjectives', e.target.value)}
-                rows={2}
-                placeholder={'Um objectivo por linha'}
+              <ObjectivesPicker
+                value={objectives}
+                onChange={setObjectives}
+                suggestions={SUGGESTED_LESSON_OBJECTIVES}
+                extraSuggestions={otherLessons.flatMap(
+                  (l) => l.learningObjectives ?? [],
+                )}
               />
             </FormField>
 
