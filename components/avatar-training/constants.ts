@@ -230,7 +230,6 @@ export const CATEGORY_OPTIONS = [
   'Produtividade',
   'Segurança da Informação',
   'Vendas e Negociação',
-  'Outra',
 ];
 
 export const VARIANT_OPTIONS: Record<
