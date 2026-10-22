@@ -256,14 +256,10 @@ export function LessonModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-600 bg-black/45 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <Card
-        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-elevated"
-        onClick={(e) => e.stopPropagation()}
-      >
+    // Sem onClick no fundo: um clique fora não pode fechar o modal e perder o
+    // que já foi preenchido. Só fecha por ×, Cancelar ou ao guardar.
+    <div className="fixed inset-0 z-600 bg-black/45 flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-elevated">
         <CardBody className="flex flex-col gap-5">
           <div className="flex justify-between items-center">
             <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
