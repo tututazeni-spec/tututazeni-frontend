@@ -208,6 +208,29 @@ export const LANGUAGE_ITEMS = [
   { value: 'fr', label: 'Francês' },
 ];
 
+export const TONE_OPTIONS = [
+  'Didáctico e encorajador',
+  'Formal e profissional',
+  'Cordial e próximo',
+  'Directo e objectivo',
+  'Empático e acolhedor',
+  'Motivador e enérgico',
+  'Exigente e desafiante',
+];
+
+export const SPECIALTY_OPTIONS = [
+  'Atendimento ao Cliente',
+  'Comunicação',
+  'Compliance e Regulamentação',
+  'Gestão de Conflitos',
+  'Integração (Onboarding)',
+  'Liderança e Gestão',
+  'Negociação e Vendas',
+  'Segurança da Informação',
+];
+
+export const PROVIDER_OPTIONS = ['Simli', 'HeyGen', 'D-ID', 'Synthesia', 'Tavus'];
+
 export const OBJECTIVE_OPTIONS = [
   'Desenvolver competências de comunicação',
   'Melhorar o atendimento ao cliente',
