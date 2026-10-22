@@ -162,7 +162,10 @@ export const IsisSimliAvatar = forwardRef<
         videoRef.current,
         audioRef.current,
         null,
-        LogLevel.INFO,
+        // Só CRITICAL: no encerramento o SDK regista como erro excepções já
+        // tratadas ("FAILED TO SEND FINAL MESSAGE") e o overlay do Next mostra-as.
+        // As falhas reais chegam pelos eventos error/startup_error abaixo.
+        LogLevel.CRITICAL,
         'livekit',
       );
       client.on('start', () => {
