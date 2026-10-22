@@ -7,7 +7,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowDown, ArrowUp, Plus, Trash2, Wrench } from 'lucide-react';
+import { useDebounce } from '@/hooks/useDebounce';
+import { ArrowDown, ArrowUp, Plus, Trash2, Wrench, X } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -469,13 +470,31 @@ function FailRules({
 
 function AssignBox({ sessionId }: { sessionId: number }) {
   const notify = useToast();
-  const [ids, setIds] = useState('');
+  // Colaboradores escolhidos (id → nome); procura por nome, email, nº de
+  // colaborador ou, se for só um número, também pelo ID.
+  const [picked, setPicked] = useState<Record<number, string>>({});
+  const [query, setQuery] = useState('');
+  const debounced = useDebounce(query.trim());
   const [dueDate, setDueDate] = useState('');
   const [mandatory, setMandatory] = useState(true);
-  const userIds = ids
-    .split(/[\s,;]+/)
-    .map((x) => Number(x))
-    .filter((n) => Number.isInteger(n) && n > 0);
+  const userIds = Object.keys(picked).map(Number);
+
+  const found = useApiQuery<{
+    data: { id: number; fullName: string; email?: string | null }[];
+  }>(
+    ['avatar-training', 'assign-user-search', debounced],
+    '/users',
+    {
+      params: { search: debounced, limit: 8 },
+      enabled: debounced.length >= 2,
+      staleTime: STALE_TIME.SEMI_STATIC,
+    },
+  );
+  const idQuery = /^\d+$/.test(query.trim()) ? Number(query.trim()) : null;
+  const pick = (id: number, name: string) => {
+    setPicked((p) => ({ ...p, [id]: name }));
+    setQuery('');
+  };
 
   const assign = useApiMutation(
     () =>
@@ -487,7 +506,7 @@ function AssignBox({ sessionId }: { sessionId: number }) {
     {
       onSuccess: () => {
         notify({ title: 'Sessão atribuída', intent: 'success' });
-        setIds('');
+        setPicked({});
       },
       onError: (e) =>
         notify({
@@ -504,16 +523,84 @@ function AssignBox({ sessionId }: { sessionId: number }) {
         Atribuir a colaboradores
       </h3>
       <FormField
-        label="IDs dos colaboradores"
+        label="Colaboradores"
         htmlFor="as-ids"
-        hint="Separados por vírgula. GESTOR/LIDER só podem atribuir à sua equipa."
+        hint="Procura pelo nome, email, nº de colaborador ou ID. GESTOR/LIDER só podem atribuir à sua equipa."
       >
         <Input
           id="as-ids"
-          value={ids}
-          onChange={(e) => setIds(e.target.value)}
+          placeholder="Escreve o nome do colaborador"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
         />
       </FormField>
+      {(debounced.length >= 2 || idQuery) && (
+        <ul className="max-h-40 divide-y divide-border overflow-y-auto rounded-control border border-border bg-surface">
+          {found.isLoading && (
+            <li className="px-3 py-2 font-body text-xs text-ink-faint">
+              A procurar…
+            </li>
+          )}
+          {(found.data?.data ?? [])
+            .filter((u) => !(u.id in picked))
+            .map((u) => (
+              <li key={u.id}>
+                <button
+                  type="button"
+                  className="w-full px-3 py-2 text-left font-body text-sm text-ink hover:bg-surface-sunken"
+                  onClick={() => pick(u.id, u.fullName)}
+                >
+                  {u.fullName}
+                  {u.email && (
+                    <span className="ml-2 text-xs text-ink-faint">{u.email}</span>
+                  )}
+                </button>
+              </li>
+            ))}
+          {idQuery && !(idQuery in picked) && (
+            <li>
+              <button
+                type="button"
+                className="w-full px-3 py-2 text-left font-body text-sm text-ink hover:bg-surface-sunken"
+                onClick={() => pick(idQuery, `ID ${idQuery}`)}
+              >
+                Adicionar colaborador com ID {idQuery}
+              </button>
+            </li>
+          )}
+          {!found.isLoading &&
+            (found.data?.data ?? []).length === 0 &&
+            !idQuery && (
+              <li className="px-3 py-2 font-body text-xs text-ink-faint">
+                Nenhum colaborador encontrado.
+              </li>
+            )}
+        </ul>
+      )}
+      {userIds.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {userIds.map((id) => (
+            <span
+              key={id}
+              className="inline-flex items-center gap-1 rounded-full bg-surface-sunken px-2.5 py-1 font-body text-xs text-ink"
+            >
+              {picked[id]}
+              <button
+                type="button"
+                aria-label={`Remover ${picked[id]}`}
+                onClick={() =>
+                  setPicked((p) => {
+                    const { [id]: _removed, ...rest } = p;
+                    return rest;
+                  })
+                }
+              >
+                <X size={12} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
       <div className="flex flex-wrap items-end gap-3">
         <FormField label="Prazo" htmlFor="as-due">
           <Input
