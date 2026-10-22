@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, PanelLeft, BookOpen, Sparkles } from 'lucide-react';
+import { ArrowLeft, PanelLeft, Sparkles } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -20,6 +20,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { ModuleAccordion } from '@/components/courses-learn/ModuleAccordion';
 import { ContentPlayer } from '@/components/courses-learn/ContentPlayer';
+import { LessonEmptyState } from '@/components/courses-learn/LessonEmptyState';
 import { ModuleCompletedBanner } from '@/components/courses-learn/ModuleCompletedBanner';
 import { ModuleBuilder } from '@/components/courses-learn/ModuleBuilder';
 import { LessonTutorModal } from '@/components/ai-tutor/LessonTutorModal';
@@ -335,21 +336,7 @@ export default function CourseLearnPage() {
                 />
               </>
             ) : (
-              <div className="flex-1 bg-ink flex items-center justify-center text-canvas text-center">
-                <div>
-                  <BookOpen
-                    size={48}
-                    strokeWidth={1.5}
-                    className="mx-auto mb-4"
-                  />
-                  <div className="font-display text-lg font-medium mb-2">
-                    Selecciona uma aula para começar
-                  </div>
-                  <div className="font-body text-sm text-canvas/70">
-                    Navega pela estrutura do curso na barra lateral
-                  </div>
-                </div>
-              </div>
+              <LessonEmptyState modules={modules} loading={loading} />
             )}
           </div>
         )}
