@@ -32,6 +32,7 @@ import { ModuleModal } from '@/components/courses-modulos/ModuleModal';
 import { LessonModal } from '@/components/courses-modulos/LessonModal';
 import { ProgressModal } from '@/components/courses-modulos/ProgressModal';
 import { ModuleBlock } from '@/components/courses-modulos/ModuleBlock';
+import { ModuleStatTile } from '@/components/courses-modulos/ModuleStatTile';
 import type { CourseModule, Lesson } from '@/components/courses-modulos/types';
 
 interface ModulosViewProps {
@@ -215,62 +216,28 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
 
       {/* ── Stats (quando carregado) ── */}
       {loaded && (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3 mb-6">
-          <Card>
-            <CardBody className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-info-subtle flex items-center justify-center text-lg"></div>
-              <div className="min-w-0">
-                <p className="m-0 text-xl font-extrabold text-primary">
-                  {modules.length}
-                </p>
-                <p className="m-0 text-xs text-ink-muted">Módulos</p>
-              </div>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-success-subtle flex items-center justify-center text-success">
-                <BookMarked size={18} strokeWidth={1.75} />
-              </div>
-              <div className="min-w-0">
-                <p className="m-0 text-xl font-extrabold text-success">
-                  {totalLessons}
-                </p>
-                <p className="m-0 text-xs text-ink-muted">Lições</p>
-              </div>
-            </CardBody>
-          </Card>
-          {byType.map((t) => {
-            const TypeIcon = t.icon;
-            return (
-              <Card key={t.key}>
-                <CardBody className="p-4 flex items-center gap-3">
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center"
-                    style={{
-                      background: t.bg,
-                      color: t.color,
-                    }}
-                  >
-                    <TypeIcon size={18} strokeWidth={1.75} />
-                  </div>
-                  <div className="min-w-0">
-                    <p
-                      className="m-0 text-xl font-extrabold"
-                      style={{
-                        color: t.color,
-                      }}
-                    >
-                      {t.count}
-                    </p>
-                    <p className="m-0 break-words text-xs text-ink-muted">
-                      {t.label}
-                    </p>
-                  </div>
-                </CardBody>
-              </Card>
-            );
-          })}
+        <div className="mb-6 grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] gap-4">
+          <ModuleStatTile
+            icon={Package}
+            value={modules.length}
+            label="Módulos"
+            seed={0}
+          />
+          <ModuleStatTile
+            icon={BookMarked}
+            value={totalLessons}
+            label="Lições"
+            seed={2}
+          />
+          {byType.map((t, i) => (
+            <ModuleStatTile
+              key={t.key}
+              icon={t.icon}
+              value={t.count}
+              label={t.label}
+              seed={i + 3}
+            />
+          ))}
         </div>
       )}
 

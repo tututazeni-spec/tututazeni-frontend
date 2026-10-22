@@ -26,9 +26,12 @@ interface Paginated<T> {
   data: T[];
 }
 
-/** Catálogo enxuto de cursos para o Combobox (até 100, ordenados por criação desc). */
+/**
+ * Catálogo enxuto de cursos para o Combobox (até 100, ordenados por criação
+ * desc). Só PUBLISHED: o backend recusa matrículas noutros estados.
+ */
 export function useCourseOptions(enabled = true) {
-  const params = { limit: 100 };
+  const params = { limit: 100, status: 'PUBLISHED' };
   const query = useApiQuery<Paginated<{ id: number; title: string }>>(
     queryKeys.courses.list({ picker: 'enroll', ...params }),
     '/courses',
@@ -44,14 +47,19 @@ export function useCourseOptions(enabled = true) {
 /** Departamentos activos para o filtro da matrícula em massa. */
 export function useDepartmentOptions(enabled = true) {
   const params = { limit: 200, active: true };
-  const query = useApiQuery<Paginated<{ id: number; name: string }>>(
+  const query = useApiQuery<
+    Paginated<{ id: number; name: string; _count?: { users: number } }>
+  >(
     queryKeys.departments.list({ picker: 'enroll', ...params }),
     '/departments',
     { params, staleTime: STALE_TIME.STATIC, enabled },
   );
-  const options: Option[] = (query.data?.data ?? []).map((d) => ({
+  const options: Array<Option & { userCount?: number }> = (
+    query.data?.data ?? []
+  ).map((d) => ({
     value: String(d.id),
     label: d.name,
+    userCount: d._count?.users,
   }));
   return { options, loading: query.isLoading };
 }

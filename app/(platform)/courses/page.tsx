@@ -126,7 +126,7 @@ export default function CoursesPage() {
           aria-hidden
           className="absolute inset-0 bg-gradient-to-t from-[#0F1F3D]/90 via-[#0F1F3D]/35 to-transparent"
         />
-        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 pb-10 sm:px-7">
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 pb-14 sm:px-7">
           <h1 className="font-display text-2xl font-bold text-white sm:text-3xl">
             {TITLES[nav.view]}
           </h1>

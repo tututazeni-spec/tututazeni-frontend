@@ -29,11 +29,16 @@ import { QuizEditorModal } from './QuizEditorModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
+import { RichTextEditor } from './RichTextEditor';
 import { Select } from '@/components/ui/Select';
 import { FormField } from '@/components/ui/FormField';
 import { Card, CardBody } from '@/components/ui/Card';
 import { cn } from '@/lib/cn';
 import type { Lesson, LessonActivityType } from './types';
+import {
+  ObjectivesPicker,
+  SUGGESTED_LESSON_OBJECTIVES,
+} from './ObjectivesPicker';
 
 interface LessonModalProps {
   moduleId: number;
@@ -82,6 +87,9 @@ export function LessonModal({
   onRefresh,
 }: LessonModalProps) {
   const notify = useToast();
+  const [objectives, setObjectives] = useState<string[]>(
+    editing?.learningObjectives ?? [],
+  );
   const [form, setForm] = useState({
     title: editing?.title ?? '',
     code: editing?.code ?? '',
@@ -144,6 +152,15 @@ export function LessonModal({
   const [fileError, setFileError] = useState<string | null>(null);
   const [fileBusy, setFileBusy] = useState(false);
   const isFileType = form.contentType === 'PDF' || form.contentType === 'SLIDE';
+  // Texto e PDF podem coexistir: a lição PDF tem texto opcional e a lição de
+  // texto tem PDF complementar opcional.
+  const isPdfLike = form.contentType === 'PDF' || form.contentType === 'TEXT';
+  const isRichText = isPdfLike;
+  // O editor pode receber a lição sem o PDF (só quem gere conteúdos o recebe
+  // por inteiro): nesse caso `hasFile` indica que existe um e não se apaga.
+  const [fileRemoved, setFileRemoved] = useState(false);
+  const keepsExistingFile =
+    !!editing?.hasFile && !form.contentUrl && !fileRemoved;
   const isUrlType = ['VIDEO', 'AUDIO', 'LINK', 'SCORM'].includes(
     form.contentType,
   );
@@ -159,6 +176,7 @@ export function LessonModal({
           ? await fileToSlideDataUrl(file)
           : await fileToPdfDataUrl(file);
       set('contentUrl', dataUrl);
+      setFileRemoved(false);
       setFileName(file.name);
     } catch (err) {
       setFileError(
@@ -186,14 +204,16 @@ export function LessonModal({
         type: form.contentType,
         status: form.status,
         seq: +form.seq,
-        contentUrl:
-          form.contentType !== 'TEXT'
-            ? form.contentUrl || undefined
-            : undefined,
-        textContent:
-          form.contentType === 'TEXT'
-            ? form.textContent || undefined
-            : undefined,
+        // PDF/TEXT: `null` apaga o ficheiro/texto ao editar; sem `hasFile`
+        // conhecido e sem novo ficheiro não se toca no que já existe.
+        contentUrl: isPdfLike
+          ? keepsExistingFile
+            ? undefined
+            : form.contentUrl || (editing ? null : undefined)
+          : form.contentUrl || undefined,
+        textContent: isRichText
+          ? form.textContent || (editing ? null : undefined)
+          : undefined,
         captionsUrl:
           form.contentType === 'VIDEO'
             ? form.captionsUrl.trim() || undefined
@@ -241,7 +261,10 @@ export function LessonModal({
     },
   );
   const saving = saveLesson.isPending;
-  const fileMissing = isFileType && !form.contentUrl;
+  const fileMissing =
+    isFileType &&
+    !form.contentUrl &&
+    !(form.contentType === 'PDF' && keepsExistingFile);
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (fileBusy || fileMissing) return;
@@ -249,14 +272,10 @@ export function LessonModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-600 bg-black/45 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <Card
-        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-elevated"
-        onClick={(e) => e.stopPropagation()}
-      >
+    // Sem onClick no fundo: um clique fora não pode fechar o modal e perder o
+    // que já foi preenchido. Só fecha por ×, Cancelar ou ao guardar.
+    <div className="fixed inset-0 z-600 bg-black/45 flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-elevated">
         <CardBody className="flex flex-col gap-5">
           <div className="flex justify-between items-center">
             <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
@@ -312,12 +331,13 @@ export function LessonModal({
               label="Objectivos de aprendizagem"
               htmlFor="lesson-objectives"
             >
-              <Textarea
-                id="lesson-objectives"
-                value={form.learningObjectives}
-                onChange={(e) => set('learningObjectives', e.target.value)}
-                rows={2}
-                placeholder={'Um objectivo por linha'}
+              <ObjectivesPicker
+                value={objectives}
+                onChange={setObjectives}
+                suggestions={SUGGESTED_LESSON_OBJECTIVES}
+                extraSuggestions={otherLessons.flatMap(
+                  (l) => l.learningObjectives ?? [],
+                )}
               />
             </FormField>
 
@@ -365,13 +385,19 @@ export function LessonModal({
               </div>
             </div>
 
-            {form.contentType === 'TEXT' && (
-              <FormField label="Conteúdo" htmlFor="lesson-text">
-                <Textarea
+            {isRichText && (
+              <FormField
+                label={
+                  form.contentType === 'TEXT'
+                    ? 'Conteúdo'
+                    : 'Texto da lição (opcional)'
+                }
+                htmlFor="lesson-text"
+              >
+                <RichTextEditor
                   id="lesson-text"
                   value={form.textContent}
-                  onChange={(e) => set('textContent', e.target.value)}
-                  rows={5}
+                  onChange={(html) => set('textContent', html)}
                 />
               </FormField>
             )}
@@ -446,12 +472,14 @@ export function LessonModal({
               </div>
             )}
 
-            {isFileType && (
+            {(isFileType || form.contentType === 'TEXT') && (
               <FormField
                 label={
                   form.contentType === 'SLIDE'
                     ? 'Ficheiro PPTX'
-                    : 'Ficheiro PDF'
+                    : form.contentType === 'TEXT'
+                      ? 'PDF complementar (opcional)'
+                      : 'Ficheiro PDF'
                 }
                 htmlFor="lesson-file"
               >
@@ -480,6 +508,25 @@ export function LessonModal({
                         : form.contentUrl)}
                   </p>
                 )}
+                {!fileBusy && !fileError && keepsExistingFile && (
+                  <p className="text-xs text-success mt-1">
+                    Ficheiro já carregado — escolhe outro para substituir
+                  </p>
+                )}
+                {form.contentType === 'TEXT' &&
+                  (form.contentUrl || keepsExistingFile) && (
+                    <button
+                      type="button"
+                      className="mt-1 text-xs text-danger underline"
+                      onClick={() => {
+                        set('contentUrl', '');
+                        setFileName(null);
+                        setFileRemoved(true);
+                      }}
+                    >
+                      Remover PDF
+                    </button>
+                  )}
               </FormField>
             )}
 

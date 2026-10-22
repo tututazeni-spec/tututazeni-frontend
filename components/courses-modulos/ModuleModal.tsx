@@ -26,6 +26,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { useToast } from '@/providers/ToastProvider';
 import { CourseImageField } from '@/components/courses/CourseImageField';
 import type { CourseModule } from './types';
+import { ObjectivesPicker } from './ObjectivesPicker';
 
 interface CompetencyOption {
   id: number;
@@ -106,6 +107,9 @@ export function ModuleModal({
     { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
   const competencyOptions = competenciesResp?.data ?? [];
+  const [objectives, setObjectives] = useState<string[]>(
+    editing?.learningObjectives ?? [],
+  );
   const [competencyIds, setCompetencyIds] = useState<number[]>(
     editing?.competencies?.map((c) => c.competency.id) ?? [],
   );
@@ -179,14 +183,10 @@ export function ModuleModal({
     saveModule.mutate(undefined);
   }
   return (
-    <div
-      className="fixed inset-0 z-500 bg-black/45 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <Card
-        className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-elevated"
-        onClick={(e) => e.stopPropagation()}
-      >
+    // Sem onClick no fundo: um clique fora não pode fechar o modal e perder o
+    // que já foi preenchido. Só fecha por ×, Cancelar ou ao guardar.
+    <div className="fixed inset-0 z-500 bg-black/45 flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-elevated">
         <CardBody className="flex flex-col gap-5">
           <div className="flex justify-between items-center">
             <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
@@ -360,12 +360,12 @@ export function ModuleModal({
               label="Objectivos de aprendizagem"
               htmlFor="module-objectives"
             >
-              <Textarea
-                id="module-objectives"
-                value={form.learningObjectives}
-                onChange={(e) => set('learningObjectives', e.target.value)}
-                rows={3}
-                placeholder={'Um objectivo por linha'}
+              <ObjectivesPicker
+                value={objectives}
+                onChange={setObjectives}
+                extraSuggestions={otherModules.flatMap(
+                  (m) => m.learningObjectives ?? [],
+                )}
               />
             </FormField>
 

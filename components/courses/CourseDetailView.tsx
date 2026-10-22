@@ -44,6 +44,7 @@ import {
   fmtDuration,
 } from './shared';
 import { CourseThumbnail } from './CourseThumbnail';
+import { ContentModule, CourseContentCard } from './CourseContentCard';
 import type { CourseDetailData, CourseProgress, Lesson } from './types';
 
 export interface CourseDetailViewProps {
@@ -205,59 +206,60 @@ export function CourseDetailView({
           </div>
 
           {/* Sidebar — lista de aulas */}
-          <Section title="Conteúdo do curso" soft bare className="self-start">
-            <div className="max-h-[450px] overflow-y-auto">
-              {(progress?.modules ?? []).map((mod) => (
-                <div key={mod.id}>
-                  <div className="border-b border-border bg-surface-sunken px-4 py-2">
-                    <div className="text-xs font-semibold text-ink">
-                      {mod.title}
-                    </div>
-                    <div className="text-xs text-ink-faint">
-                      {mod.completedCount}/{mod.totalCount} aulas
-                    </div>
-                  </div>
-                  {mod.lessons.map((lesson) => (
+          <CourseContentCard
+            title="Conteúdo do curso"
+            aside={`${(progress?.modules ?? []).length} módulos`}
+            className="self-start"
+            scrollClassName="max-h-[450px] overflow-y-auto"
+          >
+            {(progress?.modules ?? []).map((mod) => (
+              <ContentModule
+                key={mod.id}
+                id={mod.id}
+                title={mod.title}
+                meta={`${mod.completedCount}/${mod.totalCount} aulas`}
+                defaultOpen
+              >
+                {mod.lessons.map((lesson) => (
+                  <div
+                    key={lesson.id}
+                    onClick={() => onSelectLesson(lesson)}
+                    className={`flex cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 transition-colors ${
+                      activeLesson?.id === lesson.id
+                        ? 'bg-primary-subtle'
+                        : 'hover:bg-[#F2F5FA]'
+                    }`}
+                  >
                     <div
-                      key={lesson.id}
-                      onClick={() => onSelectLesson(lesson)}
-                      className={`flex cursor-pointer items-center gap-3 border-b border-border px-4 py-2.5 transition-colors ${
-                        activeLesson?.id === lesson.id
-                          ? 'bg-primary-subtle'
-                          : 'hover:bg-surface-sunken'
+                      className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs ${
+                        lesson.completed
+                          ? 'bg-success-subtle text-success-ink'
+                          : 'bg-[#E4E9F2] text-[#4B5E80]'
                       }`}
                     >
-                      <div
-                        className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs ${
-                          lesson.completed
-                            ? 'bg-success-subtle text-success-ink'
-                            : 'bg-surface-sunken text-ink-faint'
-                        }`}
-                      >
-                        {lesson.completed ? (
-                          '✓'
-                        ) : (
-                          <LessonIcon type={lesson.type} />
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div
-                          className={`truncate text-xs ${activeLesson?.id === lesson.id ? 'font-medium text-primary' : 'text-ink-muted'}`}
-                        >
-                          {lesson.title}
-                        </div>
-                        {lesson.durationMinutes && (
-                          <div className="text-xs text-ink-faint">
-                            {fmtDuration(null, lesson.durationMinutes)}
-                          </div>
-                        )}
-                      </div>
+                      {lesson.completed ? (
+                        '✓'
+                      ) : (
+                        <LessonIcon type={lesson.type} />
+                      )}
                     </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </Section>
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className={`truncate text-xs ${activeLesson?.id === lesson.id ? 'font-semibold text-primary' : 'font-medium text-[#0F1F3D]'}`}
+                      >
+                        {lesson.title}
+                      </div>
+                      {lesson.durationMinutes && (
+                        <div className="text-xs text-[#5B6B88]">
+                          {fmtDuration(null, lesson.durationMinutes)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </ContentModule>
+            ))}
+          </CourseContentCard>
         </div>
       ) : (
         /* Header do curso (não matriculado) — mesmo desenho do cartão de
@@ -526,50 +528,39 @@ export function CourseDetailView({
           )}
 
           {(!isEnrolled || pendingApproval) && course.modules && (
-            <Section
+            <CourseContentCard
               title="Conteúdo do curso"
-              soft
-              icon={ClipboardList}
               aside={`${course.modules.length} módulos`}
-              bare
             >
               {course.modules.map((mod) => (
-                <details
+                <ContentModule
                   key={mod.id}
-                  className="group border-b border-border last:border-0"
+                  id={mod.id}
+                  title={mod.title}
+                  meta={`${mod.lessons?.length ?? 0} aulas`}
                 >
-                  <summary className="flex cursor-pointer items-center justify-between px-5 py-3 hover:bg-surface-sunken">
-                    <span className="text-sm font-medium text-ink">
-                      {mod.title}
-                    </span>
-                    <span className="text-xs text-ink-faint">
-                      {mod.lessons?.length ?? 0} aulas
-                    </span>
-                  </summary>
-                  <div className="px-5 pb-2">
-                    {mod.lessons?.map((l) => (
-                      <div
-                        key={l.id}
-                        className="flex items-center gap-2 border-b border-border py-2 text-xs text-ink-muted last:border-0"
-                      >
-                        <LessonIcon type={l.type} />
-                        <span className="flex-1">{l.title}</span>
-                        {l.durationMinutes && (
-                          <span className="text-ink-faint">
-                            {fmtDuration(null, l.durationMinutes)}
-                          </span>
-                        )}
-                        {l.isFree && (
-                          <span className="font-medium text-success">
-                            Grátis
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </details>
+                  {mod.lessons?.map((l) => (
+                    <div
+                      key={l.id}
+                      className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-[#0F1F3D] hover:bg-[#F2F5FA]"
+                    >
+                      <LessonIcon type={l.type} />
+                      <span className="flex-1">{l.title}</span>
+                      {l.durationMinutes && (
+                        <span className="text-[#5B6B88]">
+                          {fmtDuration(null, l.durationMinutes)}
+                        </span>
+                      )}
+                      {l.isFree && (
+                        <span className="font-semibold text-success">
+                          Grátis
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </ContentModule>
               ))}
-            </Section>
+            </CourseContentCard>
           )}
 
           {(course.relatedCourses?.length ?? 0) > 0 && (

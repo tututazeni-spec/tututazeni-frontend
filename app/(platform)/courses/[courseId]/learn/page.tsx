@@ -4,10 +4,10 @@
 // components/courses-learn/. Ver memory
 // project_innova_component_separation_audit.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ComponentProps } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, PanelLeft, BookOpen, Sparkles } from 'lucide-react';
+import { ArrowLeft, PanelLeft, Sparkles } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -20,6 +20,8 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { ModuleAccordion } from '@/components/courses-learn/ModuleAccordion';
 import { ContentPlayer } from '@/components/courses-learn/ContentPlayer';
+import { LessonReader } from '@/components/courses-learn/LessonReader';
+import { LessonEmptyState } from '@/components/courses-learn/LessonEmptyState';
 import { ModuleCompletedBanner } from '@/components/courses-learn/ModuleCompletedBanner';
 import { ModuleBuilder } from '@/components/courses-learn/ModuleBuilder';
 import { LessonTutorModal } from '@/components/ai-tutor/LessonTutorModal';
@@ -29,6 +31,16 @@ import type {
   ModuleProgress,
   PageMode,
 } from '@/components/courses-learn/types';
+
+// Texto e PDF abrem no leitor da própria página; os restantes tipos
+// (vídeo, áudio, SCORM, quiz…) continuam no ContentPlayer.
+function LessonView(props: ComponentProps<typeof ContentPlayer>) {
+  const Viewer =
+    props.lesson.type === 'TEXT' || props.lesson.type === 'PDF'
+      ? LessonReader
+      : ContentPlayer;
+  return <Viewer {...props} />;
+}
 
 export default function CourseLearnPage() {
   const notify = useToast();
@@ -42,6 +54,14 @@ export default function CourseLearnPage() {
   const [justCompletedModule, setJustCompletedModule] =
     useState<ModuleProgress | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Em ecrãs estreitos a estrutura do curso ocupa o ecrã todo (ver abaixo):
+  // começa fechada para a lição ser a primeira coisa que se vê.
+  useEffect(() => {
+    if (window.matchMedia('(max-width: 767px)').matches) setSidebarOpen(false);
+  }, []);
+  const closeSidebarOnMobile = () => {
+    if (window.matchMedia('(max-width: 767px)').matches) setSidebarOpen(false);
+  };
   const [tutorOpen, setTutorOpen] = useState(false);
 
   const progressKey = queryKeys.courses.progress(courseId);
@@ -137,6 +157,7 @@ export default function CourseLearnPage() {
     if (mod.locked) return;
     setActiveLesson(lesson);
     setJustCompletedModule(null);
+    closeSidebarOnMobile();
   };
 
   const handleMarkComplete = async () => {
@@ -200,8 +221,8 @@ export default function CourseLearnPage() {
   return (
     <div className="flex flex-col h-screen bg-canvas">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface flex-shrink-0">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-border bg-surface flex-shrink-0">
+        <div className="flex min-w-0 items-center gap-4">
           <Button intent="ghost" size="sm" onClick={() => router.back()}>
             <ArrowLeft size={16} strokeWidth={1.75} />
             Voltar
@@ -218,9 +239,9 @@ export default function CourseLearnPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Overall progress */}
-          <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 sm:flex">
             <ProgressBar value={overallPct} className="w-20" />
             <span className="font-data text-xs text-ink-muted">
               {overallPct}%
@@ -247,12 +268,12 @@ export default function CourseLearnPage() {
       </div>
 
       {/* Main content */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="relative flex flex-1 overflow-hidden">
         {/* Sidebar */}
         {sidebarOpen && (
           <div
-            className={`flex-shrink-0 overflow-y-auto border-r border-border bg-surface ${
-              mode === 'build' ? 'w-full' : 'w-72'
+            className={`flex-shrink-0 overflow-y-auto border-r border-border bg-surface max-md:absolute max-md:inset-0 max-md:z-30 max-md:w-full ${
+              mode === 'build' ? 'w-full' : 'md:w-72'
             }`}
           >
             {mode === 'learn' ? (
@@ -301,7 +322,7 @@ export default function CourseLearnPage() {
 
         {/* Player area */}
         {mode === 'learn' && (
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
             {justCompletedModule ? (
               <ModuleCompletedBanner
                 module={justCompletedModule}
@@ -309,7 +330,7 @@ export default function CourseLearnPage() {
               />
             ) : activeLesson ? (
               <>
-                <ContentPlayer
+                <LessonView
                   lesson={activeLesson}
                   onComplete={handleMarkComplete}
                   completing={completing}
@@ -335,21 +356,7 @@ export default function CourseLearnPage() {
                 />
               </>
             ) : (
-              <div className="flex-1 bg-ink flex items-center justify-center text-canvas text-center">
-                <div>
-                  <BookOpen
-                    size={48}
-                    strokeWidth={1.5}
-                    className="mx-auto mb-4"
-                  />
-                  <div className="font-display text-lg font-medium mb-2">
-                    Selecciona uma aula para começar
-                  </div>
-                  <div className="font-body text-sm text-canvas/70">
-                    Navega pela estrutura do curso na barra lateral
-                  </div>
-                </div>
-              </div>
+              <LessonEmptyState modules={modules} loading={loading} />
             )}
           </div>
         )}
