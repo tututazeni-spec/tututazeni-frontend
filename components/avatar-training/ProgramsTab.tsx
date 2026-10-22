@@ -35,6 +35,7 @@ import {
   CATEGORY_OPTIONS,
   LANGUAGE_ITEMS,
   OBJECTIVE_OPTIONS,
+  AVATAR_STATUS,
   PROGRAM_STATUS,
   SOURCE_LABEL,
   TARGET_ROLE_OPTIONS,
@@ -51,6 +52,7 @@ import type {
 } from './types';
 
 const ALL = 'ALL';
+const OTHER = '__OTHER__';
 
 const DIFFICULTY_ITEMS = Object.entries(DIFFICULTY_LABEL).map(
   ([value, label]) => ({
@@ -136,6 +138,16 @@ function ProgramFormModal({
     program?.objectives ?? [],
   );
   const [category, setCategory] = useState(program?.category ?? '');
+  const [customObjective, setCustomObjective] = useState('');
+  const addCustomObjective = () => {
+    const v = customObjective.trim();
+    if (v && !objectives.includes(v)) setObjectives([...objectives, v]);
+    setCustomObjective('');
+  };
+  // «Outra» na lista de categorias abre um campo para escrever.
+  const [otherCategory, setOtherCategory] = useState(
+    !!program?.category && !CATEGORY_OPTIONS.includes(program.category),
+  );
   const [difficulty, setDifficulty] = useState(
     program?.difficulty ?? 'BEGINNER',
   );
@@ -320,19 +332,52 @@ function ProgramFormModal({
             onChange={setObjectives}
             emptyText="Sem objectivos disponíveis."
           />
+          <div className="flex gap-2">
+            <Input
+              aria-label="Novo objectivo"
+              placeholder="Outro objectivo (escrever)"
+              value={customObjective}
+              onChange={(e) => setCustomObjective(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addCustomObjective();
+                }
+              }}
+            />
+            <Button
+              type="button"
+              intent="secondary"
+              onClick={addCustomObjective}
+              disabled={!customObjective.trim()}
+            >
+              Adicionar
+            </Button>
+          </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormField label="Categoria" htmlFor="ap-cat">
               <Select
-                value={category || ALL}
-                onValueChange={(v) => setCategory(v === ALL ? '' : v)}
+                value={otherCategory ? OTHER : category || ALL}
+                onValueChange={(v) => {
+                  setOtherCategory(v === OTHER);
+                  setCategory(v === ALL || v === OTHER ? '' : v);
+                }}
                 items={[
                   { value: ALL, label: 'Sem categoria' },
-                  ...withCurrent(
-                    CATEGORY_OPTIONS,
-                    category ? [category] : [],
-                  ).map((c) => ({ value: c, label: c })),
+                  ...CATEGORY_OPTIONS.map((c) => ({ value: c, label: c })),
+                  { value: OTHER, label: 'Outra (escrever)' },
                 ]}
               />
+              {otherCategory && (
+                <Input
+                  className="mt-2"
+                  aria-label="Categoria"
+                  placeholder="Escreve a categoria"
+                  value={category}
+                  maxLength={80}
+                  onChange={(e) => setCategory(e.target.value)}
+                />
+              )}
             </FormField>
             <FormField label="Nível de dificuldade" htmlFor="ap-diff">
               <Select
@@ -424,12 +469,21 @@ function ProgramFormModal({
                 value={avatarId}
                 onValueChange={setAvatarId}
                 items={[
-                  { value: ALL, label: 'Sem avatar por defeito' },
+                  { value: ALL, label: 'Sem avatar' },
                   ...(avatars.data ?? [])
                     .filter(
-                      (a) => a.status === 'ACTIVE' || String(a.id) === avatarId,
+                      (a) =>
+                        a.status === 'ACTIVE' ||
+                        a.status === 'TESTING' ||
+                        String(a.id) === avatarId,
                     )
-                    .map((a) => ({ value: String(a.id), label: a.name })),
+                    .map((a) => ({
+                      value: String(a.id),
+                      label:
+                        a.status === 'ACTIVE'
+                          ? a.name
+                          : `${a.name} (${AVATAR_STATUS[a.status].label})`,
+                    })),
                 ]}
               />
             </FormField>
