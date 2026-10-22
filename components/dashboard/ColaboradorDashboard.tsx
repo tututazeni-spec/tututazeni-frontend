@@ -32,6 +32,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AlertBanner } from './AlertBanner';
 import { ALERTS_POLL_MS, type Alert, type MyDashboardData } from './types';
+import { pollInterval } from '@/lib/polling';
 
 export function ColaboradorDashboard() {
   // Duas queries independentes → correm em paralelo (sem waterfall).
@@ -43,7 +44,7 @@ export function ColaboradorDashboard() {
   const { data: alerts = [] } = useApiQuery<Alert[]>(
     queryKeys.dashboard.alerts(),
     '/dashboard/alerts',
-    { refetchInterval: ALERTS_POLL_MS },
+    { refetchInterval: pollInterval(ALERTS_POLL_MS) },
   );
 
   if (isLoading)

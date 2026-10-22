@@ -7,13 +7,14 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { DashboardData, LeaveBalance, MyAttendanceData } from './types';
+import { pollInterval } from '@/lib/polling';
 
 export function useDashboard() {
   // Presenças ao vivo → polling de 60s.
   const q = useApiQuery<DashboardData>(
     queryKeys.attendance.dashboard(),
     '/attendance/dashboard',
-    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
+    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: pollInterval(60_000) },
   );
   return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
 }

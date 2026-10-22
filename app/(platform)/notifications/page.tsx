@@ -23,6 +23,7 @@ import { Card } from '@/components/ui/Card';
 import { Inbox, ShieldCheck, SlidersHorizontal } from 'lucide-react';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList } from '@/components/ui/PillTabs';
+import { pollInterval } from '@/lib/polling';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Priority/Category/Notification/NotifData/Stats/AdminForm vivem em
@@ -338,7 +339,7 @@ export default function NotificationsPage() {
   const { data: unreadData } = useApiQuery<{ count: number }>(
     queryKeys.notifications.unreadCount(),
     '/notifications/my/unread-count',
-    { refetchInterval: 60_000 },
+    { refetchInterval: pollInterval(60_000) },
   );
   const unread = unreadData?.count ?? 0;
 

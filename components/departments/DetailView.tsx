@@ -188,6 +188,13 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       apiClient.patch(`/departments/${deptId}/${action}`, {}),
     {
       invalidateKeys: reloadKeys,
+      optimistic: {
+        key: queryKeys.departments.detail(deptId),
+        update: (
+          prev: (Department & { users: Member[]; headHistory: HeadHistoryEntry[] }) | undefined,
+          action: 'activate' | 'deactivate',
+        ) => prev && { ...prev, active: action === 'activate' },
+      },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );

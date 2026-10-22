@@ -24,6 +24,7 @@ import type {
   BackupSettingsForm,
   BackupsView,
 } from './types';
+import { pollInterval } from '@/lib/polling';
 
 const FREQUENCY_ITEMS = [
   { value: 'DAILY', label: 'Diária' },
@@ -98,7 +99,7 @@ export function TabBackups() {
   const { data, isLoading, error } = useApiQuery<BackupsView>(
     queryKeys.settings.backups(),
     '/settings/backups',
-    { refetchInterval: 15_000 },
+    { refetchInterval: pollInterval(15_000) },
   );
   const [form, setForm] = useState<BackupSettingsForm | null>(null);
   const [restoreId, setRestoreId] = useState<number | null>(null);

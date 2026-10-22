@@ -68,7 +68,9 @@ export default function DashboardPage() {
   const { data: branding } = useApiQuery<{ tenantName?: string; logoUrl?: string | null }>(
     queryKeys.settings.branding(),
     '/settings/branding',
-    { staleTime: STALE_TIME.SEMI_STATIC },
+    // Logo/nome mudam raramente e o payload pesa ~220 KB (data URL): 1h em cache;
+    // a gravação em Definições invalida esta key.
+    { staleTime: STALE_TIME.STATIC },
   );
   const tenantName = branding?.tenantName?.trim();
   const tenantLogo = branding?.logoUrl;

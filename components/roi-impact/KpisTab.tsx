@@ -82,6 +82,21 @@ export function KpisTab() {
         queryKeys.roiImpact.kpis(),
         queryKeys.roiImpact.kpisByCategory(),
       ],
+      optimistic: {
+        key: queryKeys.roiImpact.kpis(),
+        update: (prev: KpiDefinitionListData | undefined, k) =>
+          prev && {
+            ...prev,
+            kpis: prev.kpis.map((x) =>
+              x.id === k.id
+                ? {
+                    ...x,
+                    status: k.status === 'ACTIVO' ? ('INACTIVO' as const) : ('ACTIVO' as const),
+                  }
+                : x,
+            ),
+          },
+      },
       onSuccess: () =>
         notify({ title: 'Estado actualizado', intent: 'success' }),
       onError: (e) =>

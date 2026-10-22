@@ -52,6 +52,7 @@ import type {
   LiveClass,
   PaginatedClasses,
 } from '@/components/live-classes/types';
+import { pollInterval } from '@/lib/polling';
 
 const INITIAL_FILTERS: Filters = {
   page: 1,
@@ -124,7 +125,7 @@ export default function LivePage() {
   const { data: upcoming = [] } = useApiQuery<LiveClass[]>(
     queryKeys.liveClasses.upcoming(),
     '/live-classes/upcoming',
-    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 30_000 },
+    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: pollInterval(30_000) },
   );
 
   // ── Handlers ────────────────────────────────────────────────────────────────
