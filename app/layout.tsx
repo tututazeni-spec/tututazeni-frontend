@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
+import { headers } from 'next/headers';
 import localFont from 'next/font/local';
 import ClientInit from '../components/ClientInit';
 import ReactQueryProvider from '../providers/ReactQueryProvider';
@@ -50,11 +51,14 @@ export const viewport: Viewport = {
   colorScheme: 'light',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Força renderização dinâmica: o nonce da CSP é por pedido (middleware.ts) e
+  // uma página pré-renderizada em build ficaria com scripts sem nonce → bloqueados.
+  await headers();
   return (
     <html
       lang="pt"

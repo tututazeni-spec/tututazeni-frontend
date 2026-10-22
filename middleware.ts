@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { buildCsp, parseImageHosts } from './lib/csp';
 
 // Protege as rotas privadas com base no cookie httpOnly 'token' definido pelo
 // backend no login. O middleware corre no servidor, por isso consegue ler o
@@ -9,7 +10,8 @@ const PUBLIC_PATHS = ['/login'];
 // com ou sem login e sem qualquer redireccionamento.
 const OPEN_PATHS = ['/verify', '/health'];
 
-export function middleware(request: NextRequest) {
+function route(request: NextRequest, requestHeaders: Headers) {
+  const next = () => NextResponse.next({ request: { headers: requestHeaders } });
   const token = request.cookies.get('token')?.value;
   const isAuth = Boolean(token);
   const { pathname } = request.nextUrl;
@@ -17,7 +19,7 @@ export function middleware(request: NextRequest) {
   const isOpen = OPEN_PATHS.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
-  if (isOpen) return NextResponse.next();
+  if (isOpen) return next();
 
   const isPublic = PUBLIC_PATHS.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
@@ -35,7 +37,25 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  return NextResponse.next();
+  return next();
+}
+
+// CSP com nonce por pedido (lib/csp.ts). O nonce vai no header CSP do pedido —
+// é de lá que o Next o lê para marcar os seus scripts — e a política na resposta.
+export function middleware(request: NextRequest) {
+  const nonce = btoa(crypto.randomUUID());
+  const csp = buildCsp({
+    nonce,
+    isDev: process.env.NODE_ENV !== 'production',
+    imageHosts: parseImageHosts(process.env.IMG_ALLOWED_HOSTS),
+  });
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-nonce', nonce);
+  requestHeaders.set('Content-Security-Policy', csp);
+
+  const response = route(request, requestHeaders);
+  response.headers.set('Content-Security-Policy', csp);
+  return response;
 }
 
 export const config = {

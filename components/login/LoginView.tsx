@@ -64,8 +64,6 @@ export function LoginView({
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
         .login-root,
         .login-root *,
         .login-root *::before,
@@ -82,7 +80,7 @@ export function LoginView({
           align-items: center;
           justify-content: center;
           position: relative;
-          font-family: 'Inter', sans-serif;
+          font-family: var(--font-inter), 'Inter', sans-serif;
           color: #fff;
           overflow: hidden;
         }
@@ -159,7 +157,7 @@ export function LoginView({
         }
 
         .login-logo-text {
-          font-family: 'Inter', sans-serif;
+          font-family: var(--font-inter), 'Inter', sans-serif;
           font-size: 32px;
           font-weight: 800;
           color: #fff;
@@ -226,7 +224,7 @@ export function LoginView({
           border: 1.5px solid rgba(255, 255, 255, 0.45);
           border-radius: 16px;
           font-size: 14px;
-          font-family: 'Inter', sans-serif;
+          font-family: var(--font-inter), 'Inter', sans-serif;
           color: #fff;
           caret-color: #fff;
           background: rgba(255, 255, 255, 0.06);
@@ -299,7 +297,7 @@ export function LoginView({
           padding: 15px;
           background: #0F1F3D;
           color: #fff;
-          font-family: 'Inter', sans-serif;
+          font-family: var(--font-inter), 'Inter', sans-serif;
           font-size: 14px;
           font-weight: 700;
           letter-spacing: 1.5px;
@@ -362,7 +360,7 @@ export function LoginView({
           padding: 13px;
           background: rgba(255, 255, 255, 0.08);
           color: #fff;
-          font-family: 'Inter', sans-serif;
+          font-family: var(--font-inter), 'Inter', sans-serif;
           font-size: 13px;
           font-weight: 600;
           border: 1.5px solid rgba(255, 255, 255, 0.45);

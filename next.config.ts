@@ -1,47 +1,29 @@
 import type { NextConfig } from 'next';
 
-// Security headers (auditoria A-1, achados F1/F2). HSTS é emitido pela borda
-// Caddy — aqui ficam os headers de conteúdo. `script-src 'unsafe-inline'` é a
-// concessão aos scripts inline de hidratação do App Router; migrar para nonces
-// (via middleware) é iteração futura registada no spec.
+// Security headers estáticos (auditoria A-1). A CSP NÃO está aqui: leva um nonce
+// por pedido e por isso é emitida pelo middleware.ts (lib/csp.ts). O HSTS vem da
+// borda Caddy.
 //
-// `'unsafe-eval'` só em dev: o runtime de Fast Refresh do `next dev` usa
-// eval() para aplicar HMR; sem isto o CSP bloqueia o bundle inteiro logo no
-// arranque (EvalError silencioso na consola, app fica sem hidratar — toda a
-// interactividade morre, incluindo formulários). Produção não usa eval(),
-// por isso fica de fora do build final.
-const isDev = process.env.NODE_ENV !== 'production';
-
+// Câmara/microfone/ecrã são delegados ao Jitsi (aulas ao vivo): com `camera=()`
+// o iframe da sala nunca conseguia pedir a câmara.
+const JITSI = '"https://meet.jit.si"';
 const securityHeaders = [
-  {
-    key: 'Content-Security-Policy',
-    value: [
-      "default-src 'self'",
-      `script-src 'self' 'unsafe-inline' blob:${isDev ? " 'unsafe-eval'" : ''}`,
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https:",
-      "font-src 'self' data:",
-      // Avatar da Ísis (Simli): sinalização por WebSocket em api.simli.ai e
-      // vídeo/áudio por LiveKit (WebRTC). blob: em script-src e media-src é
-      // para o AudioWorklet do SDK e para o stream do avatar.
-      "connect-src 'self' https://api.simli.ai wss://api.simli.ai https://*.simli.ai wss://*.simli.ai https://*.livekit.cloud wss://*.livekit.cloud",
-      "media-src 'self' blob: mediastream:",
-      "frame-src 'self' blob:",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-      "object-src 'none'",
-      'upgrade-insecure-requests',
-    ].join('; '),
-  },
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   {
     key: 'Permissions-Policy',
-    value: 'camera=(), microphone=(self), geolocation=()',
+    value: `camera=(self ${JITSI}), microphone=(self ${JITSI}), display-capture=(self ${JITSI}), geolocation=()`,
   },
 ];
+
+// Hostnames https de onde se aceitam imagens externas (storage, CDN). Vazio =
+// qualquer https (comportamento anterior). Tem de ser o mesmo valor em build
+// (remotePatterns) e em runtime (img-src da CSP, no middleware).
+const imageHosts = (process.env.IMG_ALLOWED_HOSTS ?? '')
+  .split(',')
+  .map((h) => h.trim())
+  .filter(Boolean);
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -50,7 +32,10 @@ const nextConfig: NextConfig = {
   },
   images: {
     // https apenas — imagens http:// eram mixed content (achado F2).
-    remotePatterns: [{ protocol: 'https', hostname: '**' }],
+    remotePatterns: (imageHosts.length ? imageHosts : ['**']).map((hostname) => ({
+      protocol: 'https' as const,
+      hostname,
+    })),
   },
   // simli-client@3.0.3 faz require('./transports/...') e require('../signaling/...')
   // mas o pacote publica as pastas como `Transports/` e `Signaling/`. Em
