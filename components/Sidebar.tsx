@@ -298,6 +298,8 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
         boxShadow: '4px 0 24px rgba(15, 31, 61, 0.04)',
       }}
     >
+      <style>{`.nav-hover:hover{background:${NAVY}!important;color:#fff!important}`}</style>
+
       {/* Logo */}
       <div style={{ padding: '24px 20px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -336,6 +338,7 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
             <div key={section.label} style={{ marginBottom: 4 }}>
               {/* Cabeçalho do grupo */}
               <button
+                className="nav-hover"
                 onClick={() => toggle(section.label)}
                 aria-expanded={isOpen}
                 style={{
@@ -368,6 +371,7 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
                     return (
                       <Link
                         key={item.href}
+                        className="nav-hover"
                         href={item.href}
                         style={{
                           display: 'flex',
@@ -386,7 +390,7 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
                       >
                         <item.icon
                           size={18}
-                          color={NAVY}
+                          color="currentColor"
                           strokeWidth={1.75}
                           style={{ flexShrink: 0 }}
                         />
