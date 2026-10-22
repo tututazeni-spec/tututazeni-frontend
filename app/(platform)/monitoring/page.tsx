@@ -74,6 +74,7 @@ import type {
   OverviewData,
   ProcessesData,
 } from '@/components/monitoring/platformTypes';
+import { pollInterval } from '@/lib/polling';
 
 // Mesmos papéis do @Roles() de monitoring.controller.ts (backend).
 const ALLOWED = ['ADMIN', 'AUDITOR', 'RH', 'DIRECTOR', 'GESTOR'];
@@ -183,7 +184,7 @@ export default function MonitoringPage() {
   const blocked = !!role && !ALLOWED.includes(role);
   const canAct = !!role && CAN_ACT.includes(role);
 
-  const opts = { staleTime: STALE_TIME.DYNAMIC, refetchInterval: REFRESH_MS };
+  const opts = { staleTime: STALE_TIME.DYNAMIC, refetchInterval: pollInterval(REFRESH_MS) };
   // keepPreviousData: ao mudar um filtro (dias, tipo, área…) a key muda; sem isto
   // o Body voltava ao skeleton e a página inteira piscava.
   const on = (t: string) => ({

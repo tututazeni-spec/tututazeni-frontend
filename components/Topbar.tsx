@@ -9,6 +9,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { AvatarUploader } from '@/components/ui/AvatarUploader';
 import { useAnyModalOpen } from '@/lib/modalVisibility';
+import { pollInterval } from '@/lib/polling';
 
 interface TopbarProps {
   title?: string;
@@ -28,7 +29,7 @@ export default function Topbar({ title }: TopbarProps) {
     '/notifications/my/unread-count',
     // silent: polling de fundo do badge — uma falha transitória (ex.: backend a
     // reiniciar) não deve gerar toast/erro na consola; o próximo ciclo recupera.
-    { refetchInterval: 60_000, meta: { silent: true } },
+    { refetchInterval: pollInterval(60_000), meta: { silent: true } },
   );
   const hasUnread = (unread?.count ?? 0) > 0;
 

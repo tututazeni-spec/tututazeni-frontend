@@ -32,6 +32,7 @@ import type {
   ReportResult,
   VacationsResponse,
 } from '@/components/leave/types';
+import { pollInterval } from '@/lib/polling';
 
 export function useLeaveTypes() {
   // Catálogo quase imutável → cache longa (STATIC).
@@ -51,7 +52,7 @@ export function usePendingApprovals(enabled = true) {
   const q = useApiQuery<LeaveRequest[]>(
     queryKeys.leave.pendingApprovals(),
     '/leave/pending-approvals',
-    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000, enabled },
+    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: pollInterval(60_000), enabled },
   );
   return { data: q.data ?? [], loading: q.isLoading, refetch: q.refetch };
 }
@@ -215,7 +216,7 @@ export function useApprovals(filters: ApprovalFilters, enabled = true) {
     {
       params,
       staleTime: STALE_TIME.DYNAMIC,
-      refetchInterval: 60_000,
+      refetchInterval: pollInterval(60_000),
       placeholderData: keepPreviousData,
       enabled,
     },

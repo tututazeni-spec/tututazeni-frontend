@@ -67,6 +67,7 @@ import type {
   SettingsData,
   SettingsUpdate,
 } from '@/components/scalability/types';
+import { pollInterval } from '@/lib/polling';
 
 export default function ScalabilityPage() {
   const notify = useToast();
@@ -86,13 +87,13 @@ export default function ScalabilityPage() {
   } = useApiQuery<DashboardData>(
     queryKeys.scalability.dashboard(),
     '/scalability/dashboard',
-    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
+    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: pollInterval(60_000) },
   );
 
   const { data: overviewCharts = null } = useApiQuery<OverviewChartsData>(
     queryKeys.scalability.overviewCharts(),
     '/scalability/overview-charts',
-    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
+    { staleTime: STALE_TIME.DYNAMIC, refetchInterval: pollInterval(60_000) },
   );
 
   const { data: usersLoad = null } = useApiQuery<UsersLoadData>(
@@ -100,7 +101,7 @@ export default function ScalabilityPage() {
     '/scalability/users-load',
     {
       staleTime: STALE_TIME.DYNAMIC,
-      refetchInterval: 60_000,
+      refetchInterval: pollInterval(60_000),
       enabled: activeTab === 'users',
     },
   );
@@ -110,7 +111,7 @@ export default function ScalabilityPage() {
     '/scalability/api-metrics',
     {
       staleTime: STALE_TIME.DYNAMIC,
-      refetchInterval: 30_000,
+      refetchInterval: pollInterval(30_000),
       enabled: activeTab === 'api',
     },
   );
@@ -120,7 +121,7 @@ export default function ScalabilityPage() {
     '/scalability/database-metrics',
     {
       staleTime: STALE_TIME.DYNAMIC,
-      refetchInterval: 30_000,
+      refetchInterval: pollInterval(30_000),
       enabled: activeTab === 'database',
     },
   );
@@ -130,7 +131,7 @@ export default function ScalabilityPage() {
     '/scalability/frontend-metrics',
     {
       staleTime: STALE_TIME.DYNAMIC,
-      refetchInterval: 60_000,
+      refetchInterval: pollInterval(60_000),
       enabled: activeTab === 'content',
     },
   );
@@ -140,7 +141,7 @@ export default function ScalabilityPage() {
     '/scalability/queue-metrics',
     {
       staleTime: STALE_TIME.DYNAMIC,
-      refetchInterval: 30_000,
+      refetchInterval: pollInterval(30_000),
       enabled: activeTab === 'queues',
     },
   );
@@ -150,7 +151,7 @@ export default function ScalabilityPage() {
     '/scalability/storage-metrics',
     {
       staleTime: STALE_TIME.DYNAMIC,
-      refetchInterval: 60_000,
+      refetchInterval: pollInterval(60_000),
       enabled: activeTab === 'storage',
     },
   );
@@ -160,7 +161,7 @@ export default function ScalabilityPage() {
     '/scalability/capacity-metrics',
     {
       staleTime: STALE_TIME.DYNAMIC,
-      refetchInterval: 60_000,
+      refetchInterval: pollInterval(60_000),
       enabled: activeTab === 'capacity',
     },
   );
@@ -170,7 +171,7 @@ export default function ScalabilityPage() {
     '/scalability/auto-scaling',
     {
       staleTime: STALE_TIME.DYNAMIC,
-      refetchInterval: 60_000,
+      refetchInterval: pollInterval(60_000),
       enabled: activeTab === 'autoscaling',
     },
   );
@@ -180,7 +181,7 @@ export default function ScalabilityPage() {
     '/scalability/resilience-metrics',
     {
       staleTime: STALE_TIME.DYNAMIC,
-      refetchInterval: 60_000,
+      refetchInterval: pollInterval(60_000),
       enabled: activeTab === 'resilience',
     },
   );
@@ -190,7 +191,7 @@ export default function ScalabilityPage() {
     '/scalability/incidents',
     {
       staleTime: STALE_TIME.DYNAMIC,
-      refetchInterval: 60_000,
+      refetchInterval: pollInterval(60_000),
       enabled: activeTab === 'incidents',
     },
   );
@@ -227,7 +228,7 @@ export default function ScalabilityPage() {
     '/scalability/alert-rules',
     {
       staleTime: STALE_TIME.DYNAMIC,
-      refetchInterval: 60_000,
+      refetchInterval: pollInterval(60_000),
       enabled: activeTab === 'alerts',
     },
   );
@@ -270,7 +271,7 @@ export default function ScalabilityPage() {
       '/scalability/integration-metrics',
       {
         staleTime: STALE_TIME.DYNAMIC,
-        refetchInterval: 60_000,
+        refetchInterval: pollInterval(60_000),
         enabled: activeTab === 'integrations',
       },
     );
@@ -281,7 +282,7 @@ export default function ScalabilityPage() {
       '/scalability/performance-metrics',
       {
         staleTime: STALE_TIME.DYNAMIC,
-        refetchInterval: 30_000,
+        refetchInterval: pollInterval(30_000),
         enabled: activeTab === 'performance',
       },
     );
