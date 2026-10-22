@@ -468,7 +468,13 @@ function FailRules({
   );
 }
 
-function AssignBox({ sessionId }: { sessionId: number }) {
+function AssignBox({
+  sessionId,
+  published,
+}: {
+  sessionId: number;
+  published: boolean;
+}) {
   const notify = useToast();
   // Colaboradores escolhidos (id → nome); procura por nome, email, nº de
   // colaborador ou, se for só um número, também pelo ID.
@@ -511,7 +517,9 @@ function AssignBox({ sessionId }: { sessionId: number }) {
       onError: (e) =>
         notify({
           title: 'Não foi possível atribuir',
-          description: e.message,
+          description: /publicada não encontrada/i.test(e.message)
+            ? 'Só é possível atribuir sessões publicadas de formações publicadas. Publica a sessão e a formação e tenta de novo.'
+            : e.message,
           intent: 'danger',
         }),
     },
@@ -534,6 +542,12 @@ function AssignBox({ sessionId }: { sessionId: number }) {
           onChange={(e) => setQuery(e.target.value)}
         />
       </FormField>
+      {!published && (
+        <p className="font-body text-xs text-warning-ink">
+          Esta sessão ainda não está publicada — publica-a (e a formação) para
+          a poderes atribuir.
+        </p>
+      )}
       {(debounced.length >= 2 || idQuery) && (
         <ul className="max-h-40 divide-y divide-border overflow-y-auto rounded-control border border-border bg-surface">
           {found.isLoading && (
@@ -621,7 +635,7 @@ function AssignBox({ sessionId }: { sessionId: number }) {
         <Button
           size="sm"
           loading={assign.isPending}
-          disabled={userIds.length === 0}
+          disabled={!published || userIds.length === 0}
           onClick={() => assign.mutate(undefined)}
         >
           Atribuir ({userIds.length})
@@ -795,7 +809,10 @@ function SessionForm({ session }: { session: SessionDetail }) {
         Guardar sessão
       </Button>
 
-      <AssignBox sessionId={session.id} />
+      <AssignBox
+        sessionId={session.id}
+        published={session.status === 'PUBLISHED'}
+      />
     </div>
   );
 }
