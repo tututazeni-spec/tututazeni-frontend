@@ -143,7 +143,7 @@ export function EmployeeDrawer({ employee, onClose }: EmployeeDrawerProps) {
             <div className="grid grid-cols-3 gap-3">
               {[
                 {
-                  label: 'Skills',
+                  label: 'CompetÃªncias',
                   value: employee._count.employeeSkills,
                   icon: Star,
                 },

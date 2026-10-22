@@ -92,7 +92,7 @@ export function DocRow({ doc, onView, onDownload }: DocRowProps) {
           />
           <IconButton
             icon={Download}
-            label="Download"
+            label="Descarregar"
             intent="ghost"
             className="h-7 w-7"
             onClick={(e) => {

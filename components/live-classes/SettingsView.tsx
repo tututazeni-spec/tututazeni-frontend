@@ -180,7 +180,7 @@ export function SettingsView() {
                 </Badge>
               </div>
               <div className="flex justify-between">
-                <span>Permitir download</span>
+                <span>Permitir descarregamento</span>
                 <Badge
                   intent={
                     data.recordingDefaults.allowRecordingDownload

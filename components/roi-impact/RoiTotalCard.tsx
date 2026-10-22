@@ -106,7 +106,7 @@ export function RoiTotalCard({
             </div>
             <div className="hidden w-px bg-white/20 sm:block" />
             <div>
-              <p className="font-body text-sm text-white/70">Status</p>
+              <p className="font-body text-sm text-white/70">Estado</p>
               <p
                 className="mt-1 flex items-center gap-2 font-display text-xl font-semibold"
                 style={{ color: status.color }}

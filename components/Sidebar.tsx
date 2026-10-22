@@ -57,53 +57,7 @@ interface NavItem {
 
 const NAV: Array<{ label: string; items: NavItem[] }> = [
   {
-    label: 'Principal',
-    items: [
-      {
-        href: '/dashboard-rh',
-        icon: Users,
-        label: 'Dashboard RH',
-        roles: ['ADMIN', 'RH', 'DIRECTOR'],
-      },
-      {
-        href: '/analytics',
-        icon: BarChart2,
-        label: 'Indicadores de Desempenho',
-        roles: ['ADMIN', 'RH', 'GESTOR'],
-      },
-      {
-        href: '/reports',
-        icon: FileText,
-        label: 'Relatórios',
-        roles: ['ADMIN', 'RH', 'LIDER', 'DIRECTOR', 'GESTOR'],
-      },
-    ],
-  },
-  {
-    label: 'CRM',
-    items: [
-      {
-        href: '/crm/beneficiaries',
-        icon: UserCheck,
-        label: 'Beneficiários',
-        roles: ['ADMIN', 'RH', 'GESTOR'],
-      },
-      {
-        href: '/crm/partners',
-        icon: Briefcase,
-        label: 'Parceiros',
-        roles: ['ADMIN', 'RH', 'GESTOR'],
-      },
-      {
-        href: '/crm/funders',
-        icon: DollarSign,
-        label: 'Financiadores',
-        roles: ['ADMIN', 'RH', 'GESTOR'],
-      },
-    ],
-  },
-  {
-    label: 'Aprendizagem',
+    label: 'Gestão Académica',
     items: [
       { href: '/courses', icon: BookOpen, label: 'Cursos' },
       { href: '/evaluation', icon: Star, label: 'Avaliações' },
@@ -111,6 +65,8 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
       { href: '/content-library', icon: Library, label: 'Biblioteca' },
       { href: '/ai-tutor', icon: Bot, label: 'Tutor de IA' },
       { href: '/avatar-training', icon: Presentation, label: 'Avatar Training' },
+      { href: '/trainings', icon: GraduationCap, label: 'Gestão de Formações' },
+      { href: '/events', icon: Calendar, label: 'Eventos Corporativos' },
     ],
   },
   {
@@ -159,12 +115,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         icon: Wallet,
         label: 'Folha de Pagamento',
       },
-      { href: '/trainings', icon: GraduationCap, label: 'Gestão de Formações' },
-    ],
-  },
-  {
-    label: 'Carreira',
-    items: [
       {
         // Módulo "Carreira" único: integra Sucessão (ex-/sucession) como
         // separador da mesma página. Ver app/(platform)/career/page.tsx.
@@ -183,8 +133,62 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
     ],
   },
   {
-    label: 'Compromisso',
-    items: [{ href: '/events', icon: Calendar, label: 'Eventos Corporativos' }],
+    label: 'Relatórios',
+    items: [
+      {
+        href: '/dashboard-rh',
+        icon: Users,
+        label: 'Dashboard RH',
+        roles: ['ADMIN', 'RH', 'DIRECTOR'],
+      },
+      {
+        href: '/analytics',
+        icon: BarChart2,
+        label: 'Indicadores de Desempenho',
+        roles: ['ADMIN', 'RH', 'GESTOR'],
+      },
+      {
+        href: '/reports',
+        icon: FileText,
+        label: 'Relatórios',
+        roles: ['ADMIN', 'RH', 'LIDER', 'DIRECTOR', 'GESTOR'],
+      },
+      {
+        href: '/executive-reports',
+        icon: Download,
+        label: 'Relatório Executivos',
+        roles: ADMIN_ROLES,
+      },
+      {
+        href: '/roi-impact',
+        icon: DollarSign,
+        label: 'ROI e Impacto',
+        roles: ['ADMIN', 'RH', 'DIRECTOR'],
+      },
+    ],
+  },
+  {
+    label: 'CRM',
+    items: [
+      {
+        href: '/crm/beneficiaries',
+        icon: UserCheck,
+        label: 'Beneficiários',
+        roles: ['ADMIN', 'RH', 'GESTOR'],
+      },
+      {
+        href: '/crm/funders',
+        icon: DollarSign,
+        label: 'Financiadores',
+        roles: ['ADMIN', 'RH', 'GESTOR'],
+      },
+      {
+        href: '/crm/partners',
+        icon: Briefcase,
+        label: 'Parceiros',
+        roles: ['ADMIN', 'RH', 'GESTOR'],
+      },
+    ],
   },
   {
     label: 'Processos',
@@ -194,12 +198,6 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         href: '/automation',
         icon: Zap,
         label: 'Automações',
-        roles: ADMIN_ROLES,
-      },
-      {
-        href: '/api-integrations',
-        icon: Globe,
-        label: 'Integrações com Sistemas Externos',
         roles: ADMIN_ROLES,
       },
       { href: '/history', icon: Clock, label: 'Histórico' },
@@ -215,14 +213,9 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
     ],
   },
   {
-    label: 'Relatórios',
+    label: 'Sistema',
     items: [
-      {
-        href: '/roi-impact',
-        icon: DollarSign,
-        label: 'ROI e Impacto',
-        roles: ['ADMIN', 'RH', 'DIRECTOR'],
-      },
+      { href: '/settings', icon: Settings, label: 'Definições' },
       {
         href: '/monitoring',
         icon: Activity,
@@ -236,17 +229,11 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         roles: ['ADMIN', 'AUDITOR'],
       },
       {
-        href: '/executive-reports',
-        icon: Download,
-        label: 'Relatório Executivos',
+        href: '/api-integrations',
+        icon: Globe,
+        label: 'Integrações com Sistemas Externos',
         roles: ADMIN_ROLES,
       },
-    ],
-  },
-  {
-    label: 'Sistema',
-    items: [
-      { href: '/settings', icon: Settings, label: 'Definições' },
     ],
   },
 ];
@@ -254,14 +241,11 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
 const NAVY = '#0F1F3D';
 
 const SECTION_ICONS: Record<string, typeof LayoutDashboard> = {
-  Principal: LayoutDashboard,
-  CRM: Handshake,
-  Aprendizagem: GraduationCap,
+  'Gestão Académica': GraduationCap,
   'Recursos Humanos': Users,
-  Carreira: Target,
-  Compromisso: Calendar,
-  Processos: Database,
   Relatórios: FileText,
+  CRM: Handshake,
+  Processos: Database,
   Sistema: Settings,
 };
 
@@ -314,6 +298,8 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
         boxShadow: '4px 0 24px rgba(15, 31, 61, 0.04)',
       }}
     >
+      <style>{`.nav-hover:hover{background:${NAVY}!important;color:#fff!important}`}</style>
+
       {/* Logo */}
       <div style={{ padding: '24px 20px 16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -352,6 +338,7 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
             <div key={section.label} style={{ marginBottom: 4 }}>
               {/* Cabeçalho do grupo */}
               <button
+                className="nav-hover"
                 onClick={() => toggle(section.label)}
                 aria-expanded={isOpen}
                 style={{
@@ -384,6 +371,7 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
                     return (
                       <Link
                         key={item.href}
+                        className="nav-hover"
                         href={item.href}
                         style={{
                           display: 'flex',
@@ -402,7 +390,7 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
                       >
                         <item.icon
                           size={18}
-                          color={NAVY}
+                          color="currentColor"
                           strokeWidth={1.75}
                           style={{ flexShrink: 0 }}
                         />

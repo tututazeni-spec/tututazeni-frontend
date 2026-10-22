@@ -760,9 +760,9 @@ function OverviewCharts({ data, charts }: OverviewChartsProps) {
               series={[line('Simultâneos', (m) => m.concurrentSessions)]}
             />
           </ChartCard>
-          <ChartCard title="Requests" sub="Pedidos por minuto (média por hora)">
+          <ChartCard title="Pedidos" sub="Pedidos por minuto (média por hora)">
             <AreaLineChart
-              series={[line('Requests/min', (m) => m.requestsPerMinute)]}
+              series={[line('Pedidos/min', (m) => m.requestsPerMinute)]}
             />
           {!charts?.trafficSourceConnected && (
             <p className="mt-2 font-body text-xs text-ink-faint">
@@ -1274,7 +1274,7 @@ function IntegrationMetrics({ m }: { m: IntegrationMetricsData }) {
         <NavyStatCard
           icon={Activity}
           tone="blue"
-          label="Requests"
+          label="Pedidos"
           value={fmt(t.requests)}
           sub="execuções de sync"
         />
@@ -1331,7 +1331,7 @@ function IntegrationMetrics({ m }: { m: IntegrationMetricsData }) {
               <thead>
                 <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
                   <th className="py-1.5 font-semibold">Integração</th>
-                  <th className="py-1.5 text-right font-semibold">Requests</th>
+                  <th className="py-1.5 text-right font-semibold">Pedidos</th>
                   <th className="py-1.5 text-right font-semibold">Erros</th>
                   <th className="py-1.5 text-right font-semibold">Latência</th>
                   <th className="py-1.5 text-right font-semibold">Estado</th>
@@ -2076,7 +2076,7 @@ function UsersTab({ data, load }: UsersTabProps) {
             <NavyStatCard
               icon={Server}
               tone="green"
-              label="Requests por utilizador"
+              label="Pedidos por utilizador"
               value={
                 load.sessions.requestsPerUserPerMin === null
                   ? '—'
@@ -2117,7 +2117,7 @@ function UsersTab({ data, load }: UsersTabProps) {
           <Card>
             <CardBody>
               <p className="mb-1 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                Concurrent Users (24h)
+                Utilizadores simultÃ¢neos (24h)
               </p>
               <p className="mb-3 font-body text-xs text-ink-faint">
                 Média {load.concurrent.avg24h} · Máximo {load.concurrent.max24h}{' '}
@@ -2313,24 +2313,24 @@ function FrontendPerfSection({ data }: { data: FrontendMetricsData | null }) {
         />
       ) : (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <MetricTile label="Page Load" value={ms(data.vitals.pageLoadMs)} />
+          <MetricTile label="Carregamento da pÃ¡gina" value={ms(data.vitals.pageLoadMs)} />
           <MetricTile
-            label="First Contentful Paint"
+            label="Primeira renderizaÃ§Ã£o de conteÃºdo"
             value={ms(data.vitals.fcpMs)}
             sub="bom ≤ 1800 ms"
           />
           <MetricTile
-            label="Largest Contentful Paint"
+            label="Maior renderizaÃ§Ã£o de conteÃºdo"
             value={ms(data.vitals.lcpMs)}
             sub="bom ≤ 2500 ms"
           />
           <MetricTile
-            label="Interaction to Next Paint"
+            label="InteraÃ§Ã£o atÃ© Ã  renderizaÃ§Ã£o seguinte"
             value={ms(data.vitals.inpMs)}
             sub="bom ≤ 200 ms"
           />
           <MetricTile
-            label="Time to First Byte"
+            label="Tempo atÃ© ao primeiro byte"
             value={ms(data.vitals.ttfbMs)}
             sub="bom ≤ 800 ms"
           />
@@ -2359,7 +2359,7 @@ function FrontendPerfSection({ data }: { data: FrontendMetricsData | null }) {
             sub="recursos servidos da cache do browser"
           />
           <MetricTile
-            label="Requests"
+            label="Pedidos"
             value={
               data.resources.requestsPerPage === null
                 ? '—'
@@ -2570,17 +2570,17 @@ function ApiTab({ api }: { api: ApiMetricsData | null }) {
   return (
     <div className="flex flex-col gap-6">
       <SectionHeader
-        title="API & Backend"
+        title="API e servidor"
         sub={`Capacidade da API NestJS — acumulado desde o arranque do servidor (${uptimeMin} min)`}
       />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <MetricTile
-          label="Requests por segundo"
+          label="Pedidos por segundo"
           value={rate(api.rates.requestsPerSecond, '/s')}
           sub={warming ? 'a recolher amostras' : `janela de ${api.rates.windowSeconds / 60} min`}
         />
         <MetricTile
-          label="Requests por minuto"
+          label="Pedidos por minuto"
           value={rate(api.rates.requestsPerMinute, '/min')}
         />
         <MetricTile label="Total de requests" value={fmt(api.totals.requests)} />
@@ -2617,7 +2617,7 @@ function ApiTab({ api }: { api: ApiMetricsData | null }) {
           sub="respostas 408/504"
         />
         <MetricTile
-          label="Requests concorrentes"
+          label="Pedidos concorrentes"
           value={api.concurrentRequests === null ? '—' : fmt(api.concurrentRequests)}
           sub={api.concurrentRequests === null ? 'pedidos em curso não são registados' : undefined}
         />
@@ -2627,7 +2627,7 @@ function ApiTab({ api }: { api: ApiMetricsData | null }) {
           sub="média por pedido"
         />
         <MetricTile
-          label="Requests lentos"
+          label="Pedidos lentos"
           value={fmt(api.totals.slowRequests)}
           sub={`acima de ${api.totals.slowThresholdMs} ms`}
         />
@@ -2647,7 +2647,7 @@ function ApiTab({ api }: { api: ApiMetricsData | null }) {
                 <thead>
                   <tr className="text-left text-xs uppercase tracking-wide text-ink-muted">
                     <th className="py-1.5 font-semibold">Endpoint</th>
-                    <th className="py-1.5 text-right font-semibold">Requests</th>
+                    <th className="py-1.5 text-right font-semibold">Pedidos</th>
                     <th className="py-1.5 text-right font-semibold">Média</th>
                     <th className="py-1.5 text-right font-semibold">P95</th>
                     <th className="py-1.5 text-right font-semibold">Erros</th>
@@ -3059,7 +3059,7 @@ function QueuesTab({ queues }: { queues: QueueMetricsData | null }) {
       </div>
 
       <Card className="overflow-hidden">
-        <CardTitleBar>Queue Depth</CardTitleBar>
+        <CardTitleBar>Profundidade da fila</CardTitleBar>
         <CardBody>
           {points.length < 2 ? (
             <EmptyState
@@ -3266,7 +3266,7 @@ function StorageTab({ storage }: { storage: StorageMetricsData | null }) {
   return (
     <div className="flex flex-col gap-6">
       <SectionHeader
-        title="Storage"
+        title="Armazenamento"
         sub="Ficheiros guardados pela plataforma, por módulo, tipo e unidade"
       />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
@@ -3382,7 +3382,7 @@ const TABS: PillTabItem[] = [
   { id: 'alerts', label: 'Alertas', hint: 'Avisos abertos', icon: Bell },
   { id: 'sla', label: 'SLA & Compliance', hint: 'Objectivos de serviço', icon: ShieldCheck },
   { id: 'users', label: 'Utilizadores', hint: 'Carga de utilizadores', icon: Users },
-  { id: 'api', label: 'API & Backend', hint: 'Pedidos e rotas', icon: Server },
+  { id: 'api', label: 'API e servidor', hint: 'Pedidos e rotas', icon: Server },
   { id: 'database', label: 'Base de Dados', hint: 'Consultas e ligações', icon: Database },
   { id: 'content', label: 'Conteúdo & CDN', hint: 'Entrega de conteúdo', icon: Globe },
   { id: 'queues', label: 'Filas & Tarefas', hint: 'Tarefas em fila', icon: ListChecks },

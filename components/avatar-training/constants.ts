@@ -208,6 +208,84 @@ export const LANGUAGE_ITEMS = [
   { value: 'fr', label: 'Francês' },
 ];
 
+export const TONE_OPTIONS = [
+  'Didáctico e encorajador',
+  'Formal e profissional',
+  'Cordial e próximo',
+  'Directo e objectivo',
+  'Empático e acolhedor',
+  'Motivador e enérgico',
+  'Exigente e desafiante',
+];
+
+export const SPECIALTY_OPTIONS = [
+  'Atendimento ao Cliente',
+  'Comunicação',
+  'Compliance e Regulamentação',
+  'Gestão de Conflitos',
+  'Integração (Onboarding)',
+  'Liderança e Gestão',
+  'Negociação e Vendas',
+  'Segurança da Informação',
+];
+
+export const PROVIDER_OPTIONS = ['Simli', 'HeyGen', 'D-ID', 'Synthesia', 'Tavus'];
+
+export const OBJECTIVE_OPTIONS = [
+  'Desenvolver competências de comunicação',
+  'Melhorar o atendimento ao cliente',
+  'Praticar a gestão de conflitos',
+  'Treinar técnicas de negociação e venda',
+  'Reforçar a liderança e a gestão de equipas',
+  'Aplicar normas de compliance e regulamentação',
+  'Reforçar a segurança da informação',
+  'Aumentar a produtividade e a gestão do tempo',
+  'Preparar para entrevistas e feedback',
+  'Facilitar a integração de novos colaboradores',
+];
+
+export const CATEGORY_OPTIONS = [
+  'Atendimento ao Cliente',
+  'Comunicação',
+  'Compliance e Regulamentação',
+  'Integração (Onboarding)',
+  'Liderança e Gestão',
+  'Produtividade',
+  'Segurança da Informação',
+  'Vendas e Negociação',
+];
+
+export const VARIANT_OPTIONS: Record<
+  string,
+  { value: string; label: string }[]
+> = {
+  pt: [
+    { value: 'PT-AO', label: 'Português de Angola (PT-AO)' },
+    { value: 'PT-PT', label: 'Português de Portugal (PT-PT)' },
+    { value: 'PT-BR', label: 'Português do Brasil (PT-BR)' },
+  ],
+  en: [
+    { value: 'EN-US', label: 'Inglês americano (EN-US)' },
+    { value: 'EN-GB', label: 'Inglês britânico (EN-GB)' },
+  ],
+  es: [
+    { value: 'ES-ES', label: 'Espanhol de Espanha (ES-ES)' },
+    { value: 'ES-MX', label: 'Espanhol do México (ES-MX)' },
+  ],
+  fr: [{ value: 'FR-FR', label: 'Francês de França (FR-FR)' }],
+};
+
+export const TARGET_ROLE_OPTIONS = [
+  { value: 'COLABORADOR', label: 'Colaborador' },
+  { value: 'LIDER', label: 'Líder' },
+  { value: 'GESTOR', label: 'Gestor' },
+  { value: 'DIRECTOR', label: 'Director' },
+  { value: 'INSTRUCTOR', label: 'Instrutor' },
+  { value: 'RH', label: 'Recursos Humanos' },
+  { value: 'AUDITOR', label: 'Auditor' },
+  { value: 'ADMIN', label: 'Administrador' },
+];
+
 export const AUDIT_ACTION_LABEL: Record<string, string> = {
   CREATE: 'Criado',
   UPDATE: 'Alterado',

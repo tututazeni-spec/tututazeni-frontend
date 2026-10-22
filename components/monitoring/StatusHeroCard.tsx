@@ -116,7 +116,7 @@ export function StatusHeroCard({
           </p>
           <div className="flex flex-wrap items-stretch gap-x-5 gap-y-1">
             <div>
-              <p className="font-body text-xs text-white/70">Status</p>
+              <p className="font-body text-xs text-white/70">Estado</p>
               <p
                 className="flex items-center gap-2 font-display text-base font-semibold"
                 style={{ color: view.color }}

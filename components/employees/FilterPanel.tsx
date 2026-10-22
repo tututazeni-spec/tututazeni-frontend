@@ -81,7 +81,7 @@ export function FilterPanel({ filters, onChange, onClose }: FilterPanelProps) {
           />
         </FormField>
 
-        <FormField label="Status" htmlFor="filter-status">
+        <FormField label="Estado" htmlFor="filter-status">
           <Select
             items={STATUS_ITEMS}
             value={filters.status || 'ALL'}
