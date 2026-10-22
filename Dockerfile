@@ -9,6 +9,10 @@ RUN npm ci --no-audit --no-fund
 FROM node:20-slim AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+# Hostnames https permitidos para imagens externas (next/image remotePatterns).
+# Vazio = qualquer https. O mesmo valor tem de ir em runtime (.env.production).
+ARG IMG_ALLOWED_HOSTS=""
+ENV IMG_ALLOWED_HOSTS=$IMG_ALLOWED_HOSTS
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
