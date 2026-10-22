@@ -32,9 +32,13 @@ import {
   AUTHOR_ROLES,
   DIFFICULTY_LABEL,
   EXPERIENCE_LABEL,
+  CATEGORY_OPTIONS,
   LANGUAGE_ITEMS,
+  OBJECTIVE_OPTIONS,
   PROGRAM_STATUS,
   SOURCE_LABEL,
+  TARGET_ROLE_OPTIONS,
+  VARIANT_OPTIONS,
 } from './constants';
 import { CARD_BTN, CARD_BTN_GHOST, CardGrid, ProgramCard } from './cards';
 import { NO_USER, useUserOptions } from './useUserOptions';
@@ -61,7 +65,7 @@ const EXPERIENCE_ITEMS = Object.entries(EXPERIENCE_LABEL).map(
   }),
 );
 
-function CheckList({
+function CheckList<T extends number | string = number>({
   legend,
   options,
   selected,
@@ -69,9 +73,9 @@ function CheckList({
   emptyText,
 }: {
   legend: string;
-  options: { id: number; label: string }[];
-  selected: number[];
-  onChange: (ids: number[]) => void;
+  options: { id: T; label: string }[];
+  selected: T[];
+  onChange: (ids: T[]) => void;
   emptyText: string;
 }) {
   return (
@@ -108,11 +112,11 @@ function CheckList({
   );
 }
 
-const lines = (v: string) =>
-  v
-    .split('\n')
-    .map((x) => x.trim())
-    .filter(Boolean);
+/** Opções predefinidas mais valores já gravados que já não constam da lista. */
+const withCurrent = (base: string[], current: string[]) => [
+  ...base,
+  ...current.filter((c) => !base.includes(c)),
+];
 
 function ProgramFormModal({
   program,
@@ -128,8 +132,8 @@ function ProgramFormModal({
   const users = useUserOptions();
   const [title, setTitle] = useState(program?.title ?? '');
   const [description, setDescription] = useState(program?.description ?? '');
-  const [objectives, setObjectives] = useState(
-    (program?.objectives ?? []).join('\n'),
+  const [objectives, setObjectives] = useState<string[]>(
+    program?.objectives ?? [],
   );
   const [category, setCategory] = useState(program?.category ?? '');
   const [difficulty, setDifficulty] = useState(
@@ -161,8 +165,8 @@ function ProgramFormModal({
   const [departments, setDepartments] = useState<number[]>(
     program?.targetDepartmentIds ?? [],
   );
-  const [roleNames, setRoleNames] = useState(
-    (program?.targetRoleNames ?? []).join(', '),
+  const [roleNames, setRoleNames] = useState<string[]>(
+    program?.targetRoleNames ?? [],
   );
   const [competencies, setCompetencies] = useState<number[]>(
     program?.competencyIds ?? [],
@@ -221,12 +225,12 @@ function ProgramFormModal({
       const body = {
         title: title.trim(),
         description: description.trim() || undefined,
-        objectives: lines(objectives),
-        category: category.trim() || undefined,
+        objectives,
+        category: category || undefined,
         difficulty,
         experienceType,
         language,
-        languageVariant: variant.trim() || undefined,
+        languageVariant: variant || undefined,
         durationMinutes: duration ? Number(duration) : undefined,
         courseId: courseId === ALL ? undefined : Number(courseId),
         moduleId: moduleId === ALL ? undefined : Number(moduleId),
@@ -235,10 +239,7 @@ function ProgramFormModal({
           responsible === NO_USER ? undefined : Number(responsible),
         prerequisiteCourseIds: prerequisites,
         targetDepartmentIds: departments,
-        targetRoleNames: roleNames
-          .split(',')
-          .map((r) => r.trim())
-          .filter(Boolean),
+        targetRoleNames: roleNames,
         competencyIds: competencies,
         certificateEnabled: certificate,
         certificateMinScore:
@@ -309,24 +310,28 @@ function ProgramFormModal({
               onChange={(e) => setDescription(e.target.value)}
             />
           </FormField>
-          <FormField
-            label="Objectivos de aprendizagem"
-            htmlFor="ap-obj"
-            hint="Um por linha."
-          >
-            <Textarea
-              id="ap-obj"
-              rows={3}
-              value={objectives}
-              onChange={(e) => setObjectives(e.target.value)}
-            />
-          </FormField>
+          <CheckList<string>
+            legend="Objectivos de aprendizagem"
+            options={withCurrent(OBJECTIVE_OPTIONS, objectives).map((o) => ({
+              id: o,
+              label: o,
+            }))}
+            selected={objectives}
+            onChange={setObjectives}
+            emptyText="Sem objectivos disponíveis."
+          />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormField label="Categoria" htmlFor="ap-cat">
-              <Input
-                id="ap-cat"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
+              <Select
+                value={category || ALL}
+                onValueChange={(v) => setCategory(v === ALL ? '' : v)}
+                items={[
+                  { value: ALL, label: 'Sem categoria' },
+                  ...withCurrent(
+                    CATEGORY_OPTIONS,
+                    category ? [category] : [],
+                  ).map((c) => ({ value: c, label: c })),
+                ]}
               />
             </FormField>
             <FormField label="Nível de dificuldade" htmlFor="ap-diff">
@@ -346,7 +351,10 @@ function ProgramFormModal({
             <FormField label="Idioma" htmlFor="ap-lang">
               <Select
                 value={language}
-                onValueChange={setLanguage}
+                onValueChange={(v) => {
+                  setLanguage(v);
+                  setVariant('');
+                }}
                 items={LANGUAGE_ITEMS}
               />
             </FormField>
@@ -364,16 +372,20 @@ function ProgramFormModal({
                 onChange={(e) => setDuration(e.target.value)}
               />
             </FormField>
-            <FormField
-              label="Variante do idioma"
-              htmlFor="ap-variant"
-              hint="Ex.: PT-AO, PT-PT."
-            >
-              <Input
-                id="ap-variant"
-                value={variant}
-                maxLength={20}
-                onChange={(e) => setVariant(e.target.value)}
+            <FormField label="Variante do idioma" htmlFor="ap-variant">
+              <Select
+                value={variant || ALL}
+                onValueChange={(v) => setVariant(v === ALL ? '' : v)}
+                items={[
+                  { value: ALL, label: 'Sem variante' },
+                  ...(VARIANT_OPTIONS[language] ?? []),
+                  ...(variant &&
+                  !(VARIANT_OPTIONS[language] ?? []).some(
+                    (o) => o.value === variant,
+                  )
+                    ? [{ value: variant, label: variant }]
+                    : []),
+                ]}
               />
             </FormField>
             <FormField label="Curso associado" htmlFor="ap-course">
@@ -446,17 +458,19 @@ function ProgramFormModal({
             onChange={setDepartments}
             emptyText="Sem departamentos disponíveis."
           />
-          <FormField
-            label="Público-alvo — cargos"
-            htmlFor="ap-roles"
-            hint="Separados por vírgula. Vazio = todos."
-          >
-            <Input
-              id="ap-roles"
-              value={roleNames}
-              onChange={(e) => setRoleNames(e.target.value)}
-            />
-          </FormField>
+          <CheckList<string>
+            legend="Público-alvo — perfis (vazio = todos)"
+            options={withCurrent(
+              TARGET_ROLE_OPTIONS.map((r) => r.value),
+              roleNames,
+            ).map((v) => ({
+              id: v,
+              label: TARGET_ROLE_OPTIONS.find((r) => r.value === v)?.label ?? v,
+            }))}
+            selected={roleNames}
+            onChange={setRoleNames}
+            emptyText="Sem perfis disponíveis."
+          />
           <CheckList
             legend="Competências-alvo"
             options={(comps.data?.data ?? []).map((c) => ({
