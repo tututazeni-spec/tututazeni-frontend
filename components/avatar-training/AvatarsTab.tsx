@@ -38,13 +38,22 @@ import {
   AVATAR_STATUS,
   AVATAR_TYPE_LABEL,
   LANGUAGE_ITEMS,
+  PROVIDER_OPTIONS,
   SOURCE_LABEL,
+  SPECIALTY_OPTIONS,
+  TONE_OPTIONS,
 } from './constants';
 import {
   IMAGE_ACCEPT,
   imageFileToDataUrl,
   validateImageFile,
 } from './imageFile';
+import {
+  AVATAR_BTN_GHOST,
+  AVATAR_BTN_PRIMARY,
+  AvatarCard,
+} from './AvatarCard';
+import { ChoiceOrCustom } from './ChoiceOrCustom';
 import { NO_USER, useUserOptions } from './useUserOptions';
 import type {
   AvatarHistoryEntry,
@@ -320,18 +329,22 @@ function AvatarFormModal({
               />
             </FormField>
             <FormField label="Tom de comunicação" htmlFor="av-tone">
-              <Input
+              <ChoiceOrCustom
                 id="av-tone"
+                label="Tom de comunicação"
                 value={tone}
+                options={TONE_OPTIONS}
+                onChange={setTone}
                 placeholder="Ex.: didáctico e encorajador"
-                onChange={(e) => setTone(e.target.value)}
               />
             </FormField>
             <FormField label="Especialidade" htmlFor="av-spec">
-              <Input
+              <ChoiceOrCustom
                 id="av-spec"
+                label="Especialidade"
                 value={specialty}
-                onChange={(e) => setSpecialty(e.target.value)}
+                options={SPECIALTY_OPTIONS}
+                onChange={setSpecialty}
               />
             </FormField>
             <FormField label="Responsável" htmlFor="av-resp">
@@ -342,10 +355,12 @@ function AvatarFormModal({
               />
             </FormField>
             <FormField label="Fornecedor" htmlFor="av-prov">
-              <Input
+              <ChoiceOrCustom
                 id="av-prov"
+                label="Fornecedor"
                 value={provider}
-                onChange={(e) => setProvider(e.target.value)}
+                options={PROVIDER_OPTIONS}
+                onChange={setProvider}
               />
             </FormField>
             <FormField label="Modelo / versão" htmlFor="av-model">
@@ -565,118 +580,68 @@ export function AvatarsTab() {
           description="Ainda não existem instrutores virtuais disponíveis."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
           {data.map((a) => (
-            <div
+            <AvatarCard
               key={a.id}
-              className="rounded-card border border-border bg-surface p-4"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-3">
-                  {a.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={a.imageUrl}
-                      alt={`Imagem do avatar ${a.name}`}
-                      className="h-10 w-10 shrink-0 rounded-full object-cover"
-                    />
-                  ) : (
-                    <Bot
-                      size={20}
-                      className="shrink-0 text-ink-muted"
-                      aria-hidden
-                    />
-                  )}
-                  <div className="min-w-0">
-                    <div className="truncate font-display text-sm font-semibold text-ink">
-                      {a.name}
-                    </div>
-                    <div className="font-body text-xs text-ink-muted">
-                      {AVATAR_TYPE_LABEL[a.avatarType]} · {a.language}
-                      {a.languageVariant ? ` (${a.languageVariant})` : ''}
-                      {a.specialty ? ` · ${a.specialty}` : ''}
-                      {a.tone ? ` · ${a.tone}` : ''}
-                    </div>
-                  </div>
-                </div>
-                <StatusBadge
-                  value={a.status}
-                  map={AVATAR_STATUS}
-                  variant="dot"
-                />
-              </div>
-              {a.description && (
-                <p className="mt-2 line-clamp-2 font-body text-xs text-ink-muted">
-                  {a.description}
-                </p>
-              )}
-              {isAdmin && (
-                <div className="mt-2 font-body text-xs text-ink-faint">
-                  {a.provider
-                    ? `${a.provider}${a.providerModel ? ` ${a.providerModel}` : ''}`
-                    : 'Sem fornecedor'}
-                  {a.responsibleName
-                    ? ` · responsável: ${a.responsibleName}`
-                    : ''}
-                  {` · ${a.knowledgeBase?.length ?? 0} fonte(s)`}
-                  {a.lastTestedAt
-                    ? ` · testado ${formatDate(a.lastTestedAt)}`
-                    : ' · por testar'}
-                </div>
-              )}
-              {isAdmin && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    intent="secondary"
-                    onClick={() => setEditing(a)}
-                  >
-                    <Pencil size={14} /> Editar
-                  </Button>
-                  <Button
-                    size="sm"
-                    intent="ghost"
-                    onClick={() => setHistoryOf(a)}
-                  >
-                    <History size={14} /> Histórico
-                  </Button>
-                  <Button
-                    size="sm"
-                    intent="secondary"
-                    loading={test.isPending && test.variables === a.id}
-                    onClick={() => test.mutate(a.id)}
-                  >
-                    Testar
-                  </Button>
-                  {a.status !== 'ACTIVE' ? (
-                    <Button
-                      size="sm"
-                      disabled={!a.lastTestedAt}
-                      title={
-                        a.lastTestedAt
-                          ? undefined
-                          : 'É obrigatório testar o avatar antes de o activar'
-                      }
-                      onClick={() =>
-                        setStatus.mutate({ id: a.id, status: 'ACTIVE' })
-                      }
+              avatar={a}
+              showAdminInfo={isAdmin}
+              actions={
+                isAdmin && (
+                  <>
+                    <button
+                      type="button"
+                      className={AVATAR_BTN_GHOST}
+                      onClick={() => setEditing(a)}
                     >
-                      Activar
-                    </Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      intent="ghost"
-                      onClick={() =>
-                        setStatus.mutate({ id: a.id, status: 'INACTIVE' })
-                      }
+                      <Pencil size={14} /> Editar
+                    </button>
+                    <button
+                      type="button"
+                      className={AVATAR_BTN_GHOST}
+                      onClick={() => setHistoryOf(a)}
                     >
-                      Desactivar
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
+                      <History size={14} /> Histórico
+                    </button>
+                    <button
+                      type="button"
+                      className={AVATAR_BTN_GHOST}
+                      disabled={test.isPending && test.variables === a.id}
+                      onClick={() => test.mutate(a.id)}
+                    >
+                      Testar
+                    </button>
+                    {a.status !== 'ACTIVE' ? (
+                      <button
+                        type="button"
+                        className={AVATAR_BTN_PRIMARY}
+                        disabled={!a.lastTestedAt}
+                        title={
+                          a.lastTestedAt
+                            ? undefined
+                            : 'É obrigatório testar o avatar antes de o activar'
+                        }
+                        onClick={() =>
+                          setStatus.mutate({ id: a.id, status: 'ACTIVE' })
+                        }
+                      >
+                        Activar
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className={AVATAR_BTN_GHOST}
+                        onClick={() =>
+                          setStatus.mutate({ id: a.id, status: 'INACTIVE' })
+                        }
+                      >
+                        Desactivar
+                      </button>
+                    )}
+                  </>
+                )
+              }
+            />
           ))}
         </div>
       )}
