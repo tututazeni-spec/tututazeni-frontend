@@ -82,6 +82,11 @@ vi.mock('@/providers/ConfirmProvider', () => ({
 }));
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
 
+let currentRole = 'ADMIN';
+vi.mock('@/hooks/useCurrentRole', () => ({
+  useCurrentRole: () => currentRole,
+}));
+
 let courseList: unknown[] = [];
 vi.mock('@/hooks/useApiQuery', () => ({
   useApiQuery: (_key: unknown, path: string) => {
@@ -167,6 +172,13 @@ const archivedCourse = {
   requiresApproval: false,
   avgProgress: 0,
   primaryInstructor: null,
+  _count: { modules: 4, enrollments: 0, feedbacks: 2 },
+};
+const publishedWithEnrollments = {
+  ...archivedCourse,
+  id: 10,
+  title: 'Curso em uso',
+  status: 'PUBLISHED',
   _count: { modules: 4, enrollments: 7, feedbacks: 2 },
 };
 
@@ -277,6 +289,20 @@ describe('GestaoView', () => {
     render(<GestaoView onSelect={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Eliminar' }));
     await waitFor(() => expect(del).toHaveBeenCalledWith('/courses/9'));
+  });
+
+  test('Eliminar não aparece a quem não é ADMIN/RH', () => {
+    currentRole = 'GESTOR';
+    setData([draftNoModules]);
+    render(<GestaoView onSelect={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Eliminar' })).toBeNull();
+    currentRole = 'ADMIN';
+  });
+
+  test('Eliminar não aparece em cursos com inscrições', () => {
+    setData([publishedWithEnrollments]);
+    render(<GestaoView onSelect={vi.fn()} />);
+    expect(screen.queryByRole('button', { name: 'Eliminar' })).toBeNull();
   });
 
   test('"Gerir módulos" chama onManageModules com o id do curso da linha', () => {
