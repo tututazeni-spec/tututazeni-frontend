@@ -340,7 +340,15 @@ export function SchedulesPanel() {
       apiClient.patch(`/executive-reports/schedules/${s.id}`, {
         active: !s.active,
       }),
-    { invalidateKeys: invalidate, onError },
+    {
+      invalidateKeys: invalidate,
+      onError,
+      optimistic: {
+        key: queryKeys.executiveReports.schedules(),
+        update: (prev: ReportSchedule[] | undefined, s) =>
+          prev?.map((x) => (x.id === s.id ? { ...x, active: !s.active } : x)),
+      },
+    },
   );
   const runNow = useApiMutation(
     (id: number) => apiClient.post(`/executive-reports/schedules/${id}/run`),

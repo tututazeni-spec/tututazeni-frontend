@@ -137,9 +137,14 @@ export function AssessmentPlayer({
   useEffect(() => {
     const init = async () => {
       try {
-        const a = await apiClient.get<RawAssessment>(
-          `/assessments/${assessmentId}`,
-        );
+        // Em paralelo: o início da tentativa só depende de `assessmentId`,
+        // não da resposta da avaliação (evita um round-trip em série).
+        const [a, att] = await Promise.all([
+          apiClient.get<RawAssessment>(`/assessments/${assessmentId}`),
+          apiClient.post<Attempt>('/assessments/attempts/start', {
+            assessmentId,
+          }),
+        ]);
         // Parse options para cada pergunta
         const parsed: Assessment = {
           ...a,
@@ -148,11 +153,6 @@ export function AssessmentPlayer({
             options: parseOptions(q.options),
           })),
         };
-
-        const att = await apiClient.post<Attempt>(
-          '/assessments/attempts/start',
-          { assessmentId },
-        );
 
         // Restaurar auto-save
         const restored: Record<number, AttemptAnswer> = {};

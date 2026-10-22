@@ -355,6 +355,16 @@ export function CategoriasView({
       }),
     {
       invalidateKeys,
+      optimistic: {
+        key: queryKeys.courses.categoriesManaged(),
+        update: (
+          prev: CourseCategoryManaged[] | undefined,
+          v: { id: number; isActive: boolean },
+        ) =>
+          prev?.map((c) =>
+            c.id === v.id ? { ...c, isActive: v.isActive } : c,
+          ),
+      },
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );

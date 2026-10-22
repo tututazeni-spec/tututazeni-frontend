@@ -55,25 +55,68 @@ export function useApiQuery<T>(
 
 // ─── Mutations ───────────────────────────────────────────────────────────────
 
+/** Actualização optimista da cache de `key` antes de a API responder. */
+export interface OptimisticConfig<TVariables, TCache> {
+  key: QueryKey;
+  /** Devolve o novo valor da cache; `prev` é `undefined` se a query não estiver carregada. */
+  update: (prev: TCache | undefined, vars: TVariables) => TCache | undefined;
+}
+
 /**
  * Mutação simples. Por defeito invalida as keys indicadas em `invalidateKeys`
  * após sucesso, para refrescar listas/detalhes afectados.
+ *
+ * Com `optimistic`, a cache da key é actualizada ANTES da API responder; em
+ * erro faz rollback automático ao snapshot. Para acções de um clique
+ * (activar/desactivar, publicar) em que o resultado é previsível.
  */
-export function useApiMutation<TData, TVariables>(
+export function useApiMutation<TData, TVariables, TCache = unknown>(
   mutationFn: (vars: TVariables) => Promise<TData>,
   options?: UseMutationOptions<TData, Error, TVariables> & {
     invalidateKeys?: QueryKey[];
+    optimistic?: OptimisticConfig<TVariables, TCache>;
   },
 ) {
   const qc = useQueryClient();
-  const { invalidateKeys, onSuccess, ...rest } = options ?? {};
-  return useMutation<TData, Error, TVariables>({
+  const {
+    invalidateKeys,
+    onSuccess,
+    optimistic,
+    onMutate,
+    onError,
+    ...rest
+  } = options ?? {};
+  return useMutation<
+    TData,
+    Error,
+    TVariables,
+    { snapshot?: TCache; custom?: unknown }
+  >({
     mutationFn,
     ...rest,
+    onMutate: async (vars, ...more) => {
+      const custom = await onMutate?.(vars, ...more);
+      if (!optimistic) return { custom };
+      // Cancela refetches em curso para não sobreporem a UI optimista.
+      await qc.cancelQueries({ queryKey: optimistic.key });
+      const snapshot = qc.getQueryData<TCache>(optimistic.key);
+      qc.setQueryData<TCache>(optimistic.key, (prev) =>
+        optimistic.update(prev, vars),
+      );
+      return { snapshot, custom };
+    },
+    onError: (error, vars, ctx, ...more) => {
+      if (optimistic && ctx) qc.setQueryData(optimistic.key, ctx.snapshot);
+      (onError as any)?.(error, vars, ctx?.custom, ...more);
+    },
     // Forward de todos os args que o React Query passar (assinatura varia entre versões).
     onSuccess: (...args: Parameters<NonNullable<typeof onSuccess>>) => {
       invalidateKeys?.forEach((k) => qc.invalidateQueries({ queryKey: k }));
       onSuccess?.(...args);
+    },
+    onSettled: () => {
+      // Garante consistência com o servidor mesmo após rollback.
+      if (optimistic) qc.invalidateQueries({ queryKey: optimistic.key });
     },
   });
 }

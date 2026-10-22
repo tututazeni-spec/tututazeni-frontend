@@ -6,10 +6,11 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useApiMutation } from '@/hooks/useApiQuery';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
-import { reportError } from '@/lib/errorReporting';
+import { STALE_TIME } from '@/lib/queryClient';
+import { queryKeys } from '@/lib/queryKeys';
 import type {
   AutocompleteResponse,
   AutocompleteSuggestion,
@@ -25,27 +26,29 @@ export function useSearch() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResponse | null>(null);
   const [activeType, setActiveType] = useState('all');
-  const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
   const debouncedQuery = useDebounce(query, 200);
 
-  // Autocomplete
-  useEffect(() => {
-    if (!debouncedQuery || debouncedQuery.length < 2) {
-      setSuggestions([]);
-      return;
-    }
-    apiClient
-      .get<AutocompleteResponse>('/search/autocomplete', {
-        params: { q: debouncedQuery, limit: 6 },
-      })
-      .then((d) => setSuggestions(d.suggestions ?? []))
-      .catch((e) => {
-        // Autocomplete é acessório — falhar não deve incomodar o
-        // utilizador com um toast, mas o erro fica registado.
-        reportError(e, { source: 'useSearch.autocomplete' });
-      });
-  }, [debouncedQuery]);
+  // Autocomplete: query com cache, dedup e cancelamento (o pedido em curso é
+  // abortado quando o texto muda). `hiddenFor` esconde as sugestões do texto
+  // já submetido/limpo sem as apagar da cache. Falhar não incomoda o
+  // utilizador (meta.silent), mas o erro fica registado pelo QueryCache.
+  const [hiddenFor, setHiddenFor] = useState<string | null>(null);
+  const autocomplete = useApiQuery<AutocompleteResponse>(
+    queryKeys.search.autocomplete(debouncedQuery),
+    '/search/autocomplete',
+    {
+      params: { q: debouncedQuery, limit: 6 },
+      enabled: debouncedQuery.length >= 2,
+      staleTime: STALE_TIME.SEMI_STATIC,
+      retry: false,
+      meta: { silent: true },
+    },
+  );
+  const suggestions: AutocompleteSuggestion[] =
+    debouncedQuery.length >= 2 && hiddenFor !== debouncedQuery
+      ? (autocomplete.data?.suggestions ?? [])
+      : [];
 
   // Pesquisa geral (todos os tipos) e pesquisa filtrada por um único tipo
   // partilhavam `results`/`loading`/`activeType` mas eram dois blocos
@@ -83,7 +86,7 @@ export function useSearch() {
 
   const doSearch = useCallback((q: string) => {
     if (!q.trim()) return;
-    setSuggestions([]);
+    setHiddenFor(q);
     searchAction.mutate({ kind: 'full', q });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `mutate` do useMutation é estável entre renders (React Query), por isso omitir `searchAction` das deps não cria closure stale. Consequência: o React Compiler salta este hook por não conseguir verificar a omissão à volta de uma regra desligada.
   }, []);
@@ -95,7 +98,7 @@ export function useSearch() {
   const clear = () => {
     setQuery('');
     setResults(null);
-    setSuggestions([]);
+    setHiddenFor(null);
   };
 
   useEffect(() => {
