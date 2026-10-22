@@ -26,6 +26,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { useToast } from '@/providers/ToastProvider';
 import { CourseImageField } from '@/components/courses/CourseImageField';
 import type { CourseModule } from './types';
+import { ObjectivesPicker } from './ObjectivesPicker';
 
 interface CompetencyOption {
   id: number;
@@ -106,6 +107,9 @@ export function ModuleModal({
     { params: { limit: 200 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
   const competencyOptions = competenciesResp?.data ?? [];
+  const [objectives, setObjectives] = useState<string[]>(
+    editing?.learningObjectives ?? [],
+  );
   const [competencyIds, setCompetencyIds] = useState<number[]>(
     editing?.competencies?.map((c) => c.competency.id) ?? [],
   );
@@ -360,12 +364,12 @@ export function ModuleModal({
               label="Objectivos de aprendizagem"
               htmlFor="module-objectives"
             >
-              <Textarea
-                id="module-objectives"
-                value={form.learningObjectives}
-                onChange={(e) => set('learningObjectives', e.target.value)}
-                rows={3}
-                placeholder={'Um objectivo por linha'}
+              <ObjectivesPicker
+                value={objectives}
+                onChange={setObjectives}
+                extraSuggestions={otherModules.flatMap(
+                  (m) => m.learningObjectives ?? [],
+                )}
               />
             </FormField>
 
