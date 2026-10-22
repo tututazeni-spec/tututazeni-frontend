@@ -88,12 +88,20 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
 
   if (status === 'error') {
     return (
-      <div className="text-canvas text-center px-8">
+      <div className="text-ink text-center px-8">
         <FileWarning size={56} strokeWidth={1.5} className="mx-auto mb-4" />
         <div className="font-body text-base font-medium">{title}</div>
-        <p className="font-body text-sm text-canvas/70 mt-2">
+        <p className="font-body text-sm text-ink-muted mt-2">
           Não foi possível abrir este PDF.
         </p>
+        <a
+          href={src}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-block font-body text-sm font-semibold text-ink underline"
+        >
+          Abrir noutro separador
+        </a>
       </div>
     );
   }
@@ -101,9 +109,9 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
   return (
     <div className="flex flex-col items-center gap-3 w-full h-full py-6">
       {status === 'loading' && (
-        <div className="text-canvas flex flex-col items-center gap-2">
+        <div className="text-ink flex flex-col items-center gap-2">
           <Loader2 size={32} strokeWidth={1.75} className="animate-spin" />
-          <span className="font-body text-sm text-canvas/70">A abrir PDF…</span>
+          <span className="font-body text-sm text-ink-muted">A abrir PDF…</span>
         </div>
       )}
       <div className="flex-1 w-full overflow-auto flex items-start justify-center px-4">
@@ -113,7 +121,7 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
         />
       </div>
       {status === 'ready' && numPages > 1 && (
-        <div className="flex items-center gap-3 bg-canvas/10 rounded-full px-3 py-1.5">
+        <div className="flex items-center gap-3 bg-ink/10 rounded-full px-3 py-1.5">
           <Button
             intent="ghost"
             size="sm"
@@ -123,7 +131,7 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
           >
             <ChevronLeft size={16} strokeWidth={1.75} />
           </Button>
-          <span className="font-body text-xs text-canvas">
+          <span className="font-body text-xs text-ink">
             Página {pageNum} de {numPages}
           </span>
           <Button

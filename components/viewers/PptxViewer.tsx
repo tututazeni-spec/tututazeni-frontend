@@ -71,10 +71,10 @@ export function PptxViewer({ src, title }: PptxViewerProps) {
 
   if (status === 'error') {
     return (
-      <div className="text-canvas text-center px-8">
+      <div className="text-ink text-center px-8">
         <FileWarning size={56} strokeWidth={1.5} className="mx-auto mb-4" />
         <div className="font-body text-base font-medium">{title}</div>
-        <p className="font-body text-sm text-canvas/70 mt-2">
+        <p className="font-body text-sm text-ink-muted mt-2">
           Não foi possível abrir esta apresentação.
         </p>
       </div>
@@ -84,9 +84,9 @@ export function PptxViewer({ src, title }: PptxViewerProps) {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center gap-3 py-6">
       {status === 'loading' && (
-        <div className="text-canvas flex flex-col items-center gap-2">
+        <div className="text-ink flex flex-col items-center gap-2">
           <Loader2 size={32} strokeWidth={1.75} className="animate-spin" />
-          <span className="font-body text-sm text-canvas/70">
+          <span className="font-body text-sm text-ink-muted">
             A abrir apresentação…
           </span>
         </div>

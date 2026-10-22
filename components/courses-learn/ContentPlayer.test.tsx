@@ -301,3 +301,136 @@ describe('ContentPlayer — navegação anterior/próxima', () => {
     expect(onNext).toHaveBeenCalled();
   });
 });
+
+describe('ContentPlayer — todos os tipos de conteúdo', () => {
+  beforeEach(() => {
+    (URL as unknown as { createObjectURL: unknown }).createObjectURL = vi.fn(
+      () => 'blob:mock',
+    );
+    (URL as unknown as { revokeObjectURL: unknown }).revokeObjectURL = vi.fn();
+  });
+
+  const renderLesson = (
+    lesson: Partial<LessonProgress>,
+    currentModule: Parameters<typeof ContentPlayer>[0]['currentModule'] = null,
+  ) =>
+    render(
+      <ContentPlayer
+        lesson={{ ...baseLesson, ...lesson }}
+        onComplete={noop}
+        completing={false}
+        currentModule={currentModule}
+      />,
+    );
+
+  test('LINK com URL — oferece abrir a ligação', () => {
+    renderLesson({
+      type: 'LINK',
+      title: 'Artigo',
+      contentUrl: 'https://exemplo.pt/artigo',
+    });
+    expect(
+      screen.getByRole('button', { name: /abrir ligação/i }),
+    ).toBeInTheDocument();
+  });
+
+  test('LINK sem URL — mostra aviso e não fica vazio', () => {
+    renderLesson({ type: 'LINK', title: 'Artigo' });
+    expect(screen.getByText(/ainda não tem ligação/i)).toBeInTheDocument();
+  });
+
+  test('SCORM com pacote — abre num iframe', () => {
+    renderLesson({
+      type: 'SCORM',
+      title: 'Pacote',
+      contentUrl: 'https://exemplo.pt/scorm/index.html',
+    });
+    expect(screen.getByTitle('Pacote')).toBeInTheDocument();
+  });
+
+  test('SCORM sem pacote — mostra aviso', () => {
+    renderLesson({ type: 'SCORM', title: 'Pacote' });
+    expect(screen.getByText(/ainda não tem pacote scorm/i)).toBeInTheDocument();
+  });
+
+  test('QUIZ sem quiz associado — mostra aviso', () => {
+    renderLesson({ type: 'QUIZ', title: 'Teste' });
+    expect(screen.getByText(/ainda não tem quiz/i)).toBeInTheDocument();
+  });
+
+  test('áudio com ficheiro — mostra o leitor de áudio', () => {
+    const { container } = renderLesson({
+      type: 'AUDIO',
+      contentUrl: 'https://exemplo.pt/a.mp3',
+    });
+    expect(container.querySelector('audio')).not.toBeNull();
+  });
+
+  test('actividades abrem no ecrã conforme o tipo (imagem, áudio, texto)', () => {
+    const { container } = renderLesson({
+      type: 'TEXT',
+      textContent: 'x',
+      activities: [
+        {
+          id: 1,
+          type: 'IMAGE',
+          title: 'Esquema',
+          description: null,
+          contentUrl: 'https://exemplo.pt/esquema.png',
+          seq: 0,
+        },
+        {
+          id: 2,
+          type: 'AUDIO',
+          title: 'Entrevista',
+          description: null,
+          contentUrl: 'https://exemplo.pt/e.mp3',
+          seq: 1,
+        },
+        {
+          id: 3,
+          type: 'TASK',
+          title: 'Trabalho',
+          description: 'Entregue o relatório até sexta.',
+          contentUrl: null,
+          seq: 2,
+        },
+      ],
+    });
+    expect(container.querySelector('img[alt="Esquema"]')).not.toBeNull();
+    expect(container.querySelector('audio')).not.toBeNull();
+    expect(
+      screen.getByText('Entregue o relatório até sexta.'),
+    ).toBeInTheDocument();
+  });
+
+  test('materiais do módulo aparecem junto da aula', () => {
+    renderLesson(
+      { type: 'TEXT', textContent: 'x' },
+      {
+        id: 1,
+        title: 'Módulo 1',
+        seq: 1,
+        type: null,
+        mandatory: false,
+        completedCount: 0,
+        totalCount: 1,
+        pct: 0,
+        completed: false,
+        locked: false,
+        lockedReason: undefined,
+        materials: [
+          {
+            id: 9,
+            title: 'Apontamentos.pdf',
+            url: 'https://exemplo.pt/ap.pdf',
+            fileType: 'pdf',
+            fileSizeKb: 10,
+          },
+        ],
+        lessons: [],
+      },
+    );
+    expect(screen.getByText('Apontamentos.pdf')).toBeInTheDocument();
+  });
+});
