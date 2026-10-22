@@ -56,6 +56,8 @@ export interface Lesson {
   // conteúdo (URL de vídeo ou PDF, este último em data URL) vive em
   // `contentUrl`.
   type: string;
+  // `true` quando a lição tem ficheiro mas a API o omitiu (quem não gere conteúdos).
+  hasFile?: boolean;
   status?: LessonStatus;
   contentUrl?: string | null;
   textContent?: string | null;

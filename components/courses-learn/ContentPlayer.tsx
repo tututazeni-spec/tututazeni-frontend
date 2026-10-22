@@ -14,26 +14,23 @@
 
 import { Component, useState, type ReactNode } from 'react';
 import {
-  Check,
   Play,
   FileText,
   BarChart3,
-  ChevronLeft,
-  ChevronRight,
   Calendar,
   Link2,
   Package,
   FileWarning,
   Music,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 import { PdfViewer } from '@/components/viewers/PdfViewer';
 import { PptxViewer } from '@/components/viewers/PptxViewer';
 import { LessonAudioBar } from './LessonAudioBar';
 import { QuizPlayer } from './QuizPlayer';
 import { ActivityList, FileList, OpenButton } from './LessonExtras';
 import { embeddableVideoUrl, useBlobSrc } from './fileSrc';
-import { lessonIcon, fmtDuration } from './utils';
+import { lessonIcon } from './utils';
+import { LessonFooter } from './LessonFooter';
 import type { LessonProgress, ModuleProgress } from './types';
 
 interface ContentPlayerProps {
@@ -403,43 +400,18 @@ export function ContentPlayer({
         )}
       </div>
 
-      {/* Bottom bar */}
-      <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-border bg-surface flex-wrap">
-        <div className="flex items-center gap-2">
-          {onPrevious && (
-            <Button
-              intent="secondary"
-              size="sm"
-              disabled={!hasPrevious}
-              onClick={onPrevious}
-            >
-              <ChevronLeft size={16} strokeWidth={1.75} />
-              Anterior
-            </Button>
-          )}
-          {onNext && (
-            <Button
-              intent="secondary"
-              size="sm"
-              disabled={!hasNext}
-              onClick={onNext}
-            >
-              Próxima
-              <ChevronRight size={16} strokeWidth={1.75} />
-            </Button>
-          )}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="font-body text-sm font-medium text-ink truncate">
-            {lesson.title}
-          </div>
-          {lesson.durationMinutes && (
-            <div className="font-body text-xs text-ink-faint">
-              {fmtDuration(lesson.durationMinutes)}
-            </div>
-          )}
-          {lesson.type === 'PDF' && lesson.allowDownload && fileSrc && (
+      <LessonFooter
+        title={lesson.title}
+        durationMinutes={lesson.durationMinutes}
+        completed={lesson.completed}
+        completing={completing}
+        onComplete={onComplete}
+        onPrevious={onPrevious}
+        onNext={onNext}
+        hasPrevious={hasPrevious}
+        hasNext={hasNext}
+        extra={
+          lesson.type === 'PDF' && lesson.allowDownload && fileSrc ? (
             <a
               href={fileSrc}
               download={`${lesson.title}.pdf`}
@@ -447,24 +419,9 @@ export function ContentPlayer({
             >
               Descarregar PDF
             </a>
-          )}
-        </div>
-        <Button
-          onClick={onComplete}
-          disabled={completing || lesson.completed}
-          intent={lesson.completed ? 'secondary' : 'primary'}
-        >
-          {lesson.completed ? (
-            <>
-              <Check size={16} strokeWidth={1.75} /> Concluída
-            </>
-          ) : completing ? (
-            'A marcar…'
-          ) : (
-            'Marcar como concluída →'
-          )}
-        </Button>
-      </div>
+          ) : null
+        }
+      />
     </div>
   );
 }

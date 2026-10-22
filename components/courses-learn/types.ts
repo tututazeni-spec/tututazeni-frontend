@@ -62,6 +62,8 @@ export interface LessonProgress {
   // quando o utilizador não está inscrito no curso — ver
   // course-modules.service.getLessonProgress.
   contentUrl: string | null;
+  // PDF carregado na plataforma: não vem no JSON, pede-se a GET /lessons/:id/file.
+  hasFile?: boolean;
   textContent: string | null;
   captionsUrl: string | null;
   transcript: string | null;
