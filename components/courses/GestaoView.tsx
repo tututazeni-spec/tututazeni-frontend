@@ -12,7 +12,9 @@ import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { MoreHorizontal, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -34,6 +36,8 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
+import { ShortcutPills } from '@/components/ui/Pills';
+import { RecycleBinView } from './RecycleBinView';
 import { Select } from '@/components/ui/Select';
 import { COURSE_MODALITY_LABELS, COURSE_TYPE_LABELS, Skeleton } from './shared';
 import type { Course, PaginatedCourses } from './types';
@@ -77,6 +81,9 @@ export function GestaoView({
 }: GestaoViewProps) {
   const confirm = useConfirm();
   const toast = useToast();
+  // Espelha @Roles(ADMIN, RH) de DELETE /courses/:id.
+  const role = useCurrentRole();
+  const canDelete = !!role && ADMIN_ROLES.includes(role);
   const [filters, setFilters] = useState({
     search: '',
     category: '',
@@ -86,6 +93,7 @@ export function GestaoView({
     departmentId: '',
     page: 1,
   });
+  const [showRecycle, setShowRecycle] = useState(false);
   const [addModuleFor, setAddModuleFor] = useState<number | null>(null);
   const [editCourseId, setEditCourseId] = useState<number | null>(null);
   const [pendingFor, setPendingFor] = useState<Course | null>(null);
@@ -186,7 +194,11 @@ export function GestaoView({
     (id: number) => apiClient.delete(`/courses/${id}`),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Curso eliminado.', intent: 'success' }),
+      onSuccess: () =>
+        toast({
+          title: 'Curso movido para a reciclagem. Podes restaurá-lo durante 30 dias.',
+          intent: 'success',
+        }),
       onError: toastError,
     },
   );
@@ -216,6 +228,8 @@ export function GestaoView({
   async function onDelete(c: Course) {
     const ok = await confirm({
       title: `Eliminar "${c.title}"?`,
+      message:
+        'Vai para a reciclagem e pode ser restaurado durante 30 dias. Depois é apagado em definitivo.',
       confirmLabel: 'Eliminar',
       destructive: true,
     });
@@ -223,6 +237,20 @@ export function GestaoView({
   }
 
   const courses = data?.data ?? [];
+
+  if (showRecycle) {
+    return (
+      <div>
+        <ShortcutPills
+          className="mb-4"
+          items={[
+            { label: '← Voltar aos cursos', onClick: () => setShowRecycle(false) },
+          ]}
+        />
+        <RecycleBinView />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -284,7 +312,12 @@ export function GestaoView({
               className="w-full lg:col-span-2"
             />
           </div>
-          <div className="flex justify-end">
+          <div className="flex items-center justify-between gap-3">
+            <ShortcutPills
+              items={[
+                { label: 'Reciclagem', onClick: () => setShowRecycle(true) },
+              ]}
+            />
             <span className="text-sm text-black">
               {data?.total ?? 0} cursos
             </span>
@@ -412,8 +445,11 @@ export function GestaoView({
                               Pedidos de inscrição
                             </DropdownMenuItem>
                           )}
-                          {(c.status === 'DRAFT' ||
-                            c.status === 'ARCHIVED') && (
+                          {canDelete &&
+                            !(
+                              c.status === 'PUBLISHED' &&
+                              c._count.enrollments > 0
+                            ) && (
                             <>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem

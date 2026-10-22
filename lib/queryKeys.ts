@@ -648,6 +648,8 @@ export const queryKeys = {
   search: {
     all: ['search'] as const,
     suggestions: () => [...queryKeys.search.all, 'suggestions'] as const,
+    autocomplete: (q: string) =>
+      [...queryKeys.search.all, 'autocomplete', q] as const,
     history: () => [...queryKeys.search.all, 'history'] as const,
   },
 

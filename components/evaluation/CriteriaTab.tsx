@@ -61,6 +61,13 @@ export function CriteriaTab() {
       }),
     {
       invalidateKeys: [queryKeys.evaluation.criteria()],
+      optimistic: {
+        key: queryKeys.evaluation.criteria(criteriaParams),
+        update: (prev: EvalCriteria[] | undefined, c) =>
+          prev?.map((x) =>
+            x.id === c.id ? { ...x, isActive: !c.isActive } : x,
+          ),
+      },
       onSuccess: () =>
         notify({ title: 'Estado do critério actualizado', intent: 'success' }),
     },

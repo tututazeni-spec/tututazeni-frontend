@@ -76,7 +76,7 @@ export function ModuleModal({
     description: editing?.description ?? '',
     thumbnailUrl: editing?.thumbnailUrl ?? '',
     seq: editing?.seq ?? 1,
-    status: editing?.status ?? 'DRAFT',
+    status: editing?.status ?? 'PUBLISHED',
     type: editing?.type ?? '',
     progressionType: editing?.progressionType ?? 'SEQUENTIAL',
     mandatory: editing?.mandatory ?? true,

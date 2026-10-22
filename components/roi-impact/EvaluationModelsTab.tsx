@@ -44,6 +44,18 @@ export function EvaluationModelsTab() {
       }),
     {
       invalidateKeys: [queryKeys.roiImpact.evaluationModels()],
+      optimistic: {
+        key: queryKeys.roiImpact.evaluationModels(),
+        update: (prev: RoiEvaluationModelRow[] | undefined, m) =>
+          prev?.map((x) =>
+            x.id === m.id
+              ? {
+                  ...x,
+                  status: m.status === 'ACTIVO' ? ('INACTIVO' as const) : ('ACTIVO' as const),
+                }
+              : x,
+          ),
+      },
       onSuccess: () =>
         notify({ title: 'Estado actualizado', intent: 'success' }),
       onError: (e) =>

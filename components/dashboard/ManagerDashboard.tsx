@@ -39,6 +39,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { AlertBanner } from './AlertBanner';
 import { ALERTS_POLL_MS, type Alert, type ManagerDashboardData } from './types';
+import { pollInterval } from '@/lib/polling';
 
 const PERIODS = [
   { id: 'WEEK', label: 'Semana' },
@@ -60,7 +61,7 @@ export function ManagerDashboard() {
   const { data: alerts = [] } = useApiQuery<Alert[]>(
     queryKeys.dashboard.alerts(),
     '/dashboard/alerts',
-    { refetchInterval: ALERTS_POLL_MS },
+    { refetchInterval: pollInterval(ALERTS_POLL_MS) },
   );
 
   if (isLoading)

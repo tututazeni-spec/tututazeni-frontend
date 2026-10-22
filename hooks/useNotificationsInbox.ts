@@ -16,6 +16,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { NotifData, Notification } from '@/components/notifications/types';
+import { pollInterval } from '@/lib/polling';
 
 export type ReadFilter = 'all' | 'unread' | 'read';
 
@@ -36,7 +37,7 @@ export function useNotificationsInbox(
   const { data, isLoading: loading } = useApiQuery<NotifData>(
     listKey,
     '/notifications/my',
-    { params, staleTime: STALE_TIME.DYNAMIC, refetchInterval: 60_000 },
+    { params, staleTime: STALE_TIME.DYNAMIC, refetchInterval: pollInterval(60_000) },
   );
 
   // Marcar lida: optimistic na lista activa + no badge global; rollback em erro.

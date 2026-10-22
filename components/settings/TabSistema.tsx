@@ -21,6 +21,7 @@ import type {
   SystemSettingsView,
   SystemStatus,
 } from './types';
+import { pollInterval } from '@/lib/polling';
 
 function fmtUptime(s: number) {
   const d = Math.floor(s / 86400);
@@ -39,7 +40,7 @@ export function TabSistema() {
     queryKeys.settings.systemStatus(),
     '/settings/system/status',
     {
-      refetchInterval: 10_000,
+      refetchInterval: pollInterval(10_000),
     },
   );
   const [form, setForm] = useState<SystemSettingsForm | null>(null);
