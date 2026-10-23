@@ -556,6 +556,17 @@ export function LoginView({
               </div>
             </div>
 
+            {!useLdap && (
+              <div style={{ textAlign: 'right', margin: '-6px 0 14px' }}>
+                <a
+                  href="/auth/forgot-password"
+                  style={{ color: '#fff', fontSize: 13, textDecoration: 'underline' }}
+                >
+                  Esqueci a senha
+                </a>
+              </div>
+            )}
+
             {!(useLdap ? ldapError : error) && notice && (
               <div className="login-notice" role="status">
                 {notice}

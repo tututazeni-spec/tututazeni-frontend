@@ -8,7 +8,7 @@ import { buildCsp, parseImageHosts } from './lib/csp';
 const PUBLIC_PATHS = ['/login'];
 // Rotas totalmente abertas (verificação pública de certificados): acessíveis
 // com ou sem login e sem qualquer redireccionamento.
-const OPEN_PATHS = ['/verify', '/health'];
+const OPEN_PATHS = ['/verify', '/health', '/auth/reset-password', '/auth/forgot-password'];
 
 function route(request: NextRequest, requestHeaders: Headers) {
   const next = () => NextResponse.next({ request: { headers: requestHeaders } });
