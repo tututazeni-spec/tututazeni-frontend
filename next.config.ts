@@ -32,10 +32,12 @@ const nextConfig: NextConfig = {
   },
   images: {
     // https apenas — imagens http:// eram mixed content (achado F2).
-    remotePatterns: (imageHosts.length ? imageHosts : ['**']).map((hostname) => ({
-      protocol: 'https' as const,
-      hostname,
-    })),
+    remotePatterns: (imageHosts.length ? imageHosts : ['**']).map(
+      (hostname) => ({
+        protocol: 'https' as const,
+        hostname,
+      }),
+    ),
   },
   // simli-client@3.0.3 faz require('./transports/...') e require('../signaling/...')
   // mas o pacote publica as pastas como `Transports/` e `Signaling/`. Em
