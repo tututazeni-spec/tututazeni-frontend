@@ -48,6 +48,7 @@ export function middleware(request: NextRequest) {
     nonce,
     isDev: process.env.NODE_ENV !== 'production',
     imageHosts: parseImageHosts(process.env.IMG_ALLOWED_HOSTS),
+    jitsiDomain: process.env.JITSI_DOMAIN,
   });
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-nonce', nonce);

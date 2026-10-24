@@ -27,6 +27,7 @@ declare global {
 
 export interface JitsiOptions {
   roomName: string;
+  jwt?: string;
   parentNode: HTMLElement;
   width?: string | number;
   height?: string | number;
