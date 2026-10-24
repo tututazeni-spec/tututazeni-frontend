@@ -25,7 +25,7 @@ import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { sanitizeHtml } from '@/lib/sanitize';
+import { SafeHtml } from '@/components/ui/SafeHtml';
 import { formatDate as fmtDate } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
@@ -193,9 +193,9 @@ export function ArticleDetailView({
 
         {/* Content */}
         <div className="mb-5 rounded-card border border-border bg-surface p-6">
-          <div
+          <SafeHtml
             className="prose prose-sm max-w-none text-ink"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
+            html={article.content}
           />
         </div>
 

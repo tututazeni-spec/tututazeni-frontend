@@ -25,6 +25,13 @@ const imageHosts = (process.env.IMG_ALLOWED_HOSTS ?? '')
   .map((h) => h.trim())
   .filter(Boolean);
 
+if (process.env.NODE_ENV === 'production' && imageHosts.length === 0) {
+  console.warn(
+    '[security] IMG_ALLOWED_HOSTS vazio: img-src da CSP e next/image aceitam imagens de QUALQUER https. ' +
+      'Defina os hostnames do storage/CDN em produção.',
+  );
+}
+
 const nextConfig: NextConfig = {
   output: 'standalone',
   experimental: {

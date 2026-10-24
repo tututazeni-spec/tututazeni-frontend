@@ -37,7 +37,22 @@ function isApiRequest(url: string): boolean {
 // qualquer escrita autenticada por cookie que não o traga.
 const CSRF_HEADER = 'X-Requested-With';
 const CSRF_HEADER_VALUE = 'XMLHttpRequest';
+// Token double-submit assinado: o backend emite o cookie (legível por JS) csrf_token no login/refresh
+// e em qualquer GET de uma sessão que ainda o não tenha; copiamo-lo para este cabeçalho. Sem o cookie
+// (sessão anterior a esta defesa) o cabeçalho não é enviado e o backend aceita só X-Requested-With.
+const CSRF_COOKIE = 'csrf_token';
+const CSRF_TOKEN_HEADER = 'X-CSRF-Token';
 const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+
+export function readCsrfToken(cookieString?: string): string | null {
+  const source =
+    cookieString ?? (typeof document === 'undefined' ? '' : document.cookie);
+  for (const part of source.split(';')) {
+    const [name, ...rest] = part.trim().split('=');
+    if (name === CSRF_COOKIE) return decodeURIComponent(rest.join('='));
+  }
+  return null;
+}
 
 function isStateChanging(method: string | undefined): boolean {
   return STATE_CHANGING_METHODS.has((method ?? 'GET').toUpperCase());
@@ -65,6 +80,8 @@ export function installApiFetch(): void {
     if (api && isStateChanging(init?.method)) {
       const headers = new Headers(init?.headers);
       headers.set(CSRF_HEADER, CSRF_HEADER_VALUE);
+      const csrfToken = readCsrfToken();
+      if (csrfToken) headers.set(CSRF_TOKEN_HEADER, csrfToken);
       init = { ...init, headers };
     }
 
