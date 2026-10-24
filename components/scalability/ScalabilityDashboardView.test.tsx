@@ -33,13 +33,94 @@ vi.mock('./ContentDeliveryConfigModal', () => ({
   ContentDeliveryConfigModal: () => <div>[ContentDeliveryConfigModal]</div>,
 }));
 
-import { ScalabilityDashboardView } from './ScalabilityDashboardView';
+import {
+  ScalabilityShell,
+  OverviewTab,
+  PerformanceTab,
+  IntegrationsTab,
+  AutomationsTab,
+  AlertsTab,
+  SlaTab,
+  UsersTab,
+  ContentTab,
+  QueuesTab,
+  StorageTab,
+  ApiTab,
+  DatabaseTab,
+} from './ScalabilityDashboardView';
 import type {
   DashboardData,
   Alert,
   Integration,
   AutomationRule,
+  SlaConfig,
+  ContentDeliveryConfig,
+  QueueMetricsData,
+  StorageMetricsData,
 } from './types';
+
+// A casca já não recebe dados — os painéis ligados (ScalabilityPanels) vão
+// buscá-los por hooks. Estes testes cobrem as abas apresentacionais, por isso
+// montamos aqui a casca com as abas alimentadas por props, como o container
+// fazia antes de os painéis passarem a ler os seus próprios dados.
+interface HarnessProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  dashboard: DashboardData;
+  alerts: Alert[];
+  integrations: Integration[];
+  automations: AutomationRule[];
+  slaConfigs: SlaConfig[];
+  contentDelivery: ContentDeliveryConfig | null;
+  lastRefresh: Date;
+  onRefresh: () => void;
+  onSyncIntegration: (id: number) => void;
+  onExecuteRule: (id: number) => void;
+  onResolveAlert: (id: string) => void;
+  queueMetrics?: QueueMetricsData | null;
+  storageMetrics?: StorageMetricsData | null;
+}
+
+function ScalabilityDashboardView(p: HarnessProps) {
+  const panels = {
+    overview: <OverviewTab data={p.dashboard} charts={null} />,
+    performance: <PerformanceTab data={p.dashboard} perf={null} />,
+    integrations: (
+      <IntegrationsTab
+        tenantId={p.dashboard.tenantInfo.id}
+        integrations={p.integrations}
+        metrics={null}
+        onSync={p.onSyncIntegration}
+      />
+    ),
+    automations: (
+      <AutomationsTab rules={p.automations} onExecute={p.onExecuteRule} />
+    ),
+    alerts: <AlertsTab alerts={p.alerts} onResolve={p.onResolveAlert} />,
+    sla: <SlaTab data={p.dashboard} slaConfigs={p.slaConfigs} />,
+    users: <UsersTab data={p.dashboard} load={null} />,
+    api: <ApiTab api={null} />,
+    database: <DatabaseTab db={null} />,
+    content: (
+      <ContentTab
+        tenantId={p.dashboard.tenantInfo.id}
+        config={p.contentDelivery}
+        frontend={null}
+      />
+    ),
+    queues: <QueuesTab queues={p.queueMetrics ?? null} />,
+    storage: <StorageTab storage={p.storageMetrics ?? null} />,
+  };
+  return (
+    <ScalabilityShell
+      activeTab={p.activeTab}
+      onTabChange={p.onTabChange}
+      panels={panels}
+      alerts={p.alerts}
+      lastRefresh={p.lastRefresh}
+    />
+  );
+}
 
 const DASHBOARD: DashboardData = {
   tenantInfo: {

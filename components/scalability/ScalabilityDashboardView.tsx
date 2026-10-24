@@ -1,7 +1,7 @@
 // components/scalability/ScalabilityDashboardView.tsx
-// Vista apresentacional do módulo de Escalabilidade — sem estado próprio,
-// sem fetch, sem efeitos. Recebe todos os dados e callbacks via props do
-// container (app/(platform)/scalability/page.tsx).
+// Abas apresentacionais + casca (layout) do módulo de Escalabilidade — sem estado de dados,
+// sem fetch. Cada aba recebe os dados por props dos painéis ligados em
+// ScalabilityPanels.tsx; a casca (ScalabilityShell) só trata de layout.
 //
 // Migrado para a fundação de design light-theme (tokens canvas/surface/ink,
 // componentes partilhados em components/ui/). Antes era um dashboard em tema
@@ -13,7 +13,7 @@
 'use client';
 
 import { PeriodPills } from '@/components/ui/Pills';
-import { useId, useState } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
 import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
@@ -71,27 +71,7 @@ import { CreateRuleModal } from '@/components/automation/CreateRuleModal';
 import { ImportUsersModal } from './ImportUsersModal';
 import { NewIntegrationModal } from './NewIntegrationModal';
 import { LoadTestModal } from './LoadTestModal';
-import {
-  AutoScalingTab,
-  CapacityTab,
-  CardTitleBar,
-  ResilienceTab,
-} from './InfraTabs';
-import { ForecastsTab, IncidentsTab } from './IncidentsForecastsTabs';
-import {
-  AlertRulesSection,
-  CostsTab,
-  LoadTestsTab,
-} from './LoadTestsCostsAlertsTabs';
-import { ReportsTab, SettingsTab } from './ReportsSettingsTabs';
-import {
-  EndpointHistoryChart,
-  HourlyHistoryCharts,
-  QueueHistoryChart,
-  RecommendationsCard,
-} from './HistoryCharts';
-import { WhatIfPanel } from './WhatIfPanel';
-import { RetentionStatusCard } from './RetentionStatusCard';
+import { CardTitleBar } from './InfraTabs';
 import { RenameTenantModal } from './RenameTenantModal';
 import { SlaConfigModal } from './SlaConfigModal';
 import { ContentDeliveryConfigModal } from './ContentDeliveryConfigModal';
@@ -109,26 +89,6 @@ import type {
   StorageMetricsData,
   IntegrationMetricsData,
   PerformanceMetricsData,
-  CapacityMetricsData,
-  AutoScalingData,
-  AutoScalingUpdate,
-  ResilienceData,
-  ResilienceUpdate,
-  IncidentsData,
-  IncidentCreate,
-  IncidentUpdate,
-  ForecastsData,
-  LoadTestsData,
-  LoadTestCreate,
-  LoadTestUpdate,
-  CostsData,
-  CostsSave,
-  AlertRulesData,
-  ReportCatalogData,
-  ReportData,
-  ReportFormat,
-  SettingsData,
-  SettingsUpdate,
   PerfClass,
   PageStatus,
   Alert,
@@ -850,7 +810,7 @@ interface OverviewTabProps {
   charts: OverviewChartsData | null;
 }
 
-function OverviewTab({ data, charts }: OverviewTabProps) {
+export function OverviewTab({ data, charts }: OverviewTabProps) {
   const {
     tenantInfo: t,
     performanceSummary: p,
@@ -1123,7 +1083,7 @@ interface PerformanceTabProps {
   perf?: PerformanceMetricsData | null;
 }
 
-function PerformanceTab({ data, perf = null }: PerformanceTabProps) {
+export function PerformanceTab({ data, perf = null }: PerformanceTabProps) {
   const p = data.performanceSummary;
   const [configuring, setConfiguring] = useState(false);
   const metrics = [
@@ -1369,7 +1329,7 @@ function IntegrationMetrics({ m }: { m: IntegrationMetricsData }) {
   );
 }
 
-function IntegrationsTab({
+export function IntegrationsTab({
   tenantId,
   integrations,
   metrics = null,
@@ -1494,7 +1454,7 @@ interface AutomationsTabProps {
   onExecute: (id: number) => void;
 }
 
-function AutomationsTab({ rules, onExecute }: AutomationsTabProps) {
+export function AutomationsTab({ rules, onExecute }: AutomationsTabProps) {
   const [creatingRule, setCreatingRule] = useState(false);
   const triggerLabel: Record<string, string> = {
     USER_HIRED: 'Contratação',
@@ -1606,7 +1566,7 @@ const ALERT_FILTERS: Array<{
   { key: 'WARNING', label: 'Avisos', icon: Bell },
 ];
 
-function AlertsTab({ alerts, onResolve }: AlertsTabProps) {
+export function AlertsTab({ alerts, onResolve }: AlertsTabProps) {
   const [filter, setFilter] = useState<AlertFilter>('ALL');
   const shown =
     filter === 'ALL' ? alerts : alerts.filter((a) => a.severity === filter);
@@ -1695,7 +1655,7 @@ interface SlaTabProps {
   slaConfigs: SlaConfig[];
 }
 
-function SlaTab({ data, slaConfigs }: SlaTabProps) {
+export function SlaTab({ data, slaConfigs }: SlaTabProps) {
   const { slaCompliance: s, tenantInfo: t } = data;
   const [configuring, setConfiguring] = useState(false);
   const complianceScore = Math.min(
@@ -1953,7 +1913,7 @@ function SegmentTable({ rows }: { rows: UsersLoadSegmentRow[] }) {
   );
 }
 
-function UsersTab({ data, load }: UsersTabProps) {
+export function UsersTab({ data, load }: UsersTabProps) {
   const { tenantInfo: t } = data;
   const [importing, setImporting] = useState(false);
   const [segment, setSegment] =
@@ -2416,7 +2376,7 @@ function FrontendPerfSection({ data }: { data: FrontendMetricsData | null }) {
   );
 }
 
-function ContentTab({ tenantId, config, frontend = null }: ContentTabProps) {
+export function ContentTab({ tenantId, config, frontend = null }: ContentTabProps) {
   const [configuring, setConfiguring] = useState(false);
 
   if (!config) {
@@ -2553,7 +2513,7 @@ const ENDPOINT_STATE: Record<
   CRITICO: { label: 'Crítico', intent: 'danger' },
 };
 
-function ApiTab({ api }: { api: ApiMetricsData | null }) {
+export function ApiTab({ api }: { api: ApiMetricsData | null }) {
   if (!api) {
     return (
       <EmptyState
@@ -2696,7 +2656,7 @@ const GROWTH_WINDOWS: Array<{ key: '7d' | '30d' | '90d' | '1y'; label: string }>
   { key: '1y', label: '1 ano' },
 ];
 
-function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
+export function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
   const [win, setWin] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
   if (!db) {
     return (
@@ -2984,7 +2944,7 @@ const SYNC_DOMAIN_LABELS: Record<string, string> = {
   'Avatar Training': 'Formação com avatar',
 };
 
-function QueuesTab({ queues }: { queues: QueueMetricsData | null }) {
+export function QueuesTab({ queues }: { queues: QueueMetricsData | null }) {
   if (!queues) {
     return (
       <EmptyState
@@ -3249,7 +3209,7 @@ function StorageBreakdown({
   );
 }
 
-function StorageTab({ storage }: { storage: StorageMetricsData | null }) {
+export function StorageTab({ storage }: { storage: StorageMetricsData | null }) {
   if (!storage) {
     return (
       <EmptyState
@@ -3374,7 +3334,7 @@ function StorageTab({ storage }: { storage: StorageMetricsData | null }) {
 
 // ─── TABS CONFIG ──────────────────────────────────────────
 
-const TABS: PillTabItem[] = [
+export const TABS: PillTabItem[] = [
   { id: 'overview', label: 'Visão Geral', hint: 'Estado geral', icon: LayoutDashboard },
   { id: 'performance', label: 'Performance', hint: 'Latência e erros', icon: Gauge },
   { id: 'integrations', label: 'Integrações', hint: 'Sistemas ligados', icon: Plug },
@@ -3398,139 +3358,28 @@ const TABS: PillTabItem[] = [
   { id: 'settings', label: 'Configurações', hint: 'Limiares e opções', icon: Settings },
 ];
 
-// ─── DASHBOARD VIEW (apresentacional — sem estado, sem fetch) ──────────────
+// ─── CASCA DO DASHBOARD (layout + separadores; cada aba vem como painel) ───
+//
+// A casca só sabe de layout: banner, separadores e qual painel mostrar. Os
+// painéis (ScalabilityPanels.tsx) vão buscar os seus próprios dados, por isso
+// já não há props de dados aqui. Só montam quando a aba está activa.
 
-export interface ScalabilityDashboardViewProps {
+export interface ScalabilityShellProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  dashboard: DashboardData;
-  overviewCharts?: OverviewChartsData | null;
-  usersLoad?: UsersLoadData | null;
-  apiMetrics?: ApiMetricsData | null;
-  databaseMetrics?: DatabaseMetricsData | null;
-  frontendMetrics?: FrontendMetricsData | null;
-  queueMetrics?: QueueMetricsData | null;
-  storageMetrics?: StorageMetricsData | null;
-  integrationMetrics?: IntegrationMetricsData | null;
-  performanceMetrics?: PerformanceMetricsData | null;
-  capacityMetrics?: CapacityMetricsData | null;
-  autoScaling?: AutoScalingData | null;
-  resilience?: ResilienceData | null;
-  /** só ADMIN pode alterar limites, política de scaling e resiliência */
-  canEditInfra?: boolean;
-  infraSaving?: boolean;
-  onSaveCapacityLimits?: (v: {
-    maxConcurrentUsers: number;
-    maxApiRps: number;
-  }) => void;
-  onSaveAutoScaling?: (v: AutoScalingUpdate) => void;
-  onSaveResilience?: (v: ResilienceUpdate) => void;
-  incidents?: IncidentsData | null;
-  forecasts?: ForecastsData | null;
-  incidentSaving?: boolean;
-  forecastSaving?: boolean;
-  onCreateIncident?: (v: IncidentCreate, done: () => void) => void;
-  onUpdateIncident?: (
-    id: string,
-    v: IncidentUpdate,
-    done: () => void,
-  ) => void;
-  onSaveDbCapacity?: (gb: number | null) => void;
-  loadTests?: LoadTestsData | null;
-  costs?: CostsData | null;
-  alertRules?: AlertRulesData | null;
-  loadTestSaving?: boolean;
-  costsSaving?: boolean;
-  alertsEvaluating?: boolean;
-  reportCatalog?: ReportCatalogData | null;
-  report?: ReportData | null;
-  selectedReport?: string | null;
-  reportLoading?: boolean;
-  reportExporting?: ReportFormat | null;
-  onSelectReport?: (type: string) => void;
-  onExportReport?: (type: string, format: ReportFormat) => void;
-  settings?: SettingsData | null;
-  settingsSaving?: boolean;
-  onSaveSettings?: (v: SettingsUpdate, done: () => void) => void;
-  onCreateLoadTest?: (v: LoadTestCreate, done: () => void) => void;
-  onUpdateLoadTest?: (
-    id: string,
-    v: LoadTestUpdate,
-    done: () => void,
-  ) => void;
-  onSaveCosts?: (v: CostsSave, done: () => void) => void;
-  onEvaluateAlerts?: () => void;
+  /** Conteúdo de cada aba, indexado pelo id em TABS. */
+  panels: Record<string, ReactNode>;
   alerts: Alert[];
-  integrations: Integration[];
-  automations: AutomationRule[];
-  slaConfigs: SlaConfig[];
-  contentDelivery: ContentDeliveryConfig | null;
   lastRefresh: Date;
-  onRefresh: () => void;
-  onSyncIntegration: (id: number) => void;
-  onExecuteRule: (id: number) => void;
-  onResolveAlert: (id: string) => void;
 }
 
-export function ScalabilityDashboardView({
+export function ScalabilityShell({
   activeTab,
   onTabChange,
-  dashboard,
-  overviewCharts = null,
-  usersLoad = null,
-  apiMetrics = null,
-  databaseMetrics = null,
-  frontendMetrics = null,
-  queueMetrics = null,
-  storageMetrics = null,
-  integrationMetrics = null,
-  performanceMetrics = null,
-  capacityMetrics = null,
-  autoScaling = null,
-  resilience = null,
-  canEditInfra = false,
-  infraSaving = false,
-  onSaveCapacityLimits = () => undefined,
-  onSaveAutoScaling = () => undefined,
-  onSaveResilience = () => undefined,
-  incidents = null,
-  forecasts = null,
-  incidentSaving = false,
-  forecastSaving = false,
-  onCreateIncident = () => undefined,
-  onUpdateIncident = () => undefined,
-  onSaveDbCapacity = () => undefined,
-  loadTests = null,
-  costs = null,
-  alertRules = null,
-  loadTestSaving = false,
-  costsSaving = false,
-  alertsEvaluating = false,
-  reportCatalog = null,
-  report = null,
-  selectedReport = null,
-  reportLoading = false,
-  reportExporting = null,
-  onSelectReport = () => undefined,
-  onExportReport = () => undefined,
-  settings = null,
-  settingsSaving = false,
-  onSaveSettings = () => undefined,
-  onCreateLoadTest = () => undefined,
-  onUpdateLoadTest = () => undefined,
-  onSaveCosts = () => undefined,
-  onEvaluateAlerts = () => undefined,
+  panels,
   alerts,
-  integrations,
-  automations,
-  slaConfigs,
-  contentDelivery,
   lastRefresh,
-  onRefresh,
-  onSyncIntegration,
-  onExecuteRule,
-  onResolveAlert,
-}: ScalabilityDashboardViewProps) {
+}: ScalabilityShellProps) {
   const openAlertCount = alerts.filter((a) => !a.isResolved).length;
   const criticalCount = alerts.filter(
     (a) => !a.isResolved && a.severity === 'CRITICAL',
@@ -3576,157 +3425,11 @@ export function ScalabilityDashboardView({
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
-          <TabsContent value="overview">
-            <OverviewTab data={dashboard} charts={overviewCharts} />
-          </TabsContent>
-          <TabsContent value="performance">
-            <PerformanceTab data={dashboard} perf={performanceMetrics} />
-            <div className="mt-6">
-              <EndpointHistoryChart />
-            </div>
-          </TabsContent>
-          <TabsContent value="integrations">
-            <IntegrationsTab
-              tenantId={dashboard.tenantInfo.id}
-              integrations={integrations}
-              metrics={integrationMetrics}
-              onSync={onSyncIntegration}
-            />
-          </TabsContent>
-          <TabsContent value="automations">
-            <AutomationsTab rules={automations} onExecute={onExecuteRule} />
-          </TabsContent>
-          <TabsContent value="alerts">
-            <div className="flex flex-col gap-8">
-              <AlertRulesSection
-                data={alertRules}
-                canEdit={canEditInfra}
-                evaluating={alertsEvaluating}
-                onEvaluate={onEvaluateAlerts}
-              />
-              <AlertsTab alerts={alerts} onResolve={onResolveAlert} />
-            </div>
-          </TabsContent>
-          <TabsContent value="sla">
-            <SlaTab data={dashboard} slaConfigs={slaConfigs} />
-          </TabsContent>
-          <TabsContent value="users">
-            <UsersTab data={dashboard} load={usersLoad} />
-          </TabsContent>
-          <TabsContent value="api">
-            <ApiTab api={apiMetrics} />
-          </TabsContent>
-          <TabsContent value="database">
-            <DatabaseTab db={databaseMetrics} />
-          </TabsContent>
-          <TabsContent value="content">
-            <ContentTab
-              tenantId={dashboard.tenantInfo.id}
-              config={contentDelivery}
-              frontend={frontendMetrics}
-            />
-          </TabsContent>
-          <TabsContent value="queues">
-            <QueuesTab queues={queueMetrics} />
-            <div className="mt-6">
-              <QueueHistoryChart />
-            </div>
-          </TabsContent>
-          <TabsContent value="storage">
-            <StorageTab storage={storageMetrics} />
-          </TabsContent>
-          <TabsContent value="capacity">
-            <CapacityTab
-              key={JSON.stringify(capacityMetrics?.limits)}
-              capacity={capacityMetrics}
-              canEdit={canEditInfra}
-              saving={infraSaving}
-              onSaveLimits={onSaveCapacityLimits}
-            />
-            <div className="mt-6">
-              <WhatIfPanel />
-            </div>
-            <div className="mt-6">
-              <RecommendationsCard />
-            </div>
-            <div className="mt-6">
-              <HourlyHistoryCharts />
-            </div>
-          </TabsContent>
-          <TabsContent value="autoscaling">
-            <AutoScalingTab
-              key={autoScaling?.policy.updatedAt}
-              data={autoScaling}
-              canEdit={canEditInfra}
-              saving={infraSaving}
-              onSave={onSaveAutoScaling}
-            />
-          </TabsContent>
-          <TabsContent value="resilience">
-            <ResilienceTab
-              key={JSON.stringify(resilience?.indicators)}
-              data={resilience}
-              canEdit={canEditInfra}
-              saving={infraSaving}
-              onSave={onSaveResilience}
-            />
-          </TabsContent>
-          <TabsContent value="incidents">
-            <IncidentsTab
-              data={incidents}
-              canEdit={canEditInfra}
-              saving={incidentSaving}
-              onCreate={onCreateIncident}
-              onUpdate={onUpdateIncident}
-            />
-          </TabsContent>
-          <TabsContent value="forecasts">
-            <ForecastsTab
-              data={forecasts}
-              canEdit={canEditInfra}
-              saving={forecastSaving}
-              onSaveDbCapacity={onSaveDbCapacity}
-            />
-          </TabsContent>
-          <TabsContent value="loadtests">
-            <LoadTestsTab
-              data={loadTests}
-              canEdit={canEditInfra}
-              saving={loadTestSaving}
-              onCreate={onCreateLoadTest}
-              onUpdate={onUpdateLoadTest}
-            />
-          </TabsContent>
-          <TabsContent value="costs">
-            <CostsTab
-              data={costs}
-              canEdit={canEditInfra}
-              saving={costsSaving}
-              onSave={onSaveCosts}
-            />
-          </TabsContent>
-          <TabsContent value="reports">
-            <ReportsTab
-              catalog={reportCatalog}
-              report={report}
-              selected={selectedReport}
-              loadingReport={reportLoading}
-              exporting={reportExporting}
-              onSelect={onSelectReport}
-              onExport={onExportReport}
-            />
-          </TabsContent>
-          <TabsContent value="settings">
-            <SettingsTab
-              data={settings}
-              canEdit={canEditInfra}
-              saving={settingsSaving}
-              onSave={onSaveSettings}
-            />
-            <div className="mt-6">
-              <RetentionStatusCard />
-            </div>
-          </TabsContent>
+          {TABS.map((tab) => (
+            <TabsContent key={tab.id} value={tab.id}>
+              {panels[tab.id]}
+            </TabsContent>
+          ))}
         </div>
       </Tabs>
     </div>
