@@ -5,11 +5,12 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
@@ -661,11 +662,7 @@ function SecurityPolicyCard({
   const query = useApiQuery<
     SecurityPolicy & { twoFactorModes: TwoFactorMode[] }
   >(queryKeys.settings.securityPolicy(), '/settings/security/policy');
-  const [form, setForm] = useState<SecurityPolicy | null>(null);
-
-  useEffect(() => {
-    if (query.data) setForm(query.data);
-  }, [query.data]);
+  const [form, setForm] = useServerDraft<SecurityPolicy>(query.data);
 
   const save = useApiMutation(
     (payload: SecurityPolicy) =>

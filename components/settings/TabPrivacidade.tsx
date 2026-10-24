@@ -6,10 +6,11 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -91,21 +92,21 @@ export function TabPrivacidade() {
     queryKeys.settings.privacy(),
     '/settings/privacy',
   );
-  const [form, setForm] = useState<Omit<
-    PrivacySettings,
-    'consentVersions' | 'currentConsentVersion' | 'openRequests'
-  > | null>(null);
-  useEffect(() => {
-    if (data) {
-      const {
-        consentVersions: _cv,
-        currentConsentVersion: _ccv,
-        openRequests: _or,
-        ...rest
-      } = data;
-      setForm(rest);
-    }
-  }, [data]);
+  const [form, setForm] = useServerDraft<
+    Omit<
+      PrivacySettings,
+      'consentVersions' | 'currentConsentVersion' | 'openRequests'
+    >,
+    PrivacySettings
+  >(
+    data,
+    ({
+      consentVersions: _cv,
+      currentConsentVersion: _ccv,
+      openRequests: _or,
+      ...rest
+    }) => rest,
+  );
 
   const save = useApiMutation(
     (payload: typeof form) => apiClient.put('/settings/privacy', payload),

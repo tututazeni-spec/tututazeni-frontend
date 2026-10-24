@@ -5,10 +5,10 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -64,19 +64,10 @@ export function TabNotificacoes() {
     queryKeys.settings.notifications(),
     '/settings/notifications',
   );
-  const [form, setForm] = useState<Form | null>(null);
-
-  useEffect(() => {
-    if (data) {
-      const {
-        eventKeys: _k,
-        activeTemplates: _t,
-        timeZone: _tz,
-        ...rest
-      } = data;
-      setForm(rest);
-    }
-  }, [data]);
+  const [form, setForm] = useServerDraft<Form, NotificationSettings>(
+    data,
+    ({ eventKeys: _k, activeTemplates: _t, timeZone: _tz, ...rest }) => rest,
+  );
 
   const save = useApiMutation(
     (payload: Form) => apiClient.put('/settings/notifications', payload),

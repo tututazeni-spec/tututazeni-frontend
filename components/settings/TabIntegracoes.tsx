@@ -5,10 +5,11 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useToast } from '@/providers/ToastProvider';
 import { KeyRound, MailCheck, Webhook } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
@@ -86,19 +87,11 @@ export function TabIntegracoes() {
     '/settings/integrations/overview',
   );
 
-  const [smtp, setSmtp] = useState<SmtpForm | null>(null);
+  const [smtp, setSmtp] = useServerDraft<SmtpForm>(data?.smtp);
   const [smtpPassword, setSmtpPassword] = useState('');
-  const [whatsapp, setWhatsapp] = useState<WhatsAppForm | null>(null);
+  const [whatsapp, setWhatsapp] = useServerDraft<WhatsAppForm>(data?.whatsapp);
   const [waToken, setWaToken] = useState('');
-  const [isis, setIsis] = useState<IsisForm | null>(null);
-
-  useEffect(() => {
-    if (data) {
-      setSmtp(data.smtp);
-      setWhatsapp(data.whatsapp);
-      setIsis(data.isis);
-    }
-  }, [data]);
+  const [isis, setIsis] = useServerDraft<IsisForm>(data?.isis);
 
   const save = useApiMutation(
     (payload: {

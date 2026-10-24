@@ -5,10 +5,11 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useToast } from '@/providers/ToastProvider';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { Badge } from '@/components/ui/Badge';
@@ -91,10 +92,7 @@ export function TabCertificados() {
     '/settings/certificates/templates',
   );
 
-  const [form, setForm] = useState<CertificateSettings | null>(null);
-  useEffect(() => {
-    if (data) setForm(data);
-  }, [data]);
+  const [form, setForm] = useServerDraft<CertificateSettings>(data);
 
   const save = useApiMutation(
     (payload: Partial<CertificateSettings>) =>

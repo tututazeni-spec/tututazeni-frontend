@@ -5,10 +5,11 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -93,14 +94,13 @@ export function TabWhatsApp() {
     queryKeys.settings.whatsappSettings(),
     '/settings/whatsapp',
   );
-  const [form, setForm] = useState<Form | null>(null);
+  const [form, setForm] = useServerDraft<Form, WhatsAppSettingsView>(
+    data,
+    toForm,
+  );
   const [authToken, setAuthToken] = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [testTo, setTestTo] = useState('');
-
-  useEffect(() => {
-    if (data) setForm(toForm(data));
-  }, [data]);
 
   const metaTemplates = useApiQuery<WhatsAppMetaTemplate[]>(
     queryKeys.settings.whatsappMetaTemplates(),

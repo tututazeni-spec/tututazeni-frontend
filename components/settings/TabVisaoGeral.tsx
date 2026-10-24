@@ -4,10 +4,10 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -115,20 +115,19 @@ export function TabVisaoGeral() {
     queryKeys.settings.organization(),
     '/settings/organization',
   );
-  const [form, setForm] = useState<Form | null>(null);
-
-  useEffect(() => {
-    if (data) {
-      // updatedAt também vem no GET mas o DTO (whitelist) rejeita-o no PUT.
+  // updatedAt também vem no GET mas o DTO (whitelist) rejeita-o no PUT.
+  const [form, setForm] = useServerDraft<Form, OrganizationSettings>(
+    data,
+    (d) => {
       const {
         id: _id,
         tenantCode: _code,
         updatedAt: _upd,
         ...rest
-      } = data as OrganizationSettings & { updatedAt?: string | null };
-      setForm(rest);
-    }
-  }, [data]);
+      } = d as OrganizationSettings & { updatedAt?: string | null };
+      return rest;
+    },
+  );
 
   const save = useApiMutation(
     (payload: Partial<Form>) =>
