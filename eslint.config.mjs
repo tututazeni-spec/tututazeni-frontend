@@ -30,6 +30,15 @@ const eslintConfig = [
       // esta regra não há forma de saber quais. `warn` (não `error`): só
       // visibilidade, não bloqueia build/CI.
       'react-compiler/react-compiler': 'warn',
+      // HTML dinâmico só via <SafeHtml> (components/ui/SafeHtml.tsx), que sanitiza com DOMPurify.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
+          message:
+            'Use <SafeHtml html={...} /> (components/ui/SafeHtml) em vez de dangerouslySetInnerHTML.',
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
@@ -45,6 +54,11 @@ const eslintConfig = [
       // etc. (a regra só actua sobre `type X = { ... }`).
       '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
     },
+  },
+  {
+    // Único ficheiro autorizado a usar dangerouslySetInnerHTML (sanitiza com DOMPurify).
+    files: ['components/ui/SafeHtml.tsx'],
+    rules: { 'no-restricted-syntax': 'off' },
   },
 ];
 

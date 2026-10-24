@@ -10,6 +10,7 @@
 
 import { FileText } from 'lucide-react';
 import { lessonTextToHtml } from '@/lib/lessonHtml';
+import { SafeHtml } from '@/components/ui/SafeHtml';
 import { LessonAudioBar } from './LessonAudioBar';
 import { QuizPlayer } from './QuizPlayer';
 import { ActivityList, FileList } from './LessonExtras';
@@ -61,9 +62,9 @@ export function LessonReader({
       <h2 className="mb-4 font-display text-xl font-semibold text-ink">
         {lesson.title}
       </h2>
-      <div
+      <SafeHtml
         className={RICH_TEXT}
-        dangerouslySetInnerHTML={{ __html: html }}
+        html={html}
         // Ligações do texto abrem à parte: sair da página perdia o sítio na lição.
         onClick={(e) => {
           const a = (e.target as HTMLElement).closest('a');

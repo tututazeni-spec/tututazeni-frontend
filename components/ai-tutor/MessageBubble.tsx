@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import { Star } from 'lucide-react';
-import { sanitizeHtml } from '@/lib/sanitize';
+import { SafeHtml } from '@/components/ui/SafeHtml';
 import { formatDateTime as fmtDate } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
@@ -31,11 +31,7 @@ export function MessageBubble({ msg, onRate }: MessageBubbleProps) {
   };
 
   const bubbleContent = (
-    <span
-      dangerouslySetInnerHTML={{
-        __html: sanitizeHtml(formatContent(msg.content)),
-      }}
-    />
+    <SafeHtml as="span" html={formatContent(msg.content)} />
   );
 
   return (
