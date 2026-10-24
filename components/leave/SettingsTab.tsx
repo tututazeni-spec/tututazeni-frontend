@@ -33,7 +33,12 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/queryKeys';
-import { ABSENCE_TYPE_LABELS, CATEGORY_LABELS } from './constants';
+import { useHasRole } from '@/hooks/useCurrentRole';
+import {
+  ABSENCE_TYPE_LABELS,
+  CATEGORY_LABELS,
+  LEAVE_ADMIN_ROLES,
+} from './constants';
 import { DelegationsPanel } from './DelegationsPanel';
 import { HolidaysPanel } from './HolidaysPanel';
 import {
@@ -77,14 +82,62 @@ const SECTIONS: Array<{
   /** Secções que editam o rascunho de configurações (mostram a barra de gravar). */
   form: boolean;
 }> = [
-  { key: 'calendar', label: 'Calendário e contagem', icon: CalendarCog, adminOnly: true, form: true },
-  { key: 'holidays', label: 'Feriados', icon: CalendarClock, adminOnly: true, form: false },
-  { key: 'balances', label: 'Saldos e pedidos', icon: Scale, adminOnly: true, form: true },
-  { key: 'approvals', label: 'Aprovação e cancelamento', icon: CheckCircle2, adminOnly: true, form: true },
-  { key: 'absences', label: 'Ausências e permissões', icon: ShieldCheck, adminOnly: true, form: true },
-  { key: 'integrations', label: 'Integrações', icon: Plug, adminOnly: true, form: true },
-  { key: 'delegations', label: 'Substituições', icon: UserRoundCheck, adminOnly: false, form: false },
-  { key: 'history', label: 'Histórico', icon: History, adminOnly: true, form: false },
+  {
+    key: 'calendar',
+    label: 'Calendário e contagem',
+    icon: CalendarCog,
+    adminOnly: true,
+    form: true,
+  },
+  {
+    key: 'holidays',
+    label: 'Feriados',
+    icon: CalendarClock,
+    adminOnly: true,
+    form: false,
+  },
+  {
+    key: 'balances',
+    label: 'Saldos e pedidos',
+    icon: Scale,
+    adminOnly: true,
+    form: true,
+  },
+  {
+    key: 'approvals',
+    label: 'Aprovação e cancelamento',
+    icon: CheckCircle2,
+    adminOnly: true,
+    form: true,
+  },
+  {
+    key: 'absences',
+    label: 'Ausências e permissões',
+    icon: ShieldCheck,
+    adminOnly: true,
+    form: true,
+  },
+  {
+    key: 'integrations',
+    label: 'Integrações',
+    icon: Plug,
+    adminOnly: true,
+    form: true,
+  },
+  {
+    key: 'delegations',
+    label: 'Substituições',
+    icon: UserRoundCheck,
+    adminOnly: false,
+    form: false,
+  },
+  {
+    key: 'history',
+    label: 'Histórico',
+    icon: History,
+    adminOnly: true,
+    form: false,
+  },
 ];
 
 const OCCURRENCE_OPTIONS = (
@@ -101,11 +154,8 @@ const RULE_ITEMS = (Object.keys(DAY_COUNT_RULE_LABELS) as DayCountRule[]).map(
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-PT');
 
-export interface SettingsTabProps {
-  isAdmin: boolean;
-}
-
-export function SettingsTab({ isAdmin }: SettingsTabProps) {
+export function SettingsTab() {
+  const isAdmin = useHasRole(LEAVE_ADMIN_ROLES);
   const visible = SECTIONS.filter((s) => isAdmin || !s.adminOnly);
   const [section, setSection] = useState<SectionKey>(visible[0].key);
   const current = visible.find((s) => s.key === section) ?? visible[0];
@@ -137,7 +187,10 @@ export function SettingsTab({ isAdmin }: SettingsTabProps) {
       <div className="min-w-0 space-y-4">
         {current.form && isAdmin ? (
           error ? (
-            <QueryError error={error} title="Não foi possível carregar as configurações" />
+            <QueryError
+              error={error}
+              title="Não foi possível carregar as configurações"
+            />
           ) : loading || !data ? (
             <Skeleton rows={4} />
           ) : (
@@ -151,7 +204,7 @@ export function SettingsTab({ isAdmin }: SettingsTabProps) {
         ) : null}
 
         {current.key === 'holidays' && isAdmin && <HolidaysPanel />}
-        {current.key === 'delegations' && <DelegationsPanel isAdmin={isAdmin} />}
+        {current.key === 'delegations' && <DelegationsPanel />}
         {current.key === 'history' && isAdmin && <SettingsHistoryPanel />}
       </div>
     </div>
@@ -173,8 +226,10 @@ function SettingsForm({ overview, section }: SettingsFormProps) {
   const [changeNote, setChangeNote] = useState('');
   const [error, setError] = useState('');
 
-  const set = <K extends keyof LeaveSettings>(key: K, value: LeaveSettings[K]) =>
-    setDraft((d) => ({ ...d, [key]: value }));
+  const set = <K extends keyof LeaveSettings>(
+    key: K,
+    value: LeaveSettings[K],
+  ) => setDraft((d) => ({ ...d, [key]: value }));
 
   const changes = changedSettings(server, draft);
   const changedKeys = Object.keys(changes) as Array<keyof LeaveSettings>;
@@ -230,14 +285,16 @@ function SettingsForm({ overview, section }: SettingsFormProps) {
       {section === 'balances' && <BalancesSection draft={draft} set={set} />}
       {section === 'approvals' && <ApprovalsSection draft={draft} set={set} />}
       {section === 'absences' && <AbsencesSection draft={draft} set={set} />}
-      {section === 'integrations' && <IntegrationsSection draft={draft} set={set} />}
+      {section === 'integrations' && (
+        <IntegrationsSection draft={draft} set={set} />
+      )}
 
       {dirty && (
         <Card className="sticky bottom-4 z-10 space-y-3 overflow-hidden border-primary p-4 shadow-elevated">
           <div className="-mx-4 -mt-4 flex flex-wrap items-center justify-between gap-2 bg-[#0F1F3D]/60 px-4 py-3">
             <p className="text-sm font-semibold text-white">
-              {changedKeys.length} alteraç{changedKeys.length === 1 ? 'ão' : 'ões'}{' '}
-              por guardar
+              {changedKeys.length} alteraç
+              {changedKeys.length === 1 ? 'ão' : 'ões'} por guardar
             </p>
             <p className="text-xs text-ink-faint">
               {changedKeys.map((k) => SETTING_LABELS[k]).join(' · ')}
@@ -326,13 +383,19 @@ function CalendarSection({ draft, set }: SectionProps) {
             min={2000}
             max={2100}
           />
-          <FormField label="Período de férias: início" htmlFor="set-vac-start" hint="Mês-dia (MM-DD)">
+          <FormField
+            label="Período de férias: início"
+            htmlFor="set-vac-start"
+            hint="Mês-dia (MM-DD)"
+          >
             <Input
               id="set-vac-start"
               placeholder="06-01"
               maxLength={5}
               value={draft.vacationWindowStart ?? ''}
-              onChange={(e) => set('vacationWindowStart', e.target.value || null)}
+              onChange={(e) =>
+                set('vacationWindowStart', e.target.value || null)
+              }
               className="w-full"
             />
           </FormField>
@@ -341,7 +404,8 @@ function CalendarSection({ draft, set }: SectionProps) {
             htmlFor="set-vac-end"
             hint="Pode atravessar o fim do ano"
             error={
-              hasWindow && !(draft.vacationWindowStart && draft.vacationWindowEnd)
+              hasWindow &&
+              !(draft.vacationWindowStart && draft.vacationWindowEnd)
                 ? 'Indique início e fim'
                 : undefined
             }
@@ -362,7 +426,10 @@ function CalendarSection({ draft, set }: SectionProps) {
         title="Semana de trabalho e horário"
         description="Os dias fora da semana de trabalho não contam como dias úteis em nenhum cálculo do módulo."
       >
-        <WeekdayPicker value={draft.workWeekDays} onChange={(v) => set('workWeekDays', v)} />
+        <WeekdayPicker
+          value={draft.workWeekDays}
+          onChange={(v) => set('workWeekDays', v)}
+        />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <FormField label="Início do horário" htmlFor="set-wd-start">
             <Input
@@ -550,7 +617,9 @@ function AbsencesSection({ draft, set }: SectionProps) {
         description="Classificam as ocorrências nos relatórios enquanto a justificação não foi decidida."
       >
         <div>
-          <p className="mb-2 text-xs font-semibold text-ink-muted">Justificadas</p>
+          <p className="mb-2 text-xs font-semibold text-ink-muted">
+            Justificadas
+          </p>
           <ChipMultiSelect
             ariaLabel="Ocorrências justificadas"
             options={OCCURRENCE_OPTIONS}
@@ -559,7 +628,9 @@ function AbsencesSection({ draft, set }: SectionProps) {
           />
         </div>
         <div>
-          <p className="mb-2 text-xs font-semibold text-ink-muted">Injustificadas</p>
+          <p className="mb-2 text-xs font-semibold text-ink-muted">
+            Injustificadas
+          </p>
           <ChipMultiSelect
             ariaLabel="Ocorrências injustificadas"
             options={OCCURRENCE_OPTIONS}

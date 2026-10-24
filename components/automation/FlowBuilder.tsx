@@ -24,6 +24,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useFormState } from '@/hooks/useFormState';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -43,6 +44,12 @@ import {
 } from './constants';
 import { FlowEditor } from './FlowEditor';
 import {
+  EMPTY_FLOW_FORM,
+  NONE,
+  flowFormFromDetail,
+  type ConditionRow,
+} from './flowForm';
+import {
   countSteps,
   normaliseFlow,
   serialiseFlow,
@@ -56,8 +63,6 @@ import type {
   TestResult,
   ValidationResult,
 } from './types';
-
-const NONE = '__none__';
 
 // Prioridade do spec → inteiro do backend (menor corre primeiro).
 const PRIORITY_ITEMS = [
@@ -120,12 +125,6 @@ function Section({
   );
 }
 
-interface ConditionRow {
-  field: string;
-  operator: string;
-  value: string;
-}
-
 export interface FlowBuilderProps {
   /** Regra a editar; sem valor = nova automação. */
   ruleId?: number;
@@ -160,28 +159,32 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
   );
 
   // ── A. Informações gerais ──────────────────────────────────────
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState(NONE);
-  const [moduleName, setModuleName] = useState('');
-  const [ownerId, setOwnerId] = useState('');
-  const [priority, setPriority] = useState('2');
-  const [tags, setTags] = useState('');
-  // ── B. Gatilho / C. Condições ─────────────────────────────────
-  const [trigger, setTrigger] = useState('');
-  const [conditions, setConditions] = useState<ConditionRow[]>([]);
-  const [conditionsLogic, setConditionsLogic] = useState('AND');
-  // ── D. Fluxo ──────────────────────────────────────────────────
-  const [steps, setSteps] = useState<FlowStep[]>([]);
-  // ── E. Regras de execução ─────────────────────────────────────
-  const [retryPolicy, setRetryPolicy] = useState('NONE');
-  const [maxRetries, setMaxRetries] = useState('3');
-  const [retryDelay, setRetryDelay] = useState('5');
-  const [errorHandling, setErrorHandling] = useState('NOTIFY_OWNER');
-  const [notifyOnError, setNotifyOnError] = useState(true);
-  const [activeFrom, setActiveFrom] = useState('');
-  const [activeUntil, setActiveUntil] = useState('');
-  const [notes, setNotes] = useState('');
+  const { values, set, setValues } = useFormState(EMPTY_FLOW_FORM);
+  // Só leitura: a lógica e o JSX continuam a usar os nomes soltos; as escritas
+  // passam por set('campo', valor).
+  const {
+    name,
+    description,
+    category,
+    moduleName,
+    ownerId,
+    priority,
+    tags,
+    trigger,
+    conditions,
+    conditionsLogic,
+    steps,
+    retryPolicy,
+    maxRetries,
+    retryDelay,
+    errorHandling,
+    notifyOnError,
+    activeFrom,
+    activeUntil,
+    notes,
+    wasDraft,
+    wasActive,
+  } = values;
   // ── F. Validação ──────────────────────────────────────────────
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [samplePayload, setSamplePayload] = useState(SAMPLE_PAYLOAD);
@@ -189,50 +192,10 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
   const [testResult, setTestResult] = useState<TestResult | null>(null);
   const [publishNote, setPublishNote] = useState('');
   const [submitError, setSubmitError] = useState('');
-  const [wasDraft, setWasDraft] = useState(true);
-  const [wasActive, setWasActive] = useState(false);
 
   useEffect(() => {
-    if (!detail) return;
-    setName(detail.name);
-    setDescription(detail.description ?? '');
-    setCategory(detail.category ?? NONE);
-    setModuleName(detail.module ?? '');
-    setOwnerId(detail.ownerId ?? '');
-    setPriority(String(Math.min(detail.priority ?? 2, 3)));
-    setTags((detail.tags ?? []).join(', '));
-    setTrigger(detail.trigger);
-    setConditions(
-      (detail.conditions ?? []).map((c) => ({
-        field: c.field,
-        operator: c.operator,
-        value: c.value ?? '',
-      })),
-    );
-    setConditionsLogic(detail.conditionsLogic ?? 'AND');
-    setSteps(
-      detail.flow
-        ? normaliseFlow(detail.flow)
-        : [
-            {
-              id: 'legacy',
-              type: 'action',
-              action: detail.action,
-              params: detail.actionParams ?? {},
-            },
-          ],
-    );
-    setRetryPolicy(detail.retryPolicy ?? 'NONE');
-    setMaxRetries(String(detail.maxRetries ?? 3));
-    setRetryDelay(String(detail.retryDelayMinutes ?? 5));
-    setErrorHandling(detail.errorHandling ?? 'NOTIFY_OWNER');
-    setNotifyOnError(detail.notifyOnError ?? true);
-    setActiveFrom(detail.activeFrom ? detail.activeFrom.slice(0, 10) : '');
-    setActiveUntil(detail.activeUntil ? detail.activeUntil.slice(0, 10) : '');
-    setNotes(detail.notes ?? '');
-    setWasDraft(!!detail.draft);
-    setWasActive(detail.active);
-  }, [detail]);
+    if (detail) setValues(flowFormFromDetail(detail));
+  }, [detail, setValues]);
 
   const triggerItems = useMemo(
     () =>
@@ -406,7 +369,9 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
   };
 
   const setCondition = (i: number, p: Partial<ConditionRow>) =>
-    setConditions((rows) => rows.map((r, k) => (k === i ? { ...r, ...p } : r)));
+    set('conditions', (rows) =>
+      rows.map((r, k) => (k === i ? { ...r, ...p } : r)),
+    );
 
   if (ruleId !== undefined && loadingDetail) {
     return <Skeleton rows={5} />;
@@ -453,7 +418,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
           <Input
             id="fb-name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => set('name', e.target.value)}
             maxLength={200}
             placeholder="Ex.: Lembrete de formação 24 h antes"
           />
@@ -466,7 +431,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
           <Textarea
             id="fb-description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => set('description', e.target.value)}
             rows={2}
             className="w-full"
           />
@@ -476,7 +441,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
             <Select
               items={CATEGORY_ITEMS}
               value={category}
-              onValueChange={setCategory}
+              onValueChange={(v) => set('category', v)}
               className="w-full"
             />
           </FormField>
@@ -484,7 +449,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
             <Input
               id="fb-module"
               value={moduleName}
-              onChange={(e) => setModuleName(e.target.value)}
+              onChange={(e) => set('moduleName', e.target.value)}
               placeholder="Ex.: PDI"
             />
           </FormField>
@@ -492,7 +457,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
             <Select
               items={PRIORITY_ITEMS}
               value={priority}
-              onValueChange={setPriority}
+              onValueChange={(v) => set('priority', v)}
               className="w-full"
             />
           </FormField>
@@ -506,7 +471,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
             <Input
               id="fb-owner"
               value={ownerId}
-              onChange={(e) => setOwnerId(e.target.value)}
+              onChange={(e) => set('ownerId', e.target.value)}
             />
           </FormField>
           <FormField
@@ -517,7 +482,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
             <Input
               id="fb-tags"
               value={tags}
-              onChange={(e) => setTags(e.target.value)}
+              onChange={(e) => set('tags', e.target.value)}
               placeholder="lembrete, formação"
             />
           </FormField>
@@ -533,7 +498,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
           <Select
             items={triggerItems}
             value={trigger || undefined}
-            onValueChange={setTrigger}
+            onValueChange={(v) => set('trigger', v)}
             placeholder="Escolher evento"
             className="w-full"
           />
@@ -590,7 +555,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
               intent="ghost"
               className="mb-0.5 hover:bg-danger-subtle hover:text-danger"
               onClick={() =>
-                setConditions((rows) => rows.filter((_, k) => k !== i))
+                set('conditions', (rows) => rows.filter((_, k) => k !== i))
               }
             />
           </div>
@@ -600,7 +565,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
             size="sm"
             intent="secondary"
             onClick={() =>
-              setConditions((rows) => [
+              set('conditions', (rows) => [
                 ...rows,
                 { field: '', operator: 'equals', value: '' },
               ])
@@ -613,7 +578,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
             <Select
               items={LOGIC_ITEMS}
               value={conditionsLogic}
-              onValueChange={setConditionsLogic}
+              onValueChange={(v) => set('conditionsLogic', v)}
               className="min-w-[220px]"
             />
           )}
@@ -627,7 +592,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
       >
         <FlowEditor
           steps={steps}
-          onChange={setSteps}
+          onChange={(v) => set('steps', v)}
           ruleOptions={ruleOptions}
         />
       </Section>
@@ -642,7 +607,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
             <Select
               items={RETRY_ITEMS}
               value={retryPolicy}
-              onValueChange={setRetryPolicy}
+              onValueChange={(v) => set('retryPolicy', v)}
               className="w-full"
             />
           </FormField>
@@ -654,7 +619,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
                   type="number"
                   min={0}
                   value={maxRetries}
-                  onChange={(e) => setMaxRetries(e.target.value)}
+                  onChange={(e) => set('maxRetries', e.target.value)}
                 />
               </FormField>
               <FormField
@@ -667,7 +632,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
                   type="number"
                   min={1}
                   value={retryDelay}
-                  onChange={(e) => setRetryDelay(e.target.value)}
+                  onChange={(e) => set('retryDelay', e.target.value)}
                 />
               </FormField>
             </>
@@ -678,7 +643,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
             <Select
               items={ERROR_ITEMS}
               value={errorHandling}
-              onValueChange={setErrorHandling}
+              onValueChange={(v) => set('errorHandling', v)}
               className="w-full"
             />
           </FormField>
@@ -687,7 +652,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
               id="fb-from"
               type="date"
               value={activeFrom}
-              onChange={(e) => setActiveFrom(e.target.value)}
+              onChange={(e) => set('activeFrom', e.target.value)}
             />
           </FormField>
           <FormField label="Vigência — até" htmlFor="fb-until" hint="Opcional.">
@@ -695,7 +660,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
               id="fb-until"
               type="date"
               value={activeUntil}
-              onChange={(e) => setActiveUntil(e.target.value)}
+              onChange={(e) => set('activeUntil', e.target.value)}
             />
           </FormField>
         </div>
@@ -703,7 +668,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
           <input
             type="checkbox"
             checked={notifyOnError}
-            onChange={(e) => setNotifyOnError(e.target.checked)}
+            onChange={(e) => set('notifyOnError', e.target.checked)}
             className="h-4 w-4 rounded border-border-strong accent-primary"
           />
           Alertar o responsável quando uma execução falha
@@ -712,7 +677,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
           <Textarea
             id="fb-notes"
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            onChange={(e) => set('notes', e.target.value)}
             rows={2}
             className="w-full"
           />

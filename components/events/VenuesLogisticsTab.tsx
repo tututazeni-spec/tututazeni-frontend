@@ -13,7 +13,7 @@
 import { useEffect, useState } from 'react';
 import { MapPin, Plus, X } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -113,8 +113,7 @@ function toForm(l: EventLogistics | null): LogisticsFormState {
 }
 
 export function VenuesLogisticsTab() {
-  const role = useCurrentRole();
-  const canManage = !!role && MANAGE_ROLES.includes(role);
+  const canManage = useHasRole(MANAGE_ROLES);
   const notify = useToast();
   const eventOptions = useEventPickerOptions('logistics');
 

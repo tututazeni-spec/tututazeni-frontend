@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/Table';
 import { useDepartmentOptions } from '@/components/competencies/modelFormData';
 import { useApiMutation } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useAbsences, type AbsenceFilters } from '@/hooks/useLeave';
 import { apiClient } from '@/lib/apiClient';
@@ -68,7 +68,7 @@ function durationLabel(a: AbsenceRow): string {
 export function AbsencesTab() {
   const role = useCurrentRole();
   const notify = useToast();
-  const isReviewer = !!role && REVIEWER_ROLES.includes(role);
+  const isReviewer = useHasRole(REVIEWER_ROLES);
   const isOrg = role === 'ADMIN' || role === 'RH';
   const [filters, setFilters] = useState<AbsenceFilters>({
     occurrenceType: '',

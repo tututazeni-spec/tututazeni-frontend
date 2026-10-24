@@ -14,7 +14,7 @@
 import { CheckCircle, Eye, Library, PlayCircle } from 'lucide-react';
 import { useComplianceOverview } from '@/components/documents/hooks';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -28,13 +28,12 @@ import type { ContentAnalytics } from './types';
 const COMPLIANCE_ROLES = ['ADMIN', 'RH', 'DIRECTOR'];
 
 export function AnalyticsTab() {
-  const role = useCurrentRole();
   const { data, isLoading } = useApiQuery<ContentAnalytics>(
     queryKeys.contentLibrary.analytics(),
     '/content-library/analytics/dashboard',
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const canSeeCompliance = !!role && COMPLIANCE_ROLES.includes(role);
+  const canSeeCompliance = useHasRole(COMPLIANCE_ROLES);
   const { data: compliance, loading: complianceLoading } =
     useComplianceOverview(canSeeCompliance);
 

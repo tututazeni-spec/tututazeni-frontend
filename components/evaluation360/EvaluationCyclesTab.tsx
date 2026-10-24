@@ -20,7 +20,7 @@ import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { EVAL_CREATOR_ROLES, EVAL_CYCLE_DELETE_ROLES } from '@/lib/roles';
@@ -75,12 +75,11 @@ const TYPE_OPTIONS: SelectItemOption[] = [
 ];
 
 export function EvaluationCyclesTab() {
-  const role = useCurrentRole();
   // Espelha EVAL_CREATOR_ROLES/EVAL_CYCLE_DELETE_ROLES de
   // evaluation360.controller.ts — criar/distribuir é mais aberto do que
   // eliminar (soft delete, mas ainda assim destrutivo), ver lib/roles.ts.
-  const canCreateCycle = !!role && EVAL_CREATOR_ROLES.includes(role);
-  const canDeleteCycle = !!role && EVAL_CYCLE_DELETE_ROLES.includes(role);
+  const canCreateCycle = useHasRole(EVAL_CREATOR_ROLES);
+  const canDeleteCycle = useHasRole(EVAL_CYCLE_DELETE_ROLES);
 
   const [status, setStatus] = useState(ALL);
   const [type, setType] = useState(ALL);

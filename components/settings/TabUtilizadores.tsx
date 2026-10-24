@@ -5,10 +5,10 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useToast } from '@/providers/ToastProvider';
 import { Clock, Lock, UserCheck, UserX } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
@@ -85,15 +85,11 @@ export function TabUtilizadores() {
     '/settings/users/inactive',
   );
 
-  const [policy, setPolicy] = useState<UserPolicy | null>(null);
-  const [domains, setDomains] = useState('');
-
-  useEffect(() => {
-    if (policyQuery.data) {
-      setPolicy(policyQuery.data);
-      setDomains(policyQuery.data.allowedEmailDomains.join(', '));
-    }
-  }, [policyQuery.data]);
+  const [policy, setPolicy] = useServerDraft<UserPolicy>(policyQuery.data);
+  const [domains, setDomains] = useServerDraft<string, string[]>(
+    policyQuery.data?.allowedEmailDomains,
+    (d) => d.join(', '),
+  );
 
   const save = useApiMutation(
     (payload: Omit<UserPolicy, 'requiredFieldOptions'>) =>
@@ -157,7 +153,7 @@ export function TabUtilizadores() {
     const { requiredFieldOptions: _opts, ...rest } = policy;
     save.mutate({
       ...rest,
-      allowedEmailDomains: domains
+      allowedEmailDomains: (domains ?? '')
         .split(/[,\s;]+/)
         .map((d) => d.trim())
         .filter(Boolean),
@@ -266,7 +262,7 @@ export function TabUtilizadores() {
                   id="domains"
                   className="w-full"
                   placeholder="empresa.ao, empresa.com"
-                  value={domains}
+                  value={domains ?? ''}
                   onChange={(e) => setDomains(e.target.value)}
                 />
               </FormField>

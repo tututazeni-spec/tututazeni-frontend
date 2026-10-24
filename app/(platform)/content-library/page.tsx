@@ -25,7 +25,7 @@ import { HomeTab } from '@/components/content-library/HomeTab';
 import { MyProgressTab } from '@/components/content-library/MyProgressTab';
 import { RepositoryTab } from '@/components/content-library/RepositoryTab';
 import type { Tab } from '@/components/content-library/types';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
@@ -73,7 +73,7 @@ const TABS: Array<PillTabItem & { id: Tab }> = [
 
 export default function ContentLibraryPage() {
   const role = useCurrentRole();
-  const canAddContent = !!role && AUTHOR_ROLES.includes(role);
+  const canAddContent = useHasRole(AUTHOR_ROLES);
   const tabs = TABS.filter(
     (t) => t.id !== 'analytics' || role !== 'COLABORADOR',
   );

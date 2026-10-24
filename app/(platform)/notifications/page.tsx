@@ -8,7 +8,7 @@ import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
 import {
   useNotificationsInbox,
@@ -329,10 +329,9 @@ const TITLES: Record<View, string> = {
 };
 
 export default function NotificationsPage() {
-  const role = useCurrentRole();
   // Os endpoints de gestão (templates, envios, estatísticas) são
   // @Roles(ADMIN, RH) no backend — o separador Admin só é útil a esses papéis.
-  const canSeeAdmin = !!role && ADMIN_ROLES.includes(role);
+  const canSeeAdmin = useHasRole(ADMIN_ROLES);
   const [view, setView] = useState<View>('inbox');
 
   // Badge de não lidas com polling (60s). Key partilhada com as mutações do inbox.

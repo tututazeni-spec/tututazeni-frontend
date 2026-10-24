@@ -13,7 +13,7 @@
 
 import { useEffect, useReducer, useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
@@ -43,10 +43,9 @@ interface ModulosViewProps {
 }
 
 export function ModulosView({ initialCourseId }: ModulosViewProps) {
-  const role = useCurrentRole();
   // POST/PUT/DELETE de módulos e lições são @Roles(ADMIN, RH) no backend —
   // GET fica aberto a todos, por isso só os controlos de escrita são gated.
-  const canManage = !!role && ADMIN_ROLES.includes(role);
+  const canManage = useHasRole(ADMIN_ROLES);
 
   const [courseIdInput, setCourseIdInput] = useState(
     initialCourseId ? String(initialCourseId) : '',
@@ -308,7 +307,6 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
                   })
                 }
                 onDeleteLesson={deleteLesson}
-                canManage={canManage}
               />
             ))}
         </div>

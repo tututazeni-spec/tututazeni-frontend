@@ -17,6 +17,8 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useApproverCandidates, useDelegations } from '@/hooks/useLeave';
+import { useHasRole } from '@/hooks/useCurrentRole';
+import { LEAVE_ADMIN_ROLES } from './constants';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -29,12 +31,9 @@ const fmtDate = (iso: string) => {
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export interface DelegationsPanelProps {
-  /** ADMIN/RH: vêem todas e podem delegar em nome de outro aprovador. */
-  isAdmin: boolean;
-}
-
-export function DelegationsPanel({ isAdmin }: DelegationsPanelProps) {
+export function DelegationsPanel() {
+  // ADMIN/RH: vêem todas e podem delegar em nome de outro aprovador.
+  const isAdmin = useHasRole(LEAVE_ADMIN_ROLES);
   const notify = useToast();
   const confirm = useConfirm();
   const candidates = useApproverCandidates('', true);
@@ -78,7 +77,8 @@ export function DelegationsPanel({ isAdmin }: DelegationsPanelProps) {
     (id: number) => apiClient.delete(`/leave/settings/delegations/${id}`),
     {
       invalidateKeys: [queryKeys.leave.all],
-      onSuccess: () => notify({ title: 'Substituição revogada', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Substituição revogada', intent: 'success' }),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
@@ -103,7 +103,9 @@ export function DelegationsPanel({ isAdmin }: DelegationsPanelProps) {
     <div className="space-y-4">
       <Card className="overflow-hidden p-4 space-y-4">
         <div className="-mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3">
-          <h3 className="text-sm font-semibold text-white">Nova substituição</h3>
+          <h3 className="text-sm font-semibold text-white">
+            Nova substituição
+          </h3>
           <p className="text-xs text-white/80">
             Para quando estiver ausente: as suas aprovações vão para o
             substituto escolhido.

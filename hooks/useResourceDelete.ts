@@ -13,7 +13,7 @@
 import { useRouter } from 'next/navigation';
 import type { QueryKey } from '@tanstack/react-query';
 import { useApiMutation } from './useApiQuery';
-import { useCurrentRole } from './useCurrentRole';
+import { useHasRole } from './useCurrentRole';
 import { useToast } from '../providers/ToastProvider';
 import { useConfirm } from '../providers/ConfirmProvider';
 import { apiClient } from '../lib/apiClient';
@@ -40,9 +40,8 @@ export function useResourceDelete(opts: UseResourceDeleteOptions) {
   const notify = useToast();
   const router = useRouter();
   const confirm = useConfirm();
-  const role = useCurrentRole();
 
-  const canDelete = !!role && ADMIN_ROLES.includes(role);
+  const canDelete = useHasRole(ADMIN_ROLES);
 
   const deleteMut = useApiMutation(
     () => apiClient.delete(`${opts.basePath}/${opts.id}`),

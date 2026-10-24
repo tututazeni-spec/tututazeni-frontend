@@ -26,7 +26,7 @@
 import { PillNav } from '@/components/ui/PillTabs';
 import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useState } from 'react';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES, filterByRole } from '@/lib/roles';
 import { useToast } from '@/providers/ToastProvider';
 import { NAV, TITLES } from '@/components/competencies/constants';
@@ -50,7 +50,7 @@ import { Button } from '@/components/ui/Button';
 export default function CompetenciesPage() {
   const notify = useToast();
   const role = useCurrentRole();
-  const canManage = !!role && ADMIN_ROLES.includes(role);
+  const canManage = useHasRole(ADMIN_ROLES);
   const canDelete = role === 'ADMIN';
   const visibleNav = filterByRole(NAV, role);
 

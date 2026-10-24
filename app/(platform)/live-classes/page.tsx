@@ -17,7 +17,7 @@ import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
@@ -64,10 +64,8 @@ const INITIAL_FILTERS: Filters = {
 
 export default function LivePage() {
   const router = useRouter();
-  const role = useCurrentRole();
-  const canCreate = !!role && ADMIN_ROLES.includes(role);
-  const canViewReports =
-    !!role && CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES.includes(role);
+  const canCreate = useHasRole(ADMIN_ROLES);
+  const canViewReports = useHasRole(CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES);
   const visibleNav = NAV.filter(
     (n) =>
       (n.id !== 'settings' || canCreate) &&

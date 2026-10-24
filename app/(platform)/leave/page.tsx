@@ -21,7 +21,7 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { filterByRole, type Role } from '@/lib/roles';
 import {
   BarChart3,
@@ -42,6 +42,7 @@ import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { AbsenceCalendarTab } from '@/components/leave/AbsenceCalendarTab';
 import { AbsencesTab } from '@/components/leave/AbsencesTab';
 import { ApprovalsTab } from '@/components/leave/ApprovalsTab';
+import { LEAVE_ADMIN_ROLES } from '@/components/leave/constants';
 import { LicensesTab } from '@/components/leave/LicensesTab';
 import { NewLicenseModal } from '@/components/leave/NewLicenseModal';
 import { OverviewTab } from '@/components/leave/OverviewTab';
@@ -66,7 +67,6 @@ type TabKey =
 // entre o filtro de tabs e o `enabled` da query: sem o segundo, o pedido
 // disparava sempre no mount e rebentava com 403 em "query:leave".
 const LEAVE_APPROVER_ROLES: Role[] = ['ADMIN', 'RH', 'GESTOR'];
-const LEAVE_ADMIN_ROLES: Role[] = ['ADMIN', 'RH'];
 
 export default function LeavePage() {
   const [tab, setTab] = useState<TabKey>('overview');
@@ -76,7 +76,7 @@ export default function LeavePage() {
   // `!!role &&` (não "deixar passar enquanto undefined"): isto controla
   // pedidos de rede reais, não só visibilidade de UI — ver isRoleAllowed em
   // lib/roles.ts para a distinção.
-  const isApprover = !!role && LEAVE_APPROVER_ROLES.includes(role);
+  const isApprover = useHasRole(LEAVE_APPROVER_ROLES);
 
   const leaveTypes = useLeaveTypes();
   // Licenças: tudo menos férias (que têm o seu próprio fluxo na aba Férias).
@@ -209,7 +209,7 @@ export default function LeavePage() {
         )}
 
         {tab === 'settings' && hasTab('settings') && (
-          <SettingsTab isAdmin={!!role && LEAVE_ADMIN_ROLES.includes(role)} />
+          <SettingsTab />
         )}
       </div>
 

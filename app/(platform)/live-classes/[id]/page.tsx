@@ -8,7 +8,7 @@ import { XCircle, BookOpen, Clapperboard } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useStopwatch } from '@/hooks/useStopwatch';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
@@ -25,12 +25,10 @@ export default function LiveRoomPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const classId = parseInt(params.id);
-
-  const role = useCurrentRole();
   // PUT /live-classes/:id (usado para guardar a URL da gravação) é
   // @Roles(ADMIN, RH) no backend — colaborador só encontra/entra em aulas,
   // não gere a gravação.
-  const canManageRecording = !!role && ADMIN_ROLES.includes(role);
+  const canManageRecording = useHasRole(ADMIN_ROLES);
 
   const queryClient = useQueryClient();
   const {

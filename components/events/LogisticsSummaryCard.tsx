@@ -7,7 +7,7 @@
 
 import { Boxes, ClipboardList } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import type { Role } from '@/lib/roles';
@@ -27,8 +27,7 @@ function Pill({ children }: { children: string }) {
 }
 
 export function LogisticsSummaryCard({ eventId }: { eventId: number }) {
-  const role = useCurrentRole();
-  const allowed = !!role && VIEW_ROLES.includes(role);
+  const allowed = useHasRole(VIEW_ROLES);
 
   const { data: logistics } = useApiQuery<EventLogistics | null>(
     queryKeys.events.logistics(eventId),

@@ -17,7 +17,7 @@ import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { MessageSquare, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -75,8 +75,7 @@ const CHANNEL_ITEMS = [
 ];
 
 export function CommunicationTab() {
-  const role = useCurrentRole();
-  const canManage = !!role && MANAGE_ROLES.includes(role);
+  const canManage = useHasRole(MANAGE_ROLES);
   const eventOptions = useEventPickerOptions('communications');
 
   const [eventFilter, setEventFilter] = useState('ALL');

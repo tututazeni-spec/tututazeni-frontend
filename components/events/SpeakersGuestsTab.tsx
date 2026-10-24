@@ -15,7 +15,7 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { Mic2, MoreVertical, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -155,8 +155,7 @@ function ZoomedPhoto({ name, url }: { name: string; url: string }) {
 }
 
 export function SpeakersGuestsTab() {
-  const role = useCurrentRole();
-  const canManage = !!role && MANAGE_ROLES.includes(role);
+  const canManage = useHasRole(MANAGE_ROLES);
   const notify = useToast();
   const confirm = useConfirm();
   const eventOptions = useEventPickerOptions('speakers');

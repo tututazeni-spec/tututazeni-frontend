@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -182,7 +182,7 @@ export default function MonitoringPage() {
   );
   // `role` undefined (arranque pós-login) passa — evita piscar o bloqueio.
   const blocked = !!role && !ALLOWED.includes(role);
-  const canAct = !!role && CAN_ACT.includes(role);
+  const canAct = useHasRole(CAN_ACT);
 
   const opts = { staleTime: STALE_TIME.DYNAMIC, refetchInterval: pollInterval(REFRESH_MS) };
   // keepPreviousData: ao mudar um filtro (dias, tipo, área…) a key muda; sem isto

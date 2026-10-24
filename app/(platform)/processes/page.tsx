@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { Hammer, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import { CreateProcessModal } from '@/components/processes/CreateProcessModal';
 import { DashboardView } from '@/components/processes/DashboardView';
@@ -66,18 +66,17 @@ const SETTINGS_EDIT_ROLES: readonly Role[] = ['ADMIN'];
 const INTEGRATION_RETRY_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 
 export default function ProcessesPage() {
-  const role = useCurrentRole();
-  const canCreate = !!role && ADMIN_ROLES.includes(role);
-  const canSeeOverview = !!role && OVERVIEW_ROLES.includes(role);
-  const canManage = !!role && MANAGE_ROLES.includes(role);
-  const canStart = !!role && START_ROLES.includes(role);
-  const canAutomate = !!role && AUTOMATION_ROLES.includes(role);
-  const canSeeReports = !!role && REPORT_ROLES.includes(role);
-  const canExportReports = !!role && REPORT_EXPORT_ROLES.includes(role);
-  const canSeeAudit = !!role && AUDIT_ROLES.includes(role);
-  const canExportAudit = !!role && AUDIT_EXPORT_ROLES.includes(role);
-  const canEditSettings = !!role && SETTINGS_EDIT_ROLES.includes(role);
-  const canRetryIntegrations = !!role && INTEGRATION_RETRY_ROLES.includes(role);
+  const canCreate = useHasRole(ADMIN_ROLES);
+  const canSeeOverview = useHasRole(OVERVIEW_ROLES);
+  const canManage = useHasRole(MANAGE_ROLES);
+  const canStart = useHasRole(START_ROLES);
+  const canAutomate = useHasRole(AUTOMATION_ROLES);
+  const canSeeReports = useHasRole(REPORT_ROLES);
+  const canExportReports = useHasRole(REPORT_EXPORT_ROLES);
+  const canSeeAudit = useHasRole(AUDIT_ROLES);
+  const canExportAudit = useHasRole(AUDIT_EXPORT_ROLES);
+  const canEditSettings = useHasRole(SETTINGS_EDIT_ROLES);
+  const canRetryIntegrations = useHasRole(INTEGRATION_RETRY_ROLES);
 
   const [nav, setNav] = useState<Nav>({ view: 'all' });
   const [showCreate, setShowCreate] = useState(false);

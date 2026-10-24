@@ -13,7 +13,7 @@ import { AlertTriangle, CheckCircle2, Sigma } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { MGMT_ROLES } from '@/lib/roles';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -27,8 +27,7 @@ import type { DirectoryUser } from '@/components/departments/departmentFormData'
 import type { CompetencyGapView } from './types';
 
 export function CompetenciesTab() {
-  const role = useCurrentRole();
-  const isMgmt = !!role && MGMT_ROLES.includes(role);
+  const isMgmt = useHasRole(MGMT_ROLES);
   const [selected, setSelected] = useState<DirectoryUser | null>(null);
 
   const userId = isMgmt ? selected?.id : undefined;

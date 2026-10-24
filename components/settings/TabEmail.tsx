@@ -6,10 +6,11 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -59,23 +60,15 @@ export function TabEmail() {
     '/settings/email',
   );
 
-  const [smtp, setSmtp] = useState<EmailSettingsView['smtp'] | null>(null);
+  const [smtp, setSmtp] = useServerDraft<EmailSettingsView['smtp']>(data?.smtp);
   const [smtpPassword, setSmtpPassword] = useState('');
-  const [signature, setSignature] = useState('');
-  const [templates, setTemplates] = useState<
-    EmailSettingsView['templates'] | null
-  >(null);
+  const [signature, setSignature] = useServerDraft<string>(data?.signature);
+  const [templates, setTemplates] = useServerDraft<
+    EmailSettingsView['templates']
+  >(data?.templates);
   const [activeKey, setActiveKey] =
     useState<EmailTemplateKey>('PASSWORD_RESET');
   const [testTo, setTestTo] = useState('');
-
-  useEffect(() => {
-    if (data) {
-      setSmtp(data.smtp);
-      setSignature(data.signature);
-      setTemplates(data.templates);
-    }
-  }, [data]);
 
   const save = useApiMutation(
     (payload: Record<string, unknown>) =>
@@ -234,7 +227,7 @@ export function TabEmail() {
               id="email-signature"
               className="w-full"
               rows={2}
-              value={signature}
+              value={signature ?? ''}
               onChange={(e) => setSignature(e.target.value)}
             />
           </FormField>

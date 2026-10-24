@@ -22,7 +22,7 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useDepartmentOptions } from '@/components/competencies/modelFormData';
 import { useApiMutation } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useAbsenceCalendar, type CalendarFilters } from '@/hooks/useLeave';
 import { apiClient } from '@/lib/apiClient';
 import { formatDate } from '@/lib/format';
@@ -270,9 +270,8 @@ export interface AbsenceCalendarTabProps {
 }
 
 export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
-  const role = useCurrentRole();
   const notify = useToast();
-  const isReviewer = !!role && CAN_PICK_EMPLOYEE_ABSENCE.includes(role);
+  const isReviewer = useHasRole(CAN_PICK_EMPLOYEE_ABSENCE);
   const [filters, setFilters] = useState<CalendarFilters>({
     view: 'month',
     date: todayKey(),

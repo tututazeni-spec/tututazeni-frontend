@@ -14,7 +14,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 
@@ -35,8 +35,7 @@ const STATUS_OPTIONS: SelectItemOption[] = [
 
 export function QuestionariosTab() {
   const notify = useToast();
-  const role = useCurrentRole();
-  const canManage = !!role && EVAL_CREATOR_ROLES.includes(role);
+  const canManage = useHasRole(EVAL_CREATOR_ROLES);
 
   const [status, setStatus] = useState(ALL);
 

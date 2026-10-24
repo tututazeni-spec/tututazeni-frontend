@@ -16,7 +16,7 @@ import {
   Upload,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -519,9 +519,8 @@ function HistoryModal({
 }
 
 export function AvatarsTab() {
-  const role = useCurrentRole();
   const notify = useToast();
-  const isAdmin = !!role && ADMIN_ROLES.includes(role);
+  const isAdmin = useHasRole(ADMIN_ROLES);
   const [editing, setEditing] = useState<TrainingAvatar | 'new' | null>(null);
   const [historyOf, setHistoryOf] = useState<TrainingAvatar | null>(null);
   const key = queryKeys.avatarTraining.avatars();

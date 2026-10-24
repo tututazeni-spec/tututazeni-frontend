@@ -7,7 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { MGMT_ROLES } from '@/lib/roles';
 import { cn } from '@/lib/cn';
 import { PersonPicker } from './filters';
@@ -26,7 +26,7 @@ const SECTIONS: { id: Section; label: string }[] = [
 
 export function EmployeeTab() {
   const role = useCurrentRole();
-  const canPick = !!role && MGMT_ROLES.includes(role);
+  const canPick = useHasRole(MGMT_ROLES);
   const [person, setPerson] = useState<PersonRef | null>(null);
   const userId = person?.id;
   const [section, setSection] = useState<Section>('timeline');

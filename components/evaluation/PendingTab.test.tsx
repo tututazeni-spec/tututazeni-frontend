@@ -38,6 +38,8 @@ let currentRole: string | undefined = 'COLABORADOR';
 let currentUser: { id: number } | undefined = { id: 1 };
 vi.mock('@/hooks/useCurrentRole', () => ({
   useCurrentRole: () => currentRole,
+  useHasRole: (allowed: readonly string[]) =>
+    !!currentRole && allowed.includes(currentRole as string),
 }));
 vi.mock('@/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({ data: currentUser }),

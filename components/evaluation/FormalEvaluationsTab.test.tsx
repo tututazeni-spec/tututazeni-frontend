@@ -4,6 +4,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 let currentRole: string | undefined = 'ADMIN';
 vi.mock('@/hooks/useCurrentRole', () => ({
   useCurrentRole: () => currentRole,
+  useHasRole: (allowed: readonly string[]) =>
+    !!currentRole && allowed.includes(currentRole as string),
 }));
 
 let evaluations: unknown[] = [];

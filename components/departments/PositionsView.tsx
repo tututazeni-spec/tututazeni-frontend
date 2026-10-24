@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { Plus, Briefcase, UserCheck, UserX } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -77,8 +77,7 @@ function BreakdownCard({
 }
 
 export function PositionsView() {
-  const role = useCurrentRole();
-  const canManage = !!role && ADMIN_ROLES.includes(role);
+  const canManage = useHasRole(ADMIN_ROLES);
 
   const [search, setSearch] = useState('');
   const [departmentId, setDepartmentId] = useState('');

@@ -21,7 +21,7 @@ import {
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -213,8 +213,7 @@ function ManagementView() {
 }
 
 export function FormalEvaluationsTab() {
-  const role = useCurrentRole();
-  const isCreator = !!role && EVAL_CREATOR_ROLES.includes(role);
+  const isCreator = useHasRole(EVAL_CREATOR_ROLES);
 
   return isCreator ? <ManagementView /> : <FormalEvaluationsParticipantView />;
 }

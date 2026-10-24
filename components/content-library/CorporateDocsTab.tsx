@@ -14,7 +14,7 @@
 
 import { useState } from 'react';
 import { CheckCircle2, FileText, Plus } from 'lucide-react';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
@@ -63,7 +63,6 @@ const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
 const AUTHOR_ROLES = ['ADMIN', 'RH', 'GESTOR'];
 
 export function CorporateDocsTab() {
-  const role = useCurrentRole();
   const notify = useToast();
   const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
   const [category, setCategory] = useState('');
@@ -100,7 +99,7 @@ export function CorporateDocsTab() {
   const { data: favorites, loading: favLoading } = useFavoriteDocuments();
   const confirmRead = useConfirmRead();
 
-  const canAuthor = !!role && AUTHOR_ROLES.includes(role);
+  const canAuthor = useHasRole(AUTHOR_ROLES);
 
   const handleDownload = async (doc: Document) => {
     try {

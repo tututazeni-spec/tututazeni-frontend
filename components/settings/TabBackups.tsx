@@ -6,10 +6,11 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -101,13 +102,9 @@ export function TabBackups() {
     '/settings/backups',
     { refetchInterval: pollInterval(15_000) },
   );
-  const [form, setForm] = useState<BackupSettingsForm | null>(null);
+  const [form, setForm] = useServerDraft<BackupSettingsForm>(data?.settings);
   const [restoreId, setRestoreId] = useState<number | null>(null);
   const [confirmation, setConfirmation] = useState('');
-
-  useEffect(() => {
-    if (data) setForm(data.settings);
-  }, [data]);
 
   const save = useApiMutation(
     (payload: BackupSettingsForm) =>

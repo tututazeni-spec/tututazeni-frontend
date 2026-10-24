@@ -12,6 +12,8 @@ import {
   Pencil,
   Trash2,
 } from 'lucide-react';
+import { useHasRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 import { CONTENT_TYPE } from './constants';
 import type { Lesson } from './types';
 
@@ -19,16 +21,11 @@ interface LessonRowProps {
   lesson: Lesson;
   onEdit: () => void;
   onDelete: () => void;
-  /** ADMIN/RH apenas — POST/PUT/DELETE lessons são @Roles(ADMIN, RH) no backend. */
-  canManage: boolean;
 }
 
-export function LessonRow({
-  lesson,
-  onEdit,
-  onDelete,
-  canManage,
-}: LessonRowProps) {
+export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
+  // ADMIN/RH apenas — POST/PUT/DELETE lessons são @Roles(ADMIN, RH) no backend.
+  const canManage = useHasRole(ADMIN_ROLES);
   const ct = CONTENT_TYPE[lesson.type] ?? {
     icon: BookMarked,
     color: '#64748b',

@@ -6,10 +6,10 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -58,10 +58,9 @@ export function TabLicenca() {
     '/settings/license',
   );
 
-  const [modules, setModules] = useState<Record<string, boolean> | null>(null);
-  useEffect(() => {
-    if (data) setModules(data.modules);
-  }, [data]);
+  const [modules, setModules] = useServerDraft<Record<string, boolean>>(
+    data?.modules,
+  );
 
   const save = useApiMutation(
     (payload: Record<string, boolean>) =>

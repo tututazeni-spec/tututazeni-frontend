@@ -28,7 +28,7 @@ import { QuestionariosTab } from './QuestionariosTab';
 import { ResultadosTab } from './ResultadosTab';
 import { FeedbackTab } from './FeedbackTab';
 import { RelatoriosTab } from './RelatoriosTab';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_OVERVIEW_ROLES, EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { Tabs } from '@/components/ui/Tabs';
 import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
@@ -128,12 +128,11 @@ export function Evaluation360View({
   myId,
   cycleId,
 }: Evaluation360ViewProps) {
-  const role = useCurrentRole();
   // Espelha o @Roles de GET /evaluation360/overview — só quem gere o módulo
   // vê o painel agregado; o separador pessoal "Visão Geral" fica aberto a
   // todos (ver EVAL_OVERVIEW_ROLES em lib/roles.ts).
-  const canSeeOverview = !!role && EVAL_OVERVIEW_ROLES.includes(role);
-  const canManage = !!role && EVAL_CREATOR_ROLES.includes(role);
+  const canSeeOverview = useHasRole(EVAL_OVERVIEW_ROLES);
+  const canManage = useHasRole(EVAL_CREATOR_ROLES);
   const visibleTabs = TABS.filter((t) => {
     if (t.id === 'adminOverview' || t.id === 'reports') return canSeeOverview;
     if (MANAGEMENT_TAB_IDS.includes(t.id)) return canManage;

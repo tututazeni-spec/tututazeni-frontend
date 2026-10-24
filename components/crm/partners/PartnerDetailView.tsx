@@ -1,31 +1,21 @@
 // components/crm/partners/PartnerDetailView.tsx
+// Vista do detalhe de um parceiro: cabeçalho, dados gerais e contrato. Cada
+// secção com formulário (marcos, interacções) é um componente com o seu
+// próprio estado e mutações — a busca do detalhe e a eliminação vivem em
+// usePartnerDetail.
 
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
-import { Textarea } from '@/components/ui/Textarea';
 import { Info, formatDate } from '@/components/crm/shared';
-import { STATUS_COLORS, MILESTONE_COLORS, TYPE_LABELS } from './types';
-import type { PartnerDetail, InteractionForm, MilestoneForm } from './types';
+import { InteractionsSection } from './InteractionsSection';
+import { MilestonesSection } from './MilestonesSection';
+import { STATUS_COLORS, TYPE_LABELS } from './types';
+import type { PartnerDetail } from './types';
 
 interface PartnerDetailViewProps {
   partner: PartnerDetail;
-  showForm: boolean;
-  setShowForm: (updater: (s: boolean) => boolean) => void;
-  form: InteractionForm;
-  setForm: (form: InteractionForm) => void;
-  submitInteraction: (e: React.FormEvent) => void;
-  completeMilestone: (milestoneId: string) => void;
-  showMilestoneForm: boolean;
-  setShowMilestoneForm: (updater: (s: boolean) => boolean) => void;
-  milestoneForm: MilestoneForm;
-  setMilestoneForm: (form: MilestoneForm) => void;
-  submitMilestone: (e: React.FormEvent) => void;
-  savingMilestone: boolean;
-  saving: boolean;
   canDelete: boolean;
   onDelete: () => void;
   isDeleting: boolean;
@@ -33,19 +23,6 @@ interface PartnerDetailViewProps {
 
 export function PartnerDetailView({
   partner: p,
-  showForm,
-  setShowForm,
-  form,
-  setForm,
-  submitInteraction,
-  completeMilestone,
-  showMilestoneForm,
-  setShowMilestoneForm,
-  milestoneForm,
-  setMilestoneForm,
-  submitMilestone,
-  savingMilestone,
-  saving,
   canDelete,
   onDelete,
   isDeleting,
@@ -162,271 +139,8 @@ export function PartnerDetailView({
         </Card>
       </section>
 
-      {/* Milestones */}
-      <section>
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="font-display text-lg font-semibold text-ink">
-            Marcos ({p.milestones.length})
-          </h2>
-          <Button
-            onClick={() => setShowMilestoneForm((s) => !s)}
-            intent={showMilestoneForm ? 'secondary' : 'primary'}
-          >
-            {showMilestoneForm ? 'Cancelar' : '+ Novo Marco'}
-          </Button>
-        </div>
-
-        {showMilestoneForm && (
-          <form onSubmit={submitMilestone} className="mb-4">
-            <Card>
-              <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <Input
-                  required
-                  placeholder="Título"
-                  value={milestoneForm.title}
-                  onChange={(e) =>
-                    setMilestoneForm({
-                      ...milestoneForm,
-                      title: e.target.value,
-                    })
-                  }
-                  className="md:col-span-2"
-                />
-                <Textarea
-                  placeholder="Descrição (opcional)"
-                  value={milestoneForm.description}
-                  onChange={(e) =>
-                    setMilestoneForm({
-                      ...milestoneForm,
-                      description: e.target.value,
-                    })
-                  }
-                  rows={2}
-                  className="md:col-span-2"
-                />
-                <div>
-                  <label className="font-body text-xs text-ink-muted block mb-1">
-                    Prazo
-                  </label>
-                  <Input
-                    required
-                    type="date"
-                    value={milestoneForm.dueDate}
-                    onChange={(e) =>
-                      setMilestoneForm({
-                        ...milestoneForm,
-                        dueDate: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <Select
-                  value={milestoneForm.priority}
-                  onValueChange={(value) =>
-                    setMilestoneForm({ ...milestoneForm, priority: value })
-                  }
-                  items={[
-                    { value: 'LOW', label: 'Baixa' },
-                    { value: 'MEDIUM', label: 'Média' },
-                    { value: 'HIGH', label: 'Alta' },
-                    { value: 'URGENT', label: 'Urgente' },
-                  ]}
-                />
-                <Input
-                  type="number"
-                  min={0}
-                  placeholder="Valor (opcional)"
-                  value={milestoneForm.value}
-                  onChange={(e) =>
-                    setMilestoneForm({
-                      ...milestoneForm,
-                      value: e.target.value,
-                    })
-                  }
-                />
-                <Input
-                  placeholder="Moeda"
-                  value={milestoneForm.currency}
-                  onChange={(e) =>
-                    setMilestoneForm({
-                      ...milestoneForm,
-                      currency: e.target.value,
-                    })
-                  }
-                />
-                <div className="md:col-span-2">
-                  <Button type="submit" disabled={savingMilestone}>
-                    {savingMilestone ? 'A guardar...' : 'Criar Marco'}
-                  </Button>
-                </div>
-              </CardBody>
-            </Card>
-          </form>
-        )}
-
-        <Card>
-          <div className="divide-y divide-border">
-            {p.milestones.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">
-                Sem marcos registados
-              </p>
-            ) : (
-              p.milestones.map((m) => (
-                <div
-                  key={m.id}
-                  className="p-4 flex justify-between items-center"
-                >
-                  <div>
-                    <p className="font-body font-medium text-ink">{m.title}</p>
-                    {m.description && (
-                      <p className="font-body text-sm text-ink-muted">
-                        {m.description}
-                      </p>
-                    )}
-                    <p className="font-body text-xs text-ink-faint mt-1">
-                      Prazo: {formatDate(m.dueDate)}
-                      {m.value
-                        ? ` · ${m.currency} ${m.value.toLocaleString('pt-AO')}`
-                        : ''}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={cn(
-                        'inline-flex items-center rounded-pill px-2 py-1 font-body text-xs font-semibold',
-                        MILESTONE_COLORS[m.status] ??
-                          'bg-surface-sunken text-ink-muted',
-                      )}
-                    >
-                      {m.status}
-                    </span>
-                    {m.status !== 'COMPLETED' && m.status !== 'CANCELLED' && (
-                      <button
-                        onClick={() => completeMilestone(m.id)}
-                        className="font-body text-xs text-success-ink hover:underline"
-                      >
-                        Concluir
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </Card>
-      </section>
-
-      {/* Interacções */}
-      <section>
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="font-display text-lg font-semibold text-ink">
-            Interacções ({p.interactions.length})
-          </h2>
-          <Button
-            onClick={() => setShowForm((s) => !s)}
-            intent={showForm ? 'secondary' : 'primary'}
-          >
-            {showForm ? 'Cancelar' : '+ Nova Interacção'}
-          </Button>
-        </div>
-
-        {showForm && (
-          <form onSubmit={submitInteraction} className="mb-4">
-            <Card>
-              <CardBody className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Select
-                    value={form.type}
-                    onValueChange={(value) => setForm({ ...form, type: value })}
-                    items={[
-                      { value: 'MEETING', label: 'Reunião' },
-                      { value: 'CALL', label: 'Chamada' },
-                      { value: 'EMAIL', label: 'Email' },
-                      { value: 'VISIT', label: 'Visita' },
-                      { value: 'EVENT', label: 'Evento' },
-                      { value: 'NOTE', label: 'Nota' },
-                      { value: 'REVIEW', label: 'Revisão' },
-                    ]}
-                  />
-                  <Input
-                    type="number"
-                    min={1}
-                    max={5}
-                    placeholder="Satisfação (1-5)"
-                    value={form.satisfaction}
-                    onChange={(e) =>
-                      setForm({ ...form, satisfaction: e.target.value })
-                    }
-                  />
-                </div>
-                <Input
-                  required
-                  placeholder="Assunto"
-                  value={form.subject}
-                  onChange={(e) =>
-                    setForm({ ...form, subject: e.target.value })
-                  }
-                />
-                <Textarea
-                  required
-                  placeholder="Descrição"
-                  value={form.description}
-                  onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
-                  }
-                  rows={3}
-                />
-                <Input
-                  placeholder="Resultado (opcional)"
-                  value={form.outcome}
-                  onChange={(e) =>
-                    setForm({ ...form, outcome: e.target.value })
-                  }
-                />
-                <Button type="submit" disabled={saving}>
-                  {saving ? 'A guardar...' : 'Guardar Interacção'}
-                </Button>
-              </CardBody>
-            </Card>
-          </form>
-        )}
-
-        <Card>
-          <div className="divide-y divide-border">
-            {p.interactions.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">
-                Sem interacções registadas
-              </p>
-            ) : (
-              p.interactions.map((it) => (
-                <div key={it.id} className="p-4">
-                  <div className="flex justify-between items-center">
-                    <span className="font-body font-medium text-ink">
-                      <span className="font-body text-xs bg-surface-sunken text-ink-muted px-2 py-0.5 rounded mr-2">
-                        {it.type}
-                      </span>
-                      {it.subject}
-                    </span>
-                    <span className="font-body text-xs text-ink-faint">
-                      {formatDate(it.date)}
-                    </span>
-                  </div>
-                  <p className="font-body text-sm text-ink-muted mt-1">
-                    {it.description}
-                  </p>
-                  <div className="flex gap-4 mt-1 font-body text-xs text-ink-faint">
-                    {it.user?.fullName && <span>Por: {it.user.fullName}</span>}
-                    {it.outcome && <span>Resultado: {it.outcome}</span>}
-                    {it.satisfaction != null && (
-                      <span>Satisfação: {it.satisfaction}/5</span>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </Card>
-      </section>
+      <MilestonesSection partnerId={p.id} milestones={p.milestones} />
+      <InteractionsSection partnerId={p.id} interactions={p.interactions} />
     </div>
   );
 }

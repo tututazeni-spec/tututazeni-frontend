@@ -14,7 +14,7 @@
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -68,9 +68,8 @@ const MODALITY_ITEMS = [
 ];
 
 export function EventsTab({ initialStatus }: { initialStatus?: string }) {
-  const role = useCurrentRole();
-  const canPublish = !!role && PUBLISH_ROLES.includes(role);
-  const canModerate = !!role && MODERATE_ROLES.includes(role);
+  const canPublish = useHasRole(PUBLISH_ROLES);
+  const canModerate = useHasRole(MODERATE_ROLES);
   const notify = useToast();
   const confirm = useConfirm();
 

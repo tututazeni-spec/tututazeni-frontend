@@ -5,10 +5,10 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -43,11 +43,7 @@ export function TabSistema() {
       refetchInterval: pollInterval(10_000),
     },
   );
-  const [form, setForm] = useState<SystemSettingsForm | null>(null);
-
-  useEffect(() => {
-    if (data) setForm(data.settings);
-  }, [data]);
+  const [form, setForm] = useServerDraft<SystemSettingsForm>(data?.settings);
 
   const onError = (e: Error) => toast({ title: e.message, intent: 'danger' });
   const refreshStatus = [queryKeys.settings.systemStatus()];

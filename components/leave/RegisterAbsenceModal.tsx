@@ -9,7 +9,7 @@
 import { useState } from 'react';
 import { AlertCircle, Paperclip, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { Button, IconButton } from '@/components/ui/Button';
@@ -49,8 +49,7 @@ export function RegisterAbsenceModal({
   onClose,
   onSuccess,
 }: RegisterAbsenceModalProps) {
-  const role = useCurrentRole();
-  const canPick = !!role && CAN_PICK_EMPLOYEE_ABSENCE.includes(role);
+  const canPick = useHasRole(CAN_PICK_EMPLOYEE_ABSENCE);
   const employees = useEmployeeOptions('leave-absence', canPick);
 
   const [form, setForm] = useState({

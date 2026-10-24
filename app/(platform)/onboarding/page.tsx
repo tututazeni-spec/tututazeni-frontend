@@ -18,7 +18,7 @@
 // POST /onboarding e POST /onboarding/templates.
 
 import { useState } from 'react';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import {
   ADMIN_ROLES,
   EVAL_CREATOR_ROLES,
@@ -52,11 +52,11 @@ export default function OnboardingPage() {
   const visibleTabs = filterByRole(TABS, role);
   // Editar/apagar template, gestão de tarefas do template, POST
   // /onboarding e DELETE /onboarding/:id são @Roles(ADMIN, RH).
-  const canManage = !!role && ADMIN_ROLES.includes(role);
+  const canManage = useHasRole(ADMIN_ROLES);
   // Criar plano de integração — @Roles(ADMIN, GESTOR, RH, DIRECTOR, LIDER)
   // em POST /onboarding/templates.
-  const canCreateTemplate = !!role && EVAL_CREATOR_ROLES.includes(role);
-  const isMgmt = !!role && EXECUTIVE_ROLES.includes(role);
+  const canCreateTemplate = useHasRole(EVAL_CREATOR_ROLES);
+  const isMgmt = useHasRole(EXECUTIVE_ROLES);
 
   return (
     <div className="min-h-screen bg-canvas">

@@ -24,7 +24,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useToast } from '@/providers/ToastProvider';
 import { MGMT_ROLES } from '@/lib/roles';
 import { cn } from '@/lib/cn';
@@ -426,8 +426,7 @@ function MyCompletedAndFeedback() {
 }
 
 export function PendingTab() {
-  const role = useCurrentRole();
-  const isMgmt = !!role && MGMT_ROLES.includes(role);
+  const isMgmt = useHasRole(MGMT_ROLES);
 
   return (
     <div className="space-y-8">

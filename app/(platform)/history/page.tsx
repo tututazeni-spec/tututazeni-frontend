@@ -22,13 +22,12 @@ import type { Tab } from '@/components/history/types';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList } from '@/components/ui/PillTabs';
 import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
 import { useState } from 'react';
 
 export default function HistoryPage() {
-  const role = useCurrentRole();
-  const isAdmin = !!role && ADMIN_ROLES.includes(role);
+  const isAdmin = useHasRole(ADMIN_ROLES);
   const [tab, setTab] = useState<Tab>('overview');
 
   // Papéis sem acesso organizacional só têm a aba do colaborador.

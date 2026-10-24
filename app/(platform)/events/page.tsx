@@ -18,7 +18,7 @@ import { PillNav } from '@/components/ui/PillTabs';
 import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import type { Role } from '@/lib/roles';
 import { NAV, TITLES } from '@/components/events/constants';
 import { CalendarTab } from '@/components/events/CalendarTab';
@@ -40,8 +40,7 @@ import { Button } from '@/components/ui/Button';
 const CAN_CREATE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
 
 export default function EventsPage() {
-  const role = useCurrentRole();
-  const canCreate = !!role && CAN_CREATE_ROLES.includes(role);
+  const canCreate = useHasRole(CAN_CREATE_ROLES);
 
   const [nav, setNav] = useState<Nav>({ view: 'overview' });
   // Estado pré-seleccionado ao abrir a lista a partir da Visão Geral

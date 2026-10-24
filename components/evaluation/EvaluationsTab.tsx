@@ -17,7 +17,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -74,9 +74,8 @@ function useDepartmentOptions() {
 
 export function EvaluationsTab() {
   const notify = useToast();
-  const role = useCurrentRole();
   const { data: me } = useCurrentUser();
-  const canManage = !!role && MGMT_ROLES.includes(role);
+  const canManage = useHasRole(MGMT_ROLES);
 
   const [cycleId, setCycleId] = useState(ALL);
   const [departmentId, setDepartmentId] = useState(ALL);

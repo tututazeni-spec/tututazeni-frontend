@@ -6,10 +6,11 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { useServerDraft } from '@/hooks/useServerDraft';
 import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -67,13 +68,9 @@ export function TabAutenticacao() {
     '/settings/users/policy',
   );
 
-  const [form, setForm] = useState<AuthForm | null>(null);
+  const [form, setForm] = useServerDraft<AuthForm>(data);
   const [clientSecret, setClientSecret] = useState('');
   const [bindPassword, setBindPassword] = useState('');
-
-  useEffect(() => {
-    if (data) setForm(data);
-  }, [data]);
 
   const save = useApiMutation(
     (payload: Record<string, unknown>) =>
