@@ -30,3 +30,12 @@ describe('useFormState', () => {
     expect(result.current.values).toEqual(INITIAL);
   });
 });
+
+describe('useFormState — updater', () => {
+  test('set aceita (actual) => novo, como o setState', () => {
+    const { result } = renderHook(() => useFormState(INITIAL));
+    act(() => result.current.set('tags', (t) => [...t, 'a']));
+    act(() => result.current.set('tags', (t) => [...t, 'b']));
+    expect(result.current.values.tags).toEqual(['a', 'b']);
+  });
+});

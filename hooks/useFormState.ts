@@ -16,10 +16,20 @@ import { useCallback, useState } from 'react';
 export function useFormState<T extends object>(initial: T) {
   const [values, setValues] = useState<T>(initial);
 
-  /** Actualiza um campo; `value` tipado pelo próprio campo. */
+  /**
+   * Actualiza um campo; `value` tipado pelo próprio campo. Aceita também um
+   * updater `(actual) => novo`, como o setState, para listas (add/remove).
+   * Não usar com campos cujo valor seja uma função.
+   */
   const set = useCallback(
-    <K extends keyof T>(key: K, value: T[K]) =>
-      setValues((prev) => ({ ...prev, [key]: value })),
+    <K extends keyof T>(key: K, value: T[K] | ((prev: T[K]) => T[K])) =>
+      setValues((prev) => ({
+        ...prev,
+        [key]:
+          typeof value === 'function'
+            ? (value as (p: T[K]) => T[K])(prev[key])
+            : value,
+      })),
     [],
   );
 
