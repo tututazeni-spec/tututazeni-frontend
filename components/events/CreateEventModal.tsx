@@ -26,6 +26,7 @@ import { useState } from 'react';
 import { CourseImageField } from '@/components/courses/CourseImageField';
 import { AlertCircle } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
+import { useFormState } from '@/hooks/useFormState';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { Button } from '@/components/ui/Button';
@@ -66,50 +67,116 @@ const VISIBILITY_ITEMS = Object.entries(VISIBILITY_CFG).map(([value, cfg]) => ({
 // Sentinela do Select "Departamento": evento sem departamento dono (todos).
 const ALL_DEPARTMENTS = 'ALL';
 
+interface EventForm {
+  title: string;
+  code: string;
+  description: string;
+  objective: string;
+  type: EventType;
+  category: string;
+  responsible: DirectoryUser | null;
+  unitId: string;
+  departmentId: string;
+  bannerUrl: string | null;
+  startAt: string;
+  endAt: string;
+  timezone: string;
+  modalidade: EventModalidade;
+  location: string;
+  address: string;
+  room: string;
+  meetingUrl: string;
+  maxCapacity: string;
+  mandatory: boolean;
+  registrationStartAt: string;
+  registrationEndAt: string;
+  waitlistEnabled: boolean;
+  requiresApproval: boolean;
+  targetAudience: string;
+  restrictedDeptIds: string[];
+  visibility: EventVisibility;
+  allowGuest: boolean;
+  certificateEnabled: boolean;
+  evaluationEnabled: boolean;
+  checkinEnabled: boolean;
+  notificationsEnabled: boolean;
+}
+
+const INITIAL_FORM: EventForm = {
+  title: '',
+  code: '',
+  description: '',
+  objective: '',
+  type: 'TRAINING',
+  category: '',
+  responsible: null,
+  unitId: '',
+  departmentId: '',
+  bannerUrl: null,
+  startAt: '',
+  endAt: '',
+  timezone: 'Africa/Luanda',
+  modalidade: 'ONLINE',
+  location: '',
+  address: '',
+  room: '',
+  meetingUrl: '',
+  maxCapacity: '50',
+  mandatory: false,
+  registrationStartAt: '',
+  registrationEndAt: '',
+  waitlistEnabled: true,
+  requiresApproval: false,
+  targetAudience: '',
+  restrictedDeptIds: [],
+  visibility: 'INTERNAL',
+  allowGuest: false,
+  certificateEnabled: false,
+  evaluationEnabled: true,
+  checkinEnabled: true,
+  notificationsEnabled: true,
+};
+
 export function CreateEventModal({ onClose }: CreateEventModalProps) {
   const notify = useToast();
 
-  // Informações gerais
-  const [title, setTitle] = useState('');
-  const [code, setCode] = useState('');
-  const [description, setDescription] = useState('');
-  const [objective, setObjective] = useState('');
-  const [type, setType] = useState<EventType>('TRAINING');
-  const [category, setCategory] = useState('');
-  const [responsible, setResponsible] = useState<DirectoryUser | null>(null);
-  const [unitId, setUnitId] = useState('');
-  const [departmentId, setDepartmentId] = useState('');
-  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
-
-  // Data & horário
-  const [startAt, setStartAt] = useState('');
-  const [endAt, setEndAt] = useState('');
-  const [timezone, setTimezone] = useState('Africa/Luanda');
-
-  // Local
-  const [modalidade, setModalidade] = useState<EventModalidade>('ONLINE');
-  const [location, setLocation] = useState('');
-  const [address, setAddress] = useState('');
-  const [room, setRoom] = useState('');
-  const [meetingUrl, setMeetingUrl] = useState('');
-  const [maxCapacity, setMaxCapacity] = useState('50');
-
-  // Inscrições
-  const [mandatory, setMandatory] = useState(false);
-  const [registrationStartAt, setRegistrationStartAt] = useState('');
-  const [registrationEndAt, setRegistrationEndAt] = useState('');
-  const [waitlistEnabled, setWaitlistEnabled] = useState(true);
-  const [requiresApproval, setRequiresApproval] = useState(false);
-  const [targetAudience, setTargetAudience] = useState('');
-  const [restrictedDeptIds, setRestrictedDeptIds] = useState<string[]>([]);
-
-  // Configurações
-  const [visibility, setVisibility] = useState<EventVisibility>('INTERNAL');
-  const [allowGuest, setAllowGuest] = useState(false);
-  const [certificateEnabled, setCertificateEnabled] = useState(false);
-  const [evaluationEnabled, setEvaluationEnabled] = useState(true);
-  const [checkinEnabled, setCheckinEnabled] = useState(true);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const { values, set } = useFormState(INITIAL_FORM);
+  // Só leitura: a lógica e o JSX abaixo continuam a usar os nomes soltos; as
+  // escritas passam por set('campo', valor).
+  const {
+    title,
+    code,
+    description,
+    objective,
+    type,
+    category,
+    responsible,
+    unitId,
+    departmentId,
+    bannerUrl,
+    startAt,
+    endAt,
+    timezone,
+    modalidade,
+    location,
+    address,
+    room,
+    meetingUrl,
+    maxCapacity,
+    mandatory,
+    registrationStartAt,
+    registrationEndAt,
+    waitlistEnabled,
+    requiresApproval,
+    targetAudience,
+    restrictedDeptIds,
+    visibility,
+    allowGuest,
+    certificateEnabled,
+    evaluationEnabled,
+    checkinEnabled,
+    notificationsEnabled,
+  } = values;
 
   const [submitError, setSubmitError] = useState('');
 
@@ -119,8 +186,11 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
   const unitItems = units.map((u) => ({ value: String(u.id), label: u.name }));
 
   const toggleRestrictedDept = (id: string) =>
-    setRestrictedDeptIds((prev) =>
-      prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id],
+    set(
+      'restrictedDeptIds',
+      restrictedDeptIds.includes(id)
+        ? restrictedDeptIds.filter((d) => d !== id)
+        : [...restrictedDeptIds, id],
     );
 
   const capacityNum = Number(maxCapacity);
@@ -240,7 +310,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
             >
               <CourseImageField
                 value={bannerUrl}
-                onChange={setBannerUrl}
+                onChange={(v) => set('bannerUrl', v)}
                 alt="Pré-visualização da imagem do evento"
               />
             </FormField>
@@ -249,7 +319,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               <Input
                 id="ev-title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => set('title', e.target.value)}
                 placeholder="Ex.: Workshop de Inovação Q1"
               />
             </FormField>
@@ -263,7 +333,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <Input
                   id="ev-code"
                   value={code}
-                  onChange={(e) => setCode(e.target.value)}
+                  onChange={(e) => set('code', e.target.value)}
                   placeholder="Ex.: EVT-2026-001"
                 />
               </FormField>
@@ -276,7 +346,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <Input
                   id="ev-category"
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  onChange={(e) => set('category', e.target.value)}
                   placeholder="Ex.: Cultura organizacional"
                 />
               </FormField>
@@ -287,7 +357,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <Select
                   items={TYPE_ITEMS}
                   value={type}
-                  onValueChange={(v) => setType(v as EventType)}
+                  onValueChange={(v) => set('type', v as EventType)}
                 />
               </FormField>
 
@@ -302,7 +372,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                     ...departmentOptions,
                   ]}
                   value={departmentId}
-                  onValueChange={setDepartmentId}
+                  onValueChange={(v) => set('departmentId', v)}
                   placeholder={
                     departmentsLoading ? 'A carregar…' : 'Seleciona…'
                   }
@@ -318,7 +388,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               <Select
                 items={unitItems}
                 value={unitId}
-                onValueChange={setUnitId}
+                onValueChange={(v) => set('unitId', v)}
                 placeholder={unitsLoading ? 'A carregar…' : 'Seleciona…'}
               />
             </FormField>
@@ -327,7 +397,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               label="Responsável"
               htmlFor="ev-responsible"
               value={responsible}
-              onChange={setResponsible}
+              onChange={(v) => set('responsible', v)}
             />
 
             <FormField label="Objetivo" htmlFor="ev-objective" hint="Opcional.">
@@ -335,7 +405,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 id="ev-objective"
                 rows={2}
                 value={objective}
-                onChange={(e) => setObjective(e.target.value)}
+                onChange={(e) => set('objective', e.target.value)}
                 placeholder="O que se pretende alcançar com este evento…"
               />
             </FormField>
@@ -349,7 +419,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 id="ev-description"
                 rows={3}
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => set('description', e.target.value)}
                 placeholder="Agenda, oradores, pré-requisitos…"
               />
             </FormField>
@@ -367,7 +437,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                   id="ev-start"
                   type="datetime-local"
                   value={startAt}
-                  onChange={(e) => setStartAt(e.target.value)}
+                  onChange={(e) => set('startAt', e.target.value)}
                 />
               </FormField>
 
@@ -376,7 +446,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                   id="ev-end"
                   type="datetime-local"
                   value={endAt}
-                  onChange={(e) => setEndAt(e.target.value)}
+                  onChange={(e) => set('endAt', e.target.value)}
                 />
               </FormField>
             </div>
@@ -389,7 +459,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               <Input
                 id="ev-timezone"
                 value={timezone}
-                onChange={(e) => setTimezone(e.target.value)}
+                onChange={(e) => set('timezone', e.target.value)}
                 placeholder="Africa/Luanda"
               />
             </FormField>
@@ -405,7 +475,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               <Select
                 items={MODALITY_ITEMS}
                 value={modalidade}
-                onValueChange={(v) => setModalidade(v as EventModalidade)}
+                onValueChange={(v) => set('modalidade', v as EventModalidade)}
               />
             </FormField>
 
@@ -418,7 +488,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <Input
                   id="ev-location"
                   value={location}
-                  onChange={(e) => setLocation(e.target.value)}
+                  onChange={(e) => set('location', e.target.value)}
                   placeholder="Ex.: Auditório, Piso 3"
                 />
               </FormField>
@@ -427,7 +497,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <Input
                   id="ev-room"
                   value={room}
-                  onChange={(e) => setRoom(e.target.value)}
+                  onChange={(e) => set('room', e.target.value)}
                   placeholder="Ex.: Sala 2A"
                 />
               </FormField>
@@ -437,7 +507,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               <Input
                 id="ev-address"
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                onChange={(e) => set('address', e.target.value)}
                 placeholder="Morada completa"
               />
             </FormField>
@@ -450,7 +520,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               <Input
                 id="ev-meeting"
                 value={meetingUrl}
-                onChange={(e) => setMeetingUrl(e.target.value)}
+                onChange={(e) => set('meetingUrl', e.target.value)}
                 placeholder="https://…"
               />
             </FormField>
@@ -461,7 +531,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 type="number"
                 min={1}
                 value={maxCapacity}
-                onChange={(e) => setMaxCapacity(e.target.value)}
+                onChange={(e) => set('maxCapacity', e.target.value)}
               />
             </FormField>
           </section>
@@ -482,7 +552,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                   id="ev-reg-start"
                   type="datetime-local"
                   value={registrationStartAt}
-                  onChange={(e) => setRegistrationStartAt(e.target.value)}
+                  onChange={(e) => set('registrationStartAt', e.target.value)}
                 />
               </FormField>
 
@@ -495,7 +565,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                   id="ev-reg-end"
                   type="datetime-local"
                   value={registrationEndAt}
-                  onChange={(e) => setRegistrationEndAt(e.target.value)}
+                  onChange={(e) => set('registrationEndAt', e.target.value)}
                 />
               </FormField>
             </div>
@@ -508,7 +578,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               <Input
                 id="ev-target-audience"
                 value={targetAudience}
-                onChange={(e) => setTargetAudience(e.target.value)}
+                onChange={(e) => set('targetAudience', e.target.value)}
                 placeholder="Ex.: Equipas comerciais, novos colaboradores…"
               />
             </FormField>
@@ -518,7 +588,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <input
                   type="checkbox"
                   checked={mandatory}
-                  onChange={(e) => setMandatory(e.target.checked)}
+                  onChange={(e) => set('mandatory', e.target.checked)}
                   className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
                 />
                 Inscrição obrigatória
@@ -527,7 +597,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <input
                   type="checkbox"
                   checked={waitlistEnabled}
-                  onChange={(e) => setWaitlistEnabled(e.target.checked)}
+                  onChange={(e) => set('waitlistEnabled', e.target.checked)}
                   className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
                 />
                 Lista de espera
@@ -536,7 +606,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <input
                   type="checkbox"
                   checked={requiresApproval}
-                  onChange={(e) => setRequiresApproval(e.target.checked)}
+                  onChange={(e) => set('requiresApproval', e.target.checked)}
                   className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
                 />
                 Aprovação de inscrição
@@ -593,7 +663,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               <Select
                 items={VISIBILITY_ITEMS}
                 value={visibility}
-                onValueChange={(v) => setVisibility(v as EventVisibility)}
+                onValueChange={(v) => set('visibility', v as EventVisibility)}
               />
             </FormField>
 
@@ -602,7 +672,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <input
                   type="checkbox"
                   checked={allowGuest}
-                  onChange={(e) => setAllowGuest(e.target.checked)}
+                  onChange={(e) => set('allowGuest', e.target.checked)}
                   className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
                 />
                 Permitir acompanhante
@@ -611,7 +681,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <input
                   type="checkbox"
                   checked={certificateEnabled}
-                  onChange={(e) => setCertificateEnabled(e.target.checked)}
+                  onChange={(e) => set('certificateEnabled', e.target.checked)}
                   className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
                 />
                 Certificado
@@ -620,7 +690,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <input
                   type="checkbox"
                   checked={evaluationEnabled}
-                  onChange={(e) => setEvaluationEnabled(e.target.checked)}
+                  onChange={(e) => set('evaluationEnabled', e.target.checked)}
                   className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
                 />
                 Avaliação
@@ -629,7 +699,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <input
                   type="checkbox"
                   checked={checkinEnabled}
-                  onChange={(e) => setCheckinEnabled(e.target.checked)}
+                  onChange={(e) => set('checkinEnabled', e.target.checked)}
                   className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
                 />
                 Check-in
@@ -638,7 +708,9 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 <input
                   type="checkbox"
                   checked={notificationsEnabled}
-                  onChange={(e) => setNotificationsEnabled(e.target.checked)}
+                  onChange={(e) =>
+                    set('notificationsEnabled', e.target.checked)
+                  }
                   className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
                 />
                 Notificações
