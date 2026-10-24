@@ -41,20 +41,18 @@ import {
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
 import type { ReportFormat } from './types';
-import {
-  AlertsTab,
-  ApiTab,
-  AutomationsTab,
-  ContentTab,
-  DatabaseTab,
-  IntegrationsTab,
-  OverviewTab,
-  PerformanceTab,
-  QueuesTab,
-  SlaTab,
-  StorageTab,
-  UsersTab,
-} from './ScalabilityDashboardView';
+import { AlertsTab } from './tabs/AlertsTab';
+import { ApiTab } from './tabs/ApiTab';
+import { AutomationsTab } from './tabs/AutomationsTab';
+import { ContentTab } from './tabs/ContentTab';
+import { DatabaseTab } from './tabs/DatabaseTab';
+import { IntegrationsTab } from './tabs/IntegrationsTab';
+import { OverviewTab } from './tabs/OverviewTab';
+import { PerformanceTab } from './tabs/PerformanceTab';
+import { QueuesTab } from './tabs/QueuesTab';
+import { SlaTab } from './tabs/SlaTab';
+import { StorageTab } from './tabs/StorageTab';
+import { UsersTab } from './tabs/UsersTab';
 import { AutoScalingTab, CapacityTab, ResilienceTab } from './InfraTabs';
 import { ForecastsTab, IncidentsTab } from './IncidentsForecastsTabs';
 import {

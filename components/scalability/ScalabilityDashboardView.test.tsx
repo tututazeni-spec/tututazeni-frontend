@@ -33,21 +33,19 @@ vi.mock('./ContentDeliveryConfigModal', () => ({
   ContentDeliveryConfigModal: () => <div>[ContentDeliveryConfigModal]</div>,
 }));
 
-import {
-  ScalabilityShell,
-  OverviewTab,
-  PerformanceTab,
-  IntegrationsTab,
-  AutomationsTab,
-  AlertsTab,
-  SlaTab,
-  UsersTab,
-  ContentTab,
-  QueuesTab,
-  StorageTab,
-  ApiTab,
-  DatabaseTab,
-} from './ScalabilityDashboardView';
+import { ScalabilityShell } from './ScalabilityDashboardView';
+import { AlertsTab } from './tabs/AlertsTab';
+import { ApiTab } from './tabs/ApiTab';
+import { AutomationsTab } from './tabs/AutomationsTab';
+import { ContentTab } from './tabs/ContentTab';
+import { DatabaseTab } from './tabs/DatabaseTab';
+import { IntegrationsTab } from './tabs/IntegrationsTab';
+import { OverviewTab } from './tabs/OverviewTab';
+import { PerformanceTab } from './tabs/PerformanceTab';
+import { QueuesTab } from './tabs/QueuesTab';
+import { SlaTab } from './tabs/SlaTab';
+import { StorageTab } from './tabs/StorageTab';
+import { UsersTab } from './tabs/UsersTab';
 import type {
   DashboardData,
   Alert,
@@ -355,7 +353,9 @@ describe('ScalabilityDashboardView — conteúdo', () => {
     expect(
       screen.queryByText('[ContentDeliveryConfigModal]'),
     ).not.toBeInTheDocument();
-    fireEvent.click(screen.getAllByRole('button', { name: 'Configurar CDN' })[0]);
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Configurar CDN' })[0],
+    );
     expect(
       screen.getByText('[ContentDeliveryConfigModal]'),
     ).toBeInTheDocument();
@@ -443,7 +443,9 @@ describe('ScalabilityDashboardView — filas e storage', () => {
     expect(screen.getByText('Tarefas falhadas')).toBeInTheDocument();
     expect(screen.getByText('1.5 s', { selector: 'p' })).toBeInTheDocument();
     expect(screen.getByText(/SMTP timeout/)).toBeInTheDocument();
-    expect(screen.getByText(/Folha de pagamento, Relatórios/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Folha de pagamento, Relatórios/),
+    ).toBeInTheDocument();
     expect(screen.getByText('Histórico insuficiente')).toBeInTheDocument();
   });
 
