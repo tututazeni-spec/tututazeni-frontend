@@ -6,6 +6,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { reportError } from '@/lib/errorReporting';
+import { apiClient } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
 import type { JitsiAPI, LiveClass } from './types';
 
@@ -23,13 +24,28 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   const [loadError, setLoadError] = useState(false);
   const [retryToken, setRetryToken] = useState(0);
 
-  const roomName = `innova-live-${liveClass.id}-${liveClass.topic
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '-')
-    .slice(0, 30)}`;
+  // Nome da sala emitido pelo backend (HMAC): o meet.jit.si público não tem
+  // autenticação, por isso um nome previsível deixava entrar qualquer pessoa.
+  const [roomName, setRoomName] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiClient
+      .get<{ roomName: string }>(`/live-classes/${liveClass.id}/room`)
+      .then((r) => {
+        if (!cancelled) setRoomName(r.roomName);
+      })
+      .catch((e) => {
+        reportError(e, { source: 'JitsiRoom.roomName' });
+        if (!cancelled) setLoadError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [liveClass.id, retryToken]);
 
   const initJitsi = useCallback(() => {
-    if (!containerRef.current || !window.JitsiMeetExternalAPI) return;
+    if (!roomName || !containerRef.current || !window.JitsiMeetExternalAPI) return;
 
     const jitsi = new window.JitsiMeetExternalAPI('meet.jit.si', {
       roomName,
