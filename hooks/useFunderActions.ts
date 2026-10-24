@@ -4,14 +4,12 @@
 // próprio formulário; antes tudo vivia em useFunderDetail, que devolvia ~30
 // valores (estado dos formulários + setters + submits) para FunderDetailView.
 //
-// Todas invalidam o detalhe do financiador e mostram o erro num toast. O que
-// acontece em caso de sucesso (fechar o formulário, limpar campos) fica a
-// cargo de quem chama, via `mutate(vars, { onSuccess })`.
+// Todas usam useCrmDetailMutation (invalida o detalhe e mostra o erro num
+// toast); o sucesso fica a cargo de quem chama, via `mutate(vars, { onSuccess })`.
 
 'use client';
 
-import { useApiMutation } from '@/hooks/useApiQuery';
-import { useToast } from '@/providers/ToastProvider';
+import { useCrmDetailMutation } from '@/hooks/useCrmDetailMutation';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import type {
@@ -20,17 +18,10 @@ import type {
   InteractionForm,
 } from '@/components/crm/funders/types';
 
-function useFunderMutation<TVars>(
+const useFunderMutation = <TVars>(
   funderId: string,
   mutationFn: (vars: TVars) => Promise<unknown>,
-) {
-  const notify = useToast();
-  return useApiMutation(mutationFn, {
-    invalidateKeys: [queryKeys.funders.detail(funderId)],
-    onError: (e) =>
-      notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),
-  });
-}
+) => useCrmDetailMutation(queryKeys.funders.detail(funderId), mutationFn);
 
 export const useCreateGrant = (funderId: string) =>
   useFunderMutation(funderId, (form: GrantForm) =>
