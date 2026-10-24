@@ -307,7 +307,6 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
                   })
                 }
                 onDeleteLesson={deleteLesson}
-                canManage={canManage}
               />
             ))}
         </div>

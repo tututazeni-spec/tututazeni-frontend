@@ -8,6 +8,10 @@
 // StatusBadge substitui o ícone dedicado.
 
 import type { StatusBadgeMap } from '@/lib/statusBadge';
+import type { Role } from '@/lib/roles';
+
+/** ADMIN/RH: configuram o módulo e vêem as substituições de todos os aprovadores. */
+export const LEAVE_ADMIN_ROLES: Role[] = ['ADMIN', 'RH'];
 import type {
   AbsenceJustificationStatus,
   AbsenceOccurrenceType,

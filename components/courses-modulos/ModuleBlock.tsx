@@ -24,6 +24,8 @@ import {
   CATEGORY_BTN_PRIMARY,
 } from '@/components/courses/CategoryCard';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
+import { useHasRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 import type { CourseModule, Lesson, ModuleStatus } from './types';
 import { LessonRow } from './LessonRow';
 
@@ -57,8 +59,6 @@ interface ModuleBlockProps {
   onAddLesson: () => void;
   onEditLesson: (l: Lesson) => void;
   onDeleteLesson: (l: Lesson) => void;
-  /** ADMIN/RH apenas — módulos/lições são @Roles(ADMIN, RH) no backend. */
-  canManage: boolean;
 }
 
 export function ModuleBlock({
@@ -68,8 +68,9 @@ export function ModuleBlock({
   onAddLesson,
   onEditLesson,
   onDeleteLesson,
-  canManage,
 }: ModuleBlockProps) {
+  // ADMIN/RH apenas — módulos/lições são @Roles(ADMIN, RH) no backend.
+  const canManage = useHasRole(ADMIN_ROLES);
   const [open, setOpen] = useState(true);
   const palette = PALETTE[Math.abs(mod.id) % PALETTE.length];
   const status = STATUS_PILL[mod.status ?? 'PUBLISHED'];
@@ -153,7 +154,6 @@ export function ModuleBlock({
                 lesson={l}
                 onEdit={() => onEditLesson(l)}
                 onDelete={() => onDeleteLesson(l)}
-                canManage={canManage}
               />
             ))
           )}
