@@ -21,7 +21,7 @@ import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { ADMIN_ROLES } from '@/lib/roles';
@@ -37,8 +37,7 @@ import { CriteriaFormModal } from './CriteriaFormModal';
 import type { EvalCriteria } from './types';
 
 export function CriteriaTab() {
-  const role = useCurrentRole();
-  const isAdmin = !!role && ADMIN_ROLES.includes(role);
+  const isAdmin = useHasRole(ADMIN_ROLES);
   const notify = useToast();
   const confirm = useConfirm();
 

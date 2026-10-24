@@ -85,6 +85,8 @@ vi.mock('@/providers/ToastProvider', () => ({ useToast: () => vi.fn() }));
 let currentRole = 'ADMIN';
 vi.mock('@/hooks/useCurrentRole', () => ({
   useCurrentRole: () => currentRole,
+  useHasRole: (allowed: readonly string[]) =>
+    !!currentRole && allowed.includes(currentRole as string),
 }));
 
 let courseList: unknown[] = [];

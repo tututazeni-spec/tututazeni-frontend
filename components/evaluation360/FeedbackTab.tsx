@@ -29,7 +29,7 @@ import type { ContinuousFeedback, CycleFeedbackRow } from './types';
 import { timeAgo, evaluatorRoleLabel } from './colors';
 import { GiveFeedbackModal } from './GiveFeedbackModal';
 import { useCycleSelectorOptions } from './cycleData';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -45,8 +45,7 @@ export interface FeedbackTabProps {
 
 export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const role = useCurrentRole();
-  const canManage = !!role && EVAL_CREATOR_ROLES.includes(role);
+  const canManage = useHasRole(EVAL_CREATOR_ROLES);
 
   const typeConfig: Record<string, { label: string; color: string }> = {
     RECOGNITION: { label: 'Reconhecimento', color: 'rgb(34, 197, 94)' },

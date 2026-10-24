@@ -10,7 +10,7 @@ import { useState, type ReactNode } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { GraduationCap, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -810,8 +810,8 @@ function ProgramSheetModal({
 export function ProgramsTab() {
   const role = useCurrentRole();
   const notify = useToast();
-  const isAuthor = !!role && AUTHOR_ROLES.includes(role);
-  const isAdmin = !!role && ADMIN_ROLES.includes(role);
+  const isAuthor = useHasRole(AUTHOR_ROLES);
+  const isAdmin = useHasRole(ADMIN_ROLES);
   const [showCreate, setShowCreate] = useState(false);
   const [sheetId, setSheetId] = useState<number | null>(null);
   const [editing, setEditing] = useState<AvatarProgramDetail | null>(null);

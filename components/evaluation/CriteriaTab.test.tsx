@@ -30,6 +30,8 @@ vi.mock('@/hooks/useApiQuery', () => ({
 let currentRole: string | undefined = 'ADMIN';
 vi.mock('@/hooks/useCurrentRole', () => ({
   useCurrentRole: () => currentRole,
+  useHasRole: (allowed: readonly string[]) =>
+    !!currentRole && allowed.includes(currentRole as string),
 }));
 
 const confirmFn = vi.fn().mockResolvedValue(true);

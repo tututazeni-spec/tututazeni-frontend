@@ -19,7 +19,7 @@ import type { CompetencyScore, CycleResultRow } from './types';
 import { typeColor, typeLabel } from './colors';
 import { RadarChart } from './RadarChart';
 import { CompetencyHeatmap } from './CompetencyHeatmap';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_RESULTS_ADMIN_ROLES } from '@/lib/roles';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -61,8 +61,7 @@ export interface ResultadosTabProps {
 }
 
 export function ResultadosTab({ competencies }: ResultadosTabProps) {
-  const role = useCurrentRole();
-  const canSeeAllResults = !!role && EVAL_RESULTS_ADMIN_ROLES.includes(role);
+  const canSeeAllResults = useHasRole(EVAL_RESULTS_ADMIN_ROLES);
 
   return (
     <div className="flex flex-col gap-8">

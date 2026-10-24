@@ -16,3 +16,16 @@ export function useCurrentRole(): Role | undefined {
   const { data: me } = useCurrentUser();
   return (me?.role?.name as Role | undefined) ?? undefined;
 }
+
+/**
+ * `true` se o utilizador autenticado tem um dos papéis indicados.
+ *
+ * Substitui a linha `const x = !!role && SOME_ROLES.includes(role)` repetida em
+ * ~50 componentes (cada um com o seu useCurrentRole). Enquanto o utilizador
+ * ainda não carregou devolve `false` (esconde a acção); isto é o oposto de
+ * isRoleAllowed(), que deixa passar para não piscar itens de navegação.
+ */
+export function useHasRole(allowed: readonly string[]): boolean {
+  const role = useCurrentRole();
+  return !!role && allowed.includes(role);
+}

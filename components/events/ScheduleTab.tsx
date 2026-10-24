@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { ListOrdered, MoreVertical, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -92,8 +92,7 @@ const EMPTY_FORM: SessionFormState = {
 };
 
 export function ScheduleTab() {
-  const role = useCurrentRole();
-  const canManage = !!role && MANAGE_ROLES.includes(role);
+  const canManage = useHasRole(MANAGE_ROLES);
   const notify = useToast();
   const confirm = useConfirm();
   const eventOptions = useEventPickerOptions('sessions');

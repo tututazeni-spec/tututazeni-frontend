@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { FileCheck2, GitCompare, Printer, ShieldAlert } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { AUDIT_GLOBAL_ROLES } from '@/lib/roles';
@@ -136,14 +136,13 @@ function Body({
   const sev = SEVERITY_CFG[data.severity] ?? SEVERITY_CFG.LOW;
   const hasChanges = data.changes && Object.keys(data.changes).length > 0;
   const hasValues = data.before != null || data.after != null;
-  const role = useCurrentRole();
   const notify = useToast();
   const [compare, setCompare] = useState(false);
   const [incidentOpen, setIncidentOpen] = useState(false);
   // §16/§17: investigar (incidente/evidência) é para consulta global; RH e
   // GESTOR só consultam. A geração de evidência segue ainda a política de
   // exportação no backend (por omissão só ADMIN) — o erro aparece como aviso.
-  const canInvestigate = !!role && AUDIT_GLOBAL_ROLES.includes(role);
+  const canInvestigate = useHasRole(AUDIT_GLOBAL_ROLES);
 
   const evidence = useApiMutation(
     () =>

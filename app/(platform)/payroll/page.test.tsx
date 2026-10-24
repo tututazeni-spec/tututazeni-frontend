@@ -31,6 +31,8 @@ vi.mock('@/components/payroll/DisputesView', () => ({
 const roleRef = vi.hoisted(() => ({ role: 'ADMIN' as string | undefined }));
 vi.mock('@/hooks/useCurrentRole', () => ({
   useCurrentRole: () => roleRef.role,
+  useHasRole: (allowed: readonly string[]) =>
+    !!roleRef.role && allowed.includes(roleRef.role as string),
 }));
 vi.mock('@/components/payslips/ListView', () => ({
   ListView: () => <div>my-list</div>,

@@ -10,7 +10,7 @@
 
 import { useState } from 'react';
 import { PillNav } from '@/components/ui/PillTabs';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { CertificatesView } from '@/components/courses/CertificatesView';
 import { OverviewTab } from './OverviewTab';
 import { CertificatesTab } from './CertificatesTab';
@@ -45,9 +45,10 @@ const MANAGER_TABS = [
 type TabId = (typeof ADMIN_TABS)[number]['id'];
 
 export function CertificatesCenter() {
-  const role = useCurrentRole();
-  const isAdmin = !!role && ADMIN_ROLES.includes(role);
-  const isManager = !!role && MANAGER_ROLES.includes(role);
+  const isAdmin = useHasRole(ADMIN_ROLES);
+  const isManager = useHasRole(MANAGER_ROLES);
+  const canWrite = useHasRole(WRITE_ROLES);
+  const canApprove = useHasRole(APPROVE_ROLES);
   const [tab, setTab] = useState<TabId | null>(null);
   const [status, setStatus] = useState<EffectiveStatus | ''>('');
 
@@ -55,8 +56,6 @@ export function CertificatesCenter() {
 
   const tabs = isAdmin ? ADMIN_TABS : MANAGER_TABS;
   const current: TabId = tab ?? tabs[0].id;
-  const canWrite = !!role && WRITE_ROLES.includes(role);
-  const canApprove = !!role && APPROVE_ROLES.includes(role);
 
   return (
     <div className="space-y-6">

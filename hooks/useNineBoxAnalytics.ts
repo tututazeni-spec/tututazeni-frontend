@@ -10,7 +10,7 @@
 
 import type { NineBoxEntry } from '@/components/development-plans/types';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 
@@ -31,8 +31,7 @@ interface RawNineBoxEntry {
 }
 
 export function useNineBoxAnalytics() {
-  const role = useCurrentRole();
-  const canSeeNineBox = !!role && NINE_BOX_ROLES.includes(role);
+  const canSeeNineBox = useHasRole(NINE_BOX_ROLES);
 
   const { data: cyclesData, isLoading: cyclesLoading } = useApiQuery<{
     data: RawCycle[];

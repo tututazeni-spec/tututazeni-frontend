@@ -30,7 +30,7 @@ import { ProgressoView } from '@/components/courses/ProgressoView';
 import { RelatoriosView } from '@/components/courses/RelatoriosView';
 import { TurmasView } from '@/components/courses/TurmasView';
 import type { Nav, TopLevelView } from '@/components/courses/types';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { PillNav } from '@/components/ui/PillTabs';
@@ -59,7 +59,7 @@ export default function CoursesPage() {
   // Enquanto a role ainda não chegou (arranque pós-login/reload) tratamos
   // como não-privilegiado — os separadores restritos aparecem assim que
   // /auth/me resolve.
-  const isAdmin = !!role && ADMIN_ROLES.includes(role);
+  const isAdmin = useHasRole(ADMIN_ROLES);
   const visibleNav = NAV.filter(
     (n) => !n.roles || (!!role && n.roles.includes(role)),
   );

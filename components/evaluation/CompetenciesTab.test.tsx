@@ -15,6 +15,8 @@ vi.mock('@/hooks/useApiQuery', () => ({
 let currentRole: string | undefined = 'COLABORADOR';
 vi.mock('@/hooks/useCurrentRole', () => ({
   useCurrentRole: () => currentRole,
+  useHasRole: (allowed: readonly string[]) =>
+    !!currentRole && allowed.includes(currentRole as string),
 }));
 
 vi.mock('@/components/departments/DepartmentUserPicker', () => ({

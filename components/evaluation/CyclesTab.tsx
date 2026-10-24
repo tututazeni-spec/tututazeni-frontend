@@ -15,7 +15,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
@@ -47,14 +47,13 @@ const CYCLE_TONE: Record<string, NavyTone> = {
 
 export function CyclesTab() {
   const notify = useToast();
-  const role = useCurrentRole();
   const [showCreate, setShowCreate] = useState(false);
   // Publicar/Activar/Criar espelham @Roles(ADMIN, RH) de POST
   // /evaluations/cycles(/:id/publish|/activate) (evaluation.controller.ts) —
   // um COLABORADOR pode ver este separador (participa nas suas avaliações),
   // mas não gere o ciclo. Sem isto os botões apareciam para todos e
   // rebentavam com 403 ao clicar.
-  const canManageCycle = !!role && ADMIN_ROLES.includes(role);
+  const canManageCycle = useHasRole(ADMIN_ROLES);
 
   // docs/modulo_evaluation.md ponto 3 — Pausar/Encerrar/Reabrir/Enviar
   // lembretes, mesmo padrão de publish/activate já existente (reload após

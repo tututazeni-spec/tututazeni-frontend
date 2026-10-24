@@ -21,7 +21,7 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { filterByRole, type Role } from '@/lib/roles';
 import {
   BarChart3,
@@ -76,7 +76,7 @@ export default function LeavePage() {
   // `!!role &&` (não "deixar passar enquanto undefined"): isto controla
   // pedidos de rede reais, não só visibilidade de UI — ver isRoleAllowed em
   // lib/roles.ts para a distinção.
-  const isApprover = !!role && LEAVE_APPROVER_ROLES.includes(role);
+  const isApprover = useHasRole(LEAVE_APPROVER_ROLES);
 
   const leaveTypes = useLeaveTypes();
   // Licenças: tudo menos férias (que têm o seu próprio fluxo na aba Férias).

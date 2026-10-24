@@ -44,7 +44,7 @@ import { ComponentsView } from '@/components/payslips/ComponentsView';
 import { DetailView } from '@/components/payslips/DetailView';
 import { ListView } from '@/components/payslips/ListView';
 import { SimulateView } from '@/components/payslips/SimulateView';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
 
 type Nav =
@@ -224,11 +224,10 @@ const LIST_TABS: ReadonlyArray<Nav['tab']> = [
 ];
 
 export default function PayrollPage() {
-  const role = useCurrentRole();
   // Enquanto a role ainda não chegou (arranque pós-login/reload) tratamos
   // como não-admin — os separadores adminOnly aparecem assim que
   // /auth/me resolve.
-  const isAdmin = !!role && ADMIN_ROLES.includes(role);
+  const isAdmin = useHasRole(ADMIN_ROLES);
   const visibleTabs = isAdmin ? TABS : TABS.filter((t) => !t.adminOnly);
 
   const [selected, setNav] = useState<Nav | null>(null);

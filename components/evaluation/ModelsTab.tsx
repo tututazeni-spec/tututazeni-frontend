@@ -11,7 +11,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { ADMIN_ROLES } from '@/lib/roles';
@@ -27,8 +27,7 @@ import { TemplateFormModal } from './TemplateFormModal';
 import type { EvalTemplate } from './types';
 
 export function ModelsTab() {
-  const role = useCurrentRole();
-  const isAdmin = !!role && ADMIN_ROLES.includes(role);
+  const isAdmin = useHasRole(ADMIN_ROLES);
   const notify = useToast();
   const confirm = useConfirm();
 

@@ -8,7 +8,7 @@
 import { useState } from 'react';
 import { History, List as ListIcon, UserCog } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { ADMIN_ROLES } from '@/lib/roles';
@@ -43,8 +43,7 @@ function fmtDate(value: string | null) {
 export function HeadsView() {
   const [subTab, setSubTab] = useState<SubTab>('current');
   const [changing, setChanging] = useState<HeadRow | null>(null);
-  const role = useCurrentRole();
-  const canManage = !!role && ADMIN_ROLES.includes(role);
+  const canManage = useHasRole(ADMIN_ROLES);
 
   const {
     data: heads = [],

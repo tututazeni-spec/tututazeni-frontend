@@ -24,7 +24,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { MGMT_ROLES } from '@/lib/roles';
@@ -208,8 +208,7 @@ export interface OverviewTabProps {
 }
 
 export function OverviewTab({ userId }: OverviewTabProps) {
-  const role = useCurrentRole();
-  const isManagement = !!role && MGMT_ROLES.includes(role);
+  const isManagement = useHasRole(MGMT_ROLES);
   const progressQ = useApiQuery<MyProgress>(
     queryKeys.evaluation.myProgress(),
     '/evaluations/my-progress',

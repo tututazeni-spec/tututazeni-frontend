@@ -16,7 +16,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { formatDate } from '@/lib/format';
@@ -72,7 +72,7 @@ export function NewLicenseModal({
 }: NewLicenseModalProps) {
   const role = useCurrentRole();
   const { data: me } = useCurrentUser();
-  const canPick = !!role && CAN_PICK_EMPLOYEE_LEAVE.includes(role);
+  const canPick = useHasRole(CAN_PICK_EMPLOYEE_LEAVE);
   const showPayroll = role === 'ADMIN' || role === 'RH';
   const employees = useEmployeeOptions('leave-license', canPick);
 

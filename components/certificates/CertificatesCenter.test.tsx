@@ -3,7 +3,11 @@ import { render, screen } from '@testing-library/react';
 import { CertificatesCenter } from './CertificatesCenter';
 
 let role: string | undefined;
-vi.mock('@/hooks/useCurrentRole', () => ({ useCurrentRole: () => role }));
+vi.mock('@/hooks/useCurrentRole', () => ({
+  useCurrentRole: () => role,
+  useHasRole: (allowed: readonly string[]) =>
+    !!role && allowed.includes(role as string),
+}));
 vi.mock('@/components/courses/CertificatesView', () => ({
   CertificatesView: () => <div data-testid="my-certificates" />,
 }));

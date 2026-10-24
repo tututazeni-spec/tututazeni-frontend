@@ -8,7 +8,7 @@
 import { useState } from 'react';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useCurrentRole } from '@/hooks/useCurrentRole';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { formatDate } from '@/lib/format';
@@ -35,9 +35,8 @@ export interface NewVacationModalProps {
 }
 
 export function NewVacationModal({ onClose, onSuccess }: NewVacationModalProps) {
-  const role = useCurrentRole();
   const { data: me } = useCurrentUser();
-  const canPick = !!role && CAN_PICK_EMPLOYEE_LEAVE.includes(role);
+  const canPick = useHasRole(CAN_PICK_EMPLOYEE_LEAVE);
   const employees = useEmployeeOptions('leave-vacation', canPick);
 
   const thisYear = new Date().getFullYear();
