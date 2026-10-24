@@ -1,7 +1,8 @@
 // components/scalability/ScalabilityDashboardView.tsx
-// Abas apresentacionais + casca (layout) do módulo de Escalabilidade — sem estado de dados,
-// sem fetch. Cada aba recebe os dados por props dos painéis ligados em
-// ScalabilityPanels.tsx; a casca (ScalabilityShell) só trata de layout.
+// Casca (layout) do módulo de Escalabilidade: banner, separadores e o painel de
+// cada aba. Sem estado de dados nem fetch — os painéis ligados vivem em
+// ScalabilityPanels.tsx e as abas apresentacionais em ./tabs/ (uma por
+// ficheiro; o que é partilhado entre elas está em ./tabs/shared.tsx).
 //
 // Migrado para a fundação de design light-theme (tokens canvas/surface/ink,
 // componentes partilhados em components/ui/). Antes era um dashboard em tema
