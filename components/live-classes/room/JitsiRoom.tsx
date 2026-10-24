@@ -128,6 +128,11 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     script.id = 'jitsi-api-script';
     script.src = 'https://meet.jit.si/external_api.js';
     script.async = true;
+    // Sem SRI de propósito: o external_api.js muda a cada release da Jitsi
+    // (cache de 60 s), um hash fixo partia as aulas ao vivo. Em compensação não
+    // enviamos cookies nem referrer ao terceiro (a CSP já o limita a meet.jit.si).
+    script.crossOrigin = 'anonymous';
+    script.referrerPolicy = 'no-referrer';
     script.onload = initJitsi;
     script.onerror = () => {
       script.remove();

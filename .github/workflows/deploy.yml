@@ -45,6 +45,11 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:sha-${{ github.sha }}
             ${{ env.IMAGE }}:latest
+          # Hostnames https permitidos para imagens externas (next/image). Definir
+          # a variável de repositório IMG_ALLOWED_HOSTS (ex.: storage.innova.ao).
+          # Tem de coincidir com o valor de runtime em ops/.env.production.
+          build-args: |
+            IMG_ALLOWED_HOSTS=${{ vars.IMG_ALLOWED_HOSTS }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
