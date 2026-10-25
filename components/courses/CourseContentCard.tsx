@@ -30,7 +30,7 @@ export function CourseContentCard({
       className={`flex flex-col gap-3 overflow-hidden rounded-panel border border-brand-line bg-white p-4 shadow-[0_8px_24px_rgba(15,31,61,0.08)] ${className ?? ''}`}
     >
       <div className="flex items-center gap-3">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0E6B4E] text-white">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-success text-white">
           <ClipboardList size={20} strokeWidth={1.75} />
         </span>
         <h3 className="min-w-0 flex-1 break-words font-body text-xl font-extrabold leading-tight text-brand">
@@ -71,7 +71,7 @@ export function ContentModule({
       open={defaultOpen}
       className="group overflow-hidden rounded-panel border border-brand-line bg-[#F7F9FC]"
     >
-      <summary className="flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 hover:bg-[#F2F5FA] [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 hover:bg-brand-soft [&::-webkit-details-marker]:hidden">
         <span
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white"
           style={{ background: palette[3] }}
@@ -81,13 +81,13 @@ export function ContentModule({
         <span className="min-w-0 flex-1 break-words text-sm font-bold text-brand">
           {title}
         </span>
-        <span className="shrink-0 rounded-full bg-brand-line px-2.5 py-0.5 text-xs font-semibold text-[#4B5E80]">
+        <span className="shrink-0 rounded-full bg-brand-line px-2.5 py-0.5 text-xs font-semibold text-brand-muted">
           {meta}
         </span>
         <ChevronDown
           size={16}
           strokeWidth={1.75}
-          className="shrink-0 text-[#4B5E80] transition-transform group-open:rotate-180"
+          className="shrink-0 text-brand-muted transition-transform group-open:rotate-180"
         />
       </summary>
       <div className="flex flex-col gap-1 border-t border-brand-line bg-white p-2">

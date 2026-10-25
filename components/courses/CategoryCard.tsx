@@ -12,7 +12,7 @@ import { PALETTE } from '@/components/onboarding/TemplateCard';
 export const CATEGORY_BTN_PRIMARY =
   'inline-flex h-8 items-center justify-center gap-1.5 rounded-control bg-brand px-3 text-sm font-semibold text-white hover:bg-[#1B2F57] disabled:opacity-50';
 export const CATEGORY_BTN_GHOST =
-  'inline-flex h-8 items-center justify-center gap-1.5 rounded-control border border-[#D5DCE8] bg-white px-3 text-sm font-semibold text-brand hover:bg-[#F2F5FA] disabled:opacity-50';
+  'inline-flex h-8 items-center justify-center gap-1.5 rounded-control border border-brand-line bg-white px-3 text-sm font-semibold text-brand hover:bg-brand-soft disabled:opacity-50';
 
 interface InfoLineProps {
   icon: LucideIcon;
@@ -31,7 +31,11 @@ function InfoLine({
 }: InfoLineProps) {
   const body = (
     <>
-      <Icon size={16} strokeWidth={1.75} className="shrink-0 text-[#4B5E80]" />
+      <Icon
+        size={16}
+        strokeWidth={1.75}
+        className="shrink-0 text-brand-muted"
+      />
       <span className="text-sm font-medium text-brand">{text}</span>
     </>
   );
@@ -91,7 +95,7 @@ export function CategoryCard({
       </div>
 
       <div className="relative flex items-center gap-3 sm:max-w-[68%]">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0E6B4E] text-white">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-success text-white">
           <Tag size={20} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
@@ -99,7 +103,7 @@ export function CategoryCard({
             {title}
           </h3>
           {subtitle && (
-            <p className="line-clamp-1 text-sm text-[#5B6B88]">{subtitle}</p>
+            <p className="line-clamp-1 text-sm text-brand-muted">{subtitle}</p>
           )}
         </div>
       </div>
@@ -113,7 +117,7 @@ export function CategoryCard({
           type="button"
           onClick={onToggleActive}
           title={active ? 'Desactivar categoria' : 'Activar categoria'}
-          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold hover:brightness-95 ${active ? 'bg-[#2B7FE8] text-white' : 'bg-brand-line text-[#4B5E80]'}`}
+          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold hover:brightness-95 ${active ? 'bg-[#2B7FE8] text-white' : 'bg-brand-line text-brand-muted'}`}
         >
           {active ? 'Activa' : 'Inactiva'}
         </button>
