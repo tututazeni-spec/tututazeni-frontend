@@ -19,6 +19,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import type { SearchResults } from './types';
 import { Input } from '@/components/ui/Input';
+import { IconButton } from '@/components/ui/Button';
 
 export interface GlobalSearchProps {
   onClose: () => void;
@@ -52,13 +53,12 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
             placeholder="Pesquisar colaboradores, cursos, competências..."
             className="flex-1"
           />
-          <button
+          <IconButton
+            icon={X}
+            label="Fechar"
+            intent="ghost"
             onClick={onClose}
-            aria-label="Fechar"
-            className="text-ink-faint hover:text-ink"
-          >
-            <X size={18} strokeWidth={1.75} />
-          </button>
+          />
         </div>
 
         {loading && (
