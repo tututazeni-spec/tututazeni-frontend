@@ -15,7 +15,7 @@ import { PersonCell, fmtDate, useHubList } from './shared';
 import type { OrgChange } from './types';
 
 const CARD =
-  'overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]';
+  'overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]';
 
 interface CellProps {
   label: string;
@@ -26,10 +26,8 @@ interface CellProps {
 function Cell({ label, className, children }: CellProps) {
   return (
     <div className={className}>
-      <div className="font-body text-[11px] text-[#49658A]">{label}</div>
-      <div className="font-body text-sm font-medium text-[#0F1F3D]">
-        {children}
-      </div>
+      <div className="font-body text-[11px] text-brand-muted">{label}</div>
+      <div className="font-body text-sm font-medium text-brand">{children}</div>
     </div>
   );
 }
@@ -69,13 +67,13 @@ export function OrgChangesTab() {
         {list.rows.map((o) => (
           <div
             key={o.id}
-            className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-[#E6ECF4] bg-white px-5 py-4 last:border-0"
+            className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-brand-line bg-white px-5 py-4 last:border-0"
           >
             <div className="min-w-[200px] flex-1">
-              <div className="font-body text-[15px] font-semibold text-[#0F1F3D]">
+              <div className="font-body text-[15px] font-semibold text-brand">
                 {o.change}
               </div>
-              <div className="font-body text-xs text-[#49658A]">
+              <div className="font-body text-xs text-brand-muted">
                 {[fmtDate(o.timestamp), o.unit, o.department]
                   .filter(Boolean)
                   .join(' · ')}
@@ -89,7 +87,7 @@ export function OrgChangesTab() {
               {o.after ?? '–'}
             </Cell>
             <div className="w-52">
-              <div className="mb-0.5 font-body text-[11px] text-[#49658A]">
+              <div className="mb-0.5 font-body text-[11px] text-brand-muted">
                 Responsável
               </div>
               <PersonCell person={o.responsible} />
