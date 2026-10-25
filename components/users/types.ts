@@ -202,7 +202,7 @@ export interface DevelopmentPlanSummary {
   id: number;
   name: string;
   goal: string;
-  status: string;
+  status: 'DRAFT' | 'PENDING_APPROVAL' | 'ACTIVE' | 'PAUSED' | 'AT_RISK' | 'COMPLETED' | 'PARTIALLY_COMPLETED' | 'CANCELLED' | 'OVERDUE';
   priority: string;
   period: string | null;
   startDate: string | null;

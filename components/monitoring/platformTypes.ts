@@ -112,7 +112,7 @@ export interface ProcessInstanceRow {
   code: string | null;
   title: string;
   process: string;
-  status: string;
+  status: 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD';
   priority: string;
   startedAt: string;
   slaDeadline: string | null;

@@ -160,7 +160,7 @@ export interface EvaluationRequestRow {
     position?: { id: number; name: string } | null;
   };
   evaluator: { id: number; fullName: string; avatarUrl?: string } | null;
-  type: string;
+  type: 'SELF' | 'MANAGER' | 'PEER' | 'SUBORDINATE' | 'CLIENT';
   purpose: string | null;
   name: string | null;
   cycle: {

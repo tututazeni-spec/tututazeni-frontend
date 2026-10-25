@@ -6,7 +6,7 @@ export interface Partner {
   id: string;
   code: string;
   name: string;
-  type: string;
+  type: 'TECHNOLOGY' | 'CONTENT' | 'TRAINING' | 'FUNDING' | 'INSTITUTIONAL' | 'COMMERCIAL' | 'MEDIA' | 'GOVERNMENT' | 'OTHER' | 'COMPANY' | 'NGO' | 'PUBLIC_INSTITUTION' | 'EDUCATION_INSTITUTION' | 'INTERNATIONAL_ORGANIZATION' | 'ASSOCIATION' | 'FOUNDATION' | 'FINANCIAL_INSTITUTION' | 'SUPPLIER' | 'TECHNOLOGY_PARTNER' | 'TRAINING_PARTNER';
   tier: string;
   status: string;
   annualValue: number | null;
@@ -35,7 +35,7 @@ export interface PartnerDetail {
   code: string;
   name: string;
   legalName: string | null;
-  type: string;
+  type: 'TECHNOLOGY' | 'CONTENT' | 'TRAINING' | 'FUNDING' | 'INSTITUTIONAL' | 'COMMERCIAL' | 'MEDIA' | 'GOVERNMENT' | 'OTHER' | 'COMPANY' | 'NGO' | 'PUBLIC_INSTITUTION' | 'EDUCATION_INSTITUTION' | 'INTERNATIONAL_ORGANIZATION' | 'ASSOCIATION' | 'FOUNDATION' | 'FINANCIAL_INSTITUTION' | 'SUPPLIER' | 'TECHNOLOGY_PARTNER' | 'TRAINING_PARTNER';
   tier: string;
   status: string;
   contactName: string | null;
