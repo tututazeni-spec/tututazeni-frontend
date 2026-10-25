@@ -26,6 +26,7 @@ import { CATEGORY_CFG, HIERARCHY_LEVEL_CFG, STATUS_CFG } from './constants';
 import { useCompetencyOptions } from './modelFormData';
 import type { CompetencyModelDetail } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface ModelDetailModalProps {
   modelId: number;
@@ -172,9 +173,10 @@ export function ModelDetailModal({
                   Competências incluídas ({data.items.length})
                 </h3>
                 {data.items.length === 0 ? (
-                  <p className="font-body text-sm text-ink-faint">
-                    Nenhuma competência associada a este modelo.
-                  </p>
+                  <EmptyState
+                    variant="inline"
+                    title="Nenhuma competência associada a este modelo"
+                  />
                 ) : (
                   <div className="overflow-hidden rounded-card border border-border">
                     {data.items.map((item) => (

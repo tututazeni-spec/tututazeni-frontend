@@ -49,6 +49,7 @@ import type {
   UserCompetency,
 } from './types';
 import { LinkButton } from '@/components/ui/LinkButton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface LevelBarProps {
   current: number;
@@ -336,9 +337,10 @@ export function MyProfileView() {
           ))}
 
           {competencies.length === 0 && (
-            <div className="rounded-card border border-dashed border-border-strong py-12 text-center font-body text-sm text-ink-faint">
-              Sem competências registadas. O RH ou gestor pode atribuí-las.
-            </div>
+            <EmptyState
+              variant="inline"
+              title="Sem competências registadas. O RH ou gestor pode atribuí-las"
+            />
           )}
         </div>
       </TabsContent>

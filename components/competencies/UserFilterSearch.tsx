@@ -11,6 +11,7 @@ import { X } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Input } from '@/components/ui/Input';
 import { useDirectoryUsers, type DirectoryUser } from './modelFormData';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface UserFilterSearchProps {
   selected: DirectoryUser | null;
@@ -70,9 +71,10 @@ export function UserFilterSearch({
             </div>
           )}
           {!loading && users.length === 0 && (
-            <div className="px-3 py-2 font-body text-sm text-ink-muted">
-              Nenhum colaborador encontrado
-            </div>
+            <EmptyState
+              variant="inline"
+              title="Nenhum colaborador encontrado"
+            />
           )}
           {users.map((u) => (
             <button

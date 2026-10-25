@@ -38,6 +38,7 @@ import {
 import { POSITION_LEVEL_CFG } from './constants';
 import { UserFilterSearch } from './UserFilterSearch';
 import type { SkillMatrix } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const LEGEND = [
   { level: 0, label: '0 — Sem registo' },
@@ -250,9 +251,10 @@ export function SkillMatrixView() {
               </tbody>
             </table>
             {matrix.matrix.length === 0 && (
-              <div className="py-12 text-center font-body text-sm text-ink-faint">
-                Sem utilizadores encontrados
-              </div>
+              <EmptyState
+                variant="inline"
+                title="Sem utilizadores encontrados"
+              />
             )}
           </div>
         </div>
