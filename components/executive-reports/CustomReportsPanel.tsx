@@ -29,6 +29,7 @@ import type {
   PreviewResponse,
   TemplateOption,
 } from './reportTypes';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 
 export interface CustomReportsPanelProps {
   filters: ExecutiveFilters;
@@ -251,15 +252,15 @@ export function CustomReportsPanel({ filters }: CustomReportsPanelProps) {
               >
                 Sentido
               </label>
-              <select
+              <NativeSelect
                 id="cr-dir"
                 value={sortDir}
                 onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}
-                className="w-full rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink"
+                className="w-full"
               >
                 <option value="asc">Crescente</option>
                 <option value="desc">Decrescente</option>
-              </select>
+              </NativeSelect>
             </div>
             <p className="self-end font-body text-xs text-ink-faint">
               Período, unidade, departamento e restantes filtros vêm da barra de
