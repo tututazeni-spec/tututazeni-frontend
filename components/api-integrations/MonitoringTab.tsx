@@ -78,7 +78,7 @@ export function MonitoringTab() {
       {/* Integration health grid */}
       {(data?.integrationHealth ?? []).length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Saúde das Integrações
           </div>
           <CardBody>
