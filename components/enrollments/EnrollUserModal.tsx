@@ -34,6 +34,7 @@ import {
   type DirectoryUser,
 } from './enrollData';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface EnrollUserModalProps {
   onClose: () => void;
@@ -265,9 +266,10 @@ export function EnrollUserModal({
                       </div>
                     )}
                     {!usersLoading && users.length === 0 && (
-                      <div className="px-3 py-2 text-sm text-ink-muted">
-                        Nenhum colaborador encontrado
-                      </div>
+                      <EmptyState
+                        variant="inline"
+                        title="Nenhum colaborador encontrado"
+                      />
                     )}
                     {users.map((u) => (
                       <button
@@ -306,9 +308,10 @@ export function EnrollUserModal({
               className="max-h-40 overflow-y-auto rounded-control border-[1.5px] border-border-strong bg-surface"
             >
               {deptOptions.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-ink-muted">
-                  Nenhum departamento encontrado
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Nenhum departamento encontrado"
+                />
               ) : (
                 deptOptions.map((d) => (
                   <label

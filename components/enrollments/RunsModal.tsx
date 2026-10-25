@@ -6,6 +6,7 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface RunCertificate {
   id: number;
@@ -78,9 +79,7 @@ export function RunsModal({ enrollmentId, title, onClose }: RunsModalProps) {
             />
           )}
           {data?.length === 0 && (
-            <p className="text-sm text-ink-muted">
-              Sem realizações registadas.
-            </p>
+            <EmptyState variant="inline" title="Sem realizações registadas" />
           )}
           {data
             ?.slice()
@@ -105,7 +104,7 @@ export function RunsModal({ enrollmentId, title, onClose }: RunsModalProps) {
                     ` · ${run.lessonsCompleted}/${run.lessons.length} aulas`}
                 </p>
                 {run.certificates.length === 0 ? (
-                  <p className="mt-2 text-ink-muted">Sem certificado.</p>
+                  <EmptyState variant="inline" title="Sem certificado" />
                 ) : (
                   <ul className="mt-2 space-y-1">
                     {run.certificates.map((c) => (

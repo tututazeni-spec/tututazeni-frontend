@@ -27,6 +27,7 @@ import {
   type DirectoryUser,
 } from './enrollData';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface BulkEnrollModalProps {
   onClose: () => void;
@@ -236,9 +237,10 @@ export function BulkEnrollModal({
                     />
                   </div>
                 ) : users.length === 0 ? (
-                  <div className="px-3 py-8 text-center text-sm text-ink-faint">
-                    Nenhum colaborador encontrado
-                  </div>
+                  <EmptyState
+                    variant="inline"
+                    title="Nenhum colaborador encontrado"
+                  />
                 ) : (
                   users.map((u) => (
                     <label
