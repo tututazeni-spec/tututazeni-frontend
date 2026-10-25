@@ -21,7 +21,7 @@ export function AuditTab() {
   );
 
   if (loading)
-    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
+    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-card" />;
 
   return (
     <div className="space-y-4">

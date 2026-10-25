@@ -19,7 +19,7 @@ export function MatrixTab() {
   );
 
   if (loading)
-    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
+    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-card" />;
 
   const subjects: string[] = [
     ...new Set<string>((data?.permissions ?? []).map((p) => String(p.subject))),
