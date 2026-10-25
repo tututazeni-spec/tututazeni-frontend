@@ -135,7 +135,7 @@ export default function ExecutiveReportsPage() {
           <Skeleton
             rows={1}
             wrapperClassName="animate-pulse"
-            itemClassName="h-16 rounded-3xl bg-surface-sunken"
+            itemClassName="h-16 rounded-panel bg-surface-sunken"
           />
         </div>
       )}

@@ -56,7 +56,7 @@ export function SourcesMatrix({ filters }: { filters: ExecutiveFilters }) {
 
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface">
-      <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2 bg-[#0F1F3D]/60 px-5 py-3">
+      <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2 bg-brand/60 px-5 py-3">
         <h3 className="font-body font-semibold text-white">
           Integração com os módulos
         </h3>

@@ -47,7 +47,7 @@ export function GenerateView({ onSuccess }: GenerateViewProps) {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mb-5 rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-6 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="mb-5 rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-6 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="mb-4 font-display text-base font-bold uppercase tracking-wide">
           Geração automática de relatório
         </div>
@@ -67,14 +67,14 @@ export function GenerateView({ onSuccess }: GenerateViewProps) {
                 key={t.id}
                 onClick={() => setType(t.type)}
                 className={cn(
-                  'group rounded-card border p-3 text-left text-white transition-all duration-200 ease-out hover:scale-[1.06] hover:border-white hover:bg-white hover:text-[#0F1F3D] hover:shadow-[0_10px_24px_rgba(0,0,0,0.25)] motion-reduce:hover:scale-100',
+                  'group rounded-card border p-3 text-left text-white transition-all duration-200 ease-out hover:scale-[1.06] hover:border-white hover:bg-white hover:text-brand hover:shadow-[0_10px_24px_rgba(0,0,0,0.25)] motion-reduce:hover:scale-100',
                   type === t.type
                     ? 'border-[#7CC4FF] bg-white/20'
                     : 'border-white/25 bg-white/10',
                 )}
               >
                 <div className="font-body text-xs font-semibold">{t.name}</div>
-                <div className="mt-0.5 font-body text-xs text-white/70 group-hover:text-[#0F1F3D]/70">
+                <div className="mt-0.5 font-body text-xs text-white/70 group-hover:text-brand/70">
                   {t.description}
                 </div>
               </button>
@@ -107,7 +107,7 @@ export function GenerateView({ onSuccess }: GenerateViewProps) {
           onClick={handleGenerate}
           loading={generating}
           disabled={generating}
-          className="w-full !bg-white !text-[#0F1F3D] hover:!bg-white/90"
+          className="w-full !bg-white !text-brand hover:!bg-white/90"
         >
           {generating
             ? 'A gerar relatório…'

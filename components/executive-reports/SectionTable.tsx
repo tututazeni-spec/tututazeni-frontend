@@ -23,7 +23,7 @@ export function SectionTables({ sections, omitted = [] }: SectionTablesProps) {
     <div className="space-y-4">
       {sections.map((s) => (
         <Card key={s.key} className="overflow-hidden">
-          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
+          <div className="bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
             {s.title}
           </div>
           <div className="p-4">
@@ -34,7 +34,7 @@ export function SectionTables({ sections, omitted = [] }: SectionTablesProps) {
             ) : (
               <>
                 <Table>
-                  <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
+                  <TableHead className="bg-brand/60 [&_th]:text-white">
                     <TableRow className="hover:bg-transparent">
                       {s.columns.map((c) => (
                         <TableHeaderCell key={c.key}>{c.label}</TableHeaderCell>

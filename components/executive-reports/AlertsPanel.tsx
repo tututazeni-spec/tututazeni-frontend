@@ -252,7 +252,7 @@ function AlertRow({ alert }: { alert: ExecutiveAlert }) {
     const pct = percentFromDescription(alert.description);
     const color = SEVERITY_COLOR[alert.severity];
     return (
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
@@ -558,7 +558,7 @@ export function AlertsPanel() {
 
       {isFull && rulesQ.data && (
         <Card className="overflow-hidden">
-          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
+          <div className="bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
             Regras e limiares
           </div>
           <div className="p-4">

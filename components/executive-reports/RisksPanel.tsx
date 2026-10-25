@@ -66,7 +66,7 @@ export function RisksPanel({ filters, onFiltersChange }: RisksPanelProps) {
   return (
     <div className="space-y-5">
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+        <h3 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
           Mapa de calor — risco por departamento
         </h3>
         <div className="p-5">
@@ -80,7 +80,7 @@ export function RisksPanel({ filters, onFiltersChange }: RisksPanelProps) {
       </div>
 
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+        <h3 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
           Dispersão — absentismo × rotatividade
         </h3>
         <div className="p-5">

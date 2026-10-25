@@ -77,7 +77,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
       <Skeleton
         rows={6}
         wrapperClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 animate-pulse"
-        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+        itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
   if (q.error || !q.data)
@@ -239,7 +239,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
 
       {/* Pendências críticas */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+        <h3 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
           Pendências críticas
         </h3>
         <div className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-3">
@@ -269,7 +269,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
       {/* Distribuição e composição (§6.2/6.3) */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Colaboradores por departamento
           </h3>
           <div className="p-5">
@@ -290,7 +290,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
           </div>
         </div>
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Tipo de vínculo
           </h3>
           <div className="p-5">
