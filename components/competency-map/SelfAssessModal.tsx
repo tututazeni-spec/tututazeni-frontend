@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { TYPE_CONFIG } from './constants';
 import type { SkillType } from './types';
 
@@ -78,13 +78,12 @@ export function SelfAssessModal({
               Expert)
             </p>
           </div>
-          <button
+          <IconButton
+            icon={X}
+            label="Fechar"
+            intent="ghost"
             onClick={onClose}
-            aria-label="Fechar"
-            className="p-2 rounded-control hover:bg-surface-sunken text-ink-muted"
-          >
-            <X size={18} strokeWidth={1.75} />
-          </button>
+          />
         </div>
 
         <div className="p-6 space-y-6">
