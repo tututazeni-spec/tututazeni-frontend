@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import type { ComboboxOption } from '@/components/ui/Combobox';
 import type { Option } from '../createUserData';
+import { IconButton } from '@/components/ui/Button';
 
 interface FieldProps {
   label: string;
@@ -163,14 +164,14 @@ export function MultiPicker({
               className="inline-flex items-center gap-1 rounded-control bg-surface-sunken px-2 py-1 text-xs text-ink"
             >
               {labelFor(pid)}
-              <button
+              <IconButton
+                icon={X}
+                label="Remover"
+                intent="ghost"
+                size="xs"
                 type="button"
-                aria-label="Remover"
                 onClick={() => onChange(selected.filter((s) => s !== pid))}
-                className="text-ink-muted hover:text-ink"
-              >
-                <X size={12} strokeWidth={2} />
-              </button>
+              />
             </span>
           ))}
         </div>

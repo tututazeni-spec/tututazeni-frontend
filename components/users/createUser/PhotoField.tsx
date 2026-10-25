@@ -3,7 +3,7 @@
 
 import { X } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { isUploadedPhoto } from './logic';
@@ -41,14 +41,14 @@ export function PhotoField({
             <div className="min-w-0 flex-1 truncate text-sm text-ink">
               Fotografia carregada
             </div>
-            <button
+            <IconButton
+              icon={X}
+              label="Remover fotografia"
+              intent="ghost"
+              size="compact"
               type="button"
-              aria-label="Remover fotografia"
               onClick={onClear}
-              className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-            >
-              <X size={16} strokeWidth={1.75} />
-            </button>
+            />
           </div>
         ) : (
           <Input

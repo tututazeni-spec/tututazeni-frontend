@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { managerSubtitle } from './logic';
 import type { DirectoryUser } from '../types';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { IconButton } from '@/components/ui/Button';
 
 interface ManagerPickerProps {
   selected: DirectoryUser | null;
@@ -40,14 +41,14 @@ export function ManagerPicker({
           <div className="min-w-0 flex-1 truncate text-sm text-ink">
             {selected.fullName}
           </div>
-          <button
+          <IconButton
+            icon={X}
+            label="Remover gestor"
+            intent="ghost"
+            size="compact"
             type="button"
-            aria-label="Remover gestor"
             onClick={onClear}
-            className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-          >
-            <X size={16} strokeWidth={1.75} />
-          </button>
+          />
         </div>
       ) : (
         <div className="relative">
