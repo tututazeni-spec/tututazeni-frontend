@@ -25,6 +25,7 @@ import {
   useJobFamilyOptions,
   usePositionOptions,
 } from './careerFormData';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 const CAREER_PATH_TYPE_OPTIONS = Object.entries(CAREER_PATH_TYPE).map(
   ([value, label]) => ({
@@ -229,13 +230,13 @@ export function NewCareerPathModal({
                 className="w-full"
               />
               {newFamily === null ? (
-                <button
+                <LinkButton
                   type="button"
                   onClick={() => setNewFamily('')}
-                  className="mt-1.5 inline-flex items-center gap-1 font-body text-xs font-semibold text-primary hover:underline"
+                  className="mt-1.5 inline-flex items-center gap-1 font-body text-xs font-semibold"
                 >
                   <Plus size={12} strokeWidth={2} /> Nova família
-                </button>
+                </LinkButton>
               ) : (
                 <div className="mt-1.5 flex items-center gap-2">
                   <Input

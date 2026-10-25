@@ -28,6 +28,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/users/types';
 import type { CareerHistory } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 function fmt(date: string | null | undefined): string {
   if (!date) return '—';
@@ -113,13 +114,13 @@ export function HistoryTab() {
               }}
             />
           ) : (
-            <button
+            <LinkButton
               type="button"
               onClick={() => setShowPicker(true)}
-              className="font-body text-xs font-medium text-primary hover:underline"
+              className="font-body text-xs font-medium"
             >
               Ver histórico de outro colaborador
-            </button>
+            </LinkButton>
           )}
         </div>
       )}
