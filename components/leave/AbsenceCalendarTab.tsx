@@ -50,6 +50,7 @@ import type {
   CsvExport,
   LeaveType,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const ALL = 'ALL';
 const VIEWS: Array<{ value: CalendarView; label: string }> = [
@@ -217,7 +218,7 @@ function WeekGrid({ data, anchor, onPickDay }: GridProps) {
               <p className="text-micro text-danger-ink">{flags.holiday}</p>
             )}
             {list.length === 0 ? (
-              <p className="text-micro text-ink-faint">Sem ausências</p>
+              <EmptyState variant="inline" title="Sem ausências" />
             ) : (
               list.map((e) => <Chip key={e.id} entry={e} />)
             )}
@@ -243,9 +244,7 @@ function DayList({
         <p className="text-sm text-danger-ink">Feriado: {flags.holiday}</p>
       )}
       {list.length === 0 ? (
-        <p className="py-8 text-center text-sm text-ink-faint">
-          Sem ausências neste dia.
-        </p>
+        <EmptyState variant="inline" title="Sem ausências neste dia" />
       ) : (
         <ul className="space-y-1.5">
           {list.map((e) => (

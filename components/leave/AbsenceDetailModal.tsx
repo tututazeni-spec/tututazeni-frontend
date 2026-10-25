@@ -33,6 +33,7 @@ import {
   absenceTypeLabel,
 } from './constants';
 import type { AbsenceDetail, AbsenceOccurrenceType } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type Mode = null | 'justify' | 'validate' | 'attach' | 'correct';
 
@@ -558,7 +559,7 @@ function DetailBody({
           Histórico de alterações
         </h3>
         {a.revisions.length === 0 ? (
-          <p className="text-sm text-ink-faint">Sem alterações registadas.</p>
+          <EmptyState variant="inline" title="Sem alterações registadas" />
         ) : (
           <ol className="space-y-2">
             {a.revisions.map((r) => (

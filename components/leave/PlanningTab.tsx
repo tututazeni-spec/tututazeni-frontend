@@ -314,9 +314,10 @@ export function PlanningTab() {
               Pedidos pendentes no período
             </h3>
             {data.pendingRequests.length === 0 ? (
-              <p className="text-xs text-ink-faint">
-                Sem pedidos pendentes neste período.
-              </p>
+              <EmptyState
+                variant="inline"
+                title="Sem pedidos pendentes neste período"
+              />
             ) : (
               <Table>
                 <TableHead className="bg-brand/60 [&_th]:text-white">

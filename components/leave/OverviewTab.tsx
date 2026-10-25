@@ -71,9 +71,10 @@ function ChartCard({
 
 function NoData() {
   return (
-    <p className="py-8 text-center text-sm text-ink-faint">
-      Sem dados para os filtros seleccionados.
-    </p>
+    <EmptyState
+      variant="inline"
+      title="Sem dados para os filtros seleccionados"
+    />
   );
 }
 
