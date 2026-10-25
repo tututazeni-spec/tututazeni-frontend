@@ -37,6 +37,7 @@ import type {
   DataChange,
   Paginated,
 } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 const PERIODS = [7, 30, 90];
 
@@ -352,12 +353,12 @@ export function ChangesView() {
                                   {c.approvalRef ?? '—'}
                                 </span>
                               </span>
-                              <button
+                              <LinkButton
                                 onClick={() => setOpenId(c.id)}
-                                className="ml-auto font-medium text-primary hover:underline"
+                                className="ml-auto font-medium"
                               >
                                 Ver detalhes do evento {c.code}
-                              </button>
+                              </LinkButton>
                             </div>
                           </td>
                         </tr>
