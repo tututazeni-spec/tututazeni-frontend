@@ -20,6 +20,7 @@ import { useFormState } from '@/hooks/useFormState';
 import { useToast } from '@/providers/ToastProvider';
 import { GRANT_STATUS_OPTIONS } from './types';
 import type { FunderDetail, GrantForm } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const EMPTY_GRANT_FORM: GrantForm = {
   title: '',
@@ -131,9 +132,7 @@ export function GrantsSection({ funderId, grants }: GrantsSectionProps) {
       <Card>
         <div className="divide-y divide-border">
           {grants.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">
-              Sem grants registados
-            </p>
+            <EmptyState variant="inline" title="Sem grants registados" />
           ) : (
             grants.map((g) => {
               const pct = g.amount > 0 ? (g.disbursed / g.amount) * 100 : 0;

@@ -19,6 +19,7 @@ import { useFormState } from '@/hooks/useFormState';
 import { INTERACTION_TYPE_OPTIONS } from './formConfig';
 import { EMPTY_INTERACTION_FORM } from './types';
 import type { BeneficiaryDetail } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface InteractionsSectionProps {
   beneficiaryId: string;
@@ -126,9 +127,7 @@ export function InteractionsSection({
       <Card>
         <div className="divide-y divide-border">
           {interactions.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">
-              Sem interacções registadas
-            </p>
+            <EmptyState variant="inline" title="Sem interacções registadas" />
           ) : (
             interactions.map((it) => (
               <div

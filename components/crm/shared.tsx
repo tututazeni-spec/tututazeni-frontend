@@ -14,6 +14,7 @@ import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate as formatDateShared } from '@/lib/format';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function formatDate(iso: string | null | undefined): string {
   return formatDateShared(iso);
@@ -179,7 +180,7 @@ export function DistributionList({
           </h3>
         )}
         {rows.length === 0 ? (
-          <p className="font-body text-sm text-ink-faint">Sem dados</p>
+          <EmptyState variant="inline" title="Sem dados" />
         ) : (
           <div className="space-y-2">
             {rows.map((row) => {

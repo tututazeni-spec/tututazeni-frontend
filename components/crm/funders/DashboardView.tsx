@@ -12,6 +12,7 @@ import {
   formatDate,
 } from '@/components/crm/shared';
 import type { FunderDashboard } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface DashboardViewProps {
   dashboard: FunderDashboard | undefined;
@@ -102,9 +103,7 @@ export function DashboardView({
           </div>
           <div className="divide-y divide-border">
             {recentDisbursements.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">
-                Sem desembolsos recentes
-              </p>
+              <EmptyState variant="inline" title="Sem desembolsos recentes" />
             ) : (
               recentDisbursements.map((d) => (
                 <div
@@ -139,9 +138,7 @@ export function DashboardView({
           </div>
           <div className="divide-y divide-border">
             {recentInteractions.length === 0 ? (
-              <p className="p-4 font-body text-ink-faint">
-                Sem interacções recentes
-              </p>
+              <EmptyState variant="inline" title="Sem interacções recentes" />
             ) : (
               recentInteractions.map((it) => (
                 <div

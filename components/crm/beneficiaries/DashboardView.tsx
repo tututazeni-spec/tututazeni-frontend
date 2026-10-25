@@ -20,6 +20,7 @@ import {
 } from '@/components/crm/shared';
 import { Card } from '@/components/ui/Card';
 import type { BeneficiaryDashboard } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface DashboardViewProps {
   dashboard: BeneficiaryDashboard | undefined;
@@ -106,9 +107,7 @@ export function DashboardView({
         </div>
         <div className="divide-y divide-border">
           {recentInteractions.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">
-              Sem interacções recentes
-            </p>
+            <EmptyState variant="inline" title="Sem interacções recentes" />
           ) : (
             recentInteractions.map((it) => (
               <div

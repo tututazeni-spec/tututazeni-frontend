@@ -19,6 +19,7 @@ import {
 import { useFormState } from '@/hooks/useFormState';
 import { EMPTY_MILESTONE_FORM, MILESTONE_COLORS } from './types';
 import type { PartnerDetail } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const PRIORITY_ITEMS = [
   { value: 'LOW', label: 'Baixa' },
@@ -124,9 +125,7 @@ export function MilestonesSection({
       <Card>
         <div className="divide-y divide-border">
           {milestones.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">
-              Sem marcos registados
-            </p>
+            <EmptyState variant="inline" title="Sem marcos registados" />
           ) : (
             milestones.map((m) => (
               <div key={m.id} className="p-4 flex justify-between items-center">
