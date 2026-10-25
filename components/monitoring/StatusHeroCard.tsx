@@ -60,7 +60,7 @@ export function StatusHeroCard({
   const circ = 2 * Math.PI * r;
 
   return (
-    <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-3 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+    <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-3 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
       <div className="mb-1 flex items-center gap-2">
         <Icon className="h-5 w-5" strokeWidth={1.8} aria-hidden />
         <h2 className="font-display text-sm font-bold uppercase tracking-wide">
@@ -144,7 +144,10 @@ export function StatusHeroCard({
       </div>
 
       <div className="mt-2 flex items-start gap-2 rounded-card bg-white/10 px-3 py-1.5 font-body text-xs">
-        <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#7CC4FF]" aria-hidden />
+        <Info
+          className="mt-0.5 h-4 w-4 shrink-0 text-on-brand-accent"
+          aria-hidden
+        />
         <div className="min-w-0 break-words">{info}</div>
       </div>
     </div>

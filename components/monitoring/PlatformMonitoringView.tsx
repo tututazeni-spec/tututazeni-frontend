@@ -297,7 +297,7 @@ export function ModulesTab({ data }: { data: ModulesData }) {
           />
         ))}
       </div>
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand/65 via-brand-mid/65 to-brand-dark/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-white">
             Módulos monitorizados
