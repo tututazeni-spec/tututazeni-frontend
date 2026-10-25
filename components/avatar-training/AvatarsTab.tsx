@@ -471,7 +471,7 @@ function HistoryModal({
           ) : !data ? (
             <Skeleton
               rows={3}
-              itemClassName="h-10 rounded-card bg-surface-sunken animate-pulse"
+              itemClassName="h-10 rounded-card bg-surface-sunken"
             />
           ) : data.length === 0 ? (
             <EmptyState variant="inline" title="Sem registos" />
@@ -551,10 +551,7 @@ export function AvatarsTab() {
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (isLoading || !data)
     return (
-      <Skeleton
-        rows={3}
-        itemClassName="h-20 rounded-card bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={3} itemClassName="h-20 rounded-card bg-surface-sunken" />
     );
 
   return (

@@ -60,10 +60,7 @@ export function ProgramSheetView({
           {error ? (
             <QueryError error={error} onRetry={() => refetch()} />
           ) : !data ? (
-            <Skeleton
-              rows={4}
-              itemClassName="h-6 rounded bg-surface-sunken animate-pulse"
-            />
+            <Skeleton rows={4} itemClassName="h-6 rounded bg-surface-sunken" />
           ) : (
             <>
               <dl className="space-y-2">

@@ -28,10 +28,7 @@ export function AssignmentsView({
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (isLoading || !list)
     return (
-      <Skeleton
-        rows={3}
-        itemClassName="h-20 rounded-card bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={3} itemClassName="h-20 rounded-card bg-surface-sunken" />
     );
   if (list.length === 0)
     return (

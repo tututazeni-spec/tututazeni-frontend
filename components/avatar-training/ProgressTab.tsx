@@ -34,10 +34,7 @@ export function ProgressTab() {
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (isLoading || !data)
     return (
-      <Skeleton
-        rows={4}
-        itemClassName="h-12 rounded-card bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={4} itemClassName="h-12 rounded-card bg-surface-sunken" />
     );
   if (data.data.length === 0)
     return (

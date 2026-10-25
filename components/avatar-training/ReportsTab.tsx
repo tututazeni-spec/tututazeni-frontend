@@ -66,10 +66,7 @@ function ReportView({ type, period }: { type: string; period: Period }) {
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (isLoading || !data)
     return (
-      <Skeleton
-        rows={3}
-        itemClassName="h-12 rounded-card bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={3} itemClassName="h-12 rounded-card bg-surface-sunken" />
     );
 
   const columns = data.rows.length > 0 ? Object.keys(data.rows[0]) : [];
@@ -129,10 +126,7 @@ export function ReportsTab() {
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (isLoading || !data)
     return (
-      <Skeleton
-        rows={2}
-        itemClassName="h-10 rounded-card bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={2} itemClassName="h-10 rounded-card bg-surface-sunken" />
     );
   if (data.length === 0)
     return (

@@ -278,10 +278,7 @@ export function SessionCardPicker({
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (!data)
     return (
-      <Skeleton
-        rows={2}
-        itemClassName="h-40 rounded-panel bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={2} itemClassName="h-40 rounded-panel bg-surface-sunken" />
     );
   if (data.length === 0)
     return (

@@ -35,10 +35,7 @@ function RoomView({
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (!room)
     return (
-      <Skeleton
-        rows={3}
-        itemClassName="h-24 rounded-card bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={3} itemClassName="h-24 rounded-card bg-surface-sunken" />
     );
   return <RoomSessionView room={room} ctl={ctl} onExit={onExit} />;
 }

@@ -48,10 +48,7 @@ export function ProgramsListView({
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (isLoading || !data)
     return (
-      <Skeleton
-        rows={3}
-        itemClassName="h-20 rounded-card bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={3} itemClassName="h-20 rounded-card bg-surface-sunken" />
     );
 
   return (

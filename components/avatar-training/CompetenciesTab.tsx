@@ -52,10 +52,7 @@ export function CompetenciesTab() {
     );
   if (results.isLoading || !results.data)
     return (
-      <Skeleton
-        rows={3}
-        itemClassName="h-14 rounded-card bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={3} itemClassName="h-14 rounded-card bg-surface-sunken" />
     );
 
   return (
@@ -117,7 +114,7 @@ export function CompetenciesTab() {
         ) : !recs.data ? (
           <Skeleton
             rows={2}
-            itemClassName="h-14 rounded-card bg-surface-sunken animate-pulse"
+            itemClassName="h-14 rounded-card bg-surface-sunken"
           />
         ) : recs.data.data.length === 0 ? (
           <EmptyState
