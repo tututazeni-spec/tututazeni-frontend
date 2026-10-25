@@ -50,7 +50,7 @@ import type {
 import { EmptyState } from '@/components/ui/EmptyState';
 
 const DIST_CONFIG = [
-  { key: 'exceptional', label: 'Excepcional', bg: 'bg-[#218653]' },
+  { key: 'exceptional', label: 'Excepcional', bg: 'bg-success' },
   { key: 'above', label: 'Acima', bg: 'bg-[#1877F2]' },
   { key: 'expected', label: 'Esperado', bg: 'bg-[#E99A16]' },
   { key: 'below', label: 'Abaixo', bg: 'bg-[#EF4657]' },

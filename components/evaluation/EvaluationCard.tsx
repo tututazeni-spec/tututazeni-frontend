@@ -117,7 +117,7 @@ export function EvaluationCard({
               ))}
             </h3>
             {(r.name ?? r.cycle?.name) && (
-              <p className="line-clamp-2 pt-2 text-sm text-[#C7D4E8]">
+              <p className="line-clamp-2 pt-2 text-sm text-on-brand-muted">
                 {r.name ?? r.cycle?.name}
               </p>
             )}
@@ -182,14 +182,14 @@ export function EvaluationCard({
       </div>
 
       <div className="m-4 mt-2 space-y-2 rounded-panel bg-white/10 px-4 py-3">
-        <p className="text-xs text-[#C7D4E8]">Progresso</p>
+        <p className="text-xs text-on-brand-muted">Progresso</p>
         <div className="flex items-center gap-3">
           <ProgressBar
             value={Math.round(r.progress)}
             color={palette[3]}
             className="flex-1"
           />
-          <span className="text-xs tabular-nums text-[#C7D4E8]">
+          <span className="text-xs tabular-nums text-on-brand-muted">
             {Math.round(r.progress)}%
           </span>
         </div>
