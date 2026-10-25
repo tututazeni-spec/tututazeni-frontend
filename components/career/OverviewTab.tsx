@@ -165,7 +165,7 @@ export function OverviewTab() {
         {overview.internalMovements.length === 0 ? (
           <EmptyState variant="inline" title="Sem movimentações registadas" />
         ) : (
-          <div className="overflow-x-auto bg-[#071D3B]">
+          <div className="overflow-x-auto bg-brand-deep">
             <table className="w-full border-collapse font-body text-sm text-white">
               <thead className="bg-brand/60">
                 <tr>
@@ -187,14 +187,14 @@ export function OverviewTab() {
                     className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
                   >
                     <td className="px-4 py-3">
-                      <span className="inline-block whitespace-nowrap rounded-full bg-[#124A88] px-2.5 py-0.5 text-xs font-medium text-[#CFE3FF]">
+                      <span className="inline-block whitespace-nowrap rounded-full bg-[#124A88] px-2.5 py-0.5 text-xs font-medium text-on-brand">
                         {MOVEMENT_LABELS[m.changeType] ?? m.changeType}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center font-semibold text-white">
                       {m.count}
                     </td>
-                    <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                    <td className="px-4 py-3 text-center text-on-brand">
                       {movementsTotal > 0
                         ? Math.round((m.count / movementsTotal) * 100)
                         : 0}

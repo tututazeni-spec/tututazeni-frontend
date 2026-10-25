@@ -23,8 +23,8 @@ const CATEGORY_ORDER: Array<{ key: RequirementCategory; title: string }> = [
 
 const STATUS: Record<RequirementStatus, { label: string; cls: string }> = {
   MET: { label: 'Cumpre', cls: 'bg-[#075FE8] text-white' },
-  NOT_MET: { label: 'Não cumpre', cls: 'bg-[#FEE2E2] text-[#991B1B]' },
-  NO_DATA: { label: 'Sem dados', cls: 'bg-[#E8F0FE] text-brand/70' },
+  NOT_MET: { label: 'Não cumpre', cls: 'bg-[#FEE2E2] text-danger-ink' },
+  NO_DATA: { label: 'Sem dados', cls: 'bg-brand-soft text-brand/70' },
 };
 
 function pretty(value: string | null): string {
@@ -46,7 +46,7 @@ export function RequirementChecksPanel({
 
   return (
     <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
-      <div className="flex items-center gap-2.5 bg-gradient-to-br from-[#0B3D91] to-[#06275F] px-5 py-3.5 text-white">
+      <div className="flex items-center gap-2.5 bg-gradient-to-br from-brand-mid to-brand-dark px-5 py-3.5 text-white">
         <ClipboardCheck size={18} strokeWidth={1.75} />
         <h3 className="font-body text-sm font-semibold uppercase tracking-wider">
           Requisitos do cargo
@@ -65,7 +65,7 @@ export function RequirementChecksPanel({
                 {rows.map((c) => (
                   <div
                     key={c.requirementId}
-                    className="flex items-center justify-between gap-3 rounded-card border border-brand-line bg-[#E8F0FE]/50 px-3 py-2"
+                    className="flex items-center justify-between gap-3 rounded-card border border-brand-line bg-brand-soft/50 px-3 py-2"
                   >
                     <div className="min-w-0">
                       <div className="truncate font-body text-sm font-medium text-brand">

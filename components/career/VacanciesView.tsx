@@ -204,7 +204,7 @@ export function VacanciesView() {
                 className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]"
               >
                 {/* Cabeçalho */}
-                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-[#0B3D91] to-[#06275F] px-5 py-3.5 text-white">
+                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand-mid to-brand-dark px-5 py-3.5 text-white">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2.5">
                       <Briefcase size={18} strokeWidth={1.75} />

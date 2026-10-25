@@ -99,7 +99,7 @@ export function PlansManagementView() {
                 }}
                 className={cn(
                   'flex cursor-pointer items-center gap-3 rounded-[18px] p-3.5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)] transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50',
-                  'bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57]',
+                  'bg-gradient-to-br from-brand via-brand-mid to-brand-dark',
                   selected?.id === plan.id &&
                     'ring-2 ring-[#0D6EFD] ring-offset-2',
                 )}
@@ -131,7 +131,7 @@ export function PlansManagementView() {
               </div>
             ) : (
               <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
-                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] px-6 py-4 text-white">
+                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-6 py-4 text-white">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2.5">
                       <ClipboardList size={20} strokeWidth={1.75} />
@@ -155,7 +155,7 @@ export function PlansManagementView() {
                 </div>
                 <div className="p-6">
                   {selected.readiness && (
-                    <div className="mb-4 rounded-card bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] px-4 py-3 text-white">
+                    <div className="mb-4 rounded-card bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-4 py-3 text-white">
                       <div className="mb-1 flex justify-between font-body text-xs font-semibold uppercase tracking-widest text-white">
                         <span>Prontidão</span>
                         <span className="tabular-nums">
@@ -171,7 +171,7 @@ export function PlansManagementView() {
                   )}
                   <CareerRoadmap plan={selected} />
                   {(selected.mentoringNotes || selected.coachingNotes) && (
-                    <div className="mt-4 space-y-2 rounded-card bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] px-4 py-3 font-body text-xs text-white">
+                    <div className="mt-4 space-y-2 rounded-card bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-4 py-3 font-body text-xs text-white">
                       {selected.mentoringNotes && (
                         <div>
                           <span className="font-semibold">Mentoria: </span>
