@@ -15,6 +15,7 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { useDirectoryUsers, type DirectoryUser } from './departmentFormData';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { IconButton } from '@/components/ui/Button';
 
 export interface DepartmentUserPickerProps {
   label: string;
@@ -65,14 +66,14 @@ export function DepartmentUserPicker({
               </div>
             )}
           </div>
-          <button
+          <IconButton
+            icon={X}
+            label={`Remover ${label.toLowerCase()}`}
+            intent="ghost"
+            size="compact"
             type="button"
-            aria-label={`Remover ${label.toLowerCase()}`}
             onClick={() => onChange(null)}
-            className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-          >
-            <X size={16} strokeWidth={1.75} />
-          </button>
+          />
         </div>
       ) : (
         <Popover.Root open={open} onOpenChange={setOpen}>
