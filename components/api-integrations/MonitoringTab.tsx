@@ -32,7 +32,7 @@ export function MonitoringTab() {
   if (loading)
     return (
       <Skeleton
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="bg-surface-sunken rounded-card h-16"
       />
     );
