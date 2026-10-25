@@ -20,6 +20,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Modal, ModalContent } from '@/components/ui/Modal';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export interface ParticipantDetailModalProps {
   cycleId: string;
@@ -45,9 +46,7 @@ export function ParticipantDetailModal({
         description="Perfil, competências avaliadas, avaliadores, progresso e resultados"
         className="max-w-2xl"
       >
-        {isLoading && (
-          <div className="mt-4 text-sm text-ink-muted">A carregar…</div>
-        )}
+        {isLoading && <Skeleton rows={3} />}
 
         {data && (
           <div className="mt-4 flex flex-col gap-5">

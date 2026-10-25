@@ -27,6 +27,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Select } from '@/components/ui/Select';
 import { useCycleSelectorOptions } from './cycleData';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 function fmt(v: number | null): string {
   return v === null ? '—' : v.toFixed(1);
@@ -262,9 +263,7 @@ function CycleResultsMatrix() {
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
-      {cycleId && isLoading && (
-        <div className="text-sm text-ink-muted">A carregar…</div>
-      )}
+      {cycleId && isLoading && <Skeleton rows={3} />}
       {cycleId && !isLoading && rows.length === 0 && (
         <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
           <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">

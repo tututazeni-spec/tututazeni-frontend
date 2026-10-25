@@ -52,6 +52,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export interface CreateCycleModalProps {
   onClose: () => void;
@@ -383,11 +384,7 @@ export function CreateCycleModal({
               departamento, pelo gestor directo e pela sua equipa.
             </p>
             <div className="max-h-40 overflow-y-auto rounded-card border border-border p-2 space-y-1">
-              {departmentsLoading && (
-                <div className="px-1 py-1 text-sm text-ink-muted">
-                  A carregar…
-                </div>
-              )}
+              {departmentsLoading && <Skeleton rows={3} />}
               {!departmentsLoading && departmentOptions.length === 0 && (
                 <div className="px-1 py-1 text-sm text-ink-muted">
                   Nenhum departamento encontrado.
@@ -467,11 +464,7 @@ export function CreateCycleModal({
             </p>
             {useCustomCompetencies && (
               <div className="max-h-48 overflow-y-auto rounded-card border border-border p-2 space-y-1">
-                {competenciesLoading && (
-                  <div className="px-1 py-1 text-sm text-ink-muted">
-                    A carregar…
-                  </div>
-                )}
+                {competenciesLoading && <Skeleton rows={3} />}
                 {!competenciesLoading &&
                   (competencyCatalogue ?? []).length === 0 && (
                     <div className="px-1 py-1 text-sm text-ink-muted">

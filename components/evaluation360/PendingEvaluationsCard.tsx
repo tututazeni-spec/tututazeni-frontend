@@ -17,6 +17,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface RawAssignment {
   id: string;
@@ -120,8 +121,7 @@ export function PendingEvaluationsCard({
     );
   }
 
-  if (isLoading)
-    return <div className="text-sm text-ink-muted">A carregar…</div>;
+  if (isLoading) return <Skeleton rows={3} />;
   if (assignments.length === 0) return null;
 
   return (

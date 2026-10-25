@@ -17,6 +17,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const ALL = 'ALL';
 
@@ -103,7 +104,7 @@ export function QuestionariosTab() {
         </div>
       </FilterPanelCard>
 
-      {isLoading && <div className="text-sm text-ink-muted">A carregar…</div>}
+      {isLoading && <Skeleton rows={3} />}
       {!isLoading && rows.length === 0 && (
         <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
           <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">

@@ -35,6 +35,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { scoreColor } from './colors';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface RawOverview {
   totalCycles: number;
@@ -81,9 +82,7 @@ export function OverviewAdminTab() {
   );
 
   if (isLoading) {
-    return (
-      <div className="text-sm text-ink-muted">A carregar painel geral…</div>
-    );
+    return <Skeleton rows={3} />;
   }
   if (!data) {
     return (
