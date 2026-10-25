@@ -62,7 +62,7 @@ export function TemplatesTab() {
         return (
           <article
             key={i}
-            className={`group flex flex-col overflow-hidden rounded-2xl border bg-surface shadow-resting transition-shadow duration-150 hover:shadow-hover ${c.border}`}
+            className={`group flex flex-col overflow-hidden rounded-panel border bg-surface shadow-resting transition-shadow duration-150 hover:shadow-hover ${c.border}`}
           >
             <div
               className={`relative h-20 overflow-hidden bg-gradient-to-br ${c.header}`}
@@ -106,14 +106,14 @@ export function TemplatesTab() {
 
             <div className="relative -mt-6 flex flex-1 flex-col gap-3 px-4 pb-4">
               <span
-                className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg ring-[3px] ring-surface ${c.tile}`}
+                className={`flex h-12 w-12 items-center justify-center rounded-card bg-gradient-to-br text-white shadow-lg ring-[3px] ring-surface ${c.tile}`}
                 aria-hidden
               >
                 <Icon size={22} strokeWidth={1.75} />
               </span>
 
               <div>
-                <h4 className="font-display text-base font-bold leading-snug text-[#0F1F3D]">
+                <h4 className="font-display text-base font-bold leading-snug text-brand">
                   {t.name}
                 </h4>
                 {t.description && (
@@ -124,7 +124,7 @@ export function TemplatesTab() {
               </div>
 
               <dl
-                className={`mt-auto space-y-2 rounded-xl px-3 py-2.5 ${c.panel}`}
+                className={`mt-auto space-y-2 rounded-card px-3 py-2.5 ${c.panel}`}
               >
                 <div className="flex items-start gap-2.5">
                   <Zap
@@ -136,7 +136,7 @@ export function TemplatesTab() {
                   <dt className="w-12 shrink-0 font-body text-xs text-ink-muted">
                     Quando
                   </dt>
-                  <dd className="min-w-0 break-words font-body text-xs font-semibold text-[#0F1F3D]">
+                  <dd className="min-w-0 break-words font-body text-xs font-semibold text-brand">
                     {triggerText(t.trigger)}
                   </dd>
                 </div>
@@ -152,14 +152,14 @@ export function TemplatesTab() {
                   <dt className="w-12 shrink-0 font-body text-xs text-ink-muted">
                     Então
                   </dt>
-                  <dd className="min-w-0 break-words font-body text-xs font-semibold text-[#0F1F3D]">
+                  <dd className="min-w-0 break-words font-body text-xs font-semibold text-brand">
                     {actionText(t.action)}
                   </dd>
                 </div>
               </dl>
 
               <Button
-                className={`w-full rounded-lg !bg-[#0F1F3D] !text-white hover:!bg-[#16294d]`}
+                className={`w-full rounded-control !bg-brand !text-white hover:!bg-[#16294d]`}
                 disabled={applying === i}
                 onClick={() => apply(i)}
               >

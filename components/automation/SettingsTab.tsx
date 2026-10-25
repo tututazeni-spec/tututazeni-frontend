@@ -154,7 +154,7 @@ export function SettingsTab() {
             className={cn(
               'rounded-pill border-[1.5px] px-3.5 py-1.5 font-body text-sm font-semibold transition-colors',
               section === s.id
-                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
+                ? 'border-brand bg-brand text-white'
                 : 'border-border-strong bg-surface text-ink-muted hover:bg-surface-sunken',
             )}
           >
@@ -266,7 +266,7 @@ function LimitsPanel() {
           key={g}
           className="rounded-card border border-border bg-surface p-4 shadow-resting"
         >
-          <h3 className="mb-3 font-display text-sm font-bold text-[#0F1F3D]">
+          <h3 className="mb-3 font-display text-sm font-bold text-brand">
             {GROUP_TITLE[g]}
           </h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

@@ -274,7 +274,7 @@ export function ApprovalsTab() {
                   className="flex w-full flex-wrap items-center gap-x-4 gap-y-2 rounded-card border border-border bg-surface px-4 py-3 text-left shadow-resting transition-shadow hover:shadow-hover"
                 >
                   <div className="min-w-0 flex-1 basis-64">
-                    <p className="truncate font-display text-sm font-bold text-[#0F1F3D]">
+                    <p className="truncate font-display text-sm font-bold text-brand">
                       {t.title}
                     </p>
                     <p className="truncate font-body text-xs text-ink-muted">
@@ -285,7 +285,7 @@ export function ApprovalsTab() {
                   </div>
                   <div className="w-40 font-body text-xs text-ink-muted">
                     <span className="block text-[10px]">Aprovador</span>
-                    <span className="text-[#0F1F3D]">
+                    <span className="text-brand">
                       {t.approver.name ?? `#${t.approver.id}`}
                     </span>
                   </div>
@@ -293,7 +293,7 @@ export function ApprovalsTab() {
                     <span className="block text-[10px]">Prazo</span>
                     <span
                       className={cn(
-                        'text-[#0F1F3D]',
+                        'text-brand',
                         t.overdue && 'font-semibold text-danger-ink',
                       )}
                     >
@@ -310,9 +310,7 @@ export function ApprovalsTab() {
         </ul>
       )}
 
-      {openId && (
-        <TaskModal taskId={openId} onClose={() => setOpenId(null)} />
-      )}
+      {openId && <TaskModal taskId={openId} onClose={() => setOpenId(null)} />}
     </div>
   );
 }
@@ -359,18 +357,15 @@ function TaskModal({
     afterSuccess,
   });
 
-  const run = useApiMutation(
-    (op: ReturnType<typeof mutate>) => op.fn(),
-    {
-      invalidateKeys,
-      onSuccess: (_d, op) => {
-        setError('');
-        notify({ title: op.successTitle, intent: 'success' });
-        op.afterSuccess?.();
-      },
-      onError: (e: Error) => setError(e.message || 'Erro ao executar a acção.'),
+  const run = useApiMutation((op: ReturnType<typeof mutate>) => op.fn(), {
+    invalidateKeys,
+    onSuccess: (_d, op) => {
+      setError('');
+      notify({ title: op.successTitle, intent: 'success' });
+      op.afterSuccess?.();
     },
-  );
+    onError: (e: Error) => setError(e.message || 'Erro ao executar a acção.'),
+  });
 
   const decide = (decision: 'APPROVE' | 'REJECT' | 'COMPLETE') => {
     if (decision === 'REJECT' && !comment.trim()) {
@@ -580,7 +575,7 @@ function TaskModal({
             )}
 
             <section>
-              <h4 className="mb-2 font-display text-sm font-bold text-[#0F1F3D]">
+              <h4 className="mb-2 font-display text-sm font-bold text-brand">
                 Histórico de alterações
               </h4>
               {task.history.length === 0 ? (
@@ -594,7 +589,7 @@ function TaskModal({
                       key={`${h.at}-${i}`}
                       className="rounded-card bg-surface-sunken px-3 py-2 font-body text-xs"
                     >
-                      <p className="text-[#0F1F3D]">
+                      <p className="text-brand">
                         <span className="font-semibold">
                           {describeEntry(h)}
                         </span>
@@ -665,7 +660,7 @@ function Info({
   return (
     <div>
       <dt className="text-ink-muted">{label}</dt>
-      <dd className="text-[#0F1F3D]">{children}</dd>
+      <dd className="text-brand">{children}</dd>
     </div>
   );
 }

@@ -255,7 +255,7 @@ export function OverviewTab() {
           ) : (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <Card className="overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                   Execuções ao longo do tempo
                 </div>
                 <CardBody>
@@ -275,7 +275,7 @@ export function OverviewTab() {
               </Card>
 
               <Card className="overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                   Execuções por estado
                 </div>
                 <CardBody>
@@ -292,7 +292,7 @@ export function OverviewTab() {
               </Card>
 
               <Card className="overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                   Automações por módulo
                 </div>
                 <CardBody>
@@ -314,7 +314,7 @@ export function OverviewTab() {
               </Card>
 
               <Card className="overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                   Taxa de sucesso
                 </div>
                 <CardBody>
@@ -337,7 +337,7 @@ export function OverviewTab() {
               </Card>
 
               <Card className="lg:col-span-2 overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                   Principais causas de falha
                 </div>
                 <CardBody>

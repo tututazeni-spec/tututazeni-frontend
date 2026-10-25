@@ -92,7 +92,9 @@ export function DeadLettersPanel() {
       onSuccess: (_d, v) =>
         notify({
           title:
-            v.verb === 'reprocess' ? 'Execução reprocessada' : 'Falha descartada',
+            v.verb === 'reprocess'
+              ? 'Execução reprocessada'
+              : 'Falha descartada',
           intent: 'success',
         }),
       onError: (e: Error) => notify({ title: e.message, intent: 'danger' }),
@@ -124,8 +126,8 @@ export function DeadLettersPanel() {
   return (
     <div className="flex flex-col gap-4">
       <p className="font-body text-sm text-ink-muted">
-        Execuções que falharam depois de esgotadas as tentativas automáticas.
-        O número de tentativas e o intervalo definem-se em cada automação; aqui
+        Execuções que falharam depois de esgotadas as tentativas automáticas. O
+        número de tentativas e o intervalo definem-se em cada automação; aqui
         trata-se o que ficou por resolver.
       </p>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -190,7 +192,7 @@ export function DeadLettersPanel() {
                 className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-card border border-border bg-surface px-4 py-3"
               >
                 <div className="min-w-0 flex-1 basis-64">
-                  <p className="truncate font-display text-sm font-bold text-[#0F1F3D]">
+                  <p className="truncate font-display text-sm font-bold text-brand">
                     {d.ruleName ?? `Automação #${d.ruleId}`}
                   </p>
                   <p
@@ -212,7 +214,9 @@ export function DeadLettersPanel() {
                       size="sm"
                       intent="secondary"
                       disabled={act.isPending}
-                      onClick={() => act.mutate({ id: d.id, verb: 'reprocess' })}
+                      onClick={() =>
+                        act.mutate({ id: d.id, verb: 'reprocess' })
+                      }
                     >
                       <RotateCcw size={14} strokeWidth={1.75} />
                       Reprocessar
@@ -279,7 +283,9 @@ function PublicationsSection() {
       onSuccess: (_d, v) => {
         notify({
           title:
-            v.verb === 'approve' ? 'Publicação aprovada' : 'Publicação recusada',
+            v.verb === 'approve'
+              ? 'Publicação aprovada'
+              : 'Publicação recusada',
           intent: 'success',
         });
         setRejecting(null);
@@ -291,7 +297,7 @@ function PublicationsSection() {
 
   return (
     <section className={section}>
-      <h3 className="font-display text-sm font-bold text-[#0F1F3D]">
+      <h3 className="font-display text-sm font-bold text-brand">
         Publicações críticas pendentes
       </h3>
       <p className="mb-3 font-body text-xs text-ink-muted">
@@ -312,7 +318,7 @@ function PublicationsSection() {
               className="flex flex-wrap items-center gap-3 rounded-card bg-surface-sunken px-3 py-2"
             >
               <div className="min-w-0 flex-1 basis-56">
-                <p className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
+                <p className="truncate font-body text-sm font-semibold text-brand">
                   {p.name}{' '}
                   <span className="font-normal text-ink-muted">
                     · versão {p.version}
@@ -438,8 +444,7 @@ function ConnectionsSection() {
                 ? 'Ligação testada com sucesso'
                 : `Teste da ligação: ${res.status ?? 'sem resposta'}${res.error ? ` — ${res.error}` : ''}`
               : 'Ligação removida',
-          intent:
-            v.verb === 'test' && res.error ? 'danger' : 'success',
+          intent: v.verb === 'test' && res.error ? 'danger' : 'success',
         });
       },
       onError: (e: Error) => notify({ title: e.message, intent: 'danger' }),
@@ -468,7 +473,7 @@ function ConnectionsSection() {
     <section className={section}>
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
-          <h3 className="font-display text-sm font-bold text-[#0F1F3D]">
+          <h3 className="font-display text-sm font-bold text-brand">
             Ligações e segredos
           </h3>
           <p className="font-body text-xs text-ink-muted">
@@ -496,7 +501,7 @@ function ConnectionsSection() {
             >
               <KeyRound size={16} strokeWidth={1.75} aria-hidden />
               <div className="min-w-0 flex-1 basis-56">
-                <p className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
+                <p className="truncate font-body text-sm font-semibold text-brand">
                   {c.name}
                 </p>
                 <p className="truncate font-body text-xs text-ink-muted">
@@ -713,7 +718,10 @@ function AuditSection() {
       );
     } catch (e) {
       reportError(e, { source: 'SettingsSecurity.auditExport' });
-      notify({ title: 'Não foi possível exportar a auditoria', intent: 'danger' });
+      notify({
+        title: 'Não foi possível exportar a auditoria',
+        intent: 'danger',
+      });
     }
   };
 
@@ -721,12 +729,12 @@ function AuditSection() {
     <section className={section}>
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <div className="mr-auto">
-          <h3 className="font-display text-sm font-bold text-[#0F1F3D]">
+          <h3 className="font-display text-sm font-bold text-brand">
             Auditoria de alterações
           </h3>
           <p className="font-body text-xs text-ink-muted">
-            Quem alterou cada configuração e quando. Segredos e dados
-            sensíveis aparecem ocultados.
+            Quem alterou cada configuração e quando. Segredos e dados sensíveis
+            aparecem ocultados.
           </p>
         </div>
         <Select
@@ -751,7 +759,7 @@ function AuditSection() {
               key={r.id}
               className="rounded-card bg-surface-sunken px-3 py-2 font-body text-xs"
             >
-              <p className="text-[#0F1F3D]">
+              <p className="text-brand">
                 <span className="font-semibold">{r.action}</span>
                 {' · '}
                 {r.entity}
