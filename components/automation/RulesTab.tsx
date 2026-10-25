@@ -63,6 +63,7 @@ const CreateRuleModal = dynamic(() =>
 );
 import { saveBlob } from '@/lib/download';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { formatDateNumeric, formatDateTimeNumeric } from '@/lib/format';
 
 const ALL = '__all__';
 
@@ -130,10 +131,10 @@ const CATEGORY_ITEMS = [
 ];
 
 const fmt = (iso?: string | null) =>
-  iso ? new Date(iso).toLocaleString('pt') : '–';
+  iso ? formatDateTimeNumeric(iso) : '–';
 
 const fmtDay = (iso?: string | null) =>
-  iso ? new Date(iso).toLocaleDateString('pt') : '–';
+  iso ? formatDateNumeric(iso) : '–';
 
 export interface RulesTabProps {
   /** Abre o Histórico de Execuções filtrado a uma regra (e, opcionalmente, só falhas). */

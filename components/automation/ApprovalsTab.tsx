@@ -48,6 +48,7 @@ import type {
   TaskSummary,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 const ALL = '__all__';
 
@@ -88,7 +89,7 @@ const HISTORY_LABEL: Record<string, string> = {
 };
 
 const fmt = (iso?: string | null) =>
-  iso ? new Date(iso).toLocaleString('pt') : '–';
+  iso ? formatDateTimeNumeric(iso) : '–';
 
 export function ApprovalsTab() {
   const notify = useToast();

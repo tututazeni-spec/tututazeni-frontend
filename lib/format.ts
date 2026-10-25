@@ -86,3 +86,118 @@ export function formatKz(value: number | null | undefined): string {
     .replace('Kz', 'AOA')
     .trim();
 }
+
+/**
+ * Data numérica curta (ex: "05/03/2024"). Valores nulos/vazios devolvem '—'.
+ * Substitui os `new Date(x).toLocaleDateString('pt-PT')` espalhados pelos módulos.
+ */
+export function formatDateNumeric(
+  value: string | Date | null | undefined,
+  opts?: Intl.DateTimeFormatOptions,
+): string {
+  return formatDate(value, { month: '2-digit', ...opts });
+}
+
+/**
+ * Tempo relativo com granularidade de minutos — "agora mesmo", "há 5min", "há 3h",
+ * "há 2 dias". Valores nulos/vazios devolvem '—'.
+ */
+export function timeAgo(value: string | Date | null | undefined): string {
+  if (!value) return '—';
+  const diff = Date.now() - new Date(value).getTime();
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return 'agora mesmo';
+  if (min < 60) return `há ${min}min`;
+  const hours = Math.floor(min / 60);
+  if (hours < 24) return `há ${hours}h`;
+  return `há ${Math.floor(hours / 24)} dias`;
+}
+
+/**
+ * Tempo relativo com granularidade de dias — "hoje", "ontem", "há N dias".
+ * Com `maxDays`, a partir desse número de dias mostra a data (formatDate).
+ */
+export function daysAgo(
+  value: string | Date | null | undefined,
+  opts: { maxDays?: number } = {},
+): string {
+  if (!value) return '—';
+  const days = Math.floor(
+    (Date.now() - new Date(value).getTime()) / 86_400_000,
+  );
+  if (opts.maxDays !== undefined && days >= opts.maxDays)
+    return formatDate(value);
+  if (days <= 0) return 'hoje';
+  if (days === 1) return 'ontem';
+  return `há ${days} dias`;
+}
+
+/**
+ * Tamanho de ficheiro legível — "512 B", "1.5 KB", "2.0 MB", "1.25 GB".
+ * `null`/`undefined` devolvem '—'.
+ */
+export function formatBytes(bytes: number | null | undefined): string {
+  if (bytes === null || bytes === undefined) return '—';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 ** 2) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+  return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+}
+
+/**
+ * Iniciais "primeira + última palavra" — ex: "Mariana Fonseca Antunes" → "MA".
+ * Nome vazio devolve `fallback` ('?' por omissão). É o formato dos avatares de cartão;
+ * `getInitials` usa as duas primeiras palavras.
+ */
+export function getInitialsFirstLast(name: string, fallback = '?'): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return fallback;
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
+  return (parts[0][0] + last).toUpperCase();
+}
+
+/**
+ * Data+hora numérica completa no locale da app (ex: "05/03/2024, 14:30:00").
+ * Substitui `new Date(x).toLocaleString('pt')`. Nulos/vazios devolvem '—'.
+ */
+export function formatDateTimeNumeric(
+  value: string | Date | null | undefined,
+  opts?: Intl.DateTimeFormatOptions,
+): string {
+  if (!value) return '—';
+  const date = value instanceof Date ? value : new Date(value);
+  return date.toLocaleString(LOCALE, opts);
+}
+
+/**
+ * Data+hora curta (ex: "05/03/2024, 14:30"), sem segundos. Nulos/vazios devolvem '—'.
+ */
+export function formatDateTimeShort(
+  value: string | Date | null | undefined,
+): string {
+  if (!value) return '—';
+  const date = value instanceof Date ? value : new Date(value);
+  return date.toLocaleString(LOCALE, {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  });
+}
+
+/**
+ * Dia de uma string ISO ("2026-03-05" ou "2026-03-05T10:00:00Z") como dd/MM/aaaa, lido
+ * directamente da string — sem passar por Date, por isso sem desvios de fuso horário.
+ */
+export function formatIsoDay(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  const [y, m, d] = iso.slice(0, 10).split('-');
+  return `${d}/${m}/${y}`;
+}
+
+/** Valor monetário com moeda a seguir (ex: "150 000 AOA"); `currency` omisso = AOA. */
+export function formatMoney(
+  value: number | null | undefined,
+  currency = 'AOA',
+): string {
+  if (value === null || value === undefined) return '—';
+  return `${new Intl.NumberFormat(LOCALE).format(value)} ${currency}`;
+}

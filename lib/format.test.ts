@@ -5,11 +5,20 @@
 
 import { describe, expect, test } from 'vitest';
 import {
+  formatBytes,
+  daysAgo,
   formatDate,
+  formatDateNumeric,
   formatDateTime,
   formatKz,
   formatTime,
+  formatDateTimeNumeric,
+  formatDateTimeShort,
+  formatIsoDay,
+  formatMoney,
   getInitials,
+  getInitialsFirstLast,
+  timeAgo,
 } from './format';
 
 describe('formatDate', () => {
@@ -94,5 +103,106 @@ describe('formatKz', () => {
 
   test('devolve — para undefined', () => {
     expect(formatKz(undefined)).toBe('—');
+  });
+});
+
+describe('formatDateNumeric', () => {
+  test('formata dd/mm/aaaa', () => {
+    expect(formatDateNumeric('2024-03-05T12:00:00Z')).toBe('05/03/2024');
+  });
+
+  test('devolve — para vazio', () => {
+    expect(formatDateNumeric(null)).toBe('—');
+  });
+});
+
+describe('timeAgo', () => {
+  const ago = (ms: number) => new Date(Date.now() - ms).toISOString();
+
+  test.each([
+    [10_000, 'agora mesmo'],
+    [5 * 60_000, 'há 5min'],
+    [3 * 3_600_000, 'há 3h'],
+    [2 * 86_400_000, 'há 2 dias'],
+  ])('%d ms atrás → %s', (ms, expected) => {
+    expect(timeAgo(ago(ms))).toBe(expected);
+  });
+
+  test('devolve — para vazio', () => {
+    expect(timeAgo(null)).toBe('—');
+  });
+});
+
+describe('daysAgo', () => {
+  const ago = (days: number) =>
+    new Date(Date.now() - days * 86_400_000 - 1000).toISOString();
+
+  test('hoje / ontem / há N dias', () => {
+    expect(daysAgo(new Date().toISOString())).toBe('hoje');
+    expect(daysAgo(ago(1))).toBe('ontem');
+    expect(daysAgo(ago(3))).toBe('há 3 dias');
+  });
+
+  test('com maxDays mostra a data a partir do limite', () => {
+    expect(daysAgo(ago(10), { maxDays: 7 })).toBe(formatDate(ago(10)));
+    expect(daysAgo(ago(3), { maxDays: 7 })).toBe('há 3 dias');
+  });
+});
+
+describe('formatBytes', () => {
+  test.each([
+    [512, '512 B'],
+    [1536, '1.5 KB'],
+    [2 * 1024 ** 2, '2.0 MB'],
+    [1.25 * 1024 ** 3, '1.25 GB'],
+  ])('%d → %s', (n, expected) => {
+    expect(formatBytes(n)).toBe(expected);
+  });
+
+  test('devolve — para null', () => {
+    expect(formatBytes(null)).toBe('—');
+  });
+});
+
+describe('getInitialsFirstLast', () => {
+  test('primeira e última palavra', () => {
+    expect(getInitialsFirstLast('Mariana Fonseca Antunes')).toBe('MA');
+    expect(getInitialsFirstLast('Ana Silva')).toBe('AS');
+  });
+
+  test('uma só palavra dá uma letra; vazio dá o fallback', () => {
+    expect(getInitialsFirstLast('Madonna')).toBe('M');
+    expect(getInitialsFirstLast('   ')).toBe('?');
+    expect(getInitialsFirstLast('', '–')).toBe('–');
+  });
+});
+
+describe('formatDateTimeNumeric / formatDateTimeShort', () => {
+  test('nulos devolvem —', () => {
+    expect(formatDateTimeNumeric(null)).toBe('—');
+    expect(formatDateTimeShort(undefined)).toBe('—');
+  });
+
+  test('curta não leva segundos; numérica leva', () => {
+    const d = new Date(2026, 2, 5, 14, 30, 45);
+    expect(formatDateTimeShort(d)).toMatch(/14:30$/);
+    expect(formatDateTimeNumeric(d)).toMatch(/14:30:45$/);
+  });
+});
+
+describe('formatIsoDay', () => {
+  test('lê o dia da string, sem desvio de fuso', () => {
+    expect(formatIsoDay('2026-03-05')).toBe('05/03/2026');
+    expect(formatIsoDay('2026-03-05T23:30:00Z')).toBe('05/03/2026');
+    expect(formatIsoDay(null)).toBe('—');
+  });
+});
+
+describe('formatMoney', () => {
+  test('moeda a seguir ao valor, AOA por omissão', () => {
+    expect(formatMoney(150000)).toMatch(/^150\s000 AOA$/);
+    expect(formatMoney(2500, 'USD')).toMatch(/^2\s500 USD$/);
+    expect(formatMoney(0)).toBe('0 AOA');
+    expect(formatMoney(null)).toBe('—');
   });
 });

@@ -5,6 +5,7 @@
 
 import { apiClient } from '@/lib/apiClient';
 import type { Content } from './types';
+import { formatBytes } from '@/lib/format';
 
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -31,11 +32,6 @@ export const ACCEPTED_MIME_TYPES = [
 ];
 
 export const ACCEPT_ATTR = ACCEPTED_MIME_TYPES.join(',');
-
-export function formatBytes(bytes: number): string {
-  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
 
 /** Devolve a mensagem de erro, ou null se o ficheiro é aceitável. */
 export function validateUpload(file: File): string | null {

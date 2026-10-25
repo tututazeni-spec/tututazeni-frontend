@@ -39,6 +39,7 @@ import {
   type DocFilters,
 } from '@/components/documents/types';
 import { ADMIN_RH_GESTOR_ROLES } from '@/lib/roles';
+import { formatDateNumeric } from '@/lib/format';
 
 type QuickFilter =
   | 'all'
@@ -222,7 +223,7 @@ export function CorporateDocsTab() {
                         className={`text-xs ${p.overdue ? 'text-danger' : 'text-ink-faint'}`}
                       >
                         {p.overdue ? 'Prazo expirado: ' : 'Prazo: '}
-                        {new Date(p.deadline).toLocaleDateString('pt-PT')}
+                        {formatDateNumeric(p.deadline)}
                       </span>
                     )}
                   </div>

@@ -15,6 +15,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NewIntegrationModal } from './NewIntegrationModal';
 import type { Integration, TestIntegrationResponse } from './types';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 const HEALTH_INTENT: Record<string, NonNullable<BadgeProps['intent']>> = {
   OK: 'success',
@@ -133,7 +134,7 @@ export function IntegrationsTab() {
                 </p>
                 {i.lastTested && (
                   <p className="mt-0.5 font-body text-micro text-ink-faint">
-                    Testado: {new Date(i.lastTested).toLocaleString('pt')}
+                    Testado: {formatDateTimeNumeric(i.lastTested)}
                   </p>
                 )}
               </div>

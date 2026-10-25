@@ -7,6 +7,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Header, Note } from './InfraTabs';
+import { formatDateTimeShort } from '@/lib/format';
 
 interface RetentionStatus {
   retentionDays: number;
@@ -15,14 +16,6 @@ interface RetentionStatus {
   oldestRawAt: string | null;
   lastRolledUpHour: string | null;
 }
-
-const fmtDate = (iso: string | null) =>
-  iso
-    ? new Date(iso).toLocaleString('pt-PT', {
-        dateStyle: 'short',
-        timeStyle: 'short',
-      })
-    : '—';
 
 export function RetentionStatusCard() {
   const { data } = useApiQuery<RetentionStatus>(
@@ -59,7 +52,7 @@ export function RetentionStatusCard() {
           </dl>
           <div className="mt-3">
             <Note>
-              {`Amostra bruta mais antiga: ${fmtDate(data.oldestRawAt)} · última hora agregada: ${fmtDate(data.lastRolledUpHour)}`}
+              {`Amostra bruta mais antiga: ${formatDateTimeShort(data.oldestRawAt)} · última hora agregada: ${formatDateTimeShort(data.lastRolledUpHour)}`}
             </Note>
           </div>
         </CardBody>

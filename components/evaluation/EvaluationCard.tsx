@@ -21,7 +21,6 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { initials } from '@/components/courses/NavyCard';
 import {
   InfoRow,
   Metric,
@@ -30,6 +29,7 @@ import {
 import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { PURPOSE_LABEL, REQUEST_STATUS_MAP } from './constants';
 import type { EvaluationRequestRow } from './types';
+import { getInitialsFirstLast, formatDateNumeric } from '@/lib/format';
 
 /** Classe dos botões redondos de acção sobre a foto. */
 export const EVAL_CARD_ACTION =
@@ -88,7 +88,7 @@ export function EvaluationCard({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-6xl font-bold text-white/60">
-              {initials(evaluated.fullName)}
+              {getInitialsFirstLast(evaluated.fullName)}
             </div>
           )}
         </div>
@@ -138,9 +138,7 @@ export function EvaluationCard({
       <div className="space-y-3 px-5 pt-4">
         <Metric icon={overdue ? AlarmClock : CalendarDays}>
           <span className={cn(overdue && 'text-[#FF9AA8]')}>
-            {r.dueDate
-              ? `Prazo: ${new Date(r.dueDate).toLocaleDateString('pt')}`
-              : 'Sem prazo'}
+            {r.dueDate ? `Prazo: ${formatDateNumeric(r.dueDate)}` : 'Sem prazo'}
           </span>
         </Metric>
         <Metric icon={Star}>

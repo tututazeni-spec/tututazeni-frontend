@@ -39,6 +39,7 @@ import type {
   IncidentStatus,
   IncidentUpdate,
 } from './types';
+import { formatDateTimeShort } from '@/lib/format';
 
 // ─── §18 Incidentes ────────────────────────────────────────
 
@@ -112,13 +113,6 @@ function duration(minutes: number): string {
   if (minutes < 60) return `${minutes} min`;
   if (minutes < 1440) return `${fmt(minutes / 60)} h`;
   return `${fmt(minutes / 1440)} d`;
-}
-
-function dateTime(iso: string): string {
-  return new Date(iso).toLocaleString('pt-PT', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  });
 }
 
 // Date → valor para <input type="datetime-local"> (hora local).
@@ -546,7 +540,7 @@ export function IncidentsTab({
                         {i.title}
                         <span className="block text-micro text-ink-faint">
                           {labelOf(CATEGORIES, i.category)} ·{' '}
-                          {dateTime(i.occurredAt)}
+                          {formatDateTimeShort(i.occurredAt)}
                         </span>
                       </td>
                       <td className="py-2 text-ink-muted">

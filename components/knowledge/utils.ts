@@ -2,13 +2,9 @@
 // Formatação de "há X dias". Extraído de
 // app/(platform)/knowledge/page.tsx.
 
-import { formatDate as fmtDate } from '@/lib/format';
+import { daysAgo } from '@/lib/format';
 
+/** "hoje" / "ontem" / "há N dias" até uma semana; depois a data. */
 export function timeAgo(d: string): string {
-  const diff = Date.now() - new Date(d).getTime();
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  if (days === 0) return 'hoje';
-  if (days === 1) return 'ontem';
-  if (days < 7) return `há ${days} dias`;
-  return fmtDate(d);
+  return daysAgo(d, { maxDays: 7 });
 }

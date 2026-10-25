@@ -38,6 +38,7 @@ import { SubmitEvaluationModal } from './SubmitEvaluationModal';
 import { PURPOSE_LABEL, REQUEST_STATUS_MAP } from './constants';
 import type { Cycle, EvaluationRequestRow } from './types';
 import { saveBlob } from '@/lib/download';
+import { formatDateNumeric } from '@/lib/format';
 
 const NewEvaluationWizard = dynamic(() =>
   import('./NewEvaluationWizard').then((m) => m.NewEvaluationWizard),
@@ -182,9 +183,9 @@ export function EvaluationsTab() {
         r.purpose ? PURPOSE_LABEL[r.purpose] : '',
         r.cycle?.name ?? '',
         REQUEST_STATUS_MAP[r.status]?.label ?? r.status,
-        r.dueDate ? new Date(r.dueDate).toLocaleDateString('pt') : '',
+        r.dueDate ? formatDateNumeric(r.dueDate) : '',
         r.result != null ? r.result.toFixed(1) : '',
-        r.completedAt ? new Date(r.completedAt).toLocaleDateString('pt') : '',
+        r.completedAt ? formatDateNumeric(r.completedAt) : '',
       ]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
         .join(','),

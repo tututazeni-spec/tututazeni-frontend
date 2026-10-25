@@ -19,7 +19,8 @@ import {
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
-import { fmtBytes, fmtDuration } from './utils';
+import { formatBytes } from '@/lib/format';
+import { fmtDuration } from './utils';
 import { useRecording } from './useRecording';
 import type { LiveClass } from './types';
 import { safeHref } from '@/lib/safeHref';
@@ -160,7 +161,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
               <span>·</span>
               <span className="inline-flex items-center gap-1">
                 <HardDrive size={12} strokeWidth={1.75} />{' '}
-                {fmtBytes(rec.data.size)}
+                {formatBytes(rec.data.size)}
               </span>
               <span>·</span>
               <span>WebM</span>

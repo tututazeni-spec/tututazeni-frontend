@@ -23,6 +23,7 @@ import { AlertCard } from '@/components/ui/AlertCard';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { formatDateNumeric, formatDateTimeNumeric } from '@/lib/format';
 
 interface RawDeletedCycle {
   id: string;
@@ -101,9 +102,7 @@ export function DeletedCyclesView() {
     );
   }
 
-  const fmtDay = (d: string) => new Date(d).toLocaleDateString('pt-PT');
-
-  return (
+return (
     <div className="flex flex-col gap-4">
       <AlertCard
         variant="info"
@@ -121,8 +120,8 @@ export function DeletedCyclesView() {
                 {c.name}
               </h2>
               <p className="font-body text-xs">
-                {c.model} · {c.type} · {fmtDay(c.startDate)} a{' '}
-                {fmtDay(c.endDate)}
+                {c.model} · {c.type} · {formatDateNumeric(c.startDate)} a{' '}
+                {formatDateNumeric(c.endDate)}
               </p>
             </div>
             <p className="font-body text-xs">
@@ -146,10 +145,10 @@ export function DeletedCyclesView() {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 bg-black/15 px-4 py-2 font-body text-xs">
             <span className="flex items-center gap-1.5">
               <UserRound size={13} strokeWidth={1.75} />
-              Criado por #{c.createdBy} em {fmtDay(c.createdAt)}
+              Criado por #{c.createdBy} em {formatDateNumeric(c.createdAt)}
             </span>
             <span>
-              Eliminado em {new Date(c.deletedAt).toLocaleString('pt-PT')}
+              Eliminado em {formatDateTimeNumeric(c.deletedAt)}
               {c.deletedById ? ` por #${c.deletedById}` : ''}
             </span>
             {c.competencies.length > 0 && (

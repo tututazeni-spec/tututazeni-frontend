@@ -4,6 +4,7 @@
 
 import type { NavyStatTone } from '@/components/ui/NavyStatCard';
 import type { ExecutiveKpi, KpiState } from './dashboardTypes';
+import { formatDateTimeShort } from '@/lib/format';
 
 export function formatKpiValue(
   value: number | null,
@@ -43,13 +44,6 @@ export function changeIsGood(k: ExecutiveKpi): boolean | null {
   if (k.change === null || k.change === 0 || k.direction === 'NEUTRAL')
     return null;
   return k.direction === 'HIGHER_IS_BETTER' ? k.change > 0 : k.change < 0;
-}
-
-export function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString('pt-PT', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  });
 }
 
 export const CONTRACT_LABEL: Record<string, string> = {
@@ -109,3 +103,7 @@ const MODULE_LABEL: Record<string, string> = {
 
 /** Nome em português de um módulo (slug do backend); desconhecido → o próprio slug. */
 export const moduleLabel = (slug: string): string => MODULE_LABEL[slug] ?? slug;
+
+export function formatDateTime(iso: string): string {
+  return formatDateTimeShort(iso);
+}

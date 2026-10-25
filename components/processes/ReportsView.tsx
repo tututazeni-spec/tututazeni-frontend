@@ -51,6 +51,7 @@ import type {
   ReportRecordIndicator,
 } from './types';
 import { LinkButton } from '@/components/ui/LinkButton';
+import { formatDateNumeric } from '@/lib/format';
 
 export interface ReportsViewProps {
   canExport: boolean;
@@ -377,8 +378,8 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
           <div>
             <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
               Período: processos iniciados entre{' '}
-              {new Date(data.range.from).toLocaleDateString('pt-PT')} e{' '}
-              {new Date(data.range.to).toLocaleDateString('pt-PT')}
+              {formatDateNumeric(data.range.from)} e{' '}
+              {formatDateNumeric(data.range.to)}
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
               <Kpi

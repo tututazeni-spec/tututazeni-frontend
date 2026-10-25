@@ -44,6 +44,7 @@ import { departmentIcon } from './departmentIcon';
 import { HeadcountCard } from './HeadcountCard';
 import type { Department, HeadHistoryEntry, Member, Metrics } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateNumeric, formatMoney } from '@/lib/format';
 
 interface DetailViewProps {
   deptId: number;
@@ -369,7 +370,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                   <span>
                     Budget formação:{' '}
                     <strong className="text-ink">
-                      {dept.trainingBudget.toLocaleString('pt-AO')} AOA
+                      {formatMoney(dept.trainingBudget)}
                     </strong>
                   </span>
                 )}
@@ -719,11 +720,11 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                     </div>
                   </TableCell>
                   <TableCell className="text-xs text-ink-muted">
-                    {new Date(h.startedAt).toLocaleDateString('pt-AO')}
+                    {formatDateNumeric(h.startedAt)}
                   </TableCell>
                   <TableCell className="text-xs text-ink-muted">
                     {h.endedAt ? (
-                      new Date(h.endedAt).toLocaleDateString('pt-AO')
+                      formatDateNumeric(h.endedAt)
                     ) : (
                       <span className="text-success">Actual</span>
                     )}

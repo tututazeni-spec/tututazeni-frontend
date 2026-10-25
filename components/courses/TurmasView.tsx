@@ -32,6 +32,7 @@ import { NAVY_ACTION, NavyBadge, NavyCard, type NavyTone } from './NavyCard';
 import { PeriodPills } from '@/components/ui/Pills';
 import { cn } from '@/lib/cn';
 import type { Cohort, CohortDetail, CohortStatus } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> =
   {
@@ -49,11 +50,6 @@ const COHORT_TONE: Record<CohortStatus, NavyTone> = {
   CLOSED: 'neutral',
   CANCELLED: 'danger',
 };
-
-function fmtDate(d: string | null) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('pt-PT');
-}
 
 interface CohortCardProps {
   c: Cohort;
@@ -76,8 +72,8 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
       infos={[
         {
           icon: CalendarDays,
-          value: fmtDate(c.startDate),
-          label: `até ${fmtDate(c.endDate)}`,
+          value: formatDateNumeric(c.startDate),
+          label: `até ${formatDateNumeric(c.endDate)}`,
         },
         { icon: Clock, value: c.schedule ?? '—', label: 'Horário' },
         {

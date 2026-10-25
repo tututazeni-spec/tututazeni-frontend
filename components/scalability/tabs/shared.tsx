@@ -7,16 +7,8 @@ import { CardTitleBar } from '../InfraTabs';
 import type { AlertSeverity, IntegrationStatus } from '../types';
 
 // ─── UTILITY FUNCTIONS ─────────────────────────────────────
+export { timeAgo } from '@/lib/format';
 
-export function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return 'agora mesmo';
-  if (min < 60) return `há ${min}m`;
-  const h = Math.floor(min / 60);
-  if (h < 24) return `há ${h}h`;
-  return `há ${Math.floor(h / 24)}d`;
-}
 
 export function formatPercent(v: number, decimals = 1): string {
   return v.toFixed(decimals) + '%';

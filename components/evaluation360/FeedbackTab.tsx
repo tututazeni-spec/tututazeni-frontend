@@ -26,7 +26,7 @@
 import { FilterPanelCard } from './FilterPanelCard';
 import { useEffect, useState } from 'react';
 import type { ContinuousFeedback, CycleFeedbackRow } from './types';
-import { timeAgo, evaluatorRoleLabel } from './colors';
+import { evaluatorRoleLabel } from './colors';
 import { GiveFeedbackModal } from './GiveFeedbackModal';
 import { useCycleSelectorOptions } from './cycleData';
 import { useHasRole } from '@/hooks/useCurrentRole';
@@ -37,6 +37,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Button } from '@/components/ui/Button';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { daysAgo } from '@/lib/format';
 
 const ALL = 'ALL';
 
@@ -97,7 +98,7 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
                       </span>
                     )}
                     <span className="text-xs text-ink-muted">
-                      · {timeAgo(fb.createdAt)}
+                      · {daysAgo(fb.createdAt)}
                     </span>
                   </div>
                   <p className="m-0 text-sm text-ink leading-relaxed">

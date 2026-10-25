@@ -31,6 +31,7 @@ import {
 } from './modelFormData';
 import { UserFilterSearch } from './UserFilterSearch';
 import type { CompetencyEvaluation } from './types';
+import { getInitialsFirstLast, formatDateNumeric } from '@/lib/format';
 
 const ALL = '';
 
@@ -79,14 +80,6 @@ export function avatarColor(name: string): string {
   let h = 0;
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   return AVATAR_COLORS[h % AVATAR_COLORS.length];
-}
-
-export function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '?';
-  const first = parts[0][0];
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
-  return (first + last).toUpperCase();
 }
 
 export function EvaluationsView() {
@@ -200,7 +193,7 @@ export function EvaluationsView() {
                             backgroundColor: avatarColor(r.colaborador),
                           }}
                         >
-                          {initials(r.colaborador)}
+                          {getInitialsFirstLast(r.colaborador)}
                         </span>
                       )}
                       <div className="min-w-0">
@@ -239,7 +232,7 @@ export function EvaluationsView() {
                     {r.gap ?? '—'}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-on-brand">
-                    {new Date(r.data).toLocaleDateString('pt')}
+                    {formatDateNumeric(r.data)}
                   </td>
                   <td className="px-4 py-3 text-xs text-white">
                     {EVALUATION_STATUS_CFG[r.estado]?.label ?? r.estado}
@@ -258,7 +251,7 @@ export function EvaluationsView() {
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-on-brand-faint">
                     {r.proximaAvaliacao
-                      ? new Date(r.proximaAvaliacao).toLocaleDateString('pt')
+                      ? formatDateNumeric(r.proximaAvaliacao)
                       : '—'}
                   </td>
                 </tr>

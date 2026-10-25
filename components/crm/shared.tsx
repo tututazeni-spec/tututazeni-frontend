@@ -13,7 +13,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { formatDate as formatDateShared } from '@/lib/format';
+import { formatDate as formatDateShared, formatMoney as formatMoneyShared } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 export function formatDate(iso: string | null | undefined): string {
@@ -27,7 +27,7 @@ export function formatDate(iso: string | null | undefined): string {
  * `currency` de cada registo).
  */
 export function formatMoney(value: number, currency = 'AOA'): string {
-  return `${currency} ${(value || 0).toLocaleString('pt-AO')}`;
+  return formatMoneyShared(value || 0, currency);
 }
 
 // ─── Tipos partilhados pelos 3 sub-módulos ──────────────────────────────────

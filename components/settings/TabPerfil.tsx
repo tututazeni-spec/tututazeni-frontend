@@ -8,6 +8,7 @@ import type { CurrentUser as Me } from '@/hooks/useCurrentUser';
 import { AvatarUploader } from '@/components/ui/AvatarUploader';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateNumeric } from '@/lib/format';
 
 interface TabPerfilProps {
   user: Me;
@@ -130,7 +131,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
                     )}
                   </div>
                   <span className="text-xs text-ink-faint">
-                    {new Date(b.awardedAt).toLocaleDateString('pt-PT')}
+                    {formatDateNumeric(b.awardedAt)}
                   </span>
                 </div>
               ))}

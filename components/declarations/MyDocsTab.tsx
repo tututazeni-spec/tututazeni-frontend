@@ -12,6 +12,7 @@ import { Card, CardHeader } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusBadge } from './StatusBadge';
 import type { DocRequest } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 export interface MyDocsTabProps {
   myDocs: { data: DocRequest[] } | null;
@@ -62,7 +63,7 @@ export function MyDocsTab({ myDocs, onRequestNew }: MyDocsTabProps) {
                   </p>
                   <p className="mt-0.5 font-body text-xs text-ink-faint">
                     {d.purpose?.name && `${d.purpose.name} · `}
-                    {new Date(d.createdAt).toLocaleDateString('pt-PT')}
+                    {formatDateNumeric(d.createdAt)}
                   </p>
                 </div>
               </div>

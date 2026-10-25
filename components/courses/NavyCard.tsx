@@ -8,13 +8,7 @@
 import type { ReactNode } from 'react';
 import { GraduationCap, type LucideIcon } from 'lucide-react';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
-
-export function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '?';
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
-  return (parts[0][0] + last).toUpperCase();
-}
+import { getInitialsFirstLast } from '@/lib/format';
 
 /** Classes para botões/triggers sobre o cartão escuro. */
 export const NAVY_ACTION =
@@ -266,7 +260,7 @@ export function NavyCard({
                     />
                   ) : (
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-xs font-bold">
-                      {initials(avatar.name)}
+                      {getInitialsFirstLast(avatar.name)}
                     </span>
                   )
                 ) : (

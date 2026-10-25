@@ -5,6 +5,7 @@
 
 import Image from 'next/image';
 import { cn } from '@/lib/cn';
+import { getInitials } from '@/lib/format';
 
 const GRADIENTS = [
   'from-primary to-accent',
@@ -12,13 +13,6 @@ const GRADIENTS = [
   'from-accent to-danger',
   'from-success to-info',
 ] as const;
-
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  const first = parts[0]?.[0] ?? '';
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
-  return (first + last).toUpperCase();
-}
 
 function gradientFor(name: string): (typeof GRADIENTS)[number] {
   let hash = 0;

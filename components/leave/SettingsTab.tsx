@@ -63,6 +63,7 @@ import type {
   LeaveSettings,
   SettingsOverview,
 } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 type SectionKey =
   | 'calendar'
@@ -151,8 +152,6 @@ const CATEGORY_OPTIONS = (
 const RULE_ITEMS = (Object.keys(DAY_COUNT_RULE_LABELS) as DayCountRule[]).map(
   (value) => ({ value, label: DAY_COUNT_RULE_LABELS[value] }),
 );
-
-const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('pt-PT');
 
 export function SettingsTab() {
   const isAdmin = useHasRole(LEAVE_ADMIN_ROLES);
@@ -267,7 +266,7 @@ function SettingsForm({ overview, section }: SettingsFormProps) {
           <CalendarClock size={16} strokeWidth={1.75} className="mt-0.5" />
           <span>
             Há uma alteração agendada para{' '}
-            <strong>{fmtDate(overview.upcoming.effectiveFrom)}</strong>:{' '}
+            <strong>{formatDateNumeric(overview.upcoming.effectiveFrom)}</strong>:{' '}
             {overview.upcoming.changedKeys
               .map((k) => SETTING_LABELS[k] ?? k)
               .join(', ')}
@@ -277,7 +276,7 @@ function SettingsForm({ overview, section }: SettingsFormProps) {
       )}
       {overview.effectiveFrom && (
         <p className="text-xs text-ink-faint">
-          Versão em vigor desde {fmtDate(overview.effectiveFrom)}.
+          Versão em vigor desde {formatDateNumeric(overview.effectiveFrom)}.
         </p>
       )}
 

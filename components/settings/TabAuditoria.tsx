@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { AuditDataOverview } from './types';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 const HEALTH_LABELS: Record<
   string,
@@ -102,7 +103,7 @@ export function TabAuditoria() {
             </p>
             <p className="mt-1 text-sm text-brand">
               {data.lastEventAt
-                ? new Date(data.lastEventAt).toLocaleString('pt-PT')
+                ? formatDateTimeNumeric(data.lastEventAt)
                 : '—'}
             </p>
           </div>

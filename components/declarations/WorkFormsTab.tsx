@@ -19,6 +19,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusBadge } from './StatusBadge';
 import { WORK_TYPE_LABELS } from './constants';
 import type { WorkForm, WorkSubmission } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 export interface WorkFormsTabProps {
   pendingWork: { pending: WorkForm[]; total: number } | null;
@@ -112,7 +113,7 @@ export function WorkFormsTab({
                   </p>
                   <p className="font-body text-xs text-ink-faint">
                     {s.submittedAt
-                      ? new Date(s.submittedAt).toLocaleDateString('pt-PT')
+                      ? formatDateNumeric(s.submittedAt)
                       : '—'}
                   </p>
                 </div>

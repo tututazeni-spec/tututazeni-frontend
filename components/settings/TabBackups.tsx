@@ -29,6 +29,7 @@ import { pollInterval } from '@/lib/polling';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatBytes, formatDateTimeNumeric } from '@/lib/format';
 
 const FREQUENCY_ITEMS = [
   { value: 'DAILY', label: 'Diária' },
@@ -88,15 +89,8 @@ const TRIGGER_LABEL: Record<BackupRunRow['trigger'], string> = {
   PRE_RESTORE: 'Pré-restauro',
 };
 
-function fmtBytes(n: number | null) {
-  if (n === null) return '—';
-  if (n < 1024 * 1024) return `${Math.max(1, Math.round(n / 1024))} KB`;
-  if (n < 1024 ** 3) return `${(n / 1024 ** 2).toFixed(1)} MB`;
-  return `${(n / 1024 ** 3).toFixed(2)} GB`;
-}
-
 const fmtDate = (s: string | null) =>
-  s ? new Date(s).toLocaleString('pt-PT') : '—';
+  s ? formatDateTimeNumeric(s) : '—';
 
 export function TabBackups() {
   const toast = useToast();
@@ -207,7 +201,7 @@ export function TabBackups() {
           <div>
             <dt className="text-xs text-brand-muted">Cópias guardadas</dt>
             <dd className="font-display font-bold">
-              {data.storedCopies} ({fmtBytes(data.storedBytes)})
+              {data.storedCopies} ({formatBytes(data.storedBytes)})
             </dd>
           </div>
           <div>
@@ -414,7 +408,7 @@ export function TabBackups() {
                             </div>
                           )}
                         </td>
-                        <td className="pr-3">{fmtBytes(r.sizeBytes)}</td>
+                        <td className="pr-3">{formatBytes(r.sizeBytes)}</td>
                         <td className="max-w-[260px] break-all pr-3 text-xs text-ink-faint">
                           {r.error ??
                             (r.deletedAt

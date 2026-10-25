@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/assessments/Skeleton';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import type { FormalEvaluation } from './formalEvaluationTypes';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 type Nav = { view: 'list' } | { view: 'player'; id: number };
 
@@ -79,7 +80,7 @@ export function FormalEvaluationsParticipantView() {
               {e.availableUntil && (
                 <span className="inline-flex items-center gap-1">
                   <Timer size={12} strokeWidth={1.75} />
-                  Até {new Date(e.availableUntil).toLocaleString('pt-PT')}
+                  Até {formatDateTimeNumeric(e.availableUntil)}
                 </span>
               )}
             </div>

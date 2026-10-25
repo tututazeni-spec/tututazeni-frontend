@@ -24,6 +24,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { SCORE_COLOR } from './constants';
 import type { CalibrationData, CalibrationHistoryEntry } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 export function CalibrationTab() {
   const notify = useToast();
@@ -173,7 +174,7 @@ export function CalibrationTab() {
                     Colaborador #{h.evaluatedId}
                   </span>
                   <span className="text-ink-faint">
-                    {new Date(h.createdAt).toLocaleString('pt')}
+                    {formatDateTimeNumeric(h.createdAt)}
                   </span>
                 </div>
                 <p className="text-ink">

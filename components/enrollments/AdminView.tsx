@@ -44,6 +44,7 @@ import { deadlineCountdown } from './utils';
 import { RunsModal } from './RunsModal';
 import type { Enrollment } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { formatDateNumeric } from '@/lib/format';
 
 const STATUS_TONE: Record<string, NavyTone> = {
   NOT_STARTED: 'warning',
@@ -378,9 +379,9 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                   },
                   {
                     icon: CalendarDays,
-                    text: `Inscrição: ${new Date(e.enrolledAt).toLocaleDateString('pt')} → Conclusão: ${
+                    text: `Inscrição: ${formatDateNumeric(e.enrolledAt)} → Conclusão: ${
                       e.completedAt
-                        ? new Date(e.completedAt).toLocaleDateString('pt')
+                        ? formatDateNumeric(e.completedAt)
                         : '—'
                     }`,
                   },

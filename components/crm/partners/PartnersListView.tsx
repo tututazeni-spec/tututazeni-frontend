@@ -9,6 +9,7 @@ import { Select } from '@/components/ui/Select';
 import { ListSkeleton, ErrorBanner } from '@/components/crm/shared';
 import { STATUS_COLORS, TIER_COLORS, TYPE_LABELS } from './types';
 import type { Partner } from './types';
+import { formatMoney } from '@/lib/format';
 
 interface PartnersListViewProps {
   data: Partner[];
@@ -160,7 +161,7 @@ export function PartnersListView({
                     </td>
                     <td className="px-4 py-3 text-ink-muted">
                       {p.annualValue
-                        ? `AOA ${p.annualValue.toLocaleString('pt-AO')}`
+                        ? formatMoney(p.annualValue)
                         : '—'}
                     </td>
                     <td className="px-4 py-3 text-ink-muted">

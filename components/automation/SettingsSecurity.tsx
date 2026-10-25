@@ -43,9 +43,10 @@ import type {
   Paginated,
   PendingPublication,
 } from './types';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 const fmt = (iso?: string | null) =>
-  iso ? new Date(iso).toLocaleString('pt') : '–';
+  iso ? formatDateTimeNumeric(iso) : '–';
 
 const section =
   'rounded-card border border-border bg-surface p-4 shadow-resting';

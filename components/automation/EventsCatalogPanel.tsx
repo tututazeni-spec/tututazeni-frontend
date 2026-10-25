@@ -48,6 +48,7 @@ import type {
   EventCatalog,
   Paginated,
 } from './types';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 const STATUS_INTENT = {
   PROCESSED: 'success',
@@ -376,7 +377,7 @@ export function EventsCatalogPanel() {
                 {recent.data.map((e) => (
                   <tr key={e.id} className="border-t border-border">
                     <td className="whitespace-nowrap px-3 py-2 text-xs">
-                      {new Date(e.occurredAt).toLocaleString('pt')}
+                      {formatDateTimeNumeric(e.occurredAt)}
                     </td>
                     <td className="px-3 py-2">{e.module}</td>
                     <td className="px-3 py-2 font-data text-xs">{e.type}</td>

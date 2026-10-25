@@ -31,6 +31,7 @@ import { KpiCard } from './KpiCard';
 import { StatusBadge } from './StatusBadge';
 import { WORK_TYPE_LABELS } from './constants';
 import type { WorkDashboard, WorkSubmission } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 export interface WorkAdminTabProps {
   workDash: WorkDashboard | null;
@@ -120,7 +121,7 @@ export function WorkAdminTab({
                 </TableCell>
                 <TableCell className="font-body text-xs text-ink-faint">
                   {s.submittedAt
-                    ? new Date(s.submittedAt).toLocaleDateString('pt-PT')
+                    ? formatDateNumeric(s.submittedAt)
                     : '—'}
                 </TableCell>
                 <TableCell>

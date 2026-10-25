@@ -8,6 +8,7 @@ import type {
   InternalAuditType,
   Severity,
 } from '../types';
+import { formatDateNumeric } from '@/lib/format';
 
 // ── Datas ───────────────────────────────────────────────────────────────────
 
@@ -16,7 +17,7 @@ export const toIso = (d: string): string | undefined =>
   d ? new Date(`${d}T00:00:00`).toISOString() : undefined;
 
 export const fmtDay = (d: string | null): string =>
-  d ? new Date(d).toLocaleDateString('pt-AO') : '—';
+  d ? formatDateNumeric(d) : '—';
 
 // ── Fases do fluxo ──────────────────────────────────────────────────────────
 

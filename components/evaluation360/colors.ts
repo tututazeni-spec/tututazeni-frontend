@@ -99,11 +99,6 @@ export const evaluatorRoleLabel: Record<string, string> = {
   EXTERNAL: 'Externo (cliente/parceiro/outro)',
 };
 
-export function timeAgo(iso: string): string {
-  const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
-  return d === 0 ? 'hoje' : d === 1 ? 'ontem' : `há ${d} dias`;
-}
-
 // Função scoreColor: ordinal scale (higher = better)
 // Mapeamento semântico: danger < warning < primary < success
 export function scoreColor(score: number): string {

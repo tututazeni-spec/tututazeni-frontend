@@ -16,6 +16,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import type { LicenseSettings } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { formatDateNumeric } from '@/lib/format';
 
 const MODULE_LABELS: Record<string, string> = {
   DASHBOARD: 'Dashboard',
@@ -134,7 +135,7 @@ export function TabLicenca() {
             >
               {trial.label}
               {data.trialEndsAt &&
-                ` · ${new Date(data.trialEndsAt).toLocaleDateString('pt-PT')}`}
+                ` · ${formatDateNumeric(data.trialEndsAt)}`}
             </span>
           </div>
           <div>
@@ -143,11 +144,11 @@ export function TabLicenca() {
             </p>
             <p className="mt-1 text-sm text-white">
               {data.contractStartDate
-                ? new Date(data.contractStartDate).toLocaleDateString('pt-PT')
+                ? formatDateNumeric(data.contractStartDate)
                 : '—'}
               {' → '}
               {data.contractEndDate
-                ? new Date(data.contractEndDate).toLocaleDateString('pt-PT')
+                ? formatDateNumeric(data.contractEndDate)
                 : '—'}
             </p>
           </div>
