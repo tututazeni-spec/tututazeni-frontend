@@ -37,6 +37,7 @@ import type { DepartmentNode } from '@/components/departments/types';
 import { CourseImageField } from './CourseImageField';
 import { Skeleton } from './shared';
 import type { CourseDetailData, PaginatedCourses } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface EditCourseModalProps {
   courseId: number;
@@ -554,31 +555,28 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
 
           <div className="flex flex-wrap gap-4">
             <label className="flex items-center gap-2 text-xs text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={form.mandatory}
                 onChange={(e) => setField('mandatory', e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                size="sm"
               />
               Formação obrigatória
             </label>
             <label className="flex items-center gap-2 text-xs text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={form.requiresApproval}
                 onChange={(e) => setField('requiresApproval', e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                size="sm"
               />
               Requer aprovação para inscrição
             </label>
             <label className="flex items-center gap-2 text-xs text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={form.certificateEnabled}
                 onChange={(e) =>
                   setField('certificateEnabled', e.target.checked)
                 }
-                className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                size="sm"
               />
               Emite certificado
             </label>

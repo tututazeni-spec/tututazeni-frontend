@@ -30,6 +30,7 @@ import { Input } from '@/components/ui/Input';
 import { PeriodPills } from '@/components/ui/Pills';
 import { Skeleton } from './shared';
 import type { Certificate, CertificateVerifyResult } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 type StatusFilter = 'ALL' | Certificate['status'];
 type KindFilter = 'ALL' | 'COURSE' | 'EVENT' | 'TRAINING' | 'LEARNING_PATH';
@@ -196,8 +197,7 @@ export function CertificatesView() {
             />
             <div className="flex items-center justify-between text-sm text-ink-muted">
               <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={withExpiry}
                   onChange={(e) => setWithExpiry(e.target.checked)}
                 />

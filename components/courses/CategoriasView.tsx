@@ -23,6 +23,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { CategoryCard } from './CategoryCard';
 import { Skeleton } from './shared';
 import type { CourseCategoryManaged } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface CategoryFormState {
   name: string;
@@ -225,8 +226,7 @@ function CategoryCoursesModal({
                   key={c.id}
                   className="flex cursor-pointer items-center gap-3 rounded-control px-2 py-2 hover:bg-surface-sunken"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={checked.has(c.id)}
                     onChange={() => toggle(c.id)}
                   />
