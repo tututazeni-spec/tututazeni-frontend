@@ -71,9 +71,9 @@ const card =
 const cardHead =
   'flex items-center justify-between gap-2.5 bg-brand/60 px-5 py-3 text-white';
 const row =
-  'flex items-center justify-between gap-3 rounded-card border border-brand-line bg-[#E8F0FE]/50 px-3 py-2';
+  'flex items-center justify-between gap-3 rounded-card border border-brand-line bg-brand-soft/50 px-3 py-2';
 const trash =
-  'inline-flex h-7 w-7 items-center justify-center rounded-control text-brand/60 hover:bg-white hover:text-[#DC2626] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50';
+  'inline-flex h-7 w-7 items-center justify-center rounded-control text-brand/60 hover:bg-white hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50';
 const headBtn =
   'inline-flex h-8 items-center gap-1.5 rounded-control bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60';
 
