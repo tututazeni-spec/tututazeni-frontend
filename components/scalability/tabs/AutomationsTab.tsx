@@ -1,14 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/queryKeys';
-import { CreateRuleModal } from '@/components/automation/CreateRuleModal';
 import type { AutomationRule } from '../types';
 import { SectionHeader, timeAgo } from './shared';
+
+const CreateRuleModal = dynamic(() =>
+  import('@/components/automation/CreateRuleModal').then(
+    (m) => m.CreateRuleModal,
+  ),
+);
 
 interface AutomationsTabProps {
   rules: AutomationRule[];

@@ -7,6 +7,7 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import {
   BarChart3,
   Clock,
@@ -30,7 +31,6 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Pagination } from '@/components/ui/Pagination';
-import { NewRoiAnalysisWizard } from './NewRoiAnalysisWizard';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { EventBadge } from '@/components/events/EventBadges';
 import { Metric } from '@/components/events/EventListCard';
@@ -41,6 +41,10 @@ import {
   CONFIDENCE_LABELS,
 } from './utils';
 import type { RoiAnalysisListData } from './types';
+
+const NewRoiAnalysisWizard = dynamic(() =>
+  import('./NewRoiAnalysisWizard').then((m) => m.NewRoiAnalysisWizard),
+);
 
 // Cor sólida da etiqueta de estado da análise.
 const STATUS_COLOR: Record<string, string> = {
@@ -121,7 +125,7 @@ export function RoiAnalysisTab() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="h-14 rounded-card bg-surface-sunken"
       />
     );

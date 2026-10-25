@@ -80,6 +80,8 @@ export function EvaluationCard({
           {evaluated.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
+              loading="lazy"
+              decoding="async"
               src={evaluated.avatarUrl}
               alt={`Foto de ${evaluated.fullName}`}
               className="h-full w-full object-cover"

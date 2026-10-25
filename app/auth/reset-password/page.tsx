@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { apiClient, ApiError } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { AlertCard } from '@/components/ui/AlertCard';
+import { Button } from '@/components/ui/Button';
 
 const STRONG = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{10,128}$/;
 
@@ -116,13 +117,14 @@ export default function ResetPasswordPage() {
                 message={error}
               />
             )}
-            <button
+            <Button
               type="submit"
-              disabled={loading || token === null}
-              className="w-full rounded-control bg-brand py-2 text-sm font-semibold text-white disabled:opacity-60"
+              loading={loading}
+              disabled={token === null}
+              className="w-full"
             >
               {loading ? 'A guardar…' : 'Definir senha'}
-            </button>
+            </Button>
           </form>
         )}
       </div>

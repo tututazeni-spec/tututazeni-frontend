@@ -10,6 +10,7 @@
 // migrado).
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { BarChart2, CircleCheck, LayoutDashboard, Users } from 'lucide-react';
 import { DashboardWatermark } from '@/components/dashboard/DashboardWatermark';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
@@ -22,11 +23,34 @@ import {
   filterByRole,
   MGMT_ROLES,
 } from '@/lib/roles';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { ColaboradorDashboard } from '@/components/dashboard/ColaboradorDashboard';
-import { ManagerDashboard } from '@/components/dashboard/ManagerDashboard';
-import { OrgDashboard } from '@/components/dashboard/OrgDashboard';
 import { Slideshow } from '@/components/dashboard/Slideshow';
+
+const OrgDashboard = dynamic(
+  () =>
+    import('@/components/dashboard/OrgDashboard').then((m) => m.OrgDashboard),
+  { loading: () => <DashboardSkeleton /> },
+);
+
+function DashboardSkeleton() {
+  return (
+    <Skeleton
+      rows={4}
+      wrapperClassName="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4"
+      itemClassName="h-[120px] rounded-panel bg-surface-sunken"
+    />
+  );
+}
+
+const ManagerDashboard = dynamic(
+  () =>
+    import('@/components/dashboard/ManagerDashboard').then(
+      (m) => m.ManagerDashboard,
+    ),
+  { loading: () => <DashboardSkeleton /> },
+);
 
 // roles por separador alinhados com @Roles(...ALL_ROLES)/@Roles(...MGMT_ROLES)/
 // @Roles(...ADMIN_ROLES) em src/dashboard/dashboard.controller.ts — os grupos

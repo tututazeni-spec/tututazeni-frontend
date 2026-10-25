@@ -244,6 +244,16 @@ body {
   }
 }
 
+/* Anel de foco para teclado em qualquer <button> que não traga o seu próprio
+   `focus-visible:` na classe (botões de linha, chips, menus escritos à mão).
+   Fora de @layer de propósito: tem de ganhar a `focus:outline-none` que alguns
+   desses botões trazem. Os de components/ui/ têm `focus-visible:` na classe,
+   por isso ficam de fora e não ganham anel duplo. */
+button:not([class*='focus-visible']):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 /* <select> nativos: mesmo contorno e texto dos Select/Combobox partilhados */
 select {
   border: 1.5px solid var(--color-field);

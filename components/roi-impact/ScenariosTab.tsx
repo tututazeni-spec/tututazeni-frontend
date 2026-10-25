@@ -128,7 +128,7 @@ export function ScenariosTab() {
           {isLoading ? (
             <Skeleton
               rows={4}
-              wrapperClassName="space-y-3 p-4 animate-pulse"
+              wrapperClassName="space-y-3 p-4"
               itemClassName="h-12 rounded-card bg-surface-sunken"
             />
           ) : scenarios.length === 0 ? (

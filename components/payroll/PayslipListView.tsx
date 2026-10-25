@@ -170,7 +170,7 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
       {filtered && isLoading && (
         <Skeleton
           rows={8}
-          wrapperClassName="space-y-2 animate-pulse"
+          wrapperClassName="space-y-2"
           itemClassName="h-12 rounded-card bg-surface-sunken"
         />
       )}

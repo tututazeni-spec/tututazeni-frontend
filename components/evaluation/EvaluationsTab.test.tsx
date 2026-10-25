@@ -154,9 +154,9 @@ describe('EvaluationsTab', () => {
     );
   });
 
-  test('botão "Nova Avaliação" abre o assistente', () => {
+  test('botão "Nova Avaliação" abre o assistente', async () => {
     render(<EvaluationsTab />);
     fireEvent.click(screen.getByRole('button', { name: /Nova Avaliação/ }));
-    expect(screen.getByTestId('wizard')).toBeInTheDocument();
+    expect(await screen.findByTestId('wizard')).toBeInTheDocument();
   });
 });

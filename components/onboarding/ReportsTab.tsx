@@ -155,7 +155,7 @@ export function ReportsTab() {
         <Skeleton
           rows={3}
           wrapperClassName="space-y-3"
-          itemClassName="h-24 rounded-card bg-surface-sunken animate-pulse"
+          itemClassName="h-24 rounded-card bg-surface-sunken"
         />
       ) : (
         <>

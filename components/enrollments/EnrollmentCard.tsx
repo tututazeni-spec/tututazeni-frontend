@@ -53,6 +53,7 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
               src={course.thumbnailUrl}
               alt={course.title}
               fill
+              sizes="80px"
               className="object-cover"
             />
           ) : (

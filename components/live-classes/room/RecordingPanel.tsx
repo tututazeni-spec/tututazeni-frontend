@@ -24,6 +24,7 @@ import { useRecording } from './useRecording';
 import type { LiveClass } from './types';
 import { safeHref } from '@/lib/safeHref';
 import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 
 interface RecordingPanelProps {
   liveClass: LiveClass;
@@ -111,13 +112,10 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
         )}
 
         {rec.state === 'idle' && (
-          <button
-            onClick={rec.start}
-            className="w-full py-2.75 rounded-[10px] bg-danger border-none text-canvas text-sm font-bold cursor-pointer flex items-center justify-center gap-2"
-          >
+          <Button intent="danger" onClick={rec.start} className="w-full">
             <span className="w-2.5 h-2.5 rounded-full bg-canvas inline-block" />
             Iniciar Gravação do Ecrã
-          </button>
+          </Button>
         )}
 
         {rec.state === 'recording' && (

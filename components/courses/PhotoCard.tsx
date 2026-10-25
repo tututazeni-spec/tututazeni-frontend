@@ -107,6 +107,8 @@ export function PhotoCard({
           {image && !imageFailed ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
+              loading="lazy"
+              decoding="async"
               src={image}
               alt=""
               className="h-full w-full object-cover"

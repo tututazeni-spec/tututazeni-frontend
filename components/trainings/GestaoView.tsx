@@ -9,6 +9,7 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import {
   Archive,
   CalendarDays,
@@ -36,10 +37,13 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate } from '@/lib/format';
 import { INVERT_ON_HOVER } from './buttonStyles';
-import { TrainingFormModal } from './TrainingFormModal';
 import { LEVEL_CFG, STATUS_CFG, TYPE_CFG } from './constants';
 import { LEVEL_TONE, STATUS_TONE } from './trainingTones';
 import type { Training } from './types';
+
+const TrainingFormModal = dynamic(() =>
+  import('./TrainingFormModal').then((m) => m.TrainingFormModal),
+);
 
 interface ManageResponse {
   data: Training[];

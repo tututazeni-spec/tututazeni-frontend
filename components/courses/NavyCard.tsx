@@ -180,6 +180,8 @@ export function NavyCard({
       {image && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          loading="lazy"
+          decoding="async"
           src={image}
           alt=""
           className="absolute inset-0 h-full w-full object-cover"
@@ -256,6 +258,8 @@ export function NavyCard({
                   avatar.url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
+                      loading="lazy"
+                      decoding="async"
                       src={avatar.url}
                       alt=""
                       className="h-9 w-9 shrink-0 rounded-full object-cover"

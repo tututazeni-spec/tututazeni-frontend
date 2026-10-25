@@ -7,6 +7,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import {
   AlarmClock,
   Bell,
@@ -33,11 +34,14 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useUnits } from '@/components/departments/departmentFormData';
 import { EvaluationCard } from './EvaluationCard';
 import { EvaluationDetailModal } from './EvaluationDetailModal';
-import { NewEvaluationWizard } from './NewEvaluationWizard';
 import { SubmitEvaluationModal } from './SubmitEvaluationModal';
 import { PURPOSE_LABEL, REQUEST_STATUS_MAP } from './constants';
 import type { Cycle, EvaluationRequestRow } from './types';
 import { saveBlob } from '@/lib/download';
+
+const NewEvaluationWizard = dynamic(() =>
+  import('./NewEvaluationWizard').then((m) => m.NewEvaluationWizard),
+);
 
 const ALL = 'ALL';
 const STATUS_ITEMS = [

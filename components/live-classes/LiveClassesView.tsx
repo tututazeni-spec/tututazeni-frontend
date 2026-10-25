@@ -27,6 +27,7 @@ import type {
   LiveClassType,
   SessionModality,
 } from './types';
+import { Button } from '@/components/ui/Button';
 
 export interface Filters {
   page: number;
@@ -134,13 +135,10 @@ export function LiveClassesView({
             </p>
           </div>
           {canCreate && (
-            <button
-              onClick={onCreateNew}
-              className="py-2.25 px-5 bg-brand text-white border-none rounded-control text-sm font-bold cursor-pointer inline-flex items-center gap-2"
-            >
+            <Button onClick={onCreateNew}>
               <Circle size={12} className="fill-[#FF6B6B] text-[#FF6B6B]" />
               Nova Aula
-            </button>
+            </Button>
           )}
         </div>
 

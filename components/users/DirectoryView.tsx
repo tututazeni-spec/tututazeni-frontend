@@ -102,7 +102,7 @@ function DirectoryCard({
       tabIndex={0}
       onClick={open}
       onKeyDown={handleKeyDown}
-      className="group cursor-pointer overflow-hidden rounded-panel border border-slate-200/70 bg-white shadow-sm transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
+      className="group cursor-pointer overflow-hidden [contain-intrinsic-size:auto_190px] [content-visibility:auto] rounded-panel border border-slate-200/70 bg-white shadow-sm transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
     >
       {/* Cabeçalho navy */}
       <div
@@ -126,6 +126,8 @@ function DirectoryCard({
           {user.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
+              loading="lazy"
+              decoding="async"
               src={user.avatarUrl}
               alt={user.fullName}
               className="h-[60px] w-[60px] rounded-full border-[3px] border-white object-cover shadow"
@@ -208,7 +210,7 @@ export function DirectoryView({ onSelect }: DirectoryViewProps) {
       {loading ? (
         <Skeleton
           rows={8}
-          wrapperClassName="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4 animate-pulse"
+          wrapperClassName="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4"
           itemClassName="h-[190px] rounded-panel bg-surface-sunken"
         />
       ) : data.length === 0 ? (

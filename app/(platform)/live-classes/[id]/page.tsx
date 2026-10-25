@@ -22,6 +22,7 @@ import { RecordingPanel } from '@/components/live-classes/room/RecordingPanel';
 import { fmtDuration } from '@/components/live-classes/room/utils';
 import type { LiveClass } from '@/components/live-classes/room/types';
 import { safeHref } from '@/lib/safeHref';
+import { Button } from '@/components/ui/Button';
 
 export default function LiveRoomPage() {
   const params = useParams<{ id: string }>();
@@ -107,12 +108,9 @@ export default function LiveRoomPage() {
           <XCircle size={18} strokeWidth={1.75} />{' '}
           {queryError?.message || 'Aula não encontrada'}
         </p>
-        <button
-          onClick={() => router.push('/live-classes')}
-          className="py-2.25 px-5 bg-danger border-none rounded-[9px] text-canvas cursor-pointer text-sm font-bold"
-        >
+        <Button intent="danger" onClick={() => router.push('/live-classes')}>
           ← Voltar
-        </button>
+        </Button>
       </div>
     );
   }

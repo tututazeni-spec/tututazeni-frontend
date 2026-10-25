@@ -201,7 +201,7 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
                 <div className="p-3">
                   <Skeleton
                     rows={3}
-                    wrapperClassName="space-y-2 animate-pulse"
+                    wrapperClassName="space-y-2"
                     itemClassName="h-8 rounded-card bg-surface-sunken"
                   />
                 </div>
