@@ -350,9 +350,10 @@ export function CriticalPositionsView() {
                   </div>
 
                   {detail.successionPlans.length === 0 ? (
-                    <div className="rounded-b-[14px] border border-t-0 border-brand-line p-4 text-center font-body text-xs text-ink-faint">
-                      Sem sucessores identificados
-                    </div>
+                    <EmptyState
+                      variant="inline"
+                      title="Sem sucessores identificados"
+                    />
                   ) : (
                     <div className="space-y-3 rounded-b-[14px] border border-t-0 border-brand-line bg-[#E8F0FE]/40 p-3">
                       {detail.successionPlans.map((sp) => (

@@ -136,9 +136,7 @@ export function MyCareerTab({
             </div>
           </div>
           {myPlan.goals.length === 0 ? (
-            <p className="text-sm text-ink-faint text-center py-4">
-              Nenhuma meta adicionada
-            </p>
+            <EmptyState variant="inline" title="Nenhuma meta adicionada" />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {myPlan.goals.map((g) => (

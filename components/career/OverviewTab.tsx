@@ -18,6 +18,7 @@ import { BarChart } from '@/components/ui/charts/BarChart';
 import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import type { CareerOverview } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const MOVEMENT_LABELS: Record<string, string> = {
   PROMOTION: 'Promoção',
@@ -43,9 +44,7 @@ function EvolutionList({ title, items, variant }: EvolutionListProps) {
       </div>
       <div className="p-4">
         {top.length === 0 ? (
-          <div className="py-3 text-center font-body text-xs text-ink-faint">
-            Sem dados
-          </div>
+          <EmptyState variant="inline" title="Sem dados" />
         ) : variant === 'donut' ? (
           <DonutChart
             data={items.map((i) => ({ label: i.key, value: i.count }))}
@@ -164,9 +163,7 @@ export function OverviewTab() {
           Movimentações Internas (últimos 90 dias)
         </div>
         {overview.internalMovements.length === 0 ? (
-          <div className="p-4 py-6 text-center font-body text-xs text-ink-faint">
-            Sem movimentações registadas
-          </div>
+          <EmptyState variant="inline" title="Sem movimentações registadas" />
         ) : (
           <div className="overflow-x-auto bg-[#071D3B]">
             <table className="w-full border-collapse font-body text-sm text-white">

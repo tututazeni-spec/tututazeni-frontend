@@ -146,9 +146,10 @@ export function PlanView() {
           Objetivos do Plano
         </div>
         {goals.length === 0 ? (
-          <div className="px-4 py-8 text-center font-body text-sm text-ink-faint">
-            Sem objetivos. Adiciona o primeiro objetivo ao plano.
-          </div>
+          <EmptyState
+            variant="inline"
+            title="Sem objetivos. Adiciona o primeiro objetivo ao plano"
+          />
         ) : (
           goals.map((g) => (
             <div
