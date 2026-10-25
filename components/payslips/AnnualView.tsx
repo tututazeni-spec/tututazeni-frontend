@@ -17,6 +17,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Select } from '@/components/ui/Select';
 import { fmtPeriod } from './format';
 import type { AnnualSummary } from './types';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const EXPORT_MONTHS = [
   { value: 'ALL', label: 'Ano completo' },
@@ -83,11 +84,7 @@ export function AnnualView() {
         </Button>
       </div>
 
-      {loading && (
-        <div className="animate-pulse font-body text-sm text-ink-faint">
-          A carregar…
-        </div>
-      )}
+      {loading && <Skeleton rows={3} />}
       {error && <div className="font-body text-sm text-danger">{error}</div>}
 
       {data && data.months === 0 && (
