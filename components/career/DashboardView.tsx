@@ -185,7 +185,7 @@ export function DashboardView() {
       <div className="grid grid-cols-3 gap-5">
         {/* Gap de Competências */}
         <Card className="col-span-2 overflow-hidden p-0">
-          <div className="flex items-center justify-between border-b border-border bg-[#0F1F3D]/60 px-4 py-3">
+          <div className="flex items-center justify-between border-b border-border bg-brand/60 px-4 py-3">
             <span className="font-body text-sm font-semibold text-white">
               Lacunas de Competências
             </span>
@@ -252,7 +252,7 @@ export function DashboardView() {
         <div className="space-y-4">
           {/* Vagas compatíveis */}
           <Card className="overflow-hidden p-0">
-            <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
+            <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
               Vagas compatíveis
             </div>
             {matchingVacancies.length === 0 ? (

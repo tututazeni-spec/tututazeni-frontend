@@ -99,26 +99,27 @@ export function PlansManagementView() {
                 }}
                 className={cn(
                   'flex cursor-pointer items-center gap-3 rounded-[18px] p-3.5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)] transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50',
-                  'bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57]',
-                  selected?.id === plan.id && 'ring-2 ring-[#0D6EFD] ring-offset-2',
+                  'bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57]',
+                  selected?.id === plan.id &&
+                    'ring-2 ring-[#0D6EFD] ring-offset-2',
                 )}
               >
-                  <Avatar
-                    name={plan.user?.fullName ?? '?'}
-                    url={plan.user?.avatarUrl ?? undefined}
-                    size="sm"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate font-body text-sm font-semibold">
-                      {plan.user?.fullName ?? `Colaborador #${plan.userId}`}
-                    </div>
-                    <div className="truncate font-body text-xs text-white/80">
-                      {plan.title}
-                    </div>
+                <Avatar
+                  name={plan.user?.fullName ?? '?'}
+                  url={plan.user?.avatarUrl ?? undefined}
+                  size="sm"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-body text-sm font-semibold">
+                    {plan.user?.fullName ?? `Colaborador #${plan.userId}`}
                   </div>
-                  <span className="rounded-full bg-white/15 px-2.5 py-0.5 font-body text-xs font-semibold text-white">
-                    {plan.status}
-                  </span>
+                  <div className="truncate font-body text-xs text-white/80">
+                    {plan.title}
+                  </div>
+                </div>
+                <span className="rounded-full bg-white/15 px-2.5 py-0.5 font-body text-xs font-semibold text-white">
+                  {plan.status}
+                </span>
               </div>
             ))}
           </div>
@@ -129,8 +130,8 @@ export function PlansManagementView() {
                 Selecciona um plano
               </div>
             ) : (
-              <div className="overflow-hidden rounded-[18px] border border-[#D6E4F5] bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
-                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] px-6 py-4 text-white">
+              <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
+                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] px-6 py-4 text-white">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2.5">
                       <ClipboardList size={20} strokeWidth={1.75} />
@@ -147,14 +148,14 @@ export function PlansManagementView() {
                     type="button"
                     disabled={deletePlan.isPending}
                     onClick={() => handleDelete(selected)}
-                    className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-control bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Trash2 size={14} strokeWidth={1.75} /> Apagar
                   </button>
                 </div>
                 <div className="p-6">
                   {selected.readiness && (
-                    <div className="mb-4 rounded-xl bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] px-4 py-3 text-white">
+                    <div className="mb-4 rounded-card bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] px-4 py-3 text-white">
                       <div className="mb-1 flex justify-between font-body text-xs font-semibold uppercase tracking-widest text-white">
                         <span>Prontidão</span>
                         <span className="tabular-nums">
@@ -170,11 +171,13 @@ export function PlansManagementView() {
                   )}
                   <CareerRoadmap plan={selected} />
                   {(selected.mentoringNotes || selected.coachingNotes) && (
-                    <div className="mt-4 space-y-2 rounded-xl bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] px-4 py-3 font-body text-xs text-white">
+                    <div className="mt-4 space-y-2 rounded-card bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] px-4 py-3 font-body text-xs text-white">
                       {selected.mentoringNotes && (
                         <div>
                           <span className="font-semibold">Mentoria: </span>
-                          <span className="whitespace-pre-line">{selected.mentoringNotes}</span>
+                          <span className="whitespace-pre-line">
+                            {selected.mentoringNotes}
+                          </span>
                         </div>
                       )}
                       {selected.coachingNotes && (
@@ -182,7 +185,9 @@ export function PlansManagementView() {
                           <span className="font-semibold">
                             Acompanhamento personalizado:{' '}
                           </span>
-                          <span className="whitespace-pre-line">{selected.coachingNotes}</span>
+                          <span className="whitespace-pre-line">
+                            {selected.coachingNotes}
+                          </span>
                         </div>
                       )}
                     </div>

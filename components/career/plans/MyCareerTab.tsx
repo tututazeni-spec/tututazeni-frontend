@@ -49,7 +49,7 @@ export function MyCareerTab({
     <div className="space-y-4">
       {/* Roadmap */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Trilha de Carreira
         </div>
         <CardBody>
@@ -63,7 +63,7 @@ export function MyCareerTab({
           (myPlan.readiness.missingSkills.length > 0 ||
             myPlan.readiness.skillGaps.length > 0) && (
             <Card className="overflow-hidden">
-              <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+              <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                 Gaps a Desenvolver
               </div>
               <CardBody>
@@ -92,7 +92,7 @@ export function MyCareerTab({
         {/* Cursos recomendados */}
         {(myPlan.readiness?.recommendedCourses.length ?? 0) > 0 && (
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
               Cursos Recomendados
             </div>
             <CardBody>

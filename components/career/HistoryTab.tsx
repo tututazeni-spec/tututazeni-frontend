@@ -48,7 +48,7 @@ interface SectionProps {
 function Section({ icon: Icon, title, count, children }: SectionProps) {
   return (
     <Card className="overflow-hidden p-0">
-      <div className="flex items-center gap-1.5 bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
+      <div className="flex items-center gap-1.5 bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
         <Icon size={16} strokeWidth={1.75} className="text-white" />
         {title}
         <span className="ml-auto font-body text-xs font-normal text-white/80">

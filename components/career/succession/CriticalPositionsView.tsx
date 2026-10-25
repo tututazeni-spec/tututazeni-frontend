@@ -64,8 +64,11 @@ interface ScoreBarProps {
 
 function ScoreBar({ label, value, color, tint }: ScoreBarProps) {
   return (
-    <div className="rounded-lg px-3 py-2" style={{ backgroundColor: tint }}>
-      <div className="mb-1 flex items-center justify-between font-body text-xs font-semibold text-[#0F1F3D]">
+    <div
+      className="rounded-control px-3 py-2"
+      style={{ backgroundColor: tint }}
+    >
+      <div className="mb-1 flex items-center justify-between font-body text-xs font-semibold text-brand">
         <span>{label}</span>
         <span style={{ color }}>
           {value === null ? '—' : `${Math.round(value)}%`}
@@ -223,14 +226,14 @@ export function CriticalPositionsView() {
                 }}
                 className={cn(
                   'cursor-pointer rounded-[18px] border p-4 shadow-[0_8px_24px_rgba(15,31,61,0.25)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50',
-                  'border-transparent bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] text-white',
+                  'border-transparent bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] text-white',
                   selectedId === cp.id && 'ring-2 ring-[#0D6EFD] ring-offset-2',
                 )}
               >
                 <div className="flex items-center gap-3">
                   <span
                     aria-hidden="true"
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#075FE8]"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-[#075FE8]"
                   >
                     <Crown
                       size={18}
@@ -267,7 +270,7 @@ export function CriticalPositionsView() {
                   {COVERAGE_LABEL[cp.coverageStatus]}
                 </div>
                 {cp.alert && (
-                  <div className="mt-2 rounded-lg bg-warning-subtle px-2 py-1 font-body text-xs text-warning-ink">
+                  <div className="mt-2 rounded-control bg-warning-subtle px-2 py-1 font-body text-xs text-warning-ink">
                     {cp.alert}
                   </div>
                 )}
@@ -283,8 +286,8 @@ export function CriticalPositionsView() {
             ) : detailLoading || !detail ? (
               <Skeleton rows={4} />
             ) : (
-              <div className="overflow-hidden rounded-[18px] border border-[#D6E4F5] bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
-                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] px-6 py-4 text-white">
+              <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
+                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] px-6 py-4 text-white">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2.5">
                       <Crown size={20} strokeWidth={1.75} />
@@ -306,20 +309,20 @@ export function CriticalPositionsView() {
                     type="button"
                     disabled={deletePosition.isPending}
                     onClick={() => handleDelete(detail)}
-                    className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-control bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Trash2 size={14} strokeWidth={1.75} /> Apagar
                   </button>
                 </div>
                 <div className="p-6">
                   <div className="mt-3 grid grid-cols-2 gap-3 font-body text-xs">
-                    <div className="rounded-control bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-3 text-white">
+                    <div className="rounded-control bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-3 text-white">
                       <div className="text-white/80">Impacto no negócio</div>
                       <div className="font-semibold text-white">
                         {BUSINESS_IMPACT_LABEL[detail.businessImpact]}
                       </div>
                     </div>
-                    <div className="rounded-control bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-3 text-white">
+                    <div className="rounded-control bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-3 text-white">
                       <div className="text-white/80">Tempo de substituição</div>
                       <div className="font-semibold text-white">
                         {REPLACEMENT_TIME_LABEL[detail.replacementTime]}
@@ -333,31 +336,31 @@ export function CriticalPositionsView() {
                     </p>
                   )}
 
-                  <div className="mt-5 flex items-center justify-between gap-2.5 rounded-t-[14px] bg-[#0F1F3D]/60 px-4 py-2.5 text-white">
+                  <div className="mt-5 flex items-center justify-between gap-2.5 rounded-t-[14px] bg-brand/60 px-4 py-2.5 text-white">
                     <span className="font-body text-sm font-semibold uppercase tracking-wider">
                       Pipeline de Sucessão
                     </span>
                     <button
                       type="button"
                       onClick={() => setShowAddSuccessor(true)}
-                      className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                      className="inline-flex h-8 items-center gap-1.5 rounded-control bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                     >
                       <Plus size={14} strokeWidth={1.75} /> Adicionar Sucessor
                     </button>
                   </div>
 
                   {detail.successionPlans.length === 0 ? (
-                    <div className="rounded-b-[14px] border border-t-0 border-[#D6E4F5] p-4 text-center font-body text-xs text-ink-faint">
+                    <div className="rounded-b-[14px] border border-t-0 border-brand-line p-4 text-center font-body text-xs text-ink-faint">
                       Sem sucessores identificados
                     </div>
                   ) : (
-                    <div className="space-y-3 rounded-b-[14px] border border-t-0 border-[#D6E4F5] bg-[#E8F0FE]/40 p-3">
+                    <div className="space-y-3 rounded-b-[14px] border border-t-0 border-brand-line bg-[#E8F0FE]/40 p-3">
                       {detail.successionPlans.map((sp) => (
                         <div
                           key={sp.id}
-                          className="overflow-hidden rounded-[14px] border border-[#D6E4F5] bg-white"
+                          className="overflow-hidden rounded-[14px] border border-brand-line bg-white"
                         >
-                          <div className="flex items-center gap-3 bg-[#0F1F3D]/60 px-4 py-2.5 text-white">
+                          <div className="flex items-center gap-3 bg-brand/60 px-4 py-2.5 text-white">
                             <Avatar
                               name={sp.candidate.fullName}
                               url={sp.candidate.avatarUrl ?? undefined}
