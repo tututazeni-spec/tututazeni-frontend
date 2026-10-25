@@ -33,6 +33,7 @@ import {
   useDirectoryUsers,
   type DirectoryUser,
 } from './enrollData';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface EnrollUserModalProps {
   onClose: () => void;
@@ -318,12 +319,10 @@ export function EnrollUserModal({
                         : 'cursor-pointer text-ink hover:bg-surface-sunken'
                     }`}
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={deptIds.includes(d.value)}
                       onChange={() => toggleDept(d.value)}
                       disabled={d.userCount === 0}
-                      className="h-4 w-4 rounded border-border-strong accent-primary"
                     />
                     <span className="flex-1">{d.label}</span>
                     {d.userCount !== undefined && (
@@ -355,11 +354,9 @@ export function EnrollUserModal({
               />
             </FormField>
             <label className="flex items-end gap-2 pb-2.5 text-sm text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={mandatory}
                 onChange={(e) => setMandatory(e.target.checked)}
-                className="h-4 w-4 rounded border-border-strong accent-primary"
               />
               Matrícula obrigatória
             </label>

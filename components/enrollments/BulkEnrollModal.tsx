@@ -26,6 +26,7 @@ import {
   useDirectoryUsers,
   type DirectoryUser,
 } from './enrollData';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface BulkEnrollModalProps {
   onClose: () => void;
@@ -244,11 +245,9 @@ export function BulkEnrollModal({
                       key={u.id}
                       className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-surface-sunken"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={selected.has(u.id)}
                         onChange={() => toggle(u)}
-                        className="h-4 w-4 rounded border-border-strong accent-primary"
                       />
                       <Avatar
                         name={u.fullName}
@@ -279,11 +278,9 @@ export function BulkEnrollModal({
                   />
                 </FormField>
                 <label className="flex items-end gap-2 pb-2.5 text-sm text-ink-muted">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={mandatory}
                     onChange={(e) => setMandatory(e.target.checked)}
-                    className="h-4 w-4 rounded border-border-strong accent-primary"
                   />
                   Matrícula obrigatória
                 </label>

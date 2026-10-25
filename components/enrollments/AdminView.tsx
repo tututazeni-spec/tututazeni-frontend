@@ -43,6 +43,7 @@ import { useCourseOptions, useDepartmentOptions } from './enrollData';
 import { deadlineCountdown } from './utils';
 import { RunsModal } from './RunsModal';
 import type { Enrollment } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const STATUS_TONE: Record<string, NavyTone> = {
   NOT_STARTED: 'warning',
@@ -280,13 +281,11 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             className="w-full"
           />
           <label className="flex w-full cursor-pointer items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] text-sm text-black">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={!!filters.overdue}
               onChange={(e) =>
                 updateFilters({ overdue: e.target.checked ? 'true' : '' })
               }
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Apenas atrasados
           </label>
@@ -349,12 +348,11 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                   url: e.user?.avatarUrl,
                 }}
                 lead={
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={selected.includes(e.id)}
                     onChange={() => toggleSelect(e.id)}
                     aria-label={`Seleccionar ${e.user?.fullName ?? ''}`}
-                    className="h-4 w-4 shrink-0 rounded border-border-strong accent-primary"
+                    className="shrink-0"
                   />
                 }
                 status={{
