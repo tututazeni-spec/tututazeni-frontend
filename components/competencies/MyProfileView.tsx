@@ -48,6 +48,7 @@ import type {
   GapAnalysis,
   UserCompetency,
 } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 interface LevelBarProps {
   current: number;
@@ -316,15 +317,15 @@ export function MyProfileView() {
                             </div>
                           </div>
                         ) : (
-                          <button
+                          <LinkButton
                             onClick={() => {
                               setSelfAssessing(uc.competencyId);
                               setSelfLevel(uc.currentLevel);
                             }}
-                            className="font-body text-xs text-primary hover:underline"
+                            className="font-body text-xs"
                           >
                             Autoavaliar
-                          </button>
+                          </LinkButton>
                         )}
                       </div>
                     </div>
