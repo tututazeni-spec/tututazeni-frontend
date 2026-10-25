@@ -47,6 +47,7 @@ import {
   TRAINING_RESOURCE_OPTIONS,
   TRAINING_THEMATIC_AREA_OPTIONS,
 } from './trainingOptions';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface TrainingFormModalProps {
   /** null = criar; um Training existente = editar. */
@@ -504,8 +505,8 @@ export function TrainingFormModal({
                       key={c.id}
                       className="flex items-center gap-2 text-xs text-ink-muted"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
+                        
                         checked={competencyIds.includes(c.id)}
                         onChange={() =>
                           toggle(competencyIds, setCompetencyIds, c.id)
@@ -646,8 +647,8 @@ export function TrainingFormModal({
                       key={u.value}
                       className="flex items-center gap-2 text-xs text-ink-muted"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
+                        
                         checked={coInstructorIds.includes(Number(u.value))}
                         onChange={() =>
                           toggle(
@@ -840,8 +841,8 @@ export function TrainingFormModal({
                         key={u.id}
                         className="flex items-center gap-2 text-xs text-ink-muted"
                       >
-                        <input
-                          type="checkbox"
+                        <Checkbox
+                          
                           checked={targetUnitIds.includes(u.id)}
                           onChange={() =>
                             toggle(targetUnitIds, setTargetUnitIds, u.id)
@@ -867,8 +868,8 @@ export function TrainingFormModal({
                         key={d.id}
                         className="flex items-center gap-2 text-xs text-ink-muted"
                       >
-                        <input
-                          type="checkbox"
+                        <Checkbox
+                          
                           checked={targetDeptIds.includes(d.id)}
                           onChange={() =>
                             toggle(targetDeptIds, setTargetDeptIds, d.id)
@@ -889,8 +890,8 @@ export function TrainingFormModal({
                         key={p.id}
                         className="flex items-center gap-2 text-xs text-ink-muted"
                       >
-                        <input
-                          type="checkbox"
+                        <Checkbox
+                          
                           checked={targetPositionIds.includes(p.id)}
                           onChange={() =>
                             toggle(
@@ -911,8 +912,8 @@ export function TrainingFormModal({
             {/* ── Participantes ────────────────────────────────────────── */}
             <TabsContent value="participants" className="space-y-4">
               <label className="flex items-center gap-2 text-sm text-ink">
-                <input
-                  type="checkbox"
+                <Checkbox
+                  
                   checked={form.requiresApproval}
                   onChange={(e) =>
                     setField('requiresApproval', e.target.checked)
@@ -927,8 +928,8 @@ export function TrainingFormModal({
               </p>
 
               <label className="flex items-center gap-2 text-sm text-ink">
-                <input
-                  type="checkbox"
+                <Checkbox
+                  
                   checked={form.mandatory}
                   onChange={(e) => setField('mandatory', e.target.checked)}
                 />
@@ -936,8 +937,8 @@ export function TrainingFormModal({
               </label>
 
               <label className="flex items-center gap-2 text-sm text-ink">
-                <input
-                  type="checkbox"
+                <Checkbox
+                  
                   checked={form.issueCertificate}
                   onChange={(e) =>
                     setField('issueCertificate', e.target.checked)

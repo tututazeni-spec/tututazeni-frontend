@@ -29,6 +29,7 @@ import {
   PLAN_OBJECTIVE_OPTIONS,
   PLAN_PRIORITY_OPTIONS,
 } from './planOptions';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface PlanFormModalProps {
   /** null = criar; um TrainingPlan existente = editar. */
@@ -339,8 +340,7 @@ export function PlanFormModal({
                   key={c.id}
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={competencyIds.includes(c.id)}
                     onChange={() =>
                       toggle(competencyIds, setCompetencyIds, c.id)

@@ -26,6 +26,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { PARTICIPANT_CFG } from '../constants';
 import { fmtDate } from '../utils';
 import type { Participant, Training } from '../types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface ParticipantsTabProps {
   training: Training;
@@ -259,8 +260,8 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
       {training.issueCertificate && completable.length > 0 && (
         <Card className="flex flex-wrap items-center justify-between gap-3 p-3">
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
+              
               checked={allSelected}
               onChange={() =>
                 setSelected(allSelected ? [] : completable.map((p) => p.id))
@@ -296,8 +297,8 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
                 className="flex flex-wrap items-center gap-3 px-4 py-3"
               >
                 {training.issueCertificate && (
-                  <input
-                    type="checkbox"
+                  <Checkbox
+                    
                     aria-label={`Seleccionar ${p.user.fullName}`}
                     disabled={!completable.some((c) => c.id === p.id)}
                     checked={selected.includes(p.id)}
@@ -374,8 +375,8 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
                     key={u.value}
                     className="flex items-center gap-2 px-2 py-1 text-sm text-ink-muted"
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
+                      
                       checked={addUserIds.includes(Number(u.value))}
                       onChange={() =>
                         setAddUserIds((ids) =>

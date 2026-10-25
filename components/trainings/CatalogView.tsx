@@ -18,6 +18,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { LEVEL_CFG, TYPE_CFG } from './constants';
 import { TrainingCard } from './TrainingCard';
 import type { Training, TrainingLevel, TrainingType } from './types';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 
 interface CatalogViewProps {
   onSelect: (id: number) => void;
@@ -54,13 +55,12 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
           }}
           className="min-w-[160px] flex-1"
         />
-        <select
+        <NativeSelect
           value={type}
           onChange={(e) => {
             setType(e.target.value as TrainingType | '');
             setPage(1);
           }}
-          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todos os formatos</option>
           {Object.entries(TYPE_CFG).map(([k, v]) => (
@@ -68,14 +68,13 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
               {v.icon} {v.label}
             </option>
           ))}
-        </select>
-        <select
+        </NativeSelect>
+        <NativeSelect
           value={level}
           onChange={(e) => {
             setLevel(e.target.value as TrainingLevel | '');
             setPage(1);
           }}
-          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todos os níveis</option>
           {Object.entries(LEVEL_CFG).map(([k, v]) => (
@@ -83,7 +82,7 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
               {v.label}
             </option>
           ))}
-        </select>
+        </NativeSelect>
         <span className="font-body text-xs text-ink-faint">
           {data?.total ?? 0} treinamentos
         </span>

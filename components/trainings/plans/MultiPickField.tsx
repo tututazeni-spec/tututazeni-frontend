@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export function parsePickValue(value: string): string[] {
   return value
@@ -66,8 +67,7 @@ export function MultiPickField({
             key={o}
             className="flex items-center gap-2 text-xs text-ink-muted"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               checked={selected.includes(o)}
               onChange={() => toggle(o)}
             />
