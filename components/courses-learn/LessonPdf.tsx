@@ -55,7 +55,7 @@ export function LessonPdf({ lesson }: { lesson: LessonProgress }) {
           className="block h-[70vh] w-full border-0 sm:h-[80vh]"
         />
       ) : (
-        <div className="min-h-[60vh] bg-[#E9EDF4]">
+        <div className="min-h-[60vh] bg-brand-soft">
           <PdfViewer src={pdf.src} title={lesson.title} />
         </div>
       )}

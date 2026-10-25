@@ -68,7 +68,7 @@ export function OpenButton({
     <button
       type="button"
       onClick={() => openFile(url)}
-      className="mt-2 inline-flex items-center gap-1.5 rounded-control border border-[#D5DCE8] bg-white px-3 py-1.5 font-body text-xs font-semibold text-brand hover:bg-[#F2F5FA]"
+      className="mt-2 inline-flex items-center gap-1.5 rounded-control border border-brand-line bg-white px-3 py-1.5 font-body text-xs font-semibold text-brand hover:bg-brand-soft"
     >
       <ExternalLink size={14} strokeWidth={1.75} />
       {children}
@@ -120,7 +120,7 @@ function ActivityBody({ activity }: { activity: LessonActivity }) {
       )}
 
       {url && src && activity.type === 'DOCUMENT' && kind === 'pdf' && (
-        <div className="mt-3 h-[520px] overflow-hidden rounded-control border border-border bg-[#E9EDF4]">
+        <div className="mt-3 h-[520px] overflow-hidden rounded-control border border-border bg-brand-soft">
           <PdfViewer src={src} title={activity.title} />
         </div>
       )}
@@ -197,7 +197,7 @@ export function FileList({ files }: { files: Array<FileItem> }) {
           key={f.id}
           type="button"
           onClick={() => openFile(f.url)}
-          className="flex w-full items-center gap-3 rounded-panel border border-brand-line bg-white p-3 text-left hover:bg-[#F2F5FA]"
+          className="flex w-full items-center gap-3 rounded-panel border border-brand-line bg-white p-3 text-left hover:bg-brand-soft"
         >
           <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-line text-brand">
             <Paperclip size={16} strokeWidth={1.75} />

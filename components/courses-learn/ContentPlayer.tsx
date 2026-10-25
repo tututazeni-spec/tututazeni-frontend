@@ -141,7 +141,7 @@ export function ContentPlayer({
         {/* Área do conteúdo */}
         <div
           className={`min-h-[50vh] flex items-center justify-center ${
-            isVideo ? 'bg-ink' : 'bg-[#E9EDF4]'
+            isVideo ? 'bg-ink' : 'bg-brand-soft'
           }`}
         >
           <StageBoundary resetKey={lesson.id} title={lesson.title}>
