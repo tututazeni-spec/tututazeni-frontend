@@ -57,7 +57,7 @@ export function MyEnrollmentsView() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="space-y-2 animate-pulse"
+        wrapperClassName="space-y-2"
         itemClassName="h-16 rounded-card bg-surface-sunken"
       />
     );

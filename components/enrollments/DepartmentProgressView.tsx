@@ -74,7 +74,7 @@ export function DepartmentProgressView() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="space-y-2 animate-pulse"
+        wrapperClassName="space-y-2"
         itemClassName="h-20 rounded-panel bg-surface-sunken"
       />
     );

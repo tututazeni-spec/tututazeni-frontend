@@ -232,7 +232,7 @@ export function BulkEnrollModal({
                   <div className="p-3">
                     <Skeleton
                       rows={4}
-                      wrapperClassName="space-y-2 animate-pulse"
+                      wrapperClassName="space-y-2"
                       itemClassName="h-10 rounded-card bg-surface-sunken"
                     />
                   </div>
