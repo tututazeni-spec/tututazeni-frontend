@@ -26,7 +26,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
 import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
-import { PHOTO_CARD_ACTION, PhotoCard } from '@/components/courses/PhotoCard';
+import { PhotoCard } from '@/components/courses/PhotoCard';
 import { type BadgeProps } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -282,9 +282,10 @@ export function SchedulesTab() {
                   actions={
                     <>
                       {s.status === 'PAUSED' || s.status === 'COMPLETED' ? (
-                        <button
+                        <Button
                           type="button"
-                          className={PHOTO_CARD_ACTION}
+                          intent="onDarkGhost"
+                          size="icon"
                           aria-label="Retomar agendamento"
                           title="Retomar agendamento"
                           onClick={() =>
@@ -292,11 +293,12 @@ export function SchedulesTab() {
                           }
                         >
                           <Play size={15} strokeWidth={1.75} />
-                        </button>
+                        </Button>
                       ) : (
-                        <button
+                        <Button
                           type="button"
-                          className={PHOTO_CARD_ACTION}
+                          intent="onDarkGhost"
+                          size="icon"
                           aria-label="Pausar agendamento"
                           title="Pausar agendamento"
                           onClick={() =>
@@ -304,35 +306,38 @@ export function SchedulesTab() {
                           }
                         >
                           <Pause size={15} strokeWidth={1.75} />
-                        </button>
+                        </Button>
                       )}
-                      <button
+                      <Button
                         type="button"
-                        className={PHOTO_CARD_ACTION}
+                        intent="onDarkGhost"
+                        size="icon"
                         aria-label="Executar agora"
                         title="Executar agora"
                         onClick={() => void runNow(s)}
                       >
                         <PlayCircle size={15} strokeWidth={1.75} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
-                        className={PHOTO_CARD_ACTION}
+                        intent="onDarkGhost"
+                        size="icon"
                         aria-label="Editar agendamento"
                         title="Editar agendamento"
                         onClick={() => setEditing(s)}
                       >
                         <Pencil size={15} strokeWidth={1.75} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
-                        className={PHOTO_CARD_ACTION}
+                        intent="onDarkGhost"
+                        size="icon"
                         aria-label="Remover agendamento"
                         title="Remover agendamento"
                         onClick={() => void remove(s)}
                       >
                         <Trash2 size={15} strokeWidth={1.75} />
-                      </button>
+                      </Button>
                     </>
                   }
                 />
