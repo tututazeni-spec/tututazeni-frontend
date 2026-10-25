@@ -6,6 +6,8 @@
 // da auditoria de frontend, secção UX/UI): cada página reimplementava a
 // mesma lógica com pequenas variações de altura/cor/espaçamento.
 
+import { cn } from '@/lib/cn';
+
 interface SkeletonProps {
   /** Número de blocos placeholder. */
   rows?: number;
@@ -17,11 +19,15 @@ interface SkeletonProps {
 
 export function Skeleton({
   rows = 3,
-  wrapperClassName = 'space-y-3 animate-pulse',
+  wrapperClassName = 'space-y-3',
   itemClassName = 'h-12 bg-surface-sunken rounded-card',
 }: SkeletonProps) {
   return (
-    <div className={wrapperClassName} role="status" aria-busy="true">
+    <div
+      className={cn('animate-pulse', wrapperClassName)}
+      role="status"
+      aria-busy="true"
+    >
       <span className="sr-only">A carregar…</span>
       {Array.from({ length: rows }).map((_, i) => (
         <div key={i} aria-hidden className={itemClassName} />
