@@ -27,6 +27,7 @@ import {
 } from './wizardData';
 import type { WizardStepId } from '../constants';
 import type { WizardForm } from './wizardTypes';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const TYPE_ITEMS = Object.entries(TYPE_CFG).map(([value, cfg]) => ({
   value,
@@ -389,9 +390,9 @@ export function NewLiveClassSteps({
           </FormField>
           <FormField label=" " htmlFor="lc-waitlist">
             <label className="flex items-center gap-2 pt-2 text-sm text-ink">
-              <input
+              <Checkbox
                 id="lc-waitlist"
-                type="checkbox"
+                
                 checked={form.waitlistEnabled}
                 onChange={(e) => setField('waitlistEnabled', e.target.checked)}
               />
@@ -410,8 +411,8 @@ export function NewLiveClassSteps({
                   key={u.id}
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
+                    
                     checked={form.targetUnitIds.includes(u.id)}
                     onChange={() =>
                       setField(
@@ -435,8 +436,8 @@ export function NewLiveClassSteps({
                   key={d.id}
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
+                    
                     checked={form.targetDeptIds.includes(d.id)}
                     onChange={() =>
                       setField(
@@ -460,8 +461,8 @@ export function NewLiveClassSteps({
                   key={p.id}
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
+                    
                     checked={form.targetPositionIds.includes(p.id)}
                     onChange={() =>
                       setField(
@@ -534,8 +535,8 @@ export function NewLiveClassSteps({
     return (
       <div className="space-y-4">
         <label className="flex items-center gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
+            
             checked={form.attendanceAutoRegister}
             onChange={(e) =>
               setField('attendanceAutoRegister', e.target.checked)
@@ -544,8 +545,8 @@ export function NewLiveClassSteps({
           Registo automático de presença (ao entrar na sala)
         </label>
         <label className="flex items-center gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
+            
             checked={form.attendanceRequired}
             onChange={(e) => setField('attendanceRequired', e.target.checked)}
           />
@@ -589,16 +590,16 @@ export function NewLiveClassSteps({
     return (
       <div className="space-y-4">
         <label className="flex items-center gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
+            
             checked={form.recordSession}
             onChange={(e) => setField('recordSession', e.target.checked)}
           />
           Gravar sessão
         </label>
         <label className="flex items-center gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
+            
             checked={form.allowRecordingDownload}
             onChange={(e) =>
               setField('allowRecordingDownload', e.target.checked)
@@ -627,8 +628,8 @@ export function NewLiveClassSteps({
     return (
       <div className="space-y-4">
         <label className="flex items-center gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
+            
             checked={form.evaluationRequired}
             onChange={(e) => setField('evaluationRequired', e.target.checked)}
           />
@@ -667,8 +668,8 @@ export function NewLiveClassSteps({
           key={item.key}
           className="flex items-center gap-2 text-sm text-ink"
         >
-          <input
-            type="checkbox"
+          <Checkbox
+            
             checked={form[item.key] as boolean}
             onChange={(e) =>
               setField(

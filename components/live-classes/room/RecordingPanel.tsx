@@ -23,6 +23,7 @@ import { fmtBytes, fmtDuration } from './utils';
 import { useRecording } from './useRecording';
 import type { LiveClass } from './types';
 import { safeHref } from '@/lib/safeHref';
+import { Input } from '@/components/ui/Input';
 
 interface RecordingPanelProps {
   liveClass: LiveClass;
@@ -212,14 +213,14 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
         )}
 
         <div className="flex gap-2">
-          <input
+          <Input
             value={customUrl}
             onChange={(e) => {
               setCustomUrl(e.target.value);
               setUrlSaved(false);
             }}
             placeholder="https://drive.google.com/... ou https://youtu.be/..."
-            className="flex-1 py-2 px-2.5 rounded-control border border-white/12 bg-white/6 text-ink text-xs outline-none"
+            className="flex-1"
           />
           <button
             onClick={() => saveUrl(customUrl)}
