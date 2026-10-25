@@ -101,7 +101,7 @@ export function SkillGapsTab() {
 
       {view === 'needs' && (
         <Card>
-          <CardHeader className="rounded-t-card bg-[#0F1F3D]/60">
+          <CardHeader className="rounded-t-card bg-brand/60">
             <h3 className="font-display font-semibold text-white">
               Top Habilidades Com Maior Lacunas
             </h3>
@@ -151,7 +151,7 @@ export function SkillGapsTab() {
 
       {view === 'heatmap' && (
         <Card className="overflow-x-auto">
-          <CardHeader className="rounded-t-card bg-[#0F1F3D]/60">
+          <CardHeader className="rounded-t-card bg-brand/60">
             <h3 className="font-display font-semibold text-white">
               Mapa de calor de habilidades por Departamento
             </h3>

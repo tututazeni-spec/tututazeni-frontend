@@ -198,7 +198,7 @@ export function AnalyticsTab() {
 
         {/* Plans by status */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Planos por Status
           </div>
           <CardBody>
@@ -230,7 +230,7 @@ export function AnalyticsTab() {
 
         {/* Top training needs */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Top Necessidades de Formação
           </div>
           <CardBody>
@@ -261,7 +261,7 @@ export function AnalyticsTab() {
       {/* Recent completions */}
       {(dash?.recentCompletions.length ?? 0) > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Conclusões Recentes
           </div>
           <CardBody>
