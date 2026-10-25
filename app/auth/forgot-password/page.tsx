@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { AlertCard } from '@/components/ui/AlertCard';
+import { Input } from '@/components/ui/Input';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -48,13 +49,13 @@ export default function ForgotPasswordPage() {
           />
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input
+            <Input
               type="email"
               autoComplete="email"
               placeholder="o.seu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-control border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none"
+              className="w-full"
               required
             />
             {error && (
