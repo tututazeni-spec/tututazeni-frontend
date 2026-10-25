@@ -217,9 +217,7 @@ function CategoryCoursesModal({
             {isLoading ? (
               <Skeleton rows={4} />
             ) : visible.length === 0 ? (
-              <p className="py-6 text-center text-sm text-ink-muted">
-                Nenhum curso encontrado.
-              </p>
+              <EmptyState variant="inline" title="Nenhum curso encontrado" />
             ) : (
               visible.map((c) => (
                 <label
@@ -294,9 +292,7 @@ function CategoryCourseListModal({
           {isLoading ? (
             <Skeleton rows={4} />
           ) : courses.length === 0 ? (
-            <p className="py-6 text-center text-sm text-ink-muted">
-              Nenhum curso nesta categoria.
-            </p>
+            <EmptyState variant="inline" title="Nenhum curso nesta categoria" />
           ) : (
             courses.map((c) => (
               <button

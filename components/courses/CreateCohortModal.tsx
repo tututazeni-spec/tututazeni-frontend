@@ -21,6 +21,7 @@ import {
   useDirectoryUsers,
   type DirectoryUser,
 } from '@/components/enrollments/enrollData';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface CreateCohortModalProps {
   courseId: number;
@@ -215,9 +216,10 @@ export function CreateCohortModal({
                       </div>
                     )}
                     {!usersLoading && users.length === 0 && (
-                      <div className="px-3 py-2 text-sm text-ink-muted">
-                        Nenhum colaborador encontrado
-                      </div>
+                      <EmptyState
+                        variant="inline"
+                        title="Nenhum colaborador encontrado"
+                      />
                     )}
                     {users.map((u) => (
                       <button
@@ -303,9 +305,10 @@ export function CreateCohortModal({
                     )}
                     {!participantsLoading &&
                       participantResults.length === 0 && (
-                        <div className="px-3 py-2 text-sm text-ink-muted">
-                          Nenhum colaborador encontrado
-                        </div>
+                        <EmptyState
+                          variant="inline"
+                          title="Nenhum colaborador encontrado"
+                        />
                       )}
                     {participantResults.map((u) => (
                       <button

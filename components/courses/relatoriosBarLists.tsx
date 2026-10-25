@@ -5,6 +5,7 @@
 // proporcional ao máximo e valor sempre visível em texto (nunca só cor).
 
 import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 /** Cores das barras, alinhadas com os tons dos cards (azul, verde, dourado, vermelho). */
 const BAR_COLORS = [
@@ -85,7 +86,7 @@ function BarCard({ title, rows, max }: BarCardProps) {
     <Card className="p-4">
       <CardHeader title={title} />
       {rows.length === 0 ? (
-        <p className="text-xs text-ink-faint">Sem dados</p>
+        <EmptyState variant="inline" title="Sem dados" />
       ) : (
         <BarRows rows={rows} max={max} />
       )}
@@ -139,7 +140,7 @@ export function CourseProgressList({
     <Card className="p-4">
       <CardHeader title={title} />
       {items.length === 0 ? (
-        <p className="text-xs text-ink-faint">Sem dados</p>
+        <EmptyState variant="inline" title="Sem dados" />
       ) : (
         <div className="space-y-3">
           {items.slice(0, 6).map((c) => {

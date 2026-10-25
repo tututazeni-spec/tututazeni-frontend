@@ -33,6 +33,7 @@ import {
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton, fmtDuration } from './shared';
 import type { AdminDashboard } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface AdminDashboardViewProps {
   onSelect: (id: number) => void;
@@ -63,7 +64,7 @@ function CourseRankList({
         {title}
       </div>
       {items.length === 0 ? (
-        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+        <EmptyState variant="inline" title="Sem dados" />
       ) : (
         items.map((c, idx) => (
           <div
@@ -291,7 +292,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
             Últimas inscrições
           </div>
           {data.recentActivity.enrollments.length === 0 ? (
-            <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+            <EmptyState variant="inline" title="Sem dados" />
           ) : (
             data.recentActivity.enrollments.map((e) => (
               <div
@@ -310,7 +311,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
             Últimas conclusões
           </div>
           {data.recentActivity.completions.length === 0 ? (
-            <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+            <EmptyState variant="inline" title="Sem dados" />
           ) : (
             data.recentActivity.completions.map((e) => (
               <div
@@ -329,7 +330,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
             Últimas avaliações
           </div>
           {data.recentActivity.feedbacks.length === 0 ? (
-            <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+            <EmptyState variant="inline" title="Sem dados" />
           ) : (
             data.recentActivity.feedbacks.map((f) => (
               <div
@@ -349,7 +350,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
             Últimos certificados emitidos
           </div>
           {data.recentActivity.certificates.length === 0 ? (
-            <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+            <EmptyState variant="inline" title="Sem dados" />
           ) : (
             data.recentActivity.certificates.map((c) => (
               <div
@@ -402,9 +403,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
             Próximos do término
           </div>
           {data.endingSoon.length === 0 ? (
-            <p className="p-4 text-xs text-ink-faint">
-              Nenhum nos próximos 14 dias
-            </p>
+            <EmptyState variant="inline" title="Nenhum nos próximos 14 dias" />
           ) : (
             data.endingSoon.map((c) => (
               <div

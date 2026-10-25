@@ -38,6 +38,7 @@ import { CourseImageField } from './CourseImageField';
 import { Skeleton } from './shared';
 import type { CourseDetailData, PaginatedCourses } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface EditCourseModalProps {
   courseId: number;
@@ -653,9 +654,10 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
                 </div>
               ))}
               {(course.instructors ?? []).length === 0 && (
-                <p className="m-0 text-xs text-ink-faint">
-                  Nenhum instrutor adicional.
-                </p>
+                <EmptyState
+                  variant="inline"
+                  title="Nenhum instrutor adicional"
+                />
               )}
             </div>
             <div className="flex items-end gap-2">
