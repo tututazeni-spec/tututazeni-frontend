@@ -238,7 +238,7 @@ export function TabWhatsApp() {
           </div>
         </dl>
         {st.error && (
-          <p className="px-6 pb-5 text-sm text-[#C23A52]">{st.error}</p>
+          <p className="px-6 pb-5 text-sm text-danger">{st.error}</p>
         )}
       </div>
 

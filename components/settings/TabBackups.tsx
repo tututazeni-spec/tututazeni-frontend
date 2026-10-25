@@ -221,7 +221,7 @@ export function TabBackups() {
           </div>
         </dl>
         {!data.tools.pgDump && (
-          <p className="px-6 pt-3 text-sm text-[#C23A52]">
+          <p className="px-6 pt-3 text-sm text-danger">
             pg_dump não foi encontrado no servidor. Instale o cliente PostgreSQL
             ou defina PG_DUMP_PATH.
           </p>

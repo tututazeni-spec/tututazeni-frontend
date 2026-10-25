@@ -86,7 +86,7 @@ export function TabLicenca() {
   return (
     <div className="space-y-4">
       {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
             Plano actual

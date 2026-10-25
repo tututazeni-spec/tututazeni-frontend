@@ -18,7 +18,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
     <div className="grid grid-cols-2 gap-4">
       {/* Cartão principal */}
       {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
-      <div className="col-span-2 overflow-hidden rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="col-span-2 overflow-hidden rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="flex items-center gap-5">
           {/* Avatar */}
           <AvatarUploader
@@ -33,7 +33,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
             <p className="mt-1 text-sm text-white">{user.email}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {user.role && (
-                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-[#7CC4FF]">
+                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-on-brand-accent">
                   {user.role.name}
                 </span>
               )}

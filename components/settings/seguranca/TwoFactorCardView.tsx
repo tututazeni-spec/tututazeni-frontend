@@ -27,7 +27,7 @@ export function TwoFactorCardView({ ctl }: { ctl: TwoFactorController }) {
   if (isLoading) return null;
 
   return (
-    <Card className="overflow-hidden border-0 bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+    <Card className="overflow-hidden border-0 bg-gradient-to-br from-brand via-brand-mid to-brand-dark text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
       {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
       <div className="px-5 pt-4">
         <div className="flex items-center justify-between gap-3">

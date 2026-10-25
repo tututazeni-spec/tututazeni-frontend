@@ -237,7 +237,7 @@ export function TabPrivacidade() {
         ].map(([label, value]) => (
           <div
             key={String(label)}
-            className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
+            className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
           >
             <p className="m-0 text-xs uppercase tracking-wider text-white/70">
               {label}
