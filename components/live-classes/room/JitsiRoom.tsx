@@ -6,6 +6,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { reportError } from '@/lib/errorReporting';
+import { apiClient } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
 import type { JitsiAPI, LiveClass } from './types';
 
@@ -23,16 +24,37 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   const [loadError, setLoadError] = useState(false);
   const [retryToken, setRetryToken] = useState(0);
 
-  const roomName = `innova-live-${liveClass.id}-${liveClass.topic
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '-')
-    .slice(0, 30)}`;
+  // Nome da sala emitido pelo backend (HMAC): o meet.jit.si público não tem
+  // autenticação, por isso um nome previsível deixava entrar qualquer pessoa.
+  const [access, setAccess] = useState<{
+    roomName: string;
+    domain: string;
+    jwt?: string;
+  } | null>(null);
+  const roomName = access?.roomName ?? null;
+
+  useEffect(() => {
+    let cancelled = false;
+    apiClient
+      .get<{ roomName: string; domain: string; jwt?: string }>(`/live-classes/${liveClass.id}/room`)
+      .then((r) => {
+        if (!cancelled) setAccess(r);
+      })
+      .catch((e) => {
+        reportError(e, { source: 'JitsiRoom.roomName' });
+        if (!cancelled) setLoadError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [liveClass.id, retryToken]);
 
   const initJitsi = useCallback(() => {
-    if (!containerRef.current || !window.JitsiMeetExternalAPI) return;
+    if (!access || !containerRef.current || !window.JitsiMeetExternalAPI) return;
 
-    const jitsi = new window.JitsiMeetExternalAPI('meet.jit.si', {
-      roomName,
+    const jitsi = new window.JitsiMeetExternalAPI(access.domain, {
+      roomName: access.roomName,
+      ...(access.jwt && { jwt: access.jwt }),
       parentNode: containerRef.current,
       width: '100%',
       height: '100%',
@@ -110,9 +132,10 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
         setParticipants(jitsi.getNumberOfParticipants());
       },
     });
-  }, [roomName, liveClass.topic, onJoined, onLeft]);
+  }, [access, liveClass.topic, onJoined, onLeft]);
 
   useEffect(() => {
+    if (!access) return;
     setLoadError(false);
 
     // Load Jitsi External API script dynamically
@@ -126,11 +149,11 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
 
     const script = document.createElement('script');
     script.id = 'jitsi-api-script';
-    script.src = 'https://meet.jit.si/external_api.js';
+    script.src = `https://${access.domain}/external_api.js`;
     script.async = true;
     // Sem SRI de propósito: o external_api.js muda a cada release da Jitsi
     // (cache de 60 s), um hash fixo partia as aulas ao vivo. Em compensação não
-    // enviamos cookies nem referrer ao terceiro (a CSP já o limita a meet.jit.si).
+    // enviamos cookies nem referrer ao terceiro (a CSP já o limita ao domínio Jitsi).
     script.crossOrigin = 'anonymous';
     script.referrerPolicy = 'no-referrer';
     script.onload = initJitsi;
@@ -146,7 +169,7 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     return () => {
       apiRef.current?.dispose();
     };
-  }, [initJitsi, retryToken]);
+  }, [access, initJitsi, retryToken]);
 
   const retry = useCallback(() => {
     setRetryToken((t) => t + 1);

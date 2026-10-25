@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildCsp, parseImageHosts } from './csp';
+import { buildCsp, parseImageHosts, resolveJitsiDomain } from './csp';
 
 const base = { nonce: 'abc123', isDev: false, imageHosts: [] as string[] };
 const directive = (csp: string, name: string) =>
@@ -48,5 +48,18 @@ describe('parseImageHosts', () => {
   it('faz trim e ignora vazios', () => {
     expect(parseImageHosts(' a.com, ,b.com ')).toEqual(['a.com', 'b.com']);
     expect(parseImageHosts(undefined)).toEqual([]);
+  });
+});
+
+describe('domínio Jitsi configurável', () => {
+  it('usa o JITSI_DOMAIN em script-src e frame-src', () => {
+    const csp = buildCsp({ ...base, jitsiDomain: 'jitsi.innova.ao' });
+    expect(csp).toContain('https://jitsi.innova.ao');
+    expect(csp).not.toContain('meet.jit.si');
+  });
+
+  it('rejeita valores inválidos e volta ao público', () => {
+    expect(resolveJitsiDomain("x.com; script-src *")).toBe('meet.jit.si');
+    expect(resolveJitsiDomain(undefined)).toBe('meet.jit.si');
   });
 });

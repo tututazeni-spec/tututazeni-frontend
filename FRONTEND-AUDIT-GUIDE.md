@@ -192,7 +192,7 @@ Criar: frontend/lib/api.ts
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: '/api', // caminho relativo same-origin (ver lib/api.ts)
   withCredentials: true,  // envia cookies httpOnly
 });
 

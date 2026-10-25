@@ -204,7 +204,6 @@ export default function LiveRoomPage() {
                 { label: 'Data', value: fmtDate(liveClass.scheduledAt) },
                 { label: 'Início', value: fmtTime(liveClass.scheduledAt) },
                 { label: 'Duração', value: `${liveClass.duration} min` },
-                { label: 'Sala Jitsi', value: `innova-live-${liveClass.id}` },
               ].map((f) => (
                 <div
                   key={f.label}
