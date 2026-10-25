@@ -48,6 +48,7 @@ import type {
   WizardForm,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type ListKey = 'competencyGaps' | 'goals' | 'actions' | 'checkpoints';
 
@@ -167,9 +168,10 @@ function UserPicker({
                 </div>
               )}
               {!loading && results.length === 0 && (
-                <div className="px-3 py-2 text-sm text-ink-muted">
-                  Nenhum colaborador encontrado
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Nenhum colaborador encontrado"
+                />
               )}
               {results.map((u) => (
                 <button
@@ -231,9 +233,7 @@ function ListEditor<T>({
       </div>
       {hint && <p className="font-body text-xs text-ink-faint">{hint}</p>}
       {rows.length === 0 && (
-        <p className="font-body text-xs text-ink-faint">
-          Nenhuma linha adicionada ainda.
-        </p>
+        <EmptyState variant="inline" title="Nenhuma linha adicionada ainda" />
       )}
       {rows.map((row, i) => {
         const locked = isLocked(row);

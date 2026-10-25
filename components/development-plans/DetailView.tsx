@@ -56,6 +56,7 @@ import { planPalette } from './PlanCard';
 import { Metric } from '@/components/events/EventListCard';
 import { isOverdue } from './utils';
 import type { Action, Plan } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const MS_PER_DAY = 86_400_000;
 
@@ -557,9 +558,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               );
             })}
             {(!plan.actions || plan.actions.length === 0) && (
-              <div className="rounded-card border border-dashed border-border-strong py-8 text-center font-body text-sm text-ink-faint">
-                Sem acções adicionadas
-              </div>
+              <EmptyState variant="inline" title="Sem acções adicionadas" />
             )}
           </div>
         </div>
@@ -637,9 +636,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
             </Card>
           ))}
           {(!plan.goals || plan.goals.length === 0) && (
-            <div className="rounded-card border border-dashed border-border-strong py-8 text-center font-body text-sm text-ink-faint">
-              Sem metas adicionadas
-            </div>
+            <EmptyState variant="inline" title="Sem metas adicionadas" />
           )}
         </div>
       )}
@@ -705,9 +702,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
             </Card>
           ))}
           {(!plan.checkpoints || plan.checkpoints.length === 0) && (
-            <div className="rounded-card border border-dashed border-border-strong py-8 text-center font-body text-sm text-ink-faint">
-              Sem checkpoints agendados
-            </div>
+            <EmptyState variant="inline" title="Sem checkpoints agendados" />
           )}
         </div>
       )}
