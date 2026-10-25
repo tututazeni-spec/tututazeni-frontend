@@ -12,7 +12,7 @@ import { AlertCircle, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -184,14 +184,14 @@ export function CompensationFormModal({
                     {picked?.fullName ?? fixedName ?? `#${userId}`}
                   </span>
                   {picked && userId == null && (
-                    <button
+                    <IconButton
+                      icon={X}
+                      label="Remover colaborador"
+                      intent="ghost"
+                      size="compact"
                       type="button"
-                      aria-label="Remover colaborador"
                       onClick={() => setField('picked', null)}
-                      className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-                    >
-                      <X size={16} strokeWidth={1.75} />
-                    </button>
+                    />
                   )}
                 </div>
               ) : (
