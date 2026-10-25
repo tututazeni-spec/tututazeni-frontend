@@ -25,7 +25,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { NAVY_ACTION, NavyCard } from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
@@ -284,14 +284,15 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
                   {ref.topic}
                   {ref.sessionSeq ? ` · Sessão ${ref.sessionSeq}` : ''}
                   {canManage && (
-                    <button
+                    <IconButton
+                      icon={Trash2}
+                      label={`Remover de ${ref.topic}`}
+                      intent="ghostDanger"
+                      size="xs"
+                      className="ml-1"
                       type="button"
                       onClick={() => onRemove(row, ref)}
-                      aria-label={`Remover de ${ref.topic}`}
-                      className="ml-1 text-brand/60 hover:text-danger-ink"
-                    >
-                      <Trash2 size={12} strokeWidth={1.75} />
-                    </button>
+                    />
                   )}
                 </span>
               ))}

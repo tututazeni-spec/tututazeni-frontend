@@ -26,6 +26,7 @@ import { CARD, fmtDate, getStatus } from './utils';
 import { MODALITY_CFG, STATUS_CFG, TYPE_CFG } from './constants';
 import { formatTime as fmtTime } from '@/lib/format';
 import type { LiveClass } from './types';
+import { IconButton } from '@/components/ui/Button';
 
 export interface ClassCardProps {
   lc: LiveClass;
@@ -127,12 +128,13 @@ export function ClassCard({
         {canManage && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button
-                aria-label="Mais ações"
-                className="flex-shrink-0 rounded-control p-1.5 text-ink-faint hover:bg-surface-sunken"
-              >
-                <MoreVertical size={16} strokeWidth={1.75} />
-              </button>
+              <IconButton
+                icon={MoreVertical}
+                label="Mais ações"
+                intent="ghost"
+                size="compact"
+                className="flex-shrink-0"
+              />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => onStart(lc)}>
