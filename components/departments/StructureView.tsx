@@ -144,7 +144,7 @@ function DeptCard({
       <ChevronRight
         size={18}
         strokeWidth={1.75}
-        className={`flex-shrink-0 ${selected ? 'text-[#1765C1]' : 'text-[#526B89]'}`}
+        className={`flex-shrink-0 ${selected ? 'text-[#1765C1]' : 'text-brand-muted'}`}
       />
     </button>
   );
@@ -178,7 +178,7 @@ function TreeRow({ node, parentName, selectedId, onPreview }: TreeRowProps) {
                 e.stopPropagation();
                 setExpanded((v) => !v);
               }}
-              className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-[#526B89] hover:text-[#17365D]"
+              className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-brand-muted hover:text-[#17365D]"
             >
               {expanded ? (
                 <ChevronDown size={14} strokeWidth={1.75} />

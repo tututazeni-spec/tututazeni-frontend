@@ -171,7 +171,7 @@ export function ListView({ onSelect }: ListViewProps) {
                 <ChevronRight
                   size={18}
                   strokeWidth={1.75}
-                  className="flex-shrink-0 text-[#526B89]"
+                  className="flex-shrink-0 text-brand-muted"
                 />
               </button>
             ))}
