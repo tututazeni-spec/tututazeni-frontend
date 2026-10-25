@@ -25,6 +25,7 @@ import type { DirectoryUser } from '@/components/users/types';
 import { MultiPickField } from '@/components/trainings/plans/MultiPickField';
 import type { Role as CareerPlansRole } from './plans/types';
 import type { CareerPath } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const MENTORING_OPTIONS = [
   'Sessões de mentoria quinzenais',
@@ -248,11 +249,9 @@ export function NewCareerPlanModal({
           </FormField>
 
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={openToMobility}
               onChange={(e) => setOpenToMobility(e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Aberto a mobilidade interna
           </label>

@@ -26,6 +26,7 @@ import {
   usePositionOptions,
 } from './careerFormData';
 import { LinkButton } from '@/components/ui/LinkButton';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const CAREER_PATH_TYPE_OPTIONS = Object.entries(CAREER_PATH_TYPE).map(
   ([value, label]) => ({
@@ -362,13 +363,12 @@ export function NewCareerPathModal({
                     />
                   </div>
                   <label className="mt-2 flex items-center gap-2 text-xs text-ink-muted">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={s.isLateralMove}
                       onChange={(e) =>
                         updateStep(idx, { isLateralMove: e.target.checked })
                       }
-                      className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                      size="sm"
                     />
                     Movimento lateral (não vertical)
                   </label>

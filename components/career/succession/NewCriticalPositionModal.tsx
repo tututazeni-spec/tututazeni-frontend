@@ -21,6 +21,7 @@ import { Select } from '@/components/ui/Select';
 import { SinglePickField } from '@/components/trainings/SinglePickField';
 import { usePositionOptions } from '../careerFormData';
 import { BUSINESS_IMPACT_OPTIONS, REPLACEMENT_TIME_OPTIONS } from './constants';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const CRITICAL_REASON_OPTIONS = [
   'Conhecimento técnico único ou especializado',
@@ -192,21 +193,17 @@ export function NewCriticalPositionModal({
           </FormField>
 
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={keyPersonRisk}
               onChange={(e) => setKeyPersonRisk(e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Risco de pessoa-chave — detentor de conhecimento único
           </label>
 
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={requiresDocumentation}
               onChange={(e) => setRequiresDocumentation(e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Requer documentação de conhecimento
           </label>

@@ -21,6 +21,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/users/types';
 import { READINESS_OPTIONS } from './constants';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface AddSuccessorModalProps {
   criticalPositionId: number;
@@ -136,21 +137,17 @@ export function AddSuccessorModal({
           </p>
 
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={geographicMobility}
               onChange={(e) => setGeographicMobility(e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Disponível para mobilidade geográfica
           </label>
 
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={available}
               onChange={(e) => setAvailable(e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Disponível para assumir a posição
           </label>
