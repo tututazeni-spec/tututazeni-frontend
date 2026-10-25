@@ -47,6 +47,7 @@ import type {
   MyProgress,
   OverviewDashboard,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const DIST_CONFIG = [
   { key: 'exceptional', label: 'Excepcional', bg: 'bg-[#218653]' },
@@ -193,7 +194,7 @@ function OrganizationOverview() {
                 </div>
               ))}
               {data.upcomingDeadlines.length === 0 && (
-                <p className="text-xs text-ink-faint">Sem prazos próximos.</p>
+                <EmptyState variant="inline" title="Sem prazos próximos" />
               )}
             </div>
           </CardBody>

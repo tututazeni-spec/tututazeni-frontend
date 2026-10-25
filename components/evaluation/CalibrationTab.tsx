@@ -23,6 +23,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { SCORE_COLOR } from './constants';
 import type { CalibrationData, CalibrationHistoryEntry } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function CalibrationTab() {
   const notify = useToast();
@@ -160,9 +161,10 @@ export function CalibrationTab() {
             )}
             {!loadHistory.isPending &&
               (loadHistory.data ?? []).length === 0 && (
-                <p className="p-4 text-xs text-ink-faint">
-                  Sem alterações registadas.
-                </p>
+                <EmptyState
+                  variant="inline"
+                  title="Sem alterações registadas"
+                />
               )}
             {(loadHistory.data ?? []).map((h, i) => (
               <div key={i} className="px-4 py-2 text-xs">

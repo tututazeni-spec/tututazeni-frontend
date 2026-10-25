@@ -24,6 +24,7 @@ import {
   TYPE_LABEL,
 } from './constants';
 import type { EvaluationSettings } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const VISIBILITY_LABEL: Record<string, string> = {
   MANAGER_ONLY: 'Apenas o gestor',
@@ -160,7 +161,7 @@ export function SettingsTab() {
         </div>
         <CardBody>
           {data.scales.length === 0 && (
-            <p className="text-xs text-ink-faint">Sem escalas criadas.</p>
+            <EmptyState variant="inline" title="Sem escalas criadas" />
           )}
           <div className="space-y-2">
             {data.scales.map((s) => (

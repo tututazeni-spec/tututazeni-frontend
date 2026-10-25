@@ -46,6 +46,7 @@ import {
 } from './constants';
 import type { Cycle, EvaluationObjective } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface CriteriaOption {
   id: number;
@@ -700,9 +701,10 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               </div>
             ))}
             {(criteriaList ?? []).length === 0 && (
-              <p className="text-sm text-ink-faint">
-                Sem critérios cadastrados ainda.
-              </p>
+              <EmptyState
+                variant="inline"
+                title="Sem critérios cadastrados ainda"
+              />
             )}
           </div>
         )}
