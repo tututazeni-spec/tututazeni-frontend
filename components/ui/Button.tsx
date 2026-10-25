@@ -9,16 +9,17 @@ import { cn } from '@/lib/cn';
 
 export const buttonVariants = cva(
   'inline-flex items-center justify-center gap-2 font-body font-semibold ' +
-    'transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50 ' +
+    'transition-[color,background-color,border-color,transform] duration-150 active:translate-y-px ' +
+    'disabled:pointer-events-none disabled:opacity-50 ' +
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ' +
     'focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
   {
     variants: {
       intent: {
         primary:
-          'bg-[#0F1F3D] text-white hover:bg-[#1a2f57] active:bg-[#0a1629]',
+          'bg-brand text-white hover:bg-brand-hover active:bg-brand-active',
         secondary:
-          'border-[1.5px] border-primary bg-surface text-primary hover:bg-primary-subtle',
+          'border-[1.5px] border-brand bg-surface text-brand hover:bg-brand-soft',
         ghost:
           'bg-transparent text-ink-muted hover:bg-surface-sunken hover:text-ink',
         danger: 'bg-danger text-white hover:brightness-95 active:brightness-90',

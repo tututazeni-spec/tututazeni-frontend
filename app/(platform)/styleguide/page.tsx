@@ -11,6 +11,7 @@ import { Trash2, MoreVertical, Target } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import { Button, IconButton } from '@/components/ui/Button';
+import { PageHeader, SectionHeader } from '@/components/ui/PageHeader';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardHeader, CardBody, CardFooter } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -74,6 +75,22 @@ export default function StyleguidePage() {
           Referência viva dos componentes de <code>components/ui/</code>.
         </p>
       </div>
+      <StyleguideSection title="PageHeader / SectionHeader">
+        <div className="flex w-full flex-col gap-section">
+          <PageHeader
+            icon={Target}
+            title="Título da página"
+            description="Uma frase a explicar para que serve este ecrã."
+            actions={<Button>Acção principal</Button>}
+          />
+          <SectionHeader
+            title="Título de secção"
+            description="Espaço entre secções (gap-section) é sempre maior que dentro delas (gap-stack)."
+            actions={<Button intent="secondary">Secundária</Button>}
+          />
+        </div>
+      </StyleguideSection>
+
       <StyleguideSection title="Button">
         <Button>Primário</Button>
         <Button intent="secondary">Secundário</Button>

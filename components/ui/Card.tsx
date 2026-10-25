@@ -48,7 +48,10 @@ export function CardHeader({
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('border-b border-border p-4', className)} {...props} />
+    <div
+      className={cn('border-b border-border p-card', className)}
+      {...props}
+    />
   );
 }
 
@@ -56,7 +59,7 @@ export function CardBody({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('p-4', className)} {...props} />;
+  return <div className={cn('p-card', className)} {...props} />;
 }
 
 export function CardFooter({
@@ -64,6 +67,9 @@ export function CardFooter({
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('border-t border-border p-4', className)} {...props} />
+    <div
+      className={cn('border-t border-border p-card', className)}
+      {...props}
+    />
   );
 }

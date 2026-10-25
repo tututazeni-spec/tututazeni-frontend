@@ -13,15 +13,14 @@ import { cn } from '@/lib/cn';
 
 const PILL =
   'rounded-pill border-[1.5px] px-3.5 py-1.5 font-body text-sm font-semibold transition-colors';
-const PILL_ACTIVE = 'border-[#0F1F3D] bg-[#0F1F3D] text-white';
+const PILL_ACTIVE = 'border-brand bg-brand text-white';
 const PILL_IDLE =
   'border-border-strong bg-surface text-ink-muted hover:bg-surface-sunken';
-const PILL_HOVER_NAVY =
-  'hover:border-[#0F1F3D] hover:bg-[#0F1F3D] hover:text-white';
+const PILL_HOVER_NAVY = 'hover:border-brand hover:bg-brand hover:text-white';
 
 /** Hover da pílula activa: inverte (fundo branco, letra navy). */
 const PILL_ACTIVE_HOVER_INVERT =
-  'hover:border-[#0F1F3D] hover:bg-surface hover:text-[#0F1F3D]';
+  'hover:border-brand hover:bg-surface hover:text-brand';
 
 /** Classes da pílula, para pílulas que são links (navegação entre rotas). */
 export const pillClass = (active: boolean) =>
