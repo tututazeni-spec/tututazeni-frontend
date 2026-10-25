@@ -19,15 +19,13 @@ import {
   Trash2,
   type LucideIcon,
 } from 'lucide-react';
-import {
-  CATEGORY_BTN_GHOST,
-  CATEGORY_BTN_PRIMARY,
-} from '@/components/courses/CategoryCard';
+
 import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
 import type { CourseModule, Lesson, ModuleStatus } from './types';
 import { LessonRow } from './LessonRow';
+import { Button } from '@/components/ui/Button';
 
 const STATUS_PILL: Record<ModuleStatus, { label: string; cls: string }> = {
   PUBLISHED: { label: 'Publicado', cls: 'bg-[#2B7FE8] text-white' },
@@ -169,20 +167,22 @@ export function ModuleBlock({
           >
             <Trash2 size={14} strokeWidth={1.75} /> Eliminar
           </button>
-          <button
+          <Button
             type="button"
             onClick={onEditModule}
-            className={CATEGORY_BTN_GHOST}
+            intent="secondary"
+            size="compact"
           >
             <Pencil size={14} strokeWidth={1.75} /> Editar
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={onAddLesson}
-            className={CATEGORY_BTN_PRIMARY}
+            intent="primary"
+            size="compact"
           >
             <Plus size={14} strokeWidth={2} /> Lição
-          </button>
+          </Button>
         </div>
       )}
     </div>
