@@ -129,7 +129,7 @@ function OrganizationOverview() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
             <ClipboardCheck size={15} strokeWidth={1.75} /> Distribuição das
             classificações
           </div>
@@ -170,7 +170,7 @@ function OrganizationOverview() {
         </Card>
 
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
             <CalendarClock size={15} strokeWidth={1.75} /> Próximos prazos
           </div>
           <CardBody>
@@ -235,7 +235,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
-        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
+        itemClassName="skeleton-shimmer h-[155px] rounded-panel"
       />
     );
 
@@ -326,7 +326,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
       {/* My results radar */}
       {myResults && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Os Meus Resultados
           </div>
           <CardBody>
@@ -336,7 +336,9 @@ export function OverviewTab({ userId }: OverviewTabProps) {
                 <div
                   className={`rounded-card border p-4 mb-4 ${SCORE_BG(myResults.finalScore)}`}
                 >
-                  <p className="text-xs text-ink-faint mb-0.5">PontuaÃ§Ã£o final</p>
+                  <p className="text-xs text-ink-faint mb-0.5">
+                    PontuaÃ§Ã£o final
+                  </p>
                   <p
                     className={`text-4xl font-black ${SCORE_COLOR(myResults.finalScore)}`}
                   >

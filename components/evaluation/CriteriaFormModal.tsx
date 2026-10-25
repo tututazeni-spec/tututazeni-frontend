@@ -231,7 +231,7 @@ export function CriteriaFormModal({
                     onClick={() => toggleIndicator(s)}
                     className={
                       active
-                        ? 'rounded-full border-[1.5px] border-[#0F1F3D] bg-[#0F1F3D] px-3 py-1 text-xs text-white'
+                        ? 'rounded-full border-[1.5px] border-brand bg-brand px-3 py-1 text-xs text-white'
                         : 'rounded-full border-[1.5px] border-field bg-surface px-3 py-1 text-xs text-field-ink hover:bg-field-soft'
                     }
                   >
