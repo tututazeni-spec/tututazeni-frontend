@@ -32,7 +32,11 @@ export const AVATAR_BTN_GHOST = CATEGORY_BTN_GHOST;
 function InfoLine({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
   return (
     <div className="flex items-center gap-2">
-      <Icon size={16} strokeWidth={1.75} className="shrink-0 text-[#4B5E80]" />
+      <Icon
+        size={16}
+        strokeWidth={1.75}
+        className="shrink-0 text-brand-muted"
+      />
       <span className="text-sm font-medium text-brand">{text}</span>
     </div>
   );
@@ -41,8 +45,8 @@ function InfoLine({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
 const STATUS_PILL: Record<string, string> = {
   ACTIVE: 'bg-[#2B7FE8] text-white',
   TESTING: 'bg-[#F5A524] text-white',
-  INACTIVE: 'bg-brand-line text-[#4B5E80]',
-  ARCHIVED: 'bg-brand-line text-[#4B5E80]',
+  INACTIVE: 'bg-brand-line text-brand-muted',
+  ARCHIVED: 'bg-brand-line text-brand-muted',
 };
 
 export interface AvatarCardProps {
@@ -84,7 +88,7 @@ export function AvatarCard({
       </div>
 
       <div className="relative flex items-center gap-3 sm:max-w-[68%]">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0E6B4E] text-white">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-success text-white">
           <Bot size={20} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
@@ -92,7 +96,7 @@ export function AvatarCard({
             {a.name}
           </h3>
           {a.description && (
-            <p className="line-clamp-1 text-sm text-[#5B6B88]">
+            <p className="line-clamp-1 text-sm text-brand-muted">
               {a.description}
             </p>
           )}
