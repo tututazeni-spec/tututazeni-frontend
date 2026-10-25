@@ -29,7 +29,7 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
-import { PHOTO_CARD_ACTION, PhotoCard } from '@/components/courses/PhotoCard';
+import { PhotoCard } from '@/components/courses/PhotoCard';
 import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
@@ -247,18 +247,20 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                 actions={
                   canManage && (
                     <>
-                      <button
+                      <Button
                         type="button"
-                        className={PHOTO_CARD_ACTION}
+                        intent="onDarkGhost"
+                        size="icon"
                         aria-label="Editar sessão"
                         title="Editar sessão"
                         onClick={() => openEdit(s)}
                       >
                         <Pencil size={15} strokeWidth={1.75} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
-                        className={PHOTO_CARD_ACTION}
+                        intent="onDarkGhost"
+                        size="icon"
                         aria-label="Eliminar sessão"
                         title="Eliminar sessão"
                         disabled={
@@ -267,7 +269,7 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                         onClick={() => onDelete(s)}
                       >
                         <Trash2 size={15} strokeWidth={1.75} />
-                      </button>
+                      </Button>
                     </>
                   )
                 }
