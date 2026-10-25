@@ -65,7 +65,7 @@ export function HeadcountPanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+        itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
 
@@ -107,7 +107,7 @@ export function HeadcountPanel() {
         {/* Tenure buckets */}
         {data?.byTenure && (
           <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-            <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+            <h4 className="-mx-5 -mt-5 mb-4 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
               Distribuição por Tempo de Casa
             </h4>
             <BarChart
@@ -125,7 +125,7 @@ export function HeadcountPanel() {
         {/* Tempo médio de serviço por departamento — uma cor por departamento */}
         {tenureByDept.length > 0 && (
           <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-            <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+            <h4 className="-mx-5 -mt-5 mb-4 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
               Tempo Médio de Serviço por Departamento (anos)
             </h4>
             <BarChart
@@ -146,7 +146,7 @@ export function HeadcountPanel() {
 
         {/* Monthly trend */}
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h4 className="-mx-5 -mt-5 mb-4 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Evolução Mensal
           </h4>
           {trend.length > 0 ? (

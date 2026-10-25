@@ -29,7 +29,7 @@ export function TrainingPanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+        itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
 
@@ -68,7 +68,7 @@ export function TrainingPanel() {
       {/* Top courses */}
       {(data?.topCourses ?? []).length > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h4 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h4 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Top 5 Cursos
           </h4>
           <ol className="space-y-3">
@@ -94,7 +94,7 @@ export function TrainingPanel() {
                     )}
                     <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-border">
                       <div
-                        className="h-full rounded-full bg-[#0F1F3D]"
+                        className="h-full rounded-full bg-brand"
                         style={{ width: `${(c.count / max) * 100}%` }}
                       />
                     </div>

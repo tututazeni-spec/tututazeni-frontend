@@ -29,7 +29,7 @@ export function PerformancePanel() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+        itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
   const dist = data?.distribution ?? {};
@@ -71,7 +71,7 @@ export function PerformancePanel() {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {/* Distribution */}
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h4 className="-mx-5 -mt-5 mb-4 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Distribuição de Performance
           </h4>
           <BarChart
@@ -99,7 +99,7 @@ export function PerformancePanel() {
 
         {/* By dept */}
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h4 className="-mx-5 -mt-5 mb-4 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Pontuação por Departamento
           </h4>
           {(data?.byDepartment ?? []).length > 0 ? (

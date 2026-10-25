@@ -133,7 +133,7 @@ export default function DashboardRhPage() {
           inferior (o ecrã com os gráficos, à esquerda, fica intacto) e dá
           contraste ao título/botão; as abas sobem 2rem para cima da foto. */}
       <div className="mx-auto max-w-7xl px-6 pt-6">
-        <header className="relative h-44 overflow-hidden rounded-3xl shadow-[0_8px_32px_rgba(15,31,61,0.18)] sm:h-56">
+        <header className="relative h-44 overflow-hidden rounded-panel shadow-[0_8px_32px_rgba(15,31,61,0.18)] sm:h-56">
           <Image
             src="/images/dashboard-rh.jpg"
             alt=""
@@ -144,11 +144,11 @@ export default function DashboardRhPage() {
           />
           <div
             aria-hidden
-            className="absolute inset-0 bg-gradient-to-t from-[#0F1F3D]/90 via-[#0F1F3D]/35 to-transparent"
+            className="absolute inset-0 bg-gradient-to-t from-brand/90 via-brand/35 to-transparent"
           />
           <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 pb-10 sm:px-7">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-panel bg-white/20 text-white">
                 {ActiveIcon && (
                   <ActiveIcon
                     size={22}

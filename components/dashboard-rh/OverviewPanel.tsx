@@ -94,7 +94,7 @@ export function OverviewPanel() {
       <Skeleton
         rows={6}
         wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+        itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
   const k = data?.kpis ?? {};
