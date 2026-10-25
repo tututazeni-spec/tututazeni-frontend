@@ -101,7 +101,7 @@ export function AbsenceDetailModal({
         {loading || !a ? (
           <Skeleton
             rows={5}
-            wrapperClassName="mt-4 space-y-2 animate-pulse"
+            wrapperClassName="mt-4 space-y-2"
             itemClassName="h-8 bg-surface-sunken rounded-control"
           />
         ) : (
@@ -591,7 +591,7 @@ function DetailBody({
           {historyLoading || !history ? (
             <Skeleton
               rows={3}
-              wrapperClassName="space-y-2 animate-pulse"
+              wrapperClassName="space-y-2"
               itemClassName="h-6 bg-surface-sunken rounded-control"
             />
           ) : (

@@ -181,7 +181,7 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
       {loading && !data ? (
         <Skeleton
           rows={6}
-          wrapperClassName="space-y-2 animate-pulse"
+          wrapperClassName="space-y-2"
           itemClassName="h-10 bg-surface-sunken rounded-control"
         />
       ) : !data || data.data.length === 0 ? (

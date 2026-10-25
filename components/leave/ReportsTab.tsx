@@ -286,7 +286,7 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
         {loading && !data ? (
           <Skeleton
             rows={6}
-            wrapperClassName="space-y-2 animate-pulse"
+            wrapperClassName="space-y-2"
             itemClassName="h-10 bg-surface-sunken rounded-control"
           />
         ) : !data || data.rows.length === 0 ? (

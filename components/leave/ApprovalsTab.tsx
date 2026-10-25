@@ -189,7 +189,7 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
       {loading && !data ? (
         <Skeleton
           rows={5}
-          wrapperClassName="space-y-2 animate-pulse"
+          wrapperClassName="space-y-2"
           itemClassName="h-12 bg-surface-sunken rounded-control"
         />
       ) : !data || data.data.length === 0 ? (

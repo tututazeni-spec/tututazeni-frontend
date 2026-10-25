@@ -219,7 +219,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
       {loading && !data ? (
         <Skeleton
           rows={6}
-          wrapperClassName="space-y-2 animate-pulse"
+          wrapperClassName="space-y-2"
           itemClassName="h-16 bg-surface-sunken rounded-panel"
         />
       ) : !data || data.data.length === 0 ? (

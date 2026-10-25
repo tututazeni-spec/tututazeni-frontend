@@ -179,7 +179,7 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
         {filterBar}
         <Skeleton
           rows={4}
-          wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
+          wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
           itemClassName="h-24 bg-surface-sunken rounded-card"
         />
       </div>
