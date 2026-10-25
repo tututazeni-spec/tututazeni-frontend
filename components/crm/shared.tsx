@@ -116,7 +116,7 @@ export function ListSkeleton({ rows = 5 }: ListSkeletonProps) {
     <div className="p-6">
       <Skeleton
         rows={rows}
-        wrapperClassName="space-y-4 animate-pulse"
+        wrapperClassName="space-y-4"
         itemClassName="h-16 bg-surface-sunken rounded-card"
       />
     </div>
@@ -128,7 +128,7 @@ export function DetailSkeleton() {
     <div className="p-6">
       <Skeleton
         rows={2}
-        wrapperClassName="space-y-4 animate-pulse"
+        wrapperClassName="space-y-4"
         itemClassName={cn(
           'rounded-card bg-surface-sunken',
           'first:h-24 last:h-64',
