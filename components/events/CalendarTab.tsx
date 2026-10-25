@@ -31,6 +31,7 @@ import { DetailView } from './DetailView';
 import { PROXIMITY_LEVELS, proximityLevel, relativeLabel } from './proximity';
 import { useDepartmentOptions, useUnitOptions } from './eventFormData';
 import type { EventCalendarItem } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 type View = 'month' | 'week' | 'day' | 'agenda';
 
@@ -389,15 +390,15 @@ function MonthGrid({ anchor, range, byDay, onSelect }: MonthGridProps) {
                   <EventChip key={ev.id} ev={ev} onSelect={onSelect} />
                 ))}
                 {(overflow > 0 || expanded) && (
-                  <button
+                  <LinkButton
                     type="button"
                     onClick={() =>
                       setExpandedDay(expanded ? null : dayKey(day))
                     }
-                    className="px-1 font-body text-[11px] text-primary hover:underline"
+                    className="px-1 font-body text-[11px]"
                   >
                     {expanded ? 'Ver menos' : `+${overflow} mais`}
-                  </button>
+                  </LinkButton>
                 )}
               </div>
             </div>
