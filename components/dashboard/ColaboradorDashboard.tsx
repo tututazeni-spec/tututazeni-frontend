@@ -53,12 +53,12 @@ export function ColaboradorDashboard() {
         <Skeleton
           rows={4}
           wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-          itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+          itemClassName="h-[155px] rounded-panel bg-surface-sunken"
         />
         <Skeleton
           rows={2}
           wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-          itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+          itemClassName="h-[155px] rounded-panel bg-surface-sunken"
         />
       </div>
     );
@@ -73,7 +73,7 @@ export function ColaboradorDashboard() {
       <AlertBanner alerts={alerts} />
 
       {/* Hero: user + points */}
-      <div className="rounded-2xl bg-[#0F1F3D] p-5 text-canvas mb-[2cm]!">
+      <div className="rounded-panel bg-brand p-5 text-canvas mb-[2cm]!">
         <div className="flex items-center gap-4">
           {data?.user && (
             <Avatar
@@ -209,7 +209,7 @@ export function ColaboradorDashboard() {
       {/* Competencies radar */}
       {(data?.skills?.length ?? 0) > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Evolução de Competências
           </h3>
           <div className="space-y-2">
