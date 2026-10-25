@@ -43,6 +43,7 @@ import type {
   PaginatedAuditAttempts,
   PaginatedAuditEvents,
 } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 export interface HistoryViewProps {
   canExport: boolean;
@@ -237,16 +238,16 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
               />
             </label>
             {hasFilters && (
-              <button
+              <LinkButton
                 type="button"
                 onClick={() => {
                   setFilters(EMPTY);
                   setPage(1);
                 }}
-                className="pb-2 font-body text-xs text-primary hover:underline"
+                className="pb-2 font-body text-xs"
               >
                 Limpar filtros
-              </button>
+              </LinkButton>
             )}
           </div>
 
@@ -411,13 +412,12 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
                       </TableCell>
                       <TableCell>
                         {a.instanceId ? (
-                          <button
+                          <LinkButton
                             type="button"
                             onClick={() => onOpenInstance(a.instanceId!)}
-                            className="text-primary hover:underline"
                           >
                             {a.name}
-                          </button>
+                          </LinkButton>
                         ) : (
                           a.name
                         )}

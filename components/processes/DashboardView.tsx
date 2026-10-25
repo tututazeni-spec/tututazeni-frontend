@@ -38,6 +38,7 @@ import {
 } from './constants';
 import { Skeleton } from './Skeleton';
 import type { Dashboard } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 export interface DashboardViewProps {
   onOpenInstance: (id: number) => void;
@@ -166,12 +167,12 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
           onValueChange={(v) => set({ status: v })}
         />
         {hasFilters && (
-          <button
+          <LinkButton
             onClick={() => setFilters(EMPTY_FILTERS)}
-            className="pb-2 font-body text-xs text-primary hover:underline"
+            className="pb-2 font-body text-xs"
           >
             Limpar filtros
-          </button>
+          </LinkButton>
         )}
       </div>
 

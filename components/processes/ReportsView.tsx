@@ -50,6 +50,7 @@ import type {
   ReportGroupBy,
   ReportRecordIndicator,
 } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 export interface ReportsViewProps {
   canExport: boolean;
@@ -332,13 +333,13 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
           className="w-44"
         />
         {hasFilters && (
-          <button
+          <LinkButton
             type="button"
             onClick={() => setFilters(EMPTY)}
-            className="pb-2 font-body text-xs text-primary hover:underline"
+            className="pb-2 font-body text-xs"
           >
             Limpar filtros
-          </button>
+          </LinkButton>
         )}
         {canExport && (
           <div className="ml-auto flex gap-2">

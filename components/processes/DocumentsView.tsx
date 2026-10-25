@@ -55,6 +55,7 @@ import type {
   PaginatedProcessDocuments,
   ProcessDocumentRow,
 } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 export interface DocumentsViewProps {
   canManage: boolean;
@@ -398,9 +399,9 @@ export function DocumentsView({
                     variant="dot"
                   />
                   {r.state === 'MISSING' && (
-                    <button
+                    <LinkButton
                       type="button"
-                      className="text-xs text-primary hover:underline"
+                      className="text-xs"
                       onClick={() =>
                         setForm({
                           mode: 'request',
@@ -414,7 +415,7 @@ export function DocumentsView({
                       }
                     >
                       Solicitar
-                    </button>
+                    </LinkButton>
                   )}
                 </span>
               </li>

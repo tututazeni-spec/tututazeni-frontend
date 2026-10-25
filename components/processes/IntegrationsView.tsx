@@ -31,6 +31,7 @@ import type {
   PaginatedIntegrationLogs,
   IntegrationOverview,
 } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 export interface IntegrationsViewProps {
   canRetry: boolean;
@@ -343,16 +344,16 @@ export function IntegrationsView({
             className="w-52"
           />
           {logModule && (
-            <button
+            <LinkButton
               type="button"
               onClick={() => {
                 setLogModule(undefined);
                 setLogPage(1);
               }}
-              className="font-body text-xs text-primary hover:underline"
+              className="font-body text-xs"
             >
               Módulo: {moduleLabel(logModule, logModule)} ✕
-            </button>
+            </LinkButton>
           )}
         </div>
         {logs.data && logs.data.data.length === 0 && (

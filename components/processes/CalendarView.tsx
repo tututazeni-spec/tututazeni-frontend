@@ -50,6 +50,7 @@ import type {
   CalendarResponse,
   InstanceFilterOptions,
 } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 export interface CalendarViewProps {
   canManage: boolean;
@@ -433,13 +434,13 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
               className="w-48"
             />
             {responsibleId && (
-              <button
+              <LinkButton
                 type="button"
                 onClick={() => setResponsibleId('')}
-                className="font-body text-xs text-primary hover:underline"
+                className="font-body text-xs"
               >
                 Limpar
-              </button>
+              </LinkButton>
             )}
           </div>
         )}
@@ -541,13 +542,13 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
                       <Chip key={it.key} item={it} onClick={() => open(it)} />
                     ))}
                     {(overflow > 0 || expanded) && (
-                      <button
+                      <LinkButton
                         type="button"
                         onClick={() => setExpandedDay(expanded ? null : k)}
-                        className="px-1 text-left font-body text-[11px] text-primary hover:underline"
+                        className="px-1 text-left font-body text-[11px]"
                       >
                         {expanded ? 'Ver menos' : `+${overflow} mais`}
-                      </button>
+                      </LinkButton>
                     )}
                   </div>
                 </div>
