@@ -50,7 +50,7 @@ export function BeneficiariesShell({ children }: { children: ReactNode }) {
       action={
         <Link
           href={`${BASE}/novo`}
-          className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#0F1F3D] px-5 py-3 font-body text-sm font-semibold text-white shadow-lg transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F1F3D]/40"
+          className="inline-flex shrink-0 items-center gap-2 rounded-card bg-brand px-5 py-3 font-body text-sm font-semibold text-white shadow-lg transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
         >
           <UserPlus size={16} strokeWidth={2} />
           Novo Beneficiário

@@ -166,7 +166,7 @@ export function DistributionList({
   return (
     <Card>
       {navyHeader && (
-        <div className="bg-[#0F1F3D]/60 px-4 py-3">
+        <div className="bg-brand/60 px-4 py-3">
           <h3 className="font-body text-sm font-semibold text-white">
             {title}
           </h3>

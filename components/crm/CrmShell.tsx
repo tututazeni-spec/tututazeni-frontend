@@ -65,7 +65,7 @@ export function CrmShell({
           // Mesmo desenho do banner de app/(platform)/courses/page.tsx: o
           // gradiente #0F1F3D só cobre a metade inferior (o ecrã com o título,
           // à esquerda, fica intacto) e a navegação sobe 2rem para cima da foto.
-          <header className="relative h-44 overflow-hidden rounded-3xl shadow-[0_8px_32px_rgba(15,31,61,0.18)] sm:h-56">
+          <header className="relative h-44 overflow-hidden rounded-panel shadow-[0_8px_32px_rgba(15,31,61,0.18)] sm:h-56">
             <Image
               src={banner}
               alt=""
@@ -76,11 +76,11 @@ export function CrmShell({
             />
             <div
               aria-hidden
-              className="absolute inset-0 bg-gradient-to-t from-[#0F1F3D]/90 via-[#0F1F3D]/35 to-transparent"
+              className="absolute inset-0 bg-gradient-to-t from-brand/90 via-brand/35 to-transparent"
             />
             <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 pb-10 sm:px-7">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white">
+                <div className="flex h-11 w-11 items-center justify-center rounded-panel bg-white/20 text-white">
                   <ActiveIcon
                     size={22}
                     strokeWidth={1.8}
@@ -99,7 +99,7 @@ export function CrmShell({
               {/* O botão de acção é azul-escuro; sobre o gradiente passa a branco
                   e, ao passar o cursor, inverte (azul-escuro com letra branca).
                   A borda branca mantém o contorno visível sobre o gradiente. */}
-              <div className="[&_a]:border [&_a]:border-white [&_a]:!bg-white [&_a]:!text-[#0F1F3D] [&_a]:transition-colors [&_a:hover]:!bg-[#0F1F3D] [&_a:hover]:!text-white [&_a:hover]:!opacity-100 [&_a:hover]:!brightness-100">
+              <div className="[&_a]:border [&_a]:border-white [&_a]:!bg-white [&_a]:!text-brand [&_a]:transition-colors [&_a:hover]:!bg-brand [&_a:hover]:!text-white [&_a:hover]:!opacity-100 [&_a:hover]:!brightness-100">
                 {action}
               </div>
             </div>
@@ -107,7 +107,7 @@ export function CrmShell({
         ) : (
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="flex h-11 w-11 items-center justify-center rounded-panel bg-primary/10 text-primary">
                 <ActiveIcon
                   size={22}
                   strokeWidth={1.8}
@@ -154,7 +154,7 @@ export function CrmShell({
             <div className="relative">
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl"
+                className="pointer-events-none absolute inset-0 overflow-hidden rounded-panel"
               >
                 <div className="absolute -left-16 top-0 h-40 w-72 rounded-full bg-primary/20 blur-3xl" />
                 <div className="absolute -right-10 bottom-0 h-40 w-72 rounded-full bg-primary/15 blur-3xl" />
@@ -162,7 +162,7 @@ export function CrmShell({
 
               <nav
                 aria-label={`Navegação de ${title.toLowerCase()}`}
-                className="relative rounded-3xl border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl"
+                className="relative rounded-panel border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl"
               >
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   {items.map((item) => {
@@ -176,7 +176,7 @@ export function CrmShell({
                         className={cn(
                           'flex items-center gap-3 whitespace-nowrap rounded-full border py-2 pl-2 pr-4 text-left font-body backdrop-blur transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
                           on
-                            ? 'border-transparent bg-[#0F1F3D] text-white shadow-lg'
+                            ? 'border-transparent bg-brand text-white shadow-lg'
                             : 'border-white/70 bg-white/60 text-ink shadow-sm duration-200 hover:scale-105 hover:border-primary hover:bg-white/80 hover:shadow-md motion-reduce:hover:scale-100',
                         )}
                       >
