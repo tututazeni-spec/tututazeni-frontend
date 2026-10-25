@@ -138,6 +138,15 @@ body {
   --color-brand-soft: #eef1f7;
   --color-brand-muted: #49658a;
   --color-brand-line: #e3eaf4;
+  /* superfícies escuras de marca (heróis, cartões navy) e o texto que vive nelas */
+  --color-brand-deep: #071d3b;
+  --color-brand-mid: #0b3a75;
+  --color-brand-dark: #0a2a57;
+  --color-brand-edge: #1e3a66;
+  --color-on-brand: #cfe3ff;
+  --color-on-brand-muted: #c7d4e8;
+  --color-on-brand-faint: #9db4d3;
+  --color-on-brand-accent: #7cc4ff;
 
   /* semântica de estado */
   --color-success: #2f9e63;
