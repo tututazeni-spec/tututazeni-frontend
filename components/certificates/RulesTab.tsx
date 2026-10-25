@@ -32,6 +32,7 @@ import type {
   RuleCriteria,
   TemplateSummaryRow,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface FormState {
   activityKind: 'COURSE' | 'EVENT';
@@ -147,9 +148,9 @@ interface CheckProps {
 function Check({ id, label, checked, onChange }: CheckProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
