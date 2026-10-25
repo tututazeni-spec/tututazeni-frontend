@@ -22,6 +22,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { DashboardSnapshot } from './types';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 export function SnapshotsView() {
   const notify = useToast();
@@ -86,7 +87,7 @@ export function SnapshotsView() {
             {data.map((s) => (
               <TableRow key={s.id}>
                 <TableCell>
-                  {new Date(s.generatedAt).toLocaleString('pt-PT')}
+                  {formatDateTimeNumeric(s.generatedAt)}
                 </TableCell>
                 <TableCell>{s.department?.name ?? 'Organização'}</TableCell>
                 <TableCell>{s.totalUsers}</TableCell>

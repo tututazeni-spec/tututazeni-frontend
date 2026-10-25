@@ -33,6 +33,7 @@ import { CreateFormalEvaluationModal } from './CreateFormalEvaluationModal';
 import { FormalEvaluationResultsPanel } from './FormalEvaluationResultsPanel';
 import { FormalEvaluationsParticipantView } from './FormalEvaluationsParticipantView';
 import type { FormalEvaluation } from './formalEvaluationTypes';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 const STATUS_INTENT: Record<string, BadgeProps['intent']> = {
   DRAFT: 'neutral',
@@ -141,7 +142,7 @@ function ManagementView() {
                 {e.availableUntil && (
                   <span className="inline-flex items-center gap-1">
                     <Timer size={12} strokeWidth={1.75} />
-                    Até {new Date(e.availableUntil).toLocaleString('pt-PT')}
+                    Até {formatDateTimeNumeric(e.availableUntil)}
                   </span>
                 )}
               </div>

@@ -45,6 +45,7 @@ import type {
   ScheduleStatus,
   ScheduleType,
 } from './types';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 const ALL = '__all__';
 
@@ -80,7 +81,7 @@ const MISSED_ITEMS = [
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 const fmt = (iso?: string | null) =>
-  iso ? new Date(iso).toLocaleString('pt') : '–';
+  iso ? formatDateTimeNumeric(iso) : '–';
 
 function describe(s: AutomationSchedule) {
   switch (s.type) {

@@ -9,6 +9,7 @@ import { ChevronDown, Star } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { CATEGORY_COLOR } from './constants';
 import type { TimelineEvent } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 interface EventCardProps {
   event: TimelineEvent;
@@ -26,7 +27,7 @@ export function EventCard({ event, compact = false }: EventCardProps) {
         <div className="flex-1 min-w-0">
           <p className="text-xs font-medium text-ink truncate">{event.title}</p>
           <p className="text-micro text-ink-faint">
-            {new Date(event.timestamp).toLocaleDateString('pt')}
+            {formatDateNumeric(event.timestamp)}
           </p>
         </div>
         {event.milestone && (

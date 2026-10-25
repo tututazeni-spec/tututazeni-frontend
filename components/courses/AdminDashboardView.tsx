@@ -34,6 +34,7 @@ import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton, fmtDuration } from './shared';
 import type { AdminDashboard } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateNumeric } from '@/lib/format';
 
 interface AdminDashboardViewProps {
   onSelect: (id: number) => void;
@@ -413,7 +414,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
               >
                 <span className="min-w-0 break-words">{c.title}</span>
                 <span className="text-ink-faint flex-shrink-0">
-                  {new Date(c.endDate).toLocaleDateString('pt')}
+                  {formatDateNumeric(c.endDate)}
                 </span>
               </div>
             ))

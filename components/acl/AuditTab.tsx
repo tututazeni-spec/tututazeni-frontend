@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/ui/Pagination';
 import type { AclAuditResponse } from './types';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 export function AuditTab() {
   const [view, setView] = useState<'all' | 'denied'>('all');
@@ -94,7 +95,7 @@ export function AuditTab() {
                   )}
                 </div>
                 <span className="shrink-0 text-ink-faint text-micro">
-                  {new Date(log.timestamp).toLocaleString('pt')}
+                  {formatDateTimeNumeric(log.timestamp)}
                 </span>
               </div>
             );

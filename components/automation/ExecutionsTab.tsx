@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { ExecutionsResponse } from './types';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 const STATUS_INTENT: Record<string, BadgeProps['intent']> = {
   SUCCESS: 'success',
@@ -134,7 +135,7 @@ export function ExecutionsTab({
                 {STATUS_LABEL[e.status] ?? e.status}
               </Badge>
               <span className="shrink-0 font-body text-micro text-ink-faint">
-                {e.startedAt ? new Date(e.startedAt).toLocaleString('pt') : '–'}
+                {e.startedAt ? formatDateTimeNumeric(e.startedAt) : '–'}
               </span>
               {e.status === 'FAILED' && (
                 <Button

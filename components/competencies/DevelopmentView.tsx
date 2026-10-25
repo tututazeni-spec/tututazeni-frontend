@@ -34,6 +34,7 @@ import {
 import { useCompetencyOptions, type DirectoryUser } from './modelFormData';
 import { UserFilterSearch } from './UserFilterSearch';
 import type { CompetencyDevelopmentAction } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 const ALL = 'ALL';
 
@@ -185,12 +186,12 @@ export function DevelopmentView() {
                 </TableCell>
                 <TableCell className="text-xs text-ink-muted">
                   {r.dataInicio
-                    ? new Date(r.dataInicio).toLocaleDateString('pt')
+                    ? formatDateNumeric(r.dataInicio)
                     : '—'}
                 </TableCell>
                 <TableCell className="text-xs text-ink-muted">
                   {r.dataPrevistaConclusao
-                    ? new Date(r.dataPrevistaConclusao).toLocaleDateString('pt')
+                    ? formatDateNumeric(r.dataPrevistaConclusao)
                     : '—'}
                 </TableCell>
                 <TableCell>

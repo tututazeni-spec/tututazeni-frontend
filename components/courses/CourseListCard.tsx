@@ -43,6 +43,7 @@ import type {
   CourseType,
   EnrollmentStatus,
 } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 /** Campos do curso que o cartão usa — comum a `Course` e `MyEnrollment.course`. */
 export interface CourseCardData {
@@ -262,7 +263,7 @@ export function CourseListCard({
         {c.publishedAt !== undefined && (
           <Metric icon={CalendarDays}>
             {c.publishedAt
-              ? new Date(c.publishedAt).toLocaleDateString('pt')
+              ? formatDateNumeric(c.publishedAt)
               : '—'}
           </Metric>
         )}

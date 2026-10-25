@@ -22,13 +22,9 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import type { CustomHoliday } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { formatIsoDay } from '@/lib/format';
 
 const NATIONAL = '__national__';
-
-const fmtDate = (iso: string) => {
-  const [y, m, d] = iso.split('-');
-  return `${d}/${m}/${y}`;
-};
 
 export function HolidaysPanel() {
   const notify = useToast();
@@ -94,7 +90,7 @@ export function HolidaysPanel() {
     if (
       !(await confirm({
         title: 'Suprimir este feriado?',
-        message: `"${h.name}" (${fmtDate(h.date)}) deixa de contar como feriado${
+        message: `"${h.name}" (${formatIsoDay(h.date)}) deixa de contar como feriado${
           loc ? ` em ${loc}` : ''
         }. Pode repor removendo a supressão.`,
         confirmLabel: 'Suprimir',
@@ -205,7 +201,7 @@ export function HolidaysPanel() {
                 <div className="min-w-0">
                   <span className="text-sm text-ink">{h.name}</span>
                   <span className="ml-2 text-xs text-ink-faint">
-                    {fmtDate(h.date)}
+                    {formatIsoDay(h.date)}
                   </span>
                   {h.source === 'CUSTOM' && (
                     <span className="ml-2 rounded-control bg-info-subtle px-1.5 py-0.5 text-micro font-semibold text-info-ink">
@@ -248,7 +244,7 @@ export function HolidaysPanel() {
                 <div className="min-w-0 text-sm text-ink">
                   {c.active ? c.name : `Suprimido: ${c.name}`}
                   <span className="ml-2 text-xs text-ink-faint">
-                    {fmtDate(c.date)}
+                    {formatIsoDay(c.date)}
                     {c.recurring ? ' · anual' : ''}
                     {c.location ? ` · ${c.location}` : ' · nacional'}
                   </span>

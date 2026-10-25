@@ -23,11 +23,7 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
-
-const fmtDate = (iso: string) => {
-  const [y, m, d] = iso.slice(0, 10).split('-');
-  return `${d}/${m}/${y}`;
-};
+import { formatIsoDay } from '@/lib/format';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -221,7 +217,7 @@ export function DelegationsPanel() {
                   <span className="text-ink-faint"> → </span>
                   <span className="font-medium">{r.delegateName ?? '—'}</span>
                   <span className="ml-2 text-xs text-ink-faint">
-                    {fmtDate(r.startDate)} a {fmtDate(r.endDate)}
+                    {formatIsoDay(r.startDate)} a {formatIsoDay(r.endDate)}
                     {r.reason ? ` · ${r.reason}` : ''}
                     {!r.active ? ' · revogada' : ''}
                   </span>

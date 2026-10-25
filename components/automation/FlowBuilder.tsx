@@ -64,6 +64,7 @@ import type {
   ValidationResult,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 // Prioridade do spec → inteiro do backend (menor corre primeiro).
 const PRIORITY_ITEMS = [
@@ -857,7 +858,7 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
                   <Badge intent="info" dot={false}>
                     v{v.version}
                   </Badge>
-                  <span>{new Date(v.publishedAt).toLocaleString('pt')}</span>
+                  <span>{formatDateTimeNumeric(v.publishedAt)}</span>
                   <span className="text-ink-muted">
                     {v.publishedByName ?? ''}
                   </span>

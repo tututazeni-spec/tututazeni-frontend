@@ -11,13 +11,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useSettingsHistory } from '@/hooks/useLeave';
 import { SETTING_LABELS } from './settingsMeta';
-import { formatDateNumeric } from '@/lib/format';
-
-const fmtTime = (iso: string) =>
-  new Date(iso).toLocaleString('pt-PT', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  });
+import { formatDateNumeric, formatDateTimeShort } from '@/lib/format';
 
 export function SettingsHistoryPanel() {
   const { data, loading } = useSettingsHistory(true);
@@ -56,7 +50,7 @@ export function SettingsHistoryPanel() {
             </div>
             <p className="mt-1 text-xs text-ink-faint">
               {h.createdByName ?? `Utilizador #${h.createdById}`} ·{' '}
-              {fmtTime(h.createdAt)}
+              {formatDateTimeShort(h.createdAt)}
             </p>
             {h.changedKeys.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">

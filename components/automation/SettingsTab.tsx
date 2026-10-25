@@ -24,6 +24,7 @@ import { PermissionsPanel } from './SettingsPermissions';
 import { DeadLettersPanel, SecurityPanel } from './SettingsSecurity';
 import type { AutomationSettings } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 type Section = 'limits' | 'permissions' | 'retries' | 'security';
 
@@ -333,7 +334,7 @@ function LimitsPanel() {
       <div className="flex items-center justify-between gap-3">
         <p className="font-body text-xs text-ink-muted">
           {data?.updatedAt
-            ? `Última alteração: ${new Date(data.updatedAt).toLocaleString('pt')}`
+            ? `Última alteração: ${formatDateTimeNumeric(data.updatedAt)}`
             : 'A usar os valores por omissão.'}
           {' · '}A política de tentativas (intervalo e número) define-se em cada
           automação, no Construtor de Fluxos.

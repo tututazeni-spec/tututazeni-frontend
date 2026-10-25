@@ -34,6 +34,7 @@ import type {
   TemplateOption,
 } from './reportTypes';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 const FREQUENCY_LABEL: Record<ScheduleFrequency, string> = {
   WEEKLY: 'Semanal',
@@ -82,7 +83,7 @@ function roleName(u: UserOption): string | null {
 }
 
 function when(iso: string | null) {
-  return iso ? new Date(iso).toLocaleString('pt-PT') : '—';
+  return iso ? formatDateTimeNumeric(iso) : '—';
 }
 
 function ScheduleForm({ onDone }: { onDone: () => void }) {

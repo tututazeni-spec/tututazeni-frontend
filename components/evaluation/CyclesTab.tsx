@@ -33,6 +33,7 @@ import {
 import { CreateCycleModal } from './CreateCycleModal';
 import { MODEL_LABEL, STATUS_MAP } from './constants';
 import type { Cycle } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 const CYCLE_TONE: Record<string, NavyTone> = {
   DRAFT: 'neutral',
@@ -132,11 +133,11 @@ export function CyclesTab() {
               kickerIcon={ClipboardList}
               title={cycle.name}
               subtitle={[
-                `${new Date(cycle.startDate).toLocaleDateString('pt')} → ${new Date(cycle.endDate).toLocaleDateString('pt')}`,
+                `${formatDateNumeric(cycle.startDate)} → ${formatDateNumeric(cycle.endDate)}`,
                 cycle.selfEvalDueDate &&
-                  `Autoavaliação até ${new Date(cycle.selfEvalDueDate).toLocaleDateString('pt')}`,
+                  `Autoavaliação até ${formatDateNumeric(cycle.selfEvalDueDate)}`,
                 cycle.managerEvalDueDate &&
-                  `Gestor até ${new Date(cycle.managerEvalDueDate).toLocaleDateString('pt')}`,
+                  `Gestor até ${formatDateNumeric(cycle.managerEvalDueDate)}`,
               ]
                 .filter(Boolean)
                 .join(' · ')}
@@ -158,7 +159,7 @@ export function CyclesTab() {
                 },
                 {
                   icon: Calendar,
-                  value: new Date(cycle.startDate).toLocaleDateString('pt'),
+                  value: formatDateNumeric(cycle.startDate),
                   label: 'Início',
                 },
                 {

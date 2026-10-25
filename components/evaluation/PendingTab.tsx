@@ -52,6 +52,7 @@ import type {
   EvaluationRequestRow,
   ReceivedEvaluation,
 } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 function ManagerQueue() {
   const { data: me } = useCurrentUser();
@@ -128,7 +129,7 @@ function ManagerQueue() {
                 {
                   icon: isOverdue ? AlertTriangle : AlarmClock,
                   value: r.dueDate
-                    ? new Date(r.dueDate).toLocaleDateString('pt')
+                    ? formatDateNumeric(r.dueDate)
                     : '—',
                   label: 'Prazo',
                   danger: isOverdue,
@@ -244,7 +245,7 @@ function MyPendingList() {
               {
                 icon: isOverdue ? AlertTriangle : AlarmClock,
                 value: r.dueDate
-                  ? new Date(r.dueDate).toLocaleDateString('pt')
+                  ? formatDateNumeric(r.dueDate)
                   : '—',
                 label: 'Prazo',
                 danger: isOverdue,
@@ -351,7 +352,7 @@ function MyCompletedAndFeedback() {
                   {r.overallScore.toFixed(1)}
                 </TableCell>
                 <TableCell className="text-ink-faint">
-                  {new Date(r.createdAt).toLocaleDateString('pt')}
+                  {formatDateNumeric(r.createdAt)}
                 </TableCell>
               </TableRow>
             ))}
@@ -383,7 +384,7 @@ function MyCompletedAndFeedback() {
                       {r.evaluator.fullName}
                     </span>
                     <span className="text-xs text-ink-faint">
-                      · {new Date(r.createdAt).toLocaleDateString('pt')}
+                      · {formatDateNumeric(r.createdAt)}
                     </span>
                   </div>
                   {r.strengths && (

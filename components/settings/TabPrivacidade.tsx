@@ -31,7 +31,7 @@ import type {
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { formatDateNumeric } from '@/lib/format';
+import { formatDateNumeric, formatDateTimeNumeric } from '@/lib/format';
 
 const DSR_TYPE_LABELS: Record<DsrType, string> = {
   ACCESS: 'Acesso',
@@ -381,7 +381,7 @@ export function TabPrivacidade() {
                         Versão {v.version}
                       </span>
                       <span>
-                        {new Date(v.publishedAt).toLocaleString('pt-PT')}
+                        {formatDateTimeNumeric(v.publishedAt)}
                       </span>
                     </div>
                     <p className="m-0 whitespace-pre-wrap text-brand">

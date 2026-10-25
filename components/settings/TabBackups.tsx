@@ -29,7 +29,7 @@ import { pollInterval } from '@/lib/polling';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { formatBytes } from '@/lib/format';
+import { formatBytes, formatDateTimeNumeric } from '@/lib/format';
 
 const FREQUENCY_ITEMS = [
   { value: 'DAILY', label: 'Diária' },
@@ -90,7 +90,7 @@ const TRIGGER_LABEL: Record<BackupRunRow['trigger'], string> = {
 };
 
 const fmtDate = (s: string | null) =>
-  s ? new Date(s).toLocaleString('pt-PT') : '—';
+  s ? formatDateTimeNumeric(s) : '—';
 
 export function TabBackups() {
   const toast = useToast();

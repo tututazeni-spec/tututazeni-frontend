@@ -23,7 +23,7 @@ import { AlertCard } from '@/components/ui/AlertCard';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { formatDateNumeric } from '@/lib/format';
+import { formatDateNumeric, formatDateTimeNumeric } from '@/lib/format';
 
 interface RawDeletedCycle {
   id: string;
@@ -148,7 +148,7 @@ return (
               Criado por #{c.createdBy} em {formatDateNumeric(c.createdAt)}
             </span>
             <span>
-              Eliminado em {new Date(c.deletedAt).toLocaleString('pt-PT')}
+              Eliminado em {formatDateTimeNumeric(c.deletedAt)}
               {c.deletedById ? ` por #${c.deletedById}` : ''}
             </span>
             {c.competencies.length > 0 && (

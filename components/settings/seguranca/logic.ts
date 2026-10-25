@@ -4,6 +4,7 @@
 // histórico de logins. Extraído de TabSeguranca.tsx.
 
 import type { TwoFactorMode } from '../types';
+import { formatDateTimeNumeric } from '@/lib/format';
 
 export type ToastFn = (msg: string, type: 'success' | 'error') => void;
 
@@ -14,7 +15,7 @@ export const TWO_FACTOR_LABELS: Record<TwoFactorMode, string> = {
 };
 
 export const fmtDate = (iso: string): string =>
-  new Date(iso).toLocaleString('pt-PT');
+  formatDateTimeNumeric(iso);
 
 // ── Senha ───────────────────────────────────────────────────────────────────
 

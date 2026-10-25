@@ -15,6 +15,7 @@ import { STATUS_COLORS, TYPE_LABELS } from './types';
 import type { PartnerDetail } from './types';
 import { safeHref } from '@/lib/safeHref';
 import { LinkButton } from '@/components/ui/LinkButton';
+import { formatMoney } from '@/lib/format';
 
 interface PartnerDetailViewProps {
   partner: PartnerDetail;
@@ -86,7 +87,7 @@ export function PartnerDetailView({
             label="Valor anual"
             value={
               p.annualValue
-                ? `${p.currency} ${p.annualValue.toLocaleString('pt-AO')}`
+                ? formatMoney(p.annualValue, p.currency)
                 : '—'
             }
           />

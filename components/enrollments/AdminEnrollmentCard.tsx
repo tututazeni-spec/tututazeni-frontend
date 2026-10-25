@@ -8,7 +8,7 @@
 import type { ReactNode } from 'react';
 import { GraduationCap, type LucideIcon } from 'lucide-react';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
-import { initials } from '@/components/courses/NavyCard';
+import { getInitials } from '@/lib/format';
 
 export type AdminEnrollmentTone =
   'success' | 'danger' | 'warning' | 'info' | 'neutral';
@@ -88,7 +88,7 @@ export function AdminEnrollmentCard({
           />
         ) : (
           <span className="ml-8 text-5xl font-extrabold text-white/90">
-            {initials(avatar.name)}
+            {getInitials(avatar.name, '?')}
           </span>
         )}
       </div>

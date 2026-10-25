@@ -35,6 +35,7 @@ import type {
   OneOnOneMinutes,
 } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateNumeric } from '@/lib/format';
 
 export interface EvaluationDetailModalProps {
   requestId: number;
@@ -261,7 +262,7 @@ export function EvaluationDetailModal({
                   <p className="text-xs text-ink-faint">Prazo</p>
                   <p className="text-ink">
                     {data.dueDate
-                      ? new Date(data.dueDate).toLocaleDateString('pt')
+                      ? formatDateNumeric(data.dueDate)
                       : '—'}
                   </p>
                 </div>

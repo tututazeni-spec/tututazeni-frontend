@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { Card } from '@/components/ui/Card';
 import type { AclStats, MyPermissions } from './types';
+import { formatTime } from '@/lib/format';
 
 export function OverviewTab() {
   const statsQ = useApiQuery<AclStats>(queryKeys.acl.stats(), '/acl/stats', {
@@ -141,7 +142,7 @@ export function OverviewTab() {
                   {JSON.parse(d.changes ?? '{}').subject ?? d.entity}
                 </span>
                 <span className="ml-auto text-ink-faint">
-                  {new Date(d.timestamp).toLocaleTimeString('pt')}
+                  {formatTime(d.timestamp)}
                 </span>
               </div>
             ))}

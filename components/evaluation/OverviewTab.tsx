@@ -48,6 +48,7 @@ import type {
   OverviewDashboard,
 } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateNumeric } from '@/lib/format';
 
 const DIST_CONFIG = [
   { key: 'exceptional', label: 'Excepcional', bg: 'bg-success' },
@@ -188,7 +189,7 @@ function OrganizationOverview() {
                   </span>
                   <span className="text-xs text-ink-faint">
                     {d.dueDate
-                      ? new Date(d.dueDate).toLocaleDateString('pt')
+                      ? formatDateNumeric(d.dueDate)
                       : '—'}
                   </span>
                 </div>
@@ -310,7 +311,7 @@ export function OverviewTab({ userId }: OverviewTabProps) {
                 </div>
                 {r.dueDate && (
                   <span className="text-xs text-warning-ink font-medium shrink-0">
-                    {new Date(r.dueDate).toLocaleDateString('pt')}
+                    {formatDateNumeric(r.dueDate)}
                   </span>
                 )}
                 <ChevronRight

@@ -37,16 +37,9 @@ import type {
   LoadTestVerdict,
   LoadTestsData,
 } from './types';
+import { formatDateTimeShort } from '@/lib/format';
 
 type Intent = 'danger' | 'warning' | 'info' | 'success' | 'neutral';
-
-function dateTime(iso: string | null): string {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleString('pt-PT', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  });
-}
 
 // ─── §20 Testes de Carga ───────────────────────────────────
 
@@ -562,7 +555,7 @@ export function LoadTestsTab({
           value={last ? labelOf(TYPES, last.type) : '—'}
           sub={
             last
-              ? `${dateTime(last.finishedAt)}${last.verdict ? ` · ${VERDICT[last.verdict].label}` : ''}`
+              ? `${formatDateTimeShort(last.finishedAt)}${last.verdict ? ` · ${VERDICT[last.verdict].label}` : ''}`
               : undefined
           }
         />
@@ -628,7 +621,7 @@ export function LoadTestsTab({
                         <span className="block text-micro text-ink-faint">
                           {labelOf(TYPES, t.type)}
                           {t.appVersion ? ` · v${t.appVersion}` : ''} ·{' '}
-                          {dateTime(
+                          {formatDateTimeShort(
                             t.finishedAt ?? t.scheduledAt ?? t.createdAt,
                           )}
                         </span>

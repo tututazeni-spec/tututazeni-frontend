@@ -53,6 +53,7 @@ import type {
   ExecutiveTrendPoint,
 } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateNumeric } from '@/lib/format';
 
 const PERIODS = [
   { id: 'WEEK', label: 'Semana' },
@@ -402,7 +403,7 @@ export function OrgDashboard() {
           </Button>
         ))}
         <span className="ml-auto self-center font-body text-xs text-ink-faint">
-          {new Date().toLocaleDateString('pt')}
+          {formatDateNumeric(new Date())}
         </span>
       </div>
 

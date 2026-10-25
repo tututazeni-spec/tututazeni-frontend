@@ -29,15 +29,9 @@ import type {
   ThresholdField,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { formatDateTimeShort } from '@/lib/format';
 
 const MAX_PREVIEW_ROWS = 50;
-
-function dateTime(iso: string): string {
-  return new Date(iso).toLocaleString('pt-PT', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  });
-}
 
 function cellText(v: ReportCell): string {
   if (v === null || v === undefined || v === '') return '—';
@@ -138,7 +132,7 @@ export function ReportsTab({
                 {report.title}
               </h3>
               <p className="font-body text-xs text-ink-faint">
-                Gerado em {dateTime(report.generatedAt)}
+                Gerado em {formatDateTimeShort(report.generatedAt)}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -536,7 +530,7 @@ function SettingsForm({ data, canEdit, saving, onSave }: SettingsFormProps) {
       {data.activeMaintenance && (
         <Badge intent="warning" dot={false}>
           Janela de manutenção activa: {data.activeMaintenance.name} (até{' '}
-          {dateTime(data.activeMaintenance.endsAt)}) — sem alertas novos.
+          {formatDateTimeShort(data.activeMaintenance.endsAt)}) — sem alertas novos.
         </Badge>
       )}
       {error && (

@@ -20,6 +20,7 @@ import { useFormState } from '@/hooks/useFormState';
 import { EMPTY_MILESTONE_FORM, MILESTONE_COLORS } from './types';
 import type { PartnerDetail } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatMoney } from '@/lib/format';
 
 const PRIORITY_ITEMS = [
   { value: 'LOW', label: 'Baixa' },
@@ -139,7 +140,7 @@ export function MilestonesSection({
                   <p className="font-body text-xs text-ink-faint mt-1">
                     Prazo: {formatDate(m.dueDate)}
                     {m.value
-                      ? ` · ${m.currency} ${m.value.toLocaleString('pt-AO')}`
+                      ? ` · ${formatMoney(m.value, m.currency)}`
                       : ''}
                   </p>
                 </div>

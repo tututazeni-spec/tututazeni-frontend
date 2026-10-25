@@ -21,6 +21,7 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { ApiKeyItem, CreateApiKeyResponse } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 export function ApiKeysTab() {
   const notify = useToast();
@@ -161,7 +162,7 @@ export function ApiKeysTab() {
               {k.expiresAt && (
                 <span className="flex shrink-0 items-center gap-1 font-body text-micro text-ink-faint">
                   <Clock size={14} strokeWidth={1.75} />
-                  {new Date(k.expiresAt).toLocaleDateString('pt')}
+                  {formatDateNumeric(k.expiresAt)}
                 </span>
               )}
               <div className="flex shrink-0 gap-1">

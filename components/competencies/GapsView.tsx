@@ -28,9 +28,10 @@ import {
   usePositionOptions,
   type DirectoryUser,
 } from './modelFormData';
-import { avatarColor, initials } from './EvaluationsView';
+import { avatarColor } from './EvaluationsView';
 import { UserFilterSearch } from './UserFilterSearch';
 import type { CompetencyGap } from './types';
+import { getInitials, formatDateNumeric } from '@/lib/format';
 
 const ALL = '';
 
@@ -189,7 +190,7 @@ export function GapsView() {
                           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
                           style={{ backgroundColor: avatarColor(r.colaborador) }}
                         >
-                          {initials(r.colaborador)}
+                          {getInitials(r.colaborador, '?')}
                         </span>
                       )}
                       <div className="min-w-0">
@@ -229,7 +230,7 @@ export function GapsView() {
                     <StatusBadge value={r.impacto} map={GAP_IMPACT_CFG} />
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-on-brand">
-                    {new Date(r.dataIdentificacao).toLocaleDateString('pt')}
+                    {formatDateNumeric(r.dataIdentificacao)}
                   </td>
                   <td className="px-4 py-3 text-xs text-on-brand">
                     {r.planoDesenvolvimentoAssociado?.name ?? '—'}

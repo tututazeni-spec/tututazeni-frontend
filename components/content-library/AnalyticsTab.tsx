@@ -24,6 +24,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { FORMAT_CLS, FORMAT_CLS_FALLBACK } from './constants';
 import type { ContentAnalytics } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateNumeric } from '@/lib/format';
 
 // Espelha @Roles(...) em GET /documents/compliance-overview.
 const COMPLIANCE_ROLES = ['ADMIN', 'RH', 'DIRECTOR'];
@@ -161,7 +162,7 @@ export function AnalyticsTab() {
                     {c.title}
                   </p>
                   <p className="shrink-0 font-body text-micro text-ink-faint">
-                    {new Date(c.createdAt).toLocaleDateString('pt')}
+                    {formatDateNumeric(c.createdAt)}
                   </p>
                 </div>
               ))}
