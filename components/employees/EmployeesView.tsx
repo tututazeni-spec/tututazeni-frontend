@@ -19,6 +19,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useCallback, useState } from 'react';
+import { EmptyState } from '@/components/ui/EmptyState';
 import {
   AlertCircle,
   Download,
@@ -348,27 +349,16 @@ export function EmployeesView() {
               ))
             )}
             {!loading && data?.data.length === 0 && (
-              <div className="col-span-full flex flex-col items-center justify-center py-20 text-ink-faint">
-                <Users
-                  size={48}
-                  strokeWidth={1.75}
-                  className="mb-4 opacity-30"
-                />
-                <p className="text-lg font-medium">
-                  Nenhum colaborador encontrado
-                </p>
-                <p className="text-sm mt-1">
-                  Tente ajustar os filtros ou adicione um novo colaborador
-                </p>
-                <Button
-                  intent="secondary"
-                  className="mt-4"
-                  onClick={() => setShowCreate(true)}
-                >
-                  <UserPlus size={16} strokeWidth={1.75} /> Adicionar
-                  Colaborador
-                </Button>
-              </div>
+              <EmptyState
+                className="col-span-full"
+                icon={Users}
+                title="Nenhum colaborador encontrado"
+                description="Tente ajustar os filtros ou adicione um novo colaborador"
+                action={{
+                  label: 'Adicionar colaborador',
+                  onClick: () => setShowCreate(true),
+                }}
+              />
             )}
           </div>
         )}
@@ -405,14 +395,11 @@ export function EmployeesView() {
                     colSpan={LIST_COLUMNS.length}
                     className="py-16 text-center"
                   >
-                    <div className="flex flex-col items-center justify-center text-ink-faint">
-                      <Users
-                        size={40}
-                        strokeWidth={1.75}
-                        className="mb-3 opacity-30"
-                      />
-                      <p className="text-sm font-medium">Nenhum resultado</p>
-                    </div>
+                    <EmptyState
+                      variant="inline"
+                      icon={Users}
+                      title="Nenhum resultado"
+                    />
                   </TableCell>
                 </TableRow>
               ) : (
