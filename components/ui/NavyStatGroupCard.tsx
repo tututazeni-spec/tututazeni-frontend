@@ -25,7 +25,7 @@ export function NavyStatGroupCard({
   items: NavyStatGroupItem[];
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)]">
+    <div className="overflow-hidden rounded-panel border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)]">
       <div className="flex h-[60px] items-center bg-[#152F59] px-4">
         <h3 className="font-body text-[15px] font-semibold leading-tight text-white">
           {title}

@@ -23,7 +23,7 @@ export function PdfDownloadButton({
       <button
         onClick={download}
         disabled={loading}
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-canvas text-sm font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition ${className}`}
+        className={`inline-flex items-center gap-2 px-4 py-2 rounded-control bg-primary text-canvas text-sm font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition ${className}`}
       >
         {loading ? (
           <>

@@ -17,7 +17,7 @@ export interface TopBarCardProps {
 export function TopBarCard({ label, value, tone, icon }: TopBarCardProps) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-xl bg-white shadow-md transition-shadow duration-200 hover:shadow-lg">
+    <div className="overflow-hidden rounded-card bg-white shadow-md transition-shadow duration-200 hover:shadow-lg">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5">
         <div className={t.text}>{icon}</div>

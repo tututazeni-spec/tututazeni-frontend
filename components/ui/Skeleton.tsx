@@ -18,7 +18,7 @@ interface SkeletonProps {
 export function Skeleton({
   rows = 3,
   wrapperClassName = 'space-y-3 animate-pulse',
-  itemClassName = 'h-12 bg-surface-sunken rounded-xl',
+  itemClassName = 'h-12 bg-surface-sunken rounded-card',
 }: SkeletonProps) {
   return (
     <div className={wrapperClassName}>
