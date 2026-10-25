@@ -291,3 +291,12 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   UPDATE: 'Alterado',
   TEST: 'Testado',
 };
+
+/** Classes da bolha de cada tipo de interacção na conversa da sala. */
+export const BUBBLE: Record<string, string> = {
+  AVATAR_MESSAGE: 'bg-primary-subtle text-ink self-start',
+  FEEDBACK: 'bg-info-subtle text-info-ink self-start',
+  USER_MESSAGE: 'bg-surface-sunken text-ink self-end',
+  USER_ANSWER: 'bg-surface-sunken text-ink self-end',
+  HELP_REQUEST: 'bg-surface-sunken text-ink self-end',
+};
