@@ -167,7 +167,7 @@ export function TabIntegracoes() {
     <form onSubmit={submit} className="grid grid-cols-2 gap-4">
       {o && (
         <Card className="col-span-2 overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Resumo
           </div>
           <CardBody>
@@ -224,7 +224,7 @@ export function TabIntegracoes() {
 
       {/* SMTP */}
       <Card className="col-span-2 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Email (SMTP)
         </div>
         <CardBody>
@@ -336,7 +336,7 @@ export function TabIntegracoes() {
 
       {/* WhatsApp */}
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           <span className="flex items-center gap-2">
             <WhatsAppIcon />
             WhatsApp (só envio)
@@ -451,7 +451,7 @@ export function TabIntegracoes() {
 
       {/* Ísis (IA) */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Ísis (IA)
         </div>
         <CardBody>

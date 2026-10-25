@@ -87,7 +87,7 @@ export function TabLicenca() {
   return (
     <div className="space-y-4">
       {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
             Plano actual
@@ -156,7 +156,7 @@ export function TabLicenca() {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Módulos activos
         </div>
         <CardBody>

@@ -63,7 +63,8 @@ function permissionLabel(name: string): string {
 
 export function TabPermissoes({ user }: TabPermissoesProps) {
   const permissions = user.role?.permissions ?? [];
-  const canManageRoles = user.role?.name === 'ADMIN' || user.role?.name === 'RH';
+  const canManageRoles =
+    user.role?.name === 'ADMIN' || user.role?.name === 'RH';
 
   const grouped = permissions.reduce(
     (acc, p) => {
@@ -78,9 +79,9 @@ export function TabPermissoes({ user }: TabPermissoesProps) {
   return (
     <div className="grid grid-cols-2 gap-4">
       {/* Role info */}
-      <div className="col-span-2 overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="col-span-2 overflow-hidden rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="flex items-center gap-4">
-          <div className="w-13 h-13 flex flex-shrink-0 items-center justify-center rounded-xl bg-white/15 text-xl font-bold text-[#7CC4FF]">
+          <div className="w-13 h-13 flex flex-shrink-0 items-center justify-center rounded-card bg-white/15 text-xl font-bold text-[#7CC4FF]">
             {user.role?.name?.charAt(0) ?? '?'}
           </div>
           <div>

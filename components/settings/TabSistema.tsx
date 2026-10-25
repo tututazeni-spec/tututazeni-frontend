@@ -129,7 +129,7 @@ export function TabSistema() {
     <div className="space-y-4">
       {/* Estado */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Estado do sistema
         </div>
         <CardBody>
@@ -199,7 +199,7 @@ export function TabSistema() {
 
       {/* Filas */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Filas e jobs
         </div>
         <CardBody>
@@ -278,7 +278,7 @@ export function TabSistema() {
       <form onSubmit={submit} className="space-y-4">
         {/* Manutenção */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Manutenção
           </div>
           <CardBody>
@@ -330,7 +330,7 @@ export function TabSistema() {
 
         {/* Limites */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Limites e parâmetros técnicos
           </div>
           <CardBody>

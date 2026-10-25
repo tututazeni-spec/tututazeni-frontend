@@ -27,7 +27,7 @@ export function TwoFactorCardView({ ctl }: { ctl: TwoFactorController }) {
   if (isLoading) return null;
 
   return (
-    <Card className="overflow-hidden border-0 bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+    <Card className="overflow-hidden border-0 bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
       {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
       <div className="px-5 pt-4">
         <div className="flex items-center justify-between gap-3">
@@ -99,7 +99,7 @@ export function TwoFactorCardView({ ctl }: { ctl: TwoFactorController }) {
             <div className="flex gap-2">
               <Button
                 intent="primary"
-                className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
+                className="border-white bg-white text-brand hover:bg-white/90"
                 disabled={pending.enable || !codeComplete}
                 onClick={enable}
               >
@@ -117,7 +117,7 @@ export function TwoFactorCardView({ ctl }: { ctl: TwoFactorController }) {
         ) : (
           <Button
             intent="primary"
-            className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
+            className="border-white bg-white text-brand hover:bg-white/90"
             disabled={pending.setup}
             onClick={startSetup}
           >

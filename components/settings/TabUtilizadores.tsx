@@ -222,7 +222,7 @@ export function TabUtilizadores() {
 
       <form onSubmit={submit} className="grid grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Campos obrigatórios na criação
           </div>
           <CardBody>
@@ -245,7 +245,7 @@ export function TabUtilizadores() {
         </Card>
 
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Regras de criação e convite
           </div>
           <CardBody>
@@ -333,7 +333,7 @@ export function TabUtilizadores() {
       </form>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Utilizadores inactivos
           {inactive.data && (
             <Badge intent={inactive.data.total ? 'warning' : 'success'}>

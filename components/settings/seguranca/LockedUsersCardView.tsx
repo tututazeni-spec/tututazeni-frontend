@@ -12,7 +12,7 @@ export function LockedUsersCardView({ ctl }: { ctl: LockedUsersController }) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         Contas bloqueadas
         {total !== undefined && (
           <Badge intent={total ? 'danger' : 'success'}>{total}</Badge>
@@ -30,7 +30,7 @@ export function LockedUsersCardView({ ctl }: { ctl: LockedUsersController }) {
             {items.map((u) => (
               <div
                 key={u.id}
-                className="flex items-center justify-between rounded-lg border border-border p-3 text-sm"
+                className="flex items-center justify-between rounded-control border border-border p-3 text-sm"
               >
                 <div>
                   <p className="m-0 font-medium text-ink">{u.fullName}</p>

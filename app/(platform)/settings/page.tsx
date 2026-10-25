@@ -50,7 +50,7 @@ export default function SettingsPage() {
 
   if (error)
     return (
-      <div className="bg-danger-subtle border border-danger rounded-lg p-6 text-danger-ink text-sm">
+      <div className="bg-danger-subtle border border-danger rounded-control p-6 text-danger-ink text-sm">
         {error === 'Unauthorized' || error.includes('401')
           ? 'Sessão expirada. Faz login novamente.'
           : error}

@@ -17,7 +17,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
     <div className="grid grid-cols-2 gap-4">
       {/* Cartão principal */}
       {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
-      <div className="col-span-2 overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="col-span-2 overflow-hidden rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="flex items-center gap-5">
           {/* Avatar */}
           <AvatarUploader
@@ -65,7 +65,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
 
       {/* Info organizacional */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Informação Organizacional
         </div>
         <CardBody>
@@ -101,7 +101,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
 
       {/* Badges */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Distintivos Recentes
         </div>
         <CardBody>
@@ -114,7 +114,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
               {user.badgeAwards.map((b, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 p-3 bg-accent-subtle rounded-lg border border-accent"
+                  className="flex items-center gap-3 p-3 bg-accent-subtle rounded-control border border-accent"
                 >
                   <span className="text-xl"></span>
                   <div className="flex-1">

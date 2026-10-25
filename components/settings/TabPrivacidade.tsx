@@ -237,7 +237,7 @@ export function TabPrivacidade() {
         ].map(([label, value]) => (
           <div
             key={String(label)}
-            className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
+            className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
           >
             <p className="m-0 text-xs uppercase tracking-wider text-white/70">
               {label}
@@ -251,7 +251,7 @@ export function TabPrivacidade() {
 
       <form onSubmit={submit} className="grid grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Encarregado de protecção de dados
           </div>
           <CardBody>
@@ -286,7 +286,7 @@ export function TabPrivacidade() {
         </Card>
 
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Retenção e tratamento de dados
           </div>
           <CardBody>
@@ -336,8 +336,8 @@ export function TabPrivacidade() {
         </div>
       </form>
 
-      <Card className="overflow-hidden rounded-[24px] border-[#E3EAF4] shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+      <Card className="overflow-hidden rounded-[24px] border-brand-line shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Texto de consentimento
           <div className="flex gap-2">
             <Button
@@ -355,7 +355,7 @@ export function TabPrivacidade() {
         </div>
         <CardBody>
           {current ? (
-            <div className="whitespace-pre-wrap rounded-[24px] border border-[#E3EAF4] bg-white p-5 text-[15px] leading-relaxed text-[#0F1F3D] shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div className="whitespace-pre-wrap rounded-[24px] border border-brand-line bg-white p-5 text-[15px] leading-relaxed text-brand shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
               {current.text}
             </div>
           ) : (
@@ -373,17 +373,17 @@ export function TabPrivacidade() {
                 versions.data.map((v) => (
                   <div
                     key={v.version}
-                    className="rounded-[16px] border border-[#E3EAF4] bg-white p-3 text-xs"
+                    className="rounded-[16px] border border-brand-line bg-white p-3 text-xs"
                   >
                     <div className="mb-1 flex items-center justify-between text-ink-faint">
-                      <span className="font-semibold text-[#0F1F3D]">
+                      <span className="font-semibold text-brand">
                         Versão {v.version}
                       </span>
                       <span>
                         {new Date(v.publishedAt).toLocaleString('pt-PT')}
                       </span>
                     </div>
-                    <p className="m-0 whitespace-pre-wrap text-[#0F1F3D]">
+                    <p className="m-0 whitespace-pre-wrap text-brand">
                       {v.text}
                     </p>
                   </div>
@@ -395,7 +395,7 @@ export function TabPrivacidade() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Pedidos de direitos dos titulares
           <div className="flex items-center gap-2">
             <Select

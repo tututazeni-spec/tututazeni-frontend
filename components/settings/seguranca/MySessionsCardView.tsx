@@ -11,7 +11,7 @@ export function MySessionsCardView({ ctl }: { ctl: MySessionsController }) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
         As minhas sessões activas
       </div>
       <CardBody>
@@ -26,7 +26,7 @@ export function MySessionsCardView({ ctl }: { ctl: MySessionsController }) {
             {items.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between rounded-lg border border-border p-3 text-sm"
+                className="flex items-center justify-between rounded-control border border-border p-3 text-sm"
               >
                 <div>
                   <p className="m-0 text-ink">

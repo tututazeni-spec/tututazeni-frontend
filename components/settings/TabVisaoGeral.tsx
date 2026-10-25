@@ -182,7 +182,7 @@ export function TabVisaoGeral() {
   return (
     <form onSubmit={submit} className="grid grid-cols-2 gap-4">
       <Card className="col-span-2 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Identidade
         </div>
         <CardBody>
@@ -245,7 +245,7 @@ export function TabVisaoGeral() {
       </Card>
 
       <Card className="col-span-2 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Dados da empresa e contactos
         </div>
         <CardBody>
@@ -314,7 +314,7 @@ export function TabVisaoGeral() {
       </Card>
 
       <Card className="col-span-2 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Formatos regionais
         </div>
         <CardBody>
@@ -379,7 +379,7 @@ export function TabVisaoGeral() {
       </Card>
 
       <Card className="col-span-2 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Formato de email dos utilizadores
         </div>
         <CardBody>

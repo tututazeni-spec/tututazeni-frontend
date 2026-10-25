@@ -21,7 +21,7 @@ export function AllSessionsCardView({ ctl }: { ctl: OrgSessionsController }) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         Sessões activas (organização)
         {total !== undefined && <Badge intent="info">{total}</Badge>}
       </div>
