@@ -27,6 +27,7 @@ import {
   type RequirementCategory,
 } from '@/components/career/types';
 import type { PositionDetail } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 type SectionKey = RequirementCategory | 'HARD_SKILL' | 'SOFT_SKILL';
 
@@ -394,8 +395,7 @@ export function PositionRequirementsPanel({
                   )}
                   {!isComp && (
                     <label className="flex items-center gap-2 font-body text-xs text-brand/70">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={form.mandatory}
                         onChange={(e) =>
                           setForm((f) => ({
@@ -403,7 +403,6 @@ export function PositionRequirementsPanel({
                             mandatory: e.target.checked,
                           }))
                         }
-                        className="h-4 w-4 rounded border-border-strong accent-primary"
                       />
                       Obrigatório (desmarcar = diferencial)
                     </label>

@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { PaginatedDepts } from './types';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 
 // Mesma grelha no cabeçalho e nos cartões para as colunas alinharem.
 const GRID =
@@ -79,18 +80,17 @@ export function ListView({ onSelect }: ListViewProps) {
           }}
           className="min-w-[160px] flex-1"
         />
-        <select
+        <NativeSelect
           value={activeFilter}
           onChange={(e) => {
             setActiveFilter(e.target.value);
             setPage(1);
           }}
-          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todos os estados</option>
           <option value="true">Activos</option>
           <option value="false">Inactivos</option>
-        </select>
+        </NativeSelect>
       </div>
 
       {/* Tabela */}

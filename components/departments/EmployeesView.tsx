@@ -32,6 +32,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { DepartmentNode, PaginatedEmployees } from './types';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 
 function flattenTree(
   nodes: DepartmentNode[],
@@ -180,13 +181,12 @@ export function EmployeesView() {
           }}
           className="min-w-[160px] flex-1"
         />
-        <select
+        <NativeSelect
           value={departmentId}
           onChange={(e) => {
             setDepartmentId(e.target.value);
             setPage(1);
           }}
-          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todos os departamentos</option>
           {deptItems.map((d) => (
@@ -194,14 +194,13 @@ export function EmployeesView() {
               {d.label}
             </option>
           ))}
-        </select>
-        <select
+        </NativeSelect>
+        <NativeSelect
           value={contractType}
           onChange={(e) => {
             setContractType(e.target.value);
             setPage(1);
           }}
-          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todos os vínculos</option>
           {Object.entries(CONTRACT_LABELS).map(([value, label]) => (
@@ -209,19 +208,18 @@ export function EmployeesView() {
               {label}
             </option>
           ))}
-        </select>
-        <select
+        </NativeSelect>
+        <NativeSelect
           value={activeFilter}
           onChange={(e) => {
             setActiveFilter(e.target.value);
             setPage(1);
           }}
-          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todos os estados</option>
           <option value="true">Activos</option>
           <option value="false">Inactivos</option>
-        </select>
+        </NativeSelect>
         <span className="text-sm text-ink-faint">
           {data?.total ?? 0} colaboradores
         </span>
