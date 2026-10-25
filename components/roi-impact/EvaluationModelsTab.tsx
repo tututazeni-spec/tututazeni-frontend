@@ -74,7 +74,7 @@ export function EvaluationModelsTab() {
     return (
       <Skeleton
         rows={3}
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="h-24 rounded-card bg-surface-sunken"
       />
     );

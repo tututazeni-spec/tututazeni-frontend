@@ -103,7 +103,7 @@ export function BenchmarksTab() {
         {loadingInternal ? (
           <Skeleton
             rows={2}
-            wrapperClassName="space-y-2 animate-pulse"
+            wrapperClassName="space-y-2"
             itemClassName="h-14 rounded-card bg-surface-sunken"
           />
         ) : (internal?.totalAnalyses ?? 0) === 0 ? (
@@ -224,7 +224,7 @@ export function BenchmarksTab() {
             {loading ? (
               <Skeleton
                 rows={3}
-                wrapperClassName="space-y-2 p-4 animate-pulse"
+                wrapperClassName="space-y-2 p-4"
                 itemClassName="h-12 rounded-card bg-surface-sunken"
               />
             ) : benchmarks.length === 0 ? (

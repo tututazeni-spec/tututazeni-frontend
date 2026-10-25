@@ -121,7 +121,7 @@ export function RoiAnalysisTab() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="h-14 rounded-card bg-surface-sunken"
       />
     );

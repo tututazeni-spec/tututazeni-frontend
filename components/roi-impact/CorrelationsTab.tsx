@@ -111,7 +111,7 @@ export function CorrelationsTab() {
         {loadingDefs ? (
           <Skeleton
             rows={3}
-            wrapperClassName="space-y-3 p-4 animate-pulse"
+            wrapperClassName="space-y-3 p-4"
             itemClassName="h-12 rounded-card bg-surface-sunken"
           />
         ) : (
@@ -138,7 +138,7 @@ export function CorrelationsTab() {
           {loadingHistory ? (
             <Skeleton
               rows={4}
-              wrapperClassName="space-y-3 p-4 animate-pulse"
+              wrapperClassName="space-y-3 p-4"
               itemClassName="h-12 rounded-card bg-surface-sunken"
             />
           ) : correlations.length === 0 ? (

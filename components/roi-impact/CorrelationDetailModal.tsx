@@ -44,7 +44,7 @@ export function CorrelationDetailModal({
         {isLoading || !data ? (
           <Skeleton
             rows={4}
-            wrapperClassName="space-y-3 animate-pulse"
+            wrapperClassName="space-y-3"
             itemClassName="h-10 rounded-card bg-surface-sunken"
           />
         ) : (
