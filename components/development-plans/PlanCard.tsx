@@ -16,11 +16,12 @@ import {
   PALETTE,
   headerBackground,
 } from '@/components/onboarding/TemplateCard';
-import { PHOTO_CARD_ACTION, PhotoCard } from '@/components/courses/PhotoCard';
+import { PhotoCard } from '@/components/courses/PhotoCard';
 import { formatDate as fmtDate } from '@/lib/format';
 import { STATUS_CFG, PRIORITY_CFG } from './constants';
 import { isOverdue } from './utils';
 import type { Plan } from './types';
+import { Button } from '@/components/ui/Button';
 
 // Cor própria do PDI (mesma do cartão e do detalhe), escolhida pelo
 // utilizador e pelo id — estável entre renders.
@@ -100,15 +101,16 @@ export function PlanCard({ plan, onClick, onDelete }: PlanCardProps) {
       ]}
       actions={
         onDelete ? (
-          <button
+          <Button
             type="button"
-            className={PHOTO_CARD_ACTION}
+            intent="onDarkGhost"
+            size="icon"
             aria-label="Apagar PDI"
             title="Apagar PDI"
             onClick={onDelete}
           >
             <Trash2 size={15} strokeWidth={1.75} />
-          </button>
+          </Button>
         ) : undefined
       }
       progress={{ value: pct, label: 'Progresso' }}
