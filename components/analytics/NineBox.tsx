@@ -29,14 +29,14 @@ const LABELS: Record<string, string> = {
 
 const STYLES: Record<string, { bar: string; text: string; bg: string }> = {
   '3-3': { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]', bg: 'bg-[#C9A227]/5' }, // dourado — alto potencial
-  '2-3': { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]', bg: 'bg-[#2E8B3E]/5' }, // verde — potencial emergente
+  '2-3': { bar: 'bg-success', text: 'text-success', bg: 'bg-success/5' }, // verde — potencial emergente
   '1-3': { bar: 'bg-[#7C3AED]', text: 'text-[#7C3AED]', bg: 'bg-[#7C3AED]/5' }, // roxo — enigma
   '3-2': { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]', bg: 'bg-[#2B6CC4]/5' }, // azul — profissional
   '2-2': { bar: 'bg-[#0E9394]', text: 'text-[#0E9394]', bg: 'bg-[#0E9394]/5' }, // teal — núcleo sólido
   '1-2': { bar: 'bg-[#DB2777]', text: 'text-[#DB2777]', bg: 'bg-[#DB2777]/5' }, // rosa — inconsistente
   '3-1': { bar: 'bg-[#0D9488]', text: 'text-[#0D9488]', bg: 'bg-[#0D9488]/5' }, // verde-azulado — especialista
   '2-1': { bar: 'bg-[#D97706]', text: 'text-[#D97706]', bg: 'bg-[#D97706]/5' }, // laranja — eficiente limitado
-  '1-1': { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]', bg: 'bg-[#C0453F]/5' }, // vermelho — alto risco
+  '1-1': { bar: 'bg-danger', text: 'text-danger', bg: 'bg-danger/5' }, // vermelho — alto risco
 };
 
 export function NineBox({ data }: NineBoxProps) {
