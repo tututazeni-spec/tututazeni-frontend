@@ -7,7 +7,13 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ArrowLeft, FlaskConical, LayoutGrid, Save, Unlink } from 'lucide-react';
+import {
+  ArrowLeft,
+  FlaskConical,
+  LayoutGrid,
+  Save,
+  Unlink,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -40,7 +46,11 @@ export interface WorkflowBuilderProps {
   onBack: () => void;
 }
 
-export function WorkflowBuilder({ processId, canEdit, onBack }: WorkflowBuilderProps) {
+export function WorkflowBuilder({
+  processId,
+  canEdit,
+  onBack,
+}: WorkflowBuilderProps) {
   const { data, isLoading, error } = useApiQuery<Process>(
     queryKeys.processes.detail(processId),
     `/processes/${processId}`,
@@ -65,20 +75,23 @@ export function WorkflowBuilder({ processId, canEdit, onBack }: WorkflowBuilderP
   );
 }
 
-function BuilderInner({
-  process,
-  canEdit,
-  onBack,
-}: {
+interface BuilderInnerProps {
   process: Process;
   canEdit: boolean;
   onBack: () => void;
-}) {
+}
+
+function BuilderInner({ process, canEdit, onBack }: BuilderInnerProps) {
   const notify = useToast();
   const readOnly = !canEdit || process.status !== 'DRAFT';
-  const [nodes, setNodes] = useState<FlowNode[]>(() => nodesFromSteps(process.steps));
+  const [nodes, setNodes] = useState<FlowNode[]>(() =>
+    nodesFromSteps(process.steps),
+  );
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [selectedEdge, setSelectedEdge] = useState<{ from: string; to: string } | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<{
+    from: string;
+    to: string;
+  } | null>(null);
   const [dirty, setDirty] = useState(false);
   const [testing, setTesting] = useState(false);
 
@@ -96,8 +109,15 @@ function BuilderInner({
     for (const n of nodes) {
       const human = HUMAN_TYPES.includes(n.type);
       if (!n.title.trim()) out.add(n.key);
-      if (human && !n.responsibleId && !n.responsibleRole.trim()) out.add(n.key);
-      if (n.type === 'REVIEW' && !n.approverIds.some(Boolean) && !n.responsibleId && !n.responsibleRole.trim() && !n.reviewerId) {
+      if (human && !n.responsibleId && !n.responsibleRole.trim())
+        out.add(n.key);
+      if (
+        n.type === 'REVIEW' &&
+        !n.approverIds.some(Boolean) &&
+        !n.responsibleId &&
+        !n.responsibleRole.trim() &&
+        !n.reviewerId
+      ) {
         out.add(n.key);
       }
     }
@@ -124,7 +144,10 @@ function BuilderInner({
     const target = nodes.find((n) => n.key === to);
     if (!target || target.deps.includes(from)) return;
     if (wouldCycle(nodes, from, to)) {
-      notify({ title: 'Essa ligação criaria um ciclo infinito', intent: 'danger' });
+      notify({
+        title: 'Essa ligação criaria um ciclo infinito',
+        intent: 'danger',
+      });
       return;
     }
     patchNode(to, { deps: [...target.deps, from] });
@@ -133,7 +156,8 @@ function BuilderInner({
   const toggleDep = (nodeKey: string, depKey: string) => {
     const n = nodes.find((x) => x.key === nodeKey);
     if (!n) return;
-    if (n.deps.includes(depKey)) patchNode(nodeKey, { deps: n.deps.filter((d) => d !== depKey) });
+    if (n.deps.includes(depKey))
+      patchNode(nodeKey, { deps: n.deps.filter((d) => d !== depKey) });
     else connect(depKey, nodeKey);
   };
 
@@ -146,10 +170,20 @@ function BuilderInner({
           deps: n.deps.filter((d) => d !== key),
           // condições que apontavam para o bloco removido deixam de fazer sentido
           entry: n.entry
-            ? { ...n.entry, rows: n.entry.rows.filter((r) => !r.field.startsWith(`step:${key}.`)) }
+            ? {
+                ...n.entry,
+                rows: n.entry.rows.filter(
+                  (r) => !r.field.startsWith(`step:${key}.`),
+                ),
+              }
             : null,
           exit: n.exit
-            ? { ...n.exit, rows: n.exit.rows.filter((r) => !r.field.startsWith(`step:${key}.`)) }
+            ? {
+                ...n.exit,
+                rows: n.exit.rows.filter(
+                  (r) => !r.field.startsWith(`step:${key}.`),
+                ),
+              }
             : null,
         }))
         .map((n) => ({
@@ -164,13 +198,16 @@ function BuilderInner({
   const removeEdge = () => {
     if (!selectedEdge) return;
     patchNode(selectedEdge.to, {
-      deps: (nodes.find((n) => n.key === selectedEdge.to)?.deps ?? []).filter((d) => d !== selectedEdge.from),
+      deps: (nodes.find((n) => n.key === selectedEdge.to)?.deps ?? []).filter(
+        (d) => d !== selectedEdge.from,
+      ),
     });
     setSelectedEdge(null);
   };
 
   const save = useApiMutation(
-    (steps: unknown[]) => apiClient.put<Process>(`/processes/${process.id}`, { steps }),
+    (steps: unknown[]) =>
+      apiClient.put<Process>(`/processes/${process.id}`, { steps }),
     {
       invalidateKeys: [queryKeys.processes.all],
       onSuccess: () => {
@@ -181,7 +218,11 @@ function BuilderInner({
     },
   );
 
-  const canSave = !readOnly && dirty && nodes.length > 0 && nodes.every((n) => n.title.trim());
+  const canSave =
+    !readOnly &&
+    dirty &&
+    nodes.length > 0 &&
+    nodes.every((n) => n.title.trim());
   const doSave = () => save.mutate(stepsToServer(nodes));
 
   return (
@@ -192,20 +233,35 @@ function BuilderInner({
           Modelos
         </Button>
         <div className="min-w-0">
-          <div className="truncate font-display text-lg font-semibold text-ink">{process.title}</div>
+          <div className="truncate font-display text-lg font-semibold text-ink">
+            {process.title}
+          </div>
           <div className="font-mono text-xs text-ink-faint">
             {process.code} · v{process.version}
           </div>
         </div>
-        <StatusBadge value={process.status} map={PROCESS_STATUS_MAP} variant="dot" />
+        <StatusBadge
+          value={process.status}
+          map={PROCESS_STATUS_MAP}
+          variant="dot"
+        />
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {!readOnly && (
             <>
-              <Button intent="ghost" size="sm" onClick={() => edit((p) => autoLayout(p, true))}>
+              <Button
+                intent="ghost"
+                size="sm"
+                onClick={() => edit((p) => autoLayout(p, true))}
+              >
                 <LayoutGrid size={14} strokeWidth={1.75} />
                 Organizar
               </Button>
-              <Button intent="ghost" size="sm" onClick={removeEdge} disabled={!selectedEdge}>
+              <Button
+                intent="ghost"
+                size="sm"
+                onClick={removeEdge}
+                disabled={!selectedEdge}
+              >
                 <Unlink size={14} strokeWidth={1.75} />
                 Remover ligação
               </Button>
@@ -222,7 +278,12 @@ function BuilderInner({
             Testar fluxo
           </Button>
           {!readOnly && (
-            <Button size="sm" onClick={doSave} loading={save.isPending} disabled={!canSave}>
+            <Button
+              size="sm"
+              onClick={doSave}
+              loading={save.isPending}
+              disabled={!canSave}
+            >
               <Save size={14} strokeWidth={1.75} />
               Guardar
             </Button>
@@ -284,7 +345,8 @@ function BuilderInner({
           )}
           {flagged.size > 0 && (
             <p className="mt-2 font-body text-xs text-warning-ink">
-              {flagged.size} bloco(s) com pendências (sem nome, responsável ou aprovador).
+              {flagged.size} bloco(s) com pendências (sem nome, responsável ou
+              aprovador).
             </p>
           )}
         </div>
@@ -304,7 +366,11 @@ function BuilderInner({
       </div>
 
       {testing && (
-        <FlowTestModal processId={process.id} steps={process.steps} onClose={() => setTesting(false)} />
+        <FlowTestModal
+          processId={process.id}
+          steps={process.steps}
+          onClose={() => setTesting(false)}
+        />
       )}
     </div>
   );

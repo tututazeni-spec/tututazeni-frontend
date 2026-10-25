@@ -264,15 +264,13 @@ function StepCard({
   );
 }
 
-function ActionFields({
-  step,
-  patch,
-  ruleOptions,
-}: {
+interface ActionFieldsProps {
   step: FlowActionStep;
   patch: (p: Partial<FlowStep>) => void;
   ruleOptions: { value: string; label: string }[];
-}) {
+}
+
+function ActionFields({ step, patch, ruleOptions }: ActionFieldsProps) {
   const setParam = (key: string, value: unknown) =>
     patch({ params: { ...step.params, [key]: value } });
   const str = (key: string) => (step.params[key] as string | undefined) ?? '';
@@ -451,6 +449,16 @@ function DelayFields({
   );
 }
 
+interface ConditionFieldsProps {
+  step: FlowConditionStep;
+  patch: (p: Partial<FlowStep>) => void;
+  root: FlowStep[];
+  path: ListPath;
+  index: number;
+  onChange: (steps: FlowStep[]) => void;
+  ruleOptions: { value: string; label: string }[];
+}
+
 function ConditionFields({
   step,
   patch,
@@ -459,15 +467,7 @@ function ConditionFields({
   index,
   onChange,
   ruleOptions,
-}: {
-  step: FlowConditionStep;
-  patch: (p: Partial<FlowStep>) => void;
-  root: FlowStep[];
-  path: ListPath;
-  index: number;
-  onChange: (steps: FlowStep[]) => void;
-  ruleOptions: { value: string; label: string }[];
-}) {
+}: ConditionFieldsProps) {
   const setRow = (i: number, p: Partial<FlowConditionStep['rows'][number]>) =>
     patch({ rows: step.rows.map((r, k) => (k === i ? { ...r, ...p } : r)) });
 

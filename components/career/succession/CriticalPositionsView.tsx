@@ -55,17 +55,14 @@ const DEV_PLAN_STATUS_LABEL: Record<string, string> = {
   OVERDUE: 'Atrasado',
 };
 
-function ScoreBar({
-  label,
-  value,
-  color,
-  tint,
-}: {
+interface ScoreBarProps {
   label: string;
   value: number | null;
   color: string;
   tint: string;
-}) {
+}
+
+function ScoreBar({ label, value, color, tint }: ScoreBarProps) {
   return (
     <div className="rounded-lg px-3 py-2" style={{ backgroundColor: tint }}>
       <div className="mb-1 flex items-center justify-between font-body text-xs font-semibold text-[#0F1F3D]">

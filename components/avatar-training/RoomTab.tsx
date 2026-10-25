@@ -214,19 +214,21 @@ function DictateButton({
   );
 }
 
+interface StepPanelProps {
+  step: RoomStep;
+  disabled: boolean;
+  language: string;
+  onAnswer: (answer: string) => void;
+  onAdvance: () => void;
+}
+
 function StepPanel({
   step,
   disabled,
   language,
   onAnswer,
   onAdvance,
-}: {
-  step: RoomStep;
-  disabled: boolean;
-  language: string;
-  onAnswer: (answer: string) => void;
-  onAdvance: () => void;
-}) {
+}: StepPanelProps) {
   const [text, setText] = useState('');
   const q = step.question;
   const options =
@@ -326,15 +328,13 @@ function useElapsed(attempt: Room['attempt']) {
   return `${mm}:${ss}`;
 }
 
-function AvatarHeader({
-  room,
-  voice,
-  elapsed,
-}: {
+interface AvatarHeaderProps {
   room: Room;
   voice: RoomVoice;
   elapsed: string;
-}) {
+}
+
+function AvatarHeader({ room, voice, elapsed }: AvatarHeaderProps) {
   const avatar = room.session.avatar;
   return (
     <div className="flex items-center gap-3 rounded-card border border-border bg-surface p-3">
@@ -892,17 +892,19 @@ function RoomView({
   );
 }
 
-export function RoomTab({
-  only,
-  emptyTitle = 'Sem sessões atribuídas',
-  variant = 'photo',
-}: {
+export interface RoomTabProps {
   /** photo = design "cursos criados" (Sala); navy = design "inscrições" (Simulações). */
   variant?: 'photo' | 'navy';
   /** Restringe a lista a certos tipos de experiência (ex.: Simulações). */
   only?: readonly ExperienceType[];
   emptyTitle?: string;
-} = {}) {
+}
+
+export function RoomTab({
+  only,
+  emptyTitle = 'Sem sessões atribuídas',
+  variant = 'photo',
+}: RoomTabProps = {}) {
   const notify = useToast();
   const [attemptId, setAttemptId] = useState<number | null>(null);
   const { data, isLoading, error, refetch } = useApiQuery<MyAssignment[]>(

@@ -15,20 +15,22 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { useDirectoryUsers, type DirectoryUser } from './departmentFormData';
 
-export function DepartmentUserPicker({
-  label,
-  htmlFor,
-  value,
-  onChange,
-  excludeId,
-}: {
+export interface DepartmentUserPickerProps {
   label: string;
   htmlFor: string;
   value: DirectoryUser | null;
   onChange: (u: DirectoryUser | null) => void;
   /** Não mostrar este utilizador nos resultados. */
   excludeId?: number;
-}) {
+}
+
+export function DepartmentUserPicker({
+  label,
+  htmlFor,
+  value,
+  onChange,
+  excludeId,
+}: DepartmentUserPickerProps) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
   const { users, loading } = useDirectoryUsers(

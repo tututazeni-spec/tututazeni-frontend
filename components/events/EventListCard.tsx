@@ -27,15 +27,17 @@ import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { STATUS_CFG, TYPE_CFG } from './constants';
 import type { Event } from './types';
 
+export interface MetricProps {
+  icon: LucideIcon;
+  iconClassName?: string;
+  children: React.ReactNode;
+}
+
 export function Metric({
   icon: Icon,
   iconClassName = 'text-[#49658A]',
   children,
-}: {
-  icon: LucideIcon;
-  iconClassName?: string;
-  children: React.ReactNode;
-}) {
+}: MetricProps) {
   return (
     <div className="flex items-center gap-2 px-3 text-[15px] text-[#0F1F3D] first:pl-0 last:pr-0">
       <Icon
@@ -48,18 +50,20 @@ export function Metric({
   );
 }
 
-export function InfoRow({
-  icon: Icon,
-  leading,
-  accent,
-  children,
-}: {
+export interface InfoRowProps {
   icon?: LucideIcon;
   /** Substitui o ícone (ex.: avatar do utilizador). */
   leading?: React.ReactNode;
   accent: string;
   children: React.ReactNode;
-}) {
+}
+
+export function InfoRow({
+  icon: Icon,
+  leading,
+  accent,
+  children,
+}: InfoRowProps) {
   return (
     <div className="flex items-center gap-3 rounded-[14px] bg-[#EEF4FD] px-4 py-3 text-[15px] text-[#0F1F3D]">
       {leading ??
@@ -97,16 +101,14 @@ function Fact({
   );
 }
 
-export function EventListCard({
-  event: e,
-  onOpen,
-  menu,
-}: {
+export interface EventListCardProps {
   event: Event;
   onOpen: () => void;
   /** Itens do menu de acções (DropdownMenuItem); omitido = sem menu. */
   menu?: React.ReactNode;
-}) {
+}
+
+export function EventListCard({ event: e, onOpen, menu }: EventListCardProps) {
   const palette = PALETTE[Math.abs(e.id) % PALETTE.length];
   const typeCfg = TYPE_CFG[e.type] ?? TYPE_CFG.CORPORATE;
   const TypeIcon = typeCfg.icon;

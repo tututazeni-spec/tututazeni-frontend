@@ -56,16 +56,18 @@ const EXERCISE_TYPES: Array<{
   { id: 'STUDY_PLAN', label: 'Plano de estudo', hasCount: false },
 ];
 
+interface ExerciseFeedbackBoxProps {
+  exerciseType: 'OPEN_QUESTION' | 'PRACTICAL_CASE' | 'SCENARIO';
+  question: string;
+  modelAnswer?: string;
+}
+
 /** Caixa de resposta livre com feedback de IA — para tipos sem correcção automática. */
 function ExerciseFeedbackBox({
   exerciseType,
   question,
   modelAnswer,
-}: {
-  exerciseType: 'OPEN_QUESTION' | 'PRACTICAL_CASE' | 'SCENARIO';
-  question: string;
-  modelAnswer?: string;
-}) {
+}: ExerciseFeedbackBoxProps) {
   const [answer, setAnswer] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

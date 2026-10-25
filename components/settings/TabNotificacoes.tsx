@@ -34,17 +34,14 @@ const HOURS = Array.from({ length: 24 }, (_, h) => ({
   label: `${String(h).padStart(2, '0')}:00`,
 }));
 
-function Toggle({
-  id,
-  label,
-  checked,
-  onChange,
-}: {
+interface ToggleProps {
   id: string;
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-}) {
+}
+
+function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
       <input
@@ -144,9 +141,7 @@ export function TabNotificacoes() {
       <Card className="overflow-hidden">
         <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Templates das mensagens
-          {data && (
-            <Badge intent="info">{data.activeTemplates} activos</Badge>
-          )}
+          {data && <Badge intent="info">{data.activeTemplates} activos</Badge>}
         </div>
         <CardBody>
           <p className="text-sm text-ink-muted">

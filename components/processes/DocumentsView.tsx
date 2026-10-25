@@ -85,6 +85,16 @@ const ASSIGNED_ITEMS = [
   { value: 'mine', label: 'Anexados por mim' },
 ];
 
+interface SummaryTileProps {
+  icon: LucideIcon;
+  tone: NavyStatTone;
+  iconTone?: NavyIconTone;
+  label: string;
+  value: number;
+  active: boolean;
+  onClick: () => void;
+}
+
 function SummaryTile({
   icon,
   tone,
@@ -93,15 +103,7 @@ function SummaryTile({
   value,
   active,
   onClick,
-}: {
-  icon: LucideIcon;
-  tone: NavyStatTone;
-  iconTone?: NavyIconTone;
-  label: string;
-  value: number;
-  active: boolean;
-  onClick: () => void;
-}) {
+}: SummaryTileProps) {
   return (
     <button
       type="button"

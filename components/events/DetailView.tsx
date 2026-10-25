@@ -65,19 +65,17 @@ const TABS = [
   { id: 'participants', label: 'Participantes', Icon: Users },
 ] as const;
 
+interface RatingRowProps {
+  label: string;
+  value: number;
+  onChange: (n: number) => void;
+}
+
 // Linha de estrelas 1-5 reutilizada pelos vários aspectos do formulário de
 // avaliação (docs/events.md #10: organização/conteúdo/local/oradores/
 // logística/comunicação/participaria novamente) — evita repetir o markup
 // de botões 8 vezes.
-function RatingRow({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  onChange: (n: number) => void;
-}) {
+function RatingRow({ label, value, onChange }: RatingRowProps) {
   return (
     <div className="flex items-center justify-between gap-3">
       <span className="font-body text-xs text-ink-muted">{label}</span>

@@ -42,6 +42,15 @@ const INDICATOR_OPTIONS = [
   'Tempo até à produtividade plena',
 ];
 
+interface ListOrManualProps {
+  id: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  placeholder: string;
+  manualPlaceholder: string;
+}
+
 /** Lista de opções com a possibilidade de escrever o valor manualmente. */
 function ListOrManual({
   id,
@@ -50,14 +59,7 @@ function ListOrManual({
   options,
   placeholder,
   manualPlaceholder,
-}: {
-  id: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: string[];
-  placeholder: string;
-  manualPlaceholder: string;
-}) {
+}: ListOrManualProps) {
   const [manual, setManual] = useState(
     value !== '' && !options.includes(value),
   );

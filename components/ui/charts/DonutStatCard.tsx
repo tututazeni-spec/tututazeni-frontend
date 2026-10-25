@@ -4,6 +4,16 @@
 
 import { Card } from '@/components/ui/Card';
 
+export interface DonutStatCardProps {
+  label: string;
+  value: number;
+  sub?: string;
+  /** Sem moldura (borda/fundo do Card): só título e rosca. */
+  bare?: boolean;
+  /** Cor única do progresso (omisso: azul-escuro até 50%, azul-claro depois). */
+  color?: string;
+}
+
 // Rosca de progresso em Card próprio (fora do estilo NavyStatCard): azul escuro
 // até 50%, azul claro de 50% até ao valor, cinza no restante, separadores
 // brancos entre fatias. Valores acima de 100% enchem o anel.
@@ -13,23 +23,19 @@ export function DonutStatCard({
   sub,
   color,
   bare = false,
-}: {
-  label: string;
-  value: number;
-  sub?: string;
-  /** Sem moldura (borda/fundo do Card): só título e rosca. */
-  bare?: boolean;
-  /** Cor única do progresso (omisso: azul-escuro até 50%, azul-claro depois). */
-  color?: string;
-}) {
+}: DonutStatCardProps) {
   const pct = Math.min(100, Math.max(0, value));
-  const parts = (color
-    ? [{ v: pct, color }, { v: 100 - pct, color: '#CBD2DC' }]
-    : [
-        { v: Math.min(pct, 50), color: '#152F59' },
-        { v: Math.max(0, pct - 50), color: '#6FA8DC' },
-        { v: 100 - pct, color: '#CBD2DC' },
-      ]
+  const parts = (
+    color
+      ? [
+          { v: pct, color },
+          { v: 100 - pct, color: '#CBD2DC' },
+        ]
+      : [
+          { v: Math.min(pct, 50), color: '#152F59' },
+          { v: Math.max(0, pct - 50), color: '#6FA8DC' },
+          { v: 100 - pct, color: '#CBD2DC' },
+        ]
   ).filter((p) => p.v > 0);
   const scale = bare ? 1.1 : 1;
   const size = 120 * scale;

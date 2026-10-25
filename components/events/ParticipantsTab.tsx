@@ -422,15 +422,17 @@ export function ParticipantsTab() {
 // BulkEnrollModal/trainings ParticipantsTab; um só colaborador seleccionado
 // já cobre "adicionar", vários cobrem "importar".
 
+interface AddParticipantsModalProps {
+  eventId: number;
+  onClose: () => void;
+  onDone: () => void;
+}
+
 function AddParticipantsModal({
   eventId,
   onClose,
   onDone,
-}: {
-  eventId: number;
-  onClose: () => void;
-  onDone: () => void;
-}) {
+}: AddParticipantsModalProps) {
   const notify = useToast();
   const [deptFilter, setDeptFilter] = useState('ALL');
   const [userSearch, setUserSearch] = useState('');

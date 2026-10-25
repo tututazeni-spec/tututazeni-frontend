@@ -30,6 +30,15 @@ export const TURNOVER_BANDS = [
   { to: 30, color: '#c0392b' },
 ];
 
+export interface SpeedometerStatCardProps {
+  label: string;
+  value: number;
+  max?: number;
+  bands: { to: number; color: string }[];
+  display: string;
+  caption?: string;
+}
+
 export function SpeedometerStatCard({
   label,
   value,
@@ -37,14 +46,7 @@ export function SpeedometerStatCard({
   bands,
   display,
   caption,
-}: {
-  label: string;
-  value: number;
-  max?: number;
-  bands: { to: number; color: string }[];
-  display: string;
-  caption?: string;
-}) {
+}: SpeedometerStatCardProps) {
   return (
     <Card className="flex min-h-[155px] flex-col items-center justify-center gap-2 p-4 transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100">
       <h3 className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
@@ -63,6 +65,17 @@ export function SpeedometerStatCard({
   );
 }
 
+export interface ShareGaugeCardProps {
+  label: string;
+  value: number;
+  total: number;
+  display?: string;
+  caption?: string;
+  lowerIsBetter?: boolean;
+  /** mostra a % no centro (útil para montantes longos, que vão na legenda) */
+  showPercent?: boolean;
+}
+
 // Velocímetro para contagens/montantes: o ponteiro mostra a parte `value` do
 // `total` (0–100%) e o número real aparece no centro. `lowerIsBetter` inverte
 // as cores (ex.: pendentes, atrasos, suspensos). Sem total → ponteiro a 0.
@@ -74,16 +87,7 @@ export function ShareGaugeCard({
   caption,
   lowerIsBetter,
   showPercent,
-}: {
-  label: string;
-  value: number;
-  total: number;
-  display?: string;
-  caption?: string;
-  lowerIsBetter?: boolean;
-  /** mostra a % no centro (útil para montantes longos, que vão na legenda) */
-  showPercent?: boolean;
-}) {
+}: ShareGaugeCardProps) {
   const pct = total > 0 ? Math.min(100, Math.max(0, (value / total) * 100)) : 0;
   return (
     <SpeedometerStatCard

@@ -37,16 +37,14 @@ const BAR_INTENT: Record<InfraLevel, 'success' | 'warning' | 'danger'> = {
   CRITICO: 'danger',
 };
 
-export function Header({
-  title,
-  sub,
-  banner = false,
-}: {
+export interface HeaderProps {
   title: string;
   sub?: string;
   /** Faixa #0F1F3D a 60% com letra branca (sem efeito de cursor). */
   banner?: boolean;
-}) {
+}
+
+export function Header({ title, sub, banner = false }: HeaderProps) {
   if (banner)
     return (
       <div className="rounded-card bg-[#0F1F3D]/60 px-5 py-3 text-white">
@@ -71,20 +69,16 @@ export function CardTitleBar({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Tile({
-  label,
-  value,
-  unit,
-  sub,
-  headed = false,
-}: {
+export interface TileProps {
   label: string;
   value: string | number | null;
   unit?: string;
   sub?: string;
   /** Mostra o rótulo num cabeçalho navy em vez de texto solto. */
   headed?: boolean;
-}) {
+}
+
+export function Tile({ label, value, unit, sub, headed = false }: TileProps) {
   return (
     <Card className={headed ? 'overflow-hidden' : undefined}>
       {headed && <CardTitleBar>{label}</CardTitleBar>}
@@ -135,19 +129,21 @@ function duration(minutes: number): string {
   return `${Number.isInteger(d) ? d : d.toFixed(1)} d`;
 }
 
+export interface NumFieldProps {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  disabled?: boolean;
+  suffix?: string;
+}
+
 export function NumField({
   label,
   value,
   onChange,
   disabled,
   suffix,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  disabled?: boolean;
-  suffix?: string;
-}) {
+}: NumFieldProps) {
   return (
     <label className="flex flex-col gap-1 font-body text-xs font-medium text-ink-muted">
       {label}
@@ -166,17 +162,14 @@ export function NumField({
   );
 }
 
-export function Check({
-  label,
-  checked,
-  onChange,
-  disabled,
-}: {
+export interface CheckProps {
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
   disabled?: boolean;
-}) {
+}
+
+export function Check({ label, checked, onChange, disabled }: CheckProps) {
   return (
     <label className="flex items-center gap-2 font-body text-sm text-ink">
       <input
@@ -231,7 +224,11 @@ export function CapacityTab({
       />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Tile headed label="Utilizadores totais" value={fmt(c.totalUsers, 0)} />
-        <Tile headed label="Utilizadores activos" value={fmt(c.activeUsers, 0)} />
+        <Tile
+          headed
+          label="Utilizadores activos"
+          value={fmt(c.activeUsers, 0)}
+        />
         <Tile
           headed
           label="Utilizadores simultÃ¢neos"
@@ -244,7 +241,11 @@ export function CapacityTab({
           value={fmt(c.requestsPerSecond)}
           unit="req/s"
         />
-        <Tile headed label="LigaÃ§Ãµes Ã  base de dados" value={fmt(c.dbConnections, 0)} />
+        <Tile
+          headed
+          label="LigaÃ§Ãµes Ã  base de dados"
+          value={fmt(c.dbConnections, 0)}
+        />
         <Tile headed label="Armazenamento" value={fmt(c.storageGb)} unit="GB" />
         <Tile
           headed
@@ -274,10 +275,16 @@ export function CapacityTab({
           <table className="w-full font-body text-sm">
             <thead>
               <tr className="bg-[#0F1F3D]/60 text-left text-xs text-white">
-                <th className="rounded-l-card px-3 py-2.5 font-semibold">Recurso</th>
+                <th className="rounded-l-card px-3 py-2.5 font-semibold">
+                  Recurso
+                </th>
                 <th className="px-3 py-2.5 text-right font-semibold">Actual</th>
-                <th className="px-3 py-2.5 text-right font-semibold">Capacidade</th>
-                <th className="w-48 rounded-r-card px-3 py-2.5 font-semibold">Utilização</th>
+                <th className="px-3 py-2.5 text-right font-semibold">
+                  Capacidade
+                </th>
+                <th className="w-48 rounded-r-card px-3 py-2.5 font-semibold">
+                  Utilização
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -775,7 +782,11 @@ export function ResilienceTab({
           }
         />
         <Tile headed label="RTO" value={duration(i.rtoMinutes)} />
-        <Tile headed label="Último backup" value={ago(i.lastBackupMinutesAgo)} />
+        <Tile
+          headed
+          label="Último backup"
+          value={ago(i.lastBackupMinutesAgo)}
+        />
         <Tile
           headed
           label="Último teste de recuperação"

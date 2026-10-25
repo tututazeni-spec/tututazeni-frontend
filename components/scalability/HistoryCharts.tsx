@@ -43,6 +43,15 @@ function toSeries<T>(
   };
 }
 
+interface WindowedProps {
+  title: string;
+  sub?: string;
+  options: Array<{ value: number; label: string }>;
+  value: number;
+  onChange: (v: number) => void;
+  children: React.ReactNode;
+}
+
 function Windowed({
   title,
   sub,
@@ -50,14 +59,7 @@ function Windowed({
   value,
   onChange,
   children,
-}: {
-  title: string;
-  sub?: string;
-  options: Array<{ value: number; label: string }>;
-  value: number;
-  onChange: (v: number) => void;
-  children: React.ReactNode;
-}) {
+}: WindowedProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
@@ -260,8 +262,20 @@ export function HourlyHistoryCharts() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <AreaLineChart
             series={[
-              toSeries('CPU média', rows, (r) => r.hour, (r) => r.avgCpu, true),
-              toSeries('RAM média', rows, (r) => r.hour, (r) => r.avgMemory, true),
+              toSeries(
+                'CPU média',
+                rows,
+                (r) => r.hour,
+                (r) => r.avgCpu,
+                true,
+              ),
+              toSeries(
+                'RAM média',
+                rows,
+                (r) => r.hour,
+                (r) => r.avgMemory,
+                true,
+              ),
             ]}
             yFormat={(v) => `${v}%`}
           />

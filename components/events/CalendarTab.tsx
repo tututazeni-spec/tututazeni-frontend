@@ -322,17 +322,14 @@ function EventChip({
   );
 }
 
-function MonthGrid({
-  anchor,
-  range,
-  byDay,
-  onSelect,
-}: {
+interface MonthGridProps {
   anchor: Date;
   range: { from: Date; to: Date };
   byDay: Map<string, EventCalendarItem[]>;
   onSelect: (id: number) => void;
-}) {
+}
+
+function MonthGrid({ anchor, range, byDay, onSelect }: MonthGridProps) {
   const cells = useMemo(() => {
     const days: Date[] = [];
     let d = new Date(range.from);
@@ -480,15 +477,13 @@ function DayEventRow({
   );
 }
 
-function WeekList({
-  range,
-  byDay,
-  onSelect,
-}: {
+interface WeekListProps {
   range: { from: Date; to: Date };
   byDay: Map<string, EventCalendarItem[]>;
   onSelect: (id: number) => void;
-}) {
+}
+
+function WeekList({ range, byDay, onSelect }: WeekListProps) {
   const days = useMemo(() => {
     const arr: Date[] = [];
     let d = new Date(range.from);
@@ -530,15 +525,13 @@ function WeekList({
   );
 }
 
-function DayList({
-  day,
-  events,
-  onSelect,
-}: {
+interface DayListProps {
   day: Date;
   events: EventCalendarItem[];
   onSelect: (id: number) => void;
-}) {
+}
+
+function DayList({ day, events, onSelect }: DayListProps) {
   if (events.length === 0) {
     return (
       <EmptyState

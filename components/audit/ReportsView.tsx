@@ -137,17 +137,14 @@ function toParams(f: Form): Record<string, string> {
   return p;
 }
 
-function Chip({
-  active,
-  onClick,
-  color,
-  children,
-}: {
+interface ChipProps {
   active: boolean;
   onClick: () => void;
   color?: string;
   children: React.ReactNode;
-}) {
+}
+
+function Chip({ active, onClick, color, children }: ChipProps) {
   return (
     <button
       type="button"

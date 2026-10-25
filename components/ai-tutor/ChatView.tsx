@@ -77,17 +77,15 @@ const PERSONALITIES = [
   { id: 'GAMIFIED', label: 'Gamificado' },
 ] as const;
 
-// Avatar da Ísis — substitui o antigo círculo com a letra "N".
-// A imagem fica em: public/images/isis-avatar.png
-function IsisAvatar({
-  size = 'md',
-  onClick,
-  className = '',
-}: {
+interface IsisAvatarProps {
   size?: 'sm' | 'md' | 'lg';
   onClick?: () => void;
   className?: string;
-}) {
+}
+
+// Avatar da Ísis — substitui o antigo círculo com a letra "N".
+// A imagem fica em: public/images/isis-avatar.png
+function IsisAvatar({ size = 'md', onClick, className = '' }: IsisAvatarProps) {
   const dimensions = {
     sm: 64,
     md: 88,

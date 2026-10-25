@@ -182,15 +182,13 @@ export function StrategicPanel({ filters }: StrategicPanelProps) {
   );
 }
 
-function Stat({
-  label,
-  value,
-  tone,
-}: {
+interface StatProps {
   label: string;
   value: string;
   tone?: 'good' | 'bad';
-}) {
+}
+
+function Stat({ label, value, tone }: StatProps) {
   const color =
     tone === 'good'
       ? 'text-success-ink'

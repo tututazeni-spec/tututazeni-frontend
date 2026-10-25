@@ -173,17 +173,14 @@ function parseSeverityRules(text: string): Record<string, string> | string {
 const NAVY_CARD =
   'overflow-hidden rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]';
 
-function Section({
-  title,
-  icon: Icon,
-  children,
-  footer,
-}: {
+interface SectionProps {
   title: string;
   icon: LucideIcon;
   children: React.ReactNode;
   footer?: React.ReactNode;
-}) {
+}
+
+function Section({ title, icon: Icon, children, footer }: SectionProps) {
   return (
     <Card className={NAVY_CARD}>
       <div className="pointer-events-none flex cursor-default select-none items-center gap-3 bg-[#0F1F3D]/60 px-6 py-4 text-white">
@@ -202,15 +199,13 @@ function Section({
   );
 }
 
-function RoleChips({
-  value,
-  onChange,
-  disabled,
-}: {
+interface RoleChipsProps {
   value: string[];
   onChange: (v: string[]) => void;
   disabled: boolean;
-}) {
+}
+
+function RoleChips({ value, onChange, disabled }: RoleChipsProps) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {ROLE_OPTIONS.map((r) => {

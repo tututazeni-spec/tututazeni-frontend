@@ -66,6 +66,14 @@ const ROLE_COLORS: Record<Role, string> = {
   AUDITOR: '#6E56CF',
 };
 
+interface ConfigCardProps {
+  icon: LucideIcon;
+  title: string;
+  subtitle?: string;
+  children: ReactNode;
+  className?: string;
+}
+
 /** Card claro das Configurações (mesmo desenho da lista de sessões dos eventos), com faixa de título azul-marinho. */
 function ConfigCard({
   icon: Icon,
@@ -73,13 +81,7 @@ function ConfigCard({
   subtitle,
   children,
   className,
-}: {
-  icon: LucideIcon;
-  title: string;
-  subtitle?: string;
-  children: ReactNode;
-  className?: string;
-}) {
+}: ConfigCardProps) {
   return (
     <Card
       className={`flex flex-col overflow-hidden rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)] ${className ?? ''}`}

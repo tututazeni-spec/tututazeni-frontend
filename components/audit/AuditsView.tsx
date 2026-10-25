@@ -111,15 +111,13 @@ function StatusPill({ status }: { status: InternalAuditStatus }) {
   return <Badge intent={c.intent}>{c.label}</Badge>;
 }
 
-function Section({
-  title,
-  action,
-  children,
-}: {
+interface SectionProps {
   title: string;
   action?: React.ReactNode;
   children: React.ReactNode;
-}) {
+}
+
+function Section({ title, action, children }: SectionProps) {
   return (
     <div>
       <div className="mb-1 flex items-center justify-between border-b border-border pb-1">

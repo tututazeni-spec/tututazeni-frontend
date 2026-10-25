@@ -48,13 +48,7 @@ const SCOPE_LABEL = {
 
 const ALL = 'ALL';
 
-function OverviewFilters({
-  from,
-  to,
-  departmentId,
-  programId,
-  onChange,
-}: {
+interface OverviewFiltersProps {
   from: string;
   to: string;
   departmentId: string;
@@ -64,7 +58,15 @@ function OverviewFilters({
       Record<'from' | 'to' | 'departmentId' | 'programId', string>
     >,
   ) => void;
-}) {
+}
+
+function OverviewFilters({
+  from,
+  to,
+  departmentId,
+  programId,
+  onChange,
+}: OverviewFiltersProps) {
   const deptParams = { limit: 200 };
   const depts = useApiQuery<{ data: { id: number; name: string }[] }>(
     queryKeys.departments.list(deptParams),

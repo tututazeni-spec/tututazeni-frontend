@@ -100,15 +100,13 @@ const JOB_TITLES: {
   { key: 'executed', title: 'Últimas tarefas executadas', state: 'completed' },
 ];
 
-function JobTable({
-  title,
-  rows,
-  state,
-}: {
+interface JobTableProps {
   title: string;
   rows: JobRow[];
   state: JobState;
-}) {
+}
+
+function JobTable({ title, rows, state }: JobTableProps) {
   return (
     <Card className="overflow-hidden">
       <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
@@ -351,15 +349,13 @@ export function JobsTab({ data }: { data: JobsData }) {
 
 // ── §11 SLA & SLO ────────────────────────────────────────────────────────────
 
-export function SlaTab({
-  data,
-  days,
-  onDaysChange,
-}: {
+export interface SlaTabProps {
   data: SlaData;
   days: number;
   onDaysChange: (d: number) => void;
-}) {
+}
+
+export function SlaTab({ data, days, onDaysChange }: SlaTabProps) {
   const c = data.current;
   return (
     <div className="space-y-6">
@@ -581,19 +577,21 @@ const KIND_ICON: Record<HistoryKind, LucideIcon> = {
   INTEGRACAO: Plug,
 };
 
+export interface HistoryTabProps {
+  data: HistoryData;
+  days: number;
+  kind: HistoryKind | null;
+  onDaysChange: (d: number) => void;
+  onKindChange: (k: HistoryKind | null) => void;
+}
+
 export function HistoryTab({
   data,
   days,
   kind,
   onDaysChange,
   onKindChange,
-}: {
-  data: HistoryData;
-  days: number;
-  kind: HistoryKind | null;
-  onDaysChange: (d: number) => void;
-  onKindChange: (k: HistoryKind | null) => void;
-}) {
+}: HistoryTabProps) {
   const kindItems: CompactTabItem<HistoryKind | null>[] = [
     { value: null, label: 'Todos', icon: List },
     ...(Object.keys(KIND_LABEL) as HistoryKind[]).map((k) => ({

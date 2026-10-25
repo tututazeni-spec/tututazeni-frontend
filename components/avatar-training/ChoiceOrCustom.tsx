@@ -10,6 +10,16 @@ import { Select } from '@/components/ui/Select';
 const NONE = '__NONE__';
 const OTHER = '__OTHER__';
 
+export interface ChoiceOrCustomProps {
+  id: string;
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+  emptyLabel?: string;
+  placeholder?: string;
+}
+
 export function ChoiceOrCustom({
   id,
   label,
@@ -18,15 +28,7 @@ export function ChoiceOrCustom({
   onChange,
   emptyLabel = 'Sem indicação',
   placeholder = 'Escreve o valor',
-}: {
-  id: string;
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (value: string) => void;
-  emptyLabel?: string;
-  placeholder?: string;
-}) {
+}: ChoiceOrCustomProps) {
   const [custom, setCustom] = useState(!!value && !options.includes(value));
   return (
     <>

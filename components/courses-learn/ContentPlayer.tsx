@@ -45,16 +45,14 @@ interface ContentPlayerProps {
   hasNext?: boolean;
 }
 
-/** Mensagem centrada para os estados sem conteúdo / com falha. */
-function StageNotice({
-  icon: Icon,
-  title,
-  children,
-}: {
+interface StageNoticeProps {
   icon: typeof FileText;
   title: string;
   children?: ReactNode;
-}) {
+}
+
+/** Mensagem centrada para os estados sem conteúdo / com falha. */
+function StageNotice({ icon: Icon, title, children }: StageNoticeProps) {
   return (
     <div className="px-8 py-10 text-center text-ink">
       <Icon

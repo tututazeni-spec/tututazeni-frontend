@@ -34,15 +34,13 @@ function weightedAvg(rows: BenchmarkGroupAvg[]): number | null {
   return rows.reduce((s, r) => s + r.avgValue * r.count, 0) / total;
 }
 
-function CardShell({
-  icon: Icon,
-  title,
-  children,
-}: {
+interface CardShellProps {
   icon: LucideIcon;
   title: string;
   children: ReactNode;
-}) {
+}
+
+function CardShell({ icon: Icon, title, children }: CardShellProps) {
   return (
     <Card className="transition-transform duration-200 ease-out hover:scale-[1.06] motion-reduce:hover:scale-100">
       <CardBody>

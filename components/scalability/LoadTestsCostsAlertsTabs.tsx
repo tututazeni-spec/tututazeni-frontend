@@ -606,7 +606,9 @@ export function LoadTestsTab({
                     <th className="py-1.5 font-semibold">Teste</th>
                     <th className="py-1.5 font-semibold">Ambiente</th>
                     <th className="py-1.5 font-semibold">Estado</th>
-                    <th className="py-1.5 text-right font-semibold">Utilizadores</th>
+                    <th className="py-1.5 text-right font-semibold">
+                      Utilizadores
+                    </th>
                     <th className="py-1.5 text-right font-semibold">Req/s</th>
                     <th className="py-1.5 text-right font-semibold">P95</th>
                     <th className="py-1.5 text-right font-semibold">P99</th>
@@ -740,17 +742,14 @@ export interface CostsTabProps {
   onSave: (v: CostsSave, done: () => void) => void;
 }
 
-function CostsForm({
-  data,
-  saving,
-  onSave,
-  onCancel,
-}: {
+interface CostsFormProps {
   data: CostsData;
   saving: boolean;
   onSave: (v: CostsSave) => void;
   onCancel: () => void;
-}) {
+}
+
+function CostsForm({ data, saving, onSave, onCancel }: CostsFormProps) {
   const [month, setMonth] = useState(data.month ?? currentMonth());
   const [currency, setCurrency] = useState(data.currency);
   const [amounts, setAmounts] = useState<Record<CostCategory, string>>(

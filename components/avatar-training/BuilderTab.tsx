@@ -50,22 +50,20 @@ const KINDS: { value: BuilderQuestion['kind']; label: string }[] = [
 
 const NEXT = 'NEXT';
 
-/** Ramificações (role-play): para onde segue o formando conforme a resposta. */
-function BranchEditor({
-  step,
-  index,
-  later,
-  onChange,
-}: {
+interface BranchEditorProps {
   step: BuilderStep;
   index: number;
   /** Só etapas posteriores — o backend recusa saltos para trás. */
   later: { key: string; title: string }[];
   onChange: (branches: StepBranches | undefined) => void;
-}) {
+}
+
+/** Ramificações (role-play): para onde segue o formando conforme a resposta. */
+function BranchEditor({ step, index, later, onChange }: BranchEditorProps) {
   const q = step.question;
   if (!q) return null;
-  const options = q.kind === 'TRUE_FALSE' ? ['Verdadeiro', 'Falso'] : (q.options ?? []);
+  const options =
+    q.kind === 'TRUE_FALSE' ? ['Verdadeiro', 'Falso'] : (q.options ?? []);
   const graded = !!q.correctAnswer;
   const b = step.branches ?? {};
   const items = [
@@ -93,8 +91,8 @@ function BranchEditor({
         Ramificações (opcional)
       </legend>
       <p className="font-body text-xs text-ink-faint">
-        Escolha a etapa seguinte conforme a resposta. As etapas saltadas deixam de ser
-        exigidas e não contam para a nota.
+        Escolha a etapa seguinte conforme a resposta. As etapas saltadas deixam
+        de ser exigidas e não contam para a nota.
       </p>
       {graded && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -117,11 +115,18 @@ function BranchEditor({
       {options.length > 0 && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {options.map((o) => (
-            <FormField key={o} label={`Se escolher «${o}», ir para`} htmlFor={`br-${index}-${o}`}>
+            <FormField
+              key={o}
+              label={`Se escolher «${o}», ir para`}
+              htmlFor={`br-${index}-${o}`}
+            >
               <Select
                 value={b.byOption?.[o] ?? NEXT}
                 onValueChange={(v) =>
-                  clean({ ...b, byOption: { ...b.byOption, [o]: pick(v) ?? '' } })
+                  clean({
+                    ...b,
+                    byOption: { ...b.byOption, [o]: pick(v) ?? '' },
+                  })
                 }
                 items={items}
               />
@@ -133,19 +138,21 @@ function BranchEditor({
   );
 }
 
+interface ReinforcementEditorProps {
+  step: BuilderStep;
+  index: number;
+  /** Só etapas anteriores — o backend recusa a revisão de etapas à frente. */
+  earlier: { key: string; title: string }[];
+  onChange: (reinforcement: StepReinforcement | undefined) => void;
+}
+
 /** Reforço (§7): o que mostrar e se a etapa se repete quando a resposta está errada. */
 function ReinforcementEditor({
   step,
   index,
   earlier,
   onChange,
-}: {
-  step: BuilderStep;
-  index: number;
-  /** Só etapas anteriores — o backend recusa a revisão de etapas à frente. */
-  earlier: { key: string; title: string }[];
-  onChange: (reinforcement: StepReinforcement | undefined) => void;
-}) {
+}: ReinforcementEditorProps) {
   if (!step.question?.correctAnswer) return null;
   const r = step.reinforcement ?? {};
   const clean = (next: StepReinforcement) => {
@@ -165,8 +172,8 @@ function ReinforcementEditor({
         Reforço se errar (opcional)
       </legend>
       <p className="font-body text-xs text-ink-faint">
-        Mensagem e conteúdo complementar mostrados após uma resposta errada; pode
-        obrigar a repetir a etapa antes de avançar.
+        Mensagem e conteúdo complementar mostrados após uma resposta errada;
+        pode obrigar a repetir a etapa antes de avançar.
       </p>
       <FormField label="Mensagem de reforço" htmlFor={`rf-m-${index}`}>
         <Textarea
@@ -180,14 +187,22 @@ function ReinforcementEditor({
         <FormField label="Etapa anterior a rever" htmlFor={`rf-s-${index}`}>
           <Select
             value={r.reviewStepKey ?? NEXT}
-            onValueChange={(v) => clean({ ...r, reviewStepKey: v === NEXT ? undefined : v })}
+            onValueChange={(v) =>
+              clean({ ...r, reviewStepKey: v === NEXT ? undefined : v })
+            }
             items={[
               { value: NEXT, label: 'Nenhuma' },
-              ...earlier.map((l) => ({ value: l.key, label: l.title || l.key })),
+              ...earlier.map((l) => ({
+                value: l.key,
+                label: l.title || l.key,
+              })),
             ]}
           />
         </FormField>
-        <FormField label="Conteúdo complementar (URL)" htmlFor={`rf-u-${index}`}>
+        <FormField
+          label="Conteúdo complementar (URL)"
+          htmlFor={`rf-u-${index}`}
+        >
           <Input
             id={`rf-u-${index}`}
             value={r.resourceUrl ?? ''}
@@ -200,7 +215,9 @@ function ReinforcementEditor({
           <input
             type="checkbox"
             checked={!!r.retryOnIncorrect}
-            onChange={(e) => clean({ ...r, retryOnIncorrect: e.target.checked })}
+            onChange={(e) =>
+              clean({ ...r, retryOnIncorrect: e.target.checked })
+            }
           />
           Repetir a etapa antes de avançar
         </label>
@@ -214,7 +231,13 @@ function ReinforcementEditor({
               className="w-16 rounded-card border border-border bg-surface px-2 py-1"
               value={r.maxRetries ?? 2}
               onChange={(e) =>
-                clean({ ...r, maxRetries: Math.min(5, Math.max(1, Number(e.target.value) || 2)) })
+                clean({
+                  ...r,
+                  maxRetries: Math.min(
+                    5,
+                    Math.max(1, Number(e.target.value) || 2),
+                  ),
+                })
               }
             />
           </label>
@@ -222,6 +245,17 @@ function ReinforcementEditor({
       </div>
     </fieldset>
   );
+}
+
+interface StepEditorProps {
+  step: BuilderStep;
+  index: number;
+  total: number;
+  later: { key: string; title: string }[];
+  earlier: { key: string; title: string }[];
+  onChange: (patch: Partial<BuilderStep>) => void;
+  onMove: (dir: -1 | 1) => void;
+  onRemove: () => void;
 }
 
 function StepEditor({
@@ -233,16 +267,7 @@ function StepEditor({
   onChange,
   onMove,
   onRemove,
-}: {
-  step: BuilderStep;
-  index: number;
-  total: number;
-  later: { key: string; title: string }[];
-  earlier: { key: string; title: string }[];
-  onChange: (patch: Partial<BuilderStep>) => void;
-  onMove: (dir: -1 | 1) => void;
-  onRemove: () => void;
-}) {
+}: StepEditorProps) {
   const q = step.question;
   const setQ = (patch: Partial<BuilderQuestion>) =>
     onChange({ question: { kind: 'SHORT', ...q, ...patch } });
@@ -301,7 +326,10 @@ function StepEditor({
                   v === 'QUESTION' || v === 'SCENARIO'
                     ? (q ?? { kind: v === 'SCENARIO' ? 'SINGLE' : 'SHORT' })
                     : undefined,
-                branches: v === 'QUESTION' || v === 'SCENARIO' ? step.branches : undefined,
+                branches:
+                  v === 'QUESTION' || v === 'SCENARIO'
+                    ? step.branches
+                    : undefined,
               })
             }
             items={STEP_TYPES}
@@ -309,7 +337,10 @@ function StepEditor({
         </FormField>
       </div>
 
-      <FormField label="Texto apresentado pelo avatar" htmlFor={`st-c-${index}`}>
+      <FormField
+        label="Texto apresentado pelo avatar"
+        htmlFor={`st-c-${index}`}
+      >
         <Textarea
           id={`st-c-${index}`}
           rows={3}
@@ -338,7 +369,9 @@ function StepEditor({
             <FormField label="Formato" htmlFor={`st-k-${index}`}>
               <Select
                 value={q.kind}
-                onValueChange={(v) => setQ({ kind: v as BuilderQuestion['kind'] })}
+                onValueChange={(v) =>
+                  setQ({ kind: v as BuilderQuestion['kind'] })
+                }
                 items={KINDS}
               />
             </FormField>
@@ -384,7 +417,10 @@ function StepEditor({
                 }
               />
             </FormField>
-            <FormField label="Explicação após responder" htmlFor={`st-e-${index}`}>
+            <FormField
+              label="Explicação após responder"
+              htmlFor={`st-e-${index}`}
+            >
               <Input
                 id={`st-e-${index}`}
                 value={q.explanation ?? ''}
@@ -429,7 +465,9 @@ function FailRules({
     const out = {
       ...(next.message?.trim() ? { message: next.message } : {}),
       ...(next.resourceUrl?.trim() ? { resourceUrl: next.resourceUrl } : {}),
-      ...(next.recommendSessionId ? { recommendSessionId: next.recommendSessionId } : {}),
+      ...(next.recommendSessionId
+        ? { recommendSessionId: next.recommendSessionId }
+        : {}),
     };
     onChange(Object.keys(out).length ? { onFail: out } : {});
   };
@@ -460,7 +498,12 @@ function FailRules({
             type="number"
             min={1}
             value={f.recommendSessionId ?? ''}
-            onChange={(e) => set({ ...f, recommendSessionId: Number(e.target.value) || undefined })}
+            onChange={(e) =>
+              set({
+                ...f,
+                recommendSessionId: Number(e.target.value) || undefined,
+              })
+            }
           />
         </FormField>
       </div>
@@ -487,15 +530,11 @@ function AssignBox({
 
   const found = useApiQuery<{
     data: { id: number; fullName: string; email?: string | null }[];
-  }>(
-    ['avatar-training', 'assign-user-search', debounced],
-    '/users',
-    {
-      params: { search: debounced, limit: 8 },
-      enabled: debounced.length >= 2,
-      staleTime: STALE_TIME.SEMI_STATIC,
-    },
-  );
+  }>(['avatar-training', 'assign-user-search', debounced], '/users', {
+    params: { search: debounced, limit: 8 },
+    enabled: debounced.length >= 2,
+    staleTime: STALE_TIME.SEMI_STATIC,
+  });
   const idQuery = /^\d+$/.test(query.trim()) ? Number(query.trim()) : null;
   const pick = (id: number, name: string) => {
     setPicked((p) => ({ ...p, [id]: name }));
@@ -544,8 +583,8 @@ function AssignBox({
       </FormField>
       {!published && (
         <p className="font-body text-xs text-warning-ink">
-          Esta sessão ainda não está publicada — publica-a (e a formação) para
-          a poderes atribuir.
+          Esta sessão ainda não está publicada — publica-a (e a formação) para a
+          poderes atribuir.
         </p>
       )}
       {(debounced.length >= 2 || idQuery) && (
@@ -566,7 +605,9 @@ function AssignBox({
                 >
                   {u.fullName}
                   {u.email && (
-                    <span className="ml-2 text-xs text-ink-faint">{u.email}</span>
+                    <span className="ml-2 text-xs text-ink-faint">
+                      {u.email}
+                    </span>
                   )}
                 </button>
               </li>
@@ -655,7 +696,9 @@ function dropBranchesTo(steps: BuilderStep[], key: string): BuilderStep[] {
     );
     const next: StepBranches = {
       ...(b.onCorrect && b.onCorrect !== key ? { onCorrect: b.onCorrect } : {}),
-      ...(b.onIncorrect && b.onIncorrect !== key ? { onIncorrect: b.onIncorrect } : {}),
+      ...(b.onIncorrect && b.onIncorrect !== key
+        ? { onIncorrect: b.onIncorrect }
+        : {}),
       ...(Object.keys(byOption).length ? { byOption } : {}),
     };
     return { ...s, branches: Object.keys(next).length ? next : undefined };
@@ -730,7 +773,11 @@ function SessionForm({ session }: { session: SessionDetail }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 font-body text-xs text-ink-muted">
-        <StatusBadge value={session.status} map={PROGRAM_STATUS} variant="dot" />
+        <StatusBadge
+          value={session.status}
+          map={PROGRAM_STATUS}
+          variant="dot"
+        />
         v{session.version} · {session.program.title}
       </div>
 
@@ -779,11 +826,19 @@ function SessionForm({ session }: { session: SessionDetail }) {
             step={s}
             index={i}
             total={steps.length}
-            later={steps.slice(i + 1).map((x) => ({ key: x.key, title: x.title }))}
-            earlier={steps.slice(0, i).map((x) => ({ key: x.key, title: x.title }))}
+            later={steps
+              .slice(i + 1)
+              .map((x) => ({ key: x.key, title: x.title }))}
+            earlier={steps
+              .slice(0, i)
+              .map((x) => ({ key: x.key, title: x.title }))}
             onChange={(p) => patch(i, p)}
             onMove={(d) => move(i, d)}
-            onRemove={() => setSteps((x) => dropBranchesTo(x, x[i].key).filter((_, idx) => idx !== i))}
+            onRemove={() =>
+              setSteps((x) =>
+                dropBranchesTo(x, x[i].key).filter((_, idx) => idx !== i),
+              )
+            }
           />
         ))}
         <Button
@@ -896,7 +951,12 @@ export function BuilderTab() {
       ) : error ? (
         <QueryError error={error} onRetry={() => refetch()} />
       ) : (
-        data && <SessionForm key={`${data.id}-${data.version}-${data.steps.length}`} session={data} />
+        data && (
+          <SessionForm
+            key={`${data.id}-${data.version}-${data.steps.length}`}
+            session={data}
+          />
+        )
       )}
     </div>
   );

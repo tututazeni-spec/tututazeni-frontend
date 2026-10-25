@@ -628,15 +628,13 @@ function ReportBody({
   }
 }
 
-function StatCard({
-  label,
-  value,
-  hint,
-}: {
+interface StatCardProps {
   label: string;
   value: string;
   hint?: string;
-}) {
+}
+
+function StatCard({ label, value, hint }: StatCardProps) {
   return (
     <NavyStatCard
       icon={BarChart3}

@@ -70,18 +70,16 @@ function Stat({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-// Painel compacto por módulo — null (falhou na agregação, ver
-// Promise.allSettled em getModulesOverview()) mostra aviso discreto em vez
-// de desaparecer sem explicação.
-function ModulePanel({
-  title,
-  data,
-  children,
-}: {
+interface ModulePanelProps {
   title: string;
   data: unknown;
   children: ReactNode;
-}) {
+}
+
+// Painel compacto por módulo — null (falhou na agregação, ver
+// Promise.allSettled em getModulesOverview()) mostra aviso discreto em vez
+// de desaparecer sem explicação.
+function ModulePanel({ title, data, children }: ModulePanelProps) {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
       <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">

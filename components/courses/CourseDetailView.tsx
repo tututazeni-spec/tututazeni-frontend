@@ -750,6 +750,17 @@ export function CourseDetailView({
   );
 }
 
+interface SectionProps {
+  title: string;
+  icon?: ComponentType<{ size?: number; strokeWidth?: number }>;
+  aside?: string;
+  bare?: boolean;
+  /** Faixa a 60% de opacidade. */
+  soft?: boolean;
+  className?: string;
+  children: ReactNode;
+}
+
 /** Cartão de secção: faixa azul-marinho no topo (padrão dos cartões de
  *  evaluation360) e corpo claro. `bare` dispensa o padding do corpo. */
 function Section({
@@ -760,16 +771,7 @@ function Section({
   soft,
   className,
   children,
-}: {
-  title: string;
-  icon?: ComponentType<{ size?: number; strokeWidth?: number }>;
-  aside?: string;
-  bare?: boolean;
-  /** Faixa a 60% de opacidade. */
-  soft?: boolean;
-  className?: string;
-  children: ReactNode;
-}) {
+}: SectionProps) {
   return (
     <Card className={`overflow-hidden ${className ?? ''}`}>
       <h3
@@ -788,15 +790,13 @@ function Section({
   );
 }
 
-function InstructorRow({
-  name,
-  avatarUrl,
-  role,
-}: {
+interface InstructorRowProps {
   name: string;
   avatarUrl: string | null;
   role?: string;
-}) {
+}
+
+function InstructorRow({ name, avatarUrl, role }: InstructorRowProps) {
   return (
     <div className="flex items-center gap-3">
       {avatarUrl ? (

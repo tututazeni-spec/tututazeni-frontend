@@ -99,15 +99,13 @@ function Section({
   );
 }
 
-function EditorForm({
-  detail,
-  canEdit,
-  onClose,
-}: {
+interface EditorFormProps {
   detail: TemplateDetailDto;
   canEdit: boolean;
   onClose: () => void;
-}) {
+}
+
+function EditorForm({ detail, canEdit, onClose }: EditorFormProps) {
   const toast = useToast();
   const [form, setForm] = useState<TemplateConfigDto>(() =>
     structuredClone(detail.config),
@@ -591,15 +589,17 @@ function EditorForm({
   );
 }
 
+export interface TemplateEditorModalProps {
+  templateId: string;
+  canEdit?: boolean;
+  onClose: () => void;
+}
+
 export function TemplateEditorModal({
   templateId,
   canEdit = true,
   onClose,
-}: {
-  templateId: string;
-  canEdit?: boolean;
-  onClose: () => void;
-}) {
+}: TemplateEditorModalProps) {
   const { data, isLoading } = useApiQuery<TemplateDetailDto>(
     queryKeys.certificates.template(templateId),
     `/certificates/templates/${templateId}`,

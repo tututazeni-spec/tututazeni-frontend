@@ -138,15 +138,13 @@ export function useScopeParams(
 
 // ─── Selector de pessoa (diretório interno) ──────────────────────────
 
-export function PersonPicker({
-  label,
-  value,
-  onChange,
-}: {
+export interface PersonPickerProps {
   label: string;
   value: PersonRef | null;
   onChange: (p: PersonRef | null) => void;
-}) {
+}
+
+export function PersonPicker({ label, value, onChange }: PersonPickerProps) {
   const [text, setText] = useState('');
   const [open, setOpen] = useState(false);
   const { users, loading } = useDirectoryUsers(text, open && !value);

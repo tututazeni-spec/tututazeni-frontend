@@ -40,17 +40,14 @@ import { Select, type SelectItemOption } from '@/components/ui/Select';
 
 const ALL = 'ALL';
 
-function Stat({
-  label,
-  value,
-  icon,
-  tone,
-}: {
+interface StatProps {
   label: string;
   value: string | number;
   icon: LucideIcon;
   tone: NavyStatTone;
-}) {
+}
+
+function Stat({ label, value, icon, tone }: StatProps) {
   return <NavyStatCard icon={icon} tone={tone} label={label} value={value} />;
 }
 
@@ -103,17 +100,14 @@ const EVALUATOR_GROUP_LABEL: Record<string, string> = {
   external: 'Outras',
 };
 
-function ComparisonStat({
-  title,
-  labelA,
-  labelB,
-  cmp,
-}: {
+interface ComparisonStatProps {
   title: string;
   labelA: string;
   labelB: string;
   cmp: { a: number | null; b: number | null; diff: number | null };
-}) {
+}
+
+function ComparisonStat({ title, labelA, labelB, cmp }: ComparisonStatProps) {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
       <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">

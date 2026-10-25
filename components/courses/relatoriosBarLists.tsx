@@ -74,15 +74,13 @@ function BarRows({ rows, max }: { rows: BarRow[]; max: number }) {
   );
 }
 
-function BarCard({
-  title,
-  rows,
-  max,
-}: {
+interface BarCardProps {
   title: string;
   rows: BarRow[];
   max: number;
-}) {
+}
+
+function BarCard({ title, rows, max }: BarCardProps) {
   return (
     <Card className="p-4">
       <CardHeader title={title} />
@@ -118,6 +116,13 @@ export function DistributionList({
   );
 }
 
+export interface CourseProgressListProps {
+  title: string;
+  items: Array<{ id: number; title: string; value: number }>;
+  tone: 'green' | 'red';
+  onSelect: (id: number) => void;
+}
+
 /**
  * Ranking de taxas (0-100%) como barras de progresso horizontais: nome do curso
  * e percentagem numa linha, barra de largura total por baixo. Uma só cor por
@@ -128,12 +133,7 @@ export function CourseProgressList({
   items,
   tone,
   onSelect,
-}: {
-  title: string;
-  items: Array<{ id: number; title: string; value: number }>;
-  tone: 'green' | 'red';
-  onSelect: (id: number) => void;
-}) {
+}: CourseProgressListProps) {
   const barClass = tone === 'green' ? 'bg-emerald-500' : 'bg-rose-500';
   return (
     <Card className="p-4">
@@ -181,6 +181,14 @@ export function CourseProgressList({
   );
 }
 
+export interface CourseBarListProps {
+  title: string;
+  items: Array<{ id: number; title: string; value: number }>;
+  suffix: string;
+  percent?: boolean;
+  onSelect: (id: number) => void;
+}
+
 /**
  * Ranking de cursos no mesmo design. `percent` fixa a escala em 0-100 (taxas);
  * sem ele a escala é o máximo da lista (contagens). Cada linha abre o curso.
@@ -191,13 +199,7 @@ export function CourseBarList({
   suffix,
   percent = false,
   onSelect,
-}: {
-  title: string;
-  items: Array<{ id: number; title: string; value: number }>;
-  suffix: string;
-  percent?: boolean;
-  onSelect: (id: number) => void;
-}) {
+}: CourseBarListProps) {
   const rows = items.slice(0, 6).map((c) => ({
     key: c.id,
     label: c.title,

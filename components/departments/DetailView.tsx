@@ -97,15 +97,13 @@ function useEntityLookup<T>(
   return { status: 'found', label: getLabel(q.data) };
 }
 
-function LookupHint({
-  status,
-  label,
-  foundPrefix,
-}: {
+interface LookupHintProps {
   status: LookupStatus;
   label: string | null;
   foundPrefix: string;
-}) {
+}
+
+function LookupHint({ status, label, foundPrefix }: LookupHintProps) {
   if (status === 'idle') return null;
   if (status === 'loading')
     return <p className="mt-2 text-xs text-ink-faint">A procurar…</p>;
@@ -125,7 +123,13 @@ function LookupHint({
   );
 }
 
-function HeaderIcon({ name, hasChildren }: { name: string; hasChildren: boolean }) {
+function HeaderIcon({
+  name,
+  hasChildren,
+}: {
+  name: string;
+  hasChildren: boolean;
+}) {
   const Icon = departmentIcon(name, hasChildren);
   return <Icon size={24} strokeWidth={1.75} />;
 }
@@ -191,7 +195,12 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       optimistic: {
         key: queryKeys.departments.detail(deptId),
         update: (
-          prev: (Department & { users: Member[]; headHistory: HeadHistoryEntry[] }) | undefined,
+          prev:
+            | (Department & {
+                users: Member[];
+                headHistory: HeadHistoryEntry[];
+              })
+            | undefined,
           action: 'activate' | 'deactivate',
         ) => prev && { ...prev, active: action === 'activate' },
       },
@@ -325,7 +334,10 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-4">
             <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
-              <HeaderIcon name={dept.name} hasChildren={dept._count.children > 0} />
+              <HeaderIcon
+                name={dept.name}
+                hasChildren={dept._count.children > 0}
+              />
             </span>
             <div>
               <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -422,7 +434,9 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             type="button"
             onClick={() => setActiveTab(t.id)}
             className={`rounded-control px-3 py-1.5 text-sm font-medium text-white transition-colors ${
-              activeTab === t.id ? 'bg-[#0F1F3D]' : 'bg-[#0F1F3D]/60 hover:bg-[#0F1F3D]/80'
+              activeTab === t.id
+                ? 'bg-[#0F1F3D]'
+                : 'bg-[#0F1F3D]/60 hover:bg-[#0F1F3D]/80'
             }`}
           >
             {t.label}
@@ -519,9 +533,15 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           <Table>
             <TableHead>
               <TableRow>
-                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Colaborador</TableHeaderCell>
-                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Cargo</TableHeaderCell>
-                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Estado</TableHeaderCell>
+                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">
+                  Colaborador
+                </TableHeaderCell>
+                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">
+                  Cargo
+                </TableHeaderCell>
+                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">
+                  Estado
+                </TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -669,9 +689,15 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Gestor</TableHeaderCell>
-              <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Início</TableHeaderCell>
-              <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">Fim</TableHeaderCell>
+              <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">
+                Gestor
+              </TableHeaderCell>
+              <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">
+                Início
+              </TableHeaderCell>
+              <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">
+                Fim
+              </TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>

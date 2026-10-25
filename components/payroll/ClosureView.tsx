@@ -19,19 +19,21 @@ import { RunPicker } from './RunPicker';
 import { RUN_STATUS_MAP } from './types';
 import type { ClosureOverview } from './insightTypes';
 
+interface ValidationProps {
+  label: string;
+  info: { at: string; by: string | null } | null;
+  onValidate: () => void;
+  pending: boolean;
+  disabled: boolean;
+}
+
 function Validation({
   label,
   info,
   onValidate,
   pending,
   disabled,
-}: {
-  label: string;
-  info: { at: string; by: string | null } | null;
-  onValidate: () => void;
-  pending: boolean;
-  disabled: boolean;
-}) {
+}: ValidationProps) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-card border border-border bg-surface px-4 py-3">
       <div>

@@ -109,14 +109,7 @@ export const GROWTH_TONES = {
   purple: 'bg-[#4B2FA3]',
 } as const;
 
-export function GrowthCard({
-  icon: Icon,
-  tone,
-  label,
-  value,
-  chip,
-  caption,
-}: {
+export interface GrowthCardProps {
   icon: typeof Users;
   tone: keyof typeof GROWTH_TONES;
   label: string;
@@ -124,7 +117,16 @@ export function GrowthCard({
   /** Linha de variação (com ▲); omitida quando não há dados. */
   chip?: string;
   caption: string;
-}) {
+}
+
+export function GrowthCard({
+  icon: Icon,
+  tone,
+  label,
+  value,
+  chip,
+  caption,
+}: GrowthCardProps) {
   return (
     <div
       className={cn(

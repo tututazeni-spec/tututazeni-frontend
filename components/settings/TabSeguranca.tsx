@@ -41,17 +41,14 @@ const TWO_FACTOR_LABELS: Record<TwoFactorMode, string> = {
   REQUIRED_ALL: 'Obrigatório para todos',
 };
 
-function Toggle({
-  id,
-  label,
-  checked,
-  onChange,
-}: {
+interface ToggleProps {
   id: string;
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-}) {
+}
+
+function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
       <input
@@ -414,7 +411,6 @@ function TwoFactorCard({
         )}
       </div>
       <CardBody>
-
         {enabled ? (
           <div className="max-w-sm space-y-3">
             <FormField
@@ -465,20 +461,26 @@ function TwoFactorCard({
             </FormField>
             <div className="flex gap-2">
               <Button
-                intent="primary" className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
+                intent="primary"
+                className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
                 disabled={enableMutation.isPending || code.length !== 6}
                 onClick={() => enableMutation.mutate(code)}
               >
                 Confirmar e activar
               </Button>
-              <Button intent="ghost" className="text-white hover:bg-white/10" onClick={() => setSetup(null)}>
+              <Button
+                intent="ghost"
+                className="text-white hover:bg-white/10"
+                onClick={() => setSetup(null)}
+              >
                 Cancelar
               </Button>
             </div>
           </div>
         ) : (
           <Button
-            intent="primary" className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
+            intent="primary"
+            className="border-white bg-white text-[#0F1F3D] hover:bg-white/90"
             disabled={setupMutation.isPending}
             onClick={() => setupMutation.mutate(undefined)}
           >
@@ -555,16 +557,18 @@ function MySessionsCard({
 
 // ─── Histórico de logins (pessoal/organização) ─────────────────────────────
 
-function LoginHistoryCard({
-  title,
-  basePath,
-  showOutcomeFilter,
-}: {
+interface LoginHistoryCardProps {
   title: string;
   queryKey: unknown;
   basePath: string;
   showOutcomeFilter: boolean;
-}) {
+}
+
+function LoginHistoryCard({
+  title,
+  basePath,
+  showOutcomeFilter,
+}: LoginHistoryCardProps) {
   const [page, setPage] = useState(1);
   const [outcome, setOutcome] = useState<'ALL' | 'SUCCESS' | 'FAILED'>('ALL');
   const scope = basePath.includes('/me/') ? 'me' : 'all';
@@ -580,20 +584,20 @@ function LoginHistoryCard({
       <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         {title}
         {showOutcomeFilter && (
-            <Select
-              className="w-44"
-              items={[
-                { value: 'ALL', label: 'Todos' },
-                { value: 'SUCCESS', label: 'Sucesso' },
-                { value: 'FAILED', label: 'Falha' },
-              ]}
-              value={outcome}
-              onValueChange={(v) => {
-                setOutcome(v as typeof outcome);
-                setPage(1);
-              }}
-            />
-          )}
+          <Select
+            className="w-44"
+            items={[
+              { value: 'ALL', label: 'Todos' },
+              { value: 'SUCCESS', label: 'Sucesso' },
+              { value: 'FAILED', label: 'Falha' },
+            ]}
+            value={outcome}
+            onValueChange={(v) => {
+              setOutcome(v as typeof outcome);
+              setPage(1);
+            }}
+          />
+        )}
       </div>
       <CardBody>
         {history.isLoading ? (

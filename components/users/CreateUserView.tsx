@@ -164,6 +164,15 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+interface EnumSelectProps {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: ComboboxOption[];
+  placeholder?: string;
+}
+
 function EnumSelect({
   id,
   label,
@@ -171,14 +180,7 @@ function EnumSelect({
   onChange,
   options,
   placeholder,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: ComboboxOption[];
-  placeholder?: string;
-}) {
+}: EnumSelectProps) {
   return (
     <FormField label={label} htmlFor={id}>
       <Select
@@ -192,6 +194,15 @@ function EnumSelect({
   );
 }
 
+interface ListFieldProps {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: ComboboxOption[];
+  custom?: boolean;
+}
+
 /** Lista de escolha pesquisável que também aceita um valor escrito à mão
  *  (Combobox allowCustom): serve os campos "lista ou manual". */
 function ListField({
@@ -201,14 +212,7 @@ function ListField({
   onChange,
   options,
   custom = false,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: ComboboxOption[];
-  custom?: boolean;
-}) {
+}: ListFieldProps) {
   return (
     <FormField label={label} htmlFor={id}>
       <Combobox
@@ -225,6 +229,16 @@ function ListField({
   );
 }
 
+interface MultiPickerProps {
+  id: string;
+  label: string;
+  options: Option[];
+  loading?: boolean;
+  selected: number[];
+  onChange: (ids: number[]) => void;
+  placeholder?: string;
+}
+
 /** Picker de múltiplas entidades (cursos/percursos/competências/permissões):
  *  Combobox para adicionar + chips removíveis. Usado 4× nesta vista. */
 function MultiPicker({
@@ -235,15 +249,7 @@ function MultiPicker({
   selected,
   onChange,
   placeholder = 'Adicionar…',
-}: {
-  id: string;
-  label: string;
-  options: Option[];
-  loading?: boolean;
-  selected: number[];
-  onChange: (ids: number[]) => void;
-  placeholder?: string;
-}) {
+}: MultiPickerProps) {
   const selectedSet = new Set(selected);
   const available = options.filter((o) => !selectedSet.has(Number(o.value)));
   const labelFor = (pid: number) =>

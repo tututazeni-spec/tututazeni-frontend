@@ -38,17 +38,14 @@ function fmt(date: string | null | undefined): string {
   });
 }
 
-function Section({
-  icon: Icon,
-  title,
-  count,
-  children,
-}: {
+interface SectionProps {
   icon: typeof Briefcase;
   title: string;
   count: number;
   children: ReactNode;
-}) {
+}
+
+function Section({ icon: Icon, title, count, children }: SectionProps) {
   return (
     <Card className="overflow-hidden p-0">
       <div className="flex items-center gap-1.5 bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">

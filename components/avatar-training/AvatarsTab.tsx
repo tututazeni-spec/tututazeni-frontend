@@ -48,11 +48,7 @@ import {
   imageFileToDataUrl,
   validateImageFile,
 } from './imageFile';
-import {
-  AVATAR_BTN_GHOST,
-  AVATAR_BTN_PRIMARY,
-  AvatarCard,
-} from './AvatarCard';
+import { AVATAR_BTN_GHOST, AVATAR_BTN_PRIMARY, AvatarCard } from './AvatarCard';
 import { ChoiceOrCustom } from './ChoiceOrCustom';
 import { NO_USER, useUserOptions } from './useUserOptions';
 import type {
@@ -174,16 +170,14 @@ function ImageField({
   );
 }
 
-function AvatarFormModal({
-  avatar,
-  onClose,
-  onSaved,
-}: {
+interface AvatarFormModalProps {
   /** Presente = edição; ausente = criação. */
   avatar?: TrainingAvatar;
   onClose: () => void;
   onSaved: () => void;
-}) {
+}
+
+function AvatarFormModal({ avatar, onClose, onSaved }: AvatarFormModalProps) {
   const notify = useToast();
   const users = useUserOptions();
   const [name, setName] = useState(avatar?.name ?? '');

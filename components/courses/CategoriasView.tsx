@@ -273,15 +273,17 @@ function CategoryCoursesModal({
   );
 }
 
+interface CategoryCourseListModalProps {
+  category: CourseCategoryManaged;
+  onClose: () => void;
+  onSelect: (id: number) => void;
+}
+
 function CategoryCourseListModal({
   category,
   onClose,
   onSelect,
-}: {
-  category: CourseCategoryManaged;
-  onClose: () => void;
-  onSelect: (id: number) => void;
-}) {
+}: CategoryCourseListModalProps) {
   const { data = [], isLoading } = useApiQuery<CategoryCourseRow[]>(
     [...queryKeys.courses.categoriesManaged(), category.id, 'courses'],
     `/courses/categories/${category.id}/courses`,

@@ -120,16 +120,18 @@ const withCurrent = (base: string[], current: string[]) => [
   ...current.filter((c) => !base.includes(c)),
 ];
 
-function ProgramFormModal({
-  program,
-  onClose,
-  onSaved,
-}: {
+interface ProgramFormModalProps {
   /** Presente = edição (ficha completa); ausente = criação. */
   program?: AvatarProgramDetail;
   onClose: () => void;
   onSaved: () => void;
-}) {
+}
+
+function ProgramFormModal({
+  program,
+  onClose,
+  onSaved,
+}: ProgramFormModalProps) {
   const notify = useToast();
   const users = useUserOptions();
   const [title, setTitle] = useState(program?.title ?? '');
@@ -598,6 +600,13 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
+interface ProgramSheetModalProps {
+  programId: number;
+  canEdit: boolean;
+  onClose: () => void;
+  onEdit: (p: AvatarProgramDetail) => void;
+}
+
 // Ficha da formação (§4): identificação, responsáveis, aprovação, avaliação,
 // fontes aprovadas e regras de certificação num só sítio.
 function ProgramSheetModal({
@@ -605,12 +614,7 @@ function ProgramSheetModal({
   canEdit,
   onClose,
   onEdit,
-}: {
-  programId: number;
-  canEdit: boolean;
-  onClose: () => void;
-  onEdit: (p: AvatarProgramDetail) => void;
-}) {
+}: ProgramSheetModalProps) {
   const { data, error, refetch } = useApiQuery<AvatarProgramDetail>(
     queryKeys.avatarTraining.program(programId),
     `/avatar-training/programs/${programId}`,

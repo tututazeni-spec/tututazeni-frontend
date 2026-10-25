@@ -42,7 +42,10 @@ interface FlatRow {
   parentName: string | null;
 }
 
-function flatten(nodes: DepartmentNode[], parentName: string | null = null): FlatRow[] {
+function flatten(
+  nodes: DepartmentNode[],
+  parentName: string | null = null,
+): FlatRow[] {
   return nodes.flatMap((n) => [
     { node: n, parentName },
     ...flatten(n.children, n.name),
@@ -62,6 +65,15 @@ function findNode(nodes: DepartmentNode[], id: number): DepartmentNode | null {
   return null;
 }
 
+interface DeptCardProps {
+  node: DepartmentNode;
+  parentName: string | null;
+  selected: boolean;
+  onPreview: (id: number) => void;
+  indent?: number;
+  toggle?: ReactNode;
+}
+
 function DeptCard({
   node,
   parentName,
@@ -69,21 +81,16 @@ function DeptCard({
   onPreview,
   indent = 0,
   toggle,
-}: {
-  node: DepartmentNode;
-  parentName: string | null;
-  selected: boolean;
-  onPreview: (id: number) => void;
-  indent?: number;
-  toggle?: ReactNode;
-}) {
+}: DeptCardProps) {
   const Icon = departmentIcon(node.name, node.children.length > 0);
   const stats = [
     `${node._count.users} Colaboradores`,
     `${node.positionsCount} Cargos`,
     `Nível ${node.level + 1}`,
   ];
-  const extras = [node.unit?.name, node.location, node.head?.fullName].filter(Boolean);
+  const extras = [node.unit?.name, node.location, node.head?.fullName].filter(
+    Boolean,
+  );
 
   return (
     <button
@@ -115,14 +122,21 @@ function DeptCard({
         <div className="mt-0.5 flex flex-wrap items-center text-[11px] text-[#61758F]">
           {stats.map((t, i) => (
             <span key={t} className="flex items-center">
-              {i > 0 && <span className="mx-[calc(0.5rem+0.5cm)] h-3 w-px bg-[#C7D6E8]" aria-hidden="true" />}
+              {i > 0 && (
+                <span
+                  className="mx-[calc(0.5rem+0.5cm)] h-3 w-px bg-[#C7D6E8]"
+                  aria-hidden="true"
+                />
+              )}
               {t}
             </span>
           ))}
         </div>
         {(parentName || extras.length > 0) && (
           <div className="mt-0.5 truncate text-[11px] text-[#7890AC]">
-            {[parentName ? `sob ${parentName}` : null, ...extras].filter(Boolean).join(' · ')}
+            {[parentName ? `sob ${parentName}` : null, ...extras]
+              .filter(Boolean)
+              .join(' · ')}
           </div>
         )}
       </div>
@@ -135,17 +149,14 @@ function DeptCard({
   );
 }
 
-function TreeRow({
-  node,
-  parentName,
-  selectedId,
-  onPreview,
-}: {
+interface TreeRowProps {
   node: DepartmentNode;
   parentName: string | null;
   selectedId: number | null;
   onPreview: (id: number) => void;
-}) {
+}
+
+function TreeRow({ node, parentName, selectedId, onPreview }: TreeRowProps) {
   const [expanded, setExpanded] = useState(node.level < 1);
   const hasChildren = node.children.length > 0;
 
@@ -217,16 +228,52 @@ function HeaderIllustration() {
       </defs>
       {/* livros */}
       <rect x="22" y="96" width="116" height="20" rx="4" fill="#0A3C9E" />
-      <rect x="22" y="96" width="116" height="6" rx="3" fill="#EAF3FF" opacity="0.85" />
-      <rect x="32" y="74" width="96" height="20" rx="4" fill="url(#dept-book-a)" />
-      <rect x="32" y="74" width="96" height="6" rx="3" fill="#EAF3FF" opacity="0.85" />
+      <rect
+        x="22"
+        y="96"
+        width="116"
+        height="6"
+        rx="3"
+        fill="#EAF3FF"
+        opacity="0.85"
+      />
+      <rect
+        x="32"
+        y="74"
+        width="96"
+        height="20"
+        rx="4"
+        fill="url(#dept-book-a)"
+      />
+      <rect
+        x="32"
+        y="74"
+        width="96"
+        height="6"
+        rx="3"
+        fill="#EAF3FF"
+        opacity="0.85"
+      />
       <rect x="42" y="54" width="76" height="18" rx="4" fill="#0756D9" />
-      <rect x="42" y="54" width="76" height="5" rx="2.5" fill="#EAF3FF" opacity="0.85" />
+      <rect
+        x="42"
+        y="54"
+        width="76"
+        height="5"
+        rx="2.5"
+        fill="#EAF3FF"
+        opacity="0.85"
+      />
       {/* capelo */}
       <path d="M52 34v14c0 7 12 12 28 12s28-5 28-12V34z" fill="#0756D9" />
       <path d="M80 8 20 30l60 22 60-22z" fill="url(#dept-cap-a)" />
       <path d="M80 8 20 30l60 22V8z" fill="#fff" opacity="0.12" />
-      <path d="M130 33v24" stroke="#EAF3FF" strokeWidth="2.5" strokeLinecap="round" />
+      <path
+        d="M130 33v24"
+        stroke="#EAF3FF"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
       <circle cx="130" cy="60" r="4" fill="#078BFF" />
     </svg>
   );
@@ -234,15 +281,13 @@ function HeaderIllustration() {
 
 const PREVIEW_FIELD_ICON = 'h-[18px] w-[18px]';
 
-function PreviewField({
-  icon: Icon,
-  label,
-  children,
-}: {
+interface PreviewFieldProps {
   icon: LucideIcon;
   label: string;
   children: ReactNode;
-}) {
+}
+
+function PreviewField({ icon: Icon, label, children }: PreviewFieldProps) {
   return (
     <div className="flex items-center gap-3 border-b border-[#EAF3FF] py-3 last:border-b-0">
       <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#EAF3FF] text-[#0F1F3D]">
@@ -260,15 +305,13 @@ function PreviewField({
   );
 }
 
-function PreviewPanel({
-  node,
-  onViewDetail,
-  onClose,
-}: {
+interface PreviewPanelProps {
   node: DepartmentNode;
   onViewDetail: (id: number) => void;
   onClose: () => void;
-}) {
+}
+
+function PreviewPanel({ node, onViewDetail, onClose }: PreviewPanelProps) {
   const descendants = countDescendants(node);
   return (
     <aside
@@ -372,7 +415,8 @@ export function StructureView({ onSelect }: StructureViewProps) {
         itemClassName="h-14 rounded-card bg-surface-sunken"
       />
     );
-  if (queryError) return <div className="text-sm text-danger">{queryError.message}</div>;
+  if (queryError)
+    return <div className="text-sm text-danger">{queryError.message}</div>;
 
   return (
     <div>
@@ -397,7 +441,9 @@ export function StructureView({ onSelect }: StructureViewProps) {
         ))}
       </div>
 
-      <div className={`grid gap-4 ${previewNode ? 'lg:grid-cols-[1fr_380px]' : ''}`}>
+      <div
+        className={`grid gap-4 ${previewNode ? 'lg:grid-cols-[1fr_380px]' : ''}`}
+      >
         <div>
           {tree.length === 0 ? (
             <div className="py-12 text-center text-sm text-ink-faint">

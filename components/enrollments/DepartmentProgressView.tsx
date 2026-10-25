@@ -15,17 +15,19 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ProgressCard } from './ProgressCard';
 import type { DepartmentProgressRow, ProgressByDepartment } from './types';
 
+interface ProgressTableProps {
+  title: string;
+  tag: string;
+  rows: DepartmentProgressRow[];
+  pillClassName?: string;
+}
+
 function ProgressTable({
   title,
   tag,
   rows,
   pillClassName = 'bg-blue-500/20 text-blue-700',
-}: {
-  title: string;
-  tag: string;
-  rows: DepartmentProgressRow[];
-  pillClassName?: string;
-}) {
+}: ProgressTableProps) {
   return (
     <div>
       <span className={`${PILL} mb-3 ${pillClassName}`}>{title}</span>

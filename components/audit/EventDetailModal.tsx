@@ -124,15 +124,13 @@ export function EventDetailModal({
   );
 }
 
-function Body({
-  data,
-  onOpen,
-  onFilter,
-}: {
+interface BodyProps {
   data: AuditEventDetail;
   onOpen: (id: number) => void;
   onFilter?: (entity: string, entityId: number) => void;
-}) {
+}
+
+function Body({ data, onOpen, onFilter }: BodyProps) {
   const sev = SEVERITY_CFG[data.severity] ?? SEVERITY_CFG.LOW;
   const hasChanges = data.changes && Object.keys(data.changes).length > 0;
   const hasValues = data.before != null || data.after != null;

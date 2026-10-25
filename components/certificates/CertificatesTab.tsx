@@ -74,17 +74,14 @@ const SORT_ITEMS = [
 
 type RowAction = 'approve' | 'revoke' | 'reissue' | 'resend';
 
-function RowActions({
-  row,
-  canManage,
-  canApprove,
-  onAction,
-}: {
+interface RowActionsProps {
   row: AdminCertificateRow;
   canManage: boolean;
   canApprove: boolean;
   onAction: (action: RowAction, row: AdminCertificateRow) => void;
-}) {
+}
+
+function RowActions({ row, canManage, canApprove, onAction }: RowActionsProps) {
   const { download, loading, error } = usePdfDownload(
     'certificate',
     String(row.id),
@@ -144,17 +141,19 @@ function RowActions({
   );
 }
 
-export function CertificatesTab({
-  canManage,
-  canApprove,
-  initialStatus = '',
-}: {
+export interface CertificatesTabProps {
   /** ADMIN/RH: revogar, reemitir, reenviar, importar e emitir em lote. */
   canManage: boolean;
   /** ADMIN/RH e gestores (só da sua equipa — o servidor aplica o âmbito). */
   canApprove: boolean;
   initialStatus?: EffectiveStatus | '';
-}) {
+}
+
+export function CertificatesTab({
+  canManage,
+  canApprove,
+  initialStatus = '',
+}: CertificatesTabProps) {
   const confirm = useConfirm();
   const toast = useToast();
   const [filters, setFilters] = useState({

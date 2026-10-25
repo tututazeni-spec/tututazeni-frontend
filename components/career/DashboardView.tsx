@@ -43,17 +43,15 @@ function estimatedDate(months: number): string {
   return d.toLocaleDateString('pt-PT', { month: 'short', year: 'numeric' });
 }
 
-// Competências do cargo alvo ainda não cumpridas: sem nível actual = em falta;
-// com algum nível mas abaixo do exigido = a desenvolver.
-function GapList({
-  title,
-  tone,
-  gaps,
-}: {
+interface GapListProps {
   title: string;
   tone: 'danger' | 'warning';
   gaps: SimulationGap[];
-}) {
+}
+
+// Competências do cargo alvo ainda não cumpridas: sem nível actual = em falta;
+// com algum nível mas abaixo do exigido = a desenvolver.
+function GapList({ title, tone, gaps }: GapListProps) {
   return (
     <div>
       <div
@@ -172,9 +170,7 @@ export function DashboardView() {
                   value: promotionEligibility.eligible
                     ? 'Elegível'
                     : 'Em desenvolvimento',
-                  color: promotionEligibility.eligible
-                    ? '#34D399'
-                    : '#FBBF24',
+                  color: promotionEligibility.eligible ? '#34D399' : '#FBBF24',
                 },
               ]
             : []),

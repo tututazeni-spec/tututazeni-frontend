@@ -137,17 +137,14 @@ function validate(f: FormState): string | null {
   return null;
 }
 
-function Check({
-  id,
-  label,
-  checked,
-  onChange,
-}: {
+interface CheckProps {
   id: string;
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-}) {
+}
+
+function Check({ id, label, checked, onChange }: CheckProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
       <input
