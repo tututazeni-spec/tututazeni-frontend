@@ -16,7 +16,7 @@ import { X } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { useDirectoryUsers } from '@/components/departments/departmentFormData';
@@ -153,14 +153,14 @@ export function PersonPicker({ label, value, onChange }: PersonPickerProps) {
     return (
       <div className="flex h-[38px] items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 text-sm text-ink">
         <span className="max-w-[160px] truncate">{value.fullName}</span>
-        <button
+        <IconButton
+          icon={X}
+          label={`Limpar ${label}`}
+          intent="ghost"
+          size="xs"
           type="button"
-          aria-label={`Limpar ${label}`}
           onClick={() => onChange(null)}
-          className="text-ink-faint hover:text-ink"
-        >
-          <X size={14} strokeWidth={1.75} />
-        </button>
+        />
       </div>
     );
 
