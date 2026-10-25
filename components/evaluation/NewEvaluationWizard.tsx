@@ -45,6 +45,7 @@ import {
   PURPOSE_LABEL,
 } from './constants';
 import type { Cycle, EvaluationObjective } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface CriteriaOption {
   id: number;
@@ -827,8 +828,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
         {current.id === 'selfEval' && (
           <div className="space-y-4">
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={allowSelfEval}
                 onChange={(e) => set('allowSelfEval', e.target.checked)}
               />
@@ -846,16 +846,14 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               </FormField>
             )}
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={requireComments}
                 onChange={(e) => set('requireComments', e.target.checked)}
               />
               Comentários obrigatórios
             </label>
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={requireEvidence}
                 onChange={(e) => set('requireEvidence', e.target.checked)}
               />
@@ -871,8 +869,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               Calibração → Conversa 1:1 → Aprovação → Resultado final.
             </p>
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={allowCalibration}
                 onChange={(e) => set('allowCalibration', e.target.checked)}
               />

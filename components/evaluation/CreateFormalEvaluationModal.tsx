@@ -26,6 +26,7 @@ import type {
   DraftQuestion,
   FormalQuestionType,
 } from './formalEvaluationTypes';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface CreateFormalEvaluationModalProps {
   onClose: () => void;
@@ -351,11 +352,9 @@ export function CreateFormalEvaluationModal({
               Departamentos
             </h3>
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={allDepartments}
                 onChange={(e) => setField('allDepartments', e.target.checked)}
-                className="h-4 w-4 rounded border-border-strong"
               />
               Todos os departamentos
             </label>
@@ -366,11 +365,9 @@ export function CreateFormalEvaluationModal({
                     key={d.id}
                     className="flex items-center gap-2 text-sm text-ink"
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={targetDepartmentIds.includes(d.id)}
                       onChange={() => toggleDepartment(d.id)}
-                      className="h-4 w-4 rounded border-border-strong"
                     />
                     {d.name}
                   </label>

@@ -21,6 +21,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { TEMPLATE_TYPE_OPTIONS } from './constants';
 import type { EvalCriteria, EvalScale, EvalTemplate } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface TemplateFormModalProps {
   /** `null` = criar novo; objecto completo (com `criteria`) = editar. */
@@ -210,11 +211,9 @@ export function TemplateFormModal({
           </div>
 
           <label className="flex cursor-pointer items-center gap-2 font-body text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={isDefault}
               onChange={(e) => setIsDefault(e.target.checked)}
-              className="rounded accent-primary"
             />
             Modelo por omissão
           </label>

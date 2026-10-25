@@ -26,6 +26,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { cn } from '@/lib/cn';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface SubmitEvaluationModalProps {
   requestId: number;
@@ -220,8 +221,7 @@ export function SubmitEvaluationModal({
                       )}
                       {q.type === 'NA_ALLOWED' && (
                         <label className="flex items-center gap-2 text-xs text-ink-muted">
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={!!answers[q.id]?.notApplicable}
                             onChange={(e) =>
                               setAnswer(q.id, {
