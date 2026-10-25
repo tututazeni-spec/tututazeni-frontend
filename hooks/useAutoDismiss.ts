@@ -5,11 +5,15 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useLatest } from '@/hooks/useLatest';
 
 export function useAutoDismiss(onClose: () => void, ms = 3500) {
+  // Ref para o último `onClose`: o timer arma-se uma vez por montagem mas
+  // chama sempre a versão mais recente, sem closure stale.
+  const onCloseRef = useLatest(onClose);
+
   useEffect(() => {
-    const t = setTimeout(onClose, ms);
+    const t = setTimeout(() => onCloseRef.current(), ms);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- dispara uma única vez por montagem, independente de re-renders de `onClose`. Consequência: o React Compiler salta este hook (não há violação real das Regras do React, só não consegue verificar a omissão à volta de uma regra desligada).
-  }, []);
+  }, [ms, onCloseRef]);
 }

@@ -267,18 +267,14 @@ export function RoiByCycleCard({ rows }: { rows: BenchmarkGroupAvg[] }) {
   const weights = rows.map((x) => Math.max(0, x.avgValue));
   const total = weights.reduce((s, w) => s + w, 0);
 
-  let offset = 0;
-  const segments = rows.map((row, i) => {
-    const len = total > 0 ? (weights[i] / total) * circ : 0;
-    const seg = {
-      key: String(row.key),
-      len,
-      offset,
-      color: PALETTE[i % PALETTE.length],
-    };
-    offset += len;
-    return seg;
-  });
+  const lens = weights.map((w) => (total > 0 ? (w / total) * circ : 0));
+  const segments = rows.map((row, i) => ({
+    key: String(row.key),
+    len: lens[i],
+    // offset = soma dos comprimentos anteriores (sem reatribuir variáveis)
+    offset: lens.slice(0, i).reduce((s, l) => s + l, 0),
+    color: PALETTE[i % PALETTE.length],
+  }));
 
   return (
     <CardShell icon={CalendarDays} title="ROI médio por ciclo/ano">
