@@ -37,6 +37,7 @@ import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPic
 import type { DirectoryUser } from '@/components/users/types';
 import { CATEGORY_CFG } from './constants';
 import type { CompetencyDetail } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 /** Famílias de competências sugeridas; o Combobox também aceita outra escrita à mão. */
 const FAMILY_OPTIONS = [
@@ -337,47 +338,37 @@ function CompetencyForm({
 
         <div className="grid grid-cols-2 gap-y-2">
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={isCritical}
               onChange={(e) => setField('isCritical', e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Competência crítica
           </label>
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={isStrategic}
               onChange={(e) => setField('isStrategic', e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Competência estratégica
           </label>
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={isMandatory}
               onChange={(e) => setField('isMandatory', e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Obrigatória
           </label>
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={isAssessable}
               onChange={(e) => setField('isAssessable', e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Avaliável
           </label>
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={isDevelopable}
               onChange={(e) => setField('isDevelopable', e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Desenvolvível
           </label>

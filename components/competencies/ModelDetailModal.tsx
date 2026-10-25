@@ -25,6 +25,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CATEGORY_CFG, HIERARCHY_LEVEL_CFG, STATUS_CFG } from './constants';
 import { useCompetencyOptions } from './modelFormData';
 import type { CompetencyModelDetail } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface ModelDetailModalProps {
   modelId: number;
@@ -338,20 +339,16 @@ function AddItemForm({
           />
         </FormField>
         <label className="mt-6 flex items-center gap-2 text-sm text-ink-muted">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={isMandatory}
             onChange={(e) => setIsMandatory(e.target.checked)}
-            className="h-4 w-4 rounded border-border-strong accent-primary"
           />
           Obrigatória
         </label>
         <label className="mt-6 flex items-center gap-2 text-sm text-ink-muted">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={isCritical}
             onChange={(e) => setIsCritical(e.target.checked)}
-            className="h-4 w-4 rounded border-border-strong accent-primary"
           />
           Crítica
         </label>
