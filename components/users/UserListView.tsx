@@ -187,10 +187,12 @@ export function UserListView({ onSelect }: UserListViewProps) {
       )}
       {!loading && (
         <Table>
-          <TableHead className="bg-[#0F1F3D]/60">
+          <TableHead className="bg-brand/60">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell className="w-8 text-white" />
-              <TableHeaderCell className="text-white">Utilizador</TableHeaderCell>
+              <TableHeaderCell className="text-white">
+                Utilizador
+              </TableHeaderCell>
               <TableHeaderCell className="text-white">Cargo</TableHeaderCell>
               <TableHeaderCell className="text-white">
                 Departamento
@@ -198,7 +200,9 @@ export function UserListView({ onSelect }: UserListViewProps) {
               <TableHeaderCell className="text-white">
                 Estado conta
               </TableHeaderCell>
-              <TableHeaderCell className="text-white">Estado RH</TableHeaderCell>
+              <TableHeaderCell className="text-white">
+                Estado RH
+              </TableHeaderCell>
               <TableHeaderCell className="text-white">Acções</TableHeaderCell>
             </TableRow>
           </TableHead>
