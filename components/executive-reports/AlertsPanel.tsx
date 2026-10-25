@@ -231,9 +231,7 @@ function AlertRow({ alert }: { alert: ExecutiveAlert }) {
         <div className="mb-1 font-body text-xs font-medium text-ink">
           Histórico
         </div>
-        {detail.isLoading && (
-          <p className="font-body text-xs text-ink-faint">A carregar…</p>
-        )}
+        {detail.isLoading && <Skeleton rows={3} />}
         <ul className="space-y-1">
           {(detail.data?.events ?? []).map((ev) => (
             <li key={ev.id} className="font-body text-xs text-ink-muted">
