@@ -35,7 +35,7 @@ export function RisksPanel({ filters, onFiltersChange }: RisksPanelProps) {
     return (
       <Skeleton
         rows={3}
-        wrapperClassName="space-y-4 animate-pulse"
+        wrapperClassName="space-y-4"
         itemClassName="h-64 rounded-card bg-surface-sunken"
       />
     );

@@ -140,7 +140,7 @@ export function CustomReportsPanel({ filters }: CustomReportsPanelProps) {
     return (
       <Skeleton
         rows={3}
-        wrapperClassName="space-y-4 animate-pulse"
+        wrapperClassName="space-y-4"
         itemClassName="h-40 rounded-card bg-surface-sunken"
       />
     );

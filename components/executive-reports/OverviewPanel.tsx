@@ -76,7 +76,7 @@ export function OverviewPanel({ filters }: OverviewPanelProps) {
     return (
       <Skeleton
         rows={6}
-        wrapperClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 animate-pulse"
+        wrapperClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
         itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );

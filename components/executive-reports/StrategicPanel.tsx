@@ -49,7 +49,7 @@ export function StrategicPanel({ filters }: StrategicPanelProps) {
     return (
       <Skeleton
         rows={6}
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="h-20 rounded-card bg-surface-sunken"
       />
     );

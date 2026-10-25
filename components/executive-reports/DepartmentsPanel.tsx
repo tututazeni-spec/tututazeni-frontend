@@ -94,7 +94,7 @@ export function DepartmentsPanel({
     return (
       <Skeleton
         rows={2}
-        wrapperClassName="grid grid-cols-1 gap-5 lg:grid-cols-2 animate-pulse"
+        wrapperClassName="grid grid-cols-1 gap-5 lg:grid-cols-2"
         itemClassName="h-72 rounded-card bg-surface-sunken"
       />
     );

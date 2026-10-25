@@ -45,7 +45,7 @@ export function SourcesMatrix({ filters }: { filters: ExecutiveFilters }) {
     return (
       <Skeleton
         rows={1}
-        wrapperClassName="animate-pulse"
+        wrapperClassName=""
         itemClassName="h-40 rounded-card bg-surface-sunken"
       />
     );
