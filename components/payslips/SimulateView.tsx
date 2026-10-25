@@ -32,6 +32,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { SimulateResult } from './types';
+import { Input } from '@/components/ui/Input';
 
 type FormKey =
   'baseSalary' | 'mealAllowance' | 'overtime' | 'bonuses' | 'otherAllowances';
@@ -158,7 +159,7 @@ export function SimulateView() {
                     {label} (AOA)
                   </label>
                   <div className="relative">
-                    <input
+                    <Input
                       id={`sim-${key}`}
                       type="number"
                       min={0}
@@ -169,7 +170,7 @@ export function SimulateView() {
                           [key]: parseFloat(e.target.value) || 0,
                         }))
                       }
-                      className="h-10 w-full rounded-control border border-brand-line bg-white pl-3 pr-10 font-body tabular-nums text-sm text-brand outline-none focus-visible:border-[#0D6EFD] focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/30"
+                      className="w-full"
                     />
                     <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-body text-xs text-brand/50">
                       AOA
