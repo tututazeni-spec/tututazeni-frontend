@@ -51,6 +51,7 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface CreateCycleModalProps {
   onClose: () => void;
@@ -397,11 +398,9 @@ export function CreateCycleModal({
                   key={d.value}
                   className="flex items-center gap-2 rounded-control px-1 py-1 font-body text-sm text-ink hover:bg-surface-sunken"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={departmentIds.includes(d.value)}
                     onChange={() => toggleDepartment(d.value)}
-                    className="h-4 w-4 rounded border-border-strong"
                   />
                   {d.label}
                 </label>
@@ -455,11 +454,9 @@ export function CreateCycleModal({
 
           <div>
             <label className="flex items-center gap-2 font-body text-sm font-medium text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={useCustomCompetencies}
                 onChange={(e) => setUseCustomCompetencies(e.target.checked)}
-                className="h-4 w-4 rounded border-border-strong"
               />
               Escolher competências específicas do catálogo
             </label>
@@ -489,11 +486,9 @@ export function CreateCycleModal({
                       className="rounded-control px-1 py-1 hover:bg-surface-sunken"
                     >
                       <label className="flex items-center gap-2 font-body text-sm text-ink">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={!!selection}
                           onChange={() => toggleCompetency(c.id)}
-                          className="h-4 w-4 rounded border-border-strong"
                         />
                         {c.name}
                       </label>
@@ -516,11 +511,9 @@ export function CreateCycleModal({
                             className="w-20"
                           />
                           <label className="flex items-center gap-2 font-body text-xs text-ink-muted">
-                            <input
-                              type="checkbox"
+                            <Checkbox
                               checked={selection.isRequired}
                               onChange={() => toggleCompetencyRequired(c.id)}
-                              className="h-4 w-4 rounded border-border-strong"
                             />
                             Obrigatória
                           </label>
@@ -581,29 +574,23 @@ export function CreateCycleModal({
             </p>
             <div className="space-y-1">
               <label className="flex items-center gap-2 font-body text-sm text-ink">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={linkedToPdi}
                   onChange={(e) => setLinkedToPdi(e.target.checked)}
-                  className="h-4 w-4 rounded border-border-strong"
                 />
                 Gera lacunas de competência no PDI
               </label>
               <label className="flex items-center gap-2 font-body text-sm text-ink">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={linkedToBonus}
                   onChange={(e) => setLinkedToBonus(e.target.checked)}
-                  className="h-4 w-4 rounded border-border-strong"
                 />
                 Resultado conta para bónus
               </label>
               <label className="flex items-center gap-2 font-body text-sm text-ink">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={linkedToOkrs}
                   onChange={(e) => setLinkedToOkrs(e.target.checked)}
-                  className="h-4 w-4 rounded border-border-strong"
                 />
                 Resultado conta para OKRs
               </label>
