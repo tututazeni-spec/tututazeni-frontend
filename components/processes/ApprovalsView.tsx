@@ -30,6 +30,7 @@ import {
 import { Skeleton } from './Skeleton';
 import { SOURCE_MODULES } from './StartProcessModal';
 import type { PaginatedApprovals } from './approval-types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface ApprovalsViewProps {
   canManage: boolean;
@@ -175,8 +176,7 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
           />
         </div>
         <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={overdue}
             onChange={(e) => {
               setOverdue(e.target.checked);

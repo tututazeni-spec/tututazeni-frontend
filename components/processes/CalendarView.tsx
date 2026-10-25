@@ -51,6 +51,7 @@ import type {
   InstanceFilterOptions,
 } from './types';
 import { LinkButton } from '@/components/ui/LinkButton';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface CalendarViewProps {
   canManage: boolean;
@@ -445,8 +446,7 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
           </div>
         )}
         <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={overdue}
             onChange={(e) => setOverdue(e.target.checked)}
           />

@@ -52,6 +52,7 @@ import type {
   PaginatedInstances,
   ProcessPriority,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface InstancesViewProps {
   /** ADMIN/RH/GESTOR: vê tudo e pode gerir. Os restantes só vêem os seus. */
@@ -303,8 +304,7 @@ export function InstancesView({
         </div>
         <div className="flex flex-wrap items-center gap-3 font-body text-xs text-ink-muted">
           <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={filters.archived}
               onChange={(e) => set('archived', e.target.checked)}
             />

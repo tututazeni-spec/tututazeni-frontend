@@ -20,6 +20,7 @@ import { moduleLabel } from './constants';
 import { UserPicker } from './UserPicker';
 import { BLOCKS, BLOCK_BY_TYPE, type FlowNode } from './workflow-model';
 import type { ApprovalMode, RejectionRule, StepType } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface StepInspectorProps {
   node: FlowNode;
@@ -145,8 +146,8 @@ export function StepInspector({
                 {others.map((o) => (
                   <li key={o.key}>
                     <label className="flex items-center gap-2 font-body text-sm text-ink">
-                      <input
-                        type="checkbox"
+                      <Checkbox
+                        
                         checked={node.deps.includes(o.key)}
                         disabled={readOnly}
                         onChange={() => onToggleDep(o.key)}
@@ -270,7 +271,7 @@ export function StepInspector({
                   </p>
                 )}
                 <label className="flex items-center gap-2 font-body text-sm text-ink">
-                  <input type="checkbox" checked={node.allowDelegation} disabled={readOnly} onChange={(e) => onChange({ allowDelegation: e.target.checked })} />
+                  <Checkbox  checked={node.allowDelegation} disabled={readOnly} onChange={(e) => onChange({ allowDelegation: e.target.checked })} />
                   Os aprovadores podem delegar
                 </label>
               </>
@@ -346,7 +347,7 @@ export function StepInspector({
               <Textarea id="si-chk" rows={3} value={node.checklist} disabled={readOnly} onChange={(e) => onChange({ checklist: e.target.value })} className="w-full" />
             </FormField>
             <label className="flex items-center gap-2 font-body text-sm text-ink">
-              <input type="checkbox" checked={node.requiresUpload} disabled={readOnly} onChange={(e) => onChange({ requiresUpload: e.target.checked })} />
+              <Checkbox  checked={node.requiresUpload} disabled={readOnly} onChange={(e) => onChange({ requiresUpload: e.target.checked })} />
               Exige evidência (upload) para concluir
             </label>
             <div className="rounded-card border border-border p-3">

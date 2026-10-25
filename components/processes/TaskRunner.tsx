@@ -36,6 +36,7 @@ import {
 } from './InstanceTabs';
 import { Skeleton } from './Skeleton';
 import type { ProcessInstance, StepProgress } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface TaskRunnerProps {
   instanceId: number;
@@ -367,9 +368,9 @@ export function TaskRunner({ instanceId, onBack, canViewAll = false }: TaskRunne
                         key={i}
                         className="group flex cursor-pointer items-start gap-2"
                       >
-                        <input
-                          type="checkbox"
-                          className="mt-0.5 h-4 w-4 rounded border-border-strong accent-primary"
+                        <Checkbox
+                          
+                          className="mt-0.5"
                         />
                         <span className="font-body text-sm text-ink-muted group-has-[:checked]:text-ink-faint group-has-[:checked]:line-through">
                           {item}

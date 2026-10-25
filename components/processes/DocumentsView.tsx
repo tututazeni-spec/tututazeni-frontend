@@ -56,6 +56,7 @@ import type {
   ProcessDocumentRow,
 } from './types';
 import { LinkButton } from '@/components/ui/LinkButton';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface DocumentsViewProps {
   canManage: boolean;
@@ -295,8 +296,7 @@ export function DocumentsView({
           </div>
           <div className="flex items-center gap-4">
             <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={required}
                 onChange={(e) => {
                   setRequired(e.target.checked);
@@ -306,8 +306,7 @@ export function DocumentsView({
               Obrigatórios
             </label>
             <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={archived}
                 onChange={(e) => {
                   setArchived(e.target.checked);

@@ -21,6 +21,7 @@ import { PRIORITY_MAP, STEP_TYPE_MAP, TASK_STATE_MAP } from './constants';
 import { Skeleton } from './Skeleton';
 import { TaskPanel } from './TaskPanel';
 import type { PaginatedTasks, TaskState } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface TasksViewProps {
   canManage: boolean;
@@ -108,8 +109,7 @@ export function TasksView({ canManage }: TasksViewProps) {
           className="w-full"
         />
         <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={overdue}
             onChange={(e) => {
               setOverdue(e.target.checked);

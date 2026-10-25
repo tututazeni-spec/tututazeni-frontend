@@ -28,6 +28,7 @@ import type {
   PaginatedInstances,
   ProcessInstance,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export type DocumentFormMode = 'attach' | 'request' | 'generate';
 
@@ -487,16 +488,14 @@ export function DocumentFormModal({
 
           <div className="flex flex-wrap gap-6 font-body text-sm text-ink-muted">
             <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={required}
                 onChange={(e) => setField('required', e.target.checked)}
               />
               Documento obrigatório
             </label>
             <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={signature}
                 onChange={(e) => setField('signature', e.target.checked)}
               />

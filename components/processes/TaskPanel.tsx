@@ -26,6 +26,7 @@ import { ReasonDialog } from './ReasonDialog';
 import { Skeleton } from './Skeleton';
 import { UserPicker } from './UserPicker';
 import type { TaskDetail } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface TaskPanelProps {
   instanceId: number;
@@ -263,8 +264,8 @@ export function TaskPanel({ instanceId, stepId, onClose }: TaskPanelProps) {
                 {t.checklist.items.map((item) => (
                   <li key={item}>
                     <label className="flex items-center gap-2 font-body text-sm text-ink">
-                      <input
-                        type="checkbox"
+                      <Checkbox
+                        
                         checked={doneItems.has(item)}
                         disabled={!(canAct || canReview) || run.isPending || !active}
                         onChange={() => toggleItem(item)}

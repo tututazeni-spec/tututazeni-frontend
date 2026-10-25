@@ -14,6 +14,7 @@ import {
   type ActionDraft,
   type ActionType,
 } from './workflow-model';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export const RECIPIENT_TOKENS = [
   { value: 'ASSIGNEE', label: 'Responsável da etapa' },
@@ -66,8 +67,7 @@ export function RecipientPicker({
             key={t.value}
             className="flex items-center gap-1.5 font-body text-xs text-ink-muted"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               checked={value.includes(t.value)}
               disabled={disabled}
               onChange={() => toggle(t.value)}

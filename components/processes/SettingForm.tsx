@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import type { FieldSpec, SectionSchema } from './setting-schemas';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 type Json = Record<string, unknown>;
 
@@ -155,8 +156,7 @@ function Control({
     case 'bool':
       return (
         <label className="inline-flex items-center gap-2 font-body text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
             disabled={disabled}
             checked={value !== false}
             onChange={(e) => onChange(e.target.checked)}
@@ -255,8 +255,7 @@ function Control({
                     const to = asArr(m[r.value]).map(String);
                     return (
                       <td key={c.value} className="px-3 text-center">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           disabled={disabled || r.value === c.value}
                           checked={to.includes(c.value)}
                           onChange={(e) =>
