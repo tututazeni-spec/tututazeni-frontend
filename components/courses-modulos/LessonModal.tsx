@@ -26,7 +26,7 @@ import { fileToPdfDataUrl, pdfErrorMessage } from '@/lib/lessonPdf';
 import { fileToSlideDataUrl, slideErrorMessage } from '@/lib/lessonSlide';
 import { CONTENT_TYPE } from './constants';
 import { QuizEditorModal } from './QuizEditorModal';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { RichTextEditor } from './RichTextEditor';
@@ -755,14 +755,14 @@ function LessonActivitiesAndResources({
               <span className="flex-1 text-sm text-ink truncate">
                 {a.title}
               </span>
-              <button
+              <IconButton
+                icon={Trash2}
+                label="Remover actividade"
+                intent="ghostDanger"
+                size="xs"
                 type="button"
                 onClick={() => removeActivity.mutate(a.id)}
-                className="text-ink-faint hover:text-danger"
-                aria-label="Remover actividade"
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </button>
+              />
             </div>
           ))}
           {(lesson.activities ?? []).length === 0 && (
@@ -820,14 +820,14 @@ function LessonActivitiesAndResources({
               <span className="flex-1 text-sm text-ink truncate">
                 {r.title}
               </span>
-              <button
+              <IconButton
+                icon={Trash2}
+                label="Remover recurso"
+                intent="ghostDanger"
+                size="xs"
                 type="button"
                 onClick={() => removeResource.mutate(r.id)}
-                className="text-ink-faint hover:text-danger"
-                aria-label="Remover recurso"
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </button>
+              />
             </div>
           ))}
           {(lesson.resources ?? []).length === 0 && (

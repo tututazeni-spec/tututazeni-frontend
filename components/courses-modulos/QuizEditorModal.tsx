@@ -12,7 +12,7 @@ import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
@@ -381,18 +381,19 @@ export function QuizEditorModal({
                           rows={2}
                           className="flex-1 resize-none"
                         />
-                        <button
+                        <IconButton
+                          icon={Trash2}
+                          label="Remover pergunta"
+                          intent="ghostDanger"
+                          size="compact"
+                          className="mt-1"
                           type="button"
                           onClick={() =>
                             setField('questions', (rows) =>
                               rows.filter((_, i) => i !== qIdx),
                             )
                           }
-                          className="text-ink-faint hover:text-danger mt-1"
-                          aria-label="Remover pergunta"
-                        >
-                          <Trash2 size={16} strokeWidth={1.75} />
-                        </button>
+                        />
                       </div>
                       <div className="flex flex-wrap items-center gap-2 mb-2">
                         <Select
@@ -446,7 +447,11 @@ export function QuizEditorModal({
                               />
                               {q.type === 'MULTIPLE_CHOICE' &&
                                 q.options.length > 2 && (
-                                  <button
+                                  <IconButton
+                                    icon={X}
+                                    label="Remover opção"
+                                    intent="ghostDanger"
+                                    size="xs"
                                     type="button"
                                     onClick={() =>
                                       updateQuestion(qIdx, {
@@ -455,11 +460,7 @@ export function QuizEditorModal({
                                         ),
                                       })
                                     }
-                                    className="text-ink-faint hover:text-danger"
-                                    aria-label="Remover opção"
-                                  >
-                                    <X size={14} strokeWidth={1.75} />
-                                  </button>
+                                  />
                                 )}
                             </div>
                           ))}
