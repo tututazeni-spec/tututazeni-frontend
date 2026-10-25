@@ -225,45 +225,45 @@ export function LogsView() {
         />
         {advanced && (
           <>
-          <Select
-            items={ACTOR_ITEMS}
-            value={filters.actorType || 'ALL'}
-            onValueChange={(v) => set({ actorType: v === 'ALL' ? '' : v })}
-            className="w-52"
-          />
-          <Select
-            items={departmentItems}
-            value={filters.departmentId || 'ALL'}
-            onValueChange={(v) => set({ departmentId: v === 'ALL' ? '' : v })}
-            className="w-52"
-          />
-          <label className="flex items-center gap-1 font-body text-xs text-ink-muted">
-            De
-            <Input
-              type="date"
-              value={filters.from}
-              onChange={(e) => set({ from: e.target.value })}
-              className="w-40"
+            <Select
+              items={ACTOR_ITEMS}
+              value={filters.actorType || 'ALL'}
+              onValueChange={(v) => set({ actorType: v === 'ALL' ? '' : v })}
+              className="w-52"
             />
-          </label>
-          <label className="flex items-center gap-1 font-body text-xs text-ink-muted">
-            Até
-            <Input
-              type="date"
-              value={filters.to}
-              onChange={(e) => set({ to: e.target.value })}
-              className="w-40"
+            <Select
+              items={departmentItems}
+              value={filters.departmentId || 'ALL'}
+              onValueChange={(v) => set({ departmentId: v === 'ALL' ? '' : v })}
+              className="w-52"
             />
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 font-body text-sm text-ink-muted">
-            <input
-              type="checkbox"
-              checked={filters.criticalOnly}
-              onChange={(e) => set({ criticalOnly: e.target.checked })}
-              className="rounded accent-primary"
-            />
-            Só críticos
-          </label>
+            <label className="flex items-center gap-1 font-body text-xs text-ink-muted">
+              De
+              <Input
+                type="date"
+                value={filters.from}
+                onChange={(e) => set({ from: e.target.value })}
+                className="w-40"
+              />
+            </label>
+            <label className="flex items-center gap-1 font-body text-xs text-ink-muted">
+              Até
+              <Input
+                type="date"
+                value={filters.to}
+                onChange={(e) => set({ to: e.target.value })}
+                className="w-40"
+              />
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 font-body text-sm text-ink-muted">
+              <input
+                type="checkbox"
+                checked={filters.criticalOnly}
+                onChange={(e) => set({ criticalOnly: e.target.checked })}
+                className="rounded accent-primary"
+              />
+              Só críticos
+            </label>
           </>
         )}
         <Button
@@ -303,7 +303,7 @@ export function LogsView() {
       ) : (
         <>
           <Table className="table-fixed" wrapperClassName="overflow-x-hidden">
-            <TableHead className="bg-[#0F1F3D]/60">
+            <TableHead className="bg-brand/60">
               <TableRow className="hover:bg-transparent">
                 {HEADERS.map((h, i) => (
                   <TableHeaderCell

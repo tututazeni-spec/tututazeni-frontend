@@ -47,8 +47,7 @@ interface RawDeletedCycle {
 }
 
 // Mesmo desenho dos contentores de «Gerar relatório» e «Políticas e retenção».
-const NAVY_CARD =
-  'overflow-hidden border-[#0F1F3D]/70 bg-[#0F1F3D]/70 text-white';
+const NAVY_CARD = 'overflow-hidden border-brand/70 bg-brand/70 text-white';
 
 export function DeletedCyclesView() {
   const notify = useToast();
@@ -113,7 +112,7 @@ export function DeletedCyclesView() {
       />
       {data.map((c) => (
         <Card key={c.id} className={NAVY_CARD}>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-[#0F1F3D] px-4 py-3">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 bg-brand px-4 py-3">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10">
               <Archive size={15} strokeWidth={1.75} />
             </span>
@@ -135,7 +134,7 @@ export function DeletedCyclesView() {
               respostas
             </p>
             <Button
-              className="bg-white text-[#0F1F3D] hover:bg-white/90"
+              className="bg-white text-brand hover:bg-white/90"
               size="sm"
               onClick={() => handleRestore(c)}
             >

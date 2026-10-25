@@ -73,7 +73,7 @@ function EventRow({ log }: { log: AuditLog }) {
 // Cabeçalho dos cards do painel: navy #0F1F3D a 60%, letra branca, sem
 // qualquer efeito de cursor/hover (é só um rótulo).
 const PANEL_HEADER =
-  'cursor-default select-none bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-semibold text-white';
+  'cursor-default select-none bg-brand/60 px-4 py-3 font-body text-xs font-semibold text-white';
 
 function Panel({
   title,
@@ -282,12 +282,12 @@ export function OverviewView({
       </div>
 
       {/* Alertas de segurança pendentes */}
-      <div className="flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white px-5 py-4 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[24px] border border-brand-line bg-white px-5 py-4 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div>
-          <div className="font-body text-[15px] font-semibold text-[#0F1F3D]">
+          <div className="font-body text-[15px] font-semibold text-brand">
             Alertas de segurança pendentes
           </div>
-          <div className="font-body text-xs text-[#49658A]">
+          <div className="font-body text-xs text-brand-muted">
             {data.anomalies.suspiciousLogins.length} logins suspeitos ·{' '}
             {data.anomalies.massExports.length} exportações em massa ·{' '}
             {data.anomalies.massDeletes.length} eliminações em massa

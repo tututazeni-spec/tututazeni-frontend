@@ -159,12 +159,12 @@ function Chip({ active, onClick, color, children }: ChipProps) {
             }
           : undefined
       }
-      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F1F3D]/40 ${
+      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
         color
           ? 'hover:brightness-95'
           : active
-            ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
-            : 'border-[#D8E2F0] bg-white text-[#0F1F3D] hover:border-[#0F1F3D]'
+            ? 'border-brand bg-brand text-white'
+            : 'border-[#D8E2F0] bg-white text-brand hover:border-brand'
       }`}
     >
       {children}
@@ -236,16 +236,16 @@ export function ReportsView() {
 
   return (
     <div className="space-y-5">
-      <Card className="overflow-hidden rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div className="flex items-center gap-3 border-b border-[#E6ECF4] px-6 py-5">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF4FD] text-[#0F1F3D]">
+      <Card className="overflow-hidden rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="flex items-center gap-3 border-b border-brand-line px-6 py-5">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF4FD] text-brand">
             <SlidersHorizontal size={16} strokeWidth={1.75} />
           </span>
           <div>
-            <h2 className="font-display text-lg font-bold text-[#0F1F3D]">
+            <h2 className="font-display text-lg font-bold text-brand">
               Gerar relatório
             </h2>
-            <p className="font-body text-xs text-[#49658A]">
+            <p className="font-body text-xs text-brand-muted">
               Escolha o relatório, defina o período e os critérios, e
               pré-visualize antes de exportar.
             </p>
@@ -256,7 +256,7 @@ export function ReportsView() {
           <section aria-labelledby="rep-sec-period" className="space-y-3">
             <h3
               id="rep-sec-period"
-              className="pointer-events-none cursor-default select-none rounded-lg bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-sm font-semibold text-white"
+              className="pointer-events-none cursor-default select-none rounded-control bg-brand/60 px-4 py-2.5 font-body text-sm font-semibold text-white"
             >
               Relatório e período
             </h3>
@@ -292,11 +292,11 @@ export function ReportsView() {
 
           <section
             aria-labelledby="rep-sec-criteria"
-            className="space-y-3 border-t border-[#E6ECF4] pt-5"
+            className="space-y-3 border-t border-brand-line pt-5"
           >
             <h3
               id="rep-sec-criteria"
-              className="pointer-events-none cursor-default select-none rounded-lg bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-sm font-semibold text-white"
+              className="pointer-events-none cursor-default select-none rounded-control bg-brand/60 px-4 py-2.5 font-body text-sm font-semibold text-white"
             >
               Critérios
             </h3>
@@ -356,7 +356,7 @@ export function ReportsView() {
 
             <div className="grid gap-4 pt-1 md:grid-cols-2">
               <div>
-                <div className="mb-2 font-body text-xs text-[#49658A]">
+                <div className="mb-2 font-body text-xs text-brand-muted">
                   Módulos (vazio = todos)
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -374,7 +374,7 @@ export function ReportsView() {
                 </div>
               </div>
               <div>
-                <div className="mb-2 font-body text-xs text-[#49658A]">
+                <div className="mb-2 font-body text-xs text-brand-muted">
                   Perfis (vazio = todos)
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -394,7 +394,7 @@ export function ReportsView() {
           </section>
         </div>
 
-        <div className="border-t border-[#E6ECF4] bg-[#F7FAFE] px-6 py-4">
+        <div className="border-t border-brand-line bg-[#F7FAFE] px-6 py-4">
           <div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={() => setApplied(toParams(form))}
@@ -407,7 +407,7 @@ export function ReportsView() {
               Limpar filtros
             </Button>
             <div className="ml-auto flex flex-wrap items-center gap-2">
-              <span className="mr-1 font-body text-xs text-[#49658A]">
+              <span className="mr-1 font-body text-xs text-brand-muted">
                 Exportar
               </span>
               <Button
@@ -440,7 +440,7 @@ export function ReportsView() {
               </Button>
             </div>
           </div>
-          <p className="mt-3 font-body text-xs text-[#49658A]">
+          <p className="mt-3 font-body text-xs text-brand-muted">
             Cada exportação regista quem exportou, quando, os filtros usados e o
             resultado. Os ficheiros podem conter dados pessoais ou salariais.
           </p>

@@ -584,7 +584,7 @@ export function ExportsView() {
                 wrapperClassName="overflow-x-hidden"
                 className="table-fixed"
               >
-                <TableHead className="bg-[#0F1F3D]/60">
+                <TableHead className="bg-brand/60">
                   <TableRow className="hover:bg-transparent">
                     {[
                       ['Ficheiro', 'w-[35%]'],
