@@ -30,6 +30,7 @@ import { PeriodPills } from '@/components/ui/Pills';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { NineBox } from './NineBox';
 import type { ManagerDashboard } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function ManagerView() {
   const [tab, setTab] = useState<'overview' | 'ninebox' | 'gaps'>('overview');
@@ -147,9 +148,10 @@ export function ManagerView() {
               <NineBox data={nineBox} />
             </ErrorBoundary>
             {nineBox.length === 0 && (
-              <div className="text-center text-sm text-ink-faint py-6">
-                Sem dados de 9-box para a equipa
-              </div>
+              <EmptyState
+                variant="inline"
+                title="Sem dados de 9-box para a equipa"
+              />
             )}
           </CardBody>
         </Card>
@@ -193,9 +195,10 @@ export function ManagerView() {
                 </div>
               ))}
               {competencyGaps.length === 0 && (
-                <div className="text-center text-sm text-ink-faint py-4">
-                  Sem lacunas identificadas
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Sem lacunas identificadas"
+                />
               )}
             </div>
           </CardBody>

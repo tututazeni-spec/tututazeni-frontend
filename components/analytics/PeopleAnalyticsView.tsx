@@ -22,6 +22,7 @@ import {
   TURNOVER_MAX,
 } from '@/components/ui/charts/SpeedometerStatCard';
 import type { DepartmentAnalytics, PeopleAnalytics } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 // Barra azul-marinho (#0F1F3D) — o ProgressBar partilhado só tem cores de
 // intenção (accent = laranja), por isso estes cards desenham a sua.
@@ -242,9 +243,7 @@ export function PeopleAnalyticsView() {
           </div>
         ))}
         {data.byPosition.length === 0 && (
-          <div className="px-4 py-8 text-center text-sm text-ink-faint">
-            Sem dados de cargos
-          </div>
+          <EmptyState variant="inline" title="Sem dados de cargos" />
         )}
       </Card>
 
