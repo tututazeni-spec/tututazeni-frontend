@@ -47,6 +47,7 @@ import type { Document, DocVersionRow } from './types';
 import { ADMIN_RH_GESTOR_ROLES } from '@/lib/roles';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface DetailDrawerProps {
   doc: Document;
@@ -356,9 +357,10 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
                 {!detail ? (
                   <Skeleton rows={3} />
                 ) : detail.versions.length === 0 ? (
-                  <p className="text-xs text-ink-faint">
-                    Sem histórico de versões.
-                  </p>
+                  <EmptyState
+                    variant="inline"
+                    title="Sem histórico de versões"
+                  />
                 ) : (
                   detail.versions.map((v) => (
                     <div
