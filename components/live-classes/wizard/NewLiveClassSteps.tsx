@@ -28,6 +28,7 @@ import {
 import type { WizardStepId } from '../constants';
 import type { WizardForm } from './wizardTypes';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const TYPE_ITEMS = Object.entries(TYPE_CFG).map(([value, cfg]) => ({
   value,
@@ -404,7 +405,7 @@ export function NewLiveClassSteps({
           <FormField label="Unidades abrangidas" htmlFor="lc-units">
             <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
               {unitOptions.length === 0 && (
-                <p className="text-xs text-ink-faint">Sem unidades.</p>
+                <EmptyState variant="inline" title="Sem unidades" />
               )}
               {unitOptions.map((u) => (
                 <label
@@ -429,7 +430,7 @@ export function NewLiveClassSteps({
           <FormField label="Departamentos abrangidos" htmlFor="lc-departments">
             <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
               {departmentOptions.length === 0 && (
-                <p className="text-xs text-ink-faint">Sem departamentos.</p>
+                <EmptyState variant="inline" title="Sem departamentos" />
               )}
               {departmentOptions.map((d) => (
                 <label
@@ -454,7 +455,7 @@ export function NewLiveClassSteps({
           <FormField label="Cargos abrangidos" htmlFor="lc-positions">
             <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
               {positionOptions.length === 0 && (
-                <p className="text-xs text-ink-faint">Sem cargos.</p>
+                <EmptyState variant="inline" title="Sem cargos" />
               )}
               {positionOptions.map((p) => (
                 <label

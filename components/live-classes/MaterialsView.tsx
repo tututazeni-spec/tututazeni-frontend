@@ -144,9 +144,7 @@ function AddMaterialModal({ onClose }: { onClose: () => void }) {
             {!selectedDoc && docSearch.length >= 2 && (
               <div className="mt-1 max-h-40 overflow-y-auto rounded-control border border-border">
                 {(docResults?.data ?? []).length === 0 ? (
-                  <p className="px-3 py-2 font-body text-xs text-ink-faint">
-                    Sem resultados.
-                  </p>
+                  <EmptyState variant="inline" title="Sem resultados" />
                 ) : (
                   docResults!.data.map((d) => (
                     <button
