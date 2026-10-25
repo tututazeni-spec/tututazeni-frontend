@@ -51,7 +51,7 @@ describe('LockedUsersCardView', () => {
         })}
       />,
     );
-    expect(screen.getByText('Nenhuma conta bloqueada.')).toBeTruthy();
+    expect(screen.getByText('Nenhuma conta bloqueada')).toBeTruthy();
   });
 });
 

@@ -30,6 +30,7 @@ import type {
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const DSR_TYPE_LABELS: Record<DsrType, string> = {
   ACCESS: 'Acesso',
@@ -367,7 +368,7 @@ export function TabPrivacidade() {
               {versions.isLoading ? (
                 <Skeleton rows={3} />
               ) : !versions.data?.length ? (
-                <p className="text-sm text-ink-faint">Sem histórico.</p>
+                <EmptyState variant="inline" title="Sem histórico" />
               ) : (
                 versions.data.map((v) => (
                   <div
@@ -418,9 +419,7 @@ export function TabPrivacidade() {
           {requests.isLoading ? (
             <Skeleton rows={3} />
           ) : !requests.data?.items.length ? (
-            <p className="py-6 text-center text-sm text-ink-faint">
-              Nenhum pedido registado.
-            </p>
+            <EmptyState variant="inline" title="Nenhum pedido registado" />
           ) : (
             <table className="w-full text-sm">
               <thead>

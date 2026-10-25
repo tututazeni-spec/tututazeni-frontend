@@ -7,6 +7,7 @@
 import type { CurrentUser as Me } from '@/hooks/useCurrentUser';
 import { AvatarUploader } from '@/components/ui/AvatarUploader';
 import { Card, CardBody } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface TabPerfilProps {
   user: Me;
@@ -106,9 +107,10 @@ export function TabPerfil({ user }: TabPerfilProps) {
         </div>
         <CardBody>
           {!user.badgeAwards?.length ? (
-            <p className="text-ink-faint text-sm text-center py-5">
-              Nenhum Distintivo conquistado ainda.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Nenhum Distintivo conquistado ainda"
+            />
           ) : (
             <div className="space-y-2">
               {user.badgeAwards.map((b, i) => (

@@ -7,6 +7,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import type { LockedUsersController } from '@/hooks/useLockedUsers';
 import { fmtDate } from './logic';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function LockedUsersCardView({ ctl }: { ctl: LockedUsersController }) {
   const { isLoading, total, items, requestUnlock, unlocking } = ctl;
@@ -23,9 +24,7 @@ export function LockedUsersCardView({ ctl }: { ctl: LockedUsersController }) {
         {isLoading ? (
           <Skeleton rows={3} />
         ) : !items.length ? (
-          <p className="py-4 text-center text-sm text-ink-faint">
-            Nenhuma conta bloqueada.
-          </p>
+          <EmptyState variant="inline" title="Nenhuma conta bloqueada" />
         ) : (
           <div className="space-y-2">
             {items.map((u) => (

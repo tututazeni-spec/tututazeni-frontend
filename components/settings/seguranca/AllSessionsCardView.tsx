@@ -8,6 +8,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import type { OrgSessionsController } from '@/hooks/useSecuritySessions';
 import { fmtDate } from './logic';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function AllSessionsCardView({ ctl }: { ctl: OrgSessionsController }) {
   const {
@@ -30,9 +31,7 @@ export function AllSessionsCardView({ ctl }: { ctl: OrgSessionsController }) {
         {isLoading ? (
           <Skeleton rows={3} />
         ) : !items.length ? (
-          <p className="py-4 text-center text-sm text-ink-faint">
-            Nenhuma sessão activa.
-          </p>
+          <EmptyState variant="inline" title="Nenhuma sessão activa" />
         ) : (
           <table className="w-full text-sm">
             <thead>

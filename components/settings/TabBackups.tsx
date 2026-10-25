@@ -28,6 +28,7 @@ import type {
 import { pollInterval } from '@/lib/polling';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const FREQUENCY_ITEMS = [
   { value: 'DAILY', label: 'Diária' },
@@ -371,9 +372,10 @@ export function TabBackups() {
         </div>
         <CardBody>
           {data.runs.length === 0 ? (
-            <p className="text-sm text-ink-faint">
-              Ainda não foi executado nenhum backup.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Ainda não foi executado nenhum backup"
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-ink">

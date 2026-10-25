@@ -27,6 +27,7 @@ import type {
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const TEMPLATE_TYPES: { value: CertificateTemplateType; label: string }[] = [
   { value: 'COURSE', label: 'Curso' },
@@ -423,9 +424,7 @@ export function TabCertificados() {
           {templates.isLoading ? (
             <Skeleton rows={3} />
           ) : !list.length ? (
-            <p className="py-6 text-center text-sm text-ink-faint">
-              Nenhum template criado.
-            </p>
+            <EmptyState variant="inline" title="Nenhum template criado" />
           ) : (
             <table className="w-full text-sm">
               <thead>

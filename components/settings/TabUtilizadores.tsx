@@ -22,6 +22,7 @@ import { Select } from '@/components/ui/Select';
 import type { InactiveUsersResult, UserPolicy, UsersOverview } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const FIELD_LABELS: Record<string, string> = {
   phone: 'Telefone',
@@ -345,9 +346,7 @@ export function TabUtilizadores() {
           {inactive.isLoading ? (
             <Skeleton rows={3} />
           ) : !inactive.data?.items.length ? (
-            <p className="py-6 text-center text-sm text-ink-faint">
-              Nenhum utilizador inactivo.
-            </p>
+            <EmptyState variant="inline" title="Nenhum utilizador inactivo" />
           ) : (
             <table className="w-full text-sm">
               <thead>
