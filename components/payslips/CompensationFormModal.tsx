@@ -19,6 +19,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
 import { useDirectoryUsers, type DirectoryUser } from './compensationData';
 import type { EmployeeCompensation } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface CompensationFormModalProps {
   mode: 'create' | 'edit';
@@ -211,9 +212,10 @@ export function CompensationFormModal({
                         </div>
                       )}
                       {!usersLoading && users.length === 0 && (
-                        <div className="px-3 py-2 text-sm text-ink-muted">
-                          Nenhum colaborador encontrado
-                        </div>
+                        <EmptyState
+                          variant="inline"
+                          title="Nenhum colaborador encontrado"
+                        />
                       )}
                       {users.map((u) => (
                         <button
