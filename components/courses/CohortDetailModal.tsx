@@ -16,7 +16,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useDirectoryUsers } from '@/components/enrollments/enrollData';
@@ -234,38 +234,38 @@ export function CohortDetailModal({
                       aria-label="Capacidade da turma"
                       autoFocus
                     />
-                    <button
+                    <IconButton
+                      icon={Check}
+                      label="Guardar vagas"
+                      intent="ghost"
+                      size="compact"
                       type="button"
-                      aria-label="Guardar vagas"
                       onClick={saveCapacity}
                       disabled={updateCapacity.isPending}
-                      className="rounded-control p-1 text-success-ink hover:bg-success-subtle"
-                    >
-                      <Check size={16} strokeWidth={1.75} />
-                    </button>
-                    <button
+                    />
+                    <IconButton
+                      icon={X}
+                      label="Cancelar"
+                      intent="ghost"
+                      size="compact"
                       type="button"
-                      aria-label="Cancelar"
                       onClick={() => setEditingCapacity(false)}
-                      className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken"
-                    >
-                      <X size={16} strokeWidth={1.75} />
-                    </button>
+                    />
                   </div>
                 ) : (
                   <div className="flex items-center gap-1">
                     {cohort.availableSlots}/{cohort.capacity}
-                    <button
+                    <IconButton
+                      icon={Pencil}
+                      label="Editar vagas"
+                      intent="ghost"
+                      size="xs"
                       type="button"
-                      aria-label="Editar vagas"
                       onClick={() => {
                         setCapacityDraft(String(cohort.capacity));
                         setEditingCapacity(true);
                       }}
-                      className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-                    >
-                      <Pencil size={14} strokeWidth={1.75} />
-                    </button>
+                    />
                   </div>
                 )}
               </div>
@@ -364,14 +364,14 @@ export function CohortDetailModal({
                       <div className="min-w-0 flex-1 truncate text-sm text-ink">
                         {p.user.fullName}
                       </div>
-                      <button
+                      <IconButton
+                        icon={UserMinus}
+                        label="Remover participante"
+                        intent="ghostDanger"
+                        size="compact"
                         type="button"
-                        aria-label="Remover participante"
                         onClick={() => onRemove(p.userId, p.user.fullName)}
-                        className="rounded-control p-1 text-ink-muted hover:bg-danger-subtle hover:text-danger-ink"
-                      >
-                        <UserMinus size={16} strokeWidth={1.75} />
-                      </button>
+                      />
                     </div>
                   ))}
                 </div>

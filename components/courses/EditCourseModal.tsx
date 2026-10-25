@@ -25,7 +25,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
 import { useToast } from '@/providers/ToastProvider';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -643,14 +643,14 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
                   <span className="flex-1 truncate text-sm text-ink">
                     {ci.user.fullName}
                   </span>
-                  <button
+                  <IconButton
+                    icon={Trash2}
+                    label="Remover instrutor"
+                    intent="ghostDanger"
+                    size="xs"
                     type="button"
                     onClick={() => removeInstructor.mutate(ci.userId)}
-                    className="text-ink-faint hover:text-danger"
-                    aria-label="Remover instrutor"
-                  >
-                    <Trash2 size={14} strokeWidth={1.75} />
-                  </button>
+                  />
                 </div>
               ))}
               {(course.instructors ?? []).length === 0 && (
