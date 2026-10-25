@@ -35,6 +35,7 @@ import {
   useTemplateOptions,
   type DirectoryUser,
 } from './planData';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface AssignPlanModalProps {
   onClose: () => void;
@@ -161,9 +162,10 @@ export function AssignPlanModal({ onClose }: AssignPlanModalProps) {
                       </div>
                     )}
                     {!usersLoading && users.length === 0 && (
-                      <div className="px-3 py-2 text-sm text-ink-muted">
-                        Nenhum colaborador encontrado
-                      </div>
+                      <EmptyState
+                        variant="inline"
+                        title="Nenhum colaborador encontrado"
+                      />
                     )}
                     {users.map((u) => (
                       <button

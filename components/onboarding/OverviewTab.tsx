@@ -65,9 +65,7 @@ function RankedList({
       </div>
       <div className="p-4">
         {sorted.length === 0 ? (
-          <p className="py-4 text-center font-body text-sm text-ink-faint">
-            Sem dados
-          </p>
+          <EmptyState variant="inline" title="Sem dados" />
         ) : (
           <div className="space-y-2">
             {sorted.map(([label, count]) => (

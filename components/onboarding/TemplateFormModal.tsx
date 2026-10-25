@@ -55,6 +55,7 @@ import type {
   TaskType,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface TemplateFormModalProps {
   /** Ausente/null → criar; template → editar esse template. */
@@ -469,10 +470,10 @@ export function TemplateFormModal({
               </div>
 
               {tasks.length === 0 && (
-                <p className="text-xs text-ink-faint">
-                  Sem itens — pode adicionar agora ou depois no detalhe do
-                  template.
-                </p>
+                <EmptyState
+                  variant="inline"
+                  title="Sem itens — pode adicionar agora ou depois no detalhe do template"
+                />
               )}
 
               <div className="space-y-3">

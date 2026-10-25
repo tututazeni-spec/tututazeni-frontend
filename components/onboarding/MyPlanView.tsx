@@ -389,9 +389,10 @@ export function MyPlanView() {
               </div>
             ))}
             {plan.documents.length === 0 && (
-              <p className="px-1 py-2 text-xs text-ink-faint">
-                Ainda não submeteu documentos.
-              </p>
+              <EmptyState
+                variant="inline"
+                title="Ainda não submeteu documentos"
+              />
             )}
           </div>
         </SectionCard>

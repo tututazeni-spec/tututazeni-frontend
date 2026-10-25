@@ -44,6 +44,7 @@ import type {
   TaskPhase,
   TemplateTask,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface TemplateDetailModalProps {
   templateId: number;
@@ -186,9 +187,10 @@ export function TemplateDetailModal({
                     </div>
 
                     {phaseTasks.length === 0 ? (
-                      <p className="rounded-card bg-surface-sunken px-3 py-2 font-body text-xs text-ink-faint">
-                        Sem tarefas nesta fase.
-                      </p>
+                      <EmptyState
+                        variant="inline"
+                        title="Sem tarefas nesta fase"
+                      />
                     ) : (
                       <ul className="space-y-2">
                         {phaseTasks.map((task) => (
