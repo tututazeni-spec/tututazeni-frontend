@@ -2,9 +2,9 @@ export type TopBarTone = 'blue' | 'green' | 'gold' | 'red';
 
 const TONES: { [K in TopBarTone]: { bar: string; text: string } } = {
   blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  green: { bar: 'bg-success', text: 'text-success' },
   gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+  red: { bar: 'bg-danger', text: 'text-danger' },
 };
 
 export interface TopBarCardProps {

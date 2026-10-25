@@ -22,7 +22,7 @@ export type NavyStatTone = 'blue' | 'green' | 'orange' | 'red' | 'gray';
 // Classes completas: o Tailwind não detecta nomes montados dinamicamente
 export const NAVY_TONES: Record<NavyStatTone, { bg: string; text: string }> = {
   blue: { bg: 'bg-[#1877F2]', text: 'text-[#1877F2]' },
-  green: { bg: 'bg-[#218653]', text: 'text-[#218653]' },
+  green: { bg: 'bg-success', text: 'text-success' },
   orange: { bg: 'bg-[#E99A16]', text: 'text-[#E99A16]' },
   red: { bg: 'bg-[#EF4657]', text: 'text-[#EF4657]' },
   gray: { bg: 'bg-[#8A94A6]', text: 'text-[#8A94A6]' },
@@ -76,7 +76,7 @@ export function NavyStatCard({
   const hasLongWord = label.split(/\s+/).some((w) => w.length > 10);
   const interactive = !!(href || tab || onClick);
   const rootClass = cn(
-    'relative flex min-h-[155px] flex-col overflow-hidden rounded-panel border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100',
+    'relative flex min-h-[155px] flex-col overflow-hidden rounded-panel border border-brand-line bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100',
     interactive &&
       'group w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1877F2] focus-visible:ring-offset-2',
     className,

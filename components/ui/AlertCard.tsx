@@ -43,12 +43,12 @@ const VARIANTS: Record<
   danger: {
     icon: AlertTriangle,
     box: 'border-[#FCA5A5]/70 bg-[#FEF2F2]',
-    accent: 'border-l-[#DC2626]',
+    accent: 'border-l-danger',
     iconWrap: 'bg-[#FEE2E2]',
-    iconColor: 'text-[#DC2626]',
-    title: 'text-[#991B1B]',
+    iconColor: 'text-danger',
+    title: 'text-danger-ink',
     message: 'text-[#7F1D1D]',
-    detail: 'text-[#991B1B]/80',
+    detail: 'text-danger-ink/80',
   },
   info: {
     icon: Info,
