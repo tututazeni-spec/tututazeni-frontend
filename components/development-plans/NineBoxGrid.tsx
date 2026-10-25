@@ -113,7 +113,7 @@ export function NineBoxGrid({ entries }: NineBoxGridProps) {
             return (
               <div
                 key={key}
-                className="rounded-lg p-3 min-h-28 relative"
+                className="rounded-control p-3 min-h-28 relative"
                 style={{
                   backgroundColor: style.bg,
                   borderColor: style.border,

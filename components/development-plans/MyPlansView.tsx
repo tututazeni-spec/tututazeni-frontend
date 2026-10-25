@@ -105,7 +105,7 @@ export function MyPlansView({ onSelect }: MyPlansViewProps) {
 
       {/* Plans */}
       <section className="pt-3">
-        <h2 className="mb-6 mt-0 inline-block rounded-full bg-[#0F1F3D] px-5 py-1.5 text-sm font-bold uppercase tracking-wide text-white">
+        <h2 className="mb-6 mt-0 inline-block rounded-full bg-brand px-5 py-1.5 text-sm font-bold uppercase tracking-wide text-white">
           Os meus PDIs
         </h2>
         {plans.length === 0 ? (

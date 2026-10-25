@@ -139,7 +139,7 @@ function DiagnosisCard({
   rows,
 }: DiagnosisCardProps) {
   return (
-    <section className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+    <section className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
       <div className="flex flex-wrap items-center gap-4 px-6 pt-6">
         <span
           aria-hidden
@@ -148,13 +148,13 @@ function DiagnosisCard({
         >
           <Icon size={24} strokeWidth={1.75} />
         </span>
-        <h3 className="min-w-0 flex-1 break-words font-display text-xl font-bold text-[#0F1F3D]">
+        <h3 className="min-w-0 flex-1 break-words font-display text-xl font-bold text-brand">
           {title}
         </h3>
         {badge}
       </div>
       {rows.length > 0 && (
-        <div className="mt-4 divide-y divide-[#E6ECF4] border-t border-[#E6ECF4]">
+        <div className="mt-4 divide-y divide-brand-line border-t border-brand-line">
           {rows.map((r, i) => (
             <div key={i} className="flex items-center gap-3 px-6 py-3.5">
               <span
@@ -165,11 +165,11 @@ function DiagnosisCard({
                 <r.icon size={18} strokeWidth={1.75} />
               </span>
               <div className="min-w-0">
-                <div className="break-words font-body text-[15px] font-medium text-[#0F1F3D]">
+                <div className="break-words font-body text-[15px] font-medium text-brand">
                   {r.value}
                 </div>
                 {r.label && (
-                  <div className="break-words font-body text-xs text-[#49658A]">
+                  <div className="break-words font-body text-xs text-brand-muted">
                     {r.label}
                   </div>
                 )}
@@ -279,7 +279,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
       {/* Header — desenho de "workshop de inovação.jpeg": cartão claro com
           etiquetas, ícone + título, dados, gestor e acção; a imagem do PDI
           num recorte inclinado no canto superior direito. */}
-      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div
           aria-hidden
           className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
@@ -315,7 +315,7 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               variant="pill"
             />
             {plan.period && (
-              <span className="font-body text-xs font-semibold text-[#49658A]">
+              <span className="font-body text-xs font-semibold text-brand-muted">
                 {plan.period}
               </span>
             )}
@@ -330,11 +330,11 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               <Target size={28} strokeWidth={1.75} />
             </span>
             <div className="min-w-0">
-              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-[#0F1F3D]">
+              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-brand">
                 {plan.name}
               </h1>
               {plan.user && (
-                <p className="mt-0.5 break-words text-base text-[#49658A]">
+                <p className="mt-0.5 break-words text-base text-brand-muted">
                   {plan.user.fullName}
                 </p>
               )}
@@ -345,17 +345,17 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
             {plan.goal}
           </p>
 
-          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-brand-line">
             <Metric icon={Calendar}>Início: {fmtDate(plan.startDate)}</Metric>
             <Metric icon={Calendar}>Fim: {fmtDate(plan.endDate)}</Metric>
             <Metric icon={ClipboardList}>{plan._count.actions} Acções</Metric>
             <Metric icon={Target}>{plan._count.goals} Metas</Metric>
           </div>
 
-          <div className="border-t border-[#E6ECF4] pt-4">
+          <div className="border-t border-brand-line pt-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               {plan.manager ? (
-                <span className="inline-flex items-center gap-3 text-[15px] text-[#49658A]">
+                <span className="inline-flex items-center gap-3 text-[15px] text-brand-muted">
                   <Avatar
                     name={plan.manager.fullName}
                     url={plan.manager.avatarUrl ?? undefined}
@@ -374,9 +374,9 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
               )}
             </div>
             <div className="mt-4">
-              <div className="mb-1 flex justify-between font-body text-xs text-[#49658A]">
+              <div className="mb-1 flex justify-between font-body text-xs text-brand-muted">
                 <span>Progresso geral</span>
-                <span className="font-data font-semibold text-[#0F1F3D]">
+                <span className="font-data font-semibold text-brand">
                   {pct}%
                 </span>
               </div>

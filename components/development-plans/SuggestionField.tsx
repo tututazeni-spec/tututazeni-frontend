@@ -79,7 +79,7 @@ export function SuggestionField({
             type="button"
             aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#0F1F3D] hover:underline"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline"
           >
             <ListPlus size={14} strokeWidth={1.75} />
             {open ? 'Fechar lista' : 'Escolher da lista'}
@@ -97,8 +97,8 @@ export function SuggestionField({
                     className={cn(
                       'inline-flex items-center gap-1 rounded-full border px-3 py-1 text-left text-xs transition-colors',
                       active
-                        ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
-                        : 'border-[#D8E2F0] bg-white text-[#0F1F3D] hover:border-[#0F1F3D]',
+                        ? 'border-brand bg-brand text-white'
+                        : 'border-[#D8E2F0] bg-white text-brand hover:border-brand',
                     )}
                   >
                     {active && <Check size={12} strokeWidth={2} />}
