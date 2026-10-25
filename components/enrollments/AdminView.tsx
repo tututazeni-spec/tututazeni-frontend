@@ -33,11 +33,7 @@ import {
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { type NavyTone } from '@/components/courses/NavyCard';
-import {
-  ADMIN_ENROLLMENT_BTN_GHOST,
-  ADMIN_ENROLLMENT_BTN_PRIMARY,
-  AdminEnrollmentCard,
-} from './AdminEnrollmentCard';
+import { AdminEnrollmentCard } from './AdminEnrollmentCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -403,24 +399,26 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                 }
                 actions={
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={ADMIN_ENROLLMENT_BTN_PRIMARY}
+                      intent="primary"
+                      size="md"
                       disabled={rowBusy(e.id)}
                       onClick={() => remind.mutate(e.id)}
                     >
                       <Bell size={15} strokeWidth={1.75} />
                       Enviar lembrete
-                    </button>
+                    </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button
+                        <Button
                           type="button"
-                          className={ADMIN_ENROLLMENT_BTN_GHOST}
+                          intent="secondary"
+                          size="md"
                           disabled={rowBusy(e.id)}
                         >
                           <MoreHorizontal size={16} strokeWidth={1.75} />
-                        </button>
+                        </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onSelect={() => remind.mutate(e.id)}>
