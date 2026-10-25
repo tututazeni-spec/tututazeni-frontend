@@ -125,7 +125,7 @@ export function HomeTab() {
           {searchQuery.isLoading ? (
             <Skeleton
               rows={4}
-              wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse"
+              wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
               itemClassName="bg-surface-sunken rounded-card h-52"
             />
           ) : results.length === 0 ? (
@@ -172,7 +172,7 @@ export function HomeTab() {
       {loading ? (
         <Skeleton
           rows={8}
-          wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse"
+          wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
           itemClassName="bg-surface-sunken rounded-card h-52"
         />
       ) : (

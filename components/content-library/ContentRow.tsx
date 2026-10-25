@@ -26,7 +26,7 @@ export function ContentRow({
         <div className="mb-3 h-4 w-40 animate-pulse rounded bg-surface-sunken" />
         <Skeleton
           rows={5}
-          wrapperClassName="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-3 animate-pulse"
+          wrapperClassName="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-3"
           itemClassName="bg-surface-sunken rounded-card h-48"
         />
       </div>
