@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { isHtmlEmpty, lessonTextToHtml } from '@/lib/lessonHtml';
 import { sanitizeHtml } from '@/lib/sanitize';
+import { Input } from '@/components/ui/Input';
 
 interface RichTextEditorProps {
   id?: string;
@@ -177,7 +178,7 @@ export function RichTextEditor({
 
       {linkOpen && (
         <div className="flex flex-wrap items-center gap-2 border-b border-border px-2 py-1.5">
-          <input
+          <Input
             autoFocus
             type="url"
             value={linkUrl}
@@ -191,7 +192,7 @@ export function RichTextEditor({
             }}
             placeholder="https://…"
             aria-label="Endereço da ligação"
-            className="min-w-0 flex-1 rounded-control border border-border bg-surface px-2 py-1 text-sm"
+            className="min-w-0 flex-1"
           />
           <button
             type="button"

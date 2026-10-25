@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export const SUGGESTED_OBJECTIVES = [
   'Compreender os conceitos fundamentais do tema',
@@ -73,11 +74,10 @@ export function ObjectivesPicker({
             key={s}
             className="flex cursor-pointer items-start gap-2 border-b border-border px-3 py-2 text-sm text-ink last:border-0 hover:bg-surface-sunken"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               checked={has(s)}
               onChange={() => toggle(s)}
-              className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-strong accent-primary"
+              className="mt-0.5 shrink-0"
             />
             <span>{s}</span>
           </label>

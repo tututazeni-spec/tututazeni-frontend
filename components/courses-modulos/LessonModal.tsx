@@ -39,6 +39,7 @@ import {
   ObjectivesPicker,
   SUGGESTED_LESSON_OBJECTIVES,
 } from './ObjectivesPicker';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface LessonModalProps {
   moduleId: number;
@@ -627,11 +628,10 @@ export function LessonModal({
                   key={key}
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={Boolean(form[key as keyof typeof form])}
                     onChange={(e) => set(key, e.target.checked)}
-                    className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                    size="sm"
                   />
                   {label}
                 </label>

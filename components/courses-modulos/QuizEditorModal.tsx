@@ -19,6 +19,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
 import { FormField } from '@/components/ui/FormField';
 import { Skeleton } from './../courses/shared';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 type QuestionType = 'MULTIPLE_CHOICE' | 'TRUE_FALSE' | 'OPEN';
 
@@ -325,8 +326,7 @@ export function QuizEditorModal({
 
               <div className="flex flex-wrap gap-4 text-xs text-ink-muted">
                 <label className="flex items-center gap-1.5">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={shuffleQuestions}
                     onChange={(e) =>
                       setField('shuffleQuestions', e.target.checked)
@@ -335,8 +335,7 @@ export function QuizEditorModal({
                   Embaralhar perguntas
                 </label>
                 <label className="flex items-center gap-1.5">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={shuffleAnswers}
                     onChange={(e) =>
                       setField('shuffleAnswers', e.target.checked)
@@ -345,8 +344,7 @@ export function QuizEditorModal({
                   Embaralhar respostas
                 </label>
                 <label className="flex items-center gap-1.5">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={showCorrectAnswers}
                     onChange={(e) =>
                       setField('showCorrectAnswers', e.target.checked)
@@ -355,8 +353,7 @@ export function QuizEditorModal({
                   Mostrar respostas correctas
                 </label>
                 <label className="flex items-center gap-1.5">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={autoFeedback}
                     onChange={(e) => setField('autoFeedback', e.target.checked)}
                   />
