@@ -211,7 +211,7 @@ export function RolesTab() {
                   </Badge>
                 ))}
                 {!selected.permissions?.length && (
-                  <p className="text-sm text-ink-faint">Sem permissões</p>
+                  <EmptyState variant="inline" title="Sem permissões" />
                 )}
               </div>
 
