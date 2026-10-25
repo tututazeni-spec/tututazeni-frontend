@@ -95,10 +95,10 @@ export function InsightsTab() {
         const conf = SEV_CONFIG[ins.severity] ?? SEV_CONFIG.LOW;
         const Icon = conf.icon;
         const t = TONES[conf.tone];
-                return (
+        return (
           <div
             key={i}
-            className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting"
+            className="overflow-hidden rounded-panel border border-border bg-white shadow-resting"
           >
             <div className={`h-1.5 w-full ${t.bar}`} />
             <div className="flex items-start gap-3 p-5">
