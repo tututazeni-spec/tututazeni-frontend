@@ -108,9 +108,7 @@ function IntegrationMetrics({ m }: { m: IntegrationMetricsData }) {
         </h3>
         <CardBody>
           {m.integrations.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem integrações configuradas.
-            </p>
+            <EmptyState variant="inline" title="Sem integrações configuradas" />
           ) : (
             <table className="w-full font-body text-sm">
               <thead>

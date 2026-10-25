@@ -200,9 +200,7 @@ export function ReportsTab({
               </div>
               <CardBody className="px-6 py-5">
                 {t.rows.length === 0 ? (
-                  <p className="font-body text-sm text-ink-muted">
-                    Sem registos.
-                  </p>
+                  <EmptyState variant="inline" title="Sem registos" />
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full font-body text-sm">
@@ -711,9 +709,7 @@ function SettingsForm({ data, canEdit, saving, onSave }: SettingsFormProps) {
             )}
           </div>
           {windows.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">
-              Nenhuma janela definida.
-            </p>
+            <EmptyState variant="inline" title="Nenhuma janela definida" />
           ) : (
             <ul className="flex flex-col gap-4">
               {windows.map((w, i) => (

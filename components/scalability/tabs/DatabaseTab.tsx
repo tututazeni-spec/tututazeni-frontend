@@ -143,9 +143,7 @@ export function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
               description="Activa a extensão pg_stat_statements no PostgreSQL para ver as queries mais lentas com execuções e tempo médio."
             />
           ) : db.slowQueries.rows.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem queries registadas.
-            </p>
+            <EmptyState variant="inline" title="Sem queries registadas" />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full font-body text-sm">
@@ -249,9 +247,10 @@ export function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
         <CardTitleBar>Índices inutilizados</CardTitleBar>
         <CardBody>
           {db.indexes.unused.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Nenhum índice sem leituras (excluindo únicos e chaves primárias).
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Nenhum índice sem leituras (excluindo únicos e chaves primárias)"
+            />
           ) : (
             <table className="w-full font-body text-sm">
               <tbody>

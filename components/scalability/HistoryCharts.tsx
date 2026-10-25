@@ -342,9 +342,10 @@ export function RecommendationsCard() {
       <Card>
         <CardBody>
           {data.recommendations.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">
-              Sem recomendações — a infraestrutura está dentro dos limites.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem recomendações — a infraestrutura está dentro dos limites"
+            />
           ) : (
             <ul className="flex flex-col gap-3">
               {data.recommendations.map((r) => (

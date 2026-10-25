@@ -597,9 +597,7 @@ export function AutoScalingTab({
             )}
           </div>
           {scheduled.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem escalas agendadas.
-            </p>
+            <EmptyState variant="inline" title="Sem escalas agendadas" />
           ) : (
             <div className="flex flex-col gap-3">
               {scheduled.map((s, i) => (
