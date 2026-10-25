@@ -82,10 +82,10 @@ export function CompensationsView({ onOpenDetail }: CompensationsViewProps) {
       )}
 
       {!error && (
-        <div className="overflow-hidden rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
           <div>
             <div
-              className={`${COLS} bg-[#0B2D5B] px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
+              className={`${COLS} bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
             >
               <div>Colaborador</div>
               <div>Departamento</div>
@@ -112,27 +112,27 @@ export function CompensationsView({ onOpenDetail }: CompensationsViewProps) {
                     <div className="truncate font-body text-sm font-semibold text-white">
                       {r.user.fullName}
                     </div>
-                    <div className="truncate font-body text-xs text-[#9DB4D3]">
+                    <div className="truncate font-body text-xs text-on-brand-faint">
                       {r.user.employeeNumber ?? '—'}
                     </div>
                   </div>
                 </div>
-                <div className="truncate font-body text-sm text-[#CFE3FF]">
+                <div className="truncate font-body text-sm text-on-brand">
                   {r.user.department?.name ?? '—'}
                 </div>
                 <div className="font-body text-sm font-semibold text-white">
                   {fmtKz(r.baseSalary)}
                 </div>
-                <div className="font-body text-sm text-[#CFE3FF]">
+                <div className="font-body text-sm text-on-brand">
                   {fmtKz(r.foodAllowance)}
                 </div>
-                <div className="font-body text-sm text-[#CFE3FF]">
+                <div className="font-body text-sm text-on-brand">
                   {fmtKz(r.transportAllowance)}
                 </div>
-                <div className="font-body text-sm text-[#CFE3FF]">
+                <div className="font-body text-sm text-on-brand">
                   {fmtDate(r.effectiveFrom)}
                 </div>
-                <div className="font-body text-sm text-[#CFE3FF]">
+                <div className="font-body text-sm text-on-brand">
                   {r._count.components}
                 </div>
               </div>
