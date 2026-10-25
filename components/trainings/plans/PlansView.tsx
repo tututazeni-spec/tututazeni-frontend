@@ -28,11 +28,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { formatKz } from '@/lib/format';
-import {
-  NAVY_ACTION,
-  NAVY_BTN,
-  NavyBadge,
-} from '@/components/courses/NavyCard';
+import { NAVY_ACTION, NavyBadge } from '@/components/courses/NavyCard';
 import { PHOTO_CARD_ACTION, PhotoCard } from '@/components/courses/PhotoCard';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -219,27 +215,29 @@ export function PlansView({ onOpen }: PlansViewProps) {
                 actions={
                   <>
                     {(p.status === 'DRAFT' || p.status === 'REJECTED') && (
-                      <button
+                      <Button
                         type="button"
-                        className={PHOTO_CARD_ACTION}
+                        intent="onDarkGhost"
+                        size="icon"
                         aria-label={`Editar ${p.name}`}
                         title="Editar"
                         disabled={busy}
                         onClick={() => setEditPlan(p)}
                       >
                         <Pencil size={15} strokeWidth={1.75} />
-                      </button>
+                      </Button>
                     )}
-                    <button
+                    <Button
                       type="button"
-                      className={PHOTO_CARD_ACTION}
+                      intent="onDarkGhost"
+                      size="icon"
                       aria-label={`Duplicar ${p.name}`}
                       title="Duplicar"
                       disabled={busy}
                       onClick={() => duplicate.mutate(p.id)}
                     >
                       <Copy size={15} strokeWidth={1.75} />
-                    </button>
+                    </Button>
                     <a
                       href={`/api/training-plans/${p.id}/export`}
                       className={PHOTO_CARD_ACTION}
@@ -249,41 +247,44 @@ export function PlansView({ onOpen }: PlansViewProps) {
                       <Download size={15} strokeWidth={1.75} />
                     </a>
                     {p.status !== 'ARCHIVED' && (
-                      <button
+                      <Button
                         type="button"
-                        className={PHOTO_CARD_ACTION}
+                        intent="onDarkGhost"
+                        size="icon"
                         aria-label={`Arquivar ${p.name}`}
                         title="Arquivar"
                         disabled={busy}
                         onClick={() => onArchive(p)}
                       >
                         <Archive size={15} strokeWidth={1.75} />
-                      </button>
+                      </Button>
                     )}
                   </>
                 }
                 footer={
                   <>
                     {(p.status === 'DRAFT' || p.status === 'REJECTED') && (
-                      <button
+                      <Button
                         type="button"
-                        className={NAVY_BTN}
+                        intent="onDark"
+                        size="md"
                         disabled={busy}
                         onClick={() => onSubmit(p)}
                       >
                         Submeter
-                      </button>
+                      </Button>
                     )}
                     {isAdminOrRh && p.status === 'SUBMITTED' && (
                       <>
-                        <button
+                        <Button
                           type="button"
-                          className={NAVY_BTN}
+                          intent="onDark"
+                          size="md"
                           disabled={busy}
                           onClick={() => approve.mutate(p.id)}
                         >
                           Aprovar
-                        </button>
+                        </Button>
                         <button
                           type="button"
                           className={`${NAVY_ACTION} h-9 border border-white/25 px-4 text-sm`}
@@ -295,14 +296,15 @@ export function PlansView({ onOpen }: PlansViewProps) {
                       </>
                     )}
                     {p.status === 'APPROVED' && (
-                      <button
+                      <Button
                         type="button"
-                        className={NAVY_BTN}
+                        intent="onDark"
+                        size="md"
                         disabled={busy}
                         onClick={() => publish.mutate(p.id)}
                       >
                         Publicar
-                      </button>
+                      </Button>
                     )}
                   </>
                 }

@@ -203,15 +203,16 @@ export function SessionsTab({ training }: SessionsTabProps) {
                 ]}
                 actions={
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={NAVY_ACTION}
+                      intent="onDarkGhost"
+                      size="sm"
                       aria-label={`Editar sessão de ${fmtDate(s.sessionDate)}`}
                       title="Editar"
                       onClick={() => openEdit(s)}
                     >
                       <Pencil size={15} strokeWidth={1.75} />
-                    </button>
+                    </Button>
                     <button
                       type="button"
                       className={`${NAVY_ACTION} hover:!bg-red-500 hover:!text-white`}

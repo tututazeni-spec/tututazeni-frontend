@@ -29,7 +29,6 @@ import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import {
   NAVY_ACTION,
-  NAVY_BTN,
   NavyBadge,
   NavyCard,
 } from '@/components/courses/NavyCard';
@@ -240,27 +239,29 @@ export function GestaoView({ onManage }: GestaoViewProps) {
                 ]}
                 actions={
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={NAVY_ACTION}
+                      intent="onDarkGhost"
+                      size="sm"
                       aria-label={`Editar ${t.title}`}
                       title="Editar"
                       disabled={busy}
                       onClick={() => setEditTraining(t)}
                     >
                       <Pencil size={15} strokeWidth={1.75} />
-                    </button>
+                    </Button>
                     {!closed && (
-                      <button
+                      <Button
                         type="button"
-                        className={NAVY_ACTION}
+                        intent="onDarkGhost"
+                        size="sm"
                         aria-label={`Arquivar ${t.title}`}
                         title="Arquivar"
                         disabled={busy}
                         onClick={() => onArchive(t)}
                       >
                         <Archive size={15} strokeWidth={1.75} />
-                      </button>
+                      </Button>
                     )}
                     <button
                       type="button"
@@ -276,33 +277,36 @@ export function GestaoView({ onManage }: GestaoViewProps) {
                 }
                 footer={
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={NAVY_BTN}
+                      intent="onDark"
+                      size="md"
                       onClick={() => onManage(t.id)}
                     >
                       Gerir
-                    </button>
+                    </Button>
                     {t.status === 'DRAFT' && (
-                      <button
+                      <Button
                         type="button"
-                        className={NAVY_BTN}
+                        intent="onDark"
+                        size="md"
                         disabled={busy}
                         onClick={() => publish.mutate(t.id)}
                       >
                         Publicar
-                      </button>
+                      </Button>
                     )}
                     {t.status === 'PUBLISHED' && (
                       <>
-                        <button
+                        <Button
                           type="button"
-                          className={NAVY_BTN}
+                          intent="onDark"
+                          size="md"
                           disabled={busy}
                           onClick={() => onComplete(t)}
                         >
                           Concluir
-                        </button>
+                        </Button>
                         <button
                           type="button"
                           className={`${NAVY_ACTION} h-9 border border-white/25 px-4 text-sm`}
