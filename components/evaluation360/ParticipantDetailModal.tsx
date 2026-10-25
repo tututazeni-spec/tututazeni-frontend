@@ -102,7 +102,7 @@ export function ParticipantDetailModal({
                   {Object.entries(data.competencies).map(([id, c]) => (
                     <div
                       key={id}
-                      className="flex justify-between items-center rounded-lg border border-border px-3 py-2 text-sm"
+                      className="flex justify-between items-center rounded-control border border-border px-3 py-2 text-sm"
                     >
                       <span className="text-ink">{c.name}</span>
                       <span className="font-semibold text-ink">
@@ -122,7 +122,7 @@ export function ParticipantDetailModal({
                 {data.evaluators.map((e) => (
                   <div
                     key={e.id}
-                    className="flex justify-between items-center rounded-lg border border-border px-3 py-2 text-sm"
+                    className="flex justify-between items-center rounded-control border border-border px-3 py-2 text-sm"
                   >
                     <div>
                       <span className="text-ink font-medium">
@@ -186,7 +186,7 @@ export function ParticipantDetailModal({
                   {data.comments.map((c, i) => (
                     <div
                       key={i}
-                      className="rounded-lg border border-border px-3 py-2 text-sm"
+                      className="rounded-control border border-border px-3 py-2 text-sm"
                     >
                       <div className="text-xs text-ink-muted mb-1">
                         {evaluatorRoleLabel[c.evaluatorRole] ?? c.evaluatorRole}{' '}
@@ -207,7 +207,7 @@ export function ParticipantDetailModal({
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-lg border border-border bg-surface-sunken px-3 py-2.5">
+    <div className="rounded-control border border-border bg-surface-sunken px-3 py-2.5">
       <div className="text-xs text-ink-muted">{label}</div>
       <div className="text-base font-bold text-ink">{value}</div>
     </div>

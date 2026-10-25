@@ -66,8 +66,8 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
           </Button>
         </div>
         {feedbacks.length === 0 && (
-          <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
-            <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+          <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
+            <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
               Feedback
             </h3>
             Ainda sem feedback contínuo.
@@ -78,7 +78,7 @@ export function FeedbackTab({ feedbacks }: FeedbackTabProps) {
           return (
             <div
               key={fb.id}
-              className="rounded-r-lg border border-l-4 bg-surface p-4"
+              className="rounded-r-control border border-l-4 bg-surface p-4"
               style={{ borderLeftColor: cfg.color }}
             >
               <div className="flex justify-between items-start gap-4">
@@ -197,8 +197,8 @@ function CycleFeedbackSection() {
       </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
-        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
             Feedback
           </h3>
           Ainda não existe nenhum ciclo de avaliação 360º.
@@ -208,8 +208,8 @@ function CycleFeedbackSection() {
         <div className="text-sm text-ink-muted">A carregar…</div>
       )}
       {cycleId && !isLoading && rows.length === 0 && (
-        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
             Feedback
           </h3>
           Ainda sem feedback submetido para este ciclo.

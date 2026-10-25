@@ -125,7 +125,7 @@ export function PendingEvaluationsCard({
   if (assignments.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-border bg-surface p-5">
+    <div className="rounded-card border border-border bg-surface p-5">
       <div className="mb-3">
         <h3 className="m-0 text-sm font-bold text-ink">Avaliações Pendentes</h3>
         <p className="m-0 mt-0.5 text-xs text-ink-muted">
@@ -139,7 +139,7 @@ export function PendingEvaluationsCard({
             key={a.id}
             type="button"
             onClick={() => setSelected(a)}
-            className="flex items-center justify-between rounded-lg border border-border bg-surface px-4 py-3 text-left transition-colors hover:bg-surface-sunken"
+            className="flex items-center justify-between rounded-control border border-border bg-surface px-4 py-3 text-left transition-colors hover:bg-surface-sunken"
           >
             <div className="flex items-center gap-3">
               {a.role === 'SELF' ? (

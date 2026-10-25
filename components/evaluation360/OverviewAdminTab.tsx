@@ -184,7 +184,7 @@ export function OverviewAdminTab() {
 
       {/* Média por competência (docs/evaluation360.md §1) — todas, não só top/bottom */}
       <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-        <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+        <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
           Média por competência
         </h3>
         {data.competencyAverages.length === 0 && (
@@ -221,7 +221,7 @@ export function OverviewAdminTab() {
       {/* Competências */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Competências com maior pontuação
           </h3>
           {data.topCompetencies.length === 0 && (
@@ -245,7 +245,7 @@ export function OverviewAdminTab() {
           ))}
         </div>
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Competências com menor pontuação
           </h3>
           {data.bottomCompetencies.length === 0 && (
@@ -273,7 +273,7 @@ export function OverviewAdminTab() {
       {/* Prazos e últimas avaliações */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Avaliações próximas do prazo (7 dias)
           </h3>
           {data.upcomingDeadline.length === 0 && (
@@ -294,7 +294,7 @@ export function OverviewAdminTab() {
           ))}
         </div>
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Últimas avaliações realizadas
           </h3>
           {data.recentCompleted.length === 0 && (

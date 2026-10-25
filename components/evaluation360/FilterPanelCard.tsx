@@ -13,7 +13,7 @@ export function FilterPanelCard({
   className?: string;
 }) {
   return (
-    <div className="rounded-card border border-border bg-[#0F1F3D]/[0.08] p-5">
+    <div className="rounded-card border border-border bg-brand/[0.08] p-5">
       <div className={className}>{children}</div>
     </div>
   );
