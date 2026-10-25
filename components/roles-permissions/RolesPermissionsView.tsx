@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 export function RolesPermissionsView() {
   return (
     <div className="min-h-screen bg-canvas">
-      <div className="bg-[#0F1F3D]/60 border-b border-border px-6 py-5">
+      <div className="bg-brand/60 border-b border-border px-6 py-5">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-xl font-display font-bold text-white">
