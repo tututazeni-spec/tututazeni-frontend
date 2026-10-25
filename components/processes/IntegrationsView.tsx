@@ -357,9 +357,10 @@ export function IntegrationsView({
           )}
         </div>
         {logs.data && logs.data.data.length === 0 && (
-          <p className="rounded-card border border-border p-4 font-body text-sm text-ink-faint">
-            Nenhum evento de integração recebido ainda.
-          </p>
+          <EmptyState
+            variant="inline"
+            title="Nenhum evento de integração recebido ainda"
+          />
         )}
         {logs.data && logs.data.data.length > 0 && (
           <div className="divide-y divide-border rounded-card border border-border">

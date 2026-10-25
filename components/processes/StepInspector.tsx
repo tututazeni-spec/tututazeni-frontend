@@ -21,6 +21,7 @@ import { UserPicker } from './UserPicker';
 import { BLOCKS, BLOCK_BY_TYPE, type FlowNode } from './workflow-model';
 import type { ApprovalMode, RejectionRule, StepType } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface StepInspectorProps {
   node: FlowNode;
@@ -141,7 +142,7 @@ export function StepInspector({
               <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                 Depende de (entradas)
               </div>
-              {others.length === 0 && <p className="font-body text-xs text-ink-faint">Sem outras etapas.</p>}
+              {others.length === 0 && <EmptyState variant="inline" title="Sem outras etapas" />}
               <ul className="space-y-1">
                 {others.map((o) => (
                   <li key={o.key}>

@@ -13,6 +13,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import type { FieldSpec, SectionSchema } from './setting-schemas';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type Json = Record<string, unknown>;
 
@@ -311,7 +312,7 @@ function Control({
       return (
         <div className="space-y-2">
           {rows.length === 0 && (
-            <div className="font-body text-xs text-ink-faint">Sem entradas</div>
+            <EmptyState variant="inline" title="Sem entradas" />
           )}
           {rows.map((row, i) => (
             <div

@@ -51,6 +51,7 @@ import { Skeleton } from './Skeleton';
 import { StartProcessModal } from './StartProcessModal';
 import { TemplateValidationModal } from './TemplateValidationModal';
 import type { Process, TemplateVersionRow } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface ProcessViewerProps {
   processId: number;
@@ -386,9 +387,7 @@ export function ProcessViewer({
         <TabsContent value="flow">
           <div className="space-y-2">
             {process.steps.length === 0 && (
-              <div className="rounded-card border border-dashed border-border-strong py-12 text-center font-body text-sm text-ink-faint">
-                Sem etapas definidas. Edite o processo para adicionar etapas.
-              </div>
+              <EmptyState variant="inline" title="Sem etapas definidas. Edite o processo para adicionar etapas" />
             )}
             {process.steps.map((step, idx) => (
               <div key={step.id} className="flex items-start gap-3">

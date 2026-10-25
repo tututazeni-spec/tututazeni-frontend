@@ -29,6 +29,7 @@ import type {
   ProcessInstance,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export type DocumentFormMode = 'attach' | 'request' | 'generate';
 
@@ -354,9 +355,7 @@ export function DocumentFormModal({
                 })}
                 {sources &&
                   sources.repository.length + sources.library.length === 0 && (
-                    <p className="p-3 text-center font-body text-sm text-ink-faint">
-                      Sem resultados.
-                    </p>
+                    <EmptyState variant="inline" title="Sem resultados" />
                   )}
               </div>
             </div>

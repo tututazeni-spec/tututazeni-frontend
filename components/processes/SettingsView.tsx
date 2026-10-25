@@ -192,9 +192,10 @@ function SectionEditor({ section, canEdit, onClose }: SectionEditorProps) {
               </div>
             )}
             {history.data && history.data.length === 0 && (
-              <p className="p-3 font-body text-sm text-ink-faint">
-                Ainda não há versões guardadas.
-              </p>
+              <EmptyState
+                variant="inline"
+                title="Ainda não há versões guardadas"
+              />
             )}
             {history.data?.map((v) => (
               <div

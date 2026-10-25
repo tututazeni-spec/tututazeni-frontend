@@ -594,9 +594,7 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
                   })}
                 </div>
                 {items.length === 0 ? (
-                  <div className="px-4 py-4 font-body text-xs text-ink-faint">
-                    Sem prazos
-                  </div>
+                  <EmptyState variant="inline" title="Sem prazos" />
                 ) : (
                   <div className="divide-y divide-border">
                     {items.map((it) => (

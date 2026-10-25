@@ -24,6 +24,7 @@ import type {
   AutomationDetail,
   AutomationTestResult,
 } from './automation-types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface AutomationPanelProps {
   id: number;
@@ -291,7 +292,7 @@ export function AutomationPanel({
             Registo de execuções
           </h4>
           {r.executions.length === 0 && (
-            <p className="font-body text-sm text-brand">Sem execuções.</p>
+            <EmptyState variant="inline" title="Sem execuções" />
           )}
           <ul className="space-y-2">
             {r.executions.map((e) => (
