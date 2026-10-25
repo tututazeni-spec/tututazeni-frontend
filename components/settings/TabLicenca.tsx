@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { LicenseSettings } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const MODULE_LABELS: Record<string, string> = {
   DASHBOARD: 'Dashboard',
@@ -74,10 +75,7 @@ export function TabLicenca() {
     },
   );
 
-  if (isLoading || !data || !modules)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !data || !modules) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>

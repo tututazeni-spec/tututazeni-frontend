@@ -16,6 +16,7 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import type { OrganizationSettings } from './types';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 type Form = Omit<OrganizationSettings, 'id' | 'tenantCode'>;
 
@@ -146,10 +147,7 @@ export function TabVisaoGeral() {
     },
   );
 
-  if (isLoading || !form)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !form) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>

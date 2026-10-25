@@ -27,6 +27,7 @@ import type {
 } from './types';
 import { pollInterval } from '@/lib/polling';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const FREQUENCY_ITEMS = [
   { value: 'DAILY', label: 'Diária' },
@@ -159,10 +160,7 @@ export function TabBackups() {
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
     );
-  if (isLoading || !data || !form)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !data || !form) return <Skeleton rows={4} />;
 
   const set = <K extends keyof BackupSettingsForm>(
     k: K,

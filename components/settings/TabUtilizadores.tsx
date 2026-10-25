@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import type { InactiveUsersResult, UserPolicy, UsersOverview } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const FIELD_LABELS: Record<string, string> = {
   phone: 'Telefone',
@@ -122,10 +123,7 @@ export function TabUtilizadores() {
     },
   );
 
-  if (policyQuery.isLoading || !policy)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (policyQuery.isLoading || !policy) return <Skeleton rows={4} />;
   if (policyQuery.error)
     return (
       <p className="py-10 text-center text-sm text-danger">
@@ -345,7 +343,7 @@ export function TabUtilizadores() {
         </div>
         <CardBody>
           {inactive.isLoading ? (
-            <p className="text-sm text-ink-faint">A carregar…</p>
+            <Skeleton rows={3} />
           ) : !inactive.data?.items.length ? (
             <p className="py-6 text-center text-sm text-ink-faint">
               Nenhum utilizador inactivo.

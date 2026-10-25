@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { AuditDataOverview } from './types';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const HEALTH_LABELS: Record<
   string,
@@ -48,10 +49,7 @@ export function TabAuditoria() {
     '/settings/audit',
   );
 
-  if (isLoading || !data)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !data) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>

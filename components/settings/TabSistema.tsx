@@ -23,6 +23,7 @@ import type {
 } from './types';
 import { pollInterval } from '@/lib/polling';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 function fmtUptime(s: number) {
   const d = Math.floor(s / 86400);
@@ -98,10 +99,7 @@ export function TabSistema() {
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
     );
-  if (isLoading || !data || !form)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !data || !form) return <Skeleton rows={4} />;
 
   const st = status.data;
 
@@ -135,7 +133,7 @@ export function TabSistema() {
         </div>
         <CardBody>
           {!st ? (
-            <p className="text-sm text-ink-faint">A carregar estado…</p>
+            <Skeleton rows={3} />
           ) : (
             <dl className="grid grid-cols-2 gap-3 text-sm text-ink md:grid-cols-4">
               <div>

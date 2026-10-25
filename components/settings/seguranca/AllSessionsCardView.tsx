@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { OrgSessionsController } from '@/hooks/useSecuritySessions';
 import { fmtDate } from './logic';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export function AllSessionsCardView({ ctl }: { ctl: OrgSessionsController }) {
   const {
@@ -27,7 +28,7 @@ export function AllSessionsCardView({ ctl }: { ctl: OrgSessionsController }) {
       </div>
       <CardBody>
         {isLoading ? (
-          <p className="text-sm text-ink-faint">A carregar…</p>
+          <Skeleton rows={3} />
         ) : !items.length ? (
           <p className="py-4 text-center text-sm text-ink-faint">
             Nenhuma sessão activa.

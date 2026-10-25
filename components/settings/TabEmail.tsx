@@ -24,6 +24,7 @@ import type {
   EmailTestResult,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const TEMPLATE_LABELS: Record<EmailTemplateKey, string> = {
   PASSWORD_RESET: 'Recuperação de password',
@@ -101,10 +102,7 @@ export function TabEmail() {
     },
   );
 
-  if (isLoading || !smtp || !templates)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !smtp || !templates) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>

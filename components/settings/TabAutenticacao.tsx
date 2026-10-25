@@ -25,6 +25,7 @@ import type {
   UserPolicy,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const PROVIDER_LABELS: Record<OidcProviderKey, string> = {
   GOOGLE: 'Google',
@@ -119,10 +120,7 @@ export function TabAutenticacao() {
     },
   );
 
-  if (isLoading || !form)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !form) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>

@@ -16,6 +16,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import type { DepartmentScopes } from './types';
 import { ADMIN_ROLES } from '@/lib/roles';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const UNRESTRICTED_ROLES: readonly string[] = ADMIN_ROLES;
 
@@ -46,8 +47,7 @@ export function DepartmentScopePanel() {
     },
   );
 
-  if (isLoading)
-    return <p className="py-6 text-sm text-ink-faint">A carregar…</p>;
+  if (isLoading) return <Skeleton rows={3} />;
   if (error || !data)
     return <p className="py-6 text-sm text-danger">{error?.message}</p>;
 

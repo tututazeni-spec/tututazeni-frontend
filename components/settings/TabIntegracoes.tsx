@@ -24,6 +24,7 @@ import type {
   WhatsAppStatus,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 // Símbolo oficial do WhatsApp (o lucide-react não tem ícones de marcas).
 function WhatsAppIcon() {
@@ -141,10 +142,7 @@ export function TabIntegracoes() {
     { enabled: !!whatsapp?.enabled },
   );
 
-  if (isLoading || !smtp || !whatsapp || !isis)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !smtp || !whatsapp || !isis) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { LockedUsersController } from '@/hooks/useLockedUsers';
 import { fmtDate } from './logic';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export function LockedUsersCardView({ ctl }: { ctl: LockedUsersController }) {
   const { isLoading, total, items, requestUnlock, unlocking } = ctl;
@@ -20,7 +21,7 @@ export function LockedUsersCardView({ ctl }: { ctl: LockedUsersController }) {
       </div>
       <CardBody>
         {isLoading ? (
-          <p className="text-sm text-ink-faint">A carregar…</p>
+          <Skeleton rows={3} />
         ) : !items.length ? (
           <p className="py-4 text-center text-sm text-ink-faint">
             Nenhuma conta bloqueada.

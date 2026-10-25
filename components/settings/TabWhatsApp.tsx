@@ -23,6 +23,7 @@ import type {
   WhatsAppSettingsView,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const EVENT_LABELS: Record<WhatsAppEventKey, string> = {
   NOTIFICATION: 'Notificações do sistema',
@@ -144,10 +145,7 @@ export function TabWhatsApp() {
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
     );
-  if (isLoading || !form || !data)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !form || !data) return <Skeleton rows={4} />;
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) =>
     setForm((f) => (f ? { ...f, [k]: v } : f));

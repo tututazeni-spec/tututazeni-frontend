@@ -29,6 +29,7 @@ import type {
   PrivacySettings,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const DSR_TYPE_LABELS: Record<DsrType, string> = {
   ACCESS: 'Acesso',
@@ -206,10 +207,7 @@ export function TabPrivacidade() {
     },
   );
 
-  if (isLoading || !form)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !form) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
@@ -367,7 +365,7 @@ export function TabPrivacidade() {
           {historyOpen && (
             <div className="mt-4 space-y-2">
               {versions.isLoading ? (
-                <p className="text-sm text-ink-faint">A carregar…</p>
+                <Skeleton rows={3} />
               ) : !versions.data?.length ? (
                 <p className="text-sm text-ink-faint">Sem histórico.</p>
               ) : (
@@ -418,7 +416,7 @@ export function TabPrivacidade() {
         </div>
         <CardBody>
           {requests.isLoading ? (
-            <p className="text-sm text-ink-faint">A carregar…</p>
+            <Skeleton rows={3} />
           ) : !requests.data?.items.length ? (
             <p className="py-6 text-center text-sm text-ink-faint">
               Nenhum pedido registado.

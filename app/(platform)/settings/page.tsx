@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList } from '@/components/ui/PillTabs';
 import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function SettingsPage() {
   const toast = useToast();
@@ -41,12 +42,7 @@ export default function SettingsPage() {
   const error = queryError?.message ?? '';
   const [tab, setTab] = useState(initialTab);
 
-  if (loading)
-    return (
-      <div className="py-15 text-center text-ink-faint text-sm">
-        A carregar perfil...
-      </div>
-    );
+  if (loading) return <Skeleton rows={3} />;
 
   if (error)
     return (

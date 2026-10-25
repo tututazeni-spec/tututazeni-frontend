@@ -7,6 +7,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import type { LoginHistoryController } from '@/hooks/useLoginHistory';
 import { fmtDate, loginActionIntent, type LoginOutcome } from './logic';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface LoginHistoryCardViewProps {
   title: string;
@@ -40,7 +41,7 @@ export function LoginHistoryCardView({
       </div>
       <CardBody>
         {isLoading ? (
-          <p className="text-sm text-ink-faint">A carregar…</p>
+          <Skeleton rows={3} />
         ) : !rows.length ? (
           <p className="py-4 text-center text-sm text-ink-faint">
             Sem registos.
