@@ -151,7 +151,7 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
       {/* Cabeçalho — desenho de "workshop de inovação.jpeg": cartão claro com
           etiquetas, ícone + título, dados, responsável e acção; a imagem do
           plano num recorte inclinado no canto superior direito. */}
-      <div className="relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div
           aria-hidden
           className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
@@ -193,10 +193,10 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
               <ClipboardList size={28} strokeWidth={1.75} />
             </span>
             <div className="min-w-0">
-              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-[#0F1F3D]">
+              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-brand">
                 {plan.name}
               </h1>
-              <p className="mt-0.5 break-words text-base text-[#49658A]">
+              <p className="mt-0.5 break-words text-base text-brand-muted">
                 {plan.code ?? `Plano ${plan.year}`}
               </p>
             </div>
@@ -208,7 +208,7 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
             </p>
           )}
 
-          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-brand-line">
             <Metric icon={CalendarDays}>
               {plan.year} · {PLAN_PERIOD_LABEL[plan.period] ?? plan.period}
             </Metric>
@@ -220,21 +220,21 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
           <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
             <Metric icon={UserCheck}>
               {plan.responsible?.fullName ?? '—'}{' '}
-              <span className="text-[#49658A]">· Responsável</span>
+              <span className="text-brand-muted">· Responsável</span>
             </Metric>
             <Metric icon={BadgeCheck}>
               {plan.approver?.fullName ?? '—'}{' '}
-              <span className="text-[#49658A]">· Aprovador</span>
+              <span className="text-brand-muted">· Aprovador</span>
             </Metric>
           </div>
 
-          <div className="border-t border-[#E6ECF4] pt-4">
+          <div className="border-t border-brand-line pt-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               {overallRate != null ? (
                 <div className="min-w-[200px] flex-1">
-                  <div className="mb-1 flex justify-between text-xs text-[#49658A]">
+                  <div className="mb-1 flex justify-between text-xs text-brand-muted">
                     <span>Execução do plano</span>
-                    <span className="font-data font-semibold text-[#0F1F3D]">
+                    <span className="font-data font-semibold text-brand">
                       {overallRate}%
                     </span>
                   </div>
@@ -267,7 +267,7 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {detailBlocks.map((b) => (
             <NavyPanel key={b.label} seed={plan.id} title={b.label}>
-              <ul className="space-y-1.5 font-body text-[15px] font-medium text-[#0F1F3D]">
+              <ul className="space-y-1.5 font-body text-[15px] font-medium text-brand">
                 {b.items.map((it) => (
                   <li key={it} className="flex gap-2">
                     <span
@@ -319,7 +319,7 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
 
       {/* Formações previstas */}
       <Card className="overflow-hidden p-0">
-        <div className="flex items-center justify-between bg-[#0F1F3D]/60 px-4 py-3">
+        <div className="flex items-center justify-between bg-brand/60 px-4 py-3">
           <span className="font-body text-xs font-medium uppercase tracking-wide text-white">
             Formações previstas
           </span>
@@ -332,7 +332,7 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
             </a>
             <Button
               size="sm"
-              className="border border-white/40 hover:!bg-white hover:!text-[#0F1F3D]"
+              className="border border-white/40 hover:!bg-white hover:!text-brand"
               onClick={() => setShowAddTraining(true)}
             >
               <Plus size={14} strokeWidth={1.75} />
@@ -449,19 +449,19 @@ function ExecutionStat({
   const fmt = (v: number) => (money ? formatKz(v) : v.toLocaleString('pt-PT'));
   return (
     <div>
-      <div className="font-body text-[15px] font-medium text-[#49658A]">
+      <div className="font-body text-[15px] font-medium text-brand-muted">
         {label}
       </div>
-      <div className="font-body text-lg font-bold text-[#0F1F3D]">
+      <div className="font-body text-lg font-bold text-brand">
         {fmt(realized)}
-        <span className="text-[15px] font-medium text-[#49658A]">
+        <span className="text-[15px] font-medium text-brand-muted">
           {' '}
           / {fmt(planned)}
         </span>
       </div>
       {rate !== null && (
         <div
-          className={`text-xs ${rate >= 100 ? 'text-success-ink' : 'text-[#49658A]'}`}
+          className={`text-xs ${rate >= 100 ? 'text-success-ink' : 'text-brand-muted'}`}
         >
           {rate}% executado
         </div>

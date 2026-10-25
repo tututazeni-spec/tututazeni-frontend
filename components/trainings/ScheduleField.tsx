@@ -82,8 +82,8 @@ export function ScheduleField({ value, onChange, legacy }: ScheduleFieldProps) {
               onClick={() => toggleDay(d)}
               className={`rounded-full border px-3 py-1 text-xs font-medium ${
                 on
-                  ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
-                  : 'border-border text-ink-muted hover:border-[#0F1F3D]'
+                  ? 'border-brand bg-brand text-white'
+                  : 'border-border text-ink-muted hover:border-brand'
               }`}
             >
               {d}

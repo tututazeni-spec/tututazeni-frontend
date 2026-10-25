@@ -15,16 +15,14 @@ interface NavyPanelProps {
 export function NavyPanel({ seed, title, children }: NavyPanelProps) {
   const palette = PALETTE[Math.abs(seed) % PALETTE.length];
   return (
-    <section className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+    <section className="overflow-hidden rounded-[24px] border border-brand-line bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
       <div className="flex items-center gap-3">
         <span
           aria-hidden
           className="h-6 w-1 shrink-0 rounded-full"
           style={{ background: palette[0] }}
         />
-        <h3 className="font-display text-lg font-bold text-[#0F1F3D]">
-          {title}
-        </h3>
+        <h3 className="font-display text-lg font-bold text-brand">{title}</h3>
       </div>
       <div className="mt-4">{children}</div>
     </section>
