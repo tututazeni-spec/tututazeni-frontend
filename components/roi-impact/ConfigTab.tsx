@@ -33,7 +33,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
 import { AUTHENTICATED_ROLES, type Role } from '@/lib/roles';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -160,14 +160,14 @@ function ValidatorChip({ id, onRemove }: { id: number; onRemove: () => void }) {
       <span className="text-sm text-ink">
         {user?.fullName ?? `Utilizador #${id}`}
       </span>
-      <button
+      <IconButton
+        icon={X}
+        label="Remover responsável"
+        intent="ghost"
+        size="xs"
         type="button"
-        aria-label="Remover responsável"
         onClick={onRemove}
-        className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-      >
-        <X size={14} strokeWidth={1.75} />
-      </button>
+      />
     </div>
   );
 }
