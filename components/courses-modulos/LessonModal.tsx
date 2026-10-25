@@ -359,7 +359,7 @@ export function LessonModal({
                           : undefined
                       }
                       className={cn(
-                        'w-[72px] py-2 rounded-lg flex flex-col items-center gap-1 cursor-pointer transition-all border-2',
+                        'w-[72px] py-2 rounded-control flex flex-col items-center gap-1 cursor-pointer transition-all border-2',
                         form.contentType !== k && 'border-border bg-surface',
                       )}
                     >
@@ -492,7 +492,7 @@ export function LessonModal({
                       : 'application/pdf'
                   }
                   onChange={handleFilePick}
-                  className="block w-full text-sm text-ink-muted file:mr-3 file:rounded-lg file:border-0 file:bg-primary-subtle file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary"
+                  className="block w-full text-sm text-ink-muted file:mr-3 file:rounded-control file:border-0 file:bg-primary-subtle file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary"
                 />
                 {fileBusy && (
                   <p className="text-xs text-ink-faint mt-1">A processar…</p>
@@ -745,7 +745,7 @@ function LessonActivitiesAndResources({
           {(lesson.activities ?? []).map((a) => (
             <div
               key={a.id}
-              className="flex items-center gap-2 rounded-lg bg-surface-sunken border border-border px-3 py-1.5"
+              className="flex items-center gap-2 rounded-control bg-surface-sunken border border-border px-3 py-1.5"
             >
               <span className="text-xs font-bold text-ink-faint">
                 {ACTIVITY_TYPE_ITEMS.find((t) => t.value === a.type)?.label ??
@@ -807,7 +807,7 @@ function LessonActivitiesAndResources({
           {(lesson.resources ?? []).map((r) => (
             <div
               key={r.id}
-              className="flex items-center gap-2 rounded-lg bg-surface-sunken border border-border px-3 py-1.5"
+              className="flex items-center gap-2 rounded-control bg-surface-sunken border border-border px-3 py-1.5"
             >
               {r.fileType && (
                 <span className="text-xs font-bold text-ink-faint">

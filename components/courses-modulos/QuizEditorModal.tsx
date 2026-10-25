@@ -372,7 +372,7 @@ export function QuizEditorModal({
                   {questions.map((q, qIdx) => (
                     <div
                       key={qIdx}
-                      className="rounded-lg border border-border p-3"
+                      className="rounded-control border border-border p-3"
                     >
                       <div className="flex items-start gap-2 mb-2">
                         <Textarea

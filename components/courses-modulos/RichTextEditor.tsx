@@ -50,7 +50,7 @@ function Tool({ label, onRun, children }: ToolProps) {
         e.preventDefault();
         onRun();
       }}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-ink-muted hover:bg-surface-sunken hover:text-ink"
+      className="inline-flex h-8 w-8 items-center justify-center rounded-control text-ink-muted hover:bg-surface-sunken hover:text-ink"
     >
       {children}
     </button>
@@ -132,7 +132,7 @@ export function RichTextEditor({
   }
 
   return (
-    <div className="rounded-lg border border-border bg-surface focus-within:border-primary">
+    <div className="rounded-control border border-border bg-surface focus-within:border-primary">
       <div
         role="toolbar"
         aria-label="Formatação do texto"
@@ -191,12 +191,12 @@ export function RichTextEditor({
             }}
             placeholder="https://…"
             aria-label="Endereço da ligação"
-            className="min-w-0 flex-1 rounded-md border border-border bg-surface px-2 py-1 text-sm"
+            className="min-w-0 flex-1 rounded-control border border-border bg-surface px-2 py-1 text-sm"
           />
           <button
             type="button"
             onClick={applyLink}
-            className="rounded-md bg-primary px-3 py-1 text-xs font-semibold text-canvas"
+            className="rounded-control bg-primary px-3 py-1 text-xs font-semibold text-canvas"
           >
             Aplicar
           </button>

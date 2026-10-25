@@ -82,7 +82,7 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
           </div>
 
           {/* Marcar como concluída */}
-          <div className="p-4 bg-surface-sunken rounded-lg">
+          <div className="p-4 bg-surface-sunken rounded-control">
             <h3 className="m-0 mb-3 flex items-center gap-1.5 text-sm font-bold text-ink">
               <CheckCircle2 size={16} strokeWidth={1.75} /> Marcar Lição como
               Concluída
@@ -148,7 +148,7 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
 
           {progress.length > 0 && (
             <div>
-              <div className="flex items-center gap-3 p-3 bg-info-subtle rounded-lg border border-info mb-3">
+              <div className="flex items-center gap-3 p-3 bg-info-subtle rounded-control border border-info mb-3">
                 <p className="m-0 text-sm font-bold text-info-ink">
                   {completedCount} / {progress.length} lições concluídas
                 </p>
@@ -173,7 +173,7 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
                   return (
                     <div
                       key={p.id}
-                      className={`flex items-center gap-3 p-3 rounded-lg border ${
+                      className={`flex items-center gap-3 p-3 rounded-control border ${
                         p.completed
                           ? 'bg-success-subtle border-success'
                           : 'bg-surface-sunken border-border'
