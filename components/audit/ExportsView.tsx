@@ -617,7 +617,7 @@ export function ExportsView() {
                           <div className="flex items-center gap-3">
                             <span
                               aria-hidden
-                              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-control ${isReport ? 'bg-[#218653]/10 text-[#218653]' : 'bg-[#1877F2]/10 text-[#1877F2]'}`}
+                              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-control ${isReport ? 'bg-success/10 text-success' : 'bg-[#1877F2]/10 text-[#1877F2]'}`}
                             >
                               <KindIcon size={17} strokeWidth={1.75} />
                             </span>

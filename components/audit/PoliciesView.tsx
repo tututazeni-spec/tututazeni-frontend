@@ -224,7 +224,7 @@ function RoleChips({ value, onChange, disabled }: RoleChipsProps) {
             className={`rounded-full border px-2.5 py-1 text-xs transition-colors disabled:opacity-70 ${
               on
                 ? 'border-brand bg-brand text-white'
-                : 'border-[#D8E2F0] bg-white text-brand hover:border-brand'
+                : 'border-brand-line bg-white text-brand hover:border-brand'
             }`}
           >
             {r}
@@ -423,7 +423,7 @@ export function PoliciesView() {
                     className={`rounded-full border px-2.5 py-1 text-xs transition-colors disabled:opacity-70 ${
                       on
                         ? 'border-brand bg-brand text-white'
-                        : 'border-[#D8E2F0] bg-white text-brand hover:border-brand'
+                        : 'border-brand-line bg-white text-brand hover:border-brand'
                     }`}
                   >
                     {actionLabel(ev)}
@@ -471,7 +471,7 @@ export function PoliciesView() {
                     disabled={!canEdit}
                     aria-label={`Remover regra de ${actionLabel(action)}`}
                     onClick={() => setSev(action, null)}
-                    className="rounded-full p-1.5 text-brand-muted hover:bg-[#EEF4FD] disabled:opacity-50"
+                    className="rounded-full p-1.5 text-brand-muted hover:bg-brand-soft disabled:opacity-50"
                   >
                     <X size={14} strokeWidth={1.75} />
                   </button>
