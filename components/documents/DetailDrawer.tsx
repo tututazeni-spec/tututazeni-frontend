@@ -45,6 +45,7 @@ import {
 import { formatBytes } from './utils';
 import type { Document, DocVersionRow } from './types';
 import { ADMIN_RH_GESTOR_ROLES } from '@/lib/roles';
+import { Input } from '@/components/ui/Input';
 
 interface DetailDrawerProps {
   doc: Document;
@@ -302,11 +303,11 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
               </div>
               {showRejectReason && (
                 <div className="flex gap-2">
-                  <input
+                  <Input
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
                     placeholder="Motivo da rejeição"
-                    className="flex-1 px-3 py-1.5 text-xs border border-border-strong rounded-control bg-surface focus:outline-none focus:border-accent"
+                    className="flex-1"
                   />
                   <Button
                     size="sm"
