@@ -98,10 +98,10 @@ export function RunPayslipsTable({
       )}
 
       {!isLoading && rows.length > 0 && (
-        <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
           <div className="min-w-[820px]">
             <div
-              className={`${COLS} bg-[#0B2D5B] px-3 py-2 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
+              className={`${COLS} bg-brand-dark px-3 py-2 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white`}
             >
               <div>Colaborador</div>
               <div>Bruto</div>
@@ -129,12 +129,12 @@ export function RunPayslipsTable({
                     <div className="break-words font-body text-sm font-medium leading-tight text-white">
                       {p.user.fullName}
                     </div>
-                    <div className="font-body text-xs text-[#CFE3FF]">
+                    <div className="font-body text-xs text-on-brand">
                       {p.user.employeeNumber ?? '—'}
                     </div>
                   </div>
                 </div>
-                <div className="font-body text-sm text-[#E8EEF7]">
+                <div className="font-body text-sm text-on-brand">
                   {fmtKz(p.grossSalary)}
                 </div>
                 <div className="font-body text-sm font-semibold text-white">
