@@ -10,6 +10,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { AvatarUploader } from '@/components/ui/AvatarUploader';
 import { useAnyModalOpen } from '@/lib/modalVisibility';
 import { pollInterval } from '@/lib/polling';
+import { Input } from '@/components/ui/Input';
 
 interface TopbarProps {
   title?: string;
@@ -116,7 +117,7 @@ export default function Topbar({ title }: TopbarProps) {
           >
             <Search size={14} color="#94a3b8" />
           </button>
-          <input
+          <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Pesquisar..."
