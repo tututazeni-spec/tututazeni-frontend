@@ -119,7 +119,7 @@ export function ListView({ onSelect }: ListViewProps) {
             <div className="p-4">
               <Skeleton
                 rows={5}
-                wrapperClassName="space-y-2 animate-pulse"
+                wrapperClassName="space-y-2"
                 itemClassName="h-12 rounded-card bg-white/10"
               />
             </div>
