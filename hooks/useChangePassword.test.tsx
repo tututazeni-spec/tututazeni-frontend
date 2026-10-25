@@ -29,7 +29,9 @@ function fill(
   act(() => result.current.set('confirmPassword', confirm));
 }
 
-beforeEach(() => post.mockReset());
+beforeEach(() => {
+  post.mockReset();
+});
 
 describe('useChangePassword', () => {
   test('senhas diferentes: avisa e não envia', () => {
