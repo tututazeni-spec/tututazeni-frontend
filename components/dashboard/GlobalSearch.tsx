@@ -18,6 +18,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import type { SearchResults } from './types';
+import { Input } from '@/components/ui/Input';
 
 export interface GlobalSearchProps {
   onClose: () => void;
@@ -44,12 +45,12 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
       <div className="w-full max-w-xl overflow-hidden rounded-panel bg-surface shadow-elevated">
         <div className="flex items-center gap-3 border-b border-border px-5 py-4">
           <Search size={18} strokeWidth={1.75} className="text-ink-faint" />
-          <input
+          <Input
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Pesquisar colaboradores, cursos, competências..."
-            className="flex-1 font-body text-sm text-ink focus:outline-none"
+            className="flex-1"
           />
           <button
             onClick={onClose}
