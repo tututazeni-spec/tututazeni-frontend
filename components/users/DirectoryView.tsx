@@ -102,7 +102,7 @@ function DirectoryCard({
       tabIndex={0}
       onClick={open}
       onKeyDown={handleKeyDown}
-      className="group cursor-pointer overflow-hidden rounded-panel border border-slate-200/70 bg-white shadow-sm transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
+      className="group cursor-pointer overflow-hidden [contain-intrinsic-size:auto_190px] [content-visibility:auto] rounded-panel border border-slate-200/70 bg-white shadow-sm transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
     >
       {/* Cabeçalho navy */}
       <div
