@@ -55,6 +55,7 @@ import type {
   EventParticipantRow,
   ParticipantStatus,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface Paginated<T> {
   data: T[];
@@ -570,11 +571,9 @@ function AddParticipantsModal({
                       key={u.id}
                       className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-surface-sunken"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={selected.has(u.id)}
                         onChange={() => toggle(u)}
-                        className="h-4 w-4 rounded border-border-strong accent-primary"
                       />
                       <Avatar
                         name={u.fullName}

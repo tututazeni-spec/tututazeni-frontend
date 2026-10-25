@@ -51,6 +51,7 @@ import type {
   EventCommunicationType,
   ParticipantStatus,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface Paginated<T> {
   data: T[];
@@ -358,11 +359,10 @@ function NewCommunicationModal({ onClose }: { onClose: () => void }) {
                   key={value}
                   className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs text-ink hover:bg-surface-sunken has-[:checked]:border-primary has-[:checked]:bg-primary-subtle has-[:checked]:text-primary"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={form.participantStatuses.includes(value)}
                     onChange={() => toggleStatus(value)}
-                    className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                    size="sm"
                   />
                   {cfg.label}
                 </label>

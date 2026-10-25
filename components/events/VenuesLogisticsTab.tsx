@@ -43,6 +43,7 @@ import type {
   EventLogistics,
   EventLogisticsStatus,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const MANAGE_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 
@@ -338,12 +339,11 @@ export function VenuesLogisticsTab() {
                         key={value}
                         className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[#D8E2F0] bg-white px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
                       >
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={form.equipment.includes(value)}
                           onChange={() => toggleEquipment(value)}
                           disabled={!canManage}
-                          className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                          size="sm"
                         />
                         {cfg.label}
                       </label>
@@ -427,14 +427,13 @@ export function VenuesLogisticsTab() {
                         key={name}
                         className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[#D8E2F0] bg-white px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
                       >
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={on}
                           onChange={() =>
                             on ? removeResource(name) : addResource(name)
                           }
                           disabled={!canManage}
-                          className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                          size="sm"
                         />
                         {name}
                       </label>
