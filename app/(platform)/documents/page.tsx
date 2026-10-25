@@ -231,13 +231,13 @@ export default function DocumentRepositoryPage() {
             view === 'grid' ? (
               <Skeleton
                 rows={8}
-                wrapperClassName="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse"
+                wrapperClassName="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
                 itemClassName="h-44 rounded-panel bg-surface-sunken"
               />
             ) : (
               <Skeleton
                 rows={6}
-                wrapperClassName="space-y-2 animate-pulse"
+                wrapperClassName="space-y-2"
                 itemClassName="h-12 rounded-card bg-surface-sunken"
               />
             )
