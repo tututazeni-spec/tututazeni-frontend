@@ -45,6 +45,7 @@ import { MODALITY_CFG, TYPE_CFG, VISIBILITY_CFG } from './constants';
 import { useDepartmentOptions } from './eventFormData';
 import type { EventModalidade, EventType, EventVisibility } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export interface CreateEventModalProps {
   onClose: () => void;
@@ -619,11 +620,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 Opcional — vazio significa visível a todos os departamentos.
               </p>
               <div className="max-h-40 space-y-1 overflow-y-auto rounded-card border border-border p-2">
-                {departmentsLoading && (
-                  <div className="px-1 py-1 text-sm text-ink-muted">
-                    A carregar…
-                  </div>
-                )}
+                {departmentsLoading && <Skeleton rows={3} />}
                 {!departmentsLoading && departmentOptions.length === 0 && (
                   <div className="px-1 py-1 text-sm text-ink-muted">
                     Nenhum departamento encontrado.
