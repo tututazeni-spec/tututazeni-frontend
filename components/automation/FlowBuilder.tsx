@@ -63,6 +63,7 @@ import type {
   TestResult,
   ValidationResult,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 // Prioridade do spec → inteiro do backend (menor corre primeiro).
 const PRIORITY_ITEMS = [
@@ -662,11 +663,9 @@ export function FlowBuilder({ ruleId, onClose }: FlowBuilderProps) {
           </FormField>
         </div>
         <label className="flex items-center gap-2 text-sm text-ink-muted">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={notifyOnError}
             onChange={(e) => set('notifyOnError', e.target.checked)}
-            className="h-4 w-4 rounded border-border-strong accent-primary"
           />
           Alertar o responsável quando uma execução falha
         </label>

@@ -40,6 +40,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/providers/ToastProvider';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface CreateRuleModalProps {
   onClose: () => void;
@@ -856,11 +857,9 @@ export function CreateRuleModal({
             </div>
 
             <label className="flex items-center gap-2 text-sm text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={notifyOnError}
                 onChange={(e) => setField('notifyOnError', e.target.checked)}
-                className="h-4 w-4 rounded border-border-strong accent-primary"
               />
               Notificar o responsável em caso de erro
             </label>

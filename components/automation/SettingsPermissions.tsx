@@ -14,6 +14,7 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/providers/ToastProvider';
 import type { PermissionAction, PermissionMatrix, RoleGrant } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const ACTION_LABEL: Record<PermissionAction, string> = {
   view: 'Consultar',
@@ -98,8 +99,7 @@ export function PermissionsPanel() {
                 </td>
                 {data.actions.map((a) => (
                   <td key={a} className="px-2 py-2.5 text-center">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       aria-label={`${r.roleCode}: ${ACTION_LABEL[a]}`}
                       checked={r.actions[a]}
                       disabled={r.locked || update.isPending}

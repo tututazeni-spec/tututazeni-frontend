@@ -23,6 +23,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { PermissionsPanel } from './SettingsPermissions';
 import { DeadLettersPanel, SecurityPanel } from './SettingsSecurity';
 import type { AutomationSettings } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 type Section = 'limits' | 'permissions' | 'retries' | 'security';
 
@@ -293,8 +294,7 @@ function LimitsPanel() {
           </div>
           {g === 'limits' && (
             <label className="mt-4 flex items-start gap-2 font-body text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 className="mt-1"
                 checked={requireApproval}
                 onChange={(e) => setRequireApproval(e.target.checked)}

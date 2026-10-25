@@ -47,6 +47,7 @@ import type {
   TaskStatus,
   TaskSummary,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const ALL = '__all__';
 
@@ -226,16 +227,14 @@ export function ApprovalsTab() {
           className="min-w-[190px]"
         />
         <label className="flex items-center gap-1.5 font-body text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={onlyMine}
             onChange={(e) => setOnlyMine(e.target.checked)}
           />
           Só as minhas
         </label>
         <label className="flex items-center gap-1.5 font-body text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={onlyOverdue}
             onChange={(e) => setOnlyOverdue(e.target.checked)}
           />

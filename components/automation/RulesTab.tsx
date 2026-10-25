@@ -58,6 +58,7 @@ import type {
   RunAllResponse,
 } from './types';
 import { saveBlob } from '@/lib/download';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const ALL = '__all__';
 
@@ -427,8 +428,8 @@ export function RulesTab({
             />
           </label>
           <label className="flex items-center gap-2 pb-2 font-body text-sm text-ink">
-            <input
-              type="checkbox"
+            <Checkbox
+              
               checked={withFailures}
               onChange={(e) => setWithFailures(e.target.checked)}
             />
