@@ -180,7 +180,7 @@ export function SkillMatrixView() {
       {loading ? (
         <Skeleton rows={6} />
       ) : !matrix ? null : (
-        <div className="overflow-hidden rounded-2xl border border-border">
+        <div className="overflow-hidden rounded-panel border border-border">
           <div className="max-h-[70vh] overflow-auto">
             <table className="min-w-max border-separate border-spacing-0 font-body">
               <thead>

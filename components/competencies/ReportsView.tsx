@@ -50,7 +50,7 @@ const ALL = 'ALL';
 
 // Cabeçalho dos cards de relatório: #0F1F3D a 60%, letra branca, sem hover.
 const CARD_HEADER_CLASS =
-  'border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white';
+  'border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white';
 
 // Paleta para as listas em que cada competência tem a sua própria cor.
 const BAR_COLORS = [
