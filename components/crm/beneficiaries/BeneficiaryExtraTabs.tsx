@@ -23,6 +23,7 @@ import {
 } from './formConfig';
 import { FieldRenderer } from './FieldRenderer';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export type BeneficiaryExtras = ReturnType<
   typeof useBeneficiaryDetail
@@ -1038,7 +1039,7 @@ export function HistoryTab({ extras }: { extras: BeneficiaryExtras }) {
         Histórico de alterações
       </h2>
       {isLoading ? (
-        <p className="font-body text-ink-faint">A carregar…</p>
+        <Skeleton rows={3} />
       ) : isError ? (
         <p className="font-body text-danger-ink">
           Não foi possível carregar o histórico.
