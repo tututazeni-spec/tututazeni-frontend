@@ -132,7 +132,7 @@ export function OverviewTab({
       <Skeleton
         rows={4}
         wrapperClassName="space-y-4"
-        itemClassName="h-24 bg-surface-sunken rounded-card animate-pulse"
+        itemClassName="h-24 bg-surface-sunken rounded-card"
       />
     );
 
