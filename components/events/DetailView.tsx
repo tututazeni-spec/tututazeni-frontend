@@ -54,6 +54,7 @@ import type {
   ParticipantStatus,
 } from './types';
 import { safeHref } from '@/lib/safeHref';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface DetailViewProps {
   eventId: number;
@@ -602,9 +603,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
             </div>
           ))}
           {(event.participants ?? []).length === 0 && (
-            <div className="px-4 py-8 text-center font-body text-sm text-brand-muted">
-              Sem participantes inscritos
-            </div>
+            <EmptyState variant="inline" title="Sem participantes inscritos" />
           )}
         </Card>
       )}

@@ -509,9 +509,7 @@ function WeekList({ range, byDay, onSelect }: WeekListProps) {
               })}
             </div>
             {events.length === 0 ? (
-              <div className="px-4 py-4 font-body text-xs text-ink-faint">
-                Sem eventos
-              </div>
+              <EmptyState variant="inline" title="Sem eventos" />
             ) : (
               <div className="divide-y divide-border">
                 {events.map((ev) => (

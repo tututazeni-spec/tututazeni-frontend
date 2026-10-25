@@ -562,9 +562,10 @@ function AddParticipantsModal({
                     <Skeleton rows={4} />
                   </div>
                 ) : users.length === 0 ? (
-                  <div className="px-3 py-8 text-center text-sm text-ink-faint">
-                    Nenhum colaborador encontrado
-                  </div>
+                  <EmptyState
+                    variant="inline"
+                    title="Nenhum colaborador encontrado"
+                  />
                 ) : (
                   users.map((u) => (
                     <label
