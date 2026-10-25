@@ -208,9 +208,10 @@ export function SkillGapsTab() {
             </tbody>
           </table>
           {heatmap.length === 0 && (
-            <p className="py-12 text-center font-body text-sm text-ink-faint">
-              Sem dados de habilidades avaliadas
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem dados de habilidades avaliadas"
+            />
           )}
         </Card>
       )}
