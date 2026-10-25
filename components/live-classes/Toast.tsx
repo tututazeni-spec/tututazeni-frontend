@@ -26,7 +26,7 @@ export function Toast({ msg, type, onClose }: ToastProps) {
   }[type];
   return (
     <div
-      className={`fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-lg ${styles.bg} border ${styles.bd} px-4.5 py-3 text-sm font-medium ${styles.text} shadow-lg`}
+      className={`fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-control ${styles.bg} border ${styles.bd} px-4.5 py-3 text-sm font-medium ${styles.text} shadow-lg`}
     >
       {msg}
       <button

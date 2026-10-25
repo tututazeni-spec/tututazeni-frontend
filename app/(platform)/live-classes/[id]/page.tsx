@@ -132,7 +132,7 @@ export default function LiveRoomPage() {
             {/* Back */}
             <button
               onClick={() => router.push('/live-classes')}
-              className="bg-white/8 border-none rounded-lg py-1.5 px-3 text-ink-muted text-xs cursor-pointer flex items-center gap-1.5"
+              className="bg-white/8 border-none rounded-control py-1.5 px-3 text-ink-muted text-xs cursor-pointer flex items-center gap-1.5"
             >
               ← Sair
             </button>
@@ -177,7 +177,7 @@ export default function LiveRoomPage() {
             {/* Toggle sidebar */}
             <button
               onClick={() => setShowSidebar((s) => !s)}
-              className="bg-white/8 border-none rounded-lg py-1.75 px-3 text-ink-muted text-xs cursor-pointer"
+              className="bg-white/8 border-none rounded-control py-1.75 px-3 text-ink-muted text-xs cursor-pointer"
             >
               {showSidebar ? 'Ocultar ▶' : '◀ Painel'}
             </button>
@@ -227,7 +227,7 @@ export default function LiveRoomPage() {
                   href={safeHref(liveClass.recordingUrl)}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1.5 mt-2.5 py-1.75 px-3 bg-accent-subtle border border-accent-subtle rounded-lg text-accent text-xs no-underline font-semibold"
+                  className="flex items-center gap-1.5 mt-2.5 py-1.75 px-3 bg-accent-subtle border border-accent-subtle rounded-control text-accent text-xs no-underline font-semibold"
                 >
                   <Clapperboard size={13} strokeWidth={1.75} /> Ver Gravação
                   Anterior ↗

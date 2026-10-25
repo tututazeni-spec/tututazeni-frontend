@@ -45,7 +45,7 @@ const YEAR_ITEMS = [
 
 // Cabeçalho dos cartões de ranking: #0F1F3D a 60%.
 const REPORT_CARD_HEADER =
-  'bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white';
+  'bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white';
 
 function RankedList({
   rows,
@@ -125,7 +125,7 @@ export function ReportsView() {
         <Skeleton
           rows={4}
           wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
-          itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
+          itemClassName="skeleton-shimmer h-[155px] rounded-panel"
         />
       ) : (
         <>

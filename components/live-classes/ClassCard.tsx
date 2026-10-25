@@ -129,7 +129,7 @@ export function ClassCard({
             <DropdownMenuTrigger asChild>
               <button
                 aria-label="Mais ações"
-                className="flex-shrink-0 rounded-lg p-1.5 text-ink-faint hover:bg-surface-sunken"
+                className="flex-shrink-0 rounded-control p-1.5 text-ink-faint hover:bg-surface-sunken"
               >
                 <MoreVertical size={16} strokeWidth={1.75} />
               </button>
@@ -181,7 +181,7 @@ export function ClassCard({
       <div className="flex gap-2 pt-1 border-t border-surface">
         <button
           onClick={() => onOpen(lc.id)}
-          className={`flex-[2] py-2 px-2 rounded-lg border-none text-canvas text-xs font-bold cursor-pointer ${
+          className={`flex-[2] py-2 px-2 rounded-control border-none text-canvas text-xs font-bold cursor-pointer ${
             isLive ? 'bg-danger' : 'bg-ink'
           }`}
         >
@@ -197,14 +197,14 @@ export function ClassCard({
         {lc.recordingUrl && (
           <button
             onClick={() => onViewRecording(lc)}
-            className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-2 rounded-lg border border-accent bg-accent-subtle text-accent text-xs font-semibold cursor-pointer"
+            className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-2 rounded-control border border-accent bg-accent-subtle text-accent text-xs font-semibold cursor-pointer"
           >
             <Clapperboard size={12} strokeWidth={1.75} /> Ver
           </button>
         )}
         <button
           onClick={() => onDelete(lc)}
-          className="py-2 px-2.5 rounded-lg border border-danger-subtle bg-danger-subtle text-danger text-xs cursor-pointer"
+          className="py-2 px-2.5 rounded-control border border-danger-subtle bg-danger-subtle text-danger text-xs cursor-pointer"
         >
           <Trash2 size={13} strokeWidth={1.75} />
         </button>

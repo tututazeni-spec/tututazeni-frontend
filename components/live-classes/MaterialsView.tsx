@@ -281,7 +281,7 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
               badge={row.referencedBy.map((ref) => (
                 <span
                   key={`${ref.liveClassId}-${ref.sessionId ?? 0}`}
-                  className="inline-flex items-center gap-1 rounded-full bg-white/85 px-3 py-1 text-xs font-semibold text-[#0F1F3D]"
+                  className="inline-flex items-center gap-1 rounded-full bg-white/85 px-3 py-1 text-xs font-semibold text-brand"
                 >
                   {ref.topic}
                   {ref.sessionSeq ? ` · Sessão ${ref.sessionSeq}` : ''}
@@ -290,7 +290,7 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
                       type="button"
                       onClick={() => onRemove(row, ref)}
                       aria-label={`Remover de ${ref.topic}`}
-                      className="ml-1 text-[#0F1F3D]/60 hover:text-danger-ink"
+                      className="ml-1 text-brand/60 hover:text-danger-ink"
                     >
                       <Trash2 size={12} strokeWidth={1.75} />
                     </button>

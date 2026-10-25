@@ -94,7 +94,7 @@ export function RoomsView({ canManage }: { canManage: boolean }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-1 rounded-lg bg-surface-sunken p-1 w-fit">
+        <div className="flex gap-1 rounded-control bg-surface-sunken p-1 w-fit">
           <button
             onClick={() => setTab('physical')}
             className={tabBtn(tab === 'physical')}
@@ -192,7 +192,7 @@ export function RoomsView({ canManage }: { canManage: boolean }) {
                 key={v.liveClassId}
                 className="flex flex-wrap items-center gap-3 px-4 py-3"
               >
-                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control bg-[#0F1F3D]/60 text-white">
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control bg-brand/60 text-white">
                   <Video size={16} strokeWidth={1.75} />
                 </div>
                 <div className="min-w-0 flex-1">

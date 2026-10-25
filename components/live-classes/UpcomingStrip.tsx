@@ -58,7 +58,7 @@ export function UpcomingStrip({ upcoming, onOpen }: UpcomingStripProps) {
               </p>
               <div className="mt-2">
                 <span
-                  className={`inline-block px-2.5 py-1 rounded-lg text-canvas text-xs font-bold ${
+                  className={`inline-block px-2.5 py-1 rounded-control text-canvas text-xs font-bold ${
                     status === 'live' ? 'bg-danger' : 'bg-ink'
                   }`}
                 >
