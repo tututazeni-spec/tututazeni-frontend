@@ -12,7 +12,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -36,7 +36,9 @@ export interface PositionFormModalProps {
 const NO_DEPT = 'NONE';
 const NO_REPORTS_TO = 'NONE';
 
-const LEVEL_ITEMS: SelectItemOption[] = (Object.keys(LEVEL_CFG) as PosLevel[]).map((lvl) => ({
+const LEVEL_ITEMS: SelectItemOption[] = (
+  Object.keys(LEVEL_CFG) as PosLevel[]
+).map((lvl) => ({
   value: lvl,
   label: LEVEL_CFG[lvl].label,
 }));
@@ -56,7 +58,13 @@ function flattenTree(
   ]);
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-4 border-t border-border pt-4 first:border-t-0 first:pt-0">
       <h3 className="font-body text-xs font-semibold uppercase tracking-wide text-ink-faint">
@@ -67,26 +75,68 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+interface PositionFormModalFormValues {
+  name: string;
+  code: string;
+  jobFunction: string;
+  jobFamily: string;
+  level: PosLevel | '';
+  departmentId: string;
+  reportsToPositionId: string;
+  description: string;
+  responsibilities: string;
+  requirements: string;
+  requiredTraining: string;
+  requiredExperience: string;
+  salaryMin: string;
+  salaryMax: string;
+  headcountPlanned: string;
+  active: string;
+  submitError: string;
+}
+
 export function PositionFormModal({ onClose }: PositionFormModalProps) {
   const notify = useToast();
 
-  const [name, setName] = useState('');
-  const [code, setCode] = useState('');
-  const [jobFunction, setJobFunction] = useState('');
-  const [jobFamily, setJobFamily] = useState('');
-  const [level, setLevel] = useState<PosLevel | ''>('');
-  const [departmentId, setDepartmentId] = useState(NO_DEPT);
-  const [reportsToPositionId, setReportsToPositionId] = useState(NO_REPORTS_TO);
-  const [description, setDescription] = useState('');
-  const [responsibilities, setResponsibilities] = useState('');
-  const [requirements, setRequirements] = useState('');
-  const [requiredTraining, setRequiredTraining] = useState('');
-  const [requiredExperience, setRequiredExperience] = useState('');
-  const [salaryMin, setSalaryMin] = useState('');
-  const [salaryMax, setSalaryMax] = useState('');
-  const [headcountPlanned, setHeadcountPlanned] = useState('');
-  const [active, setActive] = useState('true');
-  const [submitError, setSubmitError] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<PositionFormModalFormValues>({
+      name: '',
+      code: '',
+      jobFunction: '',
+      jobFamily: '',
+      level: '',
+      departmentId: NO_DEPT,
+      reportsToPositionId: NO_REPORTS_TO,
+      description: '',
+      responsibilities: '',
+      requirements: '',
+      requiredTraining: '',
+      requiredExperience: '',
+      salaryMin: '',
+      salaryMax: '',
+      headcountPlanned: '',
+      active: 'true',
+      submitError: '',
+    });
+  const {
+    name,
+    code,
+    jobFunction,
+    jobFamily,
+    level,
+    departmentId,
+    reportsToPositionId,
+    description,
+    responsibilities,
+    requirements,
+    requiredTraining,
+    requiredExperience,
+    salaryMin,
+    salaryMax,
+    headcountPlanned,
+    active,
+    submitError,
+  } = formValues;
 
   const { data: tree } = useApiQuery<DepartmentNode[]>(
     queryKeys.departments.tree(),
@@ -105,13 +155,20 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
   ];
   const reportsToItems = [
     { value: NO_REPORTS_TO, label: 'Nenhum (topo da hierarquia)' },
-    ...(positionsResp?.data ?? []).map((p) => ({ value: String(p.id), label: p.name })),
+    ...(positionsResp?.data ?? []).map((p) => ({
+      value: String(p.id),
+      label: p.name,
+    })),
   ];
 
   const min = salaryMin.trim() ? Number(salaryMin) : null;
   const max = salaryMax.trim() ? Number(salaryMax) : null;
   const salaryInvalid =
-    min != null && max != null && !Number.isNaN(min) && !Number.isNaN(max) && min > max;
+    min != null &&
+    max != null &&
+    !Number.isNaN(min) &&
+    !Number.isNaN(max) &&
+    min > max;
 
   const canSubmit = name.trim().length > 0 && !salaryInvalid;
 
@@ -123,32 +180,46 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
         notify({ title: 'Cargo criado', intent: 'success' });
         onClose();
       },
-      onError: (e) => setSubmitError(e.message || 'Erro ao criar o cargo. Tente novamente.'),
+      onError: (e) =>
+        setField(
+          'submitError',
+          e.message || 'Erro ao criar o cargo. Tente novamente.',
+        ),
     },
   );
   const loading = createPos.isPending;
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
-    setSubmitError('');
+    setField('submitError', '');
     createPos.mutate({
       name: name.trim(),
       ...(code.trim() ? { code: code.trim() } : {}),
       ...(jobFunction.trim() ? { jobFunction: jobFunction.trim() } : {}),
       ...(jobFamily.trim() ? { jobFamily: jobFamily.trim() } : {}),
       ...(level ? { level } : {}),
-      ...(departmentId !== NO_DEPT ? { departmentId: Number(departmentId) } : {}),
+      ...(departmentId !== NO_DEPT
+        ? { departmentId: Number(departmentId) }
+        : {}),
       ...(reportsToPositionId !== NO_REPORTS_TO
         ? { reportsToPositionId: Number(reportsToPositionId) }
         : {}),
       ...(description.trim() ? { description: description.trim() } : {}),
-      ...(responsibilities.trim() ? { responsibilities: responsibilities.trim() } : {}),
+      ...(responsibilities.trim()
+        ? { responsibilities: responsibilities.trim() }
+        : {}),
       ...(requirements.trim() ? { requirements: requirements.trim() } : {}),
-      ...(requiredTraining.trim() ? { requiredTraining: requiredTraining.trim() } : {}),
-      ...(requiredExperience.trim() ? { requiredExperience: requiredExperience.trim() } : {}),
+      ...(requiredTraining.trim()
+        ? { requiredTraining: requiredTraining.trim() }
+        : {}),
+      ...(requiredExperience.trim()
+        ? { requiredExperience: requiredExperience.trim() }
+        : {}),
       ...(min != null && !Number.isNaN(min) ? { salaryMin: min } : {}),
       ...(max != null && !Number.isNaN(max) ? { salaryMax: max } : {}),
-      ...(headcountPlanned.trim() ? { headcountPlanned: Number(headcountPlanned) } : {}),
+      ...(headcountPlanned.trim()
+        ? { headcountPlanned: Number(headcountPlanned) }
+        : {}),
       active: active === 'true',
     });
   };
@@ -173,7 +244,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
               <Input
                 id="pf-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setField('name', e.target.value)}
                 placeholder="Ex.: Analista de Recursos Humanos"
                 maxLength={120}
               />
@@ -183,7 +254,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
               <Input
                 id="pf-code"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => setField('code', e.target.value)}
                 placeholder="Ex.: RH-AN-01"
                 maxLength={30}
               />
@@ -193,7 +264,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
               <Input
                 id="pf-function"
                 value={jobFunction}
-                onChange={(e) => setJobFunction(e.target.value)}
+                onChange={(e) => setField('jobFunction', e.target.value)}
                 placeholder="Ex.: Gestão administrativa de pessoal"
                 maxLength={150}
               />
@@ -203,7 +274,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
               <Input
                 id="pf-family"
                 value={jobFamily}
-                onChange={(e) => setJobFamily(e.target.value)}
+                onChange={(e) => setField('jobFamily', e.target.value)}
                 placeholder="Ex.: Recursos Humanos"
                 maxLength={100}
               />
@@ -214,7 +285,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
                 <Textarea
                   id="pf-description"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={(e) => setField('description', e.target.value)}
                   placeholder="Opcional — resumo do propósito do cargo."
                   rows={2}
                   className="w-full"
@@ -228,7 +299,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
               <Select
                 items={deptItems}
                 value={departmentId}
-                onValueChange={setDepartmentId}
+                onValueChange={(v) => setField('departmentId', v)}
                 className="w-full"
               />
             </FormField>
@@ -237,7 +308,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
               <Select
                 items={LEVEL_ITEMS}
                 value={level || undefined}
-                onValueChange={(v) => setLevel(v as PosLevel)}
+                onValueChange={(v) => setField('level', v as PosLevel)}
                 placeholder="Seleccionar…"
                 className="w-full"
               />
@@ -250,7 +321,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
               <Select
                 items={reportsToItems}
                 value={reportsToPositionId}
-                onValueChange={setReportsToPositionId}
+                onValueChange={(v) => setField('reportsToPositionId', v)}
                 className="w-full"
               />
             </FormField>
@@ -259,7 +330,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
               <Select
                 items={ACTIVE_ITEMS}
                 value={active}
-                onValueChange={setActive}
+                onValueChange={(v) => setField('active', v)}
                 className="w-full"
               />
             </FormField>
@@ -267,11 +338,14 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
 
           <Section title="Responsabilidades e requisitos">
             <div className="sm:col-span-2">
-              <FormField label="Responsabilidades" htmlFor="pf-responsibilities">
+              <FormField
+                label="Responsabilidades"
+                htmlFor="pf-responsibilities"
+              >
                 <Textarea
                   id="pf-responsibilities"
                   value={responsibilities}
-                  onChange={(e) => setResponsibilities(e.target.value)}
+                  onChange={(e) => setField('responsibilities', e.target.value)}
                   rows={2}
                   className="w-full"
                 />
@@ -282,7 +356,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
                 <Textarea
                   id="pf-requirements"
                   value={requirements}
-                  onChange={(e) => setRequirements(e.target.value)}
+                  onChange={(e) => setField('requirements', e.target.value)}
                   rows={2}
                   className="w-full"
                 />
@@ -292,7 +366,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
               <Input
                 id="pf-training"
                 value={requiredTraining}
-                onChange={(e) => setRequiredTraining(e.target.value)}
+                onChange={(e) => setField('requiredTraining', e.target.value)}
                 placeholder="Ex.: Licenciatura em Gestão de RH"
               />
             </FormField>
@@ -300,7 +374,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
               <Input
                 id="pf-experience"
                 value={requiredExperience}
-                onChange={(e) => setRequiredExperience(e.target.value)}
+                onChange={(e) => setField('requiredExperience', e.target.value)}
                 placeholder="Ex.: 2 anos em função semelhante"
               />
             </FormField>
@@ -313,7 +387,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
                 type="number"
                 min={0}
                 value={headcountPlanned}
-                onChange={(e) => setHeadcountPlanned(e.target.value)}
+                onChange={(e) => setField('headcountPlanned', e.target.value)}
                 placeholder="1"
               />
             </FormField>
@@ -328,7 +402,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
                 type="number"
                 min={0}
                 value={salaryMin}
-                onChange={(e) => setSalaryMin(e.target.value)}
+                onChange={(e) => setField('salaryMin', e.target.value)}
                 invalid={salaryInvalid}
               />
             </FormField>
@@ -338,7 +412,7 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
                 type="number"
                 min={0}
                 value={salaryMax}
-                onChange={(e) => setSalaryMax(e.target.value)}
+                onChange={(e) => setField('salaryMax', e.target.value)}
               />
             </FormField>
           </Section>
@@ -348,7 +422,11 @@ export function PositionFormModal({ onClose }: PositionFormModalProps) {
           <Button intent="ghost" onClick={onClose} disabled={loading}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit} loading={loading}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            loading={loading}
+          >
             Criar cargo
           </Button>
         </div>

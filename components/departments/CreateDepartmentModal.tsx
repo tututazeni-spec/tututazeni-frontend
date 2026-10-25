@@ -10,7 +10,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle } from 'lucide-react';
 import type { QueryKey } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
@@ -88,6 +88,33 @@ function Section({
   );
 }
 
+interface CreateDepartmentModalFormValues {
+  name: string;
+  code: string;
+  description: string;
+  parentId: string;
+  unitId: string;
+  location: string;
+  head: DirectoryUser | null;
+  directManager: DirectoryUser | null;
+  costCenter: string;
+  annualBudget: string;
+  maxEmployees: string;
+  expectedEmployees: string;
+  status: string;
+  operationalStartDate: string;
+  institutionalEmail: string;
+  phoneExtension: string;
+  physicalLocation: string;
+  objective: string;
+  mainResponsibilities: string;
+  functionalArea: string;
+  isStrategic: string;
+  notes: string;
+  color: string;
+  submitError: string;
+}
+
 export function CreateDepartmentModal({
   onClose,
   endpoint,
@@ -98,34 +125,59 @@ export function CreateDepartmentModal({
 
   const parentLocked = defaultParentId != null;
 
-  const [name, setName] = useState('');
-  const [code, setCode] = useState('');
-  const [description, setDescription] = useState('');
-  const [parentId, setParentId] = useState(
-    parentLocked ? String(defaultParentId) : NO_PARENT,
-  );
-  const [unitId, setUnitId] = useState(NO_UNIT);
-  const [location, setLocation] = useState('');
-  const [head, setHead] = useState<DirectoryUser | null>(null);
-  const [directManager, setDirectManager] = useState<DirectoryUser | null>(
-    null,
-  );
-  const [costCenter, setCostCenter] = useState('');
-  const [annualBudget, setAnnualBudget] = useState('');
-  const [maxEmployees, setMaxEmployees] = useState('');
-  const [expectedEmployees, setExpectedEmployees] = useState('');
-  const [status, setStatus] = useState('ACTIVE');
-  const [operationalStartDate, setOperationalStartDate] = useState('');
-  const [institutionalEmail, setInstitutionalEmail] = useState('');
-  const [phoneExtension, setPhoneExtension] = useState('');
-  const [physicalLocation, setPhysicalLocation] = useState('');
-  const [objective, setObjective] = useState('');
-  const [mainResponsibilities, setMainResponsibilities] = useState('');
-  const [functionalArea, setFunctionalArea] = useState('');
-  const [isStrategic, setIsStrategic] = useState('false');
-  const [notes, setNotes] = useState('');
-  const [color, setColor] = useState(DEFAULT_COLOR);
-  const [submitError, setSubmitError] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<CreateDepartmentModalFormValues>({
+      name: '',
+      code: '',
+      description: '',
+      parentId: parentLocked ? String(defaultParentId) : NO_PARENT,
+      unitId: NO_UNIT,
+      location: '',
+      head: null,
+      directManager: null,
+      costCenter: '',
+      annualBudget: '',
+      maxEmployees: '',
+      expectedEmployees: '',
+      status: 'ACTIVE',
+      operationalStartDate: '',
+      institutionalEmail: '',
+      phoneExtension: '',
+      physicalLocation: '',
+      objective: '',
+      mainResponsibilities: '',
+      functionalArea: '',
+      isStrategic: 'false',
+      notes: '',
+      color: DEFAULT_COLOR,
+      submitError: '',
+    });
+  const {
+    name,
+    code,
+    description,
+    parentId,
+    unitId,
+    location,
+    head,
+    directManager,
+    costCenter,
+    annualBudget,
+    maxEmployees,
+    expectedEmployees,
+    status,
+    operationalStartDate,
+    institutionalEmail,
+    phoneExtension,
+    physicalLocation,
+    objective,
+    mainResponsibilities,
+    functionalArea,
+    isStrategic,
+    notes,
+    color,
+    submitError,
+  } = formValues;
 
   const { data: tree } = useApiQuery<DepartmentNode[]>(
     queryKeys.departments.tree(),
@@ -157,7 +209,8 @@ export function CreateDepartmentModal({
         onClose();
       },
       onError: (e) =>
-        setSubmitError(
+        setField(
+          'submitError',
           e.message || 'Erro ao criar o departamento. Tente novamente.',
         ),
     },
@@ -166,7 +219,7 @@ export function CreateDepartmentModal({
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
-    setSubmitError('');
+    setField('submitError', '');
     createDept.mutate({
       name: name.trim(),
       code: code.trim(),
@@ -226,7 +279,7 @@ export function CreateDepartmentModal({
               <Input
                 id="cd-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setField('name', e.target.value)}
                 placeholder="Ex.: Recursos Humanos"
                 maxLength={120}
               />
@@ -236,7 +289,7 @@ export function CreateDepartmentModal({
               <Input
                 id="cd-code"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => setField('code', e.target.value)}
                 placeholder="Ex.: RH-001"
                 maxLength={20}
               />
@@ -246,7 +299,7 @@ export function CreateDepartmentModal({
               <Combobox
                 items={FUNCTIONAL_AREA_OPTIONS}
                 value={functionalArea || undefined}
-                onValueChange={setFunctionalArea}
+                onValueChange={(v) => setField('functionalArea', v)}
                 placeholder="Selecionar área funcional"
                 searchPlaceholder="Escreva para filtrar ou indicar outra…"
                 allowCustom
@@ -257,7 +310,7 @@ export function CreateDepartmentModal({
               <Select
                 items={STRATEGIC_ITEMS}
                 value={isStrategic}
-                onValueChange={setIsStrategic}
+                onValueChange={(v) => setField('isStrategic', v)}
                 className="w-full"
               />
             </FormField>
@@ -267,7 +320,7 @@ export function CreateDepartmentModal({
                 <Textarea
                   id="cd-description"
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={(e) => setField('description', e.target.value)}
                   placeholder="Opcional — uma ou duas frases sobre o departamento."
                   rows={2}
                   className="w-full"
@@ -283,7 +336,7 @@ export function CreateDepartmentModal({
                 <Textarea
                   id="cd-objective"
                   value={objective}
-                  onChange={(e) => setObjective(e.target.value)}
+                  onChange={(e) => setField('objective', e.target.value)}
                   placeholder="Para que existe este departamento."
                   rows={2}
                   className="w-full"
@@ -299,7 +352,9 @@ export function CreateDepartmentModal({
                 <Textarea
                   id="cd-responsibilities"
                   value={mainResponsibilities}
-                  onChange={(e) => setMainResponsibilities(e.target.value)}
+                  onChange={(e) =>
+                    setField('mainResponsibilities', e.target.value)
+                  }
                   placeholder="Opcional — lista ou descrição das responsabilidades-chave."
                   rows={2}
                   className="w-full"
@@ -321,7 +376,7 @@ export function CreateDepartmentModal({
               <Select
                 items={parentItems}
                 value={parentId}
-                onValueChange={setParentId}
+                onValueChange={(v) => setField('parentId', v)}
                 disabled={parentLocked}
                 className="w-full"
               />
@@ -331,7 +386,7 @@ export function CreateDepartmentModal({
               <Select
                 items={unitItems}
                 value={unitId}
-                onValueChange={setUnitId}
+                onValueChange={(v) => setField('unitId', v)}
                 className="w-full"
               />
             </FormField>
@@ -340,7 +395,7 @@ export function CreateDepartmentModal({
               label="Responsável pelo departamento"
               htmlFor="cd-head"
               value={head}
-              onChange={setHead}
+              onChange={(v) => setField('head', v)}
               excludeId={directManager?.id}
             />
 
@@ -348,7 +403,7 @@ export function CreateDepartmentModal({
               label="Gestor directo"
               htmlFor="cd-direct-manager"
               value={directManager}
-              onChange={setDirectManager}
+              onChange={(v) => setField('directManager', v)}
               excludeId={head?.id}
             />
           </Section>
@@ -358,7 +413,7 @@ export function CreateDepartmentModal({
               <Combobox
                 items={COST_CENTER_OPTIONS}
                 value={costCenter || undefined}
-                onValueChange={setCostCenter}
+                onValueChange={(v) => setField('costCenter', v)}
                 placeholder="Selecionar centro de custo"
                 searchPlaceholder="Escreva para filtrar ou indicar outro…"
                 allowCustom
@@ -371,7 +426,7 @@ export function CreateDepartmentModal({
                 type="number"
                 min={0}
                 value={annualBudget}
-                onChange={(e) => setAnnualBudget(e.target.value)}
+                onChange={(e) => setField('annualBudget', e.target.value)}
                 placeholder="0"
               />
             </FormField>
@@ -385,7 +440,7 @@ export function CreateDepartmentModal({
                 type="number"
                 min={0}
                 value={maxEmployees}
-                onChange={(e) => setMaxEmployees(e.target.value)}
+                onChange={(e) => setField('maxEmployees', e.target.value)}
                 placeholder="Ex.: 25"
               />
             </FormField>
@@ -399,7 +454,7 @@ export function CreateDepartmentModal({
                 type="number"
                 min={0}
                 value={expectedEmployees}
-                onChange={(e) => setExpectedEmployees(e.target.value)}
+                onChange={(e) => setField('expectedEmployees', e.target.value)}
                 placeholder="Ex.: 20"
               />
             </FormField>
@@ -408,7 +463,7 @@ export function CreateDepartmentModal({
               <Select
                 items={STATUS_ITEMS}
                 value={status}
-                onValueChange={setStatus}
+                onValueChange={(v) => setField('status', v)}
                 className="w-full"
               />
             </FormField>
@@ -421,7 +476,9 @@ export function CreateDepartmentModal({
                 id="cd-start-date"
                 type="date"
                 value={operationalStartDate}
-                onChange={(e) => setOperationalStartDate(e.target.value)}
+                onChange={(e) =>
+                  setField('operationalStartDate', e.target.value)
+                }
                 className="w-full"
               />
             </FormField>
@@ -433,7 +490,7 @@ export function CreateDepartmentModal({
                 id="cd-email"
                 type="email"
                 value={institutionalEmail}
-                onChange={(e) => setInstitutionalEmail(e.target.value)}
+                onChange={(e) => setField('institutionalEmail', e.target.value)}
                 placeholder="rh@empresa.com"
               />
             </FormField>
@@ -442,7 +499,7 @@ export function CreateDepartmentModal({
               <Input
                 id="cd-phone"
                 value={phoneExtension}
-                onChange={(e) => setPhoneExtension(e.target.value)}
+                onChange={(e) => setField('phoneExtension', e.target.value)}
                 placeholder="Ex.: 1234"
                 maxLength={30}
               />
@@ -452,7 +509,7 @@ export function CreateDepartmentModal({
               <Input
                 id="cd-location"
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={(e) => setField('location', e.target.value)}
                 placeholder="Ex.: Sede — Luanda"
                 maxLength={150}
               />
@@ -465,7 +522,7 @@ export function CreateDepartmentModal({
               <Input
                 id="cd-physical-location"
                 value={physicalLocation}
-                onChange={(e) => setPhysicalLocation(e.target.value)}
+                onChange={(e) => setField('physicalLocation', e.target.value)}
                 placeholder="Ex.: Edifício A, Piso 3, Sala 12"
               />
             </FormField>
@@ -478,12 +535,12 @@ export function CreateDepartmentModal({
                   id="cd-color"
                   type="color"
                   value={color}
-                  onChange={(e) => setColor(e.target.value)}
+                  onChange={(e) => setField('color', e.target.value)}
                   className="h-9 w-14 cursor-pointer rounded-control border border-border-strong bg-surface"
                 />
                 <Input
                   value={color}
-                  onChange={(e) => setColor(e.target.value)}
+                  onChange={(e) => setField('color', e.target.value)}
                   placeholder="#1a4bb5"
                   className="max-w-[140px] font-mono"
                 />
@@ -495,7 +552,7 @@ export function CreateDepartmentModal({
                 <Textarea
                   id="cd-notes"
                   value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                  onChange={(e) => setField('notes', e.target.value)}
                   placeholder="Opcional."
                   rows={2}
                   className="w-full"

@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
@@ -60,32 +60,81 @@ const TITLES: Record<DocumentFormMode, string> = {
   generate: 'Gerar documento a partir de modelo',
 };
 
-type Source = { kind: 'repo'; id: number } | { kind: 'library'; id: string } | null;
+type Source =
+  { kind: 'repo'; id: number } | { kind: 'library'; id: string } | null;
 
-export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalProps) {
+interface DocumentFormModalFormValues {
+  instanceId: string;
+  stepId: string;
+  name: string;
+  docType: string;
+  required: boolean;
+  validUntil: string;
+  confidentiality: DocConfidentiality;
+  signature: boolean;
+  approverId: string;
+  requestedFromId: string;
+  note: string;
+  entityType: string;
+  entityId: string;
+  templateId: string;
+  search: string;
+  source: Source;
+}
+
+export function DocumentFormModal({
+  mode,
+  prefill,
+  onClose,
+}: DocumentFormModalProps) {
   const notify = useToast();
-  const [instanceId, setInstanceId] = useState(prefill?.instanceId ? String(prefill.instanceId) : '');
-  const [stepId, setStepId] = useState(prefill?.stepId ? String(prefill.stepId) : NONE);
-  const [name, setName] = useState(prefill?.name ?? '');
-  const [docType, setDocType] = useState(prefill?.docType ?? '');
-  const [required, setRequired] = useState(prefill?.required ?? false);
-  const [validUntil, setValidUntil] = useState('');
-  const [confidentiality, setConfidentiality] = useState<DocConfidentiality>('INTERNAL');
-  const [signature, setSignature] = useState(false);
-  const [approverId, setApproverId] = useState('');
-  const [requestedFromId, setRequestedFromId] = useState('');
-  const [note, setNote] = useState('');
-  const [entityType, setEntityType] = useState('');
-  const [entityId, setEntityId] = useState('');
-  const [templateId, setTemplateId] = useState('');
-  const [search, setSearch] = useState('');
-  const [source, setSource] = useState<Source>(null);
+  const { values: formValues, set: setField } =
+    useFormState<DocumentFormModalFormValues>({
+      instanceId: prefill?.instanceId ? String(prefill.instanceId) : '',
+      stepId: prefill?.stepId ? String(prefill.stepId) : NONE,
+      name: prefill?.name ?? '',
+      docType: prefill?.docType ?? '',
+      required: prefill?.required ?? false,
+      validUntil: '',
+      confidentiality: 'INTERNAL',
+      signature: false,
+      approverId: '',
+      requestedFromId: '',
+      note: '',
+      entityType: '',
+      entityId: '',
+      templateId: '',
+      search: '',
+      source: null,
+    });
+  const {
+    instanceId,
+    stepId,
+    name,
+    docType,
+    required,
+    validUntil,
+    confidentiality,
+    signature,
+    approverId,
+    requestedFromId,
+    note,
+    entityType,
+    entityId,
+    templateId,
+    search,
+    source,
+  } = formValues;
   const debounced = useDebounce(search, 300);
 
   const { data: instances } = useApiQuery<PaginatedInstances>(
     queryKeys.processes.instances({ picker: true }),
     '/processes/instances/list',
-    { params: { limit: 100 }, staleTime: STALE_TIME.DYNAMIC, enabled: !prefill?.instanceId },
+    {
+      params: { limit: 100 },
+      staleTime: STALE_TIME.DYNAMIC,
+      enabled: !prefill?.instanceId,
+    },
   );
   const { data: instance } = useApiQuery<ProcessInstance>(
     queryKeys.processes.instance(Number(instanceId) || 0),
@@ -95,7 +144,11 @@ export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalP
   const { data: sources } = useApiQuery<DocumentSources>(
     queryKeys.processes.documentSources(debounced),
     '/processes/documents/sources',
-    { params: debounced ? { search: debounced } : {}, staleTime: STALE_TIME.DYNAMIC, enabled: mode === 'attach' },
+    {
+      params: debounced ? { search: debounced } : {},
+      staleTime: STALE_TIME.DYNAMIC,
+      enabled: mode === 'attach',
+    },
   );
   const { data: templates } = useApiQuery<DocumentTemplate[]>(
     queryKeys.processes.documentTemplates(),
@@ -106,7 +159,9 @@ export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalP
   const common = () => ({
     ...(stepId !== NONE ? { stepId: Number(stepId) } : {}),
     required,
-    ...(validUntil ? { validUntil: new Date(`${validUntil}T23:59:59`).toISOString() } : {}),
+    ...(validUntil
+      ? { validUntil: new Date(`${validUntil}T23:59:59`).toISOString() }
+      : {}),
     confidentiality,
     signatureRequired: signature,
     ...(approverId ? { approverId: Number(approverId) } : {}),
@@ -145,11 +200,18 @@ export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalP
     {
       invalidateKeys: [queryKeys.processes.all],
       onSuccess: (res) => {
-        const unresolved = (res as { unresolved?: string[] } | undefined)?.unresolved ?? [];
+        const unresolved =
+          (res as { unresolved?: string[] } | undefined)?.unresolved ?? [];
         notify({
           title:
-            mode === 'attach' ? 'Documento anexado' : mode === 'request' ? 'Pedido enviado' : 'Documento gerado',
-          description: unresolved.length ? `Variáveis sem valor: ${unresolved.join(', ')}` : undefined,
+            mode === 'attach'
+              ? 'Documento anexado'
+              : mode === 'request'
+                ? 'Pedido enviado'
+                : 'Documento gerado',
+          description: unresolved.length
+            ? `Variáveis sem valor: ${unresolved.join(', ')}`
+            : undefined,
           intent: unresolved.length ? 'info' : 'success',
         });
         onClose();
@@ -181,7 +243,11 @@ export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalP
         <div className="mt-4 space-y-4">
           <FormField label="Processo *" htmlFor="doc-instance">
             {prefill?.instanceId ? (
-              <Input id="doc-instance" value={`#${prefill.instanceId}`} disabled />
+              <Input
+                id="doc-instance"
+                value={`#${prefill.instanceId}`}
+                disabled
+              />
             ) : (
               <Combobox
                 items={(instances?.data ?? []).map((i) => ({
@@ -190,8 +256,8 @@ export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalP
                 }))}
                 value={instanceId}
                 onValueChange={(v) => {
-                  setInstanceId(v);
-                  setStepId(NONE);
+                  setField('instanceId', v);
+                  setField('stepId', NONE);
                 }}
                 placeholder="Seleccionar processo"
                 searchPlaceholder="Pesquisar processo…"
@@ -203,9 +269,12 @@ export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalP
           {steps.length > 0 && (
             <FormField label="Etapa" htmlFor="doc-step">
               <Select
-                items={[{ value: NONE, label: 'Sem etapa específica' }, ...steps]}
+                items={[
+                  { value: NONE, label: 'Sem etapa específica' },
+                  ...steps,
+                ]}
                 value={stepId}
-                onValueChange={setStepId}
+                onValueChange={(v) => setField('stepId', v)}
                 className="w-full"
               />
             </FormField>
@@ -213,13 +282,17 @@ export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalP
 
           {mode === 'attach' && (
             <div>
-              <FormField label="Documento *" htmlFor="doc-search" hint="Pesquise no repositório central ou na Biblioteca.">
+              <FormField
+                label="Documento *"
+                htmlFor="doc-search"
+                hint="Pesquise no repositório central ou na Biblioteca."
+              >
                 <Input
                   id="doc-search"
                   type="text"
                   placeholder="Pesquisar por título ou código…"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => setField('search', e.target.value)}
                 />
               </FormField>
               <div className="mt-2 max-h-48 space-y-1 overflow-y-auto rounded-card border border-border p-1">
@@ -229,41 +302,61 @@ export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalP
                     <button
                       key={`r${d.id}`}
                       type="button"
-                      onClick={() => setSource({ kind: 'repo', id: d.id })}
+                      onClick={() =>
+                        setField('source', { kind: 'repo', id: d.id })
+                      }
                       className={cn(
                         'flex w-full items-center justify-between rounded-control px-2 py-1.5 text-left font-body text-sm',
-                        active ? 'bg-primary/10 text-primary' : 'hover:bg-surface-sunken',
+                        active
+                          ? 'bg-primary/10 text-primary'
+                          : 'hover:bg-surface-sunken',
                       )}
                     >
                       <span className="truncate">
-                        {d.title} <span className="text-xs text-ink-faint">{d.documentCode ?? ''}</span>
+                        {d.title}{' '}
+                        <span className="text-xs text-ink-faint">
+                          {d.documentCode ?? ''}
+                        </span>
                       </span>
-                      <span className="ml-2 shrink-0 text-xs text-ink-faint">Repositório · v{d.version}</span>
+                      <span className="ml-2 shrink-0 text-xs text-ink-faint">
+                        Repositório · v{d.version}
+                      </span>
                     </button>
                   );
                 })}
                 {(sources?.library ?? []).map((l) => {
-                  const active = source?.kind === 'library' && source.id === l.id;
+                  const active =
+                    source?.kind === 'library' && source.id === l.id;
                   return (
                     <button
                       key={`l${l.id}`}
                       type="button"
-                      onClick={() => setSource({ kind: 'library', id: l.id })}
+                      onClick={() =>
+                        setField('source', { kind: 'library', id: l.id })
+                      }
                       className={cn(
                         'flex w-full items-center justify-between rounded-control px-2 py-1.5 text-left font-body text-sm',
-                        active ? 'bg-primary/10 text-primary' : 'hover:bg-surface-sunken',
+                        active
+                          ? 'bg-primary/10 text-primary'
+                          : 'hover:bg-surface-sunken',
                       )}
                     >
                       <span className="truncate">
-                        {l.title} <span className="text-xs text-ink-faint">{l.code}</span>
+                        {l.title}{' '}
+                        <span className="text-xs text-ink-faint">{l.code}</span>
                       </span>
-                      <span className="ml-2 shrink-0 text-xs text-ink-faint">Biblioteca · v{l.version}</span>
+                      <span className="ml-2 shrink-0 text-xs text-ink-faint">
+                        Biblioteca · v{l.version}
+                      </span>
                     </button>
                   );
                 })}
-                {sources && sources.repository.length + sources.library.length === 0 && (
-                  <p className="p-3 text-center font-body text-sm text-ink-faint">Sem resultados.</p>
-                )}
+                {sources &&
+                  sources.repository.length + sources.library.length === 0 && (
+                    <p className="p-3 text-center font-body text-sm text-ink-faint">
+                      Sem resultados.
+                    </p>
+                  )}
               </div>
             </div>
           )}
@@ -271,11 +364,19 @@ export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalP
           {mode === 'generate' && (
             <FormField label="Modelo *" htmlFor="doc-template">
               <Select
-                items={(templates ?? []).map((t) => ({ value: String(t.id), label: t.name }))}
+                items={(templates ?? []).map((t) => ({
+                  value: String(t.id),
+                  label: t.name,
+                }))}
                 value={templateId}
                 onValueChange={(v) => {
-                  setTemplateId(v);
-                  if (!name) setName((templates ?? []).find((t) => String(t.id) === v)?.name ?? '');
+                  setField('templateId', v);
+                  if (!name)
+                    setField(
+                      'name',
+                      (templates ?? []).find((t) => String(t.id) === v)?.name ??
+                        '',
+                    );
                 }}
                 placeholder="Seleccionar modelo"
                 className="w-full"
@@ -284,60 +385,121 @@ export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalP
           )}
 
           <div className="grid grid-cols-2 gap-4">
-            <FormField label={mode === 'request' ? 'Nome *' : 'Nome'} htmlFor="doc-name">
-              <Input id="doc-name" value={name} onChange={(e) => setName(e.target.value)} />
+            <FormField
+              label={mode === 'request' ? 'Nome *' : 'Nome'}
+              htmlFor="doc-name"
+            >
+              <Input
+                id="doc-name"
+                value={name}
+                onChange={(e) => setField('name', e.target.value)}
+              />
             </FormField>
             {mode !== 'generate' && (
-              <FormField label={mode === 'request' ? 'Tipo documental *' : 'Tipo documental'} htmlFor="doc-type">
+              <FormField
+                label={
+                  mode === 'request' ? 'Tipo documental *' : 'Tipo documental'
+                }
+                htmlFor="doc-type"
+              >
                 <Input
                   id="doc-type"
                   value={docType}
-                  onChange={(e) => setDocType(e.target.value)}
+                  onChange={(e) => setField('docType', e.target.value)}
                   placeholder="Ex.: Contrato, Declaração"
                 />
               </FormField>
             )}
             <FormField label="Data de validade" htmlFor="doc-valid">
-              <Input id="doc-valid" type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
+              <Input
+                id="doc-valid"
+                type="date"
+                value={validUntil}
+                onChange={(e) => setField('validUntil', e.target.value)}
+              />
             </FormField>
             <FormField label="Confidencialidade" htmlFor="doc-conf">
               <Select
                 items={CONF_ITEMS}
                 value={confidentiality}
-                onValueChange={(v) => setConfidentiality(v as DocConfidentiality)}
+                onValueChange={(v) =>
+                  setField('confidentiality', v as DocConfidentiality)
+                }
                 className="w-full"
               />
             </FormField>
-            <FormField label="Entidade relacionada (tipo)" htmlFor="doc-entity-type">
-              <Input id="doc-entity-type" value={entityType} onChange={(e) => setEntityType(e.target.value)} placeholder="Ex.: Colaborador" />
+            <FormField
+              label="Entidade relacionada (tipo)"
+              htmlFor="doc-entity-type"
+            >
+              <Input
+                id="doc-entity-type"
+                value={entityType}
+                onChange={(e) => setField('entityType', e.target.value)}
+                placeholder="Ex.: Colaborador"
+              />
             </FormField>
-            <FormField label="Entidade relacionada (id)" htmlFor="doc-entity-id">
-              <Input id="doc-entity-id" value={entityId} onChange={(e) => setEntityId(e.target.value)} />
+            <FormField
+              label="Entidade relacionada (id)"
+              htmlFor="doc-entity-id"
+            >
+              <Input
+                id="doc-entity-id"
+                value={entityId}
+                onChange={(e) => setField('entityId', e.target.value)}
+              />
             </FormField>
           </div>
 
-          <FormField label="Responsável pela aprovação" htmlFor="doc-approver" hint="Por defeito, o dono do modelo do processo.">
-            <UserPicker value={approverId} onChange={setApproverId} placeholder="Dono do modelo (por defeito)" className="w-full" />
+          <FormField
+            label="Responsável pela aprovação"
+            htmlFor="doc-approver"
+            hint="Por defeito, o dono do modelo do processo."
+          >
+            <UserPicker
+              value={approverId}
+              onChange={(v) => setField('approverId', v)}
+              placeholder="Dono do modelo (por defeito)"
+              className="w-full"
+            />
           </FormField>
 
           {mode === 'request' && (
             <>
               <FormField label="Quem deve entregar *" htmlFor="doc-from">
-                <UserPicker value={requestedFromId} onChange={setRequestedFromId} className="w-full" />
+                <UserPicker
+                  value={requestedFromId}
+                  onChange={(v) => setField('requestedFromId', v)}
+                  className="w-full"
+                />
               </FormField>
               <FormField label="Nota para o destinatário" htmlFor="doc-note">
-                <Textarea id="doc-note" rows={2} value={note} onChange={(e) => setNote(e.target.value)} className="w-full" />
+                <Textarea
+                  id="doc-note"
+                  rows={2}
+                  value={note}
+                  onChange={(e) => setField('note', e.target.value)}
+                  className="w-full"
+                />
               </FormField>
             </>
           )}
 
           <div className="flex flex-wrap gap-6 font-body text-sm text-ink-muted">
             <label className="flex items-center gap-2">
-              <input type="checkbox" checked={required} onChange={(e) => setRequired(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={required}
+                onChange={(e) => setField('required', e.target.checked)}
+              />
               Documento obrigatório
             </label>
             <label className="flex items-center gap-2">
-              <input type="checkbox" checked={signature} onChange={(e) => setSignature(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={signature}
+                onChange={(e) => setField('signature', e.target.checked)}
+              />
               Exige assinatura
             </label>
           </div>
@@ -347,8 +509,16 @@ export function DocumentFormModal({ mode, prefill, onClose }: DocumentFormModalP
           <Button intent="ghost" onClick={onClose} disabled={save.isPending}>
             Cancelar
           </Button>
-          <Button disabled={!valid} loading={save.isPending} onClick={() => save.mutate(undefined)}>
-            {mode === 'attach' ? 'Anexar' : mode === 'request' ? 'Enviar pedido' : 'Gerar'}
+          <Button
+            disabled={!valid}
+            loading={save.isPending}
+            onClick={() => save.mutate(undefined)}
+          >
+            {mode === 'attach'
+              ? 'Anexar'
+              : mode === 'request'
+                ? 'Enviar pedido'
+                : 'Gerar'}
           </Button>
         </div>
       </ModalContent>

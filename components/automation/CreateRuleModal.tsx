@@ -24,7 +24,8 @@
 
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import type { ReactNode } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import { AlertCircle, Plus, Trash2 } from 'lucide-react';
@@ -82,8 +83,14 @@ const TRIGGER_ITEMS: { value: string; label: string }[] = [
   { value: 'pdi.completed', label: 'PDI concluído' },
   { value: 'course.completed', label: 'Curso concluído' },
   { value: 'course.not_completed', label: 'Curso não concluído' },
-  { value: 'avatar_training.session_completed', label: 'Sessão com avatar concluída' },
-  { value: 'avatar_training.session_failed', label: 'Sessão com avatar não aprovada' },
+  {
+    value: 'avatar_training.session_completed',
+    label: 'Sessão com avatar concluída',
+  },
+  {
+    value: 'avatar_training.session_failed',
+    label: 'Sessão com avatar não aprovada',
+  },
   { value: 'certification.expiring', label: 'Certificação a expirar' },
   { value: 'leave.approved', label: 'Férias aprovadas' },
   { value: 'absence.registered', label: 'Ausência registada' },
@@ -220,6 +227,37 @@ interface ConditionRow {
   value: string;
 }
 
+interface CreateRuleModalFormValues {
+  name: string;
+  description: string;
+  trigger: string;
+  entity: string;
+  category: string;
+  conditions: ConditionRow[];
+  conditionsLogic: string;
+  action: string;
+  recipient: string;
+  channel: string;
+  messageTemplate: string;
+  subject: string;
+  dynamicData: string;
+  dynamicDataError: string;
+  deadlineMinutes: string;
+  frequency: string;
+  executionTime: string;
+  daysOfWeek: number[];
+  startDate: string;
+  endDate: string;
+  maxExecutions: string;
+  priority: string;
+  state: string;
+  ownerId: string;
+  environment: string;
+  notifyOnError: boolean;
+  notes: string;
+  submitError: string;
+}
+
 export function CreateRuleModal({
   onClose,
   extraInvalidateKeys,
@@ -227,18 +265,72 @@ export function CreateRuleModal({
   const notify = useToast();
 
   // ── Geral ──────────────────────────────────────────────────────
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [trigger, setTrigger] = useState(TRIGGER_ITEMS[0].value);
-  const [entity, setEntity] = useState(NO_ENTITY);
-  const [category, setCategory] = useState(NO_CATEGORY);
+  const { values: formValues, set: setField } =
+    useFormState<CreateRuleModalFormValues>({
+      name: '',
+      description: '',
+      trigger: TRIGGER_ITEMS[0].value,
+      entity: NO_ENTITY,
+      category: NO_CATEGORY,
+      conditions: [],
+      conditionsLogic: 'AND',
+      action: ACTION_ITEMS[0].value,
+      recipient: '',
+      channel: CHANNEL_ITEMS[0].value,
+      messageTemplate: '',
+      subject: '',
+      dynamicData: '',
+      dynamicDataError: '',
+      deadlineMinutes: '',
+      frequency: NO_FREQUENCY,
+      executionTime: '',
+      daysOfWeek: [],
+      startDate: '',
+      endDate: '',
+      maxExecutions: '',
+      priority: '0',
+      state: 'ACTIVE',
+      ownerId: '',
+      environment: ENVIRONMENT_ITEMS[0].value,
+      notifyOnError: true,
+      notes: '',
+      submitError: '',
+    });
+  const {
+    name,
+    description,
+    trigger,
+    entity,
+    category,
+    conditions,
+    conditionsLogic,
+    action,
+    recipient,
+    channel,
+    messageTemplate,
+    subject,
+    dynamicData,
+    dynamicDataError,
+    deadlineMinutes,
+    frequency,
+    executionTime,
+    daysOfWeek,
+    startDate,
+    endDate,
+    maxExecutions,
+    priority,
+    state,
+    ownerId,
+    environment,
+    notifyOnError,
+    notes,
+    submitError,
+  } = formValues;
 
   // ── Condições ──────────────────────────────────────────────────
   const nextConditionId = useRef(1);
-  const [conditions, setConditions] = useState<ConditionRow[]>([]);
-  const [conditionsLogic, setConditionsLogic] = useState('AND');
   const addCondition = () =>
-    setConditions((rows) => [
+    setField('conditions', (rows) => [
       ...rows,
       {
         id: nextConditionId.current++,
@@ -248,43 +340,21 @@ export function CreateRuleModal({
       },
     ]);
   const updateCondition = (id: number, patch: Partial<ConditionRow>) =>
-    setConditions((rows) =>
+    setField('conditions', (rows) =>
       rows.map((r) => (r.id === id ? { ...r, ...patch } : r)),
     );
   const removeCondition = (id: number) =>
-    setConditions((rows) => rows.filter((r) => r.id !== id));
+    setField('conditions', (rows) => rows.filter((r) => r.id !== id));
 
   // ── Ação ───────────────────────────────────────────────────────
-  const [action, setAction] = useState(ACTION_ITEMS[0].value);
-  const [recipient, setRecipient] = useState('');
-  const [channel, setChannel] = useState(CHANNEL_ITEMS[0].value);
-  const [messageTemplate, setMessageTemplate] = useState('');
-  const [subject, setSubject] = useState('');
-  const [dynamicData, setDynamicData] = useState('');
-  const [dynamicDataError, setDynamicDataError] = useState('');
-  const [deadlineMinutes, setDeadlineMinutes] = useState('');
 
   // ── Agendamento ────────────────────────────────────────────────
-  const [frequency, setFrequency] = useState(NO_FREQUENCY);
-  const [executionTime, setExecutionTime] = useState('');
-  const [daysOfWeek, setDaysOfWeek] = useState<number[]>([]);
   const toggleDay = (day: number) =>
-    setDaysOfWeek((days) =>
+    setField('daysOfWeek', (days) =>
       days.includes(day) ? days.filter((d) => d !== day) : [...days, day],
     );
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [maxExecutions, setMaxExecutions] = useState('');
 
   // ── Gestão ─────────────────────────────────────────────────────
-  const [priority, setPriority] = useState('0');
-  const [state, setState] = useState('ACTIVE');
-  const [ownerId, setOwnerId] = useState('');
-  const [environment, setEnvironment] = useState(ENVIRONMENT_ITEMS[0].value);
-  const [notifyOnError, setNotifyOnError] = useState(true);
-  const [notes, setNotes] = useState('');
-
-  const [submitError, setSubmitError] = useState('');
 
   const canSubmit = name.trim().length > 0 && !!trigger && !!action;
 
@@ -303,21 +373,24 @@ export function CreateRuleModal({
         onClose();
       },
       onError: (e: Error) =>
-        setSubmitError(e.message || 'Erro ao criar a regra. Tente novamente.'),
+        setField(
+          'submitError',
+          e.message || 'Erro ao criar a regra. Tente novamente.',
+        ),
     },
   );
   const loading = createRule.isPending;
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
-    setSubmitError('');
+    setField('submitError', '');
 
     if (dynamicData.trim()) {
       try {
         JSON.parse(dynamicData);
-        setDynamicDataError('');
+        setField('dynamicDataError', '');
       } catch {
-        setDynamicDataError('JSON inválido');
+        setField('dynamicDataError', 'JSON inválido');
         return;
       }
     }
@@ -386,7 +459,7 @@ export function CreateRuleModal({
             <Input
               id="cr-name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setField('name', e.target.value)}
               placeholder="Ex.: Notificar RH quando entra colaborador"
               maxLength={200}
             />
@@ -401,7 +474,7 @@ export function CreateRuleModal({
               <Textarea
                 id="cr-description"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => setField('description', e.target.value)}
                 rows={2}
                 className="w-full"
               />
@@ -411,7 +484,7 @@ export function CreateRuleModal({
               <Select
                 items={TRIGGER_ITEMS}
                 value={trigger}
-                onValueChange={setTrigger}
+                onValueChange={(v) => setField('trigger', v)}
                 className="w-full"
               />
             </FormField>
@@ -421,7 +494,7 @@ export function CreateRuleModal({
                 <Select
                   items={ENTITY_ITEMS}
                   value={entity}
-                  onValueChange={setEntity}
+                  onValueChange={(v) => setField('entity', v)}
                   className="w-full"
                 />
               </FormField>
@@ -433,7 +506,7 @@ export function CreateRuleModal({
                 <Select
                   items={CATEGORY_ITEMS}
                   value={category}
-                  onValueChange={setCategory}
+                  onValueChange={(v) => setField('category', v)}
                   className="w-full"
                 />
               </FormField>
@@ -519,7 +592,7 @@ export function CreateRuleModal({
                 <Select
                   items={LOGIC_ITEMS}
                   value={conditionsLogic}
-                  onValueChange={setConditionsLogic}
+                  onValueChange={(v) => setField('conditionsLogic', v)}
                   className="w-full"
                 />
               </FormField>
@@ -531,7 +604,7 @@ export function CreateRuleModal({
               <Select
                 items={ACTION_ITEMS}
                 value={action}
-                onValueChange={setAction}
+                onValueChange={(v) => setField('action', v)}
                 className="w-full"
               />
             </FormField>
@@ -545,7 +618,7 @@ export function CreateRuleModal({
                 <Input
                   id="cr-recipient"
                   value={recipient}
-                  onChange={(e) => setRecipient(e.target.value)}
+                  onChange={(e) => setField('recipient', e.target.value)}
                   placeholder="Ex.: 42"
                 />
               </FormField>
@@ -553,7 +626,7 @@ export function CreateRuleModal({
                 <Select
                   items={CHANNEL_ITEMS}
                   value={channel}
-                  onValueChange={setChannel}
+                  onValueChange={(v) => setField('channel', v)}
                   className="w-full"
                 />
               </FormField>
@@ -583,7 +656,7 @@ export function CreateRuleModal({
               <Textarea
                 id="cr-message-template"
                 value={messageTemplate}
-                onChange={(e) => setMessageTemplate(e.target.value)}
+                onChange={(e) => setField('messageTemplate', e.target.value)}
                 rows={2}
                 className="w-full"
                 placeholder="Ex.: Olá {{nome}}, o teu curso {{nomeCurso}} está disponível."
@@ -595,7 +668,7 @@ export function CreateRuleModal({
                 <Input
                   id="cr-subject"
                   value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
+                  onChange={(e) => setField('subject', e.target.value)}
                 />
               </FormField>
             )}
@@ -610,8 +683,8 @@ export function CreateRuleModal({
                 id="cr-dynamic-data"
                 value={dynamicData}
                 onChange={(e) => {
-                  setDynamicData(e.target.value);
-                  if (dynamicDataError) setDynamicDataError('');
+                  setField('dynamicData', e.target.value);
+                  if (dynamicDataError) setField('dynamicDataError', '');
                 }}
                 rows={2}
                 className="w-full font-data"
@@ -629,7 +702,7 @@ export function CreateRuleModal({
                 type="number"
                 min={0}
                 value={deadlineMinutes}
-                onChange={(e) => setDeadlineMinutes(e.target.value)}
+                onChange={(e) => setField('deadlineMinutes', e.target.value)}
                 className="max-w-[160px]"
               />
             </FormField>
@@ -641,7 +714,7 @@ export function CreateRuleModal({
                 <Select
                   items={FREQUENCY_ITEMS}
                   value={frequency}
-                  onValueChange={setFrequency}
+                  onValueChange={(v) => setField('frequency', v)}
                   className="w-full"
                 />
               </FormField>
@@ -654,7 +727,7 @@ export function CreateRuleModal({
                   id="cr-execution-time"
                   type="time"
                   value={executionTime}
-                  onChange={(e) => setExecutionTime(e.target.value)}
+                  onChange={(e) => setField('executionTime', e.target.value)}
                 />
               </FormField>
             </div>
@@ -692,7 +765,7 @@ export function CreateRuleModal({
                   id="cr-start-date"
                   type="date"
                   value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  onChange={(e) => setField('startDate', e.target.value)}
                 />
               </FormField>
               <FormField
@@ -704,7 +777,7 @@ export function CreateRuleModal({
                   id="cr-end-date"
                   type="date"
                   value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  onChange={(e) => setField('endDate', e.target.value)}
                 />
               </FormField>
               <FormField
@@ -717,7 +790,7 @@ export function CreateRuleModal({
                   type="number"
                   min={1}
                   value={maxExecutions}
-                  onChange={(e) => setMaxExecutions(e.target.value)}
+                  onChange={(e) => setField('maxExecutions', e.target.value)}
                 />
               </FormField>
             </div>
@@ -742,7 +815,7 @@ export function CreateRuleModal({
                   type="number"
                   min={0}
                   value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
+                  onChange={(e) => setField('priority', e.target.value)}
                 />
               </FormField>
               <FormField
@@ -753,7 +826,7 @@ export function CreateRuleModal({
                 <Select
                   items={STATE_ITEMS}
                   value={state}
-                  onValueChange={setState}
+                  onValueChange={(v) => setField('state', v)}
                   className="w-full"
                 />
               </FormField>
@@ -768,7 +841,7 @@ export function CreateRuleModal({
                 <Input
                   id="cr-owner"
                   value={ownerId}
-                  onChange={(e) => setOwnerId(e.target.value)}
+                  onChange={(e) => setField('ownerId', e.target.value)}
                   placeholder="ID ou nome do responsável"
                 />
               </FormField>
@@ -776,7 +849,7 @@ export function CreateRuleModal({
                 <Select
                   items={ENVIRONMENT_ITEMS}
                   value={environment}
-                  onValueChange={setEnvironment}
+                  onValueChange={(v) => setField('environment', v)}
                   className="w-full"
                 />
               </FormField>
@@ -786,7 +859,7 @@ export function CreateRuleModal({
               <input
                 type="checkbox"
                 checked={notifyOnError}
-                onChange={(e) => setNotifyOnError(e.target.checked)}
+                onChange={(e) => setField('notifyOnError', e.target.checked)}
                 className="h-4 w-4 rounded border-border-strong accent-primary"
               />
               Notificar o responsável em caso de erro
@@ -800,7 +873,7 @@ export function CreateRuleModal({
               <Textarea
                 id="cr-notes"
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={(e) => setField('notes', e.target.value)}
                 rows={2}
                 className="w-full"
               />
