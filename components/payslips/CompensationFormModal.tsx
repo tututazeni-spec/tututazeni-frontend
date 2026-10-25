@@ -7,7 +7,7 @@
 // IBAN em claro é intencional (mesma política dos endpoints current/history).
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -30,6 +30,20 @@ export interface CompensationFormModalProps {
 const today = () => new Date().toISOString().slice(0, 10);
 const numOrNull = (s: string) => (s.trim() === '' ? null : Number(s));
 
+interface CompensationFormModalFormValues {
+  rawSearch: string;
+  picked: DirectoryUser | null;
+  baseSalary: string;
+  foodAllowance: string;
+  transportAllowance: string;
+  bankName: string;
+  iban: string;
+  accountNumber: string;
+  countryCode: string;
+  effectiveFrom: string;
+  submitError: string;
+}
+
 export function CompensationFormModal({
   mode,
   record,
@@ -40,8 +54,40 @@ export function CompensationFormModal({
   const notify = useToast();
 
   const fixedName = record?.user?.fullName;
-  const [rawSearch, setRawSearch] = useState('');
-  const [picked, setPicked] = useState<DirectoryUser | null>(null);
+  const { values: formValues, set: setField } =
+    useFormState<CompensationFormModalFormValues>({
+      rawSearch: '',
+      picked: null,
+      baseSalary:
+        editing && record?.baseSalary != null ? String(record.baseSalary) : '',
+      foodAllowance:
+        record?.foodAllowance != null ? String(record.foodAllowance) : '',
+      transportAllowance:
+        record?.transportAllowance != null
+          ? String(record.transportAllowance)
+          : '',
+      bankName: record?.bankName ?? '',
+      iban: record?.iban ?? '',
+      accountNumber: record?.accountNumber ?? '',
+      countryCode: record?.countryCode ?? 'AO',
+      effectiveFrom: editing
+        ? (record?.effectiveFrom ?? '').slice(0, 10)
+        : today(),
+      submitError: '',
+    });
+  const {
+    rawSearch,
+    picked,
+    baseSalary,
+    foodAllowance,
+    transportAllowance,
+    bankName,
+    iban,
+    accountNumber,
+    countryCode,
+    effectiveFrom,
+    submitError,
+  } = formValues;
   const { users, loading: usersLoading } = useDirectoryUsers(
     rawSearch,
     '',
@@ -53,25 +99,6 @@ export function CompensationFormModal({
   // pagamento), mas o salário base fica em branco de propósito — uma nova
   // versão implica uma cifra nova e deliberada. `editing` continua a ser
   // mode === 'edit'; isto NÃO é edição.
-  const [baseSalary, setBaseSalary] = useState(
-    editing && record?.baseSalary != null ? String(record.baseSalary) : '',
-  );
-  const [foodAllowance, setFoodAllowance] = useState(
-    record?.foodAllowance != null ? String(record.foodAllowance) : '',
-  );
-  const [transportAllowance, setTransportAllowance] = useState(
-    record?.transportAllowance != null ? String(record.transportAllowance) : '',
-  );
-  const [bankName, setBankName] = useState(record?.bankName ?? '');
-  const [iban, setIban] = useState(record?.iban ?? '');
-  const [accountNumber, setAccountNumber] = useState(
-    record?.accountNumber ?? '',
-  );
-  const [countryCode, setCountryCode] = useState(record?.countryCode ?? 'AO');
-  const [effectiveFrom, setEffectiveFrom] = useState(
-    editing ? (record?.effectiveFrom ?? '').slice(0, 10) : today(),
-  );
-  const [submitError, setSubmitError] = useState('');
 
   const resolvedUserId = editing ? undefined : (userId ?? picked?.id);
   const baseValid =
@@ -94,14 +121,17 @@ export function CompensationFormModal({
         onClose();
       },
       onError: (e: Error) =>
-        setSubmitError(e.message || 'Erro ao guardar. Tente novamente.'),
+        setField(
+          'submitError',
+          e.message || 'Erro ao guardar. Tente novamente.',
+        ),
     },
   );
   const loading = save.isPending;
 
   const handleSubmit = () => {
     if (!baseValid || loading) return;
-    setSubmitError('');
+    setField('submitError', '');
     const body: Record<string, unknown> = {
       baseSalary: Number(baseSalary),
       foodAllowance: numOrNull(foodAllowance),
@@ -156,7 +186,7 @@ export function CompensationFormModal({
                     <button
                       type="button"
                       aria-label="Remover colaborador"
-                      onClick={() => setPicked(null)}
+                      onClick={() => setField('picked', null)}
                       className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
                     >
                       <X size={16} strokeWidth={1.75} />
@@ -168,7 +198,7 @@ export function CompensationFormModal({
                   <Input
                     id="cfm-user"
                     value={rawSearch}
-                    onChange={(e) => setRawSearch(e.target.value)}
+                    onChange={(e) => setField('rawSearch', e.target.value)}
                     placeholder="Pesquisar colaborador por nome ou email…"
                     className="w-full"
                     autoComplete="off"
@@ -190,8 +220,8 @@ export function CompensationFormModal({
                           key={u.id}
                           type="button"
                           onClick={() => {
-                            setPicked(u);
-                            setRawSearch('');
+                            setField('picked', u);
+                            setField('rawSearch', '');
                           }}
                           className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
                         >
@@ -217,7 +247,7 @@ export function CompensationFormModal({
                 type="number"
                 step="any"
                 value={baseSalary}
-                onChange={(e) => setBaseSalary(e.target.value)}
+                onChange={(e) => setField('baseSalary', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -234,7 +264,7 @@ export function CompensationFormModal({
                 id="cfm-eff"
                 type="date"
                 value={effectiveFrom}
-                onChange={(e) => setEffectiveFrom(e.target.value)}
+                onChange={(e) => setField('effectiveFrom', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -244,7 +274,7 @@ export function CompensationFormModal({
                 type="number"
                 step="any"
                 value={foodAllowance}
-                onChange={(e) => setFoodAllowance(e.target.value)}
+                onChange={(e) => setField('foodAllowance', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -254,7 +284,7 @@ export function CompensationFormModal({
                 type="number"
                 step="any"
                 value={transportAllowance}
-                onChange={(e) => setTransportAllowance(e.target.value)}
+                onChange={(e) => setField('transportAllowance', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -262,7 +292,7 @@ export function CompensationFormModal({
               <Input
                 id="cfm-bank"
                 value={bankName}
-                onChange={(e) => setBankName(e.target.value)}
+                onChange={(e) => setField('bankName', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -270,7 +300,7 @@ export function CompensationFormModal({
               <Input
                 id="cfm-iban"
                 value={iban}
-                onChange={(e) => setIban(e.target.value)}
+                onChange={(e) => setField('iban', e.target.value)}
                 className="w-full font-mono"
               />
             </FormField>
@@ -278,7 +308,7 @@ export function CompensationFormModal({
               <Input
                 id="cfm-acc"
                 value={accountNumber}
-                onChange={(e) => setAccountNumber(e.target.value)}
+                onChange={(e) => setField('accountNumber', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -286,7 +316,9 @@ export function CompensationFormModal({
               <Input
                 id="cfm-country"
                 value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
+                onChange={(e) =>
+                  setField('countryCode', e.target.value.toUpperCase())
+                }
                 className="w-full"
               />
             </FormField>

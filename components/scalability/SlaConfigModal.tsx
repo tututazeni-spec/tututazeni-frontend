@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -62,25 +62,60 @@ function optionalPositiveInt(raw: string): number | undefined | null {
   return n >= 1 ? n : null;
 }
 
+interface SlaConfigModalFormValues {
+  name: string;
+  uptimePercent: string;
+  maxLatencyMs: string;
+  maxErrorRatePercent: string;
+  incidentResponse: string;
+  dataRetentionDays: string;
+  backupFrequency: string;
+  rpoMinutes: string;
+  rtoMinutes: string;
+}
+
 export function SlaConfigModal({ tenantId, onClose }: SlaConfigModalProps) {
   const notify = useToast();
 
-  const [name, setName] = useState('');
-  const [uptimePercent, setUptimePercent] = useState('99.9');
-  const [maxLatencyMs, setMaxLatencyMs] = useState('500');
-  const [maxErrorRatePercent, setMaxErrorRatePercent] = useState('1');
-  const [incidentResponse, setIncidentResponse] = useState('60');
-  const [dataRetentionDays, setDataRetentionDays] = useState('');
-  const [backupFrequency, setBackupFrequency] = useState('');
-  const [rpoMinutes, setRpoMinutes] = useState('');
-  const [rtoMinutes, setRtoMinutes] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<SlaConfigModalFormValues>({
+      name: '',
+      uptimePercent: '99.9',
+      maxLatencyMs: '500',
+      maxErrorRatePercent: '1',
+      incidentResponse: '60',
+      dataRetentionDays: '',
+      backupFrequency: '',
+      rpoMinutes: '',
+      rtoMinutes: '',
+    });
+  const {
+    name,
+    uptimePercent,
+    maxLatencyMs,
+    maxErrorRatePercent,
+    incidentResponse,
+    dataRetentionDays,
+    backupFrequency,
+    rpoMinutes,
+    rtoMinutes,
+  } = formValues;
 
   const createMutation = useApiMutation<unknown, CreateSlaPayload>(
     (payload) => apiClient.post('/scalability/sla', payload),
-    { invalidateKeys: [queryKeys.scalability.sla(), queryKeys.scalability.dashboard()] },
+    {
+      invalidateKeys: [
+        queryKeys.scalability.sla(),
+        queryKeys.scalability.dashboard(),
+      ],
+    },
   );
 
-  const uptime = numInRange(uptimePercent, LIMITS.uptimePercent.min, LIMITS.uptimePercent.max);
+  const uptime = numInRange(
+    uptimePercent,
+    LIMITS.uptimePercent.min,
+    LIMITS.uptimePercent.max,
+  );
   const latency = numInRange(maxLatencyMs, LIMITS.maxLatencyMs.min);
   const errorRatePct = numInRange(
     maxErrorRatePercent,
@@ -104,7 +139,13 @@ export function SlaConfigModal({ tenantId, onClose }: SlaConfigModalProps) {
     !createMutation.isPending;
 
   const handleSubmit = () => {
-    if (!canSubmit || uptime === null || latency === null || errorRatePct === null || response === null) {
+    if (
+      !canSubmit ||
+      uptime === null ||
+      latency === null ||
+      errorRatePct === null ||
+      response === null
+    ) {
       return;
     }
     createMutation.mutate(
@@ -122,12 +163,18 @@ export function SlaConfigModal({ tenantId, onClose }: SlaConfigModalProps) {
       },
       {
         onSuccess: () => {
-          notify({ title: `Configuração de SLA "${name.trim()}" criada`, intent: 'success' });
+          notify({
+            title: `Configuração de SLA "${name.trim()}" criada`,
+            intent: 'success',
+          });
           onClose();
         },
         onError: (err) => {
           reportError(err, { source: 'SlaConfigModal.handleSubmit' });
-          notify({ title: 'Não foi possível criar a configuração de SLA', intent: 'danger' });
+          notify({
+            title: 'Não foi possível criar a configuração de SLA',
+            intent: 'danger',
+          });
         },
       },
     );
@@ -145,7 +192,7 @@ export function SlaConfigModal({ tenantId, onClose }: SlaConfigModalProps) {
             <Input
               id="sla-name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setField('name', e.target.value)}
               placeholder="Ex.: SLA Enterprise 2026"
             />
           </FormField>
@@ -165,7 +212,7 @@ export function SlaConfigModal({ tenantId, onClose }: SlaConfigModalProps) {
                 id="sla-uptime"
                 inputMode="decimal"
                 value={uptimePercent}
-                onChange={(e) => setUptimePercent(e.target.value)}
+                onChange={(e) => setField('uptimePercent', e.target.value)}
                 placeholder="99.9"
               />
             </FormField>
@@ -184,7 +231,7 @@ export function SlaConfigModal({ tenantId, onClose }: SlaConfigModalProps) {
                 id="sla-latency"
                 inputMode="numeric"
                 value={maxLatencyMs}
-                onChange={(e) => setMaxLatencyMs(e.target.value)}
+                onChange={(e) => setField('maxLatencyMs', e.target.value)}
                 placeholder="500"
               />
             </FormField>
@@ -203,7 +250,9 @@ export function SlaConfigModal({ tenantId, onClose }: SlaConfigModalProps) {
                 id="sla-errorrate"
                 inputMode="decimal"
                 value={maxErrorRatePercent}
-                onChange={(e) => setMaxErrorRatePercent(e.target.value)}
+                onChange={(e) =>
+                  setField('maxErrorRatePercent', e.target.value)
+                }
                 placeholder="1"
               />
             </FormField>
@@ -222,7 +271,7 @@ export function SlaConfigModal({ tenantId, onClose }: SlaConfigModalProps) {
                 id="sla-incident"
                 inputMode="numeric"
                 value={incidentResponse}
-                onChange={(e) => setIncidentResponse(e.target.value)}
+                onChange={(e) => setField('incidentResponse', e.target.value)}
                 placeholder="60"
               />
             </FormField>
@@ -231,22 +280,30 @@ export function SlaConfigModal({ tenantId, onClose }: SlaConfigModalProps) {
               label="Retenção de dados (dias)"
               htmlFor="sla-retention"
               hint="Opcional"
-              error={retention === null && dataRetentionDays.trim() !== '' ? 'Número inteiro ≥ 1.' : undefined}
+              error={
+                retention === null && dataRetentionDays.trim() !== ''
+                  ? 'Número inteiro ≥ 1.'
+                  : undefined
+              }
             >
               <Input
                 id="sla-retention"
                 inputMode="numeric"
                 value={dataRetentionDays}
-                onChange={(e) => setDataRetentionDays(e.target.value)}
+                onChange={(e) => setField('dataRetentionDays', e.target.value)}
                 placeholder="365"
               />
             </FormField>
 
-            <FormField label="Frequência de backup" htmlFor="sla-backup" hint="Opcional">
+            <FormField
+              label="Frequência de backup"
+              htmlFor="sla-backup"
+              hint="Opcional"
+            >
               <Input
                 id="sla-backup"
                 value={backupFrequency}
-                onChange={(e) => setBackupFrequency(e.target.value)}
+                onChange={(e) => setField('backupFrequency', e.target.value)}
                 placeholder="Ex.: Diário"
               />
             </FormField>
@@ -255,13 +312,17 @@ export function SlaConfigModal({ tenantId, onClose }: SlaConfigModalProps) {
               label="RPO (min)"
               htmlFor="sla-rpo"
               hint="Objectivo de ponto de recuperação"
-              error={rpo === null && rpoMinutes.trim() !== '' ? 'Número inteiro ≥ 1.' : undefined}
+              error={
+                rpo === null && rpoMinutes.trim() !== ''
+                  ? 'Número inteiro ≥ 1.'
+                  : undefined
+              }
             >
               <Input
                 id="sla-rpo"
                 inputMode="numeric"
                 value={rpoMinutes}
-                onChange={(e) => setRpoMinutes(e.target.value)}
+                onChange={(e) => setField('rpoMinutes', e.target.value)}
                 placeholder="15"
               />
             </FormField>
@@ -270,13 +331,17 @@ export function SlaConfigModal({ tenantId, onClose }: SlaConfigModalProps) {
               label="RTO (min)"
               htmlFor="sla-rto"
               hint="Objectivo de tempo de recuperação"
-              error={rto === null && rtoMinutes.trim() !== '' ? 'Número inteiro ≥ 1.' : undefined}
+              error={
+                rto === null && rtoMinutes.trim() !== ''
+                  ? 'Número inteiro ≥ 1.'
+                  : undefined
+              }
             >
               <Input
                 id="sla-rto"
                 inputMode="numeric"
                 value={rtoMinutes}
-                onChange={(e) => setRtoMinutes(e.target.value)}
+                onChange={(e) => setField('rtoMinutes', e.target.value)}
                 placeholder="60"
               />
             </FormField>

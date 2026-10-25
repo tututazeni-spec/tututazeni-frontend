@@ -9,7 +9,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle, Calculator } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -68,23 +68,49 @@ export interface NewCostEntryModalProps {
   onClose: () => void;
 }
 
+interface NewCostEntryModalFormValues {
+  error: string;
+  initiativeType: RoiInitiativeType;
+  initiativeId: string;
+  subCategory: CostSubCategory;
+  description: string;
+  amount: string;
+  source: string;
+  sourceMode: string;
+  incurredAt: string;
+  estimateUser: DirectoryUser | null;
+  estimateHours: string;
+}
+
 export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
   const notify = useToast();
-  const [error, setError] = useState('');
-
-  const [initiativeType, setInitiativeType] =
-    useState<RoiInitiativeType>('FORMACAO');
-  const [initiativeId, setInitiativeId] = useState('');
-  const [subCategory, setSubCategory] =
-    useState<CostSubCategory>('FORMADOR_CONSULTOR');
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [source, setSource] = useState('');
-  const [sourceMode, setSourceMode] = useState(SOURCE_BLANK);
-  const [incurredAt, setIncurredAt] = useState('');
-
-  const [estimateUser, setEstimateUser] = useState<DirectoryUser | null>(null);
-  const [estimateHours, setEstimateHours] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<NewCostEntryModalFormValues>({
+      error: '',
+      initiativeType: 'FORMACAO',
+      initiativeId: '',
+      subCategory: 'FORMADOR_CONSULTOR',
+      description: '',
+      amount: '',
+      source: '',
+      sourceMode: SOURCE_BLANK,
+      incurredAt: '',
+      estimateUser: null,
+      estimateHours: '',
+    });
+  const {
+    error,
+    initiativeType,
+    initiativeId,
+    subCategory,
+    description,
+    amount,
+    source,
+    sourceMode,
+    incurredAt,
+    estimateUser,
+    estimateHours,
+  } = formValues;
 
   const { data: initiativeOptions } = useApiQuery<InitiativeOption[]>(
     queryKeys.roiImpact.initiativeOptions(initiativeType),
@@ -103,9 +129,10 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
       ),
     {
       onSuccess: (data) => {
-        setAmount(String(data.totalCost));
-        setSourceMode(SOURCE_MANUAL);
-        setSource(
+        setField('amount', String(data.totalCost));
+        setField('sourceMode', SOURCE_MANUAL);
+        setField(
+          'source',
           `Folha Salarial — ${estimateHours}h × salário/hora${data.note ? ` (${data.note})` : ''}`,
         );
         notify({
@@ -143,7 +170,7 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
         onClose();
       },
       onError: (e) =>
-        setError(e.message || 'Erro ao guardar a linha de custo.'),
+        setField('error', e.message || 'Erro ao guardar a linha de custo.'),
     },
   );
 
@@ -174,8 +201,8 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
                 items={INITIATIVE_TYPE_ITEMS}
                 value={initiativeType}
                 onValueChange={(v) => {
-                  setInitiativeType(v as RoiInitiativeType);
-                  setInitiativeId('');
+                  setField('initiativeType', v as RoiInitiativeType);
+                  setField('initiativeId', '');
                 }}
                 className="w-full"
               />
@@ -187,7 +214,7 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
                   label: o.label,
                 }))}
                 value={initiativeId}
-                onValueChange={setInitiativeId}
+                onValueChange={(v) => setField('initiativeId', v)}
                 placeholder="Selecionar…"
                 className="w-full"
               />
@@ -198,7 +225,9 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
             <Select
               items={SUBCATEGORY_ITEMS}
               value={subCategory}
-              onValueChange={(v) => setSubCategory(v as CostSubCategory)}
+              onValueChange={(v) =>
+                setField('subCategory', v as CostSubCategory)
+              }
               className="w-full"
             />
           </FormField>
@@ -214,7 +243,7 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
                   label="Colaborador"
                   htmlFor="ce-estimate-user"
                   value={estimateUser}
-                  onChange={setEstimateUser}
+                  onChange={(v) => setField('estimateUser', v)}
                 />
                 <FormField
                   label="Horas em formação"
@@ -225,7 +254,7 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
                     type="number"
                     min={0}
                     value={estimateHours}
-                    onChange={(e) => setEstimateHours(e.target.value)}
+                    onChange={(e) => setField('estimateHours', e.target.value)}
                     className="w-full"
                   />
                 </FormField>
@@ -246,7 +275,7 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
             <Input
               id="ce-description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setField('description', e.target.value)}
               className="w-full"
             />
           </FormField>
@@ -258,7 +287,7 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
                 type="number"
                 min={0}
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => setField('amount', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -267,7 +296,7 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
                 id="ce-incurred-at"
                 type="date"
                 value={incurredAt}
-                onChange={(e) => setIncurredAt(e.target.value)}
+                onChange={(e) => setField('incurredAt', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -278,8 +307,11 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
               items={SOURCE_ITEMS}
               value={sourceMode}
               onValueChange={(v) => {
-                setSourceMode(v);
-                setSource(v === SOURCE_BLANK || v === SOURCE_MANUAL ? '' : v);
+                setField('sourceMode', v);
+                setField(
+                  'source',
+                  v === SOURCE_BLANK || v === SOURCE_MANUAL ? '' : v,
+                );
               }}
               className="w-full"
             />
@@ -289,7 +321,7 @@ export function NewCostEntryModal({ onClose }: NewCostEntryModalProps) {
               id="ce-source"
               placeholder="Escrever a fonte…"
               value={source}
-              onChange={(e) => setSource(e.target.value)}
+              onChange={(e) => setField('source', e.target.value)}
               className="w-full"
             />
           )}

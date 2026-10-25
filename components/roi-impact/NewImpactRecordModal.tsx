@@ -6,7 +6,8 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -64,29 +65,61 @@ export interface NewImpactRecordModalProps {
   onClose: () => void;
 }
 
+interface NewImpactRecordModalFormValues {
+  error: string;
+  subjectType: ImpactSubjectType;
+  userSubject: DirectoryUser | null;
+  team: string;
+  subjectDepartmentId: string;
+  initiativeType: RoiInitiativeType;
+  initiativeId: string;
+  category: ImpactCategory;
+  indicatorName: string;
+  valueBefore: string;
+  valueAfter: string;
+  observationPeriodStart: string;
+  observationPeriodEnd: string;
+  attributionPercent: string;
+  dataSource: string;
+}
+
 export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
   const notify = useToast();
-  const [error, setError] = useState('');
-
-  const [subjectType, setSubjectType] =
-    useState<ImpactSubjectType>('DEPARTAMENTO');
-  const [userSubject, setUserSubject] = useState<DirectoryUser | null>(null);
-  const [team, setTeam] = useState('');
-  const [subjectDepartmentId, setSubjectDepartmentId] = useState('');
-
-  const [initiativeType, setInitiativeType] =
-    useState<RoiInitiativeType>('FORMACAO');
-  const [initiativeId, setInitiativeId] = useState('');
-
-  const [category, setCategory] =
-    useState<ImpactCategory>('SATISFACAO_CLIENTE');
-  const [indicatorName, setIndicatorName] = useState('');
-  const [valueBefore, setValueBefore] = useState('');
-  const [valueAfter, setValueAfter] = useState('');
-  const [observationPeriodStart, setObservationPeriodStart] = useState('');
-  const [observationPeriodEnd, setObservationPeriodEnd] = useState('');
-  const [attributionPercent, setAttributionPercent] = useState('');
-  const [dataSource, setDataSource] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<NewImpactRecordModalFormValues>({
+      error: '',
+      subjectType: 'DEPARTAMENTO',
+      userSubject: null,
+      team: '',
+      subjectDepartmentId: '',
+      initiativeType: 'FORMACAO',
+      initiativeId: '',
+      category: 'SATISFACAO_CLIENTE',
+      indicatorName: '',
+      valueBefore: '',
+      valueAfter: '',
+      observationPeriodStart: '',
+      observationPeriodEnd: '',
+      attributionPercent: '',
+      dataSource: '',
+    });
+  const {
+    error,
+    subjectType,
+    userSubject,
+    team,
+    subjectDepartmentId,
+    initiativeType,
+    initiativeId,
+    category,
+    indicatorName,
+    valueBefore,
+    valueAfter,
+    observationPeriodStart,
+    observationPeriodEnd,
+    attributionPercent,
+    dataSource,
+  } = formValues;
 
   const { data: kpiData } = useApiQuery<{ kpis: KpiDefinitionRow[] }>(
     queryKeys.roiImpact.kpis(),
@@ -160,7 +193,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
         onClose();
       },
       onError: (e) =>
-        setError(e.message || 'Erro ao guardar o registo de impacto.'),
+        setField('error', e.message || 'Erro ao guardar o registo de impacto.'),
     },
   );
 
@@ -193,7 +226,9 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
               <Select
                 items={SUBJECT_TYPE_ITEMS}
                 value={subjectType}
-                onValueChange={(v) => setSubjectType(v as ImpactSubjectType)}
+                onValueChange={(v) =>
+                  setField('subjectType', v as ImpactSubjectType)
+                }
                 className="w-full"
               />
             </FormField>
@@ -201,7 +236,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
               <Select
                 items={CATEGORY_ITEMS}
                 value={category}
-                onValueChange={(v) => setCategory(v as ImpactCategory)}
+                onValueChange={(v) => setField('category', v as ImpactCategory)}
                 className="w-full"
               />
             </FormField>
@@ -212,7 +247,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
               label="Colaborador *"
               htmlFor="ir-user"
               value={userSubject}
-              onChange={setUserSubject}
+              onChange={(v) => setField('userSubject', v)}
             />
           )}
           {subjectType === 'EQUIPA' && (
@@ -220,7 +255,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
               <Input
                 id="ir-team"
                 value={team}
-                onChange={(e) => setTeam(e.target.value)}
+                onChange={(e) => setField('team', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -233,7 +268,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
                   label: d.name,
                 }))}
                 value={subjectDepartmentId}
-                onValueChange={setSubjectDepartmentId}
+                onValueChange={(v) => setField('subjectDepartmentId', v)}
                 placeholder="Selecionar…"
                 className="w-full"
               />
@@ -246,8 +281,8 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
                 items={INITIATIVE_TYPE_ITEMS}
                 value={initiativeType}
                 onValueChange={(v) => {
-                  setInitiativeType(v as RoiInitiativeType);
-                  setInitiativeId('');
+                  setField('initiativeType', v as RoiInitiativeType);
+                  setField('initiativeId', '');
                 }}
                 className="w-full"
               />
@@ -259,7 +294,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
                   label: o.label,
                 }))}
                 value={initiativeId}
-                onValueChange={setInitiativeId}
+                onValueChange={(v) => setField('initiativeId', v)}
                 placeholder="Selecionar…"
                 className="w-full"
               />
@@ -273,7 +308,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
             <Select
               items={indicatorItems}
               value={indicatorName}
-              onValueChange={setIndicatorName}
+              onValueChange={(v) => setField('indicatorName', v)}
               placeholder="Selecionar um KPI…"
               className="w-full"
             />
@@ -285,7 +320,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
                 id="ir-before"
                 type="number"
                 value={valueBefore}
-                onChange={(e) => setValueBefore(e.target.value)}
+                onChange={(e) => setField('valueBefore', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -294,7 +329,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
                 id="ir-after"
                 type="number"
                 value={valueAfter}
-                onChange={(e) => setValueAfter(e.target.value)}
+                onChange={(e) => setField('valueAfter', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -309,7 +344,9 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
                 id="ir-obs-start"
                 type="date"
                 value={observationPeriodStart}
-                onChange={(e) => setObservationPeriodStart(e.target.value)}
+                onChange={(e) =>
+                  setField('observationPeriodStart', e.target.value)
+                }
                 className="w-full"
               />
             </FormField>
@@ -318,7 +355,9 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
                 id="ir-obs-end"
                 type="date"
                 value={observationPeriodEnd}
-                onChange={(e) => setObservationPeriodEnd(e.target.value)}
+                onChange={(e) =>
+                  setField('observationPeriodEnd', e.target.value)
+                }
                 className="w-full"
               />
             </FormField>
@@ -335,7 +374,7 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
                 min={0}
                 max={100}
                 value={attributionPercent}
-                onChange={(e) => setAttributionPercent(e.target.value)}
+                onChange={(e) => setField('attributionPercent', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -343,7 +382,9 @@ export function NewImpactRecordModal({ onClose }: NewImpactRecordModalProps) {
               <Select
                 items={DATA_SOURCE_ITEMS}
                 value={dataSource}
-                onValueChange={(v) => setDataSource(v === NO_SOURCE ? '' : v)}
+                onValueChange={(v) =>
+                  setField('dataSource', v === NO_SOURCE ? '' : v)
+                }
                 placeholder="Selecionar…"
                 className="w-full"
               />
