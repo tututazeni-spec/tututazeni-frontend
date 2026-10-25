@@ -31,7 +31,7 @@ import {
 } from './modelFormData';
 import { UserFilterSearch } from './UserFilterSearch';
 import type { CompetencyEvaluation } from './types';
-import { getInitials, formatDateNumeric } from '@/lib/format';
+import { getInitialsFirstLast, formatDateNumeric } from '@/lib/format';
 
 const ALL = '';
 
@@ -193,7 +193,7 @@ export function EvaluationsView() {
                             backgroundColor: avatarColor(r.colaborador),
                           }}
                         >
-                          {getInitials(r.colaborador, '?')}
+                          {getInitialsFirstLast(r.colaborador)}
                         </span>
                       )}
                       <div className="min-w-0">

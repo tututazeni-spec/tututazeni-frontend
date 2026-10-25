@@ -12,7 +12,12 @@ import {
   formatDateTime,
   formatKz,
   formatTime,
+  formatDateTimeNumeric,
+  formatDateTimeShort,
+  formatIsoDay,
+  formatMoney,
   getInitials,
+  getInitialsFirstLast,
   timeAgo,
 } from './format';
 
@@ -129,7 +134,8 @@ describe('timeAgo', () => {
 });
 
 describe('daysAgo', () => {
-  const ago = (days: number) => new Date(Date.now() - days * 86_400_000 - 1000).toISOString();
+  const ago = (days: number) =>
+    new Date(Date.now() - days * 86_400_000 - 1000).toISOString();
 
   test('hoje / ontem / há N dias', () => {
     expect(daysAgo(new Date().toISOString())).toBe('hoje');
@@ -155,5 +161,48 @@ describe('formatBytes', () => {
 
   test('devolve — para null', () => {
     expect(formatBytes(null)).toBe('—');
+  });
+});
+
+describe('getInitialsFirstLast', () => {
+  test('primeira e última palavra', () => {
+    expect(getInitialsFirstLast('Mariana Fonseca Antunes')).toBe('MA');
+    expect(getInitialsFirstLast('Ana Silva')).toBe('AS');
+  });
+
+  test('uma só palavra dá uma letra; vazio dá o fallback', () => {
+    expect(getInitialsFirstLast('Madonna')).toBe('M');
+    expect(getInitialsFirstLast('   ')).toBe('?');
+    expect(getInitialsFirstLast('', '–')).toBe('–');
+  });
+});
+
+describe('formatDateTimeNumeric / formatDateTimeShort', () => {
+  test('nulos devolvem —', () => {
+    expect(formatDateTimeNumeric(null)).toBe('—');
+    expect(formatDateTimeShort(undefined)).toBe('—');
+  });
+
+  test('curta não leva segundos; numérica leva', () => {
+    const d = new Date(2026, 2, 5, 14, 30, 45);
+    expect(formatDateTimeShort(d)).toMatch(/14:30$/);
+    expect(formatDateTimeNumeric(d)).toMatch(/14:30:45$/);
+  });
+});
+
+describe('formatIsoDay', () => {
+  test('lê o dia da string, sem desvio de fuso', () => {
+    expect(formatIsoDay('2026-03-05')).toBe('05/03/2026');
+    expect(formatIsoDay('2026-03-05T23:30:00Z')).toBe('05/03/2026');
+    expect(formatIsoDay(null)).toBe('—');
+  });
+});
+
+describe('formatMoney', () => {
+  test('moeda a seguir ao valor, AOA por omissão', () => {
+    expect(formatMoney(150000)).toMatch(/^150\s000 AOA$/);
+    expect(formatMoney(2500, 'USD')).toMatch(/^2\s500 USD$/);
+    expect(formatMoney(0)).toBe('0 AOA');
+    expect(formatMoney(null)).toBe('—');
   });
 });

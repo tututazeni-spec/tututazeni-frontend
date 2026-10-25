@@ -9,7 +9,7 @@ import type { LucideIcon } from 'lucide-react';
 import { Building2 } from 'lucide-react';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import { getInitials } from '@/lib/format';
+import { getInitialsFirstLast } from '@/lib/format';
 
 export interface ProgressInfo {
   icon: LucideIcon;
@@ -66,7 +66,9 @@ export function ProgressCard({
           />
         ) : (
           <span className="ml-8 text-5xl font-extrabold text-white/90">
-            {avatar ? getInitials(avatar.name, '?') : `${Math.round(progress.value)}%`}
+            {avatar
+              ? getInitialsFirstLast(avatar.name)
+              : `${Math.round(progress.value)}%`}
           </span>
         )}
       </div>
