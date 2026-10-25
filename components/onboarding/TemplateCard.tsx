@@ -54,8 +54,12 @@ function Metric({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-2 px-3 first:pl-0 last:pr-0 text-[15px] text-[#0F1F3D]">
-      <Icon size={22} strokeWidth={1.75} className="shrink-0 text-[#49658A]" />
+    <div className="flex items-center gap-2 px-3 first:pl-0 last:pr-0 text-[15px] text-brand">
+      <Icon
+        size={22}
+        strokeWidth={1.75}
+        className="shrink-0 text-brand-muted"
+      />
       <span>{children}</span>
     </div>
   );
@@ -69,7 +73,7 @@ interface InfoRowProps {
 
 function InfoRow({ icon: Icon, accent, children }: InfoRowProps) {
   return (
-    <div className="flex items-center gap-3 rounded-[14px] bg-[#EEF4FD] px-4 py-3 text-[15px] text-[#0F1F3D]">
+    <div className="flex items-center gap-3 rounded-[14px] bg-[#EEF4FD] px-4 py-3 text-[15px] text-brand">
       <Icon
         size={20}
         strokeWidth={1.75}
@@ -140,17 +144,17 @@ export function TemplateCard({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-y-2 px-7 py-6 divide-x divide-[#E6ECF4]">
+      <div className="flex flex-wrap items-center gap-y-2 px-7 py-6 divide-x divide-brand-line">
         <Metric icon={CalendarDays}>{t.durationDays} dias</Metric>
         <Metric icon={CheckCircle2}>{t._count?.tasks ?? 0} tarefas</Metric>
         <Metric icon={ListChecks}>{t._count?.plans ?? 0} planos</Metric>
       </div>
 
-      <div className="mx-7 border-t border-[#E6ECF4]" />
+      <div className="mx-7 border-t border-brand-line" />
 
       <div className="space-y-2 px-7 py-6">
         {description && (
-          <p className="mb-3 break-words text-xs text-[#49658A]">
+          <p className="mb-3 break-words text-xs text-brand-muted">
             {description}
           </p>
         )}
@@ -172,7 +176,7 @@ export function TemplateCard({
               return (
                 <div
                   key={task.id}
-                  className="flex items-start gap-2 text-xs text-[#49658A]"
+                  className="flex items-start gap-2 text-xs text-brand-muted"
                 >
                   <span>
                     {CatIcon ? <CatIcon size={13} strokeWidth={1.75} /> : '•'}

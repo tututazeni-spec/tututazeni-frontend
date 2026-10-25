@@ -53,7 +53,7 @@ function RankedList({
   const max = Math.max(...sorted.map(([, n]) => n), 1);
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface">
-      <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
+      <div className="bg-brand/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-4">

@@ -289,7 +289,7 @@ export function PlanDetailModal({
               {team.map(({ label, person }) => (
                 <div
                   key={label}
-                  className="rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-3 text-center text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
+                  className="rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-3 text-center text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
                 >
                   <div className="mb-2 font-body text-sm text-[#C7D4E8]">
                     {label}

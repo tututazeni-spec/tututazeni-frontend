@@ -60,7 +60,7 @@ function RankedList({
   const max = Math.max(...sorted.map(([, n]) => n), 1);
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface">
-      <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
+      <div className="bg-brand/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-4">
@@ -222,7 +222,7 @@ export function OverviewTab({
       <div className="grid grid-cols-2 gap-4">
         {/* Próximas entradas */}
         <div className="bg-surface border border-border rounded-card overflow-hidden">
-          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
+          <div className="bg-brand/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
             Próximas entradas
           </div>
           {upcomingStarts.length === 0 ? (
@@ -260,7 +260,7 @@ export function OverviewTab({
 
         {/* Colaboradores activos */}
         <div className="bg-surface border border-border rounded-card overflow-hidden">
-          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
+          <div className="bg-brand/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
             Processos de Integração activos
           </div>
           {active.map((plan) => (

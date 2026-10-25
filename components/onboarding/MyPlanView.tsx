@@ -81,7 +81,7 @@ function SectionCard({
 }) {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-      <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+      <h4 className="-mx-5 -mt-5 mb-4 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
         {title}
       </h4>
       {children}
@@ -234,7 +234,7 @@ export function MyPlanView() {
       )}
 
       {/* Header — mesmo desenho do cartão de inscrições (CourseListCard) */}
-      <div className="relative overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="relative overflow-hidden rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div
           aria-hidden
           className="absolute -right-10 -top-8 h-[260px] w-[42%] rotate-6 rounded-[48px] opacity-80"
@@ -274,7 +274,7 @@ export function MyPlanView() {
           </Badge>
         </div>
 
-        <div className="relative z-10 mx-6 mt-4 grid grid-cols-1 gap-3 rounded-2xl bg-white/10 px-4 py-3 sm:grid-cols-3">
+        <div className="relative z-10 mx-6 mt-4 grid grid-cols-1 gap-3 rounded-panel bg-white/10 px-4 py-3 sm:grid-cols-3">
           <Metric icon={CalendarDays}>{fmtDate(plan.startDate)}</Metric>
           <Metric icon={Clock}>{plan.template.durationDays} dias</Metric>
           <Metric icon={ListChecks}>
@@ -283,7 +283,7 @@ export function MyPlanView() {
           </Metric>
         </div>
 
-        <div className="relative z-10 m-4 mt-3 space-y-2 rounded-2xl bg-white/10 px-4 py-3">
+        <div className="relative z-10 m-4 mt-3 space-y-2 rounded-panel bg-white/10 px-4 py-3">
           <p className="m-0 text-xs text-[#C7D4E8]">Progresso do plano</p>
           <div className="flex items-center gap-3">
             <ProgressBar value={pct} color="#3B82F6" className="flex-1" />
@@ -408,7 +408,7 @@ export function MyPlanView() {
             ].map(({ label, person }) => (
               <Card
                 key={label}
-                className="overflow-hidden rounded-panel border-0 bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-center text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
+                className="overflow-hidden rounded-panel border-0 bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-5 text-center text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
               >
                 <div className="text-sm text-[#C7D4E8] mb-3">{label}</div>
                 {person ? (
@@ -538,8 +538,8 @@ export function MyPlanView() {
                 </CardBody>
               </Card>
             ) : (
-              <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
-                <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+              <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
+                <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
                   Pesquisas de satisfação
                 </h3>
                 {answeredCount >= SURVEY_MILESTONES.length
