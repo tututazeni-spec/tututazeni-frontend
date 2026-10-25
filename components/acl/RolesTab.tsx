@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { AclRole } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function RolesTab() {
   const [selected, setSelected] = useState<AclRole | null>(null);
@@ -58,14 +59,10 @@ export function RolesTab() {
       {/* Role detail */}
       <Card className="md:col-span-2 p-5">
         {!selected ? (
-          <div className="py-12 text-center text-ink-faint">
-            <Shield
-              size={36}
-              strokeWidth={1.75}
-              className="mx-auto mb-2 opacity-30"
-            />
-            <p className="text-sm">Selecciona um role para ver detalhes</p>
-          </div>
+          <EmptyState
+            icon={Shield}
+            title="Selecciona um role para ver detalhes"
+          />
         ) : (
           <div>
             <div className="mb-4 flex items-center justify-between">
@@ -95,9 +92,10 @@ export function RolesTab() {
                 </div>
               ))}
               {selected.permissions?.length === 0 && (
-                <p className="text-ink-faint text-sm">
-                  Sem permissões atribuídas
-                </p>
+                <EmptyState
+                  variant="inline"
+                  title="Sem permissões atribuídas"
+                />
               )}
             </div>
           </div>

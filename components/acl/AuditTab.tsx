@@ -1,6 +1,7 @@
 // components/acl/AuditTab.tsx
 
 import { useState } from 'react';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Activity, Circle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -99,14 +100,7 @@ export function AuditTab() {
             );
           })}
           {(data?.data?.length ?? 0) === 0 && (
-            <div className="py-12 text-center text-ink-faint">
-              <Activity
-                size={32}
-                strokeWidth={1.75}
-                className="mx-auto mb-2 opacity-30"
-              />
-              <p className="text-sm">Sem registos de auditoria</p>
-            </div>
+            <EmptyState icon={Activity} title="Sem registos de auditoria" />
           )}
         </div>
       </Card>
