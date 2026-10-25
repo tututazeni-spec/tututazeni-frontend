@@ -20,7 +20,7 @@ import { apiClient } from '@/lib/apiClient';
 import { fileToPdfDataUrl, pdfErrorMessage } from '@/lib/lessonPdf';
 import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -193,14 +193,14 @@ export function OnboardingDocUploadForm({
                   className="shrink-0 text-ink-muted"
                 />
                 <span className="min-w-0 flex-1 truncate">{pdf.name}</span>
-                <button
+                <IconButton
+                  icon={X}
+                  label="Remover PDF"
+                  intent="ghost"
+                  size="xs"
                   type="button"
-                  aria-label="Remover PDF"
                   onClick={() => setPdf(null)}
-                  className="rounded-control p-1 text-ink-muted hover:bg-surface hover:text-ink"
-                >
-                  <X size={14} strokeWidth={1.75} />
-                </button>
+                />
               </div>
             ) : (
               <Button
