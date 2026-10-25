@@ -25,7 +25,7 @@ export function SettingsSection({
 }: SettingsSectionProps) {
   return (
     <Card className="overflow-hidden p-5 space-y-4">
-      <div className="-mx-5 -mt-5 bg-[#0F1F3D]/60 px-5 py-3">
+      <div className="-mx-5 -mt-5 bg-brand/60 px-5 py-3">
         <h3 className="text-sm font-semibold text-white">{title}</h3>
         {description && (
           <p className="text-xs text-white/80 mt-0.5">{description}</p>

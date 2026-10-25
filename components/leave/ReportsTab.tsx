@@ -48,7 +48,10 @@ import type {
 const ALL = 'ALL';
 const ABSENTEEISM: LeaveReportKind = 'MONTHLY_ABSENTEEISM';
 // Relatórios que não dependem do período (ou que têm o seu próprio).
-const YEAR_ONLY: LeaveReportKind[] = ['ANNUAL_VACATION_MAP', 'VACATION_BY_EMPLOYEE'];
+const YEAR_ONLY: LeaveReportKind[] = [
+  'ANNUAL_VACATION_MAP',
+  'VACATION_BY_EMPLOYEE',
+];
 const NO_DEPARTMENT: LeaveReportKind[] = ['PENDING_REQUESTS', 'REQUEST_AUDIT'];
 
 function renderCell(c: ReportColumn, v: string | number | null): string {
@@ -94,7 +97,9 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
     () =>
       apiClient.get<CsvExport>(`/leave/reports/${kind}/export`, {
         params: Object.fromEntries(
-          Object.entries(effective).filter(([, v]) => v !== '' && v !== undefined),
+          Object.entries(effective).filter(
+            ([, v]) => v !== '' && v !== undefined,
+          ),
         ),
       }),
     {
@@ -134,7 +139,9 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
 
       <div className="space-y-4 min-w-0">
         <Card className="overflow-hidden p-4 space-y-3">
-          <h3 className="-mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
+          <h3 className="-mx-4 -mt-4 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
+            Filtros
+          </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {usesPeriod ? (
               <>
@@ -161,7 +168,9 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
               min={2000}
               value={filters.year}
               onChange={(e) =>
-                set({ year: Number(e.target.value) || new Date().getFullYear() })
+                set({
+                  year: Number(e.target.value) || new Date().getFullYear(),
+                })
               }
               className="w-full"
             />
@@ -257,7 +266,9 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
             </h2>
             <p className="text-xs text-ink-faint">
               {data?.description}
-              {data ? ` · ${formatDate(data.range.from)} a ${formatDate(data.range.to)}` : ''}
+              {data
+                ? ` · ${formatDate(data.range.from)} a ${formatDate(data.range.to)}`
+                : ''}
             </p>
             {data?.formula && (
               <p className="mt-1 flex items-center gap-1.5 text-xs text-ink-muted">
@@ -288,7 +299,7 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
         ) : (
           <>
             <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:align-bottom [&_th]:leading-tight">
-              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
+              <TableHead className="bg-brand/60 [&_th]:text-white">
                 <TableRow>
                   {data.columns.map((c) => (
                     <TableHeaderCell
@@ -340,7 +351,10 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
             </Table>
             <p className="text-xs text-ink-faint">
               {data.rows.length} linha(s)
-              {data.truncated ? ' — resultado truncado, restrinja os filtros' : ''}.
+              {data.truncated
+                ? ' — resultado truncado, restrinja os filtros'
+                : ''}
+              .
             </p>
           </>
         )}

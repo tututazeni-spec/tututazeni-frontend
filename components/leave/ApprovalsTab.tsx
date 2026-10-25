@@ -43,11 +43,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { ApprovalDecisionModal } from './ApprovalDecisionModal';
 import { ApprovalReassignModal } from './ApprovalReassignModal';
 import { APPROVAL_STATE_CFG, APPROVAL_STAGE_LABELS } from './constants';
-import type {
-  ApprovalListStatus,
-  ApprovalRow,
-  LeaveType,
-} from './types';
+import type { ApprovalListStatus, ApprovalRow, LeaveType } from './types';
 
 const ALL = 'ALL';
 
@@ -87,7 +83,10 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
   const [reassigning, setReassigning] = useState<ApprovalRow | null>(null);
 
   const debouncedSearch = useDebounce(filters.search, 300);
-  const { data, loading } = useApprovals({ ...filters, search: debouncedSearch });
+  const { data, loading } = useApprovals({
+    ...filters,
+    search: debouncedSearch,
+  });
   const set = (patch: Partial<ApprovalFilters>) =>
     setFilters((f) => ({ ...f, page: 1, ...patch }));
   const pick = (v: string) => (v === ALL ? '' : v);
@@ -131,7 +130,9 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
       </div>
 
       <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
+        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
+          Filtros
+        </h3>
         <div className="flex flex-wrap gap-1 mb-3">
           {VIEWS.map((v) => (
             <Button
@@ -200,7 +201,7 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
         <>
           <div className="overflow-x-auto">
             <Table>
-              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
+              <TableHead className="bg-brand/60 [&_th]:text-white">
                 <TableRow>
                   <TableHeaderCell className="w-8" />
                   <TableHeaderCell>Colaborador</TableHeaderCell>
@@ -331,8 +332,8 @@ function ApprovalRowView({
           <StatusBadge value={a.state} map={APPROVAL_STATE_CFG} variant="dot" />
           {a.decidedAt && (
             <p className="text-xs text-ink-faint mt-0.5">
-              {a.decision ? (DECISION_LABELS[a.decision] ?? a.decision) : ''}{' '}
-              em {formatDate(a.decidedAt)}
+              {a.decision ? (DECISION_LABELS[a.decision] ?? a.decision) : ''} em{' '}
+              {formatDate(a.decidedAt)}
             </p>
           )}
         </TableCell>

@@ -147,16 +147,18 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
   const set = (patch: Partial<VacationFilters>) =>
     setFilters((f) => ({ ...f, page: 1, ...patch }));
   const pick = (v: string) => (v === ALL ? '' : v);
-  const withAll = (items: { value: string; label: string }[], label: string) => [
-    { value: ALL, label },
-    ...items,
-  ];
+  const withAll = (
+    items: { value: string; label: string }[],
+    label: string,
+  ) => [{ value: ALL, label }, ...items];
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-ink">Plano anual de férias</h2>
+          <h2 className="text-sm font-semibold text-ink">
+            Plano anual de férias
+          </h2>
           <p className="text-xs text-ink-faint">
             Dias reservados = aprovados ainda não gozados. O saldo é debitado
             uma única vez, na aprovação.
@@ -168,7 +170,9 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
       </div>
 
       <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
+        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
+          Filtros
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Input
             placeholder="Procurar nome ou n.º interno"
@@ -216,7 +220,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
         <Skeleton
           rows={6}
           wrapperClassName="space-y-2 animate-pulse"
-          itemClassName="h-16 bg-surface-sunken rounded-2xl"
+          itemClassName="h-16 bg-surface-sunken rounded-panel"
         />
       ) : !data || data.data.length === 0 ? (
         <EmptyState
@@ -225,11 +229,13 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
         />
       ) : (
         <>
-          <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-panel border border-slate-200/70 bg-white shadow-sm">
             {/* Barra de título */}
             <div className="flex items-center gap-4 bg-[#0F2E5E] px-6 py-5">
               <Users size={24} strokeWidth={1.75} className="text-[#3B82F6]" />
-              <h3 className="text-xl font-semibold text-white">Colaboradores</h3>
+              <h3 className="text-xl font-semibold text-white">
+                Colaboradores
+              </h3>
             </div>
 
             <div className="overflow-x-auto">
@@ -257,7 +263,9 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                       <TableRow
                         key={r.userId}
                         onClick={
-                          onSelectUser ? () => onSelectUser(r.userId) : undefined
+                          onSelectUser
+                            ? () => onSelectUser(r.userId)
+                            : undefined
                         }
                         className={`border-t border-slate-100 transition-colors hover:bg-slate-50/70 ${
                           onSelectUser ? 'cursor-pointer' : ''

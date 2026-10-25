@@ -108,8 +108,8 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
         <div>
           <h2 className="text-sm font-semibold text-ink">Licenças</h2>
           <p className="text-xs text-ink-faint">
-            Licenças legais e internas. A duração, a remuneração e os
-            documentos exigidos seguem a configuração de cada tipo.
+            Licenças legais e internas. A duração, a remuneração e os documentos
+            exigidos seguem a configuração de cada tipo.
           </p>
         </div>
         <Button onClick={() => setShowModal(true)}>
@@ -118,7 +118,9 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
       </div>
 
       <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
+        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
+          Filtros
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           <Input
             placeholder="Procurar nome ou n.º interno"
@@ -205,12 +207,18 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
                     {r.type.requiresDocument &&
                       !r.hasDocument &&
                       r.documents.length === 0 && (
-                        <NavyBadge tone="warning">Comprovativo em falta</NavyBadge>
+                        <NavyBadge tone="warning">
+                          Comprovativo em falta
+                        </NavyBadge>
                       )}
                   </>
                 }
                 infos={[
-                  { icon: CalendarDays, value: periodLabel(r), label: 'Período' },
+                  {
+                    icon: CalendarDays,
+                    value: periodLabel(r),
+                    label: 'Período',
+                  },
                   { icon: Clock, value: durationLabel(r), label: 'Duração' },
                   {
                     icon: Wallet,
@@ -238,7 +246,11 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
                         rel="noopener noreferrer"
                         className={NAVY_ACTION}
                       >
-                        <Paperclip size={12} strokeWidth={1.75} className="mr-1" />
+                        <Paperclip
+                          size={12}
+                          strokeWidth={1.75}
+                          className="mr-1"
+                        />
                         {d.name}
                       </a>
                     ))}
@@ -250,16 +262,20 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
                         <FileLock2 size={13} strokeWidth={1.75} /> Protegido
                       </span>
                     )}
-                    {showPayroll && r.payrollImpact === 'VALIDATION_REQUIRED' && (
-                      <NavyBadge tone="warning">Validar na folha salarial</NavyBadge>
-                    )}
+                    {showPayroll &&
+                      r.payrollImpact === 'VALIDATION_REQUIRED' && (
+                        <NavyBadge tone="warning">
+                          Validar na folha salarial
+                        </NavyBadge>
+                      )}
                     {r.canCancel && (
                       <button
                         type="button"
                         className={NAVY_ACTION}
                         onClick={() => onCancel(r.id)}
                       >
-                        <X size={12} strokeWidth={1.75} className="mr-1" /> Cancelar pedido
+                        <X size={12} strokeWidth={1.75} className="mr-1" />{' '}
+                        Cancelar pedido
                       </button>
                     )}
                   </>
