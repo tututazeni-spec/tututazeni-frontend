@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { Trash2, X } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -91,9 +91,7 @@ export function StepInspector({
           <div className="font-body text-xs uppercase tracking-wide text-ink-faint">{meta.label}</div>
           <div className="truncate font-body text-sm font-medium text-ink">{node.title || 'Sem nome'}</div>
         </div>
-        <button type="button" onClick={onClose} className="text-ink-faint hover:text-ink" aria-label="Fechar">
-          <X size={16} strokeWidth={1.75} />
-        </button>
+        <IconButton icon={X} label="Fechar" intent="ghost" size="compact" type="button" onClick={onClose} />
       </div>
 
       <div className="flex flex-wrap gap-1 border-b border-border px-3 py-2">
@@ -239,14 +237,7 @@ export function StepInspector({
                           className="flex-1"
                         />
                         {!readOnly && (
-                          <button
-                            type="button"
-                            className="text-ink-faint hover:text-danger"
-                            onClick={() => onChange({ approverIds: node.approverIds.filter((_, idx) => idx !== i) })}
-                            aria-label="Remover aprovador"
-                          >
-                            <Trash2 size={14} strokeWidth={1.75} />
-                          </button>
+                          <IconButton icon={Trash2} label="Remover aprovador" intent="ghostDanger" size="xs" type="button" onClick={() => onChange({ approverIds: node.approverIds.filter((_, idx) => idx !== i) })} />
                         )}
                       </li>
                     ))}

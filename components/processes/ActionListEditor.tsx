@@ -5,7 +5,7 @@
 'use client';
 
 import { Plus, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
@@ -131,14 +131,15 @@ export function ActionListEditor({
               className="w-60"
             />
             {!disabled && (
-              <button
+              <IconButton
+                icon={Trash2}
+                label="Remover acção"
+                intent="ghostDanger"
+                size="xs"
+                className="ml-auto"
                 type="button"
                 onClick={() => onChange(value.filter((_, idx) => idx !== i))}
-                className="ml-auto text-ink-faint hover:text-danger"
-                aria-label="Remover acção"
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </button>
+              />
             )}
           </div>
           <div className="mt-2 space-y-2">

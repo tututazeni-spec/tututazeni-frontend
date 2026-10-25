@@ -16,7 +16,7 @@ import { downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate } from '@/lib/format';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -440,12 +440,12 @@ export function InstancesView({
               <div onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button
-                      className="rounded-control p-1.5 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-                      aria-label={`Acções de ${r.code}`}
-                    >
-                      <MoreHorizontal size={16} strokeWidth={1.75} />
-                    </button>
+                    <IconButton
+                      icon={MoreHorizontal}
+                      label={`Acções de ${r.code}`}
+                      intent="ghost"
+                      size="compact"
+                    />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onSelect={() => onOpenInstance(r.id)}>
