@@ -205,7 +205,7 @@ export function EvaluationTab() {
                 type="button"
                 onClick={() => p.evaluation && setDetailRow(p)}
                 disabled={!p.evaluation}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-white px-5 py-3 text-left last:border-0 enabled:hover:bg-[#EEF4FD] disabled:cursor-default"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-white px-5 py-3 text-left last:border-0 enabled:hover:bg-brand-soft disabled:cursor-default"
               >
                 <Avatar
                   name={p.user.fullName}

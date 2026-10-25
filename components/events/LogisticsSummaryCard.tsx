@@ -21,7 +21,7 @@ const VIEW_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 
 function Pill({ children }: { children: string }) {
   return (
-    <span className="rounded-full bg-[#EEF4FD] px-2.5 py-1 font-body text-xs font-medium text-brand">
+    <span className="rounded-full bg-brand-soft px-2.5 py-1 font-body text-xs font-medium text-brand">
       {children}
     </span>
   );

@@ -337,7 +337,7 @@ export function VenuesLogisticsTab() {
                     ).map(([value, cfg]) => (
                       <label
                         key={value}
-                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[#D8E2F0] bg-white px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
+                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-line bg-white px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
                       >
                         <Checkbox
                           checked={form.equipment.includes(value)}
@@ -425,7 +425,7 @@ export function VenuesLogisticsTab() {
                     return (
                       <label
                         key={name}
-                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[#D8E2F0] bg-white px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
+                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-line bg-white px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
                       >
                         <Checkbox
                           checked={on}

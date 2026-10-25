@@ -65,7 +65,7 @@ export function InfoRow({
   children,
 }: InfoRowProps) {
   return (
-    <div className="flex items-center gap-3 rounded-[14px] bg-[#EEF4FD] px-4 py-3 text-[15px] text-brand">
+    <div className="flex items-center gap-3 rounded-[14px] bg-brand-soft px-4 py-3 text-[15px] text-brand">
       {leading ??
         (Icon && (
           <Icon
@@ -199,7 +199,7 @@ export function EventListCard({ event: e, onOpen, menu }: EventListCardProps) {
           <h3 className="line-clamp-2 font-display text-[24px] font-semibold leading-tight">
             {e.title}
           </h3>
-          <p className="mt-1 line-clamp-2 text-[15px] text-[#C7D4E8]">
+          <p className="mt-1 line-clamp-2 text-[15px] text-on-brand-muted">
             {subtitle}
           </p>
         </div>
