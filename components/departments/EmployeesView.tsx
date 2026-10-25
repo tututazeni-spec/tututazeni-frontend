@@ -230,7 +230,7 @@ export function EmployeesView() {
       {loading && (
         <Skeleton
           rows={6}
-          wrapperClassName="space-y-2 animate-pulse"
+          wrapperClassName="space-y-2"
           itemClassName="h-14 rounded-card bg-surface-sunken"
         />
       )}

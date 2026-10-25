@@ -96,7 +96,7 @@ export function HeadsView() {
           {loadingHeads ? (
             <Skeleton
               rows={6}
-              wrapperClassName="space-y-2 animate-pulse"
+              wrapperClassName="space-y-2"
               itemClassName="h-12 rounded-card bg-surface-sunken"
             />
           ) : headsError ? (
@@ -210,7 +210,7 @@ export function HeadsView() {
           {loadingHistory ? (
             <Skeleton
               rows={6}
-              wrapperClassName="space-y-2 animate-pulse"
+              wrapperClassName="space-y-2"
               itemClassName="h-12 rounded-card bg-surface-sunken"
             />
           ) : historyError ? (
