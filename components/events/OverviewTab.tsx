@@ -69,7 +69,7 @@ function RankedList({
   const max = Math.max(...sorted.map(([, n]) => n), 1);
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface">
-      <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+      <div className="bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-4">
@@ -257,7 +257,7 @@ export function OverviewTab({
 
       {/* Próximos eventos */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+        <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
           Próximos eventos
         </div>
         {data.upcomingEvents.length === 0 ? (

@@ -347,7 +347,7 @@ function MonthGrid({ anchor, range, byDay, onSelect }: MonthGridProps) {
 
   return (
     <Card className="overflow-hidden p-0">
-      <div className="grid grid-cols-7 border-b border-border bg-[#0F1F3D]/60">
+      <div className="grid grid-cols-7 border-b border-border bg-brand/60">
         {WEEKDAY_LABELS.map((label, i) => (
           <div
             key={i}
@@ -437,7 +437,7 @@ function DayEventRow({
       />
       <span
         className={cn(
-          'w-16 shrink-0 rounded-md py-1 text-center font-mono text-xs font-semibold',
+          'w-16 shrink-0 rounded-control py-1 text-center font-mono text-xs font-semibold',
           level.cls,
         )}
       >
@@ -500,7 +500,7 @@ function WeekList({ range, byDay, onSelect }: WeekListProps) {
         const events = byDay.get(dayKey(day)) ?? [];
         return (
           <Card key={dayKey(day)} className="overflow-hidden p-0">
-            <div className="cursor-default select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-2 font-body text-xs font-medium capitalize text-white">
+            <div className="cursor-default select-none border-b border-border bg-brand/60 px-4 py-2 font-body text-xs font-medium capitalize text-white">
               {formatDate(day, {
                 weekday: 'long',
                 day: '2-digit',
@@ -574,7 +574,7 @@ function AgendaList({
     <div className="space-y-3">
       {groups.map(([day, events]) => (
         <Card key={day} className="overflow-hidden p-0">
-          <div className="cursor-default select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-2 font-body text-xs font-medium capitalize text-white">
+          <div className="cursor-default select-none border-b border-border bg-brand/60 px-4 py-2 font-body text-xs font-medium capitalize text-white">
             {formatDate(day, {
               weekday: 'long',
               day: '2-digit',

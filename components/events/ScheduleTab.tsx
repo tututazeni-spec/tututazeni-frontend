@@ -288,30 +288,30 @@ export function ScheduleTab() {
           description="Cria a primeira sessão de um evento com várias actividades."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {sessions.map((s) => (
             <div
               key={s.id}
-              className="relative flex w-full flex-wrap items-center gap-3 border-b border-[#E6ECF4] bg-white px-5 py-3 last:border-0"
+              className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-white px-5 py-3 last:border-0"
             >
               <div className="min-w-0 flex-1">
-                <div className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
+                <div className="truncate font-body text-sm font-semibold text-brand">
                   {s.title}
                 </div>
-                <div className="truncate font-body text-xs text-[#49658A]">
+                <div className="truncate font-body text-xs text-brand-muted">
                   {s.event?.title ?? `Evento #${s.eventId}`}
                   {s.speaker && ` · Orador: ${s.speaker}`}
                   {s.responsible && ` · Resp.: ${s.responsible.fullName}`}
                 </div>
               </div>
-              <div className="hidden w-40 shrink-0 font-body text-xs text-[#49658A] sm:block">
+              <div className="hidden w-40 shrink-0 font-body text-xs text-brand-muted sm:block">
                 {formatDate(s.startAt)} · {formatTime(s.startAt)}–
                 {formatTime(s.endAt)}
               </div>
-              <div className="hidden w-24 shrink-0 font-body text-xs text-[#49658A] md:block">
+              <div className="hidden w-24 shrink-0 font-body text-xs text-brand-muted md:block">
                 {s.durationMinutes}min
               </div>
-              <div className="hidden w-32 shrink-0 truncate font-body text-xs text-[#49658A] lg:block">
+              <div className="hidden w-32 shrink-0 truncate font-body text-xs text-brand-muted lg:block">
                 {[s.location, s.room].filter(Boolean).join(' · ') || '—'}
               </div>
               <span
@@ -333,7 +333,7 @@ export function ScheduleTab() {
                     <button
                       type="button"
                       aria-label="Acções da sessão"
-                      className="shrink-0 rounded-control p-1.5 text-[#49658A] hover:bg-[#EEF4FD] hover:text-[#0F1F3D]"
+                      className="shrink-0 rounded-control p-1.5 text-brand-muted hover:bg-[#EEF4FD] hover:text-brand"
                     >
                       <MoreVertical size={16} strokeWidth={1.75} />
                     </button>

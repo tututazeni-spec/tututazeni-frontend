@@ -379,7 +379,7 @@ export function SpeakersGuestsTab() {
           description="Adiciona o primeiro orador, convidado ou moderador deste evento."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {speakers.map((s) => {
             // Data de referência: sessão associada; sem sessão, início do evento.
             const refDate = s.session?.startAt ?? event?.startAt;
@@ -387,7 +387,7 @@ export function SpeakersGuestsTab() {
             return (
               <div
                 key={s.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-[#E6ECF4] bg-white px-5 py-3 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-white px-5 py-3 last:border-0"
               >
                 {s.photoUrl ? (
                   <button
@@ -402,19 +402,19 @@ export function SpeakersGuestsTab() {
                   <Avatar name={s.name} size="sm" />
                 )}
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
+                  <div className="truncate font-body text-sm font-semibold text-brand">
                     {s.name}
                   </div>
-                  <div className="truncate font-body text-xs text-[#49658A]">
+                  <div className="truncate font-body text-xs text-brand-muted">
                     {SPEAKER_TYPE_CFG[s.type].label}
                     {s.organization && ` · ${s.organization}`}
                     {s.position && ` · ${s.position}`}
                   </div>
                 </div>
-                <div className="hidden w-40 shrink-0 truncate font-body text-xs text-[#49658A] sm:block">
+                <div className="hidden w-40 shrink-0 truncate font-body text-xs text-brand-muted sm:block">
                   {s.topic || '—'}
                 </div>
-                <div className="hidden w-40 shrink-0 font-body text-xs text-[#49658A] md:block">
+                <div className="hidden w-40 shrink-0 font-body text-xs text-brand-muted md:block">
                   {s.session ? (
                     <>
                       <span className="block truncate">{s.session.title}</span>
@@ -449,7 +449,7 @@ export function SpeakersGuestsTab() {
                       <button
                         type="button"
                         aria-label="Acções do orador/convidado"
-                        className="shrink-0 rounded-control p-1.5 text-[#49658A] hover:bg-[#EEF4FD] hover:text-[#0F1F3D]"
+                        className="shrink-0 rounded-control p-1.5 text-brand-muted hover:bg-[#EEF4FD] hover:text-brand"
                       >
                         <MoreVertical size={16} strokeWidth={1.75} />
                       </button>

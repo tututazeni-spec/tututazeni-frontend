@@ -239,7 +239,7 @@ export function CheckinAttendanceTab() {
           description="Nenhum participante corresponde aos filtros escolhidos."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {rows.map((p) => {
             const isCheckingOut =
               checkoutMutation.isPending &&
@@ -251,7 +251,7 @@ export function CheckinAttendanceTab() {
             return (
               <div
                 key={p.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-[#E6ECF4] bg-white px-5 py-3 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-white px-5 py-3 last:border-0"
               >
                 <Avatar
                   name={p.user.fullName}
@@ -259,22 +259,22 @@ export function CheckinAttendanceTab() {
                   size="sm"
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
+                  <div className="truncate font-body text-sm font-semibold text-brand">
                     {p.user.fullName}
                   </div>
-                  <div className="truncate font-body text-xs text-[#49658A]">
+                  <div className="truncate font-body text-xs text-brand-muted">
                     {p.event.title}
                     {p.user.department && ` · ${p.user.department.name}`}
                     {p.user.unit && ` · ${p.user.unit.name}`}
                   </div>
                 </div>
 
-                <div className="hidden w-40 shrink-0 font-body text-xs text-[#49658A] md:block">
+                <div className="hidden w-40 shrink-0 font-body text-xs text-brand-muted md:block">
                   {p.checkedInAt ? formatTime(p.checkedInAt) : '—'}
                   {p.checkedOutAt ? ` → ${formatTime(p.checkedOutAt)}` : ''}
                   {p.durationMinutes != null && ` (${p.durationMinutes} min)`}
                 </div>
-                <div className="hidden w-32 shrink-0 font-body text-xs text-[#49658A] lg:block">
+                <div className="hidden w-32 shrink-0 font-body text-xs text-brand-muted lg:block">
                   {p.checkinMethod
                     ? CHECKIN_METHOD_CFG[p.checkinMethod].label
                     : '—'}
@@ -300,7 +300,7 @@ export function CheckinAttendanceTab() {
                       <button
                         type="button"
                         aria-label="Acções de presença"
-                        className="shrink-0 rounded-control p-1.5 text-[#49658A] hover:bg-[#EEF4FD] hover:text-[#0F1F3D]"
+                        className="shrink-0 rounded-control p-1.5 text-brand-muted hover:bg-[#EEF4FD] hover:text-brand"
                       >
                         <MoreVertical size={16} strokeWidth={1.75} />
                       </button>
