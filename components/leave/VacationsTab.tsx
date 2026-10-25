@@ -85,7 +85,7 @@ const DEPT_FALLBACK: DeptStyle = {
 };
 
 function DepartmentBadge({ name }: { name: string | undefined }) {
-  if (!name) return <span className="text-[#9DB3D9]">—</span>;
+  if (!name) return <span className="text-on-brand-faint">—</span>;
   const s = DEPT_STYLES[name] ?? DEPT_FALLBACK;
   const Icon = s.icon;
   return (
@@ -241,7 +241,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
             <div className="overflow-x-auto">
               <div className="min-w-[1200px]">
                 <Table>
-                  <TableHead className="bg-[#EEF4FD]">
+                  <TableHead className="bg-brand-soft">
                     <TableRow>
                       {HEADERS.map((h) => (
                         <TableHeaderCell
@@ -293,7 +293,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                         </TableCell>
                         <TableCell className={`${BODY_CELL} text-center`}>
                           {r.unit?.name ?? (
-                            <span className="text-[#9DB3D9]">—</span>
+                            <span className="text-on-brand-faint">—</span>
                           )}
                         </TableCell>
                         <TableCell
@@ -322,7 +322,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                           {r.nextPeriod ? (
                             `${formatDate(r.nextPeriod.startDate)} → ${formatDate(r.nextPeriod.endDate)}`
                           ) : (
-                            <span className="text-[#9DB3D9]">—</span>
+                            <span className="text-on-brand-faint">—</span>
                           )}
                         </TableCell>
                         <TableCell className={`${BODY_CELL} text-center`}>
@@ -337,7 +337,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                         <TableCell className="px-4 py-4">
                           <span
                             aria-hidden
-                            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF4FD] text-[#1D6BF3]"
+                            className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-soft text-[#1D6BF3]"
                           >
                             <ChevronRight size={18} strokeWidth={2} />
                           </span>
