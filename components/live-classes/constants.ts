@@ -25,9 +25,9 @@ import type {
   LiveClassType,
   SessionModality,
 } from './types';
-import type { Role } from '@/lib/roles';
+import { ADMIN_ROLES, type Role } from '@/lib/roles';
 
-export const CAN_MANAGE_LIVE_CLASSES_ROLES: readonly Role[] = ['ADMIN', 'RH'];
+export const CAN_MANAGE_LIVE_CLASSES_ROLES: readonly Role[] = ADMIN_ROLES;
 
 // Espelha @Roles(Role.ADMIN, Role.RH, Role.LIDER) em
 // live-classes.controller.ts para GET /evaluations, /evaluations/summary e

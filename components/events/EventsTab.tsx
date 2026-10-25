@@ -21,7 +21,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import type { Role } from '@/lib/roles';
+import { ADMIN_RH_GESTOR_ROLES, ADMIN_ROLES, Role } from '@/lib/roles';
 import { DropdownMenuItem } from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
@@ -40,8 +40,8 @@ interface Paginated {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
-const PUBLISH_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
-const MODERATE_ROLES: readonly Role[] = ['ADMIN', 'RH'];
+const PUBLISH_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
+const MODERATE_ROLES: readonly Role[] = ADMIN_ROLES;
 
 const TYPE_ITEMS = [
   { value: 'ALL', label: 'Todos os tipos' },

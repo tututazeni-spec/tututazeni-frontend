@@ -38,6 +38,7 @@ import {
   type Document,
   type DocFilters,
 } from '@/components/documents/types';
+import { ADMIN_RH_GESTOR_ROLES } from '@/lib/roles';
 
 type QuickFilter =
   | 'all'
@@ -60,7 +61,7 @@ const QUICK_FILTERS: { id: QuickFilter; label: string }[] = [
   { id: 'archived', label: 'Arquivo' },
 ];
 
-const AUTHOR_ROLES = ['ADMIN', 'RH', 'GESTOR'];
+const AUTHOR_ROLES: readonly string[] = ADMIN_RH_GESTOR_ROLES;
 
 export function CorporateDocsTab() {
   const notify = useToast();

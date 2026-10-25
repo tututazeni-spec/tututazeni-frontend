@@ -15,7 +15,7 @@ import {
   Workflow,
 } from 'lucide-react';
 import type { PillTabItem } from '@/components/ui/PillTabs';
-import type { Role } from '@/lib/roles';
+import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   AssignmentStatus,
@@ -29,7 +29,7 @@ import type {
 } from './types';
 
 // Espelham AVATAR_*_ROLES em src/avatar-training/avatar-training.helpers.ts.
-export const ADMIN_ROLES: readonly Role[] = ['ADMIN', 'RH'];
+export { ADMIN_ROLES };
 export const AUTHOR_ROLES: readonly Role[] = ['ADMIN', 'RH', 'INSTRUCTOR'];
 export const PROGRESS_ROLES: readonly Role[] = [
   'ADMIN',

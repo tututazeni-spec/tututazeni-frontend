@@ -13,11 +13,12 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { ADMIN_ROLES } from '@/lib/roles';
 
 // Espelha @Roles(ADMIN, RH) de GET /evaluation360/analytics/nine-box
 // (evaluation360.controller.ts) — GESTOR não tem acesso desde que a matriz
 // deixou de identificar indivíduos.
-const NINE_BOX_ROLES = ['ADMIN', 'RH'];
+const NINE_BOX_ROLES: readonly string[] = ADMIN_ROLES;
 
 interface RawCycle {
   id: string;

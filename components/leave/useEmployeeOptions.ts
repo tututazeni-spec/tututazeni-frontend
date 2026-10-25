@@ -6,17 +6,12 @@
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { ADMIN_RH_GESTOR_ROLES, EVAL_CREATOR_ROLES } from '@/lib/roles';
 
 /** POST /leave só aceita `userId` de outrem a estes perfis (assertCanAccess no controller). */
-export const CAN_PICK_EMPLOYEE_LEAVE = ['ADMIN', 'RH', 'GESTOR'];
+export const CAN_PICK_EMPLOYEE_LEAVE = ADMIN_RH_GESTOR_ROLES;
 /** POST /leave/absences aceita também líderes e directores (dentro do seu âmbito). */
-export const CAN_PICK_EMPLOYEE_ABSENCE = [
-  'ADMIN',
-  'RH',
-  'GESTOR',
-  'DIRECTOR',
-  'LIDER',
-];
+export const CAN_PICK_EMPLOYEE_ABSENCE = EVAL_CREATOR_ROLES;
 
 export function useEmployeeOptions(picker: string, enabled: boolean) {
   const params = { limit: 100 };
