@@ -15,7 +15,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -207,19 +207,19 @@ export function ModelDetailModal({
                           </span>
                         )}
                         {canManage && (
-                          <button
+                          <IconButton
+                            icon={Trash2}
+                            label="Remover competência do modelo"
+                            intent="ghostDanger"
+                            size="xs"
                             type="button"
-                            aria-label="Remover competência do modelo"
                             onClick={() =>
                               onRemoveItem(
                                 item.competencyId,
                                 item.competency.name,
                               )
                             }
-                            className="rounded p-1.5 text-ink-faint hover:bg-danger-subtle hover:text-danger-ink"
-                          >
-                            <Trash2 size={14} strokeWidth={1.75} />
-                          </button>
+                          />
                         )}
                       </div>
                     ))}

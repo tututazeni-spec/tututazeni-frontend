@@ -15,7 +15,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -154,22 +154,22 @@ export function LevelsView({ canManage }: LevelsViewProps) {
                     <StatusBadge value={lvl.status} map={STATUS_CFG} />
                     {canManage && (
                       <div className="flex gap-1">
-                        <button
+                        <IconButton
+                          icon={Pencil}
+                          label="Editar nível"
+                          intent="ghost"
+                          size="xs"
                           type="button"
-                          aria-label="Editar nível"
                           onClick={() => setForm({ mode: 'edit', level: lvl })}
-                          className="rounded p-1.5 text-ink-faint hover:bg-surface-sunken hover:text-ink"
-                        >
-                          <Pencil size={14} strokeWidth={1.75} />
-                        </button>
-                        <button
+                        />
+                        <IconButton
+                          icon={Trash2}
+                          label="Eliminar nível"
+                          intent="ghostDanger"
+                          size="xs"
                           type="button"
-                          aria-label="Eliminar nível"
                           onClick={() => onDelete(lvl)}
-                          className="rounded p-1.5 text-ink-faint hover:bg-danger-subtle hover:text-danger-ink"
-                        >
-                          <Trash2 size={14} strokeWidth={1.75} />
-                        </button>
+                        />
                       </div>
                     )}
                   </div>

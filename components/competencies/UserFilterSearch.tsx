@@ -12,6 +12,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Input } from '@/components/ui/Input';
 import { useDirectoryUsers, type DirectoryUser } from './modelFormData';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { IconButton } from '@/components/ui/Button';
 
 interface UserFilterSearchProps {
   selected: DirectoryUser | null;
@@ -43,14 +44,15 @@ export function UserFilterSearch({
         <span className="truncate font-body text-sm text-ink">
           {selected.fullName}
         </span>
-        <button
+        <IconButton
+          icon={X}
+          label="Remover filtro de colaborador"
+          intent="ghost"
+          size="xs"
+          className="ml-auto"
           type="button"
-          aria-label="Remover filtro de colaborador"
           onClick={() => onChange(null)}
-          className="ml-auto rounded p-0.5 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-        >
-          <X size={14} strokeWidth={1.75} />
-        </button>
+        />
       </div>
     );
   }
