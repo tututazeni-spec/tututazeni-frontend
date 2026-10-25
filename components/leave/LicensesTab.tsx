@@ -269,14 +269,15 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
                         </NavyBadge>
                       )}
                     {r.canCancel && (
-                      <button
+                      <Button
                         type="button"
-                        className={NAVY_ACTION}
+                        intent="onDarkGhost"
+                        size="sm"
                         onClick={() => onCancel(r.id)}
                       >
                         <X size={12} strokeWidth={1.75} className="mr-1" />{' '}
                         Cancelar pedido
-                      </button>
+                      </Button>
                     )}
                   </>
                 }
