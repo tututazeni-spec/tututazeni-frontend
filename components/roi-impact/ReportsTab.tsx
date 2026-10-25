@@ -47,6 +47,7 @@ import type {
   TopInitiativesReportData,
   TrainingPlansExecutionData,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const REPORT_ITEMS = (Object.keys(ROI_REPORT_LABELS) as RoiReportKey[]).map(
   (key) => ({
@@ -647,7 +648,7 @@ function BreakdownCard({
           {title}
         </p>
         {rows.length === 0 ? (
-          <p className="text-xs text-ink-faint">Sem dados.</p>
+          <EmptyState variant="inline" title="Sem dados" />
         ) : (
           <ul className="space-y-1 text-sm text-ink">
             {rows.map((r) => (

@@ -6,6 +6,7 @@
 
 'use client';
 
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Building2, CalendarDays, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -87,9 +88,7 @@ function Legend({ rows }: { rows: BenchmarkGroupAvg[] }) {
 
 function Empty() {
   return (
-    <p className="font-body text-sm text-ink-faint">
-      Sem análises de ROI para agrupar.
-    </p>
+    <EmptyState variant="inline" title="Sem análises de ROI para agrupar" />
   );
 }
 
