@@ -20,8 +20,75 @@ export function reportError(error: unknown, context?: ErrorContext): void {
     { status, context, error },
   );
 
-  // TODO: quando existir serviço de observabilidade, enviar aqui, ex:
-  // Sentry.captureException(error, { extra: context, tags: { source: context?.source } });
+  forward(error, message, status, context);
+}
+
+// Destino externo opcional. Define NEXT_PUBLIC_ERROR_REPORT_URL para enviar
+// cada erro (JSON, via sendBeacon) a um colector; para ligar Sentry/Datadog,
+// regista um sink com registerErrorSink() — sem tocar nos chamadores.
+export type ErrorSink = (payload: ErrorPayload) => void;
+
+export interface ErrorPayload {
+  message: string;
+  status?: number;
+  source?: string;
+  stack?: string;
+  path?: string;
+  context?: Record<string, unknown>;
+  timestamp: string;
+}
+
+let sink: ErrorSink | null = null;
+
+export function registerErrorSink(fn: ErrorSink | null): void {
+  sink = fn;
+}
+
+// Evita inundar o colector com o mesmo erro (ex.: query com retries).
+const DEDUPE_MS = 5_000;
+const MAX_TRACKED = 50;
+const recent = new Map<string, number>();
+
+function forward(
+  error: unknown,
+  message: string,
+  status: number | undefined,
+  context?: ErrorContext,
+): void {
+  try {
+    const key = `${context?.source ?? ''}|${status ?? ''}|${message}`;
+    const now = Date.now();
+    const last = recent.get(key);
+    if (last !== undefined && now - last < DEDUPE_MS) return;
+    if (recent.size >= MAX_TRACKED) recent.clear();
+    recent.set(key, now);
+
+    const { source, ...rest } = context ?? { source: undefined };
+    const payload: ErrorPayload = {
+      message,
+      status,
+      source,
+      stack: error instanceof Error ? error.stack : undefined,
+      path:
+        typeof window !== 'undefined' ? window.location.pathname : undefined,
+      context: JSON.parse(
+        JSON.stringify(rest, (_k, v) => (v instanceof Error ? v.message : v)),
+      ),
+      timestamp: new Date(now).toISOString(),
+    };
+
+    sink?.(payload);
+
+    const url = process.env.NEXT_PUBLIC_ERROR_REPORT_URL;
+    if (url && typeof navigator !== 'undefined' && navigator.sendBeacon) {
+      navigator.sendBeacon(
+        url,
+        new Blob([JSON.stringify(payload)], { type: 'application/json' }),
+      );
+    }
+  } catch {
+    // O reporting nunca pode ele próprio rebentar a aplicação.
+  }
 }
 
 /** Mensagem amigável para mostrar ao utilizador a partir de um erro (API ou não). */

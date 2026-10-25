@@ -41,7 +41,8 @@ import {
 import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
 import { buildCsv } from '@/lib/csv';
-import { reportError } from '@/lib/errorReporting';
+import { reportError, friendlyMessage } from '@/lib/errorReporting';
+import { notify } from '@/lib/errorToastBridge';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { KpiCard } from '@/components/ui/KpiCard';
@@ -130,6 +131,11 @@ export function EmployeesView() {
       saveBlob(blob, `colaboradores-${Date.now()}.csv`);
     } catch (e) {
       reportError(e, { source: 'EmployeesView.handleExport' });
+      notify({
+        title: 'Não foi possível exportar os colaboradores',
+        description: friendlyMessage(e),
+        intent: 'danger',
+      });
     }
   };
 

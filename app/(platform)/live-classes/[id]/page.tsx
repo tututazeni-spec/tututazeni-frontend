@@ -12,6 +12,7 @@ import { useHasRole } from '@/hooks/useCurrentRole';
 import { useStopwatch } from '@/hooks/useStopwatch';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
+import { notify } from '@/lib/errorToastBridge';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate, formatTime as fmtTime } from '@/lib/format';
@@ -59,6 +60,11 @@ export default function LiveRoomPage() {
       await apiClient.post(`/live-classes/${classId}/join`, {});
     } catch (e) {
       reportError(e, { source: 'LiveRoomPage.handleJoined' });
+      notify({
+        title: 'A sua presença pode não ter sido registada',
+        description: 'Continua na aula. Se necessário, volte a entrar.',
+        intent: 'danger',
+      });
     }
     startSessionTimer();
   }, [classId, startSessionTimer]);

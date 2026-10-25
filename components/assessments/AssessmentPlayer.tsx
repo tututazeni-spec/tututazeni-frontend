@@ -164,8 +164,13 @@ export function AssessmentPlayer({
                 restored[ans.questionId] = ans;
               });
             }
-          } catch {
-            /* ignore */
+          } catch (e) {
+            reportError(e, { source: 'AssessmentPlayer.restoreSavedAnswers' });
+            notify({
+              title: 'Não foi possível recuperar as respostas guardadas',
+              description: 'Pode continuar, mas terá de voltar a responder.',
+              intent: 'danger',
+            });
           }
         }
 

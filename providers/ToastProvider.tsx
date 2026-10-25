@@ -26,9 +26,19 @@ const ToastContext = createContext<ToastFn | null>(null);
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastEntry[]>([]);
 
+  // Toasts idênticos (mesmo título+descrição+intenção) já visíveis não se
+  // repetem: uma página com várias queries a falhar mostra um só aviso.
   const showToast = useCallback<ToastFn>((options) => {
-    const id = crypto.randomUUID();
-    setToasts((prev) => [...prev, { ...options, id }]);
+    setToasts((prev) => {
+      const dup = prev.some(
+        (t) =>
+          t.title === options.title &&
+          t.description === options.description &&
+          t.intent === options.intent,
+      );
+      if (dup) return prev;
+      return [...prev, { ...options, id: crypto.randomUUID() }];
+    });
   }, []);
 
   const remove = useCallback((id: string) => {
