@@ -68,7 +68,7 @@ export function OpenButton({
     <button
       type="button"
       onClick={() => openFile(url)}
-      className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-[#D5DCE8] bg-white px-3 py-1.5 font-body text-xs font-semibold text-[#0F1F3D] hover:bg-[#F2F5FA]"
+      className="mt-2 inline-flex items-center gap-1.5 rounded-control border border-[#D5DCE8] bg-white px-3 py-1.5 font-body text-xs font-semibold text-brand hover:bg-[#F2F5FA]"
     >
       <ExternalLink size={14} strokeWidth={1.75} />
       {children}
@@ -96,7 +96,7 @@ function ActivityBody({ activity }: { activity: LessonActivity }) {
         <img
           src={src}
           alt={activity.title}
-          className="mt-3 max-h-[480px] max-w-full rounded-lg border border-border object-contain"
+          className="mt-3 max-h-[480px] max-w-full rounded-control border border-border object-contain"
         />
       )}
 
@@ -105,7 +105,7 @@ function ActivityBody({ activity }: { activity: LessonActivity }) {
       )}
 
       {url && src && activity.type === 'VIDEO' && (
-        <div className="mt-3 aspect-video max-h-[420px] w-full overflow-hidden rounded-lg bg-black">
+        <div className="mt-3 aspect-video max-h-[420px] w-full overflow-hidden rounded-control bg-black">
           {embed ? (
             <iframe
               src={embed}
@@ -120,7 +120,7 @@ function ActivityBody({ activity }: { activity: LessonActivity }) {
       )}
 
       {url && src && activity.type === 'DOCUMENT' && kind === 'pdf' && (
-        <div className="mt-3 h-[520px] overflow-hidden rounded-lg border border-border bg-[#E9EDF4]">
+        <div className="mt-3 h-[520px] overflow-hidden rounded-control border border-border bg-[#E9EDF4]">
           <PdfViewer src={src} title={activity.title} />
         </div>
       )}
@@ -130,7 +130,7 @@ function ActivityBody({ activity }: { activity: LessonActivity }) {
         <img
           src={src}
           alt={activity.title}
-          className="mt-3 max-h-[480px] max-w-full rounded-lg border border-border object-contain"
+          className="mt-3 max-h-[480px] max-w-full rounded-control border border-border object-contain"
         />
       )}
 
@@ -156,9 +156,9 @@ export function ActivityList({ activities }: { activities: LessonActivity[] }) {
         return (
           <div
             key={activity.id}
-            className="flex items-start gap-3 rounded-2xl border border-[#E4E9F2] bg-white p-4"
+            className="flex items-start gap-3 rounded-panel border border-brand-line bg-white p-4"
           >
-            <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#E4E9F2] text-[#0F1F3D]">
+            <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-line text-brand">
               <Icon size={16} strokeWidth={1.75} />
             </span>
             <div className="min-w-0 flex-1">
@@ -197,9 +197,9 @@ export function FileList({ files }: { files: Array<FileItem> }) {
           key={f.id}
           type="button"
           onClick={() => openFile(f.url)}
-          className="flex w-full items-center gap-3 rounded-2xl border border-[#E4E9F2] bg-white p-3 text-left hover:bg-[#F2F5FA]"
+          className="flex w-full items-center gap-3 rounded-panel border border-brand-line bg-white p-3 text-left hover:bg-[#F2F5FA]"
         >
-          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#E4E9F2] text-[#0F1F3D]">
+          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-line text-brand">
             <Paperclip size={16} strokeWidth={1.75} />
           </span>
           <span className="min-w-0 flex-1">

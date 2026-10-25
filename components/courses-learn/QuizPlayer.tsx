@@ -86,7 +86,7 @@ export function QuizPlayer({ quizId }: QuizPlayerProps) {
   );
 
   return (
-    <div className="rounded-lg border border-border p-4">
+    <div className="rounded-control border border-border p-4">
       <div className="flex items-center gap-2 mb-3">
         <FileQuestion size={18} strokeWidth={1.75} className="text-ink-muted" />
         <h3 className="m-0 text-sm font-bold text-ink">{quiz.title}</h3>
@@ -101,7 +101,7 @@ export function QuizPlayer({ quizId }: QuizPlayerProps) {
       {result ? (
         <div className="space-y-3">
           <div
-            className={`rounded-lg p-3 text-sm font-medium ${
+            className={`rounded-control p-3 text-sm font-medium ${
               result.passed
                 ? 'bg-success-subtle text-success-ink'
                 : 'bg-danger-subtle text-danger-ink'
