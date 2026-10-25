@@ -371,9 +371,10 @@ function AvatarFormModal({ avatar, onClose, onSaved }: AvatarFormModalProps) {
               Base de conhecimento (fontes autorizadas)
             </legend>
             {knowledge.length === 0 ? (
-              <p className="font-body text-xs text-ink-faint">
-                Sem fontes — o avatar só responde com as fontes de cada sessão.
-              </p>
+              <EmptyState
+                variant="inline"
+                title="Sem fontes — o avatar só responde com as fontes de cada sessão"
+              />
             ) : (
               knowledge.map((k) => (
                 <div
@@ -473,7 +474,7 @@ function HistoryModal({
               itemClassName="h-10 rounded-card bg-surface-sunken animate-pulse"
             />
           ) : data.length === 0 ? (
-            <p className="font-body text-sm text-ink-faint">Sem registos.</p>
+            <EmptyState variant="inline" title="Sem registos" />
           ) : (
             data.map((h) => {
               const to = h.detail?.to as string | undefined;

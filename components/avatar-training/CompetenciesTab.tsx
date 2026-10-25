@@ -120,9 +120,10 @@ export function CompetenciesTab() {
             itemClassName="h-14 rounded-card bg-surface-sunken animate-pulse"
           />
         ) : recs.data.data.length === 0 ? (
-          <p className="rounded-card border border-dashed border-border-strong bg-surface p-4 text-center font-body text-sm text-ink-faint">
-            Sem recomendações neste momento.
-          </p>
+          <EmptyState
+            variant="inline"
+            title="Sem recomendações neste momento"
+          />
         ) : (
           <CardGrid>
             {recs.data.data.map((r) => (

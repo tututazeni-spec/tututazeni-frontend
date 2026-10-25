@@ -24,6 +24,7 @@ import {
   sourcesSummary,
 } from './logic';
 import type { AvatarProgramDetail } from '../types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -138,9 +139,7 @@ export function ProgramSheetView({
                   Sessões, avaliação e fontes aprovadas
                 </h3>
                 {data.sessions.length === 0 ? (
-                  <p className="font-body text-xs text-ink-faint">
-                    Sem sessões.
-                  </p>
+                  <EmptyState variant="inline" title="Sem sessões" />
                 ) : (
                   <div className="space-y-2">
                     {data.sessions.map((s) => (
