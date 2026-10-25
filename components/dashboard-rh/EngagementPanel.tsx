@@ -15,6 +15,7 @@ import { BarChart } from '@/components/ui/charts/BarChart';
 import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import type { EngagementData } from './types';
 import { Activity, Award, ThumbsUp } from 'lucide-react';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function EngagementPanel() {
   const { data, isLoading: loading } = useApiQuery<EngagementData>(
@@ -69,9 +70,7 @@ export function EngagementPanel() {
             Participação em Pesquisas por Departamento
           </h4>
           {byDept.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem respostas este mês.
-            </p>
+            <EmptyState variant="inline" title="Sem respostas este mês" />
           ) : (
             <BarChart
               orientation="horizontal"

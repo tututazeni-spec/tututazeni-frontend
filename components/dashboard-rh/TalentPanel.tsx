@@ -25,6 +25,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { TalentData } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type TabKey = 'succession' | 'hipo' | 'risk';
 
@@ -117,9 +118,10 @@ export function TalentPanel() {
             Planos de Sucessão
           </h4>
           {successionPlans.length === 0 ? (
-            <p className="font-body text-sm text-ink-faint">
-              Sem planos de sucessão registados.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem planos de sucessão registados"
+            />
           ) : (
             <div className="space-y-2">
               {successionPlans.slice(0, 8).map((p, i) => (
@@ -154,9 +156,10 @@ export function TalentPanel() {
             Profissionais de Alto Potencial
           </h4>
           {hiPoList.length === 0 ? (
-            <p className="font-body text-sm text-ink-faint">
-              Sem colaboradores identificados como alto potencial.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem colaboradores identificados como alto potencial"
+            />
           ) : (
             <div className="space-y-2">
               {hiPoList.slice(0, 8).map((h, i) => (
@@ -192,9 +195,10 @@ export function TalentPanel() {
       {tab === 'risk' && (
         <div className="rounded-card border border-border bg-surface p-5">
           {positionsAtRisk.length === 0 ? (
-            <p className="font-body text-sm text-ink-faint">
-              Sem posições em risco no momento.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem posições em risco no momento"
+            />
           ) : (
             <div className="space-y-2">
               {positionsAtRisk.map((p, i) => (

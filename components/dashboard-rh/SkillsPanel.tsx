@@ -18,6 +18,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import type { SkillsData } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function SkillsPanel() {
   const { data, isLoading: loading } = useApiQuery<SkillsData>(
@@ -73,9 +74,7 @@ export function SkillsPanel() {
             Maiores Lacunas de Competência
           </h4>
           {sortedGaps.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem lacunas identificadas.
-            </p>
+            <EmptyState variant="inline" title="Sem lacunas identificadas" />
           ) : (
             <BarChart
               orientation="horizontal"
@@ -120,9 +119,7 @@ export function SkillsPanel() {
             Maiores Forças
           </h4>
           {sortedStrengths.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem dados suficientes.
-            </p>
+            <EmptyState variant="inline" title="Sem dados suficientes" />
           ) : (
             <BarChart
               orientation="horizontal"
