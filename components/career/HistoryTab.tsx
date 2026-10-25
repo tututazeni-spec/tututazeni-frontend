@@ -29,6 +29,7 @@ import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPic
 import type { DirectoryUser } from '@/components/users/types';
 import type { CareerHistory } from './types';
 import { LinkButton } from '@/components/ui/LinkButton';
+import { IconButton } from '@/components/ui/Button';
 
 function fmt(date: string | null | undefined): string {
   if (!date) return '—';
@@ -94,14 +95,15 @@ export function HistoryTab() {
               <span className="font-body text-sm font-medium text-ink">
                 {employee.fullName}
               </span>
-              <button
+              <IconButton
+                icon={X}
+                label="Voltar à minha carreira"
+                intent="ghost"
+                size="xs"
+                className="ml-auto"
                 type="button"
-                aria-label="Voltar à minha carreira"
                 onClick={() => setEmployee(null)}
-                className="ml-auto rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-              >
-                <X size={14} strokeWidth={1.75} />
-              </button>
+              />
             </div>
           ) : showPicker ? (
             <DepartmentUserPicker

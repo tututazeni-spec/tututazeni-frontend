@@ -13,7 +13,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryKeys';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -322,16 +322,16 @@ export function NewCareerPathModal({
                       />
                     </div>
                     {steps.length > 1 && (
-                      <button
+                      <IconButton
+                        icon={Trash2}
+                        label="Remover nível"
+                        intent="ghostDanger"
+                        size="xs"
                         type="button"
-                        aria-label="Remover nível"
                         onClick={() =>
                           setSteps((prev) => prev.filter((_, i) => i !== idx))
                         }
-                        className="rounded-control p-1.5 text-ink-muted hover:bg-danger-subtle hover:text-danger-ink"
-                      >
-                        <Trash2 size={14} strokeWidth={1.75} />
-                      </button>
+                      />
                     )}
                   </div>
                   <div className="grid grid-cols-3 gap-2">
