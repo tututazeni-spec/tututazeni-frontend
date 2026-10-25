@@ -52,6 +52,7 @@ import type {
   ExecutiveSnapshot,
   ExecutiveTrendPoint,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const PERIODS = [
   { id: 'WEEK', label: 'Semana' },
@@ -237,9 +238,7 @@ function SnapshotsPanel() {
       </div>
       <CardBody>
         {snapshots.length === 0 ? (
-          <p className="font-body text-sm text-ink-faint">
-            Sem snapshots guardados ainda.
-          </p>
+          <EmptyState variant="inline" title="Sem snapshots guardados ainda" />
         ) : (
           <>
             <div className="mb-5 overflow-x-auto">
