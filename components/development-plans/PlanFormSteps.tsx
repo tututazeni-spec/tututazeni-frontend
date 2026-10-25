@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { Popover } from 'radix-ui';
 import { Plus, Trash2, X } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -128,14 +128,14 @@ function UserPicker({
               </div>
             )}
           </div>
-          <button
+          <IconButton
+            icon={X}
+            label={`Remover ${label.toLowerCase()}`}
+            intent="ghost"
+            size="compact"
             type="button"
-            aria-label={`Remover ${label.toLowerCase()}`}
             onClick={() => onChange(null)}
-            className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-          >
-            <X size={16} strokeWidth={1.75} />
-          </button>
+          />
         </div>
       ) : (
         <Popover.Root open={open} onOpenChange={setOpen}>
@@ -248,14 +248,15 @@ function ListEditor<T>({
                 Guardado
               </span>
             ) : (
-              <button
+              <IconButton
+                icon={Trash2}
+                label={`Remover linha ${i + 1}`}
+                intent="ghostDanger"
+                size="xs"
+                className="mt-1.5 flex-shrink-0"
                 type="button"
-                aria-label={`Remover linha ${i + 1}`}
-                className="mt-1.5 flex-shrink-0 rounded-control p-1.5 text-ink-faint hover:bg-danger-subtle hover:text-danger-ink"
                 onClick={() => onRemove(i)}
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </button>
+              />
             )}
           </div>
         );
