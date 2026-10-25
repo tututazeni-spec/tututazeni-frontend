@@ -239,7 +239,7 @@ export function EmployeesView() {
         <div className="px-4 py-8 text-center text-sm text-danger">{error}</div>
       )}
       {!loading && !error && (
-        <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-[10px]">
+        <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-micro">
           <TableHead className="bg-brand/60 [&_th]:text-white">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell>Colaborador</TableHeaderCell>
@@ -275,7 +275,7 @@ export function EmployeesView() {
                       />
                       <div>
                         <div className="text-xs text-ink">{u.fullName}</div>
-                        <div className="break-all text-[10px] text-ink-faint">
+                        <div className="break-all text-micro text-ink-faint">
                           {u.employeeNumber ? `${u.employeeNumber} · ` : ''}
                           {u.email}
                         </div>

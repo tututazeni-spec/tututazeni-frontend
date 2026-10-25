@@ -282,7 +282,7 @@ export function IntegrationsView({
                             <dd className="text-base font-semibold leading-none">
                               {v}
                             </dd>
-                            <dt className="mt-1 text-[11px] opacity-70">{k}</dt>
+                            <dt className="mt-1 text-micro opacity-70">{k}</dt>
                           </div>
                         ))}
                       </dl>

@@ -39,7 +39,7 @@ export function CompetencyGapsView() {
                 <div className="truncate text-xs font-medium text-ink">
                   {g.name}
                 </div>
-                <div className="truncate text-[10px] text-ink-faint">
+                <div className="truncate text-micro text-ink-faint">
                   {CATEGORY_CFG[g.category as CompetencyCategory]?.label ??
                     g.category}
                 </div>

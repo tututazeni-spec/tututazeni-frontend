@@ -80,10 +80,10 @@ export function AlertsTab({ alerts, onResolve }: AlertsTabProps) {
                     <Badge intent={sev.intent} dot={false}>
                       {sev.label}
                     </Badge>
-                    <span className="font-body text-[11px] uppercase tracking-wide text-ink-faint">
+                    <span className="font-body text-micro uppercase tracking-wide text-ink-faint">
                       {alert.category}
                     </span>
-                    <span className="font-body text-[11px] text-ink-faint">
+                    <span className="font-body text-micro text-ink-faint">
                       · {timeAgo(alert.createdAt)}
                     </span>
                   </div>

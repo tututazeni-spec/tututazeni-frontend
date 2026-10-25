@@ -104,7 +104,7 @@ function Chip({ item, onClick, showTime = true }: ChipProps) {
       onClick={onClick}
       title={`${item.code} — ${item.title} (${item.processTitle})`}
       className={cn(
-        'flex h-[22px] w-full items-center gap-1.5 overflow-hidden rounded-sm px-1.5 text-left font-body text-[11px] hover:brightness-110',
+        'flex h-[22px] w-full items-center gap-1.5 overflow-hidden rounded-sm px-1.5 text-left font-body text-micro hover:brightness-110',
         CHIP_CLASS[tone],
         item.hasConflict && 'ring-1 ring-warning ring-offset-1',
         tone === 'done' && 'opacity-70',
@@ -545,7 +545,7 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
                       <LinkButton
                         type="button"
                         onClick={() => setExpandedDay(expanded ? null : k)}
-                        className="px-1 text-left font-body text-[11px]"
+                        className="px-1 text-left font-body text-micro"
                       >
                         {expanded ? 'Ver menos' : `+${overflow} mais`}
                       </LinkButton>
@@ -555,7 +555,7 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
               );
             })}
           </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-3 py-2 font-body text-[11px] text-ink-muted">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-3 py-2 font-body text-micro text-ink-muted">
             {TONE_LEGEND.map((l) => (
               <span key={l.tone} className="inline-flex items-center gap-1.5">
                 <span

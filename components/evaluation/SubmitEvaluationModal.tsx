@@ -214,7 +214,7 @@ export function SubmitEvaluationModal({
                         }
                       />
                       {q.type === 'BOOLEAN' && (
-                        <p className="text-[11px] text-ink-faint">
+                        <p className="text-micro text-ink-faint">
                           0 = Não · 1 = Sim
                         </p>
                       )}

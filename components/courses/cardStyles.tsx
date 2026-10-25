@@ -2,7 +2,7 @@
 // Estilos partilhados das tabelas em cartões (GestaoView + AdminView).
 
 export const PILL =
-  'inline-block max-w-full truncate rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase';
+  'inline-block max-w-full truncate rounded-full px-2.5 py-0.5 text-micro font-semibold uppercase';
 
 export const PANEL =
   'rounded-card border border-border/60 bg-surface-sunken/40 p-3';

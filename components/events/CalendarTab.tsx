@@ -309,7 +309,7 @@ function EventChip({
       type="button"
       onClick={() => onSelect(ev.id)}
       className={cn(
-        'flex h-[22px] w-full items-center gap-1.5 overflow-hidden rounded-sm px-1.5 text-left font-body text-[11px] hover:brightness-110',
+        'flex h-[22px] w-full items-center gap-1.5 overflow-hidden rounded-sm px-1.5 text-left font-body text-micro hover:brightness-110',
         level.cls,
         past && 'opacity-70',
       )}
@@ -395,7 +395,7 @@ function MonthGrid({ anchor, range, byDay, onSelect }: MonthGridProps) {
                     onClick={() =>
                       setExpandedDay(expanded ? null : dayKey(day))
                     }
-                    className="px-1 font-body text-[11px]"
+                    className="px-1 font-body text-micro"
                   >
                     {expanded ? 'Ver menos' : `+${overflow} mais`}
                   </LinkButton>
@@ -405,7 +405,7 @@ function MonthGrid({ anchor, range, byDay, onSelect }: MonthGridProps) {
           );
         })}
       </div>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-3 py-2 font-body text-[11px] text-ink-muted">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-3 py-2 font-body text-micro text-ink-muted">
         {PROXIMITY_LEVELS.map((l) => (
           <span key={l.label} className="inline-flex items-center gap-1.5">
             <span className={cn('h-2.5 w-4 rounded-sm', l.bar)} />

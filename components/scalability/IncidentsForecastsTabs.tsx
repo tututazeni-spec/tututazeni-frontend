@@ -544,7 +544,7 @@ export function IncidentsTab({
                     >
                       <td className="py-2 pr-2 text-ink">
                         {i.title}
-                        <span className="block text-[11px] text-ink-faint">
+                        <span className="block text-micro text-ink-faint">
                           {labelOf(CATEGORIES, i.category)} ·{' '}
                           {dateTime(i.occurredAt)}
                         </span>
@@ -771,7 +771,7 @@ export function ForecastsTab({
                     >
                       <td className="py-2 text-ink">
                         {r.label}
-                        <span className="block text-[11px] text-ink-faint">
+                        <span className="block text-micro text-ink-faint">
                           {r.monthlyGrowthPercent !== null
                             ? `${fmt(r.monthlyGrowthPercent)}%/mês`
                             : '—'}
@@ -789,7 +789,7 @@ export function ForecastsTab({
                         >
                           {fmt(p.value, 2)}
                           {p.percentOfCapacity !== null && (
-                            <span className="block text-[11px] text-ink-faint">
+                            <span className="block text-micro text-ink-faint">
                               {p.percentOfCapacity}%
                             </span>
                           )}

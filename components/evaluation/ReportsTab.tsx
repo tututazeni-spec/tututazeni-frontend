@@ -283,7 +283,7 @@ export function ReportsTab() {
                         className="w-full rounded-t bg-primary-subtle border-primary"
                         style={{ height: `${(e.avgScore / 5) * 100}%` }}
                       />
-                      <span className="text-[10px] text-ink-faint">
+                      <span className="text-micro text-ink-faint">
                         {e.period}
                       </span>
                     </div>

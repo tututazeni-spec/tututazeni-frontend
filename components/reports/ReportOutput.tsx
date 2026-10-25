@@ -255,7 +255,7 @@ export function ReportOutput({ data }: ReportOutputProps) {
                         {name}
                       </p>
                       {sub && (
-                        <p className="font-body text-[10px] text-ink-faint">
+                        <p className="font-body text-micro text-ink-faint">
                           {sub}
                         </p>
                       )}

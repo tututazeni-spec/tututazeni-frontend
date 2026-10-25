@@ -199,7 +199,7 @@ export function ColaboradorDashboard() {
               </span>
             </div>
             <ProgressBar value={plan.progress} />
-            <p className="mt-2 font-body text-[10px] text-ink-faint">
+            <p className="mt-2 font-body text-micro text-ink-faint">
               {plan.completedActions} / {plan.goals} acções concluídas
             </p>
           </div>

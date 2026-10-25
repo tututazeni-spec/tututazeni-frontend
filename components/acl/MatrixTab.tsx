@@ -75,7 +75,7 @@ export function MatrixTab() {
                 <td className="px-3 py-1.5">
                   <div>
                     <p className="font-mono text-ink">{p.name}</p>
-                    <p className="text-ink-faint text-[10px]">
+                    <p className="text-ink-faint text-micro">
                       {p.subject} · {p.action}
                     </p>
                   </div>

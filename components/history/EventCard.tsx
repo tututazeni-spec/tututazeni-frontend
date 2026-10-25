@@ -25,12 +25,12 @@ export function EventCard({ event, compact = false }: EventCardProps) {
         <span className="text-base shrink-0">{event.icon}</span>
         <div className="flex-1 min-w-0">
           <p className="text-xs font-medium text-ink truncate">{event.title}</p>
-          <p className="text-[10px] text-ink-faint">
+          <p className="text-micro text-ink-faint">
             {new Date(event.timestamp).toLocaleDateString('pt')}
           </p>
         </div>
         {event.milestone && (
-          <span className="text-[9px] bg-warning-subtle text-warning-ink px-1.5 py-0.5 rounded-pill font-medium shrink-0">
+          <span className="text-micro bg-warning-subtle text-warning-ink px-1.5 py-0.5 rounded-pill font-medium shrink-0">
             MARCO
           </span>
         )}
@@ -58,7 +58,7 @@ export function EventCard({ event, compact = false }: EventCardProps) {
         <div className="flex items-center gap-2 flex-wrap mb-0.5">
           <p className="text-sm font-semibold text-ink">{event.title}</p>
           {event.milestone && (
-            <span className="text-[9px] bg-warning-subtle text-warning-ink px-1.5 py-0.5 rounded-pill font-bold">
+            <span className="text-micro bg-warning-subtle text-warning-ink px-1.5 py-0.5 rounded-pill font-bold">
               <Star
                 size={12}
                 strokeWidth={1.75}
@@ -68,7 +68,7 @@ export function EventCard({ event, compact = false }: EventCardProps) {
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2 text-[10px] text-ink-faint">
+        <div className="flex items-center gap-2 text-micro text-ink-faint">
           <span
             className={`px-1.5 py-0.5 rounded font-medium ${cat.color} ${cat.bg}`}
           >

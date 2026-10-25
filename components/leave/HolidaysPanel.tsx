@@ -209,7 +209,7 @@ export function HolidaysPanel() {
                     {fmtDate(h.date)}
                   </span>
                   {h.source === 'CUSTOM' && (
-                    <span className="ml-2 rounded-control bg-info-subtle px-1.5 py-0.5 text-[11px] font-semibold text-info-ink">
+                    <span className="ml-2 rounded-control bg-info-subtle px-1.5 py-0.5 text-micro font-semibold text-info-ink">
                       Personalizado
                     </span>
                   )}

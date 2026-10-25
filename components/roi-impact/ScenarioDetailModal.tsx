@@ -50,24 +50,24 @@ export function ScenarioDetailModal({ id, onClose }: ScenarioDetailModalProps) {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
               <div>
-                <p className="text-ink-faint text-[10px]">Iniciativa</p>
+                <p className="text-ink-faint text-micro">Iniciativa</p>
                 <p className="text-ink">
                   {INITIATIVE_TYPE_LABELS[data.initiativeType] ??
                     data.initiativeType}
                 </p>
               </div>
               <div>
-                <p className="text-ink-faint text-[10px]">Público-alvo</p>
+                <p className="text-ink-faint text-micro">Público-alvo</p>
                 <p className="text-ink">
                   {data.targetAudienceCount ?? '—'} colaborador(es)
                 </p>
               </div>
               <div>
-                <p className="text-ink-faint text-[10px]">Custo estimado</p>
+                <p className="text-ink-faint text-micro">Custo estimado</p>
                 <p className="text-ink">{fmt$(data.estimatedCost)}</p>
               </div>
               <div>
-                <p className="text-ink-faint text-[10px]">Benefício esperado</p>
+                <p className="text-ink-faint text-micro">Benefício esperado</p>
                 <p className="text-ink">
                   {data.expectedBenefit != null
                     ? fmt$(data.expectedBenefit)

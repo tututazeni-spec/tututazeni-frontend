@@ -319,12 +319,12 @@ export function ParticipantsTab() {
                 </div>
                 <div className="hidden shrink-0 gap-1 xl:flex">
                   {p.hasCertificate && (
-                    <span className="rounded bg-success-subtle px-1.5 py-0.5 font-body text-[10px] text-success-ink">
+                    <span className="rounded bg-success-subtle px-1.5 py-0.5 font-body text-micro text-success-ink">
                       Certificado
                     </span>
                   )}
                   {p.hasEvaluation && (
-                    <span className="rounded bg-info-subtle px-1.5 py-0.5 font-body text-[10px] text-info-ink">
+                    <span className="rounded bg-info-subtle px-1.5 py-0.5 font-body text-micro text-info-ink">
                       Avaliado
                     </span>
                   )}

@@ -416,7 +416,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                   onClick={() => i < step && goTo(i)}
                   title={`${i + 1}. ${s.label}`}
                   className={
-                    'flex h-6 w-6 items-center justify-center rounded-full font-body text-[11px] transition-colors disabled:cursor-not-allowed ' +
+                    'flex h-6 w-6 items-center justify-center rounded-full font-body text-micro transition-colors disabled:cursor-not-allowed ' +
                     (isCurrent
                       ? 'bg-primary text-primary-fg ring-2 ring-primary/40'
                       : done

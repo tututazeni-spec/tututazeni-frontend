@@ -97,7 +97,7 @@ export function MyProgressTab() {
                       </p>
                       <div className="mt-1 flex items-center gap-2">
                         <ProgressBar value={p.progress} className="h-1" />
-                        <span className="shrink-0 font-body text-[10px] text-ink-faint">
+                        <span className="shrink-0 font-body text-micro text-ink-faint">
                           {p.progress}%
                         </span>
                       </div>

@@ -369,7 +369,7 @@ export default function NotificationsPage() {
               icon: Inbox,
               badge:
                 unread > 0 ? (
-                  <span className="rounded-pill bg-white/80 px-1.5 py-0.5 font-body text-[10px] font-bold text-primary">
+                  <span className="rounded-pill bg-white/80 px-1.5 py-0.5 font-body text-micro font-bold text-primary">
                     {unread}
                   </span>
                 ) : undefined,

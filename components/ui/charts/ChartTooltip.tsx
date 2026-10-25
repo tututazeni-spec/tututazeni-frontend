@@ -14,7 +14,7 @@ export interface ChartTooltipProps {
 export function ChartTooltip({ xPct, yPct, children }: ChartTooltipProps) {
   return (
     <div
-      className="pointer-events-none absolute z-10 whitespace-nowrap rounded-card border border-border bg-surface px-2.5 py-1.5 font-body text-[10px] text-ink shadow-md"
+      className="pointer-events-none absolute z-10 whitespace-nowrap rounded-card border border-border bg-surface px-2.5 py-1.5 font-body text-micro text-ink shadow-md"
       style={{
         left: `${xPct}%`,
         top: `${yPct}%`,

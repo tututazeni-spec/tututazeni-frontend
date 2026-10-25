@@ -336,7 +336,7 @@ function SnapshotsPanel() {
                     key={key}
                     className="rounded-control border border-border bg-surface-sunken p-3"
                   >
-                    <p className="font-body text-[11px] text-ink-faint">
+                    <p className="font-body text-micro text-ink-faint">
                       {COMPARISON_LABELS[key] ?? key}
                     </p>
                     <p className="font-body text-sm font-semibold text-ink">
@@ -750,7 +750,7 @@ export function OrgDashboard() {
                   <p className="truncate font-body text-sm font-medium text-ink">
                     {c.content?.title}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     {c.content?.type}
                   </p>
                 </div>

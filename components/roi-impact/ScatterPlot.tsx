@@ -91,7 +91,7 @@ export function ScatterPlot({
                 x={PADDING.left - 8}
                 y={y + 3}
                 textAnchor="end"
-                className="fill-ink-faint text-[9px]"
+                className="fill-ink-faint text-micro"
               >
                 {Number.isInteger(v) ? v : v.toFixed(1)}
               </text>
@@ -107,7 +107,7 @@ export function ScatterPlot({
                 x={x}
                 y={height - PADDING.bottom + 16}
                 textAnchor="middle"
-                className="fill-ink-faint text-[9px]"
+                className="fill-ink-faint text-micro"
               >
                 {Number.isInteger(v) ? v : v.toFixed(1)}
               </text>
@@ -157,7 +157,7 @@ export function ScatterPlot({
           x={(width + PADDING.left - PADDING.right) / 2}
           y={height - 6}
           textAnchor="middle"
-          className="fill-ink-muted text-[10px] font-medium"
+          className="fill-ink-muted text-micro font-medium"
         >
           {xLabel}
         </text>
@@ -166,7 +166,7 @@ export function ScatterPlot({
           y={14}
           textAnchor="middle"
           transform="rotate(-90)"
-          className="fill-ink-muted text-[10px] font-medium"
+          className="fill-ink-muted text-micro font-medium"
         >
           {yLabel}
         </text>
@@ -174,7 +174,7 @@ export function ScatterPlot({
 
       {hover && (
         <div
-          className="pointer-events-none absolute rounded-card border border-border bg-surface px-2 py-1 text-[10px] text-ink shadow-md"
+          className="pointer-events-none absolute rounded-card border border-border bg-surface px-2 py-1 text-micro text-ink shadow-md"
           style={{
             left: `${(hover.cx / width) * 100}%`,
             top: `${(hover.cy / height) * 100}%`,

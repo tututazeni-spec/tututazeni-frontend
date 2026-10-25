@@ -132,7 +132,7 @@ export function SkillGapsTab() {
                   >
                     -{item.avgGap}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     gap médio
                   </p>
                 </div>

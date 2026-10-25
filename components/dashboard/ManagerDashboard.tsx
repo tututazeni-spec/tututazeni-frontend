@@ -183,7 +183,7 @@ export function ManagerDashboard() {
                 <p className="font-body text-sm font-medium text-ink">
                   {u.user.fullName}
                 </p>
-                <p className="font-body text-[10px] text-ink-faint">
+                <p className="font-body text-micro text-ink-faint">
                   {[u.user.position?.name, u.user.department?.name]
                     .filter(Boolean)
                     .join(' · ')}
@@ -194,7 +194,7 @@ export function ManagerDashboard() {
                   <p className="font-body text-xs font-medium text-ink">
                     {u.enrollment.completed}
                   </p>
-                  <p className="font-body text-[9px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     concluídos
                   </p>
                 </div>
@@ -204,13 +204,13 @@ export function ManagerDashboard() {
                   <p className="font-body text-xs font-medium text-ink">
                     {u.xp}
                   </p>
-                  <p className="font-body text-[9px] text-ink-faint">xp</p>
+                  <p className="font-body text-micro text-ink-faint">xp</p>
                 </div>
               )}
               {u.plan && (
                 <div className="w-20">
                   <ProgressBar value={u.plan.progress} />
-                  <p className="mt-0.5 text-center font-body text-[9px] text-ink-faint">
+                  <p className="mt-0.5 text-center font-body text-micro text-ink-faint">
                     {u.plan.progress}% PDI
                     {u.plan.status ? ` · ${u.plan.status}` : ''}
                   </p>

@@ -88,7 +88,7 @@ export function TrainingPanel() {
                       {title}
                     </p>
                     {c.course?.category && (
-                      <p className="break-words font-body text-[10px] text-ink-faint">
+                      <p className="break-words font-body text-micro text-ink-faint">
                         {c.course.category}
                       </p>
                     )}

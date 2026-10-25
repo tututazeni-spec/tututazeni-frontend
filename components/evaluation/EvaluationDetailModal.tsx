@@ -213,7 +213,7 @@ export function EvaluationDetailModal({
                   variant="pill"
                 />
                 {data.stage && (
-                  <span className="text-[11px] text-ink-faint">
+                  <span className="text-micro text-ink-faint">
                     {STAGE_LABEL[data.stage] ?? data.stage}
                   </span>
                 )}

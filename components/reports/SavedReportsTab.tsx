@@ -109,7 +109,7 @@ export function SavedReportsTab({ onOpen, onCreate }: SavedReportsTabProps) {
                   {r.name}
                 </h4>
                 <span
-                  className={`shrink-0 font-body text-[10px] font-medium ${cat.color}`}
+                  className={`shrink-0 font-body text-micro font-medium ${cat.color}`}
                 >
                   {cat.label}
                 </span>
@@ -117,7 +117,7 @@ export function SavedReportsTab({ onOpen, onCreate }: SavedReportsTabProps) {
               <p className="mb-3 line-clamp-2 flex-1 font-body text-xs text-ink-faint">
                 {r.description || 'Sem descrição'}
               </p>
-              <p className="mb-3 font-body text-[10px] text-ink-faint">
+              <p className="mb-3 font-body text-micro text-ink-faint">
                 Actualizado em {formatDate(r.updatedAt)}
               </p>
               <div className="flex gap-2">

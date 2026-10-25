@@ -51,17 +51,17 @@ export function CorrelationDetailModal({
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
               <div>
-                <p className="text-ink-faint text-[10px]">Período</p>
+                <p className="text-ink-faint text-micro">Período</p>
                 <p className="text-ink">
                   {fmtDate(data.periodStart)} — {fmtDate(data.periodEnd)}
                 </p>
               </div>
               <div>
-                <p className="text-ink-faint text-[10px]">Amostra</p>
+                <p className="text-ink-faint text-micro">Amostra</p>
                 <p className="text-ink">{data.sampleSize}</p>
               </div>
               <div>
-                <p className="text-ink-faint text-[10px]">Coeficiente</p>
+                <p className="text-ink-faint text-micro">Coeficiente</p>
                 <p className="text-ink">
                   {data.coefficient != null ? (
                     <>
@@ -76,7 +76,7 @@ export function CorrelationDetailModal({
                 </p>
               </div>
               <div>
-                <p className="text-ink-faint text-[10px]">Significância</p>
+                <p className="text-ink-faint text-micro">Significância</p>
                 <p className="text-ink">
                   {data.pValue != null ? (
                     <Badge intent={data.significant ? 'success' : 'warning'}>

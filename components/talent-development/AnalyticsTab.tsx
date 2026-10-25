@@ -244,7 +244,7 @@ export function AnalyticsTab() {
                     <p className="truncate font-body text-xs font-medium text-ink">
                       {n.skill?.name}
                     </p>
-                    <p className="font-body text-[10px] text-ink-faint">
+                    <p className="font-body text-micro text-ink-faint">
                       {n.count} pessoas
                     </p>
                   </div>
@@ -280,7 +280,7 @@ export function AnalyticsTab() {
                     <p className="font-body text-xs font-medium text-ink">
                       {c.user.fullName}
                     </p>
-                    <p className="max-w-[160px] truncate font-body text-[10px] text-ink-faint">
+                    <p className="max-w-[160px] truncate font-body text-micro text-ink-faint">
                       {c.name}
                     </p>
                   </div>

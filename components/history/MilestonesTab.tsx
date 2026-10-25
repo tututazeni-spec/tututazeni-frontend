@@ -58,7 +58,7 @@ export function MilestonesTab({ userId }: { userId?: number }) {
             </p>
           </div>
           <div className="text-right shrink-0">
-            <p className="text-[10px] text-ink-faint">{m.type}</p>
+            <p className="text-micro text-ink-faint">{m.type}</p>
           </div>
         </div>
       ))}

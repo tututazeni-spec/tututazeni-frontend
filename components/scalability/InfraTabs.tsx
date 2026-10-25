@@ -292,7 +292,7 @@ export function CapacityTab({
                 <tr key={r.key} className="border-t border-border">
                   <td className="py-2 text-ink">
                     {r.label}
-                    <span className="block text-[11px] text-ink-faint">
+                    <span className="block text-micro text-ink-faint">
                       {r.source}
                     </span>
                   </td>
@@ -810,7 +810,7 @@ export function ResilienceTab({
                 <tr key={c.key} className="border-t border-border">
                   <td className="py-2 text-ink">{c.label}</td>
                   <td className="py-2 text-ink-muted">{c.detail}</td>
-                  <td className="py-2 text-right text-[11px] uppercase text-ink-faint">
+                  <td className="py-2 text-right text-micro uppercase text-ink-faint">
                     {c.source === 'MEDIDO' ? 'medido' : 'declarado'}
                   </td>
                   <td className="py-2 text-right">

@@ -114,7 +114,7 @@ export function AreaLineChart({
                 x={PADDING.left - 8}
                 y={y + 3}
                 textAnchor="end"
-                className="fill-ink-faint text-[9px]"
+                className="fill-ink-faint text-micro"
               >
                 {yFormat(Math.round(v))}
               </text>
@@ -176,7 +176,7 @@ export function AreaLineChart({
               x={scaleX(p.x)}
               y={height - PADDING.bottom + 16}
               textAnchor="middle"
-              className="fill-ink-faint text-[9px]"
+              className="fill-ink-faint text-micro"
             >
               {p.xLabel ?? p.x}
             </text>

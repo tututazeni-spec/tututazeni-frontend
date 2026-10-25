@@ -43,7 +43,7 @@ export function TemplateCard({ tpl, index, onRun }: TemplateCardProps) {
           className="absolute -bottom-2 right-4 rotate-12 text-white/25"
           aria-hidden
         />
-        <span className="absolute right-2 top-2 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-0.5 font-body text-[10px] font-medium text-ink shadow-sm">
+        <span className="absolute right-2 top-2 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-0.5 font-body text-micro font-medium text-ink shadow-sm">
           <span className={`h-1.5 w-1.5 rounded-full ${c.dot}`} aria-hidden />
           {cat.label}
         </span>
@@ -61,7 +61,7 @@ export function TemplateCard({ tpl, index, onRun }: TemplateCardProps) {
           <h4 className="line-clamp-1 font-display text-sm font-bold leading-snug text-brand">
             {tpl.name}
           </h4>
-          <p className="mt-0.5 line-clamp-2 font-body text-[11px] leading-snug text-ink-muted">
+          <p className="mt-0.5 line-clamp-2 font-body text-micro leading-snug text-ink-muted">
             {tpl.description}
           </p>
         </div>
@@ -76,10 +76,10 @@ export function TemplateCard({ tpl, index, onRun }: TemplateCardProps) {
               className={`shrink-0 ${c.accent}`}
               aria-hidden
             />
-            <dt className="w-14 shrink-0 font-body text-[11px] text-ink-muted">
+            <dt className="w-14 shrink-0 font-body text-micro text-ink-muted">
               Categoria
             </dt>
-            <dd className="min-w-0 truncate font-body text-[11px] font-semibold text-brand">
+            <dd className="min-w-0 truncate font-body text-micro font-semibold text-brand">
               {cat.label}
             </dd>
           </div>
@@ -92,10 +92,10 @@ export function TemplateCard({ tpl, index, onRun }: TemplateCardProps) {
               className={`shrink-0 ${c.accent}`}
               aria-hidden
             />
-            <dt className="w-14 shrink-0 font-body text-[11px] text-ink-muted">
+            <dt className="w-14 shrink-0 font-body text-micro text-ink-muted">
               Acção
             </dt>
-            <dd className="min-w-0 font-body text-[11px] font-semibold text-brand">
+            <dd className="min-w-0 font-body text-micro font-semibold text-brand">
               Executar
             </dd>
           </div>

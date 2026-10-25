@@ -70,7 +70,7 @@ function PerformanceKpis({ perf }: { perf: PerformanceMetricsData }) {
                 )}
               </p>
               {k.note && (
-                <p className="mt-1 font-body text-[11px] text-ink-faint">
+                <p className="mt-1 font-body text-micro text-ink-faint">
                   {k.note}
                 </p>
               )}
@@ -182,7 +182,7 @@ export function PerformanceTab({ data, perf = null }: PerformanceTabProps) {
                   </span>
                 </div>
                 <ThresholdBar pct={pct} state={state} />
-                <div className="mt-2 flex justify-between font-body text-[11px] text-ink-faint">
+                <div className="mt-2 flex justify-between font-body text-micro text-ink-faint">
                   <span>0</span>
                   <span>{pct.toFixed(1)}% da capacidade</span>
                   <span>

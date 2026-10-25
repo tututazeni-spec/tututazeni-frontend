@@ -173,7 +173,7 @@ export function CostsTab() {
             Consolidação por iniciativa
           </h4>
         </div>
-        <div className="p-5 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
+        <div className="p-5 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-micro">
           <DataTable
             headerClassName="bg-brand/60 text-white"
             data={rows}
@@ -257,7 +257,7 @@ export function CostsTab() {
             Linhas de custo
           </h4>
         </div>
-        <div className="p-5 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
+        <div className="p-5 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-micro">
           <DataTable
             headerClassName="bg-brand/60 text-white"
             data={entries}

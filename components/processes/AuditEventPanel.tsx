@@ -172,7 +172,7 @@ export function AuditEventPanel({ eventId, onClose, onOpenEvent, onOpenInstance 
               </div>
             </div>
 
-            <div className="font-mono text-[11px] text-ink-faint">
+            <div className="font-mono text-micro text-ink-faint">
               ID {e.id}
               {e.correlationId ? ` · correlação ${e.correlationId}` : ''} · hash {e.hash.slice(0, 16)}…
             </div>

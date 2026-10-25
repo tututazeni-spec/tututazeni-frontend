@@ -170,7 +170,7 @@ function MonthGrid({ data, anchor, onPickDay }: GridProps) {
           >
             <DayHeader day={day} flags={flags} />
             {flags.holiday && (
-              <p className="truncate text-[10px] text-danger-ink">
+              <p className="truncate text-micro text-danger-ink">
                 {flags.holiday}
               </p>
             )}
@@ -178,7 +178,7 @@ function MonthGrid({ data, anchor, onPickDay }: GridProps) {
               <Chip key={e.id} entry={e} compact />
             ))}
             {list.length > 3 && (
-              <p className="text-[10px] text-ink-faint">
+              <p className="text-micro text-ink-faint">
                 +{list.length - 3} mais
               </p>
             )}
@@ -214,10 +214,10 @@ function WeekGrid({ data, anchor, onPickDay }: GridProps) {
             </button>
             <DayHeader day={day} flags={flags} />
             {flags.holiday && (
-              <p className="text-[10px] text-danger-ink">{flags.holiday}</p>
+              <p className="text-micro text-danger-ink">{flags.holiday}</p>
             )}
             {list.length === 0 ? (
-              <p className="text-[10px] text-ink-faint">Sem ausências</p>
+              <p className="text-micro text-ink-faint">Sem ausências</p>
             ) : (
               list.map((e) => <Chip key={e.id} entry={e} />)
             )}
@@ -302,7 +302,7 @@ function YearGrid({ data, anchor, onPickDay }: GridProps) {
                     onClick={() => onPickDay(day)}
                     title={`${formatDate(day)} — ${absent} ausente(s)${flags.holiday ? ` · ${flags.holiday}` : ''}`}
                     className={cn(
-                      'h-6 rounded-sm text-[10px] transition-colors',
+                      'h-6 rounded-sm text-micro transition-colors',
                       absent === 0
                         ? 'bg-surface-sunken text-ink-faint'
                         : absent === 1

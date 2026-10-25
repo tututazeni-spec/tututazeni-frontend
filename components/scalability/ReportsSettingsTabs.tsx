@@ -651,7 +651,7 @@ function SettingsForm({ data, canEdit, saving, onSave }: SettingsFormProps) {
                           <span className="block font-body text-sm text-ink">
                             {r.label}
                           </span>
-                          <span className="block font-body text-[11px] text-ink-faint">
+                          <span className="block font-body text-micro text-ink-faint">
                             {r.condition}
                           </span>
                         </span>

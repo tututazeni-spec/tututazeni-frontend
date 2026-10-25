@@ -68,7 +68,7 @@ function PdiCoverageCard({ pct, status }: { pct: number; status?: string }) {
         </p>
       )}
       {status && (
-        <p className="font-body text-[11px] text-ink-muted">{status}</p>
+        <p className="font-body text-micro text-ink-muted">{status}</p>
       )}
     </Card>
   );

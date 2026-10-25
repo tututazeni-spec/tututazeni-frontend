@@ -105,20 +105,20 @@ export function ClassCard({
           )}
           <div className="mt-1.5 flex flex-wrap gap-1">
             <span
-              className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${TYPE_CFG[lc.type]?.cls ?? ''}`}
+              className={`rounded px-1.5 py-0.5 text-micro font-medium ${TYPE_CFG[lc.type]?.cls ?? ''}`}
             >
               {TYPE_CFG[lc.type]?.label ?? lc.type}
             </span>
             <span
-              className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CFG[lc.status]?.cls ?? ''}`}
+              className={`rounded px-1.5 py-0.5 text-micro font-medium ${STATUS_CFG[lc.status]?.cls ?? ''}`}
             >
               {STATUS_CFG[lc.status]?.label ?? lc.status}
             </span>
-            <span className="rounded bg-surface-sunken px-1.5 py-0.5 text-[10px] font-medium text-ink-muted">
+            <span className="rounded bg-surface-sunken px-1.5 py-0.5 text-micro font-medium text-ink-muted">
               {MODALITY_CFG[lc.modality]?.label ?? lc.modality}
             </span>
             {lc.instructor && (
-              <span className="rounded bg-surface-sunken px-1.5 py-0.5 text-[10px] font-medium text-ink-muted">
+              <span className="rounded bg-surface-sunken px-1.5 py-0.5 text-micro font-medium text-ink-muted">
                 {lc.instructor.name}
               </span>
             )}

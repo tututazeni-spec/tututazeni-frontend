@@ -82,7 +82,7 @@ export function BubbleChart({
         })}
       </svg>
       {(xLabel || yLabel) && (
-        <div className="mt-1 flex justify-between font-body text-[10px] text-ink-faint">
+        <div className="mt-1 flex justify-between font-body text-micro text-ink-faint">
           <span>{yLabel}</span>
           <span>{xLabel}</span>
         </div>

@@ -163,7 +163,7 @@ export function ComponentsView() {
                       </div>
                     )}
                     {!c.active && (
-                      <span className="mt-0.5 inline-block rounded-full bg-white/10 px-1.5 py-0.5 font-body text-[10px] font-medium uppercase tracking-wide text-[#CFE3FF]">
+                      <span className="mt-0.5 inline-block rounded-full bg-white/10 px-1.5 py-0.5 font-body text-micro font-medium uppercase tracking-wide text-[#CFE3FF]">
                         Inactivo
                       </span>
                     )}
@@ -190,12 +190,12 @@ export function ComponentsView() {
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {c.isTaxable && (
-                      <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-[10px] text-[#CFE3FF]">
+                      <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-micro text-[#CFE3FF]">
                         Tributável
                       </span>
                     )}
                     {c.isMandatory && (
-                      <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-[10px] text-[#CFE3FF]">
+                      <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-micro text-[#CFE3FF]">
                         Obrigatório
                       </span>
                     )}

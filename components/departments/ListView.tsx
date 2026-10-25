@@ -142,14 +142,14 @@ export function ListView({ onSelect }: ListViewProps) {
                       {d.name}
                     </div>
                     {d.parent && (
-                      <div className="truncate text-[11px] text-[#7890AC]">
+                      <div className="truncate text-micro text-[#7890AC]">
                         ↳ {d.parent.name}
                       </div>
                     )}
                   </div>
                 </div>
-                <span className="text-[11px] text-brand">{d.code}</span>
-                <div className="min-w-0 text-[11px] text-brand">
+                <span className="text-micro text-brand">{d.code}</span>
+                <div className="min-w-0 text-micro text-brand">
                   {d.head ? (
                     <span className="flex items-center gap-1.5">
                       <Avatar name={d.head.fullName} size="sm" />

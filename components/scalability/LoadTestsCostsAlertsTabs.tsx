@@ -625,7 +625,7 @@ export function LoadTestsTab({
                     >
                       <td className="py-2 pr-2 text-ink">
                         {t.name}
-                        <span className="block text-[11px] text-ink-faint">
+                        <span className="block text-micro text-ink-faint">
                           {labelOf(TYPES, t.type)}
                           {t.appVersion ? ` · v${t.appVersion}` : ''} ·{' '}
                           {dateTime(
@@ -1103,7 +1103,7 @@ export function AlertRulesSection({
                   >
                     <div className="min-w-0">
                       <p className="font-body text-sm text-ink">{r.label}</p>
-                      <p className="font-body text-[11px] text-ink-faint">
+                      <p className="font-body text-micro text-ink-faint">
                         {r.condition} · {r.detail}
                       </p>
                     </div>

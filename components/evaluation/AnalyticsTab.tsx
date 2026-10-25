@@ -134,7 +134,7 @@ export function AnalyticsTab() {
                   <p className="text-xl font-bold text-ink">
                     {data.distribution[d.key]}
                   </p>
-                  <p className={`text-[10px] font-medium ${d.textColor}`}>
+                  <p className={`text-micro font-medium ${d.textColor}`}>
                     {d.label}
                   </p>
                 </Card>
@@ -171,7 +171,7 @@ export function AnalyticsTab() {
                     <p className="text-xs font-medium text-ink truncate">
                       {p.user?.fullName}
                     </p>
-                    <p className="text-[10px] text-ink-faint">
+                    <p className="text-micro text-ink-faint">
                       {p.user?.department?.name}
                     </p>
                   </div>
@@ -181,7 +181,7 @@ export function AnalyticsTab() {
                     >
                       {p.avgScore.toFixed(1)}
                     </p>
-                    <p className="text-[10px] text-ink-faint">
+                    <p className="text-micro text-ink-faint">
                       P{p.percentile}
                     </p>
                   </div>

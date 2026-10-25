@@ -233,7 +233,7 @@ export function IntegrationsTab({
                     {s.label}
                   </Badge>
                   {int.lastSyncAt && (
-                    <p className="mt-1 font-body text-[11px] text-ink-faint">
+                    <p className="mt-1 font-body text-micro text-ink-faint">
                       Sync: {timeAgo(int.lastSyncAt)} · {int.lastSyncStatus}
                     </p>
                   )}

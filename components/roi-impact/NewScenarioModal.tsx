@@ -325,7 +325,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                   />
                 </FormField>
               )}
-              <p className="mt-2 font-body text-[11px] text-ink-faint">
+              <p className="mt-2 font-body text-micro text-ink-faint">
                 O benefício projectado é escalado pelo rácio benefício/custo
                 (BCR) da análise escolhida sobre o custo estimado deste cenário.
               </p>

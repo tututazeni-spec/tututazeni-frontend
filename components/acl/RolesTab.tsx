@@ -40,7 +40,7 @@ export function RolesTab() {
               </div>
               <div className="min-w-0 flex-1 text-left">
                 <p className="font-medium text-ink text-sm">{r.name}</p>
-                <p className="text-ink-faint text-[10px]">
+                <p className="text-ink-faint text-micro">
                   {r._count?.users ?? 0} utilizadores ·{' '}
                   {r.permissions?.length ?? 0} permissões
                 </p>
@@ -89,7 +89,7 @@ export function RolesTab() {
               {(selected.permissions ?? []).map((p, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-1 rounded-control bg-surface px-2 py-1 text-ink text-[10px]"
+                  className="flex items-center gap-1 rounded-control bg-surface px-2 py-1 text-ink text-micro"
                 >
                   <span className="font-mono">{p.name}</span>
                 </div>

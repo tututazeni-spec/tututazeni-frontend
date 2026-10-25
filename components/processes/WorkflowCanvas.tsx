@@ -196,7 +196,7 @@ export function WorkflowCanvas({
           return (
             <div
               key={`l-${ed.from}-${ed.to}`}
-              className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-warning bg-warning-subtle px-1.5 py-0.5 font-body text-[10px] text-warning-ink"
+              className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-warning bg-warning-subtle px-1.5 py-0.5 font-body text-micro text-warning-ink"
               style={{
                 left: (a.x + NODE_W + b.x) / 2,
                 top: (a.y + b.y) / 2 + NODE_H / 2,
@@ -222,9 +222,9 @@ export function WorkflowCanvas({
               } ${readOnly ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'}`}
               style={{ left: n.x, top: n.y, width: NODE_W, height: NODE_H }}
             >
-              <div className="font-body text-[10px] uppercase tracking-wide text-ink-faint">{meta.label}</div>
+              <div className="font-body text-micro uppercase tracking-wide text-ink-faint">{meta.label}</div>
               <div className="truncate font-body text-sm font-medium text-ink">{n.title || 'Sem nome'}</div>
-              <div className="truncate font-body text-[11px] text-ink-muted">
+              <div className="truncate font-body text-micro text-ink-muted">
                 {n.type === 'REVIEW'
                   ? `${n.approverIds.length || 1} aprovador(es)`
                   : n.responsibleRole || (n.responsibleId ? 'Responsável definido' : meta.hint)}

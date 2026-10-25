@@ -109,7 +109,7 @@ export function HierarchyView() {
         </div>
       )}
       {!isLoading && !error && (
-        <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-[10px]">
+        <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-micro">
           <TableHead className="bg-brand/60 [&_th]:text-white">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell>Colaborador</TableHeaderCell>
@@ -144,7 +144,7 @@ export function HierarchyView() {
                       />
                       <span className="text-xs text-ink">{u.fullName}</span>
                       {!u.active && (
-                        <Badge intent="neutral" className="text-[10px]">
+                        <Badge intent="neutral" className="text-micro">
                           Inactivo
                         </Badge>
                       )}
@@ -170,7 +170,7 @@ export function HierarchyView() {
                     {u.indirectReportsCount}
                   </TableCell>
                   <TableCell
-                    className="max-w-[9rem] break-words text-[10px] text-ink-faint"
+                    className="max-w-[9rem] break-words text-micro text-ink-faint"
                     title={u.reportingChain.join(' → ')}
                   >
                     {u.reportingChain.join(' → ')}

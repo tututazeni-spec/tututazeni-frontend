@@ -110,7 +110,7 @@ export function InsightsTab() {
               <div className="flex-1">
                 <div className="mb-1 flex items-center gap-2">
                   <span
-                    className={`font-body text-[10px] font-bold uppercase tracking-wide ${t.text}`}
+                    className={`font-body text-micro font-bold uppercase tracking-wide ${t.text}`}
                   >
                     {TYPE_LABEL[ins.type] ?? ins.type}
                   </span>

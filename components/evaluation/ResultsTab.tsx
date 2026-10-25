@@ -399,7 +399,7 @@ export function ResultsTab() {
                         className={`w-full rounded-t ${SCORE_BG(h.avgScore)}`}
                         style={{ height: `${(h.avgScore / 5) * 100}%` }}
                       />
-                      <span className="text-[10px] text-ink-faint">
+                      <span className="text-micro text-ink-faint">
                         {h.period}
                       </span>
                     </div>

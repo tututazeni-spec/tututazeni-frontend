@@ -163,7 +163,7 @@ export function OverviewTab() {
               className="min-w-[160px]"
             />
           </div>
-          <p className="mt-2 font-body text-[11px] text-ink-faint">
+          <p className="mt-2 font-body text-micro text-ink-faint">
             Filtros por unidade e departamento ficam disponíveis quando as
             regras passarem a guardar o âmbito organizacional.
           </p>

@@ -78,7 +78,7 @@ export function PredictionsPanel() {
                   <p className="font-body text-sm font-medium text-ink">
                     {r.user?.fullName}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     {r.user?.department?.name} · {r.tenureMonths} meses de casa
                   </p>
                 </div>

@@ -117,7 +117,7 @@ export function StatsTab({ userId }: { userId?: number }) {
               );
             })}
           </div>
-          <div className="flex items-center gap-2 mt-2 text-[10px] text-ink-faint">
+          <div className="flex items-center gap-2 mt-2 text-micro text-ink-faint">
             <span>Menos</span>
             {HEATMAP_LEGEND.map((c, i) => (
               <div key={i} className={`w-3 h-3 rounded-[2px] ${c}`} />

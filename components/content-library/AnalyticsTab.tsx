@@ -88,7 +88,7 @@ export function AnalyticsTab() {
                 return (
                   <div key={f.format} className="flex items-center gap-3">
                     <span
-                      className={`w-24 rounded px-1.5 py-0.5 text-center font-body text-[10px] font-medium ${FORMAT_CLS[f.format] ?? FORMAT_CLS_FALLBACK}`}
+                      className={`w-24 rounded px-1.5 py-0.5 text-center font-body text-micro font-medium ${FORMAT_CLS[f.format] ?? FORMAT_CLS_FALLBACK}`}
                     >
                       {f.format}
                     </span>
@@ -121,7 +121,7 @@ export function AnalyticsTab() {
                     <p className="truncate font-body text-xs font-medium text-ink">
                       {v.content?.title}
                     </p>
-                    <p className="font-body text-[10px] text-ink-faint">
+                    <p className="font-body text-micro text-ink-faint">
                       {v.content?.type}
                     </p>
                   </div>
@@ -154,14 +154,14 @@ export function AnalyticsTab() {
                   className="flex items-center gap-3 rounded-control p-2 hover:bg-surface-sunken"
                 >
                   <span
-                    className={`w-20 rounded px-1.5 py-0.5 text-center font-body text-[10px] font-medium ${FORMAT_CLS[c.type] ?? FORMAT_CLS_FALLBACK}`}
+                    className={`w-20 rounded px-1.5 py-0.5 text-center font-body text-micro font-medium ${FORMAT_CLS[c.type] ?? FORMAT_CLS_FALLBACK}`}
                   >
                     {c.type}
                   </span>
                   <p className="flex-1 truncate font-body text-sm font-medium text-ink">
                     {c.title}
                   </p>
-                  <p className="shrink-0 font-body text-[10px] text-ink-faint">
+                  <p className="shrink-0 font-body text-micro text-ink-faint">
                     {new Date(c.createdAt).toLocaleDateString('pt')}
                   </p>
                 </div>

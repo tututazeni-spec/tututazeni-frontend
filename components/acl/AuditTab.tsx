@@ -77,22 +77,22 @@ export function AuditTab() {
                     <span className="font-medium text-ink text-xs">
                       {log.user?.fullName ?? `User ${log.userId}`}
                     </span>
-                    <span className="rounded bg-surface px-1.5 py-0.5 font-mono text-ink-muted text-[10px]">
+                    <span className="rounded bg-surface px-1.5 py-0.5 font-mono text-ink-muted text-micro">
                       {log.action}
                     </span>
                     {changes?.subject && (
-                      <span className="text-ink-faint text-[10px]">
+                      <span className="text-ink-faint text-micro">
                         {changes.subject}
                       </span>
                     )}
                   </div>
                   {changes?.reason && (
-                    <p className="mt-0.5 text-ink-faint text-[10px]">
+                    <p className="mt-0.5 text-ink-faint text-micro">
                       {changes.reason}
                     </p>
                   )}
                 </div>
-                <span className="shrink-0 text-ink-faint text-[10px]">
+                <span className="shrink-0 text-ink-faint text-micro">
                   {new Date(log.timestamp).toLocaleString('pt')}
                 </span>
               </div>

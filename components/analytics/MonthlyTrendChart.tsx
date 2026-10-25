@@ -74,7 +74,7 @@ export function MonthlyTrendChart({ data }: { data: MonthlyCount[] }) {
                   minHeight: d.count > 0 ? 2 : 0,
                 }}
               />
-              <div className="font-body text-[10px] text-ink-faint">
+              <div className="font-body text-micro text-ink-faint">
                 {formatMonth(d.month)}
               </div>
             </div>

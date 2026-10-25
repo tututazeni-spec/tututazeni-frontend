@@ -151,7 +151,7 @@ export function PoolTab() {
                         value={t.activePlan.overallProgress}
                         className="h-1"
                       />
-                      <span className="shrink-0 font-body text-[10px] text-ink-faint">
+                      <span className="shrink-0 font-body text-micro text-ink-faint">
                         {t.activePlan.overallProgress}%
                       </span>
                     </div>

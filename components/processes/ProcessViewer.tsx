@@ -436,7 +436,7 @@ export function ProcessViewer({
                       <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-brand-line pt-3 font-body sm:grid-cols-3">
                         {step.responsible && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-brand-muted">
+                            <dt className="text-micro text-brand-muted">
                               Responsável
                             </dt>
                             <dd className="truncate text-sm font-semibold text-brand">
@@ -446,7 +446,7 @@ export function ProcessViewer({
                         )}
                         {step.responsibleRole && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-brand-muted">
+                            <dt className="text-micro text-brand-muted">
                               FunÃ§Ã£o
                             </dt>
                             <dd className="truncate text-sm font-semibold text-brand">
@@ -456,7 +456,7 @@ export function ProcessViewer({
                         )}
                         {step.slaHours && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-brand-muted">
+                            <dt className="text-micro text-brand-muted">
                               SLA
                             </dt>
                             <dd className="truncate text-sm font-semibold text-brand">
@@ -466,7 +466,7 @@ export function ProcessViewer({
                         )}
                         {step.reviewer && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-brand-muted">
+                            <dt className="text-micro text-brand-muted">
                               Revisor
                             </dt>
                             <dd className="truncate text-sm font-semibold text-brand">
@@ -476,7 +476,7 @@ export function ProcessViewer({
                         )}
                         {step.parallel && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-brand-muted">
+                            <dt className="text-micro text-brand-muted">
                               Execução
                             </dt>
                             <dd className="text-sm font-semibold text-brand">
@@ -486,7 +486,7 @@ export function ProcessViewer({
                         )}
                         {step.dependsOnOrders.length > 0 && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-brand-muted">
+                            <dt className="text-micro text-brand-muted">
                               Depende de
                             </dt>
                             <dd className="truncate text-sm font-semibold text-brand">
@@ -498,7 +498,7 @@ export function ProcessViewer({
                         )}
                         {step.estimatedMinutes && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-brand-muted">
+                            <dt className="text-micro text-brand-muted">
                               Tempo est.
                             </dt>
                             <dd className="truncate text-sm font-semibold text-brand">
@@ -543,7 +543,7 @@ export function ProcessViewer({
               </div>
               {process.objective && (
                 <div className="mb-3">
-                  <div className="mb-1 font-body text-[11px] text-brand-muted">
+                  <div className="mb-1 font-body text-micro text-brand-muted">
                     Objetivo
                   </div>
                   <p className="font-body text-sm font-semibold text-brand">
@@ -553,7 +553,7 @@ export function ProcessViewer({
               )}
               {process.scope && (
                 <div>
-                  <div className="mb-1 font-body text-[11px] text-brand-muted">
+                  <div className="mb-1 font-body text-micro text-brand-muted">
                     Âmbito
                   </div>
                   <p className="font-body text-sm font-semibold text-brand">
@@ -582,7 +582,7 @@ export function ProcessViewer({
                   key={label}
                   className="flex justify-between border-b border-brand-line py-2 last:border-0"
                 >
-                  <span className="font-body text-[11px] text-brand-muted">
+                  <span className="font-body text-micro text-brand-muted">
                     {label}
                   </span>
                   <span className="font-body text-sm font-semibold text-brand">
@@ -618,7 +618,7 @@ export function ProcessViewer({
                   ] as Array<[string, string | null]>
                 ).map(([label, value]) => (
                   <div key={label}>
-                    <div className="font-body text-[11px] text-brand-muted">
+                    <div className="font-body text-micro text-brand-muted">
                       {label}
                     </div>
                     <p className="font-body text-sm font-semibold text-brand">
@@ -663,7 +663,7 @@ export function ProcessViewer({
                   )}
                 </div>
                 <div className="text-right font-body">
-                  <div className="text-[11px] text-brand-muted">
+                  <div className="text-micro text-brand-muted">
                     {v.current ? 'Publicada/actualizada em' : 'Guardada em'}
                   </div>
                   <div className="text-sm font-semibold text-brand">

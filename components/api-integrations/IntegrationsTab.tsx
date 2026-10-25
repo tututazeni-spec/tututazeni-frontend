@@ -128,11 +128,11 @@ export function IntegrationsTab() {
                     {i.active ? 'ACTIVE' : 'INACTIVE'}
                   </Badge>
                 </div>
-                <p className="truncate font-data text-[10px] text-ink-faint">
+                <p className="truncate font-data text-micro text-ink-faint">
                   {i.endpoint}
                 </p>
                 {i.lastTested && (
-                  <p className="mt-0.5 font-body text-[9px] text-ink-faint">
+                  <p className="mt-0.5 font-body text-micro text-ink-faint">
                     Testado: {new Date(i.lastTested).toLocaleString('pt')}
                   </p>
                 )}

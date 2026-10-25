@@ -284,13 +284,13 @@ export function ApprovalsTab() {
                     </p>
                   </div>
                   <div className="w-40 font-body text-xs text-ink-muted">
-                    <span className="block text-[10px]">Aprovador</span>
+                    <span className="block text-micro">Aprovador</span>
                     <span className="text-brand">
                       {t.approver.name ?? `#${t.approver.id}`}
                     </span>
                   </div>
                   <div className="w-36 font-body text-xs text-ink-muted">
-                    <span className="block text-[10px]">Prazo</span>
+                    <span className="block text-micro">Prazo</span>
                     <span
                       className={cn(
                         'text-brand',

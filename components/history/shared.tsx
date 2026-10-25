@@ -51,7 +51,7 @@ export const fmtTime = (iso: string) =>
  * letra branca, sem efeito de hover).
  */
 export const COMPACT_TABLE =
-  'table-auto [&_th]:whitespace-nowrap [&_th]:bg-brand/60 [&_th]:px-1.5 [&_th]:py-2 [&_th]:text-[10px] [&_th]:tracking-normal [&_th]:text-white [&_thead_tr:hover]:bg-transparent [&_td]:px-2 [&_td]:py-2.5 [&_td]:align-middle [&_td]:text-xs [&_td]:break-words [&_tbody_tr:nth-child(even)]:bg-surface-sunken/30';
+  'table-auto [&_th]:whitespace-nowrap [&_th]:bg-brand/60 [&_th]:px-1.5 [&_th]:py-2 [&_th]:text-micro [&_th]:tracking-normal [&_th]:text-white [&_thead_tr:hover]:bg-transparent [&_td]:px-2 [&_td]:py-2.5 [&_td]:align-middle [&_td]:text-xs [&_td]:break-words [&_tbody_tr:nth-child(even)]:bg-surface-sunken/30';
 
 /** Lista paginada alimentada pelos filtros globais; volta à página 1 quando os filtros mudam. */
 export function useHubList<T>(
@@ -238,7 +238,7 @@ export function entryColumns(
     {
       header: 'Módulo',
       cell: (e) => (
-        <Badge intent="info" dot={false} className="px-2 py-0 text-[11px]">
+        <Badge intent="info" dot={false} className="px-2 py-0 text-micro">
           {MODULE_LABEL[e.module] ?? e.module}
         </Badge>
       ),

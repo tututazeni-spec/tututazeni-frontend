@@ -146,7 +146,7 @@ function ModuleCard({ mod }: { mod: CatalogModule }) {
           >
             {mod.label}
           </h4>
-          <p className="line-clamp-2 font-body text-[11px] leading-tight text-brand/70">
+          <p className="line-clamp-2 font-body text-micro leading-tight text-brand/70">
             {available} de {total} eventos disponíveis
             {activeRules > 0 &&
               ` · ${plural(activeRules, 'regra activa', 'regras activas')}`}
@@ -187,14 +187,14 @@ function ModuleCard({ mod }: { mod: CatalogModule }) {
               <span className="flex w-[72px] shrink-0 justify-center">
                 {e.activeRules > 0 && (
                   <span
-                    className="rounded-full px-2 py-0.5 font-data text-[10px]"
+                    className="rounded-full px-2 py-0.5 font-data text-micro"
                     style={{ backgroundColor: withAlpha(color, 0.1), color }}
                   >
                     {plural(e.activeRules, 'regra', 'regras')}
                   </span>
                 )}
               </span>
-              <span className="w-[40px] shrink-0 text-right font-data text-[10px] text-brand/70">
+              <span className="w-[40px] shrink-0 text-right font-data text-micro text-brand/70">
                 {e.events30d > 0 ? `${e.events30d}/30d` : ''}
               </span>
             </li>
@@ -205,7 +205,7 @@ function ModuleCard({ mod }: { mod: CatalogModule }) {
           {mod.actions.map((a, i) => (
             <span
               key={a}
-              className="rounded-control border px-2 py-1 font-body text-[11px] font-medium"
+              className="rounded-control border px-2 py-1 font-body text-micro font-medium"
               style={
                 i === 0
                   ? {
@@ -400,7 +400,7 @@ export function EventsCatalogPanel() {
                         {STATUS_LABEL[e.status] ?? e.status}
                       </Badge>
                     </td>
-                    <td className="px-3 py-2 font-data text-[10px] text-ink-faint">
+                    <td className="px-3 py-2 font-data text-micro text-ink-faint">
                       {e.correlationId.slice(0, 8)}
                       {e.depth > 0 ? ` · nível ${e.depth}` : ''}
                     </td>

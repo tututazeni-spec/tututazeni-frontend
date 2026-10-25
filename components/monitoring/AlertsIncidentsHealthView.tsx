@@ -777,7 +777,7 @@ export function IncidentsTab({
                 <g.icon size={15} strokeWidth={1.75} />
                 <span className="hidden sm:inline">{g.label}</span>
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                  className={`rounded-full px-1.5 py-0.5 text-micro font-semibold ${
                     on
                       ? 'bg-canvas/20 text-canvas'
                       : 'bg-surface-sunken text-ink-faint'

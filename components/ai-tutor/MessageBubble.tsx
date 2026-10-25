@@ -65,7 +65,7 @@ export function MessageBubble({ msg, onRate }: MessageBubbleProps) {
             {msg.sourceLabels.map((label, i) => (
               <span
                 key={i}
-                className="font-body text-[10px] text-ink-faint bg-surface-sunken border border-border rounded-pill px-2 py-0.5"
+                className="font-body text-micro text-ink-faint bg-surface-sunken border border-border rounded-pill px-2 py-0.5"
               >
                 Fonte: {label}
               </span>

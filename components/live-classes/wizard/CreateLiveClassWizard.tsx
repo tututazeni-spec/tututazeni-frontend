@@ -206,7 +206,7 @@ export function CreateLiveClassWizard({ onClose }: CreateLiveClassWizardProps) {
                   onClick={() => goToStep(i)}
                   title={`${i + 1}. ${s.label}`}
                   className={
-                    'flex h-6 w-6 items-center justify-center rounded-full font-body text-[11px] ' +
+                    'flex h-6 w-6 items-center justify-center rounded-full font-body text-micro ' +
                     'transition-colors disabled:cursor-not-allowed disabled:opacity-40 ' +
                     cls
                   }

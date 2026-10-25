@@ -107,7 +107,7 @@ export function RolesTab() {
                   <p className="text-sm font-medium text-ink truncate">
                     {r.name}
                   </p>
-                  <p className="text-[10px] text-ink-faint">
+                  <p className="text-micro text-ink-faint">
                     {r._count?.users ?? 0} users · {r.effectivePermissions ?? 0}{' '}
                     perms
                   </p>
@@ -230,7 +230,7 @@ export function RolesTab() {
                         <Avatar
                           name={u.fullName}
                           size="sm"
-                          className="h-5 w-5 text-[9px]"
+                          className="h-5 w-5 text-micro"
                         />
                         <span className="text-xs text-ink">{u.fullName}</span>
                       </div>

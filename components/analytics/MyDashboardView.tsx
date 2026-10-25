@@ -133,11 +133,11 @@ function LearningSequenceChart({ milestones }: { milestones: Milestone[] }) {
                 {m.label}
               </div>
               {m.status !== 'locked' && m.progress > 0 && (
-                <div className="font-body text-[11px] text-primary">
+                <div className="font-body text-micro text-primary">
                   {m.progress}% Completo
                 </div>
               )}
-              <div className="mt-1 font-body text-[11px] text-ink-faint">
+              <div className="mt-1 font-body text-micro text-ink-faint">
                 {formatMilestoneDate(m.date)}
               </div>
             </div>

@@ -44,7 +44,7 @@ export function NineBoxMatrix({ matrix }: NineBoxMatrixProps) {
         {/* Y label */}
         <div className="flex gap-3">
           <div className="flex w-6 flex-col items-center justify-center">
-            <span className="writing-mode-vertical -rotate-90 whitespace-nowrap font-body text-[10px] text-ink-faint">
+            <span className="writing-mode-vertical -rotate-90 whitespace-nowrap font-body text-micro text-ink-faint">
               ← Performance →
             </span>
           </div>
@@ -71,7 +71,7 @@ export function NineBoxMatrix({ matrix }: NineBoxMatrixProps) {
                     >
                       <p
                         lang="pt"
-                        className="hyphens-auto break-words font-body text-[10px] font-semibold leading-tight text-ink-muted"
+                        className="hyphens-auto break-words font-body text-micro font-semibold leading-tight text-ink-muted"
                       >
                         {labelShort}
                       </p>
@@ -85,7 +85,7 @@ export function NineBoxMatrix({ matrix }: NineBoxMatrixProps) {
             </div>
 
             {/* X label */}
-            <p className="mt-2 text-center font-body text-[10px] text-ink-faint">
+            <p className="mt-2 text-center font-body text-micro text-ink-faint">
               ← Competência →
             </p>
           </div>

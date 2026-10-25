@@ -26,7 +26,7 @@ interface CellProps {
 function Cell({ label, className, children }: CellProps) {
   return (
     <div className={className}>
-      <div className="font-body text-[11px] text-brand-muted">{label}</div>
+      <div className="font-body text-micro text-brand-muted">{label}</div>
       <div className="font-body text-sm font-medium text-brand">{children}</div>
     </div>
   );
@@ -87,7 +87,7 @@ export function OrgChangesTab() {
               {o.after ?? '–'}
             </Cell>
             <div className="w-52">
-              <div className="mb-0.5 font-body text-[11px] text-brand-muted">
+              <div className="mb-0.5 font-body text-micro text-brand-muted">
                 Responsável
               </div>
               <PersonCell person={o.responsible} />

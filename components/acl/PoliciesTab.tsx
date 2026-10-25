@@ -31,7 +31,7 @@ export function PoliciesTab() {
             <div className="mb-2 flex items-start justify-between">
               <h4 className="font-semibold text-ink">{p.name}</h4>
               <span
-                className={`rounded-control px-2 py-0.5 font-bold text-[10px] ${isDeny ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success-ink'}`}
+                className={`rounded-control px-2 py-0.5 font-bold text-micro ${isDeny ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success-ink'}`}
               >
                 {p.effect}
               </span>
@@ -39,7 +39,7 @@ export function PoliciesTab() {
             {p.description && (
               <p className="mb-2 text-ink-muted text-xs">{p.description}</p>
             )}
-            <div className="flex flex-wrap gap-2 text-[10px]">
+            <div className="flex flex-wrap gap-2 text-micro">
               {p.subject && (
                 <span className="rounded bg-surface px-2 py-0.5 text-ink-muted">
                   Subject: {p.subject}
@@ -65,7 +65,7 @@ export function PoliciesTab() {
               </span>
             </div>
             {p.condition && (
-              <pre className="mt-2 overflow-x-auto rounded bg-surface p-2 text-ink-muted text-[10px]">
+              <pre className="mt-2 overflow-x-auto rounded bg-surface p-2 text-ink-muted text-micro">
                 {JSON.stringify(JSON.parse(p.condition), null, 2)}
               </pre>
             )}

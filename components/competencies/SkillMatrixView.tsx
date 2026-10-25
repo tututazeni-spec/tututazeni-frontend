@@ -230,7 +230,7 @@ export function SkillMatrixView() {
                             {row.user.fullName}
                           </span>
                           {row.user.position?.name && (
-                            <span className="block truncate text-[11px] text-white/70">
+                            <span className="block truncate text-micro text-white/70">
                               {row.user.position.name}
                             </span>
                           )}

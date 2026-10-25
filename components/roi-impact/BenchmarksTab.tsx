@@ -126,7 +126,7 @@ export function BenchmarksTab() {
                 Melhor e pior desempenho por tipo de iniciativa
               </h4>
             </div>
-            <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
+            <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-micro">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHead className="bg-brand/60">
@@ -220,7 +220,7 @@ export function BenchmarksTab() {
               Registos de benchmarks
             </h4>
           </div>
-          <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
+          <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-micro">
             {loading ? (
               <Skeleton
                 rows={3}

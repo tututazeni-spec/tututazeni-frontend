@@ -135,7 +135,7 @@ export function TalentPanel() {
                     <p className="font-body text-sm font-medium text-ink">
                       {p.candidate?.fullName}
                     </p>
-                    <p className="font-body text-[10px] text-ink-faint">
+                    <p className="font-body text-micro text-ink-faint">
                       → {p.position?.name}
                     </p>
                   </div>
@@ -169,7 +169,7 @@ export function TalentPanel() {
                     <p className="font-body text-sm font-medium text-ink">
                       {h.fullName}
                     </p>
-                    <p className="font-body text-[10px] text-ink-faint">
+                    <p className="font-body text-micro text-ink-faint">
                       {h.position?.name ?? h.department}
                     </p>
                   </div>

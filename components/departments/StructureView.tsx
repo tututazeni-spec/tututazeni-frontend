@@ -119,7 +119,7 @@ function DeptCard({
             {node.name}
           </span>
         </div>
-        <div className="mt-0.5 flex flex-wrap items-center text-[11px] text-[#61758F]">
+        <div className="mt-0.5 flex flex-wrap items-center text-micro text-[#61758F]">
           {stats.map((t, i) => (
             <span key={t} className="flex items-center">
               {i > 0 && (
@@ -133,7 +133,7 @@ function DeptCard({
           ))}
         </div>
         {(parentName || extras.length > 0) && (
-          <div className="mt-0.5 truncate text-[11px] text-[#7890AC]">
+          <div className="mt-0.5 truncate text-micro text-[#7890AC]">
             {[parentName ? `sob ${parentName}` : null, ...extras]
               .filter(Boolean)
               .join(' · ')}

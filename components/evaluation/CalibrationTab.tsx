@@ -331,12 +331,12 @@ export function CalibrationTab() {
                       >
                         {p.avgScore.toFixed(1)}
                       </p>
-                      <p className="text-[10px] text-ink-faint">
+                      <p className="text-micro text-ink-faint">
                         P{p.percentile}
                       </p>
                     </div>
                     {(p.dispersion ?? 0) > 1 && (
-                      <span className="text-[10px] bg-danger-subtle text-danger-ink px-1.5 py-0.5 rounded">
+                      <span className="text-micro bg-danger-subtle text-danger-ink px-1.5 py-0.5 rounded">
                         ±{p.dispersion?.toFixed(1)}
                       </span>
                     )}

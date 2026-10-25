@@ -280,7 +280,7 @@ function AnniversariesWidget() {
               <p className="truncate font-body text-xs font-medium text-ink">
                 {u.fullName}
               </p>
-              <p className="font-body text-[10px] font-semibold text-warning-ink">
+              <p className="font-body text-micro font-semibold text-warning-ink">
                 {u.years} {u.years === 1 ? 'ano' : 'anos'}{' '}
                 <Trophy
                   size={12}

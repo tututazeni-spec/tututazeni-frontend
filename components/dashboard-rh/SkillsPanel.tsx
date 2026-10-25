@@ -103,7 +103,7 @@ export function SkillsPanel() {
                   <p className="truncate font-body text-xs font-medium text-ink">
                     {s.competency?.name}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     Nível médio {s.avgLevel} · {s.count} avaliações
                   </p>
                 </div>
@@ -150,7 +150,7 @@ export function SkillsPanel() {
                   <p className="truncate font-body text-xs font-medium text-ink">
                     {s.competency?.name}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     {s.count} avaliações
                   </p>
                 </div>

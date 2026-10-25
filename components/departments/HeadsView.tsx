@@ -102,7 +102,7 @@ export function HeadsView() {
           ) : headsError ? (
             <div className="text-sm text-danger">{headsError.message}</div>
           ) : (
-            <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-[10px]">
+            <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-micro">
               <TableHead className="bg-brand/60 [&_th]:text-white">
                 <TableRow className="hover:bg-transparent">
                   <TableHeaderCell>Departamento</TableHeaderCell>

@@ -151,7 +151,7 @@ export function DonutChart({
             {centerValue ?? valueFormat(total)}
           </p>
           {centerLabel && (
-            <p className="font-body text-[10px] text-ink-faint">
+            <p className="font-body text-micro text-ink-faint">
               {centerLabel}
             </p>
           )}

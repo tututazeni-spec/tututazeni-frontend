@@ -94,7 +94,7 @@ export function TemplatesTab() {
                 </>
               )}
               {t.category && (
-                <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 font-body text-[11px] font-medium text-ink shadow-sm">
+                <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 font-body text-micro font-medium text-ink shadow-sm">
                   <span
                     className={`h-2 w-2 rounded-full ${c.dot}`}
                     aria-hidden

@@ -97,7 +97,7 @@ export function CompliancePanel() {
                   <p className="truncate font-body text-sm font-medium text-ink">
                     {c.user?.fullName}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     {c.title ?? 'Certificado'} · {c.user?.department?.name}
                   </p>
                 </div>
