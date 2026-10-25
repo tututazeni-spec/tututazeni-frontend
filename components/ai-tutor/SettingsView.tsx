@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AiTutorSettingsData } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface ToggleRowProps {
   label: string;
@@ -31,11 +32,10 @@ interface ToggleRowProps {
 function ToggleRow({ label, description, checked, onChange }: ToggleRowProps) {
   return (
     <label className="flex items-start gap-3 py-3 border-b border-border last:border-0 cursor-pointer">
-      <input
-        type="checkbox"
+      <Checkbox
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="mt-0.5 h-4 w-4 rounded border-border-strong accent-primary flex-shrink-0"
+        className="mt-0.5 flex-shrink-0"
       />
       <div>
         <div className="font-body text-sm font-medium text-ink">{label}</div>
