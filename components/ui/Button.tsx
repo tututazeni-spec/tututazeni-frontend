@@ -27,12 +27,25 @@ export const buttonVariants = cva(
           'bg-success text-white hover:brightness-95 active:brightness-90',
         warning:
           'bg-warning text-white hover:brightness-95 active:brightness-90',
+        // Botões sobre cartões escuros (navy/foto): em pílula, com anel de foco
+        // branco. `onDark` é a acção principal; `onDarkGhost` a secundária.
+        onDark:
+          'bg-white/90 text-brand hover:bg-white focus-visible:ring-white focus-visible:ring-offset-brand',
+        onDarkGhost:
+          'bg-brand/70 text-white/90 hover:bg-white/25 hover:text-white focus-visible:ring-white focus-visible:ring-offset-brand',
       },
       size: {
         sm: 'rounded-control px-3 py-1.5 text-xs',
+        compact: 'h-8 rounded-control px-3 text-sm',
         md: 'rounded-control px-[18px] py-[9px] text-sm',
+        // Só ícone, 32px (acções de cartão). Para 36px com ícone tipado usar <IconButton>.
+        icon: 'h-8 w-8 rounded-control p-0',
       },
     },
+    // O raio vem do `size`; sobre fundo escuro os botões são sempre em pílula.
+    compoundVariants: [
+      { intent: ['onDark', 'onDarkGhost'], class: 'rounded-pill' },
+    ],
     defaultVariants: { intent: 'primary', size: 'md' },
   },
 );
