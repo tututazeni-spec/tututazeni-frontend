@@ -36,6 +36,7 @@ import type { DepartmentNode, PaginatedPositions } from './types';
 import { PositionDetailModal } from './PositionDetailModal';
 import { PositionFormModal } from './PositionFormModal';
 import { NativeSelect } from '@/components/ui/NativeSelect';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 function flattenTree(
   nodes: DepartmentNode[],
@@ -62,7 +63,7 @@ function BreakdownCard({
       </div>
       <div className="p-4">
         {top.length === 0 ? (
-          <p className="text-xs text-ink-faint">Sem dados</p>
+          <EmptyState variant="inline" title="Sem dados" />
         ) : (
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             {top.map((b) => (

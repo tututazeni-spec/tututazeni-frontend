@@ -43,6 +43,7 @@ import { CreateDepartmentModal } from './CreateDepartmentModal';
 import { departmentIcon } from './departmentIcon';
 import { HeadcountCard } from './HeadcountCard';
 import type { Department, HeadHistoryEntry, Member, Metrics } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface DetailViewProps {
   deptId: number;
@@ -604,9 +605,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             />
           )}
           {dept.children.length === 0 ? (
-            <div className="rounded-card border border-dashed border-border-strong py-8 text-center text-sm text-ink-faint">
-              Sem sub-departamentos
-            </div>
+            <EmptyState variant="inline" title="Sem sub-departamentos" />
           ) : (
             dept.children.map((child) => (
               <Card key={child.id} className="flex items-center gap-3 p-4">

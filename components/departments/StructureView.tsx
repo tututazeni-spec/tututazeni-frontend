@@ -30,6 +30,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentNode } from './types';
 import { departmentIcon } from './departmentIcon';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface StructureViewProps {
   onSelect: (id: number) => void;
@@ -446,9 +447,10 @@ export function StructureView({ onSelect }: StructureViewProps) {
       >
         <div>
           {tree.length === 0 ? (
-            <div className="py-12 text-center text-sm text-ink-faint">
-              Sem departamentos na hierarquia
-            </div>
+            <EmptyState
+              variant="inline"
+              title="Sem departamentos na hierarquia"
+            />
           ) : viz === 'tree' ? (
             <div>
               {tree.map((node) => (

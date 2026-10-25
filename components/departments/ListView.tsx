@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { PaginatedDepts } from './types';
 import { NativeSelect } from '@/components/ui/NativeSelect';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 // Mesma grelha no cabeçalho e nos cartões para as colunas alinharem.
 const GRID =
@@ -119,9 +120,10 @@ export function ListView({ onSelect }: ListViewProps) {
           </div>
           <div className="md:mt-1.5">
             {data?.data.length === 0 && (
-              <div className="py-12 text-center text-sm text-ink-faint">
-                Nenhum departamento encontrado
-              </div>
+              <EmptyState
+                variant="inline"
+                title="Nenhum departamento encontrado"
+              />
             )}
             {data?.data.map((d) => (
               <button

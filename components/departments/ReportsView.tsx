@@ -21,6 +21,7 @@ import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentNode, ReportsData } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 function flattenTree(
   nodes: DepartmentNode[],
@@ -66,7 +67,7 @@ function BarList({
         {title}
       </div>
       {items.length === 0 ? (
-        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+        <EmptyState variant="inline" title="Sem dados" />
       ) : (
         <div className="space-y-2 p-4">
           {items.slice(0, 10).map((item, i) => (
@@ -284,7 +285,7 @@ export function ReportsView() {
               Número de colaboradores previsto vs. actual, por departamento
             </div>
             {data.headcountByDepartment.length === 0 ? (
-              <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+              <EmptyState variant="inline" title="Sem dados" />
             ) : (
               data.headcountByDepartment.map((d) => (
                 <div

@@ -19,6 +19,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PositionRequirementsPanel } from './PositionRequirementsPanel';
 import type { PositionDetail } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface PositionDetailModalProps {
   positionId: number;
@@ -147,7 +148,7 @@ export function PositionDetailModal({ positionId, onClose }: PositionDetailModal
                 Colaboradores neste cargo ({p.users.length})
               </dt>
               {p.users.length === 0 ? (
-                <p className="text-sm text-ink-faint">Sem colaboradores atribuídos</p>
+                <EmptyState variant="inline" title="Sem colaboradores atribuídos" />
               ) : (
                 <div className="space-y-2">
                   {p.users.map((u) => (
