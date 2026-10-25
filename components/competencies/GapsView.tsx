@@ -154,9 +154,9 @@ export function GapsView() {
           description="Nenhuma lacuna de competência corresponde aos filtros seleccionados."
         />
       ) : (
-        <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
           <table className="w-full min-w-[1100px] border-collapse font-body text-sm text-white">
-            <thead className="bg-[#0B2D5B]">
+            <thead className="bg-brand-dark">
               <tr>
                 {COLUMNS.map((c) => (
                   <th
@@ -196,7 +196,7 @@ export function GapsView() {
                         <p className="truncate font-semibold text-white">
                           {r.colaborador}
                         </p>
-                        <p className="truncate text-xs text-[#9DB4D3]">
+                        <p className="truncate text-xs text-on-brand-faint">
                           {r.departamento ?? '—'} · {r.cargo ?? '—'}
                         </p>
                       </div>
@@ -210,13 +210,13 @@ export function GapsView() {
                       className="mt-0.5"
                     />
                   </td>
-                  <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                  <td className="px-4 py-3 text-center text-on-brand">
                     {r.nivelAtual}
                   </td>
-                  <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                  <td className="px-4 py-3 text-center text-on-brand">
                     {r.nivelEsperado}
                   </td>
-                  <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                  <td className="px-4 py-3 text-center text-on-brand">
                     {r.gap}
                   </td>
                   <td className="px-4 py-3">
@@ -228,10 +228,10 @@ export function GapsView() {
                   <td className="px-4 py-3">
                     <StatusBadge value={r.impacto} map={GAP_IMPACT_CFG} />
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-xs text-[#CFE3FF]">
+                  <td className="whitespace-nowrap px-4 py-3 text-xs text-on-brand">
                     {new Date(r.dataIdentificacao).toLocaleDateString('pt')}
                   </td>
-                  <td className="px-4 py-3 text-xs text-[#CFE3FF]">
+                  <td className="px-4 py-3 text-xs text-on-brand">
                     {r.planoDesenvolvimentoAssociado?.name ?? '—'}
                   </td>
                   <td className="px-4 py-3">
