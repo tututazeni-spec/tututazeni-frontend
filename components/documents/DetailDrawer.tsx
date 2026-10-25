@@ -46,6 +46,7 @@ import { formatBytes } from './utils';
 import type { Document, DocVersionRow } from './types';
 import { ADMIN_RH_GESTOR_ROLES } from '@/lib/roles';
 import { Input } from '@/components/ui/Input';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface DetailDrawerProps {
   doc: Document;
@@ -353,7 +354,7 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
             {showHistory && (
               <div className="space-y-2 rounded-card border border-border p-3">
                 {!detail ? (
-                  <p className="text-xs text-ink-faint">A carregar…</p>
+                  <Skeleton rows={3} />
                 ) : detail.versions.length === 0 ? (
                   <p className="text-xs text-ink-faint">
                     Sem histórico de versões.
