@@ -36,6 +36,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { scoreColor } from './colors';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface RawOverview {
   totalCycles: number;
@@ -187,9 +188,7 @@ export function OverviewAdminTab() {
           Média por competência
         </h3>
         {data.competencyAverages.length === 0 && (
-          <div className="text-sm text-ink-muted">
-            Sem dados suficientes ainda.
-          </div>
+          <EmptyState variant="inline" title="Sem dados suficientes ainda" />
         )}
         <div className="flex flex-col gap-2.5">
           {data.competencyAverages.map((c) => (
@@ -224,9 +223,7 @@ export function OverviewAdminTab() {
             Competências com maior pontuação
           </h3>
           {data.topCompetencies.length === 0 && (
-            <div className="text-sm text-ink-muted">
-              Sem dados suficientes ainda.
-            </div>
+            <EmptyState variant="inline" title="Sem dados suficientes ainda" />
           )}
           {data.topCompetencies.map((c) => (
             <div
@@ -248,9 +245,7 @@ export function OverviewAdminTab() {
             Competências com menor pontuação
           </h3>
           {data.bottomCompetencies.length === 0 && (
-            <div className="text-sm text-ink-muted">
-              Sem dados suficientes ainda.
-            </div>
+            <EmptyState variant="inline" title="Sem dados suficientes ainda" />
           )}
           {data.bottomCompetencies.map((c) => (
             <div
@@ -276,9 +271,10 @@ export function OverviewAdminTab() {
             Avaliações próximas do prazo (7 dias)
           </h3>
           {data.upcomingDeadline.length === 0 && (
-            <div className="text-sm text-ink-muted">
-              Nenhuma avaliação a terminar em breve.
-            </div>
+            <EmptyState
+              variant="inline"
+              title="Nenhuma avaliação a terminar em breve"
+            />
           )}
           {data.upcomingDeadline.map((c) => (
             <div

@@ -31,6 +31,7 @@ import {
   SCORE5_BANDS,
 } from '@/components/ui/charts/SpeedometerStatCard';
 import { PendingEvaluationsCard } from './PendingEvaluationsCard';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface OverviewTabProps {
   result: ParticipantResult | null;
@@ -129,9 +130,10 @@ export function OverviewTab({
                 Pontos Fortes
               </h3>
               {result.strengths.length === 0 && (
-                <div className="text-sm text-ink-muted">
-                  Sem dados suficientes ainda.
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Sem dados suficientes ainda"
+                />
               )}
               {result.strengths.map((s) => (
                 <div
@@ -157,9 +159,10 @@ export function OverviewTab({
                 Oportunidades de Desenvolvimento
               </h3>
               {result.gaps.length === 0 && (
-                <div className="text-sm text-ink-muted">
-                  Sem dados suficientes ainda.
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Sem dados suficientes ainda"
+                />
               )}
               {result.gaps.map((g) => (
                 <div

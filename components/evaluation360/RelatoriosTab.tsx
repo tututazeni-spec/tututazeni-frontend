@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const ALL = 'ALL';
 
@@ -410,9 +411,10 @@ export function RelatoriosTab() {
                 Principais pontos fortes
               </h3>
               {data.topStrengths.length === 0 && (
-                <div className="text-sm text-ink-muted">
-                  Sem dados suficientes ainda.
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Sem dados suficientes ainda"
+                />
               )}
               {data.topStrengths.map((c) => (
                 <div
@@ -433,9 +435,10 @@ export function RelatoriosTab() {
                 Principais lacunas
               </h3>
               {data.topGaps.length === 0 && (
-                <div className="text-sm text-ink-muted">
-                  Sem dados suficientes ainda.
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Sem dados suficientes ainda"
+                />
               )}
               {data.topGaps.map((c) => (
                 <div
@@ -459,9 +462,10 @@ export function RelatoriosTab() {
               Competências críticas (abaixo do nível esperado)
             </h3>
             {data.criticalCompetencies.length === 0 && (
-              <div className="text-sm text-ink-muted">
-                Nenhuma competência abaixo do nível esperado.
-              </div>
+              <EmptyState
+                variant="inline"
+                title="Nenhuma competência abaixo do nível esperado"
+              />
             )}
             {data.criticalCompetencies.map((c) => (
               <div
@@ -493,9 +497,7 @@ export function RelatoriosTab() {
               </span>
             </div>
             {data.pendingEvaluators.list.length === 0 ? (
-              <div className="px-5 py-4 text-sm text-ink-muted">
-                Sem avaliadores pendentes.
-              </div>
+              <EmptyState variant="inline" title="Sem avaliadores pendentes" />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse min-w-[700px]">

@@ -53,6 +53,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface CreateCycleModalProps {
   onClose: () => void;
@@ -386,9 +387,10 @@ export function CreateCycleModal({
             <div className="max-h-40 overflow-y-auto rounded-card border border-border p-2 space-y-1">
               {departmentsLoading && <Skeleton rows={3} />}
               {!departmentsLoading && departmentOptions.length === 0 && (
-                <div className="px-1 py-1 text-sm text-ink-muted">
-                  Nenhum departamento encontrado.
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Nenhum departamento encontrado"
+                />
               )}
               {departmentOptions.map((d) => (
                 <label
@@ -467,9 +469,10 @@ export function CreateCycleModal({
                 {competenciesLoading && <Skeleton rows={3} />}
                 {!competenciesLoading &&
                   (competencyCatalogue ?? []).length === 0 && (
-                    <div className="px-1 py-1 text-sm text-ink-muted">
-                      Nenhuma competência encontrada no catálogo.
-                    </div>
+                    <EmptyState
+                      variant="inline"
+                      title="Nenhuma competência encontrada no catálogo"
+                    />
                   )}
                 {(competencyCatalogue ?? []).map((c) => {
                   const selection = competencySelection[c.id];
