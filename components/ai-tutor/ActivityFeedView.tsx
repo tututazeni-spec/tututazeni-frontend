@@ -55,9 +55,7 @@ export function ActivityFeedView() {
           Perguntas realizadas
         </div>
         {data.questions.length === 0 ? (
-          <div className="px-4 py-4 font-body text-sm text-ink-faint">
-            Nenhuma ainda.
-          </div>
+          <EmptyState variant="inline" title="Nenhuma ainda" />
         ) : (
           data.questions.map((q) => (
             <div
@@ -81,9 +79,7 @@ export function ActivityFeedView() {
           Exercícios gerados
         </div>
         {data.exercises.length === 0 ? (
-          <div className="px-4 py-4 font-body text-sm text-ink-faint">
-            Nenhum ainda.
-          </div>
+          <EmptyState variant="inline" title="Nenhum ainda" />
         ) : (
           data.exercises.map((e) => (
             <div
@@ -112,9 +108,7 @@ export function ActivityFeedView() {
           Recomendações
         </div>
         {data.recommendations.length === 0 ? (
-          <div className="px-4 py-4 font-body text-sm text-ink-faint">
-            Nenhuma ainda.
-          </div>
+          <EmptyState variant="inline" title="Nenhuma ainda" />
         ) : (
           data.recommendations.map((r) => (
             <div
@@ -141,9 +135,7 @@ export function ActivityFeedView() {
           Conteúdos consultados
         </div>
         {data.sourcesConsulted.length === 0 ? (
-          <div className="px-4 py-4 font-body text-sm text-ink-faint">
-            Nenhum ainda.
-          </div>
+          <EmptyState variant="inline" title="Nenhum ainda" />
         ) : (
           data.sourcesConsulted.map((s, i) => (
             <div

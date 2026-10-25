@@ -18,6 +18,7 @@ import {
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AiTutorAnalytics } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function AnalyticsView() {
   const { data, isLoading: loading } = useApiQuery<AiTutorAnalytics>(
@@ -83,9 +84,7 @@ export function AnalyticsView() {
             Perguntas por curso
           </div>
           {data.perguntasPorCurso.length === 0 ? (
-            <div className="px-4 py-4 font-body text-sm text-ink-faint">
-              Sem dados ainda.
-            </div>
+            <EmptyState variant="inline" title="Sem dados ainda" />
           ) : (
             data.perguntasPorCurso.map((c, i) => (
               <div
@@ -112,9 +111,10 @@ export function AnalyticsView() {
             autorizadas — candidatas a lacunas de conteúdo.
           </p>
           {data.perguntasSemResposta.length === 0 ? (
-            <div className="px-4 py-4 font-body text-sm text-ink-faint">
-              Nenhuma pergunta repetida sem resposta autorizada.
-            </div>
+            <EmptyState
+              variant="inline"
+              title="Nenhuma pergunta repetida sem resposta autorizada"
+            />
           ) : (
             data.perguntasSemResposta.map((q, i) => (
               <div

@@ -26,6 +26,7 @@ import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AiTutorOverview } from './types';
 import { ADMIN_ROLES } from '@/lib/roles';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const PRIVILEGED_ROLES = new Set<string>(ADMIN_ROLES);
 
@@ -138,9 +139,10 @@ export function OverviewView() {
               Cursos mais utilizados
             </div>
             {(data.cursosMaisUtilizados ?? []).length === 0 ? (
-              <div className="px-4 py-4 font-body text-sm text-ink-faint">
-                Sem sessões associadas a cursos ainda.
-              </div>
+              <EmptyState
+                variant="inline"
+                title="Sem sessões associadas a cursos ainda"
+              />
             ) : (
               data.cursosMaisUtilizados!.map((c, i) => (
                 <div
@@ -168,9 +170,10 @@ export function OverviewView() {
               Temas com maior procura
             </div>
             {(data.temasMaisProcurados ?? []).length === 0 ? (
-              <div className="px-4 py-4 font-body text-sm text-ink-faint">
-                Sem dados de categoria suficientes ainda.
-              </div>
+              <EmptyState
+                variant="inline"
+                title="Sem dados de categoria suficientes ainda"
+              />
             ) : (
               data.temasMaisProcurados!.map((t, i) => (
                 <div
