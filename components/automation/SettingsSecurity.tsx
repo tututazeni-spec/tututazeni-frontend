@@ -307,9 +307,10 @@ function PublicationsSection() {
       {isLoading ? (
         <Skeleton rows={2} />
       ) : !data || data.length === 0 ? (
-        <p className="font-body text-sm text-ink-muted">
-          Nenhuma publicação à espera de aprovação.
-        </p>
+        <EmptyState
+          variant="inline"
+          title="Nenhuma publicação à espera de aprovação"
+        />
       ) : (
         <ul className="flex flex-col gap-2">
           {data.map((p) => (
@@ -489,9 +490,7 @@ function ConnectionsSection() {
       {isLoading ? (
         <Skeleton rows={2} />
       ) : rows.length === 0 ? (
-        <p className="font-body text-sm text-ink-muted">
-          Sem ligações configuradas.
-        </p>
+        <EmptyState variant="inline" title="Sem ligações configuradas" />
       ) : (
         <ul className="flex flex-col gap-2">
           {rows.map((c) => (
@@ -751,7 +750,7 @@ function AuditSection() {
       {isLoading ? (
         <Skeleton rows={3} />
       ) : rows.length === 0 ? (
-        <p className="font-body text-sm text-ink-muted">Sem registos.</p>
+        <EmptyState variant="inline" title="Sem registos" />
       ) : (
         <ul className="flex flex-col gap-2">
           {rows.map((r) => (

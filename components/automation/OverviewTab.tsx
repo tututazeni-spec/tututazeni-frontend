@@ -342,9 +342,10 @@ export function OverviewTab() {
                 </div>
                 <CardBody>
                   {(data?.failureCauses ?? []).length === 0 ? (
-                    <p className="font-body text-sm text-ink-faint">
-                      Sem falhas no período.
-                    </p>
+                    <EmptyState
+                      variant="inline"
+                      title="Sem falhas no período"
+                    />
                   ) : (
                     <BarChart
                       orientation="horizontal"

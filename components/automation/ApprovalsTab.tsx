@@ -578,9 +578,7 @@ function TaskModal({
                 Histórico de alterações
               </h4>
               {task.history.length === 0 ? (
-                <p className="font-body text-xs text-ink-muted">
-                  Sem registos.
-                </p>
+                <EmptyState variant="inline" title="Sem registos" />
               ) : (
                 <ol className="flex flex-col gap-2">
                   {task.history.map((h, i) => (
