@@ -21,9 +21,10 @@ export function Skeleton({
   itemClassName = 'h-12 bg-surface-sunken rounded-card',
 }: SkeletonProps) {
   return (
-    <div className={wrapperClassName}>
+    <div className={wrapperClassName} role="status" aria-busy="true">
+      <span className="sr-only">A carregar…</span>
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className={itemClassName} />
+        <div key={i} aria-hidden className={itemClassName} />
       ))}
     </div>
   );
