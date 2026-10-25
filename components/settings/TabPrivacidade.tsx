@@ -31,6 +31,7 @@ import type {
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateNumeric } from '@/lib/format';
 
 const DSR_TYPE_LABELS: Record<DsrType, string> = {
   ACCESS: 'Acesso',
@@ -449,7 +450,7 @@ export function TabPrivacidade() {
                       </Badge>
                     </td>
                     <td>
-                      {new Date(r.requestedAt).toLocaleDateString('pt-PT')}
+                      {formatDateNumeric(r.requestedAt)}
                     </td>
                     <td className="text-right">
                       {r.status !== 'COMPLETED' && r.status !== 'REJECTED' && (

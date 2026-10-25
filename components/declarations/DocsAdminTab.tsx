@@ -20,6 +20,7 @@ import {
 import { KpiCard } from './KpiCard';
 import { StatusBadge } from './StatusBadge';
 import type { DashboardData, DocRequest } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 export interface DocsAdminTabProps {
   docDash: DashboardData | null;
@@ -101,7 +102,7 @@ export function DocsAdminTab({
                   <StatusBadge status={d.status} type="doc" />
                 </TableCell>
                 <TableCell className="font-body text-xs text-ink-faint">
-                  {new Date(d.createdAt).toLocaleDateString('pt-PT')}
+                  {formatDateNumeric(d.createdAt)}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">

@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from './shared';
+import { formatDateNumeric } from '@/lib/format';
 
 interface DeletedCourse {
   id: number;
@@ -68,7 +69,7 @@ export function RecycleBinView() {
                 <p className="text-xs text-ink-muted">
                   {c.category ? `${c.category} · ` : ''}
                   {c._count.modules} módulos · eliminado em{' '}
-                  {new Date(c.deletedAt).toLocaleDateString('pt-PT')} ·{' '}
+                  {formatDateNumeric(c.deletedAt)} ·{' '}
                   {c.daysLeft === 1
                     ? 'resta 1 dia'
                     : `restam ${c.daysLeft} dias`}

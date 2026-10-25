@@ -11,8 +11,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useSettingsHistory } from '@/hooks/useLeave';
 import { SETTING_LABELS } from './settingsMeta';
+import { formatDateNumeric } from '@/lib/format';
 
-const fmt = (iso: string) => new Date(iso).toLocaleDateString('pt-PT');
 const fmtTime = (iso: string) =>
   new Date(iso).toLocaleString('pt-PT', {
     dateStyle: 'short',
@@ -50,8 +50,8 @@ export function SettingsHistoryPanel() {
                 }
               >
                 {h.scheduled
-                  ? `Agendada para ${fmt(h.effectiveFrom)}`
-                  : `Em vigor desde ${fmt(h.effectiveFrom)}`}
+                  ? `Agendada para ${formatDateNumeric(h.effectiveFrom)}`
+                  : `Em vigor desde ${formatDateNumeric(h.effectiveFrom)}`}
               </span>
             </div>
             <p className="mt-1 text-xs text-ink-faint">

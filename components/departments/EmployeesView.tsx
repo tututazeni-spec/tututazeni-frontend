@@ -34,6 +34,7 @@ import {
 import type { DepartmentNode, PaginatedEmployees } from './types';
 import { NativeSelect } from '@/components/ui/NativeSelect';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateNumeric } from '@/lib/format';
 
 function flattenTree(
   nodes: DepartmentNode[],
@@ -43,10 +44,6 @@ function flattenTree(
     { value: String(n.id), label: `${'— '.repeat(depth)}${n.name}` },
     ...flattenTree(n.children ?? [], depth + 1),
   ]);
-}
-
-function fmtDate(value: string | null) {
-  return value ? new Date(value).toLocaleDateString('pt-AO') : '—';
 }
 
 function contractLabel(value: string | null) {
@@ -300,7 +297,7 @@ export function EmployeesView() {
                     {contractLabel(u.contractType)}
                   </TableCell>
                   <TableCell className="text-xs text-ink-muted">
-                    {fmtDate(u.hireDate)}
+                    {formatDateNumeric(u.hireDate)}
                   </TableCell>
                   <TableCell>
                     <Badge intent={u.active ? 'success' : 'neutral'}>

@@ -37,10 +37,7 @@ import type {
   CorrelationRow,
   CorrelationType,
 } from './types';
-
-function fmtDate(v: string | null): string {
-  return v ? new Date(v).toLocaleDateString('pt-PT') : '—';
-}
+import { formatDateNumeric } from '@/lib/format';
 
 export function CorrelationsTab() {
   const notify = useToast();
@@ -180,11 +177,11 @@ export function CorrelationsTab() {
                       <TableCell>
                         <p className="text-ink">{c.label}</p>
                         <p className="text-xs text-ink-faint">
-                          {fmtDate(c.createdAt)}
+                          {formatDateNumeric(c.createdAt)}
                         </p>
                       </TableCell>
                       <TableCell className="text-xs">
-                        {fmtDate(c.periodStart)} — {fmtDate(c.periodEnd)}
+                        {formatDateNumeric(c.periodStart)} — {formatDateNumeric(c.periodEnd)}
                       </TableCell>
                       <TableCell>{c.sampleSize}</TableCell>
                       <TableCell>

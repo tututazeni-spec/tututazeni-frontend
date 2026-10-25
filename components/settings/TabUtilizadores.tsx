@@ -23,6 +23,7 @@ import type { InactiveUsersResult, UserPolicy, UsersOverview } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateNumeric } from '@/lib/format';
 
 const FIELD_LABELS: Record<string, string> = {
   phone: 'Telefone',
@@ -369,7 +370,7 @@ export function TabUtilizadores() {
                     <td>{u.role?.name ?? '—'}</td>
                     <td>
                       {u.lastLoginAt
-                        ? new Date(u.lastLoginAt).toLocaleDateString('pt-PT')
+                        ? formatDateNumeric(u.lastLoginAt)
                         : 'Nunca'}
                     </td>
                     <td className="text-right">

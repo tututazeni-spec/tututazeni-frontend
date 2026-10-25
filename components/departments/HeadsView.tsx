@@ -27,6 +27,7 @@ import {
 import { ChangeHeadModal } from './ChangeHeadModal';
 import { departmentIcon } from './departmentIcon';
 import type { HeadHistoryRow, HeadRow } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 type SubTab = 'current' | 'history';
 
@@ -35,10 +36,6 @@ const STATUS_LABEL: Record<string, string> = {
   INACTIVE: 'Inactivo',
   ARCHIVED: 'Arquivado',
 };
-
-function fmtDate(value: string | null) {
-  return value ? new Date(value).toLocaleDateString('pt-AO') : '—';
-}
 
 export function HeadsView() {
   const [subTab, setSubTab] = useState<SubTab>('current');
@@ -167,7 +164,7 @@ export function HeadsView() {
                         {row.deputyHead?.fullName ?? '—'}
                       </TableCell>
                       <TableCell className="whitespace-nowrap text-xs text-ink-muted">
-                        {fmtDate(row.startedAt)}
+                        {formatDateNumeric(row.startedAt)}
                       </TableCell>
                       <TableCell>
                         <Badge intent={row.active ? 'success' : 'neutral'}>
@@ -250,7 +247,7 @@ export function HeadsView() {
                         {h.newHead.fullName}
                       </TableCell>
                       <TableCell className="text-xs text-ink-muted">
-                        {fmtDate(h.changedAt)}
+                        {formatDateNumeric(h.changedAt)}
                       </TableCell>
                       <TableCell className="text-sm text-ink-muted">
                         {h.reason ?? '—'}

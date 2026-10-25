@@ -14,14 +14,11 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ScatterPlot } from './ScatterPlot';
 import { correlationStrengthLabel } from './utils';
 import type { CorrelationDetail } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 export interface CorrelationDetailModalProps {
   id: number;
   onClose: () => void;
-}
-
-function fmtDate(v: string | null): string {
-  return v ? new Date(v).toLocaleDateString('pt-PT') : '—';
 }
 
 export function CorrelationDetailModal({
@@ -53,7 +50,7 @@ export function CorrelationDetailModal({
               <div>
                 <p className="text-ink-faint text-micro">Período</p>
                 <p className="text-ink">
-                  {fmtDate(data.periodStart)} — {fmtDate(data.periodEnd)}
+                  {formatDateNumeric(data.periodStart)} — {formatDateNumeric(data.periodEnd)}
                 </p>
               </div>
               <div>

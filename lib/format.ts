@@ -86,3 +86,57 @@ export function formatKz(value: number | null | undefined): string {
     .replace('Kz', 'AOA')
     .trim();
 }
+
+/**
+ * Data numérica curta (ex: "05/03/2024"). Valores nulos/vazios devolvem '—'.
+ * Substitui os `new Date(x).toLocaleDateString('pt-PT')` espalhados pelos módulos.
+ */
+export function formatDateNumeric(
+  value: string | Date | null | undefined,
+  opts?: Intl.DateTimeFormatOptions,
+): string {
+  return formatDate(value, { month: '2-digit', ...opts });
+}
+
+/**
+ * Tempo relativo com granularidade de minutos — "agora mesmo", "há 5min", "há 3h",
+ * "há 2 dias". Valores nulos/vazios devolvem '—'.
+ */
+export function timeAgo(value: string | Date | null | undefined): string {
+  if (!value) return '—';
+  const diff = Date.now() - new Date(value).getTime();
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return 'agora mesmo';
+  if (min < 60) return `há ${min}min`;
+  const hours = Math.floor(min / 60);
+  if (hours < 24) return `há ${hours}h`;
+  return `há ${Math.floor(hours / 24)} dias`;
+}
+
+/**
+ * Tempo relativo com granularidade de dias — "hoje", "ontem", "há N dias".
+ * Com `maxDays`, a partir desse número de dias mostra a data (formatDate).
+ */
+export function daysAgo(
+  value: string | Date | null | undefined,
+  opts: { maxDays?: number } = {},
+): string {
+  if (!value) return '—';
+  const days = Math.floor((Date.now() - new Date(value).getTime()) / 86_400_000);
+  if (opts.maxDays !== undefined && days >= opts.maxDays) return formatDate(value);
+  if (days <= 0) return 'hoje';
+  if (days === 1) return 'ontem';
+  return `há ${days} dias`;
+}
+
+/**
+ * Tamanho de ficheiro legível — "512 B", "1.5 KB", "2.0 MB", "1.25 GB".
+ * `null`/`undefined` devolvem '—'.
+ */
+export function formatBytes(bytes: number | null | undefined): string {
+  if (bytes === null || bytes === undefined) return '—';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 ** 2) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+  return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+}

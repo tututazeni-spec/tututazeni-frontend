@@ -26,11 +26,11 @@ import { Textarea } from '@/components/ui/Textarea';
 import { cn } from '@/lib/cn';
 import {
   ACCEPT_ATTR,
-  formatBytes,
   readAsDataUrl,
   validateUpload,
 } from './inlineFile';
 import { useToast } from '@/providers/ToastProvider';
+import { formatBytes } from '@/lib/format';
 
 export interface AddContentModalProps {
   onClose: () => void;

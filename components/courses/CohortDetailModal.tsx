@@ -24,14 +24,11 @@ import { CohortDepartmentPicker } from './CohortDepartmentPicker';
 import { CohortInfoEditor } from './CohortInfoEditor';
 import { Skeleton } from './shared';
 import type { CohortAttendanceEntry, CohortDetail } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 export interface CohortDetailModalProps {
   cohortId: number;
   onClose: () => void;
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('pt-PT');
 }
 
 function todayISO() {
@@ -280,8 +277,8 @@ export function CohortDetailModal({
             ) : (
               <div className="-mt-3 flex items-center justify-between text-sm text-ink-muted">
                 <span>
-                  {formatDate(cohort.startDate)}
-                  {cohort.endDate ? ` → ${formatDate(cohort.endDate)}` : ''}
+                  {formatDateNumeric(cohort.startDate)}
+                  {cohort.endDate ? ` → ${formatDateNumeric(cohort.endDate)}` : ''}
                 </span>
                 <Button
                   size="sm"

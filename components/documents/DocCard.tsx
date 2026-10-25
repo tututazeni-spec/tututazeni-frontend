@@ -18,8 +18,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { CATEGORY_CONFIG, SENSITIVITY_CONFIG, getFileIcon } from './constants';
-import { formatBytes } from './utils';
+import { formatBytes } from '@/lib/format';
 import type { Document } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 interface DocCardProps {
   doc: Document;
@@ -117,7 +118,7 @@ export function DocCard({ doc, onView, onDownload }: DocCardProps) {
           <AlertCircle size={11} strokeWidth={1.75} />
           {isExpired
             ? 'Expirado'
-            : `Expira ${new Date(doc.expiresAt!).toLocaleDateString('pt-PT')}`}
+            : `Expira ${formatDateNumeric(doc.expiresAt!)}`}
         </div>
       )}
 

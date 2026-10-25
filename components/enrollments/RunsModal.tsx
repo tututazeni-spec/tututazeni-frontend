@@ -7,6 +7,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateNumeric } from '@/lib/format';
 
 interface RunCertificate {
   id: number;
@@ -35,9 +36,6 @@ const REASON_LABEL: Record<EnrollmentRunRow['reason'], string> = {
   EXPIRY_AUTO: 'Reciclagem automática',
   MANUAL: 'Reciclagem iniciada pelo RH',
 };
-
-const fmt = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleDateString('pt-PT') : '—';
 
 /** Estado legível de um certificado: o vigente destaca-se dos históricos. */
 export function certificateLabel(c: RunCertificate, now = Date.now()): string {
@@ -94,12 +92,12 @@ export function RunsModal({ enrollmentId, title, onClose }: RunsModalProps) {
                     Realização {run.cycle} · {REASON_LABEL[run.reason]}
                   </p>
                   <p className="text-ink-muted">
-                    {fmt(run.startedAt)} →{' '}
-                    {run.closedAt ? fmt(run.closedAt) : 'em curso'}
+                    {formatDateNumeric(run.startedAt)} →{' '}
+                    {run.closedAt ? formatDateNumeric(run.closedAt) : 'em curso'}
                   </p>
                 </div>
                 <p className="mt-1 text-ink-muted">
-                  Concluída: {fmt(run.completedAt)}
+                  Concluída: {formatDateNumeric(run.completedAt)}
                   {run.lessons.length > 0 &&
                     ` · ${run.lessonsCompleted}/${run.lessons.length} aulas`}
                 </p>
@@ -114,8 +112,8 @@ export function RunsModal({ enrollmentId, title, onClose }: RunsModalProps) {
                       >
                         <span className="text-ink">
                           Certificado {c.code ?? `#${c.id}`} · emitido{' '}
-                          {fmt(c.issuedAt)}
-                          {c.expiresAt && ` · validade ${fmt(c.expiresAt)}`}
+                          {formatDateNumeric(c.issuedAt)}
+                          {c.expiresAt && ` · validade ${formatDateNumeric(c.expiresAt)}`}
                         </span>
                         <span
                           className={

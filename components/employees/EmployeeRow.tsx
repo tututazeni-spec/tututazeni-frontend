@@ -9,6 +9,7 @@ import { IconButton } from '@/components/ui/Button';
 import { TableCell, TableRow } from '@/components/ui/Table';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { SENIORITY_LABELS, STATUS_MAP } from './constants';
+import { formatDateNumeric } from '@/lib/format';
 
 export interface EmployeeRowProps {
   employee: Employee;
@@ -51,7 +52,7 @@ export function EmployeeRow({ employee, onView, onEdit }: EmployeeRowProps) {
       </TableCell>
       <TableCell>
         <p className="text-xs text-ink-muted">
-          {new Date(employee.joinedAt).toLocaleDateString('pt-BR')}
+          {formatDateNumeric(employee.joinedAt)}
         </p>
       </TableCell>
       <TableCell>

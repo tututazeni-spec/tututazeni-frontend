@@ -9,6 +9,7 @@ import { cn } from '@/lib/cn';
 import { Card } from '@/components/ui/Card';
 import { GOAL_TYPE_ICONS, GOAL_TYPE_LABELS } from './constants';
 import type { CareerGoal } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 interface GoalCardProps {
   goal: CareerGoal;
@@ -77,7 +78,7 @@ export function GoalCard({ goal, onUpdateProgress }: GoalCardProps) {
                   isOverdue ? 'font-medium text-danger' : 'text-ink-faint',
                 )}
               >
-                · {new Date(goal.dueDate).toLocaleDateString('pt-PT')}
+                · {formatDateNumeric(goal.dueDate)}
                 {isOverdue && (
                   <>
                     {' '}

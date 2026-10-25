@@ -11,8 +11,9 @@ import { Badge } from '@/components/ui/Badge';
 import { IconButton } from '@/components/ui/Button';
 import { TableCell, TableRow } from '@/components/ui/Table';
 import { CATEGORY_CONFIG, getFileIcon } from './constants';
-import { formatBytes } from './utils';
+import { formatBytes } from '@/lib/format';
 import type { Document } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 interface DocRowProps {
   doc: Document;
@@ -67,12 +68,12 @@ export function DocRow({ doc, onView, onDownload }: DocRowProps) {
           <span className="text-danger font-medium">Expirado</span>
         ) : isExpiring ? (
           <span className="text-warning-ink font-medium">
-            {new Date(doc.expiresAt!).toLocaleDateString('pt-PT')}
+            {formatDateNumeric(doc.expiresAt!)}
           </span>
         ) : (
           <span className="text-ink-faint">
             {doc.expiresAt
-              ? new Date(doc.expiresAt).toLocaleDateString('pt-PT')
+              ? formatDateNumeric(doc.expiresAt)
               : '—'}
           </span>
         )}

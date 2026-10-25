@@ -23,6 +23,7 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import type { ComplianceData, DocumentsDashboardData } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 const RISK_LABEL: Record<string, string> = {
   HIGH: 'Risco Alto',
@@ -102,7 +103,7 @@ export function CompliancePanel() {
                   </p>
                 </div>
                 <Badge intent="info" dot={false}>
-                  {new Date(c.issuedAt).toLocaleDateString('pt-PT')}
+                  {formatDateNumeric(c.issuedAt)}
                 </Badge>
               </div>
             ))}

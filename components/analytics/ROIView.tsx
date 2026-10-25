@@ -21,6 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { TrainingROI } from './types';
+import { formatDateNumeric } from '@/lib/format';
 
 export function ROIView() {
   const { data, isLoading } = useApiQuery<TrainingROI>(
@@ -83,7 +84,7 @@ export function ROIView() {
                 <TableCell>{imp.metric}</TableCell>
                 <TableCell>{imp.impactRate}%</TableCell>
                 <TableCell>
-                  {new Date(imp.calculatedAt).toLocaleDateString('pt-PT')}
+                  {formatDateNumeric(imp.calculatedAt)}
                 </TableCell>
               </TableRow>
             ))}

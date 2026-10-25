@@ -15,17 +15,7 @@ import type { NotifData, Notification } from './types';
 import type { ReadFilter } from '@/hooks/useNotificationsInbox';
 import { safeHref } from '@/lib/safeHref';
 import { NativeSelect } from '@/components/ui/NativeSelect';
-
-function timeAgo(d: string): string {
-  const diff = Date.now() - new Date(d).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return 'agora mesmo';
-  if (m < 60) return `há ${m}min`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `há ${h}h`;
-  const days = Math.floor(h / 24);
-  return `há ${days} dias`;
-}
+import { timeAgo } from '@/lib/format';
 
 const READ_FILTERS: Array<{ id: ReadFilter; label: string }> = [
   { id: 'all', label: 'Todas' },

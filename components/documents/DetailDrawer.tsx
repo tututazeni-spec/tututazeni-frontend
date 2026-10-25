@@ -42,12 +42,13 @@ import {
   useRejectDocument,
   useToggleFavorite,
 } from './hooks';
-import { formatBytes } from './utils';
+import { formatBytes } from '@/lib/format';
 import type { Document, DocVersionRow } from './types';
 import { ADMIN_RH_GESTOR_ROLES } from '@/lib/roles';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { formatDateNumeric } from '@/lib/format';
 
 interface DetailDrawerProps {
   doc: Document;
@@ -183,13 +184,13 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
             {
               label: 'Validade',
               value: doc.expiresAt
-                ? new Date(doc.expiresAt).toLocaleDateString('pt-PT')
+                ? formatDateNumeric(doc.expiresAt)
                 : '—',
             },
             {
               label: 'Retenção legal',
               value: doc.retentionUntil
-                ? new Date(doc.retentionUntil).toLocaleDateString('pt-PT')
+                ? formatDateNumeric(doc.retentionUntil)
                 : '—',
             },
             {
@@ -370,7 +371,7 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
                       <div className="flex justify-between font-medium text-ink">
                         <span>v{v.versionNumber}.0</span>
                         <span className="text-ink-faint">
-                          {new Date(v.createdAt).toLocaleDateString('pt-PT')}
+                          {formatDateNumeric(v.createdAt)}
                         </span>
                       </div>
                       <p className="text-ink-muted mt-0.5">
