@@ -21,6 +21,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { useDepartmentOptions } from './runData';
 import type { PayrollRun } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const OPTION_FIELDS = [
   ['includeNewEmployees', 'Incluir novos colaboradores'],
@@ -205,9 +206,7 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
                   />
                 </div>
               ) : depOptions.length === 0 ? (
-                <div className="px-3 py-6 text-center font-body text-sm text-ink-faint">
-                  Sem departamentos.
-                </div>
+                <EmptyState variant="inline" title="Sem departamentos" />
               ) : (
                 depOptions.map((d) => (
                   <label

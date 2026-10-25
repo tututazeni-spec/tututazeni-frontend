@@ -18,6 +18,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
 import { LinkButton } from '@/components/ui/LinkButton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface CreatePayslipModalProps {
   onClose: () => void;
@@ -153,9 +154,10 @@ export function CreatePayslipModal({
                       </div>
                     )}
                     {!loading && users.length === 0 && (
-                      <div className="px-3 py-2 font-body text-sm text-ink-muted">
-                        Nenhum colaborador encontrado
-                      </div>
+                      <EmptyState
+                        variant="inline"
+                        title="Nenhum colaborador encontrado"
+                      />
                     )}
                     {users.map((u) => (
                       <button
