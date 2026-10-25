@@ -47,7 +47,7 @@ export interface HeaderProps {
 export function Header({ title, sub, banner = false }: HeaderProps) {
   if (banner)
     return (
-      <div className="rounded-card bg-[#0F1F3D]/60 px-5 py-3 text-white">
+      <div className="rounded-card bg-brand/60 px-5 py-3 text-white">
         <h2 className="font-display text-lg font-bold">{title}</h2>
         {sub && <p className="mt-1 font-body text-sm text-white/80">{sub}</p>}
       </div>
@@ -63,7 +63,7 @@ export function Header({ title, sub, banner = false }: HeaderProps) {
 /** Cabeçalho de card: #0F1F3D a 60%, letra branca, sem efeito de cursor. */
 export function CardTitleBar({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="flex items-center bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+    <h3 className="flex items-center bg-brand/60 px-5 py-3 font-body text-sm font-semibold text-white">
       {children}
     </h3>
   );
@@ -274,7 +274,7 @@ export function CapacityTab({
         <CardBody>
           <table className="w-full font-body text-sm">
             <thead>
-              <tr className="bg-[#0F1F3D]/60 text-left text-xs text-white">
+              <tr className="bg-brand/60 text-left text-xs text-white">
                 <th className="rounded-l-card px-3 py-2.5 font-semibold">
                   Recurso
                 </th>

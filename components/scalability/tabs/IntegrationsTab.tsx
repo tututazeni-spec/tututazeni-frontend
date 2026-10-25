@@ -103,7 +103,7 @@ function IntegrationMetrics({ m }: { m: IntegrationMetricsData }) {
         />
       </div>
       <Card className="overflow-hidden">
-        <h3 className="flex items-center bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+        <h3 className="flex items-center bg-brand/60 px-5 py-3 font-body text-sm font-semibold text-white">
           Por integração
         </h3>
         <CardBody>

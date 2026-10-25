@@ -276,7 +276,7 @@ export function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
       </Card>
 
       {/* §9 Crescimento da base de dados */}
-      <div className="overflow-hidden rounded-card bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] px-5 py-3 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="overflow-hidden rounded-card bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] px-5 py-3 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="flex items-center gap-3">
           <Database
             className="h-6 w-6 shrink-0 text-[#7CC4FF]"

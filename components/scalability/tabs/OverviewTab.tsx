@@ -85,7 +85,7 @@ function CapacityIndicator({
   const circ = 2 * Math.PI * r;
 
   return (
-    <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+    <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
       <div className="mb-2 flex items-center gap-3">
         <Server className="h-6 w-6" strokeWidth={1.8} aria-hidden />
         <h3 className="font-display text-base font-bold uppercase tracking-wide">

@@ -50,7 +50,7 @@ export function AlertsTab({ alerts, onResolve }: AlertsTabProps) {
               className={cn(
                 'flex items-center justify-center gap-2 rounded-control px-3 py-1 font-body text-xs font-medium transition-colors',
                 filter === f.key
-                  ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                  ? 'bg-brand text-canvas shadow-sm'
                   : 'text-ink-muted hover:bg-surface-sunken hover:text-ink',
               )}
             >

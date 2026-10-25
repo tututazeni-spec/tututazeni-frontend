@@ -498,7 +498,7 @@ export function IncidentsTab({
             aria-pressed={filter === id}
             className={`inline-flex items-center justify-center gap-2 rounded-control px-[18px] py-[9px] font-body text-sm font-semibold transition-colors ${
               filter === id
-                ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                ? 'bg-brand text-canvas shadow-sm'
                 : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
             }`}
           >
@@ -531,9 +531,7 @@ export function IncidentsTab({
                     <th className="py-1.5 text-right font-semibold">
                       Afectados
                     </th>
-                    <th className="py-1.5 text-right font-semibold">
-                      Duração
-                    </th>
+                    <th className="py-1.5 text-right font-semibold">Duração</th>
                     <th className="py-1.5 pl-4 font-semibold">Responsável</th>
                   </tr>
                 </thead>
@@ -713,8 +711,8 @@ export function ForecastsTab({
             data.users.in12Months !== null && (
               <p className="mt-2 font-body text-sm text-ink-muted">
                 Utilizadores actuais: {fmt(data.users.current, 0)} · Crescimento
-                médio mensal: {fmt(data.users.monthlyGrowthPercent)}% ·
-                Previsão 12 meses: ~{fmt(data.users.in12Months, 0)}
+                médio mensal: {fmt(data.users.monthlyGrowthPercent)}% · Previsão
+                12 meses: ~{fmt(data.users.in12Months, 0)}
               </p>
             )}
         </CardBody>
@@ -742,15 +740,23 @@ export function ForecastsTab({
           <div className="overflow-x-auto">
             <table className="w-full font-body text-sm">
               <thead>
-                <tr className="bg-[#0F1F3D]/60 text-left text-xs text-white">
-                  <th className="rounded-l-card px-3 py-2.5 font-semibold">Recurso</th>
-                  <th className="px-3 py-2.5 text-right font-semibold">Actual</th>
+                <tr className="bg-brand/60 text-left text-xs text-white">
+                  <th className="rounded-l-card px-3 py-2.5 font-semibold">
+                    Recurso
+                  </th>
+                  <th className="px-3 py-2.5 text-right font-semibold">
+                    Actual
+                  </th>
                   <th className="px-3 py-2.5 text-right font-semibold">+3 m</th>
                   <th className="px-3 py-2.5 text-right font-semibold">+6 m</th>
-                  <th className="px-3 py-2.5 text-right font-semibold">+12 m</th>
+                  <th className="px-3 py-2.5 text-right font-semibold">
+                    +12 m
+                  </th>
                   <th className="px-3 py-2.5 font-semibold">80% em</th>
                   <th className="px-3 py-2.5 font-semibold">100% em</th>
-                  <th className="rounded-r-card px-3 py-2.5 font-semibold">Confiança</th>
+                  <th className="rounded-r-card px-3 py-2.5 font-semibold">
+                    Confiança
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -855,9 +861,8 @@ export function ForecastsTab({
             )}
           </div>
           <p className="mt-2 font-body text-xs text-ink-faint">
-            O Postgres não expõe o espaço de disco disponível — sem este valor
-            a previsão da BD mostra o crescimento mas não a data de
-            esgotamento.
+            O Postgres não expõe o espaço de disco disponível — sem este valor a
+            previsão da BD mostra o crescimento mas não a data de esgotamento.
           </p>
         </CardBody>
       </Card>

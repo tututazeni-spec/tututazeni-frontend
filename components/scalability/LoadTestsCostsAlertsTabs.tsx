@@ -578,7 +578,7 @@ export function LoadTestsTab({
             aria-pressed={typeFilter === t.value}
             className={`inline-flex items-center justify-center rounded-control px-3 py-1.5 font-body text-xs font-semibold transition-colors ${
               typeFilter === t.value
-                ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                ? 'bg-brand text-canvas shadow-sm'
                 : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
             }`}
           >
@@ -1073,7 +1073,7 @@ export function AlertRulesSection({
             intent="secondary"
             onClick={onEvaluate}
             disabled={evaluating}
-            className="border-[#0F1F3D] bg-[#0F1F3D] text-white transition-colors duration-200 hover:border-[#0F1F3D] hover:bg-white hover:text-[#0F1F3D]"
+            className="border-brand bg-brand text-white transition-colors duration-200 hover:border-brand hover:bg-white hover:text-brand"
           >
             {evaluating ? 'A avaliar…' : 'Avaliar agora'}
           </Button>

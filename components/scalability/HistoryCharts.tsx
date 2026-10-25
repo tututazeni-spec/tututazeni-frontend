@@ -66,7 +66,7 @@ function Windowed({
         <Header title={title} sub={sub} />
         <select
           aria-label={`Janela de ${title}`}
-          className="rounded-md border border-line bg-surface px-2 py-1 font-body text-sm text-ink"
+          className="rounded-control border border-line bg-surface px-2 py-1 font-body text-sm text-ink"
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
         >
@@ -202,7 +202,7 @@ export function EndpointHistoryChart() {
         <div className="flex flex-col gap-3">
           <select
             aria-label="Endpoint"
-            className="max-w-full self-start rounded-md border border-line bg-surface px-2 py-1 font-body text-sm text-ink"
+            className="max-w-full self-start rounded-control border border-line bg-surface px-2 py-1 font-body text-sm text-ink"
             value={selected}
             onChange={(e) => setEndpoint(e.target.value)}
           >
