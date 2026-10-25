@@ -52,6 +52,7 @@ import type {
   AuditServiceStatus,
   RetentionPreview,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const RETENTION_LABELS: Record<string, string> = {
   ACCESS: 'Acessos e sessões',
@@ -390,8 +391,7 @@ export function PoliciesView() {
       <Section title="Serviço e eventos registados" icon={ServerCog}>
         <div className="space-y-4">
           <label className="flex items-center gap-2 font-body text-sm text-brand">
-            <input
-              type="checkbox"
+            <Checkbox
               disabled={!canEdit}
               checked={form.serviceEnabled}
               onChange={(e) => set({ serviceEnabled: e.target.checked })}
@@ -644,8 +644,7 @@ export function PoliciesView() {
             />
           </div>
           <label className="flex items-center gap-2 font-body text-sm text-brand">
-            <input
-              type="checkbox"
+            <Checkbox
               disabled={!canEdit}
               checked={form.maskSensitive}
               onChange={(e) => set({ maskSensitive: e.target.checked })}

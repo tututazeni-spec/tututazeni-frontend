@@ -31,6 +31,7 @@ import { STATUS_CFG, actionLabel, entityLabel } from './constants';
 import { EventDetailModal } from './EventDetailModal';
 import { LogRow } from './LogRow';
 import type { AuditFilterOptions, AuditLog, Paginated } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const EMPTY = {
   search: '',
@@ -256,11 +257,9 @@ export function LogsView() {
               />
             </label>
             <label className="flex cursor-pointer items-center gap-2 font-body text-sm text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={filters.criticalOnly}
                 onChange={(e) => set({ criticalOnly: e.target.checked })}
-                className="rounded accent-primary"
               />
               Só críticos
             </label>
