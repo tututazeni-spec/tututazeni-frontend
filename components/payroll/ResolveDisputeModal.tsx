@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface ResolveDisputeModalProps {
   disputeId: number;
@@ -76,8 +77,7 @@ export function ResolveDisputeModal({
             />
           </div>
           <label className="flex items-start gap-2 font-body text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={reissue}
               onChange={(e) => setReissue(e.target.checked)}
               className="mt-0.5"

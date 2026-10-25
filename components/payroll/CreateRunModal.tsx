@@ -20,6 +20,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/providers/ToastProvider';
 import { useDepartmentOptions } from './runData';
 import type { PayrollRun } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const OPTION_FIELDS = [
   ['includeNewEmployees', 'Incluir novos colaboradores'],
@@ -163,8 +164,7 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
                   key={key}
                   className="flex cursor-pointer items-center gap-2 py-1"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={options[key]}
                     onChange={(e) =>
                       setOptions((prev) => ({
@@ -172,7 +172,6 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
                         [key]: e.target.checked,
                       }))
                     }
-                    className="h-4 w-4 rounded border-border-strong accent-primary"
                   />
                   <span className="font-body text-sm text-ink">{label}</span>
                 </label>
@@ -215,11 +214,9 @@ export function CreateRunModal({ onClose, onCreated }: CreateRunModalProps) {
                     key={d.value}
                     className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-surface-sunken"
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={depIds.has(d.value)}
                       onChange={() => toggleDep(d.value)}
-                      className="h-4 w-4 rounded border-border-strong accent-primary"
                     />
                     <span className="font-body text-sm text-ink">
                       {d.label}
