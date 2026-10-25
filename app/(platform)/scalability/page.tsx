@@ -88,7 +88,7 @@ export default function ScalabilityPage() {
     return (
       <div className="min-h-screen bg-canvas px-6 py-6">
         <Skeleton
-          wrapperClassName="mx-auto max-w-7xl space-y-4 animate-pulse"
+          wrapperClassName="mx-auto max-w-7xl space-y-4"
           itemClassName="h-20 bg-surface-sunken rounded-panel"
           rows={4}
         />
