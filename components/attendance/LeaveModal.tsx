@@ -13,6 +13,9 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { required } from '@/lib/validation';
 import { LEAVE_LABELS } from './constants';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { NativeSelect } from '@/components/ui/NativeSelect';
+import { Input } from '@/components/ui/Input';
 
 interface LeaveModalProps {
   onClose: () => void;
@@ -90,17 +93,17 @@ export function LeaveModal({ onClose, onSuccess }: LeaveModalProps) {
             <label className="block text-xs font-medium text-ink-muted mb-1">
               Tipo de Licença
             </label>
-            <select
+            <NativeSelect
               value={form.type}
               onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
-              className="w-full px-3 py-2.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary bg-surface"
+              className="w-full"
             >
               {Object.entries(LEAVE_LABELS).map(([k, v]) => (
                 <option key={k} value={k}>
                   {v}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -108,26 +111,26 @@ export function LeaveModal({ onClose, onSuccess }: LeaveModalProps) {
               <label className="block text-xs font-medium text-ink-muted mb-1">
                 Início <span className="text-danger">*</span>
               </label>
-              <input
+              <Input
                 type="date"
                 value={form.startDate}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, startDate: e.target.value }))
                 }
-                className="w-full px-3 py-2.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-ink-muted mb-1">
                 Fim <span className="text-danger">*</span>
               </label>
-              <input
+              <Input
                 type="date"
                 value={form.endDate}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, endDate: e.target.value }))
                 }
-                className="w-full px-3 py-2.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full"
               />
             </div>
           </div>
@@ -148,13 +151,11 @@ export function LeaveModal({ onClose, onSuccess }: LeaveModalProps) {
           </div>
 
           <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={form.halfDay}
               onChange={(e) =>
                 setForm((f) => ({ ...f, halfDay: e.target.checked }))
               }
-              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
             />
             <span className="text-sm text-ink">Meio período</span>
           </label>

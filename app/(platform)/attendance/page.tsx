@@ -33,6 +33,7 @@ import {
   useLeaveBalance,
   useMyAttendance,
 } from '@/components/attendance/hooks';
+import { Input } from '@/components/ui/Input';
 
 type TabKey = 'overview' | 'my' | 'team' | 'leaves';
 
@@ -154,22 +155,20 @@ export default function AttendancePage() {
                 {/* Period selector */}
                 <div className="flex items-center gap-3 bg-surface rounded-panel border border-border shadow-sm p-4">
                   <span className="text-sm text-ink-muted">Período:</span>
-                  <input
+                  <Input
                     type="date"
                     value={period.from}
                     onChange={(e) =>
                       setPeriod((p) => ({ ...p, from: e.target.value }))
                     }
-                    className="px-3 py-1.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <span className="text-ink-muted">→</span>
-                  <input
+                  <Input
                     type="date"
                     value={period.to}
                     onChange={(e) =>
                       setPeriod((p) => ({ ...p, to: e.target.value }))
                     }
-                    className="px-3 py-1.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
