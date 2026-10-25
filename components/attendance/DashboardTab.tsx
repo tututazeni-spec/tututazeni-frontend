@@ -21,6 +21,7 @@ import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { STATUS_CONFIG } from './constants';
 import type { AttendanceStatus, DashboardData } from './types';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 // Construir mapa para StatusBadge usando STATUS_CONFIG
 const STATUS_BADGE_MAP: StatusBadgeMap<AttendanceStatus> = Object.fromEntries(
@@ -47,12 +48,7 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
     );
 
   if (!data)
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-ink-muted">
-        <BarChart3 size={48} className="mb-4 opacity-30" />
-        <p>Dashboard não disponível</p>
-      </div>
-    );
+    return <EmptyState icon={BarChart3} title="Dashboard não disponível" />;
 
   return (
     <div className="space-y-6">
@@ -138,9 +134,7 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
           </div>
           <div className="divide-y divide-border max-h-60 overflow-y-auto">
             {data.presentList.length === 0 && (
-              <p className="px-5 py-6 text-sm text-ink-muted text-center">
-                Nenhum registo
-              </p>
+              <EmptyState variant="inline" title="Nenhum registo" />
             )}
             {data.presentList.map((p) => (
               <div
@@ -180,9 +174,7 @@ export function DashboardTab({ data, loading, refetch }: DashboardTabProps) {
           </div>
           <div className="divide-y divide-border max-h-60 overflow-y-auto">
             {data.absentList.length === 0 && (
-              <p className="px-5 py-6 text-sm text-ink-muted text-center">
-                Nenhuma ausência hoje
-              </p>
+              <EmptyState variant="inline" title="Nenhuma ausência hoje" />
             )}
             {data.absentList.map((p) => (
               <div key={p.id} className="px-5 py-3 flex items-center gap-3">

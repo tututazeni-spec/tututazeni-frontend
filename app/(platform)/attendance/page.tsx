@@ -9,6 +9,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react';
+import { EmptyState } from '@/components/ui/EmptyState';
 import {
   BarChart3,
   Calendar,
@@ -212,15 +213,11 @@ export default function AttendancePage() {
 
             {tab === 'team' && (
               <div className="space-y-4">
-                <div className="bg-surface rounded-panel border border-border shadow-sm p-8 text-center text-ink-muted">
-                  <Users size={40} className="mx-auto mb-3 opacity-30" />
-                  <p className="text-sm font-medium">
-                    Vista de equipa disponível com role Gestor+
-                  </p>
-                  <p className="text-xs mt-1">
-                    Filtra por departamento, verifica ausências e aprova pedidos
-                  </p>
-                </div>
+                <EmptyState
+                  icon={Users}
+                  title="Vista de equipa disponível com role Gestor+"
+                  description="Filtra por departamento, verifica ausências e aprova pedidos"
+                />
               </div>
             )}
 
@@ -238,10 +235,7 @@ export default function AttendancePage() {
                     <Plus size={14} /> Novo Pedido
                   </Button>
                 </div>
-                <div className="bg-surface rounded-panel border border-border shadow-sm p-8 text-center text-ink-muted">
-                  <Calendar size={40} className="mx-auto mb-3 opacity-30" />
-                  <p className="text-sm">Nenhum pedido de licença</p>
-                </div>
+                <EmptyState icon={Calendar} title="Nenhum pedido de licença" />
               </div>
             )}
           </div>
