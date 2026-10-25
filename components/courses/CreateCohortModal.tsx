@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -27,23 +27,55 @@ export interface CreateCohortModalProps {
   onClose: () => void;
 }
 
+interface CreateCohortModalFormValues {
+  name: string;
+  instructorSearch: string;
+  instructor: DirectoryUser | null;
+  location: string;
+  room: string;
+  schedule: string;
+  capacity: string;
+  startDate: string;
+  endDate: string;
+  error: string;
+  participants: DirectoryUser[];
+  participantSearch: string;
+}
+
 export function CreateCohortModal({
   courseId,
   onClose,
 }: CreateCohortModalProps) {
   const toast = useToast();
-  const [name, setName] = useState('');
-  const [instructorSearch, setInstructorSearch] = useState('');
-  const [instructor, setInstructor] = useState<DirectoryUser | null>(null);
-  const [location, setLocation] = useState('');
-  const [room, setRoom] = useState('');
-  const [schedule, setSchedule] = useState('');
-  const [capacity, setCapacity] = useState('30');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [error, setError] = useState('');
-  const [participants, setParticipants] = useState<DirectoryUser[]>([]);
-  const [participantSearch, setParticipantSearch] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<CreateCohortModalFormValues>({
+      name: '',
+      instructorSearch: '',
+      instructor: null,
+      location: '',
+      room: '',
+      schedule: '',
+      capacity: '30',
+      startDate: '',
+      endDate: '',
+      error: '',
+      participants: [],
+      participantSearch: '',
+    });
+  const {
+    name,
+    instructorSearch,
+    instructor,
+    location,
+    room,
+    schedule,
+    capacity,
+    startDate,
+    endDate,
+    error,
+    participants,
+    participantSearch,
+  } = formValues;
 
   const { users, loading: usersLoading } = useDirectoryUsers(
     instructorSearch,
@@ -59,7 +91,7 @@ export function CreateCohortModal({
     );
 
   function addParticipants(list: DirectoryUser[]) {
-    setParticipants((cur) => {
+    setField('participants', (cur) => {
       const ids = new Set(cur.map((p) => p.id));
       return [...cur, ...list.filter((u) => !ids.has(u.id))];
     });
@@ -68,10 +100,9 @@ export function CreateCohortModal({
   async function addDepartment(departmentId: number) {
     try {
       // Sem pesquisa, o diretório devolve o departamento inteiro (sem limite).
-      const members = await apiClient.get<DirectoryUser[]>(
-        '/users/directory',
-        { params: { departmentId } },
-      );
+      const members = await apiClient.get<DirectoryUser[]>('/users/directory', {
+        params: { departmentId },
+      });
       if (members.length === 0) {
         toast({
           title: 'Departamento sem colaboradores activos',
@@ -98,7 +129,7 @@ export function CreateCohortModal({
         toast({ title: 'Turma criada', intent: 'success' });
         onClose();
       },
-      onError: (e) => setError(e.message || 'Erro ao criar turma.'),
+      onError: (e) => setField('error', e.message || 'Erro ao criar turma.'),
     },
   );
 
@@ -106,7 +137,7 @@ export function CreateCohortModal({
 
   function handleSubmit() {
     if (!canSubmit) return;
-    setError('');
+    setField('error', '');
     create.mutate({
       name: name.trim(),
       instructorId: instructor?.id,
@@ -140,7 +171,7 @@ export function CreateCohortModal({
               id="ch-name"
               autoComplete="off"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setField('name', e.target.value)}
               className="w-full"
               placeholder="Ex: Turma A — Lisboa"
             />
@@ -160,7 +191,7 @@ export function CreateCohortModal({
                 <button
                   type="button"
                   aria-label="Remover formador"
-                  onClick={() => setInstructor(null)}
+                  onClick={() => setField('instructor', null)}
                   className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
                 >
                   <X size={16} strokeWidth={1.75} />
@@ -171,7 +202,7 @@ export function CreateCohortModal({
                 <Input
                   id="ch-instructor"
                   value={instructorSearch}
-                  onChange={(e) => setInstructorSearch(e.target.value)}
+                  onChange={(e) => setField('instructorSearch', e.target.value)}
                   className="w-full"
                   placeholder="Pesquisar por nome ou email…"
                   autoComplete="off"
@@ -193,8 +224,8 @@ export function CreateCohortModal({
                         key={u.id}
                         type="button"
                         onClick={() => {
-                          setInstructor(u);
-                          setInstructorSearch('');
+                          setField('instructor', u);
+                          setField('instructorSearch', '');
                         }}
                         className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
                       >
@@ -220,7 +251,7 @@ export function CreateCohortModal({
                 id="ch-location"
                 autoComplete="off"
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={(e) => setField('location', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -229,7 +260,7 @@ export function CreateCohortModal({
                 id="ch-room"
                 autoComplete="off"
                 value={room}
-                onChange={(e) => setRoom(e.target.value)}
+                onChange={(e) => setField('room', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -240,7 +271,7 @@ export function CreateCohortModal({
               id="ch-schedule"
               autoComplete="off"
               value={schedule}
-              onChange={(e) => setSchedule(e.target.value)}
+              onChange={(e) => setField('schedule', e.target.value)}
               className="w-full"
               placeholder="Ex: Seg/Qua 18h-20h"
             />
@@ -256,7 +287,9 @@ export function CreateCohortModal({
                 <Input
                   id="ch-participants"
                   value={participantSearch}
-                  onChange={(e) => setParticipantSearch(e.target.value)}
+                  onChange={(e) =>
+                    setField('participantSearch', e.target.value)
+                  }
                   className="w-full"
                   placeholder="Ou pesquisar colaborador por nome ou email…"
                   autoComplete="off"
@@ -280,7 +313,7 @@ export function CreateCohortModal({
                         type="button"
                         onClick={() => {
                           addParticipants([u]);
-                          setParticipantSearch('');
+                          setField('participantSearch', '');
                         }}
                         className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
                       >
@@ -316,7 +349,7 @@ export function CreateCohortModal({
                         type="button"
                         aria-label={`Remover ${p.fullName}`}
                         onClick={() =>
-                          setParticipants((cur) =>
+                          setField('participants', (cur) =>
                             cur.filter((x) => x.id !== p.id),
                           )
                         }
@@ -337,7 +370,7 @@ export function CreateCohortModal({
                 id="ch-start"
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => setField('startDate', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -346,7 +379,7 @@ export function CreateCohortModal({
                 id="ch-end"
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => setField('endDate', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -356,7 +389,7 @@ export function CreateCohortModal({
                 type="number"
                 min={1}
                 value={capacity}
-                onChange={(e) => setCapacity(e.target.value)}
+                onChange={(e) => setField('capacity', e.target.value)}
                 className="w-full"
               />
             </FormField>

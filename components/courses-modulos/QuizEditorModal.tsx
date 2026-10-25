@@ -5,7 +5,8 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { FileQuestion, Plus, Trash2, X } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -109,6 +110,18 @@ interface QuizEditorModalProps {
   onClose: () => void;
 }
 
+interface QuizEditorModalFormValues {
+  title: string;
+  passingScore: number;
+  maxAttempts: number;
+  timeLimitMinutes: string;
+  shuffleQuestions: boolean;
+  shuffleAnswers: boolean;
+  showCorrectAnswers: boolean;
+  autoFeedback: boolean;
+  questions: QuestionRow[];
+}
+
 export function QuizEditorModal({
   lessonId,
   lessonTitle,
@@ -121,34 +134,50 @@ export function QuizEditorModal({
     { staleTime: 0 },
   );
 
-  const [title, setTitle] = useState('Avaliação');
-  const [passingScore, setPassingScore] = useState(70);
-  const [maxAttempts, setMaxAttempts] = useState(0);
-  const [timeLimitMinutes, setTimeLimitMinutes] = useState('');
-  const [shuffleQuestions, setShuffleQuestions] = useState(false);
-  const [shuffleAnswers, setShuffleAnswers] = useState(false);
-  const [showCorrectAnswers, setShowCorrectAnswers] = useState(true);
-  const [autoFeedback, setAutoFeedback] = useState(true);
-  const [questions, setQuestions] = useState<QuestionRow[]>([emptyQuestion()]);
+  const { values: formValues, set: setField } =
+    useFormState<QuizEditorModalFormValues>({
+      title: 'Avaliação',
+      passingScore: 70,
+      maxAttempts: 0,
+      timeLimitMinutes: '',
+      shuffleQuestions: false,
+      shuffleAnswers: false,
+      showCorrectAnswers: true,
+      autoFeedback: true,
+      questions: [emptyQuestion()],
+    });
+  const {
+    title,
+    passingScore,
+    maxAttempts,
+    timeLimitMinutes,
+    shuffleQuestions,
+    shuffleAnswers,
+    showCorrectAnswers,
+    autoFeedback,
+    questions,
+  } = formValues;
 
   useEffect(() => {
     if (!quiz) return;
-    setTitle(quiz.title);
-    setPassingScore(quiz.passingScore);
-    setMaxAttempts(quiz.maxAttempts);
-    setTimeLimitMinutes(
+    setField('title', quiz.title);
+    setField('passingScore', quiz.passingScore);
+    setField('maxAttempts', quiz.maxAttempts);
+    setField(
+      'timeLimitMinutes',
       quiz.timeLimitMinutes != null ? String(quiz.timeLimitMinutes) : '',
     );
-    setShuffleQuestions(quiz.shuffleQuestions);
-    setShuffleAnswers(quiz.shuffleAnswers);
-    setShowCorrectAnswers(quiz.showCorrectAnswers);
-    setAutoFeedback(quiz.autoFeedback);
-    setQuestions(
+    setField('shuffleQuestions', quiz.shuffleQuestions);
+    setField('shuffleAnswers', quiz.shuffleAnswers);
+    setField('showCorrectAnswers', quiz.showCorrectAnswers);
+    setField('autoFeedback', quiz.autoFeedback);
+    setField(
+      'questions',
       quiz.questions.length > 0
         ? rowsFromApi(quiz.questions)
         : [emptyQuestion()],
     );
-  }, [quiz]);
+  }, [quiz, setField]);
 
   const payload = () => ({
     title,
@@ -191,7 +220,7 @@ export function QuizEditorModal({
   const canSave = title.trim() && questions.some((q) => q.question.trim());
 
   function updateQuestion(idx: number, patch: Partial<QuestionRow>) {
-    setQuestions((rows) =>
+    setField('questions', (rows) =>
       rows.map((r, i) => (i === idx ? { ...r, ...patch } : r)),
     );
   }
@@ -200,7 +229,7 @@ export function QuizEditorModal({
     oIdx: number,
     patch: Partial<{ text: string; isCorrect: boolean }>,
   ) {
-    setQuestions((rows) =>
+    setField('questions', (rows) =>
       rows.map((r, i) => {
         if (i !== qIdx) return r;
         const options = r.options.map((o, j) => {
@@ -248,7 +277,7 @@ export function QuizEditorModal({
                   <Input
                     id="quiz-title"
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => setField('title', e.target.value)}
                   />
                 </FormField>
                 <FormField label="Nota mínima (%)" htmlFor="quiz-passing-score">
@@ -258,7 +287,9 @@ export function QuizEditorModal({
                     min={0}
                     max={100}
                     value={passingScore}
-                    onChange={(e) => setPassingScore(Number(e.target.value))}
+                    onChange={(e) =>
+                      setField('passingScore', Number(e.target.value))
+                    }
                   />
                 </FormField>
                 <FormField
@@ -270,7 +301,9 @@ export function QuizEditorModal({
                     type="number"
                     min={0}
                     value={maxAttempts}
-                    onChange={(e) => setMaxAttempts(Number(e.target.value))}
+                    onChange={(e) =>
+                      setField('maxAttempts', Number(e.target.value))
+                    }
                   />
                 </FormField>
                 <FormField
@@ -282,7 +315,9 @@ export function QuizEditorModal({
                     type="number"
                     min={0}
                     value={timeLimitMinutes}
-                    onChange={(e) => setTimeLimitMinutes(e.target.value)}
+                    onChange={(e) =>
+                      setField('timeLimitMinutes', e.target.value)
+                    }
                     placeholder="Sem limite"
                   />
                 </FormField>
@@ -293,7 +328,9 @@ export function QuizEditorModal({
                   <input
                     type="checkbox"
                     checked={shuffleQuestions}
-                    onChange={(e) => setShuffleQuestions(e.target.checked)}
+                    onChange={(e) =>
+                      setField('shuffleQuestions', e.target.checked)
+                    }
                   />
                   Embaralhar perguntas
                 </label>
@@ -301,7 +338,9 @@ export function QuizEditorModal({
                   <input
                     type="checkbox"
                     checked={shuffleAnswers}
-                    onChange={(e) => setShuffleAnswers(e.target.checked)}
+                    onChange={(e) =>
+                      setField('shuffleAnswers', e.target.checked)
+                    }
                   />
                   Embaralhar respostas
                 </label>
@@ -309,7 +348,9 @@ export function QuizEditorModal({
                   <input
                     type="checkbox"
                     checked={showCorrectAnswers}
-                    onChange={(e) => setShowCorrectAnswers(e.target.checked)}
+                    onChange={(e) =>
+                      setField('showCorrectAnswers', e.target.checked)
+                    }
                   />
                   Mostrar respostas correctas
                 </label>
@@ -317,7 +358,7 @@ export function QuizEditorModal({
                   <input
                     type="checkbox"
                     checked={autoFeedback}
-                    onChange={(e) => setAutoFeedback(e.target.checked)}
+                    onChange={(e) => setField('autoFeedback', e.target.checked)}
                   />
                   Feedback automático
                 </label>
@@ -346,7 +387,7 @@ export function QuizEditorModal({
                         <button
                           type="button"
                           onClick={() =>
-                            setQuestions((rows) =>
+                            setField('questions', (rows) =>
                               rows.filter((_, i) => i !== qIdx),
                             )
                           }
@@ -452,7 +493,7 @@ export function QuizEditorModal({
                   size="sm"
                   className="mt-3"
                   onClick={() =>
-                    setQuestions((rows) => [...rows, emptyQuestion()])
+                    setField('questions', (rows) => [...rows, emptyQuestion()])
                   }
                 >
                   <Plus size={14} strokeWidth={1.75} /> Adicionar pergunta

@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -49,6 +49,23 @@ const HIERARCHY_ITEMS = Object.entries(HIERARCHY_LEVEL_CFG).map(
     label: cfg.label,
   }),
 );
+
+interface ModelFormFormValues {
+  name: string;
+  code: string;
+  description: string;
+  objective: string;
+  type: string;
+  departmentId: string;
+  positionFamily: string;
+  hierarchyLevel: string;
+  status: string;
+  version: string;
+  effectiveDate: string;
+  endDate: string;
+  owner: DirectoryUser | null;
+  submitError: string;
+}
 
 export function ModelFormModal({
   modelId,
@@ -110,38 +127,47 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
   const { options: departmentOptions, loading: loadingDepartments } =
     useDepartmentOptions();
 
-  const [name, setName] = useState(initial?.name ?? '');
-  const [code, setCode] = useState(initial?.code ?? '');
-  const [description, setDescription] = useState(initial?.description ?? '');
-  const [objective, setObjective] = useState(initial?.objective ?? '');
-  const [type, setType] = useState(initial?.type ?? '');
-  const [departmentId, setDepartmentId] = useState(
-    initial?.department ? String(initial.department.id) : '',
-  );
-  const [positionFamily, setPositionFamily] = useState(
-    initial?.positionFamily ?? '',
-  );
-  const [hierarchyLevel, setHierarchyLevel] = useState(
-    initial?.hierarchyLevel ?? '',
-  );
-  const [status, setStatus] = useState<string>(initial?.status ?? 'ACTIVE');
-  const [version, setVersion] = useState(String(initial?.version ?? 1));
-  const [effectiveDate, setEffectiveDate] = useState(
-    initial?.effectiveDate ? initial.effectiveDate.slice(0, 10) : '',
-  );
-  const [endDate, setEndDate] = useState(
-    initial?.endDate ? initial.endDate.slice(0, 10) : '',
-  );
-  const [owner, setOwner] = useState<DirectoryUser | null>(
-    initial?.owner
-      ? {
-          id: initial.owner.id,
-          fullName: initial.owner.fullName,
-          avatarUrl: null,
-        }
-      : null,
-  );
-  const [submitError, setSubmitError] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<ModelFormFormValues>({
+      name: initial?.name ?? '',
+      code: initial?.code ?? '',
+      description: initial?.description ?? '',
+      objective: initial?.objective ?? '',
+      type: initial?.type ?? '',
+      departmentId: initial?.department ? String(initial.department.id) : '',
+      positionFamily: initial?.positionFamily ?? '',
+      hierarchyLevel: initial?.hierarchyLevel ?? '',
+      status: initial?.status ?? 'ACTIVE',
+      version: String(initial?.version ?? 1),
+      effectiveDate: initial?.effectiveDate
+        ? initial.effectiveDate.slice(0, 10)
+        : '',
+      endDate: initial?.endDate ? initial.endDate.slice(0, 10) : '',
+      owner: initial?.owner
+        ? {
+            id: initial.owner.id,
+            fullName: initial.owner.fullName,
+            avatarUrl: null,
+          }
+        : null,
+      submitError: '',
+    });
+  const {
+    name,
+    code,
+    description,
+    objective,
+    type,
+    departmentId,
+    positionFamily,
+    hierarchyLevel,
+    status,
+    version,
+    effectiveDate,
+    endDate,
+    owner,
+    submitError,
+  } = formValues;
 
   const canSubmit = name.trim().length > 0;
 
@@ -157,7 +183,8 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
         onClose();
       },
       onError: (e) =>
-        setSubmitError(
+        setField(
+          'submitError',
           e.message || 'Erro ao guardar o modelo. Tente novamente.',
         ),
     },
@@ -166,7 +193,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
-    setSubmitError('');
+    setField('submitError', '');
     const body: Record<string, unknown> = {
       name: name.trim(),
       code: code.trim() || null,
@@ -199,7 +226,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
           <Input
             id="mf-name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => setField('name', e.target.value)}
             placeholder="Ex.: Modelo de Competências — Liderança"
             maxLength={120}
             className="w-full"
@@ -211,7 +238,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
             <Input
               id="mf-code"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => setField('code', e.target.value)}
               placeholder="Ex.: MOD-LID"
               maxLength={60}
               className="w-full"
@@ -221,7 +248,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
             <Combobox
               items={MODEL_TYPE_OPTIONS}
               value={type || undefined}
-              onValueChange={setType}
+              onValueChange={(v) => setField('type', v)}
               placeholder="Selecionar tipo"
               searchPlaceholder="Escreva para filtrar ou indicar outro…"
               allowCustom
@@ -233,7 +260,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
           <Textarea
             id="mf-description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => setField('description', e.target.value)}
             rows={2}
             className="w-full"
           />
@@ -243,7 +270,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
           <Combobox
             items={MODEL_OBJECTIVE_OPTIONS}
             value={objective || undefined}
-            onValueChange={setObjective}
+            onValueChange={(v) => setField('objective', v)}
             placeholder="Selecionar objetivo"
             searchPlaceholder="Escreva para filtrar ou indicar outro…"
             allowCustom
@@ -255,7 +282,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
             <Select
               items={[{ value: '', label: 'Nenhum' }, ...departmentOptions]}
               value={departmentId || undefined}
-              onValueChange={setDepartmentId}
+              onValueChange={(v) => setField('departmentId', v)}
               placeholder={loadingDepartments ? 'A carregar…' : 'Selecionar'}
               disabled={loadingDepartments}
               className="w-full"
@@ -265,7 +292,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
             <Select
               items={[{ value: '', label: 'Nenhum' }, ...HIERARCHY_ITEMS]}
               value={hierarchyLevel || undefined}
-              onValueChange={setHierarchyLevel}
+              onValueChange={(v) => setField('hierarchyLevel', v)}
               placeholder="Selecionar"
               className="w-full"
             />
@@ -276,7 +303,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
           <Combobox
             items={MODEL_POSITION_FAMILY_OPTIONS}
             value={positionFamily || undefined}
-            onValueChange={setPositionFamily}
+            onValueChange={(v) => setField('positionFamily', v)}
             placeholder="Selecionar cargo/família"
             searchPlaceholder="Escreva para filtrar ou indicar outro…"
             allowCustom
@@ -287,7 +314,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
           label="Responsável pelo modelo"
           htmlFor="mf-owner"
           value={owner}
-          onChange={setOwner}
+          onChange={(v) => setField('owner', v)}
         />
 
         <div className="grid grid-cols-3 gap-4">
@@ -297,7 +324,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
               type="number"
               min={1}
               value={version}
-              onChange={(e) => setVersion(e.target.value)}
+              onChange={(e) => setField('version', e.target.value)}
               className="w-full"
             />
           </FormField>
@@ -306,7 +333,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
               id="mf-effective"
               type="date"
               value={effectiveDate}
-              onChange={(e) => setEffectiveDate(e.target.value)}
+              onChange={(e) => setField('effectiveDate', e.target.value)}
               className="w-full"
             />
           </FormField>
@@ -315,7 +342,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
               id="mf-end"
               type="date"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              onChange={(e) => setField('endDate', e.target.value)}
               className="w-full"
             />
           </FormField>
@@ -326,7 +353,7 @@ function ModelForm({ modelId, initial, onClose, onSuccess }: ModelFormProps) {
             <Select
               items={STATUS_ITEMS}
               value={status}
-              onValueChange={setStatus}
+              onValueChange={(v) => setField('status', v)}
               className="w-full"
             />
           </FormField>

@@ -24,7 +24,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -128,6 +128,22 @@ const RESPONSIBLE_ITEMS = Object.entries(RESPONSIBLE_LABELS).map(
   ([value, label]) => ({ value, label }),
 );
 
+interface TemplateFormModalFormValues {
+  name: string;
+  description: string;
+  objective: string;
+  company: string;
+  location: string;
+  departmentId: string;
+  unitId: string;
+  positionId: string;
+  durationDays: string;
+  welcomeVideoUrl: string;
+  active: boolean;
+  tasks: TaskDraft[];
+  submitError: string;
+}
+
 export function TemplateFormModal({
   template,
   onClose,
@@ -135,29 +151,43 @@ export function TemplateFormModal({
   const notify = useToast();
   const editing = template != null;
 
-  const [name, setName] = useState(template?.name ?? '');
-  const [description, setDescription] = useState(template?.description ?? '');
-  const [objective, setObjective] = useState(template?.objective ?? '');
-  const [company, setCompany] = useState(template?.company ?? '');
-  const [location, setLocation] = useState(template?.location ?? '');
-  const [departmentId, setDepartmentId] = useState(
-    template?.departmentId != null ? String(template.departmentId) : NO_DEPT,
-  );
-  const [unitId, setUnitId] = useState(
-    template?.unitId != null ? String(template.unitId) : NO_UNIT,
-  );
-  const [positionId, setPositionId] = useState(
-    template?.positionId != null ? String(template.positionId) : NO_POSITION,
-  );
-  const [durationDays, setDurationDays] = useState(
-    String(template?.durationDays ?? 30),
-  );
-  const [welcomeVideoUrl, setWelcomeVideoUrl] = useState(
-    template?.welcomeVideoUrl ?? '',
-  );
-  const [active, setActive] = useState(template?.active ?? true);
-  const [tasks, setTasks] = useState<TaskDraft[]>([]);
-  const [submitError, setSubmitError] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<TemplateFormModalFormValues>({
+      name: template?.name ?? '',
+      description: template?.description ?? '',
+      objective: template?.objective ?? '',
+      company: template?.company ?? '',
+      location: template?.location ?? '',
+      departmentId:
+        template?.departmentId != null
+          ? String(template.departmentId)
+          : NO_DEPT,
+      unitId: template?.unitId != null ? String(template.unitId) : NO_UNIT,
+      positionId:
+        template?.positionId != null
+          ? String(template.positionId)
+          : NO_POSITION,
+      durationDays: String(template?.durationDays ?? 30),
+      welcomeVideoUrl: template?.welcomeVideoUrl ?? '',
+      active: template?.active ?? true,
+      tasks: [],
+      submitError: '',
+    });
+  const {
+    name,
+    description,
+    objective,
+    company,
+    location,
+    departmentId,
+    unitId,
+    positionId,
+    durationDays,
+    welcomeVideoUrl,
+    active,
+    tasks,
+    submitError,
+  } = formValues;
 
   const { data: deptTree } = useApiQuery<DepartmentNode[]>(
     queryKeys.departments.tree(),
@@ -217,24 +247,25 @@ export function TemplateFormModal({
         onClose();
       },
       onError: (e) =>
-        setSubmitError(
+        setField(
+          'submitError',
           e.message || 'Erro ao guardar o template. Tente novamente.',
         ),
     },
   );
   const loading = save.isPending;
 
-  const addTask = () => setTasks((prev) => [...prev, emptyTask()]);
+  const addTask = () => setField('tasks', (prev) => [...prev, emptyTask()]);
   const removeTask = (key: number) =>
-    setTasks((prev) => prev.filter((t) => t.key !== key));
+    setField('tasks', (prev) => prev.filter((t) => t.key !== key));
   const patchTask = (key: number, patch: Partial<TaskDraft>) =>
-    setTasks((prev) =>
+    setField('tasks', (prev) =>
       prev.map((t) => (t.key === key ? { ...t, ...patch } : t)),
     );
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
-    setSubmitError('');
+    setField('submitError', '');
     const payload: Record<string, unknown> = {
       name: name.trim(),
       durationDays: Number(durationDays),
@@ -305,7 +336,7 @@ export function TemplateFormModal({
             <Input
               id="ot-name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setField('name', e.target.value)}
               placeholder="Ex.: Onboarding Colaborador TI"
               maxLength={200}
               className="w-full"
@@ -316,7 +347,7 @@ export function TemplateFormModal({
             <Textarea
               id="ot-description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setField('description', e.target.value)}
               placeholder="Opcional — âmbito do plano."
               rows={3}
               className="w-full"
@@ -327,7 +358,7 @@ export function TemplateFormModal({
             <Textarea
               id="ot-objective"
               value={objective}
-              onChange={(e) => setObjective(e.target.value)}
+              onChange={(e) => setField('objective', e.target.value)}
               placeholder="Opcional — o que este plano de integração pretende alcançar."
               rows={2}
               className="w-full"
@@ -339,7 +370,7 @@ export function TemplateFormModal({
               <Select
                 items={durationItems}
                 value={durationDays}
-                onValueChange={setDurationDays}
+                onValueChange={(v) => setField('durationDays', v)}
                 className="w-full"
               />
             </FormField>
@@ -348,7 +379,7 @@ export function TemplateFormModal({
               <Input
                 id="ot-company"
                 value={company}
-                onChange={(e) => setCompany(e.target.value)}
+                onChange={(e) => setField('company', e.target.value)}
                 placeholder="Opcional"
                 maxLength={200}
                 className="w-full"
@@ -359,7 +390,7 @@ export function TemplateFormModal({
               <Select
                 items={deptItems}
                 value={departmentId}
-                onValueChange={setDepartmentId}
+                onValueChange={(v) => setField('departmentId', v)}
                 className="w-full"
               />
             </FormField>
@@ -368,7 +399,7 @@ export function TemplateFormModal({
               <Select
                 items={unitItems}
                 value={unitId}
-                onValueChange={setUnitId}
+                onValueChange={(v) => setField('unitId', v)}
                 className="w-full"
               />
             </FormField>
@@ -377,7 +408,7 @@ export function TemplateFormModal({
               <Select
                 items={positionItems}
                 value={positionId}
-                onValueChange={setPositionId}
+                onValueChange={(v) => setField('positionId', v)}
                 className="w-full"
               />
             </FormField>
@@ -386,7 +417,7 @@ export function TemplateFormModal({
               <Input
                 id="ot-location"
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={(e) => setField('location', e.target.value)}
                 placeholder="Opcional — ex.: escritório, cidade"
                 maxLength={200}
                 className="w-full"
@@ -397,7 +428,7 @@ export function TemplateFormModal({
               <Input
                 id="ot-video"
                 value={welcomeVideoUrl}
-                onChange={(e) => setWelcomeVideoUrl(e.target.value)}
+                onChange={(e) => setField('welcomeVideoUrl', e.target.value)}
                 placeholder="Opcional — https://…"
                 className="w-full"
               />
@@ -407,7 +438,7 @@ export function TemplateFormModal({
           <button
             type="button"
             aria-pressed={active}
-            onClick={() => setActive((v) => !v)}
+            onClick={() => setField('active', (v) => !v)}
             className={cn(
               'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
               active

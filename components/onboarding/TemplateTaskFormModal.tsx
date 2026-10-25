@@ -16,7 +16,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -71,6 +71,21 @@ const PHASE_ITEMS = PHASE_ORDER.map((value) => ({
   label: PHASE_LABELS[value],
 }));
 
+interface TemplateTaskFormModalFormValues {
+  title: string;
+  description: string;
+  category: TaskCategory | '';
+  type: TaskType;
+  phase: TaskPhase;
+  responsible: ResponsibleRole;
+  dueDayOffset: string;
+  xpReward: string;
+  requiresApproval: boolean;
+  requiresEvidence: boolean;
+  isMandatory: boolean;
+  submitError: string;
+}
+
 export function TemplateTaskFormModal({
   templateId,
   task,
@@ -81,28 +96,35 @@ export function TemplateTaskFormModal({
 }: TemplateTaskFormModalProps) {
   const editing = task != null;
 
-  const [title, setTitle] = useState(task?.title ?? '');
-  const [description, setDescription] = useState(task?.description ?? '');
-  const [category, setCategory] = useState<TaskCategory | ''>(
-    task?.category ?? '',
-  );
-  const [type, setType] = useState<TaskType>(task?.type ?? 'TASK');
-  const [phase, setPhase] = useState<TaskPhase>(task?.phase ?? defaultPhase);
-  const [responsible, setResponsible] = useState<ResponsibleRole>(
-    task?.responsible ?? 'SELF',
-  );
-  const [dueDayOffset, setDueDayOffset] = useState(
-    task?.dueDayOffset != null ? String(task.dueDayOffset) : '',
-  );
-  const [xpReward, setXpReward] = useState(String(task?.xpReward ?? 10));
-  const [requiresApproval, setRequiresApproval] = useState(
-    task?.requiresApproval ?? false,
-  );
-  const [requiresEvidence, setRequiresEvidence] = useState(
-    task?.requiresEvidence ?? false,
-  );
-  const [isMandatory, setIsMandatory] = useState(task?.isMandatory ?? true);
-  const [submitError, setSubmitError] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<TemplateTaskFormModalFormValues>({
+      title: task?.title ?? '',
+      description: task?.description ?? '',
+      category: task?.category ?? '',
+      type: task?.type ?? 'TASK',
+      phase: task?.phase ?? defaultPhase,
+      responsible: task?.responsible ?? 'SELF',
+      dueDayOffset: task?.dueDayOffset != null ? String(task.dueDayOffset) : '',
+      xpReward: String(task?.xpReward ?? 10),
+      requiresApproval: task?.requiresApproval ?? false,
+      requiresEvidence: task?.requiresEvidence ?? false,
+      isMandatory: task?.isMandatory ?? true,
+      submitError: '',
+    });
+  const {
+    title,
+    description,
+    category,
+    type,
+    phase,
+    responsible,
+    dueDayOffset,
+    xpReward,
+    requiresApproval,
+    requiresEvidence,
+    isMandatory,
+    submitError,
+  } = formValues;
 
   const canSubmit = title.trim().length > 0 && category.length > 0;
 
@@ -121,7 +143,8 @@ export function TemplateTaskFormModal({
         onClose();
       },
       onError: (e) =>
-        setSubmitError(
+        setField(
+          'submitError',
           e.message || 'Erro ao guardar a tarefa. Tente novamente.',
         ),
     },
@@ -130,7 +153,7 @@ export function TemplateTaskFormModal({
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
-    setSubmitError('');
+    setField('submitError', '');
     const xp = Number(xpReward);
     const body: Record<string, unknown> = {
       title: title.trim(),
@@ -176,7 +199,7 @@ export function TemplateTaskFormModal({
             <Input
               id="tt-title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => setField('title', e.target.value)}
               placeholder="Ex.: Entregar documentos de admissão"
               maxLength={200}
               className="w-full"
@@ -187,7 +210,7 @@ export function TemplateTaskFormModal({
             <Textarea
               id="tt-description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setField('description', e.target.value)}
               rows={3}
               placeholder="Opcional — instruções para quem executa a tarefa."
               className="w-full"
@@ -199,7 +222,7 @@ export function TemplateTaskFormModal({
               <Select
                 items={CATEGORY_ITEMS}
                 value={category || undefined}
-                onValueChange={(v) => setCategory(v as TaskCategory)}
+                onValueChange={(v) => setField('category', v as TaskCategory)}
                 placeholder="Selecionar categoria"
                 className="w-full"
               />
@@ -209,7 +232,7 @@ export function TemplateTaskFormModal({
               <Select
                 items={TYPE_ITEMS}
                 value={type}
-                onValueChange={(v) => setType(v as TaskType)}
+                onValueChange={(v) => setField('type', v as TaskType)}
                 className="w-full"
               />
             </FormField>
@@ -218,7 +241,7 @@ export function TemplateTaskFormModal({
               <Select
                 items={PHASE_ITEMS}
                 value={phase}
-                onValueChange={(v) => setPhase(v as TaskPhase)}
+                onValueChange={(v) => setField('phase', v as TaskPhase)}
                 className="w-full"
               />
             </FormField>
@@ -227,7 +250,9 @@ export function TemplateTaskFormModal({
               <Select
                 items={RESPONSIBLE_ITEMS}
                 value={responsible}
-                onValueChange={(v) => setResponsible(v as ResponsibleRole)}
+                onValueChange={(v) =>
+                  setField('responsible', v as ResponsibleRole)
+                }
                 className="w-full"
               />
             </FormField>
@@ -242,7 +267,7 @@ export function TemplateTaskFormModal({
                 type="number"
                 min={0}
                 value={dueDayOffset}
-                onChange={(e) => setDueDayOffset(e.target.value)}
+                onChange={(e) => setField('dueDayOffset', e.target.value)}
                 placeholder="Ex.: 5"
                 className="w-full"
               />
@@ -254,7 +279,7 @@ export function TemplateTaskFormModal({
                 type="number"
                 min={0}
                 value={xpReward}
-                onChange={(e) => setXpReward(e.target.value)}
+                onChange={(e) => setField('xpReward', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -264,7 +289,7 @@ export function TemplateTaskFormModal({
             <button
               type="button"
               aria-pressed={requiresApproval}
-              onClick={() => setRequiresApproval((v) => !v)}
+              onClick={() => setField('requiresApproval', (v) => !v)}
               className={cn(
                 'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
                 requiresApproval
@@ -277,7 +302,7 @@ export function TemplateTaskFormModal({
             <button
               type="button"
               aria-pressed={requiresEvidence}
-              onClick={() => setRequiresEvidence((v) => !v)}
+              onClick={() => setField('requiresEvidence', (v) => !v)}
               className={cn(
                 'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
                 requiresEvidence
@@ -290,7 +315,7 @@ export function TemplateTaskFormModal({
             <button
               type="button"
               aria-pressed={isMandatory}
-              onClick={() => setIsMandatory((v) => !v)}
+              onClick={() => setField('isMandatory', (v) => !v)}
               className={cn(
                 'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
                 isMandatory
