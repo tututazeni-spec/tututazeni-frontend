@@ -208,7 +208,7 @@ export function DirectoryView({ onSelect }: DirectoryViewProps) {
       {loading ? (
         <Skeleton
           rows={8}
-          wrapperClassName="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4 animate-pulse"
+          wrapperClassName="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4"
           itemClassName="h-[190px] rounded-panel bg-surface-sunken"
         />
       ) : data.length === 0 ? (

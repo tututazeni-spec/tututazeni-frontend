@@ -41,7 +41,7 @@ export function DashboardView() {
     return (
       <Skeleton
         rows={3}
-        wrapperClassName="space-y-2 animate-pulse"
+        wrapperClassName="space-y-2"
         itemClassName="h-14 rounded-card bg-surface-sunken"
       />
     );
