@@ -26,7 +26,7 @@ export function CorrelationsPanel() {
     return (
       <Skeleton
         rows={2}
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="h-40 rounded-card bg-surface-sunken"
       />
     );

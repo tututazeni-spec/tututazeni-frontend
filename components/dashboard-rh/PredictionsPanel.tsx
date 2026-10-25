@@ -29,7 +29,7 @@ export function PredictionsPanel() {
     return (
       <Skeleton
         rows={3}
-        wrapperClassName="grid grid-cols-2 md:grid-cols-3 gap-4 animate-pulse"
+        wrapperClassName="grid grid-cols-2 md:grid-cols-3 gap-4"
         itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
