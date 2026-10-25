@@ -336,7 +336,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
           <Skeleton
             rows={4}
             wrapperClassName="space-y-3 animate-pulse"
-            itemClassName="h-24 rounded-2xl bg-surface-sunken"
+            itemClassName="h-24 rounded-panel bg-surface-sunken"
           />
         )}
 

@@ -45,7 +45,7 @@ export function ProgressCard({
   const palette = PALETTE[Math.abs(seed) % PALETTE.length];
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-[#E4E9F2] bg-white p-6 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+    <div className="relative flex h-full flex-col overflow-hidden rounded-panel border border-brand-line bg-white p-6 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
       <div
         aria-hidden={avatar?.url ? undefined : true}
         className="pointer-events-none absolute right-0 top-0 hidden h-[68%] w-[34%] items-center justify-center overflow-hidden sm:flex"
@@ -80,7 +80,7 @@ export function ProgressCard({
           <Icon size={26} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
-          <h3 className="break-words font-body text-2xl font-extrabold leading-tight text-[#0F1F3D]">
+          <h3 className="break-words font-body text-2xl font-extrabold leading-tight text-brand">
             {title}
           </h3>
           {subtitle && (
@@ -100,7 +100,7 @@ export function ProgressCard({
               className={`shrink-0 ${danger ? 'text-[#E5384F]' : 'text-[#4B5E80]'}`}
             />
             <span
-              className={`text-[15px] font-medium ${danger ? 'text-[#C42B40]' : 'text-[#0F1F3D]'}`}
+              className={`text-[15px] font-medium ${danger ? 'text-[#C42B40]' : 'text-brand'}`}
             >
               {text}
             </span>
@@ -108,7 +108,7 @@ export function ProgressCard({
         ))}
       </div>
 
-      <div className="relative mt-5 border-t border-[#E4E9F2] pt-4">
+      <div className="relative mt-5 border-t border-brand-line pt-4">
         <p className="pb-2 text-sm text-[#5B6B88]">{progress.label}</p>
         <div className="flex items-center gap-3">
           <ProgressBar
@@ -116,7 +116,7 @@ export function ProgressCard({
             color={palette[3]}
             className="flex-1"
           />
-          <span className="text-sm font-semibold tabular-nums text-[#0F1F3D]">
+          <span className="text-sm font-semibold tabular-nums text-brand">
             {Math.round(progress.value)}%
           </span>
         </div>
