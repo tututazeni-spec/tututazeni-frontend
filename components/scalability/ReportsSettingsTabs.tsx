@@ -104,7 +104,7 @@ export function ReportsTab({
               <div className="flex items-center gap-3">
                 <span
                   aria-hidden
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EEF4FD] text-brand"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand"
                 >
                   <BarChart3 className="h-5 w-5" strokeWidth={1.8} />
                 </span>

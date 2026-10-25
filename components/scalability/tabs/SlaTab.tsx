@@ -52,7 +52,7 @@ export function SlaTab({ data, slaConfigs }: SlaTabProps) {
       )}
 
       {/* Conformidade SLA — desenho do card "ROI Total" */}
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="mb-2 flex items-center gap-3">
           <ShieldCheck className="h-6 w-6" strokeWidth={1.8} aria-hidden />
           <h3 className="font-display text-base font-bold uppercase tracking-wide">
@@ -141,7 +141,7 @@ export function SlaTab({ data, slaConfigs }: SlaTabProps) {
         </div>
 
         <div className="mt-3 flex items-center gap-3 rounded-card bg-white/10 px-4 py-2 font-body text-sm">
-          <Info className="h-5 w-5 shrink-0 text-[#7CC4FF]" aria-hidden />
+          <Info className="h-5 w-5 shrink-0 text-on-brand-accent" aria-hidden />
           <span>
             {s.isBreached
               ? `O uptime actual está abaixo da meta contratada de ${formatPercent(s.slaTarget, 1)}.`
