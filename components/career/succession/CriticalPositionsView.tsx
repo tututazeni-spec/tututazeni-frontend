@@ -226,7 +226,7 @@ export function CriticalPositionsView() {
                 }}
                 className={cn(
                   'cursor-pointer rounded-[18px] border p-4 shadow-[0_8px_24px_rgba(15,31,61,0.25)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50',
-                  'border-transparent bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] text-white',
+                  'border-transparent bg-gradient-to-br from-brand via-brand-mid to-brand-dark text-white',
                   selectedId === cp.id && 'ring-2 ring-[#0D6EFD] ring-offset-2',
                 )}
               >
@@ -287,7 +287,7 @@ export function CriticalPositionsView() {
               <Skeleton rows={4} />
             ) : (
               <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
-                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] px-6 py-4 text-white">
+                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-6 py-4 text-white">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2.5">
                       <Crown size={20} strokeWidth={1.75} />
@@ -316,13 +316,13 @@ export function CriticalPositionsView() {
                 </div>
                 <div className="p-6">
                   <div className="mt-3 grid grid-cols-2 gap-3 font-body text-xs">
-                    <div className="rounded-control bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-3 text-white">
+                    <div className="rounded-control bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-3 text-white">
                       <div className="text-white/80">Impacto no negócio</div>
                       <div className="font-semibold text-white">
                         {BUSINESS_IMPACT_LABEL[detail.businessImpact]}
                       </div>
                     </div>
-                    <div className="rounded-control bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-3 text-white">
+                    <div className="rounded-control bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-3 text-white">
                       <div className="text-white/80">Tempo de substituição</div>
                       <div className="font-semibold text-white">
                         {REPLACEMENT_TIME_LABEL[detail.replacementTime]}
@@ -355,7 +355,7 @@ export function CriticalPositionsView() {
                       title="Sem sucessores identificados"
                     />
                   ) : (
-                    <div className="space-y-3 rounded-b-[14px] border border-t-0 border-brand-line bg-[#E8F0FE]/40 p-3">
+                    <div className="space-y-3 rounded-b-[14px] border border-t-0 border-brand-line bg-brand-soft/40 p-3">
                       {detail.successionPlans.map((sp) => (
                         <div
                           key={sp.id}
