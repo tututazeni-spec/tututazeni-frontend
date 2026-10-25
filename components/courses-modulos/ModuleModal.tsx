@@ -28,6 +28,7 @@ import { CourseImageField } from '@/components/courses/CourseImageField';
 import type { CourseModule } from './types';
 import { ObjectivesPicker } from './ObjectivesPicker';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface CompetencyOption {
   id: number;
@@ -375,9 +376,10 @@ export function ModuleModal({
             >
               <div className="max-h-36 space-y-1 overflow-y-auto rounded-control border border-border p-2">
                 {competencyOptions.length === 0 && (
-                  <p className="text-xs text-ink-faint">
-                    Sem competências cadastradas.
-                  </p>
+                  <EmptyState
+                    variant="inline"
+                    title="Sem competências cadastradas"
+                  />
                 )}
                 {competencyOptions.map((c) => (
                   <label

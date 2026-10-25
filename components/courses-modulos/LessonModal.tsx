@@ -40,6 +40,7 @@ import {
   SUGGESTED_LESSON_OBJECTIVES,
 } from './ObjectivesPicker';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface LessonModalProps {
   moduleId: number;
@@ -765,9 +766,10 @@ function LessonActivitiesAndResources({
             </div>
           ))}
           {(lesson.activities ?? []).length === 0 && (
-            <p className="m-0 text-xs text-ink-faint">
-              Nenhuma actividade adicionada.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Nenhuma actividade adicionada"
+            />
           )}
         </div>
         <div className="flex flex-wrap gap-2">
@@ -829,9 +831,7 @@ function LessonActivitiesAndResources({
             </div>
           ))}
           {(lesson.resources ?? []).length === 0 && (
-            <p className="m-0 text-xs text-ink-faint">
-              Nenhum recurso adicionado.
-            </p>
+            <EmptyState variant="inline" title="Nenhum recurso adicionado" />
           )}
         </div>
         <div className="flex flex-wrap gap-2">
