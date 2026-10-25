@@ -54,6 +54,7 @@ import type {
   KpiDefinitionRow,
   RoiEvaluationModelRow,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const STEPS = [
   { id: 'identification', label: 'Identificação' },
@@ -738,8 +739,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               />
             </FormField>
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={hasControlGroup}
                 onChange={(e) => set('hasControlGroup', e.target.checked)}
               />

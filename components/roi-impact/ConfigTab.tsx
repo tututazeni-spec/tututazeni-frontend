@@ -42,6 +42,7 @@ import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPic
 import type { DirectoryUser } from '@/components/departments/departmentFormData';
 import { INITIATIVE_TYPE_LABELS, BENEFIT_TYPE_LABELS } from './utils';
 import type { RoiConfigData } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const ROLE_LABELS: Record<Role, string> = {
   ADMIN: 'Administrador',
@@ -132,12 +133,7 @@ function RoleCheckboxGroup({
             }}
             className="flex cursor-pointer items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors hover:brightness-95 focus-within:ring-2 focus-within:ring-brand/40"
           >
-            <input
-              type="checkbox"
-              checked={on}
-              onChange={() => toggle(role)}
-              className="sr-only"
-            />
+            <Checkbox checked={on} onChange={() => toggle(role)} />
             {ROLE_LABELS[role]}
           </label>
         );

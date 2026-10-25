@@ -33,6 +33,7 @@ import { ScenarioDetailModal } from './ScenarioDetailModal';
 import { ScenarioCompareModal } from './ScenarioCompareModal';
 import { fmt$, INITIATIVE_TYPE_LABELS } from './utils';
 import type { ScenarioListData } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export function ScenariosTab() {
   const notify = useToast();
@@ -171,8 +172,7 @@ export function ScenariosTab() {
                       onClick={() => setDetailId(s.id)}
                     >
                       <TableCell onClick={(e) => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={selected.includes(s.id)}
                           onChange={() => toggleSelected(s.id)}
                           aria-label={`Selecionar ${s.name} para comparação`}
