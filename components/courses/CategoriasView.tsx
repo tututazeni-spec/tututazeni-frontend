@@ -20,11 +20,7 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Textarea';
-import {
-  CATEGORY_BTN_GHOST,
-  CATEGORY_BTN_PRIMARY,
-  CategoryCard,
-} from './CategoryCard';
+import { CategoryCard } from './CategoryCard';
 import { Skeleton } from './shared';
 import type { CourseCategoryManaged } from './types';
 
@@ -426,31 +422,34 @@ export function CategoriasView({
                 onViewCourses={() => setListFor(cat)}
                 actions={
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={CATEGORY_BTN_GHOST}
+                      intent="secondary"
+                      size="compact"
                       title="Eliminar categoria"
                       aria-label="Eliminar categoria"
                       onClick={() => onDelete(cat)}
                     >
                       <Trash2 size={15} strokeWidth={1.75} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className={CATEGORY_BTN_GHOST}
+                      intent="secondary"
+                      size="compact"
                       onClick={() => setModalFor(cat)}
                     >
                       <Pencil size={15} strokeWidth={1.75} />
                       Editar
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className={CATEGORY_BTN_PRIMARY}
+                      intent="primary"
+                      size="compact"
                       onClick={() => setCoursesFor(cat)}
                     >
                       <BookPlus size={15} strokeWidth={1.75} />
                       Gerir cursos
-                    </button>
+                    </Button>
                   </>
                 }
               />
