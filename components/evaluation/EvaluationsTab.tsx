@@ -37,6 +37,7 @@ import { NewEvaluationWizard } from './NewEvaluationWizard';
 import { SubmitEvaluationModal } from './SubmitEvaluationModal';
 import { PURPOSE_LABEL, REQUEST_STATUS_MAP } from './constants';
 import type { Cycle, EvaluationRequestRow } from './types';
+import { saveBlob } from '@/lib/download';
 
 const ALL = 'ALL';
 const STATUS_ITEMS = [
@@ -186,13 +187,7 @@ export function EvaluationsTab() {
     );
     const csv = `﻿${[header.join(','), ...lines].join('\r\n')}`;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'avaliacoes.csv';
-    a.click();
-    // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    saveBlob(blob, 'avaliacoes.csv');
   };
 
   if (!canManage) {

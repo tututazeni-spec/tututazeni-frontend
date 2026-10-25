@@ -27,6 +27,7 @@ import {
   type PaymentStatus,
   type PayrollPayment,
 } from './insightTypes';
+import { saveBlob } from '@/lib/download';
 
 const TH =
   'px-2 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white';
@@ -51,13 +52,7 @@ interface BankFile {
 
 function downloadCsv(file: BankFile) {
   const blob = new Blob(['﻿', file.content], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = file.filename;
-  a.click();
-  // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  saveBlob(blob, file.filename);
 }
 
 export function PaymentsView() {

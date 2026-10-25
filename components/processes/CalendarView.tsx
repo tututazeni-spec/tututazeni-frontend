@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
-import { API_URL } from '@/lib/apiClient';
+import { downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate } from '@/lib/format';
@@ -254,18 +254,11 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
   const exportIcs = async () => {
     setExporting(true);
     try {
-      const qs = new URLSearchParams(params).toString();
-      const res = await fetch(`${API_URL}/processes/calendar/ics?${qs}`, {
-        credentials: 'include',
+      await downloadFromApi('/processes/calendar/ics', {
+        params,
+        filename: 'prazos-processos.ics',
+        errorMessage: 'Falha ao exportar o calendário',
       });
-      if (!res.ok) throw new Error('Falha ao exportar o calendário');
-      const url = URL.createObjectURL(await res.blob());
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'prazos-processos.ics';
-      a.click();
-      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e) {
       notify({
         title: e instanceof Error ? e.message : 'Falha ao exportar',

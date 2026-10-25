@@ -12,7 +12,7 @@ import { useMemo, useState } from 'react';
 import { BarChart3, Download, Info, Lightbulb } from 'lucide-react';
 import { NavyPanel, NavyPanelRow } from './NavyPanel';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { API_URL } from '@/lib/api';
+import { downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
@@ -69,24 +69,11 @@ const XLSX_REPORTS: Partial<Record<RoiReportKey, string>> = {
   'top-initiatives': 'top-initiatives/export/xlsx',
 };
 
-async function downloadReportFile(
-  path: string,
-  filename: string,
-): Promise<void> {
-  const res = await fetch(`${API_URL}/roi-impact/reports/${path}`, {
-    credentials: 'include',
+function downloadReportFile(path: string, filename: string): Promise<void> {
+  return downloadFromApi(`/roi-impact/reports/${path}`, {
+    filename,
+    errorMessage: 'Erro ao gerar o ficheiro',
   });
-  if (!res.ok) throw new Error('Erro ao gerar o ficheiro');
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 export function ReportsTab() {

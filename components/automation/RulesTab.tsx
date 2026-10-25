@@ -57,6 +57,7 @@ import type {
   RulesExportResponse,
   RunAllResponse,
 } from './types';
+import { saveBlob } from '@/lib/download';
 
 const ALL = '__all__';
 
@@ -307,15 +308,7 @@ export function RulesTab({
         '/automation/rules/export',
         { params },
       );
-      const url = URL.createObjectURL(
-        new Blob([content], { type: 'text/csv;charset=utf-8' }),
-      );
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      saveBlob(new Blob([content], { type: 'text/csv;charset=utf-8' }), filename);
     } catch (e) {
       reportError(e, { source: 'RulesTab.exportCsv' });
       notify({

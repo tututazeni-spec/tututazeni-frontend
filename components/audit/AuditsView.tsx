@@ -51,6 +51,7 @@ import type {
   Severity,
 } from './types';
 import { safeHref } from '@/lib/safeHref';
+import { saveBlob } from '@/lib/download';
 
 type BadgeIntent = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 
@@ -478,15 +479,7 @@ function AuditModal({
     {
       invalidateKeys: [queryKeys.audit.all],
       onSuccess: ({ filename, content }) => {
-        const url = URL.createObjectURL(
-          new Blob([content], { type: 'text/markdown;charset=utf-8' }),
-        );
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        link.click();
-        // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+        saveBlob(new Blob([content], { type: 'text/markdown;charset=utf-8' }), filename);
       },
       onError: opts.onError,
     },

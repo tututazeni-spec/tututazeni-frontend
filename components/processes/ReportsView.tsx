@@ -24,7 +24,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { API_URL } from '@/lib/apiClient';
+import { downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
@@ -245,18 +245,11 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
   const exportAs = async (format: 'csv' | 'xlsx' | 'pdf') => {
     setExporting(format);
     try {
-      const qs = new URLSearchParams({ ...params, format }).toString();
-      const res = await fetch(`${API_URL}/processes/reports/export?${qs}`, {
-        credentials: 'include',
+      await downloadFromApi('/processes/reports/export', {
+        params: { ...params, format },
+        filename: `relatorio-processos.${format}`,
+        errorMessage: 'Falha ao exportar o relatório',
       });
-      if (!res.ok) throw new Error('Falha ao exportar o relatório');
-      const url = URL.createObjectURL(await res.blob());
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `relatorio-processos.${format}`;
-      a.click();
-      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e) {
       notify({
         title: e instanceof Error ? e.message : 'Falha ao exportar',

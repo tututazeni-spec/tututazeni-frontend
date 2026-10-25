@@ -9,7 +9,8 @@
 import { useState } from 'react';
 import { ExternalLink, FileDown } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { API_URL, apiClient } from '@/lib/apiClient';
+import { apiClient } from '@/lib/apiClient';
+import { downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate, formatDateTime } from '@/lib/format';
@@ -71,15 +72,10 @@ export function DocumentPanel({ doc, onClose, onOpenInstance, onFulfil }: Docume
 
   const downloadPdf = async () => {
     try {
-      const res = await fetch(`${API_URL}/processes/documents/${doc.id}/pdf`, { credentials: 'include' });
-      if (!res.ok) throw new Error('Falha ao obter o PDF');
-      const url = URL.createObjectURL(await res.blob());
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${doc.name}.pdf`;
-      a.click();
-      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      await downloadFromApi(`/processes/documents/${doc.id}/pdf`, {
+        filename: `${doc.name}.pdf`,
+        errorMessage: 'Falha ao obter o PDF',
+      });
     } catch (e) {
       notify({ title: e instanceof Error ? e.message : 'Falha ao obter o PDF', intent: 'danger' });
     }

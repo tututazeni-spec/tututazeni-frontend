@@ -34,6 +34,7 @@ import { buildCsv } from '@/lib/csv';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { useDepartmentOptions } from './runData';
 import type { ReportResult } from './insightTypes';
+import { saveBlob } from '@/lib/download';
 
 const REPORT_ITEMS = [
   { value: 'monthly-payroll', label: 'Folha salarial mensal' },
@@ -162,13 +163,7 @@ function exportCsv(report: ReportResult, columns: string[]) {
     ';',
   );
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `payroll-${report.type}.csv`;
-  a.click();
-  // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  saveBlob(blob, `payroll-${report.type}.csv`);
 }
 
 export function ReportsView() {

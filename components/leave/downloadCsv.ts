@@ -3,13 +3,11 @@
 // módulo Leave ({ filename, content }). O BOM faz o Excel abrir os acentos
 // correctamente; o separador ';' já vem aplicado pelo backend.
 
+import { saveBlob } from '@/lib/download';
+
 export function downloadCsv(filename: string, content: string): void {
-  const blob = new Blob(['\uFEFF', content], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  saveBlob(
+    new Blob(['﻿', content], { type: 'text/csv;charset=utf-8' }),
+    filename,
+  );
 }

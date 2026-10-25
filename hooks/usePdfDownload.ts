@@ -5,7 +5,7 @@
 'use client';
 
 import { useState } from 'react';
-import { API_URL } from '@/lib/api';
+import { downloadFromApi } from '@/lib/download';
 import { reportError } from '@/lib/errorReporting';
 
 export type PdfType = 'declaration' | 'certificate' | 'payslip' | 'report';
@@ -24,25 +24,10 @@ export function usePdfDownload(type: PdfType, id: string) {
         type === 'certificate'
           ? `/certificates/${id}/pdf`
           : `/pdf/${type}/${id}`;
-      const res = await fetch(`${API_URL}${path}`, {
-        method: 'GET',
-        credentials: 'include',
+      await downloadFromApi(path, {
+        filename: `${type}-${id}.pdf`,
+        errorMessage: 'Erro ao gerar PDF',
       });
-
-      if (!res.ok) throw new Error('Erro ao gerar PDF');
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-
-      // Criar link temporário e clicar
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${type}-${id}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e) {
       reportError(e, { source: 'usePdfDownload.download' });
       setError('Não foi possível gerar o PDF. Tente novamente.');
