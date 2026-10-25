@@ -13,6 +13,7 @@ import { CATEGORY_CFG, Skeleton } from './shared';
 import type { NotifData, Notification } from './types';
 import type { ReadFilter } from '@/hooks/useNotificationsInbox';
 import { safeHref } from '@/lib/safeHref';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 
 function timeAgo(d: string): string {
   const diff = Date.now() - new Date(d).getTime();
@@ -163,10 +164,9 @@ export function InboxView({
       {/* Toolbar */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         {/* Category filter */}
-        <select
+        <NativeSelect
           value={category}
           onChange={(e) => onCategoryChange(e.target.value)}
-          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todas as categorias</option>
           {Object.entries(CATEGORY_CFG).map(([k, v]) => (
@@ -174,7 +174,7 @@ export function InboxView({
               {v.label}
             </option>
           ))}
-        </select>
+        </NativeSelect>
 
         {/* Read filter */}
         <div className="flex gap-1 rounded-control bg-surface-sunken p-1">

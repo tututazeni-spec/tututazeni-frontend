@@ -24,6 +24,7 @@ import { Inbox, ShieldCheck, SlidersHorizontal } from 'lucide-react';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList } from '@/components/ui/PillTabs';
 import { pollInterval } from '@/lib/polling';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Priority/Category/Notification/NotifData/Stats/AdminForm vivem em
@@ -193,40 +194,38 @@ function PreferencesView() {
         <div className="flex items-center gap-3">
           <div>
             <div className="mb-1 font-body text-xs text-ink-faint">Das</div>
-            <select
+            <NativeSelect
               value={prefs.quietHourStart}
               onChange={(e) =>
                 setPrefs((p) =>
                   p ? { ...p, quietHourStart: parseInt(e.target.value) } : null,
                 )
               }
-              className="rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5 font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
             >
               {Array.from({ length: 24 }, (_, h) => (
                 <option key={h} value={h}>
                   {String(h).padStart(2, '0')}:00
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
           <span className="mt-5 font-body text-sm text-ink-faint">às</span>
           <div>
             <div className="mb-1 font-body text-xs text-ink-faint">Às</div>
-            <select
+            <NativeSelect
               value={prefs.quietHourEnd}
               onChange={(e) =>
                 setPrefs((p) =>
                   p ? { ...p, quietHourEnd: parseInt(e.target.value) } : null,
                 )
               }
-              className="rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5 font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
             >
               {Array.from({ length: 24 }, (_, h) => (
                 <option key={h} value={h}>
                   {String(h).padStart(2, '0')}:00
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
         </div>
       </Card>
