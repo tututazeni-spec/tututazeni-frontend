@@ -14,6 +14,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DirectoryUser } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface DirectoryViewProps {
   onSelect: (id: number) => void;
@@ -211,9 +212,7 @@ export function DirectoryView({ onSelect }: DirectoryViewProps) {
           itemClassName="h-[190px] rounded-panel bg-surface-sunken"
         />
       ) : data.length === 0 ? (
-        <div className="py-12 text-center text-sm text-ink-faint">
-          Nenhum colaborador encontrado
-        </div>
+        <EmptyState variant="inline" title="Nenhum colaborador encontrado" />
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {data.map((user) => (

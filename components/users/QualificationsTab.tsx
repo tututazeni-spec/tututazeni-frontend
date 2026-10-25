@@ -210,9 +210,7 @@ export function QualificationsTab({ userId }: { userId: number }) {
         </div>
         <div className="space-y-1.5 p-5">
           {data.qualifications.length === 0 && adding !== 'qualification' && (
-            <p className="font-body text-xs text-brand/50">
-              Sem habilitações registadas.
-            </p>
+            <EmptyState variant="inline" title="Sem habilitações registadas" />
           )}
           {data.qualifications.map((q) => (
             <div key={q.id} className={row}>
@@ -343,9 +341,7 @@ export function QualificationsTab({ userId }: { userId: number }) {
         </div>
         <div className="space-y-1.5 p-5">
           {data.languages.length === 0 && adding !== 'language' && (
-            <p className="font-body text-xs text-brand/50">
-              Sem idiomas registados.
-            </p>
+            <EmptyState variant="inline" title="Sem idiomas registados" />
           )}
           {data.languages.map((l) => (
             <div key={l.id} className={row}>
@@ -420,9 +416,7 @@ export function QualificationsTab({ userId }: { userId: number }) {
         </div>
         <div className="space-y-1.5 p-5">
           {data.certifications.length === 0 && adding !== 'certification' && (
-            <p className="font-body text-xs text-brand/50">
-              Sem certificações registadas.
-            </p>
+            <EmptyState variant="inline" title="Sem certificações registadas" />
           )}
           {data.certifications.map((c) => (
             <div key={c.id} className={row}>

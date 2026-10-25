@@ -34,14 +34,6 @@ export function InfoCard({
   );
 }
 
-export function EmptyState({ children }: { children: ReactNode }) {
-  return (
-    <div className="py-8 text-center text-sm text-ink-faint border border-dashed border-border-strong rounded-card">
-      {children}
-    </div>
-  );
-}
-
 export function LoadingRows() {
   return (
     <Skeleton

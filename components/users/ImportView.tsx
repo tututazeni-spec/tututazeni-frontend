@@ -52,6 +52,7 @@ import type {
   ModuleAuditLogsResponse,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const FIELD_ITEMS = IMPORT_FIELDS.map((f) => ({
   value: f,
@@ -369,9 +370,7 @@ export function ImportView() {
           Histórico de importações
         </div>
         {!history || history.data.length === 0 ? (
-          <p className="font-body text-sm text-ink-faint">
-            Sem importações registadas.
-          </p>
+          <EmptyState variant="inline" title="Sem importações registadas" />
         ) : (
           <ul className="space-y-2">
             {history.data.map((log) => (

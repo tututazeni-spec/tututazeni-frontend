@@ -7,6 +7,7 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { managerSubtitle } from './logic';
 import type { DirectoryUser } from '../types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface ManagerPickerProps {
   selected: DirectoryUser | null;
@@ -66,9 +67,10 @@ export function ManagerPicker({
                 </div>
               )}
               {!loading && results.length === 0 && (
-                <div className="px-3 py-2 text-sm text-ink-muted">
-                  Nenhum colaborador encontrado
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Nenhum colaborador encontrado"
+                />
               )}
               {results.map((u) => (
                 <button

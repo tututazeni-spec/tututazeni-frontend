@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/Table';
 import type { EvalResults } from '@/components/evaluation/types';
 import type { QueryData } from '@/hooks/useUserProfileData';
-import { InfoCard, EmptyState, LoadingRows } from './shared';
+import { InfoCard, LoadingRows } from './shared';
 import {
   careerPlanRows,
   completedIntent,
@@ -30,11 +30,12 @@ import {
   type DevelopmentPlansResponse,
   type CareerProfile,
 } from '../types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function PerformanceView({ data, isLoading }: QueryData<EvalResults>) {
   if (isLoading) return <LoadingRows />;
   if (!data || data.hasResults === false)
-    return <EmptyState>Sem avaliações de desempenho</EmptyState>;
+    return <EmptyState title="Sem avaliações de desempenho" />;
 
   return (
     <div className="space-y-4">
@@ -92,7 +93,7 @@ export function EvaluationsView({
 }: QueryData<UserEval360CycleEntry[]>) {
   if (isLoading) return <LoadingRows />;
   if (!data || data.length === 0)
-    return <EmptyState>Sem avaliações 360° registadas</EmptyState>;
+    return <EmptyState title="Sem avaliações 360° registadas" />;
 
   return (
     <Table>
@@ -135,7 +136,7 @@ export function PdiView({
 }: QueryData<DevelopmentPlansResponse>) {
   if (isLoading) return <LoadingRows />;
   if (!data || data.data.length === 0)
-    return <EmptyState>Sem PDI registados</EmptyState>;
+    return <EmptyState title="Sem PDI registados" />;
 
   return (
     <Table>
@@ -178,7 +179,7 @@ export function PdiView({
 
 export function CareerView({ data, isLoading }: QueryData<CareerProfile>) {
   if (isLoading) return <LoadingRows />;
-  if (!data) return <EmptyState>Sem dados de carreira</EmptyState>;
+  if (!data) return <EmptyState title="Sem dados de carreira" />;
 
   return (
     <div className="space-y-4">
@@ -188,7 +189,7 @@ export function CareerView({ data, isLoading }: QueryData<CareerProfile>) {
           Histórico de cargos
         </div>
         {data.careerHistory.length === 0 ? (
-          <EmptyState>Sem histórico de cargos</EmptyState>
+          <EmptyState title="Sem histórico de cargos" />
         ) : (
           <Table>
             <TableHead>
