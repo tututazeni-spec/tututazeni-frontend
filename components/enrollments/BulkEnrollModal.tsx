@@ -13,7 +13,7 @@ import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -213,14 +213,14 @@ export function BulkEnrollModal({
                         className="inline-flex items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-xs text-ink"
                       >
                         {u.fullName}
-                        <button
+                        <IconButton
+                          icon={X}
+                          label={`Remover ${u.fullName}`}
+                          intent="ghost"
+                          size="xs"
                           type="button"
-                          aria-label={`Remover ${u.fullName}`}
                           onClick={() => toggle(u)}
-                          className="text-ink-muted hover:text-ink"
-                        >
-                          <X size={12} strokeWidth={2} />
-                        </button>
+                        />
                       </span>
                     ))}
                   </div>

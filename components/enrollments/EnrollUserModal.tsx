@@ -21,7 +21,7 @@ import { useApiMutation } from '@/hooks/useApiQuery';
 import { ApiError, apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -239,14 +239,14 @@ export function EnrollUserModal({
                     </div>
                   )}
                 </div>
-                <button
+                <IconButton
+                  icon={X}
+                  label="Remover colaborador"
+                  intent="ghost"
+                  size="compact"
                   type="button"
-                  aria-label="Remover colaborador"
                   onClick={() => setSelectedUser(null)}
-                  className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-                >
-                  <X size={16} strokeWidth={1.75} />
-                </button>
+                />
               </div>
             ) : (
               <div className="relative">
