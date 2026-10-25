@@ -48,6 +48,7 @@ import {
   TRAINING_THEMATIC_AREA_OPTIONS,
 } from './trainingOptions';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface TrainingFormModalProps {
   /** null = criar; um Training existente = editar. */
@@ -496,9 +497,7 @@ export function TrainingFormModal({
               >
                 <div className="max-h-36 space-y-1 overflow-y-auto rounded-control border border-border p-2">
                   {competencyOptions.length === 0 && (
-                    <p className="text-xs text-ink-faint">
-                      Sem competências cadastradas.
-                    </p>
+                    <EmptyState variant="inline" title="Sem competências cadastradas" />
                   )}
                   {competencyOptions.map((c) => (
                     <label
@@ -640,7 +639,7 @@ export function TrainingFormModal({
               >
                 <div className="max-h-36 space-y-1 overflow-y-auto rounded-control border border-border p-2">
                   {userItems.length === 0 && (
-                    <p className="text-xs text-ink-faint">Sem utilizadores.</p>
+                    <EmptyState variant="inline" title="Sem utilizadores" />
                   )}
                   {userItems.map((u) => (
                     <label
@@ -834,7 +833,7 @@ export function TrainingFormModal({
                 <FormField label="Unidades abrangidas" htmlFor="tf-units">
                   <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
                     {unitOptions.length === 0 && (
-                      <p className="text-xs text-ink-faint">Sem unidades.</p>
+                      <EmptyState variant="inline" title="Sem unidades" />
                     )}
                     {unitOptions.map((u) => (
                       <label
@@ -859,9 +858,7 @@ export function TrainingFormModal({
                 >
                   <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
                     {departmentOptions.length === 0 && (
-                      <p className="text-xs text-ink-faint">
-                        Sem departamentos.
-                      </p>
+                      <EmptyState variant="inline" title="Sem departamentos" />
                     )}
                     {departmentOptions.map((d) => (
                       <label
@@ -883,7 +880,7 @@ export function TrainingFormModal({
                 <FormField label="Cargos abrangidos" htmlFor="tf-positions">
                   <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
                     {positionOptions.length === 0 && (
-                      <p className="text-xs text-ink-faint">Sem cargos.</p>
+                      <EmptyState variant="inline" title="Sem cargos" />
                     )}
                     {positionOptions.map((p) => (
                       <label

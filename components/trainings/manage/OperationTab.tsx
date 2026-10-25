@@ -153,9 +153,10 @@ export function OperationTab({ training }: OperationTabProps) {
           Recursos necessários
         </div>
         {training.requiredResources.length === 0 ? (
-          <p className="text-xs text-ink-faint">
-            Nenhum recurso indicado — edita a formação para adicionar.
-          </p>
+          <EmptyState
+            variant="inline"
+            title="Nenhum recurso indicado — edita a formação para adicionar"
+          />
         ) : (
           <div className="flex flex-wrap gap-2">
             {training.requiredResources.map((r) => (
@@ -176,9 +177,10 @@ export function OperationTab({ training }: OperationTabProps) {
           Salas e recursos reservados
         </div>
         {bookings.length === 0 ? (
-          <p className="mb-3 text-xs text-ink-faint">
-            Nenhuma sala/recurso reservado para esta turma.
-          </p>
+          <EmptyState
+            variant="inline"
+            title="Nenhuma sala/recurso reservado para esta turma"
+          />
         ) : (
           <div className="mb-4 space-y-2">
             {bookings.map((b) => (

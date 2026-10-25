@@ -153,9 +153,10 @@ export function ResourcesView() {
                       Reservas activas
                     </div>
                     {(detail?.bookings ?? []).length === 0 ? (
-                      <p className="text-xs text-ink-faint">
-                        Sem reservas activas.
-                      </p>
+                      <EmptyState
+                        variant="inline"
+                        title="Sem reservas activas"
+                      />
                     ) : (
                       <div className="space-y-1.5">
                         {(detail?.bookings ?? []).map((b) => (
