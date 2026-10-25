@@ -24,6 +24,7 @@ import type {
   OidcProviderKey,
   UserPolicy,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const PROVIDER_LABELS: Record<OidcProviderKey, string> = {
   GOOGLE: 'Google',
@@ -41,9 +42,9 @@ interface ToggleProps {
 function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />

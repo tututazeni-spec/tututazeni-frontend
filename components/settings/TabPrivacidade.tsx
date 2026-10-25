@@ -28,6 +28,7 @@ import type {
   DsrType,
   PrivacySettings,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const DSR_TYPE_LABELS: Record<DsrType, string> = {
   ACCESS: 'Acesso',
@@ -71,9 +72,9 @@ interface ToggleProps {
 function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />

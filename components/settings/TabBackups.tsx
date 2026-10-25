@@ -26,6 +26,7 @@ import type {
   BackupsView,
 } from './types';
 import { pollInterval } from '@/lib/polling';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const FREQUENCY_ITEMS = [
   { value: 'DAILY', label: 'Diária' },
@@ -257,9 +258,9 @@ export function TabBackups() {
                 htmlFor="bk-enabled"
                 className="flex items-center gap-2 text-sm text-ink"
               >
-                <input
+                <Checkbox
                   id="bk-enabled"
-                  type="checkbox"
+
                   checked={form.enabled}
                   onChange={(e) => set('enabled', e.target.checked)}
                 />

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import type { SecurityPolicyController } from '@/hooks/useSecurityPolicy';
 import { TWO_FACTOR_LABELS } from './logic';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface ToggleProps {
   id: string;
@@ -20,9 +21,9 @@ interface ToggleProps {
 function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />

@@ -14,6 +14,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { LicenseSettings } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const MODULE_LABELS: Record<string, string> = {
   DASHBOARD: 'Dashboard',
@@ -171,9 +172,9 @@ export function TabLicenca() {
                 htmlFor={`mod-${key}`}
                 className="flex items-center gap-2 text-sm text-ink"
               >
-                <input
+                <Checkbox
                   id={`mod-${key}`}
-                  type="checkbox"
+
                   checked={modules[key] ?? true}
                   onChange={(e) =>
                     setModules((m) =>

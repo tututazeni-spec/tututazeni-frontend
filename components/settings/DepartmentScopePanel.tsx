@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { DepartmentScopes } from './types';
 import { ADMIN_ROLES } from '@/lib/roles';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const UNRESTRICTED_ROLES: readonly string[] = ADMIN_ROLES;
 
@@ -88,8 +89,7 @@ export function DepartmentScopePanel() {
                           key={d.id}
                           className="flex items-center gap-2 text-sm text-ink"
                         >
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={current.includes(d.id)}
                             onChange={(e) =>
                               setDraft((s) => ({

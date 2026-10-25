@@ -23,6 +23,7 @@ import type {
   IntegrationsOverview,
   WhatsAppStatus,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 // Símbolo oficial do WhatsApp (o lucide-react não tem ícones de marcas).
 function WhatsAppIcon() {
@@ -63,9 +64,9 @@ interface ToggleProps {
 function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />

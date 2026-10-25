@@ -23,6 +23,7 @@ import type {
   EmailTemplateKey,
   EmailTestResult,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const TEMPLATE_LABELS: Record<EmailTemplateKey, string> = {
   PASSWORD_RESET: 'Recuperação de password',
@@ -39,9 +40,9 @@ interface ToggleProps {
 function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />

@@ -22,6 +22,7 @@ import type {
   SystemStatus,
 } from './types';
 import { pollInterval } from '@/lib/polling';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 function fmtUptime(s: number) {
   const d = Math.floor(s / 86400);
@@ -287,9 +288,9 @@ export function TabSistema() {
                 htmlFor="sys-maint"
                 className="flex items-center gap-2 text-sm text-ink"
               >
-                <input
+                <Checkbox
                   id="sys-maint"
-                  type="checkbox"
+
                   checked={form.maintenance.enabled}
                   onChange={(e) =>
                     setForm({
@@ -408,8 +409,7 @@ export function TabSistema() {
                     key={m}
                     className="flex items-center gap-2 text-xs text-ink"
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={form.uploads.allowedMimeTypes.includes(m)}
                       onChange={(e) => toggleMime(m, e.target.checked)}
                     />

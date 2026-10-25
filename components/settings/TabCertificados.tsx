@@ -25,6 +25,7 @@ import type {
   CertificateTemplate,
   CertificateTemplateType,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const TEMPLATE_TYPES: { value: CertificateTemplateType; label: string }[] = [
   { value: 'COURSE', label: 'Curso' },
@@ -633,9 +634,9 @@ export function TabCertificados() {
                     htmlFor="tpl-isActive"
                     className="flex items-center gap-2 text-sm text-ink"
                   >
-                    <input
+                    <Checkbox
                       id="tpl-isActive"
-                      type="checkbox"
+
                       checked={draft.isActive}
                       onChange={(e) =>
                         setDraft((d) =>
@@ -649,9 +650,9 @@ export function TabCertificados() {
                     htmlFor="tpl-isDefault"
                     className="flex items-center gap-2 text-sm text-ink"
                   >
-                    <input
+                    <Checkbox
                       id="tpl-isDefault"
-                      type="checkbox"
+
                       checked={draft.isDefault}
                       onChange={(e) =>
                         setDraft((d) =>

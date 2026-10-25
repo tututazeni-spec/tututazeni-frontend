@@ -16,6 +16,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Select } from '@/components/ui/Select';
 import type { NotificationSettings } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 type Form = Omit<
   NotificationSettings,
@@ -44,9 +45,9 @@ interface ToggleProps {
 function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
