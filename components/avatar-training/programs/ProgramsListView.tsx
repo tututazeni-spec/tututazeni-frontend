@@ -11,7 +11,7 @@ import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { ProgramsListController } from '@/hooks/useProgramsList';
-import { CARD_BTN, CARD_BTN_GHOST, CardGrid, ProgramCard } from '../cards';
+import { CardGrid, ProgramCard } from '../cards';
 import { PROGRAM_STATUS } from '../constants';
 import { ALL, programActions } from './logic';
 
@@ -143,39 +143,43 @@ export function ProgramsListView({
                 onSelect={() => onOpenSheet(p.id)}
                 footer={
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={CARD_BTN_GHOST}
+                      intent="onDarkGhost"
+                      size="sm"
                       onClick={() => onOpenSheet(p.id)}
                     >
                       Ficha
-                    </button>
+                    </Button>
                     {actions.canSubmitReview && (
-                      <button
+                      <Button
                         type="button"
-                        className={CARD_BTN}
+                        intent="onDark"
+                        size="sm"
                         onClick={() => runAction(p.id, 'submit-review')}
                       >
                         Submeter a revisão
-                      </button>
+                      </Button>
                     )}
                     {actions.canPublish && (
-                      <button
+                      <Button
                         type="button"
-                        className={CARD_BTN}
+                        intent="onDark"
+                        size="sm"
                         onClick={() => runAction(p.id, 'publish')}
                       >
                         Publicar
-                      </button>
+                      </Button>
                     )}
                     {actions.canArchive && (
-                      <button
+                      <Button
                         type="button"
-                        className={CARD_BTN_GHOST}
+                        intent="onDarkGhost"
+                        size="sm"
                         onClick={() => runAction(p.id, 'archive')}
                       >
                         Arquivar
-                      </button>
+                      </Button>
                     )}
                   </>
                 }

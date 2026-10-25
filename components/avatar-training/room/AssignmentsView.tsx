@@ -7,13 +7,9 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { TrainingAssignmentsController } from '@/hooks/useTrainingAssignments';
-import {
-  AssignmentNavyCard,
-  AssignmentPhotoCard,
-  CARD_BTN,
-  CardGrid,
-} from '../cards';
+import { AssignmentNavyCard, AssignmentPhotoCard, CardGrid } from '../cards';
 import { assignmentAction } from './logic';
+import { Button } from '@/components/ui/Button';
 
 interface AssignmentsViewProps {
   ctl: TrainingAssignmentsController;
@@ -51,14 +47,15 @@ export function AssignmentsView({
       {list.map((a) => {
         const { done, resuming, label } = assignmentAction(a);
         const footer = !done && (
-          <button
+          <Button
             type="button"
-            className={CARD_BTN}
+            intent="onDark"
+            size="sm"
             disabled={isStarting(a.sessionId)}
             onClick={() => start(a.sessionId)}
           >
             {label}
-          </button>
+          </Button>
         );
         return variant === 'navy' ? (
           <AssignmentNavyCard key={a.id} assignment={a} footer={footer} />
