@@ -23,7 +23,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { ADMIN_RH_GESTOR_ROLES, Role } from '@/lib/roles';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import {
   DropdownMenu,
@@ -446,13 +446,14 @@ export function SpeakersGuestsTab() {
                 {canManage && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button
+                      <IconButton
+                        icon={MoreVertical}
+                        label="Acções do orador/convidado"
+                        intent="ghost"
+                        size="compact"
+                        className="shrink-0"
                         type="button"
-                        aria-label="Acções do orador/convidado"
-                        className="shrink-0 rounded-control p-1.5 text-brand-muted hover:bg-[#EEF4FD] hover:text-brand"
-                      >
-                        <MoreVertical size={16} strokeWidth={1.75} />
-                      </button>
+                      />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onSelect={() => openEdit(s)}>

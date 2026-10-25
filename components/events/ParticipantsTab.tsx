@@ -25,7 +25,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate, formatTime } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button, buttonVariants } from '@/components/ui/Button';
+import { Button, buttonVariants, IconButton } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import {
   DropdownMenu,
@@ -350,13 +350,14 @@ export function ParticipantsTab() {
                 {(canApprove || canReject || canCancel) && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button
+                      <IconButton
+                        icon={MoreVertical}
+                        label="Acções da inscrição"
+                        intent="ghost"
+                        size="compact"
+                        className="shrink-0"
                         type="button"
-                        aria-label="Acções da inscrição"
-                        className="shrink-0 rounded-control p-1.5 text-brand-muted hover:bg-[#EEF4FD] hover:text-brand"
-                      >
-                        <MoreVertical size={16} strokeWidth={1.75} />
-                      </button>
+                      />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       {canApprove && (
