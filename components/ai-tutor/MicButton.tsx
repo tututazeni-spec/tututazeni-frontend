@@ -21,7 +21,7 @@ export function MicButton({ listening, onClick, disabled }: MicButtonProps) {
       className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full transition disabled:opacity-50 ${
         listening
           ? 'animate-pulse bg-red-500 text-white'
-          : 'bg-[#0F1F3D] text-[#D4A017] hover:opacity-90'
+          : 'bg-brand text-[#D4A017] hover:opacity-90'
       }`}
     >
       {listening ? <Square size={16} /> : <Mic size={18} />}

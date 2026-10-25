@@ -14,7 +14,7 @@ export function SpeakingText({ text, charIndex }: SpeakingTextProps) {
 
   return (
     <p className="font-body text-sm leading-relaxed">
-      <span className="text-[#0F1F3D]">{spoken}</span>
+      <span className="text-brand">{spoken}</span>
       <span className="text-gray-400">{rest}</span>
     </p>
   );

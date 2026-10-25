@@ -31,7 +31,7 @@ export function AnalyticsView() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
-        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
+        itemClassName="skeleton-shimmer h-[155px] rounded-panel"
       />
     );
   if (!data) return null;
@@ -79,7 +79,7 @@ export function AnalyticsView() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 bg-brand/60 font-body text-xs font-medium text-white uppercase tracking-wide">
             Perguntas por curso
           </div>
           {data.perguntasPorCurso.length === 0 ? (
@@ -104,7 +104,7 @@ export function AnalyticsView() {
         </Card>
 
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 bg-brand/60 font-body text-xs font-medium text-white uppercase tracking-wide">
             Perguntas sem resposta autorizada
           </div>
           <p className="px-4 pt-3 font-body text-xs text-ink-faint">
