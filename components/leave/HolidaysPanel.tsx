@@ -21,6 +21,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import type { CustomHoliday } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const NATIONAL = '__national__';
 
@@ -165,11 +166,9 @@ export function HolidaysPanel() {
             />
           </FormField>
           <label className="flex items-center gap-2 pb-2 text-sm text-ink cursor-pointer">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={recurring}
               onChange={(e) => setRecurring(e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Repete todos os anos
           </label>

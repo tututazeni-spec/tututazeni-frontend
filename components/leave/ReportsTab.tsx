@@ -44,6 +44,7 @@ import type {
   LeaveType,
   ReportColumn,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const ALL = 'ALL';
 const ABSENTEEISM: LeaveReportKind = 'MONTHLY_ABSENTEEISM';
@@ -219,8 +220,7 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
           {kind === ABSENTEEISM && (
             <div className="space-y-2 border-t border-border pt-3">
               <label className="flex items-center gap-2 text-sm text-ink">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={custom}
                   onChange={(e) => setCustom(e.target.checked)}
                 />
@@ -230,8 +230,7 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted">
                   {leaveTypes.map((t) => (
                     <label key={t.code} className="flex items-center gap-1.5">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={included.includes(t.code)}
                         onChange={() => toggleIncluded(t.code)}
                       />
@@ -240,8 +239,7 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
                   ))}
                   {Object.entries(ABSENCE_TYPE_LABELS).map(([code, label]) => (
                     <label key={code} className="flex items-center gap-1.5">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={included.includes(code)}
                         onChange={() => toggleIncluded(code)}
                       />
