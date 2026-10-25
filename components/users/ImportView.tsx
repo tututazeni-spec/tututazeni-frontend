@@ -51,6 +51,7 @@ import type {
   ImportUserRow,
   ModuleAuditLogsResponse,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const FIELD_ITEMS = IMPORT_FIELDS.map((f) => ({
   value: f,
@@ -277,11 +278,9 @@ export function ImportView() {
           )}
 
           <label className="mt-4 flex cursor-pointer items-center gap-2 font-body text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={updateExisting}
               onChange={(e) => setUpdateExisting(e.target.checked)}
-              className="rounded accent-primary"
             />
             Atualizar utilizadores já existentes (por email) em vez de saltar
           </label>

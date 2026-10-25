@@ -19,6 +19,7 @@ import {
   SectionTitle,
 } from './fields';
 import type { CreateUserFormController } from '@/hooks/useCreateUserForm';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export function AccessSection({ ctl }: { ctl: CreateUserFormController }) {
   const {
@@ -84,11 +85,9 @@ export function AccessSection({ ctl }: { ctl: CreateUserFormController }) {
         onChange={handle('timezone')}
       />
       <label className="flex items-center gap-2 pb-2.5 text-sm text-ink-muted">
-        <input
-          type="checkbox"
+        <Checkbox
           checked={form.mfaEnabled}
           onChange={(e) => setField('mfaEnabled', e.target.checked)}
-          className="h-4 w-4 rounded border-border-strong accent-primary"
         />
         Autenticação multifator (MFA)
       </label>
@@ -137,11 +136,9 @@ export function AcademySection({ ctl }: { ctl: CreateUserFormController }) {
         options={CONTENT_ACCESS_LEVEL_OPTIONS}
       />
       <label className="col-span-2 flex items-center gap-2 pb-1 text-sm text-ink-muted">
-        <input
-          type="checkbox"
+        <Checkbox
           checked={form.isInstructor}
           onChange={(e) => setField('isInstructor', e.target.checked)}
-          className="h-4 w-4 rounded border-border-strong accent-primary"
         />
         É formador/instrutor
       </label>
