@@ -59,7 +59,7 @@ function CourseRankList({
 }: CourseRankListProps) {
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       {items.length === 0 ? (
@@ -287,7 +287,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
       {/* Actividade recente */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimas inscrições
           </div>
           {data.recentActivity.enrollments.length === 0 ? (
@@ -306,7 +306,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           )}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimas conclusões
           </div>
           {data.recentActivity.completions.length === 0 ? (
@@ -325,7 +325,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           )}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimas avaliações
           </div>
           {data.recentActivity.feedbacks.length === 0 ? (
@@ -345,7 +345,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           )}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimos certificados emitidos
           </div>
           {data.recentActivity.certificates.length === 0 ? (
@@ -370,7 +370,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
       {/* Recentemente criados/actualizados, próximos do término */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Recentemente criados
           </div>
           {data.recentlyCreated.map((c) => (
@@ -384,7 +384,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           ))}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Recentemente actualizados
           </div>
           {data.recentlyUpdated.map((c) => (
@@ -398,7 +398,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           ))}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Próximos do término
           </div>
           {data.endingSoon.length === 0 ? (

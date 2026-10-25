@@ -227,7 +227,7 @@ function CategoryCoursesModal({
               visible.map((c) => (
                 <label
                   key={c.id}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-surface-sunken"
+                  className="flex cursor-pointer items-center gap-3 rounded-control px-2 py-2 hover:bg-surface-sunken"
                 >
                   <input
                     type="checkbox"
@@ -307,7 +307,7 @@ function CategoryCourseListModal({
                 key={c.id}
                 type="button"
                 onClick={() => onSelect(c.id)}
-                className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-surface-sunken"
+                className="flex w-full items-center gap-3 rounded-control px-2 py-2 text-left hover:bg-surface-sunken"
               >
                 <span className="min-w-0 flex-1 truncate text-sm text-ink">
                   {c.title}

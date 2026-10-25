@@ -188,7 +188,7 @@ export function CourseListCard({
         }
       }}
       className={cn(
-        'relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/10 text-white shadow-[0_4px_14px_rgba(21,47,89,0.25)] transition-all duration-200 ease-out hover:scale-[1.03] hover:shadow-[0_10px_24px_rgba(21,47,89,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 motion-reduce:hover:scale-100',
+        'relative flex h-full cursor-pointer flex-col overflow-hidden rounded-panel border border-white/10 text-white shadow-[0_4px_14px_rgba(21,47,89,0.25)] transition-all duration-200 ease-out hover:scale-[1.03] hover:shadow-[0_10px_24px_rgba(21,47,89,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 motion-reduce:hover:scale-100',
       )}
       style={{
         background: `linear-gradient(165deg, ${palette[1]} 0%, ${palette[2]} 60%, ${palette[2]} 100%)`,
@@ -211,7 +211,7 @@ export function CourseListCard({
         </div>
         {actions && (
           <div
-            className="absolute right-3 top-3 z-20 rounded-full bg-[#0F1F3D]/70"
+            className="absolute right-3 top-3 z-20 rounded-full bg-brand/70"
             onClick={(ev) => ev.stopPropagation()}
             onKeyDown={(ev) => ev.stopPropagation()}
           >
@@ -304,7 +304,7 @@ export function CourseListCard({
       </div>
 
       {(myStatus || deadlineLabel || progress !== undefined) && (
-        <div className="m-4 mt-2 space-y-2 rounded-2xl bg-white/10 px-4 py-3">
+        <div className="m-4 mt-2 space-y-2 rounded-panel bg-white/10 px-4 py-3">
           {(myStatus || deadlineLabel) && (
             <div className="flex items-center justify-between font-body text-xs">
               {deadlineLabel ? (

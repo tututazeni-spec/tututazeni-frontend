@@ -10,9 +10,9 @@ import { CalendarDays, Tag, type LucideIcon } from 'lucide-react';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
 
 export const CATEGORY_BTN_PRIMARY =
-  'inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-[#0F1F3D] px-3 text-sm font-semibold text-white hover:bg-[#1B2F57] disabled:opacity-50';
+  'inline-flex h-8 items-center justify-center gap-1.5 rounded-control bg-brand px-3 text-sm font-semibold text-white hover:bg-[#1B2F57] disabled:opacity-50';
 export const CATEGORY_BTN_GHOST =
-  'inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border border-[#D5DCE8] bg-white px-3 text-sm font-semibold text-[#0F1F3D] hover:bg-[#F2F5FA] disabled:opacity-50';
+  'inline-flex h-8 items-center justify-center gap-1.5 rounded-control border border-[#D5DCE8] bg-white px-3 text-sm font-semibold text-brand hover:bg-[#F2F5FA] disabled:opacity-50';
 
 interface InfoLineProps {
   icon: LucideIcon;
@@ -32,7 +32,7 @@ function InfoLine({
   const body = (
     <>
       <Icon size={16} strokeWidth={1.75} className="shrink-0 text-[#4B5E80]" />
-      <span className="text-sm font-medium text-[#0F1F3D]">{text}</span>
+      <span className="text-sm font-medium text-brand">{text}</span>
     </>
   );
   if (!onClick) return <div className="flex items-center gap-2">{body}</div>;
@@ -43,7 +43,7 @@ function InfoLine({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="flex items-center gap-2 rounded-md text-left enabled:hover:underline disabled:cursor-default"
+      className="flex items-center gap-2 rounded-control text-left enabled:hover:underline disabled:cursor-default"
     >
       {body}
     </button>
@@ -77,7 +77,7 @@ export function CategoryCard({
   const palette = PALETTE[Math.abs(seed) % PALETTE.length];
 
   return (
-    <div className="relative flex h-full flex-col justify-between gap-3 overflow-hidden rounded-3xl border border-[#E4E9F2] bg-white p-4 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+    <div className="relative flex h-full flex-col justify-between gap-3 overflow-hidden rounded-panel border border-brand-line bg-white p-4 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
       {/* Painel recortado na diagonal (canto superior direito) */}
       <div
         aria-hidden
@@ -95,7 +95,7 @@ export function CategoryCard({
           <Tag size={20} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
-          <h3 className="break-words font-body text-xl font-extrabold leading-tight text-[#0F1F3D]">
+          <h3 className="break-words font-body text-xl font-extrabold leading-tight text-brand">
             {title}
           </h3>
           {subtitle && (
@@ -113,7 +113,7 @@ export function CategoryCard({
           type="button"
           onClick={onToggleActive}
           title={active ? 'Desactivar categoria' : 'Activar categoria'}
-          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold hover:brightness-95 ${active ? 'bg-[#2B7FE8] text-white' : 'bg-[#E4E9F2] text-[#4B5E80]'}`}
+          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold hover:brightness-95 ${active ? 'bg-[#2B7FE8] text-white' : 'bg-brand-line text-[#4B5E80]'}`}
         >
           {active ? 'Activa' : 'Inactiva'}
         </button>
@@ -130,7 +130,7 @@ export function CategoryCard({
         />
       </div>
 
-      <div className="relative flex flex-wrap items-center justify-end gap-2 border-t border-[#E4E9F2] pt-3">
+      <div className="relative flex flex-wrap items-center justify-end gap-2 border-t border-brand-line pt-3">
         {actions}
       </div>
     </div>

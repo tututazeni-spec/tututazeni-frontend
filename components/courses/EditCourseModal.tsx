@@ -639,7 +639,7 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
               {(course.instructors ?? []).map((ci) => (
                 <div
                   key={ci.id}
-                  className="flex items-center gap-2 rounded-lg border border-border bg-surface-sunken px-3 py-1.5"
+                  className="flex items-center gap-2 rounded-control border border-border bg-surface-sunken px-3 py-1.5"
                 >
                   <span className="flex-1 truncate text-sm text-ink">
                     {ci.user.fullName}

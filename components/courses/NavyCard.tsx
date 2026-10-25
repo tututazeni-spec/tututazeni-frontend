@@ -18,11 +18,11 @@ export function initials(name: string) {
 
 /** Classes para botões/triggers sobre o cartão escuro. */
 export const NAVY_ACTION =
-  'inline-flex h-8 items-center justify-center rounded-full bg-[#0F1F3D]/70 px-2 text-xs font-medium text-white/80 hover:bg-white/20 hover:text-white disabled:opacity-50';
+  'inline-flex h-8 items-center justify-center rounded-full bg-brand/70 px-2 text-xs font-medium text-white/80 hover:bg-white/20 hover:text-white disabled:opacity-50';
 
 /** Botão de acção principal sobre o cartão escuro. */
 export const NAVY_BTN =
-  'inline-flex h-9 items-center justify-center rounded-full bg-white/90 px-4 text-sm font-semibold text-[#0F1F3D] hover:bg-white disabled:opacity-50';
+  'inline-flex h-9 items-center justify-center rounded-full bg-white/90 px-4 text-sm font-semibold text-brand hover:bg-white disabled:opacity-50';
 
 export type NavyTone = 'success' | 'danger' | 'warning' | 'info' | 'neutral';
 
@@ -31,7 +31,7 @@ const TONE: Record<NavyTone, { pill: string; dot: string }> = {
   danger: { pill: 'bg-[#FFE1E4] text-[#7F1D2B]', dot: 'bg-[#E5384F]' },
   warning: { pill: 'bg-[#FFF1C9] text-[#6B4A00]', dot: 'bg-[#F2B01E]' },
   info: { pill: 'bg-[#DCEBFF] text-[#12366B]', dot: 'bg-[#2F7BEA]' },
-  neutral: { pill: 'bg-white/85 text-[#0F1F3D]', dot: 'bg-[#6B7A90]' },
+  neutral: { pill: 'bg-white/85 text-brand', dot: 'bg-[#6B7A90]' },
 };
 
 export interface NavyBadgeProps {
@@ -89,7 +89,7 @@ function Info({
       className={`flex min-w-0 items-center text-left px-2 ${compact ? 'gap-2' : 'gap-3'} ${flush ? 'pl-0 sm:pl-0 sm:pr-4' : 'sm:px-4'}`}
     >
       <span
-        className={`flex shrink-0 items-center justify-center rounded-full bg-white/90 text-[#0F1F3D] ${compact ? 'h-7 w-7' : 'h-9 w-9'}`}
+        className={`flex shrink-0 items-center justify-center rounded-full bg-white/90 text-brand ${compact ? 'h-7 w-7' : 'h-9 w-9'}`}
       >
         <Icon size={compact ? 14 : 18} strokeWidth={1.75} />
       </span>
@@ -330,7 +330,7 @@ export function NavyCard({
                         e.stopPropagation();
                         info.onClick?.();
                       }}
-                      className="w-full rounded-lg enabled:cursor-pointer enabled:hover:bg-white/10"
+                      className="w-full rounded-control enabled:cursor-pointer enabled:hover:bg-white/10"
                     >
                       <Info
                         {...info}

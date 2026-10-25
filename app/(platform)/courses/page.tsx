@@ -64,7 +64,7 @@ export default function CoursesPage() {
     (n) => !n.roles || (!!role && n.roles.includes(role)),
   );
 
-   const [nav, setNav] = useState<Nav>({ view: 'dashboard' });
+  const [nav, setNav] = useState<Nav>({ view: 'dashboard' });
   const [showCreate, setShowCreate] = useState(false);
   // Curso pré-seleccionado ao entrar na aba "Módulos & Lições" — via
   // "Gerir módulos" na aba Cursos (handleManageModules), "Ver inscrições"
@@ -113,7 +113,7 @@ export default function CoursesPage() {
           inferior — o ecrã com o gráfico, à esquerda, fica intacto — e dá
           contraste ao título e ao botão. As abas sobem 2rem para cima da
           foto (-mt-8 + z-10) para banner e navegação lerem-se como um bloco. */}
-      <header className="relative h-44 overflow-hidden rounded-3xl shadow-[0_8px_32px_rgba(15,31,61,0.18)] sm:h-56">
+      <header className="relative h-44 overflow-hidden rounded-panel shadow-[0_8px_32px_rgba(15,31,61,0.18)] sm:h-56">
         <Image
           src="/images/cursos.jpg"
           alt=""
@@ -124,7 +124,7 @@ export default function CoursesPage() {
         />
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-t from-[#0F1F3D]/90 via-[#0F1F3D]/35 to-transparent"
+          className="absolute inset-0 bg-gradient-to-t from-brand/90 via-brand/35 to-transparent"
         />
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 pb-14 sm:px-7">
           <h1 className="font-display text-2xl font-bold text-white sm:text-3xl">
@@ -183,7 +183,9 @@ export default function CoursesPage() {
         <ModulosView initialCourseId={modulosCourseId} />
       )}
       {nav.view === 'turmas' && <TurmasView />}
-      {nav.view === 'categorias' && <CategoriasView onSelectCourse={handleSelect} />}
+      {nav.view === 'categorias' && (
+        <CategoriasView onSelectCourse={handleSelect} />
+      )}
       {nav.view === 'relatorios' && <RelatoriosView onSelect={handleSelect} />}
 
       {showCreate && (
