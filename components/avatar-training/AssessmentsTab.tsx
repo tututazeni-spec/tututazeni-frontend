@@ -20,6 +20,7 @@ import { QueryError } from '@/components/ui/QueryError';
 import { SessionCardPicker } from './cards';
 import { useSessionDetail } from './SessionPicker';
 import type { RubricCriterion, SessionDetail } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 function AssessmentForm({ session }: { session: SessionDetail }) {
   const notify = useToast();
@@ -122,8 +123,7 @@ function AssessmentForm({ session }: { session: SessionDetail }) {
       </div>
 
       <label className="flex items-center gap-2 font-body text-sm text-ink">
-        <input
-          type="checkbox"
+        <Checkbox
           checked={formal}
           onChange={(e) => setFormal(e.target.checked)}
         />

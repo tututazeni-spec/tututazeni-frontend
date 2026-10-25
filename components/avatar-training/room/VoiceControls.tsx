@@ -4,6 +4,7 @@
 import { Square, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import type { TrainingRoomController } from '@/hooks/useTrainingRoom';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export function VoiceControls({ ctl }: { ctl: TrainingRoomController }) {
   const {
@@ -27,8 +28,7 @@ export function VoiceControls({ ctl }: { ctl: TrainingRoomController }) {
       {open && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-card border border-border bg-surface px-3 py-2 font-body text-sm text-ink">
           <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={voiceOn}
               disabled={pending.media}
               onChange={(e) => toggleVoice(e.target.checked)}
@@ -36,8 +36,7 @@ export function VoiceControls({ ctl }: { ctl: TrainingRoomController }) {
             Voz do instrutor
           </label>
           <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={captions}
               onChange={(e) => setCaptions(e.target.checked)}
             />
