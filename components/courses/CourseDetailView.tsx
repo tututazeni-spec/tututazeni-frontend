@@ -227,14 +227,14 @@ export function CourseDetailView({
                     className={`flex cursor-pointer items-center gap-3 rounded-card px-2.5 py-2 transition-colors ${
                       activeLesson?.id === lesson.id
                         ? 'bg-primary-subtle'
-                        : 'hover:bg-[#F2F5FA]'
+                        : 'hover:bg-brand-soft'
                     }`}
                   >
                     <div
                       className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs ${
                         lesson.completed
                           ? 'bg-success-subtle text-success-ink'
-                          : 'bg-brand-line text-[#4B5E80]'
+                          : 'bg-brand-line text-brand-muted'
                       }`}
                     >
                       {lesson.completed ? (
@@ -250,7 +250,7 @@ export function CourseDetailView({
                         {lesson.title}
                       </div>
                       {lesson.durationMinutes && (
-                        <div className="text-xs text-[#5B6B88]">
+                        <div className="text-xs text-brand-muted">
                           {fmtDuration(null, lesson.durationMinutes)}
                         </div>
                       )}
@@ -542,12 +542,12 @@ export function CourseDetailView({
                   {mod.lessons?.map((l) => (
                     <div
                       key={l.id}
-                      className="flex items-center gap-2 rounded-card px-2.5 py-2 text-xs font-medium text-brand hover:bg-[#F2F5FA]"
+                      className="flex items-center gap-2 rounded-card px-2.5 py-2 text-xs font-medium text-brand hover:bg-brand-soft"
                     >
                       <LessonIcon type={l.type} />
                       <span className="flex-1">{l.title}</span>
                       {l.durationMinutes && (
-                        <span className="text-[#5B6B88]">
+                        <span className="text-brand-muted">
                           {fmtDuration(null, l.durationMinutes)}
                         </span>
                       )}

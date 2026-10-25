@@ -361,7 +361,7 @@ export function GestaoView({
                         <DropdownMenuTrigger asChild>
                           <button
                             type="button"
-                            className="rounded-control p-1.5 text-[#C7D4E8] hover:bg-white/10 hover:text-white disabled:opacity-50"
+                            className="rounded-control p-1.5 text-on-brand-muted hover:bg-white/10 hover:text-white disabled:opacity-50"
                             disabled={rowBusy(c.id)}
                           >
                             <MoreHorizontal size={16} strokeWidth={1.75} />

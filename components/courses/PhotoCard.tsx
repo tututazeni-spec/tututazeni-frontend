@@ -153,7 +153,7 @@ export function PhotoCard({
                   ))}
             </h3>
             {subtitle && !compact && (
-              <p className="line-clamp-2 pt-2 text-sm text-[#C7D4E8]">
+              <p className="line-clamp-2 pt-2 text-sm text-on-brand-muted">
                 {subtitle}
               </p>
             )}
@@ -224,7 +224,7 @@ export function PhotoCard({
       {progress ? (
         <div className="m-4 mt-3 space-y-2 rounded-panel bg-white/10 px-4 py-3">
           {progress.label && (
-            <p className="text-xs text-[#C7D4E8]">{progress.label}</p>
+            <p className="text-xs text-on-brand-muted">{progress.label}</p>
           )}
           <div className="flex items-center gap-3">
             <ProgressBar
@@ -232,7 +232,7 @@ export function PhotoCard({
               color={palette[3]}
               className="flex-1"
             />
-            <span className="text-xs tabular-nums text-[#C7D4E8]">
+            <span className="text-xs tabular-nums text-on-brand-muted">
               {progress.value}%
             </span>
           </div>

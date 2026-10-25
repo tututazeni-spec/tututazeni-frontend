@@ -130,14 +130,14 @@ export function InfoRow({ icon: Icon, leading, children }: InfoRowProps) {
           <Icon
             size={24}
             strokeWidth={1.5}
-            className="shrink-0 text-[#C7D4E8]"
+            className="shrink-0 text-on-brand-muted"
           />
         ))}
       <span className="min-w-0 flex-1 break-words">{children}</span>
       <ChevronRight
         size={18}
         strokeWidth={1.75}
-        className="shrink-0 text-[#C7D4E8]"
+        className="shrink-0 text-on-brand-muted"
       />
     </div>
   );
@@ -236,7 +236,7 @@ export function CourseListCard({
               title
             )}
             {c.shortDescription && (
-              <p className="line-clamp-2 pt-2 text-sm text-[#C7D4E8]">
+              <p className="line-clamp-2 pt-2 text-sm text-on-brand-muted">
                 {c.shortDescription}
               </p>
             )}
@@ -311,7 +311,7 @@ export function CourseListCard({
                 <span
                   className={cn(
                     'font-medium',
-                    overdue ? 'text-[#FF9AA8]' : 'text-[#C7D4E8]',
+                    overdue ? 'text-[#FF9AA8]' : 'text-on-brand-muted',
                   )}
                 >
                   {deadlineLabel}
@@ -325,7 +325,7 @@ export function CourseListCard({
             </div>
           )}
           {progress !== undefined && progressLabel && (
-            <p className="text-xs text-[#C7D4E8]">{progressLabel}</p>
+            <p className="text-xs text-on-brand-muted">{progressLabel}</p>
           )}
           {progress !== undefined && (
             <div className="flex items-center gap-3">
@@ -334,7 +334,7 @@ export function CourseListCard({
                 color={palette[3]}
                 className="flex-1"
               />
-              <span className="text-xs tabular-nums text-[#C7D4E8]">
+              <span className="text-xs tabular-nums text-on-brand-muted">
                 {progress}%
               </span>
             </div>
