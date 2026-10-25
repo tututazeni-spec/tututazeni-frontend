@@ -159,7 +159,7 @@ export function EvaluationModelsTab() {
                           'rounded-full border px-3 py-1 font-body text-xs font-semibold',
                           l.mandatory
                             ? 'border-brand bg-brand text-white'
-                            : 'border-[#D8E2F0] bg-white text-brand',
+                            : 'border-brand-line bg-white text-brand',
                         )}
                       >
                         L{l.level} {l.name} ({l.weight}%)

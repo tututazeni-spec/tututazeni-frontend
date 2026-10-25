@@ -841,7 +841,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                     iconClassName={
                       result.status === 'DADOS_INSUFICIENTES'
                         ? 'text-[#FBBF24]'
-                        : 'text-[#7CC4FF]'
+                        : 'text-on-brand-accent'
                     }
                   >
                     Estado:{' '}

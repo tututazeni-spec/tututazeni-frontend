@@ -306,7 +306,7 @@ export function ImpactTab() {
                       title="Apagar"
                       disabled={remove.isPending && remove.variables === r.id}
                       onClick={() => askRemove(r.id, r.indicatorName)}
-                      className="rounded-full p-2 text-brand-muted transition-colors hover:bg-[#C23A52]/10 hover:text-[#C23A52] disabled:opacity-40"
+                      className="rounded-full p-2 text-brand-muted transition-colors hover:bg-danger/10 hover:text-danger disabled:opacity-40"
                     >
                       <Trash2 size={16} strokeWidth={1.75} />
                     </button>
