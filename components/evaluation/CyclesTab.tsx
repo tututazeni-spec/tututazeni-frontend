@@ -26,7 +26,6 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
-  NAVY_BTN,
   NavyBadge,
   NavyCard,
   type NavyTone,
@@ -178,70 +177,76 @@ export function CyclesTab() {
               footer={
                 <>
                   {canManageCycle && cycle.status === 'DRAFT' && (
-                    <button
+                    <Button
                       type="button"
-                      className={NAVY_BTN}
+                      intent="onDark"
+                      size="md"
                       onClick={() =>
                         runCycleAction(cycle.id, 'publish', 'POST')
                       }
                     >
                       Publicar
-                    </button>
+                    </Button>
                   )}
                   {canManageCycle && cycle.status === 'PUBLISHED' && (
-                    <button
+                    <Button
                       type="button"
-                      className={NAVY_BTN}
+                      intent="onDark"
+                      size="md"
                       onClick={() =>
                         runCycleAction(cycle.id, 'activate', 'POST')
                       }
                     >
                       Activar
-                    </button>
+                    </Button>
                   )}
                   {canManageCycle && cycle.status === 'ACTIVE' && (
                     <>
-                      <button
+                      <Button
                         type="button"
-                        className={NAVY_BTN}
+                        intent="onDark"
+                        size="md"
                         onClick={() =>
                           runCycleAction(cycle.id, 'pause', 'PATCH')
                         }
                       >
                         Pausar
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
-                        className={NAVY_BTN}
+                        intent="onDark"
+                        size="md"
                         onClick={() =>
                           runCycleAction(cycle.id, 'close', 'PATCH')
                         }
                       >
                         Encerrar
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
-                        className={NAVY_BTN}
+                        intent="onDark"
+                        size="md"
                         onClick={() =>
                           runCycleAction(cycle.id, 'remind', 'POST')
                         }
                       >
                         Lembretes
-                      </button>
+                      </Button>
                     </>
                   )}
                   {canManageCycle &&
                     (cycle.status === 'PAUSED' ||
                       cycle.status === 'COMPLETED') && (
-                      <button
+                      <Button
                         type="button"
-                        className={NAVY_BTN}
+                        intent="onDark"
+                        size="md"
                         onClick={() =>
                           runCycleAction(cycle.id, 'reopen', 'PATCH')
                         }
                       >
                         Reabrir
-                      </button>
+                      </Button>
                     )}
                 </>
               }

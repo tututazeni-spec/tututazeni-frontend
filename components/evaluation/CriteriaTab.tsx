@@ -28,11 +28,7 @@ import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import {
-  NAVY_ACTION,
-  NavyBadge,
-  NavyCard,
-} from '@/components/courses/NavyCard';
+import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
 import { CriteriaFormModal } from './CriteriaFormModal';
 import type { EvalCriteria } from './types';
 
@@ -144,33 +140,36 @@ export function CriteriaTab() {
               actions={
                 isAdmin && (
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={NAVY_ACTION}
+                      intent="onDarkGhost"
+                      size="sm"
                       aria-label={`Editar ${c.name}`}
                       title="Editar critério"
                       onClick={() => setEditing(c)}
                     >
                       <Pencil size={15} strokeWidth={1.75} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className={NAVY_ACTION}
+                      intent="onDarkGhost"
+                      size="sm"
                       aria-label={`${c.isActive ? 'Desactivar' : 'Activar'} ${c.name}`}
                       title={c.isActive ? 'Desactivar' : 'Activar'}
                       onClick={() => toggleActive.mutate(c)}
                     >
                       <Power size={15} strokeWidth={1.75} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className={NAVY_ACTION}
+                      intent="onDarkGhost"
+                      size="sm"
                       aria-label={`Remover ${c.name}`}
                       title="Remover critério"
                       onClick={() => remove(c)}
                     >
                       <Trash2 size={15} strokeWidth={1.75} />
-                    </button>
+                    </Button>
                   </>
                 )
               }
