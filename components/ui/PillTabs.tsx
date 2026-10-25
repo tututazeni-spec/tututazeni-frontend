@@ -115,6 +115,14 @@ export function PillTabsList({
   );
 }
 
+export interface PillNavProps {
+  items: readonly PillTabItem[];
+  value: string;
+  onChange: (id: string) => void;
+  label?: string;
+  className?: string;
+}
+
 /** Variante controlada por botões, sem Radix. */
 export function PillNav({
   items,
@@ -122,13 +130,7 @@ export function PillNav({
   onChange,
   label,
   className,
-}: {
-  items: readonly PillTabItem[];
-  value: string;
-  onChange: (id: string) => void;
-  label?: string;
-  className?: string;
-}) {
+}: PillNavProps) {
   return (
     <Glass className={className}>
       <div

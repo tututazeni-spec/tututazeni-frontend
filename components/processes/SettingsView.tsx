@@ -33,15 +33,13 @@ export interface SettingsViewProps {
 
 type Mode = 'settings' | 'integrations';
 
-function SectionEditor({
-  section,
-  canEdit,
-  onClose,
-}: {
+interface SectionEditorProps {
   section: ProcessSettingSection;
   canEdit: boolean;
   onClose: () => void;
-}) {
+}
+
+function SectionEditor({ section, canEdit, onClose }: SectionEditorProps) {
   const notify = useToast();
   const [value, setValue] = useState<unknown>(section.value);
   const [reason, setReason] = useState('');
@@ -74,7 +72,10 @@ function SectionEditor({
     (v: { version: number } | 'reset') =>
       v === 'reset'
         ? apiClient.post(`/processes/settings/${section.key}/reset`, {})
-        : apiClient.post(`/processes/settings/${section.key}/restore/${v.version}`, {}),
+        : apiClient.post(
+            `/processes/settings/${section.key}/restore/${v.version}`,
+            {},
+          ),
     {
       invalidateKeys: [queryKeys.processes.all],
       onSuccess: () => {
@@ -99,10 +100,14 @@ function SectionEditor({
               aria-hidden
               className={`h-2 w-2 rounded-full ${section.enforced ? 'bg-emerald-400' : 'bg-amber-300'}`}
             />
-            {section.enforced ? 'Aplicada pelo motor' : 'Política de referência (ainda não aplicada pelo motor)'}
+            {section.enforced
+              ? 'Aplicada pelo motor'
+              : 'Política de referência (ainda não aplicada pelo motor)'}
           </span>
           <span className="text-white/80">
-            {section.isDefault ? 'Valores por omissão' : `Versão ${section.version}`}
+            {section.isDefault
+              ? 'Valores por omissão'
+              : `Versão ${section.version}`}
             {section.updatedAt ? ` · ${formatDateTime(section.updatedAt)}` : ''}
             {section.updatedBy ? ` · ${section.updatedBy}` : ''}
           </span>
@@ -110,15 +115,25 @@ function SectionEditor({
 
         <div className="mt-5">
           {schema ? (
-            <SettingForm schema={schema} value={value} onChange={setValue} disabled={!canEdit} />
+            <SettingForm
+              schema={schema}
+              value={value}
+              onChange={setValue}
+              disabled={!canEdit}
+            />
           ) : (
-            <p className="font-body text-sm text-ink-muted">Sem editor para esta secção.</p>
+            <p className="font-body text-sm text-ink-muted">
+              Sem editor para esta secção.
+            </p>
           )}
         </div>
 
         {canEdit && (
           <div className="mt-5">
-            <FormField label="Motivo da alteração (opcional)" htmlFor="setting-reason">
+            <FormField
+              label="Motivo da alteração (opcional)"
+              htmlFor="setting-reason"
+            >
               <Input
                 id="setting-reason"
                 value={reason}
@@ -132,12 +147,21 @@ function SectionEditor({
 
         <div className="-mx-6 mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#0F1F3D]/15 bg-[#0F1F3D]/5 px-6 pt-4">
           <div className="flex gap-2">
-            <Button intent="ghost" size="sm" onClick={() => setShowHistory((s) => !s)}>
+            <Button
+              intent="ghost"
+              size="sm"
+              onClick={() => setShowHistory((s) => !s)}
+            >
               <History size={14} strokeWidth={1.75} />
               {showHistory ? 'Esconder versões' : 'Ver versões'}
             </Button>
             {canEdit && !section.isDefault && (
-              <Button intent="ghost" size="sm" onClick={() => restore.mutate('reset')} loading={restore.isPending}>
+              <Button
+                intent="ghost"
+                size="sm"
+                onClick={() => restore.mutate('reset')}
+                loading={restore.isPending}
+              >
                 Repor valores por omissão
               </Button>
             )}
@@ -147,7 +171,10 @@ function SectionEditor({
               {canEdit ? 'Cancelar' : 'Fechar'}
             </Button>
             {canEdit && (
-              <Button onClick={() => save.mutate(undefined)} loading={save.isPending}>
+              <Button
+                onClick={() => save.mutate(undefined)}
+                loading={save.isPending}
+              >
                 Guardar
               </Button>
             )}
@@ -156,18 +183,31 @@ function SectionEditor({
 
         {showHistory && (
           <div className="mt-4 overflow-hidden rounded-card border border-[#0F1F3D]/30">
-            <div className="bg-[#0F1F3D] px-3 py-2 font-body text-xs font-medium text-white">Histórico de versões</div>
-            {history.isLoading && <div className="p-3"><Skeleton rows={2} /></div>}
+            <div className="bg-[#0F1F3D] px-3 py-2 font-body text-xs font-medium text-white">
+              Histórico de versões
+            </div>
+            {history.isLoading && (
+              <div className="p-3">
+                <Skeleton rows={2} />
+              </div>
+            )}
             {history.data && history.data.length === 0 && (
-              <p className="p-3 font-body text-sm text-ink-faint">Ainda não há versões guardadas.</p>
+              <p className="p-3 font-body text-sm text-ink-faint">
+                Ainda não há versões guardadas.
+              </p>
             )}
             {history.data?.map((v) => (
-              <div key={v.version} className="flex items-start justify-between gap-3 border-b border-border p-3 last:border-0">
+              <div
+                key={v.version}
+                className="flex items-start justify-between gap-3 border-b border-border p-3 last:border-0"
+              >
                 <div className="font-body text-sm text-ink">
                   <div className="font-medium">
                     Versão {v.version}
                     {v.version === section.version && (
-                      <span className="ml-2 rounded-control bg-primary-subtle px-1.5 py-0.5 text-xs text-primary">actual</span>
+                      <span className="ml-2 rounded-control bg-primary-subtle px-1.5 py-0.5 text-xs text-primary">
+                        actual
+                      </span>
                     )}
                   </div>
                   <div className="text-xs text-ink-muted">
@@ -194,7 +234,11 @@ function SectionEditor({
   );
 }
 
-export function SettingsView({ canEdit, canRetry, onOpenInstance }: SettingsViewProps) {
+export function SettingsView({
+  canEdit,
+  canRetry,
+  onOpenInstance,
+}: SettingsViewProps) {
   const [mode, setMode] = useState<Mode>('settings');
   const [open, setOpen] = useState<string | null>(null);
   const { data, isLoading, error } = useApiQuery<ProcessSettingSection[]>(
@@ -207,10 +251,12 @@ export function SettingsView({ canEdit, canRetry, onOpenInstance }: SettingsView
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-2">
-        {([
-          ['settings', 'Configurações gerais'],
-          ['integrations', 'Integração com os módulos'],
-        ] as const).map(([id, label]) => (
+        {(
+          [
+            ['settings', 'Configurações gerais'],
+            ['integrations', 'Integração com os módulos'],
+          ] as const
+        ).map(([id, label]) => (
           <button
             key={id}
             type="button"
@@ -226,19 +272,28 @@ export function SettingsView({ canEdit, canRetry, onOpenInstance }: SettingsView
         ))}
       </div>
 
-      {mode === 'integrations' && <IntegrationsView canRetry={canRetry} onOpenInstance={onOpenInstance} />}
+      {mode === 'integrations' && (
+        <IntegrationsView canRetry={canRetry} onOpenInstance={onOpenInstance} />
+      )}
 
       {mode === 'settings' && (
         <>
           {!canEdit && (
             <p className="font-body text-xs text-ink-muted">
-              Modo de consulta — apenas administradores podem alterar as configurações.
+              Modo de consulta — apenas administradores podem alterar as
+              configurações.
             </p>
           )}
           {isLoading && <Skeleton rows={6} />}
-          {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+          {error && (
+            <div className="font-body text-sm text-danger">{error.message}</div>
+          )}
           {data && data.length === 0 && (
-            <EmptyState icon={Settings2} title="Sem configurações" description="Não foi possível carregar as secções." />
+            <EmptyState
+              icon={Settings2}
+              title="Sem configurações"
+              description="Não foi possível carregar as secções."
+            />
           )}
           {data && (
             <div className="grid gap-3 md:grid-cols-2">
@@ -250,17 +305,26 @@ export function SettingsView({ canEdit, canRetry, onOpenInstance }: SettingsView
                   className="group cursor-pointer overflow-hidden rounded-card border border-border bg-surface text-left"
                 >
                   <div className="flex items-start justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3">
-                    <div className="font-body text-sm font-semibold text-white">{s.title}</div>
+                    <div className="font-body text-sm font-semibold text-white">
+                      {s.title}
+                    </div>
                     {s.enforced && (
-                      <span title="Aplicada pelo motor" className="shrink-0 text-white">
+                      <span
+                        title="Aplicada pelo motor"
+                        className="shrink-0 text-white"
+                      >
                         <CheckCircle2 size={16} strokeWidth={1.75} />
                       </span>
                     )}
                   </div>
                   <div className="p-4 transition-colors group-hover:bg-[#0F1F3D]/10">
-                    <p className="font-body text-xs text-[#0F1F3D]">{s.description}</p>
+                    <p className="font-body text-xs text-[#0F1F3D]">
+                      {s.description}
+                    </p>
                     <div className="mt-2 font-body text-xs text-[#0F1F3D]">
-                      {s.isDefault ? 'Valores por omissão' : `Versão ${s.version} · ${formatDateTime(s.updatedAt)}`}
+                      {s.isDefault
+                        ? 'Valores por omissão'
+                        : `Versão ${s.version} · ${formatDateTime(s.updatedAt)}`}
                     </div>
                   </div>
                 </button>
@@ -270,7 +334,14 @@ export function SettingsView({ canEdit, canRetry, onOpenInstance }: SettingsView
         </>
       )}
 
-      {section && <SectionEditor key={section.key} section={section} canEdit={canEdit} onClose={() => setOpen(null)} />}
+      {section && (
+        <SectionEditor
+          key={section.key}
+          section={section}
+          canEdit={canEdit}
+          onClose={() => setOpen(null)}
+        />
+      )}
     </div>
   );
 }

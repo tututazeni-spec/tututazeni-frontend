@@ -62,17 +62,14 @@ interface RawOverview {
   }[];
 }
 
-function Stat({
-  label,
-  value,
-  icon,
-  tone,
-}: {
+interface StatProps {
   label: string;
   value: string | number;
   icon: LucideIcon;
   tone: NavyStatTone;
-}) {
+}
+
+function Stat({ label, value, icon, tone }: StatProps) {
   return <NavyStatCard icon={icon} tone={tone} label={label} value={value} />;
 }
 

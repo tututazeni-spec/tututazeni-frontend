@@ -29,15 +29,13 @@ export const EVENT_STATUS_ON_DARK: Record<
   CANCELLED: { label: 'Cancelado', color: '#C23A52' },
 };
 
-export function EventBadge({
-  color,
-  icon: Icon,
-  children,
-}: {
+export interface EventBadgeProps {
   color: string;
   icon?: LucideIcon;
   children: React.ReactNode;
-}) {
+}
+
+export function EventBadge({ color, icon: Icon, children }: EventBadgeProps) {
   return (
     <span className={PILL} style={{ background: color }}>
       {Icon && <Icon size={12} strokeWidth={1.75} />}

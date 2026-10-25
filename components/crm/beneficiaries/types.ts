@@ -6,7 +6,7 @@ export interface Beneficiary {
   id: string;
   code: string;
   fullName: string;
-  type: string;
+  type: 'INDIVIDUAL' | 'FAMILY' | 'INSTITUTION' | 'COMMUNITY' | 'GROUP';
   status: string;
   province: string | null;
   email: string | null;
@@ -53,7 +53,7 @@ export interface BeneficiaryBenefit {
   awardedAt: string | null;
   startDate: string | null;
   endDate: string | null;
-  status: string;
+  status: 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'ENDED';
   notes: string | null;
 }
 
@@ -69,7 +69,7 @@ export interface BeneficiaryParticipation {
   enrolledAt: string | null;
   startDate: string | null;
   completedAt: string | null;
-  status: string;
+  status: 'ENROLLED' | 'IN_PROGRESS' | 'COMPLETED' | 'DROPPED' | 'SUSPENDED';
   attendanceRate: number | null;
   performance: string | null;
   certification: string | null;
@@ -100,7 +100,7 @@ export interface BeneficiaryDetail {
   id: string;
   code: string;
   fullName: string;
-  type: string;
+  type: 'INDIVIDUAL' | 'FAMILY' | 'INSTITUTION' | 'COMMUNITY' | 'GROUP';
   status: string;
   category: string | null;
   email: string | null;

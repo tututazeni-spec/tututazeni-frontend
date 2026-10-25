@@ -7,21 +7,24 @@
 import { Card } from '@/components/ui/Card';
 import { RATE_BANDS } from './SpeedometerStatCard';
 
+export interface ThermometerStatCardProps {
+  label: string;
+  value: number;
+  bands?: { to: number; color: string }[];
+  display: string;
+  caption?: string;
+}
+
 export function ThermometerStatCard({
   label,
   value,
   bands = RATE_BANDS,
   display,
   caption,
-}: {
-  label: string;
-  value: number;
-  bands?: { to: number; color: string }[];
-  display: string;
-  caption?: string;
-}) {
+}: ThermometerStatCardProps) {
   const pct = Math.min(100, Math.max(0, value));
-  const color = (bands.find((b) => pct <= b.to) ?? bands[bands.length - 1]).color;
+  const color = (bands.find((b) => pct <= b.to) ?? bands[bands.length - 1])
+    .color;
   const w = 100;
   const h = 130;
   const tubeW = 20;

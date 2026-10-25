@@ -25,8 +25,9 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ActivityFeedView } from './ActivityFeedView';
 import { SessionThread } from './SessionThread';
 import type { AdminSessionRow, Session } from './types';
+import { ADMIN_ROLES } from '@/lib/roles';
 
-const PRIVILEGED_ROLES = new Set(['ADMIN', 'RH']);
+const PRIVILEGED_ROLES = new Set<string>(ADMIN_ROLES);
 
 export function SessionsView() {
   const notify = useToast();

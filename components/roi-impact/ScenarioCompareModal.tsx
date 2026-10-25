@@ -32,10 +32,13 @@ export function ScenarioCompareModal({
     }),
   );
 
+  // `ids` chega como array novo a cada render do pai; a chave string evita
+  // re-comparar quando o conteúdo é o mesmo. `mutate` é estável.
+  const idsKey = ids.join(',');
+  const { mutate: runCompare } = compare;
   useEffect(() => {
-    compare.mutate(ids);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ids.join(',')]);
+    runCompare(idsKey.split(',').map(Number));
+  }, [idsKey, runCompare]);
 
   const data = compare.data;
 

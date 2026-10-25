@@ -16,7 +16,7 @@ import { Hammer, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useHasRole } from '@/hooks/useCurrentRole';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { ADMIN_RH_GESTOR_ROLES, ADMIN_ROLES, type Role } from '@/lib/roles';
 import { CreateProcessModal } from '@/components/processes/CreateProcessModal';
 import { DashboardView } from '@/components/processes/DashboardView';
 import { LibraryView } from '@/components/processes/LibraryView';
@@ -38,10 +38,10 @@ import type { Nav } from '@/components/processes/types';
 
 // Espelha @Roles(ADMIN, RH, GESTOR) em GET /processes/dashboard
 // (src/process-standard/process-standard.controller.ts).
-const OVERVIEW_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+const OVERVIEW_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 // Espelha @Roles(ADMIN, RH, GESTOR) em POST /processes/:id/start e nas
 // acções de gestão de instâncias/tarefas.
-const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+const MANAGE_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 // Espelha @Roles de POST /processes/:id/start (§20): gestão, ou pedidos próprios
 // em modelos abertos à função (AUDITOR e INSTRUCTOR não iniciam processos).
 const START_ROLES: readonly Role[] = [
@@ -53,17 +53,17 @@ const START_ROLES: readonly Role[] = [
   'COLABORADOR',
 ];
 // Espelha @Roles(ADMIN, RH) nas rotas /processes/automations.
-const AUTOMATION_ROLES: readonly Role[] = ['ADMIN', 'RH'];
+const AUTOMATION_ROLES: readonly Role[] = ADMIN_ROLES;
 // Espelha @Roles em GET /processes/reports (ver) e /reports/export (exportar).
 const REPORT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR', 'AUDITOR'];
-const REPORT_EXPORT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+const REPORT_EXPORT_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 // Espelha @Roles em GET /processes/audit/* (ver) e /audit/export (exportar).
 const AUDIT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'AUDITOR'];
 const AUDIT_EXPORT_ROLES: readonly Role[] = ['ADMIN', 'AUDITOR'];
 // Espelha @Roles em GET /processes/settings|integrations (ver), PUT /settings/:key
 // (só ADMIN) e POST /integrations/logs/:id/retry (ADMIN, RH).
 const SETTINGS_EDIT_ROLES: readonly Role[] = ['ADMIN'];
-const INTEGRATION_RETRY_ROLES: readonly Role[] = ['ADMIN', 'RH'];
+const INTEGRATION_RETRY_ROLES: readonly Role[] = ADMIN_ROLES;
 
 export default function ProcessesPage() {
   const canCreate = useHasRole(ADMIN_ROLES);

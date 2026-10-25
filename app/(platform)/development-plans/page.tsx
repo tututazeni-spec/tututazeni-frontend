@@ -18,10 +18,11 @@ import { MentoringTab } from '@/components/talent-development/MentoringTab';
 import { PoolTab } from '@/components/talent-development/PoolTab';
 import { SkillGapsTab } from '@/components/talent-development/SkillGapsTab';
 import { Button } from '@/components/ui/Button';
+import { ADMIN_RH_GESTOR_ROLES } from '@/lib/roles';
 
 // Espelha @Roles(ADMIN, RH, GESTOR) em POST /development-plans
 // (development-plans.controller.ts) — quem cria um PDI para um colaborador.
-const CAN_CREATE_PLAN_ROLES = ['ADMIN', 'RH', 'GESTOR'];
+const CAN_CREATE_PLAN_ROLES: readonly string[] = ADMIN_RH_GESTOR_ROLES;
 
 export default function DevelopmentPlansPage() {
   const role = useCurrentRole();

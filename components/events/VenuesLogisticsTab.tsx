@@ -18,7 +18,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import type { Role } from '@/lib/roles';
+import { ADMIN_RH_GESTOR_ROLES, Role } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { NavyPanel } from '@/components/trainings/plans/NavyPanel';
 import { Card } from '@/components/ui/Card';
@@ -44,7 +44,7 @@ import type {
   EventLogisticsStatus,
 } from './types';
 
-const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+const MANAGE_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 
 interface LogisticsFormState {
   equipment: EventEquipmentType[];

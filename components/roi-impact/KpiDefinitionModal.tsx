@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -88,27 +88,52 @@ export interface KpiDefinitionModalProps {
   onClose: () => void;
 }
 
+interface KpiDefinitionModalFormValues {
+  error: string;
+  name: string;
+  code: string;
+  category: KpiCategory;
+  description: string;
+  unit: string;
+  formula: string;
+  dataSource: string;
+  frequency: KpiFrequency;
+  targetValue: string;
+  benchmarkNote: string;
+  responsible: DirectoryUser | null;
+}
+
 export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
   const notify = useToast();
-  const [error, setError] = useState('');
-
-  const [name, setName] = useState(kpi?.name ?? '');
-  const [code, setCode] = useState(kpi?.code ?? '');
-  const [category, setCategory] = useState<KpiCategory>(
-    kpi?.category ?? 'PRODUTIVIDADE',
-  );
-  const [description, setDescription] = useState(kpi?.description ?? '');
-  const [unit, setUnit] = useState(kpi?.unit ?? '');
-  const [formula, setFormula] = useState(kpi?.formula ?? '');
-  const [dataSource, setDataSource] = useState(kpi?.dataSource ?? '');
-  const [frequency, setFrequency] = useState<KpiFrequency>(
-    kpi?.frequency ?? 'MENSAL',
-  );
-  const [targetValue, setTargetValue] = useState(
-    kpi?.targetValue != null ? String(kpi.targetValue) : '',
-  );
-  const [benchmarkNote, setBenchmarkNote] = useState(kpi?.benchmarkNote ?? '');
-  const [responsible, setResponsible] = useState<DirectoryUser | null>(null);
+  const { values: formValues, set: setField } =
+    useFormState<KpiDefinitionModalFormValues>({
+      error: '',
+      name: kpi?.name ?? '',
+      code: kpi?.code ?? '',
+      category: kpi?.category ?? 'PRODUTIVIDADE',
+      description: kpi?.description ?? '',
+      unit: kpi?.unit ?? '',
+      formula: kpi?.formula ?? '',
+      dataSource: kpi?.dataSource ?? '',
+      frequency: kpi?.frequency ?? 'MENSAL',
+      targetValue: kpi?.targetValue != null ? String(kpi.targetValue) : '',
+      benchmarkNote: kpi?.benchmarkNote ?? '',
+      responsible: null,
+    });
+  const {
+    error,
+    name,
+    code,
+    category,
+    description,
+    unit,
+    formula,
+    dataSource,
+    frequency,
+    targetValue,
+    benchmarkNote,
+    responsible,
+  } = formValues;
 
   const save = useApiMutation(
     () => {
@@ -141,7 +166,7 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
         });
         onClose();
       },
-      onError: (e) => setError(e.message || 'Erro ao guardar o KPI.'),
+      onError: (e) => setField('error', e.message || 'Erro ao guardar o KPI.'),
     },
   );
 
@@ -167,7 +192,7 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
               <Input
                 id="kpi-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setField('name', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -176,7 +201,7 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
                 id="kpi-code"
                 placeholder="ex.: TURNOVER_VOLUNTARIO"
                 value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                onChange={(e) => setField('code', e.target.value.toUpperCase())}
                 className="w-full"
                 disabled={!!kpi}
               />
@@ -188,7 +213,7 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
               id="kpi-description"
               rows={2}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setField('description', e.target.value)}
               className="w-full"
             />
           </FormField>
@@ -198,7 +223,7 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
               <Select
                 items={CATEGORY_ITEMS}
                 value={category}
-                onValueChange={(v) => setCategory(v as KpiCategory)}
+                onValueChange={(v) => setField('category', v as KpiCategory)}
                 className="w-full"
               />
             </FormField>
@@ -206,7 +231,7 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
               <Select
                 items={toItems(UNIT_OPTIONS, kpi?.unit)}
                 value={unit || undefined}
-                onValueChange={setUnit}
+                onValueChange={(v) => setField('unit', v)}
                 placeholder="Selecionar unidade"
                 className="w-full"
               />
@@ -215,7 +240,7 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
               <Select
                 items={FREQUENCY_ITEMS}
                 value={frequency}
-                onValueChange={(v) => setFrequency(v as KpiFrequency)}
+                onValueChange={(v) => setField('frequency', v as KpiFrequency)}
                 className="w-full"
               />
             </FormField>
@@ -225,7 +250,7 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
             <Select
               items={toItems(FORMULA_OPTIONS, kpi?.formula)}
               value={formula || undefined}
-              onValueChange={setFormula}
+              onValueChange={(v) => setField('formula', v)}
               placeholder="Selecionar fórmula"
               className="w-full"
             />
@@ -236,7 +261,7 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
               <Select
                 items={toItems(DATA_SOURCE_OPTIONS, kpi?.dataSource)}
                 value={dataSource || undefined}
-                onValueChange={setDataSource}
+                onValueChange={(v) => setField('dataSource', v)}
                 placeholder="Selecionar fonte"
                 className="w-full"
               />
@@ -246,7 +271,7 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
                 id="kpi-target"
                 type="number"
                 value={targetValue}
-                onChange={(e) => setTargetValue(e.target.value)}
+                onChange={(e) => setField('targetValue', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -256,7 +281,7 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
             <Input
               id="kpi-benchmark-note"
               value={benchmarkNote}
-              onChange={(e) => setBenchmarkNote(e.target.value)}
+              onChange={(e) => setField('benchmarkNote', e.target.value)}
               className="w-full"
             />
           </FormField>
@@ -265,7 +290,7 @@ export function KpiDefinitionModal({ kpi, onClose }: KpiDefinitionModalProps) {
             label="Responsável pela recolha"
             htmlFor="kpi-responsible"
             value={responsible}
-            onChange={setResponsible}
+            onChange={(v) => setField('responsible', v)}
           />
         </div>
 

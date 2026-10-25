@@ -42,6 +42,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { RecordingModal } from './RecordingModal';
 import type { PaginatedMeta, RecordingRow } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 /** Miniatura do YouTube a partir do URL da gravação (sem ela, ícone). */
 function youtubeThumb(url: string): string | null {
@@ -215,7 +216,7 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
                   <Play size={15} strokeWidth={1.75} />
                 </button>
                 <a
-                  href={r.recordingUrl}
+                  href={safeHref(r.recordingUrl)}
                   target="_blank"
                   rel="noreferrer"
                   className={PHOTO_CARD_ACTION}

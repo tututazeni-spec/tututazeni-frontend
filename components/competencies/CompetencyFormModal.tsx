@@ -20,7 +20,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -71,6 +71,24 @@ const STATUS_ITEMS = [
   { value: 'IN_REVIEW', label: 'Em revisão' },
   { value: 'INACTIVE', label: 'Arquivada' },
 ];
+
+interface CompetencyFormFormValues {
+  name: string;
+  category: string;
+  description: string;
+  tagsRaw: string;
+  status: string;
+  code: string;
+  family: string;
+  objective: string;
+  isCritical: boolean;
+  isStrategic: boolean;
+  isMandatory: boolean;
+  isAssessable: boolean;
+  isDevelopable: boolean;
+  owner: DirectoryUser | null;
+  submitError: string;
+}
 
 export function CompetencyFormModal({
   competencyId,
@@ -131,34 +149,48 @@ function CompetencyForm({
 }: CompetencyFormProps) {
   const editing = competencyId != null;
 
-  const [name, setName] = useState(initial?.name ?? '');
-  const [category, setCategory] = useState<string>(initial?.category ?? '');
-  const [description, setDescription] = useState(initial?.description ?? '');
-  const [tagsRaw, setTagsRaw] = useState((initial?.tags ?? []).join(', '));
-  const [status, setStatus] = useState<string>(initial?.status ?? 'ACTIVE');
+  const { values: formValues, set: setField } =
+    useFormState<CompetencyFormFormValues>({
+      name: initial?.name ?? '',
+      category: initial?.category ?? '',
+      description: initial?.description ?? '',
+      tagsRaw: (initial?.tags ?? []).join(', '),
+      status: initial?.status ?? 'ACTIVE',
+      code: initial?.code ?? '',
+      family: initial?.family ?? '',
+      objective: initial?.objective ?? '',
+      isCritical: initial?.isCritical ?? false,
+      isStrategic: initial?.isStrategic ?? false,
+      isMandatory: initial?.isMandatory ?? false,
+      isAssessable: initial?.isAssessable ?? true,
+      isDevelopable: initial?.isDevelopable ?? true,
+      owner: initial?.owner
+        ? {
+            id: initial.owner.id,
+            fullName: initial.owner.fullName,
+            avatarUrl: null,
+          }
+        : null,
+      submitError: '',
+    });
+  const {
+    name,
+    category,
+    description,
+    tagsRaw,
+    status,
+    code,
+    family,
+    objective,
+    isCritical,
+    isStrategic,
+    isMandatory,
+    isAssessable,
+    isDevelopable,
+    owner,
+    submitError,
+  } = formValues;
   // docs/módulo_competencies.md §2 — Informações gerais + Configuração.
-  const [code, setCode] = useState(initial?.code ?? '');
-  const [family, setFamily] = useState(initial?.family ?? '');
-  const [objective, setObjective] = useState(initial?.objective ?? '');
-  const [isCritical, setIsCritical] = useState(initial?.isCritical ?? false);
-  const [isStrategic, setIsStrategic] = useState(initial?.isStrategic ?? false);
-  const [isMandatory, setIsMandatory] = useState(initial?.isMandatory ?? false);
-  const [isAssessable, setIsAssessable] = useState(
-    initial?.isAssessable ?? true,
-  );
-  const [isDevelopable, setIsDevelopable] = useState(
-    initial?.isDevelopable ?? true,
-  );
-  const [owner, setOwner] = useState<DirectoryUser | null>(
-    initial?.owner
-      ? {
-          id: initial.owner.id,
-          fullName: initial.owner.fullName,
-          avatarUrl: null,
-        }
-      : null,
-  );
-  const [submitError, setSubmitError] = useState('');
 
   const canSubmit = name.trim().length > 0 && category.length > 0;
 
@@ -174,7 +206,8 @@ function CompetencyForm({
         onClose();
       },
       onError: (e) =>
-        setSubmitError(
+        setField(
+          'submitError',
           e.message || 'Erro ao guardar a competência. Tente novamente.',
         ),
     },
@@ -183,7 +216,7 @@ function CompetencyForm({
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
-    setSubmitError('');
+    setField('submitError', '');
     const tags = tagsRaw
       .split(',')
       .map((t) => t.trim())
@@ -223,7 +256,7 @@ function CompetencyForm({
           <Input
             id="cf-name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => setField('name', e.target.value)}
             placeholder="Ex.: Comunicação Eficaz"
             maxLength={120}
             className="w-full"
@@ -234,7 +267,7 @@ function CompetencyForm({
           <Select
             items={CATEGORY_ITEMS}
             value={category || undefined}
-            onValueChange={setCategory}
+            onValueChange={(v) => setField('category', v)}
             placeholder="Selecionar categoria"
             className="w-full"
           />
@@ -244,7 +277,7 @@ function CompetencyForm({
           <Textarea
             id="cf-description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => setField('description', e.target.value)}
             rows={3}
             placeholder="Opcional — o que esta competência representa."
             className="w-full"
@@ -255,7 +288,7 @@ function CompetencyForm({
           <Input
             id="cf-tags"
             value={tagsRaw}
-            onChange={(e) => setTagsRaw(e.target.value)}
+            onChange={(e) => setField('tagsRaw', e.target.value)}
             placeholder="liderança, feedback, comunicação"
             className="w-full"
           />
@@ -266,7 +299,7 @@ function CompetencyForm({
             <Input
               id="cf-code"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => setField('code', e.target.value)}
               placeholder="Ex.: COMP-014"
               maxLength={60}
               className="w-full"
@@ -276,7 +309,7 @@ function CompetencyForm({
             <Combobox
               items={FAMILY_OPTIONS}
               value={family || undefined}
-              onValueChange={setFamily}
+              onValueChange={(v) => setField('family', v)}
               placeholder="Selecionar família"
               searchPlaceholder="Escreva para filtrar ou indicar outra…"
               allowCustom
@@ -288,7 +321,7 @@ function CompetencyForm({
           <Textarea
             id="cf-objective"
             value={objective}
-            onChange={(e) => setObjective(e.target.value)}
+            onChange={(e) => setField('objective', e.target.value)}
             rows={2}
             placeholder="Opcional — o que se pretende alcançar com esta competência."
             className="w-full"
@@ -299,7 +332,7 @@ function CompetencyForm({
           label="Responsável pela competência"
           htmlFor="cf-owner"
           value={owner}
-          onChange={setOwner}
+          onChange={(v) => setField('owner', v)}
         />
 
         <div className="grid grid-cols-2 gap-y-2">
@@ -307,7 +340,7 @@ function CompetencyForm({
             <input
               type="checkbox"
               checked={isCritical}
-              onChange={(e) => setIsCritical(e.target.checked)}
+              onChange={(e) => setField('isCritical', e.target.checked)}
               className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Competência crítica
@@ -316,7 +349,7 @@ function CompetencyForm({
             <input
               type="checkbox"
               checked={isStrategic}
-              onChange={(e) => setIsStrategic(e.target.checked)}
+              onChange={(e) => setField('isStrategic', e.target.checked)}
               className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Competência estratégica
@@ -325,7 +358,7 @@ function CompetencyForm({
             <input
               type="checkbox"
               checked={isMandatory}
-              onChange={(e) => setIsMandatory(e.target.checked)}
+              onChange={(e) => setField('isMandatory', e.target.checked)}
               className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Obrigatória
@@ -334,7 +367,7 @@ function CompetencyForm({
             <input
               type="checkbox"
               checked={isAssessable}
-              onChange={(e) => setIsAssessable(e.target.checked)}
+              onChange={(e) => setField('isAssessable', e.target.checked)}
               className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Avaliável
@@ -343,7 +376,7 @@ function CompetencyForm({
             <input
               type="checkbox"
               checked={isDevelopable}
-              onChange={(e) => setIsDevelopable(e.target.checked)}
+              onChange={(e) => setField('isDevelopable', e.target.checked)}
               className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Desenvolvível
@@ -355,7 +388,7 @@ function CompetencyForm({
             <Select
               items={STATUS_ITEMS}
               value={status}
-              onValueChange={setStatus}
+              onValueChange={(v) => setField('status', v)}
               className="w-full"
             />
           </FormField>

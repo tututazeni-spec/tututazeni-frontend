@@ -55,7 +55,7 @@ export interface Lesson {
   // é o enum LessonType (VIDEO|TEXT|PDF|AUDIO|SLIDE|LINK|SCORM|QUIZ|LIVE) e o
   // conteúdo (URL de vídeo ou PDF, este último em data URL) vive em
   // `contentUrl`.
-  type: string;
+  type: 'VIDEO' | 'PDF' | 'TEXT' | 'AUDIO' | 'SLIDE' | 'LINK' | 'SCORM' | 'QUIZ' | 'LIVE';
   // `true` quando a lição tem ficheiro mas a API o omitiu (quem não gere conteúdos).
   hasFile?: boolean;
   status?: LessonStatus;

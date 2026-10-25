@@ -18,15 +18,13 @@ export interface ExceptionsPanelProps {
   onSelectException?: (payslipId: number) => void;
 }
 
-function Group({
-  title,
-  items,
-  onSelectException,
-}: {
+interface GroupProps {
   title: string;
   items: RunException[];
   onSelectException?: (payslipId: number) => void;
-}) {
+}
+
+function Group({ title, items, onSelectException }: GroupProps) {
   if (items.length === 0) return null;
   return (
     <div className="mb-4">

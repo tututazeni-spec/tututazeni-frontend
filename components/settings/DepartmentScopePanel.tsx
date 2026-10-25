@@ -14,8 +14,9 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { DepartmentScopes } from './types';
+import { ADMIN_ROLES } from '@/lib/roles';
 
-const UNRESTRICTED_ROLES = ['ADMIN', 'RH'];
+const UNRESTRICTED_ROLES: readonly string[] = ADMIN_ROLES;
 
 export function DepartmentScopePanel() {
   const toast = useToast();

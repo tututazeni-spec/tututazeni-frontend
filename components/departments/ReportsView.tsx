@@ -45,18 +45,20 @@ const BAR_COLORS = [
   '#65A30D',
 ];
 
-function BarList({
-  title,
-  items,
-  suffix = '',
-  multiColor = false,
-}: {
+interface BarListProps {
   title: string;
   items: Array<{ label: string; count: number }>;
   suffix?: string;
   /** Cada item com uma cor própria (em vez da cor primária única). */
   multiColor?: boolean;
-}) {
+}
+
+function BarList({
+  title,
+  items,
+  suffix = '',
+  multiColor = false,
+}: BarListProps) {
   const max = Math.max(1, ...items.map((i) => i.count));
   return (
     <Card className="overflow-hidden">

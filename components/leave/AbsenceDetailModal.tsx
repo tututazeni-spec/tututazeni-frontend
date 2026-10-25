@@ -61,7 +61,13 @@ function fieldValue(field: string, v: unknown): string {
   return text;
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <dt className="text-xs text-ink-faint">{label}</dt>
@@ -156,9 +162,10 @@ function DetailBody({
     onError: (e: Error) => setError(e.message),
   });
   const base = `/leave/absences/${a.id}`;
-  const docBody = doc.name.trim() && doc.fileUrl.trim()
-    ? [{ name: doc.name.trim(), fileUrl: doc.fileUrl.trim() }]
-    : undefined;
+  const docBody =
+    doc.name.trim() && doc.fileUrl.trim()
+      ? [{ name: doc.name.trim(), fileUrl: doc.fileUrl.trim() }]
+      : undefined;
 
   const justify = useApiMutation(
     () =>
@@ -174,28 +181,29 @@ function DetailBody({
         decision,
         notes: notes.trim() || undefined,
       }),
-    opts(decision === 'VALIDATE' ? 'Justificação validada' : 'Justificação recusada'),
+    opts(
+      decision === 'VALIDATE'
+        ? 'Justificação validada'
+        : 'Justificação recusada',
+    ),
   );
   const attach = useApiMutation(
     () => apiClient.post(`${base}/attachments`, docBody?.[0]),
     opts('Comprovativo anexado'),
   );
-  const correct = useApiMutation(
-    () => {
-      const body: Record<string, string> = { reason: fix.reason.trim() };
-      if (fix.date !== a.date.slice(0, 10)) body.date = fix.date;
-      if (fix.startTime !== (a.startTime ?? '') && fix.startTime)
-        body.startTime = fix.startTime;
-      if (fix.endTime !== (a.endTime ?? '') && fix.endTime)
-        body.endTime = fix.endTime;
-      if (fix.occurrenceType !== a.occurrenceType)
-        body.occurrenceType = fix.occurrenceType;
-      if (fix.customCategory.trim() !== (a.customCategory ?? ''))
-        body.customCategory = fix.customCategory.trim();
-      return apiClient.patch(base, body);
-    },
-    opts('Registo corrigido'),
-  );
+  const correct = useApiMutation(() => {
+    const body: Record<string, string> = { reason: fix.reason.trim() };
+    if (fix.date !== a.date.slice(0, 10)) body.date = fix.date;
+    if (fix.startTime !== (a.startTime ?? '') && fix.startTime)
+      body.startTime = fix.startTime;
+    if (fix.endTime !== (a.endTime ?? '') && fix.endTime)
+      body.endTime = fix.endTime;
+    if (fix.occurrenceType !== a.occurrenceType)
+      body.occurrenceType = fix.occurrenceType;
+    if (fix.customCategory.trim() !== (a.customCategory ?? ''))
+      body.customCategory = fix.customCategory.trim();
+    return apiClient.patch(base, body);
+  }, opts('Registo corrigido'));
   const forward = useApiMutation(
     () => apiClient.post(`${base}/forward`, {}),
     opts('Encaminhada para o gestor'),
@@ -231,7 +239,9 @@ function DetailBody({
         <Field label="Data">{formatDate(a.date)}</Field>
         <Field label="Horário / duração">
           {a.startTime && a.endTime ? `${a.startTime}–${a.endTime} · ` : ''}
-          {a.durationHours ? `${a.durationHours} h` : `${a.durationDays} dia(s)`}
+          {a.durationHours
+            ? `${a.durationHours} h`
+            : `${a.durationDays} dia(s)`}
         </Field>
         <Field label="Estado de justificação">
           <StatusBadge
@@ -308,12 +318,20 @@ function DetailBody({
 
       <div className="flex flex-wrap gap-2">
         {act.submitJustification && (
-          <Button size="sm" intent="secondary" onClick={() => setMode('justify')}>
+          <Button
+            size="sm"
+            intent="secondary"
+            onClick={() => setMode('justify')}
+          >
             Submeter justificação
           </Button>
         )}
         {act.validate && (
-          <Button size="sm" intent="secondary" onClick={() => setMode('validate')}>
+          <Button
+            size="sm"
+            intent="secondary"
+            onClick={() => setMode('validate')}
+          >
             Validar / recusar
           </Button>
         )}
@@ -396,7 +414,9 @@ function DetailBody({
             </Button>
           </div>
           <FormField
-            label={decision === 'REJECT' ? 'Justificação da recusa *' : 'Comentário'}
+            label={
+              decision === 'REJECT' ? 'Justificação da recusa *' : 'Comentário'
+            }
             htmlFor="abd-notes"
           >
             <Textarea
@@ -444,7 +464,9 @@ function DetailBody({
                 id="abd-fdate"
                 type="date"
                 value={fix.date}
-                onChange={(e) => setFix((f) => ({ ...f, date: e.target.value }))}
+                onChange={(e) =>
+                  setFix((f) => ({ ...f, date: e.target.value }))
+                }
                 className="w-full"
               />
             </FormField>
@@ -461,7 +483,10 @@ function DetailBody({
                 items={TYPE_ITEMS}
               />
             </FormField>
-            <FormField label={`Hora de início${fixTimed ? ' *' : ''}`} htmlFor="abd-fs">
+            <FormField
+              label={`Hora de início${fixTimed ? ' *' : ''}`}
+              htmlFor="abd-fs"
+            >
               <Input
                 id="abd-fs"
                 type="time"
@@ -472,7 +497,10 @@ function DetailBody({
                 className="w-full"
               />
             </FormField>
-            <FormField label={`Hora de fim${fixTimed ? ' *' : ''}`} htmlFor="abd-fe">
+            <FormField
+              label={`Hora de fim${fixTimed ? ' *' : ''}`}
+              htmlFor="abd-fe"
+            >
               <Input
                 id="abd-fe"
                 type="time"
@@ -506,7 +534,9 @@ function DetailBody({
               id="abd-freason"
               rows={2}
               value={fix.reason}
-              onChange={(e) => setFix((f) => ({ ...f, reason: e.target.value }))}
+              onChange={(e) =>
+                setFix((f) => ({ ...f, reason: e.target.value }))
+              }
               className="w-full resize-none"
             />
           </FormField>
@@ -524,7 +554,9 @@ function DetailBody({
       )}
 
       <section className="space-y-2">
-        <h3 className="text-sm font-semibold text-ink">Histórico de alterações</h3>
+        <h3 className="text-sm font-semibold text-ink">
+          Histórico de alterações
+        </h3>
         {a.revisions.length === 0 ? (
           <p className="text-sm text-ink-faint">Sem alterações registadas.</p>
         ) : (
@@ -534,13 +566,14 @@ function DetailBody({
                 <p className="text-ink">
                   {r.reason}{' '}
                   <span className="text-ink-faint">
-                    · {r.changedBy.fullName ?? '—'} · {formatDateTime(r.createdAt)}
+                    · {r.changedBy.fullName ?? '—'} ·{' '}
+                    {formatDateTime(r.createdAt)}
                   </span>
                 </p>
                 {Object.entries(r.changes).map(([field, pair]) => (
                   <p key={field} className="text-xs text-ink-muted">
-                    {FIELD_LABELS[field] ?? field}: {fieldValue(field, pair[0])} →{' '}
-                    {fieldValue(field, pair[1])}
+                    {FIELD_LABELS[field] ?? field}: {fieldValue(field, pair[0])}{' '}
+                    → {fieldValue(field, pair[1])}
                   </p>
                 ))}
               </li>
@@ -575,8 +608,12 @@ function DetailBody({
               <ul className="space-y-1 text-sm">
                 {history.records.slice(0, 20).map((h) => (
                   <li key={h.id} className="flex items-center gap-2">
-                    <span className="w-24 text-ink-muted">{formatDate(h.date)}</span>
-                    <span className="flex-1 text-ink">{absenceTypeLabel(h)}</span>
+                    <span className="w-24 text-ink-muted">
+                      {formatDate(h.date)}
+                    </span>
+                    <span className="flex-1 text-ink">
+                      {absenceTypeLabel(h)}
+                    </span>
                     <StatusBadge
                       value={h.justificationStatus}
                       map={JUSTIFICATION_CFG}
@@ -620,25 +657,32 @@ function DocFields({
   );
 }
 
+interface FormActionsProps {
+  onCancel: () => void;
+  onSubmit: () => void;
+  submitLabel: string;
+  loading: boolean;
+  disabled: boolean;
+}
+
 function FormActions({
   onCancel,
   onSubmit,
   submitLabel,
   loading,
   disabled,
-}: {
-  onCancel: () => void;
-  onSubmit: () => void;
-  submitLabel: string;
-  loading: boolean;
-  disabled: boolean;
-}) {
+}: FormActionsProps) {
   return (
     <div className="flex justify-end gap-2">
       <Button size="sm" intent="ghost" onClick={onCancel}>
         Cancelar
       </Button>
-      <Button size="sm" loading={loading} disabled={disabled} onClick={onSubmit}>
+      <Button
+        size="sm"
+        loading={loading}
+        disabled={disabled}
+        onClick={onSubmit}
+      >
         {submitLabel}
       </Button>
     </div>

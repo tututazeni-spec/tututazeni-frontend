@@ -7,12 +7,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
-export function NavyHeroCard({
-  children,
-  className,
-  surfaceClassName,
-  whiteDrawings,
-}: {
+export interface NavyHeroCardProps {
   children: ReactNode;
   /** Classes do contentor interno (layout do conteúdo). */
   className?: string;
@@ -20,7 +15,14 @@ export function NavyHeroCard({
   surfaceClassName?: string;
   /** Desenhos decorativos a branco (em vez dos azuis por omissão). */
   whiteDrawings?: boolean;
-}) {
+}
+
+export function NavyHeroCard({
+  children,
+  className,
+  surfaceClassName,
+  whiteDrawings,
+}: NavyHeroCardProps) {
   const ink = (blue: string) => (whiteDrawings ? '#FFFFFF' : blue);
   return (
     <div

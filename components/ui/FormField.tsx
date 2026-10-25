@@ -33,7 +33,7 @@ export function FormField({
       .join(' ') || undefined;
 
   const child = isValidElement(children)
-    ? cloneElement(children as ReactElement<any>, {
+    ? cloneElement(children as ReactElement<Record<string, unknown>>, {
         'aria-describedby': describedBy,
         'aria-invalid': error ? true : undefined,
       })

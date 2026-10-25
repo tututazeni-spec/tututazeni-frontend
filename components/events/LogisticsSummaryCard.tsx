@@ -10,13 +10,13 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import type { Role } from '@/lib/roles';
+import { ADMIN_RH_GESTOR_ROLES, Role } from '@/lib/roles';
 import { Card, CardBody } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { EQUIPMENT_CFG, LOGISTICS_STATUS_CFG } from './constants';
 import type { EventLogistics } from './types';
 
-const VIEW_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+const VIEW_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 
 function Pill({ children }: { children: string }) {
   return (

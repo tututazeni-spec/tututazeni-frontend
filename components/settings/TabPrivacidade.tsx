@@ -61,17 +61,14 @@ const DSR_STATUS_INTENT: Record<
 };
 const STATUS_FILTER_ALL = 'ALL';
 
-function Toggle({
-  id,
-  label,
-  checked,
-  onChange,
-}: {
+interface ToggleProps {
   id: string;
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-}) {
+}
+
+function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
       <input
@@ -343,18 +340,18 @@ export function TabPrivacidade() {
         <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Texto de consentimento
           <div className="flex gap-2">
-              <Button
-                type="button"
-                intent="ghost"
-                className="text-white hover:bg-white/10"
-                onClick={() => setHistoryOpen((o) => !o)}
-              >
-                {historyOpen ? 'Ocultar histórico' : 'Ver histórico'}
-              </Button>
-              <Button type="button" onClick={() => setPublishOpen(true)}>
-                Publicar nova versão
-              </Button>
-            </div>
+            <Button
+              type="button"
+              intent="ghost"
+              className="text-white hover:bg-white/10"
+              onClick={() => setHistoryOpen((o) => !o)}
+            >
+              {historyOpen ? 'Ocultar histórico' : 'Ver histórico'}
+            </Button>
+            <Button type="button" onClick={() => setPublishOpen(true)}>
+              Publicar nova versão
+            </Button>
+          </div>
         </div>
         <CardBody>
           {current ? (
@@ -386,7 +383,9 @@ export function TabPrivacidade() {
                         {new Date(v.publishedAt).toLocaleString('pt-PT')}
                       </span>
                     </div>
-                    <p className="m-0 whitespace-pre-wrap text-[#0F1F3D]">{v.text}</p>
+                    <p className="m-0 whitespace-pre-wrap text-[#0F1F3D]">
+                      {v.text}
+                    </p>
                   </div>
                 ))
               )}
@@ -399,22 +398,22 @@ export function TabPrivacidade() {
         <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Pedidos de direitos dos titulares
           <div className="flex items-center gap-2">
-              <Select
-                className="w-44"
-                items={[
-                  { value: STATUS_FILTER_ALL, label: 'Todos os estados' },
-                  ...DSR_STATUSES,
-                ]}
-                value={statusFilter}
-                onValueChange={(v) => {
-                  setStatusFilter(v);
-                  setPage(1);
-                }}
-              />
-              <Button type="button" onClick={() => setNewRequestOpen(true)}>
-                Novo pedido
-              </Button>
-            </div>
+            <Select
+              className="w-44"
+              items={[
+                { value: STATUS_FILTER_ALL, label: 'Todos os estados' },
+                ...DSR_STATUSES,
+              ]}
+              value={statusFilter}
+              onValueChange={(v) => {
+                setStatusFilter(v);
+                setPage(1);
+              }}
+            />
+            <Button type="button" onClick={() => setNewRequestOpen(true)}>
+              Novo pedido
+            </Button>
+          </div>
         </div>
         <CardBody>
           {requests.isLoading ? (

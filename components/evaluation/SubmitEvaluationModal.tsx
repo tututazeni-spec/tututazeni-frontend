@@ -49,15 +49,13 @@ interface AnswerState {
   notApplicable?: boolean;
 }
 
-function ScoreButtons({
-  max,
-  value,
-  onChange,
-}: {
+interface ScoreButtonsProps {
   max: number;
   value?: number;
   onChange: (v: number) => void;
-}) {
+}
+
+function ScoreButtons({ max, value, onChange }: ScoreButtonsProps) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {Array.from({ length: max + 1 }, (_, n) => n).map((n) => (

@@ -46,7 +46,7 @@ export interface CareerPlan {
   userId: number;
   user?: { id: number; fullName: string; avatarUrl?: string | null };
   title: string;
-  status: string;
+  status: 'ACTIVE' | 'INACTIVE' | 'COMPLETED' | 'CANCELLED';
   targetDate?: string;
   mentoringNotes?: string | null;
   coachingNotes?: string | null;

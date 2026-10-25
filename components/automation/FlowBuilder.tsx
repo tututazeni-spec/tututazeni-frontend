@@ -94,17 +94,14 @@ const CATEGORY_ITEMS = [
 
 const SAMPLE_PAYLOAD = '{\n  "userId": 1,\n  "departmentId": "10"\n}';
 
-function Section({
-  letter,
-  title,
-  hint,
-  children,
-}: {
+interface SectionProps {
   letter: string;
   title: string;
   hint?: string;
   children: ReactNode;
-}) {
+}
+
+function Section({ letter, title, hint, children }: SectionProps) {
   return (
     <Card>
       <CardBody>

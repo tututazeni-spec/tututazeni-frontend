@@ -22,7 +22,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import type { Role } from '@/lib/roles';
+import { ADMIN_RH_GESTOR_ROLES, Role } from '@/lib/roles';
 import { formatDate, formatTime } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
@@ -57,7 +57,7 @@ interface Paginated<T> {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
-const MANAGE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+const MANAGE_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 
 const TYPE_ITEMS = [
   { value: 'ALL', label: 'Todos os tipos' },

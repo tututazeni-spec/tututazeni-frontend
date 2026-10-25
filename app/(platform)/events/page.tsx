@@ -19,7 +19,7 @@ import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { useHasRole } from '@/hooks/useCurrentRole';
-import type { Role } from '@/lib/roles';
+import { ADMIN_RH_GESTOR_ROLES, Role } from '@/lib/roles';
 import { NAV, TITLES } from '@/components/events/constants';
 import { CalendarTab } from '@/components/events/CalendarTab';
 import { CheckinAttendanceTab } from '@/components/events/CheckinAttendanceTab';
@@ -37,7 +37,7 @@ import type { Nav } from '@/components/events/types';
 import { Button } from '@/components/ui/Button';
 
 // Espelha @Roles(ADMIN, RH, GESTOR) em src/events/events.controller.ts#create.
-const CAN_CREATE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+const CAN_CREATE_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 
 export default function EventsPage() {
   const canCreate = useHasRole(CAN_CREATE_ROLES);

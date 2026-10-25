@@ -11,7 +11,8 @@
 
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle, FileUp, Link2, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -84,31 +85,65 @@ const TOGGLES = [
 ] as const;
 type ToggleKey = (typeof TOGGLES)[number]['key'];
 
-export function AddContentModal({ onClose }: AddContentModalProps) {
-  const notify = useToast();
-
-  const [title, setTitle] = useState('');
-  const [format, setFormat] = useState('');
-  const [source, setSource] = useState<'url' | 'file'>('url');
-  const [url, setUrl] = useState('');
-  const [file, setFile] = useState<{
+interface AddContentModalFormValues {
+  title: string;
+  format: string;
+  source: 'url' | 'file';
+  url: string;
+  file: {
     name: string;
     size: number;
     dataUrl: string;
-  } | null>(null);
-  const [fileError, setFileError] = useState('');
-  const [reading, setReading] = useState(false);
+  } | null;
+  fileError: string;
+  reading: boolean;
+  description: string;
+  category: string;
+  level: string;
+  duration: string;
+  flags: Record<ToggleKey, boolean>;
+  submitError: string;
+}
+
+export function AddContentModal({ onClose }: AddContentModalProps) {
+  const notify = useToast();
+
+  const { values: formValues, set: setField } =
+    useFormState<AddContentModalFormValues>({
+      title: '',
+      format: '',
+      source: 'url',
+      url: '',
+      file: null,
+      fileError: '',
+      reading: false,
+      description: '',
+      category: NONE,
+      level: NONE,
+      duration: '',
+      flags: {
+        mandatory: false,
+        isMicrolearning: false,
+        hasCertification: false,
+      },
+      submitError: '',
+    });
+  const {
+    title,
+    format,
+    source,
+    url,
+    file,
+    fileError,
+    reading,
+    description,
+    category,
+    level,
+    duration,
+    flags,
+    submitError,
+  } = formValues;
   const fileInput = useRef<HTMLInputElement>(null);
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState(NONE);
-  const [level, setLevel] = useState(NONE);
-  const [duration, setDuration] = useState('');
-  const [flags, setFlags] = useState<Record<ToggleKey, boolean>>({
-    mandatory: false,
-    isMicrolearning: false,
-    hasCertification: false,
-  });
-  const [submitError, setSubmitError] = useState('');
 
   const durationNum = Number(duration);
   const durationValid =
@@ -134,7 +169,8 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
         onClose();
       },
       onError: (e) =>
-        setSubmitError(
+        setField(
+          'submitError',
           e.message || 'Erro ao criar o conteúdo. Tente novamente.',
         ),
     },
@@ -142,27 +178,31 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
   const loading = createContent.isPending;
 
   const pickFile = async (f: File | undefined) => {
-    setFileError('');
+    setField('fileError', '');
     if (!f) return;
     const problem = validateUpload(f);
     if (problem) {
-      setFile(null);
-      setFileError(problem);
+      setField('file', null);
+      setField('fileError', problem);
       return;
     }
-    setReading(true);
+    setField('reading', true);
     try {
-      setFile({ name: f.name, size: f.size, dataUrl: await readAsDataUrl(f) });
+      setField('file', {
+        name: f.name,
+        size: f.size,
+        dataUrl: await readAsDataUrl(f),
+      });
     } catch {
-      setFileError('Não foi possível ler o ficheiro.');
+      setField('fileError', 'Não foi possível ler o ficheiro.');
     } finally {
-      setReading(false);
+      setField('reading', false);
     }
   };
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
-    setSubmitError('');
+    setField('submitError', '');
     createContent.mutate({
       title: title.trim(),
       format,
@@ -198,7 +238,7 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
             <Input
               id="ac-title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => setField('title', e.target.value)}
               placeholder="Ex.: Introdução à segurança da informação"
               maxLength={300}
             />
@@ -209,7 +249,7 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
               <Select
                 items={FORMAT_ITEMS}
                 value={format || undefined}
-                onValueChange={setFormat}
+                onValueChange={(v) => setField('format', v)}
                 placeholder="Selecionar formato…"
                 className="w-full"
               />
@@ -225,7 +265,7 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
                 type="number"
                 min={1}
                 value={duration}
-                onChange={(e) => setDuration(e.target.value)}
+                onChange={(e) => setField('duration', e.target.value)}
                 placeholder="Opcional"
               />
             </FormField>
@@ -250,7 +290,7 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
                   key={o.key}
                   type="button"
                   aria-pressed={source === o.key}
-                  onClick={() => setSource(o.key)}
+                  onClick={() => setField('source', o.key)}
                   className={cn(
                     'inline-flex items-center justify-center gap-2 rounded-control border px-3 py-2 font-body text-sm transition-colors',
                     source === o.key
@@ -273,7 +313,7 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
                 <Input
                   id="ac-url"
                   value={url}
-                  onChange={(e) => setUrl(e.target.value)}
+                  onChange={(e) => setField('url', e.target.value)}
                   placeholder="https://…"
                 />
               </FormField>
@@ -311,7 +351,7 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
                     <button
                       type="button"
                       aria-label="Remover ficheiro"
-                      onClick={() => setFile(null)}
+                      onClick={() => setField('file', null)}
                       className="text-ink-faint hover:text-danger-ink"
                     >
                       <X size={14} strokeWidth={1.75} />
@@ -336,7 +376,7 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
             <Textarea
               id="ac-description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setField('description', e.target.value)}
               placeholder="Opcional — resumo do que o conteúdo aborda."
               rows={3}
               className="w-full"
@@ -348,7 +388,7 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
               <Select
                 items={CATEGORY_ITEMS}
                 value={category}
-                onValueChange={setCategory}
+                onValueChange={(v) => setField('category', v)}
                 className="w-full"
               />
             </FormField>
@@ -357,7 +397,7 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
               <Select
                 items={LEVEL_ITEMS}
                 value={level}
-                onValueChange={setLevel}
+                onValueChange={(v) => setField('level', v)}
                 className="w-full"
               />
             </FormField>
@@ -369,7 +409,9 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
                 key={t.key}
                 type="button"
                 aria-pressed={flags[t.key]}
-                onClick={() => setFlags((f) => ({ ...f, [t.key]: !f[t.key] }))}
+                onClick={() =>
+                  setField('flags', (f) => ({ ...f, [t.key]: !f[t.key] }))
+                }
                 className={cn(
                   'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
                   flags[t.key]

@@ -39,7 +39,7 @@ const eslintConfig = [
             'Use <SafeHtml html={...} /> (components/ui/SafeHtml) em vez de dangerouslySetInnerHTML.',
         },
       ],
-      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
@@ -54,6 +54,11 @@ const eslintConfig = [
       // etc. (a regra só actua sobre `type X = { ... }`).
       '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
     },
+  },
+  {
+    // Mocks de teste precisam de `any` para simular contratos parciais.
+    files: ['**/*.test.ts', '**/*.test.tsx', 'vitest.setup.ts'],
+    rules: { '@typescript-eslint/no-explicit-any': 'off' },
   },
   {
     // Único ficheiro autorizado a usar dangerouslySetInnerHTML (sanitiza com DOMPurify).

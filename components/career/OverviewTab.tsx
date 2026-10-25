@@ -25,18 +25,16 @@ const MOVEMENT_LABELS: Record<string, string> = {
   MANAGER_CHANGE: 'Mudança de gestor',
 };
 
-// Comparação entre categorias nomeadas (departamento/unidade/cargo) com os
-// gráficos partilhados do design system: barras verticais, anel ou barras
-// horizontais conforme o `variant`.
-function EvolutionList({
-  title,
-  items,
-  variant,
-}: {
+interface EvolutionListProps {
   title: string;
   items: Array<{ key: string; count: number }>;
   variant: 'bar-vertical' | 'donut' | 'bar-horizontal';
-}) {
+}
+
+// Comparação entre categorias nomeadas (departamento/unidade/cargo) com os
+// gráficos partilhados do design system: barras verticais, anel ou barras
+// horizontais conforme o `variant`.
+function EvolutionList({ title, items, variant }: EvolutionListProps) {
   const top = items.slice(0, 6);
   return (
     <Card className="overflow-hidden p-0">

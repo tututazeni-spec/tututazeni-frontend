@@ -35,19 +35,7 @@ function iconBg(tone: NavyIconTone): string {
   return tone === 'yellow' ? 'bg-[#F2C230]' : NAVY_TONES[tone].bg;
 }
 
-export function NavyStatCard({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  trend,
-  tone,
-  iconTone,
-  className,
-  href,
-  tab,
-  onClick,
-}: {
+export interface NavyStatCardProps {
   icon: LucideIcon;
   label: string;
   value: string | number;
@@ -65,7 +53,21 @@ export function NavyStatCard({
   tab?: string;
   /** Acção própria (ex.: abrir um filtro ou um modal). */
   onClick?: () => void;
-}) {
+}
+
+export function NavyStatCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  trend,
+  tone,
+  iconTone,
+  className,
+  href,
+  tab,
+  onClick,
+}: NavyStatCardProps) {
   const t = NAVY_TONES[tone];
   // Palavra única longa (ex.: "Colaboradores") não deve partir a meio
   const singleWord = !/\s/.test(label.trim());

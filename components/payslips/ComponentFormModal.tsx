@@ -11,7 +11,7 @@
 // Sem filtro P2002→409 no backend: code duplicado devolve 500; mostramos cru.
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -45,6 +45,23 @@ const CALC_ITEMS = [
   { value: 'TABLE', label: 'Tabela / escalões (TABLE)' },
 ];
 
+interface ComponentFormModalFormValues {
+  code: string;
+  name: string;
+  description: string;
+  type: string;
+  calcType: string;
+  fixedValue: string;
+  rate: string;
+  formula: string;
+  isTaxable: boolean;
+  isMandatory: boolean;
+  order: string;
+  countryCode: string;
+  submitError: string;
+  condError: string;
+}
+
 export function ComponentFormModal({
   component,
   onClose,
@@ -52,30 +69,40 @@ export function ComponentFormModal({
   const editing = component != null;
   const notify = useToast();
 
-  const [code, setCode] = useState(component?.code ?? '');
-  const [name, setName] = useState(component?.name ?? '');
-  const [description, setDescription] = useState(component?.description ?? '');
-  const [type, setType] = useState<string>(component?.type ?? '');
-  const [calcType, setCalcType] = useState<string>(component?.calcType ?? '');
-  const [fixedValue, setFixedValue] = useState(
-    component?.fixedValue != null ? String(component.fixedValue) : '',
-  );
-  const [rate, setRate] = useState(
-    component?.rate != null ? String(component.rate) : '',
-  );
-  const [formula, setFormula] = useState(component?.formula ?? '');
-  const [isTaxable, setIsTaxable] = useState(component?.isTaxable ?? true);
-  const [isMandatory, setIsMandatory] = useState(
-    component?.isMandatory ?? false,
-  );
-  const [order, setOrder] = useState(
-    component?.order != null ? String(component.order) : '0',
-  );
-  const [countryCode, setCountryCode] = useState(
-    component?.countryCode ?? 'AO',
-  );
-  const [submitError, setSubmitError] = useState('');
-  const [condError, setCondError] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<ComponentFormModalFormValues>({
+      code: component?.code ?? '',
+      name: component?.name ?? '',
+      description: component?.description ?? '',
+      type: component?.type ?? '',
+      calcType: component?.calcType ?? '',
+      fixedValue:
+        component?.fixedValue != null ? String(component.fixedValue) : '',
+      rate: component?.rate != null ? String(component.rate) : '',
+      formula: component?.formula ?? '',
+      isTaxable: component?.isTaxable ?? true,
+      isMandatory: component?.isMandatory ?? false,
+      order: component?.order != null ? String(component.order) : '0',
+      countryCode: component?.countryCode ?? 'AO',
+      submitError: '',
+      condError: '',
+    });
+  const {
+    code,
+    name,
+    description,
+    type,
+    calcType,
+    fixedValue,
+    rate,
+    formula,
+    isTaxable,
+    isMandatory,
+    order,
+    countryCode,
+    submitError,
+    condError,
+  } = formValues;
 
   const save = useApiMutation(
     (body: Record<string, unknown>) =>
@@ -92,7 +119,10 @@ export function ComponentFormModal({
         onClose();
       },
       onError: (e: Error) =>
-        setSubmitError(e.message || 'Erro ao guardar. Tente novamente.'),
+        setField(
+          'submitError',
+          e.message || 'Erro ao guardar. Tente novamente.',
+        ),
     },
   );
   const loading = save.isPending;
@@ -114,19 +144,25 @@ export function ComponentFormModal({
 
   const handleSubmit = () => {
     if (loading) return;
-    setSubmitError('');
-    setCondError('');
+    setField('submitError', '');
+    setField('condError', '');
     if (!baseValid) return;
     if (calcType === 'FIXED' && fixedValue.trim() === '') {
-      setCondError('Valor fixo é obrigatório quando o cálculo é FIXED.');
+      setField(
+        'condError',
+        'Valor fixo é obrigatório quando o cálculo é FIXED.',
+      );
       return;
     }
     if (calcType === 'PERCENT' && rate.trim() === '') {
-      setCondError('Taxa é obrigatória quando o cálculo é PERCENT.');
+      setField('condError', 'Taxa é obrigatória quando o cálculo é PERCENT.');
       return;
     }
     if (calcType === 'FORMULA' && formula.trim() === '') {
-      setCondError('Fórmula é obrigatória quando o cálculo é FORMULA.');
+      setField(
+        'condError',
+        'Fórmula é obrigatória quando o cálculo é FORMULA.',
+      );
       return;
     }
 
@@ -176,7 +212,7 @@ export function ComponentFormModal({
               <Input
                 id="cf-code"
                 value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                onChange={(e) => setField('code', e.target.value.toUpperCase())}
                 placeholder="BASE"
                 className="w-full font-mono"
               />
@@ -187,7 +223,7 @@ export function ComponentFormModal({
             <Input
               id="cf-name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setField('name', e.target.value)}
               className="w-full"
             />
           </FormField>
@@ -196,7 +232,7 @@ export function ComponentFormModal({
             <Textarea
               id="cf-description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setField('description', e.target.value)}
               rows={2}
               className="w-full"
             />
@@ -207,7 +243,7 @@ export function ComponentFormModal({
               <Select
                 items={TYPE_ITEMS}
                 value={type || undefined}
-                onValueChange={setType}
+                onValueChange={(v) => setField('type', v)}
                 placeholder="Selecionar"
                 className="w-full"
               />
@@ -217,8 +253,8 @@ export function ComponentFormModal({
                 items={CALC_ITEMS}
                 value={calcType || undefined}
                 onValueChange={(v) => {
-                  setCalcType(v);
-                  setCondError('');
+                  setField('calcType', v);
+                  setField('condError', '');
                 }}
                 placeholder="Selecionar"
                 className="w-full"
@@ -242,7 +278,7 @@ export function ComponentFormModal({
                 <Input
                   id="cf-cond"
                   value={formula}
-                  onChange={(e) => setFormula(e.target.value)}
+                  onChange={(e) => setField('formula', e.target.value)}
                   className="w-full font-mono"
                 />
               ) : (
@@ -253,8 +289,8 @@ export function ComponentFormModal({
                   value={calcType === 'FIXED' ? fixedValue : rate}
                   onChange={(e) =>
                     calcType === 'FIXED'
-                      ? setFixedValue(e.target.value)
-                      : setRate(e.target.value)
+                      ? setField('fixedValue', e.target.value)
+                      : setField('rate', e.target.value)
                   }
                   className="w-full"
                 />
@@ -278,7 +314,7 @@ export function ComponentFormModal({
               <input
                 type="checkbox"
                 checked={isTaxable}
-                onChange={(e) => setIsTaxable(e.target.checked)}
+                onChange={(e) => setField('isTaxable', e.target.checked)}
                 className="h-4 w-4 rounded border-border-strong accent-primary"
               />
               Tributável
@@ -287,7 +323,7 @@ export function ComponentFormModal({
               <input
                 type="checkbox"
                 checked={isMandatory}
-                onChange={(e) => setIsMandatory(e.target.checked)}
+                onChange={(e) => setField('isMandatory', e.target.checked)}
                 className="h-4 w-4 rounded border-border-strong accent-primary"
               />
               Obrigatório
@@ -297,7 +333,7 @@ export function ComponentFormModal({
                 id="cf-order"
                 type="number"
                 value={order}
-                onChange={(e) => setOrder(e.target.value)}
+                onChange={(e) => setField('order', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -305,7 +341,9 @@ export function ComponentFormModal({
               <Input
                 id="cf-country"
                 value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
+                onChange={(e) =>
+                  setField('countryCode', e.target.value.toUpperCase())
+                }
                 className="w-full"
               />
             </FormField>

@@ -25,8 +25,9 @@ import {
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AiTutorOverview } from './types';
+import { ADMIN_ROLES } from '@/lib/roles';
 
-const PRIVILEGED_ROLES = new Set(['ADMIN', 'RH']);
+const PRIVILEGED_ROLES = new Set<string>(ADMIN_ROLES);
 
 export function OverviewView() {
   const role = useCurrentRole();

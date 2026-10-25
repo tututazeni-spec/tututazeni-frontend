@@ -20,6 +20,7 @@ import { JitsiRoom } from '@/components/live-classes/room/JitsiRoom';
 import { RecordingPanel } from '@/components/live-classes/room/RecordingPanel';
 import { fmtDuration } from '@/components/live-classes/room/utils';
 import type { LiveClass } from '@/components/live-classes/room/types';
+import { safeHref } from '@/lib/safeHref';
 
 export default function LiveRoomPage() {
   const params = useParams<{ id: string }>();
@@ -223,7 +224,7 @@ export default function LiveRoomPage() {
               {/* Existing recording link */}
               {liveClass.recordingUrl && (
                 <a
-                  href={liveClass.recordingUrl}
+                  href={safeHref(liveClass.recordingUrl)}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-1.5 mt-2.5 py-1.75 px-3 bg-accent-subtle border border-accent-subtle rounded-lg text-accent text-xs no-underline font-semibold"

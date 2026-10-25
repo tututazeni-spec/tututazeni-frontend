@@ -107,19 +107,21 @@ export interface AlertsFilters {
   state: AlertState | null;
 }
 
+interface NoteModalProps {
+  title: string;
+  required: boolean;
+  busy: boolean;
+  onSubmit: (note: string) => void;
+  onClose: () => void;
+}
+
 function NoteModal({
   title,
   required,
   busy,
   onSubmit,
   onClose,
-}: {
-  title: string;
-  required: boolean;
-  busy: boolean;
-  onSubmit: (note: string) => void;
-  onClose: () => void;
-}) {
+}: NoteModalProps) {
   const [note, setNote] = useState('');
   const invalid = required && note.trim().length === 0;
   return (
@@ -156,17 +158,14 @@ function NoteModal({
   );
 }
 
-function AlertItem({
-  a,
-  canAct,
-  busy,
-  onCommand,
-}: {
+interface AlertItemProps {
   a: AlertRow;
   canAct: boolean;
   busy: boolean;
   onCommand: (c: AlertCommand) => void;
-}) {
+}
+
+function AlertItem({ a, canAct, busy, onCommand }: AlertItemProps) {
   const [dialog, setDialog] = useState<'note' | 'resolve' | null>(null);
   const st = STATE_LABEL[a.state];
   const open = a.state !== 'RESOLVIDO';
@@ -262,6 +261,15 @@ function AlertItem({
   );
 }
 
+export interface AlertsTabProps {
+  data: AlertsData;
+  filters: AlertsFilters;
+  onFiltersChange: (f: AlertsFilters) => void;
+  canAct: boolean;
+  busy: boolean;
+  onCommand: (c: AlertCommand) => void;
+}
+
 export function AlertsTab({
   data,
   filters,
@@ -269,14 +277,7 @@ export function AlertsTab({
   canAct,
   busy,
   onCommand,
-}: {
-  data: AlertsData;
-  filters: AlertsFilters;
-  onFiltersChange: (f: AlertsFilters) => void;
-  canAct: boolean;
-  busy: boolean;
-  onCommand: (c: AlertCommand) => void;
-}) {
+}: AlertsTabProps) {
   const s = data.summary;
   return (
     <div className="space-y-6">
@@ -414,15 +415,13 @@ const UNIFIED_INTENT: Record<string, Intent> = {
   LOW: 'info',
 };
 
-function NewIncidentModal({
-  busy,
-  onCreate,
-  onClose,
-}: {
+interface NewIncidentModalProps {
   busy: boolean;
   onCreate: (p: CreateIncidentPayload) => void;
   onClose: () => void;
-}) {
+}
+
+function NewIncidentModal({ busy, onCreate, onClose }: NewIncidentModalProps) {
   const [form, setForm] = useState<CreateIncidentPayload>({
     title: '',
     category: 'DEGRADATION',
@@ -526,6 +525,15 @@ function NewIncidentModal({
   );
 }
 
+interface IncidentDetailModalProps {
+  detail: IncidentDetail | undefined;
+  loading: boolean;
+  canAct: boolean;
+  busy: boolean;
+  onUpdate: (p: UpdateIncidentPayload) => void;
+  onClose: () => void;
+}
+
 function IncidentDetailModal({
   detail,
   loading,
@@ -533,14 +541,7 @@ function IncidentDetailModal({
   busy,
   onUpdate,
   onClose,
-}: {
-  detail: IncidentDetail | undefined;
-  loading: boolean;
-  canAct: boolean;
-  busy: boolean;
-  onUpdate: (p: UpdateIncidentPayload) => void;
-  onClose: () => void;
-}) {
+}: IncidentDetailModalProps) {
   const [status, setStatus] = useState('');
   const [cause, setCause] = useState('');
   const [resolution, setResolution] = useState('');
@@ -679,6 +680,23 @@ const INCIDENT_GROUPS: {
   { value: 'RESOLVED', label: 'Resolvidos', icon: CheckCircle2 },
 ];
 
+export interface IncidentsTabProps {
+  data: IncidentsData;
+  group: 'ACTIVE' | 'RESOLVED' | null;
+  onGroupChange: (g: 'ACTIVE' | 'RESOLVED' | null) => void;
+  canAct: boolean;
+  busy: boolean;
+  creating: boolean;
+  onCreateClick: () => void;
+  onCreate: (p: CreateIncidentPayload) => void;
+  onCloseCreate: () => void;
+  selected: IncidentRow | null;
+  detail: IncidentDetail | undefined;
+  detailLoading: boolean;
+  onSelect: (i: IncidentRow | null) => void;
+  onUpdate: (p: UpdateIncidentPayload) => void;
+}
+
 export function IncidentsTab({
   data,
   group,
@@ -694,22 +712,7 @@ export function IncidentsTab({
   detailLoading,
   onSelect,
   onUpdate,
-}: {
-  data: IncidentsData;
-  group: 'ACTIVE' | 'RESOLVED' | null;
-  onGroupChange: (g: 'ACTIVE' | 'RESOLVED' | null) => void;
-  canAct: boolean;
-  busy: boolean;
-  creating: boolean;
-  onCreateClick: () => void;
-  onCreate: (p: CreateIncidentPayload) => void;
-  onCloseCreate: () => void;
-  selected: IncidentRow | null;
-  detail: IncidentDetail | undefined;
-  detailLoading: boolean;
-  onSelect: (i: IncidentRow | null) => void;
-  onUpdate: (p: UpdateIncidentPayload) => void;
-}) {
+}: IncidentsTabProps) {
   const s = data.summary;
   return (
     <div className="space-y-6">
@@ -961,15 +964,13 @@ function HealthComponentCard({ c }: { c: HealthComponentRow }) {
   );
 }
 
-export function HealthTab({
-  data,
-  refreshing,
-  onRefresh,
-}: {
+export interface HealthTabProps {
   data: HealthData;
   refreshing: boolean;
   onRefresh: () => void;
-}) {
+}
+
+export function HealthTab({ data, refreshing, onRefresh }: HealthTabProps) {
   const groups = Object.keys(GROUP_LABEL);
   return (
     <div className="space-y-6">

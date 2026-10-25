@@ -16,6 +16,7 @@
 
 import { useState } from 'react';
 import { Loader2, Plug, Plus, Trash2 } from 'lucide-react';
+import { useFormState } from '@/hooks/useFormState';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -122,6 +123,70 @@ interface FieldMappingRow {
 
 const emptyMappingRow: FieldMappingRow = { source: '', target: '' };
 
+interface NewIntegrationFormValues {
+  name: string;
+  type: string;
+  category: string | undefined;
+  platform: string;
+  description: string;
+  baseUrl: string;
+  authType: string | undefined;
+  clientId: string;
+  clientSecret: string;
+  apiKey: string;
+  accessToken: string;
+  authUrl: string;
+  environment: string | undefined;
+  apiVersion: string;
+  dataFormat: string | undefined;
+  communicationMethod: string | undefined;
+  syncFrequency: string | undefined;
+  syncDirection: string | undefined;
+  dataToSync: string;
+  mappingRows: FieldMappingRow[];
+  webhookUrl: string;
+  webhookEvents: string;
+  timeoutMs: string;
+  maxRetries: string;
+  retryIntervalMs: string;
+  status: IntegrationStatusValue;
+  activatedAt: string;
+  responsibleUserId: string;
+  notes: string;
+}
+
+const INITIAL_VALUES: NewIntegrationFormValues = {
+  name: '',
+  type: 'REST_API',
+  category: undefined,
+  platform: '',
+  description: '',
+  baseUrl: '',
+  authType: 'NONE',
+  clientId: '',
+  clientSecret: '',
+  apiKey: '',
+  accessToken: '',
+  authUrl: '',
+  environment: 'PRODUCTION',
+  apiVersion: '',
+  dataFormat: 'JSON',
+  communicationMethod: undefined,
+  syncFrequency: 'DAILY',
+  syncDirection: undefined,
+  dataToSync: '',
+  mappingRows: [{ ...emptyMappingRow }],
+  webhookUrl: '',
+  webhookEvents: '',
+  timeoutMs: '5000',
+  maxRetries: '3',
+  retryIntervalMs: '1000',
+  status: 'CONFIGURING',
+  activatedAt: '',
+  responsibleUserId: '',
+  notes: '',
+};
+
 function Section({
   title,
   children,
@@ -142,43 +207,39 @@ function Section({
 export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
   const notify = useToast();
 
-  const [name, setName] = useState('');
-  const [type, setType] = useState('REST_API');
-  const [category, setCategory] = useState<string | undefined>();
-  const [platform, setPlatform] = useState('');
-  const [description, setDescription] = useState('');
-  const [baseUrl, setBaseUrl] = useState('');
-  const [authType, setAuthType] = useState<string | undefined>('NONE');
-  const [clientId, setClientId] = useState('');
-  const [clientSecret, setClientSecret] = useState('');
-  const [apiKey, setApiKey] = useState('');
-  const [accessToken, setAccessToken] = useState('');
-  const [authUrl, setAuthUrl] = useState('');
-  const [environment, setEnvironment] = useState<string | undefined>(
-    'PRODUCTION',
-  );
-  const [apiVersion, setApiVersion] = useState('');
-  const [dataFormat, setDataFormat] = useState<string | undefined>('JSON');
-  const [communicationMethod, setCommunicationMethod] = useState<
-    string | undefined
-  >();
-  const [syncFrequency, setSyncFrequency] = useState<string | undefined>(
-    'DAILY',
-  );
-  const [syncDirection, setSyncDirection] = useState<string | undefined>();
-  const [dataToSync, setDataToSync] = useState('');
-  const [mappingRows, setMappingRows] = useState<FieldMappingRow[]>([
-    { ...emptyMappingRow },
-  ]);
-  const [webhookUrl, setWebhookUrl] = useState('');
-  const [webhookEvents, setWebhookEvents] = useState('');
-  const [timeoutMs, setTimeoutMs] = useState('5000');
-  const [maxRetries, setMaxRetries] = useState('3');
-  const [retryIntervalMs, setRetryIntervalMs] = useState('1000');
-  const [status, setStatus] = useState<IntegrationStatusValue>('CONFIGURING');
-  const [activatedAt, setActivatedAt] = useState('');
-  const [responsibleUserId, setResponsibleUserId] = useState('');
-  const [notes, setNotes] = useState('');
+  const { values: form, set } =
+    useFormState<NewIntegrationFormValues>(INITIAL_VALUES);
+  const {
+    name,
+    type,
+    category,
+    platform,
+    description,
+    baseUrl,
+    authType,
+    clientId,
+    clientSecret,
+    apiKey,
+    accessToken,
+    authUrl,
+    environment,
+    apiVersion,
+    dataFormat,
+    communicationMethod,
+    syncFrequency,
+    syncDirection,
+    dataToSync,
+    mappingRows,
+    webhookUrl,
+    webhookEvents,
+    timeoutMs,
+    maxRetries,
+    retryIntervalMs,
+    status,
+    activatedAt,
+    responsibleUserId,
+    notes,
+  } = form;
 
   const [testResult, setTestResult] = useState<TestConnectionResult | null>(
     null,
@@ -305,7 +366,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
     field: keyof FieldMappingRow,
     value: string,
   ) => {
-    setMappingRows((rows) =>
+    set('mappingRows', (rows) =>
       rows.map((row, i) => (i === index ? { ...row, [field]: value } : row)),
     );
   };
@@ -323,7 +384,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               <Input
                 id="ni-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => set('name', e.target.value)}
                 placeholder="Ex.: SAP SuccessFactors"
               />
             </FormField>
@@ -331,14 +392,14 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               <Select
                 items={TYPE_OPTIONS}
                 value={type}
-                onValueChange={setType}
+                onValueChange={(v) => set('type', v)}
               />
             </FormField>
             <FormField label="Categoria" htmlFor="ni-category">
               <Select
                 items={CATEGORY_OPTIONS}
                 value={category}
-                onValueChange={setCategory}
+                onValueChange={(v) => set('category', v)}
                 placeholder="Selecionar…"
               />
             </FormField>
@@ -346,7 +407,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               <Input
                 id="ni-platform"
                 value={platform}
-                onChange={(e) => setPlatform(e.target.value)}
+                onChange={(e) => set('platform', e.target.value)}
                 placeholder="Ex.: SAP, Workday, Moodle…"
               />
             </FormField>
@@ -356,7 +417,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                   id="ni-description"
                   rows={2}
                   value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  onChange={(e) => set('description', e.target.value)}
                 />
               </FormField>
             </div>
@@ -372,7 +433,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 <Input
                   id="ni-baseurl"
                   value={baseUrl}
-                  onChange={(e) => setBaseUrl(e.target.value)}
+                  onChange={(e) => set('baseUrl', e.target.value)}
                   placeholder="https://api.exemplo.com/v1"
                 />
               </FormField>
@@ -381,14 +442,14 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               <Select
                 items={ENVIRONMENT_OPTIONS}
                 value={environment}
-                onValueChange={setEnvironment}
+                onValueChange={(v) => set('environment', v)}
               />
             </FormField>
             <FormField label="Versão da API" htmlFor="ni-apiversion">
               <Input
                 id="ni-apiversion"
                 value={apiVersion}
-                onChange={(e) => setApiVersion(e.target.value)}
+                onChange={(e) => set('apiVersion', e.target.value)}
                 placeholder="Ex.: v2"
               />
             </FormField>
@@ -396,14 +457,14 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               <Select
                 items={DATA_FORMAT_OPTIONS}
                 value={dataFormat}
-                onValueChange={setDataFormat}
+                onValueChange={(v) => set('dataFormat', v)}
               />
             </FormField>
             <FormField label="Método de comunicação" htmlFor="ni-commethod">
               <Select
                 items={COMMUNICATION_METHOD_OPTIONS}
                 value={communicationMethod}
-                onValueChange={setCommunicationMethod}
+                onValueChange={(v) => set('communicationMethod', v)}
                 placeholder="Selecionar…"
               />
             </FormField>
@@ -414,14 +475,14 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               <Select
                 items={AUTH_TYPE_OPTIONS}
                 value={authType}
-                onValueChange={setAuthType}
+                onValueChange={(v) => set('authType', v)}
               />
             </FormField>
             <FormField label="URL de autenticação" htmlFor="ni-authurl">
               <Input
                 id="ni-authurl"
                 value={authUrl}
-                onChange={(e) => setAuthUrl(e.target.value)}
+                onChange={(e) => set('authUrl', e.target.value)}
                 placeholder="https://auth.exemplo.com/oauth/token"
               />
             </FormField>
@@ -429,7 +490,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               <Input
                 id="ni-clientid"
                 value={clientId}
-                onChange={(e) => setClientId(e.target.value)}
+                onChange={(e) => set('clientId', e.target.value)}
               />
             </FormField>
             <FormField label="Client Secret" htmlFor="ni-clientsecret">
@@ -437,7 +498,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 id="ni-clientsecret"
                 type="password"
                 value={clientSecret}
-                onChange={(e) => setClientSecret(e.target.value)}
+                onChange={(e) => set('clientSecret', e.target.value)}
               />
             </FormField>
             <FormField label="API Key" htmlFor="ni-apikey">
@@ -445,7 +506,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 id="ni-apikey"
                 type="password"
                 value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
+                onChange={(e) => set('apiKey', e.target.value)}
               />
             </FormField>
             <FormField label="Token de acesso" htmlFor="ni-token">
@@ -453,7 +514,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 id="ni-token"
                 type="password"
                 value={accessToken}
-                onChange={(e) => setAccessToken(e.target.value)}
+                onChange={(e) => set('accessToken', e.target.value)}
               />
             </FormField>
             <div className="sm:col-span-2">
@@ -489,14 +550,14 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               <Select
                 items={SYNC_FREQUENCY_OPTIONS}
                 value={syncFrequency}
-                onValueChange={setSyncFrequency}
+                onValueChange={(v) => set('syncFrequency', v)}
               />
             </FormField>
             <FormField label="Direção da sincronização" htmlFor="ni-syncdir">
               <Select
                 items={SYNC_DIRECTION_OPTIONS}
                 value={syncDirection}
-                onValueChange={setSyncDirection}
+                onValueChange={(v) => set('syncDirection', v)}
                 placeholder="Selecionar…"
               />
             </FormField>
@@ -509,7 +570,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 <Input
                   id="ni-datasync"
                   value={dataToSync}
-                  onChange={(e) => setDataToSync(e.target.value)}
+                  onChange={(e) => set('dataToSync', e.target.value)}
                   placeholder="users, courses, enrollments"
                 />
               </FormField>
@@ -545,7 +606,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                     type="button"
                     aria-label="Remover linha"
                     onClick={() =>
-                      setMappingRows((rows) =>
+                      set('mappingRows', (rows) =>
                         rows.filter((_, idx) => idx !== i),
                       )
                     }
@@ -561,7 +622,10 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 type="button"
                 className="self-start"
                 onClick={() =>
-                  setMappingRows((rows) => [...rows, { ...emptyMappingRow }])
+                  set('mappingRows', (rows) => [
+                    ...rows,
+                    { ...emptyMappingRow },
+                  ])
                 }
               >
                 <Plus size={14} strokeWidth={1.75} />
@@ -572,7 +636,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               <Input
                 id="ni-webhookurl"
                 value={webhookUrl}
-                onChange={(e) => setWebhookUrl(e.target.value)}
+                onChange={(e) => set('webhookUrl', e.target.value)}
                 placeholder="https://…/webhooks/receiver"
               />
             </FormField>
@@ -584,7 +648,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               <Input
                 id="ni-webhookevents"
                 value={webhookEvents}
-                onChange={(e) => setWebhookEvents(e.target.value)}
+                onChange={(e) => set('webhookEvents', e.target.value)}
                 placeholder="course.completed, user.promoted"
               />
             </FormField>
@@ -597,7 +661,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 type="number"
                 min={0}
                 value={timeoutMs}
-                onChange={(e) => setTimeoutMs(e.target.value)}
+                onChange={(e) => set('timeoutMs', e.target.value)}
               />
             </FormField>
             <FormField
@@ -609,7 +673,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 type="number"
                 min={0}
                 value={maxRetries}
-                onChange={(e) => setMaxRetries(e.target.value)}
+                onChange={(e) => set('maxRetries', e.target.value)}
               />
             </FormField>
             <FormField
@@ -621,7 +685,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 type="number"
                 min={0}
                 value={retryIntervalMs}
-                onChange={(e) => setRetryIntervalMs(e.target.value)}
+                onChange={(e) => set('retryIntervalMs', e.target.value)}
               />
             </FormField>
           </Section>
@@ -631,7 +695,9 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               <Select
                 items={STATUS_OPTIONS}
                 value={status}
-                onValueChange={(v) => setStatus(v as IntegrationStatusValue)}
+                onValueChange={(v) =>
+                  set('status', v as IntegrationStatusValue)
+                }
               />
             </FormField>
             <FormField label="Data de ativação" htmlFor="ni-activatedat">
@@ -639,7 +705,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                 id="ni-activatedat"
                 type="date"
                 value={activatedAt}
-                onChange={(e) => setActivatedAt(e.target.value)}
+                onChange={(e) => set('activatedAt', e.target.value)}
               />
             </FormField>
             <FormField
@@ -649,7 +715,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
               <Input
                 id="ni-responsible"
                 value={responsibleUserId}
-                onChange={(e) => setResponsibleUserId(e.target.value)}
+                onChange={(e) => set('responsibleUserId', e.target.value)}
                 placeholder="ID ou nome do responsável"
               />
             </FormField>
@@ -659,7 +725,7 @@ export function NewIntegrationModal({ onClose }: NewIntegrationModalProps) {
                   id="ni-notes"
                   rows={2}
                   value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                  onChange={(e) => set('notes', e.target.value)}
                 />
               </FormField>
             </div>

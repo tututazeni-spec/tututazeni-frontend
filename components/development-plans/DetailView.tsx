@@ -121,6 +121,14 @@ interface DiagnosisRow {
   label: string;
 }
 
+interface DiagnosisCardProps {
+  palette: readonly string[];
+  icon: LucideIcon;
+  title: string;
+  badge?: React.ReactNode;
+  rows: DiagnosisRow[];
+}
+
 // Cartão claro do separador Diagnóstico: círculo com ícone na cor do PDI,
 // título azul-marinho, etiqueta opcional e linhas com valor + legenda.
 function DiagnosisCard({
@@ -129,13 +137,7 @@ function DiagnosisCard({
   title,
   badge,
   rows,
-}: {
-  palette: readonly string[];
-  icon: LucideIcon;
-  title: string;
-  badge?: React.ReactNode;
-  rows: DiagnosisRow[];
-}) {
+}: DiagnosisCardProps) {
   return (
     <section className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
       <div className="flex flex-wrap items-center gap-4 px-6 pt-6">

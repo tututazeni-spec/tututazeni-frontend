@@ -14,7 +14,7 @@ import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
-import { IconButton } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { MessageBubble } from './MessageBubble';
@@ -46,7 +46,11 @@ export function LessonTutorModal({
   const [thinking, setThinking] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const { mutate: startSession, isPending: starting } = useApiMutation(
+  const {
+    mutate: startSession,
+    isPending: starting,
+    isError: startFailed,
+  } = useApiMutation(
     () =>
       apiClient.post<StartSessionResponse>('/ai-tutor/sessions', {
         courseId,
@@ -72,16 +76,23 @@ export function LessonTutorModal({
     },
   );
 
+  // Uma tentativa automática por abertura. Antes o efeito dependia de
+  // `starting`: ao falhar, isPending voltava a false, o efeito corria de novo
+  // e o pedido repetia-se em ciclo. A repetição é agora manual (botão).
+  const startedRef = useRef(false);
   useEffect(() => {
-    if (open && !session && !starting) {
-      startSession(undefined);
-    }
     if (!open) {
+      startedRef.current = false;
       setSession(null);
       setMessages([]);
       setInput('');
+      return;
     }
-  }, [open, lessonId, session, starting, startSession]);
+    if (!startedRef.current) {
+      startedRef.current = true;
+      startSession(undefined);
+    }
+  }, [open, startSession]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -164,6 +175,18 @@ export function LessonTutorModal({
           {starting && !session && (
             <div className="flex items-center gap-2 text-ink-faint font-body text-sm">
               <Avatar name="Ísis" size="sm" />A carregar contexto da lição…
+            </div>
+          )}
+          {startFailed && !session && !starting && (
+            <div className="flex flex-col items-start gap-2 font-body text-sm text-ink-faint">
+              Não foi possível iniciar a conversa.
+              <Button
+                intent="secondary"
+                size="sm"
+                onClick={() => startSession(undefined)}
+              >
+                Tentar novamente
+              </Button>
             </div>
           )}
           {messages.map((m) => (

@@ -21,17 +21,14 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AiTutorSettingsData } from './types';
 
-function ToggleRow({
-  label,
-  description,
-  checked,
-  onChange,
-}: {
+interface ToggleRowProps {
   label: string;
   description: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-}) {
+}
+
+function ToggleRow({ label, description, checked, onChange }: ToggleRowProps) {
   return (
     <label className="flex items-start gap-3 py-3 border-b border-border last:border-0 cursor-pointer">
       <input

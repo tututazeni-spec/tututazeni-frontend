@@ -7,9 +7,24 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { AlarmClock, CalendarCheck, CheckCircle2, ClipboardList, Download, FileStack, ListTodo, RotateCcw, Stamp, Timer, Undo2, XCircle, Zap, type LucideIcon } from 'lucide-react';
+import {
+  AlarmClock,
+  CalendarCheck,
+  CheckCircle2,
+  ClipboardList,
+  Download,
+  FileStack,
+  ListTodo,
+  RotateCcw,
+  Stamp,
+  Timer,
+  Undo2,
+  XCircle,
+  Zap,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { API_URL } from '@/lib/apiClient';
+import { downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
@@ -17,7 +32,10 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { KpiCard } from '@/components/ui/KpiCard';
-import { INVERSE_RATE_BANDS, SpeedometerStatCard } from '@/components/ui/charts/SpeedometerStatCard';
+import {
+  INVERSE_RATE_BANDS,
+  SpeedometerStatCard,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { ThermometerStatCard } from '@/components/ui/charts/ThermometerStatCard';
 import { Select } from '@/components/ui/Select';
 import { BarChart } from '@/components/ui/charts/BarChart';
@@ -79,7 +97,16 @@ const toParams = (f: Filters): Record<string, string> => {
   const p: Record<string, string> = { groupBy: f.groupBy };
   if (f.from) p.from = f.from;
   if (f.to) p.to = f.to;
-  (['unitId', 'departmentId', 'templateId', 'category', 'sourceModule', 'priority'] as const).forEach((k) => {
+  (
+    [
+      'unitId',
+      'departmentId',
+      'templateId',
+      'category',
+      'sourceModule',
+      'priority',
+    ] as const
+  ).forEach((k) => {
     if (f[k] !== ALL) p[k] = f[k];
   });
   if (f.responsibleId) p.responsibleId = f.responsibleId;
@@ -87,19 +114,50 @@ const toParams = (f: Filters): Record<string, string> => {
 };
 
 const pct = (v: number | null) => (v === null ? '—' : `${v}%`);
-const rateSub = (r: RateIndicator) => (r.denominator ? `${r.numerator} de ${r.denominator}` : 'Sem dados no período');
+const rateSub = (r: RateIndicator) =>
+  r.denominator ? `${r.numerator} de ${r.denominator}` : 'Sem dados no período';
 
-function ChartCard({ title, empty, children }: { title: string; empty: boolean; children: React.ReactNode }) {
+interface ChartCardProps {
+  title: string;
+  empty: boolean;
+  children: React.ReactNode;
+}
+
+function ChartCard({ title, empty, children }: ChartCardProps) {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface">
       <div className="pointer-events-none select-none bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-4">
-        {empty ? <p className="py-8 text-center font-body text-sm text-ink-faint">Sem dados</p> : children}
+        {empty ? (
+          <p className="py-8 text-center font-body text-sm text-ink-faint">
+            Sem dados
+          </p>
+        ) : (
+          children
+        )}
       </div>
     </div>
   );
+}
+
+interface KpiProps {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+  sub: string;
+  intent: 'primary' | 'info' | 'success' | 'warning' | 'danger' | 'accent';
+  iconIntent?: 'caution';
+  /** Taxa em que menos é melhor, desenhada como termómetro ou velocímetro. */
+  gauge?: { kind: 'thermometer' | 'speedometer'; rate: number | null };
+  indicator: ReportRecordIndicator;
+  definition?: string;
+  onDrill: (
+    indicator: ReportRecordIndicator,
+    title: string,
+    definition?: string,
+  ) => void;
 }
 
 function Kpi({
@@ -113,29 +171,42 @@ function Kpi({
   indicator,
   definition,
   onDrill,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string | number;
-  sub: string;
-  intent: 'primary' | 'info' | 'success' | 'warning' | 'danger' | 'accent';
-  iconIntent?: 'caution';
-  /** Taxa em que menos é melhor, desenhada como termómetro ou velocímetro. */
-  gauge?: { kind: 'thermometer' | 'speedometer'; rate: number | null };
-  indicator: ReportRecordIndicator;
-  definition?: string;
-  onDrill: (indicator: ReportRecordIndicator, title: string, definition?: string) => void;
-}) {
+}: KpiProps) {
   return (
-    <button type="button" title={definition} onClick={() => onDrill(indicator, label, definition)} className="text-left">
+    <button
+      type="button"
+      title={definition}
+      onClick={() => onDrill(indicator, label, definition)}
+      className="text-left"
+    >
       {gauge ? (
         gauge.kind === 'thermometer' ? (
-          <ThermometerStatCard label={label} value={gauge.rate ?? 0} bands={INVERSE_RATE_BANDS} display={String(value)} caption={sub} />
+          <ThermometerStatCard
+            label={label}
+            value={gauge.rate ?? 0}
+            bands={INVERSE_RATE_BANDS}
+            display={String(value)}
+            caption={sub}
+          />
         ) : (
-          <SpeedometerStatCard label={label} value={gauge.rate ?? 0} bands={INVERSE_RATE_BANDS} display={String(value)} caption={sub} />
+          <SpeedometerStatCard
+            label={label}
+            value={gauge.rate ?? 0}
+            bands={INVERSE_RATE_BANDS}
+            display={String(value)}
+            caption={sub}
+          />
         )
       ) : (
-        <KpiCard icon={icon} iconIntent={iconIntent} label={label} value={value} sub={sub} intent={intent} className="w-full transition-shadow hover:shadow-md" />
+        <KpiCard
+          icon={icon}
+          iconIntent={iconIntent}
+          label={label}
+          value={value}
+          sub={sub}
+          intent={intent}
+          className="w-full transition-shadow hover:shadow-md"
+        />
       )}
     </button>
   );
@@ -164,32 +235,36 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
     { staleTime: STALE_TIME.SEMI_STATIC },
   );
 
-  const set = (patch: Partial<Filters>) => setFilters((p) => ({ ...p, ...patch }));
-  const hasFilters = JSON.stringify({ ...filters, groupBy: 'department' }) !== JSON.stringify(EMPTY);
+  const set = (patch: Partial<Filters>) =>
+    setFilters((p) => ({ ...p, ...patch }));
+  const hasFilters =
+    JSON.stringify({ ...filters, groupBy: 'department' }) !==
+    JSON.stringify(EMPTY);
   const def = data?.definitions ?? {};
 
   const exportAs = async (format: 'csv' | 'xlsx' | 'pdf') => {
     setExporting(format);
     try {
-      const qs = new URLSearchParams({ ...params, format }).toString();
-      const res = await fetch(`${API_URL}/processes/reports/export?${qs}`, { credentials: 'include' });
-      if (!res.ok) throw new Error('Falha ao exportar o relatório');
-      const url = URL.createObjectURL(await res.blob());
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `relatorio-processos.${format}`;
-      a.click();
-      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      await downloadFromApi('/processes/reports/export', {
+        params: { ...params, format },
+        filename: `relatorio-processos.${format}`,
+        errorMessage: 'Falha ao exportar o relatório',
+      });
     } catch (e) {
-      notify({ title: e instanceof Error ? e.message : 'Falha ao exportar', intent: 'danger' });
+      notify({
+        title: e instanceof Error ? e.message : 'Falha ao exportar',
+        intent: 'danger',
+      });
     } finally {
       setExporting(null);
     }
   };
 
-  const openDrill = (indicator: ReportRecordIndicator, title: string, definition?: string) =>
-    setDrill({ indicator, title, definition });
+  const openDrill = (
+    indicator: ReportRecordIndicator,
+    title: string,
+    definition?: string,
+  ) => setDrill({ indicator, title, definition });
 
   return (
     <div className="space-y-6">
@@ -197,45 +272,84 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
       <div className="flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1 font-body text-xs text-ink-muted">
           De
-          <Input type="date" value={filters.from} onChange={(e) => set({ from: e.target.value })} />
+          <Input
+            type="date"
+            value={filters.from}
+            onChange={(e) => set({ from: e.target.value })}
+          />
         </label>
         <label className="flex flex-col gap-1 font-body text-xs text-ink-muted">
           Até
-          <Input type="date" value={filters.to} onChange={(e) => set({ to: e.target.value })} />
+          <Input
+            type="date"
+            value={filters.to}
+            onChange={(e) => set({ to: e.target.value })}
+          />
         </label>
         <Select
-          items={[{ value: ALL, label: 'Todos os departamentos' }, ...(options?.departments ?? []).map((d) => ({ value: String(d.id), label: d.name }))]}
+          items={[
+            { value: ALL, label: 'Todos os departamentos' },
+            ...(options?.departments ?? []).map((d) => ({
+              value: String(d.id),
+              label: d.name,
+            })),
+          ]}
           value={filters.departmentId}
           onValueChange={(v) => set({ departmentId: v })}
           className="w-52"
         />
         <Select
-          items={[{ value: ALL, label: 'Todos os modelos' }, ...(options?.templates ?? []).map((t) => ({ value: String(t.id), label: `${t.code} — ${t.title}` }))]}
+          items={[
+            { value: ALL, label: 'Todos os modelos' },
+            ...(options?.templates ?? []).map((t) => ({
+              value: String(t.id),
+              label: `${t.code} — ${t.title}`,
+            })),
+          ]}
           value={filters.templateId}
           onValueChange={(v) => set({ templateId: v })}
           className="w-52"
         />
         <Select
-          items={[{ value: ALL, label: 'Todos os tipos' }, ...(options?.categories ?? []).map((c) => ({ value: c, label: c }))]}
+          items={[
+            { value: ALL, label: 'Todos os tipos' },
+            ...(options?.categories ?? []).map((c) => ({ value: c, label: c })),
+          ]}
           value={filters.category}
           onValueChange={(v) => set({ category: v })}
           className="w-44"
         />
         <Select
-          items={[{ value: ALL, label: 'Todos os módulos' }, ...(options?.sourceModules ?? []).map((m) => ({ value: m, label: moduleLabel(m) }))]}
+          items={[
+            { value: ALL, label: 'Todos os módulos' },
+            ...(options?.sourceModules ?? []).map((m) => ({
+              value: m,
+              label: moduleLabel(m),
+            })),
+          ]}
           value={filters.sourceModule}
           onValueChange={(v) => set({ sourceModule: v })}
           className="w-44"
         />
         {hasFilters && (
-          <button type="button" onClick={() => setFilters(EMPTY)} className="pb-2 font-body text-xs text-primary hover:underline">
+          <button
+            type="button"
+            onClick={() => setFilters(EMPTY)}
+            className="pb-2 font-body text-xs text-primary hover:underline"
+          >
             Limpar filtros
           </button>
         )}
         {canExport && (
           <div className="ml-auto flex gap-2">
             {(['csv', 'xlsx', 'pdf'] as const).map((f) => (
-              <Button key={f} intent="secondary" size="sm" onClick={() => exportAs(f)} loading={exporting === f}>
+              <Button
+                key={f}
+                intent="secondary"
+                size="sm"
+                onClick={() => exportAs(f)}
+                loading={exporting === f}
+              >
                 <Download size={14} strokeWidth={1.75} />
                 {f === 'xlsx' ? 'Excel' : f.toUpperCase()}
               </Button>
@@ -245,36 +359,120 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
       </div>
 
       {isLoading && <Skeleton rows={3} />}
-      {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+      {error && (
+        <div className="font-body text-sm text-danger">{error.message}</div>
+      )}
 
       {data && (
         <>
           {data.truncated && (
             <p className="font-body text-xs text-warning-ink">
-              Resultados limitados aos 10 000 processos mais recentes do período — refine os filtros para valores exactos.
+              Resultados limitados aos 10 000 processos mais recentes do período
+              — refine os filtros para valores exactos.
             </p>
           )}
 
           {/* Indicadores do período */}
           <div>
             <div className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
-              Período: processos iniciados entre {new Date(data.range.from).toLocaleDateString('pt-PT')} e{' '}
+              Período: processos iniciados entre{' '}
+              {new Date(data.range.from).toLocaleDateString('pt-PT')} e{' '}
               {new Date(data.range.to).toLocaleDateString('pt-PT')}
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-              <Kpi onDrill={openDrill} icon={FileStack} label="Volume de processos" value={data.indicators.volume.value} sub="Iniciados no período" intent="primary" indicator="total" definition={def.volume} />
-              <Kpi onDrill={openDrill} icon={CheckCircle2} label="Taxa de conclusão" value={pct(data.indicators.completionRate.value)} sub={rateSub(data.indicators.completionRate)} intent="success" indicator="completed" definition={def.completionRate} />
-              <Kpi onDrill={openDrill} icon={CalendarCheck} label="Cumprimento de prazo" value={pct(data.indicators.onTimeRate.value)} sub={rateSub(data.indicators.onTimeRate)} intent="success" indicator="onTime" definition={def.onTimeRate} />
-              <Kpi onDrill={openDrill} icon={Timer} iconIntent="caution" label="Tempo médio de conclusão" value={fmtHours(data.indicators.avgCompletionHours.value)} sub={`${data.indicators.avgCompletionHours.samples} concluídos (exclui cancelados e suspensos)`} intent="accent" indicator="completed" definition={def.avgCompletionHours} />
-              <Kpi onDrill={openDrill} icon={XCircle} gauge={{ kind: 'thermometer', rate: data.indicators.rejectionRate.value }} label="Taxa de rejeição" value={pct(data.indicators.rejectionRate.value)} sub={rateSub(data.indicators.rejectionRate)} intent="danger" indicator="rejected" definition={def.rejectionRate} />
-              <Kpi onDrill={openDrill} icon={Undo2} gauge={{ kind: 'thermometer', rate: data.indicators.returnRate.value }} label="Taxa de devolução" value={pct(data.indicators.returnRate.value)} sub={rateSub(data.indicators.returnRate)} intent="warning" indicator="returned" definition={def.returnRate} />
-              <Kpi onDrill={openDrill} icon={RotateCcw} gauge={{ kind: 'speedometer', rate: data.indicators.reopenRate.value }} label="Taxa de reabertura" value={pct(data.indicators.reopenRate.value)} sub={rateSub(data.indicators.reopenRate)} intent="warning" indicator="reopened" definition={def.reopenRate} />
+              <Kpi
+                onDrill={openDrill}
+                icon={FileStack}
+                label="Volume de processos"
+                value={data.indicators.volume.value}
+                sub="Iniciados no período"
+                intent="primary"
+                indicator="total"
+                definition={def.volume}
+              />
+              <Kpi
+                onDrill={openDrill}
+                icon={CheckCircle2}
+                label="Taxa de conclusão"
+                value={pct(data.indicators.completionRate.value)}
+                sub={rateSub(data.indicators.completionRate)}
+                intent="success"
+                indicator="completed"
+                definition={def.completionRate}
+              />
+              <Kpi
+                onDrill={openDrill}
+                icon={CalendarCheck}
+                label="Cumprimento de prazo"
+                value={pct(data.indicators.onTimeRate.value)}
+                sub={rateSub(data.indicators.onTimeRate)}
+                intent="success"
+                indicator="onTime"
+                definition={def.onTimeRate}
+              />
+              <Kpi
+                onDrill={openDrill}
+                icon={Timer}
+                iconIntent="caution"
+                label="Tempo médio de conclusão"
+                value={fmtHours(data.indicators.avgCompletionHours.value)}
+                sub={`${data.indicators.avgCompletionHours.samples} concluídos (exclui cancelados e suspensos)`}
+                intent="accent"
+                indicator="completed"
+                definition={def.avgCompletionHours}
+              />
+              <Kpi
+                onDrill={openDrill}
+                icon={XCircle}
+                gauge={{
+                  kind: 'thermometer',
+                  rate: data.indicators.rejectionRate.value,
+                }}
+                label="Taxa de rejeição"
+                value={pct(data.indicators.rejectionRate.value)}
+                sub={rateSub(data.indicators.rejectionRate)}
+                intent="danger"
+                indicator="rejected"
+                definition={def.rejectionRate}
+              />
+              <Kpi
+                onDrill={openDrill}
+                icon={Undo2}
+                gauge={{
+                  kind: 'thermometer',
+                  rate: data.indicators.returnRate.value,
+                }}
+                label="Taxa de devolução"
+                value={pct(data.indicators.returnRate.value)}
+                sub={rateSub(data.indicators.returnRate)}
+                intent="warning"
+                indicator="returned"
+                definition={def.returnRate}
+              />
+              <Kpi
+                onDrill={openDrill}
+                icon={RotateCcw}
+                gauge={{
+                  kind: 'speedometer',
+                  rate: data.indicators.reopenRate.value,
+                }}
+                label="Taxa de reabertura"
+                value={pct(data.indicators.reopenRate.value)}
+                sub={rateSub(data.indicators.reopenRate)}
+                intent="warning"
+                indicator="reopened"
+                definition={def.reopenRate}
+              />
               <Kpi
                 onDrill={openDrill}
                 icon={Zap}
                 label="Falhas de automação"
                 value={data.automation.failed}
-                sub={data.automation.total ? `${data.automation.failureRate}% de ${data.automation.total} execuções` : 'Sem execuções no período'}
+                sub={
+                  data.automation.total
+                    ? `${data.automation.failureRate}% de ${data.automation.total} execuções`
+                    : 'Sem execuções no período'
+                }
                 intent={data.automation.failed ? 'danger' : 'primary'}
                 indicator="automationFailures"
                 definition={def.automationFailures}
@@ -288,26 +486,81 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
               Estado actual (independente do período)
             </div>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <Kpi onDrill={openDrill} icon={ListTodo} label="Backlog de processos" value={data.snapshot.backlogInstances} sub="Em curso ou suspensos" intent="info" indicator="backlogInstances" definition={def.backlog} />
-              <Kpi onDrill={openDrill} icon={ClipboardList} iconIntent="caution" label="Backlog de tarefas" value={data.snapshot.backlogTasks} sub={`${data.snapshot.overdueTasks} em atraso`} intent={data.snapshot.overdueTasks ? 'warning' : 'info'} indicator="backlogTasks" definition={def.backlog} />
-              <Kpi onDrill={openDrill} icon={AlarmClock} label="Processos em atraso" value={data.snapshot.overdueInstances} sub="Prazo ultrapassado" intent={data.snapshot.overdueInstances ? 'danger' : 'primary'} indicator="overdue" definition={def.overdue} />
-              <Kpi onDrill={openDrill} icon={Stamp} label="Aprovações pendentes" value={data.snapshot.pendingApprovals} sub="Aguardam decisão" intent="warning" indicator="pendingApprovals" definition={def.pendingApprovals} />
+              <Kpi
+                onDrill={openDrill}
+                icon={ListTodo}
+                label="Backlog de processos"
+                value={data.snapshot.backlogInstances}
+                sub="Em curso ou suspensos"
+                intent="info"
+                indicator="backlogInstances"
+                definition={def.backlog}
+              />
+              <Kpi
+                onDrill={openDrill}
+                icon={ClipboardList}
+                iconIntent="caution"
+                label="Backlog de tarefas"
+                value={data.snapshot.backlogTasks}
+                sub={`${data.snapshot.overdueTasks} em atraso`}
+                intent={data.snapshot.overdueTasks ? 'warning' : 'info'}
+                indicator="backlogTasks"
+                definition={def.backlog}
+              />
+              <Kpi
+                onDrill={openDrill}
+                icon={AlarmClock}
+                label="Processos em atraso"
+                value={data.snapshot.overdueInstances}
+                sub="Prazo ultrapassado"
+                intent={data.snapshot.overdueInstances ? 'danger' : 'primary'}
+                indicator="overdue"
+                definition={def.overdue}
+              />
+              <Kpi
+                onDrill={openDrill}
+                icon={Stamp}
+                label="Aprovações pendentes"
+                value={data.snapshot.pendingApprovals}
+                sub="Aguardam decisão"
+                intent="warning"
+                indicator="pendingApprovals"
+                definition={def.pendingApprovals}
+              />
             </div>
           </div>
 
           {/* Gráficos */}
           <div className="grid gap-4 lg:grid-cols-2">
-            <ChartCard title="Volume por mês" empty={data.indicators.volume.byMonth.length === 0}>
+            <ChartCard
+              title="Volume por mês"
+              empty={data.indicators.volume.byMonth.length === 0}
+            >
               <BarChart
                 categories={data.indicators.volume.byMonth.map((m) => m.month)}
-                series={[{ label: 'Processos', values: data.indicators.volume.byMonth.map((m) => m.count) }]}
+                series={[
+                  {
+                    label: 'Processos',
+                    values: data.indicators.volume.byMonth.map((m) => m.count),
+                  },
+                ]}
               />
             </ChartCard>
-            <ChartCard title="Tempo médio por etapa (horas)" empty={data.indicators.avgHoursByStep.length === 0}>
+            <ChartCard
+              title="Tempo médio por etapa (horas)"
+              empty={data.indicators.avgHoursByStep.length === 0}
+            >
               <BarChart
                 orientation="horizontal"
-                categories={data.indicators.avgHoursByStep.map((s) => s.stepTitle)}
-                series={[{ label: 'Horas', values: data.indicators.avgHoursByStep.map((s) => s.hours) }]}
+                categories={data.indicators.avgHoursByStep.map(
+                  (s) => s.stepTitle,
+                )}
+                series={[
+                  {
+                    label: 'Horas',
+                    values: data.indicators.avgHoursByStep.map((s) => s.hours),
+                  },
+                ]}
               />
             </ChartCard>
           </div>
@@ -318,7 +571,10 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
               Carga por responsável (tarefas por resolver)
             </div>
             {data.workload.length === 0 ? (
-              <EmptyState title="Sem tarefas por resolver" description="Nenhum responsável tem tarefas em aberto com estes filtros." />
+              <EmptyState
+                title="Sem tarefas por resolver"
+                description="Nenhum responsável tem tarefas em aberto com estes filtros."
+              />
             ) : (
               data.workload.map((w) => (
                 <button
@@ -337,7 +593,11 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
                   <span className="text-ink">{w.fullName}</span>
                   <span className="text-ink-muted">
                     {w.open} por resolver
-                    {w.overdue > 0 && <span className="ml-2 text-danger">{w.overdue} em atraso</span>}
+                    {w.overdue > 0 && (
+                      <span className="ml-2 text-danger">
+                        {w.overdue} em atraso
+                      </span>
+                    )}
                   </span>
                 </button>
               ))
@@ -347,7 +607,9 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
           {/* Agrupamento */}
           <div className="rounded-card border border-border bg-surface">
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">Agrupamento</div>
+              <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+                Agrupamento
+              </div>
               <Select
                 items={GROUP_ITEMS}
                 value={filters.groupBy}
@@ -368,7 +630,10 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
                   <div>Duração méd.</div>
                 </div>
                 {data.groups.length === 0 && (
-                  <EmptyState title="Sem dados" description="Não há processos no período com estes filtros." />
+                  <EmptyState
+                    title="Sem dados"
+                    description="Não há processos no período com estes filtros."
+                  />
                 )}
                 {data.groups.map((g) => (
                   <div
@@ -379,8 +644,18 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
                     <div className="text-ink-muted">{g.total}</div>
                     <div className="text-ink-muted">{g.completed}</div>
                     <div className="text-ink-muted">{g.cancelled}</div>
-                    <div className={cn(g.overdue ? 'font-medium text-danger' : 'text-ink-muted')}>{g.overdue}</div>
-                    <div className="text-ink-muted">{pct(g.completionRate)}</div>
+                    <div
+                      className={cn(
+                        g.overdue
+                          ? 'font-medium text-danger'
+                          : 'text-ink-muted',
+                      )}
+                    >
+                      {g.overdue}
+                    </div>
+                    <div className="text-ink-muted">
+                      {pct(g.completionRate)}
+                    </div>
                     <div className="text-ink-muted">{pct(g.onTimeRate)}</div>
                     <div className="text-ink-muted">{fmtHours(g.avgHours)}</div>
                   </div>

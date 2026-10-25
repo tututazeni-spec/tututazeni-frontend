@@ -17,15 +17,13 @@ import type { OrgChange } from './types';
 const CARD =
   'overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]';
 
-function Cell({
-  label,
-  className,
-  children,
-}: {
+interface CellProps {
   label: string;
   className: string;
   children: React.ReactNode;
-}) {
+}
+
+function Cell({ label, className, children }: CellProps) {
   return (
     <div className={className}>
       <div className="font-body text-[11px] text-[#49658A]">{label}</div>

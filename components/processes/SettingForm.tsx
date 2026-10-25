@@ -18,28 +18,49 @@ type Json = Record<string, unknown>;
 const NONE = '__none__';
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-const asObj = (v: unknown): Json => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Json) : {});
+const asObj = (v: unknown): Json =>
+  v && typeof v === 'object' && !Array.isArray(v) ? (v as Json) : {};
 const asArr = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
 
 function Label({ children }: { children: React.ReactNode }) {
-  return <div className="mb-1 font-body text-xs font-medium text-ink-muted">{children}</div>;
+  return (
+    <div className="mb-1 font-body text-xs font-medium text-ink-muted">
+      {children}
+    </div>
+  );
 }
 
-function Tags({ value, onChange, placeholder }: { value: string[]; onChange: (v: string[]) => void; placeholder?: string }) {
+interface TagsProps {
+  value: string[];
+  onChange: (v: string[]) => void;
+  placeholder?: string;
+}
+
+function Tags({ value, onChange, placeholder }: TagsProps) {
   const [draft, setDraft] = useState('');
   const add = () => {
     const t = draft.trim();
-    if (t && !value.some((x) => x.toLowerCase() === t.toLowerCase())) onChange([...value, t]);
+    if (t && !value.some((x) => x.toLowerCase() === t.toLowerCase()))
+      onChange([...value, t]);
     setDraft('');
   };
   return (
     <div>
       <div className="mb-2 flex flex-wrap gap-2">
-        {value.length === 0 && <span className="font-body text-xs text-ink-faint">Nenhum item</span>}
+        {value.length === 0 && (
+          <span className="font-body text-xs text-ink-faint">Nenhum item</span>
+        )}
         {value.map((t) => (
-          <span key={t} className="inline-flex items-center gap-1 rounded-control bg-surface-sunken px-2 py-1 font-body text-xs text-ink">
+          <span
+            key={t}
+            className="inline-flex items-center gap-1 rounded-control bg-surface-sunken px-2 py-1 font-body text-xs text-ink"
+          >
             {t}
-            <button type="button" aria-label={`Remover ${t}`} onClick={() => onChange(value.filter((x) => x !== t))}>
+            <button
+              type="button"
+              aria-label={`Remover ${t}`}
+              onClick={() => onChange(value.filter((x) => x !== t))}
+            >
               <X size={12} strokeWidth={1.75} />
             </button>
           </span>
@@ -58,12 +79,26 @@ function Tags({ value, onChange, placeholder }: { value: string[]; onChange: (v:
           }}
           className="w-72"
         />
-        <Button type="button" intent="secondary" size="sm" onClick={add} disabled={!draft.trim()}>
+        <Button
+          type="button"
+          intent="secondary"
+          size="sm"
+          onClick={add}
+          disabled={!draft.trim()}
+        >
           Adicionar
         </Button>
       </div>
     </div>
   );
+}
+
+interface ControlProps {
+  spec: FieldSpec;
+  value: unknown;
+  onChange: (v: unknown) => void;
+  disabled: boolean;
+  compact?: boolean;
 }
 
 function Control({
@@ -72,13 +107,7 @@ function Control({
   onChange,
   disabled,
   compact = false,
-}: {
-  spec: FieldSpec;
-  value: unknown;
-  onChange: (v: unknown) => void;
-  disabled: boolean;
-  compact?: boolean;
-}) {
+}: ControlProps) {
   switch (spec.t) {
     case 'number':
       return (
@@ -89,7 +118,15 @@ function Control({
           step={spec.step ?? 1}
           disabled={disabled}
           value={value === null || value === undefined ? '' : String(value)}
-          onChange={(e) => onChange(e.target.value === '' ? (spec.nullable ? null : '') : Number(e.target.value))}
+          onChange={(e) =>
+            onChange(
+              e.target.value === ''
+                ? spec.nullable
+                  ? null
+                  : ''
+                : Number(e.target.value),
+            )
+          }
           className={compact ? 'w-28' : 'w-40'}
         />
       );
@@ -118,16 +155,29 @@ function Control({
     case 'bool':
       return (
         <label className="inline-flex items-center gap-2 font-body text-sm text-ink">
-          <input type="checkbox" disabled={disabled} checked={value !== false} onChange={(e) => onChange(e.target.checked)} />
+          <input
+            type="checkbox"
+            disabled={disabled}
+            checked={value !== false}
+            onChange={(e) => onChange(e.target.checked)}
+          />
           {compact ? '' : spec.label}
         </label>
       );
     case 'select': {
-      const items = spec.nullable ? [{ value: NONE, label: '—' }, ...spec.options] : spec.options;
+      const items = spec.nullable
+        ? [{ value: NONE, label: '—' }, ...spec.options]
+        : spec.options;
       return (
         <Select
           items={items}
-          value={typeof value === 'string' && value ? value : spec.nullable ? NONE : ''}
+          value={
+            typeof value === 'string' && value
+              ? value
+              : spec.nullable
+                ? NONE
+                : ''
+          }
           onValueChange={(v) => onChange(v === NONE ? null : v)}
           disabled={disabled}
           className={compact ? 'w-40' : 'w-60'}
@@ -136,9 +186,15 @@ function Control({
     }
     case 'tags':
       return disabled ? (
-        <div className="font-body text-sm text-ink">{asArr(value).join(', ') || '—'}</div>
+        <div className="font-body text-sm text-ink">
+          {asArr(value).join(', ') || '—'}
+        </div>
       ) : (
-        <Tags value={asArr(value).map(String)} onChange={onChange} placeholder={spec.placeholder} />
+        <Tags
+          value={asArr(value).map(String)}
+          onChange={onChange}
+          placeholder={spec.placeholder}
+        />
       );
     case 'days': {
       const days = asArr(value).map(Number);
@@ -151,9 +207,15 @@ function Control({
                 key={d}
                 type="button"
                 disabled={disabled}
-                onClick={() => onChange(on ? days.filter((x) => x !== i) : [...days, i].sort())}
+                onClick={() =>
+                  onChange(
+                    on ? days.filter((x) => x !== i) : [...days, i].sort(),
+                  )
+                }
                 className={`rounded-lg border px-3 py-1.5 text-sm ${
-                  on ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-white text-ink-muted'
+                  on
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border bg-white text-ink-muted'
                 }`}
               >
                 {d}
@@ -170,9 +232,14 @@ function Control({
           <table className="font-body text-sm">
             <thead>
               <tr>
-                <th className="pr-3 text-left text-xs text-ink-faint">De \ Para</th>
+                <th className="pr-3 text-left text-xs text-ink-faint">
+                  De \ Para
+                </th>
                 {spec.rows.map((c) => (
-                  <th key={c.value} className="px-3 text-xs font-medium text-ink-muted">
+                  <th
+                    key={c.value}
+                    className="px-3 text-xs font-medium text-ink-muted"
+                  >
                     {c.label}
                   </th>
                 ))}
@@ -181,7 +248,9 @@ function Control({
             <tbody>
               {spec.rows.map((r) => (
                 <tr key={r.value}>
-                  <td className="py-1 pr-3 text-xs font-medium text-ink-muted">{r.label}</td>
+                  <td className="py-1 pr-3 text-xs font-medium text-ink-muted">
+                    {r.label}
+                  </td>
                   {spec.rows.map((c) => {
                     const to = asArr(m[r.value]).map(String);
                     return (
@@ -193,7 +262,9 @@ function Control({
                           onChange={(e) =>
                             onChange({
                               ...m,
-                              [r.value]: e.target.checked ? [...to, c.value] : to.filter((x) => x !== c.value),
+                              [r.value]: e.target.checked
+                                ? [...to, c.value]
+                                : to.filter((x) => x !== c.value),
                             })
                           }
                         />
@@ -212,13 +283,22 @@ function Control({
       return (
         <div className="grid gap-2 md:grid-cols-2">
           {spec.keys.map((k) => (
-            <label key={k.value} className="flex flex-col gap-1 font-body text-xs text-ink-muted">
+            <label
+              key={k.value}
+              className="flex flex-col gap-1 font-body text-xs text-ink-muted"
+            >
               {k.label}
               <Input
                 disabled={disabled}
                 maxLength={40}
-                value={typeof rec[k.value] === 'string' ? (rec[k.value] as string) : ''}
-                onChange={(e) => onChange({ ...rec, [k.value]: e.target.value })}
+                value={
+                  typeof rec[k.value] === 'string'
+                    ? (rec[k.value] as string)
+                    : ''
+                }
+                onChange={(e) =>
+                  onChange({ ...rec, [k.value]: e.target.value })
+                }
               />
             </label>
           ))}
@@ -227,12 +307,18 @@ function Control({
     }
     case 'rows': {
       const rows = asArr(value).map(asObj);
-      const update = (i: number, patch: Json) => onChange(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
+      const update = (i: number, patch: Json) =>
+        onChange(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
       return (
         <div className="space-y-2">
-          {rows.length === 0 && <div className="font-body text-xs text-ink-faint">Sem entradas</div>}
+          {rows.length === 0 && (
+            <div className="font-body text-xs text-ink-faint">Sem entradas</div>
+          )}
           {rows.map((row, i) => (
-            <div key={i} className="flex flex-wrap items-end gap-3 rounded-card border border-border p-3">
+            <div
+              key={i}
+              className="flex flex-wrap items-end gap-3 rounded-card border border-border p-3"
+            >
               {spec.cols.map((c) => (
                 <div key={c.k}>
                   {c.t !== 'bool' && <Label>{c.label}</Label>}
@@ -240,7 +326,10 @@ function Control({
                     spec={c}
                     value={row[c.k]}
                     onChange={(v) => update(i, { [c.k]: v })}
-                    disabled={disabled || (!!spec.fixed && (c.k === 'code' || c.k === 'event'))}
+                    disabled={
+                      disabled ||
+                      (!!spec.fixed && (c.k === 'code' || c.k === 'event'))
+                    }
                     compact
                   />
                   {c.t === 'bool' && <Label>{c.label}</Label>}
@@ -267,7 +356,10 @@ function Control({
               onClick={() =>
                 onChange([
                   ...rows,
-                  spec.blank ?? Object.fromEntries(spec.cols.map((c) => [c.k, c.t === 'number' ? null : ''])),
+                  spec.blank ??
+                    Object.fromEntries(
+                      spec.cols.map((c) => [c.k, c.t === 'number' ? null : '']),
+                    ),
                 ])
               }
             >
@@ -288,11 +380,28 @@ export interface SettingFormProps {
   disabled: boolean;
 }
 
-export function SettingForm({ schema, value, onChange, disabled }: SettingFormProps) {
+export function SettingForm({
+  schema,
+  value,
+  onChange,
+  disabled,
+}: SettingFormProps) {
   // Secções cujo valor é a própria lista/matriz (sem chave de objecto).
-  const single = schema.kind === 'list' ? schema.field : schema.fields.length === 1 && schema.fields[0].k === '' ? schema.fields[0] : null;
+  const single =
+    schema.kind === 'list'
+      ? schema.field
+      : schema.fields.length === 1 && schema.fields[0].k === ''
+        ? schema.fields[0]
+        : null;
   if (single) {
-    return <Control spec={single} value={value} onChange={onChange} disabled={disabled} />;
+    return (
+      <Control
+        spec={single}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+      />
+    );
   }
   if (schema.kind === 'list') return null;
   const obj = asObj(value);
@@ -301,7 +410,12 @@ export function SettingForm({ schema, value, onChange, disabled }: SettingFormPr
       {schema.fields.map((f) => (
         <div key={f.k}>
           {f.t !== 'bool' && <Label>{f.label}</Label>}
-          <Control spec={f} value={obj[f.k]} onChange={(v) => onChange({ ...obj, [f.k]: v })} disabled={disabled} />
+          <Control
+            spec={f}
+            value={obj[f.k]}
+            onChange={(v) => onChange({ ...obj, [f.k]: v })}
+            disabled={disabled}
+          />
         </div>
       ))}
     </div>

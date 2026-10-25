@@ -59,6 +59,7 @@ import { EmployeeDrawer } from '@/components/employees/EmployeeDrawer';
 import { EmployeeRow } from '@/components/employees/EmployeeRow';
 import { FilterPanel } from '@/components/employees/FilterPanel';
 import { Pagination } from '@/components/ui/Pagination';
+import { saveBlob } from '@/lib/download';
 
 // Colunas devolvidas por GET /employees/export (employees.service.ts#exportEmployees)
 const EXPORT_COLUMNS = [
@@ -125,13 +126,7 @@ export function EmployeesView() {
         result.data.map((row) => columns.map((c) => row[c.key])),
       );
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `colaboradores-${Date.now()}.csv`;
-      a.click();
-      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      saveBlob(blob, `colaboradores-${Date.now()}.csv`);
     } catch (e) {
       reportError(e, { source: 'EmployeesView.handleExport' });
     }

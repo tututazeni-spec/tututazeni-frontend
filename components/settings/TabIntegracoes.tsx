@@ -53,17 +53,14 @@ const ISIS_MODULE_LABELS: Record<string, string> = {
   HR: 'RH',
 };
 
-function Toggle({
-  id,
-  label,
-  checked,
-  onChange,
-}: {
+interface ToggleProps {
   id: string;
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-}) {
+}
+
+function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
       <input

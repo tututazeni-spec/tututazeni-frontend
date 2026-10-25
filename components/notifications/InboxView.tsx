@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { CATEGORY_CFG, Skeleton } from './shared';
 import type { NotifData, Notification } from './types';
 import type { ReadFilter } from '@/hooks/useNotificationsInbox';
+import { safeHref } from '@/lib/safeHref';
 
 function timeAgo(d: string): string {
   const diff = Date.now() - new Date(d).getTime();
@@ -82,7 +83,7 @@ function NotifItem({ notif, onRead, onArchive }: NotifItemProps) {
 
           {notif.actionUrl && (
             <a
-              href={notif.actionUrl}
+              href={safeHref(notif.actionUrl)}
               className="font-body text-xs font-medium text-primary hover:underline"
               onClick={() => !notif.read && onRead(notif.id)}
             >

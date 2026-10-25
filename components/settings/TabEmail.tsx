@@ -29,17 +29,14 @@ const TEMPLATE_LABELS: Record<EmailTemplateKey, string> = {
   USER_INVITE: 'Convite de utilizador',
 };
 
-function Toggle({
-  id,
-  label,
-  checked,
-  onChange,
-}: {
+interface ToggleProps {
   id: string;
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-}) {
+}
+
+function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
       <input

@@ -22,7 +22,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
-import { filterByRole, type Role } from '@/lib/roles';
+import { ADMIN_RH_GESTOR_ROLES, type Role, filterByRole } from '@/lib/roles';
 import {
   BarChart3,
   CalendarDays,
@@ -66,7 +66,7 @@ type TabKey =
 // leave-management.controller.ts — um COLABORADOR não tem acesso. Partilhado
 // entre o filtro de tabs e o `enabled` da query: sem o segundo, o pedido
 // disparava sempre no mount e rebentava com 403 em "query:leave".
-const LEAVE_APPROVER_ROLES: Role[] = ['ADMIN', 'RH', 'GESTOR'];
+const LEAVE_APPROVER_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 
 export default function LeavePage() {
   const [tab, setTab] = useState<TabKey>('overview');
@@ -113,7 +113,7 @@ export default function LeavePage() {
     hint: string;
     icon: LucideIcon;
     badge?: number;
-    roles?: Role[];
+    roles?: readonly Role[];
   }> = [
     { key: 'overview', label: 'Visão Geral', hint: 'Resumo e saldos', icon: LayoutDashboard },
     { key: 'vacations', label: 'Férias', hint: 'Pedidos de férias', icon: Palmtree },

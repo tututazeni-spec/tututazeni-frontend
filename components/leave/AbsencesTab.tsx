@@ -44,9 +44,10 @@ import {
 } from './constants';
 import { downloadCsv } from './downloadCsv';
 import type { AbsenceRow, CsvExport } from './types';
+import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 
 const ALL = 'ALL';
-const REVIEWER_ROLES = ['ADMIN', 'RH', 'GESTOR', 'DIRECTOR', 'LIDER'];
+const REVIEWER_ROLES = EVAL_CREATOR_ROLES;
 const BASE_HEADERS = [
   'Colaborador',
   'Data',

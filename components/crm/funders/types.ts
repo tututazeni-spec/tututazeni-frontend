@@ -4,7 +4,7 @@ export interface Funder {
   id: string;
   code: string;
   name: string;
-  type: string;
+  type: 'GOVERNMENT' | 'BILATERAL' | 'MULTILATERAL' | 'NGO' | 'PRIVATE_FOUNDATION' | 'CORPORATE' | 'OTHER' | 'FOUNDATION' | 'BANK' | 'FINANCIAL_INSTITUTION' | 'COOPERATION_AGENCY' | 'INTERNATIONAL_ORGANIZATION' | 'INVESTMENT_FUND' | 'PUBLIC_FUND' | 'EMBASSY' | 'INDIVIDUAL';
   country: string | null;
   status: string;
   totalCommitted: number;
@@ -48,7 +48,7 @@ export interface FunderDetail {
   code: string;
   name: string;
   legalName: string | null;
-  type: string;
+  type: 'GOVERNMENT' | 'BILATERAL' | 'MULTILATERAL' | 'NGO' | 'PRIVATE_FOUNDATION' | 'CORPORATE' | 'OTHER' | 'FOUNDATION' | 'BANK' | 'FINANCIAL_INSTITUTION' | 'COOPERATION_AGENCY' | 'INTERNATIONAL_ORGANIZATION' | 'INVESTMENT_FUND' | 'PUBLIC_FUND' | 'EMBASSY' | 'INDIVIDUAL';
   status: string;
   country: string | null;
   region: string | null;

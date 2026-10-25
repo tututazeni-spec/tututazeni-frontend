@@ -14,7 +14,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -59,6 +59,24 @@ const VALUE_ITEMS = [1, 2, 3, 4, 5].map((v) => ({
   label: `Nível ${v}`,
 }));
 
+interface LevelFormModalFormValues {
+  selectedCompetencyId: string;
+  value: string;
+  name: string;
+  description: string;
+  code: string;
+  minScore: string;
+  maxScore: string;
+  expectedBehaviors: string;
+  knowledgeDemonstrated: string;
+  autonomy: string;
+  taskComplexity: string;
+  observableEvidence: string;
+  evaluationCriteria: string;
+  status: string;
+  submitError: string;
+}
+
 export function LevelFormModal({
   level,
   competencyId,
@@ -69,48 +87,52 @@ export function LevelFormModal({
   const { options: competencyOptions, loading: loadingCompetencies } =
     useCompetencyOptions(!editing);
 
-  const [selectedCompetencyId, setSelectedCompetencyId] = useState<string>(
-    level
-      ? String(level.competencyId)
-      : competencyId
-        ? String(competencyId)
-        : '',
-  );
-  const [value, setValue] = useState<string>(level ? String(level.value) : '');
-  const [name, setName] = useState(level?.name ?? '');
-  const [description, setDescription] = useState(level?.description ?? '');
-  const [code, setCode] = useState(level?.code ?? '');
-  const [minScore, setMinScore] = useState(
-    level?.minScore != null ? String(level.minScore) : '',
-  );
-  const [maxScore, setMaxScore] = useState(
-    level?.maxScore != null ? String(level.maxScore) : '',
-  );
-  const [expectedBehaviors, setExpectedBehaviors] = useState(
-    level?.expectedBehaviors ?? '',
-  );
-  const [knowledgeDemonstrated, setKnowledgeDemonstrated] = useState(
-    level?.knowledgeDemonstrated ?? '',
-  );
-  const [autonomy, setAutonomy] = useState(level?.autonomy ?? '');
-  const [taskComplexity, setTaskComplexity] = useState(
-    level?.taskComplexity ?? '',
-  );
-  const [observableEvidence, setObservableEvidence] = useState(
-    level?.observableEvidence ?? '',
-  );
-  const [evaluationCriteria, setEvaluationCriteria] = useState(
-    level?.evaluationCriteria ?? '',
-  );
-  const [status, setStatus] = useState<string>(level?.status ?? 'ACTIVE');
-  const [submitError, setSubmitError] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<LevelFormModalFormValues>({
+      selectedCompetencyId: level
+        ? String(level.competencyId)
+        : competencyId
+          ? String(competencyId)
+          : '',
+      value: level ? String(level.value) : '',
+      name: level?.name ?? '',
+      description: level?.description ?? '',
+      code: level?.code ?? '',
+      minScore: level?.minScore != null ? String(level.minScore) : '',
+      maxScore: level?.maxScore != null ? String(level.maxScore) : '',
+      expectedBehaviors: level?.expectedBehaviors ?? '',
+      knowledgeDemonstrated: level?.knowledgeDemonstrated ?? '',
+      autonomy: level?.autonomy ?? '',
+      taskComplexity: level?.taskComplexity ?? '',
+      observableEvidence: level?.observableEvidence ?? '',
+      evaluationCriteria: level?.evaluationCriteria ?? '',
+      status: level?.status ?? 'ACTIVE',
+      submitError: '',
+    });
+  const {
+    selectedCompetencyId,
+    value,
+    name,
+    description,
+    code,
+    minScore,
+    maxScore,
+    expectedBehaviors,
+    knowledgeDemonstrated,
+    autonomy,
+    taskComplexity,
+    observableEvidence,
+    evaluationCriteria,
+    status,
+    submitError,
+  } = formValues;
 
   const applyPreset = () => {
     const v = parseInt(value, 10);
     const preset = PROFICIENCY_SCALE_PRESET.find((p) => p.value === v);
     if (!preset) return;
-    setName(preset.name);
-    setDescription(preset.description);
+    setField('name', preset.name);
+    setField('description', preset.description);
   };
 
   const canSubmit =
@@ -130,7 +152,8 @@ export function LevelFormModal({
         onClose();
       },
       onError: (e) =>
-        setSubmitError(
+        setField(
+          'submitError',
           e.message || 'Erro ao guardar o nível. Tente novamente.',
         ),
     },
@@ -139,7 +162,7 @@ export function LevelFormModal({
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
-    setSubmitError('');
+    setField('submitError', '');
     const body: Record<string, unknown> = {
       value: parseInt(value, 10),
       name: name.trim(),
@@ -187,7 +210,7 @@ export function LevelFormModal({
               <Select
                 items={competencyOptions}
                 value={selectedCompetencyId || undefined}
-                onValueChange={setSelectedCompetencyId}
+                onValueChange={(v) => setField('selectedCompetencyId', v)}
                 placeholder={
                   loadingCompetencies ? 'A carregar…' : 'Selecionar competência'
                 }
@@ -202,7 +225,7 @@ export function LevelFormModal({
               <Select
                 items={VALUE_ITEMS}
                 value={value || undefined}
-                onValueChange={setValue}
+                onValueChange={(v) => setField('value', v)}
                 placeholder="Nível"
                 className="w-full"
               />
@@ -211,7 +234,7 @@ export function LevelFormModal({
               <Input
                 id="lf-code"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => setField('code', e.target.value)}
                 placeholder="Ex.: NIV-3"
                 maxLength={60}
                 className="w-full"
@@ -225,7 +248,7 @@ export function LevelFormModal({
                 <Combobox
                   items={LEVEL_NAME_OPTIONS}
                   value={name || undefined}
-                  onValueChange={setName}
+                  onValueChange={(v) => setField('name', v)}
                   placeholder="Selecionar ou escrever"
                   searchPlaceholder="Escreva para filtrar ou indicar outro…"
                   allowCustom
@@ -246,7 +269,7 @@ export function LevelFormModal({
             <Textarea
               id="lf-description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setField('description', e.target.value)}
               rows={2}
               placeholder="Âncoras comportamentais deste nível."
               className="w-full"
@@ -259,7 +282,7 @@ export function LevelFormModal({
                 id="lf-min"
                 type="number"
                 value={minScore}
-                onChange={(e) => setMinScore(e.target.value)}
+                onChange={(e) => setField('minScore', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -268,7 +291,7 @@ export function LevelFormModal({
                 id="lf-max"
                 type="number"
                 value={maxScore}
-                onChange={(e) => setMaxScore(e.target.value)}
+                onChange={(e) => setField('maxScore', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -278,7 +301,7 @@ export function LevelFormModal({
             <Combobox
               items={LEVEL_BEHAVIORS_OPTIONS}
               value={expectedBehaviors || undefined}
-              onValueChange={setExpectedBehaviors}
+              onValueChange={(v) => setField('expectedBehaviors', v)}
               placeholder="Selecionar ou escrever"
               searchPlaceholder="Escreva para filtrar ou indicar outro…"
               allowCustom
@@ -289,7 +312,7 @@ export function LevelFormModal({
             <Combobox
               items={LEVEL_DEMONSTRATED_OPTIONS}
               value={knowledgeDemonstrated || undefined}
-              onValueChange={setKnowledgeDemonstrated}
+              onValueChange={(v) => setField('knowledgeDemonstrated', v)}
               placeholder="Selecionar ou escrever"
               searchPlaceholder="Escreva para filtrar ou indicar outro…"
               allowCustom
@@ -301,7 +324,7 @@ export function LevelFormModal({
               <Combobox
                 items={LEVEL_AUTONOMY_OPTIONS}
                 value={autonomy || undefined}
-                onValueChange={setAutonomy}
+                onValueChange={(v) => setField('autonomy', v)}
                 placeholder="Selecionar ou escrever"
                 searchPlaceholder="Escreva para filtrar ou indicar outro…"
                 allowCustom
@@ -311,7 +334,7 @@ export function LevelFormModal({
               <Combobox
                 items={LEVEL_COMPLEXITY_OPTIONS}
                 value={taskComplexity || undefined}
-                onValueChange={setTaskComplexity}
+                onValueChange={(v) => setField('taskComplexity', v)}
                 placeholder="Selecionar ou escrever"
                 searchPlaceholder="Escreva para filtrar ou indicar outro…"
                 allowCustom
@@ -323,7 +346,7 @@ export function LevelFormModal({
             <Combobox
               items={LEVEL_EVIDENCE_OPTIONS}
               value={observableEvidence || undefined}
-              onValueChange={setObservableEvidence}
+              onValueChange={(v) => setField('observableEvidence', v)}
               placeholder="Selecionar ou escrever"
               searchPlaceholder="Escreva para filtrar ou indicar outro…"
               allowCustom
@@ -334,7 +357,7 @@ export function LevelFormModal({
             <Combobox
               items={LEVEL_CRITERIA_OPTIONS}
               value={evaluationCriteria || undefined}
-              onValueChange={setEvaluationCriteria}
+              onValueChange={(v) => setField('evaluationCriteria', v)}
               placeholder="Selecionar ou escrever"
               searchPlaceholder="Escreva para filtrar ou indicar outro…"
               allowCustom
@@ -346,7 +369,7 @@ export function LevelFormModal({
               <Select
                 items={STATUS_ITEMS}
                 value={status}
-                onValueChange={setStatus}
+                onValueChange={(v) => setField('status', v)}
                 className="w-full"
               />
             </FormField>

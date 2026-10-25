@@ -24,15 +24,7 @@ export interface CrmNavItem {
   href: string;
 }
 
-export function CrmShell({
-  title,
-  base,
-  items,
-  action,
-  navVariant = 'glass',
-  banner,
-  children,
-}: {
+export interface CrmShellProps {
   title: string;
   /** Rota da lista; só fica activa na rota exacta. */
   base: string;
@@ -44,7 +36,17 @@ export function CrmShell({
   /** Foto do cabeçalho (em /public). Sem ela, mantém o cabeçalho simples. */
   banner?: string;
   children: ReactNode;
-}) {
+}
+
+export function CrmShell({
+  title,
+  base,
+  items,
+  action,
+  navVariant = 'glass',
+  banner,
+  children,
+}: CrmShellProps) {
   const pathname = usePathname() ?? '';
   const isActive = (href: string) =>
     href === base

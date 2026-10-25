@@ -74,17 +74,14 @@ export function StatusBadge({ status }: { status: MonitoringStatus }) {
   return <Badge intent={s.intent}>{s.label}</Badge>;
 }
 
-export function Tile({
-  label,
-  value,
-  sub,
-  intent,
-}: {
+export interface TileProps {
   label: string;
   value: string | number | null;
   sub?: string;
   intent?: Intent;
-}) {
+}
+
+export function Tile({ label, value, sub, intent }: TileProps) {
   const valueTone =
     intent === 'danger'
       ? 'text-danger-ink'

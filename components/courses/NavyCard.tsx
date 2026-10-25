@@ -34,15 +34,17 @@ const TONE: Record<NavyTone, { pill: string; dot: string }> = {
   neutral: { pill: 'bg-white/85 text-[#0F1F3D]', dot: 'bg-[#6B7A90]' },
 };
 
+export interface NavyBadgeProps {
+  children: ReactNode;
+  onClick?: () => void;
+  tone?: NavyTone;
+}
+
 export function NavyBadge({
   children,
   onClick,
   tone = 'success',
-}: {
-  children: ReactNode;
-  onClick?: () => void;
-  tone?: NavyTone;
-}) {
+}: NavyBadgeProps) {
   const t = TONE[tone];
   const cls = `inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${t.pill}`;
   const dot = <span aria-hidden className={`h-2 w-2 rounded-full ${t.dot}`} />;

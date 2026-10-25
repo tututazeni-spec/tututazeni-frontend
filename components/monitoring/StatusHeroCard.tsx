@@ -25,17 +25,7 @@ export interface HeroStat {
   value: string;
 }
 
-export function StatusHeroCard({
-  icon: Icon,
-  title,
-  headline,
-  status,
-  percent,
-  ringLabel,
-  stats,
-  info,
-  action,
-}: {
+export interface StatusHeroCardProps {
   icon: LucideIcon;
   title: string;
   headline: string;
@@ -47,7 +37,19 @@ export function StatusHeroCard({
   info: ReactNode;
   /** Botão opcional à direita do título. */
   action?: ReactNode;
-}) {
+}
+
+export function StatusHeroCard({
+  icon: Icon,
+  title,
+  headline,
+  status,
+  percent,
+  ringLabel,
+  stats,
+  info,
+  action,
+}: StatusHeroCardProps) {
   const gid = useId();
   const view = STATUS_VIEW[status];
   const pct = Math.min(100, Math.max(0, Math.round(percent)));

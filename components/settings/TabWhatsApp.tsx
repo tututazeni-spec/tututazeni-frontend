@@ -64,17 +64,14 @@ function toForm(d: WhatsAppSettingsView): Form {
   };
 }
 
-function Toggle({
-  id,
-  label,
-  checked,
-  onChange,
-}: {
+interface ToggleProps {
   id: string;
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-}) {
+}
+
+function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
       <input
@@ -209,7 +206,9 @@ export function TabWhatsApp() {
           {st.displayPhoneNumber && (
             <div>
               <dt className="text-xs text-[#49658A]">Número</dt>
-              <dd className="font-display font-bold">{st.displayPhoneNumber}</dd>
+              <dd className="font-display font-bold">
+                {st.displayPhoneNumber}
+              </dd>
             </div>
           )}
           {st.verifiedName && (
@@ -239,7 +238,9 @@ export function TabWhatsApp() {
             </dd>
           </div>
         </dl>
-        {st.error && <p className="px-6 pb-5 text-sm text-[#C23A52]">{st.error}</p>}
+        {st.error && (
+          <p className="px-6 pb-5 text-sm text-[#C23A52]">{st.error}</p>
+        )}
       </div>
 
       <Card className="overflow-hidden">
@@ -274,7 +275,10 @@ export function TabWhatsApp() {
 
             {isMeta ? (
               <div className="grid grid-cols-2 gap-4">
-                <FormField label="ID do nÃºmero de telefone" htmlFor="wa-meta-phone">
+                <FormField
+                  label="ID do nÃºmero de telefone"
+                  htmlFor="wa-meta-phone"
+                >
                   <Input
                     id="wa-meta-phone"
                     className="w-full"

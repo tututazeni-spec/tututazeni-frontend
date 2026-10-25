@@ -79,15 +79,13 @@ function toParams(f: Filters): Record<string, string> {
   return p;
 }
 
-function ChartCard({
-  title,
-  empty,
-  children,
-}: {
+interface ChartCardProps {
   title: string;
   empty: boolean;
   children: React.ReactNode;
-}) {
+}
+
+function ChartCard({ title, empty, children }: ChartCardProps) {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface">
       <div className="pointer-events-none select-none bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">

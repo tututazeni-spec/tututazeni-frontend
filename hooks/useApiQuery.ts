@@ -107,6 +107,8 @@ export function useApiMutation<TData, TVariables, TCache = unknown>(
     },
     onError: (error, vars, ctx, ...more) => {
       if (optimistic && ctx) qc.setQueryData(optimistic.key, ctx.snapshot);
+      // Assinatura de ctx difere (wrapper {snapshot,custom} vs TContext do chamador).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (onError as any)?.(error, vars, ctx?.custom, ...more);
     },
     // Forward de todos os args que o React Query passar (assinatura varia entre versões).

@@ -30,6 +30,7 @@ import type { TrainingResourceItem } from '../trainings/types';
 import { STATUS_CFG } from './constants';
 import { tabBtn } from './utils';
 import type { PaginatedMeta, VirtualRoom } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 type RoomsTab = 'physical' | 'virtual';
 
@@ -213,7 +214,7 @@ export function RoomsView({ canManage }: { canManage: boolean }) {
                 </span>
                 {v.link && (
                   <a
-                    href={v.link}
+                    href={safeHref(v.link)}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 font-body text-xs text-accent"

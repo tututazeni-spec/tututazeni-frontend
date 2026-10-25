@@ -16,7 +16,13 @@ const TONES: Record<WalletTone, { body: string; flap: string }> = {
 const ZOOM =
   'transition-transform duration-200 ease-out hover:scale-[1.06] motion-reduce:hover:scale-100';
 
-function Bill({ x, y, r }: { x: number; y: number; r: number }) {
+interface BillProps {
+  x: number;
+  y: number;
+  r: number;
+}
+
+function Bill({ x, y, r }: BillProps) {
   return (
     <g transform={`rotate(${r} ${x + 22} ${y + 12})`}>
       <rect x={x} y={y} width="44" height="24" rx="3" fill="#7BC47F" />
@@ -101,14 +107,7 @@ function Money({ kind }: { kind: WalletMoney }) {
   }
 }
 
-export function WalletStat({
-  label,
-  value,
-  tone,
-  money,
-  sub,
-  zoom = false,
-}: {
+export interface WalletStatProps {
   label: string;
   value: string | number;
   /** Linha secundária opcional (contexto do valor). */
@@ -117,7 +116,16 @@ export function WalletStat({
   money: WalletMoney;
   /** Efeito zoom ao passar o cursor (como o NavyStatCard). */
   zoom?: boolean;
-}) {
+}
+
+export function WalletStat({
+  label,
+  value,
+  tone,
+  money,
+  sub,
+  zoom = false,
+}: WalletStatProps) {
   const t = TONES[tone];
   return (
     <div
@@ -155,16 +163,14 @@ export function WalletStat({
   );
 }
 
-/** Donut com a percentagem de ROI ao centro; mesmo esqueleto do WalletStat. */
-export function RoiDonutStat({
-  label,
-  roi,
-  zoom = false,
-}: {
+export interface RoiDonutStatProps {
   label: string;
   roi: number | null | undefined;
   zoom?: boolean;
-}) {
+}
+
+/** Donut com a percentagem de ROI ao centro; mesmo esqueleto do WalletStat. */
+export function RoiDonutStat({ label, roi, zoom = false }: RoiDonutStatProps) {
   const size = 100;
   const stroke = 14;
   const r = (size - stroke) / 2;

@@ -6,7 +6,8 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle, BarChart3, Clock, Lightbulb } from 'lucide-react';
 import { NavyPanel, NavyPanelRow } from './NavyPanel';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
@@ -38,29 +39,57 @@ export interface NewScenarioModalProps {
   onClose: () => void;
 }
 
-export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
-  const notify = useToast();
-  const [error, setError] = useState('');
-
-  const [name, setName] = useState('');
-  const [initiativeType, setInitiativeType] =
-    useState<RoiInitiativeType>('CURSO');
-  const [description, setDescription] = useState('');
-  const [departmentId, setDepartmentId] = useState('');
-  const [targetAudienceCount, setTargetAudienceCount] = useState('');
-  const [estimatedCost, setEstimatedCost] = useState('');
-  const [benefitSource, setBenefitSource] = useState<'manual' | 'analysis'>(
-    'manual',
-  );
-  const [expectedBenefit, setExpectedBenefit] = useState('');
-  const [basedOnAnalysisId, setBasedOnAnalysisId] = useState('');
-  const [assumptions, setAssumptions] = useState('');
-  const [preview, setPreview] = useState<{
+interface NewScenarioModalFormValues {
+  error: string;
+  name: string;
+  initiativeType: RoiInitiativeType;
+  description: string;
+  departmentId: string;
+  targetAudienceCount: string;
+  estimatedCost: string;
+  benefitSource: 'manual' | 'analysis';
+  expectedBenefit: string;
+  basedOnAnalysisId: string;
+  assumptions: string;
+  preview: {
     roiPercent: number | null;
     paybackMonths: number | null;
     note: string | null;
     projections: ScenarioProjections | null;
-  } | null>(null);
+  } | null;
+}
+
+export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
+  const notify = useToast();
+  const { values: formValues, set: setField } =
+    useFormState<NewScenarioModalFormValues>({
+      error: '',
+      name: '',
+      initiativeType: 'CURSO',
+      description: '',
+      departmentId: '',
+      targetAudienceCount: '',
+      estimatedCost: '',
+      benefitSource: 'manual',
+      expectedBenefit: '',
+      basedOnAnalysisId: '',
+      assumptions: '',
+      preview: null,
+    });
+  const {
+    error,
+    name,
+    initiativeType,
+    description,
+    departmentId,
+    targetAudienceCount,
+    estimatedCost,
+    benefitSource,
+    expectedBenefit,
+    basedOnAnalysisId,
+    assumptions,
+    preview,
+  } = formValues;
 
   const { data: deptTree } = useApiQuery<
     { id: number; name: string; children?: unknown[] }[]
@@ -117,7 +146,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
     {
       invalidateKeys: [queryKeys.roiImpact.scenarios()],
       onSuccess: (created) => {
-        setPreview({
+        setField('preview', {
           roiPercent: created.roiPercent,
           paybackMonths: created.paybackMonths,
           note: created.note,
@@ -125,7 +154,8 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
         });
         notify({ title: 'Cenário criado', intent: 'success' });
       },
-      onError: (e) => setError(e.message || 'Erro ao criar o cenário.'),
+      onError: (e) =>
+        setField('error', e.message || 'Erro ao criar o cenário.'),
     },
   );
 
@@ -155,7 +185,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                 id="sc-name"
                 placeholder="ex.: Formação presencial para 40 gestores de loja"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setField('name', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -166,7 +196,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                   items={INITIATIVE_TYPE_ITEMS}
                   value={initiativeType}
                   onValueChange={(v) =>
-                    setInitiativeType(v as RoiInitiativeType)
+                    setField('initiativeType', v as RoiInitiativeType)
                   }
                   className="w-full"
                 />
@@ -178,7 +208,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                     label: d.name,
                   }))}
                   value={departmentId}
-                  onValueChange={setDepartmentId}
+                  onValueChange={(v) => setField('departmentId', v)}
                   placeholder="Selecionar…"
                   className="w-full"
                 />
@@ -195,7 +225,9 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                   type="number"
                   min={0}
                   value={targetAudienceCount}
-                  onChange={(e) => setTargetAudienceCount(e.target.value)}
+                  onChange={(e) =>
+                    setField('targetAudienceCount', e.target.value)
+                  }
                   className="w-full"
                 />
               </FormField>
@@ -205,7 +237,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                   type="number"
                   min={0}
                   value={estimatedCost}
-                  onChange={(e) => setEstimatedCost(e.target.value)}
+                  onChange={(e) => setField('estimatedCost', e.target.value)}
                   className="w-full"
                 />
               </FormField>
@@ -216,7 +248,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                 id="sc-description"
                 rows={2}
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => setField('description', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -228,7 +260,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
               <div className="mb-3 flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setBenefitSource('manual')}
+                  onClick={() => setField('benefitSource', 'manual')}
                   className={
                     'rounded-control border px-3 py-1.5 text-xs font-medium transition-colors ' +
                     (benefitSource === 'manual'
@@ -240,7 +272,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setBenefitSource('analysis')}
+                  onClick={() => setField('benefitSource', 'analysis')}
                   className={
                     'rounded-control border px-3 py-1.5 text-xs font-medium transition-colors ' +
                     (benefitSource === 'analysis'
@@ -262,7 +294,9 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                     type="number"
                     min={0}
                     value={expectedBenefit}
-                    onChange={(e) => setExpectedBenefit(e.target.value)}
+                    onChange={(e) =>
+                      setField('expectedBenefit', e.target.value)
+                    }
                     className="w-full"
                   />
                 </FormField>
@@ -281,7 +315,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                       }`,
                     }))}
                     value={basedOnAnalysisId}
-                    onValueChange={setBasedOnAnalysisId}
+                    onValueChange={(v) => setField('basedOnAnalysisId', v)}
                     placeholder={
                       measuredAnalyses.length === 0
                         ? 'Sem análises já calculadas disponíveis'
@@ -306,7 +340,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
                 id="sc-assumptions"
                 rows={2}
                 value={assumptions}
-                onChange={(e) => setAssumptions(e.target.value)}
+                onChange={(e) => setField('assumptions', e.target.value)}
                 className="w-full"
               />
             </FormField>

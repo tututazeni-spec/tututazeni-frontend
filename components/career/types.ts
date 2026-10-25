@@ -105,7 +105,7 @@ export interface CareerPathStep {
 export interface CareerPath {
   id: number;
   name: string;
-  type: string;
+  type: 'LINEAR' | 'Y_SHAPED' | 'T_SHAPED' | 'W_SHAPED' | 'LATTICE';
   description: string | null;
   steps: CareerPathStep[];
 }
@@ -113,7 +113,7 @@ export interface CareerPath {
 export interface InternalVacancy {
   id: number;
   title: string;
-  type: string;
+  type: 'PROMOTION' | 'LATERAL' | 'GIG_PROJECT' | 'JOB_ROTATION' | 'SHADOWING';
   status: string;
   matchScore?: number;
   applied?: boolean;
@@ -179,7 +179,7 @@ export interface CareerGoal {
   id: number;
   title: string;
   description?: string;
-  status: string;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   progress: number;
 }
 

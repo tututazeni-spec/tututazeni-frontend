@@ -115,16 +115,14 @@ export function Metric({
   );
 }
 
-export function InfoRow({
-  icon: Icon,
-  leading,
-  children,
-}: {
+export interface InfoRowProps {
   icon?: LucideIcon;
   /** Substitui o ícone (ex.: avatar do instrutor). */
   leading?: ReactNode;
   children: ReactNode;
-}) {
+}
+
+export function InfoRow({ icon: Icon, leading, children }: InfoRowProps) {
   return (
     <div className="flex items-center gap-3 py-2.5 text-[15px] text-white">
       {leading ??

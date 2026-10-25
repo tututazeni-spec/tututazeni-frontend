@@ -431,19 +431,21 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
   );
 }
 
+interface ExecutionStatProps {
+  label: string;
+  planned: number;
+  realized: number;
+  rate: number | null;
+  money?: boolean;
+}
+
 function ExecutionStat({
   label,
   planned,
   realized,
   rate,
   money,
-}: {
-  label: string;
-  planned: number;
-  realized: number;
-  rate: number | null;
-  money?: boolean;
-}) {
+}: ExecutionStatProps) {
   const fmt = (v: number) => (money ? formatKz(v) : v.toLocaleString('pt-PT'));
   return (
     <div>

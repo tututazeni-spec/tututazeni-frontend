@@ -32,6 +32,7 @@ import { embeddableVideoUrl, useBlobSrc } from './fileSrc';
 import { lessonIcon } from './utils';
 import { LessonFooter } from './LessonFooter';
 import type { LessonProgress, ModuleProgress } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 interface ContentPlayerProps {
   lesson: LessonProgress;
@@ -44,16 +45,14 @@ interface ContentPlayerProps {
   hasNext?: boolean;
 }
 
-/** Mensagem centrada para os estados sem conteúdo / com falha. */
-function StageNotice({
-  icon: Icon,
-  title,
-  children,
-}: {
+interface StageNoticeProps {
   icon: typeof FileText;
   title: string;
   children?: ReactNode;
-}) {
+}
+
+/** Mensagem centrada para os estados sem conteúdo / com falha. */
+function StageNotice({ icon: Icon, title, children }: StageNoticeProps) {
   return (
     <div className="px-8 py-10 text-center text-ink">
       <Icon
@@ -280,7 +279,7 @@ export function ContentPlayer({
                 )}
                 {lesson.liveSessionUrl ? (
                   <a
-                    href={lesson.liveSessionUrl}
+                    href={safeHref(lesson.liveSessionUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block mt-4 rounded-lg bg-[#0F1F3D] px-4 py-2 font-body text-sm font-semibold text-white hover:bg-[#1B2F57]"

@@ -10,6 +10,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
+import { useWizardFlow } from '@/hooks/useWizardFlow';
 import {
   AlertCircle,
   BarChart3,
@@ -114,6 +116,62 @@ interface ComputeResult {
   status: string;
 }
 
+interface NewRoiAnalysisFormValues {
+  name: string;
+  initiativeType: RoiInitiativeType;
+  initiativeId: string;
+  departmentId: string;
+  unit: string;
+  responsible: DirectoryUser | null;
+  referencePeriodStart: string;
+  referencePeriodEnd: string;
+  measurementPeriodDays: string;
+  costDirect: string;
+  costIndirect: string;
+  costOpportunity: string;
+  benefitType: RoiBenefitType;
+  benefitIndicator: string;
+  benefitBaselineValue: string;
+  benefitExpectedValue: string;
+  benefitConversionNote: string;
+  benefitValidator: DirectoryUser | null;
+  evaluationModelUsed: string;
+  isolationFactor: string;
+  dataSource: string;
+  hasControlGroup: boolean;
+  assumptions: string;
+  monetaryBenefitOverride: string;
+  observations: string;
+}
+
+const INITIAL_VALUES: NewRoiAnalysisFormValues = {
+  name: '',
+  initiativeType: 'CURSO',
+  initiativeId: '',
+  departmentId: '',
+  unit: '',
+  responsible: null,
+  referencePeriodStart: '',
+  referencePeriodEnd: '',
+  measurementPeriodDays: '90',
+  costDirect: '',
+  costIndirect: '',
+  costOpportunity: '',
+  benefitType: 'PRODUTIVIDADE',
+  benefitIndicator: '',
+  benefitBaselineValue: '',
+  benefitExpectedValue: '',
+  benefitConversionNote: '',
+  benefitValidator: null,
+  evaluationModelUsed: '',
+  isolationFactor: '',
+  dataSource: '',
+  hasControlGroup: false,
+  assumptions: '',
+  monetaryBenefitOverride: '',
+  observations: '',
+};
+
 export interface NewRoiAnalysisWizardProps {
   onClose: () => void;
 }
@@ -121,48 +179,39 @@ export interface NewRoiAnalysisWizardProps {
 export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
   const notify = useToast();
   const qc = useQueryClient();
-  const [step, setStep] = useState(0);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
+  const { step, busy, error, next, back, goTo, begin, end, fail } =
+    useWizardFlow();
+  const { values: form, set } =
+    useFormState<NewRoiAnalysisFormValues>(INITIAL_VALUES);
+  const {
+    name,
+    initiativeType,
+    initiativeId,
+    departmentId,
+    unit,
+    responsible,
+    referencePeriodStart,
+    referencePeriodEnd,
+    measurementPeriodDays,
+    costDirect,
+    costIndirect,
+    costOpportunity,
+    benefitType,
+    benefitIndicator,
+    benefitBaselineValue,
+    benefitExpectedValue,
+    benefitConversionNote,
+    benefitValidator,
+    evaluationModelUsed,
+    isolationFactor,
+    dataSource,
+    hasControlGroup,
+    assumptions,
+    monetaryBenefitOverride,
+    observations,
+  } = form;
   const [analysisId, setAnalysisId] = useState<number | null>(null);
 
-  // Etapa 1 — Identificação
-  const [name, setName] = useState('');
-  const [initiativeType, setInitiativeType] =
-    useState<RoiInitiativeType>('CURSO');
-  const [initiativeId, setInitiativeId] = useState('');
-  const [departmentId, setDepartmentId] = useState('');
-  const [unit, setUnit] = useState('');
-  const [responsible, setResponsible] = useState<DirectoryUser | null>(null);
-  const [referencePeriodStart, setReferencePeriodStart] = useState('');
-  const [referencePeriodEnd, setReferencePeriodEnd] = useState('');
-  const [measurementPeriodDays, setMeasurementPeriodDays] = useState('90');
-
-  // Etapa 2 — Custos
-  const [costDirect, setCostDirect] = useState('');
-  const [costIndirect, setCostIndirect] = useState('');
-  const [costOpportunity, setCostOpportunity] = useState('');
-
-  // Etapa 3 — Benefícios esperados
-  const [benefitType, setBenefitType] =
-    useState<RoiBenefitType>('PRODUTIVIDADE');
-  const [benefitIndicator, setBenefitIndicator] = useState('');
-  const [benefitBaselineValue, setBenefitBaselineValue] = useState('');
-  const [benefitExpectedValue, setBenefitExpectedValue] = useState('');
-  const [benefitConversionNote, setBenefitConversionNote] = useState('');
-  const [benefitValidator, setBenefitValidator] =
-    useState<DirectoryUser | null>(null);
-
-  // Etapa 4 — Metodologia
-  const [evaluationModelUsed, setEvaluationModelUsed] = useState('');
-  const [isolationFactor, setIsolationFactor] = useState('');
-  const [dataSource, setDataSource] = useState('');
-  const [hasControlGroup, setHasControlGroup] = useState(false);
-  const [assumptions, setAssumptions] = useState('');
-
-  // Etapa 5 — Resultado
-  const [monetaryBenefitOverride, setMonetaryBenefitOverride] = useState('');
-  const [observations, setObservations] = useState('');
   const [result, setResult] = useState<ComputeResult | null>(null);
 
   const { data: deptTree } = useApiQuery<
@@ -253,8 +302,8 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
   useEffect(() => {
     if (isolationFactor !== '') return;
     const preset = roiConfig?.defaultIsolationFactors?.[initiativeType];
-    if (preset != null) setIsolationFactor(String(preset));
-  }, [initiativeType, roiConfig, isolationFactor]);
+    if (preset != null) set('isolationFactor', String(preset));
+  }, [initiativeType, roiConfig, isolationFactor, set]);
 
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
@@ -329,22 +378,21 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
 
   const advance = async () => {
     if (!canAdvance || busy) return;
-    setBusy(true);
-    setError('');
+    begin();
     try {
       if (current.id === 'identification') {
         const id = await saveIdentification();
-        setStep((s) => s + 1);
+        next();
         void id;
       } else if (current.id === 'costs') {
         await saveCosts(analysisId!);
-        setStep((s) => s + 1);
+        next();
       } else if (current.id === 'benefits') {
         await saveBenefits(analysisId!);
-        setStep((s) => s + 1);
+        next();
       } else if (current.id === 'methodology') {
         await saveMethodology(analysisId!);
-        setStep((s) => s + 1);
+        next();
       } else {
         qc.invalidateQueries({ queryKey: queryKeys.roiImpact.analyses() });
         qc.invalidateQueries({ queryKey: queryKeys.roiImpact.executive() });
@@ -352,16 +400,15 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
         onClose();
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erro ao guardar a análise.');
+      fail(e instanceof Error ? e.message : 'Erro ao guardar a análise.');
     } finally {
-      setBusy(false);
+      end();
     }
   };
 
   const compute = async () => {
     if (analysisId == null) return;
-    setBusy(true);
-    setError('');
+    begin();
     try {
       const computed = await apiClient.post<ComputeResult>(
         `/roi-impact/analyses/${analysisId}/compute`,
@@ -374,11 +421,9 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
       );
       setResult(computed);
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : 'Erro ao calcular o resultado.',
-      );
+      fail(e instanceof Error ? e.message : 'Erro ao calcular o resultado.');
     } finally {
-      setBusy(false);
+      end();
     }
   };
 
@@ -398,7 +443,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => i < step && setStep(i)}
+                  onClick={() => i < step && goTo(i)}
                   title={`${i + 1}. ${s.label}`}
                   className={
                     'flex h-6 w-6 items-center justify-center rounded-full font-body text-[11px] transition-colors disabled:cursor-not-allowed ' +
@@ -433,7 +478,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               <Input
                 id="ra-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => set('name', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -443,8 +488,8 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                   items={INITIATIVE_TYPE_ITEMS}
                   value={initiativeType}
                   onValueChange={(v) => {
-                    setInitiativeType(v as RoiInitiativeType);
-                    setInitiativeId('');
+                    set('initiativeType', v as RoiInitiativeType);
+                    set('initiativeId', '');
                   }}
                   className="w-full"
                 />
@@ -456,7 +501,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                     label: o.label,
                   }))}
                   value={initiativeId}
-                  onValueChange={setInitiativeId}
+                  onValueChange={(v) => set('initiativeId', v)}
                   placeholder="Selecionar…"
                   className="w-full"
                 />
@@ -471,9 +516,10 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                   }))}
                   value={departmentId}
                   onValueChange={(v) => {
-                    setDepartmentId(v);
+                    set('departmentId', v);
                     // Cada departamento tem no máximo uma unidade — pré-seleciona-a.
-                    setUnit(
+                    set(
+                      'unit',
                       departments.find((d) => String(d.id) === v)?.unit?.name ??
                         '',
                     );
@@ -486,7 +532,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 <Select
                   items={unitItems}
                   value={unit}
-                  onValueChange={(v) => setUnit(v === BLANK ? '' : v)}
+                  onValueChange={(v) => set('unit', v === BLANK ? '' : v)}
                   placeholder={
                     departmentId
                       ? 'Departamento sem unidade'
@@ -501,7 +547,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               label="Responsável"
               htmlFor="ra-responsible"
               value={responsible}
-              onChange={setResponsible}
+              onChange={(v) => set('responsible', v)}
             />
             <div className="grid grid-cols-3 gap-3 [&>*]:min-w-0">
               <FormField
@@ -512,7 +558,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                   id="ra-ref-start"
                   type="date"
                   value={referencePeriodStart}
-                  onChange={(e) => setReferencePeriodStart(e.target.value)}
+                  onChange={(e) => set('referencePeriodStart', e.target.value)}
                   className="w-full"
                 />
               </FormField>
@@ -524,7 +570,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                   id="ra-ref-end"
                   type="date"
                   value={referencePeriodEnd}
-                  onChange={(e) => setReferencePeriodEnd(e.target.value)}
+                  onChange={(e) => set('referencePeriodEnd', e.target.value)}
                   className="w-full"
                 />
               </FormField>
@@ -532,7 +578,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 <Select
                   items={measurementPeriodItems}
                   value={measurementPeriodDays}
-                  onValueChange={setMeasurementPeriodDays}
+                  onValueChange={(v) => set('measurementPeriodDays', v)}
                   className="w-full"
                 />
               </FormField>
@@ -554,7 +600,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 type="number"
                 min={0}
                 value={costDirect}
-                onChange={(e) => setCostDirect(e.target.value)}
+                onChange={(e) => set('costDirect', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -564,7 +610,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 type="number"
                 min={0}
                 value={costIndirect}
-                onChange={(e) => setCostIndirect(e.target.value)}
+                onChange={(e) => set('costIndirect', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -577,7 +623,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 type="number"
                 min={0}
                 value={costOpportunity}
-                onChange={(e) => setCostOpportunity(e.target.value)}
+                onChange={(e) => set('costOpportunity', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -590,7 +636,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               <Select
                 items={BENEFIT_TYPE_ITEMS}
                 value={benefitType}
-                onValueChange={(v) => setBenefitType(v as RoiBenefitType)}
+                onValueChange={(v) => set('benefitType', v as RoiBenefitType)}
                 className="w-full"
               />
             </FormField>
@@ -601,7 +647,9 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               <Select
                 items={indicatorItems}
                 value={benefitIndicator}
-                onValueChange={(v) => setBenefitIndicator(v === BLANK ? '' : v)}
+                onValueChange={(v) =>
+                  set('benefitIndicator', v === BLANK ? '' : v)
+                }
                 placeholder="Selecionar um KPI…"
                 className="w-full"
               />
@@ -615,7 +663,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                   id="ra-benefit-before"
                   type="number"
                   value={benefitBaselineValue}
-                  onChange={(e) => setBenefitBaselineValue(e.target.value)}
+                  onChange={(e) => set('benefitBaselineValue', e.target.value)}
                   className="w-full"
                 />
               </FormField>
@@ -627,7 +675,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                   id="ra-benefit-after"
                   type="number"
                   value={benefitExpectedValue}
-                  onChange={(e) => setBenefitExpectedValue(e.target.value)}
+                  onChange={(e) => set('benefitExpectedValue', e.target.value)}
                   className="w-full"
                 />
               </FormField>
@@ -640,7 +688,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 items={[blankItem, ...toItems(CONVERSION_METHODS)]}
                 value={benefitConversionNote}
                 onValueChange={(v) =>
-                  setBenefitConversionNote(v === BLANK ? '' : v)
+                  set('benefitConversionNote', v === BLANK ? '' : v)
                 }
                 placeholder="Selecionar…"
                 className="w-full"
@@ -650,7 +698,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               label="Responsável pela validação"
               htmlFor="ra-benefit-validator"
               value={benefitValidator}
-              onChange={setBenefitValidator}
+              onChange={(v) => set('benefitValidator', v)}
             />
           </div>
         )}
@@ -662,7 +710,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 items={modelItems}
                 value={evaluationModelUsed}
                 onValueChange={(v) =>
-                  setEvaluationModelUsed(v === BLANK ? '' : v)
+                  set('evaluationModelUsed', v === BLANK ? '' : v)
                 }
                 placeholder="Selecionar…"
                 className="w-full"
@@ -676,7 +724,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 max={1}
                 step={0.05}
                 value={isolationFactor}
-                onChange={(e) => setIsolationFactor(e.target.value)}
+                onChange={(e) => set('isolationFactor', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -684,7 +732,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               <Select
                 items={[blankItem, ...toItems(DATA_SOURCES)]}
                 value={dataSource}
-                onValueChange={(v) => setDataSource(v === BLANK ? '' : v)}
+                onValueChange={(v) => set('dataSource', v === BLANK ? '' : v)}
                 placeholder="Selecionar…"
                 className="w-full"
               />
@@ -693,7 +741,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               <input
                 type="checkbox"
                 checked={hasControlGroup}
-                onChange={(e) => setHasControlGroup(e.target.checked)}
+                onChange={(e) => set('hasControlGroup', e.target.checked)}
               />
               Existe grupo de controlo
             </label>
@@ -702,7 +750,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 id="ra-assumptions"
                 rows={2}
                 value={assumptions}
-                onChange={(e) => setAssumptions(e.target.value)}
+                onChange={(e) => set('assumptions', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -731,7 +779,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 min={0}
                 placeholder="Valor em AOA já convertido/validado com Finanças"
                 value={monetaryBenefitOverride}
-                onChange={(e) => setMonetaryBenefitOverride(e.target.value)}
+                onChange={(e) => set('monetaryBenefitOverride', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -819,7 +867,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                 id="ra-observations"
                 rows={2}
                 value={observations}
-                onChange={(e) => setObservations(e.target.value)}
+                onChange={(e) => set('observations', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -830,7 +878,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
           <Button
             intent="secondary"
             className="justify-center"
-            onClick={() => (step === 0 ? onClose() : setStep((s) => s - 1))}
+            onClick={() => (step === 0 ? onClose() : back())}
             disabled={busy}
           >
             {step === 0 ? 'Cancelar' : 'Voltar'}

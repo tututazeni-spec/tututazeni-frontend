@@ -84,15 +84,19 @@ export function useSearch() {
   );
   const loading = searchAction.isPending;
 
-  const doSearch = useCallback((q: string) => {
-    if (!q.trim()) return;
-    setHiddenFor(q);
-    searchAction.mutate({ kind: 'full', q });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `mutate` do useMutation é estável entre renders (React Query), por isso omitir `searchAction` das deps não cria closure stale. Consequência: o React Compiler salta este hook por não conseguir verificar a omissão à volta de uma regra desligada.
-  }, []);
+  // `mutate` é estável (React Query v5), logo `doSearch` também.
+  const { mutate: runSearch } = searchAction;
+  const doSearch = useCallback(
+    (q: string) => {
+      if (!q.trim()) return;
+      setHiddenFor(q);
+      runSearch({ kind: 'full', q });
+    },
+    [runSearch],
+  );
 
   const searchByType = (key: string, path: string) => {
-    if (query) searchAction.mutate({ kind: 'byType', key, path, q: query });
+    if (query) runSearch({ kind: 'byType', key, path, q: query });
   };
 
   const clear = () => {
@@ -117,8 +121,7 @@ export function useSearch() {
       setQuery(seeded);
       doSearch(seeded);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- só no mount; `doSearch` é estável (useCallback [] + mutate estável do React Query).
-  }, []);
+  }, [doSearch]);
 
   return {
     query,

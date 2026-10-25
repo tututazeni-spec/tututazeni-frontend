@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import type { QueryKey } from '@tanstack/react-query';
+import { ADMIN_ROLES } from '@/lib/roles';
 
 interface HeadcountCardProps {
   deptId: number;
@@ -33,7 +34,9 @@ export function HeadcountCard({
 }: HeadcountCardProps) {
   const notify = useToast();
   const me = useCurrentUser();
-  const canEdit = ['ADMIN', 'RH'].includes(me.data?.role?.code ?? '');
+  const canEdit = (ADMIN_ROLES as readonly string[]).includes(
+    me.data?.role?.code ?? '',
+  );
   const [editing, setEditing] = useState(false);
   const [expectedInput, setExpectedInput] = useState('');
   const [maxInput, setMaxInput] = useState('');

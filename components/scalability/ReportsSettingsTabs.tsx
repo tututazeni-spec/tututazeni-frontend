@@ -399,17 +399,14 @@ export function SettingsTab({
   );
 }
 
-function SettingsForm({
-  data,
-  canEdit,
-  saving,
-  onSave,
-}: {
+interface SettingsFormProps {
   data: SettingsData;
   canEdit: boolean;
   saving: boolean;
   onSave: SettingsTabProps['onSave'];
-}) {
+}
+
+function SettingsForm({ data, canEdit, saving, onSave }: SettingsFormProps) {
   const rows = thresholdRows(data);
   const [thresholds, setThresholds] = useState<Record<string, string>>(() =>
     Object.fromEntries(rows.map((r) => [r.field.key, String(r.field.value)])),

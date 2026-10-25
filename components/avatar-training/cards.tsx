@@ -73,15 +73,17 @@ export function CardGrid({ children }: { children: ReactNode }) {
 
 // ─── Formações com avatar (design "cursos criados") ─────────────────────────
 
+export interface ProgramCardProps {
+  program: AvatarProgram;
+  footer?: ReactNode;
+  onSelect: () => void;
+}
+
 export function ProgramCard({
   program: p,
   footer,
   onSelect,
-}: {
-  program: AvatarProgram;
-  footer?: ReactNode;
-  onSelect: () => void;
-}) {
+}: ProgramCardProps) {
   const sessions = p._count?.sessions;
   return (
     <PhotoCard
@@ -216,15 +218,17 @@ export function AssignmentNavyCard({
 
 // ─── Sessões disponíveis (design "inscrições") ──────────────────────────────
 
+export interface SessionNavyCardProps {
+  session: SessionListItem;
+  selected?: boolean;
+  onSelect: () => void;
+}
+
 export function SessionNavyCard({
   session: s,
   selected,
   onSelect,
-}: {
-  session: SessionListItem;
-  selected?: boolean;
-  onSelect: () => void;
-}) {
+}: SessionNavyCardProps) {
   return (
     <div
       role="button"

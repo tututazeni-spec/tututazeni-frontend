@@ -9,7 +9,11 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
-import { emptyAction, type ActionDraft, type ActionType } from './workflow-model';
+import {
+  emptyAction,
+  type ActionDraft,
+  type ActionType,
+} from './workflow-model';
 
 export const RECIPIENT_TOKENS = [
   { value: 'ASSIGNEE', label: 'Responsável da etapa' },
@@ -38,23 +42,30 @@ const PRIORITIES = [
   { value: 'URGENT', label: 'Urgente' },
 ];
 
+export interface RecipientPickerProps {
+  value: string[];
+  onChange: (v: string[]) => void;
+  disabled?: boolean;
+}
+
 export function RecipientPicker({
   value,
   onChange,
   disabled,
-}: {
-  value: string[];
-  onChange: (v: string[]) => void;
-  disabled?: boolean;
-}) {
+}: RecipientPickerProps) {
   const toggle = (t: string) =>
     onChange(value.includes(t) ? value.filter((x) => x !== t) : [...value, t]);
-  const custom = value.filter((v) => !RECIPIENT_TOKENS.some((t) => t.value === v));
+  const custom = value.filter(
+    (v) => !RECIPIENT_TOKENS.some((t) => t.value === v),
+  );
   return (
     <div>
       <div className="flex flex-wrap gap-x-4 gap-y-1">
         {RECIPIENT_TOKENS.map((t) => (
-          <label key={t.value} className="flex items-center gap-1.5 font-body text-xs text-ink-muted">
+          <label
+            key={t.value}
+            className="flex items-center gap-1.5 font-body text-xs text-ink-muted"
+          >
             <input
               type="checkbox"
               checked={value.includes(t.value)}
@@ -91,14 +102,21 @@ export interface ActionListEditorProps {
   emptyHint?: string;
 }
 
-export function ActionListEditor({ value, onChange, disabled, emptyHint }: ActionListEditorProps) {
+export function ActionListEditor({
+  value,
+  onChange,
+  disabled,
+  emptyHint,
+}: ActionListEditorProps) {
   const patch = (i: number, p: Partial<ActionDraft>) =>
     onChange(value.map((a, idx) => (idx === i ? { ...a, ...p } : a)));
 
   return (
     <div className="space-y-3">
       {value.length === 0 && (
-        <p className="font-body text-xs text-ink-faint">{emptyHint ?? 'Sem acções.'}</p>
+        <p className="font-body text-xs text-ink-faint">
+          {emptyHint ?? 'Sem acções.'}
+        </p>
       )}
       {value.map((a, i) => (
         <div key={i} className="rounded-card border border-border p-3">
@@ -106,7 +124,9 @@ export function ActionListEditor({ value, onChange, disabled, emptyHint }: Actio
             <Select
               items={TYPE_ITEMS}
               value={a.type}
-              onValueChange={(v) => patch(i, { ...emptyAction(v as ActionType) })}
+              onValueChange={(v) =>
+                patch(i, { ...emptyAction(v as ActionType) })
+              }
               disabled={disabled}
               className="w-60"
             />
@@ -167,7 +187,8 @@ export function ActionListEditor({ value, onChange, disabled, emptyHint }: Actio
                 className="w-full"
               />
             )}
-            {(a.type === 'SUSPEND_INSTANCE' || a.type === 'CANCEL_INSTANCE') && (
+            {(a.type === 'SUSPEND_INSTANCE' ||
+              a.type === 'CANCEL_INSTANCE') && (
               <Input
                 value={a.reason}
                 disabled={disabled}
@@ -180,7 +201,11 @@ export function ActionListEditor({ value, onChange, disabled, emptyHint }: Actio
         </div>
       ))}
       {!disabled && (
-        <Button intent="ghost" size="sm" onClick={() => onChange([...value, emptyAction()])}>
+        <Button
+          intent="ghost"
+          size="sm"
+          onClick={() => onChange([...value, emptyAction()])}
+        >
           <Plus size={14} strokeWidth={1.75} />
           Adicionar acção
         </Button>

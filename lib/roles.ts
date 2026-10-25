@@ -40,6 +40,15 @@ export const MGMT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'LIDER', 'GESTOR'];
 export const ADMIN_ROLES: readonly Role[] = ['ADMIN', 'RH'];
 
 /**
+ * ADMIN, RH e GESTOR — o conjunto de "gestão" mais usado nas guardas de
+ * criar/gerir (eventos, processos, planos de desenvolvimento, aprovação de
+ * licenças, biblioteca). Nomeado pelos papéis e não pelo módulo: cada guarda
+ * continua a ser decidida pelo @Roles() do endpoint respectivo — confirmar
+ * sempre no backend antes de reutilizar para um módulo novo.
+ */
+export const ADMIN_RH_GESTOR_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+
+/**
  * Auditoria (docs/modulo_audit.md §16). Espelha AUDIT_GLOBAL_ROLES em
  * src/audit/audit-scope.ts: consulta global, segurança, incidentes, auditorias
  * e relatórios. RH e GESTOR só consultam registos dentro do seu âmbito
@@ -54,7 +63,7 @@ export const AUDIT_SCOPED_ROLES: readonly Role[] = ['RH', 'GESTOR'];
  * separador "Executivo" de /dashboard (GET /dashboard-institutional/executive).
  * Mais largo que ADMIN_ROLES (inclui GESTOR); não confundir os dois.
  */
-export const EXECUTIVE_ROLES: readonly Role[] = ['ADMIN', 'RH', 'GESTOR'];
+export const EXECUTIVE_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 
 /**
  * Todos os papéis autenticados excepto COLABORADOR. Para separadores/links

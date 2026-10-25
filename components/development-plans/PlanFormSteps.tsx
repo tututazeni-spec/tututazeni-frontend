@@ -68,6 +68,15 @@ const PRIORITY_ITEMS = Object.entries(PRIORITY_CFG).map(([value, cfg]) => ({
   label: cfg.label,
 }));
 
+interface UserPickerProps {
+  label: string;
+  htmlFor: string;
+  value: DirectoryUser | null;
+  onChange: (u: DirectoryUser | null) => void;
+  /** Não mostrar este utilizador nos resultados (ex.: o próprio colaborador no picker de gestor). */
+  excludeId?: number;
+}
+
 /**
  * Picker de colaborador/gestor por pesquisa no diretório interno. O
  * dropdown de resultados vai num Popover.Portal (mesmo primitivo do
@@ -83,14 +92,7 @@ function UserPicker({
   value,
   onChange,
   excludeId,
-}: {
-  label: string;
-  htmlFor: string;
-  value: DirectoryUser | null;
-  onChange: (u: DirectoryUser | null) => void;
-  /** Não mostrar este utilizador nos resultados (ex.: o próprio colaborador no picker de gestor). */
-  excludeId?: number;
-}) {
+}: UserPickerProps) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
   const { users, loading } = useDirectoryUsers(

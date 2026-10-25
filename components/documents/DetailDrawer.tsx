@@ -44,6 +44,7 @@ import {
 } from './hooks';
 import { formatBytes } from './utils';
 import type { Document, DocVersionRow } from './types';
+import { ADMIN_RH_GESTOR_ROLES } from '@/lib/roles';
 
 interface DetailDrawerProps {
   doc: Document;
@@ -54,7 +55,7 @@ interface DetailDrawerProps {
 // Espelha @Roles(...) nos endpoints de aprovação em
 // document-repository.controller.ts.
 const APPROVER_ROLES = ['ADMIN', 'RH', 'DIRECTOR'];
-const WORKFLOW_ROLES = ['ADMIN', 'RH', 'GESTOR'];
+const WORKFLOW_ROLES: readonly string[] = ADMIN_RH_GESTOR_ROLES;
 
 export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
   const role = useCurrentRole();

@@ -81,19 +81,21 @@ export function NavyPanel({
   );
 }
 
+export interface NavyPanelRowProps {
+  icon?: LucideIcon;
+  iconClassName?: string;
+  /** Ícone branco, mais forte, dentro de um círculo. */
+  iconBadge?: boolean;
+  children: ReactNode;
+}
+
 /** Linha em cartão translúcido dentro do NavyPanel. */
 export function NavyPanelRow({
   icon: Icon,
   iconClassName = 'text-[#7CC4FF]',
   iconBadge,
   children,
-}: {
-  icon?: LucideIcon;
-  iconClassName?: string;
-  /** Ícone branco, mais forte, dentro de um círculo. */
-  iconBadge?: boolean;
-  children: ReactNode;
-}) {
+}: NavyPanelRowProps) {
   return (
     <li className="flex items-start gap-3 rounded-card bg-white/10 px-4 py-2.5 font-body text-sm leading-snug">
       {Icon &&

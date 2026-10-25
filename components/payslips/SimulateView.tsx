@@ -65,11 +65,12 @@ export function SimulateView() {
   const result = simulateMutation.data ?? null;
   const loading = simulateMutation.isPending;
 
+  // `mutate` é estável (React Query v5), por isso só `form` dispara o debounce.
+  const { mutate: simulate } = simulateMutation;
   useEffect(() => {
-    const t = setTimeout(() => simulateMutation.mutate(form), 400);
+    const t = setTimeout(() => simulate(form), 400);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `mutate` do useMutation é estável entre renders; só `form` deve disparar o debounce. Consequência: o React Compiler salta este componente por não conseguir verificar a omissão à volta de uma regra desligada.
-  }, [form]);
+  }, [form, simulate]);
 
   const IRT_BRACKETS = [
     { min: 0, max: 150000, label: '1', rate: 'Isento' },

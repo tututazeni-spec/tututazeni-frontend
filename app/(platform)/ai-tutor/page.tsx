@@ -20,8 +20,9 @@ import type { View } from '@/components/ai-tutor/types';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList } from '@/components/ui/PillTabs';
 import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
+import { ADMIN_ROLES } from '@/lib/roles';
 
-const PRIVILEGED_ROLES = new Set(['ADMIN', 'RH']);
+const PRIVILEGED_ROLES = new Set<string>(ADMIN_ROLES);
 
 export default function AiTutorPage() {
   const role = useCurrentRole();

@@ -66,18 +66,15 @@ const BAR_COLORS = [
   '#F5D90A',
 ];
 
-function RankedList({
-  rows,
-  empty,
-  valueLabel,
-  colorful,
-}: {
+interface RankedListProps {
   rows: { label: string; value: number; sub?: string }[];
   empty: string;
   valueLabel?: (v: number) => string;
   /** true = cada linha usa uma cor diferente da paleta. */
   colorful?: boolean;
-}) {
+}
+
+function RankedList({ rows, empty, valueLabel, colorful }: RankedListProps) {
   if (rows.length === 0) {
     return (
       <p className="px-4 py-6 text-center font-body text-sm text-ink-faint">
@@ -119,15 +116,13 @@ function RankedList({
   );
 }
 
-function GroupTable({
-  title,
-  rows,
-  kind,
-}: {
+interface GroupTableProps {
   title: string;
   rows: CompetencyReportGroup[] | CompetencyReportGapGroup[];
   kind: 'competencies' | 'gaps';
-}) {
+}
+
+function GroupTable({ title, rows, kind }: GroupTableProps) {
   return (
     <Card className="overflow-hidden p-0">
       <div className={CARD_HEADER_CLASS}>{title}</div>

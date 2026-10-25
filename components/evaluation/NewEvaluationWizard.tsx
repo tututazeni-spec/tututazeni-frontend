@@ -14,7 +14,9 @@
 
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef } from 'react';
+import { useFormState } from '@/hooks/useFormState';
+import { useWizardFlow } from '@/hooks/useWizardFlow';
 import { AlertCircle, Check, Plus, Trash2, X } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -83,6 +85,62 @@ function emptyObjective(): EvaluationObjective {
   return { objective: '' };
 }
 
+interface NewEvaluationFormValues {
+  name: string;
+  purpose: string;
+  cycleMode: 'standalone' | 'existing';
+  existingCycleId: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  dueDate: string;
+  populationType: 'ALL' | 'DEPARTMENT' | 'UNIT' | 'GROUP';
+  departmentId: string;
+  unitId: string;
+  selectedUsers: DirectoryUser[];
+  userSearch: string;
+  primaryEvaluator: DirectoryUser | null;
+  secondaryEvaluator: DirectoryUser | null;
+  model: string;
+  blocks: string[];
+  criteriaWeights: Record<number, number>;
+  scaleId: string;
+  objectives: EvaluationObjective[];
+  allowSelfEval: boolean;
+  selfEvalDueDate: string;
+  requireComments: boolean;
+  requireEvidence: boolean;
+  allowCalibration: boolean;
+}
+
+const INITIAL_VALUES: NewEvaluationFormValues = {
+  name: '',
+  purpose: 'PERFORMANCE',
+  cycleMode: 'standalone',
+  existingCycleId: '',
+  description: '',
+  startDate: '',
+  endDate: '',
+  dueDate: '',
+  populationType: 'GROUP',
+  departmentId: '',
+  unitId: '',
+  selectedUsers: [],
+  userSearch: '',
+  primaryEvaluator: null,
+  secondaryEvaluator: null,
+  model: '360',
+  blocks: ['GOALS', 'COMPETENCIES'],
+  criteriaWeights: {},
+  scaleId: '',
+  objectives: [],
+  allowSelfEval: true,
+  selfEvalDueDate: '',
+  requireComments: false,
+  requireEvidence: false,
+  allowCalibration: true,
+};
+
 export interface NewEvaluationWizardProps {
   onClose: () => void;
 }
@@ -90,59 +148,38 @@ export interface NewEvaluationWizardProps {
 export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
   const notify = useToast();
   const qc = useQueryClient();
-  const [step, setStep] = useState(0);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
+  const { step, busy, error, next, back, goTo, begin, end, fail } =
+    useWizardFlow();
+  const { values: form, set } =
+    useFormState<NewEvaluationFormValues>(INITIAL_VALUES);
+  const {
+    name,
+    purpose,
+    cycleMode,
+    existingCycleId,
+    description,
+    startDate,
+    endDate,
+    dueDate,
+    populationType,
+    departmentId,
+    unitId,
+    selectedUsers,
+    userSearch,
+    primaryEvaluator,
+    secondaryEvaluator,
+    model,
+    blocks,
+    criteriaWeights,
+    scaleId,
+    objectives,
+    allowSelfEval,
+    selfEvalDueDate,
+    requireComments,
+    requireEvidence,
+    allowCalibration,
+  } = form;
   const nextKeyRef = useRef(0);
-
-  // Etapa 1
-  const [name, setName] = useState('');
-  const [purpose, setPurpose] = useState('PERFORMANCE');
-  const [cycleMode, setCycleMode] = useState<'standalone' | 'existing'>(
-    'standalone',
-  );
-  const [existingCycleId, setExistingCycleId] = useState('');
-  const [description, setDescription] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [dueDate, setDueDate] = useState('');
-
-  // Etapa 2
-  const [populationType, setPopulationType] = useState<
-    'ALL' | 'DEPARTMENT' | 'UNIT' | 'GROUP'
-  >('GROUP');
-  const [departmentId, setDepartmentId] = useState('');
-  const [unitId, setUnitId] = useState('');
-  const [selectedUsers, setSelectedUsers] = useState<DirectoryUser[]>([]);
-  const [userSearch, setUserSearch] = useState('');
-  const [primaryEvaluator, setPrimaryEvaluator] =
-    useState<DirectoryUser | null>(null);
-  const [secondaryEvaluator, setSecondaryEvaluator] =
-    useState<DirectoryUser | null>(null);
-
-  // Etapa 3
-  const [model, setModel] = useState('360');
-  const [blocks, setBlocks] = useState<string[]>(['GOALS', 'COMPETENCIES']);
-
-  // Etapa 4
-  const [criteriaWeights, setCriteriaWeights] = useState<
-    Record<number, number>
-  >({});
-
-  // Etapa 5
-  const [scaleId, setScaleId] = useState('');
-
-  // Etapa 6
-  const [objectives, setObjectives] = useState<EvaluationObjective[]>([]);
-
-  // Etapa 7
-  const [allowSelfEval, setAllowSelfEval] = useState(true);
-  const [selfEvalDueDate, setSelfEvalDueDate] = useState('');
-  const [requireComments, setRequireComments] = useState(false);
-  const [requireEvidence, setRequireEvidence] = useState(false);
-
-  // Etapa 8
-  const [allowCalibration, setAllowCalibration] = useState(true);
 
   const { data: cyclesData } = useApiQuery<{ data: Cycle[] }>(
     queryKeys.evaluation.cycles(),
@@ -212,19 +249,18 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
   const canAdvance = stepIssues.length === 0;
 
   const toggleBlock = (v: string) =>
-    setBlocks((prev) =>
+    set('blocks', (prev) =>
       prev.includes(v) ? prev.filter((b) => b !== v) : [...prev, v],
     );
 
   const addUser = (u: DirectoryUser) => {
     if (!selectedUsers.some((s) => s.id === u.id))
-      setSelectedUsers((prev) => [...prev, u]);
-    setUserSearch('');
+      set('selectedUsers', (prev) => [...prev, u]);
+    set('userSearch', '');
   };
 
   const submit = async () => {
-    setBusy(true);
-    setError('');
+    begin();
     try {
       // Etapa 4/5 — critérios+escala viram um EvaluationTemplate ad-hoc
       // (reaproveita createTemplate/createCriteria já existentes) para que
@@ -346,9 +382,9 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
       notify({ title: 'Avaliação criada', intent: 'success' });
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erro ao criar a avaliação.');
+      fail(e instanceof Error ? e.message : 'Erro ao criar a avaliação.');
     } finally {
-      setBusy(false);
+      end();
     }
   };
 
@@ -358,7 +394,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
       void submit();
       return;
     }
-    setStep((s) => s + 1);
+    next();
   };
 
   return (
@@ -377,7 +413,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => i < step && setStep(i)}
+                  onClick={() => i < step && goTo(i)}
                   title={`${i + 1}. ${s.label}`}
                   className={
                     'flex h-6 w-6 items-center justify-center rounded-full font-body text-[11px] transition-colors disabled:cursor-not-allowed ' +
@@ -412,7 +448,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               <Input
                 id="ne-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => set('name', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -420,7 +456,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               <Select
                 items={PURPOSE_ITEMS}
                 value={purpose}
-                onValueChange={setPurpose}
+                onValueChange={(v) => set('purpose', v)}
                 className="w-full"
               />
             </FormField>
@@ -428,14 +464,14 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               <Button
                 size="sm"
                 intent={cycleMode === 'standalone' ? 'primary' : 'secondary'}
-                onClick={() => setCycleMode('standalone')}
+                onClick={() => set('cycleMode', 'standalone')}
               >
                 Nova avaliação independente
               </Button>
               <Button
                 size="sm"
                 intent={cycleMode === 'existing' ? 'primary' : 'secondary'}
-                onClick={() => setCycleMode('existing')}
+                onClick={() => set('cycleMode', 'existing')}
               >
                 Associar a ciclo existente
               </Button>
@@ -448,7 +484,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                     label: c.name,
                   }))}
                   value={existingCycleId}
-                  onValueChange={setExistingCycleId}
+                  onValueChange={(v) => set('existingCycleId', v)}
                   className="w-full"
                 />
               </FormField>
@@ -459,7 +495,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                     id="ne-start"
                     type="date"
                     value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
+                    onChange={(e) => set('startDate', e.target.value)}
                     className="w-full"
                   />
                 </FormField>
@@ -468,7 +504,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                     id="ne-end"
                     type="date"
                     value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
+                    onChange={(e) => set('endDate', e.target.value)}
                     className="w-full"
                   />
                 </FormField>
@@ -479,7 +515,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                 id="ne-due"
                 type="date"
                 value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
+                onChange={(e) => set('dueDate', e.target.value)}
                 className="w-full"
               />
             </FormField>
@@ -487,7 +523,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               <Textarea
                 id="ne-desc"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => set('description', e.target.value)}
                 rows={2}
                 className="w-full"
               />
@@ -502,7 +538,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                 items={POPULATION_ITEMS}
                 value={populationType}
                 onValueChange={(v) =>
-                  setPopulationType(v as typeof populationType)
+                  set('populationType', v as typeof populationType)
                 }
                 className="w-full"
               />
@@ -515,7 +551,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                     label: d.name,
                   }))}
                   value={departmentId}
-                  onValueChange={setDepartmentId}
+                  onValueChange={(v) => set('departmentId', v)}
                   className="w-full"
                 />
               </FormField>
@@ -528,7 +564,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                     label: u.name,
                   }))}
                   value={unitId}
-                  onValueChange={setUnitId}
+                  onValueChange={(v) => set('unitId', v)}
                   className="w-full"
                 />
               </FormField>
@@ -540,7 +576,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                     id="ne-users"
                     placeholder="Pesquisar por nome…"
                     value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
+                    onChange={(e) => set('userSearch', e.target.value)}
                     className="w-full"
                   />
                   {searchResults.length > 0 && (
@@ -570,7 +606,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                       <button
                         type="button"
                         onClick={() =>
-                          setSelectedUsers((p) =>
+                          set('selectedUsers', (p) =>
                             p.filter((s) => s.id !== u.id),
                           )
                         }
@@ -584,13 +620,13 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                   label="Avaliador principal *"
                   htmlFor="ne-primary-eval"
                   value={primaryEvaluator}
-                  onChange={setPrimaryEvaluator}
+                  onChange={(v) => set('primaryEvaluator', v)}
                 />
                 <DepartmentUserPicker
                   label="Avaliador secundário (opcional)"
                   htmlFor="ne-secondary-eval"
                   value={secondaryEvaluator}
-                  onChange={setSecondaryEvaluator}
+                  onChange={(v) => set('secondaryEvaluator', v)}
                 />
               </>
             )}
@@ -609,7 +645,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               <Select
                 items={MODEL_ITEMS}
                 value={model}
-                onValueChange={setModel}
+                onValueChange={(v) => set('model', v)}
                 className="w-full"
               />
             </FormField>
@@ -652,7 +688,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                   max={100}
                   value={criteriaWeights[c.id] ?? ''}
                   onChange={(e) =>
-                    setCriteriaWeights((prev) => ({
+                    set('criteriaWeights', (prev) => ({
                       ...prev,
                       [c.id]: Number(e.target.value) || 0,
                     }))
@@ -678,7 +714,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                 label: `${s.name} (${s.minValue}–${s.maxValue})`,
               }))}
               value={scaleId}
-              onValueChange={setScaleId}
+              onValueChange={(v) => set('scaleId', v)}
               placeholder="Usar escala por omissão"
               className="w-full"
             />
@@ -699,7 +735,9 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                 <Button
                   size="sm"
                   intent="secondary"
-                  onClick={() => setObjectives((p) => [...p, emptyObjective()])}
+                  onClick={() =>
+                    set('objectives', (p) => [...p, emptyObjective()])
+                  }
                 >
                   <Plus size={14} strokeWidth={1.75} className="mr-1" />{' '}
                   Adicionar objectivo
@@ -714,7 +752,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                         placeholder="Objectivo"
                         value={o.objective}
                         onChange={(e) =>
-                          setObjectives((prev) =>
+                          set('objectives', (prev) =>
                             prev.map((x, idx) =>
                               idx === i
                                 ? { ...x, objective: e.target.value }
@@ -728,7 +766,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                         size="sm"
                         intent="secondary"
                         onClick={() =>
-                          setObjectives((prev) =>
+                          set('objectives', (prev) =>
                             prev.filter((_, idx) => idx !== i),
                           )
                         }
@@ -741,7 +779,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                         placeholder="Indicador"
                         value={o.indicator ?? ''}
                         onChange={(e) =>
-                          setObjectives((prev) =>
+                          set('objectives', (prev) =>
                             prev.map((x, idx) =>
                               idx === i
                                 ? { ...x, indicator: e.target.value }
@@ -754,7 +792,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                         placeholder="Meta"
                         value={o.target ?? ''}
                         onChange={(e) =>
-                          setObjectives((prev) =>
+                          set('objectives', (prev) =>
                             prev.map((x, idx) =>
                               idx === i ? { ...x, target: e.target.value } : x,
                             ),
@@ -766,7 +804,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                         placeholder="Peso %"
                         value={o.weight ?? ''}
                         onChange={(e) =>
-                          setObjectives((prev) =>
+                          set('objectives', (prev) =>
                             prev.map((x, idx) =>
                               idx === i
                                 ? {
@@ -792,7 +830,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               <input
                 type="checkbox"
                 checked={allowSelfEval}
-                onChange={(e) => setAllowSelfEval(e.target.checked)}
+                onChange={(e) => set('allowSelfEval', e.target.checked)}
               />
               Permitir autoavaliação
             </label>
@@ -802,7 +840,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                   id="ne-self-due"
                   type="date"
                   value={selfEvalDueDate}
-                  onChange={(e) => setSelfEvalDueDate(e.target.value)}
+                  onChange={(e) => set('selfEvalDueDate', e.target.value)}
                   className="w-full"
                 />
               </FormField>
@@ -811,7 +849,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               <input
                 type="checkbox"
                 checked={requireComments}
-                onChange={(e) => setRequireComments(e.target.checked)}
+                onChange={(e) => set('requireComments', e.target.checked)}
               />
               Comentários obrigatórios
             </label>
@@ -819,7 +857,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               <input
                 type="checkbox"
                 checked={requireEvidence}
-                onChange={(e) => setRequireEvidence(e.target.checked)}
+                onChange={(e) => set('requireEvidence', e.target.checked)}
               />
               Exigir evidências
             </label>
@@ -836,7 +874,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               <input
                 type="checkbox"
                 checked={allowCalibration}
-                onChange={(e) => setAllowCalibration(e.target.checked)}
+                onChange={(e) => set('allowCalibration', e.target.checked)}
               />
               Incluir etapa de calibração
             </label>
@@ -847,7 +885,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
           <Button
             intent="secondary"
             className="justify-center"
-            onClick={() => (step === 0 ? onClose() : setStep((s) => s - 1))}
+            onClick={() => (step === 0 ? onClose() : back())}
             disabled={busy}
           >
             {step === 0 ? 'Cancelar' : 'Voltar'}

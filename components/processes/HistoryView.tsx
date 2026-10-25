@@ -10,7 +10,7 @@ import { useMemo, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { Download, ScrollText } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { API_URL } from '@/lib/apiClient';
+import { downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
@@ -113,16 +113,11 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
   const doExport = async (reason: string) => {
     setExporting(true);
     try {
-      const qs = new URLSearchParams({ ...baseParams, reason }).toString();
-      const res = await fetch(`${API_URL}/processes/audit/export?${qs}`, { credentials: 'include' });
-      if (!res.ok) throw new Error('Falha ao exportar a auditoria');
-      const url = URL.createObjectURL(await res.blob());
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'auditoria-processos.csv';
-      a.click();
-      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      await downloadFromApi('/processes/audit/export', {
+        params: { ...baseParams, reason },
+        filename: 'auditoria-processos.csv',
+        errorMessage: 'Falha ao exportar a auditoria',
+      });
       setAskExport(false);
     } catch (e) {
       notify({ title: e instanceof Error ? e.message : 'Falha ao exportar', intent: 'danger' });

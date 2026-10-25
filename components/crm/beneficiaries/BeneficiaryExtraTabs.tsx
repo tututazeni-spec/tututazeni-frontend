@@ -102,17 +102,19 @@ function RowList({
   );
 }
 
+interface SectionHeaderProps {
+  title: string;
+  open: boolean;
+  onToggle: () => void;
+  addLabel: string;
+}
+
 function SectionHeader({
   title,
   open,
   onToggle,
   addLabel,
-}: {
-  title: string;
-  open: boolean;
-  onToggle: () => void;
-  addLabel: string;
-}) {
+}: SectionHeaderProps) {
   return (
     <div className="flex justify-between items-center mb-3">
       <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>

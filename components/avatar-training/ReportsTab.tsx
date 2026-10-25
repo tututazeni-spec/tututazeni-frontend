@@ -11,7 +11,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
-import { API_URL } from '@/lib/apiClient';
+import { downloadFromApi } from '@/lib/download';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -33,22 +33,16 @@ interface Period {
 
 /** Exporta o relatório em CSV ou PDF (o cookie httpOnly segue com credentials: include). */
 async function downloadReport(type: string, period: Period, format: 'csv' | 'pdf') {
-  const qs = new URLSearchParams({ type, format });
-  if (period.from) qs.set('from', new Date(period.from).toISOString());
-  if (period.to) qs.set('to', new Date(period.to + 'T23:59:59').toISOString());
-  const res = await fetch(`${API_URL}/avatar-training/reports/export?${qs}`, {
-    credentials: 'include',
+  await downloadFromApi('/avatar-training/reports/export', {
+    params: {
+      type,
+      format,
+      from: period.from ? new Date(period.from).toISOString() : undefined,
+      to: period.to ? new Date(period.to + 'T23:59:59').toISOString() : undefined,
+    },
+    fallbackName: `${type}.${format}`,
+    errorMessage: 'Falha ao exportar o relatório',
   });
-  if (!res.ok) throw new Error('Falha ao exportar o relatório');
-  const disposition = res.headers.get('Content-Disposition') ?? '';
-  const name = /filename="([^"]+)"/.exec(disposition)?.[1] ?? `${type}.${format}`;
-  const url = URL.createObjectURL(await res.blob());
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  a.click();
-  // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 function ReportView({ type, period }: { type: string; period: Period }) {

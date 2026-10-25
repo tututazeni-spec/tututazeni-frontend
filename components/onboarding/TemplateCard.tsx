@@ -61,15 +61,13 @@ function Metric({
   );
 }
 
-function InfoRow({
-  icon: Icon,
-  accent,
-  children,
-}: {
+interface InfoRowProps {
   icon: LucideIcon;
   accent: string;
   children: React.ReactNode;
-}) {
+}
+
+function InfoRow({ icon: Icon, accent, children }: InfoRowProps) {
   return (
     <div className="flex items-center gap-3 rounded-[14px] bg-[#EEF4FD] px-4 py-3 text-[15px] text-[#0F1F3D]">
       <Icon

@@ -19,11 +19,12 @@ import { RulesTab } from './RulesTab';
 import { HistoryTab } from './HistoryTab';
 import { TeamSummaryTab } from './TeamSummaryTab';
 import type { EffectiveStatus } from './types';
+import { ADMIN_ROLES as ADMIN_RH_ROLES } from '@/lib/roles';
 
 const ADMIN_ROLES = ['ADMIN', 'RH', 'AUDITOR'];
 const MANAGER_ROLES = ['GESTOR', 'LIDER', 'DIRECTOR'];
 // Escrita (regras, revogar, importar, lote): ADMIN/RH. Aprovar: também gestores (da equipa).
-const WRITE_ROLES = ['ADMIN', 'RH'];
+const WRITE_ROLES: readonly string[] = ADMIN_RH_ROLES;
 const APPROVE_ROLES = ['ADMIN', 'RH', ...MANAGER_ROLES];
 
 const ADMIN_TABS = [

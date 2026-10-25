@@ -7,17 +7,14 @@ const TONES: { [K in TopBarTone]: { bar: string; text: string } } = {
   red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
 };
 
-export function TopBarCard({
-  label,
-  value,
-  tone,
-  icon,
-}: {
+export interface TopBarCardProps {
   label: string;
   value: string | number;
   tone: TopBarTone;
   icon: React.ReactNode;
-}) {
+}
+
+export function TopBarCard({ label, value, tone, icon }: TopBarCardProps) {
   const t = TONES[tone];
   return (
     <div className="overflow-hidden rounded-xl bg-white shadow-md transition-shadow duration-200 hover:shadow-lg">

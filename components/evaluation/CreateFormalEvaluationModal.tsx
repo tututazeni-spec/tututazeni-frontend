@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -49,24 +49,52 @@ function blankQuestion(): DraftQuestion {
   };
 }
 
+interface CreateFormalEvaluationModalFormValues {
+  title: string;
+  description: string;
+  courseId: string;
+  availableFrom: string;
+  availableUntil: string;
+  maxGrade: string;
+  passingScore: string;
+  allDepartments: boolean;
+  targetDepartmentIds: number[];
+  questions: DraftQuestion[];
+  submitError: string;
+}
+
 export function CreateFormalEvaluationModal({
   onClose,
 }: CreateFormalEvaluationModalProps) {
   const notify = useToast();
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [courseId, setCourseId] = useState<string>('');
-  const [availableFrom, setAvailableFrom] = useState('');
-  const [availableUntil, setAvailableUntil] = useState('');
-  const [maxGrade, setMaxGrade] = useState('20');
-  const [passingScore, setPassingScore] = useState('70');
-  const [allDepartments, setAllDepartments] = useState(true);
-  const [targetDepartmentIds, setTargetDepartmentIds] = useState<number[]>([]);
-  const [questions, setQuestions] = useState<DraftQuestion[]>([
-    blankQuestion(),
-  ]);
-  const [submitError, setSubmitError] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<CreateFormalEvaluationModalFormValues>({
+      title: '',
+      description: '',
+      courseId: '',
+      availableFrom: '',
+      availableUntil: '',
+      maxGrade: '20',
+      passingScore: '70',
+      allDepartments: true,
+      targetDepartmentIds: [],
+      questions: [blankQuestion()],
+      submitError: '',
+    });
+  const {
+    title,
+    description,
+    courseId,
+    availableFrom,
+    availableUntil,
+    maxGrade,
+    passingScore,
+    allDepartments,
+    targetDepartmentIds,
+    questions,
+    submitError,
+  } = formValues;
 
   const coursesQ = useApiQuery<PaginatedCourses>(
     queryKeys.courses.list({ status: 'PUBLISHED', limit: 100 }),
@@ -83,27 +111,28 @@ export function CreateFormalEvaluationModal({
   const departments = deptsQ.data?.data ?? [];
 
   const toggleDepartment = (id: number) => {
-    setTargetDepartmentIds((prev) =>
+    setField('targetDepartmentIds', (prev) =>
       prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id],
     );
   };
 
   const updateQuestion = (index: number, patch: Partial<DraftQuestion>) => {
-    setQuestions((prev) =>
+    setField('questions', (prev) =>
       prev.map((q, i) => (i === index ? { ...q, ...patch } : q)),
     );
   };
   const removeQuestion = (index: number) => {
-    setQuestions((prev) => prev.filter((_, i) => i !== index));
+    setField('questions', (prev) => prev.filter((_, i) => i !== index));
   };
-  const addQuestion = () => setQuestions((prev) => [...prev, blankQuestion()]);
+  const addQuestion = () =>
+    setField('questions', (prev) => [...prev, blankQuestion()]);
 
   const updateOption = (
     qIndex: number,
     oIndex: number,
     patch: Partial<{ text: string; isCorrect: boolean }>,
   ) => {
-    setQuestions((prev) =>
+    setField('questions', (prev) =>
       prev.map((q, i) => {
         if (i !== qIndex) return q;
         const options = q.options.map((o, j) => {
@@ -120,7 +149,7 @@ export function CreateFormalEvaluationModal({
     );
   };
   const addOption = (qIndex: number) => {
-    setQuestions((prev) =>
+    setField('questions', (prev) =>
       prev.map((q, i) =>
         i === qIndex
           ? { ...q, options: [...q.options, { text: '', isCorrect: false }] }
@@ -129,7 +158,7 @@ export function CreateFormalEvaluationModal({
     );
   };
   const removeOption = (qIndex: number, oIndex: number) => {
-    setQuestions((prev) =>
+    setField('questions', (prev) =>
       prev.map((q, i) =>
         i === qIndex
           ? { ...q, options: q.options.filter((_, j) => j !== oIndex) }
@@ -164,7 +193,8 @@ export function CreateFormalEvaluationModal({
         onClose();
       },
       onError: (e) =>
-        setSubmitError(
+        setField(
+          'submitError',
           e.message || 'Erro ao criar a avaliação. Tente novamente.',
         ),
     },
@@ -173,7 +203,7 @@ export function CreateFormalEvaluationModal({
 
   const handleSubmit = () => {
     if (!canSubmit || loading) return;
-    setSubmitError('');
+    setField('submitError', '');
     createEvaluation.mutate({
       title: title.trim(),
       type: 'EXAM',
@@ -224,7 +254,7 @@ export function CreateFormalEvaluationModal({
               <Input
                 id="fe-title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => setField('title', e.target.value)}
                 placeholder="Ex.: Avaliação Final — Compliance 2026"
               />
             </FormField>
@@ -237,7 +267,7 @@ export function CreateFormalEvaluationModal({
                 id="fe-description"
                 rows={2}
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => setField('description', e.target.value)}
               />
             </FormField>
             <FormField
@@ -254,7 +284,7 @@ export function CreateFormalEvaluationModal({
                   })),
                 ]}
                 value={courseId}
-                onValueChange={setCourseId}
+                onValueChange={(v) => setField('courseId', v)}
               />
             </FormField>
           </div>
@@ -270,7 +300,7 @@ export function CreateFormalEvaluationModal({
                   id="fe-start"
                   type="datetime-local"
                   value={availableFrom}
-                  onChange={(e) => setAvailableFrom(e.target.value)}
+                  onChange={(e) => setField('availableFrom', e.target.value)}
                 />
               </FormField>
               <FormField label="Fim" htmlFor="fe-end" hint="Opcional.">
@@ -278,7 +308,7 @@ export function CreateFormalEvaluationModal({
                   id="fe-end"
                   type="datetime-local"
                   value={availableUntil}
-                  onChange={(e) => setAvailableUntil(e.target.value)}
+                  onChange={(e) => setField('availableUntil', e.target.value)}
                   invalid={!datesOk}
                 />
               </FormField>
@@ -299,7 +329,7 @@ export function CreateFormalEvaluationModal({
                   type="number"
                   min={1}
                   value={maxGrade}
-                  onChange={(e) => setMaxGrade(e.target.value)}
+                  onChange={(e) => setField('maxGrade', e.target.value)}
                 />
               </FormField>
               <FormField label="Nota de aprovação (%)" htmlFor="fe-passing">
@@ -309,7 +339,7 @@ export function CreateFormalEvaluationModal({
                   min={0}
                   max={100}
                   value={passingScore}
-                  onChange={(e) => setPassingScore(e.target.value)}
+                  onChange={(e) => setField('passingScore', e.target.value)}
                 />
               </FormField>
             </div>
@@ -324,7 +354,7 @@ export function CreateFormalEvaluationModal({
               <input
                 type="checkbox"
                 checked={allDepartments}
-                onChange={(e) => setAllDepartments(e.target.checked)}
+                onChange={(e) => setField('allDepartments', e.target.checked)}
                 className="h-4 w-4 rounded border-border-strong"
               />
               Todos os departamentos

@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -22,11 +22,7 @@ import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useToast } from '@/providers/ToastProvider';
 import { PRIORITY_MAP, moduleLabel } from './constants';
 import { UserPicker } from './UserPicker';
-import type {
-  InstanceRow,
-  PaginatedProcesses,
-  ProcessPriority,
-} from './types';
+import type { InstanceRow, PaginatedProcesses, ProcessPriority } from './types';
 
 /** Dados específicos exigidos pelo modelo/módulo (GET /processes/:id/start-requirements). */
 interface StartRequirements {
@@ -64,6 +60,19 @@ const PRIORITY_ITEMS = (Object.keys(PRIORITY_MAP) as ProcessPriority[]).map(
   (p) => ({ value: p, label: PRIORITY_MAP[p].label }),
 );
 
+interface StartProcessModalFormValues {
+  name: string;
+  template: string;
+  sourceModule: string;
+  priority: ProcessPriority;
+  description: string;
+  targetUserId: string;
+  entityType: string;
+  entityId: string;
+  dueAt: string;
+  error: string;
+}
+
 export function StartProcessModal({
   templateId,
   onClose,
@@ -72,18 +81,34 @@ export function StartProcessModal({
   const notify = useToast();
   const role = useCurrentRole();
   // §20: só a gestão inicia em nome de outro colaborador; os restantes, em nome próprio.
-  const canPickCollaborator = role === 'ADMIN' || role === 'RH' || role === 'GESTOR';
+  const canPickCollaborator =
+    role === 'ADMIN' || role === 'RH' || role === 'GESTOR';
 
-  const [name, setName] = useState('');
-  const [template, setTemplate] = useState(templateId ? String(templateId) : '');
-  const [sourceModule, setSourceModule] = useState('Processes');
-  const [priority, setPriority] = useState<ProcessPriority>('NORMAL');
-  const [description, setDescription] = useState('');
-  const [targetUserId, setTargetUserId] = useState('');
-  const [entityType, setEntityType] = useState('');
-  const [entityId, setEntityId] = useState('');
-  const [dueAt, setDueAt] = useState('');
-  const [error, setError] = useState('');
+  const { values: formValues, set: setField } =
+    useFormState<StartProcessModalFormValues>({
+      name: '',
+      template: templateId ? String(templateId) : '',
+      sourceModule: 'Processes',
+      priority: 'NORMAL',
+      description: '',
+      targetUserId: '',
+      entityType: '',
+      entityId: '',
+      dueAt: '',
+      error: '',
+    });
+  const {
+    name,
+    template,
+    sourceModule,
+    priority,
+    description,
+    targetUserId,
+    entityType,
+    entityId,
+    dueAt,
+    error,
+  } = formValues;
 
   const { data: templates } = useApiQuery<PaginatedProcesses>(
     queryKeys.processes.library({ status: 'ACTIVE', limit: 100, picker: true }),
@@ -128,7 +153,8 @@ export function StartProcessModal({
         notify({ title: 'Processo iniciado', intent: 'success' });
         onCreated(inst.id);
       },
-      onError: (e) => setError(e.message || 'Não foi possível iniciar o processo.'),
+      onError: (e) =>
+        setField('error', e.message || 'Não foi possível iniciar o processo.'),
     },
   );
 
@@ -142,7 +168,7 @@ export function StartProcessModal({
 
   const submit = () => {
     if (!canSubmit || create.isPending) return;
-    setError('');
+    setField('error', '');
     create.mutate({
       title: name.trim(),
       sourceModule,
@@ -178,7 +204,7 @@ export function StartProcessModal({
             <Input
               id="sp-name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setField('name', e.target.value)}
               placeholder="Ex.: Integração de novo colaborador"
               maxLength={200}
             />
@@ -188,7 +214,7 @@ export function StartProcessModal({
             <Select
               items={templateItems}
               value={template}
-              onValueChange={setTemplate}
+              onValueChange={(v) => setField('template', v)}
               placeholder="Seleccionar modelo"
               className="w-full"
               disabled={!!templateId}
@@ -198,9 +224,12 @@ export function StartProcessModal({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField label="Módulo de origem *" htmlFor="sp-module">
               <Select
-                items={SOURCE_MODULES.map((m) => ({ value: m, label: moduleLabel(m) }))}
+                items={SOURCE_MODULES.map((m) => ({
+                  value: m,
+                  label: moduleLabel(m),
+                }))}
                 value={sourceModule}
-                onValueChange={setSourceModule}
+                onValueChange={(v) => setField('sourceModule', v)}
                 className="w-full"
               />
             </FormField>
@@ -208,7 +237,9 @@ export function StartProcessModal({
               <Select
                 items={PRIORITY_ITEMS}
                 value={priority}
-                onValueChange={(v) => setPriority(v as ProcessPriority)}
+                onValueChange={(v) =>
+                  setField('priority', v as ProcessPriority)
+                }
                 className="w-full"
               />
             </FormField>
@@ -218,7 +249,7 @@ export function StartProcessModal({
             <Textarea
               id="sp-desc"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setField('description', e.target.value)}
               placeholder="Descreva o objectivo e o resultado esperado."
               rows={2}
               className="w-full"
@@ -232,21 +263,28 @@ export function StartProcessModal({
             </p>
             <div className="space-y-3">
               {canPickCollaborator && (
-              <FormField
-                label={collaboratorRequired ? 'Colaborador *' : 'Colaborador'}
-                htmlFor="sp-target"
-                hint="Por defeito, o próprio solicitante."
-              >
-                <UserPicker value={targetUserId} onChange={setTargetUserId} />
-              </FormField>
+                <FormField
+                  label={collaboratorRequired ? 'Colaborador *' : 'Colaborador'}
+                  htmlFor="sp-target"
+                  hint="Por defeito, o próprio solicitante."
+                >
+                  <UserPicker
+                    value={targetUserId}
+                    onChange={(v) => setField('targetUserId', v)}
+                  />
+                </FormField>
               )}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <FormField label="Entidade de origem" htmlFor="sp-etype" hint="Ex.: Curso, Pedido, Documento.">
+                <FormField
+                  label="Entidade de origem"
+                  htmlFor="sp-etype"
+                  hint="Ex.: Curso, Pedido, Documento."
+                >
                   <Input
                     id="sp-etype"
                     value={entityType}
                     placeholder={req?.entityType ?? undefined}
-                    onChange={(e) => setEntityType(e.target.value)}
+                    onChange={(e) => setField('entityType', e.target.value)}
                     maxLength={60}
                   />
                 </FormField>
@@ -262,7 +300,7 @@ export function StartProcessModal({
                   <Input
                     id="sp-eid"
                     value={entityId}
-                    onChange={(e) => setEntityId(e.target.value)}
+                    onChange={(e) => setField('entityId', e.target.value)}
                     maxLength={60}
                   />
                 </FormField>
@@ -276,7 +314,7 @@ export function StartProcessModal({
                   id="sp-due"
                   type="date"
                   value={dueAt}
-                  onChange={(e) => setDueAt(e.target.value)}
+                  onChange={(e) => setField('dueAt', e.target.value)}
                 />
               </FormField>
             </div>
@@ -287,7 +325,11 @@ export function StartProcessModal({
           <Button intent="ghost" onClick={onClose} disabled={create.isPending}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={!canSubmit} loading={create.isPending}>
+          <Button
+            onClick={submit}
+            disabled={!canSubmit}
+            loading={create.isPending}
+          >
             Iniciar processo
           </Button>
         </div>

@@ -365,15 +365,13 @@ export function CheckinAttendanceTab() {
 
 // ─── Modal "Registar check-in" ──────────────────────────────────────────────
 
-function ManualCheckInModal({
-  row,
-  onClose,
-  onDone,
-}: {
+interface ManualCheckInModalProps {
   row: EventCheckinRow;
   onClose: () => void;
   onDone: () => void;
-}) {
+}
+
+function ManualCheckInModal({ row, onClose, onDone }: ManualCheckInModalProps) {
   const notify = useToast();
   const [method, setMethod] = useState<EventCheckinMethod>('MANUAL');
   const [note, setNote] = useState('');

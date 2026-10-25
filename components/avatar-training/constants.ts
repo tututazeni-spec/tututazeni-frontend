@@ -15,7 +15,7 @@ import {
   Workflow,
 } from 'lucide-react';
 import type { PillTabItem } from '@/components/ui/PillTabs';
-import type { Role } from '@/lib/roles';
+import { ADMIN_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   AssignmentStatus,
@@ -29,7 +29,7 @@ import type {
 } from './types';
 
 // Espelham AVATAR_*_ROLES em src/avatar-training/avatar-training.helpers.ts.
-export const ADMIN_ROLES: readonly Role[] = ['ADMIN', 'RH'];
+export { ADMIN_ROLES };
 export const AUTHOR_ROLES: readonly Role[] = ['ADMIN', 'RH', 'INSTRUCTOR'];
 export const PROGRESS_ROLES: readonly Role[] = [
   'ADMIN',
@@ -290,4 +290,13 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   CREATE: 'Criado',
   UPDATE: 'Alterado',
   TEST: 'Testado',
+};
+
+/** Classes da bolha de cada tipo de interacção na conversa da sala. */
+export const BUBBLE: Record<string, string> = {
+  AVATAR_MESSAGE: 'bg-primary-subtle text-ink self-start',
+  FEEDBACK: 'bg-info-subtle text-info-ink self-start',
+  USER_MESSAGE: 'bg-surface-sunken text-ink self-end',
+  USER_ANSWER: 'bg-surface-sunken text-ink self-end',
+  HELP_REQUEST: 'bg-surface-sunken text-ink self-end',
 };

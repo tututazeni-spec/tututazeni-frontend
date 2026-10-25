@@ -11,7 +11,8 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { Download, MoreHorizontal } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
-import { apiClient, API_URL } from '@/lib/apiClient';
+import { apiClient } from '@/lib/apiClient';
+import { downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate } from '@/lib/format';
@@ -203,22 +204,11 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
   const exportCsv = async () => {
     setExporting(true);
     try {
-      const qs = new URLSearchParams(
-        Object.entries(buildParams({ ...filters, search: debouncedSearch })).map(
-          ([k, v]) => [k, String(v)],
-        ),
-      );
-      const res = await fetch(`${API_URL}/processes/instances/export?${qs}`, {
-        credentials: 'include',
+      await downloadFromApi('/processes/instances/export', {
+        params: buildParams({ ...filters, search: debouncedSearch }),
+        filename: 'processos.csv',
+        errorMessage: 'Falha ao exportar os processos',
       });
-      if (!res.ok) throw new Error('Falha ao exportar os processos');
-      const url = URL.createObjectURL(await res.blob());
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'processos.csv';
-      a.click();
-      // Revogar já após o click() deixa o Chrome gravar o ficheiro com 0 bytes
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e) {
       notify({ title: e instanceof Error ? e.message : 'Falha ao exportar', intent: 'danger' });
     } finally {

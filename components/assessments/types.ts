@@ -36,7 +36,7 @@ export interface Assessment {
   id: number;
   title: string;
   description: string | null;
-  type: string;
+  type: 'QUIZ' | 'EXAM' | 'DIAGNOSTIC' | 'PRACTICAL' | 'SURVEY';
   status: AStatus;
   passingScore: number;
   maxAttempts: number;

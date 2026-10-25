@@ -17,6 +17,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { moduleTypeLabel } from './utils';
 import { LessonRow } from './LessonRow';
 import type { LessonProgress, ModuleProgress } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 interface ModuleAccordionProps {
   module: ModuleProgress;
@@ -123,7 +124,7 @@ export function ModuleAccordion({
               {mod.materials.map((mat) => (
                 <a
                   key={mat.id}
-                  href={mat.url}
+                  href={safeHref(mat.url)}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-2 py-1 font-body text-xs text-primary hover:text-primary-hover"

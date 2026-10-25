@@ -44,17 +44,19 @@ const ALERT_TITLE = {
   info: 'Informação',
 } as const;
 
+interface CourseRankListProps {
+  title: string;
+  items: Array<{ id: number; title: string; value: number }>;
+  suffix: string;
+  onSelect: (id: number) => void;
+}
+
 function CourseRankList({
   title,
   items,
   suffix,
   onSelect,
-}: {
-  title: string;
-  items: Array<{ id: number; title: string; value: number }>;
-  suffix: string;
-  onSelect: (id: number) => void;
-}) {
+}: CourseRankListProps) {
   return (
     <Card className="overflow-hidden">
       <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">

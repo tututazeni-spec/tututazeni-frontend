@@ -25,11 +25,11 @@ export function TemplateValidationModal({
     apiClient.post<TemplateValidation>(`/processes/${processId}/validate`, {}),
   );
 
-  // Corre uma vez ao abrir.
+  // Corre uma vez ao abrir (`mutate` é estável; `processId` re-valida).
+  const { mutate: runValidation } = validate;
   useEffect(() => {
-    validate.mutate(undefined);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [processId]);
+    runValidation(undefined);
+  }, [processId, runValidation]);
 
   const r = validate.data;
 

@@ -45,16 +45,18 @@ const STATUS_PILL: Record<string, string> = {
   ARCHIVED: 'bg-[#E4E9F2] text-[#4B5E80]',
 };
 
-export function AvatarCard({
-  avatar: a,
-  showAdminInfo,
-  actions,
-}: {
+export interface AvatarCardProps {
   avatar: TrainingAvatar;
   /** Fornecedor, responsável, fontes e teste só para quem gere avatares. */
   showAdminInfo: boolean;
   actions?: ReactNode;
-}) {
+}
+
+export function AvatarCard({
+  avatar: a,
+  showAdminInfo,
+  actions,
+}: AvatarCardProps) {
   const palette = PALETTE[Math.abs(a.id) % PALETTE.length];
   const language = `${a.language}${a.languageVariant ? ` (${a.languageVariant})` : ''}`;
 
