@@ -2,20 +2,18 @@
 // Voz da Ísis para o avatar Simli. O backend gera o áudio na ElevenLabs
 // (a chave nunca chega ao browser) já em PCM16 mono a 16 kHz, o formato que
 // o Simli exige, por isso não há conversão aqui.
-import { API_URL } from '@/lib/api';
+import { apiClient } from '@/lib/apiClient';
 
 export const PCM_BYTES_PER_SECOND = 16000 * 2;
 // Pedaços enviados ao Simli por chamada de sendAudioData.
 const CHUNK_BYTES = 6000;
 
 export async function fetchIsisSpeech(text: string): Promise<Uint8Array> {
-  const res = await fetch(`${API_URL}/ai-tutor/avatar/speech`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text }),
-  });
-  if (!res.ok) throw new Error(`Voz da Ísis indisponível (${res.status})`);
+  const res = await apiClient.postRaw(
+    '/ai-tutor/avatar/speech',
+    { text },
+    { errorMessage: 'Voz da Ísis indisponível' },
+  );
   return new Uint8Array(await res.arrayBuffer());
 }
 

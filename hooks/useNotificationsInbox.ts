@@ -34,7 +34,12 @@ export function useNotificationsInbox(
   const listKey = queryKeys.notifications.my(params);
 
   // Polling inteligente: a caixa de entrada refresca a cada 60s.
-  const { data, isLoading: loading } = useApiQuery<NotifData>(
+  const {
+    data,
+    isLoading: loading,
+    error,
+    refetch,
+  } = useApiQuery<NotifData>(
     listKey,
     '/notifications/my',
     { params, staleTime: STALE_TIME.DYNAMIC, refetchInterval: pollInterval(60_000) },
@@ -94,6 +99,8 @@ export function useNotificationsInbox(
   return {
     data,
     loading,
+    error,
+    refetch,
     handleRead,
     handleArchive,
     handleReadAll,

@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/Input';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { QueryError } from '@/components/ui/QueryError';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
@@ -86,7 +87,7 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
     leaveTypeCode: '',
     status: '',
   });
-  const { data, loading } = useLeaveOverview(filters);
+  const { data, loading, error, refetch } = useLeaveOverview(filters);
   const units = useUnitOptions();
   const departments = useDepartmentOptions();
 
@@ -189,10 +190,18 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
     return (
       <div className="space-y-5">
         {filterBar}
-        <EmptyState
-          title="Visão geral não disponível"
-          description="Não foi possível carregar os indicadores de férias e ausências."
-        />
+        {error ? (
+          <QueryError
+            error={error}
+            title="Visão geral não disponível"
+            onRetry={() => void refetch()}
+          />
+        ) : (
+          <EmptyState
+            title="Visão geral não disponível"
+            description="Não foi possível carregar os indicadores de férias e ausências."
+          />
+        )}
       </div>
     );
   }

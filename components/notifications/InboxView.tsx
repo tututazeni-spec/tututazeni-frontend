@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CATEGORY_CFG, Skeleton } from './shared';
+import { QueryError } from '@/components/ui/QueryError';
 import type { NotifData, Notification } from './types';
 import type { ReadFilter } from '@/hooks/useNotificationsInbox';
 import { safeHref } from '@/lib/safeHref';
@@ -122,6 +123,9 @@ export interface InboxViewProps {
   onReadFilterChange: (filter: ReadFilter) => void;
   data: NotifData | undefined;
   loading: boolean;
+  /** Erro da query da lista; sem dados em cache mostra «Tentar novamente». */
+  error?: unknown;
+  onRetry?: () => void;
   onRead: (id: number) => void;
   onArchive: (id: number) => void;
   onReadAll: () => void;
@@ -135,6 +139,8 @@ export function InboxView({
   onReadFilterChange,
   data,
   loading,
+  error,
+  onRetry,
   onRead,
   onArchive,
   onReadAll,
@@ -205,7 +211,11 @@ export function InboxView({
 
       {loading ? (
         <Skeleton />
-      ) : !data ? null : (
+      ) : !data ? (
+        error ? (
+          <QueryError error={error} onRetry={onRetry} />
+        ) : null
+      ) : (
         <Card className="overflow-hidden">
           {data.data.length === 0 ? (
             <EmptyState

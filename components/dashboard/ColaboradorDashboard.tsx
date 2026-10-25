@@ -30,38 +30,48 @@ import { Avatar } from '@/components/ui/Avatar';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { QueryBoundary } from '@/components/ui/QueryBoundary';
 import { AlertBanner } from './AlertBanner';
 import { ALERTS_POLL_MS, type Alert, type MyDashboardData } from './types';
 import { pollInterval } from '@/lib/polling';
 
 export function ColaboradorDashboard() {
-  // Duas queries independentes → correm em paralelo (sem waterfall).
-  const { data, isLoading } = useApiQuery<MyDashboardData>(
+  const query = useApiQuery<MyDashboardData>(
     queryKeys.dashboard.my(),
     '/dashboard/my',
     { staleTime: STALE_TIME.DYNAMIC },
   );
+  return (
+    <QueryBoundary
+      query={query}
+      errorTitle="Não foi possível carregar o seu dashboard"
+      loading={
+        <div className="space-y-4">
+          <Skeleton
+            rows={4}
+            wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
+            itemClassName="h-[155px] rounded-panel bg-surface-sunken"
+          />
+          <Skeleton
+            rows={2}
+            wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
+            itemClassName="h-[155px] rounded-panel bg-surface-sunken"
+          />
+        </div>
+      }
+    >
+      {(data) => <ColaboradorDashboardContent data={data} />}
+    </QueryBoundary>
+  );
+}
+
+function ColaboradorDashboardContent({ data }: { data: MyDashboardData }) {
+  // Alertas: query independente, em paralelo com a anterior (sem waterfall).
   const { data: alerts = [] } = useApiQuery<Alert[]>(
     queryKeys.dashboard.alerts(),
     '/dashboard/alerts',
     { refetchInterval: pollInterval(ALERTS_POLL_MS) },
   );
-
-  if (isLoading)
-    return (
-      <div className="space-y-4">
-        <Skeleton
-          rows={4}
-          wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-          itemClassName="h-[155px] rounded-panel bg-surface-sunken"
-        />
-        <Skeleton
-          rows={2}
-          wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-          itemClassName="h-[155px] rounded-panel bg-surface-sunken"
-        />
-      </div>
-    );
 
   const plan = data?.development?.activePlan;
   const level = data?.gamification?.level;

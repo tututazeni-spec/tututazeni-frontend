@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { QueryError } from '@/components/ui/QueryError';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
@@ -57,8 +58,16 @@ type View = 'inbox' | 'preferences' | 'admin';
 function InboxView() {
   const [category, setCategory] = useState('');
   const [readFilter, setReadFilter] = useState<ReadFilter>('all');
-  const { data, loading, handleRead, handleArchive, handleReadAll, marking } =
-    useNotificationsInbox(category, readFilter);
+  const {
+    data,
+    loading,
+    error,
+    refetch,
+    handleRead,
+    handleArchive,
+    handleReadAll,
+    marking,
+  } = useNotificationsInbox(category, readFilter);
 
   return (
     <InboxDetailView
@@ -68,6 +77,8 @@ function InboxView() {
       onReadFilterChange={setReadFilter}
       data={data}
       loading={loading}
+      error={error}
+      onRetry={() => void refetch()}
       onRead={handleRead}
       onArchive={handleArchive}
       onReadAll={handleReadAll}
@@ -81,7 +92,7 @@ function InboxView() {
 function PreferencesView() {
   const notify = useToast();
   // Cache das preferências + cópia local editável (sincroniza quando chega).
-  const { data, isLoading } = useApiQuery<Preferences>(
+  const { data, isLoading, isError, error, refetch } = useApiQuery<Preferences>(
     queryKeys.notifications.preferences(),
     '/notifications/preferences',
     { staleTime: STALE_TIME.SEMI_STATIC },
@@ -124,6 +135,8 @@ function PreferencesView() {
     });
   };
 
+  if (isError && !prefs)
+    return <QueryError error={error} onRetry={() => void refetch()} />;
   if (isLoading || !prefs) return <Skeleton rows={4} />;
 
   return (

@@ -4,7 +4,7 @@
 // e a falta de um setTimeout no revokeObjectURL já causou ficheiros de 0
 // bytes no Chrome — corrigir aqui corrige todos.
 
-import { API_URL } from '@/lib/api';
+import { apiClient } from '@/lib/apiClient';
 
 export type DownloadParams = Record<
   string,
@@ -62,21 +62,7 @@ export async function downloadFromApi(
     errorMessage = 'Não foi possível descarregar o ficheiro',
   }: DownloadOptions = {},
 ): Promise<void> {
-  const res = await fetch(`${API_URL}${path}${buildQuery(params)}`, {
-    credentials: 'include',
-  });
-  if (!res.ok) {
-    let message = errorMessage;
-    try {
-      const body = (await res.json()) as { message?: string };
-      if (typeof body.message === 'string' && body.message) {
-        message = body.message;
-      }
-    } catch {
-      /* corpo não-JSON */
-    }
-    throw new Error(message);
-  }
+  const res = await apiClient.getRaw(path, { params, errorMessage });
   const blob = await res.blob();
   const name =
     filename ??

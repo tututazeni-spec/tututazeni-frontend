@@ -55,9 +55,10 @@ describe('saveBlob / downloadFromApi', () => {
       params: { format: 'pdf', q: '' },
       fallbackName: 'fb.pdf',
     });
-    expect(fetchMock).toHaveBeenCalledWith('/api/x/export?format=pdf', {
-      credentials: 'include',
-    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/x/export?format=pdf',
+      expect.objectContaining({ method: 'GET', credentials: 'include' }),
+    );
     expect(clicked[0].download).toBe('rel 1.pdf');
   });
 
