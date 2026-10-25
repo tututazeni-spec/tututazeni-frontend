@@ -29,9 +29,9 @@ import { Button } from '@/components/ui/Button';
 
 const STATUS_PILL: Record<ModuleStatus, { label: string; cls: string }> = {
   PUBLISHED: { label: 'Publicado', cls: 'bg-[#2B7FE8] text-white' },
-  DRAFT: { label: 'Rascunho', cls: 'bg-brand-line text-[#4B5E80]' },
+  DRAFT: { label: 'Rascunho', cls: 'bg-brand-line text-brand-muted' },
   PAUSED: { label: 'Em pausa', cls: 'bg-[#F5E6C8] text-[#8A5A10]' },
-  ARCHIVED: { label: 'Arquivado', cls: 'bg-brand-line text-[#4B5E80]' },
+  ARCHIVED: { label: 'Arquivado', cls: 'bg-brand-line text-brand-muted' },
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -44,7 +44,11 @@ const TYPE_LABEL: Record<string, string> = {
 function InfoLine({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
   return (
     <div className="flex items-center gap-2">
-      <Icon size={16} strokeWidth={1.75} className="shrink-0 text-[#4B5E80]" />
+      <Icon
+        size={16}
+        strokeWidth={1.75}
+        className="shrink-0 text-brand-muted"
+      />
       <span className="text-sm font-medium text-brand">{text}</span>
     </div>
   );
@@ -90,7 +94,7 @@ export function ModuleBlock({
       </div>
 
       <div className="relative flex items-center gap-3 sm:max-w-[68%]">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0E6B4E] text-white">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-success text-white">
           <Package size={20} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
@@ -98,7 +102,7 @@ export function ModuleBlock({
             {mod.title}
           </h3>
           {mod.description && (
-            <p className="line-clamp-1 text-sm text-[#5B6B88]">
+            <p className="line-clamp-1 text-sm text-brand-muted">
               {mod.description}
             </p>
           )}
@@ -129,7 +133,7 @@ export function ModuleBlock({
           <ChevronDown
             size={16}
             strokeWidth={1.75}
-            className={`shrink-0 text-[#4B5E80] transition-transform ${open ? '' : '-rotate-90'}`}
+            className={`shrink-0 text-brand-muted transition-transform ${open ? '' : '-rotate-90'}`}
           />
           <span className="text-sm font-medium text-brand">
             {lessonCount} {lessonCount === 1 ? 'lição' : 'lições'}
@@ -140,7 +144,7 @@ export function ModuleBlock({
       {open && (
         <div className="relative flex flex-col gap-2">
           {lessonCount === 0 ? (
-            <p className="m-0 rounded-panel border border-dashed border-[#D5DCE8] py-4 text-center text-sm text-[#5B6B88]">
+            <p className="m-0 rounded-panel border border-dashed border-brand-line py-4 text-center text-sm text-brand-muted">
               {canManage
                 ? 'Este módulo ainda não tem lições. Use “Lição” para adicionar a primeira.'
                 : 'Este módulo ainda não tem lições.'}

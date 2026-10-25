@@ -106,7 +106,7 @@ export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
             type="button"
             onClick={onEdit}
             aria-label={`Editar lição ${lesson.title}`}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-control border border-[#D5DCE8] bg-white text-brand hover:bg-[#F2F5FA]"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-control border border-brand-line bg-white text-brand hover:bg-brand-soft"
           >
             <Pencil size={14} strokeWidth={1.75} />
           </button>

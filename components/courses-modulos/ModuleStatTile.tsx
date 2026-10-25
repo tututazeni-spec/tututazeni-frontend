@@ -33,7 +33,7 @@ export function ModuleStatTile({
         <p className="m-0 font-body text-2xl font-extrabold leading-none text-brand">
           {value}
         </p>
-        <p className="m-0 mt-1 break-words text-sm font-medium text-[#5B6B88]">
+        <p className="m-0 mt-1 break-words text-sm font-medium text-brand-muted">
           {label}
         </p>
       </div>
