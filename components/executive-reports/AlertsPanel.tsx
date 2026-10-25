@@ -38,6 +38,7 @@ import type {
   AlertsResponse,
   ExecutiveAlert,
 } from './reportTypes';
+import { safeHref } from '@/lib/safeHref';
 
 const SEVERITY: Record<
   AlertSeverity,
@@ -169,7 +170,7 @@ function AlertRow({ alert }: { alert: ExecutiveAlert }) {
     <div className="mt-3 space-y-3 border-t border-border pt-3">
       {alert.link && (
         <Link
-          href={alert.link}
+          href={safeHref(alert.link) ?? '#'}
           className="inline-flex items-center gap-1 font-body text-xs text-primary hover:underline"
         >
           <ExternalLink size={12} /> Abrir registo de origem

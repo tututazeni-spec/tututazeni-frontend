@@ -53,6 +53,7 @@ import type {
   RoomStep,
   StepReinforcementPayload,
 } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 const BUBBLE: Record<string, string> = {
   AVATAR_MESSAGE: 'bg-primary-subtle text-ink self-start',
@@ -76,7 +77,7 @@ function ReinforcementNote({
       )}
       {reinforcement.resourceUrl && (
         <a
-          href={reinforcement.resourceUrl}
+          href={safeHref(reinforcement.resourceUrl)}
           target="_blank"
           rel="noopener noreferrer"
           className="underline"
@@ -114,7 +115,7 @@ function FailureReinforcementNote({ data }: { data: FailureReinforcement }) {
                   <>
                     {' '}
                     <a
-                      href={w.resourceUrl}
+                      href={safeHref(w.resourceUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="underline"
@@ -130,7 +131,7 @@ function FailureReinforcementNote({ data }: { data: FailureReinforcement }) {
       )}
       {data.resourceUrl && (
         <a
-          href={data.resourceUrl}
+          href={safeHref(data.resourceUrl)}
           target="_blank"
           rel="noopener noreferrer"
           className="underline"
@@ -179,7 +180,7 @@ function ResourceView({ url, title }: { url: string; title: string }) {
     );
   return (
     <a
-      href={url}
+      href={safeHref(url)}
       target="_blank"
       rel="noopener noreferrer"
       className="mt-2 inline-block font-body text-sm text-primary underline"

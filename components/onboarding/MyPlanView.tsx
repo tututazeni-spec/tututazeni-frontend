@@ -57,6 +57,7 @@ import type {
   SurveyMilestone,
   TaskInstance,
 } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 const SUB_TABS = [
   { id: 'tasks', label: ' Tarefas' },
@@ -222,7 +223,7 @@ export function MyPlanView() {
             </div>
           </div>
           <a
-            href={plan.template.welcomeVideoUrl}
+            href={safeHref(plan.template.welcomeVideoUrl)}
             target="_blank"
             rel="noreferrer"
             className={buttonVariants({ intent: 'secondary', size: 'sm' })}

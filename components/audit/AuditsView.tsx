@@ -50,6 +50,7 @@ import type {
   InternalAuditType,
   Severity,
 } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 type BadgeIntent = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 
@@ -828,7 +829,7 @@ function AuditModal({
                   )}
                   {e.url && (
                     <a
-                      href={e.url}
+                      href={safeHref(e.url)}
                       target="_blank"
                       rel="noreferrer"
                       className="text-primary hover:underline"

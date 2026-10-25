@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { formatKz } from '@/lib/format';
 import { ListSkeleton, ErrorBanner, formatDate } from '@/components/crm/shared';
 import type { ExpiringContract } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 interface ExpiringContractsViewProps {
   data: ExpiringContract[];
@@ -87,7 +88,7 @@ export function ExpiringContractsView({
                     <td className="px-4 py-3">
                       {c.contractUrl ? (
                         <a
-                          href={c.contractUrl}
+                          href={safeHref(c.contractUrl)}
                           target="_blank"
                           rel="noreferrer"
                           className="text-primary hover:underline"

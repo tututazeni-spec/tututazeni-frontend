@@ -32,6 +32,7 @@ import { embeddableVideoUrl, useBlobSrc } from './fileSrc';
 import { lessonIcon } from './utils';
 import { LessonFooter } from './LessonFooter';
 import type { LessonProgress, ModuleProgress } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 interface ContentPlayerProps {
   lesson: LessonProgress;
@@ -280,7 +281,7 @@ export function ContentPlayer({
                 )}
                 {lesson.liveSessionUrl ? (
                   <a
-                    href={lesson.liveSessionUrl}
+                    href={safeHref(lesson.liveSessionUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block mt-4 rounded-lg bg-[#0F1F3D] px-4 py-2 font-body text-sm font-semibold text-white hover:bg-[#1B2F57]"

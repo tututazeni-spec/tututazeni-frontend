@@ -53,6 +53,7 @@ import type {
   EventType,
   ParticipantStatus,
 } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 interface DetailViewProps {
   eventId: number;
@@ -396,7 +397,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
                 {(event.status === 'LIVE' || event.status === 'PUBLISHED') &&
                   event.meetingUrl && (
                     <a
-                      href={event.meetingUrl}
+                      href={safeHref(event.meetingUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="rounded-control bg-danger px-4 py-2 text-center font-body text-sm font-medium text-canvas hover:brightness-95"

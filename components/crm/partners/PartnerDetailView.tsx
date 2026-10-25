@@ -13,6 +13,7 @@ import { InteractionsSection } from './InteractionsSection';
 import { MilestonesSection } from './MilestonesSection';
 import { STATUS_COLORS, TYPE_LABELS } from './types';
 import type { PartnerDetail } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 interface PartnerDetailViewProps {
   partner: PartnerDetail;
@@ -122,7 +123,7 @@ export function PartnerDetailView({
             <div className="md:col-span-3">
               {p.contractUrl ? (
                 <a
-                  href={p.contractUrl}
+                  href={safeHref(p.contractUrl)}
                   target="_blank"
                   rel="noreferrer"
                   className="text-primary hover:underline font-body text-sm"

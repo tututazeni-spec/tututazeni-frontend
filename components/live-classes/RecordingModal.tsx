@@ -4,6 +4,7 @@
 
 import { BookOpen, Clapperboard } from 'lucide-react';
 import { fmtDate, getEmbedUrl, isVideoUrl } from './utils';
+import { safeHref } from '@/lib/safeHref';
 
 // Subconjunto de LiveClass (ou de uma linha de RecordingsView.tsx — secção
 // 9, que também cobre gravações ao nível da Sessão) — só o que este overlay
@@ -52,7 +53,7 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
           </div>
           <div className="flex gap-2">
             <a
-              href={lc.recordingUrl!}
+              href={safeHref(lc.recordingUrl!)}
               target="_blank"
               rel="noreferrer"
               className="py-1.5 px-3 bg-white/8 border border-white/12 rounded-lg text-ink-faint text-xs no-underline"
@@ -91,7 +92,7 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
                 Este formato não suporta pré-visualização inline.
               </p>
               <a
-                href={lc.recordingUrl!}
+                href={safeHref(lc.recordingUrl!)}
                 target="_blank"
                 rel="noreferrer"
                 className="py-2.25 px-5 bg-danger border-none rounded-lg text-canvas text-sm font-bold no-underline"

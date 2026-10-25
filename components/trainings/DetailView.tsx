@@ -38,6 +38,7 @@ import { LEVEL_CFG, TYPE_CFG } from './constants';
 import { LEVEL_TONE, TONE_COLOR } from './trainingTones';
 import { fmtDate, fmtHours } from './utils';
 import type { Training, TrainingType } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 interface DetailViewProps {
   trainingId: number;
@@ -297,7 +298,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                     )}
                     {session.meetingUrl && (
                       <a
-                        href={session.meetingUrl}
+                        href={safeHref(session.meetingUrl)}
                         target="_blank"
                         rel="noreferrer"
                         className="text-primary hover:underline"

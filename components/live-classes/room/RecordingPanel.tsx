@@ -22,6 +22,7 @@ import { apiClient } from '@/lib/apiClient';
 import { fmtBytes, fmtDuration } from './utils';
 import { useRecording } from './useRecording';
 import type { LiveClass } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 interface RecordingPanelProps {
   liveClass: LiveClass;
@@ -254,7 +255,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
           ].map((s: { name: string; url: string; icon: LucideIcon }) => (
             <a
               key={s.name}
-              href={s.url}
+              href={safeHref(s.url)}
               target="_blank"
               rel="noreferrer"
               className="text-xs text-ink-muted no-underline flex items-center gap-1.25"

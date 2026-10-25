@@ -5,6 +5,7 @@ import { ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { TYPE_CONFIG } from './types';
 import type { SearchResult } from './types';
+import { safeHref } from '@/lib/safeHref';
 
 interface ResultCardProps {
   result: SearchResult;
@@ -16,7 +17,7 @@ export function ResultCard({ result }: ResultCardProps) {
 
   return (
     <a
-      href={result.url ?? '#'}
+      href={safeHref(result.url) ?? '#'}
       className="group flex items-center gap-3 rounded-card p-3 transition-colors hover:bg-surface-sunken"
     >
       {result.avatarUrl || result.thumbnailUrl ? (
