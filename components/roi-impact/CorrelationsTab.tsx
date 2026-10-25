@@ -103,7 +103,7 @@ export function CorrelationsTab() {
       />
 
       <Card>
-        <div className="rounded-t-panel bg-[#0F1F3D]/60 px-5 py-3">
+        <div className="rounded-t-panel bg-brand/60 px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-white">
             Análises disponíveis
           </h4>
@@ -128,7 +128,7 @@ export function CorrelationsTab() {
         )}
       </Card>
 
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-white">
             Histórico de análises
@@ -150,7 +150,7 @@ export function CorrelationsTab() {
           ) : (
             <div className="overflow-x-auto">
               <Table>
-                <TableHead className="bg-[#0F1F3D]/60">
+                <TableHead className="bg-brand/60">
                   <TableRow className="hover:bg-transparent">
                     <TableHeaderCell className="text-white">
                       Análise

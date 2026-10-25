@@ -142,7 +142,7 @@ export function RoiByDepartmentCard({ rows }: { rows: BenchmarkGroupAvg[] }) {
                       {fmtPct(r.avgValue)}
                     </span>
                     <div
-                      className="w-full max-w-[44px] rounded-t-md bg-gradient-to-b from-[#3B8EF0] to-[#1D63D6]"
+                      className="w-full max-w-[44px] rounded-t-control bg-gradient-to-b from-[#3B8EF0] to-[#1D63D6]"
                       style={{
                         height: `${Math.max(0, Math.min(100, (r.avgValue / axisMax) * 100)) * 0.85}%`,
                       }}

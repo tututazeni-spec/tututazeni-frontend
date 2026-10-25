@@ -9,7 +9,7 @@ import { cn } from '@/lib/cn';
 
 /** Variantes de cor do painel (a omissa é o navy das conclusões). */
 export const NAVY_PANEL_VARIANTS = [
-  'from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57]',
+  'from-brand via-[#0B3A75] to-[#0A2A57]',
   'from-[#14532D] via-[#15803D] to-[#166534]',
   'from-[#7C2D12] via-[#C2410C] to-[#9A3412]',
   'from-[#4C1D95] via-[#6D28D9] to-[#5B21B6]',
@@ -19,7 +19,7 @@ export const NAVY_PANEL_VARIANTS = [
 
 /** Mesmas cores com 35% menos opacidade (cartões de análise). */
 export const NAVY_PANEL_VARIANTS_SOFT = [
-  'from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65',
+  'from-brand/65 via-[#0B3A75]/65 to-[#0A2A57]/65',
   'from-[#14532D]/65 via-[#15803D]/65 to-[#166534]/65',
   'from-[#7C2D12]/65 via-[#C2410C]/65 to-[#9A3412]/65',
   'from-[#4C1D95]/65 via-[#6D28D9]/65 to-[#5B21B6]/65',

@@ -372,7 +372,7 @@ export function NewScenarioModal({ onClose }: NewScenarioModalProps) {
               <div className="overflow-x-auto rounded-card border border-border">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs text-white">
+                    <tr className="border-b border-border bg-brand/60 text-left text-xs text-white">
                       <th className="px-3 py-2">Cenário</th>
                       <th className="px-3 py-2">Custo</th>
                       <th className="px-3 py-2">Benefício</th>

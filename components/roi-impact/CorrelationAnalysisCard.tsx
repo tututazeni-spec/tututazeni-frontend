@@ -35,7 +35,7 @@ interface Theme {
 
 const THEMES: Record<CorrelationType, Theme> = {
   HORAS_FORMACAO_DESEMPENHO: {
-    gradient: 'from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57]',
+    gradient: 'from-brand via-[#0B3A75] to-[#0A2A57]',
     shadow: 'shadow-[0_8px_24px_rgba(15,31,61,0.25)]',
     accent: '#7CC4FF',
     accentEnd: '#2F80ED',

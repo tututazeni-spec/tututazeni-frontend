@@ -51,7 +51,10 @@ export function EvaluationModelsTab() {
             x.id === m.id
               ? {
                   ...x,
-                  status: m.status === 'ACTIVO' ? ('INACTIVO' as const) : ('ACTIVO' as const),
+                  status:
+                    m.status === 'ACTIVO'
+                      ? ('INACTIVO' as const)
+                      : ('ACTIVO' as const),
                 }
               : x,
           ),
@@ -106,7 +109,7 @@ export function EvaluationModelsTab() {
             return (
               <div
                 key={m.id}
-                className="relative min-w-0 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+                className="relative min-w-0 overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
               >
                 <div
                   aria-hidden
@@ -137,11 +140,11 @@ export function EvaluationModelsTab() {
                       <ClipboardCheck size={28} strokeWidth={1.75} />
                     </span>
                     <div className="min-w-0">
-                      <h3 className="break-words font-display text-[24px] font-bold leading-tight text-[#0F1F3D]">
+                      <h3 className="break-words font-display text-[24px] font-bold leading-tight text-brand">
                         {m.name}
                       </h3>
                       {m.description && (
-                        <p className="mt-0.5 break-words text-base text-[#49658A]">
+                        <p className="mt-0.5 break-words text-base text-brand-muted">
                           {m.description}
                         </p>
                       )}
@@ -155,8 +158,8 @@ export function EvaluationModelsTab() {
                         className={cn(
                           'rounded-full border px-3 py-1 font-body text-xs font-semibold',
                           l.mandatory
-                            ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
-                            : 'border-[#D8E2F0] bg-white text-[#0F1F3D]',
+                            ? 'border-brand bg-brand text-white'
+                            : 'border-[#D8E2F0] bg-white text-brand',
                         )}
                       >
                         L{l.level} {l.name} ({l.weight}%)
@@ -165,7 +168,7 @@ export function EvaluationModelsTab() {
                   </ul>
 
                   {m.applicability && (
-                    <p className="font-body text-xs text-[#49658A]">
+                    <p className="font-body text-xs text-brand-muted">
                       Aplicável a:{' '}
                       {[
                         m.applicability.initiativeTypes
@@ -181,7 +184,7 @@ export function EvaluationModelsTab() {
                     </p>
                   )}
 
-                  <div className="flex items-center justify-end gap-2 border-t border-[#E6ECF4] pt-4">
+                  <div className="flex items-center justify-end gap-2 border-t border-brand-line pt-4">
                     <Button
                       size="sm"
                       intent="secondary"
