@@ -9,6 +9,7 @@ import { Section } from './shared';
 import { AddButton, SubmitRow } from './detailParts';
 import type { InternalAuditDetailController } from '@/hooks/useInternalAuditDetail';
 import type { InternalAuditDetail } from '../types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function EvidencesSection({
   audit: a,
@@ -78,7 +79,7 @@ export function EvidencesSection({
         </div>
       )}
       {a.evidences.length === 0 && (
-        <p className="py-1 text-ink-faint">Sem evidências.</p>
+        <EmptyState variant="inline" title="Sem evidências" />
       )}
       {a.evidences.map((e) => (
         <div key={e.id} className="border-b border-border py-1.5 last:border-0">

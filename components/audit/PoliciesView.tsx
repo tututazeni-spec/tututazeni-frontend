@@ -53,6 +53,7 @@ import type {
   RetentionPreview,
 } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const RETENTION_LABELS: Record<string, string> = {
   ACCESS: 'Acessos e sessões',
@@ -477,9 +478,10 @@ export function PoliciesView() {
                 </div>
               ))}
               {sevRows.length === 0 && (
-                <p className="font-body text-xs text-brand-muted">
-                  Sem regras: aplica-se a gravidade predefinida.
-                </p>
+                <EmptyState
+                  variant="inline"
+                  title="Sem regras: aplica-se a gravidade predefinida"
+                />
               )}
             </div>
             {canEdit && freeActions.length > 0 && (

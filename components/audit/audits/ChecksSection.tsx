@@ -8,6 +8,7 @@ import { Section } from './shared';
 import { AddButton, SubmitRow } from './detailParts';
 import type { InternalAuditDetailController } from '@/hooks/useInternalAuditDetail';
 import type { InternalAuditDetail } from '../types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function ChecksSection({
   audit: a,
@@ -57,7 +58,7 @@ export function ChecksSection({
         </div>
       )}
       {a.checks.length === 0 && (
-        <p className="py-1 text-ink-faint">Sem verificações.</p>
+        <EmptyState variant="inline" title="Sem verificações" />
       )}
       {a.checks.map((c) => (
         <div

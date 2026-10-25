@@ -10,6 +10,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { Anomalies, IntegrityCheck } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const tone = (bad: boolean) =>
   `rounded-card p-4 transition-transform duration-200 hover:scale-[1.02] font-semibold text-white [text-shadow:0_1px_2px_rgb(0_0_0/0.35)] ${bad ? 'bg-danger/70' : 'bg-success/70'}`;
@@ -84,9 +85,10 @@ export function AnomaliesView() {
           <div>
             <div className="mb-3 font-body text-sm font-bold">{label}</div>
             {items.length === 0 ? (
-              <div className="font-body text-xs font-medium">
-                Nenhuma anomalia deste tipo
-              </div>
+              <EmptyState
+                variant="inline"
+                title="Nenhuma anomalia deste tipo"
+              />
             ) : (
               <div className="space-y-2">
                 {items.map((item, i) => (

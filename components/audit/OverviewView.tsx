@@ -36,6 +36,7 @@ import type {
   Severity,
   View,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const PERIODS = [
   { days: 7, label: '7 dias' },
@@ -211,9 +212,7 @@ export function OverviewView({
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Panel title="Eventos por módulo">
           {data.byModule.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem eventos no período.
-            </p>
+            <EmptyState variant="inline" title="Sem eventos no período" />
           ) : (
             <BarChart
               orientation="horizontal"
@@ -235,9 +234,7 @@ export function OverviewView({
         <div className="space-y-4">
           <Panel title="Distribuição por gravidade">
             {severityData.length === 0 ? (
-              <p className="font-body text-xs text-ink-faint">
-                Sem eventos no período.
-              </p>
+              <EmptyState variant="inline" title="Sem eventos no período" />
             ) : (
               <DonutChart data={severityData} centerLabel="Eventos" />
             )}
@@ -259,9 +256,7 @@ export function OverviewView({
 
           <Panel title="Atividade por utilizador">
             {data.topUsers.length === 0 ? (
-              <p className="font-body text-xs text-ink-faint">
-                Sem atividade no período.
-              </p>
+              <EmptyState variant="inline" title="Sem atividade no período" />
             ) : (
               data.topUsers.map((u) => (
                 <div
@@ -316,9 +311,7 @@ export function OverviewView({
       <div className="overflow-hidden rounded-card border border-border bg-surface">
         <div className={PANEL_HEADER}>Atividade recente</div>
         {data.recent.length === 0 ? (
-          <p className="px-4 py-3 font-body text-xs text-ink-faint">
-            Sem eventos no período.
-          </p>
+          <EmptyState variant="inline" title="Sem eventos no período" />
         ) : (
           data.recent.map((log) => <EventRow key={log.id} log={log} />)
         )}

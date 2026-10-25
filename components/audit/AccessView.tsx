@@ -47,6 +47,7 @@ import type {
   AuditLog,
   Paginated,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const PERIODS = [7, 30, 90];
 
@@ -237,9 +238,7 @@ export function AccessView() {
         {!sessions ? (
           <Skeleton rows={3} />
         ) : sessions.data.length === 0 ? (
-          <p className="font-body text-xs text-ink-faint">
-            Sem sessões activas.
-          </p>
+          <EmptyState variant="inline" title="Sem sessões activas" />
         ) : (
           <>
             {sessions.data.map((s) => (

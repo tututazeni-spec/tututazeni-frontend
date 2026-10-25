@@ -50,6 +50,7 @@ import type {
   AuditExportsSummary,
   Paginated,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const MAX_EVIDENCE_BYTES = 5 * 1024 * 1024;
 
@@ -415,7 +416,7 @@ function ExportModal({
                 Histórico de acessos
               </div>
               {item.accesses.length === 0 ? (
-                <p className="text-ink-faint">Sem acessos registados.</p>
+                <EmptyState variant="inline" title="Sem acessos registados" />
               ) : (
                 item.accesses.map((a) => (
                   <div

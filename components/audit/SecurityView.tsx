@@ -50,6 +50,7 @@ import type {
   IncidentStatus,
   Severity,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export const INCIDENT_STATUS: Record<
   IncidentStatus,
@@ -497,7 +498,7 @@ function IncidentModal({
                 Evidências ({inc.evidences.length})
               </div>
               {inc.evidences.length === 0 && (
-                <p className="text-ink-faint">Sem evidências anexadas.</p>
+                <EmptyState variant="inline" title="Sem evidências anexadas" />
               )}
               {inc.evidences.map((e) => (
                 <div
