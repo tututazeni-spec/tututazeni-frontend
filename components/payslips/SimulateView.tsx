@@ -34,15 +34,15 @@ import {
 import type { SimulateResult } from './types';
 
 type FormKey =
-  | 'baseSalary'
-  | 'mealAllowance'
-  | 'overtime'
-  | 'bonuses'
-  | 'otherAllowances';
+  'baseSalary' | 'mealAllowance' | 'overtime' | 'bonuses' | 'otherAllowances';
 
 const FIELDS: Array<{ key: FormKey; label: string; icon: LucideIcon }> = [
   { key: 'baseSalary', label: 'Salário base', icon: Wallet },
-  { key: 'mealAllowance', label: 'Subsídio de alimentação', icon: UtensilsCrossed },
+  {
+    key: 'mealAllowance',
+    label: 'Subsídio de alimentação',
+    icon: UtensilsCrossed,
+  },
   { key: 'overtime', label: 'Horas extras', icon: Timer },
   { key: 'bonuses', label: 'Prémios / Comissões', icon: Gift },
   { key: 'otherAllowances', label: 'Outros subsídios', icon: Receipt },
@@ -119,15 +119,20 @@ export function SimulateView() {
           }}
         >
           <div className="mb-6 flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#E8F0FE] ">
-              <Calculator size={20} strokeWidth={1.75} fill="#FFFFFF" stroke="#0F1F3D" />
+            <span className="flex h-9 w-9 items-center justify-center rounded-control bg-[#E8F0FE] ">
+              <Calculator
+                size={20}
+                strokeWidth={1.75}
+                fill="#FFFFFF"
+                stroke="#0F1F3D"
+              />
             </span>
-            <h2 className="font-body text-lg font-semibold text-[#0F1F3D]">
+            <h2 className="font-body text-lg font-semibold text-brand">
               Calculadora Salarial
             </h2>
           </div>
 
-          <div className="mb-4 font-body text-sm font-medium text-[#0F1F3D]">
+          <div className="mb-4 font-body text-sm font-medium text-brand">
             Dados do salário
           </div>
 
@@ -136,14 +141,19 @@ export function SimulateView() {
               <div key={key} className="flex items-end gap-3">
                 <span
                   aria-hidden="true"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#E8F0FE] text-[#0D6EFD]"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-[#E8F0FE] text-[#0D6EFD]"
                 >
-                  <Icon size={18} strokeWidth={1.75} fill="#FFFFFF" stroke="#0F1F3D" />
+                  <Icon
+                    size={18}
+                    strokeWidth={1.75}
+                    fill="#FFFFFF"
+                    stroke="#0F1F3D"
+                  />
                 </span>
                 <div className="min-w-0 flex-1">
                   <label
                     htmlFor={`sim-${key}`}
-                    className="mb-1 block font-body text-xs text-[#0F1F3D]/70"
+                    className="mb-1 block font-body text-xs text-brand/70"
                   >
                     {label} (AOA)
                   </label>
@@ -159,9 +169,9 @@ export function SimulateView() {
                           [key]: parseFloat(e.target.value) || 0,
                         }))
                       }
-                      className="h-10 w-full rounded-lg border border-[#D6E4F5] bg-white pl-3 pr-10 font-body tabular-nums text-sm text-[#0F1F3D] outline-none focus-visible:border-[#0D6EFD] focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/30"
+                      className="h-10 w-full rounded-control border border-brand-line bg-white pl-3 pr-10 font-body tabular-nums text-sm text-brand outline-none focus-visible:border-[#0D6EFD] focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/30"
                     />
-                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-body text-xs text-[#0F1F3D]/50">
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-body text-xs text-brand/50">
                       AOA
                     </span>
                   </div>
@@ -173,9 +183,14 @@ export function SimulateView() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#0D6EFD] font-body text-sm font-semibold text-white transition-colors hover:bg-[#0B5ED7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-control bg-[#0D6EFD] font-body text-sm font-semibold text-white transition-colors hover:bg-[#0B5ED7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <Calculator size={18} strokeWidth={1.75} fill="#FFFFFF" stroke="#0F1F3D" />
+            <Calculator
+              size={18}
+              strokeWidth={1.75}
+              fill="#FFFFFF"
+              stroke="#0F1F3D"
+            />
             {loading ? 'A calcular…' : 'Calcular'}
           </button>
         </form>
@@ -206,7 +221,7 @@ export function SimulateView() {
               </div>
             ))}
 
-            <div className="mt-5 flex items-center justify-between gap-3 rounded-xl bg-[#075FE8] px-4 py-4">
+            <div className="mt-5 flex items-center justify-between gap-3 rounded-card bg-[#075FE8] px-4 py-4">
               <span className="flex items-center gap-2 font-body text-sm font-semibold">
                 <Coins size={20} strokeWidth={1.75} />
                 Salário líquido
@@ -219,7 +234,9 @@ export function SimulateView() {
 
           {result && (
             <div className="mt-4 font-body text-xs text-white/80">
-              <div className="font-body tabular-nums">{result.irtDetails.formula}</div>
+              <div className="font-body tabular-nums">
+                {result.irtDetails.formula}
+              </div>
               <div className="mt-1">
                 Taxa efectiva: {result.irtDetails.effectiveRate.toFixed(1)}%
                 &nbsp;·&nbsp; INSS empregador: {fmtKz(result.employerInss)}
@@ -236,7 +253,7 @@ export function SimulateView() {
       </div>
 
       {/* Tabela IRT */}
-      <div className="overflow-hidden rounded-[18px] border border-[#D6E4F5] bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
+      <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
         <div className="flex items-center gap-2.5 bg-gradient-to-br from-[#0B3D91] to-[#06275F] px-6 py-4 text-white">
           <Percent size={20} strokeWidth={1.75} />
           <h3 className="font-body text-sm font-semibold uppercase tracking-wider">
@@ -246,7 +263,7 @@ export function SimulateView() {
         <div className="p-4 sm:px-6">
           <Table>
             <TableHead>
-              <TableRow className="bg-[#0F1F3D]/60 hover:bg-[#0F1F3D]/60">
+              <TableRow className="bg-brand/60 hover:bg-brand/60">
                 <TableHeaderCell className="py-1.5 text-white">
                   Escal.
                 </TableHeaderCell>
@@ -266,7 +283,7 @@ export function SimulateView() {
                 <TableRow
                   key={i}
                   className={cn(
-                    'border-[#D6E4F5] text-[#0F1F3D]',
+                    'border-brand-line text-brand',
                     i === activeIdx &&
                       'bg-[#075FE8] font-semibold text-white hover:bg-[#075FE8]',
                   )}
