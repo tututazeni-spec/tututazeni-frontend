@@ -18,13 +18,13 @@ const TONE_PILL: Record<AdminEnrollmentTone, string> = {
   danger: 'bg-[#E5384F] text-white',
   warning: 'bg-[#F2B01E] text-[#3F2D00]',
   info: 'bg-[#2B7FE8] text-white',
-  neutral: 'bg-brand-line text-[#4B5E80]',
+  neutral: 'bg-brand-line text-brand-muted',
 };
 
 export const ADMIN_ENROLLMENT_BTN_PRIMARY =
   'inline-flex h-10 items-center justify-center gap-1.5 rounded-control bg-brand px-4 text-sm font-semibold text-white hover:bg-[#1B2F57] disabled:opacity-50';
 export const ADMIN_ENROLLMENT_BTN_GHOST =
-  'inline-flex h-10 items-center justify-center gap-1.5 rounded-control border border-[#D5DCE8] bg-white px-3 text-sm font-semibold text-brand hover:bg-[#F2F5FA] disabled:opacity-50';
+  'inline-flex h-10 items-center justify-center gap-1.5 rounded-control border border-brand-line bg-white px-3 text-sm font-semibold text-brand hover:bg-brand-soft disabled:opacity-50';
 
 export interface AdminEnrollmentInfo {
   icon: LucideIcon;
@@ -109,7 +109,7 @@ export function AdminEnrollmentCard({
       </div>
 
       <div className="relative mt-5 flex items-center gap-4 sm:max-w-[62%]">
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0E6B4E] text-white">
+        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-success text-white">
           <GraduationCap size={26} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
@@ -117,7 +117,7 @@ export function AdminEnrollmentCard({
             {title}
           </h3>
           {subtitle && (
-            <p className="line-clamp-2 pt-0.5 text-base text-[#5B6B88]">
+            <p className="line-clamp-2 pt-0.5 text-base text-brand-muted">
               {subtitle}
             </p>
           )}
@@ -130,7 +130,7 @@ export function AdminEnrollmentCard({
             <Icon
               size={20}
               strokeWidth={1.75}
-              className={`shrink-0 ${danger ? 'text-[#E5384F]' : 'text-[#4B5E80]'}`}
+              className={`shrink-0 ${danger ? 'text-[#E5384F]' : 'text-brand-muted'}`}
             />
             <span
               className={`text-[15px] font-medium ${danger ? 'text-[#C42B40]' : 'text-brand'}`}
@@ -142,7 +142,7 @@ export function AdminEnrollmentCard({
       </div>
 
       <div className="relative mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-brand-line pt-4">
-        <span className="min-w-0 truncate text-sm text-[#5B6B88]">
+        <span className="min-w-0 truncate text-sm text-brand-muted">
           {footerLabel}
         </span>
         <div className="flex items-center gap-2">{actions}</div>

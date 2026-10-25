@@ -76,7 +76,7 @@ export function ProgressCard({
       </div>
 
       <div className="relative mt-5 flex items-center gap-4 sm:max-w-[62%]">
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0E6B4E] text-white">
+        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-success text-white">
           <Icon size={26} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
@@ -84,7 +84,7 @@ export function ProgressCard({
             {title}
           </h3>
           {subtitle && (
-            <p className="line-clamp-2 pt-0.5 text-base text-[#5B6B88]">
+            <p className="line-clamp-2 pt-0.5 text-base text-brand-muted">
               {subtitle}
             </p>
           )}
@@ -97,7 +97,7 @@ export function ProgressCard({
             <InfoIcon
               size={20}
               strokeWidth={1.75}
-              className={`shrink-0 ${danger ? 'text-[#E5384F]' : 'text-[#4B5E80]'}`}
+              className={`shrink-0 ${danger ? 'text-[#E5384F]' : 'text-brand-muted'}`}
             />
             <span
               className={`text-[15px] font-medium ${danger ? 'text-[#C42B40]' : 'text-brand'}`}
@@ -109,7 +109,7 @@ export function ProgressCard({
       </div>
 
       <div className="relative mt-5 border-t border-brand-line pt-4">
-        <p className="pb-2 text-sm text-[#5B6B88]">{progress.label}</p>
+        <p className="pb-2 text-sm text-brand-muted">{progress.label}</p>
         <div className="flex items-center gap-3">
           <ProgressBar
             value={progress.value}
