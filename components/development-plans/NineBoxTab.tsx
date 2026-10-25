@@ -16,7 +16,7 @@ export function NineBoxTab() {
 
   if (!canSeeNineBox) {
     return (
-      <div className="rounded-xl border border-border bg-surface p-6 text-sm text-ink-muted">
+      <div className="rounded-card border border-border bg-surface p-6 text-sm text-ink-muted">
         Sem permissão para ver a matriz 9 Box.
       </div>
     );
@@ -40,7 +40,7 @@ export function NineBoxTab() {
           colaboradores
         </p>
       </div>
-      <div className="rounded-xl border border-border bg-surface p-6">
+      <div className="rounded-card border border-border bg-surface p-6">
         <ErrorBoundary source="development-plans.NineBoxGrid">
           <NineBoxGrid entries={nineBox} />
         </ErrorBoundary>

@@ -104,10 +104,10 @@ export function ListView({ onSelect }: ListViewProps) {
       </div>
 
       {/* Tabela */}
-      <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+      <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
         <div className="min-w-[700px]">
           {/* Cabeçalho */}
-          <div className="grid grid-cols-[1fr_120px_160px_130px_100px] gap-3 bg-[#0B2D5B] px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
+          <div className="grid grid-cols-[1fr_120px_160px_130px_100px] gap-3 bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
             <div>Período</div>
             <div>Pagamento</div>
             <div>Salário líquido</div>
@@ -136,7 +136,7 @@ export function ListView({ onSelect }: ListViewProps) {
               <div className="font-body text-sm font-semibold text-white">
                 Sem recibos
               </div>
-              <div className="mt-1 font-body text-xs text-[#9DB4D3]">
+              <div className="mt-1 font-body text-xs text-on-brand-faint">
                 {`Não há recibos disponíveis para ${year}.`}
               </div>
             </div>
@@ -153,11 +153,11 @@ export function ListView({ onSelect }: ListViewProps) {
                   <div className="font-body text-sm font-semibold text-white">
                     {fmtPeriod(p.period)}
                   </div>
-                  <div className="mt-0.5 font-body text-xs text-[#9DB4D3]">
+                  <div className="mt-0.5 font-body text-xs text-on-brand-faint">
                     {p.receiptCode}
                   </div>
                 </div>
-                <div className="font-body text-sm text-[#CFE3FF]">
+                <div className="font-body text-sm text-on-brand">
                   {fmtDate(p.paymentDate)}
                 </div>
                 <div className="font-body text-sm font-semibold text-white">

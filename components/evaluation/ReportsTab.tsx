@@ -36,7 +36,7 @@ function GroupTable({
   if (!rows.length) return null;
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       <CardBody>
@@ -246,7 +246,7 @@ export function ReportsTab() {
 
           {data.competencyGaps.length > 0 && (
             <Card className="overflow-hidden">
-              <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+              <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                 Lacunas de Competências
               </div>
               <CardBody>
@@ -269,7 +269,7 @@ export function ReportsTab() {
 
           {data.evolution.length > 1 && (
             <Card className="overflow-hidden">
-              <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+              <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                 Evolução do Desempenho
               </div>
               <CardBody>
@@ -283,7 +283,7 @@ export function ReportsTab() {
                         className="w-full rounded-t bg-primary-subtle border-primary"
                         style={{ height: `${(e.avgScore / 5) * 100}%` }}
                       />
-                      <span className="text-[10px] text-ink-faint">
+                      <span className="text-micro text-ink-faint">
                         {e.period}
                       </span>
                     </div>

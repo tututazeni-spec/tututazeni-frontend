@@ -26,8 +26,12 @@ import type { CycleInfo, ParticipantProfile, ParticipantResult } from './types';
 import { NavyHeroCard } from '@/components/ui/NavyHeroCard';
 import { ProfileRoiCard } from '@/components/ui/ProfileRoiCard';
 import { ClipboardCheck } from 'lucide-react';
-import { SpeedometerStatCard, SCORE5_BANDS } from '@/components/ui/charts/SpeedometerStatCard';
+import {
+  SpeedometerStatCard,
+  SCORE5_BANDS,
+} from '@/components/ui/charts/SpeedometerStatCard';
 import { PendingEvaluationsCard } from './PendingEvaluationsCard';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface OverviewTabProps {
   result: ParticipantResult | null;
@@ -71,8 +75,8 @@ export function OverviewTab({
       {cycleId && <PendingEvaluationsCard cycleId={cycleId} />}
 
       {!result && (
-        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
             Resultados
           </h3>
           {cycle
@@ -122,13 +126,14 @@ export function OverviewTab({
           {/* Strengths & Gaps */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
                 Pontos Fortes
               </h3>
               {result.strengths.length === 0 && (
-                <div className="text-sm text-ink-muted">
-                  Sem dados suficientes ainda.
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Sem dados suficientes ainda"
+                />
               )}
               {result.strengths.map((s) => (
                 <div
@@ -150,13 +155,14 @@ export function OverviewTab({
               ))}
             </div>
             <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
                 Oportunidades de Desenvolvimento
               </h3>
               {result.gaps.length === 0 && (
-                <div className="text-sm text-ink-muted">
-                  Sem dados suficientes ainda.
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Sem dados suficientes ainda"
+                />
               )}
               {result.gaps.map((g) => (
                 <div

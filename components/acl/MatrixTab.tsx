@@ -19,7 +19,7 @@ export function MatrixTab() {
   );
 
   if (loading)
-    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
+    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-card" />;
 
   const subjects: string[] = [
     ...new Set<string>((data?.permissions ?? []).map((p) => String(p.subject))),
@@ -75,7 +75,7 @@ export function MatrixTab() {
                 <td className="px-3 py-1.5">
                   <div>
                     <p className="font-mono text-ink">{p.name}</p>
-                    <p className="text-ink-faint text-[10px]">
+                    <p className="text-ink-faint text-micro">
                       {p.subject} · {p.action}
                     </p>
                   </div>

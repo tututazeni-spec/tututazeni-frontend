@@ -37,7 +37,7 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
       style={{ backdropFilter: 'blur(8px)' }}
     >
       <div
-        className="bg-surface-sunken rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden"
+        className="bg-surface-sunken rounded-panel w-full max-w-3xl shadow-2xl overflow-hidden"
         style={{ animation: 'lv-up 0.2s ease' }}
       >
         {/* Header */}
@@ -56,14 +56,14 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
               href={safeHref(lc.recordingUrl!)}
               target="_blank"
               rel="noreferrer"
-              className="py-1.5 px-3 bg-white/8 border border-white/12 rounded-lg text-ink-faint text-xs no-underline"
+              className="py-1.5 px-3 bg-white/8 border border-white/12 rounded-control text-ink-faint text-xs no-underline"
             >
               Abrir ↗
             </a>
             <button
               onClick={onClose}
               aria-label="Fechar"
-              className="w-8 h-8 bg-white/8 border-none rounded-lg flex items-center justify-center cursor-pointer text-ink-faint"
+              className="w-8 h-8 bg-white/8 border-none rounded-control flex items-center justify-center cursor-pointer text-ink-faint"
             >
               ×
             </button>
@@ -95,7 +95,7 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
                 href={safeHref(lc.recordingUrl!)}
                 target="_blank"
                 rel="noreferrer"
-                className="py-2.25 px-5 bg-danger border-none rounded-lg text-canvas text-sm font-bold no-underline"
+                className="py-2.25 px-5 bg-danger border-none rounded-control text-canvas text-sm font-bold no-underline"
               >
                 Abrir Gravação ↗
               </a>

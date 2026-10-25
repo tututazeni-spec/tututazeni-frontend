@@ -17,7 +17,7 @@ export default function BeneficiaryDetailPage() {
   if (isError || !beneficiary)
     return (
       <div className="p-6">
-        <div className="bg-danger-subtle border border-danger text-danger-ink p-4 rounded-lg">
+        <div className="bg-danger-subtle border border-danger text-danger-ink p-4 rounded-control">
           {errorMessage}
           <button onClick={() => router.back()} className="ml-4 underline">
             Voltar

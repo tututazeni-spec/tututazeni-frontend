@@ -13,7 +13,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/queryKeys';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -25,6 +25,8 @@ import {
   useJobFamilyOptions,
   usePositionOptions,
 } from './careerFormData';
+import { LinkButton } from '@/components/ui/LinkButton';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const CAREER_PATH_TYPE_OPTIONS = Object.entries(CAREER_PATH_TYPE).map(
   ([value, label]) => ({
@@ -229,13 +231,13 @@ export function NewCareerPathModal({
                 className="w-full"
               />
               {newFamily === null ? (
-                <button
+                <LinkButton
                   type="button"
                   onClick={() => setNewFamily('')}
-                  className="mt-1.5 inline-flex items-center gap-1 font-body text-xs font-semibold text-primary hover:underline"
+                  className="mt-1.5 inline-flex items-center gap-1 font-body text-xs font-semibold"
                 >
                   <Plus size={12} strokeWidth={2} /> Nova família
-                </button>
+                </LinkButton>
               ) : (
                 <div className="mt-1.5 flex items-center gap-2">
                   <Input
@@ -320,16 +322,16 @@ export function NewCareerPathModal({
                       />
                     </div>
                     {steps.length > 1 && (
-                      <button
+                      <IconButton
+                        icon={Trash2}
+                        label="Remover nível"
+                        intent="ghostDanger"
+                        size="xs"
                         type="button"
-                        aria-label="Remover nível"
                         onClick={() =>
                           setSteps((prev) => prev.filter((_, i) => i !== idx))
                         }
-                        className="rounded-control p-1.5 text-ink-muted hover:bg-danger-subtle hover:text-danger-ink"
-                      >
-                        <Trash2 size={14} strokeWidth={1.75} />
-                      </button>
+                      />
                     )}
                   </div>
                   <div className="grid grid-cols-3 gap-2">
@@ -361,13 +363,12 @@ export function NewCareerPathModal({
                     />
                   </div>
                   <label className="mt-2 flex items-center gap-2 text-xs text-ink-muted">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={s.isLateralMove}
                       onChange={(e) =>
                         updateStep(idx, { isLateralMove: e.target.checked })
                       }
-                      className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                      size="sm"
                     />
                     Movimento lateral (não vertical)
                   </label>

@@ -58,7 +58,7 @@ export function WebhooksTab() {
   if (loading)
     return (
       <Skeleton
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="bg-surface-sunken rounded-card h-16"
       />
     );
@@ -89,7 +89,7 @@ export function WebhooksTab() {
                       {h.active ? 'ACTIVE' : 'INACTIVE'}
                     </Badge>
                   </div>
-                  <p className="font-data text-[10px] text-ink-faint">
+                  <p className="font-data text-micro text-ink-faint">
                     {h.url}
                   </p>
                 </div>
@@ -108,7 +108,7 @@ export function WebhooksTab() {
                 {(h.events ?? []).map((e: string, i: number) => (
                   <span
                     key={i}
-                    className="rounded-control bg-primary-subtle px-1.5 py-0.5 font-data text-[9px] text-primary"
+                    className="rounded-control bg-primary-subtle px-1.5 py-0.5 font-data text-micro text-primary"
                   >
                     {e}
                   </span>
@@ -117,7 +117,7 @@ export function WebhooksTab() {
 
               {/* Stats */}
               {h.stats && (
-                <div className="flex gap-3 font-body text-[10px] text-ink-faint">
+                <div className="flex gap-3 font-body text-micro text-ink-faint">
                   <span className="font-medium text-success">
                     <CheckCircle2
                       size={12}

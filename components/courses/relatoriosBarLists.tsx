@@ -5,6 +5,7 @@
 // proporcional ao máximo e valor sempre visível em texto (nunca só cor).
 
 import { Card } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 /** Cores das barras, alinhadas com os tons dos cards (azul, verde, dourado, vermelho). */
 const BAR_COLORS = [
@@ -19,7 +20,7 @@ const BAR_COLORS = [
 /** Cabeçalho dos cards: #0F1F3D a 60% de opacidade, sangrando até às margens do card. */
 function CardHeader({ title }: { title: string }) {
   return (
-    <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D]/60 px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-white">
+    <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-brand/60 px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-white">
       {title}
     </div>
   );
@@ -60,7 +61,7 @@ function BarRows({ rows, max }: { rows: BarRow[]; max: number }) {
             key={row.key}
             type="button"
             onClick={row.onClick}
-            className="block w-full rounded-md p-1 text-left hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="block w-full rounded-control p-1 text-left hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             {content}
           </button>
@@ -85,7 +86,7 @@ function BarCard({ title, rows, max }: BarCardProps) {
     <Card className="p-4">
       <CardHeader title={title} />
       {rows.length === 0 ? (
-        <p className="text-xs text-ink-faint">Sem dados</p>
+        <EmptyState variant="inline" title="Sem dados" />
       ) : (
         <BarRows rows={rows} max={max} />
       )}
@@ -139,7 +140,7 @@ export function CourseProgressList({
     <Card className="p-4">
       <CardHeader title={title} />
       {items.length === 0 ? (
-        <p className="text-xs text-ink-faint">Sem dados</p>
+        <EmptyState variant="inline" title="Sem dados" />
       ) : (
         <div className="space-y-3">
           {items.slice(0, 6).map((c) => {
@@ -149,7 +150,7 @@ export function CourseProgressList({
                 key={c.id}
                 type="button"
                 onClick={() => onSelect(c.id)}
-                className="block w-full rounded-md text-left hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="block w-full rounded-control text-left hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 <div className="mb-1 flex items-start justify-between gap-2">
                   <span className="min-w-0 break-words text-xs font-medium text-ink">

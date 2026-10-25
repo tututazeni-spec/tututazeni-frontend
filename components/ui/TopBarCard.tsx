@@ -2,9 +2,9 @@ export type TopBarTone = 'blue' | 'green' | 'gold' | 'red';
 
 const TONES: { [K in TopBarTone]: { bar: string; text: string } } = {
   blue: { bar: 'bg-[#2B6CC4]', text: 'text-[#2B6CC4]' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  green: { bar: 'bg-success', text: 'text-success' },
   gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+  red: { bar: 'bg-danger', text: 'text-danger' },
 };
 
 export interface TopBarCardProps {
@@ -17,7 +17,7 @@ export interface TopBarCardProps {
 export function TopBarCard({ label, value, tone, icon }: TopBarCardProps) {
   const t = TONES[tone];
   return (
-    <div className="overflow-hidden rounded-xl bg-white shadow-md transition-shadow duration-200 hover:shadow-lg">
+    <div className="overflow-hidden rounded-card bg-white shadow-md transition-shadow duration-200 hover:shadow-lg">
       <div className={`h-1.5 w-full ${t.bar}`} />
       <div className="p-5">
         <div className={t.text}>{icon}</div>

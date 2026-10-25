@@ -33,7 +33,7 @@ function ProgressTable({
       <span className={`${PILL} mb-3 ${pillClassName}`}>{title}</span>
 
       {rows.length === 0 ? (
-        <p className="p-4 text-xs text-ink-faint">Sem inscrições registadas</p>
+        <EmptyState variant="inline" title="Sem inscrições registadas" />
       ) : (
         <div className="space-y-5">
           {rows.map((r) => (
@@ -74,8 +74,8 @@ export function DepartmentProgressView() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="space-y-2 animate-pulse"
-        itemClassName="h-20 rounded-2xl bg-surface-sunken"
+        wrapperClassName="space-y-2"
+        itemClassName="h-20 rounded-panel bg-surface-sunken"
       />
     );
 

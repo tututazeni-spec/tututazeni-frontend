@@ -24,6 +24,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { CATEGORY_CONFIG, SENSITIVITY_CONFIG } from './constants';
 import type { DocCategory, DocSensitivity } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface UploadModalProps {
   onClose: () => void;
@@ -129,14 +130,14 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
             <p className="text-xs text-ink-faint mt-1">
               PDF, DOCX, XLS, imagens — máx. 100MB
             </p>
-            <input
+            <Input
               type="text"
               value={form.fileUrl}
               onChange={(e) =>
                 setForm((f) => ({ ...f, fileUrl: e.target.value }))
               }
               placeholder="(temporário: cole a URL do ficheiro)"
-              className="mt-3 w-full px-3 py-1.5 text-xs border border-border-strong rounded-control bg-surface focus:outline-none focus:border-accent focus:ring-[3px] focus:ring-accent-subtle"
+              className="mt-3 w-full"
             />
           </div>
 
@@ -212,20 +213,17 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
           </FormField>
 
           <label className="flex items-center gap-2 cursor-pointer text-sm text-ink">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={form.asDraft}
               onChange={(e) =>
                 setForm((f) => ({ ...f, asDraft: e.target.checked }))
               }
-              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
             />
             Guardar como rascunho (inicia fluxo de revisão/aprovação)
           </label>
 
           <label className="flex items-center gap-2 cursor-pointer text-sm text-ink">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={form.requiresReadConfirmation}
               onChange={(e) =>
                 setForm((f) => ({
@@ -233,7 +231,6 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
                   requiresReadConfirmation: e.target.checked,
                 }))
               }
-              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
             />
             Exigir confirmação de leitura
           </label>

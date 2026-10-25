@@ -163,9 +163,9 @@ export function EvaluationsView() {
           description="Nenhuma avaliação de competência corresponde aos filtros seleccionados."
         />
       ) : (
-        <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
           <table className="w-full min-w-[1100px] border-collapse font-body text-sm text-white">
-            <thead className="bg-[#0B2D5B]">
+            <thead className="bg-brand-dark">
               <tr>
                 {COLUMNS.map((c) => (
                   <th
@@ -207,13 +207,13 @@ export function EvaluationsView() {
                         <p className="truncate font-semibold text-white">
                           {r.colaborador}
                         </p>
-                        <p className="truncate text-xs text-[#9DB4D3]">
+                        <p className="truncate text-xs text-on-brand-faint">
                           {r.departamento ?? '—'}
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-[#CFE3FF]">
+                  <td className="px-4 py-3 text-on-brand">
                     {r.avaliador ?? '—'}
                   </td>
                   <td className="px-4 py-3 leading-snug text-white">
@@ -225,38 +225,38 @@ export function EvaluationsView() {
                     />
                   </td>
                   <td className="px-4 py-3">
-                    <span className="inline-block whitespace-nowrap rounded-full bg-[#124A88] px-2.5 py-0.5 text-xs font-medium text-[#CFE3FF]">
+                    <span className="inline-block whitespace-nowrap rounded-full bg-[#124A88] px-2.5 py-0.5 text-xs font-medium text-on-brand">
                       {r.tipoAvaliacao}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                  <td className="px-4 py-3 text-center text-on-brand">
                     {r.nivelObtido}
                   </td>
-                  <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                  <td className="px-4 py-3 text-center text-on-brand">
                     {r.nivelEsperado ?? '—'}
                   </td>
-                  <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                  <td className="px-4 py-3 text-center text-on-brand">
                     {r.gap ?? '—'}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-xs text-[#CFE3FF]">
+                  <td className="whitespace-nowrap px-4 py-3 text-xs text-on-brand">
                     {new Date(r.data).toLocaleDateString('pt')}
                   </td>
                   <td className="px-4 py-3 text-xs text-white">
                     {EVALUATION_STATUS_CFG[r.estado]?.label ?? r.estado}
                   </td>
                   <td
-                    className="max-w-[180px] truncate px-4 py-3 text-xs text-[#CFE3FF]"
+                    className="max-w-[180px] truncate px-4 py-3 text-xs text-on-brand"
                     title={r.comentarios ?? ''}
                   >
                     {r.comentarios ?? '—'}
                   </td>
                   <td
-                    className="max-w-[140px] truncate px-4 py-3 text-xs text-[#CFE3FF]"
+                    className="max-w-[140px] truncate px-4 py-3 text-xs text-on-brand"
                     title={r.evidencias ?? ''}
                   >
                     {r.evidencias ?? '—'}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-xs text-[#9DB4D3]">
+                  <td className="whitespace-nowrap px-4 py-3 text-xs text-on-brand-faint">
                     {r.proximaAvaliacao
                       ? new Date(r.proximaAvaliacao).toLocaleDateString('pt')
                       : '—'}

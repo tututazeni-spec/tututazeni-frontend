@@ -24,7 +24,7 @@ export function TemplateCard({ tpl, index, onRun }: TemplateCardProps) {
     <button
       type="button"
       onClick={() => onRun(tpl)}
-      className={`group flex h-[230px] w-4/5 flex-col overflow-hidden rounded-2xl border bg-surface text-left shadow-resting transition-shadow duration-150 hover:shadow-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F1F3D] ${c.border}`}
+      className={`group flex h-[230px] w-4/5 flex-col overflow-hidden rounded-panel border bg-surface text-left shadow-resting transition-shadow duration-150 hover:shadow-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${c.border}`}
     >
       <div
         className={`relative h-16 w-full shrink-0 overflow-hidden bg-gradient-to-br ${c.header}`}
@@ -43,7 +43,7 @@ export function TemplateCard({ tpl, index, onRun }: TemplateCardProps) {
           className="absolute -bottom-2 right-4 rotate-12 text-white/25"
           aria-hidden
         />
-        <span className="absolute right-2 top-2 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-0.5 font-body text-[10px] font-medium text-ink shadow-sm">
+        <span className="absolute right-2 top-2 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-0.5 font-body text-micro font-medium text-ink shadow-sm">
           <span className={`h-1.5 w-1.5 rounded-full ${c.dot}`} aria-hidden />
           {cat.label}
         </span>
@@ -51,22 +51,24 @@ export function TemplateCard({ tpl, index, onRun }: TemplateCardProps) {
 
       <div className="relative -mt-5 flex w-full min-w-0 flex-1 flex-col gap-2 px-3 pb-3">
         <span
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg ring-[3px] ring-surface ${c.tile}`}
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-card bg-gradient-to-br text-white shadow-lg ring-[3px] ring-surface ${c.tile}`}
           aria-hidden
         >
           <Icon size={18} strokeWidth={1.75} />
         </span>
 
         <div className="min-w-0">
-          <h4 className="line-clamp-1 font-display text-sm font-bold leading-snug text-[#0F1F3D]">
+          <h4 className="line-clamp-1 font-display text-sm font-bold leading-snug text-brand">
             {tpl.name}
           </h4>
-          <p className="mt-0.5 line-clamp-2 font-body text-[11px] leading-snug text-ink-muted">
+          <p className="mt-0.5 line-clamp-2 font-body text-micro leading-snug text-ink-muted">
             {tpl.description}
           </p>
         </div>
 
-        <dl className={`mt-auto space-y-1.5 rounded-xl px-2.5 py-2 ${c.panel}`}>
+        <dl
+          className={`mt-auto space-y-1.5 rounded-card px-2.5 py-2 ${c.panel}`}
+        >
           <div className="flex items-center gap-2">
             <Tag
               size={12}
@@ -74,10 +76,10 @@ export function TemplateCard({ tpl, index, onRun }: TemplateCardProps) {
               className={`shrink-0 ${c.accent}`}
               aria-hidden
             />
-            <dt className="w-14 shrink-0 font-body text-[11px] text-ink-muted">
+            <dt className="w-14 shrink-0 font-body text-micro text-ink-muted">
               Categoria
             </dt>
-            <dd className="min-w-0 truncate font-body text-[11px] font-semibold text-[#0F1F3D]">
+            <dd className="min-w-0 truncate font-body text-micro font-semibold text-brand">
               {cat.label}
             </dd>
           </div>
@@ -90,10 +92,10 @@ export function TemplateCard({ tpl, index, onRun }: TemplateCardProps) {
               className={`shrink-0 ${c.accent}`}
               aria-hidden
             />
-            <dt className="w-14 shrink-0 font-body text-[11px] text-ink-muted">
+            <dt className="w-14 shrink-0 font-body text-micro text-ink-muted">
               Acção
             </dt>
-            <dd className="min-w-0 font-body text-[11px] font-semibold text-[#0F1F3D]">
+            <dd className="min-w-0 font-body text-micro font-semibold text-brand">
               Executar
             </dd>
           </div>

@@ -22,6 +22,8 @@ import type {
   SystemStatus,
 } from './types';
 import { pollInterval } from '@/lib/polling';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 function fmtUptime(s: number) {
   const d = Math.floor(s / 86400);
@@ -97,10 +99,7 @@ export function TabSistema() {
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
     );
-  if (isLoading || !data || !form)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !data || !form) return <Skeleton rows={4} />;
 
   const st = status.data;
 
@@ -129,12 +128,12 @@ export function TabSistema() {
     <div className="space-y-4">
       {/* Estado */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Estado do sistema
         </div>
         <CardBody>
           {!st ? (
-            <p className="text-sm text-ink-faint">A carregar estado…</p>
+            <Skeleton rows={3} />
           ) : (
             <dl className="grid grid-cols-2 gap-3 text-sm text-ink md:grid-cols-4">
               <div>
@@ -199,7 +198,7 @@ export function TabSistema() {
 
       {/* Filas */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Filas e jobs
         </div>
         <CardBody>
@@ -278,7 +277,7 @@ export function TabSistema() {
       <form onSubmit={submit} className="space-y-4">
         {/* Manutenção */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Manutenção
           </div>
           <CardBody>
@@ -287,9 +286,9 @@ export function TabSistema() {
                 htmlFor="sys-maint"
                 className="flex items-center gap-2 text-sm text-ink"
               >
-                <input
+                <Checkbox
                   id="sys-maint"
-                  type="checkbox"
+
                   checked={form.maintenance.enabled}
                   onChange={(e) =>
                     setForm({
@@ -330,7 +329,7 @@ export function TabSistema() {
 
         {/* Limites */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Limites e parâmetros técnicos
           </div>
           <CardBody>
@@ -408,8 +407,7 @@ export function TabSistema() {
                     key={m}
                     className="flex items-center gap-2 text-xs text-ink"
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={form.uploads.allowedMimeTypes.includes(m)}
                       onChange={(e) => toggleMime(m, e.target.checked)}
                     />

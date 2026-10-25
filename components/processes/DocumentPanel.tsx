@@ -25,6 +25,7 @@ import { CONFIDENTIALITY_MAP, DOC_STATUS_MAP } from './constants';
 import { ReasonDialog } from './ReasonDialog';
 import { Skeleton } from './Skeleton';
 import type { DocumentVersions, ProcessDocumentRow } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 export interface DocumentPanelProps {
   doc: ProcessDocumentRow;
@@ -186,22 +187,22 @@ export function DocumentPanel({ doc, onClose, onOpenInstance, onFulfil }: Docume
               </span>
             )}
             {doc.generated && (
-              <button
+              <LinkButton
                 type="button"
                 onClick={downloadPdf}
-                className="inline-flex items-center gap-1 font-body text-sm text-primary hover:underline"
+                className="inline-flex items-center gap-1 font-body text-sm"
               >
                 <FileDown size={14} strokeWidth={1.75} />
                 Descarregar PDF
-              </button>
+              </LinkButton>
             )}
-            <button
+            <LinkButton
               type="button"
               onClick={() => onOpenInstance(doc.instance.id)}
-              className="font-body text-sm text-primary hover:underline"
+              className="font-body text-sm"
             >
               Abrir processo
-            </button>
+            </LinkButton>
           </div>
 
           {/* Histórico de versões */}

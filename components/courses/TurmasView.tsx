@@ -98,24 +98,26 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
       }
       actions={
         <>
-          <button
+          <Button
             type="button"
-            className={NAVY_ACTION}
+            intent="onDarkGhost"
+            size="sm"
             aria-label="Ver participantes"
             title="Ver participantes"
             onClick={onOpen}
           >
             <Users2 size={15} strokeWidth={1.75} />
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
-            className={NAVY_ACTION}
+            intent="onDarkGhost"
+            size="sm"
             aria-label={`Eliminar turma ${c.name}`}
             title="Eliminar turma"
             onClick={onDelete}
           >
             <Trash2 size={15} strokeWidth={1.75} />
-          </button>
+          </Button>
           {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
             <button
               type="button"

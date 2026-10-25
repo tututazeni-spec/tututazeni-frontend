@@ -21,6 +21,7 @@ import type {
   ResilienceUpdate,
   ScheduledScaling,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const LEVEL: Record<
   InfraLevel,
@@ -47,7 +48,7 @@ export interface HeaderProps {
 export function Header({ title, sub, banner = false }: HeaderProps) {
   if (banner)
     return (
-      <div className="rounded-card bg-[#0F1F3D]/60 px-5 py-3 text-white">
+      <div className="rounded-card bg-brand/60 px-5 py-3 text-white">
         <h2 className="font-display text-lg font-bold">{title}</h2>
         {sub && <p className="mt-1 font-body text-sm text-white/80">{sub}</p>}
       </div>
@@ -63,7 +64,7 @@ export function Header({ title, sub, banner = false }: HeaderProps) {
 /** Cabeçalho de card: #0F1F3D a 60%, letra branca, sem efeito de cursor. */
 export function CardTitleBar({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="flex items-center bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+    <h3 className="flex items-center bg-brand/60 px-5 py-3 font-body text-sm font-semibold text-white">
       {children}
     </h3>
   );
@@ -172,8 +173,7 @@ export interface CheckProps {
 export function Check({ label, checked, onChange, disabled }: CheckProps) {
   return (
     <label className="flex items-center gap-2 font-body text-sm text-ink">
-      <input
-        type="checkbox"
+      <Checkbox
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
@@ -274,7 +274,7 @@ export function CapacityTab({
         <CardBody>
           <table className="w-full font-body text-sm">
             <thead>
-              <tr className="bg-[#0F1F3D]/60 text-left text-xs text-white">
+              <tr className="bg-brand/60 text-left text-xs text-white">
                 <th className="rounded-l-card px-3 py-2.5 font-semibold">
                   Recurso
                 </th>
@@ -292,7 +292,7 @@ export function CapacityTab({
                 <tr key={r.key} className="border-t border-border">
                   <td className="py-2 text-ink">
                     {r.label}
-                    <span className="block text-[11px] text-ink-faint">
+                    <span className="block text-micro text-ink-faint">
                       {r.source}
                     </span>
                   </td>
@@ -597,9 +597,7 @@ export function AutoScalingTab({
             )}
           </div>
           {scheduled.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem escalas agendadas.
-            </p>
+            <EmptyState variant="inline" title="Sem escalas agendadas" />
           ) : (
             <div className="flex flex-col gap-3">
               {scheduled.map((s, i) => (
@@ -810,7 +808,7 @@ export function ResilienceTab({
                 <tr key={c.key} className="border-t border-border">
                   <td className="py-2 text-ink">{c.label}</td>
                   <td className="py-2 text-ink-muted">{c.detail}</td>
-                  <td className="py-2 text-right text-[11px] uppercase text-ink-faint">
+                  <td className="py-2 text-right text-micro uppercase text-ink-faint">
                     {c.source === 'MEDIDO' ? 'medido' : 'declarado'}
                   </td>
                   <td className="py-2 text-right">

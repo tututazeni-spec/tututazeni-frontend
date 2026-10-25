@@ -31,7 +31,7 @@ import { cn } from '@/lib/cn';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { NAVY_BTN, NavyBadge, NavyCard } from '@/components/courses/NavyCard';
+import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -142,9 +142,10 @@ function ManagerQueue() {
               progress={{ value: Math.round(r.progress) }}
               footer={
                 <>
-                  <button
+                  <Button
                     type="button"
-                    className={NAVY_BTN}
+                    intent="onDark"
+                    size="md"
                     onClick={() =>
                       setToSubmit({
                         id: r.id,
@@ -163,14 +164,15 @@ function ManagerQueue() {
                     }
                   >
                     {r.status === 'IN_PROGRESS' ? 'Continuar' : 'Avaliar'}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
-                    className={NAVY_BTN}
+                    intent="onDark"
+                    size="md"
                     onClick={() => remind.mutate(r.id)}
                   >
                     Lembrar
-                  </button>
+                  </Button>
                 </>
               }
             />
@@ -254,13 +256,14 @@ function MyPendingList() {
               },
             ]}
             footer={
-              <button
+              <Button
                 type="button"
-                className={NAVY_BTN}
+                intent="onDark"
+                size="md"
                 onClick={() => setToSubmit(r)}
               >
                 Avaliar →
-              </button>
+              </Button>
             }
           />
         );

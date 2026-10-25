@@ -11,7 +11,7 @@ import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { ProgramsListController } from '@/hooks/useProgramsList';
-import { CARD_BTN, CARD_BTN_GHOST, CardGrid, ProgramCard } from '../cards';
+import { CardGrid, ProgramCard } from '../cards';
 import { PROGRAM_STATUS } from '../constants';
 import { ALL, programActions } from './logic';
 
@@ -48,10 +48,7 @@ export function ProgramsListView({
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (isLoading || !data)
     return (
-      <Skeleton
-        rows={3}
-        itemClassName="h-20 rounded-card bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={3} itemClassName="h-20 rounded-card bg-surface-sunken" />
     );
 
   return (
@@ -69,7 +66,7 @@ export function ProgramsListView({
                 key={id}
                 aria-pressed={mode === id}
                 onClick={() => setMode(id)}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                className={`rounded-control border px-3 py-1.5 text-xs font-medium transition-colors ${
                   mode === id
                     ? 'border-primary bg-primary/10 text-primary'
                     : 'border-border bg-white text-ink-muted hover:text-ink'
@@ -143,39 +140,43 @@ export function ProgramsListView({
                 onSelect={() => onOpenSheet(p.id)}
                 footer={
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={CARD_BTN_GHOST}
+                      intent="onDarkGhost"
+                      size="sm"
                       onClick={() => onOpenSheet(p.id)}
                     >
                       Ficha
-                    </button>
+                    </Button>
                     {actions.canSubmitReview && (
-                      <button
+                      <Button
                         type="button"
-                        className={CARD_BTN}
+                        intent="onDark"
+                        size="sm"
                         onClick={() => runAction(p.id, 'submit-review')}
                       >
                         Submeter a revisão
-                      </button>
+                      </Button>
                     )}
                     {actions.canPublish && (
-                      <button
+                      <Button
                         type="button"
-                        className={CARD_BTN}
+                        intent="onDark"
+                        size="sm"
                         onClick={() => runAction(p.id, 'publish')}
                       >
                         Publicar
-                      </button>
+                      </Button>
                     )}
                     {actions.canArchive && (
-                      <button
+                      <Button
                         type="button"
-                        className={CARD_BTN_GHOST}
+                        intent="onDarkGhost"
+                        size="sm"
                         onClick={() => runAction(p.id, 'archive')}
                       >
                         Arquivar
-                      </button>
+                      </Button>
                     )}
                   </>
                 }

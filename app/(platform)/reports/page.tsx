@@ -72,7 +72,7 @@ export default function ReportsPage() {
           <div className="absolute -right-10 bottom-0 h-40 w-72 rounded-full bg-primary/15 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto max-w-7xl rounded-3xl border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
+        <div className="relative mx-auto max-w-7xl rounded-panel border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
           <div className="flex flex-wrap items-center justify-center gap-2">
             {TABS.map((t) => {
               const Icon = t.icon;
@@ -87,7 +87,7 @@ export default function ReportsPage() {
                   }}
                   className={`flex items-center gap-3 whitespace-nowrap rounded-full border py-2 pl-2 pr-4 text-left font-body backdrop-blur transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
                     active
-                      ? 'border-transparent bg-[#0F1F3D] text-white shadow-lg'
+                      ? 'border-transparent bg-brand text-white shadow-lg'
                       : 'border-white/70 bg-white/60 text-ink shadow-sm duration-200 hover:scale-105 hover:border-primary hover:bg-white/80 hover:shadow-md motion-reduce:hover:scale-100'
                   }`}
                 >

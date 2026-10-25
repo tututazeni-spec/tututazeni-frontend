@@ -16,11 +16,7 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
-import {
-  NAVY_ACTION,
-  NavyBadge,
-  NavyCard,
-} from '@/components/courses/NavyCard';
+import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { TemplateFormModal } from './TemplateFormModal';
@@ -130,24 +126,26 @@ export function ModelsTab() {
               actions={
                 isAdmin && (
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={NAVY_ACTION}
+                      intent="onDarkGhost"
+                      size="sm"
                       aria-label={`Editar ${t.name}`}
                       title="Editar modelo"
                       onClick={() => setEditingId(t.id)}
                     >
                       <Pencil size={15} strokeWidth={1.75} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className={NAVY_ACTION}
+                      intent="onDarkGhost"
+                      size="sm"
                       aria-label={`Remover ${t.name}`}
                       title="Remover modelo"
                       onClick={() => remove(t)}
                     >
                       <Trash2 size={15} strokeWidth={1.75} />
-                    </button>
+                    </Button>
                   </>
                 )
               }

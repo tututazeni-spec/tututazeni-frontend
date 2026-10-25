@@ -25,6 +25,9 @@ import type {
   CertificateTemplate,
   CertificateTemplateType,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const TEMPLATE_TYPES: { value: CertificateTemplateType; label: string }[] = [
   { value: 'COURSE', label: 'Curso' },
@@ -158,10 +161,7 @@ export function TabCertificados() {
     },
   );
 
-  if (isLoading || !form)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !form) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
@@ -250,7 +250,7 @@ export function TabCertificados() {
     <div className="space-y-4">
       <form onSubmit={submit} className="grid grid-cols-2 gap-4">
         <Card className="col-span-2 overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Identidade dos certificados
           </div>
           <CardBody>
@@ -339,7 +339,7 @@ export function TabCertificados() {
         </Card>
 
         <Card className="col-span-2 overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Numeração e verificação
           </div>
           <CardBody>
@@ -414,7 +414,7 @@ export function TabCertificados() {
       </form>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
           Biblioteca de templates
           <Button type="button" onClick={openCreate}>
             Novo template
@@ -422,11 +422,9 @@ export function TabCertificados() {
         </div>
         <CardBody>
           {templates.isLoading ? (
-            <p className="text-sm text-ink-faint">A carregar…</p>
+            <Skeleton rows={3} />
           ) : !list.length ? (
-            <p className="py-6 text-center text-sm text-ink-faint">
-              Nenhum template criado.
-            </p>
+            <EmptyState variant="inline" title="Nenhum template criado" />
           ) : (
             <table className="w-full text-sm">
               <thead>
@@ -633,9 +631,9 @@ export function TabCertificados() {
                     htmlFor="tpl-isActive"
                     className="flex items-center gap-2 text-sm text-ink"
                   >
-                    <input
+                    <Checkbox
                       id="tpl-isActive"
-                      type="checkbox"
+
                       checked={draft.isActive}
                       onChange={(e) =>
                         setDraft((d) =>
@@ -649,9 +647,9 @@ export function TabCertificados() {
                     htmlFor="tpl-isDefault"
                     className="flex items-center gap-2 text-sm text-ink"
                   >
-                    <input
+                    <Checkbox
                       id="tpl-isDefault"
-                      type="checkbox"
+
                       checked={draft.isDefault}
                       onChange={(e) =>
                         setDraft((d) =>

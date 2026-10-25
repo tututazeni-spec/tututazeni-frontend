@@ -89,7 +89,7 @@ export function GanttChart({
                 x={PADDING.left - 10}
                 y={y + BAR_H / 2 + 4}
                 textAnchor="end"
-                className="fill-ink-muted text-[10px]"
+                className="fill-ink-muted text-micro"
               >
                 {row.label}
               </text>

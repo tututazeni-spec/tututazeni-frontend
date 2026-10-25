@@ -26,6 +26,7 @@ import { CARD, fmtDate, getStatus } from './utils';
 import { MODALITY_CFG, STATUS_CFG, TYPE_CFG } from './constants';
 import { formatTime as fmtTime } from '@/lib/format';
 import type { LiveClass } from './types';
+import { IconButton } from '@/components/ui/Button';
 
 export interface ClassCardProps {
   lc: LiveClass;
@@ -105,20 +106,20 @@ export function ClassCard({
           )}
           <div className="mt-1.5 flex flex-wrap gap-1">
             <span
-              className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${TYPE_CFG[lc.type]?.cls ?? ''}`}
+              className={`rounded px-1.5 py-0.5 text-micro font-medium ${TYPE_CFG[lc.type]?.cls ?? ''}`}
             >
               {TYPE_CFG[lc.type]?.label ?? lc.type}
             </span>
             <span
-              className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${STATUS_CFG[lc.status]?.cls ?? ''}`}
+              className={`rounded px-1.5 py-0.5 text-micro font-medium ${STATUS_CFG[lc.status]?.cls ?? ''}`}
             >
               {STATUS_CFG[lc.status]?.label ?? lc.status}
             </span>
-            <span className="rounded bg-surface-sunken px-1.5 py-0.5 text-[10px] font-medium text-ink-muted">
+            <span className="rounded bg-surface-sunken px-1.5 py-0.5 text-micro font-medium text-ink-muted">
               {MODALITY_CFG[lc.modality]?.label ?? lc.modality}
             </span>
             {lc.instructor && (
-              <span className="rounded bg-surface-sunken px-1.5 py-0.5 text-[10px] font-medium text-ink-muted">
+              <span className="rounded bg-surface-sunken px-1.5 py-0.5 text-micro font-medium text-ink-muted">
                 {lc.instructor.name}
               </span>
             )}
@@ -127,12 +128,13 @@ export function ClassCard({
         {canManage && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button
-                aria-label="Mais ações"
-                className="flex-shrink-0 rounded-lg p-1.5 text-ink-faint hover:bg-surface-sunken"
-              >
-                <MoreVertical size={16} strokeWidth={1.75} />
-              </button>
+              <IconButton
+                icon={MoreVertical}
+                label="Mais ações"
+                intent="ghost"
+                size="compact"
+                className="flex-shrink-0"
+              />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => onStart(lc)}>
@@ -181,7 +183,7 @@ export function ClassCard({
       <div className="flex gap-2 pt-1 border-t border-surface">
         <button
           onClick={() => onOpen(lc.id)}
-          className={`flex-[2] py-2 px-2 rounded-lg border-none text-canvas text-xs font-bold cursor-pointer ${
+          className={`flex-[2] py-2 px-2 rounded-control border-none text-canvas text-xs font-bold cursor-pointer ${
             isLive ? 'bg-danger' : 'bg-ink'
           }`}
         >
@@ -197,14 +199,14 @@ export function ClassCard({
         {lc.recordingUrl && (
           <button
             onClick={() => onViewRecording(lc)}
-            className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-2 rounded-lg border border-accent bg-accent-subtle text-accent text-xs font-semibold cursor-pointer"
+            className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-2 rounded-control border border-accent bg-accent-subtle text-accent text-xs font-semibold cursor-pointer"
           >
             <Clapperboard size={12} strokeWidth={1.75} /> Ver
           </button>
         )}
         <button
           onClick={() => onDelete(lc)}
-          className="py-2 px-2.5 rounded-lg border border-danger-subtle bg-danger-subtle text-danger text-xs cursor-pointer"
+          className="py-2 px-2.5 rounded-control border border-danger-subtle bg-danger-subtle text-danger text-xs cursor-pointer"
         >
           <Trash2 size={13} strokeWidth={1.75} />
         </button>

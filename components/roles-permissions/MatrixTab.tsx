@@ -84,7 +84,7 @@ export function MatrixTab() {
       </div>
 
       <Table>
-        <TableHead className="bg-[#0F1F3D]/60">
+        <TableHead className="bg-brand/60">
           <TableRow className="hover:bg-transparent">
             <TableHeaderCell className="text-white">Permissão</TableHeaderCell>
             {(data?.roles ?? []).map((r) => (
@@ -102,7 +102,7 @@ export function MatrixTab() {
             <TableRow key={i}>
               <TableCell>
                 <p className="font-data text-ink">{translatePermName(p)}</p>
-                <p className="text-[10px] text-ink-faint">
+                <p className="text-micro text-ink-faint">
                   {translateResource(p.subject)} · {translateAction(p.action)}
                 </p>
               </TableCell>

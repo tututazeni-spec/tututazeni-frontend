@@ -10,9 +10,11 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CATEGORY_CFG, Skeleton } from './shared';
+import { QueryError } from '@/components/ui/QueryError';
 import type { NotifData, Notification } from './types';
 import type { ReadFilter } from '@/hooks/useNotificationsInbox';
 import { safeHref } from '@/lib/safeHref';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 
 function timeAgo(d: string): string {
   const diff = Date.now() - new Date(d).getTime();
@@ -121,6 +123,9 @@ export interface InboxViewProps {
   onReadFilterChange: (filter: ReadFilter) => void;
   data: NotifData | undefined;
   loading: boolean;
+  /** Erro da query da lista; sem dados em cache mostra «Tentar novamente». */
+  error?: unknown;
+  onRetry?: () => void;
   onRead: (id: number) => void;
   onArchive: (id: number) => void;
   onReadAll: () => void;
@@ -134,6 +139,8 @@ export function InboxView({
   onReadFilterChange,
   data,
   loading,
+  error,
+  onRetry,
   onRead,
   onArchive,
   onReadAll,
@@ -163,10 +170,9 @@ export function InboxView({
       {/* Toolbar */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         {/* Category filter */}
-        <select
+        <NativeSelect
           value={category}
           onChange={(e) => onCategoryChange(e.target.value)}
-          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todas as categorias</option>
           {Object.entries(CATEGORY_CFG).map(([k, v]) => (
@@ -174,7 +180,7 @@ export function InboxView({
               {v.label}
             </option>
           ))}
-        </select>
+        </NativeSelect>
 
         {/* Read filter */}
         <div className="flex gap-1 rounded-control bg-surface-sunken p-1">
@@ -205,7 +211,11 @@ export function InboxView({
 
       {loading ? (
         <Skeleton />
-      ) : !data ? null : (
+      ) : !data ? (
+        error ? (
+          <QueryError error={error} onRetry={onRetry} />
+        ) : null
+      ) : (
         <Card className="overflow-hidden">
           {data.data.length === 0 ? (
             <EmptyState

@@ -47,7 +47,7 @@ export function SectionHeader({
 }: SectionHeaderProps) {
   if (banner)
     return (
-      <div className="rounded-card bg-[#0F1F3D]/60 px-5 py-3 text-white">
+      <div className="rounded-card bg-brand/60 px-5 py-3 text-white">
         <h2 className="font-display text-lg font-bold">{title}</h2>
         {sub && <p className="mt-1 font-body text-sm text-white/80">{sub}</p>}
       </div>
@@ -246,7 +246,7 @@ export interface StatusCardProps {
 export function StatusCard({ title, rows }: StatusCardProps) {
   return (
     <Card className="overflow-hidden">
-      <h3 className="flex items-center bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+      <h3 className="flex items-center bg-brand/60 px-5 py-3 font-body text-sm font-semibold text-white">
         {title}
       </h3>
       <CardBody>

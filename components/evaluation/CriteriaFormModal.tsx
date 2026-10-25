@@ -21,6 +21,7 @@ import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { CRITERIA_CATEGORY_OPTIONS } from './constants';
 import type { EvalCriteria, EvalScale } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface CriteriaFormModalProps {
   criteria?: EvalCriteria | null;
@@ -231,7 +232,7 @@ export function CriteriaFormModal({
                     onClick={() => toggleIndicator(s)}
                     className={
                       active
-                        ? 'rounded-full border-[1.5px] border-[#0F1F3D] bg-[#0F1F3D] px-3 py-1 text-xs text-white'
+                        ? 'rounded-full border-[1.5px] border-brand bg-brand px-3 py-1 text-xs text-white'
                         : 'rounded-full border-[1.5px] border-field bg-surface px-3 py-1 text-xs text-field-ink hover:bg-field-soft'
                     }
                   >
@@ -252,11 +253,9 @@ export function CriteriaFormModal({
 
           {isEdit && (
             <label className="flex cursor-pointer items-center gap-2 font-body text-sm text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                className="rounded accent-primary"
               />
               Activo
             </label>

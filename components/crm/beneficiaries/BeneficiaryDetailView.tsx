@@ -22,6 +22,7 @@ import {
   type BeneficiaryExtras,
 } from './BeneficiaryExtraTabs';
 import type { BeneficiaryDetail } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 interface BeneficiaryDetailViewProps {
   beneficiary: BeneficiaryDetail;
@@ -45,12 +46,12 @@ export function BeneficiaryDetailView({
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <button
+          <LinkButton
             onClick={() => router.push('/crm/beneficiaries')}
-            className="font-body text-sm text-primary hover:underline mb-2"
+            className="font-body text-sm mb-2"
           >
             ← Voltar à lista
-          </button>
+          </LinkButton>
           <h1 className="font-display text-2xl font-bold text-ink">
             {b.fullName}
           </h1>

@@ -23,6 +23,8 @@ import type {
   EmailTemplateKey,
   EmailTestResult,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const TEMPLATE_LABELS: Record<EmailTemplateKey, string> = {
   PASSWORD_RESET: 'Recuperação de password',
@@ -39,9 +41,9 @@ interface ToggleProps {
 function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
@@ -100,10 +102,7 @@ export function TabEmail() {
     },
   );
 
-  if (isLoading || !smtp || !templates)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !smtp || !templates) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
@@ -126,7 +125,7 @@ export function TabEmail() {
   return (
     <form onSubmit={submit} className="space-y-4">
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Servidor (SMTP)
         </div>
         <CardBody>
@@ -212,7 +211,7 @@ export function TabEmail() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Assinatura
         </div>
         <CardBody>
@@ -232,7 +231,7 @@ export function TabEmail() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Templates
         </div>
         <CardBody>

@@ -7,6 +7,7 @@
 import type { CurrentUser as Me } from '@/hooks/useCurrentUser';
 import { AvatarUploader } from '@/components/ui/AvatarUploader';
 import { Card, CardBody } from '@/components/ui/Card';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface TabPerfilProps {
   user: Me;
@@ -17,7 +18,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
     <div className="grid grid-cols-2 gap-4">
       {/* Cartão principal */}
       {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
-      <div className="col-span-2 overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="col-span-2 overflow-hidden rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="flex items-center gap-5">
           {/* Avatar */}
           <AvatarUploader
@@ -32,7 +33,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
             <p className="mt-1 text-sm text-white">{user.email}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {user.role && (
-                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-[#7CC4FF]">
+                <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-on-brand-accent">
                   {user.role.name}
                 </span>
               )}
@@ -65,7 +66,7 @@ export function TabPerfil({ user }: TabPerfilProps) {
 
       {/* Info organizacional */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Informação Organizacional
         </div>
         <CardBody>
@@ -101,20 +102,21 @@ export function TabPerfil({ user }: TabPerfilProps) {
 
       {/* Badges */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Distintivos Recentes
         </div>
         <CardBody>
           {!user.badgeAwards?.length ? (
-            <p className="text-ink-faint text-sm text-center py-5">
-              Nenhum Distintivo conquistado ainda.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Nenhum Distintivo conquistado ainda"
+            />
           ) : (
             <div className="space-y-2">
               {user.badgeAwards.map((b, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 p-3 bg-accent-subtle rounded-lg border border-accent"
+                  className="flex items-center gap-3 p-3 bg-accent-subtle rounded-control border border-accent"
                 >
                   <span className="text-xl"></span>
                   <div className="flex-1">

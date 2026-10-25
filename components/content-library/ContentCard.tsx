@@ -82,7 +82,7 @@ export function ContentCard({
           <p className="truncate font-body text-sm font-medium text-ink">
             {content.title}
           </p>
-          <p className="font-body text-[10px] text-ink-faint">
+          <p className="font-body text-micro text-ink-faint">
             {content.durationMin ? `${content.durationMin} min` : ''}{' '}
             {content.level ? `· ${content.level}` : ''}
           </p>
@@ -134,17 +134,17 @@ export function ContentCard({
         {/* Badges */}
         <div className="absolute left-2 top-2 flex gap-1">
           {content.mandatory && (
-            <span className="rounded bg-danger px-1.5 py-0.5 font-body text-[9px] font-bold text-canvas">
+            <span className="rounded bg-danger px-1.5 py-0.5 font-body text-micro font-bold text-canvas">
               OBRIG.
             </span>
           )}
           {content.hasCertification && (
-            <span className="rounded bg-accent px-1.5 py-0.5 font-body text-[9px] font-bold text-canvas">
+            <span className="rounded bg-accent px-1.5 py-0.5 font-body text-micro font-bold text-canvas">
               CERT.
             </span>
           )}
           {content.isMicrolearning && (
-            <span className="rounded bg-info px-1.5 py-0.5 font-body text-[9px] font-bold text-canvas">
+            <span className="rounded bg-info px-1.5 py-0.5 font-body text-micro font-bold text-canvas">
               MICRO
             </span>
           )}
@@ -187,13 +187,13 @@ export function ContentCard({
       <CardBody className="p-3">
         <div className="mb-1.5 flex items-center gap-2">
           <span
-            className={`rounded px-1.5 py-0.5 font-body text-[10px] font-medium ${FORMAT_CLS[content.type] ?? FORMAT_CLS_FALLBACK}`}
+            className={`rounded px-1.5 py-0.5 font-body text-micro font-medium ${FORMAT_CLS[content.type] ?? FORMAT_CLS_FALLBACK}`}
           >
             {content.type}
           </span>
           {content.level && (
             <span
-              className={`font-body text-[10px] font-medium ${LEVEL_CLS[content.level] ?? 'text-ink-muted'}`}
+              className={`font-body text-micro font-medium ${LEVEL_CLS[content.level] ?? 'text-ink-muted'}`}
             >
               {content.level}
             </span>
@@ -204,7 +204,7 @@ export function ContentCard({
           {content.title}
         </h4>
 
-        <div className="flex items-center gap-3 font-body text-[10px] text-ink-faint">
+        <div className="flex items-center gap-3 font-body text-micro text-ink-faint">
           {content.durationMin && (
             <span className="flex items-center gap-0.5">
               <Clock size={14} strokeWidth={1.75} />

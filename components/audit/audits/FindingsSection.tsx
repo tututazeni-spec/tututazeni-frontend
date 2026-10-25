@@ -13,6 +13,7 @@ import { AddButton, SubmitRow } from './detailParts';
 import type { Severity } from '../types';
 import type { InternalAuditDetailController } from '@/hooks/useInternalAuditDetail';
 import type { InternalAuditDetail } from '../types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function FindingsSection({
   audit: a,
@@ -90,7 +91,7 @@ export function FindingsSection({
         </div>
       )}
       {a.findings.length === 0 && (
-        <p className="py-1 text-ink-faint">Sem constatações.</p>
+        <EmptyState variant="inline" title="Sem constatações" />
       )}
       {a.findings.map((x) => (
         <div key={x.id} className="border-b border-border py-1.5 last:border-0">

@@ -39,13 +39,13 @@ export function ResultCard({ result }: ResultCardProps) {
         <p className="truncate font-body text-sm font-medium text-ink">
           {result.title}
         </p>
-        <p className="truncate font-body text-[10px] text-ink-faint">
+        <p className="truncate font-body text-micro text-ink-faint">
           {result.subtitle}
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-1">
         {result.mandatory && (
-          <Badge intent="danger" className="px-1.5 py-0 text-[9px]">
+          <Badge intent="danger" className="px-1.5 py-0 text-micro">
             OBRIG.
           </Badge>
         )}

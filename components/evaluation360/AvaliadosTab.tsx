@@ -23,6 +23,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const ALL = 'ALL';
 
@@ -115,19 +116,17 @@ export function AvaliadosTab() {
       </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
-        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
             Avaliados
           </h3>
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
-      {cycleId && isLoading && (
-        <div className="text-sm text-ink-muted">A carregar…</div>
-      )}
+      {cycleId && isLoading && <Skeleton rows={3} />}
       {cycleId && !isLoading && rows.length === 0 && (
-        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
             Avaliados
           </h3>
           Nenhum avaliado encontrado com estes filtros.
@@ -138,7 +137,7 @@ export function AvaliadosTab() {
         <div className="rounded-card border border-border bg-surface overflow-x-auto">
           <table className="w-full text-sm border-collapse min-w-[1000px]">
             <thead>
-              <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
+              <tr className="border-b border-border bg-brand/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Colaborador</th>
                 <th className="px-4 py-3">Cargo</th>
                 <th className="px-4 py-3">Departamento</th>

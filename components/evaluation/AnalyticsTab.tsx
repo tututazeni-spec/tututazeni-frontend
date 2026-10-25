@@ -61,7 +61,7 @@ export function AnalyticsTab() {
       <Skeleton
         rows={4}
         wrapperClassName="space-y-4"
-        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
+        itemClassName="skeleton-shimmer h-[155px] rounded-panel"
       />
     );
   if (!data?.hasData)
@@ -107,7 +107,7 @@ export function AnalyticsTab() {
 
       {/* Distribution */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Distribuição de Performance
         </div>
         <CardBody>
@@ -134,7 +134,7 @@ export function AnalyticsTab() {
                   <p className="text-xl font-bold text-ink">
                     {data.distribution[d.key]}
                   </p>
-                  <p className={`text-[10px] font-medium ${d.textColor}`}>
+                  <p className={`text-micro font-medium ${d.textColor}`}>
                     {d.label}
                   </p>
                 </Card>
@@ -147,7 +147,7 @@ export function AnalyticsTab() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top performers */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
             <Trophy
               size={16}
               strokeWidth={1.75}
@@ -171,7 +171,7 @@ export function AnalyticsTab() {
                     <p className="text-xs font-medium text-ink truncate">
                       {p.user?.fullName}
                     </p>
-                    <p className="text-[10px] text-ink-faint">
+                    <p className="text-micro text-ink-faint">
                       {p.user?.department?.name}
                     </p>
                   </div>
@@ -181,7 +181,7 @@ export function AnalyticsTab() {
                     >
                       {p.avgScore.toFixed(1)}
                     </p>
-                    <p className="text-[10px] text-ink-faint">
+                    <p className="text-micro text-ink-faint">
                       P{p.percentile}
                     </p>
                   </div>
@@ -193,7 +193,7 @@ export function AnalyticsTab() {
 
         {/* By department */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Score por Departamento
           </div>
           <CardBody>

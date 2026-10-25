@@ -253,7 +253,7 @@ export function OverviewTab() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
-        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
+        itemClassName="skeleton-shimmer h-[155px] rounded-panel"
       />
     );
 

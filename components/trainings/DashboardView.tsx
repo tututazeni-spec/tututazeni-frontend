@@ -233,7 +233,7 @@ export function DashboardView() {
       {/* Próximas sessões */}
       {data.upcomingSessions.length > 0 && (
         <Card className="overflow-hidden p-0">
-          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+          <div className="bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Próximas sessões
           </div>
           {data.upcomingSessions.map((s) => (
@@ -258,7 +258,7 @@ export function DashboardView() {
       {/* Top */}
       {data.topTrainings.length > 0 && (
         <Card className="overflow-hidden p-0">
-          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+          <div className="bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Mais populares
           </div>
           {data.topTrainings.map((t, idx) => (

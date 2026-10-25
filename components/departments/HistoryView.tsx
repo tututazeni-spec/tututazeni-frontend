@@ -76,7 +76,11 @@ export function HistoryView() {
   const { data, isLoading, error } = useApiQuery<PaginatedHistory>(
     queryKeys.departments.history(params),
     '/departments/history',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   return (
@@ -97,11 +101,15 @@ export function HistoryView() {
       {isLoading && (
         <Skeleton
           rows={6}
-          wrapperClassName="space-y-2 animate-pulse"
+          wrapperClassName="space-y-2"
           itemClassName="h-14 rounded-card bg-surface-sunken"
         />
       )}
-      {error && <div className="px-4 py-8 text-center text-sm text-danger">{error.message}</div>}
+      {error && (
+        <div className="px-4 py-8 text-center text-sm text-danger">
+          {error.message}
+        </div>
+      )}
 
       {!isLoading && !error && data?.data.length === 0 && (
         <EmptyState
@@ -113,7 +121,7 @@ export function HistoryView() {
 
       {!isLoading && !error && data && data.data.length > 0 && (
         <Table>
-          <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
+          <TableHead className="bg-brand/60 [&_th]:text-white">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell>Data/Hora</TableHeaderCell>
               <TableHeaderCell>Tipo de alteração</TableHeaderCell>
@@ -133,19 +141,32 @@ export function HistoryView() {
                 </TableCell>
                 <TableCell className="text-sm text-ink">{e.type}</TableCell>
                 <TableCell className="text-sm text-ink-muted">
-                  {e.department ? `${e.department.name}${e.department.code ? ` (${e.department.code})` : ''}` : '—'}
+                  {e.department
+                    ? `${e.department.name}${e.department.code ? ` (${e.department.code})` : ''}`
+                    : '—'}
                 </TableCell>
-                <TableCell className="text-sm text-ink-muted">{e.field ?? '—'}</TableCell>
-                <TableCell className="max-w-[160px] truncate text-xs text-ink-faint" title={fmtValue(e.before)}>
+                <TableCell className="text-sm text-ink-muted">
+                  {e.field ?? '—'}
+                </TableCell>
+                <TableCell
+                  className="max-w-[160px] truncate text-xs text-ink-faint"
+                  title={fmtValue(e.before)}
+                >
                   {fmtValue(e.before)}
                 </TableCell>
-                <TableCell className="max-w-[160px] truncate text-xs text-ink" title={fmtValue(e.after)}>
+                <TableCell
+                  className="max-w-[160px] truncate text-xs text-ink"
+                  title={fmtValue(e.after)}
+                >
                   {fmtValue(e.after)}
                 </TableCell>
                 <TableCell className="text-xs text-ink-muted">
                   {e.changedBy?.fullName ?? '—'}
                 </TableCell>
-                <TableCell className="max-w-[160px] truncate text-xs text-ink-faint" title={e.reason ?? ''}>
+                <TableCell
+                  className="max-w-[160px] truncate text-xs text-ink-faint"
+                  title={e.reason ?? ''}
+                >
                   {e.reason ?? '—'}
                 </TableCell>
               </TableRow>

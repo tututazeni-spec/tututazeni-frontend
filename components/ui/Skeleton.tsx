@@ -18,12 +18,13 @@ interface SkeletonProps {
 export function Skeleton({
   rows = 3,
   wrapperClassName = 'space-y-3 animate-pulse',
-  itemClassName = 'h-12 bg-surface-sunken rounded-xl',
+  itemClassName = 'h-12 bg-surface-sunken rounded-card',
 }: SkeletonProps) {
   return (
-    <div className={wrapperClassName}>
+    <div className={wrapperClassName} role="status" aria-busy="true">
+      <span className="sr-only">A carregar…</span>
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className={itemClassName} />
+        <div key={i} aria-hidden className={itemClassName} />
       ))}
     </div>
   );

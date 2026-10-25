@@ -160,7 +160,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
       {/* Header — desenho de "workshop de inovação.jpeg" (o mesmo do detalhe
           do plano de formação): cartão claro com etiquetas, ícone + título,
           dados e formador; a imagem da formação num recorte inclinado. */}
-      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div
           aria-hidden
           className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
@@ -210,10 +210,10 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
               <GraduationCap size={28} strokeWidth={1.75} />
             </span>
             <div className="min-w-0">
-              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-[#0F1F3D]">
+              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-brand">
                 {training.title}
               </h1>
-              <p className="mt-0.5 break-words text-base text-[#49658A]">
+              <p className="mt-0.5 break-words text-base text-brand-muted">
                 {training.category ?? typeCfg?.label}
               </p>
             </div>
@@ -225,31 +225,31 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
             </p>
           )}
 
-          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-brand-line">
             <Metric icon={Clock}>
               {fmtHours(training.workloadHours)}{' '}
-              <span className="text-[#49658A]">· Carga horária</span>
+              <span className="text-brand-muted">· Carga horária</span>
             </Metric>
             <Metric icon={Globe}>
               {training.language.toUpperCase()}{' '}
-              <span className="text-[#49658A]">· Idioma</span>
+              <span className="text-brand-muted">· Idioma</span>
             </Metric>
           </div>
-          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-brand-line">
             <Metric icon={Users}>
               {training._count.participants}{' '}
-              <span className="text-[#49658A]">· Inscritos</span>
+              <span className="text-brand-muted">· Inscritos</span>
             </Metric>
             <Metric icon={Star}>
               {training.avgRating != null
                 ? `${training.avgRating.toFixed(1)} / 5`
                 : 'Sem avaliação'}{' '}
-              <span className="text-[#49658A]">· Avaliação</span>
+              <span className="text-brand-muted">· Avaliação</span>
             </Metric>
           </div>
 
-          <div className="border-t border-[#E6ECF4] pt-4">
-            <span className="inline-flex items-center gap-3 text-[15px] text-[#49658A]">
+          <div className="border-t border-brand-line pt-4">
+            <span className="inline-flex items-center gap-3 text-[15px] text-brand-muted">
               <UserCheck size={22} strokeWidth={1.75} aria-hidden />
               {training.instructor?.fullName ?? 'Sem formador'}
               <span>
@@ -263,7 +263,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
       {/* Sessões */}
       {training.sessions && training.sessions.length > 0 && (
         <Card className="mb-5 overflow-hidden">
-          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+          <div className="bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Sessões disponíveis ({training.sessions.length})
           </div>
           {training.sessions.map((session) => {
@@ -356,7 +356,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
 
       {/* Avaliar */}
       <Card className="mb-5 overflow-hidden">
-        <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
+        <div className="bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
           Avaliar este treinamento
         </div>
         <div className="p-5">

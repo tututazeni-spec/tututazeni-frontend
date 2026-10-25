@@ -22,6 +22,8 @@ import {
   type FieldDef,
 } from './formConfig';
 import { FieldRenderer } from './FieldRenderer';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export type BeneficiaryExtras = ReturnType<
   typeof useBeneficiaryDetail
@@ -944,8 +946,7 @@ export function ConsentTab({ b, extras }: TabProps) {
                 key={c.key}
                 className="flex items-center gap-2 font-body text-sm text-ink"
               >
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={form[c.key]}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, [c.key]: e.target.checked }))
@@ -966,8 +967,7 @@ export function ConsentTab({ b, extras }: TabProps) {
                   key={ch.value}
                   className="flex items-center gap-2 font-body text-sm text-ink"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={form.authorizedChannels.includes(ch.value)}
                     onChange={() => toggleChannel(ch.value)}
                   />
@@ -1039,7 +1039,7 @@ export function HistoryTab({ extras }: { extras: BeneficiaryExtras }) {
         Histórico de alterações
       </h2>
       {isLoading ? (
-        <p className="font-body text-ink-faint">A carregar…</p>
+        <Skeleton rows={3} />
       ) : isError ? (
         <p className="font-body text-danger-ink">
           Não foi possível carregar o histórico.

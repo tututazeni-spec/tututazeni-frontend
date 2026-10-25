@@ -40,7 +40,7 @@ export function ResultsView({
               className="mb-1 w-full justify-between"
             >
               <span>Todos</span>
-              <span className="text-[10px]">
+              <span className="text-micro">
                 {Object.values(data.counts).reduce((a, b) => a + b, 0)}
               </span>
             </Button>
@@ -57,7 +57,7 @@ export function ResultsView({
                   className="mb-0.5 w-full justify-between"
                 >
                   <span>{conf.label}</span>
-                  <span className="text-[10px]">
+                  <span className="text-micro">
                     {data.counts[t] ?? data.grouped[t]?.length ?? 0}
                   </span>
                 </Button>

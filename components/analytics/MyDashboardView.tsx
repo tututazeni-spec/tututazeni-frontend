@@ -96,7 +96,7 @@ function LearningSequenceChart({ milestones }: { milestones: Milestone[] }) {
               <div
                 className={
                   isCurrent
-                    ? 'rounded-2xl bg-ink p-2.5 shadow-lg ring-4 ring-primary/20'
+                    ? 'rounded-panel bg-ink p-2.5 shadow-lg ring-4 ring-primary/20'
                     : ''
                 }
               >
@@ -133,11 +133,11 @@ function LearningSequenceChart({ milestones }: { milestones: Milestone[] }) {
                 {m.label}
               </div>
               {m.status !== 'locked' && m.progress > 0 && (
-                <div className="font-body text-[11px] text-primary">
+                <div className="font-body text-micro text-primary">
                   {m.progress}% Completo
                 </div>
               )}
-              <div className="mt-1 font-body text-[11px] text-ink-faint">
+              <div className="mt-1 font-body text-micro text-ink-faint">
                 {formatMilestoneDate(m.date)}
               </div>
             </div>
@@ -181,8 +181,8 @@ export function MyDashboardView() {
 
       {/* Streak + Badges */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting text-black">
-          <div className="flex items-baseline justify-between bg-[#0F1F3D]/60 px-5 py-3 text-white">
+        <div className="overflow-hidden rounded-panel border border-border bg-white shadow-resting text-black">
+          <div className="flex items-baseline justify-between bg-brand/60 px-5 py-3 text-white">
             <div className="font-body text-sm font-semibold">
               Sequência de Aprendizagem
             </div>
@@ -208,8 +208,8 @@ export function MyDashboardView() {
             )}
           </div>
         </div>
-        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
-          <div className="bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+        <div className="overflow-hidden rounded-panel border border-border bg-white shadow-resting">
+          <div className="bg-brand/60 px-5 py-3 font-body text-sm font-semibold text-white">
             Competências Top
           </div>
           <div className="p-5">
@@ -254,8 +254,8 @@ export function MyDashboardView() {
 
       {/* PDI */}
       {data.pdi.length > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
-          <div className="bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+        <div className="overflow-hidden rounded-panel border border-border bg-white shadow-resting">
+          <div className="bg-brand/60 px-5 py-3 font-body text-sm font-semibold text-white">
             Os meus PDIs activos
           </div>
           <div className="p-5">

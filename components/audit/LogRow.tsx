@@ -81,7 +81,7 @@ export function LogRow({ log, onOpen }: LogRowProps) {
             e.stopPropagation();
             onOpen(log.id);
           }}
-          className="rounded-pill border-[1.5px] border-border-strong bg-surface px-2.5 py-1 font-body text-xs font-semibold text-ink-muted transition-colors hover:border-[#0F1F3D] hover:bg-[#0F1F3D] hover:text-white"
+          className="rounded-pill border-[1.5px] border-border-strong bg-surface px-2.5 py-1 font-body text-xs font-semibold text-ink-muted transition-colors hover:border-brand hover:bg-brand hover:text-white"
         >
           Ver detalhes
         </button>

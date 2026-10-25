@@ -31,8 +31,8 @@ export function TurnoverPanel() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+        itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
 
@@ -83,7 +83,7 @@ export function TurnoverPanel() {
                   <p className="font-body text-sm font-medium text-ink">
                     {u.user?.fullName}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     {u.user?.position?.name} · {u.user?.department?.name}
                   </p>
                 </div>

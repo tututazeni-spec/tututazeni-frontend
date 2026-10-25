@@ -14,6 +14,8 @@ import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { LicenseSettings } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const MODULE_LABELS: Record<string, string> = {
   DASHBOARD: 'Dashboard',
@@ -73,10 +75,7 @@ export function TabLicenca() {
     },
   );
 
-  if (isLoading || !data || !modules)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !data || !modules) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
@@ -87,7 +86,7 @@ export function TabLicenca() {
   return (
     <div className="space-y-4">
       {/* Mesmas cores do card "ROI Total" (roi-impact/RoiTotalCard) */}
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-5 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
             Plano actual
@@ -156,7 +155,7 @@ export function TabLicenca() {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Módulos activos
         </div>
         <CardBody>
@@ -171,9 +170,9 @@ export function TabLicenca() {
                 htmlFor={`mod-${key}`}
                 className="flex items-center gap-2 text-sm text-ink"
               >
-                <input
+                <Checkbox
                   id={`mod-${key}`}
-                  type="checkbox"
+
                   checked={modules[key] ?? true}
                   onChange={(e) =>
                     setModules((m) =>

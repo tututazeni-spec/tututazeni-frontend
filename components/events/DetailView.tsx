@@ -54,6 +54,7 @@ import type {
   ParticipantStatus,
 } from './types';
 import { safeHref } from '@/lib/safeHref';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface DetailViewProps {
   eventId: number;
@@ -218,7 +219,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
       <div
         className={cn(
           'relative mb-5 overflow-hidden rounded-[24px] border bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]',
-          isLive ? 'border-danger' : 'border-[#E3EAF4]',
+          isLive ? 'border-danger' : 'border-brand-line',
         )}
       >
         <div
@@ -308,10 +309,10 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
               <TypeIcon size={28} strokeWidth={1.75} />
             </span>
             <div className="min-w-0">
-              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-[#0F1F3D]">
+              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-brand">
                 {event.title}
               </h1>
-              <p className="mt-0.5 break-words text-base text-[#49658A]">
+              <p className="mt-0.5 break-words text-base text-brand-muted">
                 {subtitle}
               </p>
             </div>
@@ -323,7 +324,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
             </p>
           )}
 
-          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-brand-line">
             <Metric icon={CalendarDays}>
               {fmtDateTime(event.startAt)} → {fmtDateTime(event.endAt)}
             </Metric>
@@ -365,9 +366,9 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
             </div>
           )}
 
-          <div className="border-t border-[#E6ECF4] pt-4">
+          <div className="border-t border-brand-line pt-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="inline-flex items-center gap-3 text-[15px] text-[#49658A]">
+              <span className="inline-flex items-center gap-3 text-[15px] text-brand-muted">
                 <User size={22} strokeWidth={1.75} aria-hidden />
                 {event.organizer.fullName}
               </span>
@@ -549,7 +550,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
       </div>
 
       {tab === 'info' && (
-        <Card className="rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <Card className="rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           <CardBody>
             <div className="mb-4 flex items-center gap-3">
               <Avatar
@@ -558,10 +559,10 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
                 size="md"
               />
               <div>
-                <div className="font-body text-xs font-medium text-[#49658A]">
+                <div className="font-body text-xs font-medium text-brand-muted">
                   Organizado por
                 </div>
-                <div className="font-body text-base font-semibold text-[#0F1F3D]">
+                <div className="font-body text-base font-semibold text-brand">
                   {event.organizer.fullName}
                 </div>
               </div>
@@ -581,18 +582,18 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
       {tab === 'info' && <LogisticsSummaryCard eventId={eventId} />}
 
       {tab === 'participants' && (
-        <Card className="overflow-hidden rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <Card className="overflow-hidden rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {(event.participants ?? []).map((p) => (
             <div
               key={p.userId}
-              className="flex items-center gap-3 border-b border-[#E6ECF4] px-5 py-3.5 last:border-0"
+              className="flex items-center gap-3 border-b border-brand-line px-5 py-3.5 last:border-0"
             >
               <Avatar
                 name={p.user?.fullName ?? 'U'}
                 url={p.user?.avatarUrl ?? undefined}
                 size="sm"
               />
-              <div className="flex-1 font-body text-[15px] font-medium text-[#0F1F3D]">
+              <div className="flex-1 font-body text-[15px] font-medium text-brand">
                 {p.user?.fullName}
               </div>
               <StatusBadge
@@ -602,9 +603,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
             </div>
           ))}
           {(event.participants ?? []).length === 0 && (
-            <div className="px-4 py-8 text-center font-body text-sm text-[#49658A]">
-              Sem participantes inscritos
-            </div>
+            <EmptyState variant="inline" title="Sem participantes inscritos" />
           )}
         </Card>
       )}

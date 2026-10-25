@@ -14,6 +14,7 @@ import {
   type StepRef,
 } from './logic';
 import type { BuilderStep, StepReinforcement } from '../types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface ReinforcementEditorProps {
   step: BuilderStep;
@@ -73,8 +74,7 @@ export function ReinforcementEditor({
       </div>
       <div className="flex flex-wrap items-center gap-4 font-body text-sm text-ink">
         <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={!!r.retryOnIncorrect}
             onChange={(e) =>
               clean({ ...r, retryOnIncorrect: e.target.checked })
@@ -85,11 +85,11 @@ export function ReinforcementEditor({
         {r.retryOnIncorrect && (
           <label className="flex items-center gap-2">
             Repetições
-            <input
+            <Input
               type="number"
               min={1}
               max={5}
-              className="w-16 rounded-card border border-border bg-surface px-2 py-1"
+              className="w-16"
               value={r.maxRetries ?? 2}
               onChange={(e) =>
                 clean({

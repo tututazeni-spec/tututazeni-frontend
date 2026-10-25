@@ -11,7 +11,7 @@ import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -21,6 +21,7 @@ import {
   useDirectoryUsers,
   type DirectoryUser,
 } from '@/components/enrollments/enrollData';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface CreateCohortModalProps {
   courseId: number;
@@ -188,14 +189,14 @@ export function CreateCohortModal({
                 <div className="min-w-0 flex-1 truncate text-sm text-ink">
                   {instructor.fullName}
                 </div>
-                <button
+                <IconButton
+                  icon={X}
+                  label="Remover formador"
+                  intent="ghost"
+                  size="compact"
                   type="button"
-                  aria-label="Remover formador"
                   onClick={() => setField('instructor', null)}
-                  className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-                >
-                  <X size={16} strokeWidth={1.75} />
-                </button>
+                />
               </div>
             ) : (
               <div className="relative">
@@ -215,9 +216,10 @@ export function CreateCohortModal({
                       </div>
                     )}
                     {!usersLoading && users.length === 0 && (
-                      <div className="px-3 py-2 text-sm text-ink-muted">
-                        Nenhum colaborador encontrado
-                      </div>
+                      <EmptyState
+                        variant="inline"
+                        title="Nenhum colaborador encontrado"
+                      />
                     )}
                     {users.map((u) => (
                       <button
@@ -303,9 +305,10 @@ export function CreateCohortModal({
                     )}
                     {!participantsLoading &&
                       participantResults.length === 0 && (
-                        <div className="px-3 py-2 text-sm text-ink-muted">
-                          Nenhum colaborador encontrado
-                        </div>
+                        <EmptyState
+                          variant="inline"
+                          title="Nenhum colaborador encontrado"
+                        />
                       )}
                     {participantResults.map((u) => (
                       <button
@@ -345,18 +348,18 @@ export function CreateCohortModal({
                       <div className="min-w-0 flex-1 truncate text-sm text-ink">
                         {p.fullName}
                       </div>
-                      <button
+                      <IconButton
+                        icon={X}
+                        label={`Remover ${p.fullName}`}
+                        intent="ghostDanger"
+                        size="compact"
                         type="button"
-                        aria-label={`Remover ${p.fullName}`}
                         onClick={() =>
                           setField('participants', (cur) =>
                             cur.filter((x) => x.id !== p.id),
                           )
                         }
-                        className="rounded-control p-1 text-ink-muted hover:bg-danger-subtle hover:text-danger-ink"
-                      >
-                        <X size={16} strokeWidth={1.75} />
-                      </button>
+                      />
                     </div>
                   ))}
                 </div>

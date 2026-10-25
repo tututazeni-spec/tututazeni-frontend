@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Field } from '@/components/crm/shared';
 import { COUNTRY_OPTIONS } from '@/lib/countries';
 import { TYPE_LABELS, REPORTING_REQUIREMENTS } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 interface FunderForm {
   type: string;
@@ -50,12 +51,9 @@ export function FunderCreateView({
 }: FunderCreateViewProps) {
   return (
     <div className="p-6 max-w-3xl">
-      <button
-        onClick={onCancel}
-        className="font-body text-sm text-primary hover:underline mb-2"
-      >
+      <LinkButton onClick={onCancel} className="font-body text-sm mb-2">
         ← Voltar à lista
-      </button>
+      </LinkButton>
       <h1 className="font-display text-2xl font-bold text-ink mb-6">
         Novo Financiador
       </h1>

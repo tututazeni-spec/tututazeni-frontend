@@ -20,13 +20,10 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Textarea';
-import {
-  CATEGORY_BTN_GHOST,
-  CATEGORY_BTN_PRIMARY,
-  CategoryCard,
-} from './CategoryCard';
+import { CategoryCard } from './CategoryCard';
 import { Skeleton } from './shared';
 import type { CourseCategoryManaged } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface CategoryFormState {
   name: string;
@@ -220,17 +217,14 @@ function CategoryCoursesModal({
             {isLoading ? (
               <Skeleton rows={4} />
             ) : visible.length === 0 ? (
-              <p className="py-6 text-center text-sm text-ink-muted">
-                Nenhum curso encontrado.
-              </p>
+              <EmptyState variant="inline" title="Nenhum curso encontrado" />
             ) : (
               visible.map((c) => (
                 <label
                   key={c.id}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-surface-sunken"
+                  className="flex cursor-pointer items-center gap-3 rounded-control px-2 py-2 hover:bg-surface-sunken"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={checked.has(c.id)}
                     onChange={() => toggle(c.id)}
                   />
@@ -298,16 +292,14 @@ function CategoryCourseListModal({
           {isLoading ? (
             <Skeleton rows={4} />
           ) : courses.length === 0 ? (
-            <p className="py-6 text-center text-sm text-ink-muted">
-              Nenhum curso nesta categoria.
-            </p>
+            <EmptyState variant="inline" title="Nenhum curso nesta categoria" />
           ) : (
             courses.map((c) => (
               <button
                 key={c.id}
                 type="button"
                 onClick={() => onSelect(c.id)}
-                className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-surface-sunken"
+                className="flex w-full items-center gap-3 rounded-control px-2 py-2 text-left hover:bg-surface-sunken"
               >
                 <span className="min-w-0 flex-1 truncate text-sm text-ink">
                   {c.title}
@@ -426,31 +418,34 @@ export function CategoriasView({
                 onViewCourses={() => setListFor(cat)}
                 actions={
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={CATEGORY_BTN_GHOST}
+                      intent="secondary"
+                      size="compact"
                       title="Eliminar categoria"
                       aria-label="Eliminar categoria"
                       onClick={() => onDelete(cat)}
                     >
                       <Trash2 size={15} strokeWidth={1.75} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className={CATEGORY_BTN_GHOST}
+                      intent="secondary"
+                      size="compact"
                       onClick={() => setModalFor(cat)}
                     >
                       <Pencil size={15} strokeWidth={1.75} />
                       Editar
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className={CATEGORY_BTN_PRIMARY}
+                      intent="primary"
+                      size="compact"
                       onClick={() => setCoursesFor(cat)}
                     >
                       <BookPlus size={15} strokeWidth={1.75} />
                       Gerir cursos
-                    </button>
+                    </Button>
                   </>
                 }
               />

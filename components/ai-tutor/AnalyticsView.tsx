@@ -18,6 +18,7 @@ import {
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AiTutorAnalytics } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function AnalyticsView() {
   const { data, isLoading: loading } = useApiQuery<AiTutorAnalytics>(
@@ -31,7 +32,7 @@ export function AnalyticsView() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
-        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
+        itemClassName="skeleton-shimmer h-[155px] rounded-panel"
       />
     );
   if (!data) return null;
@@ -79,13 +80,11 @@ export function AnalyticsView() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 bg-brand/60 font-body text-xs font-medium text-white uppercase tracking-wide">
             Perguntas por curso
           </div>
           {data.perguntasPorCurso.length === 0 ? (
-            <div className="px-4 py-4 font-body text-sm text-ink-faint">
-              Sem dados ainda.
-            </div>
+            <EmptyState variant="inline" title="Sem dados ainda" />
           ) : (
             data.perguntasPorCurso.map((c, i) => (
               <div
@@ -104,7 +103,7 @@ export function AnalyticsView() {
         </Card>
 
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 bg-brand/60 font-body text-xs font-medium text-white uppercase tracking-wide">
             Perguntas sem resposta autorizada
           </div>
           <p className="px-4 pt-3 font-body text-xs text-ink-faint">
@@ -112,9 +111,10 @@ export function AnalyticsView() {
             autorizadas — candidatas a lacunas de conteúdo.
           </p>
           {data.perguntasSemResposta.length === 0 ? (
-            <div className="px-4 py-4 font-body text-sm text-ink-faint">
-              Nenhuma pergunta repetida sem resposta autorizada.
-            </div>
+            <EmptyState
+              variant="inline"
+              title="Nenhuma pergunta repetida sem resposta autorizada"
+            />
           ) : (
             data.perguntasSemResposta.map((q, i) => (
               <div

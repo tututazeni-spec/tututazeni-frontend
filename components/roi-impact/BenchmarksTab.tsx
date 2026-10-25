@@ -120,16 +120,16 @@ export function BenchmarksTab() {
         )}
 
         {(internal?.bestWorstByType.length ?? 0) > 0 && (
-          <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+          <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand/65 via-brand-mid/65 to-brand-dark/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
             <div className="px-5 py-3">
               <h4 className="font-display text-sm font-semibold text-white">
                 Melhor e pior desempenho por tipo de iniciativa
               </h4>
             </div>
-            <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
+            <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-micro">
               <div className="overflow-x-auto">
                 <Table>
-                  <TableHead className="bg-[#0F1F3D]/60">
+                  <TableHead className="bg-brand/60">
                     <TableRow className="hover:bg-transparent">
                       <TableHeaderCell className="text-white">
                         Tipo
@@ -214,13 +214,13 @@ export function BenchmarksTab() {
           </Button>
         </div>
 
-        <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+        <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand/65 via-brand-mid/65 to-brand-dark/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
           <div className="px-5 py-3">
             <h4 className="font-display text-sm font-semibold text-white">
               Registos de benchmarks
             </h4>
           </div>
-          <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
+          <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-micro">
             {loading ? (
               <Skeleton
                 rows={3}
@@ -236,7 +236,7 @@ export function BenchmarksTab() {
             ) : (
               <div className="overflow-x-auto">
                 <Table>
-                  <TableHead className="bg-[#0F1F3D]/60">
+                  <TableHead className="bg-brand/60">
                     <TableRow className="hover:bg-transparent">
                       <TableHeaderCell className="text-white">
                         Nome

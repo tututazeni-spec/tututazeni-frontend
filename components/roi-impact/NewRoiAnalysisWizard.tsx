@@ -54,6 +54,7 @@ import type {
   KpiDefinitionRow,
   RoiEvaluationModelRow,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const STEPS = [
   { id: 'identification', label: 'Identificação' },
@@ -446,7 +447,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                   onClick={() => i < step && goTo(i)}
                   title={`${i + 1}. ${s.label}`}
                   className={
-                    'flex h-6 w-6 items-center justify-center rounded-full font-body text-[11px] transition-colors disabled:cursor-not-allowed ' +
+                    'flex h-6 w-6 items-center justify-center rounded-full font-body text-micro transition-colors disabled:cursor-not-allowed ' +
                     (isCurrent
                       ? 'bg-primary text-primary-fg ring-2 ring-primary/40'
                       : done
@@ -738,8 +739,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
               />
             </FormField>
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={hasControlGroup}
                 onChange={(e) => set('hasControlGroup', e.target.checked)}
               />
@@ -841,7 +841,7 @@ export function NewRoiAnalysisWizard({ onClose }: NewRoiAnalysisWizardProps) {
                     iconClassName={
                       result.status === 'DADOS_INSUFICIENTES'
                         ? 'text-[#FBBF24]'
-                        : 'text-[#7CC4FF]'
+                        : 'text-on-brand-accent'
                     }
                   >
                     Estado:{' '}

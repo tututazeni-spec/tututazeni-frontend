@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { CREATE_SECTIONS } from './formConfig';
 import { FieldRenderer } from './FieldRenderer';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 type BeneficiaryForm = Record<string, string>;
 
@@ -26,12 +27,9 @@ export function BeneficiaryCreateView({
 }: BeneficiaryCreateViewProps) {
   return (
     <div className="p-6 max-w-4xl">
-      <button
-        onClick={onCancel}
-        className="font-body text-sm text-primary hover:underline mb-2"
-      >
+      <LinkButton onClick={onCancel} className="font-body text-sm mb-2">
         ← Voltar à lista
-      </button>
+      </LinkButton>
       <h1 className="font-display text-2xl font-bold text-ink mb-6">
         Novo Beneficiário
       </h1>

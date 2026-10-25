@@ -32,7 +32,7 @@ export function MonitoringTab() {
   if (loading)
     return (
       <Skeleton
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="bg-surface-sunken rounded-card h-16"
       />
     );
@@ -78,7 +78,7 @@ export function MonitoringTab() {
       {/* Integration health grid */}
       {(data?.integrationHealth ?? []).length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Saúde das Integrações
           </div>
           <CardBody>

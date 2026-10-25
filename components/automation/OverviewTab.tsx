@@ -163,7 +163,7 @@ export function OverviewTab() {
               className="min-w-[160px]"
             />
           </div>
-          <p className="mt-2 font-body text-[11px] text-ink-faint">
+          <p className="mt-2 font-body text-micro text-ink-faint">
             Filtros por unidade e departamento ficam disponíveis quando as
             regras passarem a guardar o âmbito organizacional.
           </p>
@@ -255,7 +255,7 @@ export function OverviewTab() {
           ) : (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <Card className="overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                   Execuções ao longo do tempo
                 </div>
                 <CardBody>
@@ -275,7 +275,7 @@ export function OverviewTab() {
               </Card>
 
               <Card className="overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                   Execuções por estado
                 </div>
                 <CardBody>
@@ -292,7 +292,7 @@ export function OverviewTab() {
               </Card>
 
               <Card className="overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                   Automações por módulo
                 </div>
                 <CardBody>
@@ -314,7 +314,7 @@ export function OverviewTab() {
               </Card>
 
               <Card className="overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                   Taxa de sucesso
                 </div>
                 <CardBody>
@@ -337,14 +337,15 @@ export function OverviewTab() {
               </Card>
 
               <Card className="lg:col-span-2 overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                   Principais causas de falha
                 </div>
                 <CardBody>
                   {(data?.failureCauses ?? []).length === 0 ? (
-                    <p className="font-body text-sm text-ink-faint">
-                      Sem falhas no período.
-                    </p>
+                    <EmptyState
+                      variant="inline"
+                      title="Sem falhas no período"
+                    />
                   ) : (
                     <BarChart
                       orientation="horizontal"

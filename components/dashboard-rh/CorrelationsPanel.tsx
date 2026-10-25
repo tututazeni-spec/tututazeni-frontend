@@ -26,7 +26,7 @@ export function CorrelationsPanel() {
     return (
       <Skeleton
         rows={2}
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="h-40 rounded-card bg-surface-sunken"
       />
     );
@@ -43,17 +43,20 @@ export function CorrelationsPanel() {
       </div>
 
       {data?.trainingVsPerformance && (
-        <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-resting">
-          <div className="h-1.5 w-full bg-[#0F1F3D]" />
+        <div className="overflow-hidden rounded-panel border border-border bg-surface shadow-resting">
+          <div className="h-1.5 w-full bg-brand" />
           <div className="p-5">
             <h4 className="mb-1 font-body font-semibold text-ink-muted">
               Formação × Performance
             </h4>
-            <p className="mb-4 rounded-control border border-[#0F1F3D]/30 bg-[#0F1F3D]/10 px-3 py-2 font-body text-xs text-[#0F1F3D]">
+            <p className="mb-4 rounded-control border border-brand/30 bg-brand/10 px-3 py-2 font-body text-xs text-brand">
               {data.trainingVsPerformance.insight}
             </p>
             <BarChart
-              categories={['Alta formação (3 ou mais cursos)', 'Baixa formação']}
+              categories={[
+                'Alta formação (3 ou mais cursos)',
+                'Baixa formação',
+              ]}
               series={[
                 {
                   label: 'Performance média',
@@ -81,13 +84,13 @@ export function CorrelationsPanel() {
       )}
 
       {data?.engagementVsPerformance && (
-        <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-resting">
-          <div className="h-1.5 w-full bg-[#0F1F3D]" />
+        <div className="overflow-hidden rounded-panel border border-border bg-surface shadow-resting">
+          <div className="h-1.5 w-full bg-brand" />
           <div className="p-5">
             <h4 className="mb-1 font-body font-semibold text-ink-muted">
               Compromisso dos Colaboradores × Performance
             </h4>
-            <p className="mb-4 rounded-control border border-[#0F1F3D]/30 bg-[#0F1F3D]/10 px-3 py-2 font-body text-xs text-[#0F1F3D]">
+            <p className="mb-4 rounded-control border border-brand/30 bg-brand/10 px-3 py-2 font-body text-xs text-brand">
               {data.engagementVsPerformance.insight}
             </p>
             <BarChart

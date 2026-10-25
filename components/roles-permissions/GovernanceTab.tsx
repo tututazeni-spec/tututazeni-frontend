@@ -17,10 +17,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Card, CardBody } from '@/components/ui/Card';
-import {
-  NavyStatCard,
-  type NavyStatTone,
-} from '@/components/ui/NavyStatCard';
+import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -144,7 +141,7 @@ export function GovernanceTab() {
       {/* Role distribution */}
       {(data?.usersPerRole ?? []).length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Utilizadores por Função
           </div>
           <CardBody>

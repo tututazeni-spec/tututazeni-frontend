@@ -7,8 +7,9 @@
 
 import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export const SUGGESTED_OBJECTIVES = [
   'Compreender os conceitos fundamentais do tema',
@@ -73,11 +74,10 @@ export function ObjectivesPicker({
             key={s}
             className="flex cursor-pointer items-start gap-2 border-b border-border px-3 py-2 text-sm text-ink last:border-0 hover:bg-surface-sunken"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               checked={has(s)}
               onChange={() => toggle(s)}
-              className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-strong accent-primary"
+              className="mt-0.5 shrink-0"
             />
             <span>{s}</span>
           </label>
@@ -116,14 +116,14 @@ export function ObjectivesPicker({
               className="flex items-start gap-2 rounded-control bg-surface-sunken px-3 py-1.5 text-sm text-ink"
             >
               <span className="flex-1">{v}</span>
-              <button
+              <IconButton
+                icon={X}
+                label={`Remover objectivo: ${v}`}
+                intent="ghost"
+                size="xs"
                 type="button"
-                aria-label={`Remover objectivo: ${v}`}
                 onClick={() => onChange(value.filter((x) => x !== v))}
-                className="rounded-control p-0.5 text-ink-muted hover:text-ink"
-              >
-                <X size={14} strokeWidth={1.75} />
-              </button>
+              />
             </li>
           ))}
         </ul>

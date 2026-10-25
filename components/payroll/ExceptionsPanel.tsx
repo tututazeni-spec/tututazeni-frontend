@@ -31,7 +31,7 @@ function Group({ title, items, onSelectException }: GroupProps) {
       <h4 className="mb-2 font-body text-sm font-semibold text-ink">
         {title} ({items.length})
       </h4>
-      <div className="overflow-hidden rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+      <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
         {items.map((e, i) => (
           <button
             key={`${e.payslipId}-${e.code}-${i}`}
@@ -53,10 +53,10 @@ function Group({ title, items, onSelectException }: GroupProps) {
             <span className="font-body text-sm font-medium text-white">
               {e.fullName}
             </span>
-            <span className="font-body text-xs text-[#9DB4D3]">
+            <span className="font-body text-xs text-on-brand-faint">
               {EXCEPTION_CODE_LABEL[e.code] ?? e.code}
             </span>
-            <span className="ml-auto text-right font-body text-sm text-[#CFE3FF]">
+            <span className="ml-auto text-right font-body text-sm text-on-brand">
               {e.message}
             </span>
           </button>

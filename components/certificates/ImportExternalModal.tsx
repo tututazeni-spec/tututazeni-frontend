@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -239,8 +240,7 @@ export function ImportExternalModal({ onClose }: { onClose: () => void }) {
             />
           </FormField>
           <label className="flex items-center gap-2 text-sm text-ink">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={validated}
               onChange={(e) => setField('validated', e.target.checked)}
             />

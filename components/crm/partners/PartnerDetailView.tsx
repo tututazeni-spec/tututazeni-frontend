@@ -14,6 +14,7 @@ import { MilestonesSection } from './MilestonesSection';
 import { STATUS_COLORS, TYPE_LABELS } from './types';
 import type { PartnerDetail } from './types';
 import { safeHref } from '@/lib/safeHref';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 interface PartnerDetailViewProps {
   partner: PartnerDetail;
@@ -35,12 +36,12 @@ export function PartnerDetailView({
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <button
+          <LinkButton
             onClick={() => router.push('/crm/partners')}
-            className="font-body text-sm text-primary hover:underline mb-2"
+            className="font-body text-sm mb-2"
           >
             ← Voltar à lista
-          </button>
+          </LinkButton>
           <h1 className="font-display text-2xl font-bold text-ink">{p.name}</h1>
           <p className="font-mono font-body text-ink-muted">{p.code}</p>
         </div>

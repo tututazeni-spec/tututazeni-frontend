@@ -20,6 +20,9 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import type { InactiveUsersResult, UserPolicy, UsersOverview } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const FIELD_LABELS: Record<string, string> = {
   phone: 'Telefone',
@@ -51,9 +54,9 @@ interface ToggleProps {
 function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
@@ -121,10 +124,7 @@ export function TabUtilizadores() {
     },
   );
 
-  if (policyQuery.isLoading || !policy)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (policyQuery.isLoading || !policy) return <Skeleton rows={4} />;
   if (policyQuery.error)
     return (
       <p className="py-10 text-center text-sm text-danger">
@@ -222,7 +222,7 @@ export function TabUtilizadores() {
 
       <form onSubmit={submit} className="grid grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Campos obrigatórios na criação
           </div>
           <CardBody>
@@ -245,7 +245,7 @@ export function TabUtilizadores() {
         </Card>
 
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Regras de criação e convite
           </div>
           <CardBody>
@@ -333,7 +333,7 @@ export function TabUtilizadores() {
       </form>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Utilizadores inactivos
           {inactive.data && (
             <Badge intent={inactive.data.total ? 'warning' : 'success'}>
@@ -344,11 +344,9 @@ export function TabUtilizadores() {
         </div>
         <CardBody>
           {inactive.isLoading ? (
-            <p className="text-sm text-ink-faint">A carregar…</p>
+            <Skeleton rows={3} />
           ) : !inactive.data?.items.length ? (
-            <p className="py-6 text-center text-sm text-ink-faint">
-              Nenhum utilizador inactivo.
-            </p>
+            <EmptyState variant="inline" title="Nenhum utilizador inactivo" />
           ) : (
             <table className="w-full text-sm">
               <thead>

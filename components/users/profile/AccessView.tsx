@@ -13,13 +13,14 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { QueryData } from '@/hooks/useUserProfileData';
-import { InfoCard, EmptyState, LoadingRows } from './shared';
+import { InfoCard, LoadingRows } from './shared';
 import { accessProfileRows, accessSessionRows } from './logic';
 import { type AccessOverview } from '../types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
   if (isLoading) return <LoadingRows />;
-  if (!data) return <EmptyState>Sem dados de acesso</EmptyState>;
+  if (!data) return <EmptyState title="Sem dados de acesso" />;
 
   return (
     <div className="space-y-5">
@@ -48,7 +49,7 @@ export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
           Permissões do perfil ({data.permissions.length})
         </div>
         {data.permissions.length === 0 ? (
-          <EmptyState>Sem permissões atribuídas ao perfil</EmptyState>
+          <EmptyState title="Sem permissões atribuídas ao perfil" />
         ) : (
           <Table>
             <TableHead>
@@ -82,7 +83,7 @@ export function AccessView({ data, isLoading }: QueryData<AccessOverview>) {
           Permissões especiais ({data.specialPermissions.length})
         </div>
         {data.specialPermissions.length === 0 ? (
-          <EmptyState>Sem permissões especiais concedidas</EmptyState>
+          <EmptyState title="Sem permissões especiais concedidas" />
         ) : (
           <Table>
             <TableHead>

@@ -2,6 +2,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { FlatCompat } from '@eslint/eslintrc';
 import reactCompiler from 'eslint-plugin-react-compiler';
+import designTokens from './eslint-rules/design-tokens.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -53,6 +54,41 @@ const eslintConfig = [
       // diante; `type` continua livre para uniões, tuplos, mapped types,
       // etc. (a regra só actua sobre `type X = { ... }`).
       '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
+    },
+  },
+  {
+    // Design system (regras 1-4 da Fase 1): classes fora dos tokens e
+    // elementos nativos que têm componente partilhado. `warn` — só visibilidade,
+    // os módulos antigos migram aos poucos. components/ui/ é onde os
+    // primitivos vivem, por isso fica de fora.
+    files: ['app/**/*.tsx', 'components/**/*.tsx'],
+    ignores: ['components/ui/**', '**/*.test.tsx'],
+    plugins: { design: designTokens },
+    rules: {
+      'design/tokens-only': 'warn',
+      'react/forbid-elements': [
+        'warn',
+        {
+          forbid: [
+            {
+              element: 'button',
+              message: 'Use <Button> / <IconButton> de components/ui/Button.',
+            },
+            {
+              element: 'input',
+              message: 'Use <Input> de components/ui/Input.',
+            },
+            {
+              element: 'select',
+              message: 'Use <Select> de components/ui/Select.',
+            },
+            {
+              element: 'textarea',
+              message: 'Use <Textarea> de components/ui/Textarea.',
+            },
+          ],
+        },
+      ],
     },
   },
   {

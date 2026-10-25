@@ -13,7 +13,7 @@
 // Cache-Control: private, max-age=86400.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { API_URL } from '@/lib/api';
+import { apiClient, ApiError } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 
 export type LessonAudioState =
@@ -62,18 +62,15 @@ function saveCachedAudio(lessonId: number, blob: Blob): void {
 }
 
 async function fetchLessonAudio(lessonId: number): Promise<Blob> {
-  const res = await fetch(`${API_URL}/lessons/${lessonId}/audio`, {
-    method: 'GET',
-    credentials: 'include',
-  });
-  if (!res.ok) {
-    const body = (await res.json().catch(() => ({}))) as { message?: string };
-    throw new LessonAudioError(
-      body?.message ?? `Erro ${res.status} ao gerar áudio`,
-      res.status,
-    );
+  try {
+    const res = await apiClient.getRaw(`/lessons/${lessonId}/audio`, {
+      errorMessage: 'Erro ao gerar áudio',
+    });
+    return await res.blob();
+  } catch (e) {
+    if (e instanceof ApiError) throw new LessonAudioError(e.message, e.status);
+    throw e;
   }
-  return res.blob();
 }
 
 export interface UseLessonAudio {

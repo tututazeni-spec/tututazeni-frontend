@@ -48,6 +48,8 @@ import type {
   GapAnalysis,
   UserCompetency,
 } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface LevelBarProps {
   current: number;
@@ -168,19 +170,19 @@ export function MyProfileView() {
       <TabsList>
         <TabsTrigger
           value="profile"
-          className="data-[state=active]:border-[#0F1F3D] data-[state=active]:text-[#0F1F3D]"
+          className="data-[state=active]:border-brand data-[state=active]:text-brand"
         >
           O meu perfil
         </TabsTrigger>
         <TabsTrigger
           value="gap"
-          className="data-[state=active]:border-[#0F1F3D] data-[state=active]:text-[#0F1F3D]"
+          className="data-[state=active]:border-brand data-[state=active]:text-brand"
         >
           Análise de lacunas
         </TabsTrigger>
         <TabsTrigger
           value="evolution"
-          className="data-[state=active]:border-[#0F1F3D] data-[state=active]:text-[#0F1F3D]"
+          className="data-[state=active]:border-brand data-[state=active]:text-brand"
         >
           Evolução
         </TabsTrigger>
@@ -316,15 +318,15 @@ export function MyProfileView() {
                             </div>
                           </div>
                         ) : (
-                          <button
+                          <LinkButton
                             onClick={() => {
                               setSelfAssessing(uc.competencyId);
                               setSelfLevel(uc.currentLevel);
                             }}
-                            className="font-body text-xs text-primary hover:underline"
+                            className="font-body text-xs"
                           >
                             Autoavaliar
-                          </button>
+                          </LinkButton>
                         )}
                       </div>
                     </div>
@@ -335,9 +337,10 @@ export function MyProfileView() {
           ))}
 
           {competencies.length === 0 && (
-            <div className="rounded-card border border-dashed border-border-strong py-12 text-center font-body text-sm text-ink-faint">
-              Sem competências registadas. O RH ou gestor pode atribuí-las.
-            </div>
+            <EmptyState
+              variant="inline"
+              title="Sem competências registadas. O RH ou gestor pode atribuí-las"
+            />
           )}
         </div>
       </TabsContent>
@@ -475,7 +478,7 @@ export function MyProfileView() {
       {/* Evolution tab */}
       <TabsContent value="evolution">
         <Table>
-          <TableHead className="bg-[#0F1F3D]/60">
+          <TableHead className="bg-brand/60">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell className="text-white">
                 Competência

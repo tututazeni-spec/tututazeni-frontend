@@ -14,7 +14,10 @@ import { SETTING_LABELS } from './settingsMeta';
 
 const fmt = (iso: string) => new Date(iso).toLocaleDateString('pt-PT');
 const fmtTime = (iso: string) =>
-  new Date(iso).toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'short' });
+  new Date(iso).toLocaleString('pt-PT', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  });
 
 export function SettingsHistoryPanel() {
   const { data, loading } = useSettingsHistory(true);
@@ -35,7 +38,7 @@ export function SettingsHistoryPanel() {
       {data.map((h) => (
         <li key={h.id}>
           <Card className="overflow-hidden p-4">
-            <div className="-mx-4 -mt-4 mb-3 flex flex-wrap items-center justify-between gap-2 bg-[#0F1F3D]/60 px-4 py-3">
+            <div className="-mx-4 -mt-4 mb-3 flex flex-wrap items-center justify-between gap-2 bg-brand/60 px-4 py-3">
               <p className="text-sm font-semibold text-white">
                 {h.changeNote || 'Sem motivo indicado'}
               </p>

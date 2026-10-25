@@ -198,7 +198,7 @@ export function AnalyticsTab() {
 
         {/* Plans by status */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Planos por Status
           </div>
           <CardBody>
@@ -230,7 +230,7 @@ export function AnalyticsTab() {
 
         {/* Top training needs */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Top Necessidades de Formação
           </div>
           <CardBody>
@@ -244,7 +244,7 @@ export function AnalyticsTab() {
                     <p className="truncate font-body text-xs font-medium text-ink">
                       {n.skill?.name}
                     </p>
-                    <p className="font-body text-[10px] text-ink-faint">
+                    <p className="font-body text-micro text-ink-faint">
                       {n.count} pessoas
                     </p>
                   </div>
@@ -261,7 +261,7 @@ export function AnalyticsTab() {
       {/* Recent completions */}
       {(dash?.recentCompletions.length ?? 0) > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Conclusões Recentes
           </div>
           <CardBody>
@@ -280,7 +280,7 @@ export function AnalyticsTab() {
                     <p className="font-body text-xs font-medium text-ink">
                       {c.user.fullName}
                     </p>
-                    <p className="max-w-[160px] truncate font-body text-[10px] text-ink-faint">
+                    <p className="max-w-[160px] truncate font-body text-micro text-ink-faint">
                       {c.name}
                     </p>
                   </div>

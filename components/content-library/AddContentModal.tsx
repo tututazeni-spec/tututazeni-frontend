@@ -17,7 +17,7 @@ import { AlertCircle, FileUp, Link2, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -348,14 +348,14 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
                     <span className="shrink-0 text-xs text-ink-faint">
                       {formatBytes(file.size)}
                     </span>
-                    <button
+                    <IconButton
+                      icon={X}
+                      label="Remover ficheiro"
+                      intent="ghostDanger"
+                      size="xs"
                       type="button"
-                      aria-label="Remover ficheiro"
                       onClick={() => setField('file', null)}
-                      className="text-ink-faint hover:text-danger-ink"
-                    >
-                      <X size={14} strokeWidth={1.75} />
-                    </button>
+                    />
                   </div>
                 ) : (
                   <Button

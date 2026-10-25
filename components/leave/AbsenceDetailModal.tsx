@@ -33,6 +33,7 @@ import {
   absenceTypeLabel,
 } from './constants';
 import type { AbsenceDetail, AbsenceOccurrenceType } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type Mode = null | 'justify' | 'validate' | 'attach' | 'correct';
 
@@ -100,7 +101,7 @@ export function AbsenceDetailModal({
         {loading || !a ? (
           <Skeleton
             rows={5}
-            wrapperClassName="mt-4 space-y-2 animate-pulse"
+            wrapperClassName="mt-4 space-y-2"
             itemClassName="h-8 bg-surface-sunken rounded-control"
           />
         ) : (
@@ -558,7 +559,7 @@ function DetailBody({
           Histórico de alterações
         </h3>
         {a.revisions.length === 0 ? (
-          <p className="text-sm text-ink-faint">Sem alterações registadas.</p>
+          <EmptyState variant="inline" title="Sem alterações registadas" />
         ) : (
           <ol className="space-y-2">
             {a.revisions.map((r) => (
@@ -590,7 +591,7 @@ function DetailBody({
           {historyLoading || !history ? (
             <Skeleton
               rows={3}
-              wrapperClassName="space-y-2 animate-pulse"
+              wrapperClassName="space-y-2"
               itemClassName="h-6 bg-surface-sunken rounded-control"
             />
           ) : (

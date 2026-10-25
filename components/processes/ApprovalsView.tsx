@@ -21,10 +21,16 @@ import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { ApprovalPanel } from './ApprovalPanel';
-import { APPROVAL_STATUS_MAP, PRIORITY_MAP, fmtHours, moduleLabel } from './constants';
+import {
+  APPROVAL_STATUS_MAP,
+  PRIORITY_MAP,
+  fmtHours,
+  moduleLabel,
+} from './constants';
 import { Skeleton } from './Skeleton';
 import { SOURCE_MODULES } from './StartProcessModal';
 import type { PaginatedApprovals } from './approval-types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface ApprovalsViewProps {
   canManage: boolean;
@@ -67,7 +73,11 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
   const { data, isLoading, error } = useApiQuery<PaginatedApprovals>(
     queryKeys.processes.approvals(params),
     '/processes/approvals',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   const reset = () => setPage(1);
@@ -82,14 +92,25 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
   return (
     <div>
       <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        <KpiCard icon={Hourglass} label="Pendentes" value={kpis?.pending ?? '—'} intent="info" iconIntent="caution" />
+        <KpiCard
+          icon={Hourglass}
+          label="Pendentes"
+          value={kpis?.pending ?? '—'}
+          intent="info"
+          iconIntent="caution"
+        />
         <KpiCard
           icon={Clock}
           label="Em atraso"
           value={kpis?.overdue ?? '—'}
           intent="danger"
         />
-        <KpiCard icon={CheckCircle2} label="Decididas hoje" value={kpis?.decidedToday ?? '—'} intent="success" />
+        <KpiCard
+          icon={CheckCircle2}
+          label="Decididas hoje"
+          value={kpis?.decidedToday ?? '—'}
+          intent="success"
+        />
         <KpiCard
           icon={TimerReset}
           label="Tempo médio de decisão"
@@ -100,7 +121,11 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
         <DonutStatCard
           label="Taxa de aprovação"
           value={kpis?.approvalRate ?? 0}
-          sub={kpis?.approvalRate != null ? 'últimos 30 dias' : 'sem decisões nos últimos 30 dias'}
+          sub={
+            kpis?.approvalRate != null
+              ? 'últimos 30 dias'
+              : 'sem decisões nos últimos 30 dias'
+          }
         />
       </div>
 
@@ -116,40 +141,42 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
           className="w-full"
         />
         <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
-        <Select
-          items={scopeItems}
-          value={scope}
-          onValueChange={(v) => {
-            setScope(v as Scope);
-            reset();
-          }}
-          className="w-full"
-        />
-        <Select
-          items={STATE_ITEMS}
-          value={state}
-          onValueChange={(v) => {
-            setState(v);
-            reset();
-          }}
-          className="w-full"
-        />
-        <Select
-          items={[
-            { value: ALL, label: 'Todos os módulos' },
-            ...SOURCE_MODULES.map((m) => ({ value: m, label: moduleLabel(m) })),
-          ]}
-          value={sourceModule || ALL}
-          onValueChange={(v) => {
-            setSourceModule(v === ALL ? '' : v);
-            reset();
-          }}
-          className="w-full"
-        />
+          <Select
+            items={scopeItems}
+            value={scope}
+            onValueChange={(v) => {
+              setScope(v as Scope);
+              reset();
+            }}
+            className="w-full"
+          />
+          <Select
+            items={STATE_ITEMS}
+            value={state}
+            onValueChange={(v) => {
+              setState(v);
+              reset();
+            }}
+            className="w-full"
+          />
+          <Select
+            items={[
+              { value: ALL, label: 'Todos os módulos' },
+              ...SOURCE_MODULES.map((m) => ({
+                value: m,
+                label: moduleLabel(m),
+              })),
+            ]}
+            value={sourceModule || ALL}
+            onValueChange={(v) => {
+              setSourceModule(v === ALL ? '' : v);
+              reset();
+            }}
+            className="w-full"
+          />
         </div>
         <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={overdue}
             onChange={(e) => {
               setOverdue(e.target.checked);
@@ -158,12 +185,14 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
           />
           Em atraso
         </label>
-        <span className="font-body text-sm text-ink-faint">{data?.total ?? 0} pedidos</span>
+        <span className="font-body text-sm text-ink-faint">
+          {data?.total ?? 0} pedidos
+        </span>
       </div>
 
       <div className="overflow-x-auto rounded-card border border-border bg-surface">
         <div className="min-w-[900px] xl:min-w-0">
-          <div className="grid grid-cols-[minmax(0,1.9fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_96px_96px_120px] gap-2 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
+          <div className="grid grid-cols-[minmax(0,1.9fr)_minmax(0,1.5fr)_minmax(0,1.3fr)_96px_96px_120px] gap-2 border-b border-border bg-brand/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
             <div>Pedido</div>
             <div>Processo / etapa</div>
             <div>Solicitante / aprovador</div>
@@ -219,27 +248,48 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
               <div className="font-body text-xs text-ink-muted">
                 <div>{a.requester.fullName}</div>
                 <div className="text-ink-faint">
-                  {a.approver?.fullName ?? (a.approverRole ? `Função ${a.approverRole}` : 'Por atribuir')}
+                  {a.approver?.fullName ??
+                    (a.approverRole
+                      ? `Função ${a.approverRole}`
+                      : 'Por atribuir')}
                   {a.escalationLevel > 0 ? ' · escalada' : ''}
-                  {a.mode !== 'SEQUENTIAL' || a.sequence > 1 ? ` · ${a.sequence}º aprovador` : ''}
+                  {a.mode !== 'SEQUENTIAL' || a.sequence > 1
+                    ? ` · ${a.sequence}º aprovador`
+                    : ''}
                 </div>
               </div>
-              <div className="font-body text-xs text-ink-muted">{formatDate(a.submittedAt)}</div>
-              <div className={`font-body text-xs ${a.isOverdue ? 'font-medium text-danger' : 'text-ink-muted'}`}>
+              <div className="font-body text-xs text-ink-muted">
+                {formatDate(a.submittedAt)}
+              </div>
+              <div
+                className={`font-body text-xs ${a.isOverdue ? 'font-medium text-danger' : 'text-ink-muted'}`}
+              >
                 {formatDate(a.dueAt)}
                 {a.isOverdue && <div>Em atraso</div>}
               </div>
               <div>
-                <StatusBadge value={a.status} map={APPROVAL_STATUS_MAP} variant="dot" />
+                <StatusBadge
+                  value={a.status}
+                  map={APPROVAL_STATUS_MAP}
+                  variant="dot"
+                />
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {data && <Pagination page={data.page} totalPages={data.totalPages} onPageChange={setPage} />}
+      {data && (
+        <Pagination
+          page={data.page}
+          totalPages={data.totalPages}
+          onPageChange={setPage}
+        />
+      )}
 
-      {openId !== null && <ApprovalPanel id={openId} onClose={() => setOpenId(null)} />}
+      {openId !== null && (
+        <ApprovalPanel id={openId} onClose={() => setOpenId(null)} />
+      )}
     </div>
   );
 }

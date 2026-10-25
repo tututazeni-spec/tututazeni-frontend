@@ -141,16 +141,14 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
         Voltar
       </button>
 
-      <div className="rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)] mb-6 overflow-hidden">
-        <div className="flex items-center gap-3 bg-[#0B2D5B] px-4 py-3">
+      <div className="rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)] mb-6 overflow-hidden">
+        <div className="flex items-center gap-3 bg-brand-dark px-4 py-3">
           <div>
             <h2 className="font-display text-lg font-semibold text-white">
               {run.period}
               {run.payGroup ? ` · ${run.payGroup}` : ''}
             </h2>
-            <p className="font-body text-sm text-[#CFE3FF]">
-              {run.countryCode}
-            </p>
+            <p className="font-body text-sm text-on-brand">{run.countryCode}</p>
           </div>
           <StatusBadge value={run.status} map={RUN_STATUS_MAP} variant="dot" />
         </div>
@@ -161,7 +159,7 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
               key={label}
               className="rounded-[10px] border border-[#6F8FB8]/20 bg-white/5 p-3"
             >
-              <dt className="font-body text-xs text-[#9DB4D3]">{label}</dt>
+              <dt className="font-body text-xs text-on-brand-faint">{label}</dt>
               <dd className="font-body text-sm font-semibold text-white">
                 {getValue(run)}
               </dd>
@@ -351,7 +349,7 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
       <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-ink-faint">
         Timeline
       </h3>
-      <ol className="rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)] mb-8 space-y-2 px-4 py-3">
+      <ol className="rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)] mb-8 space-y-2 px-4 py-3">
         {run.timeline.map((t) => (
           <li
             key={t.step}
@@ -360,12 +358,12 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
             <span className={t.at ? 'text-[#4ADE80]' : 'text-[#6F8FB8]'}>
               ●
             </span>
-            <span className="w-24 text-[#9DB4D3]">
+            <span className="w-24 text-on-brand-faint">
               {TIMELINE_LABEL[t.step] ?? t.step}
             </span>
             <span className="text-white">{t.at ? fmtDateTime(t.at) : '—'}</span>
             {t.by && (
-              <span className="text-[#CFE3FF]">
+              <span className="text-on-brand">
                 · <span>{t.by.fullName}</span>
               </span>
             )}

@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EnrollmentCard } from './EnrollmentCard';
 import type { MyEnrollmentsResponse } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function MyEnrollmentsView() {
   const notify = useToast();
@@ -56,7 +57,7 @@ export function MyEnrollmentsView() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="space-y-2 animate-pulse"
+        wrapperClassName="space-y-2"
         itemClassName="h-16 rounded-card bg-surface-sunken"
       />
     );
@@ -129,9 +130,7 @@ export function MyEnrollmentsView() {
 
       <div className="space-y-3">
         {displayed.length === 0 ? (
-          <div className="rounded-card border border-dashed border-border py-12 text-center text-sm text-ink-faint">
-            Sem matrículas nesta categoria
-          </div>
+          <EmptyState variant="inline" title="Sem matrículas nesta categoria" />
         ) : (
           displayed.map((e) => (
             <EnrollmentCard key={e.id} enrollment={e} onCancel={handleCancel} />

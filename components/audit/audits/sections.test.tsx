@@ -231,7 +231,7 @@ describe('ChecksSection', () => {
   it('sem verificações explica', () => {
     const empty = audit('IN_PROGRESS');
     render(<ChecksSection audit={empty} ctl={makeCtl(empty)} />);
-    expect(screen.getByText('Sem verificações.')).toBeTruthy();
+    expect(screen.getByText('Sem verificações')).toBeTruthy();
   });
 });
 

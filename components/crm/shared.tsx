@@ -14,6 +14,7 @@ import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate as formatDateShared } from '@/lib/format';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function formatDate(iso: string | null | undefined): string {
   return formatDateShared(iso);
@@ -115,7 +116,7 @@ export function ListSkeleton({ rows = 5 }: ListSkeletonProps) {
     <div className="p-6">
       <Skeleton
         rows={rows}
-        wrapperClassName="space-y-4 animate-pulse"
+        wrapperClassName="space-y-4"
         itemClassName="h-16 bg-surface-sunken rounded-card"
       />
     </div>
@@ -127,7 +128,7 @@ export function DetailSkeleton() {
     <div className="p-6">
       <Skeleton
         rows={2}
-        wrapperClassName="space-y-4 animate-pulse"
+        wrapperClassName="space-y-4"
         itemClassName={cn(
           'rounded-card bg-surface-sunken',
           'first:h-24 last:h-64',
@@ -166,7 +167,7 @@ export function DistributionList({
   return (
     <Card>
       {navyHeader && (
-        <div className="bg-[#0F1F3D]/60 px-4 py-3">
+        <div className="bg-brand/60 px-4 py-3">
           <h3 className="font-body text-sm font-semibold text-white">
             {title}
           </h3>
@@ -179,7 +180,7 @@ export function DistributionList({
           </h3>
         )}
         {rows.length === 0 ? (
-          <p className="font-body text-sm text-ink-faint">Sem dados</p>
+          <EmptyState variant="inline" title="Sem dados" />
         ) : (
           <div className="space-y-2">
             {rows.map((row) => {

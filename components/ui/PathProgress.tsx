@@ -32,7 +32,7 @@ export function PathProgress({ steps, className }: PathProgressProps) {
               )}
               aria-current={step.status === 'current' ? 'step' : undefined}
             />
-            <span className="whitespace-nowrap font-body text-[10px] text-ink-muted">
+            <span className="whitespace-nowrap font-body text-micro text-ink-muted">
               {step.label}
             </span>
           </div>

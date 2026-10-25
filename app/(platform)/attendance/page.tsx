@@ -9,6 +9,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react';
+import { EmptyState } from '@/components/ui/EmptyState';
 import {
   BarChart3,
   Calendar,
@@ -33,6 +34,7 @@ import {
   useLeaveBalance,
   useMyAttendance,
 } from '@/components/attendance/hooks';
+import { Input } from '@/components/ui/Input';
 
 type TabKey = 'overview' | 'my' | 'team' | 'leaves';
 
@@ -154,22 +156,20 @@ export default function AttendancePage() {
                 {/* Period selector */}
                 <div className="flex items-center gap-3 bg-surface rounded-panel border border-border shadow-sm p-4">
                   <span className="text-sm text-ink-muted">Período:</span>
-                  <input
+                  <Input
                     type="date"
                     value={period.from}
                     onChange={(e) =>
                       setPeriod((p) => ({ ...p, from: e.target.value }))
                     }
-                    className="px-3 py-1.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <span className="text-ink-muted">→</span>
-                  <input
+                  <Input
                     type="date"
                     value={period.to}
                     onChange={(e) =>
                       setPeriod((p) => ({ ...p, to: e.target.value }))
                     }
-                    className="px-3 py-1.5 text-sm border border-border rounded-control focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
@@ -213,15 +213,11 @@ export default function AttendancePage() {
 
             {tab === 'team' && (
               <div className="space-y-4">
-                <div className="bg-surface rounded-panel border border-border shadow-sm p-8 text-center text-ink-muted">
-                  <Users size={40} className="mx-auto mb-3 opacity-30" />
-                  <p className="text-sm font-medium">
-                    Vista de equipa disponível com role Gestor+
-                  </p>
-                  <p className="text-xs mt-1">
-                    Filtra por departamento, verifica ausências e aprova pedidos
-                  </p>
-                </div>
+                <EmptyState
+                  icon={Users}
+                  title="Vista de equipa disponível com role Gestor+"
+                  description="Filtra por departamento, verifica ausências e aprova pedidos"
+                />
               </div>
             )}
 
@@ -239,10 +235,7 @@ export default function AttendancePage() {
                     <Plus size={14} /> Novo Pedido
                   </Button>
                 </div>
-                <div className="bg-surface rounded-panel border border-border shadow-sm p-8 text-center text-ink-muted">
-                  <Calendar size={40} className="mx-auto mb-3 opacity-30" />
-                  <p className="text-sm">Nenhum pedido de licença</p>
-                </div>
+                <EmptyState icon={Calendar} title="Nenhum pedido de licença" />
               </div>
             )}
           </div>

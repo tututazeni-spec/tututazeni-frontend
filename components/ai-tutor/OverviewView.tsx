@@ -26,6 +26,7 @@ import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { AiTutorOverview } from './types';
 import { ADMIN_ROLES } from '@/lib/roles';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const PRIVILEGED_ROLES = new Set<string>(ADMIN_ROLES);
 
@@ -44,7 +45,7 @@ export function OverviewView() {
       <Skeleton
         rows={4}
         wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
-        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
+        itemClassName="skeleton-shimmer h-[155px] rounded-panel"
       />
     );
   if (!data) return null;
@@ -109,7 +110,7 @@ export function OverviewView() {
       {isPrivileged && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
+            <div className="px-4 py-3 bg-brand/60 font-body text-xs font-medium text-white uppercase tracking-wide">
               Perguntas mais frequentes
             </div>
             {(data.perguntasFrequentes ?? []).length === 0 ? (
@@ -134,13 +135,14 @@ export function OverviewView() {
           </Card>
 
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
+            <div className="px-4 py-3 bg-brand/60 font-body text-xs font-medium text-white uppercase tracking-wide">
               Cursos mais utilizados
             </div>
             {(data.cursosMaisUtilizados ?? []).length === 0 ? (
-              <div className="px-4 py-4 font-body text-sm text-ink-faint">
-                Sem sessões associadas a cursos ainda.
-              </div>
+              <EmptyState
+                variant="inline"
+                title="Sem sessões associadas a cursos ainda"
+              />
             ) : (
               data.cursosMaisUtilizados!.map((c, i) => (
                 <div
@@ -164,13 +166,14 @@ export function OverviewView() {
           </Card>
 
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
+            <div className="px-4 py-3 bg-brand/60 font-body text-xs font-medium text-white uppercase tracking-wide">
               Temas com maior procura
             </div>
             {(data.temasMaisProcurados ?? []).length === 0 ? (
-              <div className="px-4 py-4 font-body text-sm text-ink-faint">
-                Sem dados de categoria suficientes ainda.
-              </div>
+              <EmptyState
+                variant="inline"
+                title="Sem dados de categoria suficientes ainda"
+              />
             ) : (
               data.temasMaisProcurados!.map((t, i) => (
                 <div
@@ -187,7 +190,7 @@ export function OverviewView() {
           </Card>
 
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 bg-[#0F1F3D]/60 font-body text-xs font-medium text-white uppercase tracking-wide">
+            <div className="px-4 py-3 bg-brand/60 font-body text-xs font-medium text-white uppercase tracking-wide">
               Utilizadores mais activos
             </div>
             {(data.utilizadoresMaisAtivos ?? []).length === 0 ? (

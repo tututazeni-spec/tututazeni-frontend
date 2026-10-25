@@ -103,8 +103,6 @@ body {
 }
 
 @theme {
-  /* TODO(phase-b): type scale from spec section 2 not yet encoded as tokens; components currently use ad-hoc Tailwind text sizes. */
-
   /* superfícies */
   --color-canvas: #f7f5ef;
   --color-surface: #ffffff;
@@ -131,6 +129,25 @@ body {
   --color-accent-hover: #c2822a;
   --color-accent-subtle: #f3e1be;
 
+  /* marca de interface — o azul-marinho que a UI já usa em botões primários,
+     pílulas, banners e cabeçalhos. Substitui os hex soltos (#0F1F3D, #49658A,
+     #E3EAF4…) por nomes: um só sítio para ajustar o tom. */
+  --color-brand: #0f1f3d;
+  --color-brand-hover: #1a2f57;
+  --color-brand-active: #0a1629;
+  --color-brand-soft: #eef1f7;
+  --color-brand-muted: #49658a;
+  --color-brand-line: #e3eaf4;
+  /* superfícies escuras de marca (heróis, cartões navy) e o texto que vive nelas */
+  --color-brand-deep: #071d3b;
+  --color-brand-mid: #0b3a75;
+  --color-brand-dark: #0a2a57;
+  --color-brand-edge: #1e3a66;
+  --color-on-brand: #cfe3ff;
+  --color-on-brand-muted: #c7d4e8;
+  --color-on-brand-faint: #9db4d3;
+  --color-on-brand-accent: #7cc4ff;
+
   /* semântica de estado */
   --color-success: #2f9e63;
   --color-success-subtle: #e4f5ec;
@@ -155,6 +172,26 @@ body {
   --shadow-resting: 0 1px 2px rgba(22, 58, 46, 0.06);
   --shadow-hover: 0 4px 12px rgba(22, 58, 46, 0.08);
   --shadow-elevated: 0 12px 32px rgba(22, 58, 46, 0.14);
+
+  /* escala tipográfica — títulos e o rótulo mínimo. O corpo continua a usar
+     text-xs/sm/base do Tailwind. `text-micro` (11px) é o chão: abaixo disto
+     (text-[10px], text-[9px]) não se lê. */
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.4;
+  --text-section: 1.125rem;
+  --text-section--line-height: 1.35;
+  --text-page: 1.5rem;
+  --text-page--line-height: 1.25;
+
+  /* espaçamento — três degraus com função: padding interno de card, espaço
+     entre blocos dentro de uma secção e espaço entre secções. Regra: o espaço
+     entre secções é sempre maior que o de dentro da secção. */
+  --spacing-card: 1.25rem;
+  --spacing-stack: 1rem;
+  --spacing-section: 2.5rem;
+
+  /* movimento */
+  --default-transition-duration: 150ms;
 
   /* tipografia — variáveis vindas do next/font (Task 2)
      nota: --font-data (não --font-mono) — o Tailwind já tem uma key

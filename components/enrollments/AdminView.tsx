@@ -33,11 +33,7 @@ import {
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { type NavyTone } from '@/components/courses/NavyCard';
-import {
-  ADMIN_ENROLLMENT_BTN_GHOST,
-  ADMIN_ENROLLMENT_BTN_PRIMARY,
-  AdminEnrollmentCard,
-} from './AdminEnrollmentCard';
+import { AdminEnrollmentCard } from './AdminEnrollmentCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -47,6 +43,7 @@ import { useCourseOptions, useDepartmentOptions } from './enrollData';
 import { deadlineCountdown } from './utils';
 import { RunsModal } from './RunsModal';
 import type { Enrollment } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const STATUS_TONE: Record<string, NavyTone> = {
   NOT_STARTED: 'warning',
@@ -284,13 +281,11 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             className="w-full"
           />
           <label className="flex w-full cursor-pointer items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] text-sm text-black">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={!!filters.overdue}
               onChange={(e) =>
                 updateFilters({ overdue: e.target.checked ? 'true' : '' })
               }
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Apenas atrasados
           </label>
@@ -335,8 +330,8 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
         {loading && (
           <Skeleton
             rows={4}
-            wrapperClassName="space-y-3 animate-pulse"
-            itemClassName="h-24 rounded-2xl bg-surface-sunken"
+            wrapperClassName="space-y-3"
+            itemClassName="h-24 rounded-panel bg-surface-sunken"
           />
         )}
 
@@ -353,12 +348,11 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                   url: e.user?.avatarUrl,
                 }}
                 lead={
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={selected.includes(e.id)}
                     onChange={() => toggleSelect(e.id)}
                     aria-label={`Seleccionar ${e.user?.fullName ?? ''}`}
-                    className="h-4 w-4 shrink-0 rounded border-border-strong accent-primary"
+                    className="shrink-0"
                   />
                 }
                 status={{
@@ -403,24 +397,26 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                 }
                 actions={
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={ADMIN_ENROLLMENT_BTN_PRIMARY}
+                      intent="primary"
+                      size="md"
                       disabled={rowBusy(e.id)}
                       onClick={() => remind.mutate(e.id)}
                     >
                       <Bell size={15} strokeWidth={1.75} />
                       Enviar lembrete
-                    </button>
+                    </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button
+                        <Button
                           type="button"
-                          className={ADMIN_ENROLLMENT_BTN_GHOST}
+                          intent="secondary"
+                          size="md"
                           disabled={rowBusy(e.id)}
                         >
                           <MoreHorizontal size={16} strokeWidth={1.75} />
-                        </button>
+                        </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onSelect={() => remind.mutate(e.id)}>

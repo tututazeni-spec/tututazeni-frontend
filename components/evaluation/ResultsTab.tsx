@@ -238,7 +238,7 @@ export function ResultsTab() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* By evaluator type */}
             <Card className="overflow-hidden">
-              <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+              <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                 Por Tipo de Avaliador
               </div>
               <CardBody>
@@ -263,7 +263,7 @@ export function ResultsTab() {
             {/* Concordance */}
             {result.concordance && (
               <Card className="overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                   Matriz de Concordância
                 </div>
                 <CardBody>
@@ -306,7 +306,7 @@ export function ResultsTab() {
           {/* Competency Radar */}
           {Object.keys(result.competencies).length > 0 && (
             <Card className="overflow-hidden">
-              <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+              <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                 Mapa de Competências
               </div>
               <CardBody>
@@ -399,7 +399,7 @@ export function ResultsTab() {
                         className={`w-full rounded-t ${SCORE_BG(h.avgScore)}`}
                         style={{ height: `${(h.avgScore / 5) * 100}%` }}
                       />
-                      <span className="text-[10px] text-ink-faint">
+                      <span className="text-micro text-ink-faint">
                         {h.period}
                       </span>
                     </div>
@@ -416,7 +416,7 @@ export function ResultsTab() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.comments.manager.length > 0 && (
                   <Card className="overflow-hidden">
-                    <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                    <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                       Comentários do Gestor
                     </div>
                     <CardBody>
@@ -430,7 +430,7 @@ export function ResultsTab() {
                 )}
                 {result.comments.self.length > 0 && (
                   <Card className="overflow-hidden">
-                    <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                    <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                       Comentários do Colaborador
                     </div>
                     <CardBody>

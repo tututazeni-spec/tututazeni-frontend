@@ -23,6 +23,8 @@ import type {
   IntegrationsOverview,
   WhatsAppStatus,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 // Símbolo oficial do WhatsApp (o lucide-react não tem ícones de marcas).
 function WhatsAppIcon() {
@@ -63,9 +65,9 @@ interface ToggleProps {
 function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
@@ -140,10 +142,7 @@ export function TabIntegracoes() {
     { enabled: !!whatsapp?.enabled },
   );
 
-  if (isLoading || !smtp || !whatsapp || !isis)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !smtp || !whatsapp || !isis) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
@@ -167,7 +166,7 @@ export function TabIntegracoes() {
     <form onSubmit={submit} className="grid grid-cols-2 gap-4">
       {o && (
         <Card className="col-span-2 overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Resumo
           </div>
           <CardBody>
@@ -224,7 +223,7 @@ export function TabIntegracoes() {
 
       {/* SMTP */}
       <Card className="col-span-2 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Email (SMTP)
         </div>
         <CardBody>
@@ -336,7 +335,7 @@ export function TabIntegracoes() {
 
       {/* WhatsApp */}
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           <span className="flex items-center gap-2">
             <WhatsAppIcon />
             WhatsApp (só envio)
@@ -451,7 +450,7 @@ export function TabIntegracoes() {
 
       {/* Ísis (IA) */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Ísis (IA)
         </div>
         <CardBody>

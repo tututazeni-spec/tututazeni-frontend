@@ -23,8 +23,8 @@ const CATEGORY_ORDER: Array<{ key: RequirementCategory; title: string }> = [
 
 const STATUS: Record<RequirementStatus, { label: string; cls: string }> = {
   MET: { label: 'Cumpre', cls: 'bg-[#075FE8] text-white' },
-  NOT_MET: { label: 'Não cumpre', cls: 'bg-[#FEE2E2] text-[#991B1B]' },
-  NO_DATA: { label: 'Sem dados', cls: 'bg-[#E8F0FE] text-[#0F1F3D]/70' },
+  NOT_MET: { label: 'Não cumpre', cls: 'bg-[#FEE2E2] text-danger-ink' },
+  NO_DATA: { label: 'Sem dados', cls: 'bg-brand-soft text-brand/70' },
 };
 
 function pretty(value: string | null): string {
@@ -45,8 +45,8 @@ export function RequirementChecksPanel({
   if (checks.length === 0) return null;
 
   return (
-    <div className="overflow-hidden rounded-[18px] border border-[#D6E4F5] bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
-      <div className="flex items-center gap-2.5 bg-gradient-to-br from-[#0B3D91] to-[#06275F] px-5 py-3.5 text-white">
+    <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
+      <div className="flex items-center gap-2.5 bg-gradient-to-br from-brand-mid to-brand-dark px-5 py-3.5 text-white">
         <ClipboardCheck size={18} strokeWidth={1.75} />
         <h3 className="font-body text-sm font-semibold uppercase tracking-wider">
           Requisitos do cargo
@@ -58,25 +58,25 @@ export function RequirementChecksPanel({
           if (rows.length === 0) return null;
           return (
             <section key={key}>
-              <h4 className="mb-1.5 font-body text-xs font-semibold uppercase tracking-wide text-[#0F1F3D]/70">
+              <h4 className="mb-1.5 font-body text-xs font-semibold uppercase tracking-wide text-brand/70">
                 {title}
               </h4>
               <div className="space-y-1.5">
                 {rows.map((c) => (
                   <div
                     key={c.requirementId}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-[#D6E4F5] bg-[#E8F0FE]/50 px-3 py-2"
+                    className="flex items-center justify-between gap-3 rounded-card border border-brand-line bg-brand-soft/50 px-3 py-2"
                   >
                     <div className="min-w-0">
-                      <div className="truncate font-body text-sm font-medium text-[#0F1F3D]">
+                      <div className="truncate font-body text-sm font-medium text-brand">
                         {c.title}
                         {!c.mandatory && (
-                          <span className="ml-1.5 font-normal text-[#0F1F3D]/60">
+                          <span className="ml-1.5 font-normal text-brand/60">
                             (diferencial)
                           </span>
                         )}
                       </div>
-                      <div className="font-body text-xs text-[#0F1F3D]/60">
+                      <div className="font-body text-xs text-brand/60">
                         Exigido: {pretty(c.required)} · Tem: {pretty(c.actual)}
                       </div>
                     </div>
@@ -100,7 +100,7 @@ export function RequirementChecksPanel({
           );
         })}
         {noData > 0 && (
-          <p className="font-body text-xs text-[#0F1F3D]/60">
+          <p className="font-body text-xs text-brand/60">
             {noData}{' '}
             {noData === 1 ? 'requisito sem dados' : 'requisitos sem dados'} —
             não

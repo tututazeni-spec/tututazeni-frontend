@@ -5,28 +5,28 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { MySessionsController } from '@/hooks/useSecuritySessions';
 import { fmtDate } from './logic';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function MySessionsCardView({ ctl }: { ctl: MySessionsController }) {
   const { isLoading, items, revoke, revoking } = ctl;
 
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
         As minhas sessões activas
       </div>
       <CardBody>
         {isLoading ? (
-          <p className="text-sm text-ink-faint">A carregar…</p>
+          <Skeleton rows={3} />
         ) : !items.length ? (
-          <p className="py-4 text-center text-sm text-ink-faint">
-            Nenhuma sessão activa.
-          </p>
+          <EmptyState variant="inline" title="Nenhuma sessão activa" />
         ) : (
           <div className="space-y-2">
             {items.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between rounded-lg border border-border p-3 text-sm"
+                className="flex items-center justify-between rounded-control border border-border p-3 text-sm"
               >
                 <div>
                   <p className="m-0 text-ink">

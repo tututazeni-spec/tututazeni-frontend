@@ -71,10 +71,10 @@ export function KnowledgeTab() {
           <>
             <div className="space-y-2">
               {data.knowledgeSources.length === 0 ? (
-                <p className="rounded-card border border-dashed border-border-strong bg-surface p-4 text-center font-body text-sm text-ink-faint">
-                  Sem fontes aprovadas — o tutor encaminhará as dúvidas para um
-                  formador.
-                </p>
+                <EmptyState
+                  variant="inline"
+                  title="Sem fontes aprovadas — o tutor encaminhará as dúvidas para um formador"
+                />
               ) : (
                 data.knowledgeSources.map((s) => (
                   <div

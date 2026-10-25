@@ -143,9 +143,7 @@ export function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
               description="Activa a extensão pg_stat_statements no PostgreSQL para ver as queries mais lentas com execuções e tempo médio."
             />
           ) : db.slowQueries.rows.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem queries registadas.
-            </p>
+            <EmptyState variant="inline" title="Sem queries registadas" />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full font-body text-sm">
@@ -249,9 +247,10 @@ export function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
         <CardTitleBar>Índices inutilizados</CardTitleBar>
         <CardBody>
           {db.indexes.unused.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Nenhum índice sem leituras (excluindo únicos e chaves primárias).
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Nenhum índice sem leituras (excluindo únicos e chaves primárias)"
+            />
           ) : (
             <table className="w-full font-body text-sm">
               <tbody>
@@ -276,10 +275,10 @@ export function DatabaseTab({ db }: { db: DatabaseMetricsData | null }) {
       </Card>
 
       {/* §9 Crescimento da base de dados */}
-      <div className="overflow-hidden rounded-card bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] px-5 py-3 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="overflow-hidden rounded-card bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-5 py-3 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="flex items-center gap-3">
           <Database
-            className="h-6 w-6 shrink-0 text-[#7CC4FF]"
+            className="h-6 w-6 shrink-0 text-on-brand-accent"
             strokeWidth={1.8}
             aria-hidden
           />

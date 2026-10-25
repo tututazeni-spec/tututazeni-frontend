@@ -69,14 +69,12 @@ function RankedList({
   const max = Math.max(...sorted.map(([, n]) => n), 1);
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface">
-      <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+      <div className="bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-4">
         {sorted.length === 0 ? (
-          <p className="py-4 text-center font-body text-sm text-ink-faint">
-            Sem dados
-          </p>
+          <EmptyState variant="inline" title="Sem dados" />
         ) : (
           <div className="space-y-2">
             {sorted.map(([label, count], i) => (
@@ -134,7 +132,7 @@ export function OverviewTab({
       <Skeleton
         rows={4}
         wrapperClassName="space-y-4"
-        itemClassName="h-24 bg-surface-sunken rounded-card animate-pulse"
+        itemClassName="h-24 bg-surface-sunken rounded-card"
       />
     );
 
@@ -257,7 +255,7 @@ export function OverviewTab({
 
       {/* Próximos eventos */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+        <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
           Próximos eventos
         </div>
         {data.upcomingEvents.length === 0 ? (

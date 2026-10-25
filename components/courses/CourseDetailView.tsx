@@ -224,17 +224,17 @@ export function CourseDetailView({
                   <div
                     key={lesson.id}
                     onClick={() => onSelectLesson(lesson)}
-                    className={`flex cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2 transition-colors ${
+                    className={`flex cursor-pointer items-center gap-3 rounded-card px-2.5 py-2 transition-colors ${
                       activeLesson?.id === lesson.id
                         ? 'bg-primary-subtle'
-                        : 'hover:bg-[#F2F5FA]'
+                        : 'hover:bg-brand-soft'
                     }`}
                   >
                     <div
                       className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs ${
                         lesson.completed
                           ? 'bg-success-subtle text-success-ink'
-                          : 'bg-[#E4E9F2] text-[#4B5E80]'
+                          : 'bg-brand-line text-brand-muted'
                       }`}
                     >
                       {lesson.completed ? (
@@ -245,12 +245,12 @@ export function CourseDetailView({
                     </div>
                     <div className="min-w-0 flex-1">
                       <div
-                        className={`truncate text-xs ${activeLesson?.id === lesson.id ? 'font-semibold text-primary' : 'font-medium text-[#0F1F3D]'}`}
+                        className={`truncate text-xs ${activeLesson?.id === lesson.id ? 'font-semibold text-primary' : 'font-medium text-brand'}`}
                       >
                         {lesson.title}
                       </div>
                       {lesson.durationMinutes && (
-                        <div className="text-xs text-[#5B6B88]">
+                        <div className="text-xs text-brand-muted">
                           {fmtDuration(null, lesson.durationMinutes)}
                         </div>
                       )}
@@ -267,7 +267,7 @@ export function CourseDetailView({
            etiquetas, ícone + título, dados, formador e botões de acção; a
            imagem do curso num recorte inclinado no canto superior direito. */
         <div className="mb-6 space-y-4">
-          <div className="relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
             <div
               aria-hidden
               className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
@@ -310,11 +310,11 @@ export function CourseDetailView({
                   <GraduationCap size={28} strokeWidth={1.75} />
                 </span>
                 <div className="min-w-0">
-                  <h1 className="break-words font-display text-[28px] font-bold leading-tight text-[#0F1F3D]">
+                  <h1 className="break-words font-display text-[28px] font-bold leading-tight text-brand">
                     {course.title}
                   </h1>
                   {course.category && (
-                    <p className="mt-0.5 break-words text-base text-[#49658A]">
+                    <p className="mt-0.5 break-words text-base text-brand-muted">
                       {course.category}
                     </p>
                   )}
@@ -327,13 +327,13 @@ export function CourseDetailView({
                 </p>
               )}
 
-              <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4] text-[15px] text-[#0F1F3D]">
+              <div className="flex flex-wrap items-center gap-y-3 divide-x divide-brand-line text-[15px] text-brand">
                 {course.workloadHours && (
                   <span className="inline-flex items-center gap-2 px-3 first:pl-0">
                     <Clock
                       size={22}
                       strokeWidth={1.75}
-                      className="shrink-0 text-[#49658A]"
+                      className="shrink-0 text-brand-muted"
                     />
                     {fmtDuration(course.workloadHours)}
                   </span>
@@ -342,7 +342,7 @@ export function CourseDetailView({
                   <Users
                     size={22}
                     strokeWidth={1.75}
-                    className="shrink-0 text-[#49658A]"
+                    className="shrink-0 text-brand-muted"
                   />
                   {course._count.enrollments} matriculados
                 </span>
@@ -350,15 +350,15 @@ export function CourseDetailView({
                   <ClipboardList
                     size={22}
                     strokeWidth={1.75}
-                    className="shrink-0 text-[#49658A]"
+                    className="shrink-0 text-brand-muted"
                   />
                   {course._count.modules} módulos
                 </span>
               </div>
 
-              <div className="border-t border-[#E6ECF4] pt-4">
+              <div className="border-t border-brand-line pt-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <span className="inline-flex items-center gap-3 text-[15px] text-[#49658A]">
+                  <span className="inline-flex items-center gap-3 text-[15px] text-brand-muted">
                     {course.instructors?.[0] && (
                       <>
                         <User size={22} strokeWidth={1.75} aria-hidden />
@@ -379,7 +379,7 @@ export function CourseDetailView({
                     {!isEnrolled && course.status !== 'PUBLISHED' && (
                       <Button
                         disabled
-                        className="w-full !border-[#0F1F3D] !bg-[#0F1F3D] !text-white !opacity-100"
+                        className="w-full !border-brand !bg-brand !text-white !opacity-100"
                       >
                         Curso indisponível
                       </Button>
@@ -467,7 +467,7 @@ export function CourseDetailView({
                     <a
                       href={progress.enrollment.certificate.fileUrl}
                       download
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-canvas hover:bg-primary/90"
+                      className="inline-flex items-center gap-1.5 rounded-control bg-primary px-4 py-2 text-sm font-semibold text-canvas hover:bg-primary/90"
                     >
                       <Download size={14} strokeWidth={1.75} /> Descarregar
                       certificado
@@ -542,12 +542,12 @@ export function CourseDetailView({
                   {mod.lessons?.map((l) => (
                     <div
                       key={l.id}
-                      className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-[#0F1F3D] hover:bg-[#F2F5FA]"
+                      className="flex items-center gap-2 rounded-card px-2.5 py-2 text-xs font-medium text-brand hover:bg-brand-soft"
                     >
                       <LessonIcon type={l.type} />
                       <span className="flex-1">{l.title}</span>
                       {l.durationMinutes && (
-                        <span className="text-[#5B6B88]">
+                        <span className="text-brand-muted">
                           {fmtDuration(null, l.durationMinutes)}
                         </span>
                       )}
@@ -776,7 +776,7 @@ function Section({
     <Card className={`overflow-hidden ${className ?? ''}`}>
       <h3
         className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold text-white ${
-          soft ? 'bg-[#0F1F3D]/60' : 'bg-[#0F1F3D]'
+          soft ? 'bg-brand/60' : 'bg-brand'
         }`}
       >
         {Icon && <Icon size={16} strokeWidth={1.75} />}

@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
+import { QueryError } from '@/components/ui/QueryError';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
@@ -24,6 +25,7 @@ import { Inbox, ShieldCheck, SlidersHorizontal } from 'lucide-react';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList } from '@/components/ui/PillTabs';
 import { pollInterval } from '@/lib/polling';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Priority/Category/Notification/NotifData/Stats/AdminForm vivem em
@@ -56,8 +58,16 @@ type View = 'inbox' | 'preferences' | 'admin';
 function InboxView() {
   const [category, setCategory] = useState('');
   const [readFilter, setReadFilter] = useState<ReadFilter>('all');
-  const { data, loading, handleRead, handleArchive, handleReadAll, marking } =
-    useNotificationsInbox(category, readFilter);
+  const {
+    data,
+    loading,
+    error,
+    refetch,
+    handleRead,
+    handleArchive,
+    handleReadAll,
+    marking,
+  } = useNotificationsInbox(category, readFilter);
 
   return (
     <InboxDetailView
@@ -67,6 +77,8 @@ function InboxView() {
       onReadFilterChange={setReadFilter}
       data={data}
       loading={loading}
+      error={error}
+      onRetry={() => void refetch()}
       onRead={handleRead}
       onArchive={handleArchive}
       onReadAll={handleReadAll}
@@ -80,7 +92,7 @@ function InboxView() {
 function PreferencesView() {
   const notify = useToast();
   // Cache das preferências + cópia local editável (sincroniza quando chega).
-  const { data, isLoading } = useApiQuery<Preferences>(
+  const { data, isLoading, isError, error, refetch } = useApiQuery<Preferences>(
     queryKeys.notifications.preferences(),
     '/notifications/preferences',
     { staleTime: STALE_TIME.SEMI_STATIC },
@@ -123,6 +135,8 @@ function PreferencesView() {
     });
   };
 
+  if (isError && !prefs)
+    return <QueryError error={error} onRetry={() => void refetch()} />;
   if (isLoading || !prefs) return <Skeleton rows={4} />;
 
   return (
@@ -193,40 +207,38 @@ function PreferencesView() {
         <div className="flex items-center gap-3">
           <div>
             <div className="mb-1 font-body text-xs text-ink-faint">Das</div>
-            <select
+            <NativeSelect
               value={prefs.quietHourStart}
               onChange={(e) =>
                 setPrefs((p) =>
                   p ? { ...p, quietHourStart: parseInt(e.target.value) } : null,
                 )
               }
-              className="rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5 font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
             >
               {Array.from({ length: 24 }, (_, h) => (
                 <option key={h} value={h}>
                   {String(h).padStart(2, '0')}:00
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
           <span className="mt-5 font-body text-sm text-ink-faint">às</span>
           <div>
             <div className="mb-1 font-body text-xs text-ink-faint">Às</div>
-            <select
+            <NativeSelect
               value={prefs.quietHourEnd}
               onChange={(e) =>
                 setPrefs((p) =>
                   p ? { ...p, quietHourEnd: parseInt(e.target.value) } : null,
                 )
               }
-              className="rounded-control border-[1.5px] border-border-strong bg-surface px-2 py-1.5 font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
             >
               {Array.from({ length: 24 }, (_, h) => (
                 <option key={h} value={h}>
                   {String(h).padStart(2, '0')}:00
                 </option>
               ))}
-            </select>
+            </NativeSelect>
           </div>
         </div>
       </Card>
@@ -369,7 +381,7 @@ export default function NotificationsPage() {
               icon: Inbox,
               badge:
                 unread > 0 ? (
-                  <span className="rounded-pill bg-white/80 px-1.5 py-0.5 font-body text-[10px] font-bold text-primary">
+                  <span className="rounded-pill bg-white/80 px-1.5 py-0.5 font-body text-micro font-bold text-primary">
                     {unread}
                   </span>
                 ) : undefined,

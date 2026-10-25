@@ -24,6 +24,7 @@ import {
   TYPE_LABEL,
 } from './constants';
 import type { EvaluationSettings } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const VISIBILITY_LABEL: Record<string, string> = {
   MANAGER_ONLY: 'Apenas o gestor',
@@ -78,7 +79,7 @@ export function SettingsTab() {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Fluxo de Aprovação
         </div>
         <CardBody>
@@ -97,7 +98,7 @@ export function SettingsTab() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Tipos de Avaliação
           </div>
           <CardBody>
@@ -111,7 +112,7 @@ export function SettingsTab() {
           </CardBody>
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Tipos de Avaliador
           </div>
           <CardBody>
@@ -125,7 +126,7 @@ export function SettingsTab() {
           </CardBody>
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Estados do Ciclo
           </div>
           <CardBody>
@@ -139,7 +140,7 @@ export function SettingsTab() {
           </CardBody>
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Visibilidade dos Resultados
           </div>
           <CardBody>
@@ -155,12 +156,12 @@ export function SettingsTab() {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Escalas
         </div>
         <CardBody>
           {data.scales.length === 0 && (
-            <p className="text-xs text-ink-faint">Sem escalas criadas.</p>
+            <EmptyState variant="inline" title="Sem escalas criadas" />
           )}
           <div className="space-y-2">
             {data.scales.map((s) => (

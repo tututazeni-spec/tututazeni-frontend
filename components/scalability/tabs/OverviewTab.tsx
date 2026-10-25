@@ -85,7 +85,7 @@ function CapacityIndicator({
   const circ = 2 * Math.PI * r;
 
   return (
-    <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+    <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
       <div className="mb-2 flex items-center gap-3">
         <Server className="h-6 w-6" strokeWidth={1.8} aria-hidden />
         <h3 className="font-display text-base font-bold uppercase tracking-wide">
@@ -145,7 +145,7 @@ function CapacityIndicator({
               type="button"
               onClick={onRename}
               aria-label="Editar nome da empresa"
-              className="rounded-control p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7CC4FF]"
+              className="rounded-control p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-on-brand-accent"
             >
               <Pencil size={16} strokeWidth={1.75} />
             </button>
@@ -191,7 +191,7 @@ function CapacityIndicator({
       </div>
 
       <div className="mt-3 flex items-center gap-3 rounded-card bg-white/10 px-4 py-2 font-body text-sm">
-        <Info className="h-5 w-5 shrink-0 text-[#7CC4FF]" aria-hidden />
+        <Info className="h-5 w-5 shrink-0 text-on-brand-accent" aria-hidden />
         <span>
           {supported !== null
             ? `A infraestrutura atual suporta aproximadamente ${supported.toLocaleString()} utilizadores simultâneos nas condições atuais.`

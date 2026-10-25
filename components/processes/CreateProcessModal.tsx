@@ -29,6 +29,7 @@ import { SOURCE_MODULES } from './StartProcessModal';
 import { UserPicker } from './UserPicker';
 import { stepExtras } from './workflow-model';
 import type { Process, RiskLevel, StepType } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface CreateProcessModalProps {
   /** Modelo a editar (só rascunhos). Omitido → criação. */
@@ -450,8 +451,7 @@ export function CreateProcessModal({
                   key={m}
                   className="flex items-center gap-1.5 font-body text-sm text-ink"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={modules.includes(m)}
                     onChange={() => toggleModule(m)}
                   />
@@ -721,8 +721,7 @@ export function CreateProcessModal({
 
                   <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 font-body text-sm text-ink">
                     <label className="flex items-center gap-1.5">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={step.requiresUpload}
                         onChange={(e) =>
                           patchStep(idx, { requiresUpload: e.target.checked })
@@ -731,8 +730,7 @@ export function CreateProcessModal({
                       Evidência obrigatória
                     </label>
                     <label className="flex items-center gap-1.5">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={step.parallel}
                         onChange={(e) =>
                           patchStep(idx, { parallel: e.target.checked })
@@ -745,8 +743,7 @@ export function CreateProcessModal({
                         <span className="text-ink-muted">Depende de:</span>
                         {steps.slice(0, idx).map((_, o) => (
                           <label key={o} className="flex items-center gap-1">
-                            <input
-                              type="checkbox"
+                            <Checkbox
                               checked={step.dependsOnOrders.includes(o)}
                               onChange={() => toggleDep(idx, o)}
                             />

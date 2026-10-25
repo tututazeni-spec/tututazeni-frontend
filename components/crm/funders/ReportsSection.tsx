@@ -17,6 +17,7 @@ import { useFormState } from '@/hooks/useFormState';
 import { useToast } from '@/providers/ToastProvider';
 import { EMPTY_REPORT_FORM, REPORT_COLORS } from './types';
 import type { FunderDetail } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface ReportsSectionProps {
   funderId: string;
@@ -134,9 +135,7 @@ export function ReportsSection({
       <Card>
         <div className="divide-y divide-border">
           {reports.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">
-              Sem relatórios registados
-            </p>
+            <EmptyState variant="inline" title="Sem relatórios registados" />
           ) : (
             reports.map((r) => {
               const canSubmit =

@@ -25,13 +25,13 @@ export function NavyStatGroupCard({
   items: NavyStatGroupItem[];
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)]">
+    <div className="overflow-hidden rounded-panel border border-brand-line bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)]">
       <div className="flex h-[60px] items-center bg-[#152F59] px-4">
         <h3 className="font-body text-[15px] font-semibold leading-tight text-white">
           {title}
         </h3>
       </div>
-      <div className="grid grid-cols-2 divide-x divide-y divide-[#D8E2F0] md:grid-cols-3 md:divide-y-0 xl:grid-cols-5">
+      <div className="grid grid-cols-2 divide-x divide-y divide-brand-line md:grid-cols-3 md:divide-y-0 xl:grid-cols-5">
         {items.map(({ key, icon: Icon, tone, label, value, onClick }) => {
           const t = NAVY_TONES[tone];
           const Wrapper = onClick ? 'button' : 'div';

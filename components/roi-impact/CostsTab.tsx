@@ -167,15 +167,15 @@ export function CostsTab() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div className="pointer-events-none cursor-default select-none bg-[#0F1F3D]/60 px-5 py-3">
+      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="pointer-events-none cursor-default select-none bg-brand/60 px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-white">
             Consolidação por iniciativa
           </h4>
         </div>
-        <div className="p-5 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
+        <div className="p-5 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-micro">
           <DataTable
-            headerClassName="bg-[#0F1F3D]/60 text-white"
+            headerClassName="bg-brand/60 text-white"
             data={rows}
             rowKey={(r) => `${r.initiativeType}:${r.initiativeId}`}
             emptyLabel="Regista a primeira linha de custo para começar a consolidar o investimento por iniciativa."
@@ -251,15 +251,15 @@ export function CostsTab() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div className="pointer-events-none cursor-default select-none bg-[#0F1F3D]/60 px-5 py-3">
+      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="pointer-events-none cursor-default select-none bg-brand/60 px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-white">
             Linhas de custo
           </h4>
         </div>
-        <div className="p-5 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
+        <div className="p-5 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-micro">
           <DataTable
-            headerClassName="bg-[#0F1F3D]/60 text-white"
+            headerClassName="bg-brand/60 text-white"
             data={entries}
             rowKey={(e) => e.id}
             emptyLabel="As linhas de custo aparecem aqui à medida que forem registadas."

@@ -14,6 +14,7 @@ import { InteractionsSection } from './InteractionsSection';
 import { ReportsSection } from './ReportsSection';
 import { STATUS_COLORS } from './types';
 import type { FunderDetail } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 interface FunderDetailViewProps {
   funder: FunderDetail;
@@ -37,12 +38,12 @@ export function FunderDetailView({
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <button
+          <LinkButton
             onClick={() => router.push('/crm/funders')}
-            className="font-body text-sm text-primary hover:underline mb-2"
+            className="font-body text-sm mb-2"
           >
             ← Voltar à lista
-          </button>
+          </LinkButton>
           <h1 className="font-display text-2xl font-bold text-ink">{f.name}</h1>
           <p className="font-mono font-body text-ink-muted">{f.code}</p>
         </div>

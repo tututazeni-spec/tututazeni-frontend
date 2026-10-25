@@ -37,6 +37,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const ALL = 'ALL';
 
@@ -110,7 +112,7 @@ interface ComparisonStatProps {
 function ComparisonStat({ title, labelA, labelB, cmp }: ComparisonStatProps) {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-      <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+      <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
         {title}
       </h3>
       <div className="flex items-center justify-between text-sm">
@@ -249,16 +251,14 @@ export function RelatoriosTab() {
       </FilterPanelCard>
 
       {!cycleId && !cyclesLoading && (
-        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
             Relatórios
           </h3>
           Ainda não existe nenhum ciclo de avaliação 360º.
         </div>
       )}
-      {cycleId && isLoading && (
-        <div className="text-sm text-ink-muted">A carregar…</div>
-      )}
+      {cycleId && isLoading && <Skeleton rows={3} />}
 
       {data && (
         <>
@@ -314,7 +314,7 @@ export function RelatoriosTab() {
 
           {/* Resultados por competência */}
           <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-            <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+            <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
               Resultados por competência
             </h3>
             <BarList
@@ -329,7 +329,7 @@ export function RelatoriosTab() {
           {/* Resultados por departamento / cargo / unidade */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
                 Por departamento
               </h3>
               <BarList
@@ -341,7 +341,7 @@ export function RelatoriosTab() {
               />
             </div>
             <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
                 Por cargo
               </h3>
               <BarList
@@ -353,7 +353,7 @@ export function RelatoriosTab() {
               />
             </div>
             <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
                 Por unidade
               </h3>
               <BarList
@@ -368,7 +368,7 @@ export function RelatoriosTab() {
 
           {/* Por grupo de avaliadores */}
           <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-            <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+            <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
               Resultados por grupo de avaliadores
             </h3>
             <BarList
@@ -407,13 +407,14 @@ export function RelatoriosTab() {
           {/* Pontos fortes / gaps */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
                 Principais pontos fortes
               </h3>
               {data.topStrengths.length === 0 && (
-                <div className="text-sm text-ink-muted">
-                  Sem dados suficientes ainda.
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Sem dados suficientes ainda"
+                />
               )}
               {data.topStrengths.map((c) => (
                 <div
@@ -430,13 +431,14 @@ export function RelatoriosTab() {
               ))}
             </div>
             <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-              <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+              <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
                 Principais lacunas
               </h3>
               {data.topGaps.length === 0 && (
-                <div className="text-sm text-ink-muted">
-                  Sem dados suficientes ainda.
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Sem dados suficientes ainda"
+                />
               )}
               {data.topGaps.map((c) => (
                 <div
@@ -456,13 +458,14 @@ export function RelatoriosTab() {
 
           {/* Competências críticas */}
           <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-            <h3 className="-mx-5 -mt-5 mb-3.5 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+            <h3 className="-mx-5 -mt-5 mb-3.5 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
               Competências críticas (abaixo do nível esperado)
             </h3>
             {data.criticalCompetencies.length === 0 && (
-              <div className="text-sm text-ink-muted">
-                Nenhuma competência abaixo do nível esperado.
-              </div>
+              <EmptyState
+                variant="inline"
+                title="Nenhuma competência abaixo do nível esperado"
+              />
             )}
             {data.criticalCompetencies.map((c) => (
               <div
@@ -494,14 +497,12 @@ export function RelatoriosTab() {
               </span>
             </div>
             {data.pendingEvaluators.list.length === 0 ? (
-              <div className="px-5 py-4 text-sm text-ink-muted">
-                Sem avaliadores pendentes.
-              </div>
+              <EmptyState variant="inline" title="Sem avaliadores pendentes" />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm border-collapse min-w-[700px]">
                   <thead>
-                    <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
+                    <tr className="border-b border-border bg-brand/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
                       <th className="px-4 py-2.5">Avaliador</th>
                       <th className="px-4 py-2.5">Avaliado</th>
                       <th className="px-4 py-2.5">Tipo</th>
@@ -601,10 +602,10 @@ function CycleEvolutionSection({
         ))}
       </FilterPanelCard>
 
-      {isLoading && <div className="text-sm text-ink-muted">A carregar…</div>}
+      {isLoading && <Skeleton rows={3} />}
       {!isLoading && points.length === 0 && (
-        <div className="overflow-hidden rounded-card border border-[#0F1F3D] bg-surface p-5 font-body text-sm text-[#0F1F3D]">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-semibold text-white">
+        <div className="overflow-hidden rounded-card border border-brand bg-surface p-5 font-body text-sm text-brand">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-semibold text-white">
             Relatórios
           </h3>
           Sem ciclos para comparar.
@@ -615,7 +616,7 @@ function CycleEvolutionSection({
         <div className="rounded-card border border-border bg-surface overflow-x-auto">
           <table className="w-full text-sm border-collapse min-w-[900px]">
             <thead>
-              <tr className="border-b border-border bg-[#0F1F3D]/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
+              <tr className="border-b border-border bg-brand/60 text-left text-xs font-semibold uppercase tracking-wider text-white">
                 <th className="px-4 py-3">Ciclo</th>
                 <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Início</th>

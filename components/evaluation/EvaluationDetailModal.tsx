@@ -34,6 +34,7 @@ import type {
   OneOnOneMeetingView,
   OneOnOneMinutes,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface EvaluationDetailModalProps {
   requestId: number;
@@ -213,7 +214,7 @@ export function EvaluationDetailModal({
                   variant="pill"
                 />
                 {data.stage && (
-                  <span className="text-[11px] text-ink-faint">
+                  <span className="text-micro text-ink-faint">
                     {STAGE_LABEL[data.stage] ?? data.stage}
                   </span>
                 )}
@@ -295,9 +296,7 @@ export function EvaluationDetailModal({
                 )}
               </div>
               {objectives.length === 0 && (
-                <p className="text-xs text-ink-faint">
-                  Sem objectivos definidos.
-                </p>
+                <EmptyState variant="inline" title="Sem objectivos definidos" />
               )}
               <div className="space-y-2">
                 {objectives.map((o, i) =>

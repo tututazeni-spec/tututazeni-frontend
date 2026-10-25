@@ -28,6 +28,8 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/users/types';
 import type { CareerHistory } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
+import { IconButton } from '@/components/ui/Button';
 
 function fmt(date: string | null | undefined): string {
   if (!date) return '—';
@@ -48,7 +50,7 @@ interface SectionProps {
 function Section({ icon: Icon, title, count, children }: SectionProps) {
   return (
     <Card className="overflow-hidden p-0">
-      <div className="flex items-center gap-1.5 bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
+      <div className="flex items-center gap-1.5 bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
         <Icon size={16} strokeWidth={1.75} className="text-white" />
         {title}
         <span className="ml-auto font-body text-xs font-normal text-white/80">
@@ -93,14 +95,15 @@ export function HistoryTab() {
               <span className="font-body text-sm font-medium text-ink">
                 {employee.fullName}
               </span>
-              <button
+              <IconButton
+                icon={X}
+                label="Voltar à minha carreira"
+                intent="ghost"
+                size="xs"
+                className="ml-auto"
                 type="button"
-                aria-label="Voltar à minha carreira"
                 onClick={() => setEmployee(null)}
-                className="ml-auto rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-              >
-                <X size={14} strokeWidth={1.75} />
-              </button>
+              />
             </div>
           ) : showPicker ? (
             <DepartmentUserPicker
@@ -113,13 +116,13 @@ export function HistoryTab() {
               }}
             />
           ) : (
-            <button
+            <LinkButton
               type="button"
               onClick={() => setShowPicker(true)}
-              className="font-body text-xs font-medium text-primary hover:underline"
+              className="font-body text-xs font-medium"
             >
               Ver histórico de outro colaborador
-            </button>
+            </LinkButton>
           )}
         </div>
       )}

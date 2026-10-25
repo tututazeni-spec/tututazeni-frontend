@@ -6,6 +6,7 @@
 
 'use client';
 
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Building2, CalendarDays, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -87,9 +88,7 @@ function Legend({ rows }: { rows: BenchmarkGroupAvg[] }) {
 
 function Empty() {
   return (
-    <p className="font-body text-sm text-ink-faint">
-      Sem análises de ROI para agrupar.
-    </p>
+    <EmptyState variant="inline" title="Sem análises de ROI para agrupar" />
   );
 }
 
@@ -142,7 +141,7 @@ export function RoiByDepartmentCard({ rows }: { rows: BenchmarkGroupAvg[] }) {
                       {fmtPct(r.avgValue)}
                     </span>
                     <div
-                      className="w-full max-w-[44px] rounded-t-md bg-gradient-to-b from-[#3B8EF0] to-[#1D63D6]"
+                      className="w-full max-w-[44px] rounded-t-control bg-gradient-to-b from-[#3B8EF0] to-[#1D63D6]"
                       style={{
                         height: `${Math.max(0, Math.min(100, (r.avgValue / axisMax) * 100)) * 0.85}%`,
                       }}

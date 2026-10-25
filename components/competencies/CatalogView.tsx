@@ -40,7 +40,7 @@ import type { Competency, CompetencyCategory } from './types';
 // Uma cor por competência (estável, pelo id), a 50% de opacidade. Classes
 // literais para o Tailwind as detectar.
 const CARD_COLORS = [
-  'bg-[#0F1F3D]/50',
+  'bg-brand/50',
   'bg-[#1E40AF]/50',
   'bg-[#0F766E]/50',
   'bg-[#6D28D9]/50',
@@ -55,7 +55,7 @@ function cardColor(id: number): string {
 }
 
 const BADGE_CLS =
-  'rounded-md bg-white/20 px-2 py-0.5 font-body text-xs font-medium text-white';
+  'rounded-control bg-white/20 px-2 py-0.5 font-body text-xs font-medium text-white';
 
 const CATEGORY_ICONS: Record<CompetencyCategory, LucideIcon> = {
   HARD_SKILL: Monitor,
@@ -197,7 +197,7 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
                     onSelect(comp.id);
                   }
                 }}
-                className={`flex min-h-[168px] cursor-pointer flex-col rounded-2xl ${cardColor(comp.id)} p-4 text-white shadow-resting transition-shadow duration-150 hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2`}
+                className={`flex min-h-[168px] cursor-pointer flex-col rounded-panel ${cardColor(comp.id)} p-4 text-white shadow-resting transition-shadow duration-150 hover:shadow-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2`}
               >
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-white/15">

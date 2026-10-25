@@ -33,6 +33,7 @@ import {
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton, fmtDuration } from './shared';
 import type { AdminDashboard } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface AdminDashboardViewProps {
   onSelect: (id: number) => void;
@@ -59,11 +60,11 @@ function CourseRankList({
 }: CourseRankListProps) {
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       {items.length === 0 ? (
-        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+        <EmptyState variant="inline" title="Sem dados" />
       ) : (
         items.map((c, idx) => (
           <div
@@ -287,11 +288,11 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
       {/* Actividade recente */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimas inscrições
           </div>
           {data.recentActivity.enrollments.length === 0 ? (
-            <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+            <EmptyState variant="inline" title="Sem dados" />
           ) : (
             data.recentActivity.enrollments.map((e) => (
               <div
@@ -306,11 +307,11 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           )}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimas conclusões
           </div>
           {data.recentActivity.completions.length === 0 ? (
-            <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+            <EmptyState variant="inline" title="Sem dados" />
           ) : (
             data.recentActivity.completions.map((e) => (
               <div
@@ -325,11 +326,11 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           )}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimas avaliações
           </div>
           {data.recentActivity.feedbacks.length === 0 ? (
-            <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+            <EmptyState variant="inline" title="Sem dados" />
           ) : (
             data.recentActivity.feedbacks.map((f) => (
               <div
@@ -345,11 +346,11 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           )}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Últimos certificados emitidos
           </div>
           {data.recentActivity.certificates.length === 0 ? (
-            <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+            <EmptyState variant="inline" title="Sem dados" />
           ) : (
             data.recentActivity.certificates.map((c) => (
               <div
@@ -370,7 +371,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
       {/* Recentemente criados/actualizados, próximos do término */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Recentemente criados
           </div>
           {data.recentlyCreated.map((c) => (
@@ -384,7 +385,7 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           ))}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Recentemente actualizados
           </div>
           {data.recentlyUpdated.map((c) => (
@@ -398,13 +399,11 @@ export function AdminDashboardView({ onSelect }: AdminDashboardViewProps) {
           ))}
         </Card>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Próximos do término
           </div>
           {data.endingSoon.length === 0 ? (
-            <p className="p-4 text-xs text-ink-faint">
-              Nenhum nos próximos 14 dias
-            </p>
+            <EmptyState variant="inline" title="Nenhum nos próximos 14 dias" />
           ) : (
             data.endingSoon.map((c) => (
               <div

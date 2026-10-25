@@ -28,6 +28,7 @@ import type {
   ComponentCalcType,
   ComponentType,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface ComponentFormModalProps {
   component?: SalaryComponent | null;
@@ -311,20 +312,16 @@ export function ComponentFormModal({
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex items-center gap-2 text-sm text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={isTaxable}
                 onChange={(e) => setField('isTaxable', e.target.checked)}
-                className="h-4 w-4 rounded border-border-strong accent-primary"
               />
               Tributável
             </label>
             <label className="flex items-center gap-2 text-sm text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={isMandatory}
                 onChange={(e) => setField('isMandatory', e.target.checked)}
-                className="h-4 w-4 rounded border-border-strong accent-primary"
               />
               Obrigatório
             </label>

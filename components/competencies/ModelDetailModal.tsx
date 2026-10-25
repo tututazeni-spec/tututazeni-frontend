@@ -15,7 +15,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -25,6 +25,8 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CATEGORY_CFG, HIERARCHY_LEVEL_CFG, STATUS_CFG } from './constants';
 import { useCompetencyOptions } from './modelFormData';
 import type { CompetencyModelDetail } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface ModelDetailModalProps {
   modelId: number;
@@ -171,9 +173,10 @@ export function ModelDetailModal({
                   Competências incluídas ({data.items.length})
                 </h3>
                 {data.items.length === 0 ? (
-                  <p className="font-body text-sm text-ink-faint">
-                    Nenhuma competência associada a este modelo.
-                  </p>
+                  <EmptyState
+                    variant="inline"
+                    title="Nenhuma competência associada a este modelo"
+                  />
                 ) : (
                   <div className="overflow-hidden rounded-card border border-border">
                     {data.items.map((item) => (
@@ -204,19 +207,19 @@ export function ModelDetailModal({
                           </span>
                         )}
                         {canManage && (
-                          <button
+                          <IconButton
+                            icon={Trash2}
+                            label="Remover competência do modelo"
+                            intent="ghostDanger"
+                            size="xs"
                             type="button"
-                            aria-label="Remover competência do modelo"
                             onClick={() =>
                               onRemoveItem(
                                 item.competencyId,
                                 item.competency.name,
                               )
                             }
-                            className="rounded p-1.5 text-ink-faint hover:bg-danger-subtle hover:text-danger-ink"
-                          >
-                            <Trash2 size={14} strokeWidth={1.75} />
-                          </button>
+                          />
                         )}
                       </div>
                     ))}
@@ -338,20 +341,16 @@ function AddItemForm({
           />
         </FormField>
         <label className="mt-6 flex items-center gap-2 text-sm text-ink-muted">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={isMandatory}
             onChange={(e) => setIsMandatory(e.target.checked)}
-            className="h-4 w-4 rounded border-border-strong accent-primary"
           />
           Obrigatória
         </label>
         <label className="mt-6 flex items-center gap-2 text-sm text-ink-muted">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={isCritical}
             onChange={(e) => setIsCritical(e.target.checked)}
-            className="h-4 w-4 rounded border-border-strong accent-primary"
           />
           Crítica
         </label>

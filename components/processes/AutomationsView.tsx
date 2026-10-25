@@ -7,7 +7,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Activity, AlertTriangle, Copy, Pencil, Plus, Power, Trash2, Zap } from 'lucide-react';
+import {
+  Activity,
+  AlertTriangle,
+  Copy,
+  Pencil,
+  Plus,
+  Power,
+  Trash2,
+  Zap,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
@@ -52,7 +61,10 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
   const notify = useToast();
   const [search, setSearch] = useState('');
   const [state, setState] = useState('ALL');
-  const [form, setForm] = useState<{ initial?: AutomationRule; template?: AutomationTemplate } | null>(null);
+  const [form, setForm] = useState<{
+    initial?: AutomationRule;
+    template?: AutomationTemplate;
+  } | null>(null);
   const [openId, setOpenId] = useState<number | null>(null);
   const [toDelete, setToDelete] = useState<AutomationRule | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -101,9 +113,25 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
   return (
     <div>
       <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        <KpiCard icon={Zap} label="Regras" value={k?.total ?? '—'} intent="primary" />
-        <KpiCard icon={Power} label="Activas" value={k?.active ?? '—'} intent="success" />
-        <KpiCard icon={Activity} iconIntent="caution" label="Execuções (24 h)" value={k?.executions24h ?? '—'} intent="info" />
+        <KpiCard
+          icon={Zap}
+          label="Regras"
+          value={k?.total ?? '—'}
+          intent="primary"
+        />
+        <KpiCard
+          icon={Power}
+          label="Activas"
+          value={k?.active ?? '—'}
+          intent="success"
+        />
+        <KpiCard
+          icon={Activity}
+          iconIntent="caution"
+          label="Execuções (24 h)"
+          value={k?.executions24h ?? '—'}
+          intent="info"
+        />
         <KpiCard
           icon={AlertTriangle}
           label="Falhas (24 h)"
@@ -142,14 +170,24 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
       {showTemplates && catalog && (
         <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
           {catalog.templates.map((t, i) => (
-            <div key={t.key} className="flex flex-col rounded-card border border-[#0F1F3D] p-3"
-              style={{ backgroundColor: TEMPLATE_CARD_COLORS[i % TEMPLATE_CARD_COLORS.length] }}>
-              <div className="font-body text-sm font-bold text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">{t.name}</div>
-              <p className="mt-0.5 mb-3 font-body text-[13px] font-medium text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">{t.description}</p>
+            <div
+              key={t.key}
+              className="flex flex-col rounded-card border border-brand p-3"
+              style={{
+                backgroundColor:
+                  TEMPLATE_CARD_COLORS[i % TEMPLATE_CARD_COLORS.length],
+              }}
+            >
+              <div className="font-body text-sm font-bold text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">
+                {t.name}
+              </div>
+              <p className="mt-0.5 mb-3 font-body text-[13px] font-medium text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]">
+                {t.description}
+              </p>
               <Button
                 intent="ghost"
                 size="sm"
-                className="mt-auto self-start border border-[#0F1F3D] bg-black font-semibold text-white hover:bg-neutral-800 hover:text-white"
+                className="mt-auto self-start border border-brand bg-black font-semibold text-white hover:bg-neutral-800 hover:text-white"
                 onClick={() => setForm({ template: t })}
               >
                 Usar este modelo
@@ -160,7 +198,9 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
       )}
 
       {isLoading && <Skeleton rows={4} />}
-      {error && <p className="font-body text-sm text-danger">{error.message}</p>}
+      {error && (
+        <p className="font-body text-sm text-danger">{error.message}</p>
+      )}
       {!isLoading && data?.data.length === 0 && (
         <EmptyState
           title="Sem regras"
@@ -171,7 +211,7 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
       {data && data.data.length > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
           <div>
-            <div className="grid grid-cols-[minmax(0,1.8fr)_minmax(0,1.3fr)_minmax(0,1.1fr)_minmax(0,1.3fr)_80px_128px] gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white cursor-default select-none pointer-events-none">
+            <div className="grid grid-cols-[minmax(0,1.8fr)_minmax(0,1.3fr)_minmax(0,1.1fr)_minmax(0,1.3fr)_80px_128px] gap-3 border-b border-border bg-brand/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white cursor-default select-none pointer-events-none">
               <div>Regra</div>
               <div>Evento</div>
               <div>Acção</div>
@@ -182,7 +222,7 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
             {data.data.map((r) => (
               <div
                 key={r.id}
-                className="relative grid cursor-pointer grid-cols-[minmax(0,1.8fr)_minmax(0,1.3fr)_minmax(0,1.1fr)_minmax(0,1.3fr)_80px_128px] items-center gap-3 border-b border-white/10 bg-[#0F1F3D] py-3 pl-5 pr-4 last:border-0"
+                className="relative grid cursor-pointer grid-cols-[minmax(0,1.8fr)_minmax(0,1.3fr)_minmax(0,1.1fr)_minmax(0,1.3fr)_80px_128px] items-center gap-3 border-b border-white/10 bg-brand py-3 pl-5 pr-4 last:border-0"
                 onClick={() => setOpenId(r.id)}
               >
                 <span
@@ -193,20 +233,36 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
                     <Zap size={16} strokeWidth={1.75} />
                   </span>
                   <div className="min-w-0">
-                    <div className="truncate font-body text-sm font-semibold text-white">{r.name}</div>
-                    <div className="font-mono text-xs text-white">{r.code ?? `#${r.id}`}</div>
+                    <div className="truncate font-body text-sm font-semibold text-white">
+                      {r.name}
+                    </div>
+                    <div className="font-mono text-xs text-white">
+                      {r.code ?? `#${r.id}`}
+                    </div>
                   </div>
                 </div>
                 <div className="font-body text-xs text-white">
                   <div>{r.triggerLabel}</div>
-                  {r.conditions && <div className="text-white">{r.conditions.rows.length} condição(ões)</div>}
+                  {r.conditions && (
+                    <div className="text-white">
+                      {r.conditions.rows.length} condição(ões)
+                    </div>
+                  )}
                 </div>
-                <div className="font-body text-xs text-white">{r.actionLabel}</div>
+                <div className="font-body text-xs text-white">
+                  {r.actionLabel}
+                </div>
                 <div className="font-body text-xs text-white">
                   {r.lastRunAt ? (
                     <>
                       <div>{formatDateTime(r.lastRunAt)}</div>
-                      {r.lastRunStatus && <StatusBadge value={r.lastRunStatus} map={EXECUTION_STATUS_MAP} variant="dot" />}
+                      {r.lastRunStatus && (
+                        <StatusBadge
+                          value={r.lastRunStatus}
+                          map={EXECUTION_STATUS_MAP}
+                          variant="dot"
+                        />
+                      )}
                     </>
                   ) : (
                     'Nunca'
@@ -218,23 +274,60 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
                 <div>
                   <span
                     className={`rounded-full px-2 py-0.5 font-body text-xs font-medium ${
-                      r.active ? 'bg-success-subtle text-success-ink' : 'bg-white/15 text-white'
+                      r.active
+                        ? 'bg-success-subtle text-success-ink'
+                        : 'bg-white/15 text-white'
                     }`}
                   >
                     {r.active ? 'Activa' : 'Inactiva'}
                   </span>
                 </div>
-                <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
-                  <button type="button" title="Editar" className="rounded p-1.5 text-white hover:bg-white/10 hover:text-white" onClick={() => setForm({ initial: r })}>
+                <div
+                  className="flex justify-end"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    title="Editar"
+                    className="rounded p-1.5 text-white hover:bg-white/10 hover:text-white"
+                    onClick={() => setForm({ initial: r })}
+                  >
                     <Pencil size={14} strokeWidth={1.75} />
                   </button>
-                  <button type="button" title={r.active ? 'Desactivar' : 'Activar'} className="rounded p-1.5 text-white hover:bg-white/10 hover:text-white" onClick={() => act.mutate({ path: `${r.id}/toggle`, method: 'patch', ok: r.active ? 'Regra desactivada' : 'Regra activada' })}>
+                  <button
+                    type="button"
+                    title={r.active ? 'Desactivar' : 'Activar'}
+                    className="rounded p-1.5 text-white hover:bg-white/10 hover:text-white"
+                    onClick={() =>
+                      act.mutate({
+                        path: `${r.id}/toggle`,
+                        method: 'patch',
+                        ok: r.active ? 'Regra desactivada' : 'Regra activada',
+                      })
+                    }
+                  >
                     <Power size={14} strokeWidth={1.75} />
                   </button>
-                  <button type="button" title="Clonar" className="rounded p-1.5 text-white hover:bg-white/10 hover:text-white" onClick={() => act.mutate({ path: `${r.id}/clone`, method: 'post', ok: 'Regra clonada (inactiva)' })}>
+                  <button
+                    type="button"
+                    title="Clonar"
+                    className="rounded p-1.5 text-white hover:bg-white/10 hover:text-white"
+                    onClick={() =>
+                      act.mutate({
+                        path: `${r.id}/clone`,
+                        method: 'post',
+                        ok: 'Regra clonada (inactiva)',
+                      })
+                    }
+                  >
                     <Copy size={14} strokeWidth={1.75} />
                   </button>
-                  <button type="button" title="Remover" className="rounded p-1.5 text-white hover:bg-white/10 hover:text-white" onClick={() => setToDelete(r)}>
+                  <button
+                    type="button"
+                    title="Remover"
+                    className="rounded p-1.5 text-white hover:bg-white/10 hover:text-white"
+                    onClick={() => setToDelete(r)}
+                  >
                     <Trash2 size={14} strokeWidth={1.75} />
                   </button>
                 </div>
@@ -254,7 +347,11 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
         />
       )}
       {openId !== null && (
-        <AutomationPanel id={openId} canManage={canManage} onClose={() => setOpenId(null)} />
+        <AutomationPanel
+          id={openId}
+          canManage={canManage}
+          onClose={() => setOpenId(null)}
+        />
       )}
       {toDelete && (
         <ConfirmDialog
@@ -263,7 +360,11 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
           confirmLabel="Remover"
           destructive
           onConfirm={() => {
-            act.mutate({ path: String(toDelete.id), method: 'delete', ok: 'Regra removida' });
+            act.mutate({
+              path: String(toDelete.id),
+              method: 'delete',
+              ok: 'Regra removida',
+            });
             setToDelete(null);
           }}
           onCancel={() => setToDelete(null)}

@@ -25,7 +25,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate, formatTime } from '@/lib/format';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button, buttonVariants } from '@/components/ui/Button';
+import { Button, buttonVariants, IconButton } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import {
   DropdownMenu,
@@ -55,6 +55,7 @@ import type {
   EventParticipantRow,
   ParticipantStatus,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface Paginated<T> {
   data: T[];
@@ -263,7 +264,7 @@ export function ParticipantsTab() {
           description="Nenhuma inscrição corresponde aos filtros."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {data.data.map((p) => {
             const isApproving =
               approveMutation.isPending &&
@@ -282,7 +283,7 @@ export function ParticipantsTab() {
             return (
               <div
                 key={p.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-[#E6ECF4] bg-white px-5 py-3 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-white px-5 py-3 last:border-0"
               >
                 <Avatar
                   name={p.user.fullName}
@@ -290,41 +291,41 @@ export function ParticipantsTab() {
                   size="sm"
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
+                  <div className="truncate font-body text-sm font-semibold text-brand">
                     {p.user.fullName}
                     {p.user.employeeNumber && (
-                      <span className="ml-1.5 font-mono text-xs text-[#49658A]">
+                      <span className="ml-1.5 font-mono text-xs text-brand-muted">
                         #{p.user.employeeNumber}
                       </span>
                     )}
                   </div>
-                  <div className="truncate font-body text-xs text-[#49658A]">
+                  <div className="truncate font-body text-xs text-brand-muted">
                     {p.user.position?.name ?? '—'}
                     {p.user.department && ` · ${p.user.department.name}`}
                     {p.user.unit && ` · ${p.user.unit.name}`}
                   </div>
                 </div>
 
-                <div className="hidden w-32 shrink-0 font-body text-xs text-[#49658A] sm:block">
+                <div className="hidden w-32 shrink-0 font-body text-xs text-brand-muted sm:block">
                   Inscrito {formatDate(p.registeredAt)}
                 </div>
-                <div className="hidden w-32 shrink-0 font-body text-xs text-[#49658A] md:block">
+                <div className="hidden w-32 shrink-0 font-body text-xs text-brand-muted md:block">
                   {p.confirmedAt
                     ? `Confirmado ${formatDate(p.confirmedAt)}`
                     : '—'}
                 </div>
-                <div className="hidden w-32 shrink-0 font-body text-xs text-[#49658A] lg:block">
+                <div className="hidden w-32 shrink-0 font-body text-xs text-brand-muted lg:block">
                   {p.checkedInAt ? formatTime(p.checkedInAt) : '—'}
                   {p.checkedOutAt ? ` → ${formatTime(p.checkedOutAt)}` : ''}
                 </div>
                 <div className="hidden shrink-0 gap-1 xl:flex">
                   {p.hasCertificate && (
-                    <span className="rounded bg-success-subtle px-1.5 py-0.5 font-body text-[10px] text-success-ink">
+                    <span className="rounded bg-success-subtle px-1.5 py-0.5 font-body text-micro text-success-ink">
                       Certificado
                     </span>
                   )}
                   {p.hasEvaluation && (
-                    <span className="rounded bg-info-subtle px-1.5 py-0.5 font-body text-[10px] text-info-ink">
+                    <span className="rounded bg-info-subtle px-1.5 py-0.5 font-body text-micro text-info-ink">
                       Avaliado
                     </span>
                   )}
@@ -349,13 +350,14 @@ export function ParticipantsTab() {
                 {(canApprove || canReject || canCancel) && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button
+                      <IconButton
+                        icon={MoreVertical}
+                        label="Acções da inscrição"
+                        intent="ghost"
+                        size="compact"
+                        className="shrink-0"
                         type="button"
-                        aria-label="Acções da inscrição"
-                        className="shrink-0 rounded-control p-1.5 text-[#49658A] hover:bg-[#EEF4FD] hover:text-[#0F1F3D]"
-                      >
-                        <MoreVertical size={16} strokeWidth={1.75} />
-                      </button>
+                      />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       {canApprove && (
@@ -561,20 +563,19 @@ function AddParticipantsModal({
                     <Skeleton rows={4} />
                   </div>
                 ) : users.length === 0 ? (
-                  <div className="px-3 py-8 text-center text-sm text-ink-faint">
-                    Nenhum colaborador encontrado
-                  </div>
+                  <EmptyState
+                    variant="inline"
+                    title="Nenhum colaborador encontrado"
+                  />
                 ) : (
                   users.map((u) => (
                     <label
                       key={u.id}
                       className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-surface-sunken"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={selected.has(u.id)}
                         onChange={() => toggle(u)}
-                        className="h-4 w-4 rounded border-border-strong accent-primary"
                       />
                       <Avatar
                         name={u.fullName}

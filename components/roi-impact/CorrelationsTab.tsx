@@ -103,7 +103,7 @@ export function CorrelationsTab() {
       />
 
       <Card>
-        <div className="rounded-t-panel bg-[#0F1F3D]/60 px-5 py-3">
+        <div className="rounded-t-panel bg-brand/60 px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-white">
             Análises disponíveis
           </h4>
@@ -128,13 +128,13 @@ export function CorrelationsTab() {
         )}
       </Card>
 
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand/65 via-brand-mid/65 to-brand-dark/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-white">
             Histórico de análises
           </h4>
         </div>
-        <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-[11px]">
+        <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_th]:px-2 [&_th]:text-micro">
           {loadingHistory ? (
             <Skeleton
               rows={4}
@@ -150,7 +150,7 @@ export function CorrelationsTab() {
           ) : (
             <div className="overflow-x-auto">
               <Table>
-                <TableHead className="bg-[#0F1F3D]/60">
+                <TableHead className="bg-brand/60">
                   <TableRow className="hover:bg-transparent">
                     <TableHeaderCell className="text-white">
                       Análise

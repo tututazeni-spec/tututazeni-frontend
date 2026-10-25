@@ -20,7 +20,6 @@ import { formatDateTime } from '@/lib/format';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import {
-  NAVY_BTN,
   NavyBadge,
   NavyCard,
   type NavyTone,
@@ -258,9 +257,10 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
                 footer={
                   canManage && (
                     <>
-                      <button
+                      <Button
                         type="button"
-                        className={NAVY_BTN}
+                        intent="onDark"
+                        size="md"
                         onClick={() => openRegister(p)}
                       >
                         <CheckCircle2
@@ -269,17 +269,18 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
                           className="mr-1.5"
                         />
                         Registar
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
-                        className={NAVY_BTN}
+                        intent="onDark"
+                        size="md"
                         onClick={() => {
                           setJustifying(p);
                           setJustification(p.justification ?? '');
                         }}
                       >
                         Justificar
-                      </button>
+                      </Button>
                     </>
                   )
                 }

@@ -28,6 +28,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import type { Purpose, Template } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface WizardForm {
   templateId: number;
@@ -352,8 +353,7 @@ export function NewDocRequestModal({
                 </div>
               </div>
               <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={form.saveAsDraft}
                   onChange={(e) =>
                     dispatch({
@@ -362,7 +362,6 @@ export function NewDocRequestModal({
                       value: e.target.checked,
                     })
                   }
-                  className="h-4 w-4 rounded border-border-strong accent-primary"
                 />
                 <span className="font-body text-sm text-ink">
                   Guardar como rascunho

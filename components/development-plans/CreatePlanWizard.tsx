@@ -491,7 +491,7 @@ export function CreatePlanWizard({
                   onClick={() => goToStep(i)}
                   title={`${i + 1}. ${s.label}`}
                   className={
-                    'flex h-6 w-6 items-center justify-center rounded-full font-body text-[11px] ' +
+                    'flex h-6 w-6 items-center justify-center rounded-full font-body text-micro ' +
                     'transition-colors disabled:cursor-not-allowed disabled:opacity-40 ' +
                     cls
                   }
@@ -506,7 +506,7 @@ export function CreatePlanWizard({
             );
           })}
         </ol>
-        <p className="mb-5 font-body text-[11px] text-ink-faint">
+        <p className="mb-5 font-body text-micro text-ink-faint">
           {planId
             ? 'Clique numa etapa já concluída para lá voltar.'
             : 'Preencha a Identificação para criar o PDI em Rascunho.'}

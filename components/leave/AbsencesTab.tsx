@@ -114,7 +114,11 @@ export function AbsencesTab() {
     },
   );
   const sync = useApiMutation(
-    () => apiClient.post<{ created: number; skipped: number }>('/leave/absences/sync-attendance', {}),
+    () =>
+      apiClient.post<{ created: number; skipped: number }>(
+        '/leave/absences/sync-attendance',
+        {},
+      ),
     {
       invalidateKeys: [queryKeys.leave.all],
       onSuccess: (r) =>
@@ -134,7 +138,9 @@ export function AbsencesTab() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-ink">Gestão de Ausências</h2>
+          <h2 className="text-sm font-semibold text-ink">
+            Gestão de Ausências
+          </h2>
           <p className="text-xs text-ink-faint">
             Faltas e ocorrências. Se a falta já consta da assiduidade, o registo
             é associado em vez de duplicado.
@@ -166,7 +172,9 @@ export function AbsencesTab() {
       </div>
 
       <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
+        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
+          Filtros
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           <Input
             placeholder="Procurar nome ou n.º interno"
@@ -204,10 +212,12 @@ export function AbsencesTab() {
             onValueChange={(v) => set({ source: pick(v) })}
             items={[
               { value: ALL, label: 'Todas as origens' },
-              ...Object.entries(ABSENCE_SOURCE_LABELS).map(([value, label]) => ({
-                value,
-                label,
-              })),
+              ...Object.entries(ABSENCE_SOURCE_LABELS).map(
+                ([value, label]) => ({
+                  value,
+                  label,
+                }),
+              ),
             ]}
           />
           <Select
@@ -240,7 +250,7 @@ export function AbsencesTab() {
       {loading && !data ? (
         <Skeleton
           rows={6}
-          wrapperClassName="space-y-2 animate-pulse"
+          wrapperClassName="space-y-2"
           itemClassName="h-10 bg-surface-sunken rounded-control"
         />
       ) : !data || data.data.length === 0 ? (
@@ -252,7 +262,7 @@ export function AbsencesTab() {
         <>
           <div className="overflow-x-auto">
             <Table>
-              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
+              <TableHead className="bg-brand/60 [&_th]:text-white">
                 <TableRow>
                   {headers.map((h, i) => (
                     <TableHeaderCell key={`${h}-${i}`}>{h}</TableHeaderCell>
@@ -350,7 +360,10 @@ export function AbsencesTab() {
         />
       )}
       {openId !== null && (
-        <AbsenceDetailModal absenceId={openId} onClose={() => setOpenId(null)} />
+        <AbsenceDetailModal
+          absenceId={openId}
+          onClose={() => setOpenId(null)}
+        />
       )}
     </div>
   );

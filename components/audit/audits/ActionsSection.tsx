@@ -16,6 +16,7 @@ import { Section } from './shared';
 import { AddButton, SubmitRow } from './detailParts';
 import type { InternalAuditDetailController } from '@/hooks/useInternalAuditDetail';
 import type { InternalAuditDetail } from '../types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function ActionsSection({
   audit: a,
@@ -87,7 +88,7 @@ export function ActionsSection({
         </div>
       )}
       {a.actions.length === 0 && (
-        <p className="py-1 text-ink-faint">Sem ações corretivas.</p>
+        <EmptyState variant="inline" title="Sem ações corretivas" />
       )}
       {a.actions.map((x) => (
         <div

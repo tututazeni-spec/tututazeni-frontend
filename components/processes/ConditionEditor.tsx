@@ -6,7 +6,7 @@
 'use client';
 
 import { Plus, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import type { ConditionDraft, ConditionRowDraft } from './workflow-model';
@@ -124,14 +124,7 @@ export function ConditionEditor({
               />
             )}
             {!disabled && (
-              <button
-                type="button"
-                onClick={() => remove(i)}
-                className="text-ink-faint hover:text-danger"
-                aria-label="Remover condição"
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </button>
+              <IconButton icon={Trash2} label="Remover condição" intent="ghostDanger" size="xs" type="button" onClick={() => remove(i)} />
             )}
           </div>
         );

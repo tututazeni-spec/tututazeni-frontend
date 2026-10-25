@@ -37,12 +37,12 @@ function Glass({
     <div className={cn('relative', className)}>
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl"
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-panel"
       >
         <div className="absolute -left-16 top-0 h-40 w-72 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute -right-10 bottom-0 h-40 w-72 rounded-full bg-primary/15 blur-3xl" />
       </div>
-      <div className="relative rounded-3xl border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
+      <div className="relative rounded-panel border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
         {children}
       </div>
     </div>
@@ -50,7 +50,7 @@ function Glass({
 }
 
 const PILL_BASE =
-  'group flex h-auto items-center gap-3 whitespace-nowrap rounded-full border border-white/70 bg-white/60 py-2 pl-2 pr-4 text-left font-body text-ink shadow-sm backdrop-blur transition-all duration-200 hover:scale-105 hover:bg-white/80 hover:shadow-md data-[state=inactive]:hover:border-primary motion-reduce:hover:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 data-[state=active]:border-transparent data-[state=active]:bg-[#0F1F3D] data-[state=active]:text-white data-[state=active]:shadow-lg';
+  'group flex h-auto items-center gap-3 whitespace-nowrap rounded-full border border-white/70 bg-white/60 py-2 pl-2 pr-4 text-left font-body text-ink shadow-sm backdrop-blur transition-all duration-200 hover:scale-105 hover:bg-white/80 hover:shadow-md data-[state=inactive]:hover:border-primary motion-reduce:hover:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 data-[state=active]:border-transparent data-[state=active]:bg-brand data-[state=active]:text-white data-[state=active]:shadow-lg';
 
 function PillBody({ item, active }: { item: PillTabItem; active?: boolean }) {
   const Icon = item.icon;

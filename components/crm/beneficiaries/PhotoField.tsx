@@ -42,10 +42,10 @@ export function PhotoField({ value, onChange }: PhotoFieldProps) {
         <img
           src={value}
           alt="Fotografia do beneficiário"
-          className="h-20 w-20 rounded-xl border border-border object-cover"
+          className="h-20 w-20 rounded-card border border-border object-cover"
         />
       ) : (
-        <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-border-strong text-ink-faint">
+        <div className="flex h-20 w-20 items-center justify-center rounded-card border border-dashed border-border-strong text-ink-faint">
           <ImagePlus size={24} strokeWidth={1.5} aria-hidden />
         </div>
       )}

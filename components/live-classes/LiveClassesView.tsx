@@ -136,7 +136,7 @@ export function LiveClassesView({
           {canCreate && (
             <button
               onClick={onCreateNew}
-              className="py-2.25 px-5 bg-[#0F1F3D] text-white border-none rounded-lg text-sm font-bold cursor-pointer inline-flex items-center gap-2"
+              className="py-2.25 px-5 bg-brand text-white border-none rounded-control text-sm font-bold cursor-pointer inline-flex items-center gap-2"
             >
               <Circle size={12} className="fill-[#FF6B6B] text-[#FF6B6B]" />
               Nova Aula
@@ -197,7 +197,7 @@ export function LiveClassesView({
           <button
             type="submit"
             aria-label="Procurar"
-            className="py-2.25 px-3.5 rounded-lg border border-border bg-white cursor-pointer text-ink-muted flex items-center justify-center"
+            className="py-2.25 px-3.5 rounded-control border border-border bg-white cursor-pointer text-ink-muted flex items-center justify-center"
           >
             <Search size={16} strokeWidth={1.75} />
           </button>
@@ -242,7 +242,7 @@ export function LiveClassesView({
                 });
               }}
               aria-label="Limpar filtros"
-              className="py-2.25 px-3.5 rounded-lg border border-border bg-white cursor-pointer text-xs text-ink-muted"
+              className="py-2.25 px-3.5 rounded-control border border-border bg-white cursor-pointer text-xs text-ink-muted"
             >
               ✕
             </button>
@@ -286,7 +286,7 @@ export function LiveClassesView({
                 <button
                   onClick={() => onGoToPage(-1)}
                   disabled={filters.page === 1}
-                  className={`py-2 px-4 rounded-lg border border-border bg-white cursor-pointer text-xs ${
+                  className={`py-2 px-4 rounded-control border border-border bg-white cursor-pointer text-xs ${
                     filters.page === 1 ? 'opacity-40' : ''
                   }`}
                 >
@@ -298,7 +298,7 @@ export function LiveClassesView({
                 <button
                   onClick={() => onGoToPage(1)}
                   disabled={filters.page === totalPages}
-                  className={`py-2 px-4 rounded-lg border border-border bg-white cursor-pointer text-xs ${
+                  className={`py-2 px-4 rounded-control border border-border bg-white cursor-pointer text-xs ${
                     filters.page === totalPages ? 'opacity-40' : ''
                   }`}
                 >

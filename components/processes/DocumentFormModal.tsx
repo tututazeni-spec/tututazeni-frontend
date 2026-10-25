@@ -28,6 +28,8 @@ import type {
   PaginatedInstances,
   ProcessInstance,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export type DocumentFormMode = 'attach' | 'request' | 'generate';
 
@@ -353,9 +355,7 @@ export function DocumentFormModal({
                 })}
                 {sources &&
                   sources.repository.length + sources.library.length === 0 && (
-                    <p className="p-3 text-center font-body text-sm text-ink-faint">
-                      Sem resultados.
-                    </p>
+                    <EmptyState variant="inline" title="Sem resultados" />
                   )}
               </div>
             </div>
@@ -487,16 +487,14 @@ export function DocumentFormModal({
 
           <div className="flex flex-wrap gap-6 font-body text-sm text-ink-muted">
             <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={required}
                 onChange={(e) => setField('required', e.target.checked)}
               />
               Documento obrigatório
             </label>
             <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={signature}
                 onChange={(e) => setField('signature', e.target.checked)}
               />

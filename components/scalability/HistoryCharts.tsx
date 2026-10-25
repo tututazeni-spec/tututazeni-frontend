@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/charts/AreaLineChart';
 import { Header, Note } from './InfraTabs';
 import { endpointLabel } from './endpointLabel';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 
 const fmtTime = (iso: string, withDate: boolean) =>
   new Date(iso).toLocaleString(
@@ -64,9 +65,9 @@ function Windowed({
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <Header title={title} sub={sub} />
-        <select
+        <NativeSelect
           aria-label={`Janela de ${title}`}
-          className="rounded-md border border-line bg-surface px-2 py-1 font-body text-sm text-ink"
+
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
         >
@@ -75,7 +76,7 @@ function Windowed({
               {o.label}
             </option>
           ))}
-        </select>
+        </NativeSelect>
       </div>
       <Card>
         <CardBody>{children}</CardBody>
@@ -200,9 +201,9 @@ export function EndpointHistoryChart() {
     >
       {rows.length ? (
         <div className="flex flex-col gap-3">
-          <select
+          <NativeSelect
             aria-label="Endpoint"
-            className="max-w-full self-start rounded-md border border-line bg-surface px-2 py-1 font-body text-sm text-ink"
+            className="max-w-full self-start"
             value={selected}
             onChange={(e) => setEndpoint(e.target.value)}
           >
@@ -211,7 +212,7 @@ export function EndpointHistoryChart() {
                 {endpointLabel(e)}
               </option>
             ))}
-          </select>
+          </NativeSelect>
           <AreaLineChart series={series} yFormat={(v) => `${v}ms`} />
         </div>
       ) : (
@@ -341,9 +342,10 @@ export function RecommendationsCard() {
       <Card>
         <CardBody>
           {data.recommendations.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">
-              Sem recomendações — a infraestrutura está dentro dos limites.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem recomendações — a infraestrutura está dentro dos limites"
+            />
           ) : (
             <ul className="flex flex-col gap-3">
               {data.recommendations.map((r) => (

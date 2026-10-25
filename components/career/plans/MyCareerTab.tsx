@@ -49,7 +49,7 @@ export function MyCareerTab({
     <div className="space-y-4">
       {/* Roadmap */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Trilha de Carreira
         </div>
         <CardBody>
@@ -63,7 +63,7 @@ export function MyCareerTab({
           (myPlan.readiness.missingSkills.length > 0 ||
             myPlan.readiness.skillGaps.length > 0) && (
             <Card className="overflow-hidden">
-              <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+              <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                 Gaps a Desenvolver
               </div>
               <CardBody>
@@ -92,7 +92,7 @@ export function MyCareerTab({
         {/* Cursos recomendados */}
         {(myPlan.readiness?.recommendedCourses.length ?? 0) > 0 && (
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+            <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
               Cursos Recomendados
             </div>
             <CardBody>
@@ -136,9 +136,7 @@ export function MyCareerTab({
             </div>
           </div>
           {myPlan.goals.length === 0 ? (
-            <p className="text-sm text-ink-faint text-center py-4">
-              Nenhuma meta adicionada
-            </p>
+            <EmptyState variant="inline" title="Nenhuma meta adicionada" />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {myPlan.goals.map((g) => (

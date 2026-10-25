@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { ListSkeleton, ErrorBanner, formatDate } from '@/components/crm/shared';
 import type { FollowUp } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface FollowUpsViewProps {
   followUps: FollowUp[];
@@ -31,9 +32,10 @@ export function FollowUpsView({
       <Card>
         <div className="divide-y divide-border">
           {followUps.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">
-              Sem acompanhamentos pendentes
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem acompanhamentos pendentes"
+            />
           ) : (
             followUps.map((f) => (
               <Link

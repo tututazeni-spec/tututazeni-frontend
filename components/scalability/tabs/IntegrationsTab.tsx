@@ -103,14 +103,12 @@ function IntegrationMetrics({ m }: { m: IntegrationMetricsData }) {
         />
       </div>
       <Card className="overflow-hidden">
-        <h3 className="flex items-center bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+        <h3 className="flex items-center bg-brand/60 px-5 py-3 font-body text-sm font-semibold text-white">
           Por integração
         </h3>
         <CardBody>
           {m.integrations.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem integrações configuradas.
-            </p>
+            <EmptyState variant="inline" title="Sem integrações configuradas" />
           ) : (
             <table className="w-full font-body text-sm">
               <thead>
@@ -233,7 +231,7 @@ export function IntegrationsTab({
                     {s.label}
                   </Badge>
                   {int.lastSyncAt && (
-                    <p className="mt-1 font-body text-[11px] text-ink-faint">
+                    <p className="mt-1 font-body text-micro text-ink-faint">
                       Sync: {timeAgo(int.lastSyncAt)} · {int.lastSyncStatus}
                     </p>
                   )}

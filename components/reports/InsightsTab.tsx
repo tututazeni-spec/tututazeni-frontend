@@ -17,9 +17,9 @@ import type { InsightsData } from './types';
 type Tone = 'red' | 'gold' | 'green';
 
 const TONES: Record<Tone, { bar: string; text: string }> = {
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+  red: { bar: 'bg-danger', text: 'text-danger' },
   gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  green: { bar: 'bg-success', text: 'text-success' },
 };
 
 const SEV_CONFIG: Record<
@@ -95,10 +95,10 @@ export function InsightsTab() {
         const conf = SEV_CONFIG[ins.severity] ?? SEV_CONFIG.LOW;
         const Icon = conf.icon;
         const t = TONES[conf.tone];
-                return (
+        return (
           <div
             key={i}
-            className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting"
+            className="overflow-hidden rounded-panel border border-border bg-white shadow-resting"
           >
             <div className={`h-1.5 w-full ${t.bar}`} />
             <div className="flex items-start gap-3 p-5">
@@ -110,7 +110,7 @@ export function InsightsTab() {
               <div className="flex-1">
                 <div className="mb-1 flex items-center gap-2">
                   <span
-                    className={`font-body text-[10px] font-bold uppercase tracking-wide ${t.text}`}
+                    className={`font-body text-micro font-bold uppercase tracking-wide ${t.text}`}
                   >
                     {TYPE_LABEL[ins.type] ?? ins.type}
                   </span>

@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/Input';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { QueryError } from '@/components/ui/QueryError';
 import { AreaLineChart } from '@/components/ui/charts/AreaLineChart';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
@@ -57,7 +58,7 @@ function ChartCard({
 }) {
   return (
     <Card className="overflow-hidden">
-      <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body text-sm font-semibold text-white">
+      <h3 className="bg-brand/60 px-5 py-3 font-body text-sm font-semibold text-white">
         {title}
       </h3>
       <div className="p-5">
@@ -71,9 +72,10 @@ function ChartCard({
 
 function NoData() {
   return (
-    <p className="py-8 text-center text-sm text-ink-faint">
-      Sem dados para os filtros seleccionados.
-    </p>
+    <EmptyState
+      variant="inline"
+      title="Sem dados para os filtros seleccionados"
+    />
   );
 }
 
@@ -85,7 +87,7 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
     leaveTypeCode: '',
     status: '',
   });
-  const { data, loading } = useLeaveOverview(filters);
+  const { data, loading, error, refetch } = useLeaveOverview(filters);
   const units = useUnitOptions();
   const departments = useDepartmentOptions();
 
@@ -99,7 +101,7 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
 
   const filterBar = (
     <Card className="overflow-hidden p-4">
-      <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
+      <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
         Filtros
       </h3>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -177,7 +179,7 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
         {filterBar}
         <Skeleton
           rows={4}
-          wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
+          wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
           itemClassName="h-24 bg-surface-sunken rounded-card"
         />
       </div>
@@ -188,10 +190,18 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
     return (
       <div className="space-y-5">
         {filterBar}
-        <EmptyState
-          title="Visão geral não disponível"
-          description="Não foi possível carregar os indicadores de férias e ausências."
-        />
+        {error ? (
+          <QueryError
+            error={error}
+            title="Visão geral não disponível"
+            onRetry={() => void refetch()}
+          />
+        ) : (
+          <EmptyState
+            title="Visão geral não disponível"
+            description="Não foi possível carregar os indicadores de férias e ausências."
+          />
+        )}
       </div>
     );
   }

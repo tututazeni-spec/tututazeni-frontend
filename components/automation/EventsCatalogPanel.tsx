@@ -122,7 +122,7 @@ function ModuleCard({ mod }: { mod: CatalogModule }) {
   // Gradiente diagonal na cor do módulo + sombra difusa da mesma cor.
   return (
     <article
-      className="flex h-full flex-col gap-2 rounded-xl border p-2 text-[#0F1F3D] transition-transform duration-200 hover:z-10 hover:scale-[1.02] motion-reduce:transition-none motion-reduce:hover:scale-100"
+      className="flex h-full flex-col gap-2 rounded-card border p-2 text-brand transition-transform duration-200 hover:z-10 hover:scale-[1.02] motion-reduce:transition-none motion-reduce:hover:scale-100"
       style={{
         borderColor: withAlpha(color, 0.25),
         backgroundImage: `linear-gradient(135deg, ${withAlpha(color, 0.06)} 0%, ${withAlpha(color, 0.12)} 55%, ${withAlpha(color, 0.32)} 100%)`,
@@ -131,7 +131,7 @@ function ModuleCard({ mod }: { mod: CatalogModule }) {
     >
       <header className="flex h-[52px] items-center gap-2 px-1 pt-0.5">
         <span
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white shadow-md"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control text-white shadow-md"
           style={{
             backgroundColor: color,
             boxShadow: `0 6px 14px -4px ${withAlpha(color, 0.6)}`,
@@ -146,7 +146,7 @@ function ModuleCard({ mod }: { mod: CatalogModule }) {
           >
             {mod.label}
           </h4>
-          <p className="line-clamp-2 font-body text-[11px] leading-tight text-[#0F1F3D]/70">
+          <p className="line-clamp-2 font-body text-micro leading-tight text-brand/70">
             {available} de {total} eventos disponíveis
             {activeRules > 0 &&
               ` · ${plural(activeRules, 'regra activa', 'regras activas')}`}
@@ -155,7 +155,7 @@ function ModuleCard({ mod }: { mod: CatalogModule }) {
       </header>
 
       <div
-        className="flex flex-1 flex-col rounded-lg bg-white p-2"
+        className="flex flex-1 flex-col rounded-control bg-white p-2"
         style={{ boxShadow: `0 1px 4px ${withAlpha(color, 0.15)}` }}
       >
         <ul className="shrink-0">
@@ -175,7 +175,7 @@ function ModuleCard({ mod }: { mod: CatalogModule }) {
               <span
                 className={cn(
                   'min-w-0 flex-1 truncate',
-                  e.implemented ? 'text-[#0F1F3D]' : 'text-[#0F1F3D]/55',
+                  e.implemented ? 'text-brand' : 'text-brand/55',
                 )}
                 title={e.label}
               >
@@ -187,14 +187,14 @@ function ModuleCard({ mod }: { mod: CatalogModule }) {
               <span className="flex w-[72px] shrink-0 justify-center">
                 {e.activeRules > 0 && (
                   <span
-                    className="rounded-full px-2 py-0.5 font-data text-[10px]"
+                    className="rounded-full px-2 py-0.5 font-data text-micro"
                     style={{ backgroundColor: withAlpha(color, 0.1), color }}
                   >
                     {plural(e.activeRules, 'regra', 'regras')}
                   </span>
                 )}
               </span>
-              <span className="w-[40px] shrink-0 text-right font-data text-[10px] text-[#0F1F3D]/70">
+              <span className="w-[40px] shrink-0 text-right font-data text-micro text-brand/70">
                 {e.events30d > 0 ? `${e.events30d}/30d` : ''}
               </span>
             </li>
@@ -205,7 +205,7 @@ function ModuleCard({ mod }: { mod: CatalogModule }) {
           {mod.actions.map((a, i) => (
             <span
               key={a}
-              className="rounded-md border px-2 py-1 font-body text-[11px] font-medium"
+              className="rounded-control border px-2 py-1 font-body text-micro font-medium"
               style={
                 i === 0
                   ? {
@@ -283,7 +283,7 @@ export function EventsCatalogPanel() {
           ].map((k) => (
             <div
               key={k.label}
-              className="rounded-xl border p-2"
+              className="rounded-card border p-2"
               style={{
                 borderColor: withAlpha(CARD_COLOR, 0.25),
                 backgroundImage: `linear-gradient(135deg, ${withAlpha(CARD_COLOR, 0.06)} 0%, ${withAlpha(CARD_COLOR, 0.12)} 55%, ${withAlpha(CARD_COLOR, 0.32)} 100%)`,
@@ -291,8 +291,10 @@ export function EventsCatalogPanel() {
               }}
             >
               <div
-                className="rounded-lg bg-white px-3 py-2"
-                style={{ boxShadow: `0 1px 4px ${withAlpha(CARD_COLOR, 0.15)}` }}
+                className="rounded-control bg-white px-3 py-2"
+                style={{
+                  boxShadow: `0 1px 4px ${withAlpha(CARD_COLOR, 0.15)}`,
+                }}
               >
                 <dd
                   className="font-display text-2xl font-semibold"
@@ -300,9 +302,7 @@ export function EventsCatalogPanel() {
                 >
                   {k.value}
                 </dd>
-                <dt className="font-body text-xs text-[#0F1F3D]/70">
-                  {k.label}
-                </dt>
+                <dt className="font-body text-xs text-brand/70">{k.label}</dt>
               </div>
             </div>
           ))}
@@ -400,7 +400,7 @@ export function EventsCatalogPanel() {
                         {STATUS_LABEL[e.status] ?? e.status}
                       </Badge>
                     </td>
-                    <td className="px-3 py-2 font-data text-[10px] text-ink-faint">
+                    <td className="px-3 py-2 font-data text-micro text-ink-faint">
                       {e.correlationId.slice(0, 8)}
                       {e.depth > 0 ? ` · nível ${e.depth}` : ''}
                     </td>

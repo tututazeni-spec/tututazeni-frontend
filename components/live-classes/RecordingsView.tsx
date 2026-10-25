@@ -206,15 +206,16 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
             ]}
             actions={
               <>
-                <button
+                <Button
                   type="button"
-                  className={PHOTO_CARD_ACTION}
+                  intent="onDarkGhost"
+                  size="icon"
                   aria-label="Ver gravação"
                   title="Ver gravação"
                   onClick={() => setViewing(r)}
                 >
                   <Play size={15} strokeWidth={1.75} />
-                </button>
+                </Button>
                 <a
                   href={safeHref(r.recordingUrl)}
                   target="_blank"
@@ -227,18 +228,20 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
                 </a>
                 {canManage && (
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={PHOTO_CARD_ACTION}
+                      intent="onDarkGhost"
+                      size="icon"
                       aria-label="Editar gravação"
                       title="Editar gravação"
                       onClick={() => openEdit(r)}
                     >
                       <Pencil size={15} strokeWidth={1.75} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className={PHOTO_CARD_ACTION}
+                      intent="onDarkGhost"
+                      size="icon"
                       aria-label={r.publishedAt ? 'Despublicar' : 'Publicar'}
                       title={r.publishedAt ? 'Despublicar' : 'Publicar'}
                       disabled={
@@ -251,17 +254,18 @@ export function RecordingsView({ canManage }: { canManage: boolean }) {
                       ) : (
                         <Eye size={15} strokeWidth={1.75} />
                       )}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className={PHOTO_CARD_ACTION}
+                      intent="onDarkGhost"
+                      size="icon"
                       aria-label="Eliminar gravação"
                       title="Eliminar gravação"
                       disabled={remove.isPending && remove.variables === r}
                       onClick={() => onRemove(r)}
                     >
                       <Trash2 size={15} strokeWidth={1.75} />
-                    </button>
+                    </Button>
                   </>
                 )}
               </>

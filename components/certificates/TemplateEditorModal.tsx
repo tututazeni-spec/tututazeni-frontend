@@ -37,6 +37,8 @@ import type {
   TemplateConfigDto,
   TemplateDetailDto,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 
 const TABS = [
   { id: 'texts', label: 'Textos' },
@@ -321,8 +323,7 @@ function EditorForm({ detail, canEdit, onClose }: EditorFormProps) {
                     key={k}
                     className="flex items-center gap-2 text-sm text-ink"
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={form.options[k]}
                       onChange={(e) =>
                         setForm((f) => ({
@@ -438,7 +439,7 @@ function EditorForm({ detail, canEdit, onClose }: EditorFormProps) {
                     <span className="text-sm font-medium text-ink sm:col-span-2">
                       {label}
                     </span>
-                    <select
+                    <NativeSelect
                       aria-label={`Alinhamento de ${label}`}
                       value={t.align ?? ''}
                       onChange={(e) =>
@@ -447,7 +448,6 @@ function EditorForm({ detail, canEdit, onClose }: EditorFormProps) {
                             Align | undefined,
                         })
                       }
-                      className="rounded-control border border-line bg-surface px-2 py-1 text-sm"
                     >
                       <option value="">Predefinido</option>
                       {(Object.keys(ALIGN_LABEL) as Align[]).map((a) => (
@@ -455,7 +455,7 @@ function EditorForm({ detail, canEdit, onClose }: EditorFormProps) {
                           {ALIGN_LABEL[a]}
                         </option>
                       ))}
-                    </select>
+                    </NativeSelect>
                     <input
                       type="range"
                       aria-label={`Tamanho de ${label}`}
@@ -495,8 +495,7 @@ function EditorForm({ detail, canEdit, onClose }: EditorFormProps) {
                       />
                     </div>
                     <label className="flex items-center gap-2 text-sm text-ink sm:col-span-6">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         aria-label={`Mostrar ${label}`}
                         checked={t.visible !== false}
                         onChange={(e) =>

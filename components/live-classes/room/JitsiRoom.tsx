@@ -36,7 +36,9 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   useEffect(() => {
     let cancelled = false;
     apiClient
-      .get<{ roomName: string; domain: string; jwt?: string }>(`/live-classes/${liveClass.id}/room`)
+      .get<{ roomName: string; domain: string; jwt?: string }>(
+        `/live-classes/${liveClass.id}/room`,
+      )
       .then((r) => {
         if (!cancelled) setAccess(r);
       })
@@ -50,7 +52,8 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   }, [liveClass.id, retryToken]);
 
   const initJitsi = useCallback(() => {
-    if (!access || !containerRef.current || !window.JitsiMeetExternalAPI) return;
+    if (!access || !containerRef.current || !window.JitsiMeetExternalAPI)
+      return;
 
     const jitsi = new window.JitsiMeetExternalAPI(access.domain, {
       roomName: access.roomName,
@@ -210,7 +213,7 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
       )}
       <div ref={containerRef} className="w-full h-full" />
       {loaded && participants > 0 && (
-        <div className="absolute top-3 right-3 bg-black/60 rounded-lg py-1 px-2.5 text-xs text-canvas flex items-center gap-1.25 pointer-events-none z-20">
+        <div className="absolute top-3 right-3 bg-black/60 rounded-control py-1 px-2.5 text-xs text-canvas flex items-center gap-1.25 pointer-events-none z-20">
           <span className="w-2 h-2 rounded-full bg-success inline-block" />
           {participants} participante{participants !== 1 ? 's' : ''}
         </div>

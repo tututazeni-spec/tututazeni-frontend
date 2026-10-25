@@ -240,7 +240,92 @@ async function request<T>(
   }
 }
 
+export interface RawRequestOptions extends RequestOptions {
+  /** Mensagem usada quando o backend não devolve uma `message` legível. */
+  errorMessage?: string;
+}
+
+/**
+ * Pedido cuja resposta NÃO é JSON (PDF, áudio, CSV, stream de ficheiro).
+ * Mantém as garantias do `request`: cookie de sessão, refresh single-flight em
+ * 401, erros tipados (ApiError) e métricas. Devolve a Response intacta para o
+ * chamador ler `blob()`/`headers`.
+ */
+async function requestRaw(
+  method: string,
+  path: string,
+  options: RawRequestOptions = {},
+  retried = false,
+): Promise<Response> {
+  const { body, params, headers, signal, errorMessage, ...rest } = options;
+  const start =
+    typeof performance !== 'undefined' ? performance.now() : Date.now();
+  let status = 0;
+  let ok = false;
+  try {
+    const res = await fetch(buildUrl(path, params), {
+      method,
+      credentials: 'include',
+      signal,
+      headers: {
+        ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+        ...headers,
+      },
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+      ...rest,
+    });
+    status = res.status;
+    ok = res.ok;
+
+    if (res.status === 401 && !retried && !path.startsWith('/auth/')) {
+      if (await refreshSession()) {
+        return await requestRaw(method, path, options, true);
+      }
+      logout('expired');
+    }
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => undefined);
+      const raw = (errBody as { message?: string | string[] } | undefined)
+        ?.message;
+      const message =
+        (Array.isArray(raw) ? raw.join(', ') : raw) ||
+        errorMessage ||
+        res.statusText ||
+        `Erro ${res.status}`;
+      throw new ApiError(res.status, message, errBody);
+    }
+    return res;
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'AbortError') {
+      ok = true;
+      throw e;
+    }
+    if (!(e instanceof ApiError)) {
+      throw new ApiError(0, e instanceof Error ? e.message : 'Erro de rede');
+    }
+    throw e;
+  } finally {
+    const end =
+      typeof performance !== 'undefined' ? performance.now() : Date.now();
+    recordRequest({
+      key: `${method} ${normalizePath(path)}`,
+      method,
+      url: path,
+      status,
+      ok,
+      durationMs: end - start,
+      timestamp: Date.now(),
+    });
+  }
+}
+
 export const apiClient = {
+  /** GET que devolve a Response crua (ficheiros/áudio). Ver `requestRaw`. */
+  getRaw: (path: string, options?: RawRequestOptions) =>
+    requestRaw('GET', path, options),
+  /** POST que devolve a Response crua (ficheiros/áudio). Ver `requestRaw`. */
+  postRaw: (path: string, body?: unknown, options?: RawRequestOptions) =>
+    requestRaw('POST', path, { ...options, body }),
   get: <T>(path: string, options?: RequestOptions) =>
     request<T>('GET', path, options),
   post: <T>(path: string, body?: unknown, options?: RequestOptions) =>

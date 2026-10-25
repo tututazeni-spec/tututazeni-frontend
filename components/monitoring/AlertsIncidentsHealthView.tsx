@@ -770,14 +770,14 @@ export function IncidentsTab({
                 onClick={() => onGroupChange(g.value)}
                 className={`flex flex-1 items-center justify-center gap-2 rounded-control py-2 font-body text-sm font-medium transition-colors ${
                   on
-                    ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                    ? 'bg-brand text-canvas shadow-sm'
                     : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
                 }`}
               >
                 <g.icon size={15} strokeWidth={1.75} />
                 <span className="hidden sm:inline">{g.label}</span>
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                  className={`rounded-full px-1.5 py-0.5 text-micro font-semibold ${
                     on
                       ? 'bg-canvas/20 text-canvas'
                       : 'bg-surface-sunken text-ink-faint'

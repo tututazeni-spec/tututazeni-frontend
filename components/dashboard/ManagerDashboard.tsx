@@ -68,8 +68,8 @@ export function ManagerDashboard() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+        itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
 
@@ -166,7 +166,7 @@ export function ManagerDashboard() {
 
       {/* Team table */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="flex items-center justify-between border-b border-border bg-[#0F1F3D]/60 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-border bg-brand/60 px-5 py-4">
           <h3 className="font-body font-semibold text-white">Equipa</h3>
           <span className="font-body text-xs text-white">
             {data?.teamSize ?? 0} colaboradores
@@ -183,7 +183,7 @@ export function ManagerDashboard() {
                 <p className="font-body text-sm font-medium text-ink">
                   {u.user.fullName}
                 </p>
-                <p className="font-body text-[10px] text-ink-faint">
+                <p className="font-body text-micro text-ink-faint">
                   {[u.user.position?.name, u.user.department?.name]
                     .filter(Boolean)
                     .join(' · ')}
@@ -194,7 +194,7 @@ export function ManagerDashboard() {
                   <p className="font-body text-xs font-medium text-ink">
                     {u.enrollment.completed}
                   </p>
-                  <p className="font-body text-[9px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     concluídos
                   </p>
                 </div>
@@ -204,13 +204,13 @@ export function ManagerDashboard() {
                   <p className="font-body text-xs font-medium text-ink">
                     {u.xp}
                   </p>
-                  <p className="font-body text-[9px] text-ink-faint">xp</p>
+                  <p className="font-body text-micro text-ink-faint">xp</p>
                 </div>
               )}
               {u.plan && (
                 <div className="w-20">
                   <ProgressBar value={u.plan.progress} />
-                  <p className="mt-0.5 text-center font-body text-[9px] text-ink-faint">
+                  <p className="mt-0.5 text-center font-body text-micro text-ink-faint">
                     {u.plan.progress}% PDI
                     {u.plan.status ? ` · ${u.plan.status}` : ''}
                   </p>

@@ -32,13 +32,19 @@ interface Period {
 }
 
 /** Exporta o relatório em CSV ou PDF (o cookie httpOnly segue com credentials: include). */
-async function downloadReport(type: string, period: Period, format: 'csv' | 'pdf') {
+async function downloadReport(
+  type: string,
+  period: Period,
+  format: 'csv' | 'pdf',
+) {
   await downloadFromApi('/avatar-training/reports/export', {
     params: {
       type,
       format,
       from: period.from ? new Date(period.from).toISOString() : undefined,
-      to: period.to ? new Date(period.to + 'T23:59:59').toISOString() : undefined,
+      to: period.to
+        ? new Date(period.to + 'T23:59:59').toISOString()
+        : undefined,
     },
     fallbackName: `${type}.${format}`,
     errorMessage: 'Falha ao exportar o relatório',
@@ -60,10 +66,7 @@ function ReportView({ type, period }: { type: string; period: Period }) {
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (isLoading || !data)
     return (
-      <Skeleton
-        rows={3}
-        itemClassName="h-12 rounded-card bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={3} itemClassName="h-12 rounded-card bg-surface-sunken" />
     );
 
   const columns = data.rows.length > 0 ? Object.keys(data.rows[0]) : [];
@@ -123,10 +126,7 @@ export function ReportsTab() {
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (isLoading || !data)
     return (
-      <Skeleton
-        rows={2}
-        itemClassName="h-10 rounded-card bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={2} itemClassName="h-10 rounded-card bg-surface-sunken" />
     );
   if (data.length === 0)
     return (
@@ -145,7 +145,7 @@ export function ReportsTab() {
           <button
             key={r.type}
             onClick={() => setType(r.type)}
-            className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`rounded-control border px-3 py-1.5 text-xs font-medium transition-colors ${
               active === r.type
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-border bg-white text-ink-muted hover:text-ink'

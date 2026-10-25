@@ -12,13 +12,14 @@ import { AlertCircle, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
 import { useDirectoryUsers, type DirectoryUser } from './compensationData';
 import type { EmployeeCompensation } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface CompensationFormModalProps {
   mode: 'create' | 'edit';
@@ -183,14 +184,14 @@ export function CompensationFormModal({
                     {picked?.fullName ?? fixedName ?? `#${userId}`}
                   </span>
                   {picked && userId == null && (
-                    <button
+                    <IconButton
+                      icon={X}
+                      label="Remover colaborador"
+                      intent="ghost"
+                      size="compact"
                       type="button"
-                      aria-label="Remover colaborador"
                       onClick={() => setField('picked', null)}
-                      className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-                    >
-                      <X size={16} strokeWidth={1.75} />
-                    </button>
+                    />
                   )}
                 </div>
               ) : (
@@ -211,9 +212,10 @@ export function CompensationFormModal({
                         </div>
                       )}
                       {!usersLoading && users.length === 0 && (
-                        <div className="px-3 py-2 text-sm text-ink-muted">
-                          Nenhum colaborador encontrado
-                        </div>
+                        <EmptyState
+                          variant="inline"
+                          title="Nenhum colaborador encontrado"
+                        />
                       )}
                       {users.map((u) => (
                         <button

@@ -51,6 +51,8 @@ import type {
   ImportUserRow,
   ModuleAuditLogsResponse,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const FIELD_ITEMS = IMPORT_FIELDS.map((f) => ({
   value: f,
@@ -277,11 +279,9 @@ export function ImportView() {
           )}
 
           <label className="mt-4 flex cursor-pointer items-center gap-2 font-body text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={updateExisting}
               onChange={(e) => setUpdateExisting(e.target.checked)}
-              className="rounded accent-primary"
             />
             Atualizar utilizadores já existentes (por email) em vez de saltar
           </label>
@@ -370,9 +370,7 @@ export function ImportView() {
           Histórico de importações
         </div>
         {!history || history.data.length === 0 ? (
-          <p className="font-body text-sm text-ink-faint">
-            Sem importações registadas.
-          </p>
+          <EmptyState variant="inline" title="Sem importações registadas" />
         ) : (
           <ul className="space-y-2">
             {history.data.map((log) => (

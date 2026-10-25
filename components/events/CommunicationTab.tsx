@@ -51,6 +51,7 @@ import type {
   EventCommunicationType,
   ParticipantStatus,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface Paginated<T> {
   data: T[];
@@ -156,28 +157,28 @@ export function CommunicationTab() {
           description="Envia a primeira comunicação a participantes de um evento."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {communications.map((c) => {
             const level = proximityLevel(c.event.startAt);
             return (
               <div
                 key={c.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-[#E6ECF4] bg-white px-5 py-3 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-white px-5 py-3 last:border-0"
               >
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
+                  <div className="truncate font-body text-sm font-semibold text-brand">
                     {c.subject}
                   </div>
-                  <div className="truncate font-body text-xs text-[#49658A]">
+                  <div className="truncate font-body text-xs text-brand-muted">
                     {c.event.title} · {COMMUNICATION_TYPE_CFG[c.type].label} ·{' '}
                     {c.recipientCount} destinatário
                     {c.recipientCount === 1 ? '' : 's'}
                   </div>
                 </div>
-                <div className="hidden w-32 shrink-0 font-body text-xs text-[#49658A] sm:block">
+                <div className="hidden w-32 shrink-0 font-body text-xs text-brand-muted sm:block">
                   {COMMUNICATION_CHANNEL_CFG[c.channel].label}
                 </div>
-                <div className="hidden w-40 shrink-0 font-body text-xs text-[#49658A] md:block">
+                <div className="hidden w-40 shrink-0 font-body text-xs text-brand-muted md:block">
                   {c.sentAt
                     ? `${formatDate(c.sentAt)} · ${formatTime(c.sentAt)}`
                     : '—'}
@@ -358,11 +359,10 @@ function NewCommunicationModal({ onClose }: { onClose: () => void }) {
                   key={value}
                   className="flex cursor-pointer items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs text-ink hover:bg-surface-sunken has-[:checked]:border-primary has-[:checked]:bg-primary-subtle has-[:checked]:text-primary"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={form.participantStatuses.includes(value)}
                     onChange={() => toggleStatus(value)}
-                    className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                    size="sm"
                   />
                   {cfg.label}
                 </label>

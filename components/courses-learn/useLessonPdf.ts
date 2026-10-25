@@ -7,8 +7,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { API_URL } from '@/lib/api';
-import { refreshSession } from '@/lib/apiClient';
+import { apiClient } from '@/lib/apiClient';
 import type { LessonProgress } from './types';
 
 export type LessonPdfState =
@@ -17,21 +16,11 @@ export type LessonPdfState =
   | { status: 'ready'; src: string }
   | { status: 'error'; message: string };
 
-async function fetchPdf(lessonId: number, retried = false): Promise<Blob> {
-  const res = await fetch(`${API_URL}/lessons/${lessonId}/file`, {
-    credentials: 'include',
+async function fetchPdf(lessonId: number): Promise<Blob> {
+  const res = await apiClient.getRaw(`/lessons/${lessonId}/file`, {
     headers: { Accept: 'application/pdf' },
+    errorMessage: 'Não foi possível abrir o PDF desta aula.',
   });
-  if (res.status === 401 && !retried && (await refreshSession())) {
-    return fetchPdf(lessonId, true);
-  }
-  if (!res.ok) {
-    const body = (await res.json().catch(() => undefined)) as
-      { message?: string } | undefined;
-    throw new Error(
-      body?.message ?? 'Não foi possível abrir o PDF desta aula.',
-    );
-  }
   return res.blob();
 }
 

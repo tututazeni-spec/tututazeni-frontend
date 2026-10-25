@@ -15,8 +15,9 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { QueryData } from '@/hooks/useUserProfileData';
-import { EmptyState, LoadingRows } from './shared';
+import { LoadingRows } from './shared';
 import { type UserTimelineResponse, type UserActivityStats } from '../types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function HistoryView({
   data,
@@ -24,7 +25,7 @@ export function HistoryView({
 }: QueryData<UserTimelineResponse>) {
   if (isLoading) return <LoadingRows />;
   if (!data || data.data.length === 0)
-    return <EmptyState>Sem histórico registado</EmptyState>;
+    return <EmptyState title="Sem histórico registado" />;
 
   return (
     <Table>
@@ -63,7 +64,7 @@ export function ActivityView({
   isLoading,
 }: QueryData<UserActivityStats>) {
   if (isLoading) return <LoadingRows />;
-  if (!data) return <EmptyState>Sem dados de actividade</EmptyState>;
+  if (!data) return <EmptyState title="Sem dados de actividade" />;
 
   return (
     <div className="space-y-4">

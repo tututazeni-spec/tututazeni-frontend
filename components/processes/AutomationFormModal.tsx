@@ -29,6 +29,7 @@ import type {
   RetryPolicy,
 } from './automation-types';
 import type { ConditionDraft } from './workflow-model';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface AutomationFormModalProps {
   catalog: AutomationCatalog;
@@ -463,8 +464,7 @@ export function AutomationFormModal({
                 />
               </FormField>
               <label className="flex items-center gap-2 self-end pb-2 font-body text-sm text-ink">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={active}
                   onChange={(e) => setField('active', e.target.checked)}
                 />

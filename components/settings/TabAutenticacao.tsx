@@ -24,6 +24,8 @@ import type {
   OidcProviderKey,
   UserPolicy,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const PROVIDER_LABELS: Record<OidcProviderKey, string> = {
   GOOGLE: 'Google',
@@ -41,9 +43,9 @@ interface ToggleProps {
 function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
@@ -118,10 +120,7 @@ export function TabAutenticacao() {
     },
   );
 
-  if (isLoading || !form)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !form) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
@@ -149,7 +148,7 @@ export function TabAutenticacao() {
   return (
     <form onSubmit={submit} className="space-y-4">
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Login único (SSO)
           <Badge intent={form.ssoEnabled ? 'success' : 'neutral'}>
             {form.ssoEnabled ? 'Activo' : 'Inactivo'}
@@ -276,7 +275,7 @@ export function TabAutenticacao() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           LDAP / Active Directory
           <Badge intent={form.ldap.enabled ? 'success' : 'neutral'}>
             {form.ldap.enabled ? 'Activo' : 'Inactivo'}
@@ -449,7 +448,7 @@ export function TabAutenticacao() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Domínio autorizado
         </div>
         <CardBody>

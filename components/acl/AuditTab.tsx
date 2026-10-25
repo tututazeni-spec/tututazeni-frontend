@@ -1,6 +1,7 @@
 // components/acl/AuditTab.tsx
 
 import { useState } from 'react';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Activity, Circle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -21,7 +22,7 @@ export function AuditTab() {
   );
 
   if (loading)
-    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
+    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-card" />;
 
   return (
     <div className="space-y-4">
@@ -77,36 +78,29 @@ export function AuditTab() {
                     <span className="font-medium text-ink text-xs">
                       {log.user?.fullName ?? `User ${log.userId}`}
                     </span>
-                    <span className="rounded bg-surface px-1.5 py-0.5 font-mono text-ink-muted text-[10px]">
+                    <span className="rounded bg-surface px-1.5 py-0.5 font-mono text-ink-muted text-micro">
                       {log.action}
                     </span>
                     {changes?.subject && (
-                      <span className="text-ink-faint text-[10px]">
+                      <span className="text-ink-faint text-micro">
                         {changes.subject}
                       </span>
                     )}
                   </div>
                   {changes?.reason && (
-                    <p className="mt-0.5 text-ink-faint text-[10px]">
+                    <p className="mt-0.5 text-ink-faint text-micro">
                       {changes.reason}
                     </p>
                   )}
                 </div>
-                <span className="shrink-0 text-ink-faint text-[10px]">
+                <span className="shrink-0 text-ink-faint text-micro">
                   {new Date(log.timestamp).toLocaleString('pt')}
                 </span>
               </div>
             );
           })}
           {(data?.data?.length ?? 0) === 0 && (
-            <div className="py-12 text-center text-ink-faint">
-              <Activity
-                size={32}
-                strokeWidth={1.75}
-                className="mx-auto mb-2 opacity-30"
-              />
-              <p className="text-sm">Sem registos de auditoria</p>
-            </div>
+            <EmptyState icon={Activity} title="Sem registos de auditoria" />
           )}
         </div>
       </Card>

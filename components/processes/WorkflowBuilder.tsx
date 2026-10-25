@@ -319,7 +319,7 @@ function BuilderInner({ process, canEdit, onBack }: BuilderInnerProps) {
                 </li>
               ))}
             </ul>
-            <p className="mt-2 px-1 font-body text-[11px] text-ink-faint">
+            <p className="mt-2 px-1 font-body text-micro text-ink-faint">
               O novo bloco liga-se ao seleccionado.
             </p>
           </aside>

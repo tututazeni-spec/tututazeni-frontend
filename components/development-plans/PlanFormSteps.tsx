@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { Popover } from 'radix-ui';
 import { Plus, Trash2, X } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -47,6 +47,8 @@ import type {
   GoalDraft,
   WizardForm,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type ListKey = 'competencyGaps' | 'goals' | 'actions' | 'checkpoints';
 
@@ -126,14 +128,14 @@ function UserPicker({
               </div>
             )}
           </div>
-          <button
+          <IconButton
+            icon={X}
+            label={`Remover ${label.toLowerCase()}`}
+            intent="ghost"
+            size="compact"
             type="button"
-            aria-label={`Remover ${label.toLowerCase()}`}
             onClick={() => onChange(null)}
-            className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-          >
-            <X size={16} strokeWidth={1.75} />
-          </button>
+          />
         </div>
       ) : (
         <Popover.Root open={open} onOpenChange={setOpen}>
@@ -166,9 +168,10 @@ function UserPicker({
                 </div>
               )}
               {!loading && results.length === 0 && (
-                <div className="px-3 py-2 text-sm text-ink-muted">
-                  Nenhum colaborador encontrado
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Nenhum colaborador encontrado"
+                />
               )}
               {results.map((u) => (
                 <button
@@ -230,9 +233,7 @@ function ListEditor<T>({
       </div>
       {hint && <p className="font-body text-xs text-ink-faint">{hint}</p>}
       {rows.length === 0 && (
-        <p className="font-body text-xs text-ink-faint">
-          Nenhuma linha adicionada ainda.
-        </p>
+        <EmptyState variant="inline" title="Nenhuma linha adicionada ainda" />
       )}
       {rows.map((row, i) => {
         const locked = isLocked(row);
@@ -247,14 +248,15 @@ function ListEditor<T>({
                 Guardado
               </span>
             ) : (
-              <button
+              <IconButton
+                icon={Trash2}
+                label={`Remover linha ${i + 1}`}
+                intent="ghostDanger"
+                size="xs"
+                className="mt-1.5 flex-shrink-0"
                 type="button"
-                aria-label={`Remover linha ${i + 1}`}
-                className="mt-1.5 flex-shrink-0 rounded-control p-1.5 text-ink-faint hover:bg-danger-subtle hover:text-danger-ink"
                 onClick={() => onRemove(i)}
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </button>
+              />
             )}
           </div>
         );
@@ -664,14 +666,12 @@ export function PlanFormSteps({
                 className="w-full"
               />
               <label className="flex items-center gap-2 font-body text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={row.mandatory}
                   disabled={locked}
                   onChange={(e) =>
                     setRow('actions', i, { mandatory: e.target.checked })
                   }
-                  className="h-4 w-4 rounded border-border-strong accent-primary"
                 />
                 Obrigatória
               </label>

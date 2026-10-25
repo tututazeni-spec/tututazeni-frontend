@@ -52,6 +52,8 @@ import type {
   AuditServiceStatus,
   RetentionPreview,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const RETENTION_LABELS: Record<string, string> = {
   ACCESS: 'Acessos e sessões',
@@ -171,7 +173,7 @@ function parseSeverityRules(text: string): Record<string, string> | string {
 // Mesmo desenho do contentor «Gerar relatório» (ReportsView) e da lista de
 // sessões dos eventos: cartão claro, cabeçalho com ícone circular.
 const NAVY_CARD =
-  'overflow-hidden rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]';
+  'overflow-hidden rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]';
 
 interface SectionProps {
   title: string;
@@ -183,7 +185,7 @@ interface SectionProps {
 function Section({ title, icon: Icon, children, footer }: SectionProps) {
   return (
     <Card className={NAVY_CARD}>
-      <div className="pointer-events-none flex cursor-default select-none items-center gap-3 bg-[#0F1F3D]/60 px-6 py-4 text-white">
+      <div className="pointer-events-none flex cursor-default select-none items-center gap-3 bg-brand/60 px-6 py-4 text-white">
         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white">
           <Icon size={16} strokeWidth={1.75} />
         </span>
@@ -191,7 +193,7 @@ function Section({ title, icon: Icon, children, footer }: SectionProps) {
       </div>
       <div className="px-6 py-6">{children}</div>
       {footer && (
-        <div className="border-t border-[#E6ECF4] bg-[#F7FAFE] px-6 py-4">
+        <div className="border-t border-brand-line bg-[#F7FAFE] px-6 py-4">
           {footer}
         </div>
       )}
@@ -221,8 +223,8 @@ function RoleChips({ value, onChange, disabled }: RoleChipsProps) {
             }
             className={`rounded-full border px-2.5 py-1 text-xs transition-colors disabled:opacity-70 ${
               on
-                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
-                : 'border-[#D8E2F0] bg-white text-[#0F1F3D] hover:border-[#0F1F3D]'
+                ? 'border-brand bg-brand text-white'
+                : 'border-brand-line bg-white text-brand hover:border-brand'
             }`}
           >
             {r}
@@ -389,9 +391,8 @@ export function PoliciesView() {
 
       <Section title="Serviço e eventos registados" icon={ServerCog}>
         <div className="space-y-4">
-          <label className="flex items-center gap-2 font-body text-sm text-[#0F1F3D]">
-            <input
-              type="checkbox"
+          <label className="flex items-center gap-2 font-body text-sm text-brand">
+            <Checkbox
               disabled={!canEdit}
               checked={form.serviceEnabled}
               onChange={(e) => set({ serviceEnabled: e.target.checked })}
@@ -399,7 +400,7 @@ export function PoliciesView() {
             Serviço de auditoria ativo
           </label>
           <div>
-            <div className="mb-1.5 font-body text-xs text-[#49658A]">
+            <div className="mb-1.5 font-body text-xs text-brand-muted">
               Eventos de registo obrigatório
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -421,8 +422,8 @@ export function PoliciesView() {
                     }
                     className={`rounded-full border px-2.5 py-1 text-xs transition-colors disabled:opacity-70 ${
                       on
-                        ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
-                        : 'border-[#D8E2F0] bg-white text-[#0F1F3D] hover:border-[#0F1F3D]'
+                        ? 'border-brand bg-brand text-white'
+                        : 'border-brand-line bg-white text-brand hover:border-brand'
                     }`}
                   >
                     {actionLabel(ev)}
@@ -430,7 +431,7 @@ export function PoliciesView() {
                 );
               })}
             </div>
-            <p className="mt-1.5 font-body text-xs text-[#49658A]">
+            <p className="mt-1.5 font-body text-xs text-brand-muted">
               Escolha as ações que têm sempre de ficar registadas.
             </p>
           </div>
@@ -447,7 +448,7 @@ export function PoliciesView() {
             />
           </FormField>
           <div>
-            <div className="mb-1.5 font-body text-xs text-[#49658A]">
+            <div className="mb-1.5 font-body text-xs text-brand-muted">
               Níveis de gravidade por ação
             </div>
             <div className="space-y-2">
@@ -456,7 +457,7 @@ export function PoliciesView() {
                   key={action}
                   className="grid grid-cols-[1fr_9rem_auto] items-center gap-2"
                 >
-                  <span className="font-body text-sm text-[#0F1F3D]">
+                  <span className="font-body text-sm text-brand">
                     {actionLabel(action)}
                   </span>
                   <Select
@@ -470,16 +471,17 @@ export function PoliciesView() {
                     disabled={!canEdit}
                     aria-label={`Remover regra de ${actionLabel(action)}`}
                     onClick={() => setSev(action, null)}
-                    className="rounded-full p-1.5 text-[#49658A] hover:bg-[#EEF4FD] disabled:opacity-50"
+                    className="rounded-full p-1.5 text-brand-muted hover:bg-brand-soft disabled:opacity-50"
                   >
                     <X size={14} strokeWidth={1.75} />
                   </button>
                 </div>
               ))}
               {sevRows.length === 0 && (
-                <p className="font-body text-xs text-[#49658A]">
-                  Sem regras: aplica-se a gravidade predefinida.
-                </p>
+                <EmptyState
+                  variant="inline"
+                  title="Sem regras: aplica-se a gravidade predefinida"
+                />
               )}
             </div>
             {canEdit && freeActions.length > 0 && (
@@ -497,7 +499,7 @@ export function PoliciesView() {
                 />
               </div>
             )}
-            <p className="mt-1.5 font-body text-xs text-[#49658A]">
+            <p className="mt-1.5 font-body text-xs text-brand-muted">
               Define a gravidade com que cada ação é registada.
             </p>
           </div>
@@ -523,7 +525,7 @@ export function PoliciesView() {
             </FormField>
           ))}
         </div>
-        <p className="mt-2 font-body text-xs text-[#49658A]">
+        <p className="mt-2 font-body text-xs text-brand-muted">
           Um alerta é um indício para análise por pessoas autorizadas, não prova
           de fraude.
         </p>
@@ -567,19 +569,19 @@ export function PoliciesView() {
             />
           </FormField>
         </div>
-        <p className="mt-2 font-body text-xs text-[#49658A]">
+        <p className="mt-2 font-body text-xs text-brand-muted">
           Os prazos devem respeitar os requisitos legais aplicáveis, as
           necessidades de investigação e a política de proteção de dados da
           organização.
         </p>
         {preview && (
           <div className="mt-4">
-            <div className="mb-2 font-body text-xs font-semibold text-[#0F1F3D]">
+            <div className="mb-2 font-body text-xs font-semibold text-brand">
               Registos fora do prazo (pré-visualização)
             </div>
             <div className="overflow-x-auto rounded-card">
               <Table>
-                <TableHead className="pointer-events-none cursor-default select-none bg-[#0F1F3D]/60">
+                <TableHead className="pointer-events-none cursor-default select-none bg-brand/60">
                   <TableRow className="hover:bg-transparent">
                     {['Categoria', 'Retenção', 'Total', 'Fora do prazo'].map(
                       (h) => (
@@ -593,20 +595,20 @@ export function PoliciesView() {
                 <TableBody>
                   {preview.categories.map((c) => (
                     <TableRow key={c.category}>
-                      <td className="px-3 py-2 font-body text-xs text-[#0F1F3D]">
+                      <td className="px-3 py-2 font-body text-xs text-brand">
                         {RETENTION_LABELS[c.category] ?? c.category}
                       </td>
-                      <td className="px-3 py-2 font-body text-xs text-[#0F1F3D]">
+                      <td className="px-3 py-2 font-body text-xs text-brand">
                         {c.retentionDays} dias
                       </td>
-                      <td className="px-3 py-2 font-body text-xs text-[#0F1F3D]">
+                      <td className="px-3 py-2 font-body text-xs text-brand">
                         {c.total}
                       </td>
                       <td className="px-3 py-2 font-body text-xs">
                         {c.pastRetention > 0 ? (
                           <Badge intent="warning">{c.pastRetention}</Badge>
                         ) : (
-                          <span className="text-[#0F1F3D]">0</span>
+                          <span className="text-brand">0</span>
                         )}
                       </td>
                     </TableRow>
@@ -614,7 +616,7 @@ export function PoliciesView() {
                 </TableBody>
               </Table>
             </div>
-            <p className="mt-2 font-body text-xs text-[#49658A]">
+            <p className="mt-2 font-body text-xs text-brand-muted">
               {preview.note}
             </p>
           </div>
@@ -624,7 +626,7 @@ export function PoliciesView() {
       <Section title="Permissões e ocultação de dados sensíveis" icon={Lock}>
         <div className="space-y-4">
           <div>
-            <div className="mb-1.5 font-body text-xs text-[#49658A]">
+            <div className="mb-1.5 font-body text-xs text-brand-muted">
               Perfis que podem consultar
             </div>
             <RoleChips
@@ -634,7 +636,7 @@ export function PoliciesView() {
             />
           </div>
           <div>
-            <div className="mb-1.5 font-body text-xs text-[#49658A]">
+            <div className="mb-1.5 font-body text-xs text-brand-muted">
               Perfis que podem exportar e descarregar
             </div>
             <RoleChips
@@ -643,9 +645,8 @@ export function PoliciesView() {
               onChange={(v) => set({ exportRoles: v })}
             />
           </div>
-          <label className="flex items-center gap-2 font-body text-sm text-[#0F1F3D]">
-            <input
-              type="checkbox"
+          <label className="flex items-center gap-2 font-body text-sm text-brand">
+            <Checkbox
               disabled={!canEdit}
               checked={form.maskSensitive}
               onChange={(e) => set({ maskSensitive: e.target.checked })}

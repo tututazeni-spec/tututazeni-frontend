@@ -50,6 +50,8 @@ import type {
   CalendarResponse,
   InstanceFilterOptions,
 } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface CalendarViewProps {
   canManage: boolean;
@@ -60,7 +62,7 @@ const ALL = 'ALL';
 const WEEKDAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 // Cabeçalho azul-marinho, igual ao calendário de eventos.
 const NAVY_HEADER =
-  'cursor-default select-none bg-[#0F1F3D]/60 font-body text-xs font-medium capitalize text-white';
+  'cursor-default select-none bg-brand/60 font-body text-xs font-medium capitalize text-white';
 const MODES: Array<{ id: CalendarMode; label: string }> = [
   { id: 'day', label: 'Dia' },
   { id: 'week', label: 'Semana' },
@@ -103,7 +105,7 @@ function Chip({ item, onClick, showTime = true }: ChipProps) {
       onClick={onClick}
       title={`${item.code} — ${item.title} (${item.processTitle})`}
       className={cn(
-        'flex h-[22px] w-full items-center gap-1.5 overflow-hidden rounded-sm px-1.5 text-left font-body text-[11px] hover:brightness-110',
+        'flex h-[22px] w-full items-center gap-1.5 overflow-hidden rounded-sm px-1.5 text-left font-body text-micro hover:brightness-110',
         CHIP_CLASS[tone],
         item.hasConflict && 'ring-1 ring-warning ring-offset-1',
         tone === 'done' && 'opacity-70',
@@ -147,7 +149,7 @@ function DayRow({
       />
       <span
         className={cn(
-          'w-16 shrink-0 rounded-md py-1 text-center font-mono text-xs font-semibold',
+          'w-16 shrink-0 rounded-control py-1 text-center font-mono text-xs font-semibold',
           CHIP_CLASS[tone],
         )}
       >
@@ -433,19 +435,18 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
               className="w-48"
             />
             {responsibleId && (
-              <button
+              <LinkButton
                 type="button"
                 onClick={() => setResponsibleId('')}
-                className="font-body text-xs text-primary hover:underline"
+                className="font-body text-xs"
               >
                 Limpar
-              </button>
+              </LinkButton>
             )}
           </div>
         )}
         <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={overdue}
             onChange={(e) => setOverdue(e.target.checked)}
           />
@@ -491,7 +492,7 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
       {/* Mês */}
       {data && mode === 'month' && (
         <Card className="overflow-hidden p-0">
-          <div className="grid grid-cols-7 border-b border-border bg-[#0F1F3D]/60">
+          <div className="grid grid-cols-7 border-b border-border bg-brand/60">
             {WEEKDAYS.map((w) => (
               <div
                 key={w}
@@ -541,20 +542,20 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
                       <Chip key={it.key} item={it} onClick={() => open(it)} />
                     ))}
                     {(overflow > 0 || expanded) && (
-                      <button
+                      <LinkButton
                         type="button"
                         onClick={() => setExpandedDay(expanded ? null : k)}
-                        className="px-1 text-left font-body text-[11px] text-primary hover:underline"
+                        className="px-1 text-left font-body text-micro"
                       >
                         {expanded ? 'Ver menos' : `+${overflow} mais`}
-                      </button>
+                      </LinkButton>
                     )}
                   </div>
                 </div>
               );
             })}
           </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-3 py-2 font-body text-[11px] text-ink-muted">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-3 py-2 font-body text-micro text-ink-muted">
             {TONE_LEGEND.map((l) => (
               <span key={l.tone} className="inline-flex items-center gap-1.5">
                 <span
@@ -593,9 +594,7 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
                   })}
                 </div>
                 {items.length === 0 ? (
-                  <div className="px-4 py-4 font-body text-xs text-ink-faint">
-                    Sem prazos
-                  </div>
+                  <EmptyState variant="inline" title="Sem prazos" />
                 ) : (
                   <div className="divide-y divide-border">
                     {items.map((it) => (

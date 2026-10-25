@@ -31,6 +31,7 @@ import { DetailView } from './DetailView';
 import { PROXIMITY_LEVELS, proximityLevel, relativeLabel } from './proximity';
 import { useDepartmentOptions, useUnitOptions } from './eventFormData';
 import type { EventCalendarItem } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 type View = 'month' | 'week' | 'day' | 'agenda';
 
@@ -308,7 +309,7 @@ function EventChip({
       type="button"
       onClick={() => onSelect(ev.id)}
       className={cn(
-        'flex h-[22px] w-full items-center gap-1.5 overflow-hidden rounded-sm px-1.5 text-left font-body text-[11px] hover:brightness-110',
+        'flex h-[22px] w-full items-center gap-1.5 overflow-hidden rounded-sm px-1.5 text-left font-body text-micro hover:brightness-110',
         level.cls,
         past && 'opacity-70',
       )}
@@ -347,7 +348,7 @@ function MonthGrid({ anchor, range, byDay, onSelect }: MonthGridProps) {
 
   return (
     <Card className="overflow-hidden p-0">
-      <div className="grid grid-cols-7 border-b border-border bg-[#0F1F3D]/60">
+      <div className="grid grid-cols-7 border-b border-border bg-brand/60">
         {WEEKDAY_LABELS.map((label, i) => (
           <div
             key={i}
@@ -389,22 +390,22 @@ function MonthGrid({ anchor, range, byDay, onSelect }: MonthGridProps) {
                   <EventChip key={ev.id} ev={ev} onSelect={onSelect} />
                 ))}
                 {(overflow > 0 || expanded) && (
-                  <button
+                  <LinkButton
                     type="button"
                     onClick={() =>
                       setExpandedDay(expanded ? null : dayKey(day))
                     }
-                    className="px-1 font-body text-[11px] text-primary hover:underline"
+                    className="px-1 font-body text-micro"
                   >
                     {expanded ? 'Ver menos' : `+${overflow} mais`}
-                  </button>
+                  </LinkButton>
                 )}
               </div>
             </div>
           );
         })}
       </div>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-3 py-2 font-body text-[11px] text-ink-muted">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-3 py-2 font-body text-micro text-ink-muted">
         {PROXIMITY_LEVELS.map((l) => (
           <span key={l.label} className="inline-flex items-center gap-1.5">
             <span className={cn('h-2.5 w-4 rounded-sm', l.bar)} />
@@ -437,7 +438,7 @@ function DayEventRow({
       />
       <span
         className={cn(
-          'w-16 shrink-0 rounded-md py-1 text-center font-mono text-xs font-semibold',
+          'w-16 shrink-0 rounded-control py-1 text-center font-mono text-xs font-semibold',
           level.cls,
         )}
       >
@@ -500,7 +501,7 @@ function WeekList({ range, byDay, onSelect }: WeekListProps) {
         const events = byDay.get(dayKey(day)) ?? [];
         return (
           <Card key={dayKey(day)} className="overflow-hidden p-0">
-            <div className="cursor-default select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-2 font-body text-xs font-medium capitalize text-white">
+            <div className="cursor-default select-none border-b border-border bg-brand/60 px-4 py-2 font-body text-xs font-medium capitalize text-white">
               {formatDate(day, {
                 weekday: 'long',
                 day: '2-digit',
@@ -508,9 +509,7 @@ function WeekList({ range, byDay, onSelect }: WeekListProps) {
               })}
             </div>
             {events.length === 0 ? (
-              <div className="px-4 py-4 font-body text-xs text-ink-faint">
-                Sem eventos
-              </div>
+              <EmptyState variant="inline" title="Sem eventos" />
             ) : (
               <div className="divide-y divide-border">
                 {events.map((ev) => (
@@ -574,7 +573,7 @@ function AgendaList({
     <div className="space-y-3">
       {groups.map(([day, events]) => (
         <Card key={day} className="overflow-hidden p-0">
-          <div className="cursor-default select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-2 font-body text-xs font-medium capitalize text-white">
+          <div className="cursor-default select-none border-b border-border bg-brand/60 px-4 py-2 font-body text-xs font-medium capitalize text-white">
             {formatDate(day, {
               weekday: 'long',
               day: '2-digit',

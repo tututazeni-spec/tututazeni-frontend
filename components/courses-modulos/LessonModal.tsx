@@ -26,7 +26,7 @@ import { fileToPdfDataUrl, pdfErrorMessage } from '@/lib/lessonPdf';
 import { fileToSlideDataUrl, slideErrorMessage } from '@/lib/lessonSlide';
 import { CONTENT_TYPE } from './constants';
 import { QuizEditorModal } from './QuizEditorModal';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { RichTextEditor } from './RichTextEditor';
@@ -39,6 +39,8 @@ import {
   ObjectivesPicker,
   SUGGESTED_LESSON_OBJECTIVES,
 } from './ObjectivesPicker';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface LessonModalProps {
   moduleId: number;
@@ -359,7 +361,7 @@ export function LessonModal({
                           : undefined
                       }
                       className={cn(
-                        'w-[72px] py-2 rounded-lg flex flex-col items-center gap-1 cursor-pointer transition-all border-2',
+                        'w-[72px] py-2 rounded-control flex flex-col items-center gap-1 cursor-pointer transition-all border-2',
                         form.contentType !== k && 'border-border bg-surface',
                       )}
                     >
@@ -492,7 +494,7 @@ export function LessonModal({
                       : 'application/pdf'
                   }
                   onChange={handleFilePick}
-                  className="block w-full text-sm text-ink-muted file:mr-3 file:rounded-lg file:border-0 file:bg-primary-subtle file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary"
+                  className="block w-full text-sm text-ink-muted file:mr-3 file:rounded-control file:border-0 file:bg-primary-subtle file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-primary"
                 />
                 {fileBusy && (
                   <p className="text-xs text-ink-faint mt-1">A processar…</p>
@@ -627,11 +629,10 @@ export function LessonModal({
                   key={key}
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={Boolean(form[key as keyof typeof form])}
                     onChange={(e) => set(key, e.target.checked)}
-                    className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                    size="sm"
                   />
                   {label}
                 </label>
@@ -745,7 +746,7 @@ function LessonActivitiesAndResources({
           {(lesson.activities ?? []).map((a) => (
             <div
               key={a.id}
-              className="flex items-center gap-2 rounded-lg bg-surface-sunken border border-border px-3 py-1.5"
+              className="flex items-center gap-2 rounded-control bg-surface-sunken border border-border px-3 py-1.5"
             >
               <span className="text-xs font-bold text-ink-faint">
                 {ACTIVITY_TYPE_ITEMS.find((t) => t.value === a.type)?.label ??
@@ -754,20 +755,21 @@ function LessonActivitiesAndResources({
               <span className="flex-1 text-sm text-ink truncate">
                 {a.title}
               </span>
-              <button
+              <IconButton
+                icon={Trash2}
+                label="Remover actividade"
+                intent="ghostDanger"
+                size="xs"
                 type="button"
                 onClick={() => removeActivity.mutate(a.id)}
-                className="text-ink-faint hover:text-danger"
-                aria-label="Remover actividade"
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </button>
+              />
             </div>
           ))}
           {(lesson.activities ?? []).length === 0 && (
-            <p className="m-0 text-xs text-ink-faint">
-              Nenhuma actividade adicionada.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Nenhuma actividade adicionada"
+            />
           )}
         </div>
         <div className="flex flex-wrap gap-2">
@@ -807,7 +809,7 @@ function LessonActivitiesAndResources({
           {(lesson.resources ?? []).map((r) => (
             <div
               key={r.id}
-              className="flex items-center gap-2 rounded-lg bg-surface-sunken border border-border px-3 py-1.5"
+              className="flex items-center gap-2 rounded-control bg-surface-sunken border border-border px-3 py-1.5"
             >
               {r.fileType && (
                 <span className="text-xs font-bold text-ink-faint">
@@ -818,20 +820,18 @@ function LessonActivitiesAndResources({
               <span className="flex-1 text-sm text-ink truncate">
                 {r.title}
               </span>
-              <button
+              <IconButton
+                icon={Trash2}
+                label="Remover recurso"
+                intent="ghostDanger"
+                size="xs"
                 type="button"
                 onClick={() => removeResource.mutate(r.id)}
-                className="text-ink-faint hover:text-danger"
-                aria-label="Remover recurso"
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </button>
+              />
             </div>
           ))}
           {(lesson.resources ?? []).length === 0 && (
-            <p className="m-0 text-xs text-ink-faint">
-              Nenhum recurso adicionado.
-            </p>
+            <EmptyState variant="inline" title="Nenhum recurso adicionado" />
           )}
         </div>
         <div className="flex flex-wrap gap-2">

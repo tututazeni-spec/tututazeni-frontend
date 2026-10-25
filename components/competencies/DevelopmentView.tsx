@@ -142,7 +142,7 @@ export function DevelopmentView() {
                       <p className="text-sm font-medium text-ink">
                         {r.colaborador}
                       </p>
-                      <p className="text-[11px] text-ink-faint">
+                      <p className="text-micro text-ink-faint">
                         {r.departamento ?? '—'}
                       </p>
                     </div>
@@ -198,7 +198,7 @@ export function DevelopmentView() {
                 </TableCell>
                 <TableCell className="w-[100px]">
                   <ProgressBar value={r.progresso} />
-                  <p className="mt-0.5 text-[11px] text-ink-faint">
+                  <p className="mt-0.5 text-micro text-ink-faint">
                     {r.progresso}%
                   </p>
                 </TableCell>

@@ -50,6 +50,7 @@ import type {
   AuditExportsSummary,
   Paginated,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const MAX_EVIDENCE_BYTES = 5 * 1024 * 1024;
 
@@ -415,7 +416,7 @@ function ExportModal({
                 Histórico de acessos
               </div>
               {item.accesses.length === 0 ? (
-                <p className="text-ink-faint">Sem acessos registados.</p>
+                <EmptyState variant="inline" title="Sem acessos registados" />
               ) : (
                 item.accesses.map((a) => (
                   <div
@@ -584,7 +585,7 @@ export function ExportsView() {
                 wrapperClassName="overflow-x-hidden"
                 className="table-fixed"
               >
-                <TableHead className="bg-[#0F1F3D]/60">
+                <TableHead className="bg-brand/60">
                   <TableRow className="hover:bg-transparent">
                     {[
                       ['Ficheiro', 'w-[35%]'],
@@ -616,7 +617,7 @@ export function ExportsView() {
                           <div className="flex items-center gap-3">
                             <span
                               aria-hidden
-                              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-control ${isReport ? 'bg-[#218653]/10 text-[#218653]' : 'bg-[#1877F2]/10 text-[#1877F2]'}`}
+                              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-control ${isReport ? 'bg-success/10 text-success' : 'bg-[#1877F2]/10 text-[#1877F2]'}`}
                             >
                               <KindIcon size={17} strokeWidth={1.75} />
                             </span>

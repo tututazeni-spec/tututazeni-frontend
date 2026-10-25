@@ -29,6 +29,7 @@ import type {
   InstanceStatus,
   TaskState,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface CalendarItemPanelProps {
   item: CalendarItem;
@@ -176,7 +177,7 @@ export function CalendarItemPanel({
             Alterações do prazo
           </div>
           {!history || history.length === 0 ? (
-            <p className="mt-1 font-body text-sm text-ink-faint">Sem alterações registadas.</p>
+            <EmptyState variant="inline" title="Sem alterações registadas" />
           ) : (
             <ul className="mt-1 space-y-2">
               {history.map((h) => (

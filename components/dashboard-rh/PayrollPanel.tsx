@@ -54,8 +54,8 @@ export function PayrollPanel() {
       {loading ? (
         <Skeleton
           rows={4}
-          wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-          itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+          wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+          itemClassName="h-[155px] rounded-panel bg-surface-sunken"
         />
       ) : !data?.headcount ? (
         <p className="font-body text-sm text-ink-faint">

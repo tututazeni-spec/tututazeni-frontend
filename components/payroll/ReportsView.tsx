@@ -263,9 +263,9 @@ export function ReportsView() {
               description="Ajuste o período ou limpe os filtros."
             />
           ) : (
-            <div className="overflow-hidden rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+            <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
               <table className="w-full text-left font-body text-xs">
-                <thead className="bg-[#0B2D5B]">
+                <thead className="bg-brand-dark">
                   <tr>
                     {columns.map((c) => (
                       <th

@@ -134,8 +134,8 @@ export default function ExecutiveReportsPage() {
         <div className="mx-auto max-w-7xl px-6 py-6">
           <Skeleton
             rows={1}
-            wrapperClassName="animate-pulse"
-            itemClassName="h-16 rounded-3xl bg-surface-sunken"
+            wrapperClassName=""
+            itemClassName="h-16 rounded-panel bg-surface-sunken"
           />
         </div>
       )}

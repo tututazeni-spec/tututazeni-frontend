@@ -94,7 +94,7 @@ function SectionEditor({ section, canEdit, onClose }: SectionEditorProps) {
         navyBanner
         className="left-[calc(50%+120px)] max-h-[90vh] w-[calc(100vw-240px-2rem)] max-w-4xl overflow-y-auto"
       >
-        <div className="-mx-6 -mt-4 mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/10 bg-[#0F1F3D] px-6 pb-4 font-body text-xs text-white">
+        <div className="-mx-6 -mt-4 mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/10 bg-brand px-6 pb-4 font-body text-xs text-white">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 font-medium ring-1 ring-white/20">
             <span
               aria-hidden
@@ -145,7 +145,7 @@ function SectionEditor({ section, canEdit, onClose }: SectionEditorProps) {
           </div>
         )}
 
-        <div className="-mx-6 mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#0F1F3D]/15 bg-[#0F1F3D]/5 px-6 pt-4">
+        <div className="-mx-6 mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-brand/15 bg-brand/5 px-6 pt-4">
           <div className="flex gap-2">
             <Button
               intent="ghost"
@@ -182,8 +182,8 @@ function SectionEditor({ section, canEdit, onClose }: SectionEditorProps) {
         </div>
 
         {showHistory && (
-          <div className="mt-4 overflow-hidden rounded-card border border-[#0F1F3D]/30">
-            <div className="bg-[#0F1F3D] px-3 py-2 font-body text-xs font-medium text-white">
+          <div className="mt-4 overflow-hidden rounded-card border border-brand/30">
+            <div className="bg-brand px-3 py-2 font-body text-xs font-medium text-white">
               Histórico de versões
             </div>
             {history.isLoading && (
@@ -192,9 +192,10 @@ function SectionEditor({ section, canEdit, onClose }: SectionEditorProps) {
               </div>
             )}
             {history.data && history.data.length === 0 && (
-              <p className="p-3 font-body text-sm text-ink-faint">
-                Ainda não há versões guardadas.
-              </p>
+              <EmptyState
+                variant="inline"
+                title="Ainda não há versões guardadas"
+              />
             )}
             {history.data?.map((v) => (
               <div
@@ -261,10 +262,10 @@ export function SettingsView({
             key={id}
             type="button"
             onClick={() => setMode(id)}
-            className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`rounded-control border px-3 py-1.5 text-sm font-medium transition-colors ${
               mode === id
-                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
-                : 'border-[#0F1F3D] bg-white text-[#0F1F3D]'
+                ? 'border-brand bg-brand text-white'
+                : 'border-brand bg-white text-brand'
             }`}
           >
             {label}
@@ -304,7 +305,7 @@ export function SettingsView({
                   onClick={() => setOpen(s.key)}
                   className="group cursor-pointer overflow-hidden rounded-card border border-border bg-surface text-left"
                 >
-                  <div className="flex items-start justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3">
+                  <div className="flex items-start justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3">
                     <div className="font-body text-sm font-semibold text-white">
                       {s.title}
                     </div>
@@ -317,11 +318,11 @@ export function SettingsView({
                       </span>
                     )}
                   </div>
-                  <div className="p-4 transition-colors group-hover:bg-[#0F1F3D]/10">
-                    <p className="font-body text-xs text-[#0F1F3D]">
+                  <div className="p-4 transition-colors group-hover:bg-brand/10">
+                    <p className="font-body text-xs text-brand">
                       {s.description}
                     </p>
-                    <div className="mt-2 font-body text-xs text-[#0F1F3D]">
+                    <div className="mt-2 font-body text-xs text-brand">
                       {s.isDefault
                         ? 'Valores por omissão'
                         : `Versão ${s.version} · ${formatDateTime(s.updatedAt)}`}

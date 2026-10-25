@@ -17,6 +17,8 @@ import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
+import { LinkButton } from '@/components/ui/LinkButton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface CreatePayslipModalProps {
   onClose: () => void;
@@ -123,16 +125,16 @@ export function CreatePayslipModal({
                 <span className="flex-1 truncate font-body text-sm text-ink">
                   {picked.fullName}
                 </span>
-                <button
+                <LinkButton
                   type="button"
-                  className="font-body text-xs text-primary hover:underline"
+                  className="font-body text-xs"
                   onClick={() => {
                     setPicked(null);
                     setSearch('');
                   }}
                 >
                   alterar
-                </button>
+                </LinkButton>
               </div>
             ) : (
               <div className="relative">
@@ -152,9 +154,10 @@ export function CreatePayslipModal({
                       </div>
                     )}
                     {!loading && users.length === 0 && (
-                      <div className="px-3 py-2 font-body text-sm text-ink-muted">
-                        Nenhum colaborador encontrado
-                      </div>
+                      <EmptyState
+                        variant="inline"
+                        title="Nenhum colaborador encontrado"
+                      />
                     )}
                     {users.map((u) => (
                       <button
@@ -212,13 +215,13 @@ export function CreatePayslipModal({
             />
           </FormField>
 
-          <button
+          <LinkButton
             type="button"
-            className="font-body text-sm text-primary hover:underline"
+            className="font-body text-sm"
             onClick={() => setAdvanced((a) => !a)}
           >
             {advanced ? 'Ocultar campos avançados' : 'Mostrar campos avançados'}
-          </button>
+          </LinkButton>
 
           {advanced && (
             <div className="grid grid-cols-2 gap-3">

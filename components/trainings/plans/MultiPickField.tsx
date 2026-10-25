@@ -7,8 +7,9 @@
 
 import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export function parsePickValue(value: string): string[] {
   return value
@@ -66,8 +67,7 @@ export function MultiPickField({
             key={o}
             className="flex items-center gap-2 text-xs text-ink-muted"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               checked={selected.includes(o)}
               onChange={() => toggle(o)}
             />
@@ -84,14 +84,14 @@ export function MultiPickField({
               className="inline-flex items-center gap-1 rounded-full bg-surface-sunken px-3 py-1 text-xs text-ink"
             >
               {c}
-              <button
+              <IconButton
+                icon={X}
+                label={`Remover ${c}`}
+                intent="ghost"
+                size="xs"
                 type="button"
-                aria-label={`Remover ${c}`}
-                className="text-ink-faint hover:text-ink"
                 onClick={() => toggle(c)}
-              >
-                <X size={12} strokeWidth={2} />
-              </button>
+              />
             </li>
           ))}
         </ul>

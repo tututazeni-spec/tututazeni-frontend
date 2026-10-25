@@ -83,7 +83,7 @@ export function MentoringTab() {
                     url={m.mentor.avatarUrl}
                     size="md"
                   />
-                  <span className="font-body text-[9px] font-semibold text-primary">
+                  <span className="font-body text-micro font-semibold text-primary">
                     MENTOR
                   </span>
                 </div>
@@ -100,7 +100,7 @@ export function MentoringTab() {
                     url={m.mentee.avatarUrl}
                     size="md"
                   />
-                  <span className="font-body text-[9px] font-semibold text-accent">
+                  <span className="font-body text-micro font-semibold text-accent">
                     MENTEE
                   </span>
                 </div>

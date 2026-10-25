@@ -56,7 +56,7 @@ export function WorkFormsTab({
         {pendingWork?.pending.map((f) => (
           <Card key={f.id} className="flex items-center justify-between p-5">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-control bg-[#0F1F3D]/60">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-control bg-brand/60">
                 <Clipboard
                   size={18}
                   strokeWidth={1.75}

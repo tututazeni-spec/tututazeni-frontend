@@ -35,6 +35,7 @@ import type { DirectoryUser } from '@/components/users/types';
 import type { DepartmentNode } from '@/components/departments/types';
 import { CourseImageField } from './CourseImageField';
 import type { CourseCategoryManaged, PaginatedCourses } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface CreateCourseModalProps {
   onClose: () => void;
@@ -557,33 +558,30 @@ export function CreateCourseModal({
 
             <div className="flex flex-wrap gap-4">
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={form.mandatory}
                   onChange={(e) => setField('mandatory', e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Formação obrigatória
               </label>
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={form.requiresApproval}
                   onChange={(e) =>
                     setField('requiresApproval', e.target.checked)
                   }
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Requer aprovação para inscrição
               </label>
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={form.certificateEnabled}
                   onChange={(e) =>
                     setField('certificateEnabled', e.target.checked)
                   }
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Emite certificado
               </label>
@@ -685,7 +683,7 @@ export function CreateCourseModal({
                       onClick={() => toggleAudience(a)}
                       className={
                         active
-                          ? 'rounded-full border-[1.5px] border-[#0F1F3D] bg-[#0F1F3D] px-3 py-1.5 text-sm text-white'
+                          ? 'rounded-full border-[1.5px] border-brand bg-brand px-3 py-1.5 text-sm text-white'
                           : 'rounded-full border-[1.5px] border-field bg-surface px-3 py-1.5 text-sm text-field-ink hover:bg-field-soft'
                       }
                     >

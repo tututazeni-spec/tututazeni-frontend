@@ -54,7 +54,7 @@ function StoredReport({ id }: { id: number }) {
     return (
       <Skeleton
         rows={1}
-        wrapperClassName="animate-pulse"
+        wrapperClassName=""
         itemClassName="h-32 rounded-card bg-surface-sunken"
       />
     );
@@ -77,7 +77,7 @@ export function ArchivePanel() {
     return (
       <Skeleton
         rows={3}
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="h-24 rounded-card bg-surface-sunken"
       />
     );

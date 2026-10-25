@@ -82,7 +82,7 @@ export function ApiKeysTab() {
   if (loading)
     return (
       <Skeleton
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="bg-surface-sunken rounded-card h-16"
       />
     );
@@ -144,7 +144,7 @@ export function ApiKeysTab() {
                 <p className="font-body text-sm font-medium text-ink">
                   {k.name}
                 </p>
-                <p className="font-data text-[10px] text-ink-faint">
+                <p className="font-data text-micro text-ink-faint">
                   {k.preview}
                 </p>
               </div>
@@ -152,14 +152,14 @@ export function ApiKeysTab() {
                 {(k.scopes ?? []).map((s: string, j: number) => (
                   <span
                     key={j}
-                    className="rounded-control bg-surface-sunken px-1.5 py-0.5 font-body text-[9px] text-ink-muted"
+                    className="rounded-control bg-surface-sunken px-1.5 py-0.5 font-body text-micro text-ink-muted"
                   >
                     {s}
                   </span>
                 ))}
               </div>
               {k.expiresAt && (
-                <span className="flex shrink-0 items-center gap-1 font-body text-[10px] text-ink-faint">
+                <span className="flex shrink-0 items-center gap-1 font-body text-micro text-ink-faint">
                   <Clock size={14} strokeWidth={1.75} />
                   {new Date(k.expiresAt).toLocaleDateString('pt')}
                 </span>

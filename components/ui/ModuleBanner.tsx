@@ -39,7 +39,7 @@ export function ModuleBanner({
   return (
     <header
       className={cn(
-        'relative h-44 overflow-hidden rounded-3xl shadow-[0_8px_32px_rgba(15,31,61,0.18)] sm:h-56',
+        'relative h-44 overflow-hidden rounded-panel shadow-[0_8px_32px_rgba(15,31,61,0.18)] sm:h-56',
         className,
       )}
     >
@@ -54,12 +54,12 @@ export function ModuleBanner({
       />
       <div
         aria-hidden
-        className="absolute inset-0 bg-gradient-to-t from-[#0F1F3D]/90 via-[#0F1F3D]/35 to-transparent"
+        className="absolute inset-0 bg-gradient-to-t from-brand/90 via-brand/35 to-transparent"
       />
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 pb-10 sm:px-7">
         <div className="flex items-center gap-3">
           {Icon && (
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white">
+            <div className="flex h-11 w-11 items-center justify-center rounded-panel bg-white/20 text-white">
               <Icon size={22} strokeWidth={1.8} />
             </div>
           )}
@@ -73,7 +73,7 @@ export function ModuleBanner({
           </div>
         </div>
         {action && (
-          <div className="[&_a]:border [&_a]:border-white [&_a]:!bg-white [&_a]:!text-[#0F1F3D] [&_a]:transition-colors [&_a:hover]:!bg-[#0F1F3D] [&_a:hover]:!text-white [&_button]:border [&_button]:border-white [&_button]:!bg-white [&_button]:!text-[#0F1F3D] [&_button]:transition-colors [&_button:hover]:!bg-[#0F1F3D] [&_button:hover]:!text-white">
+          <div className="[&_a]:border [&_a]:border-white [&_a]:!bg-white [&_a]:!text-brand [&_a]:transition-colors [&_a:hover]:!bg-brand [&_a:hover]:!text-white [&_button]:border [&_button]:border-white [&_button]:!bg-white [&_button]:!text-brand [&_button]:transition-colors [&_button:hover]:!bg-brand [&_button:hover]:!text-white">
             {action}
           </div>
         )}

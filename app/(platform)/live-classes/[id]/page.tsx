@@ -12,6 +12,7 @@ import { useHasRole } from '@/hooks/useCurrentRole';
 import { useStopwatch } from '@/hooks/useStopwatch';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
+import { notify } from '@/lib/errorToastBridge';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate as fmtDate, formatTime as fmtTime } from '@/lib/format';
@@ -59,6 +60,11 @@ export default function LiveRoomPage() {
       await apiClient.post(`/live-classes/${classId}/join`, {});
     } catch (e) {
       reportError(e, { source: 'LiveRoomPage.handleJoined' });
+      notify({
+        title: 'A sua presença pode não ter sido registada',
+        description: 'Continua na aula. Se necessário, volte a entrar.',
+        intent: 'danger',
+      });
     }
     startSessionTimer();
   }, [classId, startSessionTimer]);
@@ -132,7 +138,7 @@ export default function LiveRoomPage() {
             {/* Back */}
             <button
               onClick={() => router.push('/live-classes')}
-              className="bg-white/8 border-none rounded-lg py-1.5 px-3 text-ink-muted text-xs cursor-pointer flex items-center gap-1.5"
+              className="bg-white/8 border-none rounded-control py-1.5 px-3 text-ink-muted text-xs cursor-pointer flex items-center gap-1.5"
             >
               ← Sair
             </button>
@@ -177,7 +183,7 @@ export default function LiveRoomPage() {
             {/* Toggle sidebar */}
             <button
               onClick={() => setShowSidebar((s) => !s)}
-              className="bg-white/8 border-none rounded-lg py-1.75 px-3 text-ink-muted text-xs cursor-pointer"
+              className="bg-white/8 border-none rounded-control py-1.75 px-3 text-ink-muted text-xs cursor-pointer"
             >
               {showSidebar ? 'Ocultar ▶' : '◀ Painel'}
             </button>
@@ -227,7 +233,7 @@ export default function LiveRoomPage() {
                   href={safeHref(liveClass.recordingUrl)}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1.5 mt-2.5 py-1.75 px-3 bg-accent-subtle border border-accent-subtle rounded-lg text-accent text-xs no-underline font-semibold"
+                  className="flex items-center gap-1.5 mt-2.5 py-1.75 px-3 bg-accent-subtle border border-accent-subtle rounded-control text-accent text-xs no-underline font-semibold"
                 >
                   <Clapperboard size={13} strokeWidth={1.75} /> Ver Gravação
                   Anterior ↗

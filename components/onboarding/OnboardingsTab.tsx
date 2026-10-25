@@ -34,6 +34,7 @@ import {
   usePositionOptions,
 } from './planData';
 import type { OnboardingPlanListItem } from './types';
+import { Input } from '@/components/ui/Input';
 
 interface Paginated {
   data: OnboardingPlanListItem[];
@@ -166,22 +167,20 @@ export function OnboardingsTab({
             <label className="mb-1 block font-body text-xs text-ink-faint">
               De
             </label>
-            <input
+            <Input
               type="date"
               value={filters.from}
               onChange={(e) => updateFilters({ from: e.target.value })}
-              className="rounded-control border border-border px-2.5 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
           <div>
             <label className="mb-1 block font-body text-xs text-ink-faint">
               Até
             </label>
-            <input
+            <Input
               type="date"
               value={filters.to}
               onChange={(e) => updateFilters({ to: e.target.value })}
-              className="rounded-control border border-border px-2.5 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
         </div>

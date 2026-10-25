@@ -28,6 +28,7 @@ import type {
   SettingsUpdate,
   ThresholdField,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const MAX_PREVIEW_ROWS = 50;
 
@@ -96,24 +97,22 @@ export function ReportsTab({
               type="button"
               onClick={() => onSelect(r.type)}
               aria-pressed={active}
-              className={`rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)] p-5 text-left transition-shadow hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F1F3D]/40 ${
-                active
-                  ? 'outline outline-2 outline-offset-2 outline-[#0F1F3D]'
-                  : ''
+              className={`rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)] p-5 text-left transition-shadow hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
+                active ? 'outline outline-2 outline-offset-2 outline-brand' : ''
               }`}
             >
               <div className="flex items-center gap-3">
                 <span
                   aria-hidden
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EEF4FD] text-[#0F1F3D]"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand"
                 >
                   <BarChart3 className="h-5 w-5" strokeWidth={1.8} />
                 </span>
-                <p className="font-display text-[15px] font-bold text-[#0F1F3D]">
+                <p className="font-display text-[15px] font-bold text-brand">
                   {r.title}
                 </p>
               </div>
-              <p className="mt-2 font-body text-xs text-[#49658A]">
+              <p className="mt-2 font-body text-xs text-brand-muted">
                 {r.description}
               </p>
             </button>
@@ -175,13 +174,13 @@ export function ReportsTab({
                 ) : (
                   <Card
                     key={s.label}
-                    className="rounded-[24px] border-[#E3EAF4] shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+                    className="rounded-[24px] border-brand-line shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
                   >
                     <CardBody className="px-6 py-5">
-                      <p className="font-body text-xs font-medium uppercase tracking-wide text-[#49658A]">
+                      <p className="font-body text-xs font-medium uppercase tracking-wide text-brand-muted">
                         {s.label}
                       </p>
-                      <p className="mt-1 font-display text-lg font-bold tabular-nums text-[#0F1F3D]">
+                      <p className="mt-1 font-display text-lg font-bold tabular-nums text-brand">
                         {cellText(s.value)}
                       </p>
                     </CardBody>
@@ -194,21 +193,19 @@ export function ReportsTab({
           {report.tables.map((t) => (
             <Card
               key={t.title}
-              className="overflow-hidden rounded-[24px] border-[#E3EAF4] shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+              className="overflow-hidden rounded-[24px] border-brand-line shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
             >
-              <div className="pointer-events-none cursor-default select-none bg-[#0F1F3D]/60 px-6 py-3 font-body text-sm font-semibold text-white">
+              <div className="pointer-events-none cursor-default select-none bg-brand/60 px-6 py-3 font-body text-sm font-semibold text-white">
                 {t.title}
               </div>
               <CardBody className="px-6 py-5">
                 {t.rows.length === 0 ? (
-                  <p className="font-body text-sm text-ink-muted">
-                    Sem registos.
-                  </p>
+                  <EmptyState variant="inline" title="Sem registos" />
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full font-body text-sm">
                       <thead>
-                        <tr className="pointer-events-none cursor-default select-none bg-[#0F1F3D]/60 text-left text-xs uppercase tracking-wide text-white">
+                        <tr className="pointer-events-none cursor-default select-none bg-brand/60 text-left text-xs uppercase tracking-wide text-white">
                           {t.columns.map((c) => (
                             <th key={c} className="px-3 py-1.5 font-semibold">
                               {c}
@@ -218,11 +215,11 @@ export function ReportsTab({
                       </thead>
                       <tbody>
                         {t.rows.slice(0, MAX_PREVIEW_ROWS).map((r, i) => (
-                          <tr key={i} className="border-t border-[#E6ECF4]">
+                          <tr key={i} className="border-t border-brand-line">
                             {t.columns.map((c) => (
                               <td
                                 key={c}
-                                className="px-3 py-2 tabular-nums text-[#0F1F3D]"
+                                className="px-3 py-2 tabular-nums text-brand"
                               >
                                 {cellText(r[c])}
                               </td>
@@ -642,8 +639,7 @@ function SettingsForm({ data, canEdit, saving, onSave }: SettingsFormProps) {
                   {g.rules.map((r) => (
                     <li key={r.key} className="py-2">
                       <label className="flex cursor-pointer items-start gap-3">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           className="mt-1"
                           checked={!disabled.has(r.key)}
                           disabled={ro}
@@ -653,7 +649,7 @@ function SettingsForm({ data, canEdit, saving, onSave }: SettingsFormProps) {
                           <span className="block font-body text-sm text-ink">
                             {r.label}
                           </span>
-                          <span className="block font-body text-[11px] text-ink-faint">
+                          <span className="block font-body text-micro text-ink-faint">
                             {r.condition}
                           </span>
                         </span>
@@ -713,15 +709,13 @@ function SettingsForm({ data, canEdit, saving, onSave }: SettingsFormProps) {
             )}
           </div>
           {windows.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">
-              Nenhuma janela definida.
-            </p>
+            <EmptyState variant="inline" title="Nenhuma janela definida" />
           ) : (
             <ul className="flex flex-col gap-4">
               {windows.map((w, i) => (
                 <li
                   key={w.id}
-                  className="grid grid-cols-1 gap-3 rounded-lg border border-border p-3 md:grid-cols-4"
+                  className="grid grid-cols-1 gap-3 rounded-control border border-border p-3 md:grid-cols-4"
                 >
                   <FormField label="Nome" htmlFor={`win-name-${i}`}>
                     <Input
@@ -863,8 +857,7 @@ function SettingsForm({ data, canEdit, saving, onSave }: SettingsFormProps) {
                 key={r}
                 className="flex items-center gap-2 font-body text-sm text-ink"
               >
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={roles.has(r)}
                   disabled={ro}
                   onChange={() => setRoles((s) => toggle(s, r))}

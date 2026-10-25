@@ -1,3 +1,4 @@
+import { Checkbox } from '@/components/ui/Checkbox';
 // components/avatar-training/programs/CheckList.tsx
 // Lista de caixas de selecção com altura limitada (apresentação).
 
@@ -28,8 +29,7 @@ export function CheckList<T extends number | string = number>({
               key={o.id}
               className="flex items-center gap-2 font-body text-sm text-ink"
             >
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={selected.includes(o.id)}
                 onChange={(e) =>
                   onChange(

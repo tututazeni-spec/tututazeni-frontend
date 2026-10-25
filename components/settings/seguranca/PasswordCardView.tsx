@@ -26,7 +26,7 @@ export function PasswordCardView({ ctl }: { ctl: ChangePasswordController }) {
   return (
     <div className="grid grid-cols-2 gap-4">
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Alterar Senha
         </div>
         <CardBody>
@@ -131,7 +131,7 @@ export function PasswordCardView({ ctl }: { ctl: ChangePasswordController }) {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Dicas de Segurança
         </div>
         <CardBody>
@@ -140,7 +140,7 @@ export function PasswordCardView({ ctl }: { ctl: ChangePasswordController }) {
               <div
                 key={tip.text}
                 className={cn(
-                  'flex items-center gap-3 p-3 rounded-lg border transition-all',
+                  'flex items-center gap-3 p-3 rounded-control border transition-all',
                   pw && tip.ok
                     ? 'bg-success-subtle border-success'
                     : 'bg-surface-sunken border-border',
@@ -151,7 +151,7 @@ export function PasswordCardView({ ctl }: { ctl: ChangePasswordController }) {
             ))}
           </div>
 
-          <div className="mt-5 p-4 bg-surface border border-ink rounded-lg">
+          <div className="mt-5 p-4 bg-surface border border-ink rounded-control">
             <p className="m-0 text-xs text-ink font-semibold">
               O token de acesso expira num curto período. Serás redirecionado
               para o login automaticamente.

@@ -23,6 +23,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { FORMAT_CLS, FORMAT_CLS_FALLBACK } from './constants';
 import type { ContentAnalytics } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 // Espelha @Roles(...) em GET /documents/compliance-overview.
 const COMPLIANCE_ROLES = ['ADMIN', 'RH', 'DIRECTOR'];
@@ -74,7 +75,7 @@ export function AnalyticsTab() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Format breakdown */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Distribuição por Formato
           </div>
           <CardBody>
@@ -88,7 +89,7 @@ export function AnalyticsTab() {
                 return (
                   <div key={f.format} className="flex items-center gap-3">
                     <span
-                      className={`w-24 rounded px-1.5 py-0.5 text-center font-body text-[10px] font-medium ${FORMAT_CLS[f.format] ?? FORMAT_CLS_FALLBACK}`}
+                      className={`w-24 rounded px-1.5 py-0.5 text-center font-body text-micro font-medium ${FORMAT_CLS[f.format] ?? FORMAT_CLS_FALLBACK}`}
                     >
                       {f.format}
                     </span>
@@ -107,7 +108,7 @@ export function AnalyticsTab() {
 
         {/* Most viewed */}
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Mais Vistos (30 dias)
           </div>
           <CardBody>
@@ -121,7 +122,7 @@ export function AnalyticsTab() {
                     <p className="truncate font-body text-xs font-medium text-ink">
                       {v.content?.title}
                     </p>
-                    <p className="font-body text-[10px] text-ink-faint">
+                    <p className="font-body text-micro text-ink-faint">
                       {v.content?.type}
                     </p>
                   </div>
@@ -131,9 +132,7 @@ export function AnalyticsTab() {
                 </div>
               ))}
               {(data?.mostViewed ?? []).length === 0 && (
-                <p className="py-6 text-center font-body text-sm text-ink-faint">
-                  Sem dados ainda
-                </p>
+                <EmptyState variant="inline" title="Sem dados ainda" />
               )}
             </div>
           </CardBody>
@@ -143,7 +142,7 @@ export function AnalyticsTab() {
       {/* Recently added */}
       {(data?.recentlyAdded?.length ?? 0) > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Adicionados Recentemente
           </div>
           <CardBody>
@@ -154,14 +153,14 @@ export function AnalyticsTab() {
                   className="flex items-center gap-3 rounded-control p-2 hover:bg-surface-sunken"
                 >
                   <span
-                    className={`w-20 rounded px-1.5 py-0.5 text-center font-body text-[10px] font-medium ${FORMAT_CLS[c.type] ?? FORMAT_CLS_FALLBACK}`}
+                    className={`w-20 rounded px-1.5 py-0.5 text-center font-body text-micro font-medium ${FORMAT_CLS[c.type] ?? FORMAT_CLS_FALLBACK}`}
                   >
                     {c.type}
                   </span>
                   <p className="flex-1 truncate font-body text-sm font-medium text-ink">
                     {c.title}
                   </p>
-                  <p className="shrink-0 font-body text-[10px] text-ink-faint">
+                  <p className="shrink-0 font-body text-micro text-ink-faint">
                     {new Date(c.createdAt).toLocaleDateString('pt')}
                   </p>
                 </div>
@@ -174,16 +173,17 @@ export function AnalyticsTab() {
       {/* Compliance de leitura obrigatória — Documentos Corporativos (ADMIN/RH/DIRECTOR) */}
       {canSeeCompliance && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Compliance de Leitura Obrigatória
           </div>
           <CardBody>
             {complianceLoading ? (
               <Skeleton rows={3} />
             ) : compliance.length === 0 ? (
-              <p className="py-6 text-center font-body text-sm text-ink-faint">
-                Nenhum documento exige confirmação de leitura no momento.
-              </p>
+              <EmptyState
+                variant="inline"
+                title="Nenhum documento exige confirmação de leitura no momento"
+              />
             ) : (
               <div className="space-y-3">
                 {compliance.map((c) => (

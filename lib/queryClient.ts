@@ -31,6 +31,17 @@ function isSilent(meta: Record<string, unknown> | undefined): boolean {
   return meta?.silent === true;
 }
 
+/**
+ * Convenção `meta: { label: 'a lista de cursos' }` — nome legível do que
+ * falhou, usado no toast global ("Não foi possível carregar a lista de
+ * cursos") em vez da mensagem genérica.
+ */
+function labelOf(
+  meta: Record<string, unknown> | undefined,
+): string | undefined {
+  return typeof meta?.label === 'string' ? meta.label : undefined;
+}
+
 /** Camadas de frescura (staleTime) em milissegundos. */
 export const STALE_TIME = {
   /** Quase imutável durante a sessão: roles, departamentos, catálogos. */
@@ -87,7 +98,9 @@ export function makeQueryClient(): QueryClient {
           source: `query:${String(query.queryKey[0] ?? '?')}`,
         });
         notify({
-          title: 'Erro ao carregar dados',
+          title: labelOf(query.meta)
+            ? `Não foi possível carregar ${labelOf(query.meta)}`
+            : 'Erro ao carregar dados',
           description: friendlyMessage(error),
           intent: 'danger',
         });
@@ -100,7 +113,9 @@ export function makeQueryClient(): QueryClient {
           source: `mutation:${mutation.options.mutationKey ? String(mutation.options.mutationKey[0]) : '?'}`,
         });
         notify({
-          title: 'Erro ao guardar',
+          title: labelOf(mutation.meta)
+            ? `Não foi possível guardar ${labelOf(mutation.meta)}`
+            : 'Erro ao guardar',
           description: friendlyMessage(error),
           intent: 'danger',
         });

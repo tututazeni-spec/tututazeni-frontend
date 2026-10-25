@@ -67,15 +67,15 @@ const DEGREE_ITEMS = Object.entries(ACADEMIC_LEVEL_LABEL).map(
 const CEFR_ITEMS = CEFR_LEVELS.map((l) => ({ value: l, label: l }));
 
 const card =
-  'overflow-hidden rounded-[18px] border border-[#D6E4F5] bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]';
+  'overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]';
 const cardHead =
-  'flex items-center justify-between gap-2.5 bg-[#0F1F3D]/60 px-5 py-3 text-white';
+  'flex items-center justify-between gap-2.5 bg-brand/60 px-5 py-3 text-white';
 const row =
-  'flex items-center justify-between gap-3 rounded-xl border border-[#D6E4F5] bg-[#E8F0FE]/50 px-3 py-2';
+  'flex items-center justify-between gap-3 rounded-card border border-brand-line bg-brand-soft/50 px-3 py-2';
 const trash =
-  'inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#0F1F3D]/60 hover:bg-white hover:text-[#DC2626] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50';
+  'inline-flex h-7 w-7 items-center justify-center rounded-control text-brand/60 hover:bg-white hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50';
 const headBtn =
-  'inline-flex h-8 items-center gap-1.5 rounded-lg bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60';
+  'inline-flex h-8 items-center gap-1.5 rounded-control bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60';
 
 export function QualificationsTab({ userId }: { userId: number }) {
   const notify = useToast();
@@ -210,17 +210,15 @@ export function QualificationsTab({ userId }: { userId: number }) {
         </div>
         <div className="space-y-1.5 p-5">
           {data.qualifications.length === 0 && adding !== 'qualification' && (
-            <p className="font-body text-xs text-[#0F1F3D]/50">
-              Sem habilitações registadas.
-            </p>
+            <EmptyState variant="inline" title="Sem habilitações registadas" />
           )}
           {data.qualifications.map((q) => (
             <div key={q.id} className={row}>
               <div className="min-w-0">
-                <div className="truncate font-body text-sm font-medium text-[#0F1F3D]">
+                <div className="truncate font-body text-sm font-medium text-brand">
                   {q.course}
                 </div>
-                <div className="font-body text-xs text-[#0F1F3D]/60">
+                <div className="font-body text-xs text-brand/60">
                   {ACADEMIC_LEVEL_LABEL[q.degree] ?? q.degree}
                   {q.institution ? ` · ${q.institution}` : ''}
                   {q.year ? ` · ${q.year}` : ''}
@@ -237,7 +235,7 @@ export function QualificationsTab({ userId }: { userId: number }) {
             </div>
           ))}
           {adding === 'qualification' && (
-            <div className="space-y-2 rounded-xl border border-[#D6E4F5] p-3">
+            <div className="space-y-2 rounded-card border border-brand-line p-3">
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <Select
                   items={DEGREE_ITEMS}
@@ -308,7 +306,7 @@ export function QualificationsTab({ userId }: { userId: number }) {
             className="w-32"
             aria-label="Anos de experiência anterior"
           />
-          <span className="font-body text-sm text-[#0F1F3D]/70">
+          <span className="font-body text-sm text-brand/70">
             anos antes de entrar na empresa
           </span>
           <Button
@@ -343,13 +341,11 @@ export function QualificationsTab({ userId }: { userId: number }) {
         </div>
         <div className="space-y-1.5 p-5">
           {data.languages.length === 0 && adding !== 'language' && (
-            <p className="font-body text-xs text-[#0F1F3D]/50">
-              Sem idiomas registados.
-            </p>
+            <EmptyState variant="inline" title="Sem idiomas registados" />
           )}
           {data.languages.map((l) => (
             <div key={l.id} className={row}>
-              <div className="font-body text-sm font-medium text-[#0F1F3D]">
+              <div className="font-body text-sm font-medium text-brand">
                 {l.language}
               </div>
               <div className="flex items-center gap-2">
@@ -366,7 +362,7 @@ export function QualificationsTab({ userId }: { userId: number }) {
             </div>
           ))}
           {adding === 'language' && (
-            <div className="space-y-2 rounded-xl border border-[#D6E4F5] p-3">
+            <div className="space-y-2 rounded-card border border-brand-line p-3">
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <Input
                   value={language}
@@ -420,17 +416,15 @@ export function QualificationsTab({ userId }: { userId: number }) {
         </div>
         <div className="space-y-1.5 p-5">
           {data.certifications.length === 0 && adding !== 'certification' && (
-            <p className="font-body text-xs text-[#0F1F3D]/50">
-              Sem certificações registadas.
-            </p>
+            <EmptyState variant="inline" title="Sem certificações registadas" />
           )}
           {data.certifications.map((c) => (
             <div key={c.id} className={row}>
               <div className="min-w-0">
-                <div className="truncate font-body text-sm font-medium text-[#0F1F3D]">
+                <div className="truncate font-body text-sm font-medium text-brand">
                   {c.name}
                 </div>
-                <div className="font-body text-xs text-[#0F1F3D]/60">
+                <div className="font-body text-xs text-brand/60">
                   {c.issuer ?? 'Entidade não indicada'}
                   {c.expiresAt
                     ? ` · válida até ${formatDate(c.expiresAt)}`
@@ -453,7 +447,7 @@ export function QualificationsTab({ userId }: { userId: number }) {
             </div>
           ))}
           {adding === 'certification' && (
-            <div className="space-y-2 rounded-xl border border-[#D6E4F5] p-3">
+            <div className="space-y-2 rounded-card border border-brand-line p-3">
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <Input
                   value={certName}

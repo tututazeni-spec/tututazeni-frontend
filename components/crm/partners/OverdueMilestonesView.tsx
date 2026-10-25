@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { ListSkeleton, ErrorBanner, formatDate } from '@/components/crm/shared';
 import type { OverdueMilestone } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface OverdueMilestonesViewProps {
   data: OverdueMilestone[];
@@ -30,7 +31,7 @@ export function OverdueMilestonesView({
       <Card>
         <div className="divide-y divide-border">
           {data.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">Sem marcos em atraso</p>
+            <EmptyState variant="inline" title="Sem marcos em atraso" />
           ) : (
             data.map((m) => (
               <Link

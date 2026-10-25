@@ -30,6 +30,7 @@ import {
 } from './constants';
 import { useDepartmentOptions } from './modelFormData';
 import type { CompetencyModelDetail } from './types';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export interface ModelFormModalProps {
   modelId?: number | null;
@@ -96,7 +97,7 @@ export function ModelFormModal({
         className="max-w-lg max-h-[90vh] overflow-y-auto"
       >
         {editing && (detail.isLoading || !detail.data) && !detail.error ? (
-          <p className="mt-5 font-body text-sm text-ink-muted">A carregar…</p>
+          <Skeleton rows={3} />
         ) : editing && detail.error ? (
           <div className="mt-5 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
             <AlertCircle size={16} strokeWidth={1.75} />

@@ -52,19 +52,19 @@ export function AutomationsTab({ rules, onExecute }: AutomationsTabProps) {
           return (
             <Card
               key={rule.id}
-              className="overflow-hidden rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+              className="overflow-hidden rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
             >
               <CardBody className="flex flex-wrap items-center gap-4 px-6 py-5">
                 <div className="min-w-0 flex-1">
                   <p
                     className={cn(
                       'font-body text-[15px] font-semibold',
-                      rule.isActive ? 'text-[#0F1F3D]' : 'text-[#49658A]',
+                      rule.isActive ? 'text-brand' : 'text-brand-muted',
                     )}
                   >
                     {rule.name}
                   </p>
-                  <p className="font-body text-xs text-[#49658A]">
+                  <p className="font-body text-xs text-brand-muted">
                     Gatilho:{' '}
                     {triggerLabel[rule.triggerType] ?? rule.triggerType}
                     {' · '}

@@ -67,7 +67,7 @@ export function Sidebar({
               />
               <span className="flex-1">{item.label}</span>
               {item.badge != null && item.badge > 0 && (
-                <Badge intent="warning" className="px-1.5 py-0 text-[10px]">
+                <Badge intent="warning" className="px-1.5 py-0 text-micro">
                   {item.badge}
                 </Badge>
               )}

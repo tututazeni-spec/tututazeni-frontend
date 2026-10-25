@@ -21,6 +21,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import type { CustomHoliday } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const NATIONAL = '__national__';
 
@@ -113,7 +114,9 @@ export function HolidaysPanel() {
   return (
     <div className="space-y-4">
       <Card className="overflow-hidden p-4 grid grid-cols-1 gap-3 md:grid-cols-[1fr_8rem] items-end">
-        <h3 className="col-span-full -mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Localização e ano</h3>
+        <h3 className="col-span-full -mx-4 -mt-4 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
+          Localização e ano
+        </h3>
         <FormField label="Localização" htmlFor="holiday-location">
           <Select
             items={locationItems}
@@ -139,7 +142,9 @@ export function HolidaysPanel() {
       </Card>
 
       <Card className="overflow-hidden p-4 space-y-3">
-        <h3 className="-mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Acrescentar feriado</h3>
+        <h3 className="-mx-4 -mt-4 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
+          Acrescentar feriado
+        </h3>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_11rem_auto_auto] items-end">
           <FormField label="Nome" htmlFor="holiday-name">
             <Input
@@ -161,11 +166,9 @@ export function HolidaysPanel() {
             />
           </FormField>
           <label className="flex items-center gap-2 pb-2 text-sm text-ink cursor-pointer">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={recurring}
               onChange={(e) => setRecurring(e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
             />
             Repete todos os anos
           </label>
@@ -186,7 +189,7 @@ export function HolidaysPanel() {
       </Card>
 
       <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
+        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
           Feriados em {year}
           {loc ? ` — ${loc}` : ''}
         </h3>
@@ -205,7 +208,7 @@ export function HolidaysPanel() {
                     {fmtDate(h.date)}
                   </span>
                   {h.source === 'CUSTOM' && (
-                    <span className="ml-2 rounded-control bg-info-subtle px-1.5 py-0.5 text-[11px] font-semibold text-info-ink">
+                    <span className="ml-2 rounded-control bg-info-subtle px-1.5 py-0.5 text-micro font-semibold text-info-ink">
                       Personalizado
                     </span>
                   )}
@@ -233,7 +236,7 @@ export function HolidaysPanel() {
 
       {customHere.length > 0 && (
         <Card className="overflow-hidden p-4">
-          <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
+          <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
             Configurados por si
           </h3>
           <ul className="divide-y divide-border">

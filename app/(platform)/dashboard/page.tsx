@@ -65,7 +65,10 @@ export default function DashboardPage() {
 
   // Nome do tenant definido em Definições → Visão Geral (aberto a qualquer
   // utilizador autenticado, ao contrário de /settings/organization).
-  const { data: branding } = useApiQuery<{ tenantName?: string; logoUrl?: string | null }>(
+  const { data: branding } = useApiQuery<{
+    tenantName?: string;
+    logoUrl?: string | null;
+  }>(
     queryKeys.settings.branding(),
     '/settings/branding',
     // Logo/nome mudam raramente e o payload pesa ~220 KB (data URL): 1h em cache;
@@ -94,17 +97,17 @@ export default function DashboardPage() {
               <img
                 src={tenantLogo}
                 alt=""
-                className="h-24 w-24 shrink-0 rounded-xl object-contain"
+                className="h-24 w-24 shrink-0 rounded-card object-contain"
               />
             )}
-            <p className="truncate font-display text-lg font-bold text-[#0F1F3D]">
+            <p className="truncate font-display text-lg font-bold text-brand">
               {tenantName}
             </p>
           </div>
         )}
-        <section className="overflow-hidden rounded-3xl bg-[#0F1F3D] text-white shadow-[0_12px_32px_rgba(15,31,61,0.25)]">
+        <section className="overflow-hidden rounded-panel bg-brand text-white shadow-[0_12px_32px_rgba(15,31,61,0.25)]">
           <div className="flex items-center gap-3 px-6 py-5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/20 text-white">
+            <div className="flex h-11 w-11 items-center justify-center rounded-panel bg-white/20 text-white">
               {ActiveIcon && (
                 <ActiveIcon
                   size={22}
@@ -126,7 +129,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="mx-6 mb-6 rounded-2xl bg-[#3B5280] p-3">
+          <div className="mx-6 mb-6 rounded-panel bg-[#3B5280] p-3">
             <Slideshow />
           </div>
         </section>
@@ -140,7 +143,7 @@ export default function DashboardPage() {
             um visto à direita. As manchas desfocadas atrás existem só
             para o efeito de vidro ser visível sobre o fundo claro. */}
         <div className="relative px-6 py-5">
-          <div className="relative mx-auto max-w-7xl rounded-3xl border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
+          <div className="relative mx-auto max-w-7xl rounded-panel border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
             <TabsList className="flex h-auto w-full flex-wrap items-center justify-center gap-2 border-b-0 bg-transparent p-0">
               {availableTabs.map((t) => {
                 const Icon = t.icon;
@@ -151,7 +154,7 @@ export default function DashboardPage() {
                     className="group flex h-auto items-center gap-3 whitespace-nowrap rounded-full border border-white/70 bg-white/60 py-2 pl-2 pr-4 text-left font-body text-ink shadow-sm backdrop-blur transition-all duration-200
                                hover:scale-105 hover:bg-white/80 hover:shadow-md data-[state=inactive]:hover:border-primary motion-reduce:hover:scale-100
                                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40
-                               data-[state=active]:border-transparent data-[state=active]:bg-[#0F1F3D] data-[state=active]:text-white data-[state=active]:shadow-lg"
+                               data-[state=active]:border-transparent data-[state=active]:bg-brand data-[state=active]:text-white data-[state=active]:shadow-lg"
                   >
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/70 text-ink/70 group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
                       <Icon size={16} strokeWidth={1.75} />

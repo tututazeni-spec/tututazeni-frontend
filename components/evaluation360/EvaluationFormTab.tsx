@@ -126,7 +126,7 @@ export function EvaluationFormTab({
       </div>
 
       {/* Progress */}
-      <div className="rounded-lg border border-border bg-surface p-4">
+      <div className="rounded-control border border-border bg-surface p-4">
         <div className="flex justify-between mb-2">
           <span className="text-sm text-ink-muted">Progresso</span>
           <span className="text-sm font-bold text-primary">
@@ -152,7 +152,7 @@ export function EvaluationFormTab({
         return (
           <div
             key={q.id}
-            className="rounded-lg border bg-surface p-5 transition-colors"
+            className="rounded-control border bg-surface p-5 transition-colors"
             style={{
               borderColor:
                 val !== undefined
@@ -193,7 +193,7 @@ export function EvaluationFormTab({
                     onClick={() =>
                       setAnswers((prev) => ({ ...prev, [q.id]: v }))
                     }
-                    className="flex-1 min-w-20 px-1.5 py-2.5 rounded-lg cursor-pointer flex flex-col items-center gap-1 transition-all border"
+                    className="flex-1 min-w-20 px-1.5 py-2.5 rounded-control cursor-pointer flex flex-col items-center gap-1 transition-all border"
                     style={{
                       background: isSelected
                         ? 'rgb(79, 70, 229)'
@@ -238,7 +238,7 @@ export function EvaluationFormTab({
       ).map((q) => (
         <div
           key={q.id}
-          className="rounded-lg border border-border bg-surface p-5"
+          className="rounded-control border border-border bg-surface p-5"
         >
           <p className="m-0 mb-3 text-sm text-ink leading-relaxed">{q.text}</p>
           <Textarea

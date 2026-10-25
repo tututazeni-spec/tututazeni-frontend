@@ -39,7 +39,7 @@ export function DashboardView() {
       <Skeleton
         rows={3}
         wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
-        itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
+        itemClassName="skeleton-shimmer h-[155px] rounded-panel"
       />
     );
 

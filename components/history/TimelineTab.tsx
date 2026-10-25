@@ -143,7 +143,7 @@ export function TimelineTab({ userId }: { userId?: number }) {
                   {monthLabel(group.month)}
                 </h3>
                 <div className="flex-1 h-px bg-border" />
-                <span className="text-[10px] text-ink-faint">
+                <span className="text-micro text-ink-faint">
                   {group.items.length} eventos
                 </span>
               </div>

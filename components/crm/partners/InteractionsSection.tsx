@@ -14,6 +14,7 @@ import { formatDate } from '@/components/crm/shared';
 import { useCreatePartnerInteraction } from '@/hooks/usePartnerActions';
 import { useFormState } from '@/hooks/useFormState';
 import type { InteractionForm, PartnerDetail } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const EMPTY_FORM: InteractionForm = {
   type: 'MEETING',
@@ -120,9 +121,7 @@ export function InteractionsSection({
       <Card>
         <div className="divide-y divide-border">
           {interactions.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">
-              Sem interacções registadas
-            </p>
+            <EmptyState variant="inline" title="Sem interacções registadas" />
           ) : (
             interactions.map((it) => (
               <div key={it.id} className="p-4">

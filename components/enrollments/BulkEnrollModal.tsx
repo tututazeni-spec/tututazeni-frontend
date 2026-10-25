@@ -13,7 +13,7 @@ import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -26,6 +26,8 @@ import {
   useDirectoryUsers,
   type DirectoryUser,
 } from './enrollData';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface BulkEnrollModalProps {
   onClose: () => void;
@@ -211,14 +213,14 @@ export function BulkEnrollModal({
                         className="inline-flex items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-xs text-ink"
                       >
                         {u.fullName}
-                        <button
+                        <IconButton
+                          icon={X}
+                          label={`Remover ${u.fullName}`}
+                          intent="ghost"
+                          size="xs"
                           type="button"
-                          aria-label={`Remover ${u.fullName}`}
                           onClick={() => toggle(u)}
-                          className="text-ink-muted hover:text-ink"
-                        >
-                          <X size={12} strokeWidth={2} />
-                        </button>
+                        />
                       </span>
                     ))}
                   </div>
@@ -230,25 +232,24 @@ export function BulkEnrollModal({
                   <div className="p-3">
                     <Skeleton
                       rows={4}
-                      wrapperClassName="space-y-2 animate-pulse"
+                      wrapperClassName="space-y-2"
                       itemClassName="h-10 rounded-card bg-surface-sunken"
                     />
                   </div>
                 ) : users.length === 0 ? (
-                  <div className="px-3 py-8 text-center text-sm text-ink-faint">
-                    Nenhum colaborador encontrado
-                  </div>
+                  <EmptyState
+                    variant="inline"
+                    title="Nenhum colaborador encontrado"
+                  />
                 ) : (
                   users.map((u) => (
                     <label
                       key={u.id}
                       className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-surface-sunken"
                     >
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={selected.has(u.id)}
                         onChange={() => toggle(u)}
-                        className="h-4 w-4 rounded border-border-strong accent-primary"
                       />
                       <Avatar
                         name={u.fullName}
@@ -279,11 +280,9 @@ export function BulkEnrollModal({
                   />
                 </FormField>
                 <label className="flex items-end gap-2 pb-2.5 text-sm text-ink-muted">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={mandatory}
                     onChange={(e) => setMandatory(e.target.checked)}
-                    className="h-4 w-4 rounded border-border-strong accent-primary"
                   />
                   Matrícula obrigatória
                 </label>

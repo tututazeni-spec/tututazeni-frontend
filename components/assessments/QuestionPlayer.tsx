@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { Card } from '@/components/ui/Card';
 import { parseOptions } from './utils';
 import type { AttemptAnswer, Question } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface QuestionPlayerProps {
   question: Question;
@@ -144,11 +145,9 @@ export function QuestionPlayer({
                     : 'border-border hover:border-border-strong hover:bg-surface-sunken'
                 }`}
               >
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={!!selected}
                   onChange={() => handleMultiChoice(idx)}
-                  className="w-4 h-4 text-primary rounded accent-primary focus:ring-accent"
                 />
                 <span
                   className={`text-sm ${selected ? 'font-medium text-primary' : 'text-ink-muted'}`}

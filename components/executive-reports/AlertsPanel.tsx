@@ -231,9 +231,7 @@ function AlertRow({ alert }: { alert: ExecutiveAlert }) {
         <div className="mb-1 font-body text-xs font-medium text-ink">
           Histórico
         </div>
-        {detail.isLoading && (
-          <p className="font-body text-xs text-ink-faint">A carregar…</p>
-        )}
+        {detail.isLoading && <Skeleton rows={3} />}
         <ul className="space-y-1">
           {(detail.data?.events ?? []).map((ev) => (
             <li key={ev.id} className="font-body text-xs text-ink-muted">
@@ -252,7 +250,7 @@ function AlertRow({ alert }: { alert: ExecutiveAlert }) {
     const pct = percentFromDescription(alert.description);
     const color = SEVERITY_COLOR[alert.severity];
     return (
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
@@ -311,7 +309,10 @@ function AlertRow({ alert }: { alert: ExecutiveAlert }) {
             </div>
           </div>
           <div className="mt-3 flex items-center gap-3 rounded-card bg-white/10 px-4 py-2 font-body text-sm">
-            <Info className="h-5 w-5 shrink-0 text-[#7CC4FF]" aria-hidden />
+            <Info
+              className="h-5 w-5 shrink-0 text-on-brand-accent"
+              aria-hidden
+            />
             <span>
               {alert.description} · Detectado em {day(alert.detectedAt)} ·
               Responsável: {alert.owner?.fullName ?? 'Por atribuir'}
@@ -494,7 +495,7 @@ export function AlertsPanel() {
     return (
       <Skeleton
         rows={2}
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="h-20 rounded-card bg-surface-sunken"
       />
     );
@@ -558,7 +559,7 @@ export function AlertsPanel() {
 
       {isFull && rulesQ.data && (
         <Card className="overflow-hidden">
-          <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
+          <div className="bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
             Regras e limiares
           </div>
           <div className="p-4">

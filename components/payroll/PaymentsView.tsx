@@ -166,9 +166,9 @@ export function PaymentsView() {
       )}
 
       {!error && (
-        <div className="overflow-hidden rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-hidden rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
           <table className="w-full text-left font-body text-xs">
-            <thead className="bg-[#0B2D5B]">
+            <thead className="bg-brand-dark">
               <tr>
                 <th className={TH}>Período</th>
                 <th className={TH}>Banco</th>
@@ -192,20 +192,20 @@ export function PaymentsView() {
                   <td className={`${TD} font-body`}>
                     {fmtPeriodNumeric(p.period)}
                   </td>
-                  <td className={`${TD} text-[#CFE3FF]`}>
+                  <td className={`${TD} text-on-brand`}>
                     {p.bankName ?? '—'}
                   </td>
-                  <td className={`${TD} text-[#CFE3FF]`}>
+                  <td className={`${TD} text-on-brand`}>
                     {p.paymentAccount ?? '—'}
                   </td>
                   <td className={TD}>{p.employeeCount}</td>
                   <td className={`${TD} text-right font-body`}>
                     {fmtKz(p.totalAmount)}
                   </td>
-                  <td className={`${TD} text-[#CFE3FF]`}>
+                  <td className={`${TD} text-on-brand`}>
                     {p.expectedDate ? fmtDate(p.expectedDate) : '—'}
                   </td>
-                  <td className={`${TD} text-[#CFE3FF]`}>
+                  <td className={`${TD} text-on-brand`}>
                     {p.effectiveDate ? fmtDate(p.effectiveDate) : '—'}
                   </td>
                   <td className={TD}>
@@ -220,10 +220,10 @@ export function PaymentsView() {
                       </div>
                     )}
                   </td>
-                  <td className={`${TD} font-body text-xs text-[#CFE3FF]`}>
+                  <td className={`${TD} font-body text-xs text-on-brand`}>
                     {p.reference ?? '—'}
                   </td>
-                  <td className={`${TD} text-[#CFE3FF]`}>
+                  <td className={`${TD} text-on-brand`}>
                     {p.responsibleName ?? '—'}
                   </td>
                   <td className={TD}>

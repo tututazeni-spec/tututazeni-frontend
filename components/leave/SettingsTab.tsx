@@ -291,7 +291,7 @@ function SettingsForm({ overview, section }: SettingsFormProps) {
 
       {dirty && (
         <Card className="sticky bottom-4 z-10 space-y-3 overflow-hidden border-primary p-4 shadow-elevated">
-          <div className="-mx-4 -mt-4 flex flex-wrap items-center justify-between gap-2 bg-[#0F1F3D]/60 px-4 py-3">
+          <div className="-mx-4 -mt-4 flex flex-wrap items-center justify-between gap-2 bg-brand/60 px-4 py-3">
             <p className="text-sm font-semibold text-white">
               {changedKeys.length} alteraç
               {changedKeys.length === 1 ? 'ão' : 'ões'} por guardar

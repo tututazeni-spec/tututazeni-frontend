@@ -28,7 +28,7 @@ export function HistoryTab() {
     return (
       <Skeleton
         rows={4}
-        itemClassName="h-14 rounded-card bg-surface-sunken animate-pulse"
+        itemClassName="h-14 rounded-card bg-surface-sunken"
       />
     );
   if (data.length === 0)

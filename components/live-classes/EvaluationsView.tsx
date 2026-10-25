@@ -68,7 +68,7 @@ export function EvaluationsView() {
         <Skeleton
           rows={6}
           wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-4"
-          itemClassName="skeleton-shimmer h-[155px] rounded-2xl"
+          itemClassName="skeleton-shimmer h-[155px] rounded-panel"
         />
       ) : (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

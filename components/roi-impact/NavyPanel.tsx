@@ -9,7 +9,7 @@ import { cn } from '@/lib/cn';
 
 /** Variantes de cor do painel (a omissa é o navy das conclusões). */
 export const NAVY_PANEL_VARIANTS = [
-  'from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57]',
+  'from-brand via-brand-mid to-brand-dark',
   'from-[#14532D] via-[#15803D] to-[#166534]',
   'from-[#7C2D12] via-[#C2410C] to-[#9A3412]',
   'from-[#4C1D95] via-[#6D28D9] to-[#5B21B6]',
@@ -19,7 +19,7 @@ export const NAVY_PANEL_VARIANTS = [
 
 /** Mesmas cores com 35% menos opacidade (cartões de análise). */
 export const NAVY_PANEL_VARIANTS_SOFT = [
-  'from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65',
+  'from-brand/65 via-brand-mid/65 to-brand-dark/65',
   'from-[#14532D]/65 via-[#15803D]/65 to-[#166534]/65',
   'from-[#7C2D12]/65 via-[#C2410C]/65 to-[#9A3412]/65',
   'from-[#4C1D95]/65 via-[#6D28D9]/65 to-[#5B21B6]/65',
@@ -70,7 +70,7 @@ export function NavyPanel({
               />
             </span>
           ) : (
-            <Icon className="h-6 w-6 text-[#7CC4FF]" aria-hidden />
+            <Icon className="h-6 w-6 text-on-brand-accent" aria-hidden />
           )}
           <h4 className="font-display text-base font-bold">{title}</h4>
         </div>
@@ -92,7 +92,7 @@ export interface NavyPanelRowProps {
 /** Linha em cartão translúcido dentro do NavyPanel. */
 export function NavyPanelRow({
   icon: Icon,
-  iconClassName = 'text-[#7CC4FF]',
+  iconClassName = 'text-on-brand-accent',
   iconBadge,
   children,
 }: NavyPanelRowProps) {

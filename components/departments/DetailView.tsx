@@ -43,6 +43,7 @@ import { CreateDepartmentModal } from './CreateDepartmentModal';
 import { departmentIcon } from './departmentIcon';
 import { HeadcountCard } from './HeadcountCard';
 import type { Department, HeadHistoryEntry, Member, Metrics } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface DetailViewProps {
   deptId: number;
@@ -302,7 +303,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       <div>
         <Skeleton
           rows={6}
-          wrapperClassName="space-y-2 animate-pulse"
+          wrapperClassName="space-y-2"
           itemClassName="h-14 rounded-card bg-surface-sunken"
         />
       </div>
@@ -333,7 +334,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
       <Card className="mb-5 p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-4">
-            <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
+            <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
               <HeaderIcon
                 name={dept.name}
                 hasChildren={dept._count.children > 0}
@@ -409,7 +410,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             variant="warning"
             title="Atenção"
             message="Departamento sem gestor definido"
-            className="mt-4 [&_p]:text-[#0F1F3D]"
+            className="mt-4 [&_p]:text-brand"
           />
         )}
       </Card>
@@ -434,9 +435,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             type="button"
             onClick={() => setActiveTab(t.id)}
             className={`rounded-control px-3 py-1.5 text-sm font-medium text-white transition-colors ${
-              activeTab === t.id
-                ? 'bg-[#0F1F3D]'
-                : 'bg-[#0F1F3D]/60 hover:bg-[#0F1F3D]/80'
+              activeTab === t.id ? 'bg-brand' : 'bg-brand/60 hover:bg-brand/80'
             }`}
           >
             {t.label}
@@ -449,7 +448,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
         <div>
           {/* Add member form */}
           <Card className="mb-4 border-success bg-success-subtle p-4">
-            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Adicionar colaborador ao departamento
             </div>
             <div className="flex flex-wrap gap-3">
@@ -484,7 +483,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
 
           {/* Transfer form */}
           <Card className="mb-4 border-info bg-info-subtle p-4">
-            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Transferir colaborador
             </div>
             <div className="flex flex-wrap gap-3">
@@ -533,13 +532,13 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           <Table>
             <TableHead>
               <TableRow>
-                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">
+                <TableHeaderCell className="bg-brand/60 text-white">
                   Colaborador
                 </TableHeaderCell>
-                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">
+                <TableHeaderCell className="bg-brand/60 text-white">
                   Cargo
                 </TableHeaderCell>
-                <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">
+                <TableHeaderCell className="bg-brand/60 text-white">
                   Estado
                 </TableHeaderCell>
               </TableRow>
@@ -606,9 +605,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             />
           )}
           {dept.children.length === 0 ? (
-            <div className="rounded-card border border-dashed border-border-strong py-8 text-center text-sm text-ink-faint">
-              Sem sub-departamentos
-            </div>
+            <EmptyState variant="inline" title="Sem sub-departamentos" />
           ) : (
             dept.children.map((child) => (
               <Card key={child.id} className="flex items-center gap-3 p-4">
@@ -676,7 +673,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
             />
           </div>
           <Card className="p-4">
-            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+            <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Hierarquia organizacional
             </div>
             <Breadcrumb items={metrics.breadcrumb} />
@@ -689,13 +686,13 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">
+              <TableHeaderCell className="bg-brand/60 text-white">
                 Gestor
               </TableHeaderCell>
-              <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">
+              <TableHeaderCell className="bg-brand/60 text-white">
                 Início
               </TableHeaderCell>
-              <TableHeaderCell className="bg-[#0F1F3D]/60 text-white">
+              <TableHeaderCell className="bg-brand/60 text-white">
                 Fim
               </TableHeaderCell>
             </TableRow>

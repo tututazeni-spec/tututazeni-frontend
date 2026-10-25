@@ -15,12 +15,13 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { EQUIPMENT_CFG, LOGISTICS_STATUS_CFG } from './constants';
 import type { EventLogistics } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const VIEW_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 
 function Pill({ children }: { children: string }) {
   return (
-    <span className="rounded-full bg-[#EEF4FD] px-2.5 py-1 font-body text-xs font-medium text-[#0F1F3D]">
+    <span className="rounded-full bg-brand-soft px-2.5 py-1 font-body text-xs font-medium text-brand">
       {children}
     </span>
   );
@@ -47,10 +48,10 @@ export function LogisticsSummaryCard({ eventId }: { eventId: number }) {
     .filter(Boolean);
 
   return (
-    <Card className="mt-4 rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+    <Card className="mt-4 rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
       <CardBody>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <div className="font-body text-base font-semibold text-[#0F1F3D]">
+          <div className="font-body text-base font-semibold text-brand">
             Equipamentos e recursos
           </div>
           <StatusBadge
@@ -61,14 +62,15 @@ export function LogisticsSummaryCard({ eventId }: { eventId: number }) {
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <div className="mb-2 flex items-center gap-1.5 font-body text-xs font-semibold text-[#49658A]">
+            <div className="mb-2 flex items-center gap-1.5 font-body text-xs font-semibold text-brand-muted">
               <Boxes size={14} strokeWidth={1.75} />
               Equipamentos ({equipment.length})
             </div>
             {equipment.length === 0 ? (
-              <div className="font-body text-xs text-[#49658A]">
-                Nenhum equipamento guardado
-              </div>
+              <EmptyState
+                variant="inline"
+                title="Nenhum equipamento guardado"
+              />
             ) : (
               <div className="flex flex-wrap gap-2">
                 {equipment.map((e) => (
@@ -78,14 +80,12 @@ export function LogisticsSummaryCard({ eventId }: { eventId: number }) {
             )}
           </div>
           <div>
-            <div className="mb-2 flex items-center gap-1.5 font-body text-xs font-semibold text-[#49658A]">
+            <div className="mb-2 flex items-center gap-1.5 font-body text-xs font-semibold text-brand-muted">
               <ClipboardList size={14} strokeWidth={1.75} />
               Recursos necessários ({resources.length})
             </div>
             {resources.length === 0 ? (
-              <div className="font-body text-xs text-[#49658A]">
-                Nenhum recurso guardado
-              </div>
+              <EmptyState variant="inline" title="Nenhum recurso guardado" />
             ) : (
               <div className="flex flex-wrap gap-2">
                 {resources.map((r) => (

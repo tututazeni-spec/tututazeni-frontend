@@ -39,7 +39,10 @@ import {
   weekDays,
 } from './calendarUtils';
 import { downloadCsv } from './downloadCsv';
-import { CAN_PICK_EMPLOYEE_ABSENCE, useEmployeeOptions } from './useEmployeeOptions';
+import {
+  CAN_PICK_EMPLOYEE_ABSENCE,
+  useEmployeeOptions,
+} from './useEmployeeOptions';
 import type {
   AbsenceCalendarData,
   CalendarEntry,
@@ -47,6 +50,7 @@ import type {
   CsvExport,
   LeaveType,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const ALL = 'ALL';
 const VIEWS: Array<{ value: CalendarView; label: string }> = [
@@ -56,12 +60,20 @@ const VIEWS: Array<{ value: CalendarView; label: string }> = [
   { value: 'year', label: 'Ano' },
 ];
 
-function Chip({ entry, compact = false }: { entry: CalendarEntry; compact?: boolean }) {
+function Chip({
+  entry,
+  compact = false,
+}: {
+  entry: CalendarEntry;
+  compact?: boolean;
+}) {
   const hours = entry.partial && entry.startTime && entry.endTime;
   return (
     <div
       className="truncate rounded-control bg-surface-sunken px-1.5 py-0.5 text-xs text-ink"
-      style={{ borderLeft: `3px solid ${entry.color ?? 'var(--color-primary, #1d4ed8)'}` }}
+      style={{
+        borderLeft: `3px solid ${entry.color ?? 'var(--color-primary, #1d4ed8)'}`,
+      }}
       title={`${entry.userName} — ${entry.typeName}${hours ? ` (${entry.startTime}–${entry.endTime})` : ''}`}
     >
       {compact ? entry.userName : `${entry.userName} · ${entry.typeName}`}
@@ -85,18 +97,39 @@ function dayFlags(data: AbsenceCalendarData, day: string) {
   };
 }
 
-function DayHeader({ day, flags }: { day: string; flags: ReturnType<typeof dayFlags> }) {
+function DayHeader({
+  day,
+  flags,
+}: {
+  day: string;
+  flags: ReturnType<typeof dayFlags>;
+}) {
   return (
     <div className="flex items-center justify-between text-xs">
-      <span className={cn('font-semibold', flags.holiday ? 'text-danger-ink' : 'text-ink')}>
+      <span
+        className={cn(
+          'font-semibold',
+          flags.holiday ? 'text-danger-ink' : 'text-ink',
+        )}
+      >
         {Number(day.slice(8))}
       </span>
       <span className="flex items-center gap-1">
         {flags.overlap && (
-          <Users size={11} strokeWidth={1.75} aria-label="Sobreposição" className="text-warning-ink" />
+          <Users
+            size={11}
+            strokeWidth={1.75}
+            aria-label="Sobreposição"
+            className="text-warning-ink"
+          />
         )}
         {flags.low && (
-          <AlertTriangle size={11} strokeWidth={1.75} aria-label="Cobertura insuficiente" className="text-danger-ink" />
+          <AlertTriangle
+            size={11}
+            strokeWidth={1.75}
+            aria-label="Cobertura insuficiente"
+            className="text-danger-ink"
+          />
         )}
       </span>
     </div>
@@ -115,7 +148,13 @@ function MonthGrid({ data, anchor, onPickDay }: GridProps) {
         </div>
       ))}
       {weeks.flat().map((day, i) => {
-        if (!day) return <div key={`b${i}`} className="min-h-24 rounded-control bg-surface-sunken/40" />;
+        if (!day)
+          return (
+            <div
+              key={`b${i}`}
+              className="min-h-24 rounded-control bg-surface-sunken/40"
+            />
+          );
         const list = entriesOn(data.entries, day);
         const flags = dayFlags(data, day);
         return (
@@ -132,13 +171,17 @@ function MonthGrid({ data, anchor, onPickDay }: GridProps) {
           >
             <DayHeader day={day} flags={flags} />
             {flags.holiday && (
-              <p className="truncate text-[10px] text-danger-ink">{flags.holiday}</p>
+              <p className="truncate text-micro text-danger-ink">
+                {flags.holiday}
+              </p>
             )}
             {list.slice(0, 3).map((e) => (
               <Chip key={e.id} entry={e} compact />
             ))}
             {list.length > 3 && (
-              <p className="text-[10px] text-ink-faint">+{list.length - 3} mais</p>
+              <p className="text-micro text-ink-faint">
+                +{list.length - 3} mais
+              </p>
             )}
           </button>
         );
@@ -171,9 +214,11 @@ function WeekGrid({ data, anchor, onPickDay }: GridProps) {
               {WEEKDAY_SHORT[i]} {formatDate(day)}
             </button>
             <DayHeader day={day} flags={flags} />
-            {flags.holiday && <p className="text-[10px] text-danger-ink">{flags.holiday}</p>}
+            {flags.holiday && (
+              <p className="text-micro text-danger-ink">{flags.holiday}</p>
+            )}
             {list.length === 0 ? (
-              <p className="text-[10px] text-ink-faint">Sem ausências</p>
+              <EmptyState variant="inline" title="Sem ausências" />
             ) : (
               list.map((e) => <Chip key={e.id} entry={e} />)
             )}
@@ -184,22 +229,35 @@ function WeekGrid({ data, anchor, onPickDay }: GridProps) {
   );
 }
 
-function DayList({ data, anchor }: { data: AbsenceCalendarData; anchor: string }) {
+function DayList({
+  data,
+  anchor,
+}: {
+  data: AbsenceCalendarData;
+  anchor: string;
+}) {
   const list = entriesOn(data.entries, anchor);
   const flags = dayFlags(data, anchor);
   return (
     <div className="space-y-2">
-      {flags.holiday && <p className="text-sm text-danger-ink">Feriado: {flags.holiday}</p>}
+      {flags.holiday && (
+        <p className="text-sm text-danger-ink">Feriado: {flags.holiday}</p>
+      )}
       {list.length === 0 ? (
-        <p className="py-8 text-center text-sm text-ink-faint">Sem ausências neste dia.</p>
+        <EmptyState variant="inline" title="Sem ausências neste dia" />
       ) : (
         <ul className="space-y-1.5">
           {list.map((e) => (
-            <li key={e.id} className="flex items-center gap-3 rounded-control border border-border bg-surface p-2 text-sm">
+            <li
+              key={e.id}
+              className="flex items-center gap-3 rounded-control border border-border bg-surface p-2 text-sm"
+            >
               <span
                 aria-hidden
                 className="h-8 w-1 rounded-full"
-                style={{ backgroundColor: e.color ?? 'var(--color-primary, #1d4ed8)' }}
+                style={{
+                  backgroundColor: e.color ?? 'var(--color-primary, #1d4ed8)',
+                }}
               />
               <div className="flex-1">
                 <p className="font-medium text-ink">{e.userName}</p>
@@ -243,7 +301,7 @@ function YearGrid({ data, anchor, onPickDay }: GridProps) {
                     onClick={() => onPickDay(day)}
                     title={`${formatDate(day)} — ${absent} ausente(s)${flags.holiday ? ` · ${flags.holiday}` : ''}`}
                     className={cn(
-                      'h-6 rounded-sm text-[10px] transition-colors',
+                      'h-6 rounded-sm text-micro transition-colors',
                       absent === 0
                         ? 'bg-surface-sunken text-ink-faint'
                         : absent === 1
@@ -309,7 +367,9 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-ink">Calendário de Ausências</h2>
+          <h2 className="text-sm font-semibold text-ink">
+            Calendário de Ausências
+          </h2>
           <p className="text-xs text-ink-faint">
             Férias, licenças e ausências validadas. O motivo nunca é mostrado;
             fora do RH, só aparece «Férias» ou «Indisponível».
@@ -332,13 +392,18 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
       </div>
 
       <Card className="overflow-hidden p-4 print:hidden">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
+        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
+          Filtros
+        </h3>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
           <Select
             className="w-full"
             value={filters.departmentId || ALL}
             onValueChange={(v) => set({ departmentId: pick(v) })}
-            items={[{ value: ALL, label: 'Todos os departamentos' }, ...departments.options]}
+            items={[
+              { value: ALL, label: 'Todos os departamentos' },
+              ...departments.options,
+            ]}
           />
           {isReviewer && (
             <>
@@ -352,7 +417,10 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
                 className="w-full"
                 value={filters.userId || ALL}
                 onValueChange={(v) => set({ userId: pick(v) })}
-                items={[{ value: ALL, label: 'Todos os colaboradores' }, ...people]}
+                items={[
+                  { value: ALL, label: 'Todos os colaboradores' },
+                  ...people,
+                ]}
               />
             </>
           )}
@@ -374,7 +442,9 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
             icon={ChevronLeft}
             label="Período anterior"
             intent="ghost"
-            onClick={() => set({ date: shiftAnchor(filters.view, filters.date, -1) })}
+            onClick={() =>
+              set({ date: shiftAnchor(filters.view, filters.date, -1) })
+            }
           />
           <Button intent="ghost" onClick={() => set({ date: todayKey() })}>
             Hoje
@@ -383,7 +453,9 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
             icon={ChevronRight}
             label="Período seguinte"
             intent="ghost"
-            onClick={() => set({ date: shiftAnchor(filters.view, filters.date, 1) })}
+            onClick={() =>
+              set({ date: shiftAnchor(filters.view, filters.date, 1) })
+            }
           />
           <span className="ml-2 text-sm font-semibold text-ink">
             {periodLabel(filters.view, filters.date)}
@@ -411,7 +483,7 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
       {loading && !data ? (
         <Skeleton
           rows={5}
-          wrapperClassName="space-y-2 animate-pulse"
+          wrapperClassName="space-y-2"
           itemClassName="h-16 bg-surface-sunken rounded-control"
         />
       ) : data ? (
@@ -422,7 +494,9 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
           {filters.view === 'week' && (
             <WeekGrid data={data} anchor={filters.date} onPickDay={goTo} />
           )}
-          {filters.view === 'day' && <DayList data={data} anchor={filters.date} />}
+          {filters.view === 'day' && (
+            <DayList data={data} anchor={filters.date} />
+          )}
           {filters.view === 'year' && (
             <YearGrid data={data} anchor={filters.date} onPickDay={goTo} />
           )}
@@ -434,7 +508,9 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
                   <span
                     aria-hidden
                     className="inline-block h-2.5 w-2.5 rounded-full"
-                    style={{ backgroundColor: color ?? 'var(--color-primary, #1d4ed8)' }}
+                    style={{
+                      backgroundColor: color ?? 'var(--color-primary, #1d4ed8)',
+                    }}
                   />
                   {name}
                 </li>
@@ -446,16 +522,19 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
             <div className="grid gap-4 md:grid-cols-2">
               {data.alerts.length > 0 && (
                 <Card className="overflow-hidden p-4">
-                  <h3 className="-mx-4 -mt-4 mb-3 flex items-center gap-2 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
+                  <h3 className="-mx-4 -mt-4 mb-3 flex items-center gap-2 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
                     <AlertTriangle size={14} strokeWidth={1.75} />
                     Cobertura insuficiente
                   </h3>
                   <ul className="space-y-1 text-sm text-ink-muted">
                     {data.alerts.slice(0, 15).map((a, i) => (
                       <li key={`${a.date}-${a.departmentId}-${i}`}>
-                        {formatDate(a.date)} · {a.department ?? 'Sem departamento'}:{' '}
-                        {a.absent} de {a.headcount} ausentes — disponibilidade{' '}
-                        <strong className="text-ink">{a.availabilityPercent}%</strong>{' '}
+                        {formatDate(a.date)} ·{' '}
+                        {a.department ?? 'Sem departamento'}: {a.absent} de{' '}
+                        {a.headcount} ausentes — disponibilidade{' '}
+                        <strong className="text-ink">
+                          {a.availabilityPercent}%
+                        </strong>{' '}
                         (mínimo {a.minAvailabilityPercent}%)
                       </li>
                     ))}
@@ -469,15 +548,18 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
               )}
               {data.overlaps.length > 0 && (
                 <Card className="overflow-hidden p-4">
-                  <h3 className="-mx-4 -mt-4 mb-3 flex items-center gap-2 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
+                  <h3 className="-mx-4 -mt-4 mb-3 flex items-center gap-2 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
                     <Users size={14} strokeWidth={1.75} />
                     Sobreposição de ausências
                   </h3>
                   <ul className="space-y-1 text-sm text-ink-muted">
                     {data.overlaps.slice(0, 15).map((o, i) => (
                       <li key={`${o.date}-${o.departmentId}-${i}`}>
-                        {formatDate(o.date)} · {o.department ?? 'Sem departamento'}:{' '}
-                        {o.userIds.map((id) => nameById.get(id) ?? `#${id}`).join(', ')}
+                        {formatDate(o.date)} ·{' '}
+                        {o.department ?? 'Sem departamento'}:{' '}
+                        {o.userIds
+                          .map((id) => nameById.get(id) ?? `#${id}`)
+                          .join(', ')}
                       </li>
                     ))}
                   </ul>

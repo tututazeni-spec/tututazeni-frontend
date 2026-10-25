@@ -28,7 +28,7 @@ function gradientFor(name: string): (typeof GRADIENTS)[number] {
 }
 
 const SIZE_CLASSES = {
-  sm: 'h-7 w-7 text-[10px]',
+  sm: 'h-7 w-7 text-micro',
   md: 'h-9 w-9 text-xs',
   lg: 'h-12 w-12 text-sm',
 } as const;

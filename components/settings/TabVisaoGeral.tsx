@@ -16,6 +16,7 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import type { OrganizationSettings } from './types';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 type Form = Omit<OrganizationSettings, 'id' | 'tenantCode'>;
 
@@ -146,10 +147,7 @@ export function TabVisaoGeral() {
     },
   );
 
-  if (isLoading || !form)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !form) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
@@ -182,7 +180,7 @@ export function TabVisaoGeral() {
   return (
     <form onSubmit={submit} className="grid grid-cols-2 gap-4">
       <Card className="col-span-2 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Identidade
         </div>
         <CardBody>
@@ -245,7 +243,7 @@ export function TabVisaoGeral() {
       </Card>
 
       <Card className="col-span-2 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Dados da empresa e contactos
         </div>
         <CardBody>
@@ -314,7 +312,7 @@ export function TabVisaoGeral() {
       </Card>
 
       <Card className="col-span-2 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Formatos regionais
         </div>
         <CardBody>
@@ -379,7 +377,7 @@ export function TabVisaoGeral() {
       </Card>
 
       <Card className="col-span-2 overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Formato de email dos utilizadores
         </div>
         <CardBody>

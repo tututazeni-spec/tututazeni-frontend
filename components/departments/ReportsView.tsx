@@ -21,6 +21,7 @@ import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentNode, ReportsData } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 function flattenTree(
   nodes: DepartmentNode[],
@@ -62,11 +63,11 @@ function BarList({
   const max = Math.max(1, ...items.map((i) => i.count));
   return (
     <Card className="overflow-hidden">
-      <div className="bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       {items.length === 0 ? (
-        <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+        <EmptyState variant="inline" title="Sem dados" />
       ) : (
         <div className="space-y-2 p-4">
           {items.slice(0, 10).map((item, i) => (
@@ -280,11 +281,11 @@ export function ReportsView() {
 
           {/* Headcount por departamento: previsto vs. actual */}
           <Card className="overflow-hidden">
-            <div className="bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+            <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
               Número de colaboradores previsto vs. actual, por departamento
             </div>
             {data.headcountByDepartment.length === 0 ? (
-              <p className="p-4 text-xs text-ink-faint">Sem dados</p>
+              <EmptyState variant="inline" title="Sem dados" />
             ) : (
               data.headcountByDepartment.map((d) => (
                 <div

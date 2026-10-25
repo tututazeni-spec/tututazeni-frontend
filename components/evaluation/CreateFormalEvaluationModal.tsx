@@ -13,7 +13,7 @@ import { AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -26,6 +26,7 @@ import type {
   DraftQuestion,
   FormalQuestionType,
 } from './formalEvaluationTypes';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface CreateFormalEvaluationModalProps {
   onClose: () => void;
@@ -351,11 +352,9 @@ export function CreateFormalEvaluationModal({
               Departamentos
             </h3>
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={allDepartments}
                 onChange={(e) => setField('allDepartments', e.target.checked)}
-                className="h-4 w-4 rounded border-border-strong"
               />
               Todos os departamentos
             </label>
@@ -366,11 +365,9 @@ export function CreateFormalEvaluationModal({
                     key={d.id}
                     className="flex items-center gap-2 text-sm text-ink"
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={targetDepartmentIds.includes(d.id)}
                       onChange={() => toggleDepartment(d.id)}
-                      className="h-4 w-4 rounded border-border-strong"
                     />
                     {d.name}
                   </label>
@@ -428,14 +425,15 @@ export function CreateFormalEvaluationModal({
                     />
                   </div>
                   {questions.length > 1 && (
-                    <button
+                    <IconButton
+                      icon={Trash2}
+                      label="Remover pergunta"
+                      intent="ghostDanger"
+                      size="compact"
+                      className="mt-1"
                       type="button"
                       onClick={() => removeQuestion(qIndex)}
-                      aria-label="Remover pergunta"
-                      className="mt-1 text-ink-faint hover:text-danger"
-                    >
-                      <Trash2 size={16} strokeWidth={1.75} />
-                    </button>
+                    />
                   )}
                 </div>
 
@@ -469,14 +467,14 @@ export function CreateFormalEvaluationModal({
                           className="flex-1"
                         />
                         {q.options.length > 2 && (
-                          <button
+                          <IconButton
+                            icon={Trash2}
+                            label="Remover opção"
+                            intent="ghostDanger"
+                            size="xs"
                             type="button"
                             onClick={() => removeOption(qIndex, oIndex)}
-                            aria-label="Remover opção"
-                            className="text-ink-faint hover:text-danger"
-                          >
-                            <Trash2 size={14} strokeWidth={1.75} />
-                          </button>
+                          />
                         )}
                       </div>
                     ))}

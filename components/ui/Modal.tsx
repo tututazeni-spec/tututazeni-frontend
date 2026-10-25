@@ -54,7 +54,7 @@ export function ModalContent({
         className={cn(
           'pr-8 font-display text-lg font-bold text-ink',
           navyHeader &&
-            '-mx-6 -mt-6 mb-4 bg-[#0F1F3D]/60 px-6 py-4 pr-14 text-white',
+            '-mx-6 -mt-6 mb-4 bg-brand/60 px-6 py-4 pr-14 text-white',
           navyBanner && 'pr-0 text-white',
           gradientBanner &&
             'pr-0 font-body text-xl font-extrabold uppercase tracking-wide text-white',
@@ -67,7 +67,7 @@ export function ModalContent({
           className={cn(
             'mt-2 font-body text-sm text-ink-muted',
             navyBanner && 'mt-1 text-white/80',
-            gradientBanner && 'mt-1 text-[#C7D4E8]',
+            gradientBanner && 'mt-1 text-on-brand-muted',
           )}
         >
           {description}
@@ -101,11 +101,11 @@ export function ModalContent({
         )}
       >
         {gradientBanner ? (
-          <div className="-mx-6 -mt-6 mb-4 bg-gradient-to-br from-[#0F1F3D] via-[#0B3A75] to-[#0A2A57] px-6 py-4 pr-14">
+          <div className="-mx-6 -mt-6 mb-4 bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-6 py-4 pr-14">
             {heading}
           </div>
         ) : navyBanner ? (
-          <div className="-mx-6 -mt-6 mb-4 bg-[#0F1F3D] px-6 py-4 pr-14">
+          <div className="-mx-6 -mt-6 mb-4 bg-brand px-6 py-4 pr-14">
             {heading}
           </div>
         ) : (

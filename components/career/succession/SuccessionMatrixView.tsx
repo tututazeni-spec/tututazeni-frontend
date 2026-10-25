@@ -43,7 +43,7 @@ export function SuccessionMatrixView() {
   return (
     <Table>
       <TableHead>
-        <TableRow className="bg-[#0F1F3D]/60 hover:bg-[#0F1F3D]/60">
+        <TableRow className="bg-brand/60 hover:bg-brand/60">
           <TableHeaderCell className="text-white">Posição</TableHeaderCell>
           <TableHeaderCell className="text-white">Titular</TableHeaderCell>
           <TableHeaderCell className="text-white">Sucessor</TableHeaderCell>

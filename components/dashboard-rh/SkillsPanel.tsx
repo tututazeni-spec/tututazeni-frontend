@@ -18,6 +18,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BarChart } from '@/components/ui/charts/BarChart';
 import type { SkillsData } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function SkillsPanel() {
   const { data, isLoading: loading } = useApiQuery<SkillsData>(
@@ -29,8 +30,8 @@ export function SkillsPanel() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+        itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
 
@@ -73,9 +74,7 @@ export function SkillsPanel() {
             Maiores Lacunas de Competência
           </h4>
           {sortedGaps.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem lacunas identificadas.
-            </p>
+            <EmptyState variant="inline" title="Sem lacunas identificadas" />
           ) : (
             <BarChart
               orientation="horizontal"
@@ -103,7 +102,7 @@ export function SkillsPanel() {
                   <p className="truncate font-body text-xs font-medium text-ink">
                     {s.competency?.name}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     Nível médio {s.avgLevel} · {s.count} avaliações
                   </p>
                 </div>
@@ -120,9 +119,7 @@ export function SkillsPanel() {
             Maiores Forças
           </h4>
           {sortedStrengths.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem dados suficientes.
-            </p>
+            <EmptyState variant="inline" title="Sem dados suficientes" />
           ) : (
             <BarChart
               orientation="horizontal"
@@ -150,7 +147,7 @@ export function SkillsPanel() {
                   <p className="truncate font-body text-xs font-medium text-ink">
                     {s.competency?.name}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     {s.count} avaliações
                   </p>
                 </div>

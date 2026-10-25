@@ -22,6 +22,8 @@ import type {
   WhatsAppProvider,
   WhatsAppSettingsView,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const EVENT_LABELS: Record<WhatsAppEventKey, string> = {
   NOTIFICATION: 'Notificações do sistema',
@@ -74,9 +76,9 @@ interface ToggleProps {
 function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
@@ -143,10 +145,7 @@ export function TabWhatsApp() {
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
     );
-  if (isLoading || !form || !data)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !form || !data) return <Skeleton rows={4} />;
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) =>
     setForm((f) => (f ? { ...f, [k]: v } : f));
@@ -180,8 +179,8 @@ export function TabWhatsApp() {
   return (
     <form onSubmit={submit} className="space-y-4">
       {/* Cartão claro, o mesmo desenho da lista de sessões dos eventos */}
-      <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div className="pointer-events-none flex cursor-default select-none items-center justify-between gap-3 bg-[#0F1F3D]/60 px-5 py-3">
+      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="pointer-events-none flex cursor-default select-none items-center justify-between gap-3 bg-brand/60 px-5 py-3">
           <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
             Estado da integração
           </h3>
@@ -202,10 +201,10 @@ export function TabWhatsApp() {
                 : 'Sem ligação'}
           </span>
         </div>
-        <dl className="grid grid-cols-2 gap-3 px-6 py-5 text-sm text-[#0F1F3D] md:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-3 px-6 py-5 text-sm text-brand md:grid-cols-4">
           {st.displayPhoneNumber && (
             <div>
-              <dt className="text-xs text-[#49658A]">Número</dt>
+              <dt className="text-xs text-brand-muted">Número</dt>
               <dd className="font-display font-bold">
                 {st.displayPhoneNumber}
               </dd>
@@ -213,25 +212,25 @@ export function TabWhatsApp() {
           )}
           {st.verifiedName && (
             <div>
-              <dt className="text-xs text-[#49658A]">Nome verificado</dt>
+              <dt className="text-xs text-brand-muted">Nome verificado</dt>
               <dd className="font-display font-bold">{st.verifiedName}</dd>
             </div>
           )}
           {st.qualityRating && (
             <div>
-              <dt className="text-xs text-[#49658A]">Qualidade</dt>
+              <dt className="text-xs text-brand-muted">Qualidade</dt>
               <dd className="font-display font-bold">{st.qualityRating}</dd>
             </div>
           )}
           <div>
-            <dt className="text-xs text-[#49658A]">Última hora</dt>
+            <dt className="text-xs text-brand-muted">Última hora</dt>
             <dd className="font-display font-bold">
               {st.usage.lastHour}
               {st.usage.hourlyLimit > 0 && ` / ${st.usage.hourlyLimit}`}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-[#49658A]">Últimas 24 h</dt>
+            <dt className="text-xs text-brand-muted">Últimas 24 h</dt>
             <dd className="font-display font-bold">
               {st.usage.lastDay}
               {st.usage.dailyLimit > 0 && ` / ${st.usage.dailyLimit}`}
@@ -239,12 +238,12 @@ export function TabWhatsApp() {
           </div>
         </dl>
         {st.error && (
-          <p className="px-6 pb-5 text-sm text-[#C23A52]">{st.error}</p>
+          <p className="px-6 pb-5 text-sm text-danger">{st.error}</p>
         )}
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Ligação (só envio)
         </div>
         <CardBody>
@@ -391,7 +390,7 @@ export function TabWhatsApp() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Eventos autorizados
         </div>
         <CardBody>
@@ -498,7 +497,7 @@ export function TabWhatsApp() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Enviar mensagem de teste
         </div>
         <CardBody>

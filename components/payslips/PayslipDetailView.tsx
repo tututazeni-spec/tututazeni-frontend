@@ -30,6 +30,7 @@ import type { DisputeAction, DisputeState } from '@/hooks/usePayslipDetail';
 import { fmtPeriod } from './format';
 import { PayslipAmountBreakdown } from './PayslipAmountBreakdown';
 import { PAYSLIP_STATUS_MAP, type Payslip } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 function maskString(value: string, visibleEnd = 4): string {
   if (!value) return '—';
@@ -155,9 +156,9 @@ export function PayslipDetailView({
                 <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                   Dados fiscais
                 </div>
-                <button
+                <LinkButton
                   onClick={() => setMaskedData((m) => !m)}
-                  className="flex items-center gap-1 font-body text-xs text-primary hover:underline"
+                  className="flex items-center gap-1 font-body text-xs"
                 >
                   {maskedData ? (
                     <>
@@ -168,7 +169,7 @@ export function PayslipDetailView({
                       <EyeOff size={12} strokeWidth={1.75} /> ocultar
                     </>
                   )}
-                </button>
+                </LinkButton>
               </div>
               <div className="space-y-0">
                 {[

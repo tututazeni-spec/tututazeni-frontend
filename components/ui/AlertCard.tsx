@@ -43,12 +43,12 @@ const VARIANTS: Record<
   danger: {
     icon: AlertTriangle,
     box: 'border-[#FCA5A5]/70 bg-[#FEF2F2]',
-    accent: 'border-l-[#DC2626]',
+    accent: 'border-l-danger',
     iconWrap: 'bg-[#FEE2E2]',
-    iconColor: 'text-[#DC2626]',
-    title: 'text-[#991B1B]',
+    iconColor: 'text-danger',
+    title: 'text-danger-ink',
     message: 'text-[#7F1D1D]',
-    detail: 'text-[#991B1B]/80',
+    detail: 'text-danger-ink/80',
   },
   info: {
     icon: Info,
@@ -104,7 +104,7 @@ export function AlertCard({
     <div
       role="alert"
       className={cn(
-        'flex flex-col rounded-2xl border border-l-4 shadow-sm sm:flex-row sm:items-center',
+        'flex flex-col rounded-panel border border-l-4 shadow-sm sm:flex-row sm:items-center',
         compact ? 'gap-2 px-3 py-2' : 'gap-3 p-4',
         v.box,
         v.accent,
@@ -155,7 +155,7 @@ export function AlertCard({
         <button
           type="button"
           onClick={onAction}
-          className="shrink-0 self-start rounded-control bg-[#0F1F3D] px-3 py-1.5 font-body text-xs text-white hover:brightness-95 sm:self-center"
+          className="shrink-0 self-start rounded-control bg-brand px-3 py-1.5 font-body text-xs text-white hover:brightness-95 sm:self-center"
         >
           {actionLabel}
         </button>
@@ -163,7 +163,7 @@ export function AlertCard({
       {actionUrl && (
         <a
           href={actionUrl}
-          className="shrink-0 self-start rounded-control bg-[#0F1F3D] px-3 py-1.5 font-body text-xs text-white hover:brightness-95 sm:self-center"
+          className="shrink-0 self-start rounded-control bg-brand px-3 py-1.5 font-body text-xs text-white hover:brightness-95 sm:self-center"
         >
           {actionLabel}
         </a>

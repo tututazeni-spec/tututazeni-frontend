@@ -85,7 +85,7 @@ const DEPT_FALLBACK: DeptStyle = {
 };
 
 function DepartmentBadge({ name }: { name: string | undefined }) {
-  if (!name) return <span className="text-[#9DB3D9]">—</span>;
+  if (!name) return <span className="text-on-brand-faint">—</span>;
   const s = DEPT_STYLES[name] ?? DEPT_FALLBACK;
   const Icon = s.icon;
   return (
@@ -147,16 +147,18 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
   const set = (patch: Partial<VacationFilters>) =>
     setFilters((f) => ({ ...f, page: 1, ...patch }));
   const pick = (v: string) => (v === ALL ? '' : v);
-  const withAll = (items: { value: string; label: string }[], label: string) => [
-    { value: ALL, label },
-    ...items,
-  ];
+  const withAll = (
+    items: { value: string; label: string }[],
+    label: string,
+  ) => [{ value: ALL, label }, ...items];
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-ink">Plano anual de férias</h2>
+          <h2 className="text-sm font-semibold text-ink">
+            Plano anual de férias
+          </h2>
           <p className="text-xs text-ink-faint">
             Dias reservados = aprovados ainda não gozados. O saldo é debitado
             uma única vez, na aprovação.
@@ -168,7 +170,9 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
       </div>
 
       <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">Filtros</h3>
+        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
+          Filtros
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Input
             placeholder="Procurar nome ou n.º interno"
@@ -215,8 +219,8 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
       {loading && !data ? (
         <Skeleton
           rows={6}
-          wrapperClassName="space-y-2 animate-pulse"
-          itemClassName="h-16 bg-surface-sunken rounded-2xl"
+          wrapperClassName="space-y-2"
+          itemClassName="h-16 bg-surface-sunken rounded-panel"
         />
       ) : !data || data.data.length === 0 ? (
         <EmptyState
@@ -225,17 +229,19 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
         />
       ) : (
         <>
-          <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-panel border border-slate-200/70 bg-white shadow-sm">
             {/* Barra de título */}
             <div className="flex items-center gap-4 bg-[#0F2E5E] px-6 py-5">
               <Users size={24} strokeWidth={1.75} className="text-[#3B82F6]" />
-              <h3 className="text-xl font-semibold text-white">Colaboradores</h3>
+              <h3 className="text-xl font-semibold text-white">
+                Colaboradores
+              </h3>
             </div>
 
             <div className="overflow-x-auto">
               <div className="min-w-[1200px]">
                 <Table>
-                  <TableHead className="bg-[#EEF4FD]">
+                  <TableHead className="bg-brand-soft">
                     <TableRow>
                       {HEADERS.map((h) => (
                         <TableHeaderCell
@@ -257,7 +263,9 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                       <TableRow
                         key={r.userId}
                         onClick={
-                          onSelectUser ? () => onSelectUser(r.userId) : undefined
+                          onSelectUser
+                            ? () => onSelectUser(r.userId)
+                            : undefined
                         }
                         className={`border-t border-slate-100 transition-colors hover:bg-slate-50/70 ${
                           onSelectUser ? 'cursor-pointer' : ''
@@ -285,7 +293,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                         </TableCell>
                         <TableCell className={`${BODY_CELL} text-center`}>
                           {r.unit?.name ?? (
-                            <span className="text-[#9DB3D9]">—</span>
+                            <span className="text-on-brand-faint">—</span>
                           )}
                         </TableCell>
                         <TableCell
@@ -314,7 +322,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                           {r.nextPeriod ? (
                             `${formatDate(r.nextPeriod.startDate)} → ${formatDate(r.nextPeriod.endDate)}`
                           ) : (
-                            <span className="text-[#9DB3D9]">—</span>
+                            <span className="text-on-brand-faint">—</span>
                           )}
                         </TableCell>
                         <TableCell className={`${BODY_CELL} text-center`}>
@@ -329,7 +337,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                         <TableCell className="px-4 py-4">
                           <span
                             aria-hidden
-                            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EEF4FD] text-[#1D6BF3]"
+                            className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-soft text-[#1D6BF3]"
                           >
                             <ChevronRight size={18} strokeWidth={2} />
                           </span>

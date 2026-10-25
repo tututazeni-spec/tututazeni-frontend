@@ -38,6 +38,7 @@ import {
 } from './constants';
 import { Skeleton } from './Skeleton';
 import type { Dashboard } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 export interface DashboardViewProps {
   onOpenInstance: (id: number) => void;
@@ -88,7 +89,7 @@ interface ChartCardProps {
 function ChartCard({ title, empty, children }: ChartCardProps) {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface">
-      <div className="pointer-events-none select-none bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
+      <div className="pointer-events-none select-none bg-brand/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-4">
@@ -166,12 +167,12 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
           onValueChange={(v) => set({ status: v })}
         />
         {hasFilters && (
-          <button
+          <LinkButton
             onClick={() => setFilters(EMPTY_FILTERS)}
-            className="pb-2 font-body text-xs text-primary hover:underline"
+            className="pb-2 font-body text-xs"
           >
             Limpar filtros
-          </button>
+          </LinkButton>
         )}
       </div>
 

@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { OrgSessionsController } from '@/hooks/useSecuritySessions';
 import { fmtDate } from './logic';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function AllSessionsCardView({ ctl }: { ctl: OrgSessionsController }) {
   const {
@@ -21,17 +23,15 @@ export function AllSessionsCardView({ ctl }: { ctl: OrgSessionsController }) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         Sessões activas (organização)
         {total !== undefined && <Badge intent="info">{total}</Badge>}
       </div>
       <CardBody>
         {isLoading ? (
-          <p className="text-sm text-ink-faint">A carregar…</p>
+          <Skeleton rows={3} />
         ) : !items.length ? (
-          <p className="py-4 text-center text-sm text-ink-faint">
-            Nenhuma sessão activa.
-          </p>
+          <EmptyState variant="inline" title="Nenhuma sessão activa" />
         ) : (
           <table className="w-full text-sm">
             <thead>

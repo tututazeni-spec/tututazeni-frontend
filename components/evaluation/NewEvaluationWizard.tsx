@@ -45,6 +45,8 @@ import {
   PURPOSE_LABEL,
 } from './constants';
 import type { Cycle, EvaluationObjective } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface CriteriaOption {
   id: number;
@@ -416,7 +418,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                   onClick={() => i < step && goTo(i)}
                   title={`${i + 1}. ${s.label}`}
                   className={
-                    'flex h-6 w-6 items-center justify-center rounded-full font-body text-[11px] transition-colors disabled:cursor-not-allowed ' +
+                    'flex h-6 w-6 items-center justify-center rounded-full font-body text-micro transition-colors disabled:cursor-not-allowed ' +
                     (isCurrent
                       ? 'bg-primary text-primary-fg ring-2 ring-primary/40'
                       : done
@@ -699,9 +701,10 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               </div>
             ))}
             {(criteriaList ?? []).length === 0 && (
-              <p className="text-sm text-ink-faint">
-                Sem critérios cadastrados ainda.
-              </p>
+              <EmptyState
+                variant="inline"
+                title="Sem critérios cadastrados ainda"
+              />
             )}
           </div>
         )}
@@ -827,8 +830,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
         {current.id === 'selfEval' && (
           <div className="space-y-4">
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={allowSelfEval}
                 onChange={(e) => set('allowSelfEval', e.target.checked)}
               />
@@ -846,16 +848,14 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               </FormField>
             )}
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={requireComments}
                 onChange={(e) => set('requireComments', e.target.checked)}
               />
               Comentários obrigatórios
             </label>
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={requireEvidence}
                 onChange={(e) => set('requireEvidence', e.target.checked)}
               />
@@ -871,8 +871,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               Calibração → Conversa 1:1 → Aprovação → Resultado final.
             </p>
             <label className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={allowCalibration}
                 onChange={(e) => set('allowCalibration', e.target.checked)}
               />

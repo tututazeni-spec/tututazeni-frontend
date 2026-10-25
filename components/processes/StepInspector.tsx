@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { Trash2, X } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -20,6 +20,8 @@ import { moduleLabel } from './constants';
 import { UserPicker } from './UserPicker';
 import { BLOCKS, BLOCK_BY_TYPE, type FlowNode } from './workflow-model';
 import type { ApprovalMode, RejectionRule, StepType } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface StepInspectorProps {
   node: FlowNode;
@@ -89,9 +91,7 @@ export function StepInspector({
           <div className="font-body text-xs uppercase tracking-wide text-ink-faint">{meta.label}</div>
           <div className="truncate font-body text-sm font-medium text-ink">{node.title || 'Sem nome'}</div>
         </div>
-        <button type="button" onClick={onClose} className="text-ink-faint hover:text-ink" aria-label="Fechar">
-          <X size={16} strokeWidth={1.75} />
-        </button>
+        <IconButton icon={X} label="Fechar" intent="ghost" size="compact" type="button" onClick={onClose} />
       </div>
 
       <div className="flex flex-wrap gap-1 border-b border-border px-3 py-2">
@@ -140,13 +140,13 @@ export function StepInspector({
               <div className="mb-1 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
                 Depende de (entradas)
               </div>
-              {others.length === 0 && <p className="font-body text-xs text-ink-faint">Sem outras etapas.</p>}
+              {others.length === 0 && <EmptyState variant="inline" title="Sem outras etapas" />}
               <ul className="space-y-1">
                 {others.map((o) => (
                   <li key={o.key}>
                     <label className="flex items-center gap-2 font-body text-sm text-ink">
-                      <input
-                        type="checkbox"
+                      <Checkbox
+                        
                         checked={node.deps.includes(o.key)}
                         disabled={readOnly}
                         onChange={() => onToggleDep(o.key)}
@@ -237,14 +237,7 @@ export function StepInspector({
                           className="flex-1"
                         />
                         {!readOnly && (
-                          <button
-                            type="button"
-                            className="text-ink-faint hover:text-danger"
-                            onClick={() => onChange({ approverIds: node.approverIds.filter((_, idx) => idx !== i) })}
-                            aria-label="Remover aprovador"
-                          >
-                            <Trash2 size={14} strokeWidth={1.75} />
-                          </button>
+                          <IconButton icon={Trash2} label="Remover aprovador" intent="ghostDanger" size="xs" type="button" onClick={() => onChange({ approverIds: node.approverIds.filter((_, idx) => idx !== i) })} />
                         )}
                       </li>
                     ))}
@@ -270,7 +263,7 @@ export function StepInspector({
                   </p>
                 )}
                 <label className="flex items-center gap-2 font-body text-sm text-ink">
-                  <input type="checkbox" checked={node.allowDelegation} disabled={readOnly} onChange={(e) => onChange({ allowDelegation: e.target.checked })} />
+                  <Checkbox  checked={node.allowDelegation} disabled={readOnly} onChange={(e) => onChange({ allowDelegation: e.target.checked })} />
                   Os aprovadores podem delegar
                 </label>
               </>
@@ -346,7 +339,7 @@ export function StepInspector({
               <Textarea id="si-chk" rows={3} value={node.checklist} disabled={readOnly} onChange={(e) => onChange({ checklist: e.target.value })} className="w-full" />
             </FormField>
             <label className="flex items-center gap-2 font-body text-sm text-ink">
-              <input type="checkbox" checked={node.requiresUpload} disabled={readOnly} onChange={(e) => onChange({ requiresUpload: e.target.checked })} />
+              <Checkbox  checked={node.requiresUpload} disabled={readOnly} onChange={(e) => onChange({ requiresUpload: e.target.checked })} />
               Exige evidência (upload) para concluir
             </label>
             <div className="rounded-card border border-border p-3">

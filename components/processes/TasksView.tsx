@@ -21,6 +21,7 @@ import { PRIORITY_MAP, STEP_TYPE_MAP, TASK_STATE_MAP } from './constants';
 import { Skeleton } from './Skeleton';
 import { TaskPanel } from './TaskPanel';
 import type { PaginatedTasks, TaskState } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface TasksViewProps {
   canManage: boolean;
@@ -108,8 +109,7 @@ export function TasksView({ canManage }: TasksViewProps) {
           className="w-full"
         />
         <label className="flex items-center gap-2 font-body text-sm text-ink-muted">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={overdue}
             onChange={(e) => {
               setOverdue(e.target.checked);
@@ -125,7 +125,7 @@ export function TasksView({ canManage }: TasksViewProps) {
 
       <div className="overflow-x-auto rounded-card border border-border bg-surface">
         <div className="min-w-[900px] xl:min-w-0">
-          <div className="grid grid-cols-[minmax(0,1.9fr)_minmax(0,1.4fr)_minmax(0,1.2fr)_96px_96px_110px] cursor-default select-none gap-2 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
+          <div className="grid grid-cols-[minmax(0,1.9fr)_minmax(0,1.4fr)_minmax(0,1.2fr)_96px_96px_110px] cursor-default select-none gap-2 border-b border-border bg-brand/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
             <div>Tarefa</div>
             <div>Processo</div>
             <div>Responsável / Revisor</div>

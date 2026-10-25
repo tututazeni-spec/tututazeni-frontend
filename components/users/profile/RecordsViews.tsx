@@ -20,7 +20,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { QueryData } from '@/hooks/useUserProfileData';
-import { EmptyState, LoadingRows } from './shared';
+import { LoadingRows } from './shared';
 import {
   approvedIntent,
   attendanceIntent,
@@ -33,6 +33,7 @@ import {
   type LeaveBalanceEntry,
   type AttendanceResponse,
 } from '../types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function DocumentsView({
   data,
@@ -40,7 +41,7 @@ export function DocumentsView({
 }: QueryData<DocumentsResponse>) {
   if (isLoading) return <LoadingRows />;
   if (!data || data.data.length === 0)
-    return <EmptyState>Sem documentos associados</EmptyState>;
+    return <EmptyState title="Sem documentos associados" />;
 
   return (
     <Table>
@@ -104,7 +105,7 @@ export function LeaveView({
         </div>
       )}
       {!requests || requests.data.length === 0 ? (
-        <EmptyState>Sem pedidos de férias/licença</EmptyState>
+        <EmptyState title="Sem pedidos de férias/licença" />
       ) : (
         <Table>
           <TableHead>
@@ -145,7 +146,7 @@ export function AttendanceView({
 }: QueryData<AttendanceResponse>) {
   if (isLoading) return <LoadingRows />;
   if (!data || data.records.length === 0)
-    return <EmptyState>Sem registos de presença</EmptyState>;
+    return <EmptyState title="Sem registos de presença" />;
 
   return (
     <div className="space-y-4">

@@ -76,7 +76,12 @@ export function useLeaveOverview(filters: OverviewFilters) {
       placeholderData: keepPreviousData,
     },
   );
-  return { data: q.data ?? null, loading: q.isLoading, refetch: q.refetch };
+  return {
+    data: q.data ?? null,
+    loading: q.isLoading,
+    error: q.error,
+    refetch: q.refetch,
+  };
 }
 
 export interface VacationFilters {

@@ -42,6 +42,7 @@ import type {
   LeaveType,
   PayRegime,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface DocDraft {
   name: string;
@@ -495,10 +496,10 @@ export function NewLicenseModal({
                   Aprovação automática para esta duração.
                 </p>
               ) : r.steps.length === 0 ? (
-                <p className="text-ink-muted">
-                  Sem gestor atribuído — o pedido será aprovado automaticamente
-                  na submissão.
-                </p>
+                <EmptyState
+                  variant="inline"
+                  title="Sem gestor atribuído — o pedido será aprovado automaticamente na submissão"
+                />
               ) : (
                 <ol className="space-y-0.5 text-ink-muted">
                   {r.steps.map((s) => (

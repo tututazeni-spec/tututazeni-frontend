@@ -13,6 +13,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from './Skeleton';
 import { AUDIT_SOURCE_LABEL, statusPt } from './audit-utils';
 import type { AuditEventDetail } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 export interface AuditEventPanelProps {
   eventId: number;
@@ -68,13 +69,13 @@ export function AuditEventPanel({ eventId, onClose, onOpenEvent, onOpenInstance 
               <Field label="Modelo">{e.template ? `${e.template.code} — ${e.template.title}` : '—'}</Field>
               <Field label="Processo">
                 {e.instance ? (
-                  <button
+                  <LinkButton
                     type="button"
                     onClick={() => onOpenInstance(e.instance!.id)}
-                    className="text-primary hover:underline"
+                    
                   >
                     {e.instance.code}
-                  </button>
+                  </LinkButton>
                 ) : (
                   '—'
                 )}
@@ -141,13 +142,13 @@ export function AuditEventPanel({ eventId, onClose, onOpenEvent, onOpenInstance 
               <div className="rounded-card border border-border p-3">
                 <div className="font-body text-xs uppercase tracking-wide text-ink-faint">Evento anterior</div>
                 {e.previousEvent ? (
-                  <button
+                  <LinkButton
                     type="button"
                     onClick={() => onOpenEvent(e.previousEvent!.id)}
-                    className="mt-1 text-left font-body text-sm text-primary hover:underline"
+                    className="mt-1 text-left font-body text-sm"
                   >
                     {e.previousEvent.label} · {formatDateTime(e.previousEvent.createdAt)}
-                  </button>
+                  </LinkButton>
                 ) : (
                   <div className="mt-1 font-body text-sm text-ink-faint">Primeiro registo do processo</div>
                 )}
@@ -157,21 +158,21 @@ export function AuditEventPanel({ eventId, onClose, onOpenEvent, onOpenInstance 
                   Próxima acção desencadeada
                 </div>
                 {e.nextEvent ? (
-                  <button
+                  <LinkButton
                     type="button"
                     onClick={() => onOpenEvent(e.nextEvent!.id)}
-                    className="mt-1 text-left font-body text-sm text-primary hover:underline"
+                    className="mt-1 text-left font-body text-sm"
                   >
                     {e.nextEvent.label} · {formatDateTime(e.nextEvent.createdAt)}
                     {e.nextEvent.source ? ` (${AUDIT_SOURCE_LABEL[e.nextEvent.source]})` : ''}
-                  </button>
+                  </LinkButton>
                 ) : (
                   <div className="mt-1 font-body text-sm text-ink-faint">Nenhuma registada</div>
                 )}
               </div>
             </div>
 
-            <div className="font-mono text-[11px] text-ink-faint">
+            <div className="font-mono text-micro text-ink-faint">
               ID {e.id}
               {e.correlationId ? ` · correlação ${e.correlationId}` : ''} · hash {e.hash.slice(0, 16)}…
             </div>

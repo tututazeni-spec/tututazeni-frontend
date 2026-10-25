@@ -578,7 +578,7 @@ export function LoadTestsTab({
             aria-pressed={typeFilter === t.value}
             className={`inline-flex items-center justify-center rounded-control px-3 py-1.5 font-body text-xs font-semibold transition-colors ${
               typeFilter === t.value
-                ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                ? 'bg-brand text-canvas shadow-sm'
                 : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
             }`}
           >
@@ -625,7 +625,7 @@ export function LoadTestsTab({
                     >
                       <td className="py-2 pr-2 text-ink">
                         {t.name}
-                        <span className="block text-[11px] text-ink-faint">
+                        <span className="block text-micro text-ink-faint">
                           {labelOf(TYPES, t.type)}
                           {t.appVersion ? ` · v${t.appVersion}` : ''} ·{' '}
                           {dateTime(
@@ -1073,7 +1073,7 @@ export function AlertRulesSection({
             intent="secondary"
             onClick={onEvaluate}
             disabled={evaluating}
-            className="border-[#0F1F3D] bg-[#0F1F3D] text-white transition-colors duration-200 hover:border-[#0F1F3D] hover:bg-white hover:text-[#0F1F3D]"
+            className="border-brand bg-brand text-white transition-colors duration-200 hover:border-brand hover:bg-white hover:text-brand"
           >
             {evaluating ? 'A avaliar…' : 'Avaliar agora'}
           </Button>
@@ -1103,7 +1103,7 @@ export function AlertRulesSection({
                   >
                     <div className="min-w-0">
                       <p className="font-body text-sm text-ink">{r.label}</p>
-                      <p className="font-body text-[11px] text-ink-faint">
+                      <p className="font-body text-micro text-ink-faint">
                         {r.condition} · {r.detail}
                       </p>
                     </div>

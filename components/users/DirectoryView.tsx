@@ -14,6 +14,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DirectoryUser } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface DirectoryViewProps {
   onSelect: (id: number) => void;
@@ -101,7 +102,7 @@ function DirectoryCard({
       tabIndex={0}
       onClick={open}
       onKeyDown={handleKeyDown}
-      className="group cursor-pointer overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0F1F3D]"
+      className="group cursor-pointer overflow-hidden rounded-panel border border-slate-200/70 bg-white shadow-sm transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
     >
       {/* Cabeçalho navy */}
       <div
@@ -115,7 +116,7 @@ function DirectoryCard({
           type="button"
           onClick={handleMenu}
           aria-label={`Ver perfil de ${user.fullName}`}
-          className="absolute right-3 top-2.5 rounded-md p-1 text-white/90 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+          className="absolute right-3 top-2.5 rounded-control p-1 text-white/90 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
         >
           <MoreHorizontal className="h-5 w-5" />
         </button>
@@ -146,7 +147,7 @@ function DirectoryCard({
 
       {/* Corpo */}
       <div className="px-5 pb-4 pt-9">
-        <h3 className="truncate text-[15px] font-semibold text-[#0F1F3D]">
+        <h3 className="truncate text-[15px] font-semibold text-brand">
           {user.fullName}
         </h3>
         <p className="mt-0.5 truncate text-sm text-slate-400">
@@ -165,11 +166,11 @@ function DirectoryCard({
 
         <div className="mt-4 flex items-center justify-between gap-3 text-xs text-slate-500">
           <span className="flex min-w-0 items-center gap-1.5">
-            <Mail className="h-3.5 w-3.5 shrink-0 text-[#0F1F3D]" />
+            <Mail className="h-3.5 w-3.5 shrink-0 text-brand" />
             <span className="truncate">{user.email ?? '—'}</span>
           </span>
           <span className="flex shrink-0 items-center gap-1.5">
-            <Briefcase className="h-3.5 w-3.5 text-[#0F1F3D]" />
+            <Briefcase className="h-3.5 w-3.5 text-brand" />
             <span className="max-w-[110px] truncate">
               {user.position?.name ?? '—'}
             </span>
@@ -208,12 +209,10 @@ export function DirectoryView({ onSelect }: DirectoryViewProps) {
         <Skeleton
           rows={8}
           wrapperClassName="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4 animate-pulse"
-          itemClassName="h-[190px] rounded-2xl bg-surface-sunken"
+          itemClassName="h-[190px] rounded-panel bg-surface-sunken"
         />
       ) : data.length === 0 ? (
-        <div className="py-12 text-center text-sm text-ink-faint">
-          Nenhum colaborador encontrado
-        </div>
+        <EmptyState variant="inline" title="Nenhum colaborador encontrado" />
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {data.map((user) => (

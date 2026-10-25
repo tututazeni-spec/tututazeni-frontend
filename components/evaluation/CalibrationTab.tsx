@@ -23,6 +23,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { SCORE_COLOR } from './constants';
 import type { CalibrationData, CalibrationHistoryEntry } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function CalibrationTab() {
   const notify = useToast();
@@ -160,9 +161,10 @@ export function CalibrationTab() {
             )}
             {!loadHistory.isPending &&
               (loadHistory.data ?? []).length === 0 && (
-                <p className="p-4 text-xs text-ink-faint">
-                  Sem alterações registadas.
-                </p>
+                <EmptyState
+                  variant="inline"
+                  title="Sem alterações registadas"
+                />
               )}
             {(loadHistory.data ?? []).map((h, i) => (
               <div key={i} className="px-4 py-2 text-xs">
@@ -230,7 +232,7 @@ export function CalibrationTab() {
           {(data.byDepartment?.length ?? 0) > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card className="overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                   Comparar Equipas
                 </div>
                 <CardBody>
@@ -253,7 +255,7 @@ export function CalibrationTab() {
               </Card>
               {data.distribution && (
                 <Card className="overflow-hidden">
-                  <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+                  <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
                     Distribuição de Resultados
                   </div>
                   <CardBody>
@@ -331,12 +333,12 @@ export function CalibrationTab() {
                       >
                         {p.avgScore.toFixed(1)}
                       </p>
-                      <p className="text-[10px] text-ink-faint">
+                      <p className="text-micro text-ink-faint">
                         P{p.percentile}
                       </p>
                     </div>
                     {(p.dispersion ?? 0) > 1 && (
-                      <span className="text-[10px] bg-danger-subtle text-danger-ink px-1.5 py-0.5 rounded">
+                      <span className="text-micro bg-danger-subtle text-danger-ink px-1.5 py-0.5 rounded">
                         ±{p.dispersion?.toFixed(1)}
                       </span>
                     )}

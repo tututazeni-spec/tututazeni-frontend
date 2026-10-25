@@ -80,7 +80,7 @@ export function MyProgressTab() {
       {(progress?.data.filter((p) => p.progress > 0 && p.progress < 100)
         .length ?? 0) > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
             <RotateCcw size={16} strokeWidth={1.75} className="text-primary" />
             Em Progresso
           </div>
@@ -97,7 +97,7 @@ export function MyProgressTab() {
                       </p>
                       <div className="mt-1 flex items-center gap-2">
                         <ProgressBar value={p.progress} className="h-1" />
-                        <span className="shrink-0 font-body text-[10px] text-ink-faint">
+                        <span className="shrink-0 font-body text-micro text-ink-faint">
                           {p.progress}%
                         </span>
                       </div>
@@ -112,7 +112,7 @@ export function MyProgressTab() {
       {/* Completed */}
       {(progress?.stats.completed ?? 0) > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
             <CheckCircle
               size={16}
               strokeWidth={1.75}
@@ -140,7 +140,7 @@ export function MyProgressTab() {
       {/* Bookmarks */}
       {bookmarks.length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
             <Bookmark size={16} strokeWidth={1.75} className="text-accent" />
             Guardados ({bookmarks.length})
           </div>

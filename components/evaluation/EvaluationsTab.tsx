@@ -31,7 +31,7 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useUnits } from '@/components/departments/departmentFormData';
-import { EVAL_CARD_ACTION, EvaluationCard } from './EvaluationCard';
+import { EvaluationCard } from './EvaluationCard';
 import { EvaluationDetailModal } from './EvaluationDetailModal';
 import { NewEvaluationWizard } from './NewEvaluationWizard';
 import { SubmitEvaluationModal } from './SubmitEvaluationModal';
@@ -297,57 +297,62 @@ export function EvaluationsTab() {
                 onSelect={() => setViewingId(r.id)}
                 actions={
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={EVAL_CARD_ACTION}
+                      intent="onDarkGhost"
+                      size="icon"
                       aria-label="Ver"
                       title="Ver"
                       onClick={() => setViewingId(r.id)}
                     >
                       <Eye size={15} strokeWidth={1.75} />
-                    </button>
+                    </Button>
                     {canContinue && (
-                      <button
+                      <Button
                         type="button"
-                        className={EVAL_CARD_ACTION}
+                        intent="onDarkGhost"
+                        size="icon"
                         aria-label="Continuar avaliação"
                         title="Continuar avaliação"
                         onClick={() => setSubmittingRow(r)}
                       >
                         <Sparkles size={15} strokeWidth={1.75} />
-                      </button>
+                      </Button>
                     )}
                     {r.status !== 'COMPLETED' && (
-                      <button
+                      <Button
                         type="button"
-                        className={EVAL_CARD_ACTION}
+                        intent="onDarkGhost"
+                        size="icon"
                         aria-label="Enviar lembrete"
                         title="Enviar lembrete"
                         onClick={() => remind.mutate(r.id)}
                       >
                         <Bell size={15} strokeWidth={1.75} />
-                      </button>
+                      </Button>
                     )}
                     {r.status !== 'COMPLETED' ? (
-                      <button
+                      <Button
                         type="button"
-                        className={EVAL_CARD_ACTION}
+                        intent="onDarkGhost"
+                        size="icon"
                         aria-label="Finalizar"
                         title="Finalizar"
                         onClick={() => finish.mutate(r.id)}
                       >
                         <CheckCircle2 size={15} strokeWidth={1.75} />
-                      </button>
+                      </Button>
                     ) : (
-                      <button
+                      <Button
                         type="button"
-                        className={EVAL_CARD_ACTION}
+                        intent="onDarkGhost"
+                        size="icon"
                         aria-label="Reabrir"
                         title="Reabrir"
                         onClick={() => reopen.mutate(r.id)}
                       >
                         <RotateCcw size={15} strokeWidth={1.75} />
-                      </button>
+                      </Button>
                     )}
                   </>
                 }

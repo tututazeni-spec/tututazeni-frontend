@@ -14,7 +14,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { QueryError } from '@/components/ui/QueryError';
@@ -29,6 +29,7 @@ import type {
   PreviewResponse,
   TemplateOption,
 } from './reportTypes';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 
 export interface CustomReportsPanelProps {
   filters: ExecutiveFilters;
@@ -139,7 +140,7 @@ export function CustomReportsPanel({ filters }: CustomReportsPanelProps) {
     return (
       <Skeleton
         rows={3}
-        wrapperClassName="space-y-4 animate-pulse"
+        wrapperClassName="space-y-4"
         itemClassName="h-40 rounded-card bg-surface-sunken"
       />
     );
@@ -201,7 +202,7 @@ export function CustomReportsPanel({ filters }: CustomReportsPanelProps) {
       </section>
 
       <section className="overflow-hidden rounded-card border border-border">
-        <h2 className="bg-[#0F1F3D]/60 px-5 py-3 font-display text-lg font-semibold text-white">
+        <h2 className="bg-brand/60 px-5 py-3 font-display text-lg font-semibold text-white">
           Construtor de relatório personalizado
         </h2>
         <Card className="space-y-4 rounded-none border-0 p-5 shadow-none">
@@ -251,15 +252,15 @@ export function CustomReportsPanel({ filters }: CustomReportsPanelProps) {
               >
                 Sentido
               </label>
-              <select
+              <NativeSelect
                 id="cr-dir"
                 value={sortDir}
                 onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')}
-                className="w-full rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink"
+                className="w-full"
               >
                 <option value="asc">Crescente</option>
                 <option value="desc">Decrescente</option>
-              </select>
+              </NativeSelect>
             </div>
             <p className="self-end font-body text-xs text-ink-faint">
               Período, unidade, departamento e restantes filtros vêm da barra de
@@ -330,14 +331,14 @@ export function CustomReportsPanel({ filters }: CustomReportsPanelProps) {
                   >
                     {t.name} · v{t.version}
                   </button>
-                  <button
+                  <IconButton
+                    icon={Trash2}
+                    label={`Eliminar modelo ${t.name}`}
+                    intent="ghostDanger"
+                    size="xs"
                     type="button"
-                    aria-label={`Eliminar modelo ${t.name}`}
-                    className="text-ink-faint hover:text-danger"
                     onClick={() => t.id && deleteTemplate.mutate(t.id)}
-                  >
-                    <Trash2 size={12} strokeWidth={1.75} />
-                  </button>
+                  />
                 </div>
               ))}
             </div>

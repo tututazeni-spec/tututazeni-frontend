@@ -30,7 +30,12 @@ import {
 } from '@/components/ui/Table';
 import { useToast } from '@/providers/ToastProvider';
 import { AuditEventPanel } from './AuditEventPanel';
-import { ATTEMPT_STATUS_MAP, AUDIT_RESULT_MAP, AUDIT_SOURCE_MAP, statusPt } from './audit-utils';
+import {
+  ATTEMPT_STATUS_MAP,
+  AUDIT_RESULT_MAP,
+  AUDIT_SOURCE_MAP,
+  statusPt,
+} from './audit-utils';
 import { ReasonDialog } from './ReasonDialog';
 import { Skeleton } from './Skeleton';
 import type {
@@ -38,6 +43,7 @@ import type {
   PaginatedAuditAttempts,
   PaginatedAuditEvents,
 } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 export interface HistoryViewProps {
   canExport: boolean;
@@ -56,7 +62,15 @@ interface Filters {
   from: string;
   to: string;
 }
-const EMPTY: Filters = { search: '', userId: ALL, action: ALL, source: ALL, result: ALL, from: '', to: '' };
+const EMPTY: Filters = {
+  search: '',
+  userId: ALL,
+  action: ALL,
+  source: ALL,
+  result: ALL,
+  from: '',
+  to: '',
+};
 
 const toParams = (f: Filters): Record<string, string> => {
   const p: Record<string, string> = {};
@@ -81,12 +95,20 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
   const [attemptPage, setAttemptPage] = useState(1);
 
   const baseParams = useMemo(() => toParams(filters), [filters]);
-  const params = useMemo(() => ({ ...baseParams, page: String(page), limit: '25' }), [baseParams, page]);
+  const params = useMemo(
+    () => ({ ...baseParams, page: String(page), limit: '25' }),
+    [baseParams, page],
+  );
 
   const { data, isLoading, error } = useApiQuery<PaginatedAuditEvents>(
     queryKeys.processes.auditEvents(params),
     '/processes/audit/events',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData, enabled: mode === 'timeline' },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+      enabled: mode === 'timeline',
+    },
   );
   const { data: options } = useApiQuery<AuditFilterOptions>(
     queryKeys.processes.auditOptions(),
@@ -101,7 +123,12 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
   const attempts = useApiQuery<PaginatedAuditAttempts>(
     queryKeys.processes.auditAttempts(attemptParams),
     '/processes/audit/attempts',
-    { params: attemptParams, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData, enabled: mode === 'attempts' },
+    {
+      params: attemptParams,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+      enabled: mode === 'attempts',
+    },
   );
 
   const set = (patch: Partial<Filters>) => {
@@ -120,7 +147,10 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
       });
       setAskExport(false);
     } catch (e) {
-      notify({ title: e instanceof Error ? e.message : 'Falha ao exportar', intent: 'danger' });
+      notify({
+        title: e instanceof Error ? e.message : 'Falha ao exportar',
+        intent: 'danger',
+      });
     } finally {
       setExporting(false);
     }
@@ -129,25 +159,32 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-2">
-        {([
-          ['timeline', 'Linha temporal'],
-          ['attempts', 'Integrações e automações'],
-        ] as const).map(([id, label]) => (
+        {(
+          [
+            ['timeline', 'Linha temporal'],
+            ['attempts', 'Integrações e automações'],
+          ] as const
+        ).map(([id, label]) => (
           <button
             key={id}
             type="button"
             onClick={() => setMode(id)}
-            className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`rounded-control border px-3 py-1.5 text-sm font-medium transition-colors ${
               mode === id
-                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
-                : 'border-[#0F1F3D] bg-white text-[#0F1F3D]'
+                ? 'border-brand bg-brand text-white'
+                : 'border-brand bg-white text-brand'
             }`}
           >
             {label}
           </button>
         ))}
         {mode === 'timeline' && canExport && (
-          <Button intent="secondary" size="sm" className="ml-auto" onClick={() => setAskExport(true)}>
+          <Button
+            intent="secondary"
+            size="sm"
+            className="ml-auto"
+            onClick={() => setAskExport(true)}
+          >
             <Download size={14} strokeWidth={1.75} />
             Exportar CSV
           </Button>
@@ -164,80 +201,142 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
               className="w-72"
             />
             <Select
-              items={[{ value: ALL, label: 'Todos os utilizadores' }, ...(options?.users ?? []).map((u) => ({ value: String(u.id), label: u.fullName }))]}
+              items={[
+                { value: ALL, label: 'Todos os utilizadores' },
+                ...(options?.users ?? []).map((u) => ({
+                  value: String(u.id),
+                  label: u.fullName,
+                })),
+              ]}
               value={filters.userId}
               onValueChange={(v) => set({ userId: v })}
               className="w-52"
             />
             <Select
-              items={[{ value: ALL, label: 'Todos os eventos' }, ...(options?.actions ?? [])]}
+              items={[
+                { value: ALL, label: 'Todos os eventos' },
+                ...(options?.actions ?? []),
+              ]}
               value={filters.action}
               onValueChange={(v) => set({ action: v })}
               className="w-60"
             />
             <label className="flex flex-col gap-1 font-body text-xs text-ink-muted">
               De
-              <Input type="date" value={filters.from} onChange={(e) => set({ from: e.target.value })} />
+              <Input
+                type="date"
+                value={filters.from}
+                onChange={(e) => set({ from: e.target.value })}
+              />
             </label>
             <label className="flex flex-col gap-1 font-body text-xs text-ink-muted">
               Até
-              <Input type="date" value={filters.to} onChange={(e) => set({ to: e.target.value })} />
+              <Input
+                type="date"
+                value={filters.to}
+                onChange={(e) => set({ to: e.target.value })}
+              />
             </label>
             {hasFilters && (
-              <button
+              <LinkButton
                 type="button"
                 onClick={() => {
                   setFilters(EMPTY);
                   setPage(1);
                 }}
-                className="pb-2 font-body text-xs text-primary hover:underline"
+                className="pb-2 font-body text-xs"
               >
                 Limpar filtros
-              </button>
+              </LinkButton>
             )}
           </div>
 
           {isLoading && <Skeleton rows={6} />}
-          {error && <div className="font-body text-sm text-danger">{error.message}</div>}
+          {error && (
+            <div className="font-body text-sm text-danger">{error.message}</div>
+          )}
           {data && data.data.length === 0 && (
             <EmptyState
               icon={ScrollText}
               title="Sem eventos"
-              description={hasFilters ? 'Nenhum evento corresponde aos filtros.' : 'Ainda não há actividade registada.'}
+              description={
+                hasFilters
+                  ? 'Nenhum evento corresponde aos filtros.'
+                  : 'Ainda não há actividade registada.'
+              }
               className="mx-auto max-w-xl"
             />
           )}
           {data && data.data.length > 0 && (
             <>
               <Table>
-                <TableHead className="bg-[#0F1F3D]/60">
+                <TableHead className="bg-brand/60">
                   <TableRow className="hover:bg-transparent">
-                    <TableHeaderCell className="text-white">Data e hora</TableHeaderCell>
-                    <TableHeaderCell className="text-white">Evento</TableHeaderCell>
-                    <TableHeaderCell className="text-white">Utilizador</TableHeaderCell>
-                    <TableHeaderCell className="text-white">Processo</TableHeaderCell>
-                    <TableHeaderCell className="text-white">Estado</TableHeaderCell>
-                    <TableHeaderCell className="text-white">Origem</TableHeaderCell>
-                    <TableHeaderCell className="text-white">Resultado</TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Data e hora
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Evento
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Utilizador
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Processo
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Estado
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Origem
+                    </TableHeaderCell>
+                    <TableHeaderCell className="text-white">
+                      Resultado
+                    </TableHeaderCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {data.data.map((e) => (
-                    <TableRow key={e.id} className="cursor-pointer hover:bg-surface-sunken" onClick={() => setOpenId(e.id)}>
-                      <TableCell className="whitespace-nowrap">{formatDateTime(e.createdAt)}</TableCell>
+                    <TableRow
+                      key={e.id}
+                      className="cursor-pointer hover:bg-surface-sunken"
+                      onClick={() => setOpenId(e.id)}
+                    >
+                      <TableCell className="whitespace-nowrap">
+                        {formatDateTime(e.createdAt)}
+                      </TableCell>
                       <TableCell>
                         <div className="font-medium">{e.label}</div>
-                        {e.reason && <div className="max-w-xs truncate text-xs text-ink-muted">{e.reason}</div>}
+                        {e.reason && (
+                          <div className="max-w-xs truncate text-xs text-ink-muted">
+                            {e.reason}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell>
                         {e.actor.fullName}
-                        {e.actor.role && <div className="text-xs text-ink-faint">{e.actor.role}</div>}
+                        {e.actor.role && (
+                          <div className="text-xs text-ink-faint">
+                            {e.actor.role}
+                          </div>
+                        )}
                       </TableCell>
-                      <TableCell>{e.instance?.code ?? e.template?.code ?? '—'}</TableCell>
+                      <TableCell>
+                        {e.instance?.code ?? e.template?.code ?? '—'}
+                      </TableCell>
                       <TableCell className="whitespace-nowrap text-xs">
-                        {e.previousStatus || e.newStatus ? `${statusPt(e.previousStatus)} → ${statusPt(e.newStatus)}` : '—'}
+                        {e.previousStatus || e.newStatus
+                          ? `${statusPt(e.previousStatus)} → ${statusPt(e.newStatus)}`
+                          : '—'}
                       </TableCell>
-                      <TableCell>{e.source && <StatusBadge value={e.source} map={AUDIT_SOURCE_MAP} />}</TableCell>
+                      <TableCell>
+                        {e.source && (
+                          <StatusBadge
+                            value={e.source}
+                            map={AUDIT_SOURCE_MAP}
+                          />
+                        )}
+                      </TableCell>
                       <TableCell>
                         <StatusBadge value={e.result} map={AUDIT_RESULT_MAP} />
                       </TableCell>
@@ -248,7 +347,11 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
               <div className="flex items-center justify-between font-body text-xs text-ink-faint">
                 <span>{data.total} evento(s)</span>
               </div>
-              <Pagination page={data.page} totalPages={data.totalPages} onPageChange={setPage} />
+              <Pagination
+                page={data.page}
+                totalPages={data.totalPages}
+                onPageChange={setPage}
+              />
             </>
           )}
         </>
@@ -272,7 +375,11 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
             />
           </div>
           {attempts.isLoading && <Skeleton rows={4} />}
-          {attempts.error && <div className="font-body text-sm text-danger">{attempts.error.message}</div>}
+          {attempts.error && (
+            <div className="font-body text-sm text-danger">
+              {attempts.error.message}
+            </div>
+          )}
           {attempts.data && attempts.data.data.length === 0 && (
             <EmptyState
               icon={ScrollText}
@@ -297,29 +404,48 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
                 <TableBody>
                   {attempts.data.data.map((a) => (
                     <TableRow key={a.id}>
-                      <TableCell className="whitespace-nowrap">{formatDateTime(a.at)}</TableCell>
-                      <TableCell>{a.kind === 'INTEGRATION' ? 'Integração' : 'Automação'}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {formatDateTime(a.at)}
+                      </TableCell>
+                      <TableCell>
+                        {a.kind === 'INTEGRATION' ? 'Integração' : 'Automação'}
+                      </TableCell>
                       <TableCell>
                         {a.instanceId ? (
-                          <button type="button" onClick={() => onOpenInstance(a.instanceId!)} className="text-primary hover:underline">
+                          <LinkButton
+                            type="button"
+                            onClick={() => onOpenInstance(a.instanceId!)}
+                          >
                             {a.name}
-                          </button>
+                          </LinkButton>
                         ) : (
                           a.name
                         )}
                       </TableCell>
                       <TableCell>
-                        <StatusBadge value={a.status} map={ATTEMPT_STATUS_MAP} fallback={{ label: a.status, cls: 'bg-surface-sunken text-ink-muted' }} />
+                        <StatusBadge
+                          value={a.status}
+                          map={ATTEMPT_STATUS_MAP}
+                          fallback={{
+                            label: a.status,
+                            cls: 'bg-surface-sunken text-ink-muted',
+                          }}
+                        />
                       </TableCell>
                       <TableCell>{a.attempts}</TableCell>
-                      <TableCell className="max-w-xs truncate text-xs text-danger-ink">{a.error ?? '—'}</TableCell>
+                      <TableCell className="max-w-xs truncate text-xs text-danger-ink">
+                        {a.error ?? '—'}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
               <Pagination
                 page={attempts.data.page}
-                totalPages={Math.max(1, Math.ceil(attempts.data.total / attempts.data.limit))}
+                totalPages={Math.max(
+                  1,
+                  Math.ceil(attempts.data.total / attempts.data.limit),
+                )}
                 onPageChange={setAttemptPage}
               />
             </>

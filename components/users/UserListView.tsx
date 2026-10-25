@@ -29,6 +29,8 @@ import {
 } from '@/components/ui/Table';
 import { ACCOUNT_STATUS_MAP, HR_STATUS_MAP } from './types';
 import type { PaginatedUsers } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { NativeSelect } from '@/components/ui/NativeSelect';
 
 interface UserListViewProps {
   onSelect: (id: number) => void;
@@ -113,27 +115,25 @@ export function UserListView({ onSelect }: UserListViewProps) {
           onChange={(e) => updateFilters({ search: e.target.value })}
           className="min-w-[160px] flex-1"
         />
-        <select
+        <NativeSelect
           value={filters.status}
           onChange={(e) => updateFilters({ status: e.target.value })}
-          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Todos os estados</option>
           <option value="ACTIVE">Activo</option>
           <option value="PENDING">Pendente</option>
           <option value="SUSPENDED">Suspenso</option>
           <option value="INACTIVE">Inactivo</option>
-        </select>
-        <select
+        </NativeSelect>
+        <NativeSelect
           value={filters.hrStatus}
           onChange={(e) => updateFilters({ hrStatus: e.target.value })}
-          className="rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent-subtle"
         >
           <option value="">Estado RH: Todos</option>
           <option value="ACTIVE">Activo</option>
           <option value="ON_LEAVE">Em licença</option>
           <option value="TERMINATED">Desligado</option>
-        </select>
+        </NativeSelect>
         <span className="text-sm text-ink-faint">
           {data?.total ?? 0} utilizadores
         </span>
@@ -145,16 +145,15 @@ export function UserListView({ onSelect }: UserListViewProps) {
           <span className="text-sm font-medium text-info-ink">
             {selected.length} seleccionados
           </span>
-          <select
+          <NativeSelect
             value={bulkAction}
             onChange={(e) => setBulkAction(e.target.value)}
-            className="text-sm border border-info/40 rounded-control px-2 py-1.5 bg-surface focus:outline-none"
           >
             <option value="">Escolher acção…</option>
             <option value="activate">Activar</option>
             <option value="deactivate">Desactivar</option>
             <option value="suspend">Suspender</option>
-          </select>
+          </NativeSelect>
           <Button
             size="sm"
             onClick={handleBulkAction}
@@ -187,10 +186,12 @@ export function UserListView({ onSelect }: UserListViewProps) {
       )}
       {!loading && (
         <Table>
-          <TableHead className="bg-[#0F1F3D]/60">
+          <TableHead className="bg-brand/60">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell className="w-8 text-white" />
-              <TableHeaderCell className="text-white">Utilizador</TableHeaderCell>
+              <TableHeaderCell className="text-white">
+                Utilizador
+              </TableHeaderCell>
               <TableHeaderCell className="text-white">Cargo</TableHeaderCell>
               <TableHeaderCell className="text-white">
                 Departamento
@@ -198,7 +199,9 @@ export function UserListView({ onSelect }: UserListViewProps) {
               <TableHeaderCell className="text-white">
                 Estado conta
               </TableHeaderCell>
-              <TableHeaderCell className="text-white">Estado RH</TableHeaderCell>
+              <TableHeaderCell className="text-white">
+                Estado RH
+              </TableHeaderCell>
               <TableHeaderCell className="text-white">Acções</TableHeaderCell>
             </TableRow>
           </TableHead>
@@ -216,11 +219,9 @@ export function UserListView({ onSelect }: UserListViewProps) {
             {data?.data.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={selected.includes(user.id)}
                     onChange={() => toggleSelect(user.id)}
-                    className="w-4 h-4 rounded border-border-strong accent-primary"
                   />
                 </TableCell>
                 <TableCell>

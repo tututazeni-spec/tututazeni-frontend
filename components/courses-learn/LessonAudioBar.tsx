@@ -21,7 +21,7 @@ export function LessonAudioBar({ lessonId }: LessonAudioBarProps) {
   // Card claro sobre a área escura do player, para os botões do design
   // system lerem com o contraste normal.
   return (
-    <div className="mt-6 flex flex-col gap-2 rounded-lg border border-border bg-surface px-4 py-3">
+    <div className="mt-6 flex flex-col gap-2 rounded-control border border-border bg-surface px-4 py-3">
       {state === 'error' ? (
         <div className="flex flex-wrap items-center gap-3">
           <span className="font-body text-sm text-ink-muted">{error}</span>

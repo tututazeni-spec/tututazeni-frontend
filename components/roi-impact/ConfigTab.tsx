@@ -33,7 +33,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
 import { AUTHENTICATED_ROLES, type Role } from '@/lib/roles';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -42,6 +42,7 @@ import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPic
 import type { DirectoryUser } from '@/components/departments/departmentFormData';
 import { INITIATIVE_TYPE_LABELS, BENEFIT_TYPE_LABELS } from './utils';
 import type { RoiConfigData } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const ROLE_LABELS: Record<Role, string> = {
   ADMIN: 'Administrador',
@@ -84,9 +85,9 @@ function ConfigCard({
 }: ConfigCardProps) {
   return (
     <Card
-      className={`flex flex-col overflow-hidden rounded-[24px] border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)] ${className ?? ''}`}
+      className={`flex flex-col overflow-hidden rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)] ${className ?? ''}`}
     >
-      <div className="pointer-events-none flex cursor-default select-none items-center gap-3 bg-[#0F1F3D]/60 px-5 py-4 text-white">
+      <div className="pointer-events-none flex cursor-default select-none items-center gap-3 bg-brand/60 px-5 py-4 text-white">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
           <Icon size={16} strokeWidth={1.75} />
         </span>
@@ -130,14 +131,9 @@ function RoleCheckboxGroup({
                 : `${ROLE_COLORS[role]}1A`,
               color: on ? '#fff' : '#0F1F3D',
             }}
-            className="flex cursor-pointer items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors hover:brightness-95 focus-within:ring-2 focus-within:ring-[#0F1F3D]/40"
+            className="flex cursor-pointer items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors hover:brightness-95 focus-within:ring-2 focus-within:ring-brand/40"
           >
-            <input
-              type="checkbox"
-              checked={on}
-              onChange={() => toggle(role)}
-              className="sr-only"
-            />
+            <Checkbox checked={on} onChange={() => toggle(role)} />
             {ROLE_LABELS[role]}
           </label>
         );
@@ -164,14 +160,14 @@ function ValidatorChip({ id, onRemove }: { id: number; onRemove: () => void }) {
       <span className="text-sm text-ink">
         {user?.fullName ?? `Utilizador #${id}`}
       </span>
-      <button
+      <IconButton
+        icon={X}
+        label="Remover responsável"
+        intent="ghost"
+        size="xs"
         type="button"
-        aria-label="Remover responsável"
         onClick={onRemove}
-        className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-      >
-        <X size={14} strokeWidth={1.75} />
-      </button>
+      />
     </div>
   );
 }
@@ -232,7 +228,7 @@ export function ConfigTab() {
   return (
     <div className="max-w-6xl space-y-8">
       <section aria-label="Metodologia de cálculo" className="space-y-3">
-        <div className="pointer-events-none cursor-default select-none rounded-card bg-[#0F1F3D]/60 px-5 py-3">
+        <div className="pointer-events-none cursor-default select-none rounded-card bg-brand/60 px-5 py-3">
           <h3 className="font-display text-sm font-semibold text-white">
             Metodologia de cálculo
           </h3>
@@ -412,7 +408,7 @@ export function ConfigTab() {
       </section>
 
       <section aria-label="Validação e avisos" className="space-y-3">
-        <div className="pointer-events-none cursor-default select-none rounded-card bg-[#0F1F3D]/60 px-5 py-3">
+        <div className="pointer-events-none cursor-default select-none rounded-card bg-brand/60 px-5 py-3">
           <h3 className="font-display text-sm font-semibold text-white">
             Validação e avisos
           </h3>
@@ -504,7 +500,7 @@ export function ConfigTab() {
       </section>
 
       <section aria-label="Acesso" className="space-y-3">
-        <div className="pointer-events-none cursor-default select-none rounded-card bg-[#0F1F3D]/60 px-5 py-3">
+        <div className="pointer-events-none cursor-default select-none rounded-card bg-brand/60 px-5 py-3">
           <h3 className="font-display text-sm font-semibold text-white">
             Acesso
           </h3>
@@ -517,9 +513,9 @@ export function ConfigTab() {
           title="Permissões de acesso"
           subtitle="Quem vê o ROI financeiro (valores monetários/%) vs. quem vê apenas os indicadores operacionais."
         >
-          <div className="grid gap-5 md:grid-cols-2 md:gap-0 md:divide-x md:divide-[#E6ECF4]">
+          <div className="grid gap-5 md:grid-cols-2 md:gap-0 md:divide-x md:divide-brand-line">
             <div className="md:pr-6">
-              <div className="mb-2 font-body text-xs font-medium text-[#49658A]">
+              <div className="mb-2 font-body text-xs font-medium text-brand-muted">
                 Vê o ROI financeiro
               </div>
               <RoleCheckboxGroup
@@ -530,7 +526,7 @@ export function ConfigTab() {
               />
             </div>
             <div className="md:pl-6">
-              <div className="mb-2 font-body text-xs font-medium text-[#49658A]">
+              <div className="mb-2 font-body text-xs font-medium text-brand-muted">
                 Vê apenas indicadores operacionais
               </div>
               <RoleCheckboxGroup
@@ -544,8 +540,8 @@ export function ConfigTab() {
         </ConfigCard>
       </section>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-[#E3EAF4] bg-white px-6 py-4 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <p className="font-body text-xs text-[#49658A]">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-brand-line bg-white px-6 py-4 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <p className="font-body text-xs text-brand-muted">
           As alterações só se aplicam depois de guardar.
         </p>
         <Button onClick={handleSave} loading={saveMutation.isPending}>

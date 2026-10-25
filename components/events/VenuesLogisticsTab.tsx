@@ -43,6 +43,7 @@ import type {
   EventLogistics,
   EventLogisticsStatus,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const MANAGE_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 
@@ -275,9 +276,9 @@ export function VenuesLogisticsTab() {
       ) : (
         <>
           {event && (
-            <div className="relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-white p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <div className="truncate font-body text-sm font-semibold text-[#0F1F3D]">
+                <div className="truncate font-body text-sm font-semibold text-brand">
                   {event.title}
                 </div>
                 <span
@@ -291,30 +292,32 @@ export function VenuesLogisticsTab() {
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
                 <div>
-                  <div className="font-body text-xs text-[#49658A]">Local</div>
-                  <div className="truncate font-semibold text-[#0F1F3D]">
+                  <div className="font-body text-xs text-brand-muted">
+                    Local
+                  </div>
+                  <div className="truncate font-semibold text-brand">
                     {event.location ?? '—'}
                   </div>
                 </div>
                 <div>
-                  <div className="font-body text-xs text-[#49658A]">Sala</div>
-                  <div className="truncate font-semibold text-[#0F1F3D]">
+                  <div className="font-body text-xs text-brand-muted">Sala</div>
+                  <div className="truncate font-semibold text-brand">
                     {event.room ?? '—'}
                   </div>
                 </div>
                 <div>
-                  <div className="font-body text-xs text-[#49658A]">
+                  <div className="font-body text-xs text-brand-muted">
                     Capacidade
                   </div>
-                  <div className="font-semibold text-[#0F1F3D]">
+                  <div className="font-semibold text-brand">
                     {event.maxCapacity}
                   </div>
                 </div>
                 <div>
-                  <div className="font-body text-xs text-[#49658A]">
+                  <div className="font-body text-xs text-brand-muted">
                     Endereço
                   </div>
-                  <div className="truncate font-semibold text-[#0F1F3D]">
+                  <div className="truncate font-semibold text-brand">
                     {event.address ?? '—'}
                   </div>
                 </div>
@@ -334,14 +337,13 @@ export function VenuesLogisticsTab() {
                     ).map(([value, cfg]) => (
                       <label
                         key={value}
-                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[#D8E2F0] bg-white px-3 py-1 text-xs text-[#0F1F3D] hover:border-[#0F1F3D] has-[:checked]:border-[#0F1F3D] has-[:checked]:bg-[#0F1F3D] has-[:checked]:text-white"
+                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-line bg-white px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
                       >
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={form.equipment.includes(value)}
                           onChange={() => toggleEquipment(value)}
                           disabled={!canManage}
-                          className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                          size="sm"
                         />
                         {cfg.label}
                       </label>
@@ -349,7 +351,7 @@ export function VenuesLogisticsTab() {
                     {form.customEquipment.map((name) => (
                       <span
                         key={name}
-                        className="flex items-center gap-1.5 rounded-full border border-[#0F1F3D] bg-[#0F1F3D] px-3 py-1 text-xs text-white"
+                        className="flex items-center gap-1.5 rounded-full border border-brand bg-brand px-3 py-1 text-xs text-white"
                       >
                         {name}
                         {canManage && (
@@ -423,16 +425,15 @@ export function VenuesLogisticsTab() {
                     return (
                       <label
                         key={name}
-                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[#D8E2F0] bg-white px-3 py-1 text-xs text-[#0F1F3D] hover:border-[#0F1F3D] has-[:checked]:border-[#0F1F3D] has-[:checked]:bg-[#0F1F3D] has-[:checked]:text-white"
+                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-line bg-white px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
                       >
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={on}
                           onChange={() =>
                             on ? removeResource(name) : addResource(name)
                           }
                           disabled={!canManage}
-                          className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                          size="sm"
                         />
                         {name}
                       </label>
@@ -443,7 +444,7 @@ export function VenuesLogisticsTab() {
                     .map((name) => (
                       <span
                         key={name}
-                        className="flex items-center gap-1.5 rounded-full border border-[#0F1F3D] bg-[#0F1F3D] px-3 py-1 text-xs text-white"
+                        className="flex items-center gap-1.5 rounded-full border border-brand bg-brand px-3 py-1 text-xs text-white"
                       >
                         {name}
                         {canManage && (
@@ -620,7 +621,7 @@ export function VenuesLogisticsTab() {
                 </FormField>
               </div>
               {canManage && (
-                <div className="flex justify-end border-t border-[#E6ECF4] pt-4">
+                <div className="flex justify-end border-t border-brand-line pt-4">
                   <Button
                     loading={save.isPending}
                     onClick={() => save.mutate(undefined)}

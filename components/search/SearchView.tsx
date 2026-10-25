@@ -89,7 +89,7 @@ export function SearchView({
                   className="shrink-0 text-ink-faint"
                 />
                 <span className="font-body text-sm text-ink">{s.text}</span>
-                <span className="ml-auto font-body text-[10px] text-ink-faint">
+                <span className="ml-auto font-body text-micro text-ink-faint">
                   {s.type}
                 </span>
               </button>

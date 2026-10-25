@@ -135,9 +135,9 @@ export function ComponentsView() {
       )}
 
       {!isLoading && (data?.length ?? 0) > 0 && (
-        <div className="overflow-x-auto rounded-[14px] border border-[#1E3A66] bg-[#071D3B] shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+        <div className="overflow-x-auto rounded-[14px] border border-brand-edge bg-brand-deep shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
           <div className="min-w-[860px]">
-            <div className="grid grid-cols-[1fr_110px_150px_130px_80px_88px] gap-3 bg-[#0B2D5B] px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
+            <div className="grid grid-cols-[1fr_110px_150px_130px_80px_88px] gap-3 bg-brand-dark px-4 py-3 font-body text-xs font-bold uppercase leading-tight tracking-wide text-white">
               <div>Nome</div>
               <div>Tipo</div>
               <div>Cálculo</div>
@@ -158,12 +158,12 @@ export function ComponentsView() {
                       {c.name}
                     </div>
                     {c.description && (
-                      <div className="truncate font-body text-xs text-[#9DB4D3]">
+                      <div className="truncate font-body text-xs text-on-brand-faint">
                         {c.description}
                       </div>
                     )}
                     {!c.active && (
-                      <span className="mt-0.5 inline-block rounded-full bg-white/10 px-1.5 py-0.5 font-body text-[10px] font-medium uppercase tracking-wide text-[#CFE3FF]">
+                      <span className="mt-0.5 inline-block rounded-full bg-white/10 px-1.5 py-0.5 font-body text-micro font-medium uppercase tracking-wide text-on-brand">
                         Inactivo
                       </span>
                     )}
@@ -172,7 +172,7 @@ export function ComponentsView() {
                     <span
                       className={`rounded-full px-2 py-0.5 font-body text-xs font-medium ${
                         c.type === 'EARNING'
-                          ? 'bg-[#218653]/25 text-[#8FE0B0]'
+                          ? 'bg-success/25 text-[#8FE0B0]'
                           : 'bg-[#D64545]/25 text-[#FFB4B4]'
                       }`}
                     >
@@ -180,7 +180,7 @@ export function ComponentsView() {
                     </span>
                   </div>
                   <div
-                    className={`text-sm text-[#CFE3FF] ${
+                    className={`text-sm text-on-brand ${
                       CALC_MONO.includes(c.calcType)
                         ? 'font-body text-xs'
                         : 'font-body'
@@ -190,17 +190,17 @@ export function ComponentsView() {
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {c.isTaxable && (
-                      <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-[10px] text-[#CFE3FF]">
+                      <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-micro text-on-brand">
                         Tributável
                       </span>
                     )}
                     {c.isMandatory && (
-                      <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-[10px] text-[#CFE3FF]">
+                      <span className="rounded-full bg-white/10 px-1.5 py-0.5 font-body text-micro text-on-brand">
                         Obrigatório
                       </span>
                     )}
                   </div>
-                  <div className="font-body text-sm text-[#E8EEF7]">
+                  <div className="font-body text-sm text-on-brand">
                     {c.order}
                   </div>
                   <div className="flex gap-1">

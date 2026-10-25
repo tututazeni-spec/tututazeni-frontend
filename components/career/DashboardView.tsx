@@ -36,6 +36,7 @@ import type {
   SimulationGap,
   SimulationResult,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 function estimatedDate(months: number): string {
   const d = new Date();
@@ -185,7 +186,7 @@ export function DashboardView() {
       <div className="grid grid-cols-3 gap-5">
         {/* Gap de Competências */}
         <Card className="col-span-2 overflow-hidden p-0">
-          <div className="flex items-center justify-between border-b border-border bg-[#0F1F3D]/60 px-4 py-3">
+          <div className="flex items-center justify-between border-b border-border bg-brand/60 px-4 py-3">
             <span className="font-body text-sm font-semibold text-white">
               Lacunas de Competências
             </span>
@@ -195,9 +196,10 @@ export function DashboardView() {
             </span>
           </div>
           {competencyGaps.length === 0 ? (
-            <div className="px-4 py-8 text-center font-body text-sm text-ink-faint">
-              Sem cargo definido ou sem competências mapeadas
-            </div>
+            <EmptyState
+              variant="inline"
+              title="Sem cargo definido ou sem competências mapeadas"
+            />
           ) : (
             <div className="divide-y divide-border">
               {competencyGaps.slice(0, 6).map((g) => (
@@ -252,13 +254,11 @@ export function DashboardView() {
         <div className="space-y-4">
           {/* Vagas compatíveis */}
           <Card className="overflow-hidden p-0">
-            <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
+            <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
               Vagas compatíveis
             </div>
             {matchingVacancies.length === 0 ? (
-              <div className="px-4 py-4 text-center font-body text-xs text-ink-faint">
-                Sem vagas compatíveis
-              </div>
+              <EmptyState variant="inline" title="Sem vagas compatíveis" />
             ) : (
               matchingVacancies.slice(0, 3).map((v) => (
                 <div
@@ -395,9 +395,10 @@ export function DashboardView() {
           Veja o que é necessário para chegar ao próximo nível
         </p>
         {!posLoading && positionOptions.length === 0 ? (
-          <p className="mb-4 font-body text-sm text-ink-faint">
-            Sem cargos definidos — o RH pode criá-los em Organização.
-          </p>
+          <EmptyState
+            variant="inline"
+            title="Sem cargos definidos — o RH pode criá-los em Organização"
+          />
         ) : (
           <div className="mb-4 flex gap-3">
             <Combobox

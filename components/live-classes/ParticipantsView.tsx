@@ -26,7 +26,6 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import {
-  NAVY_BTN,
   NavyBadge,
   NavyCard,
   type NavyTone,
@@ -328,9 +327,10 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
                 footer={
                   canManage && (
                     <>
-                      <button
+                      <Button
                         type="button"
-                        className={NAVY_BTN}
+                        intent="onDark"
+                        size="md"
                         onClick={() => openRegister(p)}
                       >
                         <UserCheck
@@ -339,20 +339,22 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
                           className="mr-1.5"
                         />
                         Registar presença
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
-                        className={NAVY_BTN}
+                        intent="onDark"
+                        size="md"
                         onClick={() => {
                           setJustifying(p);
                           setJustification(p.justification ?? '');
                         }}
                       >
                         Justificar
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
-                        className={NAVY_BTN}
+                        intent="onDark"
+                        size="md"
                         aria-label="Remover participante"
                         title="Remover participante"
                         disabled={
@@ -361,7 +363,7 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
                         onClick={() => onRemove(p)}
                       >
                         <Trash2 size={14} strokeWidth={1.75} />
-                      </button>
+                      </Button>
                     </>
                   )
                 }

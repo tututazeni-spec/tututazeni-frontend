@@ -50,6 +50,7 @@ import type {
   IncidentStatus,
   Severity,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export const INCIDENT_STATUS: Record<
   IncidentStatus,
@@ -497,7 +498,7 @@ function IncidentModal({
                 Evidências ({inc.evidences.length})
               </div>
               {inc.evidences.length === 0 && (
-                <p className="text-ink-faint">Sem evidências anexadas.</p>
+                <EmptyState variant="inline" title="Sem evidências anexadas" />
               )}
               {inc.evidences.map((e) => (
                 <div
@@ -687,7 +688,7 @@ export function SecurityView() {
         ) : (
           <>
             <Table>
-              <TableHead className="bg-[#0F1F3D]/60">
+              <TableHead className="bg-brand/60">
                 <TableRow className="hover:bg-transparent">
                   {[
                     'Código',
@@ -764,7 +765,7 @@ export function SecurityView() {
       </div>
 
       <div>
-        <div className="mb-3 rounded-card bg-[#0F1F3D]/60 px-3 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
+        <div className="mb-3 rounded-card bg-brand/60 px-3 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
           Alertas automáticos e integridade
         </div>
         <p className="mb-3 font-body text-xs text-ink-muted">

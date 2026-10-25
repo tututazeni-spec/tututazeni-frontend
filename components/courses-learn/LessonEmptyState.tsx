@@ -41,9 +41,9 @@ export function LessonEmptyState({ modules, loading }: LessonEmptyStateProps) {
         : 'Navega pela estrutura do curso na barra lateral.';
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-[#E9EDF4] px-6 text-center">
-      <div className="max-w-md rounded-3xl border border-[#E4E9F2] bg-white p-8 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
-        <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
+    <div className="flex flex-1 items-center justify-center bg-brand-soft px-6 text-center">
+      <div className="max-w-md rounded-panel border border-brand-line bg-white p-8 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+        <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand text-white">
           <Icon size={22} strokeWidth={1.75} />
         </span>
         <div className="mb-2 font-display text-lg font-semibold text-ink">
@@ -54,7 +54,7 @@ export function LessonEmptyState({ modules, loading }: LessonEmptyStateProps) {
           <ul className="mt-4 space-y-1 text-left font-body text-sm text-ink">
             {reasons.map((r) => (
               <li key={r} className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#0F1F3D]" />
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
                 {r}
               </li>
             ))}

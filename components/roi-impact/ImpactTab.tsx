@@ -222,7 +222,7 @@ export function ImpactTab() {
             return (
               <div
                 key={r.id}
-                className="relative min-w-0 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+                className="relative min-w-0 overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
               >
                 <div
                   aria-hidden
@@ -251,17 +251,17 @@ export function ImpactTab() {
                       <Target size={28} strokeWidth={1.75} />
                     </span>
                     <div className="min-w-0">
-                      <h3 className="break-words font-display text-[24px] font-bold leading-tight text-[#0F1F3D]">
+                      <h3 className="break-words font-display text-[24px] font-bold leading-tight text-brand">
                         {r.indicatorName}
                       </h3>
-                      <p className="mt-0.5 break-words text-base text-[#49658A]">
+                      <p className="mt-0.5 break-words text-base text-brand-muted">
                         {IMPACT_CATEGORY_LABELS[r.category] ?? r.category}
                         {r.initiative ? ` · ${r.initiative}` : ''}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+                  <div className="flex flex-wrap items-center gap-y-3 divide-x divide-brand-line">
                     <Metric icon={Users}>
                       Sujeito: {r.subjectLabel ?? '—'} (
                       {IMPACT_SUBJECT_TYPE_LABELS[r.subjectType] ??
@@ -274,7 +274,7 @@ export function ImpactTab() {
                       {r.variation != null && ` (variação ${r.variation})`}
                     </Metric>
                   </div>
-                  <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+                  <div className="flex flex-wrap items-center gap-y-3 divide-x divide-brand-line">
                     <Metric icon={Percent}>
                       Atribuição:{' '}
                       {r.attributionPercent != null
@@ -290,7 +290,7 @@ export function ImpactTab() {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 border-t border-[#E6ECF4] pt-4">
+                  <div className="flex items-center justify-end gap-2 border-t border-brand-line pt-4">
                     {!r.validatedById && (
                       <Button
                         size="sm"
@@ -306,7 +306,7 @@ export function ImpactTab() {
                       title="Apagar"
                       disabled={remove.isPending && remove.variables === r.id}
                       onClick={() => askRemove(r.id, r.indicatorName)}
-                      className="rounded-full p-2 text-[#49658A] transition-colors hover:bg-[#C23A52]/10 hover:text-[#C23A52] disabled:opacity-40"
+                      className="rounded-full p-2 text-brand-muted transition-colors hover:bg-danger/10 hover:text-danger disabled:opacity-40"
                     >
                       <Trash2 size={16} strokeWidth={1.75} />
                     </button>

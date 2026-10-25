@@ -30,38 +30,48 @@ import { Avatar } from '@/components/ui/Avatar';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { QueryBoundary } from '@/components/ui/QueryBoundary';
 import { AlertBanner } from './AlertBanner';
 import { ALERTS_POLL_MS, type Alert, type MyDashboardData } from './types';
 import { pollInterval } from '@/lib/polling';
 
 export function ColaboradorDashboard() {
-  // Duas queries independentes → correm em paralelo (sem waterfall).
-  const { data, isLoading } = useApiQuery<MyDashboardData>(
+  const query = useApiQuery<MyDashboardData>(
     queryKeys.dashboard.my(),
     '/dashboard/my',
     { staleTime: STALE_TIME.DYNAMIC },
   );
+  return (
+    <QueryBoundary
+      query={query}
+      errorTitle="Não foi possível carregar o seu dashboard"
+      loading={
+        <div className="space-y-4">
+          <Skeleton
+            rows={4}
+            wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+            itemClassName="h-[155px] rounded-panel bg-surface-sunken"
+          />
+          <Skeleton
+            rows={2}
+            wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+            itemClassName="h-[155px] rounded-panel bg-surface-sunken"
+          />
+        </div>
+      }
+    >
+      {(data) => <ColaboradorDashboardContent data={data} />}
+    </QueryBoundary>
+  );
+}
+
+function ColaboradorDashboardContent({ data }: { data: MyDashboardData }) {
+  // Alertas: query independente, em paralelo com a anterior (sem waterfall).
   const { data: alerts = [] } = useApiQuery<Alert[]>(
     queryKeys.dashboard.alerts(),
     '/dashboard/alerts',
     { refetchInterval: pollInterval(ALERTS_POLL_MS) },
   );
-
-  if (isLoading)
-    return (
-      <div className="space-y-4">
-        <Skeleton
-          rows={4}
-          wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-          itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
-        />
-        <Skeleton
-          rows={2}
-          wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-          itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
-        />
-      </div>
-    );
 
   const plan = data?.development?.activePlan;
   const level = data?.gamification?.level;
@@ -73,7 +83,7 @@ export function ColaboradorDashboard() {
       <AlertBanner alerts={alerts} />
 
       {/* Hero: user + points */}
-      <div className="rounded-2xl bg-[#0F1F3D] p-5 text-canvas mb-[2cm]!">
+      <div className="rounded-panel bg-brand p-5 text-canvas mb-[2cm]!">
         <div className="flex items-center gap-4">
           {data?.user && (
             <Avatar
@@ -199,7 +209,7 @@ export function ColaboradorDashboard() {
               </span>
             </div>
             <ProgressBar value={plan.progress} />
-            <p className="mt-2 font-body text-[10px] text-ink-faint">
+            <p className="mt-2 font-body text-micro text-ink-faint">
               {plan.completedActions} / {plan.goals} acções concluídas
             </p>
           </div>
@@ -209,7 +219,7 @@ export function ColaboradorDashboard() {
       {/* Competencies radar */}
       {(data?.skills?.length ?? 0) > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Evolução de Competências
           </h3>
           <div className="space-y-2">

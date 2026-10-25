@@ -109,12 +109,12 @@ interface JobTableProps {
 function JobTable({ title, rows, state }: JobTableProps) {
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       <CardBody>
         {rows.length === 0 ? (
-          <p className="font-body text-sm text-ink-muted">Nenhum.</p>
+          <EmptyState variant="inline" title="Nenhum" />
         ) : (
           <div className="w-full">
             <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
@@ -248,7 +248,7 @@ export function JobsTab({ data }: { data: JobsData }) {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Filas
         </div>
         <CardBody>
@@ -298,14 +298,15 @@ export function JobsTab({ data }: { data: JobsData }) {
       ))}
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Tarefas periódicas (esta instância)
         </div>
         <CardBody>
           {data.crons.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">
-              Sem tarefas periódicas registadas.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem tarefas periódicas registadas"
+            />
           ) : (
             <div className="w-full">
               <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
@@ -429,7 +430,7 @@ export function SlaTab({ data, days, onDaysChange }: SlaTabProps) {
 
       {data.atRisk.length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Serviços em risco
           </div>
           <CardBody>
@@ -447,7 +448,7 @@ export function SlaTab({ data, days, onDaysChange }: SlaTabProps) {
       )}
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Cumprimento por serviço
         </div>
         <CardBody>
@@ -491,14 +492,15 @@ export function SlaTab({ data, days, onDaysChange }: SlaTabProps) {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Indisponibilidade por componente
         </div>
         <CardBody>
           {data.components.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">
-              Sem incidentes críticos na janela.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem incidentes críticos na janela"
+            />
           ) : (
             <ul className="divide-y divide-border font-body text-sm">
               {data.components.map((x) => (
@@ -519,7 +521,7 @@ export function SlaTab({ data, days, onDaysChange }: SlaTabProps) {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Violações de SLA
         </div>
         <CardBody>
@@ -653,7 +655,7 @@ export function HistoryTab({
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Linha do tempo
         </div>
         <CardBody>
@@ -694,14 +696,12 @@ export function HistoryTab({
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Plataforma por dia
         </div>
         <CardBody>
           {data.platform.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">
-              Sem métricas na janela.
-            </p>
+            <EmptyState variant="inline" title="Sem métricas na janela" />
           ) : (
             <div className="w-full">
               <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
@@ -745,7 +745,7 @@ export function HistoryTab({
 
       {data.queues.length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Filas por dia (picos)
           </div>
           <CardBody>

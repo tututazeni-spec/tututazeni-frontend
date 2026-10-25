@@ -83,13 +83,13 @@ export default function AnalyticsPage() {
         <div className={`relative ${BANNER_TABS_CLASS}`}>
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl"
+            className="pointer-events-none absolute inset-0 overflow-hidden rounded-panel"
           >
             <div className="absolute -left-16 top-0 h-40 w-72 rounded-full bg-primary/20 blur-3xl" />
             <div className="absolute -right-10 bottom-0 h-40 w-72 rounded-full bg-primary/15 blur-3xl" />
           </div>
 
-          <div className="relative rounded-3xl border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
+          <div className="relative rounded-panel border border-white/60 bg-white/50 p-3 shadow-[0_8px_32px_rgba(31,38,135,0.12)] backdrop-blur-xl">
             <TabsList className="flex h-auto w-full flex-wrap items-center justify-center gap-2 bg-transparent p-0">
               {nav.map((n) => {
                 const Icon = n.icon;
@@ -101,7 +101,7 @@ export default function AnalyticsPage() {
                     className="group flex h-auto items-center gap-3 whitespace-nowrap rounded-full border border-white/70 bg-white/60 py-2 pl-2 pr-4 text-left text-ink shadow-sm backdrop-blur transition-all duration-200
                                hover:scale-105 hover:bg-white/80 hover:shadow-md data-[state=inactive]:hover:border-primary motion-reduce:hover:scale-100
                                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40
-                               data-[state=active]:border-transparent data-[state=active]:bg-[#0F1F3D] data-[state=active]:text-white data-[state=active]:shadow-lg"
+                               data-[state=active]:border-transparent data-[state=active]:bg-brand data-[state=active]:text-white data-[state=active]:shadow-lg"
                   >
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/70 text-ink/70 group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white">
                       <Icon size={16} strokeWidth={1.75} />

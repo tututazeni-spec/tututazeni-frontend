@@ -141,7 +141,7 @@ export function ContentPlayer({
         {/* Área do conteúdo */}
         <div
           className={`min-h-[50vh] flex items-center justify-center ${
-            isVideo ? 'bg-ink' : 'bg-[#E9EDF4]'
+            isVideo ? 'bg-ink' : 'bg-brand-soft'
           }`}
         >
           <StageBoundary resetKey={lesson.id} title={lesson.title}>
@@ -282,7 +282,7 @@ export function ContentPlayer({
                     href={safeHref(lesson.liveSessionUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block mt-4 rounded-lg bg-[#0F1F3D] px-4 py-2 font-body text-sm font-semibold text-white hover:bg-[#1B2F57]"
+                    className="inline-block mt-4 rounded-control bg-brand px-4 py-2 font-body text-sm font-semibold text-white hover:bg-[#1B2F57]"
                   >
                     Entrar na sessão
                   </a>
@@ -293,7 +293,7 @@ export function ContentPlayer({
                 )}
               </div>
             ) : lesson.type === 'TEXT' ? (
-              <article className="my-6 w-full max-w-2xl rounded-3xl border border-[#E4E9F2] bg-white p-8 text-ink shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+              <article className="my-6 w-full max-w-2xl rounded-panel border border-brand-line bg-white p-8 text-ink shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
                 <h2 className="font-display text-xl font-semibold mb-4">
                   {lesson.title}
                 </h2>

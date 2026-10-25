@@ -48,7 +48,7 @@ import {
   imageFileToDataUrl,
   validateImageFile,
 } from './imageFile';
-import { AVATAR_BTN_GHOST, AVATAR_BTN_PRIMARY, AvatarCard } from './AvatarCard';
+import { AvatarCard } from './AvatarCard';
 import { ChoiceOrCustom } from './ChoiceOrCustom';
 import { NO_USER, useUserOptions } from './useUserOptions';
 import type {
@@ -371,9 +371,10 @@ function AvatarFormModal({ avatar, onClose, onSaved }: AvatarFormModalProps) {
               Base de conhecimento (fontes autorizadas)
             </legend>
             {knowledge.length === 0 ? (
-              <p className="font-body text-xs text-ink-faint">
-                Sem fontes — o avatar só responde com as fontes de cada sessão.
-              </p>
+              <EmptyState
+                variant="inline"
+                title="Sem fontes — o avatar só responde com as fontes de cada sessão"
+              />
             ) : (
               knowledge.map((k) => (
                 <div
@@ -470,10 +471,10 @@ function HistoryModal({
           ) : !data ? (
             <Skeleton
               rows={3}
-              itemClassName="h-10 rounded-card bg-surface-sunken animate-pulse"
+              itemClassName="h-10 rounded-card bg-surface-sunken"
             />
           ) : data.length === 0 ? (
-            <p className="font-body text-sm text-ink-faint">Sem registos.</p>
+            <EmptyState variant="inline" title="Sem registos" />
           ) : (
             data.map((h) => {
               const to = h.detail?.to as string | undefined;
@@ -550,10 +551,7 @@ export function AvatarsTab() {
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (isLoading || !data)
     return (
-      <Skeleton
-        rows={3}
-        itemClassName="h-20 rounded-card bg-surface-sunken animate-pulse"
-      />
+      <Skeleton rows={3} itemClassName="h-20 rounded-card bg-surface-sunken" />
     );
 
   return (
@@ -582,32 +580,36 @@ export function AvatarsTab() {
               actions={
                 isAdmin && (
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={AVATAR_BTN_GHOST}
+                      intent="secondary"
+                      size="compact"
                       onClick={() => setEditing(a)}
                     >
                       <Pencil size={14} /> Editar
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className={AVATAR_BTN_GHOST}
+                      intent="secondary"
+                      size="compact"
                       onClick={() => setHistoryOf(a)}
                     >
                       <History size={14} /> Histórico
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
-                      className={AVATAR_BTN_GHOST}
+                      intent="secondary"
+                      size="compact"
                       disabled={test.isPending && test.variables === a.id}
                       onClick={() => test.mutate(a.id)}
                     >
                       Testar
-                    </button>
+                    </Button>
                     {a.status !== 'ACTIVE' ? (
-                      <button
+                      <Button
                         type="button"
-                        className={AVATAR_BTN_PRIMARY}
+                        intent="primary"
+                        size="compact"
                         disabled={!a.lastTestedAt}
                         title={
                           a.lastTestedAt
@@ -619,17 +621,18 @@ export function AvatarsTab() {
                         }
                       >
                         Activar
-                      </button>
+                      </Button>
                     ) : (
-                      <button
+                      <Button
                         type="button"
-                        className={AVATAR_BTN_GHOST}
+                        intent="secondary"
+                        size="compact"
                         onClick={() =>
                           setStatus.mutate({ id: a.id, status: 'INACTIVE' })
                         }
                       >
                         Desactivar
-                      </button>
+                      </Button>
                     )}
                   </>
                 )

@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_CFG } from '@/components/competencies/constants';
 import type { CompetencyCategory } from '@/components/competencies/types';
 import type { CompetencyGapItem } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function CompetencyGapsView() {
   const { data, isLoading } = useApiQuery<CompetencyGapItem[]>(
@@ -28,7 +29,7 @@ export function CompetencyGapsView() {
 
   return (
     <Card className="overflow-hidden">
-      <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+      <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
         Lacunas de competência — organização inteira (actual vs. desejado)
       </div>
       <CardBody>
@@ -39,7 +40,7 @@ export function CompetencyGapsView() {
                 <div className="truncate text-xs font-medium text-ink">
                   {g.name}
                 </div>
-                <div className="truncate text-[10px] text-ink-faint">
+                <div className="truncate text-micro text-ink-faint">
                   {CATEGORY_CFG[g.category as CompetencyCategory]?.label ??
                     g.category}
                 </div>
@@ -73,9 +74,10 @@ export function CompetencyGapsView() {
             </div>
           ))}
           {data.length === 0 && (
-            <div className="py-6 text-center text-sm text-ink-faint">
-              Sem lacunas de competência identificados
-            </div>
+            <EmptyState
+              variant="inline"
+              title="Sem lacunas de competência identificados"
+            />
           )}
         </div>
       </CardBody>

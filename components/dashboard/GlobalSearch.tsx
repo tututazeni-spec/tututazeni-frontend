@@ -18,6 +18,8 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import type { SearchResults } from './types';
+import { Input } from '@/components/ui/Input';
+import { IconButton } from '@/components/ui/Button';
 
 export interface GlobalSearchProps {
   onClose: () => void;
@@ -44,20 +46,19 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
       <div className="w-full max-w-xl overflow-hidden rounded-panel bg-surface shadow-elevated">
         <div className="flex items-center gap-3 border-b border-border px-5 py-4">
           <Search size={18} strokeWidth={1.75} className="text-ink-faint" />
-          <input
+          <Input
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Pesquisar colaboradores, cursos, competências..."
-            className="flex-1 font-body text-sm text-ink focus:outline-none"
+            className="flex-1"
           />
-          <button
+          <IconButton
+            icon={X}
+            label="Fechar"
+            intent="ghost"
             onClick={onClose}
-            aria-label="Fechar"
-            className="text-ink-faint hover:text-ink"
-          >
-            <X size={18} strokeWidth={1.75} />
-          </button>
+          />
         </div>
 
         {loading && (
@@ -70,7 +71,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
           <div className="max-h-80 overflow-y-auto px-5 py-3">
             {(results.users?.length ?? 0) > 0 && (
               <div className="mb-3">
-                <p className="mb-2 font-body text-[10px] font-semibold uppercase tracking-wide text-ink-faint">
+                <p className="mb-2 font-body text-micro font-semibold uppercase tracking-wide text-ink-faint">
                   Colaboradores
                 </p>
                 {results.users?.map((u) => (
@@ -83,7 +84,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
                       <p className="font-body text-sm font-medium text-ink">
                         {u.fullName}
                       </p>
-                      <p className="font-body text-[10px] text-ink-faint">
+                      <p className="font-body text-micro text-ink-faint">
                         {u.position?.name} · {u.department?.name}
                       </p>
                     </div>
@@ -93,7 +94,7 @@ export function GlobalSearch({ onClose }: GlobalSearchProps) {
             )}
             {(results.courses?.length ?? 0) > 0 && (
               <div className="mb-3">
-                <p className="mb-2 font-body text-[10px] font-semibold uppercase tracking-wide text-ink-faint">
+                <p className="mb-2 font-body text-micro font-semibold uppercase tracking-wide text-ink-faint">
                   Cursos
                 </p>
                 {results.courses?.map((c) => (

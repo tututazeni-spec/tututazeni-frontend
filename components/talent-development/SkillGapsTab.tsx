@@ -101,7 +101,7 @@ export function SkillGapsTab() {
 
       {view === 'needs' && (
         <Card>
-          <CardHeader className="rounded-t-card bg-[#0F1F3D]/60">
+          <CardHeader className="rounded-t-card bg-brand/60">
             <h3 className="font-display font-semibold text-white">
               Top Habilidades Com Maior Lacunas
             </h3>
@@ -132,7 +132,7 @@ export function SkillGapsTab() {
                   >
                     -{item.avgGap}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     gap médio
                   </p>
                 </div>
@@ -151,7 +151,7 @@ export function SkillGapsTab() {
 
       {view === 'heatmap' && (
         <Card className="overflow-x-auto">
-          <CardHeader className="rounded-t-card bg-[#0F1F3D]/60">
+          <CardHeader className="rounded-t-card bg-brand/60">
             <h3 className="font-display font-semibold text-white">
               Mapa de calor de habilidades por Departamento
             </h3>
@@ -208,9 +208,10 @@ export function SkillGapsTab() {
             </tbody>
           </table>
           {heatmap.length === 0 && (
-            <p className="py-12 text-center font-body text-sm text-ink-faint">
-              Sem dados de habilidades avaliadas
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem dados de habilidades avaliadas"
+            />
           )}
         </Card>
       )}

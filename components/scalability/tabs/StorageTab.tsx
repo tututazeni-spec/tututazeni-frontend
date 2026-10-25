@@ -26,9 +26,7 @@ function StorageBreakdown({
       <CardTitleBar>{title}</CardTitleBar>
       <CardBody>
         {rows.length === 0 ? (
-          <p className="font-body text-xs text-ink-faint">
-            Sem ficheiros registados.
-          </p>
+          <EmptyState variant="inline" title="Sem ficheiros registados" />
         ) : (
           <table className="w-full font-body text-sm">
             <thead>
@@ -156,9 +154,10 @@ export function StorageTab({
         <CardTitleBar>Maiores ficheiros</CardTitleBar>
         <CardBody>
           {storage.largestFiles.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem ficheiros com tamanho registado.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem ficheiros com tamanho registado"
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full font-body text-sm">

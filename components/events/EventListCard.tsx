@@ -35,11 +35,11 @@ export interface MetricProps {
 
 export function Metric({
   icon: Icon,
-  iconClassName = 'text-[#49658A]',
+  iconClassName = 'text-brand-muted',
   children,
 }: MetricProps) {
   return (
-    <div className="flex items-center gap-2 px-3 text-[15px] text-[#0F1F3D] first:pl-0 last:pr-0">
+    <div className="flex items-center gap-2 px-3 text-[15px] text-brand first:pl-0 last:pr-0">
       <Icon
         size={22}
         strokeWidth={1.75}
@@ -65,7 +65,7 @@ export function InfoRow({
   children,
 }: InfoRowProps) {
   return (
-    <div className="flex items-center gap-3 rounded-[14px] bg-[#EEF4FD] px-4 py-3 text-[15px] text-[#0F1F3D]">
+    <div className="flex items-center gap-3 rounded-[14px] bg-brand-soft px-4 py-3 text-[15px] text-brand">
       {leading ??
         (Icon && (
           <Icon
@@ -169,7 +169,7 @@ export function EventListCard({ event: e, onOpen, menu }: EventListCardProps) {
                   aria-label="Acções do evento"
                   onClick={(ev) => ev.stopPropagation()}
                   onKeyDown={(ev) => ev.stopPropagation()}
-                  className="rounded-full bg-[#0F1F3D] p-2.5 text-white shadow-sm hover:bg-[#162B52]"
+                  className="rounded-full bg-brand p-2.5 text-white shadow-sm hover:bg-[#162B52]"
                 >
                   <MoreVertical size={18} strokeWidth={1.75} />
                 </button>
@@ -199,7 +199,7 @@ export function EventListCard({ event: e, onOpen, menu }: EventListCardProps) {
           <h3 className="line-clamp-2 font-display text-[24px] font-semibold leading-tight">
             {e.title}
           </h3>
-          <p className="mt-1 line-clamp-2 text-[15px] text-[#C7D4E8]">
+          <p className="mt-1 line-clamp-2 text-[15px] text-on-brand-muted">
             {subtitle}
           </p>
         </div>

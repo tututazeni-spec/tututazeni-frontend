@@ -19,13 +19,14 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { QueryData } from '@/hooks/useUserProfileData';
-import { EmptyState, LoadingRows } from './shared';
+import { LoadingRows } from './shared';
 import { completedIntent, gapClass } from './logic';
 import {
   type TrainingParticipation,
   type UserEnrollmentsResponse,
   type UserCompetencyEntry,
 } from '../types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function TrainingView({
   data,
@@ -33,7 +34,7 @@ export function TrainingView({
 }: QueryData<TrainingParticipation[]>) {
   if (isLoading) return <LoadingRows />;
   if (!data || data.length === 0)
-    return <EmptyState>Sem formações registadas</EmptyState>;
+    return <EmptyState title="Sem formações registadas" />;
 
   return (
     <Table>
@@ -78,7 +79,7 @@ export function CoursesView({
 }: QueryData<UserEnrollmentsResponse>) {
   if (isLoading) return <LoadingRows />;
   if (!data || data.enrollments.length === 0)
-    return <EmptyState>Sem matrículas</EmptyState>;
+    return <EmptyState title="Sem matrículas" />;
 
   return (
     <div className="space-y-4">
@@ -155,7 +156,7 @@ export function CompetenciesView({
 }: QueryData<UserCompetencyEntry[]>) {
   if (isLoading) return <LoadingRows />;
   if (!data || data.length === 0)
-    return <EmptyState>Sem competências avaliadas</EmptyState>;
+    return <EmptyState title="Sem competências avaliadas" />;
 
   return (
     <Table>

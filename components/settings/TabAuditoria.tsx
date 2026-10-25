@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { AuditDataOverview } from './types';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const HEALTH_LABELS: Record<
   string,
@@ -48,10 +49,7 @@ export function TabAuditoria() {
     '/settings/audit',
   );
 
-  if (isLoading || !data)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !data) return <Skeleton rows={4} />;
   if (error)
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
@@ -61,66 +59,66 @@ export function TabAuditoria() {
 
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-          <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-[#0F1F3D]/60 px-5 py-3">
-            <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
-              Registo de logs
-            </h3>
-            <span
-              className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold"
-              style={{ color: HEALTH_COLORS[health.intent] }}
-            >
-              {health.label}
-            </span>
+      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-brand/60 px-5 py-3">
+          <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
+            Registo de logs
+          </h3>
+          <span
+            className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold"
+            style={{ color: HEALTH_COLORS[health.intent] }}
+          >
+            {health.label}
+          </span>
+        </div>
+        <div className="grid grid-cols-4 gap-4 px-6 pt-5">
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-brand-muted">
+              Eventos (24h)
+            </p>
+            <p className="mt-1 text-2xl font-display font-bold text-brand">
+              {data.events24h}
+            </p>
           </div>
-          <div className="grid grid-cols-4 gap-4 px-6 pt-5">
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
-                Eventos (24h)
-              </p>
-              <p className="mt-1 text-2xl font-display font-bold text-[#0F1F3D]">
-                {data.events24h}
-              </p>
-            </div>
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
-                Falhas (24h)
-              </p>
-              <p className="mt-1 text-2xl font-display font-bold text-[#0F1F3D]">
-                {data.failedOperations24h}
-              </p>
-            </div>
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
-                Acessos negados (24h)
-              </p>
-              <p className="mt-1 text-2xl font-display font-bold text-[#0F1F3D]">
-                {data.deniedOperations24h}
-              </p>
-            </div>
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
-                Último evento
-              </p>
-              <p className="mt-1 text-sm text-[#0F1F3D]">
-                {data.lastEventAt
-                  ? new Date(data.lastEventAt).toLocaleString('pt-PT')
-                  : '—'}
-              </p>
-            </div>
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-brand-muted">
+              Falhas (24h)
+            </p>
+            <p className="mt-1 text-2xl font-display font-bold text-brand">
+              {data.failedOperations24h}
+            </p>
           </div>
-          <div className="px-6 pb-5 pt-4">
-            <Link href={data.links.logs}>
-              <Button type="button" intent="secondary">
-                Ver registo completo de logs
-              </Button>
-            </Link>
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-brand-muted">
+              Acessos negados (24h)
+            </p>
+            <p className="mt-1 text-2xl font-display font-bold text-brand">
+              {data.deniedOperations24h}
+            </p>
           </div>
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-brand-muted">
+              Último evento
+            </p>
+            <p className="mt-1 text-sm text-brand">
+              {data.lastEventAt
+                ? new Date(data.lastEventAt).toLocaleString('pt-PT')
+                : '—'}
+            </p>
+          </div>
+        </div>
+        <div className="px-6 pb-5 pt-4">
+          <Link href={data.links.logs}>
+            <Button type="button" intent="secondary">
+              Ver registo completo de logs
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Estado dos backups
           </div>
           <CardBody>
@@ -142,7 +140,7 @@ export function TabAuditoria() {
         </Card>
 
         <Card className="overflow-hidden">
-          <div className="flex items-center justify-between gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
+          <div className="flex items-center justify-between gap-3 border-b border-border bg-brand/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
             Exportação de dados
             <Link href={data.links.exports}>
               <Button type="button" intent="secondary">
@@ -167,51 +165,51 @@ export function TabAuditoria() {
         </Card>
       </div>
 
-      <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-          <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-[#0F1F3D]/60 px-5 py-3">
-            <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
-              Política de auditoria
-            </h3>
+      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-brand/60 px-5 py-3">
+          <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
+            Política de auditoria
+          </h3>
+        </div>
+        <div className="grid grid-cols-2 gap-4 px-6 pt-5 text-sm text-brand">
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-brand-muted">
+              Módulos cobertos
+            </p>
+            <p className="mt-1">
+              {data.policy.coveredModules.join(', ') || '—'}
+            </p>
           </div>
-          <div className="grid grid-cols-2 gap-4 px-6 pt-5 text-sm text-[#0F1F3D]">
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
-                Módulos cobertos
-              </p>
-              <p className="mt-1">
-                {data.policy.coveredModules.join(', ') || '—'}
-              </p>
-            </div>
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
-                Eventos obrigatórios
-              </p>
-              <p className="mt-1">
-                {data.policy.requiredEvents
-                  .map((e) => EVENT_PT[e.toUpperCase()] ?? e)
-                  .join(', ') || '—'}
-              </p>
-            </div>
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
-                Pode consultar
-              </p>
-              <p className="mt-1">{data.policy.viewRoles.join(', ')}</p>
-            </div>
-            <div>
-              <p className="m-0 text-xs uppercase tracking-wider text-[#49658A]">
-                Pode exportar
-              </p>
-              <p className="mt-1">{data.policy.exportRoles.join(', ')}</p>
-            </div>
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-brand-muted">
+              Eventos obrigatórios
+            </p>
+            <p className="mt-1">
+              {data.policy.requiredEvents
+                .map((e) => EVENT_PT[e.toUpperCase()] ?? e)
+                .join(', ') || '—'}
+            </p>
           </div>
-          <div className="px-6 pb-5 pt-4">
-            <Link href={data.links.policy}>
-              <Button type="button" intent="secondary">
-                Editar regras de auditoria
-              </Button>
-            </Link>
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-brand-muted">
+              Pode consultar
+            </p>
+            <p className="mt-1">{data.policy.viewRoles.join(', ')}</p>
           </div>
+          <div>
+            <p className="m-0 text-xs uppercase tracking-wider text-brand-muted">
+              Pode exportar
+            </p>
+            <p className="mt-1">{data.policy.exportRoles.join(', ')}</p>
+          </div>
+        </div>
+        <div className="px-6 pb-5 pt-4">
+          <Link href={data.links.policy}>
+            <Button type="button" intent="secondary">
+              Editar regras de auditoria
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

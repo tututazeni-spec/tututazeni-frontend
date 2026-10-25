@@ -226,9 +226,7 @@ export function CompensationDetailView({
                   {open && (
                     <div className="bg-surface-sunken px-11 py-2">
                       {r.components.length === 0 ? (
-                        <p className="font-body text-xs text-ink-faint">
-                          Sem componentes.
-                        </p>
+                        <EmptyState variant="inline" title="Sem componentes" />
                       ) : (
                         r.components.map((c) => (
                           <div

@@ -5,6 +5,7 @@
 'use client';
 
 import { useState } from 'react';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { ArrowLeft, BarChart2, Download, RefreshCw } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -111,14 +112,10 @@ export function ReportViewer({ template, onBack }: ReportViewerProps) {
       ) : data ? (
         <ReportOutput data={data} reportKey={template.reportKey} />
       ) : (
-        <div className="py-16 text-center text-ink-faint">
-          <BarChart2
-            size={40}
-            strokeWidth={1.75}
-            className="mx-auto mb-3 opacity-30"
-          />
-          <p className="font-body">Sem dados para o período seleccionado</p>
-        </div>
+        <EmptyState
+          icon={BarChart2}
+          title="Sem dados para o período seleccionado"
+        />
       )}
     </div>
   );

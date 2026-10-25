@@ -29,6 +29,8 @@ import {
   PLAN_OBJECTIVE_OPTIONS,
   PLAN_PRIORITY_OPTIONS,
 } from './planOptions';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface PlanFormModalProps {
   /** null = criar; um TrainingPlan existente = editar. */
@@ -330,17 +332,17 @@ export function PlanFormModal({
           >
             <div className="max-h-36 space-y-1 overflow-y-auto rounded-control border border-border p-2">
               {competencyOptions.length === 0 && (
-                <p className="text-xs text-ink-faint">
-                  Sem competências cadastradas.
-                </p>
+                <EmptyState
+                  variant="inline"
+                  title="Sem competências cadastradas"
+                />
               )}
               {competencyOptions.map((c) => (
                 <label
                   key={c.id}
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={competencyIds.includes(c.id)}
                     onChange={() =>
                       toggle(competencyIds, setCompetencyIds, c.id)

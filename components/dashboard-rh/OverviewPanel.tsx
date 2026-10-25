@@ -68,7 +68,7 @@ function PdiCoverageCard({ pct, status }: { pct: number; status?: string }) {
         </p>
       )}
       {status && (
-        <p className="font-body text-[11px] text-ink-muted">{status}</p>
+        <p className="font-body text-micro text-ink-muted">{status}</p>
       )}
     </Card>
   );
@@ -93,8 +93,8 @@ export function OverviewPanel() {
     return (
       <Skeleton
         rows={6}
-        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+        itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
   const k = data?.kpis ?? {};

@@ -21,6 +21,7 @@ import {
 import { CheckList } from './CheckList';
 import { ALL, OTHER, withCurrent } from './logic';
 import type { AvatarProgramDetail } from '../types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const DIFFICULTY_ITEMS = Object.entries(DIFFICULTY_LABEL).map(
   ([value, label]) => ({ value, label }),
@@ -290,8 +291,7 @@ export function ProgramFormView({
             emptyText="Sem competências disponíveis."
           />
           <label className="flex items-center gap-2 font-body text-sm text-ink">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={certificate}
               onChange={(e) => set({ certificate: e.target.checked })}
             />
@@ -315,8 +315,7 @@ export function ProgramFormView({
                 />
               </FormField>
               <label className="flex items-center gap-2 self-end pb-2 font-body text-sm text-ink">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={allSessions}
                   onChange={(e) => set({ allSessions: e.target.checked })}
                 />

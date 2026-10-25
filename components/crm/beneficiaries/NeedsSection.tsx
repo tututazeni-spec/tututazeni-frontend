@@ -17,6 +17,7 @@ import { useFormState } from '@/hooks/useFormState';
 import { useToast } from '@/providers/ToastProvider';
 import { EMPTY_NEED_FORM, PRIORITY_COLORS } from './types';
 import type { BeneficiaryDetail } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const PRIORITY_ITEMS = [
   { value: 'LOW', label: 'Baixa' },
@@ -94,9 +95,7 @@ export function NeedsSection({ beneficiaryId, needs }: NeedsSectionProps) {
       <Card>
         <div className="divide-y divide-border">
           {needs.length === 0 ? (
-            <p className="p-4 font-body text-ink-faint">
-              Sem necessidades registadas
-            </p>
+            <EmptyState variant="inline" title="Sem necessidades registadas" />
           ) : (
             needs.map((n) => (
               <div key={n.id} className="p-4 flex justify-between items-center">

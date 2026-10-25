@@ -128,7 +128,7 @@ export function BarChart({
                     x={padding.left - 10}
                     y={padding.top + groupH * ci + groupH / 2 + 3}
                     textAnchor="end"
-                    className="fill-ink-muted text-[10px]"
+                    className="fill-ink-muted text-micro"
                   >
                     {cat}
                   </text>
@@ -192,7 +192,7 @@ export function BarChart({
                     x={padding.left - 8}
                     y={y + 3}
                     textAnchor="end"
-                    className="fill-ink-faint text-[9px]"
+                    className="fill-ink-faint text-micro"
                   >
                     {yFormat(Math.round(v))}
                   </text>
@@ -209,7 +209,7 @@ export function BarChart({
                       x={padding.left + groupW * ci + groupW / 2}
                       y={resolvedHeight - padding.bottom + 16}
                       textAnchor="middle"
-                      className="fill-ink-faint text-[9px]"
+                      className="fill-ink-faint text-micro"
                     >
                       {cat}
                     </text>

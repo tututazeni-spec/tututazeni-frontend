@@ -23,6 +23,7 @@ import { fmtBytes, fmtDuration } from './utils';
 import { useRecording } from './useRecording';
 import type { LiveClass } from './types';
 import { safeHref } from '@/lib/safeHref';
+import { Input } from '@/components/ui/Input';
 
 interface RecordingPanelProps {
   liveClass: LiveClass;
@@ -104,7 +105,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
       {/* Recording controls */}
       <div>
         {rec.error && (
-          <div className="inline-flex items-center gap-1.5 bg-danger-subtle border border-danger-subtle rounded-lg py-2 px-3 text-xs text-danger-ink mb-2.5">
+          <div className="inline-flex items-center gap-1.5 bg-danger-subtle border border-danger-subtle rounded-control py-2 px-3 text-xs text-danger-ink mb-2.5">
             <AlertTriangle size={13} strokeWidth={1.75} /> {rec.error}
           </div>
         )}
@@ -170,13 +171,13 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
             <div className="flex gap-2">
               <button
                 onClick={() => rec.download(filename)}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.25 rounded-lg bg-success border-none text-canvas text-xs font-bold cursor-pointer"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.25 rounded-control bg-success border-none text-canvas text-xs font-bold cursor-pointer"
               >
                 <Download size={13} strokeWidth={1.75} /> Download (.webm)
               </button>
               <button
                 onClick={rec.reset}
-                className="inline-flex items-center gap-1 py-2.25 px-3.5 rounded-lg bg-white/8 border border-white/15 text-ink-faint text-xs cursor-pointer"
+                className="inline-flex items-center gap-1 py-2.25 px-3.5 rounded-control bg-white/8 border border-white/15 text-ink-faint text-xs cursor-pointer"
               >
                 <RefreshCw size={12} strokeWidth={1.75} /> Nova
               </button>
@@ -200,31 +201,31 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
         </p>
 
         {liveClass.recordingUrl && !urlSaved && (
-          <div className="py-2 px-3 bg-success-subtle border border-success-subtle rounded-lg text-xs text-success-ink mb-2">
+          <div className="py-2 px-3 bg-success-subtle border border-success-subtle rounded-control text-xs text-success-ink mb-2">
             ✓ Gravação anterior disponível
           </div>
         )}
 
         {urlSaved && (
-          <div className="py-2 px-3 bg-success-subtle border border-success-subtle rounded-lg text-xs text-success-ink mb-2">
+          <div className="py-2 px-3 bg-success-subtle border border-success-subtle rounded-control text-xs text-success-ink mb-2">
             ✓ URL guardada com sucesso!
           </div>
         )}
 
         <div className="flex gap-2">
-          <input
+          <Input
             value={customUrl}
             onChange={(e) => {
               setCustomUrl(e.target.value);
               setUrlSaved(false);
             }}
             placeholder="https://drive.google.com/... ou https://youtu.be/..."
-            className="flex-1 py-2 px-2.5 rounded-lg border border-white/12 bg-white/6 text-ink text-xs outline-none"
+            className="flex-1"
           />
           <button
             onClick={() => saveUrl(customUrl)}
             disabled={!customUrl || savingUrl}
-            className={`py-2 px-3.5 rounded-lg bg-accent border-none text-canvas text-xs font-bold cursor-pointer whitespace-nowrap ${
+            className={`py-2 px-3.5 rounded-control bg-accent border-none text-canvas text-xs font-bold cursor-pointer whitespace-nowrap ${
               !customUrl ? 'opacity-50' : ''
             }`}
           >

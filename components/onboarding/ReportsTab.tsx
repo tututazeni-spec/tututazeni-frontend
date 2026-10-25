@@ -29,13 +29,14 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useDepartmentOptions, useUnitOptions } from './planData';
 import type { OnboardingReportOverview } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 // Uma cor por linha (cíclica), para distinguir departamentos/unidades/responsáveis.
 const BAR_COLORS = [
   'bg-[#2563EB]',
   'bg-[#16A34A]',
   'bg-[#F59E0B]',
-  'bg-[#DC2626]',
+  'bg-danger',
   'bg-[#7C3AED]',
   'bg-[#0891B2]',
   'bg-[#DB2777]',
@@ -53,14 +54,12 @@ function RankedList({
   const max = Math.max(...sorted.map(([, n]) => n), 1);
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface">
-      <div className="bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
+      <div className="bg-brand/60 px-4 py-3 font-body text-xs font-semibold uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-4">
         {sorted.length === 0 ? (
-          <p className="py-4 text-center font-body text-sm text-ink-faint">
-            Sem dados
-          </p>
+          <EmptyState variant="inline" title="Sem dados" />
         ) : (
           <div className="space-y-2">
             {sorted.map(([label, count], i) => (

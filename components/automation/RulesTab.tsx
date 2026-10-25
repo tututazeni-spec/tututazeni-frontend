@@ -41,7 +41,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
-import { PHOTO_CARD_ACTION, PhotoCard } from '@/components/courses/PhotoCard';
+import { PhotoCard } from '@/components/courses/PhotoCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -58,6 +58,7 @@ import type {
   RunAllResponse,
 } from './types';
 import { saveBlob } from '@/lib/download';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const ALL = '__all__';
 
@@ -427,8 +428,8 @@ export function RulesTab({
             />
           </label>
           <label className="flex items-center gap-2 pb-2 font-body text-sm text-ink">
-            <input
-              type="checkbox"
+            <Checkbox
+              
               checked={withFailures}
               onChange={(e) => setWithFailures(e.target.checked)}
             />
@@ -540,40 +541,40 @@ export function RulesTab({
                   }
                   actions={
                     <>
-                      <button
+                      <Button
                         type="button"
-                        className={PHOTO_CARD_ACTION}
+                        intent="onDarkGhost" size="icon"
                         aria-label="Ver detalhes"
                         title="Ver detalhes"
                         onClick={() => setDetail(r)}
                       >
                         <Eye size={15} strokeWidth={1.75} />
-                      </button>
+                      </Button>
                       {onEditRule && (
-                        <button
+                        <Button
                           type="button"
-                          className={PHOTO_CARD_ACTION}
+                          intent="onDarkGhost" size="icon"
                           aria-label="Editar regra"
                           title="Editar regra"
                           onClick={() => onEditRule(r.id)}
                         >
                           <Pencil size={15} strokeWidth={1.75} />
-                        </button>
+                        </Button>
                       )}
                       {r.draft ? (
-                        <button
+                        <Button
                           type="button"
-                          className={PHOTO_CARD_ACTION}
+                          intent="onDarkGhost" size="icon"
                           aria-label="Publicar regra"
                           title="Publicar regra"
                           onClick={() => publish(r)}
                         >
                           <Rocket size={15} strokeWidth={1.75} />
-                        </button>
+                        </Button>
                       ) : (
-                        <button
+                        <Button
                           type="button"
-                          className={PHOTO_CARD_ACTION}
+                          intent="onDarkGhost" size="icon"
                           aria-label={
                             r.active ? 'Pausar regra' : 'Activar regra'
                           }
@@ -585,18 +586,18 @@ export function RulesTab({
                           ) : (
                             <Play size={15} strokeWidth={1.75} />
                           )}
-                        </button>
+                        </Button>
                       )}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button
+                          <Button
                             type="button"
-                            className={PHOTO_CARD_ACTION}
+                            intent="onDarkGhost" size="icon"
                             aria-label="Mais acções"
                             title="Mais acções"
                           >
                             <MoreVertical size={15} strokeWidth={1.75} />
-                          </button>
+                          </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           {!r.draft && (

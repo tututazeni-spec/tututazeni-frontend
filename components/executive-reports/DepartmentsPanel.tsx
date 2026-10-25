@@ -94,7 +94,7 @@ export function DepartmentsPanel({
     return (
       <Skeleton
         rows={2}
-        wrapperClassName="grid grid-cols-1 gap-5 lg:grid-cols-2 animate-pulse"
+        wrapperClassName="grid grid-cols-1 gap-5 lg:grid-cols-2"
         itemClassName="h-72 rounded-card bg-surface-sunken"
       />
     );
@@ -118,7 +118,7 @@ export function DepartmentsPanel({
   return (
     <div className="space-y-5">
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+        <h3 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
           Comparação entre departamentos
         </h3>
         <div className="p-5">
@@ -154,7 +154,7 @@ export function DepartmentsPanel({
       </div>
 
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+        <h3 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
           Composição por tipo de vínculo
         </h3>
         <div className="p-5">

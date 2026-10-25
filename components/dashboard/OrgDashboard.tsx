@@ -52,6 +52,7 @@ import type {
   ExecutiveSnapshot,
   ExecutiveTrendPoint,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const PERIODS = [
   { id: 'WEEK', label: 'Semana' },
@@ -82,7 +83,7 @@ interface ModulePanelProps {
 function ModulePanel({ title, data, children }: ModulePanelProps) {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-      <h3 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">
+      <h3 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 text-white font-body font-semibold">
         {title}
       </h3>
       {data ? (
@@ -221,7 +222,7 @@ function SnapshotsPanel() {
 
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center justify-between border-b border-border bg-[#0F1F3D]/60 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-border bg-brand/60 px-4 py-3">
         <h3 className="font-display font-semibold text-white">
           Snapshots (Histórico de KPIs)
         </h3>
@@ -237,9 +238,7 @@ function SnapshotsPanel() {
       </div>
       <CardBody>
         {snapshots.length === 0 ? (
-          <p className="font-body text-sm text-ink-faint">
-            Sem snapshots guardados ainda.
-          </p>
+          <EmptyState variant="inline" title="Sem snapshots guardados ainda" />
         ) : (
           <>
             <div className="mb-5 overflow-x-auto">
@@ -336,7 +335,7 @@ function SnapshotsPanel() {
                     key={key}
                     className="rounded-control border border-border bg-surface-sunken p-3"
                   >
-                    <p className="font-body text-[11px] text-ink-faint">
+                    <p className="font-body text-micro text-ink-faint">
                       {COMPARISON_LABELS[key] ?? key}
                     </p>
                     <p className="font-body text-sm font-semibold text-ink">
@@ -377,8 +376,8 @@ export function OrgDashboard() {
     return (
       <Skeleton
         rows={6}
-        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+        itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
 
@@ -533,7 +532,7 @@ export function OrgDashboard() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Talent metrics */}
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">
+          <h3 className="-mx-5 -mt-5 mb-4 bg-brand/60 px-5 py-3 text-white font-body font-semibold">
             Talentos
           </h3>
           <div className="space-y-3">
@@ -573,7 +572,7 @@ export function OrgDashboard() {
 
         {/* Departments */}
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">
+          <h3 className="-mx-5 -mt-5 mb-4 bg-brand/60 px-5 py-3 text-white font-body font-semibold">
             Departamentos
           </h3>
           {(org.departments ?? []).length > 0 ? (
@@ -593,7 +592,7 @@ export function OrgDashboard() {
 
         {/* AI Insights */}
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-4 flex items-center gap-2 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">
+          <h3 className="-mx-5 -mt-5 mb-4 flex items-center gap-2 bg-brand/60 px-5 py-3 text-white font-body font-semibold">
             <Brain size={14} strokeWidth={1.75} className="text-white" />
             Análises de IA
           </h3>
@@ -620,7 +619,7 @@ export function OrgDashboard() {
       {/* Riscos + Top Talento */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-4 flex items-center gap-2 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">
+          <h3 className="-mx-5 -mt-5 mb-4 flex items-center gap-2 bg-brand/60 px-5 py-3 text-white font-body font-semibold">
             <ShieldAlert size={14} strokeWidth={1.75} className="text-white" />
             Riscos Organizacionais
           </h3>
@@ -652,7 +651,7 @@ export function OrgDashboard() {
         </div>
 
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h3 className="-mx-5 -mt-5 mb-4 flex items-center gap-2 bg-[#0F1F3D]/60 px-5 py-3 text-white font-body font-semibold">
+          <h3 className="-mx-5 -mt-5 mb-4 flex items-center gap-2 bg-brand/60 px-5 py-3 text-white font-body font-semibold">
             <Award size={14} strokeWidth={1.75} className="text-white" />
             Top Talento
           </h3>
@@ -681,7 +680,7 @@ export function OrgDashboard() {
       {/* Tendência de crescimento */}
       {data?.growthTrend && data.growthTrend.length > 0 && (
         <Card className="overflow-hidden">
-          <h3 className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-display font-semibold text-white">
+          <h3 className="border-b border-border bg-brand/60 px-4 py-3 font-display font-semibold text-white">
             Novos Funcionários (6 meses)
           </h3>
           <CardBody>
@@ -707,7 +706,7 @@ export function OrgDashboard() {
       {data?.geographic &&
         data.geographic.beneficiariesByProvince.length > 0 && (
           <Card className="overflow-hidden">
-            <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+            <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
               <MapPin size={16} strokeWidth={1.75} className="text-accent" />
               Beneficiários por Província
             </div>
@@ -750,7 +749,7 @@ export function OrgDashboard() {
                   <p className="truncate font-body text-sm font-medium text-ink">
                     {c.content?.title}
                   </p>
-                  <p className="font-body text-[10px] text-ink-faint">
+                  <p className="font-body text-micro text-ink-faint">
                     {c.content?.type}
                   </p>
                 </div>

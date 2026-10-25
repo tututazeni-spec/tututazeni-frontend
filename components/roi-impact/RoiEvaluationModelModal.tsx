@@ -24,6 +24,7 @@ import type {
   RoiEvaluationModelRow,
   RoiInitiativeType,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const DEFAULT_LEVELS: (RoiEvaluationLevel & {
   included: boolean;
@@ -235,8 +236,7 @@ export function RoiEvaluationModelModal({
                       className={l.included ? '' : 'opacity-50'}
                     >
                       <td className="px-3 py-2">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={l.included}
                           onChange={(e) =>
                             updateLevel(l.level, 'included', e.target.checked)
@@ -258,8 +258,7 @@ export function RoiEvaluationModelModal({
                         {l.measures}
                       </td>
                       <td className="px-3 py-2">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={l.mandatory}
                           disabled={!l.included}
                           onChange={(e) =>
@@ -306,8 +305,7 @@ export function RoiEvaluationModelModal({
                   key={value}
                   className="flex items-center gap-1.5 text-sm text-ink"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={initiativeTypes.includes(value)}
                     onChange={() => toggleInitiativeType(value)}
                   />

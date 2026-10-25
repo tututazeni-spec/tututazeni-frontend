@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import type { FieldSpec, SectionSchema } from './setting-schemas';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type Json = Record<string, unknown>;
 
@@ -155,8 +157,7 @@ function Control({
     case 'bool':
       return (
         <label className="inline-flex items-center gap-2 font-body text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
             disabled={disabled}
             checked={value !== false}
             onChange={(e) => onChange(e.target.checked)}
@@ -212,7 +213,7 @@ function Control({
                     on ? days.filter((x) => x !== i) : [...days, i].sort(),
                   )
                 }
-                className={`rounded-lg border px-3 py-1.5 text-sm ${
+                className={`rounded-control border px-3 py-1.5 text-sm ${
                   on
                     ? 'border-primary bg-primary/10 text-primary'
                     : 'border-border bg-white text-ink-muted'
@@ -255,8 +256,7 @@ function Control({
                     const to = asArr(m[r.value]).map(String);
                     return (
                       <td key={c.value} className="px-3 text-center">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           disabled={disabled || r.value === c.value}
                           checked={to.includes(c.value)}
                           onChange={(e) =>
@@ -312,7 +312,7 @@ function Control({
       return (
         <div className="space-y-2">
           {rows.length === 0 && (
-            <div className="font-body text-xs text-ink-faint">Sem entradas</div>
+            <EmptyState variant="inline" title="Sem entradas" />
           )}
           {rows.map((row, i) => (
             <div

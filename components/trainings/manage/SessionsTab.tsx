@@ -34,6 +34,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { INVERT_ON_HOVER } from '../buttonStyles';
 import { fmtDate } from '../utils';
 import type { Session, Training } from '../types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const MODALITY_ITEMS = [
   { value: 'PRESENTIAL', label: 'Presencial' },
@@ -203,15 +204,16 @@ export function SessionsTab({ training }: SessionsTabProps) {
                 ]}
                 actions={
                   <>
-                    <button
+                    <Button
                       type="button"
-                      className={NAVY_ACTION}
+                      intent="onDarkGhost"
+                      size="sm"
                       aria-label={`Editar sessão de ${fmtDate(s.sessionDate)}`}
                       title="Editar"
                       onClick={() => openEdit(s)}
                     >
                       <Pencil size={15} strokeWidth={1.75} />
-                    </button>
+                    </Button>
                     <button
                       type="button"
                       className={`${NAVY_ACTION} hover:!bg-red-500 hover:!text-white`}
@@ -315,9 +317,9 @@ export function SessionsTab({ training }: SessionsTabProps) {
                 </FormField>
                 <FormField label=" " htmlFor="st-waitlist">
                   <label className="flex items-center gap-2 pt-2 text-sm text-ink">
-                    <input
+                    <Checkbox
                       id="st-waitlist"
-                      type="checkbox"
+
                       checked={form.waitlistEnabled}
                       onChange={(e) =>
                         setForm((f) => ({

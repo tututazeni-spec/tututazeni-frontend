@@ -33,7 +33,7 @@ import type { EvaluationRequestRow } from './types';
 
 /** Classe dos botões redondos de acção sobre a foto. */
 export const EVAL_CARD_ACTION =
-  'inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#0F1F3D]/70 text-white/90 hover:bg-white/25 hover:text-white disabled:opacity-50';
+  'inline-flex h-8 w-8 items-center justify-center rounded-full bg-brand/70 text-white/90 hover:bg-white/25 hover:text-white disabled:opacity-50';
 
 interface EvaluationCardProps {
   row: EvaluationRequestRow;
@@ -65,7 +65,7 @@ export function EvaluationCard({
           onSelect();
         }
       }}
-      className="relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/10 text-white shadow-[0_4px_14px_rgba(21,47,89,0.25)] transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-[0_10px_24px_rgba(21,47,89,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 motion-reduce:hover:scale-100"
+      className="relative flex h-full cursor-pointer flex-col overflow-hidden rounded-panel border border-white/10 text-white shadow-[0_4px_14px_rgba(21,47,89,0.25)] transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-[0_10px_24px_rgba(21,47,89,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 motion-reduce:hover:scale-100"
       style={{
         background: `linear-gradient(165deg, ${palette[1]} 0%, ${palette[2]} 60%, ${palette[2]} 100%)`,
       }}
@@ -117,7 +117,7 @@ export function EvaluationCard({
               ))}
             </h3>
             {(r.name ?? r.cycle?.name) && (
-              <p className="line-clamp-2 pt-2 text-sm text-[#C7D4E8]">
+              <p className="line-clamp-2 pt-2 text-sm text-on-brand-muted">
                 {r.name ?? r.cycle?.name}
               </p>
             )}
@@ -181,15 +181,15 @@ export function EvaluationCard({
         </InfoRow>
       </div>
 
-      <div className="m-4 mt-2 space-y-2 rounded-2xl bg-white/10 px-4 py-3">
-        <p className="text-xs text-[#C7D4E8]">Progresso</p>
+      <div className="m-4 mt-2 space-y-2 rounded-panel bg-white/10 px-4 py-3">
+        <p className="text-xs text-on-brand-muted">Progresso</p>
         <div className="flex items-center gap-3">
           <ProgressBar
             value={Math.round(r.progress)}
             color={palette[3]}
             className="flex-1"
           />
-          <span className="text-xs tabular-nums text-[#C7D4E8]">
+          <span className="text-xs tabular-nums text-on-brand-muted">
             {Math.round(r.progress)}%
           </span>
         </div>

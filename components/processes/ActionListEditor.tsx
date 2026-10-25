@@ -5,7 +5,7 @@
 'use client';
 
 import { Plus, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
@@ -14,6 +14,7 @@ import {
   type ActionDraft,
   type ActionType,
 } from './workflow-model';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export const RECIPIENT_TOKENS = [
   { value: 'ASSIGNEE', label: 'Responsável da etapa' },
@@ -66,8 +67,7 @@ export function RecipientPicker({
             key={t.value}
             className="flex items-center gap-1.5 font-body text-xs text-ink-muted"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               checked={value.includes(t.value)}
               disabled={disabled}
               onChange={() => toggle(t.value)}
@@ -131,14 +131,15 @@ export function ActionListEditor({
               className="w-60"
             />
             {!disabled && (
-              <button
+              <IconButton
+                icon={Trash2}
+                label="Remover acção"
+                intent="ghostDanger"
+                size="xs"
+                className="ml-auto"
                 type="button"
                 onClick={() => onChange(value.filter((_, idx) => idx !== i))}
-                className="ml-auto text-ink-faint hover:text-danger"
-                aria-label="Remover acção"
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </button>
+              />
             )}
           </div>
           <div className="mt-2 space-y-2">

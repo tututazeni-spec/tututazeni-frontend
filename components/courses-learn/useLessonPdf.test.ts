@@ -2,8 +2,6 @@ import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useLessonPdf } from './useLessonPdf';
 
-vi.mock('@/lib/apiClient', () => ({ refreshSession: vi.fn() }));
-
 const lesson = { id: 5, contentUrl: null, hasFile: true };
 
 describe('useLessonPdf', () => {

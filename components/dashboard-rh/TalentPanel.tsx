@@ -25,6 +25,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { TalentData } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type TabKey = 'succession' | 'hipo' | 'risk';
 
@@ -40,8 +41,8 @@ export function TalentPanel() {
     return (
       <Skeleton
         rows={3}
-        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+        itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
 
@@ -113,13 +114,14 @@ export function TalentPanel() {
       {/* Succession plans */}
       {tab === 'succession' && (
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h4 className="-mx-5 -mt-5 mb-3 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h4 className="-mx-5 -mt-5 mb-3 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Planos de Sucessão
           </h4>
           {successionPlans.length === 0 ? (
-            <p className="font-body text-sm text-ink-faint">
-              Sem planos de sucessão registados.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem planos de sucessão registados"
+            />
           ) : (
             <div className="space-y-2">
               {successionPlans.slice(0, 8).map((p, i) => (
@@ -135,7 +137,7 @@ export function TalentPanel() {
                     <p className="font-body text-sm font-medium text-ink">
                       {p.candidate?.fullName}
                     </p>
-                    <p className="font-body text-[10px] text-ink-faint">
+                    <p className="font-body text-micro text-ink-faint">
                       → {p.position?.name}
                     </p>
                   </div>
@@ -154,9 +156,10 @@ export function TalentPanel() {
             Profissionais de Alto Potencial
           </h4>
           {hiPoList.length === 0 ? (
-            <p className="font-body text-sm text-ink-faint">
-              Sem colaboradores identificados como alto potencial.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem colaboradores identificados como alto potencial"
+            />
           ) : (
             <div className="space-y-2">
               {hiPoList.slice(0, 8).map((h, i) => (
@@ -169,7 +172,7 @@ export function TalentPanel() {
                     <p className="font-body text-sm font-medium text-ink">
                       {h.fullName}
                     </p>
-                    <p className="font-body text-[10px] text-ink-faint">
+                    <p className="font-body text-micro text-ink-faint">
                       {h.position?.name ?? h.department}
                     </p>
                   </div>
@@ -192,9 +195,10 @@ export function TalentPanel() {
       {tab === 'risk' && (
         <div className="rounded-card border border-border bg-surface p-5">
           {positionsAtRisk.length === 0 ? (
-            <p className="font-body text-sm text-ink-faint">
-              Sem posições em risco no momento.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem posições em risco no momento"
+            />
           ) : (
             <div className="space-y-2">
               {positionsAtRisk.map((p, i) => (

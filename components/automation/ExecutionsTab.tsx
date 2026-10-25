@@ -125,7 +125,7 @@ export function ExecutionsTab({
                   Rule #{e.ruleId}
                 </p>
                 {e.error && (
-                  <p className="truncate font-body text-[10px] text-danger">
+                  <p className="truncate font-body text-micro text-danger">
                     {e.error}
                   </p>
                 )}
@@ -133,7 +133,7 @@ export function ExecutionsTab({
               <Badge intent={STATUS_INTENT[e.status] ?? 'warning'}>
                 {STATUS_LABEL[e.status] ?? e.status}
               </Badge>
-              <span className="shrink-0 font-body text-[10px] text-ink-faint">
+              <span className="shrink-0 font-body text-micro text-ink-faint">
                 {e.startedAt ? new Date(e.startedAt).toLocaleString('pt') : '–'}
               </span>
               {e.status === 'FAILED' && (

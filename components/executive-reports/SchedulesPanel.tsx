@@ -33,6 +33,7 @@ import type {
   ScheduleFrequency,
   TemplateOption,
 } from './reportTypes';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const FREQUENCY_LABEL: Record<ScheduleFrequency, string> = {
   WEEKLY: 'Semanal',
@@ -284,8 +285,7 @@ function ScheduleForm({ onDone }: { onDone: () => void }) {
               key={u.id}
               className="flex items-center gap-2 font-body text-sm text-ink"
             >
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={recipients.includes(u.id)}
                 onChange={() => toggleRecipient(u.id)}
               />
@@ -368,7 +368,7 @@ export function SchedulesPanel() {
     return (
       <Skeleton
         rows={3}
-        wrapperClassName="space-y-4 animate-pulse"
+        wrapperClassName="space-y-4"
         itemClassName="h-28 rounded-card bg-surface-sunken"
       />
     );

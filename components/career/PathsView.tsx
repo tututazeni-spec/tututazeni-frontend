@@ -92,17 +92,15 @@ export function PathsView() {
               className={cn(
                 'flex cursor-pointer items-center gap-3 rounded-[18px] border p-4 shadow-[0_8px_30px_rgba(11,61,145,0.10)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50',
                 selected?.id === path.id
-                  ? 'border-transparent bg-gradient-to-br from-[#0B3D91] to-[#06275F] text-white'
-                  : 'border-[#D6E4F5] bg-white text-[#0F1F3D] hover:border-[#0D6EFD]',
+                  ? 'border-transparent bg-gradient-to-br from-brand-mid to-brand-dark text-white'
+                  : 'border-brand-line bg-white text-brand hover:border-[#0D6EFD]',
               )}
             >
               <span
                 aria-hidden="true"
                 className={cn(
-                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
-                  selected?.id === path.id
-                    ? 'bg-[#075FE8]'
-                    : 'bg-[#E8F0FE]',
+                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-control',
+                  selected?.id === path.id ? 'bg-[#075FE8]' : 'bg-brand-soft',
                 )}
               >
                 <Route
@@ -138,9 +136,9 @@ export function PathsView() {
               Selecciona uma trilha
             </div>
           ) : (
-            <div className="overflow-hidden rounded-[18px] border border-[#D6E4F5] bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
+            <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
               {/* Cabeçalho */}
-              <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-[#0B3D91] to-[#06275F] px-6 py-4 text-white">
+              <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand-mid to-brand-dark px-6 py-4 text-white">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2.5">
                     <Route size={20} strokeWidth={1.75} />
@@ -162,7 +160,7 @@ export function PathsView() {
                     type="button"
                     disabled={deletePath.isPending}
                     onClick={() => handleDelete(selected)}
-                    className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-control bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Trash2 size={14} strokeWidth={1.75} /> Apagar
                   </button>
@@ -171,7 +169,7 @@ export function PathsView() {
 
               <div className="p-6">
                 {selected.description && (
-                  <p className="mb-5 font-body text-sm text-[#0F1F3D]/70">
+                  <p className="mb-5 font-body text-sm text-brand/70">
                     {selected.description}
                   </p>
                 )}
@@ -181,18 +179,18 @@ export function PathsView() {
                   {selected.steps.map((step, idx) => (
                     <div key={step.id} className="flex items-start gap-3">
                       <div className="flex flex-col items-center">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#075FE8] font-body text-sm font-bold text-white">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-[#075FE8] font-body text-sm font-bold text-white">
                           {step.order}
                         </div>
                         {idx < selected.steps.length - 1 && (
-                          <div className="mt-1 h-6 w-0.5 bg-[#D6E4F5]" />
+                          <div className="mt-1 h-6 w-0.5 bg-brand-line" />
                         )}
                       </div>
-                      <div className="flex-1 rounded-xl border border-[#D6E4F5] bg-[#E8F0FE]/50 p-3">
-                        <div className="font-body text-sm font-semibold text-[#0F1F3D]">
+                      <div className="flex-1 rounded-card border border-brand-line bg-brand-soft/50 p-3">
+                        <div className="font-body text-sm font-semibold text-brand">
                           {step.position?.name}
                         </div>
-                        <div className="mt-1 flex flex-wrap gap-3 font-body text-xs text-[#0F1F3D]/60">
+                        <div className="mt-1 flex flex-wrap gap-3 font-body text-xs text-brand/60">
                           {step.minMonthsRequired && (
                             <span className="inline-flex items-center gap-1">
                               <Clock size={12} strokeWidth={1.75} />{' '}

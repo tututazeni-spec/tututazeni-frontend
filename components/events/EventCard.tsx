@@ -62,8 +62,8 @@ export function EventCard({ event: e, onSelect, myStatus }: EventCardProps) {
         }
       }}
       className={cn(
-        'relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.03] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 motion-reduce:hover:scale-100',
-        e.status === 'LIVE' ? 'border-danger' : 'border-[#D8E2F0]',
+        'relative flex cursor-pointer flex-col overflow-hidden rounded-panel border bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.03] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 motion-reduce:hover:scale-100',
+        e.status === 'LIVE' ? 'border-danger' : 'border-brand-line',
       )}
     >
       {/* Faixa de título (desenho NavyStatCard) — cor do cartão de rascunho */}
@@ -89,7 +89,7 @@ export function EventCard({ event: e, onSelect, myStatus }: EventCardProps) {
       </span>
 
       {/* Imagem do evento (ou ícone do tipo) */}
-      <div className="relative h-[140px] shrink-0 bg-[#E3EAF4]">
+      <div className="relative h-[140px] shrink-0 bg-brand-line">
         {e.bannerUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -98,7 +98,7 @@ export function EventCard({ event: e, onSelect, myStatus }: EventCardProps) {
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-[#49658A]">
+          <div className="flex h-full w-full items-center justify-center text-brand-muted">
             <TypeIcon size={40} strokeWidth={1.5} aria-hidden />
           </div>
         )}
@@ -114,12 +114,12 @@ export function EventCard({ event: e, onSelect, myStatus }: EventCardProps) {
             fallback={STATUS_CFG.PUBLISHED}
           />
         </div>
-        <p className="absolute bottom-2 left-3 font-mono text-xs text-[#0F1F3D]/70">
+        <p className="absolute bottom-2 left-3 font-mono text-xs text-brand/70">
           {reference}
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-y-2 divide-x divide-[#E6ECF4] px-5 pt-4">
+      <div className="flex flex-wrap items-center gap-y-2 divide-x divide-brand-line px-5 pt-4">
         <Metric icon={CalendarDays}>{fmtDate(e.startAt)}</Metric>
         <Metric icon={Users}>
           {e.confirmedCount ?? 0}/{e._count.participants} · {e.maxCapacity}

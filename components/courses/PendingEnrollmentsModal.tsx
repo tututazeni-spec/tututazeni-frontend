@@ -16,6 +16,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from './shared';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface PendingEnrollment {
   id: number;
@@ -77,9 +78,7 @@ export function PendingEnrollmentsModal({
           {pending.isLoading ? (
             <Skeleton rows={3} />
           ) : list.length === 0 ? (
-            <p className="text-sm text-ink-faint text-center py-6">
-              Nenhum pedido pendente.
-            </p>
+            <EmptyState variant="inline" title="Nenhum pedido pendente" />
           ) : (
             <div className="flex flex-col gap-2">
               {list.map((e) => (

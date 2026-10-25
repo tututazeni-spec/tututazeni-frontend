@@ -55,7 +55,7 @@ export function MySkillsTab({
     return (
       <Skeleton
         rows={3}
-        wrapperClassName="space-y-4 animate-pulse"
+        wrapperClassName="space-y-4"
         itemClassName="h-32 bg-surface border border-border rounded-card"
       />
     );

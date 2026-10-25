@@ -195,7 +195,8 @@ export function GestaoView({
       invalidateKeys,
       onSuccess: () =>
         toast({
-          title: 'Curso movido para a reciclagem. Podes restaurá-lo durante 30 dias.',
+          title:
+            'Curso movido para a reciclagem. Podes restaurá-lo durante 30 dias.',
           intent: 'success',
         }),
       onError: toastError,
@@ -243,7 +244,10 @@ export function GestaoView({
         <ShortcutPills
           className="mb-4"
           items={[
-            { label: '← Voltar aos cursos', onClick: () => setShowRecycle(false) },
+            {
+              label: '← Voltar aos cursos',
+              onClick: () => setShowRecycle(false),
+            },
           ]}
         />
         <RecycleBinView />
@@ -357,7 +361,7 @@ export function GestaoView({
                         <DropdownMenuTrigger asChild>
                           <button
                             type="button"
-                            className="rounded-lg p-1.5 text-[#C7D4E8] hover:bg-white/10 hover:text-white disabled:opacity-50"
+                            className="rounded-control p-1.5 text-on-brand-muted hover:bg-white/10 hover:text-white disabled:opacity-50"
                             disabled={rowBusy(c.id)}
                           >
                             <MoreHorizontal size={16} strokeWidth={1.75} />
@@ -449,16 +453,16 @@ export function GestaoView({
                               c.status === 'PUBLISHED' &&
                               c._count.enrollments > 0
                             ) && (
-                            <>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                className="text-danger-ink"
-                                onSelect={() => onDelete(c)}
-                              >
-                                Eliminar
-                              </DropdownMenuItem>
-                            </>
-                          )}
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  className="text-danger-ink"
+                                  onSelect={() => onDelete(c)}
+                                >
+                                  Eliminar
+                                </DropdownMenuItem>
+                              </>
+                            )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     }

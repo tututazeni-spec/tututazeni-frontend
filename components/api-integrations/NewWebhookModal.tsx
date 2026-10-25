@@ -13,6 +13,7 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface NewWebhookModalProps {
   onClose: () => void;
@@ -120,8 +121,7 @@ export function NewWebhookModal({ onClose }: NewWebhookModalProps) {
                   key={o.value}
                   className="flex cursor-pointer items-center gap-2 font-body text-sm text-ink"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={events.includes(o.value)}
                     onChange={() => toggleEvent(o.value)}
                   />

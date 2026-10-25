@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import type { SecurityPolicyController } from '@/hooks/useSecurityPolicy';
 import { TWO_FACTOR_LABELS } from './logic';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface ToggleProps {
   id: string;
@@ -20,9 +21,9 @@ interface ToggleProps {
 function Toggle({ id, label, checked, onChange }: ToggleProps) {
   return (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-ink">
-      <input
+      <Checkbox
         id={id}
-        type="checkbox"
+
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
@@ -42,7 +43,7 @@ export function SecurityPolicyCardView({
 
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
         Política de Segurança (organização)
       </div>
       <CardBody>

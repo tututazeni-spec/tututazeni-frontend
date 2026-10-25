@@ -17,6 +17,7 @@ import { Badge, type BadgeProps } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from './Skeleton';
 import type { AttemptDetail, MyAttemptSummary } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const STATUS_INTENT: Record<string, BadgeProps['intent']> = {
   PASSED: 'success',
@@ -56,9 +57,7 @@ export function ReviewView() {
           Histórico
         </div>
         {attempts.length === 0 && (
-          <div className="text-sm text-ink-faint text-center py-6">
-            Sem tentativas concluídas
-          </div>
+          <EmptyState variant="inline" title="Sem tentativas concluídas" />
         )}
         {attempts.map((a) => (
           <div

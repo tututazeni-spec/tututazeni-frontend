@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { AclRole } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function RolesTab() {
   const [selected, setSelected] = useState<AclRole | null>(null);
@@ -19,7 +20,7 @@ export function RolesTab() {
   );
 
   if (loading)
-    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-xl" />;
+    return <Skeleton rows={3} itemClassName="h-16 bg-surface rounded-card" />;
 
   return (
     <div className="gap-5 grid grid-cols-1 md:grid-cols-3">
@@ -40,7 +41,7 @@ export function RolesTab() {
               </div>
               <div className="min-w-0 flex-1 text-left">
                 <p className="font-medium text-ink text-sm">{r.name}</p>
-                <p className="text-ink-faint text-[10px]">
+                <p className="text-ink-faint text-micro">
                   {r._count?.users ?? 0} utilizadores ·{' '}
                   {r.permissions?.length ?? 0} permissões
                 </p>
@@ -58,14 +59,10 @@ export function RolesTab() {
       {/* Role detail */}
       <Card className="md:col-span-2 p-5">
         {!selected ? (
-          <div className="py-12 text-center text-ink-faint">
-            <Shield
-              size={36}
-              strokeWidth={1.75}
-              className="mx-auto mb-2 opacity-30"
-            />
-            <p className="text-sm">Selecciona um role para ver detalhes</p>
-          </div>
+          <EmptyState
+            icon={Shield}
+            title="Selecciona um role para ver detalhes"
+          />
         ) : (
           <div>
             <div className="mb-4 flex items-center justify-between">
@@ -89,15 +86,16 @@ export function RolesTab() {
               {(selected.permissions ?? []).map((p, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-1 rounded-control bg-surface px-2 py-1 text-ink text-[10px]"
+                  className="flex items-center gap-1 rounded-control bg-surface px-2 py-1 text-ink text-micro"
                 >
                   <span className="font-mono">{p.name}</span>
                 </div>
               ))}
               {selected.permissions?.length === 0 && (
-                <p className="text-ink-faint text-sm">
-                  Sem permissões atribuídas
-                </p>
+                <EmptyState
+                  variant="inline"
+                  title="Sem permissões atribuídas"
+                />
               )}
             </div>
           </div>

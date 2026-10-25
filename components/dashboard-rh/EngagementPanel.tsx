@@ -15,6 +15,7 @@ import { BarChart } from '@/components/ui/charts/BarChart';
 import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import type { EngagementData } from './types';
 import { Activity, Award, ThumbsUp } from 'lucide-react';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function EngagementPanel() {
   const { data, isLoading: loading } = useApiQuery<EngagementData>(
@@ -26,8 +27,8 @@ export function EngagementPanel() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse"
-        itemClassName="h-[155px] rounded-2xl bg-surface-sunken"
+        wrapperClassName="grid grid-cols-2 md:grid-cols-4 gap-4"
+        itemClassName="h-[155px] rounded-panel bg-surface-sunken"
       />
     );
 
@@ -65,13 +66,11 @@ export function EngagementPanel() {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h4 className="-mx-5 -mt-5 mb-4 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Participação em Pesquisas por Departamento
           </h4>
           {byDept.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem respostas este mês.
-            </p>
+            <EmptyState variant="inline" title="Sem respostas este mês" />
           ) : (
             <BarChart
               orientation="horizontal"
@@ -87,7 +86,7 @@ export function EngagementPanel() {
         </div>
 
         <div className="overflow-hidden rounded-card border border-border bg-surface p-5">
-          <h4 className="-mx-5 -mt-5 mb-4 bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h4 className="-mx-5 -mt-5 mb-4 bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Actividade de Clima
           </h4>
           <table className="w-full font-body text-sm text-ink">

@@ -201,10 +201,10 @@ export function VacanciesView() {
             return (
               <div
                 key={v.id}
-                className="overflow-hidden rounded-[18px] border border-[#D6E4F5] bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]"
+                className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]"
               >
                 {/* Cabeçalho */}
-                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-[#0B3D91] to-[#06275F] px-5 py-3.5 text-white">
+                <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand-mid to-brand-dark px-5 py-3.5 text-white">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2.5">
                       <Briefcase size={18} strokeWidth={1.75} />
@@ -238,7 +238,7 @@ export function VacanciesView() {
                       aria-label={`Apagar ${v.title}`}
                       disabled={deleteVacancy.isPending}
                       onClick={() => handleDelete(v)}
-                      className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-control bg-white/15 px-3 font-body text-xs font-semibold text-white transition-colors hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <Trash2 size={14} strokeWidth={1.75} /> Apagar
                     </button>
@@ -246,12 +246,12 @@ export function VacanciesView() {
                 </div>
 
                 <div className="p-5">
-                  <div className="mb-3 font-body text-xs text-[#0F1F3D]/60">
+                  <div className="mb-3 font-body text-xs text-brand/60">
                     {v.position?.name && <span>{v.position.name} · </span>}
                     {v.department?.name && <span>{v.department.name}</span>}
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="font-body text-xs text-[#0F1F3D]/60">
+                    <span className="font-body text-xs text-brand/60">
                       {v._count.applications} candidatura
                       {v._count.applications !== 1 ? 's' : ''}
                       {v.closingDate &&
@@ -328,7 +328,8 @@ export function VacanciesView() {
             setStatusFilter('DRAFT');
             refetch();
             notify({
-              title: 'Oportunidade guardada como rascunho — publique-a para a abrir aos colaboradores',
+              title:
+                'Oportunidade guardada como rascunho — publique-a para a abrir aos colaboradores',
               intent: 'success',
             });
           }}

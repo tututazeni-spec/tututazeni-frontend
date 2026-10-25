@@ -44,6 +44,9 @@ import { useToast } from '@/providers/ToastProvider';
 import { MODALITY_CFG, TYPE_CFG, VISIBILITY_CFG } from './constants';
 import { useDepartmentOptions } from './eventFormData';
 import type { EventModalidade, EventType, EventVisibility } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface CreateEventModalProps {
   onClose: () => void;
@@ -585,29 +588,26 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
 
             <div className="flex flex-wrap gap-4">
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={mandatory}
                   onChange={(e) => set('mandatory', e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Inscrição obrigatória
               </label>
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={waitlistEnabled}
                   onChange={(e) => set('waitlistEnabled', e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Lista de espera
               </label>
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={requiresApproval}
                   onChange={(e) => set('requiresApproval', e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Aprovação de inscrição
               </label>
@@ -621,26 +621,21 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 Opcional — vazio significa visível a todos os departamentos.
               </p>
               <div className="max-h-40 space-y-1 overflow-y-auto rounded-card border border-border p-2">
-                {departmentsLoading && (
-                  <div className="px-1 py-1 text-sm text-ink-muted">
-                    A carregar…
-                  </div>
-                )}
+                {departmentsLoading && <Skeleton rows={3} />}
                 {!departmentsLoading && departmentOptions.length === 0 && (
-                  <div className="px-1 py-1 text-sm text-ink-muted">
-                    Nenhum departamento encontrado.
-                  </div>
+                  <EmptyState
+                    variant="inline"
+                    title="Nenhum departamento encontrado"
+                  />
                 )}
                 {departmentOptions.map((d) => (
                   <label
                     key={d.value}
                     className="flex items-center gap-2 rounded-control px-1 py-1 font-body text-sm text-ink hover:bg-surface-sunken"
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={restrictedDeptIds.includes(d.value)}
                       onChange={() => toggleRestrictedDept(d.value)}
-                      className="h-4 w-4 rounded border-border-strong accent-primary"
                     />
                     {d.label}
                   </label>
@@ -669,49 +664,44 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
 
             <div className="flex flex-wrap gap-4">
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={allowGuest}
                   onChange={(e) => set('allowGuest', e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Permitir acompanhante
               </label>
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={certificateEnabled}
                   onChange={(e) => set('certificateEnabled', e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Certificado
               </label>
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={evaluationEnabled}
                   onChange={(e) => set('evaluationEnabled', e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Avaliação
               </label>
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={checkinEnabled}
                   onChange={(e) => set('checkinEnabled', e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Check-in
               </label>
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={notificationsEnabled}
                   onChange={(e) =>
                     set('notificationsEnabled', e.target.checked)
                   }
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Notificações
               </label>

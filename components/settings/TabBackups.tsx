@@ -26,6 +26,9 @@ import type {
   BackupsView,
 } from './types';
 import { pollInterval } from '@/lib/polling';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const FREQUENCY_ITEMS = [
   { value: 'DAILY', label: 'Diária' },
@@ -158,10 +161,7 @@ export function TabBackups() {
     return (
       <p className="py-10 text-center text-sm text-danger">{error.message}</p>
     );
-  if (isLoading || !data || !form)
-    return (
-      <p className="py-10 text-center text-sm text-ink-faint">A carregar…</p>
-    );
+  if (isLoading || !data || !form) return <Skeleton rows={4} />;
 
   const set = <K extends keyof BackupSettingsForm>(
     k: K,
@@ -177,74 +177,78 @@ export function TabBackups() {
   return (
     <div className="space-y-4">
       {/* Cartão claro, o mesmo desenho da lista de sessões dos eventos */}
-      <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-          <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-[#0F1F3D]/60 px-5 py-3">
-            <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
-              Estado
-            </h3>
-            <span
-              className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold"
-              style={{ color: HEALTH_COLORS[health.intent] ?? '#9CA3AF' }}
-            >
-              {health.label}
+      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-brand/60 px-5 py-3">
+          <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
+            Estado
+          </h3>
+          <span
+            className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold"
+            style={{ color: HEALTH_COLORS[health.intent] ?? '#9CA3AF' }}
+          >
+            {health.label}
+          </span>
+        </div>
+        <dl className="grid grid-cols-2 gap-3 px-6 pt-5 text-sm text-brand md:grid-cols-4">
+          <div>
+            <dt className="text-xs text-brand-muted">
+              Último backup com sucesso
+            </dt>
+            <dd className="font-display font-bold">
+              {fmtDate(data.lastSuccessAt)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-brand-muted">Próximo agendado</dt>
+            <dd className="font-display font-bold">
+              {fmtDate(data.nextRunAt)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-brand-muted">Cópias guardadas</dt>
+            <dd className="font-display font-bold">
+              {data.storedCopies} ({fmtBytes(data.storedBytes)})
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-brand-muted">
+              Ferramentas no servidor
+            </dt>
+            <dd className="font-display font-bold">
+              pg_dump {data.tools.pgDump ? '✓' : '✗'} · pg_restore{' '}
+              {data.tools.pgRestore ? '✓' : '✗'}
+            </dd>
+          </div>
+        </dl>
+        {!data.tools.pgDump && (
+          <p className="px-6 pt-3 text-sm text-danger">
+            pg_dump não foi encontrado no servidor. Instale o cliente PostgreSQL
+            ou defina PG_DUMP_PATH.
+          </p>
+        )}
+        <div className="px-6 pb-5 pt-4">
+          <Button
+            type="button"
+            disabled={
+              runNow.isPending ||
+              !data.settings.destinationDir ||
+              !data.tools.pgDump
+            }
+            onClick={() => runNow.mutate(undefined)}
+          >
+            {runNow.isPending ? 'A executar…' : 'Executar backup agora'}
+          </Button>
+          {!data.settings.destinationDir && (
+            <span className="ml-3 text-xs text-brand-muted">
+              Defina e guarde a pasta de destino primeiro.
             </span>
-          </div>
-          <dl className="grid grid-cols-2 gap-3 px-6 pt-5 text-sm text-[#0F1F3D] md:grid-cols-4">
-            <div>
-              <dt className="text-xs text-[#49658A]">
-                Último backup com sucesso
-              </dt>
-              <dd className="font-display font-bold">{fmtDate(data.lastSuccessAt)}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-[#49658A]">Próximo agendado</dt>
-              <dd className="font-display font-bold">{fmtDate(data.nextRunAt)}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-[#49658A]">Cópias guardadas</dt>
-              <dd className="font-display font-bold">
-                {data.storedCopies} ({fmtBytes(data.storedBytes)})
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs text-[#49658A]">
-                Ferramentas no servidor
-              </dt>
-              <dd className="font-display font-bold">
-                pg_dump {data.tools.pgDump ? '✓' : '✗'} · pg_restore{' '}
-                {data.tools.pgRestore ? '✓' : '✗'}
-              </dd>
-            </div>
-          </dl>
-          {!data.tools.pgDump && (
-            <p className="px-6 pt-3 text-sm text-[#C23A52]">
-              pg_dump não foi encontrado no servidor. Instale o cliente
-              PostgreSQL ou defina PG_DUMP_PATH.
-            </p>
           )}
-          <div className="px-6 pb-5 pt-4">
-            <Button
-              type="button"
-              disabled={
-                runNow.isPending ||
-                !data.settings.destinationDir ||
-                !data.tools.pgDump
-              }
-              onClick={() => runNow.mutate(undefined)}
-            >
-              {runNow.isPending ? 'A executar…' : 'Executar backup agora'}
-            </Button>
-            {!data.settings.destinationDir && (
-              <span className="ml-3 text-xs text-[#49658A]">
-                Defina e guarde a pasta de destino primeiro.
-              </span>
-            )}
-          </div>
+        </div>
       </div>
 
       <form onSubmit={submit}>
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Configuração
           </div>
           <CardBody>
@@ -253,9 +257,9 @@ export function TabBackups() {
                 htmlFor="bk-enabled"
                 className="flex items-center gap-2 text-sm text-ink"
               >
-                <input
+                <Checkbox
                   id="bk-enabled"
-                  type="checkbox"
+
                   checked={form.enabled}
                   onChange={(e) => set('enabled', e.target.checked)}
                 />
@@ -363,14 +367,15 @@ export function TabBackups() {
       </form>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Histórico
         </div>
         <CardBody>
           {data.runs.length === 0 ? (
-            <p className="text-sm text-ink-faint">
-              Ainda não foi executado nenhum backup.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Ainda não foi executado nenhum backup"
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-ink">

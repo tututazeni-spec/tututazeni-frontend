@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
 import type { ContentDeliveryConfig } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface ContentDeliveryConfigModalProps {
   tenantId: string;
@@ -140,31 +141,31 @@ export function ContentDeliveryConfigModal({
           </FormField>
 
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
+              
               checked={adaptiveBitrate}
               onChange={(e) => setAdaptiveBitrate(e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
+              
             />
             Bitrate adaptativo (ajusta a qualidade do vídeo à ligação do utilizador)
           </label>
 
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
+              
               checked={compressionEnabled}
               onChange={(e) => setCompressionEnabled(e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
+              
             />
             Compressão de conteúdo activada
           </label>
 
           <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <input
-              type="checkbox"
+            <Checkbox
+              
               checked={offlineSyncEnabled}
               onChange={(e) => setOfflineSyncEnabled(e.target.checked)}
-              className="h-4 w-4 rounded border-border-strong accent-primary"
+              
             />
             Sincronização offline activada
           </label>

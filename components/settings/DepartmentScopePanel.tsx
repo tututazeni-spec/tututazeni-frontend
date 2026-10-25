@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import type { DepartmentScopes } from './types';
 import { ADMIN_ROLES } from '@/lib/roles';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 const UNRESTRICTED_ROLES: readonly string[] = ADMIN_ROLES;
 
@@ -45,14 +47,13 @@ export function DepartmentScopePanel() {
     },
   );
 
-  if (isLoading)
-    return <p className="py-6 text-sm text-ink-faint">A carregar…</p>;
+  if (isLoading) return <Skeleton rows={3} />;
   if (error || !data)
     return <p className="py-6 text-sm text-danger">{error?.message}</p>;
 
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
         Acesso por departamento
       </div>
       <CardBody>
@@ -88,8 +89,7 @@ export function DepartmentScopePanel() {
                           key={d.id}
                           className="flex items-center gap-2 text-sm text-ink"
                         >
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={current.includes(d.id)}
                             onChange={(e) =>
                               setDraft((s) => ({

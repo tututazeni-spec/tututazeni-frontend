@@ -49,7 +49,7 @@ export function StrategicPanel({ filters }: StrategicPanelProps) {
     return (
       <Skeleton
         rows={6}
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="h-20 rounded-card bg-surface-sunken"
       />
     );
@@ -62,7 +62,7 @@ export function StrategicPanel({ filters }: StrategicPanelProps) {
     <div className="space-y-5">
       {goals && goals.vsTarget.length > 0 && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Realizado vs. meta
           </h3>
           <div className="p-5">
@@ -80,7 +80,7 @@ export function StrategicPanel({ filters }: StrategicPanelProps) {
 
       {goals && (
         <div className="overflow-hidden rounded-card border border-border bg-surface">
-          <h3 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+          <h3 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
             Execução de planos
           </h3>
           <div className="p-5">
@@ -103,7 +103,7 @@ export function StrategicPanel({ filters }: StrategicPanelProps) {
               key={k.code}
               className="overflow-hidden rounded-card border border-border bg-surface"
             >
-              <h4 className="bg-[#0F1F3D]/60 px-5 py-3 font-body font-semibold text-white">
+              <h4 className="bg-brand/60 px-5 py-3 font-body font-semibold text-white">
                 {k.name}
               </h4>
               <div className="p-5">

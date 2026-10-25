@@ -36,6 +36,7 @@ import type {
   Severity,
   View,
 } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const PERIODS = [
   { days: 7, label: '7 dias' },
@@ -73,7 +74,7 @@ function EventRow({ log }: { log: AuditLog }) {
 // Cabeçalho dos cards do painel: navy #0F1F3D a 60%, letra branca, sem
 // qualquer efeito de cursor/hover (é só um rótulo).
 const PANEL_HEADER =
-  'cursor-default select-none bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-semibold text-white';
+  'cursor-default select-none bg-brand/60 px-4 py-3 font-body text-xs font-semibold text-white';
 
 function Panel({
   title,
@@ -211,9 +212,7 @@ export function OverviewView({
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Panel title="Eventos por módulo">
           {data.byModule.length === 0 ? (
-            <p className="font-body text-xs text-ink-faint">
-              Sem eventos no período.
-            </p>
+            <EmptyState variant="inline" title="Sem eventos no período" />
           ) : (
             <BarChart
               orientation="horizontal"
@@ -235,9 +234,7 @@ export function OverviewView({
         <div className="space-y-4">
           <Panel title="Distribuição por gravidade">
             {severityData.length === 0 ? (
-              <p className="font-body text-xs text-ink-faint">
-                Sem eventos no período.
-              </p>
+              <EmptyState variant="inline" title="Sem eventos no período" />
             ) : (
               <DonutChart data={severityData} centerLabel="Eventos" />
             )}
@@ -259,9 +256,7 @@ export function OverviewView({
 
           <Panel title="Atividade por utilizador">
             {data.topUsers.length === 0 ? (
-              <p className="font-body text-xs text-ink-faint">
-                Sem atividade no período.
-              </p>
+              <EmptyState variant="inline" title="Sem atividade no período" />
             ) : (
               data.topUsers.map((u) => (
                 <div
@@ -282,12 +277,12 @@ export function OverviewView({
       </div>
 
       {/* Alertas de segurança pendentes */}
-      <div className="flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white px-5 py-4 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[24px] border border-brand-line bg-white px-5 py-4 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div>
-          <div className="font-body text-[15px] font-semibold text-[#0F1F3D]">
+          <div className="font-body text-[15px] font-semibold text-brand">
             Alertas de segurança pendentes
           </div>
-          <div className="font-body text-xs text-[#49658A]">
+          <div className="font-body text-xs text-brand-muted">
             {data.anomalies.suspiciousLogins.length} logins suspeitos ·{' '}
             {data.anomalies.massExports.length} exportações em massa ·{' '}
             {data.anomalies.massDeletes.length} eliminações em massa
@@ -316,9 +311,7 @@ export function OverviewView({
       <div className="overflow-hidden rounded-card border border-border bg-surface">
         <div className={PANEL_HEADER}>Atividade recente</div>
         {data.recent.length === 0 ? (
-          <p className="px-4 py-3 font-body text-xs text-ink-faint">
-            Sem eventos no período.
-          </p>
+          <EmptyState variant="inline" title="Sem eventos no período" />
         ) : (
           data.recent.map((log) => <EventRow key={log.id} log={log} />)
         )}

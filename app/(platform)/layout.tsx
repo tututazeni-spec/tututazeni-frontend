@@ -4,6 +4,7 @@ import Sidebar from '../../components/Sidebar';
 import Topbar from '../../components/Topbar';
 import { SessionActivityTracker } from '../../components/SessionActivityTracker';
 import { TabFromUrl } from '../../components/TabFromUrl';
+import { OfflineBanner } from '../../components/OfflineBanner';
 import { FrontendPerfReporter } from '../../components/scalability/FrontendPerfReporter';
 
 export default function PlatformLayout({
@@ -38,6 +39,7 @@ export default function PlatformLayout({
             background: 'var(--color-canvas)',
           }}
         >
+          <OfflineBanner />
           {children}
         </main>
       </div>

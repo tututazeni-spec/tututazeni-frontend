@@ -105,8 +105,8 @@ export function PDIAnalyticsView() {
       </div>
 
       {/* Estado dos PDIs */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
-        <div className="h-1.5 w-full bg-[#0F1F3D]" />
+      <div className="overflow-hidden rounded-panel border border-border bg-white shadow-resting">
+        <div className="h-1.5 w-full bg-brand" />
         <div className="p-5">
           <div className="mb-3 font-body text-sm font-semibold text-ink-muted">
             PDIs por estado · {totalPlans} no total
@@ -133,7 +133,7 @@ export function PDIAnalyticsView() {
               return (
                 <div
                   key={status}
-                  className="flex items-center gap-2 rounded-full bg-[#0F1F3D] px-3 py-1.5 opacity-70"
+                  className="flex items-center gap-2 rounded-full bg-brand px-3 py-1.5 opacity-70"
                 >
                   <span className="text-xs font-medium text-white">
                     {PLAN_STATUS_CFG[status]?.label ?? status}
@@ -161,7 +161,7 @@ export function PDIAnalyticsView() {
             {actionsByType.map((a) => (
               <div
                 key={a.type}
-                className="flex items-center gap-2 rounded-card bg-[#0F1F3D] px-3 py-2 opacity-70"
+                className="flex items-center gap-2 rounded-card bg-brand px-3 py-2 opacity-70"
               >
                 <span className="text-xs font-medium text-white">
                   {ACTION_CFG[a.type].label}

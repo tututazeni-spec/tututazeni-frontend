@@ -148,22 +148,22 @@ export function DeductionsView() {
           <h3 className={H3}>
             Regras fiscais {data.config.taxYear} ({data.config.countryCode})
           </h3>
-          <div className="rounded-[14px] border border-[#1E3A66] bg-[#071D3B] p-4 font-body text-sm text-white shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
+          <div className="rounded-[14px] border border-brand-edge bg-brand-deep p-4 font-body text-sm text-white shadow-[0_4px_16px_rgba(7,29,59,0.35)]">
             <dl className="grid grid-cols-[180px_1fr] gap-x-4 gap-y-1.5">
-              <dt className="text-[#9DB4D3]">INSS trabalhador</dt>
+              <dt className="text-on-brand-faint">INSS trabalhador</dt>
               <dd>{pct(data.config.socialSecurity.employeeRate)}</dd>
-              <dt className="text-[#9DB4D3]">INSS patronal</dt>
+              <dt className="text-on-brand-faint">INSS patronal</dt>
               <dd>{pct(data.config.socialSecurity.employerRate)}</dd>
-              <dt className="text-[#9DB4D3]">Tecto INSS</dt>
+              <dt className="text-on-brand-faint">Tecto INSS</dt>
               <dd>
                 {data.config.socialSecurity.ceiling
                   ? fmtKz(data.config.socialSecurity.ceiling)
                   : '—'}
               </dd>
-              <dt className="text-[#9DB4D3]">Salário mínimo</dt>
+              <dt className="text-on-brand-faint">Salário mínimo</dt>
               <dd>{fmtKz(data.config.minimumWage)}</dd>
             </dl>
-            <div className="mt-3 grid grid-cols-[1fr_1fr_80px_1fr] gap-x-4 gap-y-1.5 border-t border-[#6F8FB8]/20 pt-3 text-[#CFE3FF]">
+            <div className="mt-3 grid grid-cols-[1fr_1fr_80px_1fr] gap-x-4 gap-y-1.5 border-t border-[#6F8FB8]/20 pt-3 text-on-brand">
               <div className="text-xs font-bold uppercase tracking-wide text-white">
                 De
               </div>

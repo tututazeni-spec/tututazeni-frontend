@@ -102,7 +102,7 @@ export function DelegationsPanel() {
   return (
     <div className="space-y-4">
       <Card className="overflow-hidden p-4 space-y-4">
-        <div className="-mx-4 -mt-4 bg-[#0F1F3D]/60 px-4 py-3">
+        <div className="-mx-4 -mt-4 bg-brand/60 px-4 py-3">
           <h3 className="text-sm font-semibold text-white">
             Nova substituição
           </h3>
@@ -200,7 +200,7 @@ export function DelegationsPanel() {
       </Card>
 
       <Card className="overflow-hidden p-4">
-        <h3 className="-mx-4 -mt-4 mb-3 bg-[#0F1F3D]/60 px-4 py-3 text-sm font-semibold text-white">
+        <h3 className="-mx-4 -mt-4 mb-3 bg-brand/60 px-4 py-3 text-sm font-semibold text-white">
           {isAdmin ? 'Substituições' : 'As minhas substituições'}
         </h3>
         {!loading && rows.length === 0 ? (

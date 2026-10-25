@@ -30,6 +30,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { DepartmentNode } from './types';
 import { departmentIcon } from './departmentIcon';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface StructureViewProps {
   onSelect: (id: number) => void;
@@ -110,16 +111,16 @@ function DeptCard({
         />
       )}
       {toggle}
-      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
+      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
         <Icon size={20} strokeWidth={1.75} />
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">
-          <span className="truncate text-sm font-bold text-[#0F1F3D]">
+          <span className="truncate text-sm font-bold text-brand">
             {node.name}
           </span>
         </div>
-        <div className="mt-0.5 flex flex-wrap items-center text-[11px] text-[#61758F]">
+        <div className="mt-0.5 flex flex-wrap items-center text-micro text-[#61758F]">
           {stats.map((t, i) => (
             <span key={t} className="flex items-center">
               {i > 0 && (
@@ -133,7 +134,7 @@ function DeptCard({
           ))}
         </div>
         {(parentName || extras.length > 0) && (
-          <div className="mt-0.5 truncate text-[11px] text-[#7890AC]">
+          <div className="mt-0.5 truncate text-micro text-[#7890AC]">
             {[parentName ? `sob ${parentName}` : null, ...extras]
               .filter(Boolean)
               .join(' · ')}
@@ -143,7 +144,7 @@ function DeptCard({
       <ChevronRight
         size={18}
         strokeWidth={1.75}
-        className={`flex-shrink-0 ${selected ? 'text-[#1765C1]' : 'text-[#526B89]'}`}
+        className={`flex-shrink-0 ${selected ? 'text-[#1765C1]' : 'text-brand-muted'}`}
       />
     </button>
   );
@@ -177,7 +178,7 @@ function TreeRow({ node, parentName, selectedId, onPreview }: TreeRowProps) {
                 e.stopPropagation();
                 setExpanded((v) => !v);
               }}
-              className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-[#526B89] hover:text-[#17365D]"
+              className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-brand-muted hover:text-[#17365D]"
             >
               {expanded ? (
                 <ChevronDown size={14} strokeWidth={1.75} />
@@ -290,14 +291,14 @@ interface PreviewFieldProps {
 function PreviewField({ icon: Icon, label, children }: PreviewFieldProps) {
   return (
     <div className="flex items-center gap-3 border-b border-[#EAF3FF] py-3 last:border-b-0">
-      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#EAF3FF] text-[#0F1F3D]">
+      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-card bg-[#EAF3FF] text-brand">
         <Icon className={PREVIEW_FIELD_ICON} strokeWidth={1.75} />
       </span>
       <div className="min-w-0 flex-1">
         <dt className="text-xs font-medium uppercase tracking-wide text-[#7186A8]">
           {label}
         </dt>
-        <dd className="mt-0.5 break-words text-base font-semibold text-[#0F1F3D]">
+        <dd className="mt-0.5 break-words text-base font-semibold text-brand">
           {children}
         </dd>
       </div>
@@ -318,9 +319,9 @@ function PreviewPanel({ node, onViewDetail, onClose }: PreviewPanelProps) {
       aria-label={`Resumo de ${node.name}`}
       className="sticky top-4 self-start overflow-hidden rounded-[24px] border border-[#D6E6FB] bg-[#EAF3FF] shadow-[0_8px_24px_rgba(15,31,61,0.10)]"
     >
-      <div className="relative h-44 overflow-hidden bg-gradient-to-br from-[#0F1F3D] to-[#0756D9] px-5 pt-5 sm:h-52">
+      <div className="relative h-44 overflow-hidden bg-gradient-to-br from-brand to-[#0756D9] px-5 pt-5 sm:h-52">
         <span className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#078BFF]/20" />
-        <span className="pointer-events-none absolute -bottom-12 left-1/3 h-32 w-32 rotate-45 rounded-3xl bg-white/5" />
+        <span className="pointer-events-none absolute -bottom-12 left-1/3 h-32 w-32 rotate-45 rounded-panel bg-white/5" />
         <button
           type="button"
           onClick={onClose}
@@ -380,7 +381,7 @@ function PreviewPanel({ node, onViewDetail, onClose }: PreviewPanelProps) {
         <button
           type="button"
           onClick={() => onViewDetail(node.id)}
-          className="mt-4 flex h-16 w-full items-center justify-center gap-2 rounded-2xl bg-[#0F1F3D] text-base font-semibold text-white transition-opacity duration-200 hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F1F3D] sm:h-20 sm:text-lg"
+          className="mt-4 flex h-16 w-full items-center justify-center gap-2 rounded-panel bg-brand text-base font-semibold text-white transition-opacity duration-200 hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:h-20 sm:text-lg"
         >
           Ver detalhe completo
           <ArrowRight size={20} strokeWidth={2} />
@@ -411,7 +412,7 @@ export function StructureView({ onSelect }: StructureViewProps) {
     return (
       <Skeleton
         rows={8}
-        wrapperClassName="space-y-2 animate-pulse"
+        wrapperClassName="space-y-2"
         itemClassName="h-14 rounded-card bg-surface-sunken"
       />
     );
@@ -420,7 +421,7 @@ export function StructureView({ onSelect }: StructureViewProps) {
 
   return (
     <div>
-      <div className="mb-4 flex h-10 items-center gap-2 rounded-t-2xl bg-[#0F1F3D]/60 px-4">
+      <div className="mb-4 flex h-10 items-center gap-2 rounded-t-panel bg-brand/60 px-4">
         {(
           [
             ['tree', Network, 'Árvore organizacional'],
@@ -431,8 +432,8 @@ export function StructureView({ onSelect }: StructureViewProps) {
             key={mode}
             type="button"
             onClick={() => setViz(mode)}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium uppercase text-white transition-colors ${
-              viz === mode ? 'bg-[#0F1F3D]' : 'bg-white/10 hover:bg-white/20'
+            className={`flex items-center gap-1.5 rounded-control px-3 py-1 text-xs font-medium uppercase text-white transition-colors ${
+              viz === mode ? 'bg-brand' : 'bg-white/10 hover:bg-white/20'
             }`}
           >
             <Icon size={14} strokeWidth={1.75} />
@@ -446,9 +447,10 @@ export function StructureView({ onSelect }: StructureViewProps) {
       >
         <div>
           {tree.length === 0 ? (
-            <div className="py-12 text-center text-sm text-ink-faint">
-              Sem departamentos na hierarquia
-            </div>
+            <EmptyState
+              variant="inline"
+              title="Sem departamentos na hierarquia"
+            />
           ) : viz === 'tree' ? (
             <div>
               {tree.map((node) => (

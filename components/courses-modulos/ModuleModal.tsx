@@ -27,6 +27,8 @@ import { useToast } from '@/providers/ToastProvider';
 import { CourseImageField } from '@/components/courses/CourseImageField';
 import type { CourseModule } from './types';
 import { ObjectivesPicker } from './ObjectivesPicker';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface CompetencyOption {
   id: number;
@@ -319,11 +321,10 @@ export function ModuleModal({
 
             <div className="flex flex-col gap-2">
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={form.requiresMinScore}
                   onChange={(e) => set('requiresMinScore', e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Requer nota mínima
               </label>
@@ -375,20 +376,20 @@ export function ModuleModal({
             >
               <div className="max-h-36 space-y-1 overflow-y-auto rounded-control border border-border p-2">
                 {competencyOptions.length === 0 && (
-                  <p className="text-xs text-ink-faint">
-                    Sem competências cadastradas.
-                  </p>
+                  <EmptyState
+                    variant="inline"
+                    title="Sem competências cadastradas"
+                  />
                 )}
                 {competencyOptions.map((c) => (
                   <label
                     key={c.id}
                     className="flex items-center gap-2 text-xs text-ink-muted"
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={competencyIds.includes(c.id)}
                       onChange={() => toggleCompetency(c.id)}
-                      className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                      size="sm"
                     />
                     {c.name}
                   </label>
@@ -398,20 +399,18 @@ export function ModuleModal({
 
             <div className="flex flex-wrap gap-4">
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={form.mandatory}
                   onChange={(e) => set('mandatory', e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Módulo obrigatório
               </label>
               <label className="flex items-center gap-2 text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={form.allowSkip}
                   onChange={(e) => set('allowSkip', e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                  size="sm"
                 />
                 Pode avançar sem concluir
               </label>

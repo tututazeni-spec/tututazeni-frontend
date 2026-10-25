@@ -7,6 +7,7 @@ import ReactQueryProvider from '../providers/ReactQueryProvider';
 import { ConfirmProvider } from '../providers/ConfirmProvider';
 import { TooltipProvider } from '../components/ui/Tooltip';
 import { ToastProvider } from '../providers/ToastProvider';
+import { GlobalErrorHandlers } from '../components/GlobalErrorHandlers';
 import SplashScreen from '../components/SplashScreen';
 
 // Fontes self-hosted (subset latin) em vez de next/font/google. O fetch a
@@ -66,6 +67,7 @@ export default async function RootLayout({
     >
       <body style={{ margin: 0, padding: 0 }}>
         <ClientInit />
+        <GlobalErrorHandlers />
         <ReactQueryProvider>
           <ConfirmProvider>
             <TooltipProvider>

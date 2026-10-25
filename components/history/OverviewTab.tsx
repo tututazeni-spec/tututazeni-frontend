@@ -55,12 +55,12 @@ function RankingList({
   const max = items[0]?.count ?? 1;
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       <CardBody>
         {items.length === 0 ? (
-          <p className="text-sm text-ink-faint">Sem dados no período.</p>
+          <EmptyState variant="inline" title="Sem dados no período" />
         ) : (
           <div className="space-y-2">
             {items.map((i, idx) => (
@@ -252,14 +252,15 @@ export function OverviewTab() {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide flex items-center gap-2">
           <CheckCircle2 size={16} strokeWidth={1.75} /> Últimas actividades
         </div>
         <CardBody>
           {data.recent.length === 0 ? (
-            <p className="text-sm text-ink-faint">
-              Ainda não há eventos registados.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Ainda não há eventos registados"
+            />
           ) : (
             <ul className="divide-y divide-border">
               {data.recent.map((e) => (

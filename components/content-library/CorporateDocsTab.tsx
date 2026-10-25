@@ -163,7 +163,7 @@ export function CorporateDocsTab() {
           >
             {f.label}
             {f.id === 'unread' && pending.length > 0 && (
-              <span className="ml-1.5 rounded-pill bg-danger px-1.5 text-[10px] text-white">
+              <span className="ml-1.5 rounded-pill bg-danger px-1.5 text-micro text-white">
                 {pending.length}
               </span>
             )}

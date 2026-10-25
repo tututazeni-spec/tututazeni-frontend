@@ -38,6 +38,7 @@ import {
 import { POSITION_LEVEL_CFG } from './constants';
 import { UserFilterSearch } from './UserFilterSearch';
 import type { SkillMatrix } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const LEGEND = [
   { level: 0, label: '0 — Sem registo' },
@@ -180,7 +181,7 @@ export function SkillMatrixView() {
       {loading ? (
         <Skeleton rows={6} />
       ) : !matrix ? null : (
-        <div className="overflow-hidden rounded-2xl border border-border">
+        <div className="overflow-hidden rounded-panel border border-border">
           <div className="max-h-[70vh] overflow-auto">
             <table className="min-w-max border-separate border-spacing-0 font-body">
               <thead>
@@ -230,7 +231,7 @@ export function SkillMatrixView() {
                             {row.user.fullName}
                           </span>
                           {row.user.position?.name && (
-                            <span className="block truncate text-[11px] text-white/70">
+                            <span className="block truncate text-micro text-white/70">
                               {row.user.position.name}
                             </span>
                           )}
@@ -250,9 +251,10 @@ export function SkillMatrixView() {
               </tbody>
             </table>
             {matrix.matrix.length === 0 && (
-              <div className="py-12 text-center font-body text-sm text-ink-faint">
-                Sem utilizadores encontrados
-              </div>
+              <EmptyState
+                variant="inline"
+                title="Sem utilizadores encontrados"
+              />
             )}
           </div>
         </div>

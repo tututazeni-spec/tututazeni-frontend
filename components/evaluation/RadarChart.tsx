@@ -96,7 +96,7 @@ export function RadarChart({ data, size = 200 }: RadarChartProps) {
             y={ly}
             textAnchor="middle"
             dominantBaseline="middle"
-            className="fill-ink-muted text-[9px]"
+            className="fill-ink-muted text-micro"
             fontSize="9"
           >
             {data[i].label.slice(0, 6)}

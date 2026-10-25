@@ -27,6 +27,8 @@ import {
 } from './wizardData';
 import type { WizardStepId } from '../constants';
 import type { WizardForm } from './wizardTypes';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const TYPE_ITEMS = Object.entries(TYPE_CFG).map(([value, cfg]) => ({
   value,
@@ -389,9 +391,9 @@ export function NewLiveClassSteps({
           </FormField>
           <FormField label=" " htmlFor="lc-waitlist">
             <label className="flex items-center gap-2 pt-2 text-sm text-ink">
-              <input
+              <Checkbox
                 id="lc-waitlist"
-                type="checkbox"
+                
                 checked={form.waitlistEnabled}
                 onChange={(e) => setField('waitlistEnabled', e.target.checked)}
               />
@@ -403,15 +405,15 @@ export function NewLiveClassSteps({
           <FormField label="Unidades abrangidas" htmlFor="lc-units">
             <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
               {unitOptions.length === 0 && (
-                <p className="text-xs text-ink-faint">Sem unidades.</p>
+                <EmptyState variant="inline" title="Sem unidades" />
               )}
               {unitOptions.map((u) => (
                 <label
                   key={u.id}
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
+                    
                     checked={form.targetUnitIds.includes(u.id)}
                     onChange={() =>
                       setField(
@@ -428,15 +430,15 @@ export function NewLiveClassSteps({
           <FormField label="Departamentos abrangidos" htmlFor="lc-departments">
             <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
               {departmentOptions.length === 0 && (
-                <p className="text-xs text-ink-faint">Sem departamentos.</p>
+                <EmptyState variant="inline" title="Sem departamentos" />
               )}
               {departmentOptions.map((d) => (
                 <label
                   key={d.id}
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
+                    
                     checked={form.targetDeptIds.includes(d.id)}
                     onChange={() =>
                       setField(
@@ -453,15 +455,15 @@ export function NewLiveClassSteps({
           <FormField label="Cargos abrangidos" htmlFor="lc-positions">
             <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
               {positionOptions.length === 0 && (
-                <p className="text-xs text-ink-faint">Sem cargos.</p>
+                <EmptyState variant="inline" title="Sem cargos" />
               )}
               {positionOptions.map((p) => (
                 <label
                   key={p.id}
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
+                    
                     checked={form.targetPositionIds.includes(p.id)}
                     onChange={() =>
                       setField(
@@ -534,8 +536,8 @@ export function NewLiveClassSteps({
     return (
       <div className="space-y-4">
         <label className="flex items-center gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
+            
             checked={form.attendanceAutoRegister}
             onChange={(e) =>
               setField('attendanceAutoRegister', e.target.checked)
@@ -544,8 +546,8 @@ export function NewLiveClassSteps({
           Registo automático de presença (ao entrar na sala)
         </label>
         <label className="flex items-center gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
+            
             checked={form.attendanceRequired}
             onChange={(e) => setField('attendanceRequired', e.target.checked)}
           />
@@ -589,16 +591,16 @@ export function NewLiveClassSteps({
     return (
       <div className="space-y-4">
         <label className="flex items-center gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
+            
             checked={form.recordSession}
             onChange={(e) => setField('recordSession', e.target.checked)}
           />
           Gravar sessão
         </label>
         <label className="flex items-center gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
+            
             checked={form.allowRecordingDownload}
             onChange={(e) =>
               setField('allowRecordingDownload', e.target.checked)
@@ -627,8 +629,8 @@ export function NewLiveClassSteps({
     return (
       <div className="space-y-4">
         <label className="flex items-center gap-2 text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
+            
             checked={form.evaluationRequired}
             onChange={(e) => setField('evaluationRequired', e.target.checked)}
           />
@@ -667,8 +669,8 @@ export function NewLiveClassSteps({
           key={item.key}
           className="flex items-center gap-2 text-sm text-ink"
         >
-          <input
-            type="checkbox"
+          <Checkbox
+            
             checked={form[item.key] as boolean}
             onChange={(e) =>
               setField(

@@ -19,6 +19,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ContentCard } from './ContentCard';
 import { ContentRow } from './ContentRow';
 import type { Content } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function HomeTab() {
   const [search, setSearch] = useState('');
@@ -78,7 +79,7 @@ export function HomeTab() {
   return (
     <div className="space-y-8">
       {/* Hero search */}
-      <div className="rounded-panel bg-[#0F1F3D] p-8">
+      <div className="rounded-panel bg-brand p-8">
         <h2 className="mb-1 font-display text-2xl font-bold text-canvas">
           O que queres aprender hoje?
         </h2>
@@ -124,13 +125,11 @@ export function HomeTab() {
           {searchQuery.isLoading ? (
             <Skeleton
               rows={4}
-              wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse"
+              wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
               itemClassName="bg-surface-sunken rounded-card h-52"
             />
           ) : results.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">
-              Nenhum conteúdo encontrado.
-            </p>
+            <EmptyState variant="inline" title="Nenhum conteúdo encontrado" />
           ) : (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
               {results.map((c) => (
@@ -173,7 +172,7 @@ export function HomeTab() {
       {loading ? (
         <Skeleton
           rows={8}
-          wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse"
+          wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
           itemClassName="bg-surface-sunken rounded-card h-52"
         />
       ) : (

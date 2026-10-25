@@ -18,6 +18,7 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
 import { useSalaryComponentOptions } from './compensationData';
 import type { EmployeeCompensation } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface CompensationComponentsEditorProps {
   record: EmployeeCompensation;
@@ -175,11 +176,9 @@ export function CompensationComponentsEditor({
                 className="flex items-center gap-1 text-xs text-ink-muted"
                 title="Marca este valor como substituição explícita do valor de catálogo. Registado para uso futuro — o cálculo actual soma todos os componentes como rendimento extra independentemente desta opção."
               >
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={r.override}
                   onChange={(e) => patch(r.key, { override: e.target.checked })}
-                  className="h-4 w-4 rounded border-border-strong accent-primary"
                 />
                 override
               </label>

@@ -57,7 +57,7 @@ export function EmployeeTab() {
             className={cn(
               'rounded-pill border-[1.5px] px-3.5 py-1.5 font-body text-sm font-semibold transition-colors',
               section === s.id
-                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
+                ? 'border-brand bg-brand text-white'
                 : 'border-border-strong bg-surface text-ink-muted hover:bg-surface-sunken',
             )}
           >

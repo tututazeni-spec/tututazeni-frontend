@@ -27,7 +27,7 @@ export function NavyHeroCard({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-xl border p-7',
+        'relative overflow-hidden rounded-card border p-7',
         surfaceClassName ?? 'border-[#0A2342]/80 bg-[#0A2342]/80',
       )}
     >

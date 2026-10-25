@@ -18,6 +18,7 @@ import { BarChart } from '@/components/ui/charts/BarChart';
 import { GaugeChart } from '@/components/ui/charts/GaugeChart';
 import { DonutChart } from '@/components/ui/charts/DonutChart';
 import type { CareerOverview } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const MOVEMENT_LABELS: Record<string, string> = {
   PROMOTION: 'Promoção',
@@ -38,14 +39,12 @@ function EvolutionList({ title, items, variant }: EvolutionListProps) {
   const top = items.slice(0, 6);
   return (
     <Card className="overflow-hidden p-0">
-      <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
+      <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
         {title}
       </div>
       <div className="p-4">
         {top.length === 0 ? (
-          <div className="py-3 text-center font-body text-xs text-ink-faint">
-            Sem dados
-          </div>
+          <EmptyState variant="inline" title="Sem dados" />
         ) : variant === 'donut' ? (
           <DonutChart
             data={items.map((i) => ({ label: i.key, value: i.count }))}
@@ -160,17 +159,15 @@ export function OverviewTab() {
       </div>
 
       <Card className="overflow-hidden p-0">
-        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-sm font-semibold text-white">
+        <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-sm font-semibold text-white">
           Movimentações Internas (últimos 90 dias)
         </div>
         {overview.internalMovements.length === 0 ? (
-          <div className="p-4 py-6 text-center font-body text-xs text-ink-faint">
-            Sem movimentações registadas
-          </div>
+          <EmptyState variant="inline" title="Sem movimentações registadas" />
         ) : (
-          <div className="overflow-x-auto bg-[#071D3B]">
+          <div className="overflow-x-auto bg-brand-deep">
             <table className="w-full border-collapse font-body text-sm text-white">
-              <thead className="bg-[#0F1F3D]/60">
+              <thead className="bg-brand/60">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-bold uppercase leading-tight tracking-wide text-white">
                     Tipo de movimentação
@@ -190,14 +187,14 @@ export function OverviewTab() {
                     className="border-b border-[#6F8FB8]/20 transition-colors duration-150 last:border-0 hover:bg-white/5"
                   >
                     <td className="px-4 py-3">
-                      <span className="inline-block whitespace-nowrap rounded-full bg-[#124A88] px-2.5 py-0.5 text-xs font-medium text-[#CFE3FF]">
+                      <span className="inline-block whitespace-nowrap rounded-full bg-[#124A88] px-2.5 py-0.5 text-xs font-medium text-on-brand">
                         {MOVEMENT_LABELS[m.changeType] ?? m.changeType}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center font-semibold text-white">
                       {m.count}
                     </td>
-                    <td className="px-4 py-3 text-center text-[#E8EEF7]">
+                    <td className="px-4 py-3 text-center text-on-brand">
                       {movementsTotal > 0
                         ? Math.round((m.count / movementsTotal) * 100)
                         : 0}

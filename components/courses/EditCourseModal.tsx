@@ -25,7 +25,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
 import { useToast } from '@/providers/ToastProvider';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -37,6 +37,8 @@ import type { DepartmentNode } from '@/components/departments/types';
 import { CourseImageField } from './CourseImageField';
 import { Skeleton } from './shared';
 import type { CourseDetailData, PaginatedCourses } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface EditCourseModalProps {
   courseId: number;
@@ -554,31 +556,28 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
 
           <div className="flex flex-wrap gap-4">
             <label className="flex items-center gap-2 text-xs text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={form.mandatory}
                 onChange={(e) => setField('mandatory', e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                size="sm"
               />
               Formação obrigatória
             </label>
             <label className="flex items-center gap-2 text-xs text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={form.requiresApproval}
                 onChange={(e) => setField('requiresApproval', e.target.checked)}
-                className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                size="sm"
               />
               Requer aprovação para inscrição
             </label>
             <label className="flex items-center gap-2 text-xs text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={form.certificateEnabled}
                 onChange={(e) =>
                   setField('certificateEnabled', e.target.checked)
                 }
-                className="h-3.5 w-3.5 rounded border-border-strong accent-primary"
+                size="sm"
               />
               Emite certificado
             </label>
@@ -639,25 +638,26 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
               {(course.instructors ?? []).map((ci) => (
                 <div
                   key={ci.id}
-                  className="flex items-center gap-2 rounded-lg border border-border bg-surface-sunken px-3 py-1.5"
+                  className="flex items-center gap-2 rounded-control border border-border bg-surface-sunken px-3 py-1.5"
                 >
                   <span className="flex-1 truncate text-sm text-ink">
                     {ci.user.fullName}
                   </span>
-                  <button
+                  <IconButton
+                    icon={Trash2}
+                    label="Remover instrutor"
+                    intent="ghostDanger"
+                    size="xs"
                     type="button"
                     onClick={() => removeInstructor.mutate(ci.userId)}
-                    className="text-ink-faint hover:text-danger"
-                    aria-label="Remover instrutor"
-                  >
-                    <Trash2 size={14} strokeWidth={1.75} />
-                  </button>
+                  />
                 </div>
               ))}
               {(course.instructors ?? []).length === 0 && (
-                <p className="m-0 text-xs text-ink-faint">
-                  Nenhum instrutor adicional.
-                </p>
+                <EmptyState
+                  variant="inline"
+                  title="Nenhum instrutor adicional"
+                />
               )}
             </div>
             <div className="flex items-end gap-2">

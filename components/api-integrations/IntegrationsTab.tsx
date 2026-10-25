@@ -89,7 +89,7 @@ export function IntegrationsTab() {
   if (loading)
     return (
       <Skeleton
-        wrapperClassName="space-y-3 animate-pulse"
+        wrapperClassName="space-y-3"
         itemClassName="bg-surface-sunken rounded-card h-16"
       />
     );
@@ -128,11 +128,11 @@ export function IntegrationsTab() {
                     {i.active ? 'ACTIVE' : 'INACTIVE'}
                   </Badge>
                 </div>
-                <p className="truncate font-data text-[10px] text-ink-faint">
+                <p className="truncate font-data text-micro text-ink-faint">
                   {i.endpoint}
                 </p>
                 {i.lastTested && (
-                  <p className="mt-0.5 font-body text-[9px] text-ink-faint">
+                  <p className="mt-0.5 font-body text-micro text-ink-faint">
                     Testado: {new Date(i.lastTested).toLocaleString('pt')}
                   </p>
                 )}

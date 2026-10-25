@@ -156,7 +156,7 @@ export function ReportOutput({ data }: ReportOutputProps) {
       {/* By Department */}
       {(data.byDepartment ?? []).length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Por Departamento
           </div>
           <CardBody>
@@ -200,7 +200,7 @@ export function ReportOutput({ data }: ReportOutputProps) {
         []
       ).length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             {data.topPerformers
               ? 'Top Performers'
               : data.topCourses
@@ -255,7 +255,7 @@ export function ReportOutput({ data }: ReportOutputProps) {
                         {name}
                       </p>
                       {sub && (
-                        <p className="font-body text-[10px] text-ink-faint">
+                        <p className="font-body text-micro text-ink-faint">
                           {sub}
                         </p>
                       )}

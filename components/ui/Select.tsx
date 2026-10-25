@@ -56,10 +56,10 @@ export function Select({
           aria-hidden
           className={cn(
             'pointer-events-none absolute left-3 max-w-[calc(100%-2.75rem)] truncate whitespace-nowrap origin-left font-body text-ink-muted transition-all duration-150',
-            'top-[6px] text-[11px] font-medium text-field',
+            'top-[6px] text-micro font-medium text-field',
             'group-data-[placeholder]:top-1/2 group-data-[placeholder]:-translate-y-1/2 group-data-[placeholder]:text-sm',
             'group-data-[placeholder]:font-normal group-data-[placeholder]:text-ink-muted',
-            'group-focus:top-[6px] group-focus:translate-y-0 group-focus:text-[11px] group-focus:font-medium group-focus:text-field',
+            'group-focus:top-[6px] group-focus:translate-y-0 group-focus:text-micro group-focus:font-medium group-focus:text-field',
           )}
         >
           {shownLabel}

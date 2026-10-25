@@ -174,7 +174,7 @@ export function RoiAnalysisTab() {
             return (
               <div
                 key={a.id}
-                className="relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+                className="relative overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
               >
                 <div
                   aria-hidden
@@ -203,10 +203,10 @@ export function RoiAnalysisTab() {
                       <Lightbulb size={28} strokeWidth={1.75} />
                     </span>
                     <div className="min-w-0">
-                      <h3 className="break-words font-display text-[24px] font-bold leading-tight text-[#0F1F3D]">
+                      <h3 className="break-words font-display text-[24px] font-bold leading-tight text-brand">
                         {a.name}
                       </h3>
-                      <p className="mt-0.5 break-words text-base text-[#49658A]">
+                      <p className="mt-0.5 break-words text-base text-brand-muted">
                         {INITIATIVE_TYPE_LABELS[a.initiativeType] ??
                           a.initiativeType}
                         {a.initiative ? ` · ${a.initiative}` : ''}
@@ -214,7 +214,7 @@ export function RoiAnalysisTab() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+                  <div className="flex flex-wrap items-center gap-y-3 divide-x divide-brand-line">
                     <Metric icon={Users}>
                       Participantes: {a.participants ?? '—'}
                     </Metric>
@@ -230,7 +230,7 @@ export function RoiAnalysisTab() {
                         : '—'}
                     </Metric>
                   </div>
-                  <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+                  <div className="flex flex-wrap items-center gap-y-3 divide-x divide-brand-line">
                     <Metric icon={BarChart3}>
                       ROI: {a.roiPercent != null ? `${a.roiPercent}%` : '—'}
                     </Metric>
@@ -243,7 +243,7 @@ export function RoiAnalysisTab() {
                     <Metric
                       icon={insufficient ? TriangleAlert : Info}
                       iconClassName={
-                        insufficient ? 'text-[#C23A52]' : 'text-[#49658A]'
+                        insufficient ? 'text-danger' : 'text-brand-muted'
                       }
                     >
                       Confiança:{' '}
@@ -254,7 +254,7 @@ export function RoiAnalysisTab() {
                     </Metric>
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 border-t border-[#E6ECF4] pt-4">
+                  <div className="flex items-center justify-end gap-2 border-t border-brand-line pt-4">
                     {a.status === 'CALCULADO' ? (
                       <Button
                         size="sm"
@@ -270,7 +270,7 @@ export function RoiAnalysisTab() {
                       title="Apagar"
                       disabled={remove.isPending && remove.variables === a.id}
                       onClick={() => askRemove(a.id, a.name)}
-                      className="rounded-full p-2 text-[#49658A] transition-colors hover:bg-[#C23A52]/10 hover:text-[#C23A52] disabled:opacity-40"
+                      className="rounded-full p-2 text-brand-muted transition-colors hover:bg-danger/10 hover:text-danger disabled:opacity-40"
                     >
                       <Trash2 size={16} strokeWidth={1.75} />
                     </button>

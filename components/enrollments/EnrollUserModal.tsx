@@ -21,7 +21,7 @@ import { useApiMutation } from '@/hooks/useApiQuery';
 import { ApiError, apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { Avatar } from '@/components/ui/Avatar';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -33,6 +33,8 @@ import {
   useDirectoryUsers,
   type DirectoryUser,
 } from './enrollData';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface EnrollUserModalProps {
   onClose: () => void;
@@ -237,14 +239,14 @@ export function EnrollUserModal({
                     </div>
                   )}
                 </div>
-                <button
+                <IconButton
+                  icon={X}
+                  label="Remover colaborador"
+                  intent="ghost"
+                  size="compact"
                   type="button"
-                  aria-label="Remover colaborador"
                   onClick={() => setSelectedUser(null)}
-                  className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
-                >
-                  <X size={16} strokeWidth={1.75} />
-                </button>
+                />
               </div>
             ) : (
               <div className="relative">
@@ -264,9 +266,10 @@ export function EnrollUserModal({
                       </div>
                     )}
                     {!usersLoading && users.length === 0 && (
-                      <div className="px-3 py-2 text-sm text-ink-muted">
-                        Nenhum colaborador encontrado
-                      </div>
+                      <EmptyState
+                        variant="inline"
+                        title="Nenhum colaborador encontrado"
+                      />
                     )}
                     {users.map((u) => (
                       <button
@@ -305,9 +308,10 @@ export function EnrollUserModal({
               className="max-h-40 overflow-y-auto rounded-control border-[1.5px] border-border-strong bg-surface"
             >
               {deptOptions.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-ink-muted">
-                  Nenhum departamento encontrado
-                </div>
+                <EmptyState
+                  variant="inline"
+                  title="Nenhum departamento encontrado"
+                />
               ) : (
                 deptOptions.map((d) => (
                   <label
@@ -318,12 +322,10 @@ export function EnrollUserModal({
                         : 'cursor-pointer text-ink hover:bg-surface-sunken'
                     }`}
                   >
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={deptIds.includes(d.value)}
                       onChange={() => toggleDept(d.value)}
                       disabled={d.userCount === 0}
-                      className="h-4 w-4 rounded border-border-strong accent-primary"
                     />
                     <span className="flex-1">{d.label}</span>
                     {d.userCount !== undefined && (
@@ -355,11 +357,9 @@ export function EnrollUserModal({
               />
             </FormField>
             <label className="flex items-end gap-2 pb-2.5 text-sm text-ink-muted">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={mandatory}
                 onChange={(e) => setMandatory(e.target.checked)}
-                className="h-4 w-4 rounded border-border-strong accent-primary"
               />
               Matrícula obrigatória
             </label>

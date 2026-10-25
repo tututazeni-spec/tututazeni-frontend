@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import type { AssignSessionController } from '@/hooks/useAssignSession';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 interface AssignBoxViewProps {
   ctl: AssignSessionController;
@@ -125,8 +126,7 @@ export function AssignBoxView({ ctl, published }: AssignBoxViewProps) {
           />
         </FormField>
         <label className="flex items-center gap-2 pb-2 font-body text-sm text-ink">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={mandatory}
             onChange={(e) => setMandatory(e.target.checked)}
           />

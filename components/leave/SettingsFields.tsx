@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { WEEKDAYS, parseOptionalInt } from './settingsMeta';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface SettingsSectionProps {
   title: string;
@@ -25,7 +26,7 @@ export function SettingsSection({
 }: SettingsSectionProps) {
   return (
     <Card className="overflow-hidden p-5 space-y-4">
-      <div className="-mx-5 -mt-5 bg-[#0F1F3D]/60 px-5 py-3">
+      <div className="-mx-5 -mt-5 bg-brand/60 px-5 py-3">
         <h3 className="text-sm font-semibold text-white">{title}</h3>
         {description && (
           <p className="text-xs text-white/80 mt-0.5">{description}</p>
@@ -58,12 +59,11 @@ export function ToggleRow({
         disabled ? 'opacity-60' : 'cursor-pointer',
       )}
     >
-      <input
-        type="checkbox"
+      <Checkbox
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
-        className="mt-0.5 h-4 w-4 rounded border-border-strong accent-primary flex-shrink-0"
+        className="mt-0.5 flex-shrink-0"
       />
       <span>
         <span className="block text-sm font-medium text-ink">{label}</span>
