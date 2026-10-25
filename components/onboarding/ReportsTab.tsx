@@ -36,7 +36,7 @@ const BAR_COLORS = [
   'bg-[#2563EB]',
   'bg-[#16A34A]',
   'bg-[#F59E0B]',
-  'bg-[#DC2626]',
+  'bg-danger',
   'bg-[#7C3AED]',
   'bg-[#0891B2]',
   'bg-[#DB2777]',

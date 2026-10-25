@@ -73,7 +73,7 @@ interface InfoRowProps {
 
 function InfoRow({ icon: Icon, accent, children }: InfoRowProps) {
   return (
-    <div className="flex items-center gap-3 rounded-[14px] bg-[#EEF4FD] px-4 py-3 text-[15px] text-brand">
+    <div className="flex items-center gap-3 rounded-[14px] bg-brand-soft px-4 py-3 text-[15px] text-brand">
       <Icon
         size={20}
         strokeWidth={1.75}
@@ -114,7 +114,7 @@ export function TemplateCard({
           onOpen();
         }
       }}
-      className="cursor-pointer overflow-hidden rounded-[20px] border border-[#D8E2F0] bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-shadow duration-150 hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+      className="cursor-pointer overflow-hidden rounded-[20px] border border-brand-line bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-shadow duration-150 hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
     >
       <div
         className="flex min-h-[190px] flex-col justify-between p-7 text-white"

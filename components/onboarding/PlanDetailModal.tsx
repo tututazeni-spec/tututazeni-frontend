@@ -289,9 +289,9 @@ export function PlanDetailModal({
               {team.map(({ label, person }) => (
                 <div
                   key={label}
-                  className="rounded-panel bg-gradient-to-br from-brand via-[#0B3A75] to-[#0A2A57] p-3 text-center text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
+                  className="rounded-panel bg-gradient-to-br from-brand via-brand-mid to-brand-dark p-3 text-center text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]"
                 >
-                  <div className="mb-2 font-body text-sm text-[#C7D4E8]">
+                  <div className="mb-2 font-body text-sm text-on-brand-muted">
                     {label}
                   </div>
                   {person ? (
@@ -301,7 +301,7 @@ export function PlanDetailModal({
                         url={person.avatarUrl ?? undefined}
                         size="md"
                       />
-                      <div className="font-body text-sm text-[#C7D4E8]">
+                      <div className="font-body text-sm text-on-brand-muted">
                         {person.fullName}
                       </div>
                       {person.email && (
@@ -309,14 +309,14 @@ export function PlanDetailModal({
                           href={`mailto:${person.email}?subject=${encodeURIComponent(
                             `Onboarding — ${data.user.fullName}`,
                           )}`}
-                          className="font-body text-sm text-[#C7D4E8] underline-offset-2 hover:underline"
+                          className="font-body text-sm text-on-brand-muted underline-offset-2 hover:underline"
                         >
                           Enviar mensagem
                         </a>
                       )}
                     </div>
                   ) : (
-                    <div className="font-body text-sm text-[#C7D4E8]">
+                    <div className="font-body text-sm text-on-brand-muted">
                       Não atribuído
                     </div>
                   )}
