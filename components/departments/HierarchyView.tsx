@@ -64,7 +64,11 @@ export function HierarchyView() {
   const { data, isLoading, error } = useApiQuery<PaginatedHierarchy>(
     queryKeys.departments.hierarchy(params),
     '/departments/hierarchy',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
   return (
@@ -99,10 +103,14 @@ export function HierarchyView() {
           itemClassName="h-14 rounded-card bg-surface-sunken"
         />
       )}
-      {error && <div className="px-4 py-8 text-center text-sm text-danger">{error.message}</div>}
+      {error && (
+        <div className="px-4 py-8 text-center text-sm text-danger">
+          {error.message}
+        </div>
+      )}
       {!isLoading && !error && (
         <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-[10px]">
-          <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
+          <TableHead className="bg-brand/60 [&_th]:text-white">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell>Colaborador</TableHeaderCell>
               <TableHeaderCell>Cargo</TableHeaderCell>
@@ -117,7 +125,10 @@ export function HierarchyView() {
           <TableBody>
             {data?.data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="py-12 text-center text-ink-faint">
+                <TableCell
+                  colSpan={8}
+                  className="py-12 text-center text-ink-faint"
+                >
                   Nenhum colaborador encontrado
                 </TableCell>
               </TableRow>
@@ -126,7 +137,11 @@ export function HierarchyView() {
                 <TableRow key={u.id} className="hover:bg-transparent">
                   <TableCell>
                     <div className="flex items-center gap-1.5">
-                      <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
+                      <Avatar
+                        name={u.fullName}
+                        url={u.avatarUrl ?? undefined}
+                        size="sm"
+                      />
                       <span className="text-xs text-ink">{u.fullName}</span>
                       {!u.active && (
                         <Badge intent="neutral" className="text-[10px]">
@@ -145,14 +160,19 @@ export function HierarchyView() {
                   <TableCell className="text-xs text-ink-muted">
                     {u.manager?.fullName ?? '—'}
                   </TableCell>
-                  <TableCell className="text-xs font-mono text-ink-muted">{u.level}</TableCell>
+                  <TableCell className="text-xs font-mono text-ink-muted">
+                    {u.level}
+                  </TableCell>
                   <TableCell className="text-xs font-mono text-ink-muted">
                     {u.directReportsCount}
                   </TableCell>
                   <TableCell className="text-xs font-mono text-ink-muted">
                     {u.indirectReportsCount}
                   </TableCell>
-                  <TableCell className="max-w-[9rem] break-words text-[10px] text-ink-faint" title={u.reportingChain.join(' → ')}>
+                  <TableCell
+                    className="max-w-[9rem] break-words text-[10px] text-ink-faint"
+                    title={u.reportingChain.join(' → ')}
+                  >
                     {u.reportingChain.join(' → ')}
                   </TableCell>
                 </TableRow>

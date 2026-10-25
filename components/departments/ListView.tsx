@@ -23,7 +23,13 @@ import type { PaginatedDepts } from './types';
 const GRID =
   'grid items-center gap-3 grid-cols-[minmax(0,1fr)_auto_auto] md:grid-cols-[minmax(0,2fr)_90px_minmax(0,1.4fr)_70px_90px_90px_20px]';
 
-function DeptIcon({ name, hasChildren }: { name: string; hasChildren: boolean }) {
+function DeptIcon({
+  name,
+  hasChildren,
+}: {
+  name: string;
+  hasChildren: boolean;
+}) {
   const Icon = departmentIcon(name, hasChildren);
   return <Icon size={20} strokeWidth={1.75} />;
 }
@@ -101,7 +107,7 @@ export function ListView({ onSelect }: ListViewProps) {
       {!loading && (
         <div>
           <div
-            className={`${GRID} hidden rounded-t-2xl bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white md:grid`}
+            className={`${GRID} hidden rounded-t-panel bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white md:grid`}
           >
             <span>Departamento</span>
             <span>Código</span>
@@ -125,11 +131,14 @@ export function ListView({ onSelect }: ListViewProps) {
                 className={`${GRID} mb-1.5 w-full rounded-[14px] border border-[#E1EAF6] bg-[#F0F6FF] px-4 py-3 text-left transition-colors hover:bg-[#E5F0FF]`}
               >
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
-                    <DeptIcon name={d.name} hasChildren={d._count.children > 0} />
+                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
+                    <DeptIcon
+                      name={d.name}
+                      hasChildren={d._count.children > 0}
+                    />
                   </span>
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-bold text-[#0F1F3D]">
+                    <div className="truncate text-sm font-bold text-brand">
                       {d.name}
                     </div>
                     {d.parent && (
@@ -139,8 +148,8 @@ export function ListView({ onSelect }: ListViewProps) {
                     )}
                   </div>
                 </div>
-                <span className="text-[11px] text-[#0F1F3D]">{d.code}</span>
-                <div className="min-w-0 text-[11px] text-[#0F1F3D]">
+                <span className="text-[11px] text-brand">{d.code}</span>
+                <div className="min-w-0 text-[11px] text-brand">
                   {d.head ? (
                     <span className="flex items-center gap-1.5">
                       <Avatar name={d.head.fullName} size="sm" />
@@ -150,13 +159,13 @@ export function ListView({ onSelect }: ListViewProps) {
                     '—'
                   )}
                 </div>
-                <span className="text-xs text-[#0F1F3D]">{d._count.users}</span>
+                <span className="text-xs text-brand">{d._count.users}</span>
                 <span>
                   <Badge intent={d.active ? 'success' : 'neutral'}>
                     {d.active ? 'Activo' : 'Inactivo'}
                   </Badge>
                 </span>
-                <span className="text-xs text-[#0F1F3D]">{d._count.children}</span>
+                <span className="text-xs text-brand">{d._count.children}</span>
                 <ChevronRight
                   size={18}
                   strokeWidth={1.75}

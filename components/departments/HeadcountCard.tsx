@@ -50,7 +50,10 @@ export function HeadcountCard({
     {
       invalidateKeys,
       onSuccess: () => {
-        notify({ title: 'Número de colaboradores actualizado', intent: 'success' });
+        notify({
+          title: 'Número de colaboradores actualizado',
+          intent: 'success',
+        });
         setEditing(false);
       },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
@@ -68,7 +71,7 @@ export function HeadcountCard({
 
   return (
     <Card className="p-4">
-      <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-[#0F1F3D]/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="-mx-4 -mt-4 mb-3 rounded-t-[inherit] bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         Número de colaboradores
       </div>
       {editing ? (
@@ -111,8 +114,7 @@ export function HeadcountCard({
               Actual: <strong className="text-ink">{activeUsers}</strong>
             </span>
             <span className="text-ink-faint">
-              Previsto:{' '}
-              <strong className="text-ink">{expected ?? '—'}</strong>
+              Previsto: <strong className="text-ink">{expected ?? '—'}</strong>
               {gap != null && gap !== 0 && (
                 <span className="ml-1 text-xs">
                   ({gap > 0 ? `faltam ${gap}` : `${-gap} acima`})

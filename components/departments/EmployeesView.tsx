@@ -62,7 +62,7 @@ function BreakdownCard({
   const top = [...buckets].sort((a, b) => b.count - a.count).slice(0, 6);
   return (
     <Card className="overflow-hidden p-0">
-      <div className="bg-[#0F1F3D]/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="bg-brand/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-4">
@@ -71,10 +71,7 @@ function BreakdownCard({
         ) : (
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             {top.map((b) => (
-              <span
-                key={b.label}
-                className="text-xs text-black"
-              >
+              <span key={b.label} className="text-xs text-black">
                 {b.label} <strong>{b.count}</strong>
               </span>
             ))}
@@ -116,7 +113,11 @@ export function EmployeesView() {
   } = useApiQuery<PaginatedEmployees>(
     queryKeys.departments.employees(params),
     '/departments/employees',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
   const error = queryError?.message ?? null;
   const indicators = data?.indicators;
@@ -127,15 +128,42 @@ export function EmployeesView() {
       {indicators && (
         <div className="mb-5 space-y-3">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            <NavyStatCard icon={Users} tone="blue" label="Total de colaboradores" value={indicators.total} />
-            <NavyStatCard icon={UserCheck} tone="green" label="Activos" value={indicators.active} />
-            <NavyStatCard icon={UserX} tone="orange" label="Inactivos" value={indicators.inactive} />
+            <NavyStatCard
+              icon={Users}
+              tone="blue"
+              label="Total de colaboradores"
+              value={indicators.total}
+            />
+            <NavyStatCard
+              icon={UserCheck}
+              tone="green"
+              label="Activos"
+              value={indicators.active}
+            />
+            <NavyStatCard
+              icon={UserX}
+              tone="orange"
+              label="Inactivos"
+              value={indicators.inactive}
+            />
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <BreakdownCard title="Por género" buckets={indicators.byGender.map((b) => ({ ...b, label: genderLabel(b.label) ?? b.label }))} />
-            <BreakdownCard title="Por faixa etária" buckets={indicators.byAgeBracket} />
+            <BreakdownCard
+              title="Por género"
+              buckets={indicators.byGender.map((b) => ({
+                ...b,
+                label: genderLabel(b.label) ?? b.label,
+              }))}
+            />
+            <BreakdownCard
+              title="Por faixa etária"
+              buckets={indicators.byAgeBracket}
+            />
             <BreakdownCard title="Por cargo" buckets={indicators.byPosition} />
-            <BreakdownCard title="Por localização" buckets={indicators.byLocation} />
+            <BreakdownCard
+              title="Por localização"
+              buckets={indicators.byLocation}
+            />
           </div>
         </div>
       )}
@@ -194,7 +222,9 @@ export function EmployeesView() {
           <option value="true">Activos</option>
           <option value="false">Inactivos</option>
         </select>
-        <span className="text-sm text-ink-faint">{data?.total ?? 0} colaboradores</span>
+        <span className="text-sm text-ink-faint">
+          {data?.total ?? 0} colaboradores
+        </span>
       </div>
 
       {/* Tabela */}
@@ -205,10 +235,12 @@ export function EmployeesView() {
           itemClassName="h-14 rounded-card bg-surface-sunken"
         />
       )}
-      {error && <div className="px-4 py-8 text-center text-sm text-danger">{error}</div>}
+      {error && (
+        <div className="px-4 py-8 text-center text-sm text-danger">{error}</div>
+      )}
       {!loading && !error && (
         <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-[10px]">
-          <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
+          <TableHead className="bg-brand/60 [&_th]:text-white">
             <TableRow className="hover:bg-transparent">
               <TableHeaderCell>Colaborador</TableHeaderCell>
               <TableHeaderCell>Cargo</TableHeaderCell>
@@ -224,7 +256,10 @@ export function EmployeesView() {
           <TableBody>
             {data?.data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="py-12 text-center text-ink-faint">
+                <TableCell
+                  colSpan={9}
+                  className="py-12 text-center text-ink-faint"
+                >
                   Nenhum colaborador encontrado
                 </TableCell>
               </TableRow>
@@ -233,7 +268,11 @@ export function EmployeesView() {
                 <TableRow key={u.id}>
                   <TableCell>
                     <div className="flex items-center gap-1.5">
-                      <Avatar name={u.fullName} url={u.avatarUrl ?? undefined} size="sm" />
+                      <Avatar
+                        name={u.fullName}
+                        url={u.avatarUrl ?? undefined}
+                        size="sm"
+                      />
                       <div>
                         <div className="text-xs text-ink">{u.fullName}</div>
                         <div className="break-all text-[10px] text-ink-faint">

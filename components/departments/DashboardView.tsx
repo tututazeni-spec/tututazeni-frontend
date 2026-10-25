@@ -88,7 +88,7 @@ export function DashboardView({ onSelect }: DashboardViewProps) {
 
       {/* Distribution chart */}
       <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="flex items-center gap-3 border-b border-border bg-[#0F1F3D]/60 px-5 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        <div className="flex items-center gap-3 border-b border-border bg-brand/60 px-5 py-3 text-xs font-medium uppercase tracking-wide text-white">
           <div className="flex-1">Distribuição de colaboradores</div>
           <div className="w-20 text-right">Membros</div>
           <div className="w-24">Responsável</div>

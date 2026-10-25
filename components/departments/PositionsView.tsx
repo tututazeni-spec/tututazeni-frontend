@@ -56,7 +56,7 @@ function BreakdownCard({
   const top = [...buckets].sort((a, b) => b.count - a.count).slice(0, 6);
   return (
     <Card className="overflow-hidden p-0">
-      <div className="bg-[#0F1F3D]/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
+      <div className="bg-brand/60 px-4 py-2 text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-4">
@@ -111,7 +111,11 @@ export function PositionsView() {
   } = useApiQuery<PaginatedPositions>(
     queryKeys.departments.positions(params),
     '/departments/positions',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
   const error = queryError?.message ?? null;
   const indicators = data?.indicators;
@@ -122,12 +126,30 @@ export function PositionsView() {
       {indicators && (
         <div className="mb-5 space-y-3">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            <NavyStatCard icon={Briefcase} tone="blue" label="Total de cargos" value={indicators.total} />
-            <NavyStatCard icon={UserCheck} tone="green" label="Activos" value={indicators.active} />
-            <NavyStatCard icon={UserX} tone="orange" label="Inactivos" value={indicators.inactive} />
+            <NavyStatCard
+              icon={Briefcase}
+              tone="blue"
+              label="Total de cargos"
+              value={indicators.total}
+            />
+            <NavyStatCard
+              icon={UserCheck}
+              tone="green"
+              label="Activos"
+              value={indicators.active}
+            />
+            <NavyStatCard
+              icon={UserX}
+              tone="orange"
+              label="Inactivos"
+              value={indicators.inactive}
+            />
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <BreakdownCard title="Por família profissional" buckets={indicators.byJobFamily} />
+            <BreakdownCard
+              title="Por família profissional"
+              buckets={indicators.byJobFamily}
+            />
             <BreakdownCard
               title="Por nível hierárquico"
               buckets={indicators.byLevel.map((b) => ({
@@ -194,7 +216,11 @@ export function PositionsView() {
           <option value="false">Inactivos</option>
         </select>
         {canManage && (
-          <Button size="sm" className="ml-auto" onClick={() => setCreateOpen(true)}>
+          <Button
+            size="sm"
+            className="ml-auto"
+            onClick={() => setCreateOpen(true)}
+          >
             <Plus size={14} strokeWidth={1.75} />
             Novo cargo
           </Button>
@@ -209,10 +235,12 @@ export function PositionsView() {
           itemClassName="h-14 rounded-card bg-surface-sunken"
         />
       )}
-      {error && <div className="px-4 py-8 text-center text-sm text-danger">{error}</div>}
+      {error && (
+        <div className="px-4 py-8 text-center text-sm text-danger">{error}</div>
+      )}
       {!loading && !error && (
         <Table>
-          <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
+          <TableHead className="bg-brand/60 [&_th]:text-white">
             <TableRow>
               <TableHeaderCell>Cargo</TableHeaderCell>
               <TableHeaderCell>Função</TableHeaderCell>
@@ -228,7 +256,10 @@ export function PositionsView() {
           <TableBody>
             {data?.data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="py-12 text-center text-ink-faint">
+                <TableCell
+                  colSpan={9}
+                  className="py-12 text-center text-ink-faint"
+                >
                   Nenhum cargo encontrado
                 </TableCell>
               </TableRow>
@@ -240,7 +271,9 @@ export function PositionsView() {
                   onClick={() => setDetailId(pos.id)}
                 >
                   <TableCell>
-                    <span className="text-sm font-medium text-ink">{pos.name}</span>
+                    <span className="text-sm font-medium text-ink">
+                      {pos.name}
+                    </span>
                   </TableCell>
                   <TableCell className="text-sm text-ink-muted">
                     {pos.jobFunction ?? '—'}
@@ -260,11 +293,15 @@ export function PositionsView() {
                   <TableCell className="text-sm text-ink-muted">
                     {pos.reportsTo?.name ?? '—'}
                   </TableCell>
-                  <TableCell className="text-sm text-ink-muted">{pos.headcountPlanned}</TableCell>
+                  <TableCell className="text-sm text-ink-muted">
+                    {pos.headcountPlanned}
+                  </TableCell>
                   <TableCell className="text-sm text-ink-muted">
                     {pos.headcountOccupied}
                   </TableCell>
-                  <TableCell className="text-sm text-ink-muted">{pos.vacancies}</TableCell>
+                  <TableCell className="text-sm text-ink-muted">
+                    {pos.vacancies}
+                  </TableCell>
                   <TableCell>
                     <Badge intent={pos.active ? 'success' : 'neutral'}>
                       {pos.active ? 'Activo' : 'Inactivo'}
@@ -305,7 +342,10 @@ export function PositionsView() {
 
       {createOpen && <PositionFormModal onClose={() => setCreateOpen(false)} />}
       {detailId != null && (
-        <PositionDetailModal positionId={detailId} onClose={() => setDetailId(null)} />
+        <PositionDetailModal
+          positionId={detailId}
+          onClose={() => setDetailId(null)}
+        />
       )}
     </div>
   );

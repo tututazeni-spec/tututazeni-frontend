@@ -49,10 +49,14 @@ export function HeadsView() {
     data: heads = [],
     isLoading: loadingHeads,
     error: headsError,
-  } = useApiQuery<HeadRow[]>(queryKeys.departments.heads(), '/departments/heads', {
-    staleTime: STALE_TIME.DYNAMIC,
-    enabled: subTab === 'current',
-  });
+  } = useApiQuery<HeadRow[]>(
+    queryKeys.departments.heads(),
+    '/departments/heads',
+    {
+      staleTime: STALE_TIME.DYNAMIC,
+      enabled: subTab === 'current',
+    },
+  );
 
   const {
     data: history = [],
@@ -66,7 +70,7 @@ export function HeadsView() {
 
   return (
     <div>
-      <div className="mb-4 flex h-10 items-center gap-2 rounded-t-2xl bg-[#0F1F3D]/60 px-4">
+      <div className="mb-4 flex h-10 items-center gap-2 rounded-t-panel bg-brand/60 px-4">
         {(
           [
             ['current', ListIcon, 'Responsáveis actuais'],
@@ -77,8 +81,8 @@ export function HeadsView() {
             key={tab}
             type="button"
             onClick={() => setSubTab(tab)}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium uppercase text-white transition-colors ${
-              subTab === tab ? 'bg-[#0F1F3D]' : 'bg-white/10 hover:bg-white/20'
+            className={`flex items-center gap-1.5 rounded-control px-3 py-1 text-xs font-medium uppercase text-white transition-colors ${
+              subTab === tab ? 'bg-brand' : 'bg-white/10 hover:bg-white/20'
             }`}
           >
             <Icon size={14} strokeWidth={1.75} />
@@ -99,7 +103,7 @@ export function HeadsView() {
             <div className="text-sm text-danger">{headsError.message}</div>
           ) : (
             <Table className="[&_td]:px-2 [&_td]:py-2 [&_td]:align-middle [&_td]:text-xs [&_th]:px-2 [&_th]:py-2 [&_th]:text-[10px]">
-              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
+              <TableHead className="bg-brand/60 [&_th]:text-white">
                 <TableRow className="hover:bg-transparent">
                   <TableHeaderCell>Departamento</TableHeaderCell>
                   <TableHeaderCell>Responsável</TableHeaderCell>
@@ -128,7 +132,7 @@ export function HeadsView() {
                     <TableRow key={row.departmentId}>
                       <TableCell>
                         <span className="flex items-center gap-2">
-                          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
+                          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">
                             {(() => {
                               const Icon = departmentIcon(
                                 row.departmentName,
@@ -137,7 +141,7 @@ export function HeadsView() {
                               return <Icon size={16} strokeWidth={1.75} />;
                             })()}
                           </span>
-                          <span className="text-xs font-bold text-[#0F1F3D]">
+                          <span className="text-xs font-bold text-brand">
                             {row.departmentName}
                           </span>
                         </span>
@@ -146,10 +150,14 @@ export function HeadsView() {
                         {row.head ? (
                           <span className="flex items-center gap-1.5">
                             <Avatar name={row.head.fullName} size="sm" />
-                            <span className="text-xs text-ink">{row.head.fullName}</span>
+                            <span className="text-xs text-ink">
+                              {row.head.fullName}
+                            </span>
                           </span>
                         ) : (
-                          <span className="text-xs text-ink-faint">Por atribuir</span>
+                          <span className="text-xs text-ink-faint">
+                            Por atribuir
+                          </span>
                         )}
                       </TableCell>
                       <TableCell className="whitespace-nowrap text-xs text-ink-muted">
@@ -209,7 +217,7 @@ export function HeadsView() {
             <div className="text-sm text-danger">{historyError.message}</div>
           ) : (
             <Table>
-              <TableHead className="bg-[#0F1F3D]/60 [&_th]:text-white">
+              <TableHead className="bg-brand/60 [&_th]:text-white">
                 <TableRow className="hover:bg-transparent">
                   <TableHeaderCell>Departamento</TableHeaderCell>
                   <TableHeaderCell>Responsável anterior</TableHeaderCell>
@@ -222,7 +230,10 @@ export function HeadsView() {
               <TableBody>
                 {history.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="py-8 text-center text-ink-faint">
+                    <TableCell
+                      colSpan={6}
+                      className="py-8 text-center text-ink-faint"
+                    >
                       Sem alterações de responsável registadas
                     </TableCell>
                   </TableRow>
