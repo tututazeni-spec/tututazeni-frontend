@@ -47,6 +47,7 @@ import type {
   GoalDraft,
   WizardForm,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 type ListKey = 'competencyGaps' | 'goals' | 'actions' | 'checkpoints';
 
@@ -664,14 +665,12 @@ export function PlanFormSteps({
                 className="w-full"
               />
               <label className="flex items-center gap-2 font-body text-xs text-ink-muted">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={row.mandatory}
                   disabled={locked}
                   onChange={(e) =>
                     setRow('actions', i, { mandatory: e.target.checked })
                   }
-                  className="h-4 w-4 rounded border-border-strong accent-primary"
                 />
                 Obrigatória
               </label>
