@@ -41,7 +41,7 @@ const STYLES: Record<string, { bar: string; text: string; bg: string }> = {
 
 export function NineBox({ data }: NineBoxProps) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-white p-5 shadow-resting">
+    <div className="overflow-hidden rounded-panel border border-border bg-white p-5 shadow-resting">
       <div className="mb-2 text-center font-body text-xs text-ink-faint">
         Desempenho →
       </div>
@@ -56,7 +56,7 @@ export function NineBox({ data }: NineBoxProps) {
             return (
               <div
                 key={key}
-                className={`overflow-hidden rounded-xl border border-border ${s.bg} transition-shadow hover:shadow-md`}
+                className={`overflow-hidden rounded-card border border-border ${s.bg} transition-shadow hover:shadow-md`}
               >
                 <div className={`h-1 w-full ${s.bar}`} />
                 <div className="min-h-[76px] p-3">

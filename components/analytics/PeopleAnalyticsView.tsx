@@ -36,7 +36,7 @@ function NavyBar({ value, color }: { value: number; color?: string }) {
       className="h-1.5 w-full rounded-pill bg-surface-sunken"
     >
       <div
-        className="h-full rounded-pill bg-[#0F1F3D] transition-[width] duration-300"
+        className="h-full rounded-pill bg-brand transition-[width] duration-300"
         style={{
           width: `${clamped}%`,
           ...(color ? { backgroundColor: color } : {}),
@@ -168,8 +168,8 @@ export function PeopleAnalyticsView() {
       )}
 
       {/* Diversidade */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-resting">
-        <div className="h-1.5 w-full bg-[#0F1F3D]" />
+      <div className="overflow-hidden rounded-panel border border-border bg-white shadow-resting">
+        <div className="h-1.5 w-full bg-brand" />
         <div className="p-5">
           <div className="mb-3 font-body text-sm font-semibold text-ink-muted">
             Diversidade — género
@@ -178,7 +178,7 @@ export function PeopleAnalyticsView() {
             {Object.entries(data.diversity.gender).map(([gender, count]) => (
               <div
                 key={gender}
-                className={`rounded-2xl p-4 ${GENDER_BG[gender] ? `${GENDER_BG[gender]} opacity-80` : 'bg-[#0F1F3D] opacity-70'}`}
+                className={`rounded-panel p-4 ${GENDER_BG[gender] ? `${GENDER_BG[gender]} opacity-80` : 'bg-brand opacity-70'}`}
               >
                 <Users size={18} strokeWidth={1.75} className="text-white" />
                 <p className="mt-2 font-display text-2xl font-bold text-white">
@@ -195,7 +195,7 @@ export function PeopleAnalyticsView() {
 
       {/* Departamentos */}
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Colaboradores por departamento — clicar para detalhe
         </div>
         {data.byDepartment.map((d, idx) => (

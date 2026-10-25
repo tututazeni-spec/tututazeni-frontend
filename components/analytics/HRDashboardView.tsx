@@ -49,7 +49,7 @@ export function HRDashboardView() {
     <div className="space-y-5">
       {/* People */}
       <Card className="overflow-hidden">
-        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+        <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
           Análise de Dados de Pessoas
         </div>
         <CardBody>
@@ -88,7 +88,7 @@ export function HRDashboardView() {
 
       {/* Learning */}
       <Card className="overflow-hidden">
-        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+        <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
           Análise da Aprendizagem
         </div>
         <CardBody>
@@ -126,7 +126,7 @@ export function HRDashboardView() {
 
       {/* PDI */}
       <Card className="overflow-hidden">
-        <div className="border-b border-border bg-[#0F1F3D]/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
+        <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
           Análise dos Planos de Desenvolvimento Individual
         </div>
         <CardBody>
@@ -170,7 +170,7 @@ export function HRDashboardView() {
       {/* Headcount por departamento */}
       {(data.headcountByDept?.length ?? 0) > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Colaboradores por Departamento
           </div>
           {(data.headcountByDept ?? []).map((d, idx) => (

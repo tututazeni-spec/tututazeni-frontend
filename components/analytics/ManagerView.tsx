@@ -139,7 +139,7 @@ export function ManagerView() {
 
       {tab === 'ninebox' && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Matriz 9-Box
           </div>
           <CardBody>
@@ -157,7 +157,7 @@ export function ManagerView() {
 
       {tab === 'gaps' && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Top De Lacunas de Competências
           </div>
           <CardBody>
