@@ -3,6 +3,7 @@
 // do spec, filtros enviados ao backend e acções por linha.
 
 import { useDeferredValue, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import {
   AlertTriangle,
   Copy,
@@ -50,13 +51,16 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { cn } from '@/lib/cn';
 import { ACTION_ITEMS, CATEGORY_LABEL, TRIGGER_LABEL } from './constants';
 import { templateIcon } from './templateTheme';
-import { CreateRuleModal } from './CreateRuleModal';
 import type {
   AutomationRule,
   RuleStatus,
   RulesExportResponse,
   RunAllResponse,
 } from './types';
+
+const CreateRuleModal = dynamic(() =>
+  import('./CreateRuleModal').then((m) => m.CreateRuleModal),
+);
 import { saveBlob } from '@/lib/download';
 import { Checkbox } from '@/components/ui/Checkbox';
 
@@ -309,7 +313,10 @@ export function RulesTab({
         '/automation/rules/export',
         { params },
       );
-      saveBlob(new Blob([content], { type: 'text/csv;charset=utf-8' }), filename);
+      saveBlob(
+        new Blob([content], { type: 'text/csv;charset=utf-8' }),
+        filename,
+      );
     } catch (e) {
       reportError(e, { source: 'RulesTab.exportCsv' });
       notify({
@@ -429,7 +436,6 @@ export function RulesTab({
           </label>
           <label className="flex items-center gap-2 pb-2 font-body text-sm text-ink">
             <Checkbox
-              
               checked={withFailures}
               onChange={(e) => setWithFailures(e.target.checked)}
             />
@@ -543,7 +549,8 @@ export function RulesTab({
                     <>
                       <Button
                         type="button"
-                        intent="onDarkGhost" size="icon"
+                        intent="onDarkGhost"
+                        size="icon"
                         aria-label="Ver detalhes"
                         title="Ver detalhes"
                         onClick={() => setDetail(r)}
@@ -553,7 +560,8 @@ export function RulesTab({
                       {onEditRule && (
                         <Button
                           type="button"
-                          intent="onDarkGhost" size="icon"
+                          intent="onDarkGhost"
+                          size="icon"
                           aria-label="Editar regra"
                           title="Editar regra"
                           onClick={() => onEditRule(r.id)}
@@ -564,7 +572,8 @@ export function RulesTab({
                       {r.draft ? (
                         <Button
                           type="button"
-                          intent="onDarkGhost" size="icon"
+                          intent="onDarkGhost"
+                          size="icon"
                           aria-label="Publicar regra"
                           title="Publicar regra"
                           onClick={() => publish(r)}
@@ -574,7 +583,8 @@ export function RulesTab({
                       ) : (
                         <Button
                           type="button"
-                          intent="onDarkGhost" size="icon"
+                          intent="onDarkGhost"
+                          size="icon"
                           aria-label={
                             r.active ? 'Pausar regra' : 'Activar regra'
                           }
@@ -592,7 +602,8 @@ export function RulesTab({
                         <DropdownMenuTrigger asChild>
                           <Button
                             type="button"
-                            intent="onDarkGhost" size="icon"
+                            intent="onDarkGhost"
+                            size="icon"
                             aria-label="Mais acções"
                             title="Mais acções"
                           >

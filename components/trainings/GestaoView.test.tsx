@@ -125,19 +125,19 @@ describe('GestaoView (trainings)', () => {
     expect(onManage).toHaveBeenCalledWith(1);
   });
 
-  test('"Nova Formação" abre o modal em modo criação', () => {
+  test('"Nova Formação" abre o modal em modo criação', async () => {
     render(<GestaoView onManage={vi.fn()} />);
     expect(screen.queryByTestId('training-form-modal')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Nova Formação/ }));
-    expect(screen.getByTestId('training-form-modal')).toHaveTextContent(
+    expect(await screen.findByTestId('training-form-modal')).toHaveTextContent(
       'creating',
     );
   });
 
-  test('"Editar" abre o modal com a formação da linha', () => {
+  test('"Editar" abre o modal com a formação da linha', async () => {
     render(<GestaoView onManage={vi.fn()} />);
     fireEvent.click(screen.getAllByRole('button', { name: /^Editar/ })[0]);
-    expect(screen.getByTestId('training-form-modal')).toHaveTextContent(
+    expect(await screen.findByTestId('training-form-modal')).toHaveTextContent(
       'editing-1',
     );
   });

@@ -12,6 +12,7 @@
 // só renderiza as acções (Progresso / + Novo Módulo), não repete o h1.
 
 import { useEffect, useReducer, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
@@ -29,11 +30,14 @@ import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
 import { Card, CardBody } from '@/components/ui/Card';
 import { ModuleModal } from '@/components/courses-modulos/ModuleModal';
-import { LessonModal } from '@/components/courses-modulos/LessonModal';
 import { ProgressModal } from '@/components/courses-modulos/ProgressModal';
 import { ModuleBlock } from '@/components/courses-modulos/ModuleBlock';
 import { ModuleStatTile } from '@/components/courses-modulos/ModuleStatTile';
 import type { CourseModule, Lesson } from '@/components/courses-modulos/types';
+
+const LessonModal = dynamic(() =>
+  import('@/components/courses-modulos/LessonModal').then((m) => m.LessonModal),
+);
 
 interface ModulosViewProps {
   /** Deep-link vindo da aba Gestão ("Gerir módulos" num curso) ou de um
