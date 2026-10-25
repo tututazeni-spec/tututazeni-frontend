@@ -17,9 +17,9 @@ import type { InsightsData } from './types';
 type Tone = 'red' | 'gold' | 'green';
 
 const TONES: Record<Tone, { bar: string; text: string }> = {
-  red: { bar: 'bg-[#C0453F]', text: 'text-[#C0453F]' },
+  red: { bar: 'bg-danger', text: 'text-danger' },
   gold: { bar: 'bg-[#C9A227]', text: 'text-[#B8912A]' },
-  green: { bar: 'bg-[#2E8B3E]', text: 'text-[#2E8B3E]' },
+  green: { bar: 'bg-success', text: 'text-success' },
 };
 
 const SEV_CONFIG: Record<
