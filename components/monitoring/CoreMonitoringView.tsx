@@ -163,9 +163,10 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
 
       <Section title="Erros recentes">
         {data.errors.length === 0 ? (
-          <p className="font-body text-sm text-ink-muted">
-            Sem falhas nas últimas 24 horas.
-          </p>
+          <EmptyState
+            variant="inline"
+            title="Sem falhas nas últimas 24 horas"
+          />
         ) : (
           <div className="w-full">
             <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
@@ -207,9 +208,7 @@ export function AutomationsTab({ data }: { data: AutomationsData }) {
 
       <Section title="Próximas execuções agendadas">
         {data.upcoming.length === 0 ? (
-          <p className="font-body text-sm text-ink-muted">
-            Sem agendamentos activos.
-          </p>
+          <EmptyState variant="inline" title="Sem agendamentos activos" />
         ) : (
           <ul className="divide-y divide-border font-body text-sm">
             {data.upcoming.map((u) => (
@@ -491,7 +490,7 @@ export function IntegrationsTab({ data }: { data: IntegrationsData }) {
 
       <Section title="Falhas recentes (24h)">
         {data.failures.length === 0 ? (
-          <p className="font-body text-sm text-ink-muted">Sem falhas.</p>
+          <EmptyState variant="inline" title="Sem falhas" />
         ) : (
           <ul className="divide-y divide-border font-body text-sm">
             {data.failures.map((f) => (
@@ -543,7 +542,7 @@ function EndpointTable({
   return (
     <Section title={title}>
       {rows.length === 0 ? (
-        <p className="font-body text-sm text-ink-muted">Nenhum.</p>
+        <EmptyState variant="inline" title="Nenhum" />
       ) : (
         <div className="w-full">
           <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">

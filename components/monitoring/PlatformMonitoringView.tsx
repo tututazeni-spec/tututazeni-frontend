@@ -424,7 +424,7 @@ function InstanceTable({
       </div>
       <CardBody>
         {rows.length === 0 ? (
-          <p className="font-body text-sm text-ink-muted">Nenhum.</p>
+          <EmptyState variant="inline" title="Nenhum" />
         ) : (
           <div className="w-full">
             <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">

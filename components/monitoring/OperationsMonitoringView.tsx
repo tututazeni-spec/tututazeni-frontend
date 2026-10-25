@@ -114,7 +114,7 @@ function JobTable({ title, rows, state }: JobTableProps) {
       </div>
       <CardBody>
         {rows.length === 0 ? (
-          <p className="font-body text-sm text-ink-muted">Nenhum.</p>
+          <EmptyState variant="inline" title="Nenhum" />
         ) : (
           <div className="w-full">
             <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
@@ -303,9 +303,10 @@ export function JobsTab({ data }: { data: JobsData }) {
         </div>
         <CardBody>
           {data.crons.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">
-              Sem tarefas periódicas registadas.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem tarefas periódicas registadas"
+            />
           ) : (
             <div className="w-full">
               <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
@@ -496,9 +497,10 @@ export function SlaTab({ data, days, onDaysChange }: SlaTabProps) {
         </div>
         <CardBody>
           {data.components.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">
-              Sem incidentes críticos na janela.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Sem incidentes críticos na janela"
+            />
           ) : (
             <ul className="divide-y divide-border font-body text-sm">
               {data.components.map((x) => (
@@ -699,9 +701,7 @@ export function HistoryTab({
         </div>
         <CardBody>
           {data.platform.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">
-              Sem métricas na janela.
-            </p>
+            <EmptyState variant="inline" title="Sem métricas na janela" />
           ) : (
             <div className="w-full">
               <table className="w-full break-words [&_td]:break-words [&_th]:break-words text-left font-body text-sm">
