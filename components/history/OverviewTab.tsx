@@ -60,7 +60,7 @@ function RankingList({
       </div>
       <CardBody>
         {items.length === 0 ? (
-          <p className="text-sm text-ink-faint">Sem dados no período.</p>
+          <EmptyState variant="inline" title="Sem dados no período" />
         ) : (
           <div className="space-y-2">
             {items.map((i, idx) => (
@@ -257,9 +257,10 @@ export function OverviewTab() {
         </div>
         <CardBody>
           {data.recent.length === 0 ? (
-            <p className="text-sm text-ink-faint">
-              Ainda não há eventos registados.
-            </p>
+            <EmptyState
+              variant="inline"
+              title="Ainda não há eventos registados"
+            />
           ) : (
             <ul className="divide-y divide-border">
               {data.recent.map((e) => (
