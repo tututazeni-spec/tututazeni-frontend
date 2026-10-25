@@ -24,6 +24,7 @@ import {
   type Paginated,
   type PayslipDispute,
 } from './types';
+import { LinkButton } from '@/components/ui/LinkButton';
 
 export interface DisputesViewProps {
   onOpenPayslip: (payslipId: number) => void;
@@ -106,14 +107,14 @@ export function DisputesView({ onOpenPayslip }: DisputesViewProps) {
                 <div className="min-w-0 truncate text-ink">
                   {d.user?.fullName ?? `#${d.userId}`}
                 </div>
-                <button
+                <LinkButton
                   type="button"
-                  className="min-w-0 truncate text-left font-body text-xs text-primary hover:underline"
+                  className="min-w-0 truncate text-left font-body text-xs"
                   onClick={() => d.payslip && onOpenPayslip(d.payslip.id)}
                 >
                   {d.payslip?.receiptCode ?? `#${d.payslipId}`}
                   {d.payslip ? ` · ${fmtPeriod(d.payslip.period)}` : ''}
-                </button>
+                </LinkButton>
                 <div className="truncate text-ink-muted">{d.reason}</div>
                 <div>
                   <StatusBadge
