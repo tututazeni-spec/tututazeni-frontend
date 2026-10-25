@@ -110,7 +110,7 @@ function SummaryTile({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#152F59]/50',
+        'rounded-panel text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#152F59]/50',
         active && 'ring-2 ring-[#152F59] ring-offset-2',
       )}
     >
@@ -426,7 +426,7 @@ export function DocumentsView({
       {/* Lista */}
       <div className="overflow-x-auto rounded-card border border-border bg-surface">
         <div className="min-w-[900px] xl:min-w-0">
-          <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_96px_110px_110px] gap-2 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
+          <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_96px_110px_110px] gap-2 border-b border-border bg-brand/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
             <div>Documento</div>
             <div>Processo / etapa</div>
             <div>Tipo · versão</div>

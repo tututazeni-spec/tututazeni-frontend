@@ -60,7 +60,7 @@ const ALL = 'ALL';
 const WEEKDAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 // Cabeçalho azul-marinho, igual ao calendário de eventos.
 const NAVY_HEADER =
-  'cursor-default select-none bg-[#0F1F3D]/60 font-body text-xs font-medium capitalize text-white';
+  'cursor-default select-none bg-brand/60 font-body text-xs font-medium capitalize text-white';
 const MODES: Array<{ id: CalendarMode; label: string }> = [
   { id: 'day', label: 'Dia' },
   { id: 'week', label: 'Semana' },
@@ -147,7 +147,7 @@ function DayRow({
       />
       <span
         className={cn(
-          'w-16 shrink-0 rounded-md py-1 text-center font-mono text-xs font-semibold',
+          'w-16 shrink-0 rounded-control py-1 text-center font-mono text-xs font-semibold',
           CHIP_CLASS[tone],
         )}
       >
@@ -491,7 +491,7 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
       {/* Mês */}
       {data && mode === 'month' && (
         <Card className="overflow-hidden p-0">
-          <div className="grid grid-cols-7 border-b border-border bg-[#0F1F3D]/60">
+          <div className="grid grid-cols-7 border-b border-border bg-brand/60">
             {WEEKDAYS.map((w) => (
               <div
                 key={w}

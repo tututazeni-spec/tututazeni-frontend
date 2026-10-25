@@ -39,10 +39,19 @@ export interface IntegrationsViewProps {
 
 const ALL = 'ALL';
 const MODULE_STATUS_MAP: StatusBadgeMap<IntegrationModuleStatus> = {
-  ACTIVE: { label: 'Activa', cls: 'bg-[#0F1F3D] text-white ring-1 ring-white/30' },
-  CONFIGURED: { label: 'Modelos configurados', cls: 'bg-[#0F1F3D] text-white ring-1 ring-white/30' },
-  NO_ACTIVITY: { label: 'Sem actividade', cls: 'bg-[#0F1F3D] text-white ring-1 ring-white/30' },
-  ERRORS: { label: 'Com falhas', cls: 'bg-[#0F1F3D] text-white ring-1 ring-white/30' },
+  ACTIVE: { label: 'Activa', cls: 'bg-brand text-white ring-1 ring-white/30' },
+  CONFIGURED: {
+    label: 'Modelos configurados',
+    cls: 'bg-brand text-white ring-1 ring-white/30',
+  },
+  NO_ACTIVITY: {
+    label: 'Sem actividade',
+    cls: 'bg-brand text-white ring-1 ring-white/30',
+  },
+  ERRORS: {
+    label: 'Com falhas',
+    cls: 'bg-brand text-white ring-1 ring-white/30',
+  },
 };
 
 // Títulos em português (o backend devolve o nome técnico do módulo).
@@ -95,12 +104,16 @@ const MODULE_LABELS: Record<string, string> = {
   CrmFunders: 'CRM — Financiadores',
   Processes: 'Processos',
 };
-const moduleLabel = (key: string, fallback: string) => MODULE_LABELS[key] ?? fallback;
+const moduleLabel = (key: string, fallback: string) =>
+  MODULE_LABELS[key] ?? fallback;
 
 // Cor própria de cada card, só na linha colada ao cabeçalho.
 const cardHue = (i: number) => Math.round((i * 360) / 47 + 8) % 360;
 
-export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewProps) {
+export function IntegrationsView({
+  canRetry,
+  onOpenInstance,
+}: IntegrationsViewProps) {
   const notify = useToast();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState(ALL);
@@ -122,40 +135,78 @@ export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewP
   const logs = useApiQuery<PaginatedIntegrationLogs>(
     queryKeys.processes.integrationLogs(logParams),
     '/processes/integrations/logs',
-    { params: logParams, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params: logParams,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
 
-  const retry = useApiMutation((id: number) => apiClient.post(`/processes/integrations/logs/${id}/retry`, {}), {
-    invalidateKeys: [queryKeys.processes.all],
-    onSuccess: () => notify({ title: 'Evento repetido com sucesso', intent: 'success' }),
-    onError: (e) => notify({ title: e.message, intent: 'danger' }),
-  });
+  const retry = useApiMutation(
+    (id: number) =>
+      apiClient.post(`/processes/integrations/logs/${id}/retry`, {}),
+    {
+      invalidateKeys: [queryKeys.processes.all],
+      onSuccess: () =>
+        notify({ title: 'Evento repetido com sucesso', intent: 'success' }),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
+  );
 
   const o = overview.data;
   const q = search.trim().toLowerCase();
   const modules = (o?.modules ?? []).filter(
     (m) =>
       (status === ALL || m.status === status) &&
-      (!q || moduleLabel(m.key, m.label).toLowerCase().includes(q) || m.label.toLowerCase().includes(q) || m.description.toLowerCase().includes(q)),
+      (!q ||
+        moduleLabel(m.key, m.label).toLowerCase().includes(q) ||
+        m.label.toLowerCase().includes(q) ||
+        m.description.toLowerCase().includes(q)),
   );
 
   return (
     <div className="space-y-6">
       {overview.isLoading && <Skeleton rows={4} />}
-      {overview.error && <div className="font-body text-sm text-danger">{overview.error.message}</div>}
+      {overview.error && (
+        <div className="font-body text-sm text-danger">
+          {overview.error.message}
+        </div>
+      )}
 
       {o && (
         <>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <KpiCard icon={Boxes} label="Módulos na matriz" value={o.summary.total} sub="integração prevista" intent="primary" />
-            <KpiCard icon={PlugZap} label="Activas" value={o.summary.active} sub="já iniciaram processos" intent="success" />
-            <KpiCard icon={AlertTriangle} label="Com falhas" value={o.summary.withErrors} sub="eventos por tratar" intent="danger" />
+            <KpiCard
+              icon={Boxes}
+              label="Módulos na matriz"
+              value={o.summary.total}
+              sub="integração prevista"
+              intent="primary"
+            />
+            <KpiCard
+              icon={PlugZap}
+              label="Activas"
+              value={o.summary.active}
+              sub="já iniciaram processos"
+              intent="success"
+            />
+            <KpiCard
+              icon={AlertTriangle}
+              label="Com falhas"
+              value={o.summary.withErrors}
+              sub="eventos por tratar"
+              intent="danger"
+            />
             <KpiCard
               icon={Inbox}
               iconIntent="caution"
               label="Recepção de eventos"
               value={o.inboundEnabled ? 'Activa' : 'Desactivada'}
-              sub={o.restrictedToModules ? 'restrita a módulos autorizados' : 'todos os módulos'}
+              sub={
+                o.restrictedToModules
+                  ? 'restrita a módulos autorizados'
+                  : 'todos os módulos'
+              }
               intent={o.inboundEnabled ? 'info' : 'warning'}
             />
           </div>
@@ -182,66 +233,81 @@ export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewP
           </div>
 
           {modules.length === 0 ? (
-            <EmptyState icon={Plug} title="Nenhum módulo" description="Nenhum módulo corresponde aos filtros." className="mx-auto max-w-xl" />
+            <EmptyState
+              icon={Plug}
+              title="Nenhum módulo"
+              description="Nenhum módulo corresponde aos filtros."
+              className="mx-auto max-w-xl"
+            />
           ) : (
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {modules.map((m, i) => {
                 const hue = cardHue(i);
                 return (
-                <div
-                  key={m.key}
-                  className="flex flex-col overflow-hidden rounded-card border border-border bg-surface"
-                >
                   <div
-                    className="flex h-16 items-center justify-between gap-2 border-b-4 bg-[#0F1F3D]/60 px-4"
-                    style={{ borderBottomColor: `hsl(${hue} 65% 50%)` }}
+                    key={m.key}
+                    className="flex flex-col overflow-hidden rounded-card border border-border bg-surface"
                   >
-                    <div className="line-clamp-2 font-body text-sm font-semibold leading-tight text-white">
-                      {moduleLabel(m.key, m.label)}
+                    <div
+                      className="flex h-16 items-center justify-between gap-2 border-b-4 bg-brand/60 px-4"
+                      style={{ borderBottomColor: `hsl(${hue} 65% 50%)` }}
+                    >
+                      <div className="line-clamp-2 font-body text-sm font-semibold leading-tight text-white">
+                        {moduleLabel(m.key, m.label)}
+                      </div>
+                      <StatusBadge value={m.status} map={MODULE_STATUS_MAP} />
                     </div>
-                    <StatusBadge value={m.status} map={MODULE_STATUS_MAP} />
+
+                    <div className="flex flex-1 flex-col gap-3 p-4 text-brand">
+                      <div className="flex-1 space-y-1.5">
+                        <p className="font-body text-xs leading-relaxed">
+                          {m.description}
+                        </p>
+                        {m.note && (
+                          <p className="font-body text-xs text-warning-ink">
+                            {m.note}
+                          </p>
+                        )}
+                      </div>
+
+                      <dl className="grid grid-cols-4 divide-x divide-brand/15 rounded-control border border-brand/15 bg-brand/5 py-2 text-center font-body">
+                        {[
+                          ['Processos', m.instances],
+                          ['Em curso', m.openInstances],
+                          ['Modelos', m.templates],
+                          ['Eventos', m.events],
+                        ].map(([k, v]) => (
+                          <div key={k} className="px-1">
+                            <dd className="text-base font-semibold leading-none">
+                              {v}
+                            </dd>
+                            <dt className="mt-1 text-[11px] opacity-70">{k}</dt>
+                          </div>
+                        ))}
+                      </dl>
+
+                      <div className="flex items-center justify-between gap-2 border-t border-brand/15 pt-2 font-body text-xs">
+                        <span className="opacity-80">
+                          {m.lastActivityAt
+                            ? `Última actividade ${formatDateTime(m.lastActivityAt)}`
+                            : 'Sem actividade'}
+                        </span>
+                        {m.failedEvents > 0 && (
+                          <button
+                            type="button"
+                            className="shrink-0 font-medium text-danger-ink hover:underline"
+                            onClick={() => {
+                              setLogModule(m.key);
+                              setLogStatus('FAILED');
+                              setLogPage(1);
+                            }}
+                          >
+                            {m.failedEvents} falha(s)
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
-
-                  <div className="flex flex-1 flex-col gap-3 p-4 text-[#0F1F3D]">
-                    <div className="flex-1 space-y-1.5">
-                      <p className="font-body text-xs leading-relaxed">{m.description}</p>
-                      {m.note && <p className="font-body text-xs text-warning-ink">{m.note}</p>}
-                    </div>
-
-                    <dl className="grid grid-cols-4 divide-x divide-[#0F1F3D]/15 rounded-control border border-[#0F1F3D]/15 bg-[#0F1F3D]/5 py-2 text-center font-body">
-                      {[
-                        ['Processos', m.instances],
-                        ['Em curso', m.openInstances],
-                        ['Modelos', m.templates],
-                        ['Eventos', m.events],
-                      ].map(([k, v]) => (
-                        <div key={k} className="px-1">
-                          <dd className="text-base font-semibold leading-none">{v}</dd>
-                          <dt className="mt-1 text-[11px] opacity-70">{k}</dt>
-                        </div>
-                      ))}
-                    </dl>
-
-                    <div className="flex items-center justify-between gap-2 border-t border-[#0F1F3D]/15 pt-2 font-body text-xs">
-                      <span className="opacity-80">
-                        {m.lastActivityAt ? `Última actividade ${formatDateTime(m.lastActivityAt)}` : 'Sem actividade'}
-                      </span>
-                      {m.failedEvents > 0 && (
-                        <button
-                          type="button"
-                          className="shrink-0 font-medium text-danger-ink hover:underline"
-                          onClick={() => {
-                            setLogModule(m.key);
-                            setLogStatus('FAILED');
-                            setLogPage(1);
-                          }}
-                        >
-                          {m.failedEvents} falha(s)
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
                 );
               })}
             </div>
@@ -258,7 +324,9 @@ export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewP
       {/* Eventos recebidos */}
       <div>
         <div className="mb-2 flex flex-wrap items-center gap-3">
-          <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">Eventos recebidos</div>
+          <div className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+            Eventos recebidos
+          </div>
           <Select
             items={[
               { value: ALL, label: 'Qualquer resultado' },
@@ -295,26 +363,43 @@ export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewP
         {logs.data && logs.data.data.length > 0 && (
           <div className="divide-y divide-border rounded-card border border-border">
             {logs.data.data.map((l) => (
-              <div key={l.id} className="flex flex-wrap items-center justify-between gap-3 p-3">
+              <div
+                key={l.id}
+                className="flex flex-wrap items-center justify-between gap-3 p-3"
+              >
                 <div className="min-w-0 font-body text-sm text-ink">
                   <div className="font-medium">
                     {moduleLabel(l.module, l.module)} · {l.event}
                   </div>
                   <div className="text-xs text-ink-muted">
-                    {formatDateTime(l.createdAt)} · {l.processCode ?? '—'} · {l.attempts} tentativa(s)
+                    {formatDateTime(l.createdAt)} · {l.processCode ?? '—'} ·{' '}
+                    {l.attempts} tentativa(s)
                     {l.correlationId ? ` · correlação ${l.correlationId}` : ''}
                   </div>
-                  {l.errorMessage && <div className="truncate text-xs text-danger-ink">{l.errorMessage}</div>}
+                  {l.errorMessage && (
+                    <div className="truncate text-xs text-danger-ink">
+                      {l.errorMessage}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <StatusBadge value={l.status} map={ATTEMPT_STATUS_MAP} />
                   {l.instanceId && (
-                    <Button intent="ghost" size="sm" onClick={() => onOpenInstance(l.instanceId!)}>
+                    <Button
+                      intent="ghost"
+                      size="sm"
+                      onClick={() => onOpenInstance(l.instanceId!)}
+                    >
                       Abrir processo
                     </Button>
                   )}
                   {canRetry && l.status === 'FAILED' && (
-                    <Button intent="secondary" size="sm" onClick={() => retry.mutate(l.id)} loading={retry.isPending}>
+                    <Button
+                      intent="secondary"
+                      size="sm"
+                      onClick={() => retry.mutate(l.id)}
+                      loading={retry.isPending}
+                    >
                       Repetir
                     </Button>
                   )}
@@ -323,7 +408,13 @@ export function IntegrationsView({ canRetry, onOpenInstance }: IntegrationsViewP
             ))}
           </div>
         )}
-        {logs.data && <Pagination page={logs.data.page} totalPages={logs.data.totalPages} onPageChange={setLogPage} />}
+        {logs.data && (
+          <Pagination
+            page={logs.data.page}
+            totalPages={logs.data.totalPages}
+            onPageChange={setLogPage}
+          />
+        )}
       </div>
     </div>
   );

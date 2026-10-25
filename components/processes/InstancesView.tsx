@@ -121,7 +121,10 @@ function remaining(row: InstanceRow): string {
     : `faltam ${fmtElapsed(row.remainingHours)}`;
 }
 
-export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps) {
+export function InstancesView({
+  canManage,
+  onOpenInstance,
+}: InstancesViewProps) {
   const notify = useToast();
   const confirm = useConfirm();
   const [filters, setFilters] = useState<Filters>(EMPTY);
@@ -135,7 +138,11 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
   const { data, isLoading, error } = useApiQuery<PaginatedInstances>(
     queryKeys.processes.instances(params),
     '/processes/instances/list',
-    { params, staleTime: STALE_TIME.DYNAMIC, placeholderData: keepPreviousData },
+    {
+      params,
+      staleTime: STALE_TIME.DYNAMIC,
+      placeholderData: keepPreviousData,
+    },
   );
   const { data: options } = useApiQuery<InstanceFilterOptions>(
     queryKeys.processes.instanceFilters(),
@@ -152,8 +159,16 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
   const filtersActive = JSON.stringify(filters) !== JSON.stringify(EMPTY);
 
   const act = useApiMutation(
-    (v: { path: string; method?: 'patch' | 'post'; body?: Record<string, unknown>; ok: string }) =>
-      apiClient[v.method ?? 'patch'](`/processes/instances/${v.path}`, v.body ?? {}),
+    (v: {
+      path: string;
+      method?: 'patch' | 'post';
+      body?: Record<string, unknown>;
+      ok: string;
+    }) =>
+      apiClient[v.method ?? 'patch'](
+        `/processes/instances/${v.path}`,
+        v.body ?? {},
+      ),
     {
       invalidateKeys: [queryKeys.processes.all],
       onSuccess: (_d, v) => {
@@ -166,7 +181,9 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
 
   const cancel = useApiMutation(
     (v: { id: number; reason: string }) =>
-      apiClient.patch(`/processes/instances/${v.id}/cancel`, { reason: v.reason }),
+      apiClient.patch(`/processes/instances/${v.id}/cancel`, {
+        reason: v.reason,
+      }),
     {
       invalidateKeys: [queryKeys.processes.all],
       onSuccess: () => {
@@ -186,7 +203,11 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
       }))
     )
       return;
-    act.mutate({ path: `${row.id}/duplicate`, method: 'post', ok: 'Processo duplicado' });
+    act.mutate({
+      path: `${row.id}/duplicate`,
+      method: 'post',
+      ok: 'Processo duplicado',
+    });
   };
 
   const archive = async (row: InstanceRow) => {
@@ -210,14 +231,31 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
         errorMessage: 'Falha ao exportar os processos',
       });
     } catch (e) {
-      notify({ title: e instanceof Error ? e.message : 'Falha ao exportar', intent: 'danger' });
+      notify({
+        title: e instanceof Error ? e.message : 'Falha ao exportar',
+        intent: 'danger',
+      });
     } finally {
       setExporting(false);
     }
   };
 
-  const idItems = (label: string, rows: Array<{ id: number; name?: string; title?: string; code?: string }> = []) =>
-    opt(label, rows.map((r) => ({ value: String(r.id), label: r.name ?? `${r.title} (${r.code})` })));
+  const idItems = (
+    label: string,
+    rows: Array<{
+      id: number;
+      name?: string;
+      title?: string;
+      code?: string;
+    }> = [],
+  ) =>
+    opt(
+      label,
+      rows.map((r) => ({
+        value: String(r.id),
+        label: r.name ?? `${r.title} (${r.code})`,
+      })),
+    );
 
   const categoryItems = opt(
     'Todos os tipos',
@@ -238,10 +276,30 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
               className="w-full"
             />
           </div>
-          <Select items={STATUS_ITEMS} value={filters.status || ALL} onValueChange={setSelect('status')} className="w-full" />
-          <Select items={DEADLINE_ITEMS} value={filters.deadline || ALL} onValueChange={setSelect('deadline')} className="w-full" />
-          <Select items={categoryItems} value={filters.category || ALL} onValueChange={setSelect('category')} className="w-full" />
-          <Select items={idItems('Todos os departamentos', options?.departments)} value={filters.departmentId || ALL} onValueChange={setSelect('departmentId')} className="w-full" />
+          <Select
+            items={STATUS_ITEMS}
+            value={filters.status || ALL}
+            onValueChange={setSelect('status')}
+            className="w-full"
+          />
+          <Select
+            items={DEADLINE_ITEMS}
+            value={filters.deadline || ALL}
+            onValueChange={setSelect('deadline')}
+            className="w-full"
+          />
+          <Select
+            items={categoryItems}
+            value={filters.category || ALL}
+            onValueChange={setSelect('category')}
+            className="w-full"
+          />
+          <Select
+            items={idItems('Todos os departamentos', options?.departments)}
+            value={filters.departmentId || ALL}
+            onValueChange={setSelect('departmentId')}
+            className="w-full"
+          />
         </div>
         <div className="flex flex-wrap items-center gap-3 font-body text-xs text-ink-muted">
           <label className="flex items-center gap-2">
@@ -253,13 +311,27 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
             Só arquivados
           </label>
           {filtersActive && (
-            <Button intent="ghost" size="sm" onClick={() => { setFilters(EMPTY); setPage(1); }}>
+            <Button
+              intent="ghost"
+              size="sm"
+              onClick={() => {
+                setFilters(EMPTY);
+                setPage(1);
+              }}
+            >
               Limpar filtros
             </Button>
           )}
-          <span className="ml-auto text-ink-faint">{data?.total ?? 0} processos</span>
+          <span className="ml-auto text-ink-faint">
+            {data?.total ?? 0} processos
+          </span>
           {canManage && (
-            <Button intent="secondary" size="sm" onClick={exportCsv} loading={exporting}>
+            <Button
+              intent="secondary"
+              size="sm"
+              onClick={exportCsv}
+              loading={exporting}
+            >
               <Download size={14} strokeWidth={1.75} />
               Exportar CSV
             </Button>
@@ -270,7 +342,7 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
       {/* Tabela */}
       <div className="overflow-x-auto rounded-card border border-border bg-surface">
         <div className="min-w-[1040px] xl:min-w-0">
-          <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_84px_104px_110px_minmax(0,1fr)_32px] gap-2 border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
+          <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_84px_104px_110px_minmax(0,1fr)_32px] gap-2 border-b border-border bg-brand/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
             <div>Processo</div>
             <div>Tipo / Origem</div>
             <div>Solicitante → Responsável</div>
@@ -310,7 +382,9 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
               onClick={() => onOpenInstance(r.id)}
             >
               <div className="min-w-0">
-                <div className="truncate font-body text-sm font-medium text-ink">{r.name}</div>
+                <div className="truncate font-body text-sm font-medium text-ink">
+                  {r.name}
+                </div>
                 <div className="font-mono text-xs text-ink-faint">{r.code}</div>
                 <div className="truncate font-body text-xs text-ink-muted">
                   {r.entity.type && r.entity.id
@@ -321,18 +395,32 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
               </div>
               <div className="font-body text-xs text-ink-muted">
                 <div>{r.type ?? '—'}</div>
-                <div className="text-ink-faint">{r.sourceModule ? moduleLabel(r.sourceModule) : '—'}</div>
+                <div className="text-ink-faint">
+                  {r.sourceModule ? moduleLabel(r.sourceModule) : '—'}
+                </div>
               </div>
               <div className="font-body text-xs text-ink-muted">
                 <div>{r.requester.fullName}</div>
-                <div className="text-ink-faint">→ {r.currentResponsible?.fullName ?? 'por atribuir'}</div>
+                <div className="text-ink-faint">
+                  → {r.currentResponsible?.fullName ?? 'por atribuir'}
+                </div>
               </div>
               <div className="font-body text-xs text-ink-muted">
                 <div>{r.unit?.name ?? '—'}</div>
-                <div className="text-ink-faint">{r.department?.name ?? '—'}</div>
+                <div className="text-ink-faint">
+                  {r.department?.name ?? '—'}
+                </div>
               </div>
-              <div><StatusBadge value={r.priority} map={PRIORITY_MAP} /></div>
-              <div><StatusBadge value={r.status} map={INSTANCE_STATUS_MAP} variant="dot" /></div>
+              <div>
+                <StatusBadge value={r.priority} map={PRIORITY_MAP} />
+              </div>
+              <div>
+                <StatusBadge
+                  value={r.status}
+                  map={INSTANCE_STATUS_MAP}
+                  variant="dot"
+                />
+              </div>
               <div>
                 <ProgressBar
                   value={r.progress}
@@ -360,15 +448,33 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={() => onOpenInstance(r.id)}>Ver detalhes</DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => setDialog({ kind: 'history', row: r })}>Consultar histórico</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => onOpenInstance(r.id)}>
+                      Ver detalhes
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => setDialog({ kind: 'history', row: r })}
+                    >
+                      Consultar histórico
+                    </DropdownMenuItem>
                     {canManage && (
                       <>
                         <DropdownMenuSeparator />
                         {['IN_PROGRESS', 'ON_HOLD'].includes(r.status) && (
                           <>
-                            <DropdownMenuItem onSelect={() => setDialog({ kind: 'edit', row: r })}>Editar</DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => setDialog({ kind: 'assign', row: r })}>Atribuir / reatribuir</DropdownMenuItem>
+                            <DropdownMenuItem
+                              onSelect={() =>
+                                setDialog({ kind: 'edit', row: r })
+                              }
+                            >
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onSelect={() =>
+                                setDialog({ kind: 'assign', row: r })
+                              }
+                            >
+                              Atribuir / reatribuir
+                            </DropdownMenuItem>
                             {(Object.keys(PRIORITY_MAP) as ProcessPriority[])
                               .filter((p) => p !== r.priority)
                               .map((p) => (
@@ -388,19 +494,41 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
                           </>
                         )}
                         {r.status === 'IN_PROGRESS' && (
-                          <DropdownMenuItem onSelect={() => setDialog({ kind: 'suspend', row: r })}>Suspender</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() =>
+                              setDialog({ kind: 'suspend', row: r })
+                            }
+                          >
+                            Suspender
+                          </DropdownMenuItem>
                         )}
                         {r.status === 'ON_HOLD' && (
-                          <DropdownMenuItem onSelect={() => setDialog({ kind: 'resume', row: r })}>Retomar</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() =>
+                              setDialog({ kind: 'resume', row: r })
+                            }
+                          >
+                            Retomar
+                          </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem onSelect={() => duplicate(r)}>Duplicar a partir do modelo</DropdownMenuItem>
-                        {['COMPLETED', 'CANCELLED'].includes(r.status) && !r.archived && (
-                          <DropdownMenuItem onSelect={() => archive(r)}>Arquivar</DropdownMenuItem>
-                        )}
+                        <DropdownMenuItem onSelect={() => duplicate(r)}>
+                          Duplicar a partir do modelo
+                        </DropdownMenuItem>
+                        {['COMPLETED', 'CANCELLED'].includes(r.status) &&
+                          !r.archived && (
+                            <DropdownMenuItem onSelect={() => archive(r)}>
+                              Arquivar
+                            </DropdownMenuItem>
+                          )}
                         {['IN_PROGRESS', 'ON_HOLD'].includes(r.status) && (
                           <>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-danger" onSelect={() => setDialog({ kind: 'cancel', row: r })}>
+                            <DropdownMenuItem
+                              className="text-danger"
+                              onSelect={() =>
+                                setDialog({ kind: 'cancel', row: r })
+                              }
+                            >
                               Cancelar…
                             </DropdownMenuItem>
                           </>
@@ -415,11 +543,26 @@ export function InstancesView({ canManage, onOpenInstance }: InstancesViewProps)
         </div>
       </div>
 
-      {data && <Pagination page={data.page} totalPages={data.totalPages} onPageChange={setPage} />}
+      {data && (
+        <Pagination
+          page={data.page}
+          totalPages={data.totalPages}
+          onPageChange={setPage}
+        />
+      )}
 
-      {dialog?.kind === 'edit' && <EditInstanceModal row={dialog.row} onClose={() => setDialog(null)} />}
-      {dialog?.kind === 'assign' && <AssignInstanceModal row={dialog.row} onClose={() => setDialog(null)} />}
-      {dialog?.kind === 'history' && <InstanceHistoryModal row={dialog.row} onClose={() => setDialog(null)} />}
+      {dialog?.kind === 'edit' && (
+        <EditInstanceModal row={dialog.row} onClose={() => setDialog(null)} />
+      )}
+      {dialog?.kind === 'assign' && (
+        <AssignInstanceModal row={dialog.row} onClose={() => setDialog(null)} />
+      )}
+      {dialog?.kind === 'history' && (
+        <InstanceHistoryModal
+          row={dialog.row}
+          onClose={() => setDialog(null)}
+        />
+      )}
       {dialog?.kind === 'cancel' && (
         <ReasonDialog
           title={`Cancelar ${dialog.row.code}?`}

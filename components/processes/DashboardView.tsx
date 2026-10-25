@@ -88,7 +88,7 @@ interface ChartCardProps {
 function ChartCard({ title, empty, children }: ChartCardProps) {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface">
-      <div className="pointer-events-none select-none bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
+      <div className="pointer-events-none select-none bg-brand/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-4">

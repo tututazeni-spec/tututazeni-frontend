@@ -20,7 +20,10 @@ import { useToast } from '@/providers/ToastProvider';
 import { RECIPIENT_TOKENS } from './ActionListEditor';
 import { EXECUTION_STATUS_MAP } from './constants';
 import { Skeleton } from './Skeleton';
-import type { AutomationDetail, AutomationTestResult } from './automation-types';
+import type {
+  AutomationDetail,
+  AutomationTestResult,
+} from './automation-types';
 
 export interface AutomationPanelProps {
   id: number;
@@ -28,10 +31,18 @@ export interface AutomationPanelProps {
   onClose: () => void;
 }
 
-const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+const Field = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) => (
   <div>
-    <div className="font-body text-xs uppercase tracking-wide text-[#0F1F3D]">{label}</div>
-    <div className="mt-0.5 font-body text-sm text-[#0F1F3D]">{children}</div>
+    <div className="font-body text-xs uppercase tracking-wide text-brand">
+      {label}
+    </div>
+    <div className="mt-0.5 font-body text-sm text-brand">{children}</div>
   </div>
 );
 
@@ -62,12 +73,22 @@ const SAMPLE = `{
   "targetUserId": 1
 }`;
 
-export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps) {
+export function AutomationPanel({
+  id,
+  canManage,
+  onClose,
+}: AutomationPanelProps) {
   const notify = useToast();
   const [payload, setPayload] = useState(SAMPLE);
-  const [testResult, setTestResult] = useState<AutomationTestResult | null>(null);
+  const [testResult, setTestResult] = useState<AutomationTestResult | null>(
+    null,
+  );
 
-  const { data: r, isLoading, error } = useApiQuery<AutomationDetail>(
+  const {
+    data: r,
+    isLoading,
+    error,
+  } = useApiQuery<AutomationDetail>(
     queryKeys.processes.automation(id),
     `/processes/automations/${id}`,
     { staleTime: STALE_TIME.DYNAMIC },
@@ -81,10 +102,13 @@ export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps
       } catch {
         throw new Error('O payload de exemplo não é JSON válido');
       }
-      return apiClient.post<AutomationTestResult>(`/processes/automations/${id}/test`, {
-        payload: parsed,
-        execute: v.execute,
-      });
+      return apiClient.post<AutomationTestResult>(
+        `/processes/automations/${id}/test`,
+        {
+          payload: parsed,
+          execute: v.execute,
+        },
+      );
     },
     {
       invalidateKeys: [queryKeys.processes.all],
@@ -94,10 +118,12 @@ export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps
   );
 
   const rerun = useApiMutation(
-    (execId: string) => apiClient.post(`/processes/automations/executions/${execId}/rerun`, {}),
+    (execId: string) =>
+      apiClient.post(`/processes/automations/executions/${execId}/rerun`, {}),
     {
       invalidateKeys: [queryKeys.processes.all],
-      onSuccess: () => notify({ title: 'Execução repetida', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Execução repetida', intent: 'success' }),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
@@ -106,7 +132,11 @@ export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps
     return (
       <Modal open onOpenChange={(o) => !o && onClose()}>
         <ModalContent title="Regra de automação" className="max-w-3xl">
-          {error ? <p className="font-body text-sm text-danger">{error.message}</p> : <Skeleton rows={4} />}
+          {error ? (
+            <p className="font-body text-sm text-danger">{error.message}</p>
+          ) : (
+            <Skeleton rows={4} />
+          )}
         </ModalContent>
       </Modal>
     );
@@ -123,13 +153,20 @@ export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps
           <Field label="Evento">{r.triggerLabel}</Field>
           <Field label="Acção">{r.actionLabel}</Field>
           <Field label="Estado">{r.active ? 'Activa' : 'Inactiva'}</Field>
-          <Field label="Destinatários">{r.recipients.length ? r.recipients.map(recipientLabel).join(', ') : '—'}</Field>
+          <Field label="Destinatários">
+            {r.recipients.length
+              ? r.recipients.map(recipientLabel).join(', ')
+              : '—'}
+          </Field>
           <Field label="Prioridade">{r.priority}</Field>
           <Field label="Vigência">
-            {r.activeFrom || r.activeUntil ? `${formatDate(r.activeFrom)} → ${formatDate(r.activeUntil)}` : 'Sem limite'}
+            {r.activeFrom || r.activeUntil
+              ? `${formatDate(r.activeFrom)} → ${formatDate(r.activeUntil)}`
+              : 'Sem limite'}
           </Field>
           <Field label="Tentativas">
-            {r.maxRetries ?? 0} · {RETRY_POLICY_LABELS[r.retryPolicy ?? 'NONE'] ?? r.retryPolicy}
+            {r.maxRetries ?? 0} ·{' '}
+            {RETRY_POLICY_LABELS[r.retryPolicy ?? 'NONE'] ?? r.retryPolicy}
             {r.retryDelayMinutes ? ` · ${r.retryDelayMinutes} min` : ''}
           </Field>
           <Field label="Em caso de erro">
@@ -139,7 +176,12 @@ export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps
             {r.lastRunAt ? (
               <>
                 {formatDateTime(r.lastRunAt)}{' '}
-                {r.lastRunStatus && <StatusBadge value={r.lastRunStatus} map={EXECUTION_STATUS_MAP} />}
+                {r.lastRunStatus && (
+                  <StatusBadge
+                    value={r.lastRunStatus}
+                    map={EXECUTION_STATUS_MAP}
+                  />
+                )}
               </>
             ) : (
               'Nunca'
@@ -149,10 +191,10 @@ export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps
 
         {r.conditions && (
           <div className="mt-4">
-            <div className="mb-1 font-body text-xs uppercase tracking-wide text-[#0F1F3D]">
+            <div className="mb-1 font-body text-xs uppercase tracking-wide text-brand">
               Condições ({r.conditions.logic === 'OR' ? 'qualquer' : 'todas'})
             </div>
-            <ul className="font-body text-sm text-[#0F1F3D]">
+            <ul className="font-body text-sm text-brand">
               {r.conditions.rows.map((c, i) => (
                 <li key={i}>
                   {c.field} {c.operator} {c.value ?? ''}
@@ -163,34 +205,75 @@ export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps
         )}
 
         {canManage && (
-          <div className="mt-5 rounded-card border border-[#0F1F3D] bg-[#0F1F3D] p-3 text-white [&_label]:text-white">
-            <h4 className="mb-2 font-body text-sm font-medium text-white">Testar a regra</h4>
-            <FormField label="Payload de exemplo do evento (JSON)" htmlFor="ap-payload">
-              <Textarea id="ap-payload" rows={7} value={payload} onChange={(e) => setPayload(e.target.value)} className="w-full font-mono text-xs" />
+          <div className="mt-5 rounded-card border border-brand bg-brand p-3 text-white [&_label]:text-white">
+            <h4 className="mb-2 font-body text-sm font-medium text-white">
+              Testar a regra
+            </h4>
+            <FormField
+              label="Payload de exemplo do evento (JSON)"
+              htmlFor="ap-payload"
+            >
+              <Textarea
+                id="ap-payload"
+                rows={7}
+                value={payload}
+                onChange={(e) => setPayload(e.target.value)}
+                className="w-full font-mono text-xs"
+              />
             </FormField>
             <div className="mt-2 flex flex-wrap gap-2">
-              <Button intent="secondary" size="sm" loading={test.isPending} onClick={() => test.mutate({ execute: false })}>
+              <Button
+                intent="secondary"
+                size="sm"
+                loading={test.isPending}
+                onClick={() => test.mutate({ execute: false })}
+              >
                 Simular
               </Button>
-              <Button intent="warning" size="sm" loading={test.isPending} onClick={() => test.mutate({ execute: true })}>
+              <Button
+                intent="warning"
+                size="sm"
+                loading={test.isPending}
+                onClick={() => test.mutate({ execute: true })}
+              >
                 Executar uma vez
               </Button>
             </div>
             {testResult && (
               <div className="mt-3 rounded-card bg-surface p-3 font-body text-sm">
                 <p>
-                  Condições: <b>{testResult.matches ? 'satisfeitas' : 'não satisfeitas'}</b>
+                  Condições:{' '}
+                  <b>
+                    {testResult.matches ? 'satisfeitas' : 'não satisfeitas'}
+                  </b>
                   {testResult.mode === 'SIMULATION' && (
-                    <> · {testResult.wouldRun ? 'a regra correria' : 'a regra não correria'}</>
+                    <>
+                      {' '}
+                      ·{' '}
+                      {testResult.wouldRun
+                        ? 'a regra correria'
+                        : 'a regra não correria'}
+                    </>
                   )}
                   {testResult.mode === 'EXECUTION' && (
-                    <> · {testResult.executed ? 'executada' : `não executada (${testResult.reason ?? ''})`}</>
+                    <>
+                      {' '}
+                      ·{' '}
+                      {testResult.executed
+                        ? 'executada'
+                        : `não executada (${testResult.reason ?? ''})`}
+                    </>
                   )}
                 </p>
                 {testResult.recipients && testResult.recipients.length > 0 && (
                   <p className="mt-1 text-xs text-ink-muted">
                     Destinatários:{' '}
-                    {testResult.recipients.map((x) => `${x.token} → ${x.userIds.length ? x.userIds.join(', ') : 'ninguém'}`).join(' · ')}
+                    {testResult.recipients
+                      .map(
+                        (x) =>
+                          `${x.token} → ${x.userIds.length ? x.userIds.join(', ') : 'ninguém'}`,
+                      )
+                      .join(' · ')}
                   </p>
                 )}
                 {testResult.result && (
@@ -204,29 +287,54 @@ export function AutomationPanel({ id, canManage, onClose }: AutomationPanelProps
         )}
 
         <div className="mt-5">
-          <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-[#0F1F3D]">
+          <h4 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-brand">
             Registo de execuções
           </h4>
-          {r.executions.length === 0 && <p className="font-body text-sm text-[#0F1F3D]">Sem execuções.</p>}
+          {r.executions.length === 0 && (
+            <p className="font-body text-sm text-brand">Sem execuções.</p>
+          )}
           <ul className="space-y-2">
             {r.executions.map((e) => (
-              <li key={e.id} className="rounded-card border border-border p-2.5">
+              <li
+                key={e.id}
+                className="rounded-card border border-border p-2.5"
+              >
                 <div className="flex flex-wrap items-center gap-2 font-body text-sm text-ink">
-                  <StatusBadge value={e.status} map={EXECUTION_STATUS_MAP} variant="dot" />
+                  <StatusBadge
+                    value={e.status}
+                    map={EXECUTION_STATUS_MAP}
+                    variant="dot"
+                  />
                   {formatDateTime(e.startedAt)}
-                  <span className="text-xs text-ink-faint">tentativa {e.attempt}</span>
+                  <span className="text-xs text-ink-faint">
+                    tentativa {e.attempt}
+                  </span>
                   {e.nextRetryAt && (
-                    <span className="text-xs text-warning-ink">nova tentativa {formatDateTime(e.nextRetryAt)}</span>
+                    <span className="text-xs text-warning-ink">
+                      nova tentativa {formatDateTime(e.nextRetryAt)}
+                    </span>
                   )}
                   {canManage && e.status === 'FAILED' && (
-                    <Button intent="ghost" size="sm" className="ml-auto" loading={rerun.isPending} onClick={() => rerun.mutate(e.id)}>
+                    <Button
+                      intent="ghost"
+                      size="sm"
+                      className="ml-auto"
+                      loading={rerun.isPending}
+                      onClick={() => rerun.mutate(e.id)}
+                    >
                       Repetir
                     </Button>
                   )}
                 </div>
-                {e.errorMessage && <p className="mt-1 font-body text-xs text-danger">{e.errorMessage}</p>}
+                {e.errorMessage && (
+                  <p className="mt-1 font-body text-xs text-danger">
+                    {e.errorMessage}
+                  </p>
+                )}
                 {Object.keys(e.result).length > 0 && (
-                  <p className="mt-1 font-mono text-xs text-ink-muted">{JSON.stringify(e.result)}</p>
+                  <p className="mt-1 font-mono text-xs text-ink-muted">
+                    {JSON.stringify(e.result)}
+                  </p>
                 )}
               </li>
             ))}

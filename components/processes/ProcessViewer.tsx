@@ -190,7 +190,7 @@ export function ProcessViewer({
       {/* Header — desenho de "workshop de inovação.jpeg" (o mesmo do detalhe
           do evento): cartão claro com etiquetas, ícone + título, dados,
           responsável e botões de acção. */}
-      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div
           aria-hidden
           className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
@@ -221,10 +221,10 @@ export function ProcessViewer({
               <FileStack size={28} strokeWidth={1.75} />
             </span>
             <div className="min-w-0">
-              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-[#0F1F3D]">
+              <h1 className="break-words font-display text-[28px] font-bold leading-tight text-brand">
                 {process.title}
               </h1>
-              <p className="mt-0.5 break-words font-mono text-base text-[#49658A]">
+              <p className="mt-0.5 break-words font-mono text-base text-brand-muted">
                 {process.code} · v{process.version}
               </p>
             </div>
@@ -236,7 +236,7 @@ export function ProcessViewer({
             </p>
           )}
 
-          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-[#E6ECF4]">
+          <div className="flex flex-wrap items-center gap-y-3 divide-x divide-brand-line">
             {process.defaultSlaHours ? (
               <Metric icon={Clock}>SLA {process.defaultSlaHours}h</Metric>
             ) : null}
@@ -269,9 +269,9 @@ export function ProcessViewer({
             </div>
           )}
 
-          <div className="border-t border-[#E6ECF4] pt-4">
+          <div className="border-t border-brand-line pt-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="inline-flex items-center gap-3 text-[15px] text-[#49658A]">
+              <span className="inline-flex items-center gap-3 text-[15px] text-brand-muted">
                 <Avatar
                   name={process.owner.fullName}
                   url={process.owner.avatarUrl ?? undefined}
@@ -411,7 +411,7 @@ export function ProcessViewer({
                 </div>
 
                 {/* Step card */}
-                <div className="relative mb-2 flex-1 overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+                <div className="relative mb-2 flex-1 overflow-hidden rounded-[24px] border border-brand-line bg-white p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2.5">
@@ -424,7 +424,7 @@ export function ProcessViewer({
                           <span className="h-1.5 w-1.5 rounded-full bg-current" />
                           {STEP_TYPE_MAP[step.type]?.label ?? step.type}
                         </span>
-                        <span className="font-body text-sm font-semibold text-[#0F1F3D]">
+                        <span className="font-body text-sm font-semibold text-brand">
                           {step.title}
                         </span>
                       </div>
@@ -433,59 +433,63 @@ export function ProcessViewer({
                           {step.description}
                         </p>
                       )}
-                      <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-[#E6ECF4] pt-3 font-body sm:grid-cols-3">
+                      <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-brand-line pt-3 font-body sm:grid-cols-3">
                         {step.responsible && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-[#49658A]">
+                            <dt className="text-[11px] text-brand-muted">
                               Responsável
                             </dt>
-                            <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
+                            <dd className="truncate text-sm font-semibold text-brand">
                               {step.responsible.fullName}
                             </dd>
                           </div>
                         )}
                         {step.responsibleRole && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-[#49658A]">FunÃ§Ã£o</dt>
-                            <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
+                            <dt className="text-[11px] text-brand-muted">
+                              FunÃ§Ã£o
+                            </dt>
+                            <dd className="truncate text-sm font-semibold text-brand">
                               {step.responsibleRole}
                             </dd>
                           </div>
                         )}
                         {step.slaHours && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-[#49658A]">SLA</dt>
-                            <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
+                            <dt className="text-[11px] text-brand-muted">
+                              SLA
+                            </dt>
+                            <dd className="truncate text-sm font-semibold text-brand">
                               {step.slaHours}h
                             </dd>
                           </div>
                         )}
                         {step.reviewer && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-[#49658A]">
+                            <dt className="text-[11px] text-brand-muted">
                               Revisor
                             </dt>
-                            <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
+                            <dd className="truncate text-sm font-semibold text-brand">
                               {step.reviewer.fullName}
                             </dd>
                           </div>
                         )}
                         {step.parallel && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-[#49658A]">
+                            <dt className="text-[11px] text-brand-muted">
                               Execução
                             </dt>
-                            <dd className="text-sm font-semibold text-[#0F1F3D]">
+                            <dd className="text-sm font-semibold text-brand">
                               Paralela
                             </dd>
                           </div>
                         )}
                         {step.dependsOnOrders.length > 0 && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-[#49658A]">
+                            <dt className="text-[11px] text-brand-muted">
                               Depende de
                             </dt>
-                            <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
+                            <dd className="truncate text-sm font-semibold text-brand">
                               {step.dependsOnOrders
                                 .map((o) => o + 1)
                                 .join(', ')}
@@ -494,23 +498,23 @@ export function ProcessViewer({
                         )}
                         {step.estimatedMinutes && (
                           <div className="min-w-0">
-                            <dt className="text-[11px] text-[#49658A]">
+                            <dt className="text-[11px] text-brand-muted">
                               Tempo est.
                             </dt>
-                            <dd className="truncate text-sm font-semibold text-[#0F1F3D]">
+                            <dd className="truncate text-sm font-semibold text-brand">
                               {fmtDuration(step.estimatedMinutes)}
                             </dd>
                           </div>
                         )}
                       </dl>
                       {step.checklist.length > 0 && (
-                        <div className="mt-3 space-y-1.5 border-t border-[#E6ECF4] pt-3">
+                        <div className="mt-3 space-y-1.5 border-t border-brand-line pt-3">
                           {step.checklist.map((item, i) => (
                             <div
                               key={i}
-                              className="flex items-center gap-2 font-body text-[13px] text-[#0F1F3D]"
+                              className="flex items-center gap-2 font-body text-[13px] text-brand"
                             >
-                              <div className="h-3.5 w-3.5 flex-shrink-0 rounded-control border border-[#49658A]" />
+                              <div className="h-3.5 w-3.5 flex-shrink-0 rounded-control border border-brand-muted" />
                               {item}
                             </div>
                           ))}
@@ -533,33 +537,33 @@ export function ProcessViewer({
         {/* Info tab */}
         <TabsContent value="info">
           <div className="grid grid-cols-2 gap-5">
-            <div className="relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-              <div className="pointer-events-none mb-4 cursor-default select-none font-display text-lg font-bold text-[#0F1F3D]">
+            <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <div className="pointer-events-none mb-4 cursor-default select-none font-display text-lg font-bold text-brand">
                 Objetivo e âmbito
               </div>
               {process.objective && (
                 <div className="mb-3">
-                  <div className="mb-1 font-body text-[11px] text-[#49658A]">
+                  <div className="mb-1 font-body text-[11px] text-brand-muted">
                     Objetivo
                   </div>
-                  <p className="font-body text-sm font-semibold text-[#0F1F3D]">
+                  <p className="font-body text-sm font-semibold text-brand">
                     {process.objective}
                   </p>
                 </div>
               )}
               {process.scope && (
                 <div>
-                  <div className="mb-1 font-body text-[11px] text-[#49658A]">
+                  <div className="mb-1 font-body text-[11px] text-brand-muted">
                     Âmbito
                   </div>
-                  <p className="font-body text-sm font-semibold text-[#0F1F3D]">
+                  <p className="font-body text-sm font-semibold text-brand">
                     {process.scope}
                   </p>
                 </div>
               )}
             </div>
-            <div className="relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-              <div className="pointer-events-none mb-4 cursor-default select-none font-display text-lg font-bold text-[#0F1F3D]">
+            <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <div className="pointer-events-none mb-4 cursor-default select-none font-display text-lg font-bold text-brand">
                 Datas e SLA
               </div>
               {[
@@ -576,19 +580,19 @@ export function ProcessViewer({
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="flex justify-between border-b border-[#E6ECF4] py-2 last:border-0"
+                  className="flex justify-between border-b border-brand-line py-2 last:border-0"
                 >
-                  <span className="font-body text-[11px] text-[#49658A]">
+                  <span className="font-body text-[11px] text-brand-muted">
                     {label}
                   </span>
-                  <span className="font-body text-sm font-semibold text-[#0F1F3D]">
+                  <span className="font-body text-sm font-semibold text-brand">
                     {value}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="col-span-2 relative overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-              <div className="pointer-events-none mb-4 cursor-default select-none font-display text-lg font-bold text-[#0F1F3D]">
+            <div className="col-span-2 relative overflow-hidden rounded-[24px] border border-brand-line bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+              <div className="pointer-events-none mb-4 cursor-default select-none font-display text-lg font-bold text-brand">
                 Configuração do modelo
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -614,10 +618,10 @@ export function ProcessViewer({
                   ] as Array<[string, string | null]>
                 ).map(([label, value]) => (
                   <div key={label}>
-                    <div className="font-body text-[11px] text-[#49658A]">
+                    <div className="font-body text-[11px] text-brand-muted">
                       {label}
                     </div>
-                    <p className="font-body text-sm font-semibold text-[#0F1F3D]">
+                    <p className="font-body text-sm font-semibold text-brand">
                       {value || '—'}
                     </p>
                   </div>
@@ -629,8 +633,8 @@ export function ProcessViewer({
 
         {/* History tab */}
         <TabsContent value="history">
-          <div className="overflow-hidden rounded-[24px] border border-[#E3EAF4] bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-            <div className="pointer-events-none cursor-default select-none border-b border-[#E6ECF4] px-5 py-4 font-display text-lg font-bold text-[#0F1F3D]">
+          <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div className="pointer-events-none cursor-default select-none border-b border-brand-line px-5 py-4 font-display text-lg font-bold text-brand">
               Histórico de versões
             </div>
             {(
@@ -645,10 +649,10 @@ export function ProcessViewer({
             ).map((v) => (
               <div
                 key={`${v.version}-${v.current}`}
-                className="relative flex flex-wrap items-center justify-between gap-3 border-b border-[#E6ECF4] bg-white px-5 py-3.5 last:border-0"
+                className="relative flex flex-wrap items-center justify-between gap-3 border-b border-brand-line bg-white px-5 py-3.5 last:border-0"
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="font-mono text-sm font-bold text-[#0F1F3D]">
+                  <span className="font-mono text-sm font-bold text-brand">
                     v{v.version}
                   </span>
                   {v.current && (
@@ -659,16 +663,16 @@ export function ProcessViewer({
                   )}
                 </div>
                 <div className="text-right font-body">
-                  <div className="text-[11px] text-[#49658A]">
+                  <div className="text-[11px] text-brand-muted">
                     {v.current ? 'Publicada/actualizada em' : 'Guardada em'}
                   </div>
-                  <div className="text-sm font-semibold text-[#0F1F3D]">
+                  <div className="text-sm font-semibold text-brand">
                     {fmtDate(v.createdAt)}
                   </div>
                 </div>
               </div>
             ))}
-            <div className="border-t border-[#E6ECF4] bg-[#F7FAFE] px-5 py-3 font-body text-[13px] leading-relaxed text-[#49658A]">
+            <div className="border-t border-brand-line bg-[#F7FAFE] px-5 py-3 font-body text-[13px] leading-relaxed text-brand-muted">
               Cada processo em execução mantém a versão do modelo com que foi
               iniciado.
             </div>

@@ -126,7 +126,7 @@ interface ChartCardProps {
 function ChartCard({ title, empty, children }: ChartCardProps) {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface">
-      <div className="pointer-events-none select-none bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
+      <div className="pointer-events-none select-none bg-brand/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
         {title}
       </div>
       <div className="p-4">
@@ -567,7 +567,7 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
 
           {/* Carga por responsável */}
           <div className="overflow-hidden rounded-card border border-border bg-surface">
-            <div className="pointer-events-none select-none border-b border-border bg-[#0F1F3D]/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
+            <div className="pointer-events-none select-none border-b border-border bg-brand/60 px-4 py-2.5 font-body text-xs font-medium uppercase tracking-wide text-white">
               Carga por responsável (tarefas por resolver)
             </div>
             {data.workload.length === 0 ? (
@@ -619,7 +619,7 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
             </div>
             <div className="overflow-x-auto">
               <div className="min-w-[720px]">
-                <div className="grid grid-cols-[2fr_80px_100px_90px_90px_110px_120px_110px] gap-3 border-b border-border bg-[#0F1F3D]/60 px-4 py-2 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
+                <div className="grid grid-cols-[2fr_80px_100px_90px_90px_110px_120px_110px] gap-3 border-b border-border bg-brand/60 px-4 py-2 font-body text-xs font-medium uppercase tracking-wide text-white pointer-events-none select-none">
                   <div>Grupo</div>
                   <div>Total</div>
                   <div>Concluídos</div>
