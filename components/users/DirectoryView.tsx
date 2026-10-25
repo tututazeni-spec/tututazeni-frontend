@@ -126,6 +126,8 @@ function DirectoryCard({
           {user.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
+              loading="lazy"
+              decoding="async"
               src={user.avatarUrl}
               alt={user.fullName}
               className="h-[60px] w-[60px] rounded-full border-[3px] border-white object-cover shadow"

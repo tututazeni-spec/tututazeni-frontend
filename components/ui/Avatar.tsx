@@ -33,6 +33,9 @@ const SIZE_CLASSES = {
   lg: 'h-12 w-12 text-sm',
 } as const;
 
+// Largura renderizada de cada tamanho (h-7/h-9/h-12), para o `sizes` do next/image.
+const SIZE_PX = { sm: '28px', md: '36px', lg: '48px' } as const;
+
 export interface AvatarProps {
   name: string;
   url?: string;
@@ -55,12 +58,20 @@ export function Avatar({ name, url, size = 'md', className }: AvatarProps) {
           // next/image não processa data URIs; <img> nativo evita-o.
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            loading="lazy"
+            decoding="async"
             src={url}
             alt={name}
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
-          <Image src={url} alt={name} fill className="object-cover" />
+          <Image
+            src={url}
+            alt={name}
+            fill
+            sizes={SIZE_PX[size]}
+            className="object-cover"
+          />
         )}
       </div>
     );

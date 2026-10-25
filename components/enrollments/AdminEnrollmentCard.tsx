@@ -80,6 +80,8 @@ export function AdminEnrollmentCard({
           // Pode ser data URL (base64) — <img> nativo, como em ui/Avatar.
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            loading="lazy"
+            decoding="async"
             src={avatar.url}
             alt={`Foto de ${avatar.name}`}
             className="absolute inset-0 h-full w-full object-cover"

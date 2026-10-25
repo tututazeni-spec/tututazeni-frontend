@@ -143,6 +143,8 @@ export function EventListCard({ event: e, onOpen, menu }: EventListCardProps) {
         {e.bannerUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            loading="lazy"
+            decoding="async"
             src={e.bannerUrl}
             alt={`Imagem do evento ${e.title}`}
             className="absolute inset-0 h-full w-full object-cover"

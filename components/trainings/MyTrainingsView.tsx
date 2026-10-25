@@ -85,6 +85,7 @@ export function MyTrainingsView({ onSelect }: MyTrainingsViewProps) {
                     src={training.thumbnailUrl}
                     alt=""
                     fill
+                    sizes="64px"
                     className="object-cover opacity-80"
                   />
                 ) : (
