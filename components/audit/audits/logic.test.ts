@@ -13,6 +13,13 @@ import {
   isDetailFormValid,
   toIso,
   validateNewAudit,
+  workflowSteps,
+  historyActionLabel,
+  findingKindLabel,
+  findingSelectItems,
+  findingSelectValue,
+  parseFindingChoice,
+  NO_FINDING,
 } from './logic';
 import type { InternalAuditStatus } from '../types';
 
@@ -186,5 +193,64 @@ describe('formulários do detalhe', () => {
       result: 'CONFORME',
       closingReport: 'fim',
     });
+  });
+});
+
+describe('workflowSteps', () => {
+  it('cada estado oferece só as transições válidas', () => {
+    expect(workflowSteps('PLANNED')).toEqual({
+      startPreparation: true,
+      startExecution: true,
+      submitReview: false,
+      returnToExecution: false,
+    });
+    expect(workflowSteps('PREPARING')).toMatchObject({
+      startPreparation: false,
+      startExecution: true,
+    });
+    expect(workflowSteps('IN_PROGRESS')).toMatchObject({
+      submitReview: true,
+      startExecution: false,
+    });
+    expect(workflowSteps('IN_REVIEW')).toMatchObject({
+      returnToExecution: true,
+      submitReview: false,
+    });
+    expect(workflowSteps('AWAITING_CORRECTIVE_ACTIONS')).toEqual({
+      startPreparation: false,
+      startExecution: false,
+      submitReview: false,
+      returnToExecution: false,
+    });
+  });
+});
+
+describe('textos do detalhe', () => {
+  it('historyActionLabel', () => {
+    expect(historyActionLabel('AUDIT_CHECK_ADDED')).toBe('check added');
+    expect(historyActionLabel('AUDIT_STATUS_CHANGED')).toBe('status changed');
+    expect(historyActionLabel('OTHER_EVENT')).toBe('other event');
+  });
+
+  it('findingKindLabel', () => {
+    expect(findingKindLabel(true)).toBe('Não conformidade');
+    expect(findingKindLabel(false)).toBe('Observação');
+  });
+
+  it('selector de constatação associada', () => {
+    expect(
+      findingSelectItems([
+        { id: 4, title: 'Falta de registo' },
+        { id: 9, title: 'Acesso indevido' },
+      ]),
+    ).toEqual([
+      { value: NO_FINDING, label: 'Sem constatação associada' },
+      { value: '4', label: 'Falta de registo' },
+      { value: '9', label: 'Acesso indevido' },
+    ]);
+    expect(findingSelectValue('')).toBe(NO_FINDING);
+    expect(findingSelectValue('4')).toBe('4');
+    expect(parseFindingChoice(NO_FINDING)).toBe('');
+    expect(parseFindingChoice('4')).toBe('4');
   });
 });

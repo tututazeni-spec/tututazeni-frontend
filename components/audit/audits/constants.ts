@@ -57,3 +57,11 @@ export const ACTION_STATUS = [
 export const RISK_ITEMS = (
   ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as Severity[]
 ).map((s) => ({ value: s, label: SEVERITY_CFG[s].label }));
+
+const labelOf = (items: Array<{ value: string; label: string }>, v: string) =>
+  items.find((s) => s.value === v)?.label;
+
+export const checkStatusLabel = (status: string) =>
+  labelOf(CHECK_STATUS, status);
+export const actionStatusLabel = (status: string) =>
+  labelOf(ACTION_STATUS, status);

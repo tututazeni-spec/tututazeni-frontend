@@ -218,3 +218,48 @@ export const buildApprovePayload = (f: DetailFormValues) => ({
   result: f.result,
   closingReport: f.closingReport.trim(),
 });
+
+// ── Apresentação do detalhe ─────────────────────────────────────────────────
+
+/** Botões do fluxo disponíveis em cada estado (o cancelamento é à parte). */
+export interface WorkflowSteps {
+  startPreparation: boolean;
+  startExecution: boolean;
+  submitReview: boolean;
+  returnToExecution: boolean;
+}
+
+export const workflowSteps = (status: InternalAuditStatus): WorkflowSteps => ({
+  startPreparation: status === 'PLANNED',
+  startExecution: status === 'PLANNED' || status === 'PREPARING',
+  submitReview: status === 'IN_PROGRESS',
+  returnToExecution: status === 'IN_REVIEW',
+});
+
+/** «AUDIT_CHECK_ADDED» → «check added». */
+export const historyActionLabel = (action: string): string =>
+  action
+    .replace(/^AUDIT_/, '')
+    .toLowerCase()
+    .replace(/_/g, ' ');
+
+export const findingKindLabel = (nonConformity: boolean): string =>
+  nonConformity ? 'Não conformidade' : 'Observação';
+
+/** Valor do selector de constatação para «nenhuma associada». */
+export const NO_FINDING = 'NONE';
+
+/** Selector «constatação associada» de uma ação corretiva. */
+export const findingSelectItems = (
+  findings: Array<{ id: number; title: string }>,
+) => [
+  { value: NO_FINDING, label: 'Sem constatação associada' },
+  ...findings.map((x) => ({ value: String(x.id), label: x.title })),
+];
+
+export const findingSelectValue = (findingId: string): string =>
+  findingId || NO_FINDING;
+
+/** `''` quando nenhuma constatação está escolhida (campo do formulário). */
+export const parseFindingChoice = (v: string): string =>
+  v === NO_FINDING ? '' : v;
