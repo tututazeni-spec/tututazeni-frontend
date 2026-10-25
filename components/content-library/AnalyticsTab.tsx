@@ -23,6 +23,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { FORMAT_CLS, FORMAT_CLS_FALLBACK } from './constants';
 import type { ContentAnalytics } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 // Espelha @Roles(...) em GET /documents/compliance-overview.
 const COMPLIANCE_ROLES = ['ADMIN', 'RH', 'DIRECTOR'];
@@ -131,9 +132,7 @@ export function AnalyticsTab() {
                 </div>
               ))}
               {(data?.mostViewed ?? []).length === 0 && (
-                <p className="py-6 text-center font-body text-sm text-ink-faint">
-                  Sem dados ainda
-                </p>
+                <EmptyState variant="inline" title="Sem dados ainda" />
               )}
             </div>
           </CardBody>
@@ -181,9 +180,10 @@ export function AnalyticsTab() {
             {complianceLoading ? (
               <Skeleton rows={3} />
             ) : compliance.length === 0 ? (
-              <p className="py-6 text-center font-body text-sm text-ink-faint">
-                Nenhum documento exige confirmação de leitura no momento.
-              </p>
+              <EmptyState
+                variant="inline"
+                title="Nenhum documento exige confirmação de leitura no momento"
+              />
             ) : (
               <div className="space-y-3">
                 {compliance.map((c) => (

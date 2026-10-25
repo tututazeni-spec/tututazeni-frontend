@@ -19,6 +19,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { ContentCard } from './ContentCard';
 import { ContentRow } from './ContentRow';
 import type { Content } from './types';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export function HomeTab() {
   const [search, setSearch] = useState('');
@@ -128,9 +129,7 @@ export function HomeTab() {
               itemClassName="bg-surface-sunken rounded-card h-52"
             />
           ) : results.length === 0 ? (
-            <p className="font-body text-sm text-ink-muted">
-              Nenhum conteúdo encontrado.
-            </p>
+            <EmptyState variant="inline" title="Nenhum conteúdo encontrado" />
           ) : (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
               {results.map((c) => (
