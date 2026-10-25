@@ -32,13 +32,19 @@ interface Period {
 }
 
 /** Exporta o relatório em CSV ou PDF (o cookie httpOnly segue com credentials: include). */
-async function downloadReport(type: string, period: Period, format: 'csv' | 'pdf') {
+async function downloadReport(
+  type: string,
+  period: Period,
+  format: 'csv' | 'pdf',
+) {
   await downloadFromApi('/avatar-training/reports/export', {
     params: {
       type,
       format,
       from: period.from ? new Date(period.from).toISOString() : undefined,
-      to: period.to ? new Date(period.to + 'T23:59:59').toISOString() : undefined,
+      to: period.to
+        ? new Date(period.to + 'T23:59:59').toISOString()
+        : undefined,
     },
     fallbackName: `${type}.${format}`,
     errorMessage: 'Falha ao exportar o relatório',
@@ -145,7 +151,7 @@ export function ReportsTab() {
           <button
             key={r.type}
             onClick={() => setType(r.type)}
-            className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`rounded-control border px-3 py-1.5 text-xs font-medium transition-colors ${
               active === r.type
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-border bg-white text-ink-muted hover:text-ink'

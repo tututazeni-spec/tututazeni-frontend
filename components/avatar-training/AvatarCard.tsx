@@ -33,7 +33,7 @@ function InfoLine({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
   return (
     <div className="flex items-center gap-2">
       <Icon size={16} strokeWidth={1.75} className="shrink-0 text-[#4B5E80]" />
-      <span className="text-sm font-medium text-[#0F1F3D]">{text}</span>
+      <span className="text-sm font-medium text-brand">{text}</span>
     </div>
   );
 }
@@ -41,8 +41,8 @@ function InfoLine({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
 const STATUS_PILL: Record<string, string> = {
   ACTIVE: 'bg-[#2B7FE8] text-white',
   TESTING: 'bg-[#F5A524] text-white',
-  INACTIVE: 'bg-[#E4E9F2] text-[#4B5E80]',
-  ARCHIVED: 'bg-[#E4E9F2] text-[#4B5E80]',
+  INACTIVE: 'bg-brand-line text-[#4B5E80]',
+  ARCHIVED: 'bg-brand-line text-[#4B5E80]',
 };
 
 export interface AvatarCardProps {
@@ -61,7 +61,7 @@ export function AvatarCard({
   const language = `${a.language}${a.languageVariant ? ` (${a.languageVariant})` : ''}`;
 
   return (
-    <div className="relative flex h-full flex-col justify-between gap-3 overflow-hidden rounded-3xl border border-[#E4E9F2] bg-white p-4 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+    <div className="relative flex h-full flex-col justify-between gap-3 overflow-hidden rounded-panel border border-brand-line bg-white p-4 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
       {/* Imagem do avatar: de cima a baixo, recortada na diagonal à esquerda */}
       <div
         aria-hidden={!a.imageUrl}
@@ -88,7 +88,7 @@ export function AvatarCard({
           <Bot size={20} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
-          <h3 className="break-words font-body text-xl font-extrabold leading-tight text-[#0F1F3D]">
+          <h3 className="break-words font-body text-xl font-extrabold leading-tight text-brand">
             {a.name}
           </h3>
           {a.description && (
@@ -142,7 +142,7 @@ export function AvatarCard({
       </div>
 
       {actions && (
-        <div className="relative flex flex-wrap items-center justify-end gap-2 border-t border-[#E4E9F2] pt-3 sm:max-w-[68%]">
+        <div className="relative flex flex-wrap items-center justify-end gap-2 border-t border-brand-line pt-3 sm:max-w-[68%]">
           {actions}
         </div>
       )}

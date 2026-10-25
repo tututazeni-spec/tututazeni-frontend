@@ -69,7 +69,7 @@ export function ProgramsListView({
                 key={id}
                 aria-pressed={mode === id}
                 onClick={() => setMode(id)}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                className={`rounded-control border px-3 py-1.5 text-xs font-medium transition-colors ${
                   mode === id
                     ? 'border-primary bg-primary/10 text-primary'
                     : 'border-border bg-white text-ink-muted hover:text-ink'

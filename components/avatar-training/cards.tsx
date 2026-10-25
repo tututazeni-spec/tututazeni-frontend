@@ -59,9 +59,9 @@ export const ASSIGNMENT_TONE: Record<AssignmentStatus, NavyTone> = {
 
 /** Classe dos botões de acção sobre os cartões escuros. */
 export const CARD_BTN =
-  'inline-flex h-8 items-center justify-center rounded-full bg-white/90 px-3 text-xs font-semibold text-[#0F1F3D] hover:bg-white disabled:opacity-50';
+  'inline-flex h-8 items-center justify-center rounded-full bg-white/90 px-3 text-xs font-semibold text-brand hover:bg-white disabled:opacity-50';
 export const CARD_BTN_GHOST =
-  'inline-flex h-8 items-center justify-center rounded-full bg-[#0F1F3D]/70 px-3 text-xs font-medium text-white/90 hover:bg-white/25 hover:text-white disabled:opacity-50';
+  'inline-flex h-8 items-center justify-center rounded-full bg-brand/70 px-3 text-xs font-medium text-white/90 hover:bg-white/25 hover:text-white disabled:opacity-50';
 
 export function CardGrid({ children }: { children: ReactNode }) {
   return (
