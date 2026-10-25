@@ -35,7 +35,7 @@ export function CompactTabs<T extends string | number | null>({
             onClick={() => onChange(it.value)}
             className={`flex items-center gap-1.5 rounded-control px-3 py-1 font-body text-sm font-medium transition-colors ${
               on
-                ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                ? 'bg-brand text-canvas shadow-sm'
                 : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
             }`}
           >

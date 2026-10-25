@@ -770,7 +770,7 @@ export function IncidentsTab({
                 onClick={() => onGroupChange(g.value)}
                 className={`flex flex-1 items-center justify-center gap-2 rounded-control py-2 font-body text-sm font-medium transition-colors ${
                   on
-                    ? 'bg-[#0F1F3D] text-canvas shadow-sm'
+                    ? 'bg-brand text-canvas shadow-sm'
                     : 'text-ink-muted hover:bg-surface-sunken hover:text-ink'
                 }`}
               >

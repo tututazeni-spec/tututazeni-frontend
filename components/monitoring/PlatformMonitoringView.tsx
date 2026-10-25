@@ -196,7 +196,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Pendências críticas
         </div>
         <CardBody>
@@ -234,7 +234,7 @@ export function OverviewTab({ data }: { data: OverviewData }) {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+        <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
           Últimas ocorrências
         </div>
         <CardBody>
@@ -297,7 +297,7 @@ export function ModulesTab({ data }: { data: ModulesData }) {
           />
         ))}
       </div>
-      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-[#0F1F3D]/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
+      <div className="overflow-hidden rounded-panel bg-gradient-to-br from-brand/65 via-[#0B3A75]/65 to-[#0A2A57]/65 pb-4 text-white shadow-[0_8px_24px_rgba(15,31,61,0.25)]">
         <div className="px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-white">
             Módulos monitorizados
@@ -305,7 +305,7 @@ export function ModulesTab({ data }: { data: ModulesData }) {
         </div>
         <div className="mx-4 rounded-card bg-surface p-4 text-ink [&_.overflow-x-auto]:overflow-x-hidden [&_td]:break-words [&_td]:px-2 [&_td]:align-top [&_th]:px-2 [&_th]:text-[11px]">
           <Table>
-            <TableHead className="bg-[#0F1F3D]/60">
+            <TableHead className="bg-brand/60">
               <TableRow className="hover:bg-transparent">
                 {[
                   'Módulo',
@@ -419,7 +419,7 @@ function InstanceTable({
 }) {
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
         {title}
       </div>
       <CardBody>
@@ -541,7 +541,7 @@ export function ProcessesTab({ data }: { data: ProcessesData }) {
 
       {data.overdueByResponsible.length > 0 && (
         <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-[#0F1F3D]/60 text-xs font-medium text-white uppercase tracking-wide">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
             Responsáveis com mais atrasos
           </div>
           <CardBody>
