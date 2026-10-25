@@ -21,6 +21,7 @@ import type {
   ResilienceUpdate,
   ScheduledScaling,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const LEVEL: Record<
   InfraLevel,
@@ -172,8 +173,7 @@ export interface CheckProps {
 export function Check({ label, checked, onChange, disabled }: CheckProps) {
   return (
     <label className="flex items-center gap-2 font-body text-sm text-ink">
-      <input
-        type="checkbox"
+      <Checkbox
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}

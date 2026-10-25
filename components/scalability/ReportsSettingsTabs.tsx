@@ -28,6 +28,7 @@ import type {
   SettingsUpdate,
   ThresholdField,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 const MAX_PREVIEW_ROWS = 50;
 
@@ -640,8 +641,7 @@ function SettingsForm({ data, canEdit, saving, onSave }: SettingsFormProps) {
                   {g.rules.map((r) => (
                     <li key={r.key} className="py-2">
                       <label className="flex cursor-pointer items-start gap-3">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           className="mt-1"
                           checked={!disabled.has(r.key)}
                           disabled={ro}
@@ -861,8 +861,7 @@ function SettingsForm({ data, canEdit, saving, onSave }: SettingsFormProps) {
                 key={r}
                 className="flex items-center gap-2 font-body text-sm text-ink"
               >
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={roles.has(r)}
                   disabled={ro}
                   onChange={() => setRoles((s) => toggle(s, r))}
