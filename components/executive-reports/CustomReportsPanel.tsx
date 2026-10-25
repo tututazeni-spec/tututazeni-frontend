@@ -14,7 +14,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { cn } from '@/lib/cn';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { QueryError } from '@/components/ui/QueryError';
@@ -331,14 +331,14 @@ export function CustomReportsPanel({ filters }: CustomReportsPanelProps) {
                   >
                     {t.name} · v{t.version}
                   </button>
-                  <button
+                  <IconButton
+                    icon={Trash2}
+                    label={`Eliminar modelo ${t.name}`}
+                    intent="ghostDanger"
+                    size="xs"
                     type="button"
-                    aria-label={`Eliminar modelo ${t.name}`}
-                    className="text-ink-faint hover:text-danger"
                     onClick={() => t.id && deleteTemplate.mutate(t.id)}
-                  >
-                    <Trash2 size={12} strokeWidth={1.75} />
-                  </button>
+                  />
                 </div>
               ))}
             </div>
