@@ -26,7 +26,7 @@ import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Badge, type BadgeProps } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/assessments/Skeleton';
 import { CreateFormalEvaluationModal } from './CreateFormalEvaluationModal';
@@ -176,23 +176,23 @@ function ManagementView() {
                   Arquivar
                 </Button>
               )}
-              <button
+              <IconButton
+                icon={Copy}
+                label="Duplicar"
+                intent="ghost"
+                size="compact"
                 type="button"
                 onClick={() => duplicate.mutate(e.id)}
-                aria-label="Duplicar"
-                className="text-ink-faint hover:text-ink"
-              >
-                <Copy size={16} strokeWidth={1.75} />
-              </button>
+              />
               {e.status !== 'PUBLISHED' && (
-                <button
+                <IconButton
+                  icon={Trash2}
+                  label="Eliminar"
+                  intent="ghostDanger"
+                  size="compact"
                   type="button"
                   onClick={() => handleRemove(e)}
-                  aria-label="Eliminar"
-                  className="text-ink-faint hover:text-danger"
-                >
-                  <Trash2 size={16} strokeWidth={1.75} />
-                </button>
+                />
               )}
             </div>
           </div>
