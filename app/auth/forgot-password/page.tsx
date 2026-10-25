@@ -8,6 +8,7 @@ import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { AlertCard } from '@/components/ui/AlertCard';
 import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -65,13 +66,9 @@ export default function ForgotPasswordPage() {
                 message={error}
               />
             )}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-control bg-brand py-2 text-sm font-semibold text-white disabled:opacity-60"
-            >
+            <Button type="submit" loading={loading} className="w-full">
               {loading ? 'A enviar…' : 'Enviar link'}
-            </button>
+            </Button>
           </form>
         )}
 

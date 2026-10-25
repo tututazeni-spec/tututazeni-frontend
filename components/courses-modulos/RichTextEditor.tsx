@@ -25,6 +25,7 @@ import {
 import { isHtmlEmpty, lessonTextToHtml } from '@/lib/lessonHtml';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 
 interface RichTextEditorProps {
   id?: string;
@@ -194,13 +195,9 @@ export function RichTextEditor({
             aria-label="Endereço da ligação"
             className="min-w-0 flex-1"
           />
-          <button
-            type="button"
-            onClick={applyLink}
-            className="rounded-control bg-primary px-3 py-1 text-xs font-semibold text-canvas"
-          >
+          <Button type="button" size="sm" onClick={applyLink}>
             Aplicar
-          </button>
+          </Button>
           <button
             type="button"
             onClick={() => setLinkOpen(false)}
