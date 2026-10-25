@@ -54,6 +54,7 @@ import type {
   TaskPhase,
   TaskType,
 } from './types';
+import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface TemplateFormModalProps {
   /** Ausente/null → criar; template → editar esse template. */
@@ -542,13 +543,11 @@ export function TemplateFormModal({
                       />
                     </div>
                     <label className="flex items-center gap-2 text-xs text-ink-muted">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={t.isMandatory}
                         onChange={(e) =>
                           patchTask(t.key, { isMandatory: e.target.checked })
                         }
-                        className="h-4 w-4 rounded border-border-strong accent-primary"
                       />
                       Obrigatória (ex.: Formação obrigatória) — desmarcar
                       torna-a opcional
