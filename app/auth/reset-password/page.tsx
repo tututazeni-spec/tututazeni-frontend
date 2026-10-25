@@ -27,7 +27,9 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setError(null);
     if (!STRONG.test(password)) {
-      setError('A senha deve ter pelo menos 10 caracteres, com minúscula, maiúscula e dígito.');
+      setError(
+        'A senha deve ter pelo menos 10 caracteres, com minúscula, maiúscula e dígito.',
+      );
       return;
     }
     if (password !== confirm) {
@@ -36,7 +38,10 @@ export default function ResetPasswordPage() {
     }
     setLoading(true);
     try {
-      await apiClient.post('/auth/reset-password', { token, newPassword: password });
+      await apiClient.post('/auth/reset-password', {
+        token,
+        newPassword: password,
+      });
       setDone(true);
     } catch (err) {
       reportError(err, { source: 'ResetPasswordPage.handleSubmit' });
@@ -51,14 +56,17 @@ export default function ResetPasswordPage() {
   }
 
   const input =
-    'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#0F1F3D] focus:outline-none';
+    'w-full rounded-control border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none';
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
-        <h1 className="mb-1 text-xl font-bold text-[#0F1F3D]">Definir a sua senha</h1>
+      <div className="w-full max-w-md rounded-panel bg-white p-8 shadow-lg">
+        <h1 className="mb-1 text-xl font-bold text-brand">
+          Definir a sua senha
+        </h1>
         <p className="mb-6 text-sm text-gray-600">
-          Escolha uma senha pessoal. Só você a conhece — nem os administradores a conseguem ver.
+          Escolha uma senha pessoal. Só você a conhece — nem os administradores
+          a conseguem ver.
         </p>
 
         {token === '' ? (
@@ -76,7 +84,7 @@ export default function ResetPasswordPage() {
             />
             <a
               href="/login"
-              className="mt-4 block rounded-lg bg-[#0F1F3D] py-2 text-center text-sm font-semibold text-white"
+              className="mt-4 block rounded-control bg-brand py-2 text-center text-sm font-semibold text-white"
             >
               Ir para o login
             </a>
@@ -101,11 +109,17 @@ export default function ResetPasswordPage() {
               className={input}
               required
             />
-            {error && <AlertCard variant="danger" title="Não foi possível continuar" message={error} />}
+            {error && (
+              <AlertCard
+                variant="danger"
+                title="Não foi possível continuar"
+                message={error}
+              />
+            )}
             <button
               type="submit"
               disabled={loading || token === null}
-              className="w-full rounded-lg bg-[#0F1F3D] py-2 text-sm font-semibold text-white disabled:opacity-60"
+              className="w-full rounded-control bg-brand py-2 text-sm font-semibold text-white disabled:opacity-60"
             >
               {loading ? 'A guardar…' : 'Definir senha'}
             </button>
