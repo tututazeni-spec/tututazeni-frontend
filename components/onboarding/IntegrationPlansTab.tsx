@@ -40,7 +40,7 @@ export function IntegrationPlansTab({
       <Skeleton
         rows={3}
         wrapperClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-        itemClassName="h-40 bg-surface-sunken rounded-card animate-pulse"
+        itemClassName="h-40 bg-surface-sunken rounded-card"
       />
     );
 
