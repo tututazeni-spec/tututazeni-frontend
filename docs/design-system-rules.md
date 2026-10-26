@@ -18,4 +18,5 @@ Fonte única: `app/globals.css` (`@theme`). O lint (`design/tokens-only`,
 | Ícones | `lucide-react`, `strokeWidth={1.75}` |
 | Movimento | `transition-colors` / `transition-shadow` (150ms) — nunca `transition-all` |
 
-Referência viva: rota `/styleguide` (ADMIN).
+Referência viva: rota `/styleguide` (ADMIN) e Storybook (`npm run storybook`).
+Arquitetura, design de props, estados e acessibilidade: `docs/arquitetura-componentes.md`.
