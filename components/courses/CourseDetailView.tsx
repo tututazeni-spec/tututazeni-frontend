@@ -281,6 +281,7 @@ export function CourseDetailView({
               {course.thumbnailUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
+                  decoding="async"
                   src={course.thumbnailUrl}
                   alt=""
                   className="h-full w-full object-cover"
@@ -802,6 +803,7 @@ function InstructorRow({ name, avatarUrl, role }: InstructorRowProps) {
       {avatarUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          decoding="async"
           src={avatarUrl}
           alt={name}
           className="h-10 w-10 rounded-full object-cover"

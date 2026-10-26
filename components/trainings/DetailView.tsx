@@ -174,6 +174,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
           {training.thumbnailUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
+              decoding="async"
               src={training.thumbnailUrl}
               alt=""
               className="h-full w-full object-cover"

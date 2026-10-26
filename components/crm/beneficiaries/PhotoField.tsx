@@ -40,6 +40,8 @@ export function PhotoField({ value, onChange }: PhotoFieldProps) {
       {value ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          loading="lazy"
+          decoding="async"
           src={value}
           alt="Fotografia do beneficiário"
           className="h-20 w-20 rounded-card border border-border object-cover"

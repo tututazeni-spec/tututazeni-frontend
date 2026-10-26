@@ -112,6 +112,8 @@ function ImageField({
           {value ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
+              loading="lazy"
+              decoding="async"
               src={value}
               alt="Pré-visualização do avatar"
               className="h-full w-full object-cover"

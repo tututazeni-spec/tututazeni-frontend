@@ -94,6 +94,8 @@ function ActivityBody({ activity }: { activity: LessonActivity }) {
       {url && src && activity.type === 'IMAGE' && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          loading="lazy"
+          decoding="async"
           src={src}
           alt={activity.title}
           className="mt-3 max-h-[480px] max-w-full rounded-control border border-border object-contain"
@@ -128,6 +130,8 @@ function ActivityBody({ activity }: { activity: LessonActivity }) {
       {url && src && activity.type === 'DOCUMENT' && kind === 'image' && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          loading="lazy"
+          decoding="async"
           src={src}
           alt={activity.title}
           className="mt-3 max-h-[480px] max-w-full rounded-control border border-border object-contain"

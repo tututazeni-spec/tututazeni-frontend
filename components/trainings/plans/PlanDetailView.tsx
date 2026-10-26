@@ -165,6 +165,7 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
           {plan.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
+              decoding="async"
               src={plan.imageUrl}
               alt=""
               className="h-full w-full object-cover"

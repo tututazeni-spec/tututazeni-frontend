@@ -83,6 +83,8 @@ export function ImageUploadField({
         {value && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            loading="lazy"
+            decoding="async"
             src={`${API_URL}/certificates/assets/${value}`}
             alt={`${label} guardado`}
             className="h-12 max-w-[120px] rounded border border-border object-contain bg-surface-sunken"

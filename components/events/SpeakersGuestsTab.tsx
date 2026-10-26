@@ -144,6 +144,8 @@ function ZoomedPhoto({ name, url }: { name: string; url: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
+      loading="lazy"
+      decoding="async"
       src={url}
       alt={name}
       className={cn(

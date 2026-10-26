@@ -27,6 +27,7 @@ export function AvatarHeader({ room, voice, elapsed }: AvatarHeaderProps) {
         {avatar?.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            decoding="async"
             src={avatar.imageUrl}
             alt={`Instrutor virtual ${avatar.name}`}
             className="h-16 w-16 rounded-full object-cover"

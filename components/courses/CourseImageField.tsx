@@ -68,6 +68,8 @@ export function CourseImageField({
         {value ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            loading="lazy"
+            decoding="async"
             src={value}
             alt={alt}
             className="absolute inset-0 h-full w-full object-cover"

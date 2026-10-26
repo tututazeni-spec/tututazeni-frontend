@@ -235,6 +235,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
           {event.bannerUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
+              decoding="async"
               src={event.bannerUrl}
               alt=""
               className="h-full w-full object-cover"

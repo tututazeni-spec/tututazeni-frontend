@@ -173,7 +173,7 @@ export function GapsView() {
                     <div className="flex items-center gap-3">
                       {r.colaboradorAvatarUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <img loading="lazy" decoding="async"
                           src={r.colaboradorAvatarUrl}
                           alt={r.colaborador}
                           className="h-9 w-9 shrink-0 rounded-full object-cover"

@@ -74,6 +74,8 @@ export function AvatarCard({
         {a.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            loading="lazy"
+            decoding="async"
             src={a.imageUrl}
             alt={`Imagem do avatar ${a.name}`}
             className="h-full w-full object-cover"
