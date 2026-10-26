@@ -7,7 +7,8 @@ vazio, erro e acessibilidade**. Tudo aqui descreve padrões que já existem no
 código; os exemplos apontam para ficheiros reais.
 
 Catálogo visual dos primitivos: `npm run storybook` (histórias em
-`components/ui/*.stories.tsx`) e a rota `/styleguide` (ADMIN).
+`components/ui/*.stories.tsx`; cobre hoje só alguns primitivos) e a rota
+`/styleguide` (ADMIN).
 
 ---
 
@@ -154,11 +155,67 @@ Detalhe completo em `DATA-FETCHING-GUIDE.md`. Resumo:
 
 ---
 
-## 6. Acessibilidade — checklist por componente
+## 6. Desempenho
+
+Medir antes de otimizar: `npx next build` imprime o _First Load JS_ de cada
+rota. Os números abaixo são os que justificaram cada técnica.
+
+### Carregar a rota: `loading.tsx`
+
+`app/(platform)/loading.tsx` é o fallback de todas as rotas: a Sidebar e a
+Topbar ficam (vivem no layout) e só a área de conteúdo mostra o esqueleto.
+Rotas pesadas têm o seu, com a forma do ecrã, usando `PageSkeleton`:
+
+```tsx
+// app/(platform)/employees/loading.tsx
+import { PageSkeleton } from '@/components/ui/PageSkeleton';
+
+export default function Loading() {
+  return <PageSkeleton variant="table" />; // 'default' | 'dashboard' | 'table' | 'cards'
+}
+```
+
+Uma rota de detalhe dentro de um módulo com `loading.tsx` próprio herda-o;
+se a forma não serve (ex.: `courses/[courseId]`), dar-lhe o seu.
+
+### Dividir o código: `next/dynamic`
+
+Páginas com abas importavam todas as abas à partida. Abas, modais e painéis que
+só aparecem depois de uma ação carregam-se sob demanda:
+
+```tsx
+const GestaoView = dynamic(
+  () => import('@/components/courses/GestaoView').then((m) => m.GestaoView),
+  { loading: () => <Skeleton /> }, // modais: sem `loading`
+);
+```
+
+- Chamar `dynamic(() => import('...'))` **diretamente** no módulo, como na documentação do Next; não embrulhar o `import()` num helper próprio.
+- Só para componentes usados apenas como JSX e renderizados condicionalmente.
+- Efeito medido ao aplicar às páginas de `/processes`, `/courses` e `/trainings`: First Load de 385→167, 363→266 e 354→268 kB, com ~+1 kB nas restantes rotas.
+
+### Listas longas: `VirtualList`
+
+`VirtualList` (`@tanstack/react-virtual`) só põe no DOM as linhas visíveis. Usar
+em seletores que podem listar centenas ou milhares de itens (já usado em
+`Combobox`, `BulkEnrollModal`, `DepartmentUserPicker`, `UserFilterSearch`).
+Abaixo de `threshold` (100) renderiza tudo, como uma lista normal. Tabelas
+grandes não precisam: o `DataTable` pagina.
+
+### Imagens
+
+- O `next/image` **não se aplica** às imagens da app: são `data:` URIs ou `/api/...` autenticadas por cookie, que o otimizador não consegue buscar. `Avatar` e `CourseThumbnail` ramificam por isso de propósito.
+- `<img>` nativo: `decoding="async"` sempre; `loading="lazy"` em tudo o que está fora do ecrã inicial (tabelas, cartões, pré-visualizações). **Não** pôr `lazy` na imagem de topo da página (hero, cabeçalho de detalhe): atrasa o carregamento principal.
+- Dar `alt` descritivo; `alt=""` só em imagens decorativas.
+
+---
+
+## 7. Acessibilidade — checklist por componente
 
 O lint (`jsx-a11y`, como `warn`) e os testes axe (`components/ui/a11y.test.tsx`)
 apanham a maior parte. O que fica para revisão manual:
 
+- [ ] O layout tem `SkipLink` («Saltar para o conteúdo») e o `<main>` tem `id` e `tabIndex={-1}` (já feito em `(platform)/layout.tsx`).
 - [ ] Tudo o que é clicável é `<button>`/`<a>` (ou `Button`/`LinkButton`), nunca `<div onClick>`.
 - [ ] Cada controlo tem nome acessível: `<label htmlFor>`/`FormField`, ou `aria-label` se só tem ícone.
 - [ ] Erro de campo ligado ao campo (`invalid` → `aria-invalid`) e mensagem visível.
@@ -174,16 +231,19 @@ Ao criar ou alterar um primitivo de `components/ui/`, acrescentar o caso a
 
 ---
 
-## 7. Testes
+## 8. Testes
 
 - Runner: Vitest + Testing Library (`npm test`). Ficheiro `X.test.tsx` junto ao componente.
 - Testar **comportamento visível** (papéis, texto, eventos), não detalhes de implementação.
 - Primitivos novos: um caso em `a11y.test.tsx` (axe) e, se tiverem lógica, um teste próprio (ver `Pagination.test.tsx`, `Select.test.tsx`).
 - Hooks com lógica: `renderHook` (ver `useFormState.test.ts`).
+- Acessibilidade: `expect(await axe(container)).toHaveNoViolations()` com `vitest-axe`. Importar de `vitest-axe/dist/index.js` (os tipos do pacote não resolvem a partir da raiz). Em jsdom desligar as regras `region` e `color-contrast`.
+- `VirtualList` em jsdom: o contentor mede 0px e nenhuma linha é montada. Simular `clientHeight`/`clientWidth` do contentor e `offsetHeight` das linhas (ver `VirtualList.test.tsx`).
+- Suite completa em paralelo pode dar timeouts de 5 s por carga; confirmar um teste que falhe a correr o ficheiro sozinho antes de o dar como partido.
 
 ---
 
-## 8. Boas práticas (resumo)
+## 9. Boas práticas (resumo)
 
 1. Reutilizar antes de criar: procurar em `components/ui/` e no Storybook.
 2. Tokens do design system, nunca cores/raios/sombras avulsos (o lint avisa).
@@ -193,4 +253,5 @@ Ao criar ou alterar um primitivo de `components/ui/`, acrescentar o caso a
 6. Todo o ecrã com dados cobre carregar / erro / vazio / dados.
 7. Texto de interface em português simples, sem enums crus nem mensagens de ORM/SQL.
 8. Avisos em banner → `AlertCard`; seletores de período → `PeriodPills`; atalhos → `ShortcutPills`.
-9. Antes de dar por concluído: `npx tsc --noEmit`, `npx eslint <ficheiros>`, `npx prettier --check` e os testes do módulo.
+9. Medir antes de otimizar; abas e modais pesados com `next/dynamic`, listas enormes com `VirtualList`, imagens de topo sem `lazy`.
+10. Antes de dar por concluído: `npx tsc --noEmit`, `npx eslint <ficheiros>`, `npx prettier --check` e os testes do módulo.
