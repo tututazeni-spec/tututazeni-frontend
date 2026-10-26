@@ -5,6 +5,7 @@ import Topbar from '../../components/Topbar';
 import { SessionActivityTracker } from '../../components/SessionActivityTracker';
 import { TabFromUrl } from '../../components/TabFromUrl';
 import { OfflineBanner } from '../../components/OfflineBanner';
+import { SkipLink } from '../../components/ui/SkipLink';
 import { FrontendPerfReporter } from '../../components/scalability/FrontendPerfReporter';
 
 export default function PlatformLayout({
@@ -14,6 +15,7 @@ export default function PlatformLayout({
 }) {
   return (
     <div style={{ display: 'flex', margin: 0, padding: 0 }}>
+      <SkipLink />
       <FrontendPerfReporter />
       <SessionActivityTracker />
       <Suspense fallback={null}>
@@ -32,8 +34,11 @@ export default function PlatformLayout({
       >
         <Topbar />
         <main
+          id="conteudo-principal"
+          tabIndex={-1}
           style={{
             flex: 1,
+            outline: 'none', // destino do skip-link (tabIndex -1): sem anel ao receber foco
             padding: '32px',
             marginTop: '56px',
             background: 'var(--color-canvas)',

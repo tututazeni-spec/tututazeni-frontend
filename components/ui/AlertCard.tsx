@@ -102,7 +102,8 @@ export function AlertCard({
   const Icon = v.icon;
   return (
     <div
-      role="alert"
+      // Só erros/avisos interrompem o leitor de ecrã; info e sucesso são cordiais.
+      role={variant === 'danger' || variant === 'warning' ? 'alert' : 'status'}
       className={cn(
         'flex flex-col rounded-panel border border-l-4 shadow-sm sm:flex-row sm:items-center',
         compact ? 'gap-2 px-3 py-2' : 'gap-3 p-4',

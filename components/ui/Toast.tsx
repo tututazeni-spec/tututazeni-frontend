@@ -31,6 +31,8 @@ export function ToastItem({
   const Icon = INTENT_ICON[intent];
   return (
     <RadixToast.Root
+      // Erros anunciam-se de imediato (assertive); o resto espera pela pausa do leitor.
+      type={intent === 'danger' ? 'foreground' : 'background'}
       onOpenChange={onOpenChange}
       duration={4000}
       className={cn(
@@ -67,6 +69,9 @@ export function ToastItem({
 
 export function ToastViewport() {
   return (
-    <RadixToast.Viewport className="fixed bottom-4 right-4 z-[100] flex w-80 flex-col gap-2 outline-none" />
+    <RadixToast.Viewport
+      label="Notificações ({hotkey})"
+      className="fixed bottom-4 right-4 z-[100] flex w-80 flex-col gap-2 outline-none"
+    />
   );
 }

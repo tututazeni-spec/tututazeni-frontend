@@ -327,7 +327,10 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, overflowY: 'auto', padding: '16px 12px 8px' }}>
+      <nav
+        aria-label="Navegação principal"
+        style={{ flex: 1, overflowY: 'auto', padding: '16px 12px 8px' }}
+      >
         {visibleNav.map((section) => {
           const isOpen = !collapsed[section.label];
           const isCurrent = activeSection === section.label;
