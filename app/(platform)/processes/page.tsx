@@ -17,24 +17,131 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { ADMIN_RH_GESTOR_ROLES, ADMIN_ROLES, type Role } from '@/lib/roles';
-import { CreateProcessModal } from '@/components/processes/CreateProcessModal';
-import { DashboardView } from '@/components/processes/DashboardView';
-import { LibraryView } from '@/components/processes/LibraryView';
-import { InstancesView } from '@/components/processes/InstancesView';
-import { StartProcessModal } from '@/components/processes/StartProcessModal';
-import { TasksView } from '@/components/processes/TasksView';
-import { ProcessViewer } from '@/components/processes/ProcessViewer';
-import { TaskRunner } from '@/components/processes/TaskRunner';
-import { ApprovalsView } from '@/components/processes/ApprovalsView';
-import { WorkflowsView } from '@/components/processes/WorkflowsView';
-import { AutomationsView } from '@/components/processes/AutomationsView';
-import { CalendarView } from '@/components/processes/CalendarView';
-import { DocumentsView } from '@/components/processes/DocumentsView';
-import { ReportsView } from '@/components/processes/ReportsView';
-import { HistoryView } from '@/components/processes/HistoryView';
-import { SettingsView } from '@/components/processes/SettingsView';
 import { NAV } from '@/components/processes/constants';
 import type { Nav } from '@/components/processes/types';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/Skeleton';
+
+const CreateProcessModal = dynamic(() =>
+  import('@/components/processes/CreateProcessModal').then(
+    (m) => m.CreateProcessModal,
+  ),
+);
+
+const DashboardView = dynamic(
+  () =>
+    import('@/components/processes/DashboardView').then((m) => m.DashboardView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const LibraryView = dynamic(
+  () => import('@/components/processes/LibraryView').then((m) => m.LibraryView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const InstancesView = dynamic(
+  () =>
+    import('@/components/processes/InstancesView').then((m) => m.InstancesView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const StartProcessModal = dynamic(() =>
+  import('@/components/processes/StartProcessModal').then(
+    (m) => m.StartProcessModal,
+  ),
+);
+
+const TasksView = dynamic(
+  () => import('@/components/processes/TasksView').then((m) => m.TasksView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const ProcessViewer = dynamic(
+  () =>
+    import('@/components/processes/ProcessViewer').then((m) => m.ProcessViewer),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const TaskRunner = dynamic(
+  () => import('@/components/processes/TaskRunner').then((m) => m.TaskRunner),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const ApprovalsView = dynamic(
+  () =>
+    import('@/components/processes/ApprovalsView').then((m) => m.ApprovalsView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const WorkflowsView = dynamic(
+  () =>
+    import('@/components/processes/WorkflowsView').then((m) => m.WorkflowsView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const AutomationsView = dynamic(
+  () =>
+    import('@/components/processes/AutomationsView').then(
+      (m) => m.AutomationsView,
+    ),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const CalendarView = dynamic(
+  () =>
+    import('@/components/processes/CalendarView').then((m) => m.CalendarView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const DocumentsView = dynamic(
+  () =>
+    import('@/components/processes/DocumentsView').then((m) => m.DocumentsView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const ReportsView = dynamic(
+  () => import('@/components/processes/ReportsView').then((m) => m.ReportsView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const HistoryView = dynamic(
+  () => import('@/components/processes/HistoryView').then((m) => m.HistoryView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const SettingsView = dynamic(
+  () =>
+    import('@/components/processes/SettingsView').then((m) => m.SettingsView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
 
 // Espelha @Roles(ADMIN, RH, GESTOR) em GET /processes/dashboard
 // (src/process-standard/process-standard.controller.ts).

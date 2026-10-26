@@ -15,20 +15,108 @@ import {
   NAV,
   TITLES,
 } from '@/components/trainings/constants';
-import { CalendarView } from '@/components/trainings/CalendarView';
-import { CatalogView } from '@/components/trainings/CatalogView';
-import { DashboardView } from '@/components/trainings/DashboardView';
-import { DetailView } from '@/components/trainings/DetailView';
-import { GestaoView } from '@/components/trainings/GestaoView';
 import { CertificatesCenter } from '@/components/certificates/CertificatesCenter';
-import { ManageTrainingView } from '@/components/trainings/ManageTrainingView';
-import { MyTrainingsView } from '@/components/trainings/MyTrainingsView';
-import { PlanDetailView } from '@/components/trainings/plans/PlanDetailView';
-import { PlansView } from '@/components/trainings/plans/PlansView';
-import { TrainersView } from '@/components/trainings/TrainersView';
-import { ResourcesView } from '@/components/trainings/ResourcesView';
-import { ReportsView } from '@/components/trainings/ReportsView';
 import type { Nav } from '@/components/trainings/types';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/Skeleton';
+
+const CalendarView = dynamic(
+  () =>
+    import('@/components/trainings/CalendarView').then((m) => m.CalendarView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const CatalogView = dynamic(
+  () => import('@/components/trainings/CatalogView').then((m) => m.CatalogView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const DashboardView = dynamic(
+  () =>
+    import('@/components/trainings/DashboardView').then((m) => m.DashboardView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const DetailView = dynamic(
+  () => import('@/components/trainings/DetailView').then((m) => m.DetailView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const GestaoView = dynamic(
+  () => import('@/components/trainings/GestaoView').then((m) => m.GestaoView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const ManageTrainingView = dynamic(
+  () =>
+    import('@/components/trainings/ManageTrainingView').then(
+      (m) => m.ManageTrainingView,
+    ),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const MyTrainingsView = dynamic(
+  () =>
+    import('@/components/trainings/MyTrainingsView').then(
+      (m) => m.MyTrainingsView,
+    ),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const PlanDetailView = dynamic(
+  () =>
+    import('@/components/trainings/plans/PlanDetailView').then(
+      (m) => m.PlanDetailView,
+    ),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const PlansView = dynamic(
+  () =>
+    import('@/components/trainings/plans/PlansView').then((m) => m.PlansView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const TrainersView = dynamic(
+  () =>
+    import('@/components/trainings/TrainersView').then((m) => m.TrainersView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const ResourcesView = dynamic(
+  () =>
+    import('@/components/trainings/ResourcesView').then((m) => m.ResourcesView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const ReportsView = dynamic(
+  () => import('@/components/trainings/ReportsView').then((m) => m.ReportsView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
 
 export default function TrainingsPage() {
   const [nav, setNav] = useState<Nav>({ view: 'catalog' });

@@ -15,26 +15,109 @@ import {
   Users,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { AdminDashboardView } from '@/components/courses/AdminDashboardView';
-import { CatalogView } from '@/components/courses/CatalogView';
 import { CertificatesCenter } from '@/components/certificates/CertificatesCenter';
 import { NAV, TITLES } from '@/components/courses/constants';
-import { CourseDetail } from '@/components/courses/CourseDetail';
-import { CreateCourseModal } from '@/components/courses/CreateCourseModal';
-import { GestaoView } from '@/components/courses/GestaoView';
-import { InscricoesView } from '@/components/courses/InscricoesView';
-import { CategoriasView } from '@/components/courses/CategoriasView';
-import { ModulosView } from '@/components/courses/ModulosView';
-import { MyEnrollmentsView } from '@/components/courses/MyEnrollmentsView';
-import { ProgressoView } from '@/components/courses/ProgressoView';
-import { RelatoriosView } from '@/components/courses/RelatoriosView';
-import { TurmasView } from '@/components/courses/TurmasView';
 import type { Nav, TopLevelView } from '@/components/courses/types';
 import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { PillNav } from '@/components/ui/PillTabs';
 import { useToast } from '@/providers/ToastProvider';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/Skeleton';
+
+const AdminDashboardView = dynamic(
+  () =>
+    import('@/components/courses/AdminDashboardView').then(
+      (m) => m.AdminDashboardView,
+    ),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const CatalogView = dynamic(
+  () => import('@/components/courses/CatalogView').then((m) => m.CatalogView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const CourseDetail = dynamic(
+  () => import('@/components/courses/CourseDetail').then((m) => m.CourseDetail),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const CreateCourseModal = dynamic(() =>
+  import('@/components/courses/CreateCourseModal').then(
+    (m) => m.CreateCourseModal,
+  ),
+);
+
+const GestaoView = dynamic(
+  () => import('@/components/courses/GestaoView').then((m) => m.GestaoView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const InscricoesView = dynamic(
+  () =>
+    import('@/components/courses/InscricoesView').then((m) => m.InscricoesView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const CategoriasView = dynamic(
+  () =>
+    import('@/components/courses/CategoriasView').then((m) => m.CategoriasView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const ModulosView = dynamic(
+  () => import('@/components/courses/ModulosView').then((m) => m.ModulosView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const MyEnrollmentsView = dynamic(
+  () =>
+    import('@/components/courses/MyEnrollmentsView').then(
+      (m) => m.MyEnrollmentsView,
+    ),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const ProgressoView = dynamic(
+  () =>
+    import('@/components/courses/ProgressoView').then((m) => m.ProgressoView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const RelatoriosView = dynamic(
+  () =>
+    import('@/components/courses/RelatoriosView').then((m) => m.RelatoriosView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
+const TurmasView = dynamic(
+  () => import('@/components/courses/TurmasView').then((m) => m.TurmasView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
 
 // Ícone e subtítulo de cada aba, indexados pelo `id` definido em NAV
 // (components/courses/constants). O título continua a vir de `n.label`.
