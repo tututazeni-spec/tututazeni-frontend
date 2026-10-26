@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/Input';
 import { useDirectoryUsers, type DirectoryUser } from './departmentFormData';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { IconButton } from '@/components/ui/Button';
+import { VirtualList } from '@/components/ui/VirtualList';
 
 export interface DepartmentUserPickerProps {
   label: string;
@@ -98,41 +99,50 @@ export function DepartmentUserPicker({
               sideOffset={4}
               onOpenAutoFocus={(e) => e.preventDefault()}
               onCloseAutoFocus={(e) => e.preventDefault()}
-              className="z-[60] max-h-56 w-[--radix-popover-trigger-width] overflow-y-auto rounded-card border border-border bg-surface shadow-elevated"
+              className="z-[60] w-[--radix-popover-trigger-width] overflow-hidden rounded-card border border-border bg-surface shadow-elevated"
             >
-              {loading && (
-                <div className="px-3 py-2 text-sm text-ink-muted">
-                  A pesquisar…
-                </div>
-              )}
-              {!loading && results.length === 0 && (
-                <EmptyState
-                  variant="inline"
-                  title="Nenhum colaborador encontrado"
-                />
-              )}
-              {results.map((u) => (
-                <button
-                  key={u.id}
-                  type="button"
-                  onClick={() => select(u)}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
-                >
-                  <Avatar
-                    name={u.fullName}
-                    url={u.avatarUrl ?? undefined}
-                    size="sm"
-                  />
-                  <div className="min-w-0">
-                    <div className="truncate text-sm text-ink">
-                      {u.fullName}
+              <VirtualList
+                items={results}
+                getKey={(u) => u.id}
+                estimateSize={52}
+                className="max-h-56"
+                header={
+                  <>
+                    {loading && (
+                      <div className="px-3 py-2 text-sm text-ink-muted">
+                        A pesquisar…
+                      </div>
+                    )}
+                    {!loading && results.length === 0 && (
+                      <EmptyState
+                        variant="inline"
+                        title="Nenhum colaborador encontrado"
+                      />
+                    )}
+                  </>
+                }
+                renderItem={(u) => (
+                  <button
+                    type="button"
+                    onClick={() => select(u)}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
+                  >
+                    <Avatar
+                      name={u.fullName}
+                      url={u.avatarUrl ?? undefined}
+                      size="sm"
+                    />
+                    <div className="min-w-0">
+                      <div className="truncate text-sm text-ink">
+                        {u.fullName}
+                      </div>
+                      <div className="truncate text-xs text-ink-faint">
+                        {u.department?.name ?? u.email ?? '—'}
+                      </div>
                     </div>
-                    <div className="truncate text-xs text-ink-faint">
-                      {u.department?.name ?? u.email ?? '—'}
-                    </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                )}
+              />
             </Popover.Content>
           </Popover.Portal>
         </Popover.Root>

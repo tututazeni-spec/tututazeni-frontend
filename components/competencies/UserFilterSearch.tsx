@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/Input';
 import { useDirectoryUsers, type DirectoryUser } from './modelFormData';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { IconButton } from '@/components/ui/Button';
+import { VirtualList } from '@/components/ui/VirtualList';
 
 interface UserFilterSearchProps {
   selected: DirectoryUser | null;
@@ -66,21 +67,28 @@ export function UserFilterSearch({
         autoComplete="off"
       />
       {search.trim().length > 0 && (
-        <div className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
-          {loading && (
-            <div className="px-3 py-2 font-body text-sm text-ink-muted">
-              A pesquisar…
-            </div>
-          )}
-          {!loading && users.length === 0 && (
-            <EmptyState
-              variant="inline"
-              title="Nenhum colaborador encontrado"
-            />
-          )}
-          {users.map((u) => (
+        <VirtualList
+          items={users}
+          getKey={(u) => u.id}
+          estimateSize={52}
+          className="absolute z-20 mt-1 max-h-56 w-full rounded-card border border-border bg-surface shadow-elevated"
+          header={
+            <>
+              {loading && (
+                <div className="px-3 py-2 font-body text-sm text-ink-muted">
+                  A pesquisar…
+                </div>
+              )}
+              {!loading && users.length === 0 && (
+                <EmptyState
+                  variant="inline"
+                  title="Nenhum colaborador encontrado"
+                />
+              )}
+            </>
+          }
+          renderItem={(u) => (
             <button
-              key={u.id}
               type="button"
               onClick={() => {
                 onChange(u);
@@ -102,8 +110,8 @@ export function UserFilterSearch({
                 </div>
               </div>
             </button>
-          ))}
-        </div>
+          )}
+        />
       )}
     </div>
   );
