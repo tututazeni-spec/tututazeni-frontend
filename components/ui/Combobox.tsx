@@ -8,6 +8,7 @@ import { useId, useMemo, useRef, useState } from 'react';
 import { Popover } from 'radix-ui';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { VirtualList } from './VirtualList';
 
 export interface ComboboxOption {
   value: string;
@@ -166,27 +167,34 @@ export function Combobox({
               }}
             />
           </div>
-          <div className="list-scroll max-h-[min(16rem,var(--radix-popover-content-available-height))] p-1">
-            {showCustom && (
+          <VirtualList
+            items={filteredItems}
+            getKey={(item) => item.value}
+            estimateSize={40}
+            className="list-scroll max-h-[min(16rem,var(--radix-popover-content-available-height))] p-1"
+            header={
+              <>
+                {showCustom && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onValueChange?.(customText);
+                      setOpen(false);
+                    }}
+                    className="flex w-full cursor-pointer items-center rounded-control px-3 py-2 text-left font-body text-sm font-medium text-primary outline-none hover:bg-field-soft"
+                  >
+                    Usar «{customText}»
+                  </button>
+                )}
+                {filteredItems.length === 0 && !showCustom && (
+                  <div className="px-3 py-2 font-body text-sm text-ink-muted">
+                    {emptyText}
+                  </div>
+                )}
+              </>
+            }
+            renderItem={(item) => (
               <button
-                type="button"
-                onClick={() => {
-                  onValueChange?.(customText);
-                  setOpen(false);
-                }}
-                className="flex w-full cursor-pointer items-center rounded-control px-3 py-2 text-left font-body text-sm font-medium text-primary outline-none hover:bg-field-soft"
-              >
-                Usar «{customText}»
-              </button>
-            )}
-            {filteredItems.length === 0 && !showCustom && (
-              <div className="px-3 py-2 font-body text-sm text-ink-muted">
-                {emptyText}
-              </div>
-            )}
-            {filteredItems.map((item) => (
-              <button
-                key={item.value}
                 type="button"
                 onClick={() => {
                   onValueChange?.(item.value);
@@ -209,8 +217,8 @@ export function Combobox({
                   />
                 )}
               </button>
-            ))}
-          </div>
+            )}
+          />
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
