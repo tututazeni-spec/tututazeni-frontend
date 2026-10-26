@@ -4,7 +4,7 @@
 // mantendo ordem alfabética nos resultados filtrados.
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useId, useMemo, useRef, useState } from 'react';
 import { Popover } from 'radix-ui';
 import { Check, ChevronDown, Search } from 'lucide-react';
 import { cn } from '@/lib/cn';
@@ -52,6 +52,7 @@ export function Combobox({
   allowCustom,
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
+  const contentId = useId();
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -86,6 +87,15 @@ export function Combobox({
       <Popover.Trigger asChild>
         <button
           type="button"
+          role="combobox"
+          // role=combobox não tira o nome do conteúdo: rótulo + valor explícitos.
+          aria-label={
+            selected
+              ? `${label ?? placeholder}: ${selected.label}`
+              : (label ?? placeholder)
+          }
+          aria-expanded={open}
+          aria-controls={contentId}
           disabled={disabled}
           aria-invalid={invalid || undefined}
           data-placeholder={selected ? undefined : ''}
@@ -122,6 +132,7 @@ export function Combobox({
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
+          id={contentId}
           align="start"
           sideOffset={4}
           collisionPadding={8}

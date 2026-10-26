@@ -75,6 +75,7 @@ export function RecordingModal({ lc, onClose }: RecordingModalProps) {
           {embedUrl ? (
             <iframe
               src={embedUrl}
+              title="Gravação da aula"
               className="w-full h-full border-none"
               allowFullScreen
               allow="autoplay; fullscreen; picture-in-picture"
