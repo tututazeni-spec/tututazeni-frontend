@@ -167,7 +167,7 @@ export function MyPlanView() {
     return (
       <Skeleton
         rows={4}
-        wrapperClassName="space-y-3"
+        wrapperClassName="space-y-3 animate-pulse"
         itemClassName="h-16 bg-surface-sunken rounded-card"
       />
     );
@@ -287,9 +287,7 @@ export function MyPlanView() {
           <p className="m-0 text-xs text-on-brand-muted">Progresso do plano</p>
           <div className="flex items-center gap-3">
             <ProgressBar value={pct} color="#3B82F6" className="flex-1" />
-            <span className="text-xs tabular-nums text-on-brand-muted">
-              {pct}%
-            </span>
+            <span className="text-xs tabular-nums text-on-brand-muted">{pct}%</span>
           </div>
         </div>
       </div>

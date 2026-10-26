@@ -107,7 +107,7 @@ export function UserProfileView({
       <div>
         <Skeleton
           rows={6}
-          wrapperClassName="space-y-2"
+          wrapperClassName="space-y-2 animate-pulse"
           itemClassName="h-14 rounded-card bg-surface-sunken"
         />
       </div>

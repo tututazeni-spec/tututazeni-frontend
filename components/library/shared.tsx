@@ -38,7 +38,7 @@ export function GridSkeleton() {
     <Skeleton
       rows={8}
       wrapperClassName="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2 lg:grid-cols-4"
-      itemClassName="h-48 rounded-card bg-surface-sunken"
+      itemClassName="h-48 animate-pulse rounded-card bg-surface-sunken"
     />
   );
 }
@@ -49,12 +49,12 @@ export function DetailSkeleton() {
       <Skeleton
         rows={1}
         wrapperClassName=""
-        itemClassName="h-32 rounded-card bg-surface-sunken"
+        itemClassName="h-32 animate-pulse rounded-card bg-surface-sunken"
       />
       <Skeleton
         rows={1}
         wrapperClassName=""
-        itemClassName="h-64 rounded-card bg-surface-sunken"
+        itemClassName="h-64 animate-pulse rounded-card bg-surface-sunken"
       />
     </div>
   );

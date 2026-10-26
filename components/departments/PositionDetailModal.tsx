@@ -59,7 +59,7 @@ export function PositionDetailModal({ positionId, onClose }: PositionDetailModal
         {isLoading || !p ? (
           <Skeleton
             rows={6}
-            wrapperClassName="mt-5 space-y-2"
+            wrapperClassName="mt-5 space-y-2 animate-pulse"
             itemClassName="h-10 rounded-card bg-surface-sunken"
           />
         ) : (

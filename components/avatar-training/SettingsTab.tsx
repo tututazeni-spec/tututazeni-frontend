@@ -32,7 +32,7 @@ export function SettingsTab() {
     return (
       <Skeleton
         rows={3}
-        itemClassName="h-16 rounded-card bg-surface-sunken"
+        itemClassName="h-16 rounded-card bg-surface-sunken animate-pulse"
       />
     );
 

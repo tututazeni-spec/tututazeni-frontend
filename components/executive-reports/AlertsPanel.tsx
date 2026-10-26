@@ -309,10 +309,7 @@ function AlertRow({ alert }: { alert: ExecutiveAlert }) {
             </div>
           </div>
           <div className="mt-3 flex items-center gap-3 rounded-card bg-white/10 px-4 py-2 font-body text-sm">
-            <Info
-              className="h-5 w-5 shrink-0 text-on-brand-accent"
-              aria-hidden
-            />
+            <Info className="h-5 w-5 shrink-0 text-on-brand-accent" aria-hidden />
             <span>
               {alert.description} · Detectado em {day(alert.detectedAt)} ·
               Responsável: {alert.owner?.fullName ?? 'Por atribuir'}
@@ -495,7 +492,7 @@ export function AlertsPanel() {
     return (
       <Skeleton
         rows={2}
-        wrapperClassName="space-y-3"
+        wrapperClassName="space-y-3 animate-pulse"
         itemClassName="h-20 rounded-card bg-surface-sunken"
       />
     );

@@ -148,7 +148,9 @@ export function RunDetailView({ runId, onBack }: RunDetailViewProps) {
               {run.period}
               {run.payGroup ? ` · ${run.payGroup}` : ''}
             </h2>
-            <p className="font-body text-sm text-on-brand">{run.countryCode}</p>
+            <p className="font-body text-sm text-on-brand">
+              {run.countryCode}
+            </p>
           </div>
           <StatusBadge value={run.status} map={RUN_STATUS_MAP} variant="dot" />
         </div>
