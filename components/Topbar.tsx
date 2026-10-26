@@ -11,6 +11,7 @@ import { AvatarUploader } from '@/components/ui/AvatarUploader';
 import { useAnyModalOpen } from '@/lib/modalVisibility';
 import { pollInterval } from '@/lib/polling';
 import { Input } from '@/components/ui/Input';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 interface TopbarProps {
   title?: string;
@@ -48,8 +49,8 @@ export default function Topbar({ title }: TopbarProps) {
         left: 240,
         right: 0,
         height: 56,
-        background: '#ffffff',
-        borderBottom: '1px solid #e2e8f0',
+        background: 'var(--color-surface)',
+        borderBottom: '1px solid var(--color-border)',
         // Auto-oculta-se enquanto qualquer Modal está aberto — o header tem
         // z-index acima do Overlay/Content do Modal, por isso sem isto
         // ficaria por cima do modal a interferir com os cliques.
@@ -67,7 +68,7 @@ export default function Topbar({ title }: TopbarProps) {
             style={{
               fontSize: 14,
               fontWeight: 700,
-              color: '#1e293b',
+              color: 'var(--color-ink)',
               whiteSpace: 'nowrap',
             }}
           >
@@ -88,7 +89,7 @@ export default function Topbar({ title }: TopbarProps) {
             cursor: 'pointer',
           }}
         >
-          <Home size={18} color="#64748b" />
+          <Home size={18} color="var(--color-ink-muted)" />
         </button>
         <form
           role="search"
@@ -97,7 +98,7 @@ export default function Topbar({ title }: TopbarProps) {
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            background: '#f1f5f9',
+            background: 'var(--color-surface-sunken)',
             borderRadius: 8,
             padding: '6px 12px',
             width: 280,
@@ -115,7 +116,7 @@ export default function Topbar({ title }: TopbarProps) {
               cursor: 'pointer',
             }}
           >
-            <Search size={14} color="#94a3b8" />
+            <Search size={14} color="var(--color-ink-faint)" />
           </button>
           <Input
             value={query}
@@ -126,7 +127,7 @@ export default function Topbar({ title }: TopbarProps) {
               background: 'transparent',
               outline: 'none',
               fontSize: 13,
-              color: '#1e293b',
+              color: 'var(--color-ink)',
               width: '100%',
             }}
           />
@@ -135,6 +136,7 @@ export default function Topbar({ title }: TopbarProps) {
 
       {/* Right */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <ThemeToggle />
         <button
           type="button"
           onClick={() => router.push('/notifications')}
@@ -148,7 +150,7 @@ export default function Topbar({ title }: TopbarProps) {
             cursor: 'pointer',
           }}
         >
-          <Bell size={18} color="#64748b" />
+          <Bell size={18} color="var(--color-ink-muted)" />
           {hasUnread && (
             <span
               data-testid="unread-indicator"
@@ -159,7 +161,7 @@ export default function Topbar({ title }: TopbarProps) {
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: '#ef4444',
+                background: 'var(--color-danger)',
               }}
             />
           )}
@@ -189,13 +191,13 @@ export default function Topbar({ title }: TopbarProps) {
               style={{
                 fontSize: 13,
                 fontWeight: 600,
-                color: '#1e293b',
+                color: 'var(--color-ink)',
                 margin: 0,
               }}
             >
               {user?.fullName ?? 'Utilizador'}
             </p>
-            <p style={{ fontSize: 11, color: '#94a3b8', margin: 0 }}>
+            <p style={{ fontSize: 11, color: 'var(--color-ink-faint)', margin: 0 }}>
               {user?.email ?? ''}
             </p>
           </div>

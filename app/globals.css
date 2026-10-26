@@ -70,7 +70,7 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-border-strong);
   border-radius: 4px;
 }
 
@@ -99,7 +99,7 @@ body {
   border: 2px solid #f1f5f9;
 }
 .list-scroll::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: var(--color-ink-faint);
 }
 
 @theme {
@@ -138,6 +138,9 @@ body {
   --color-brand-soft: #eef1f7;
   --color-brand-muted: #49658a;
   --color-brand-line: #e3eaf4;
+  /* a marca usada como TEXTO/contorno (o fundo da marca é escuro; no tema escuro
+     o texto precisa de uma versão clara) */
+  --color-brand-ink: #0f1f3d;
   /* superfícies escuras de marca (heróis, cartões navy) e o texto que vive nelas */
   --color-brand-deep: #071d3b;
   --color-brand-mid: #0b3a75;
@@ -203,6 +206,165 @@ body {
   --font-display: var(--font-inter);
   --font-body: var(--font-inter);
   --font-data: var(--font-plex-mono);
+}
+
+/* ───────────────────────── Tema escuro ─────────────────────────
+   Escolhido pelo utilizador (cookie `innova-theme`, lido em app/layout.tsx):
+   data-theme="light" (omissão) | "dark" | "system". "system" segue o SO só
+   através da media query abaixo; o bloco é o MESMO que em [data-theme='dark']
+   — a igualdade é verificada por lib/theme.test.ts, mantê-los em sincronia.
+   Contrastes WCAG verificados: texto ≥ 4,5:1, texto branco sobre cada fundo
+   de marca/estado ≥ 4,5:1.
+   `text-brand`/`text-primary`/`border-brand` usam o mesmo token dos fundos
+   (escuros); como TEXTO precisam de uma versão clara, daí os 3 overrides. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* superfícies */
+  --color-canvas: #0e1117;
+  --color-surface: #161b26;
+  --color-surface-sunken: #0b0e14;
+  --color-border: #2a3242;
+  --color-border-strong: #3a4457;
+
+  /* campos */
+  --color-field: #8aa6d6;
+  --color-field-soft: #1c2640;
+  --color-field-ink: #e6e9ef;
+
+  /* texto */
+  --color-ink: #e6e9ef;
+  --color-ink-muted: #a3acba;
+  --color-ink-faint: #8590a2;
+
+  /* marca */
+  --color-primary: #2a8160;
+  --color-primary-hover: #349873;
+  --color-primary-active: #1f6a4e;
+  --color-primary-subtle: #14302a;
+  --color-accent: #d6963a;
+  --color-accent-hover: #e3a64d;
+  --color-accent-subtle: #3a2c12;
+  --color-brand: #4871bc;
+  --color-brand-hover: #5b82cb;
+  --color-brand-active: #3a5f9f;
+  --color-brand-soft: #1c2a45;
+  --color-brand-muted: #8aa6d6;
+  --color-brand-line: #2a3a5c;
+  --color-brand-ink: #8aa6d6;
+
+  /* estado */
+  --color-success: #1f8050;
+  --color-success-subtle: #12301f;
+  --color-success-ink: #7fe0ac;
+  --color-warning: #a85f09;
+  --color-warning-subtle: #35240d;
+  --color-warning-ink: #f0b765;
+  --color-danger: #c2503a;
+  --color-danger-subtle: #3a1a14;
+  --color-danger-ink: #f0a090;
+  --color-info: #3f78b0;
+  --color-info-subtle: #13263a;
+  --color-info-ink: #8fc0ec;
+
+  /* profundidade */
+  --shadow-resting: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.6);
+
+  /* variáveis antigas (corpo, topbar, cartões) */
+  --topbar-bg: #161b26;
+  --topbar-border: #2a3242;
+  --content-bg: #0e1117;
+  --text-primary: #e6e9ef;
+  --text-secondary: #a3acba;
+  --card-bg: #161b26;
+  --card-border: #2a3242;
+}
+:root[data-theme='dark'] .text-brand {
+  color: var(--color-brand-ink);
+}
+:root[data-theme='dark'] .text-primary {
+  color: #6fcfa5;
+}
+:root[data-theme='dark'] .border-brand {
+  border-color: var(--color-brand-ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='system'] {
+    color-scheme: dark;
+
+    /* superfícies */
+    --color-canvas: #0e1117;
+    --color-surface: #161b26;
+    --color-surface-sunken: #0b0e14;
+    --color-border: #2a3242;
+    --color-border-strong: #3a4457;
+
+    /* campos */
+    --color-field: #8aa6d6;
+    --color-field-soft: #1c2640;
+    --color-field-ink: #e6e9ef;
+
+    /* texto */
+    --color-ink: #e6e9ef;
+    --color-ink-muted: #a3acba;
+    --color-ink-faint: #8590a2;
+
+    /* marca */
+    --color-primary: #2a8160;
+    --color-primary-hover: #349873;
+    --color-primary-active: #1f6a4e;
+    --color-primary-subtle: #14302a;
+    --color-accent: #d6963a;
+    --color-accent-hover: #e3a64d;
+    --color-accent-subtle: #3a2c12;
+    --color-brand: #4871bc;
+    --color-brand-hover: #5b82cb;
+    --color-brand-active: #3a5f9f;
+    --color-brand-soft: #1c2a45;
+    --color-brand-muted: #8aa6d6;
+    --color-brand-line: #2a3a5c;
+  --color-brand-ink: #8aa6d6;
+
+    /* estado */
+    --color-success: #1f8050;
+    --color-success-subtle: #12301f;
+    --color-success-ink: #7fe0ac;
+    --color-warning: #a85f09;
+    --color-warning-subtle: #35240d;
+    --color-warning-ink: #f0b765;
+    --color-danger: #c2503a;
+    --color-danger-subtle: #3a1a14;
+    --color-danger-ink: #f0a090;
+    --color-info: #3f78b0;
+    --color-info-subtle: #13263a;
+    --color-info-ink: #8fc0ec;
+
+    /* profundidade */
+    --shadow-resting: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.45);
+    --shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.6);
+
+    /* variáveis antigas (corpo, topbar, cartões) */
+    --topbar-bg: #161b26;
+    --topbar-border: #2a3242;
+    --content-bg: #0e1117;
+    --text-primary: #e6e9ef;
+    --text-secondary: #a3acba;
+    --card-bg: #161b26;
+    --card-border: #2a3242;
+  }
+  :root[data-theme='system'] .text-brand {
+    color: var(--color-brand-ink);
+  }
+  :root[data-theme='system'] .text-primary {
+    color: #6fcfa5;
+  }
+  :root[data-theme='system'] .border-brand {
+    border-color: var(--color-brand-ink);
+  }
 }
 
 :root {

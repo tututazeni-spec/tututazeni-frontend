@@ -20,6 +20,7 @@ import { PageSkeleton } from './PageSkeleton';
 import { Pagination } from './Pagination';
 import { Skeleton } from './Skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './Tabs';
+import { ThemeToggle } from './ThemeToggle';
 
 async function expectNoViolations(ui: React.ReactElement) {
   const { container, baseElement } = render(ui);
@@ -88,6 +89,8 @@ describe('acessibilidade dos primitivos de UI', () => {
         <PageSkeleton variant="cards" />
       </div>,
     ));
+
+  it('ThemeToggle', () => expectNoViolations(<ThemeToggle />));
 
   it('Pagination', () =>
     expectNoViolations(

@@ -238,7 +238,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
   },
 ];
 
-const NAVY = '#0F1F3D';
+const NAVY = 'var(--color-brand-ink)';
 
 const SECTION_ICONS: Record<string, typeof LayoutDashboard> = {
   'Gestão Académica': GraduationCap,
@@ -290,15 +290,15 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
         top: 0,
         left: 0,
         height: '100vh',
-        background: '#ffffff',
+        background: 'var(--color-surface)',
         display: 'flex',
         flexDirection: 'column',
         zIndex: 100,
-        borderRight: '1px solid #e5e7eb',
+        borderRight: '1px solid var(--color-border)',
         boxShadow: '4px 0 24px rgba(15, 31, 61, 0.04)',
       }}
     >
-      <style>{`.nav-hover:hover{background:${NAVY}!important;color:#fff!important}`}</style>
+      <style>{`.nav-hover:hover{background:var(--color-brand)!important;color:#fff!important}`}</style>
 
       {/* Logo */}
       <div style={{ padding: '24px 20px 16px' }}>
@@ -353,7 +353,7 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
                   borderRadius: 10,
                   border: 'none',
                   cursor: 'pointer',
-                  background: isCurrent ? NAVY : 'transparent',
+                  background: isCurrent ? 'var(--color-brand)' : 'transparent',
                   color: isCurrent ? '#ffffff' : NAVY,
                   fontSize: 15,
                   fontWeight: 500,
@@ -387,7 +387,7 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
                           fontSize: 14,
                           fontWeight: active ? 600 : 400,
                           color: NAVY,
-                          background: active ? '#eef1f6' : 'transparent',
+                          background: active ? 'var(--color-brand-soft)' : 'transparent',
                           transition: 'background 0.15s',
                         }}
                       >
@@ -409,7 +409,7 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
       </nav>
 
       {/* Logout */}
-      <div style={{ padding: '12px', borderTop: '1px solid #e5e7eb' }}>
+      <div style={{ padding: '12px', borderTop: '1px solid var(--color-border)' }}>
         <button
           onClick={() => logout()}
           style={{
