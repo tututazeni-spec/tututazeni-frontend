@@ -16,6 +16,7 @@ import { EmptyState } from './EmptyState';
 import { FormField } from './FormField';
 import { Input } from './Input';
 import { Modal, ModalContent } from './Modal';
+import { PageSkeleton } from './PageSkeleton';
 import { Pagination } from './Pagination';
 import { Skeleton } from './Skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './Tabs';
@@ -75,6 +76,16 @@ describe('acessibilidade dos primitivos de UI', () => {
       <div>
         <Badge intent="success">Ativo</Badge>
         <Skeleton rows={2} />
+      </div>,
+    ));
+
+  it('PageSkeleton (todas as variantes)', () =>
+    expectNoViolations(
+      <div>
+        <PageSkeleton />
+        <PageSkeleton variant="dashboard" />
+        <PageSkeleton variant="table" />
+        <PageSkeleton variant="cards" />
       </div>,
     ));
 
