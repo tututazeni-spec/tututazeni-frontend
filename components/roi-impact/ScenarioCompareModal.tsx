@@ -52,7 +52,7 @@ export function ScenarioCompareModal({
         {compare.isPending || !data ? (
           <Skeleton
             rows={2}
-            wrapperClassName="space-y-3"
+            wrapperClassName="space-y-3 animate-pulse"
             itemClassName="h-20 rounded-card bg-surface-sunken"
           />
         ) : (

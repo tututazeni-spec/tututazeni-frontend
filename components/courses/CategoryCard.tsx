@@ -31,11 +31,7 @@ function InfoLine({
 }: InfoLineProps) {
   const body = (
     <>
-      <Icon
-        size={16}
-        strokeWidth={1.75}
-        className="shrink-0 text-brand-muted"
-      />
+      <Icon size={16} strokeWidth={1.75} className="shrink-0 text-brand-muted" />
       <span className="text-sm font-medium text-brand">{text}</span>
     </>
   );

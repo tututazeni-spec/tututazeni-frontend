@@ -345,9 +345,7 @@ export function ExecutiveTab() {
                 <NavyPanelRow
                   key={i}
                   icon={warn ? TriangleAlert : Info}
-                  iconClassName={
-                    warn ? 'text-[#FBBF24]' : 'text-on-brand-accent'
-                  }
+                  iconClassName={warn ? 'text-[#FBBF24]' : 'text-on-brand-accent'}
                 >
                   {ptInsight(ins).replace(/⚠️?\s*/g, '')}
                 </NavyPanelRow>

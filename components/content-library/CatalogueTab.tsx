@@ -174,7 +174,7 @@ export function CatalogueTab() {
       {loading ? (
         <Skeleton
           rows={12}
-          wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
+          wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse"
           itemClassName="bg-surface-sunken rounded-card h-52"
         />
       ) : (data?.data.length ?? 0) === 0 ? (
