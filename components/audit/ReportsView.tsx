@@ -164,7 +164,7 @@ function Chip({ active, onClick, color, children }: ChipProps) {
           ? 'hover:brightness-95'
           : active
             ? 'border-brand bg-brand text-white'
-            : 'border-brand-line bg-white text-brand hover:border-brand'
+            : 'border-brand-line bg-surface text-brand hover:border-brand'
       }`}
     >
       {children}
@@ -236,7 +236,7 @@ export function ReportsView() {
 
   return (
     <div className="space-y-5">
-      <Card className="overflow-hidden rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <Card className="overflow-hidden rounded-[24px] border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div className="flex items-center gap-3 border-b border-brand-line px-6 py-5">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-soft text-brand">
             <SlidersHorizontal size={16} strokeWidth={1.75} />
@@ -394,7 +394,7 @@ export function ReportsView() {
           </section>
         </div>
 
-        <div className="border-t border-brand-line bg-[#F7FAFE] px-6 py-4">
+        <div className="border-t border-brand-line bg-brand-soft px-6 py-4">
           <div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={() => setApplied(toParams(form))}

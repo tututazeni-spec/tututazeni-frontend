@@ -321,7 +321,7 @@ export function GestaoView({
                 { label: 'Reciclagem', onClick: () => setShowRecycle(true) },
               ]}
             />
-            <span className="text-sm text-black">
+            <span className="text-sm text-ink">
               {data?.total ?? 0} cursos
             </span>
           </div>

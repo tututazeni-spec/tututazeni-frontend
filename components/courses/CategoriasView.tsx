@@ -99,7 +99,7 @@ function CategoryModal({
       >
         <div className="mt-4 space-y-4">
           {error && (
-            <p className="rounded-card bg-danger-subtle p-3 text-sm text-black">
+            <p className="rounded-card bg-danger-subtle p-3 text-sm text-ink">
               {error}
             </p>
           )}

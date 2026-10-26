@@ -239,7 +239,7 @@ export function CheckinAttendanceTab() {
           description="Nenhum participante corresponde aos filtros escolhidos."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {rows.map((p) => {
             const isCheckingOut =
               checkoutMutation.isPending &&
@@ -251,7 +251,7 @@ export function CheckinAttendanceTab() {
             return (
               <div
                 key={p.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-white px-5 py-3 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-surface px-5 py-3 last:border-0"
               >
                 <Avatar
                   name={p.user.fullName}

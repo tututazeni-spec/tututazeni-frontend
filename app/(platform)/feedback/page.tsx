@@ -4,7 +4,7 @@
       <h1 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px' }}>
         Feedback
       </h1>
-      <p style={{ color: '#64748b' }}>Módulo em desenvolvimento.</p>
+      <p style={{ color: 'var(--color-ink-muted)' }}>Módulo em desenvolvimento.</p>
     </div>
   );
 }

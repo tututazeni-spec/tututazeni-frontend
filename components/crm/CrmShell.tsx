@@ -99,7 +99,7 @@ export function CrmShell({
               {/* O botão de acção é azul-escuro; sobre o gradiente passa a branco
                   e, ao passar o cursor, inverte (azul-escuro com letra branca).
                   A borda branca mantém o contorno visível sobre o gradiente. */}
-              <div className="[&_a]:border [&_a]:border-white [&_a]:!bg-white [&_a]:!text-brand [&_a]:transition-colors [&_a:hover]:!bg-brand [&_a:hover]:!text-white [&_a:hover]:!opacity-100 [&_a:hover]:!brightness-100">
+              <div className="[&_a]:border [&_a]:border-white [&_a]:!bg-surface [&_a]:!text-brand [&_a]:transition-colors [&_a:hover]:!bg-brand [&_a:hover]:!text-white [&_a:hover]:!opacity-100 [&_a:hover]:!brightness-100">
                 {action}
               </div>
             </div>

@@ -85,7 +85,7 @@ function ConfigCard({
 }: ConfigCardProps) {
   return (
     <Card
-      className={`flex flex-col overflow-hidden rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)] ${className ?? ''}`}
+      className={`flex flex-col overflow-hidden rounded-[24px] border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)] ${className ?? ''}`}
     >
       <div className="pointer-events-none flex cursor-default select-none items-center gap-3 bg-brand/60 px-5 py-4 text-white">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
@@ -540,7 +540,7 @@ export function ConfigTab() {
         </ConfigCard>
       </section>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-brand-line bg-white px-6 py-4 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-brand-line bg-surface px-6 py-4 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <p className="font-body text-xs text-brand-muted">
           As alterações só se aplicam depois de guardar.
         </p>

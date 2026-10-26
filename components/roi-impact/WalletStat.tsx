@@ -131,7 +131,7 @@ export function WalletStat({
     <div
       className={`flex flex-col items-center gap-1 text-center ${zoom ? ZOOM : ''}`}
     >
-      <h3 className="min-h-[2.5rem] font-body text-sm font-semibold leading-tight text-[#152F59]">
+      <h3 className="min-h-[2.5rem] font-body text-sm font-semibold leading-tight text-brand-ink">
         {label}
       </h3>
       <svg
@@ -183,7 +183,7 @@ export function RoiDonutStat({ label, roi, zoom = false }: RoiDonutStatProps) {
     <div
       className={`flex flex-col items-center gap-1 text-center ${zoom ? ZOOM : ''}`}
     >
-      <h3 className="min-h-[2.5rem] font-body text-sm font-semibold leading-tight text-[#152F59]">
+      <h3 className="min-h-[2.5rem] font-body text-sm font-semibold leading-tight text-brand-ink">
         {label}
       </h3>
       <div className="relative" style={{ width: size, height: 100 }}>

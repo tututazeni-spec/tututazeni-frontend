@@ -148,7 +148,7 @@ export function ReportsTab() {
             className={`rounded-control border px-3 py-1.5 text-xs font-medium transition-colors ${
               active === r.type
                 ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-white text-ink-muted hover:text-ink'
+                : 'border-border bg-surface text-ink-muted hover:text-ink'
             }`}
           >
             {r.title}

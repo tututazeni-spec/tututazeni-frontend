@@ -95,7 +95,7 @@ export function EngagementView() {
               size="sm"
             />
             <div className="flex-1 text-sm text-ink">{u.fullName}</div>
-            <div className="text-sm font-data font-bold text-black">
+            <div className="text-sm font-data font-bold text-ink">
               {u.points} XP
             </div>
           </div>

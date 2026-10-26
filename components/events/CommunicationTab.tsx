@@ -157,13 +157,13 @@ export function CommunicationTab() {
           description="Envia a primeira comunicação a participantes de um evento."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {communications.map((c) => {
             const level = proximityLevel(c.event.startAt);
             return (
               <div
                 key={c.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-white px-5 py-3 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-surface px-5 py-3 last:border-0"
               >
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-body text-sm font-semibold text-brand">

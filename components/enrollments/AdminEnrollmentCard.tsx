@@ -16,7 +16,7 @@ export type AdminEnrollmentTone =
 const TONE_PILL: Record<AdminEnrollmentTone, string> = {
   success: 'bg-[#12A150] text-white',
   danger: 'bg-[#E5384F] text-white',
-  warning: 'bg-[#F2B01E] text-[#3F2D00]',
+  warning: 'bg-[#F2B01E] text-warning-ink',
   info: 'bg-[#2B7FE8] text-white',
   neutral: 'bg-brand-line text-brand-muted',
 };
@@ -24,7 +24,7 @@ const TONE_PILL: Record<AdminEnrollmentTone, string> = {
 export const ADMIN_ENROLLMENT_BTN_PRIMARY =
   'inline-flex h-10 items-center justify-center gap-1.5 rounded-control bg-brand px-4 text-sm font-semibold text-white hover:bg-[#1B2F57] disabled:opacity-50';
 export const ADMIN_ENROLLMENT_BTN_GHOST =
-  'inline-flex h-10 items-center justify-center gap-1.5 rounded-control border border-brand-line bg-white px-3 text-sm font-semibold text-brand hover:bg-brand-soft disabled:opacity-50';
+  'inline-flex h-10 items-center justify-center gap-1.5 rounded-control border border-brand-line bg-surface px-3 text-sm font-semibold text-brand hover:bg-brand-soft disabled:opacity-50';
 
 export interface AdminEnrollmentInfo {
   icon: LucideIcon;
@@ -66,7 +66,7 @@ export function AdminEnrollmentCard({
   const palette = PALETTE[Math.abs(seed) % PALETTE.length];
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-panel border border-brand-line bg-white p-6 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+    <div className="relative flex h-full flex-col overflow-hidden rounded-panel border border-brand-line bg-surface p-6 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
       {/* Painel recortado na diagonal com a foto do avatar */}
       <div
         aria-hidden={avatar.url ? undefined : true}
@@ -135,7 +135,7 @@ export function AdminEnrollmentCard({
               className={`shrink-0 ${danger ? 'text-[#E5384F]' : 'text-brand-muted'}`}
             />
             <span
-              className={`text-[15px] font-medium ${danger ? 'text-[#C42B40]' : 'text-brand'}`}
+              className={`text-[15px] font-medium ${danger ? 'text-danger-ink' : 'text-brand'}`}
             >
               {text}
             </span>

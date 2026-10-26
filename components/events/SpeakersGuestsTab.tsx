@@ -381,7 +381,7 @@ export function SpeakersGuestsTab() {
           description="Adiciona o primeiro orador, convidado ou moderador deste evento."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {speakers.map((s) => {
             // Data de referência: sessão associada; sem sessão, início do evento.
             const refDate = s.session?.startAt ?? event?.startAt;
@@ -389,7 +389,7 @@ export function SpeakersGuestsTab() {
             return (
               <div
                 key={s.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-white px-5 py-3 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-surface px-5 py-3 last:border-0"
               >
                 {s.photoUrl ? (
                   <button

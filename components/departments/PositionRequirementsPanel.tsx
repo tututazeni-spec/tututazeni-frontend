@@ -189,10 +189,10 @@ export function PositionRequirementsPanel({
   const rowClass =
     'flex items-center justify-between gap-3 rounded-card border border-brand-line bg-brand-soft/50 px-3 py-2';
   const trashClass =
-    'inline-flex h-7 w-7 items-center justify-center rounded-control text-brand/60 hover:bg-white hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50';
+    'inline-flex h-7 w-7 items-center justify-center rounded-control text-brand/60 hover:bg-surface hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50';
 
   return (
-    <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
+    <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
       <div className="flex items-center gap-2.5 bg-gradient-to-br from-brand-mid to-brand-dark px-5 py-3.5 text-white">
         <GraduationCap size={18} strokeWidth={1.75} />
         <h3 className="font-body text-sm font-semibold uppercase tracking-wider">

@@ -196,7 +196,7 @@ export function EvaluationTab() {
           description="Nenhum participante corresponde aos filtros escolhidos."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {rows.map((p) => {
             const level = proximityLevel(p.event.startAt);
             return (
@@ -205,7 +205,7 @@ export function EvaluationTab() {
                 type="button"
                 onClick={() => p.evaluation && setDetailRow(p)}
                 disabled={!p.evaluation}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-white px-5 py-3 text-left last:border-0 enabled:hover:bg-brand-soft disabled:cursor-default"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-surface px-5 py-3 text-left last:border-0 enabled:hover:bg-brand-soft disabled:cursor-default"
               >
                 <Avatar
                   name={p.user.fullName}

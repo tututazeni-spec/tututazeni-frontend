@@ -293,7 +293,7 @@ export function ContentPlayer({
                 )}
               </div>
             ) : lesson.type === 'TEXT' ? (
-              <article className="my-6 w-full max-w-2xl rounded-panel border border-brand-line bg-white p-8 text-ink shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+              <article className="my-6 w-full max-w-2xl rounded-panel border border-brand-line bg-surface p-8 text-ink shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
                 <h2 className="font-display text-xl font-semibold mb-4">
                   {lesson.title}
                 </h2>
@@ -325,7 +325,7 @@ export function ContentPlayer({
               </StageNotice>
             ) : lesson.type === 'SCORM' ? (
               lesson.contentUrl && fileSrc ? (
-                <div className="flex h-[70vh] w-full flex-col bg-white">
+                <div className="flex h-[70vh] w-full flex-col bg-surface">
                   <iframe
                     src={fileSrc}
                     title={lesson.title}

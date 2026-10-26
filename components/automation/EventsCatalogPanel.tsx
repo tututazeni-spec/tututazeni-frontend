@@ -156,7 +156,7 @@ function ModuleCard({ mod }: { mod: CatalogModule }) {
       </header>
 
       <div
-        className="flex flex-1 flex-col rounded-control bg-white p-2"
+        className="flex flex-1 flex-col rounded-control bg-surface p-2"
         style={{ boxShadow: `0 1px 4px ${withAlpha(color, 0.15)}` }}
       >
         <ul className="shrink-0">
@@ -292,7 +292,7 @@ export function EventsCatalogPanel() {
               }}
             >
               <div
-                className="rounded-control bg-white px-3 py-2"
+                className="rounded-control bg-surface px-3 py-2"
                 style={{
                   boxShadow: `0 1px 4px ${withAlpha(CARD_COLOR, 0.15)}`,
                 }}

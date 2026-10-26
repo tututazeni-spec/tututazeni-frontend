@@ -281,7 +281,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             }
             className="w-full"
           />
-          <label className="flex w-full cursor-pointer items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] text-sm text-black">
+          <label className="flex w-full cursor-pointer items-center gap-2 rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] text-sm text-ink">
             <Checkbox
               checked={!!filters.overdue}
               onChange={(e) =>
@@ -292,7 +292,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
           </label>
         </div>
         <div className="flex justify-end">
-          <span className="text-sm text-black">
+          <span className="text-sm text-ink">
             {data?.total ?? 0} matrículas
           </span>
         </div>
@@ -465,7 +465,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
       {/* Paginação */}
       {data && data.totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
-          <span className="text-xs text-black">
+          <span className="text-xs text-ink">
             Página {data.page} de {data.totalPages}
           </span>
           <div className="flex gap-2">

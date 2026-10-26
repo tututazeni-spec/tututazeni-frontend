@@ -201,7 +201,7 @@ export function VacanciesView() {
             return (
               <div
                 key={v.id}
-                className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]"
+                className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_8px_30px_rgba(11,61,145,0.10)]"
               >
                 {/* Cabeçalho */}
                 <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand-mid to-brand-dark px-5 py-3.5 text-white">

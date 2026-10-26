@@ -276,7 +276,7 @@ export function VenuesLogisticsTab() {
       ) : (
         <>
           {event && (
-            <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-white p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <div className="truncate font-body text-sm font-semibold text-brand">
                   {event.title}
@@ -337,7 +337,7 @@ export function VenuesLogisticsTab() {
                     ).map(([value, cfg]) => (
                       <label
                         key={value}
-                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-line bg-white px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
+                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-line bg-surface px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
                       >
                         <Checkbox
                           checked={form.equipment.includes(value)}
@@ -425,7 +425,7 @@ export function VenuesLogisticsTab() {
                     return (
                       <label
                         key={name}
-                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-line bg-white px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
+                        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-brand-line bg-surface px-3 py-1 text-xs text-brand hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white"
                       >
                         <Checkbox
                           checked={on}

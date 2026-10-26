@@ -123,10 +123,10 @@ export function CourseDetailView({
 
       {isEnrolled && pendingApproval && (
         <Card className="p-5 mb-6 bg-warning-subtle">
-          <p className="m-0 text-sm font-medium text-black">
+          <p className="m-0 text-sm font-medium text-ink">
             Pedido de inscrição enviado — aguarda aprovação
           </p>
-          <p className="m-0 mt-1 text-xs text-black">
+          <p className="m-0 mt-1 text-xs text-ink">
             Este curso requer aprovação para inscrição. Vais poder aceder ao
             conteúdo assim que o pedido for aprovado.
           </p>
@@ -267,7 +267,7 @@ export function CourseDetailView({
            etiquetas, ícone + título, dados, formador e botões de acção; a
            imagem do curso num recorte inclinado no canto superior direito. */
         <div className="mb-6 space-y-4">
-          <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
             <div
               aria-hidden
               className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
@@ -444,11 +444,11 @@ export function CourseDetailView({
         <Card className="p-5 mb-6 bg-success-subtle">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <p className="m-0 text-sm font-semibold text-black flex items-center gap-2">
+              <p className="m-0 text-sm font-semibold text-ink flex items-center gap-2">
                 <Check size={16} strokeWidth={1.75} /> Curso concluído
               </p>
               {progress.enrollment.completedAt && (
-                <p className="m-0 mt-1 text-xs text-black">
+                <p className="m-0 mt-1 text-xs text-ink">
                   Concluído em{' '}
                   {new Date(progress.enrollment.completedAt).toLocaleDateString(
                     'pt',

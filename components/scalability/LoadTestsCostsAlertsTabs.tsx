@@ -1066,7 +1066,7 @@ export function AlertRulesSection({
             intent="secondary"
             onClick={onEvaluate}
             disabled={evaluating}
-            className="border-brand bg-brand text-white transition-colors duration-200 hover:border-brand hover:bg-white hover:text-brand"
+            className="border-brand bg-brand text-white transition-colors duration-200 hover:border-brand hover:bg-surface hover:text-brand"
           >
             {evaluating ? 'A avaliar…' : 'Avaliar agora'}
           </Button>

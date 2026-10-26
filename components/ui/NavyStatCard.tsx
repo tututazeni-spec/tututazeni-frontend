@@ -76,7 +76,7 @@ export function NavyStatCard({
   const hasLongWord = label.split(/\s+/).some((w) => w.length > 10);
   const interactive = !!(href || tab || onClick);
   const rootClass = cn(
-    'relative flex min-h-[155px] flex-col overflow-hidden rounded-panel border border-brand-line bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100',
+    'relative flex min-h-[155px] flex-col overflow-hidden rounded-panel border border-brand-line bg-surface shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.06] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] motion-reduce:hover:scale-100',
     interactive &&
       'group w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1877F2] focus-visible:ring-offset-2',
     className,

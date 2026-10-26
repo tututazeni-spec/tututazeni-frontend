@@ -62,10 +62,10 @@ export function CompetencyGapsView() {
                   />
                 </div>
               </div>
-              <div className="w-24 flex-shrink-0 text-right text-xs font-data text-black">
+              <div className="w-24 flex-shrink-0 text-right text-xs font-data text-ink">
                 {g.avgCurrent} → {g.avgTarget}
               </div>
-              <div className="w-16 flex-shrink-0 text-right text-xs font-data font-bold text-black">
+              <div className="w-16 flex-shrink-0 text-right text-xs font-data font-bold text-ink">
                 Lacuna: {g.gap}
               </div>
               <div className="w-20 flex-shrink-0 text-right text-xs text-ink-faint">

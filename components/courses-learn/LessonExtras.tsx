@@ -68,7 +68,7 @@ export function OpenButton({
     <button
       type="button"
       onClick={() => openFile(url)}
-      className="mt-2 inline-flex items-center gap-1.5 rounded-control border border-brand-line bg-white px-3 py-1.5 font-body text-xs font-semibold text-brand hover:bg-brand-soft"
+      className="mt-2 inline-flex items-center gap-1.5 rounded-control border border-brand-line bg-surface px-3 py-1.5 font-body text-xs font-semibold text-brand hover:bg-brand-soft"
     >
       <ExternalLink size={14} strokeWidth={1.75} />
       {children}
@@ -160,7 +160,7 @@ export function ActivityList({ activities }: { activities: LessonActivity[] }) {
         return (
           <div
             key={activity.id}
-            className="flex items-start gap-3 rounded-panel border border-brand-line bg-white p-4"
+            className="flex items-start gap-3 rounded-panel border border-brand-line bg-surface p-4"
           >
             <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-line text-brand">
               <Icon size={16} strokeWidth={1.75} />
@@ -201,7 +201,7 @@ export function FileList({ files }: { files: Array<FileItem> }) {
           key={f.id}
           type="button"
           onClick={() => openFile(f.url)}
-          className="flex w-full items-center gap-3 rounded-panel border border-brand-line bg-white p-3 text-left hover:bg-brand-soft"
+          className="flex w-full items-center gap-3 rounded-panel border border-brand-line bg-surface p-3 text-left hover:bg-brand-soft"
         >
           <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-line text-brand">
             <Paperclip size={16} strokeWidth={1.75} />

@@ -87,7 +87,7 @@ export function RisksView() {
                 size="sm"
               />
               <div className="flex-1 text-sm text-ink">{u.fullName}</div>
-              <span className="text-xs text-black font-medium">
+              <span className="text-xs text-ink font-medium">
                 Sem actividade há +60 dias
               </span>
             </div>

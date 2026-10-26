@@ -198,7 +198,7 @@ export function ImpactTab() {
                       }
                     >
                       <div
-                        className="h-full rounded-full bg-white"
+                        className="h-full rounded-full bg-surface"
                         style={{ width: `${pct ?? 0}%` }}
                       />
                     </div>
@@ -222,7 +222,7 @@ export function ImpactTab() {
             return (
               <div
                 key={r.id}
-                className="relative min-w-0 overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+                className="relative min-w-0 overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
               >
                 <div
                   aria-hidden

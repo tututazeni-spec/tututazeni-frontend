@@ -27,7 +27,7 @@ export function CourseContentCard({
 }: CourseContentCardProps) {
   return (
     <section
-      className={`flex flex-col gap-3 overflow-hidden rounded-panel border border-brand-line bg-white p-4 shadow-[0_8px_24px_rgba(15,31,61,0.08)] ${className ?? ''}`}
+      className={`flex flex-col gap-3 overflow-hidden rounded-panel border border-brand-line bg-surface p-4 shadow-[0_8px_24px_rgba(15,31,61,0.08)] ${className ?? ''}`}
     >
       <div className="flex items-center gap-3">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-success text-white">
@@ -69,7 +69,7 @@ export function ContentModule({
   return (
     <details
       open={defaultOpen}
-      className="group overflow-hidden rounded-panel border border-brand-line bg-[#F7F9FC]"
+      className="group overflow-hidden rounded-panel border border-brand-line bg-brand-soft"
     >
       <summary className="flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 hover:bg-brand-soft [&::-webkit-details-marker]:hidden">
         <span
@@ -90,7 +90,7 @@ export function ContentModule({
           className="shrink-0 text-brand-muted transition-transform group-open:rotate-180"
         />
       </summary>
-      <div className="flex flex-col gap-1 border-t border-brand-line bg-white p-2">
+      <div className="flex flex-col gap-1 border-t border-brand-line bg-surface p-2">
         {children}
       </div>
     </details>

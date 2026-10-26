@@ -16,15 +16,15 @@ export const NAVY_ACTION =
 
 /** Botão de acção principal sobre o cartão escuro. */
 export const NAVY_BTN =
-  'inline-flex h-9 items-center justify-center rounded-full bg-white/90 px-4 text-sm font-semibold text-brand hover:bg-white disabled:opacity-50';
+  'inline-flex h-9 items-center justify-center rounded-full bg-white/90 px-4 text-sm font-semibold text-brand hover:bg-surface disabled:opacity-50';
 
 export type NavyTone = 'success' | 'danger' | 'warning' | 'info' | 'neutral';
 
 const TONE: Record<NavyTone, { pill: string; dot: string }> = {
-  success: { pill: 'bg-[#DDF5E6] text-[#14532D]', dot: 'bg-[#22A15A]' },
-  danger: { pill: 'bg-[#FFE1E4] text-[#7F1D2B]', dot: 'bg-[#E5384F]' },
-  warning: { pill: 'bg-[#FFF1C9] text-[#6B4A00]', dot: 'bg-[#F2B01E]' },
-  info: { pill: 'bg-[#DCEBFF] text-[#12366B]', dot: 'bg-[#2F7BEA]' },
+  success: { pill: 'bg-success-subtle text-success-ink', dot: 'bg-[#22A15A]' },
+  danger: { pill: 'bg-danger-subtle text-danger-ink', dot: 'bg-[#E5384F]' },
+  warning: { pill: 'bg-warning-subtle text-warning-ink', dot: 'bg-[#F2B01E]' },
+  info: { pill: 'bg-brand-soft text-brand-ink', dot: 'bg-[#2F7BEA]' },
   neutral: { pill: 'bg-white/85 text-brand', dot: 'bg-[#6B7A90]' },
 };
 

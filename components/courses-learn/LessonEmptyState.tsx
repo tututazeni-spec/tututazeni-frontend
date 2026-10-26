@@ -42,7 +42,7 @@ export function LessonEmptyState({ modules, loading }: LessonEmptyStateProps) {
 
   return (
     <div className="flex flex-1 items-center justify-center bg-brand-soft px-6 text-center">
-      <div className="max-w-md rounded-panel border border-brand-line bg-white p-8 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+      <div className="max-w-md rounded-panel border border-brand-line bg-surface p-8 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
         <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand text-white">
           <Icon size={22} strokeWidth={1.75} />
         </span>

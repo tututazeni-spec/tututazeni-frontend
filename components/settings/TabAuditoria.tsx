@@ -60,7 +60,7 @@ export function TabAuditoria() {
 
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-brand/60 px-5 py-3">
           <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
             Registo de logs
@@ -166,7 +166,7 @@ export function TabAuditoria() {
         </Card>
       </div>
 
-      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div className="pointer-events-none flex cursor-default select-none items-center justify-between bg-brand/60 px-5 py-3">
           <h3 className="font-display text-base font-bold uppercase tracking-wide text-white">
             Política de auditoria

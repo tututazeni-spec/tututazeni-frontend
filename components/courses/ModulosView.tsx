@@ -251,9 +251,9 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
             <AlertTriangle
               size={40}
               strokeWidth={1.5}
-              className="mx-auto mb-3 text-black"
+              className="mx-auto mb-3 text-ink"
             />
-            <p className="text-black text-sm">
+            <p className="text-ink text-sm">
               {error?.message ?? 'Curso não encontrado'}
             </p>
           </CardBody>

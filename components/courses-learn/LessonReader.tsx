@@ -57,7 +57,7 @@ export function LessonReader({
   const text = html ? (
     <article
       key="text"
-      className="rounded-panel border border-brand-line bg-white p-5 shadow-[0_8px_24px_rgba(15,31,61,0.08)] sm:p-8"
+      className="rounded-panel border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(15,31,61,0.08)] sm:p-8"
     >
       <h2 className="mb-4 font-display text-xl font-semibold text-ink">
         {lesson.title}
@@ -121,7 +121,7 @@ export function LessonReader({
           {blocks}
 
           {lesson.activities.length > 0 && (
-            <section className="rounded-panel bg-white px-4 py-4 sm:px-6">
+            <section className="rounded-panel bg-surface px-4 py-4 sm:px-6">
               <h3 className="mb-3 font-body text-sm font-semibold text-ink">
                 Actividades
               </h3>
@@ -129,7 +129,7 @@ export function LessonReader({
             </section>
           )}
           {lesson.resources.length > 0 && (
-            <section className="rounded-panel bg-white px-4 py-4 sm:px-6">
+            <section className="rounded-panel bg-surface px-4 py-4 sm:px-6">
               <h3 className="mb-3 font-body text-sm font-semibold text-ink">
                 Recursos
               </h3>
@@ -137,7 +137,7 @@ export function LessonReader({
             </section>
           )}
           {materials.length > 0 && (
-            <section className="rounded-panel bg-white px-4 py-4 sm:px-6">
+            <section className="rounded-panel bg-surface px-4 py-4 sm:px-6">
               <h3 className="mb-3 font-body text-sm font-semibold text-ink">
                 Materiais do módulo
               </h3>
@@ -145,7 +145,7 @@ export function LessonReader({
             </section>
           )}
           {lesson.quizId && (
-            <section className="rounded-panel bg-white px-4 py-4 sm:px-6">
+            <section className="rounded-panel bg-surface px-4 py-4 sm:px-6">
               <h3 className="mb-3 font-body text-sm font-semibold text-ink">
                 Avaliação
               </h3>

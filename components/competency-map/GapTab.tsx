@@ -35,13 +35,13 @@ export function GapTab({ gap, rcfg }: GapTabProps) {
     <div className="space-y-4">
       {/* Readiness summary */}
       {rcfg && (
-        <div className="rounded-card border border-black bg-white p-5">
+        <div className="rounded-card border border-black bg-surface p-5">
           <div className="flex items-center justify-between mb-2">
-            <p className="inline-flex items-center gap-1 font-semibold text-black">
+            <p className="inline-flex items-center gap-1 font-semibold text-ink">
               <rcfg.icon size={12} strokeWidth={1.75} className={rcfg.dot} />{' '}
               Prontidão: &quot;{gap.targetRole}&quot;
             </p>
-            <span className="text-2xl font-bold text-black">
+            <span className="text-2xl font-bold text-ink">
               {gap.readinessScore}%
             </span>
           </div>

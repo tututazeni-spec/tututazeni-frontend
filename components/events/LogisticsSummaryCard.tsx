@@ -48,7 +48,7 @@ export function LogisticsSummaryCard({ eventId }: { eventId: number }) {
     .filter(Boolean);
 
   return (
-    <Card className="mt-4 rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+    <Card className="mt-4 rounded-[24px] border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
       <CardBody>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <div className="font-body text-base font-semibold text-brand">

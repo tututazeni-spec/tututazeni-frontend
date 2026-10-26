@@ -99,7 +99,7 @@ export function TrainingPanel() {
                       />
                     </div>
                   </div>
-                  <span className="shrink-0 whitespace-nowrap pt-0.5 font-body text-xs font-bold text-black">
+                  <span className="shrink-0 whitespace-nowrap pt-0.5 font-body text-xs font-bold text-ink">
                     {c.count} inscrições
                   </span>
                 </li>

@@ -73,7 +73,7 @@ const STATUS_ITEMS = [
 
 // Faixas do velocímetro de satisfação (escala 0–5), como no módulo Formações.
 const SATISFACTION_BANDS = [
-  { to: 1, color: '#c0392b' },
+  { to: 1, color: 'var(--color-danger-ink)' },
   { to: 2, color: '#e67e22' },
   { to: 3, color: '#f1c40f' },
   { to: 4, color: '#8fc23f' },

@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
-      <div className="w-full max-w-md rounded-panel bg-white p-8 shadow-lg">
+      <div className="w-full max-w-md rounded-panel bg-surface p-8 shadow-lg">
         <h1 className="mb-1 text-xl font-bold text-brand">Esqueci a senha</h1>
         <p className="mb-6 text-sm text-gray-600">
           Indique o seu email. Se existir uma conta, enviamos um link para

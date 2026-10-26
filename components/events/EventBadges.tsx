@@ -22,11 +22,11 @@ export const EVENT_STATUS_ON_DARK: Record<
   EventStatus,
   { label: string; color: string }
 > = {
-  DRAFT: { label: 'Rascunho', color: '#64748B' },
+  DRAFT: { label: 'Rascunho', color: 'var(--color-ink-muted)' },
   PUBLISHED: { label: 'Publicado', color: '#1267B8' },
-  LIVE: { label: 'Ao vivo', color: '#C23A52' },
-  ENDED: { label: 'Encerrado', color: '#64748B' },
-  CANCELLED: { label: 'Cancelado', color: '#C23A52' },
+  LIVE: { label: 'Ao vivo', color: 'var(--color-danger-ink)' },
+  ENDED: { label: 'Encerrado', color: 'var(--color-ink-muted)' },
+  CANCELLED: { label: 'Cancelado', color: 'var(--color-danger-ink)' },
 };
 
 export interface EventBadgeProps {

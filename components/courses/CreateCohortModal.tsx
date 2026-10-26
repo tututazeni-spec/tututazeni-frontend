@@ -161,7 +161,7 @@ export function CreateCohortModal({
       >
         <div className="mt-5 space-y-4">
           {error && (
-            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-black">
+            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-ink">
               <AlertCircle size={16} strokeWidth={1.75} />
               {error}
             </div>

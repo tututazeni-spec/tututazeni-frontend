@@ -52,12 +52,12 @@ const LEGEND = [
 // Heatmap: 1 coral → 5 verde intenso; 0 (sem registo) em neutro. Classes
 // literais para o Tailwind as detectar. Texto escuro em todas para contraste.
 const HEAT_CLS: Record<number, string> = {
-  0: 'bg-[#ECE8E1] text-[#6B7280]',
-  1: 'bg-[#F26B6B] text-[#0F2D55]',
-  2: 'bg-[#F6A36B] text-[#0F2D55]',
-  3: 'bg-[#F7DF72] text-[#0F2D55]',
-  4: 'bg-[#76D6A0] text-[#0F2D55]',
-  5: 'bg-[#20B981] text-[#0F2D55]',
+  0: 'bg-surface-sunken text-ink-muted',
+  1: 'bg-[#F26B6B] text-brand-ink',
+  2: 'bg-[#F6A36B] text-brand-ink',
+  3: 'bg-warning-subtle text-brand-ink',
+  4: 'bg-[#76D6A0] text-brand-ink',
+  5: 'bg-[#20B981] text-brand-ink',
 };
 
 function heatClass(level: number): string {

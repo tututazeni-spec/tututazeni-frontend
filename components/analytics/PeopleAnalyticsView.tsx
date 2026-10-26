@@ -66,7 +66,7 @@ function Tile({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-card bg-surface-sunken p-3">
       <div className="mb-1 font-body text-xs text-ink-faint">{label}</div>
-      <div className="font-data text-xl font-bold text-black">{value}</div>
+      <div className="font-data text-xl font-bold text-ink">{value}</div>
     </div>
   );
 }
@@ -105,7 +105,7 @@ function DepartmentDetail({ departmentId }: { departmentId: number }) {
                 <div className="flex-1">
                   <NavyBar value={Math.round((c.avgLevel / 5) * 100)} />
                 </div>
-                <div className="w-16 flex-shrink-0 text-right text-xs font-data text-black">
+                <div className="w-16 flex-shrink-0 text-right text-xs font-data text-ink">
                   {c.avgLevel}/5
                 </div>
               </div>
@@ -163,13 +163,13 @@ export function PeopleAnalyticsView() {
         />
       </div>
       {data.headcount.onLeave > 0 && (
-        <div className="rounded-control border border-info/30 bg-info-subtle px-4 py-2.5 text-sm text-black">
+        <div className="rounded-control border border-info/30 bg-info-subtle px-4 py-2.5 text-sm text-ink">
           {data.headcount.onLeave} colaboradores de licença
         </div>
       )}
 
       {/* Diversidade */}
-      <div className="overflow-hidden rounded-panel border border-border bg-white shadow-resting">
+      <div className="overflow-hidden rounded-panel border border-border bg-surface shadow-resting">
         <div className="h-1.5 w-full bg-brand" />
         <div className="p-5">
           <div className="mb-3 font-body text-sm font-semibold text-ink-muted">
@@ -217,7 +217,7 @@ export function PeopleAnalyticsView() {
                 color={colorAt(idx)}
               />
             </div>
-            <div className="text-sm font-data font-bold text-black w-8 text-right">
+            <div className="text-sm font-data font-bold text-ink w-8 text-right">
               {d.count}
             </div>
           </button>
@@ -237,7 +237,7 @@ export function PeopleAnalyticsView() {
             <div className="text-sm font-medium text-ink flex-1 truncate">
               {p.name}
             </div>
-            <div className="text-sm font-data font-bold text-black">
+            <div className="text-sm font-data font-bold text-ink">
               {p.count}
             </div>
           </div>

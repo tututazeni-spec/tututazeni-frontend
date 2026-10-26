@@ -35,7 +35,7 @@ function StatGroup({
 }) {
   return (
     <section>
-      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-[#152F59]">
+      <h3 className="mb-3 font-body text-sm font-semibold uppercase tracking-wide text-brand-ink">
         {title}
       </h3>
       <div className="grid grid-cols-2 gap-4">{children}</div>

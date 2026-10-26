@@ -55,8 +55,8 @@ export function AdminDashboardView() {
 
       {/* Gaps de conhecimento */}
       {data.knowledgeGaps.length > 0 && (
-        <div className="rounded-card border border-black bg-white p-5">
-          <div className="mb-3 font-body text-sm font-semibold text-black">
+        <div className="rounded-card border border-black bg-surface p-5">
+          <div className="mb-3 font-body text-sm font-semibold text-ink">
             Lacunas de Conhecimento — Buscas sem resultado ({data.emptySearches}
             )
           </div>
@@ -66,10 +66,10 @@ export function AdminDashboardView() {
                 key={gap.query}
                 className="flex justify-between border-b border-black py-1.5 font-body text-xs"
               >
-                <span className="font-medium text-black">
+                <span className="font-medium text-ink">
                   &quot;{gap.query}&quot;
                 </span>
-                <span className="text-black">{gap.searches}× buscado</span>
+                <span className="text-ink">{gap.searches}× buscado</span>
               </div>
             ))}
           </div>

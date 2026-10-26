@@ -951,7 +951,7 @@ function HealthComponentCard({ c }: { c: HealthComponentRow }) {
           }
         >
           <div
-            className="h-full rounded-full bg-white"
+            className="h-full rounded-full bg-surface"
             style={{ width: `${pct ?? 0}%` }}
           />
         </div>

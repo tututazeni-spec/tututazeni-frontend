@@ -106,7 +106,7 @@ export function SkillsPanel() {
                     Nível médio {s.avgLevel} · {s.count} avaliações
                   </p>
                 </div>
-                <span className="font-body text-xs font-bold text-black">
+                <span className="font-body text-xs font-bold text-ink">
                   lacuna {s.avgGap}
                 </span>
               </div>
@@ -151,7 +151,7 @@ export function SkillsPanel() {
                     {s.count} avaliações
                   </p>
                 </div>
-                <span className="font-body text-xs font-bold text-black">
+                <span className="font-body text-xs font-bold text-ink">
                   nível {s.avgLevel}
                 </span>
               </div>
