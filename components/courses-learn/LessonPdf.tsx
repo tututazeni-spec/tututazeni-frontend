@@ -47,7 +47,7 @@ export function LessonPdf({ lesson }: { lesson: LessonProgress }) {
   const native = hasNativePdfViewer();
 
   return (
-    <div className="overflow-hidden rounded-panel border border-brand-line bg-white shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+    <div className="overflow-hidden rounded-panel border border-brand-line bg-surface shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
       {native ? (
         <iframe
           src={pdf.src}

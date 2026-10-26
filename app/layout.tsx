@@ -1,6 +1,6 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import localFont from 'next/font/local';
 import ClientInit from '../components/ClientInit';
 import ReactQueryProvider from '../providers/ReactQueryProvider';
@@ -9,6 +9,7 @@ import { TooltipProvider } from '../components/ui/Tooltip';
 import { ToastProvider } from '../providers/ToastProvider';
 import { GlobalErrorHandlers } from '../components/GlobalErrorHandlers';
 import SplashScreen from '../components/SplashScreen';
+import { parseTheme, THEME_COOKIE } from '../lib/theme';
 
 // Fontes self-hosted (subset latin) em vez de next/font/google. O fetch a
 // fonts.googleapis.com/gstatic acontecia em tempo de compilação e, numa rede
@@ -48,9 +49,15 @@ export const metadata: Metadata = {
 // título fica com uma cor quase igual ao fundo que o browser escureceu por
 // cima, ilegível, sem que nada no nosso CSS tenha mudado. Declarar
 // color-scheme diz ao browser para não tentar.
-export const viewport: Viewport = {
-  colorScheme: 'light',
-};
+//
+// Com o tema escuro (cookie `innova-theme`, ver lib/theme.ts) a meta passa a
+// declarar o esquema real: 'light' | 'dark' | 'light dark' (sistema).
+export async function generateViewport(): Promise<Viewport> {
+  const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
+  return {
+    colorScheme: theme === 'system' ? 'light dark' : theme,
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -60,9 +67,11 @@ export default async function RootLayout({
   // Força renderização dinâmica: o nonce da CSP é por pedido (middleware.ts) e
   // uma página pré-renderizada em build ficaria com scripts sem nonce → bloqueados.
   await headers();
+  const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
   return (
     <html
       lang="pt"
+      data-theme={theme}
       className={`${inter.variable} ${plexMono.variable}`}
     >
       <body style={{ margin: 0, padding: 0 }}>

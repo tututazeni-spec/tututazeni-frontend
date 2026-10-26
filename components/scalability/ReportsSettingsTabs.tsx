@@ -91,7 +91,7 @@ export function ReportsTab({
               type="button"
               onClick={() => onSelect(r.type)}
               aria-pressed={active}
-              className={`rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)] p-5 text-left transition-shadow hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
+              className={`rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)] p-5 text-left transition-shadow hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 ${
                 active ? 'outline outline-2 outline-offset-2 outline-brand' : ''
               }`}
             >

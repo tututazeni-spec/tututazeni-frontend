@@ -93,7 +93,7 @@ export function PathsView() {
                 'flex cursor-pointer items-center gap-3 rounded-[18px] border p-4 shadow-[0_8px_30px_rgba(11,61,145,0.10)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D6EFD]/50',
                 selected?.id === path.id
                   ? 'border-transparent bg-gradient-to-br from-brand-mid to-brand-dark text-white'
-                  : 'border-brand-line bg-white text-brand hover:border-[#0D6EFD]',
+                  : 'border-brand-line bg-surface text-brand hover:border-[#0D6EFD]',
               )}
             >
               <span
@@ -136,7 +136,7 @@ export function PathsView() {
               Selecciona uma trilha
             </div>
           ) : (
-            <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
+            <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
               {/* Cabeçalho */}
               <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand-mid to-brand-dark px-6 py-4 text-white">
                 <div className="min-w-0">

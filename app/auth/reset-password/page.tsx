@@ -61,7 +61,7 @@ export default function ResetPasswordPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
-      <div className="w-full max-w-md rounded-panel bg-white p-8 shadow-lg">
+      <div className="w-full max-w-md rounded-panel bg-surface p-8 shadow-lg">
         <h1 className="mb-1 text-xl font-bold text-brand">
           Definir a sua senha
         </h1>

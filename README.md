@@ -5,6 +5,8 @@ Construída em **Next.js 15 + React 19 + TypeScript**.
 
 > Backend (API) correspondente: [tututazeni-backend](https://github.com/tututazeni-spec/tututazeni-backend)
 
+> Guias de arquitetura, design system e boas práticas: [`docs/README.md`](./docs/README.md)
+
 ---
 
 ## 🛠️ Stack

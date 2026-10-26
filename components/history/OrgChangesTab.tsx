@@ -15,7 +15,7 @@ import { PersonCell, fmtDate, useHubList } from './shared';
 import type { OrgChange } from './types';
 
 const CARD =
-  'overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]';
+  'overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]';
 
 interface CellProps {
   label: string;
@@ -67,7 +67,7 @@ export function OrgChangesTab() {
         {list.rows.map((o) => (
           <div
             key={o.id}
-            className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-brand-line bg-white px-5 py-4 last:border-0"
+            className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-brand-line bg-surface px-5 py-4 last:border-0"
           >
             <div className="min-w-[200px] flex-1">
               <div className="font-body text-[15px] font-semibold text-brand">

@@ -264,6 +264,8 @@ export function TabCertificados() {
                   {form.academyLogoUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
+                      loading="lazy"
+                      decoding="async"
                       src={form.academyLogoUrl}
                       alt="Logo"
                       className="h-10 w-auto"
@@ -288,6 +290,8 @@ export function TabCertificados() {
                   {form.signatureUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
+                      loading="lazy"
+                      decoding="async"
                       src={form.signatureUrl}
                       alt="Assinatura"
                       className="h-10 w-auto"

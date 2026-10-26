@@ -28,14 +28,14 @@ export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
   const canManage = useHasRole(ADMIN_ROLES);
   const ct = CONTENT_TYPE[lesson.type] ?? {
     icon: BookMarked,
-    color: '#64748b',
+    color: 'var(--color-ink-muted)',
     bg: '#f8fafc',
     label: lesson.type,
   };
   const CtIcon = ct.icon;
   const isDataUrl = lesson.contentUrl?.startsWith('data:') ?? false;
   return (
-    <div className="flex items-center gap-3 rounded-panel border border-brand-line bg-[#F7F9FC] p-3">
+    <div className="flex items-center gap-3 rounded-panel border border-brand-line bg-brand-soft p-3">
       <span className="text-sm text-ink-faint min-w-5 text-center font-bold">
         {lesson.seq}
       </span>
@@ -106,7 +106,7 @@ export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
             type="button"
             onClick={onEdit}
             aria-label={`Editar lição ${lesson.title}`}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-control border border-brand-line bg-white text-brand hover:bg-brand-soft"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-control border border-brand-line bg-surface text-brand hover:bg-brand-soft"
           >
             <Pencil size={14} strokeWidth={1.75} />
           </button>
@@ -114,7 +114,7 @@ export function LessonRow({ lesson, onEdit, onDelete }: LessonRowProps) {
             type="button"
             onClick={onDelete}
             aria-label={`Eliminar lição ${lesson.title}`}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-control border border-[#F0C9CF] bg-white text-[#B02D45] hover:bg-[#FDF2F4]"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-control border border-danger-subtle bg-surface text-danger-ink hover:bg-danger-subtle"
           >
             <Trash2 size={14} strokeWidth={1.75} />
           </button>

@@ -172,7 +172,7 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
             className={`rounded-control border px-3 py-1.5 text-sm font-medium transition-colors ${
               mode === id
                 ? 'border-brand bg-brand text-white'
-                : 'border-brand bg-white text-brand'
+                : 'border-brand bg-surface text-brand'
             }`}
           >
             {label}

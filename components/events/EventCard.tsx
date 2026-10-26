@@ -62,7 +62,7 @@ export function EventCard({ event: e, onSelect, myStatus }: EventCardProps) {
         }
       }}
       className={cn(
-        'relative flex cursor-pointer flex-col overflow-hidden rounded-panel border bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.03] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 motion-reduce:hover:scale-100',
+        'relative flex cursor-pointer flex-col overflow-hidden rounded-panel border bg-surface shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-all duration-200 ease-out hover:scale-[1.03] hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 motion-reduce:hover:scale-100',
         e.status === 'LIVE' ? 'border-danger' : 'border-brand-line',
       )}
     >

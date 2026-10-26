@@ -178,7 +178,7 @@ export function RoiAnalysisTab() {
             return (
               <div
                 key={a.id}
-                className="relative overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+                className="relative overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
               >
                 <div
                   aria-hidden

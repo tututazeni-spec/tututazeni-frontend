@@ -2,6 +2,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { FlatCompat } from '@eslint/eslintrc';
 import reactCompiler from 'eslint-plugin-react-compiler';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 import designTokens from './eslint-rules/design-tokens.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -89,6 +90,39 @@ const eslintConfig = [
           ],
         },
       ],
+    },
+  },
+  {
+    // Acessibilidade: o eslint-config-next só liga 6 regras do jsx-a11y; aqui
+    // activa-se o conjunto `recommended` completo (label sem controlo, click
+    // em div sem teclado, autofocus, etc.). `warn` — visibilidade sem
+    // bloquear a CI, na mesma linha das regras do design system acima. As
+    // regras que o next já fixa a `error`/`warn` mantêm o seu nível.
+    files: ['app/**/*.tsx', 'components/**/*.tsx'],
+    plugins: { 'jsx-a11y': jsxA11y },
+    rules: {
+      ...Object.fromEntries(
+        Object.entries(jsxA11y.configs.recommended.rules)
+          .filter(([, v]) => (Array.isArray(v) ? v[0] : v) !== 'off')
+          .map(([k, v]) => [
+            k,
+            Array.isArray(v) ? ['warn', ...v.slice(1)] : 'warn',
+          ]),
+      ),
+      // `role` em componentes próprios (ex.: <Avatar role="Instrutor">) é prop de dados, não ARIA.
+      'jsx-a11y/aria-role': ['warn', { ignoreNonDOM: true }],
+    },
+    settings: {
+      'jsx-a11y': {
+        // Os controlos partilhados envolvem o elemento nativo; sem isto a regra
+        // não os reconhece como controlo de formulário.
+        components: {
+          Input: 'input',
+          Textarea: 'textarea',
+          NativeSelect: 'select',
+          Checkbox: 'input',
+        },
+      },
     },
   },
   {

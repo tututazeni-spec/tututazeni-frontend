@@ -167,7 +167,7 @@ export function CostsTab() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div className="pointer-events-none cursor-default select-none bg-brand/60 px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-white">
             Consolidação por iniciativa
@@ -251,7 +251,7 @@ export function CostsTab() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div className="pointer-events-none cursor-default select-none bg-brand/60 px-5 py-3">
           <h4 className="font-display text-sm font-semibold text-white">
             Linhas de custo

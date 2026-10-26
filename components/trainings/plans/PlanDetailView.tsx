@@ -151,7 +151,7 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
       {/* Cabeçalho — desenho de "workshop de inovação.jpeg": cartão claro com
           etiquetas, ícone + título, dados, responsável e acção; a imagem do
           plano num recorte inclinado no canto superior direito. */}
-      <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div
           aria-hidden
           className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
@@ -165,6 +165,7 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
           {plan.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
+              decoding="async"
               src={plan.imageUrl}
               alt=""
               className="h-full w-full object-cover"
@@ -332,7 +333,7 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
             </a>
             <Button
               size="sm"
-              className="border border-white/40 hover:!bg-white hover:!text-brand"
+              className="border border-white/40 hover:!bg-surface hover:!text-brand"
               onClick={() => setShowAddTraining(true)}
             >
               <Plus size={14} strokeWidth={1.75} />

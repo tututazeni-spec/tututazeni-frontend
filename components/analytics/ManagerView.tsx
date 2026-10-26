@@ -95,7 +95,7 @@ export function ManagerView() {
         />
       </div>
       {metrics.overdueActions > 0 && (
-        <div className="rounded-control border border-danger/30 bg-danger-subtle px-4 py-2.5 text-sm text-black">
+        <div className="rounded-control border border-danger/30 bg-danger-subtle px-4 py-2.5 text-sm text-ink">
           {metrics.overdueActions} acções de PDI atrasadas na equipa
         </div>
       )}
@@ -186,10 +186,10 @@ export function ManagerView() {
                   <div className="flex-1">
                     <ProgressBar value={Math.min(g.avgGap * 20, 100)} />
                   </div>
-                  <div className="text-xs font-data text-black flex-shrink-0 w-12 text-right">
+                  <div className="text-xs font-data text-ink flex-shrink-0 w-12 text-right">
                     Lacuna: {g.avgGap}
                   </div>
-                  <div className="text-xs text-black flex-shrink-0">
+                  <div className="text-xs text-ink flex-shrink-0">
                     {g.count} pessoas
                   </div>
                 </div>

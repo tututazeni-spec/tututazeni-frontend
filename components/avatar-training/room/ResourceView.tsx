@@ -11,6 +11,8 @@ export function ResourceView({ url, title }: { url: string; title: string }) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
+        loading="lazy"
+        decoding="async"
         src={url}
         alt={`Recurso da etapa: ${title}`}
         className="mt-3 max-h-72 w-full rounded-card border border-border object-contain"

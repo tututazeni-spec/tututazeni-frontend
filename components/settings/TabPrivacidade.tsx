@@ -356,7 +356,7 @@ export function TabPrivacidade() {
         </div>
         <CardBody>
           {current ? (
-            <div className="whitespace-pre-wrap rounded-[24px] border border-brand-line bg-white p-5 text-[15px] leading-relaxed text-brand shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div className="whitespace-pre-wrap rounded-[24px] border border-brand-line bg-surface p-5 text-[15px] leading-relaxed text-brand shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
               {current.text}
             </div>
           ) : (
@@ -374,7 +374,7 @@ export function TabPrivacidade() {
                 versions.data.map((v) => (
                   <div
                     key={v.version}
-                    className="rounded-[16px] border border-brand-line bg-white p-3 text-xs"
+                    className="rounded-[16px] border border-brand-line bg-surface p-3 text-xs"
                   >
                     <div className="mb-1 flex items-center justify-between text-ink-faint">
                       <span className="font-semibold text-brand">

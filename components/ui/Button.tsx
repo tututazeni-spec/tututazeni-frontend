@@ -33,7 +33,7 @@ export const buttonVariants = cva(
         // Botões sobre cartões escuros (navy/foto): em pílula, com anel de foco
         // branco. `onDark` é a acção principal; `onDarkGhost` a secundária.
         onDark:
-          'bg-white/90 text-brand hover:bg-white focus-visible:ring-white focus-visible:ring-offset-brand',
+          'bg-white/90 text-brand hover:bg-surface focus-visible:ring-white focus-visible:ring-offset-brand',
         onDarkGhost:
           'bg-brand/70 text-white/90 hover:bg-white/25 hover:text-white focus-visible:ring-white focus-visible:ring-offset-brand',
       },

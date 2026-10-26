@@ -191,7 +191,7 @@ export function ProcessViewer({
       {/* Header — desenho de "workshop de inovação.jpeg" (o mesmo do detalhe
           do evento): cartão claro com etiquetas, ícone + título, dados,
           responsável e botões de acção. */}
-      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div
           aria-hidden
           className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
@@ -410,7 +410,7 @@ export function ProcessViewer({
                 </div>
 
                 {/* Step card */}
-                <div className="relative mb-2 flex-1 overflow-hidden rounded-[24px] border border-brand-line bg-white p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+                <div className="relative mb-2 flex-1 overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2.5">
@@ -418,7 +418,7 @@ export function ProcessViewer({
                           className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 font-body text-xs font-bold shadow-sm ring-1 ring-white/30 ${
                             STEP_TYPE_MAP[step.type]?.cls ?? 'bg-surface-sunken'
                           }`}
-                          style={{ color: '#0F1F3D' }}
+                          style={{ color: 'var(--color-brand-ink)' }}
                         >
                           <span className="h-1.5 w-1.5 rounded-full bg-current" />
                           {STEP_TYPE_MAP[step.type]?.label ?? step.type}
@@ -536,7 +536,7 @@ export function ProcessViewer({
         {/* Info tab */}
         <TabsContent value="info">
           <div className="grid grid-cols-2 gap-5">
-            <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-surface p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
               <div className="pointer-events-none mb-4 cursor-default select-none font-display text-lg font-bold text-brand">
                 Objetivo e âmbito
               </div>
@@ -561,7 +561,7 @@ export function ProcessViewer({
                 </div>
               )}
             </div>
-            <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-surface p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
               <div className="pointer-events-none mb-4 cursor-default select-none font-display text-lg font-bold text-brand">
                 Datas e SLA
               </div>
@@ -590,7 +590,7 @@ export function ProcessViewer({
                 </div>
               ))}
             </div>
-            <div className="col-span-2 relative overflow-hidden rounded-[24px] border border-brand-line bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+            <div className="col-span-2 relative overflow-hidden rounded-[24px] border border-brand-line bg-surface p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
               <div className="pointer-events-none mb-4 cursor-default select-none font-display text-lg font-bold text-brand">
                 Configuração do modelo
               </div>
@@ -632,7 +632,7 @@ export function ProcessViewer({
 
         {/* History tab */}
         <TabsContent value="history">
-          <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+          <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
             <div className="pointer-events-none cursor-default select-none border-b border-brand-line px-5 py-4 font-display text-lg font-bold text-brand">
               Histórico de versões
             </div>
@@ -648,7 +648,7 @@ export function ProcessViewer({
             ).map((v) => (
               <div
                 key={`${v.version}-${v.current}`}
-                className="relative flex flex-wrap items-center justify-between gap-3 border-b border-brand-line bg-white px-5 py-3.5 last:border-0"
+                className="relative flex flex-wrap items-center justify-between gap-3 border-b border-brand-line bg-surface px-5 py-3.5 last:border-0"
               >
                 <div className="flex items-center gap-2.5">
                   <span className="font-mono text-sm font-bold text-brand">
@@ -671,7 +671,7 @@ export function ProcessViewer({
                 </div>
               </div>
             ))}
-            <div className="border-t border-brand-line bg-[#F7FAFE] px-5 py-3 font-body text-[13px] leading-relaxed text-brand-muted">
+            <div className="border-t border-brand-line bg-brand-soft px-5 py-3 font-body text-[13px] leading-relaxed text-brand-muted">
               Cada processo em execução mantém a versão do modelo com que foi
               iniciado.
             </div>

@@ -117,7 +117,7 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
       <div className="flex-1 w-full overflow-auto flex items-start justify-center px-4">
         <canvas
           ref={canvasRef}
-          className={status === 'ready' ? 'shadow-lg bg-white' : 'hidden'}
+          className={status === 'ready' ? 'shadow-lg bg-surface' : 'hidden'}
         />
       </div>
       {status === 'ready' && numPages > 1 && (

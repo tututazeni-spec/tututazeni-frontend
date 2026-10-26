@@ -119,6 +119,7 @@ export default function DashboardPage() {
             {tenantLogo && (
               // eslint-disable-next-line @next/next/no-img-element -- data-URL guardada em Definições
               <img
+                decoding="async"
                 src={tenantLogo}
                 alt=""
                 className="h-24 w-24 shrink-0 rounded-card object-contain"

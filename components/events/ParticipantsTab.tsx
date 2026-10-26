@@ -264,7 +264,7 @@ export function ParticipantsTab() {
           description="Nenhuma inscrição corresponde aos filtros."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {data.data.map((p) => {
             const isApproving =
               approveMutation.isPending &&
@@ -283,7 +283,7 @@ export function ParticipantsTab() {
             return (
               <div
                 key={p.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-white px-5 py-3 last:border-0"
+                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-surface px-5 py-3 last:border-0"
               >
                 <Avatar
                   name={p.user.fullName}

@@ -105,7 +105,7 @@ export function PDIAnalyticsView() {
       </div>
 
       {/* Estado dos PDIs */}
-      <div className="overflow-hidden rounded-panel border border-border bg-white shadow-resting">
+      <div className="overflow-hidden rounded-panel border border-border bg-surface shadow-resting">
         <div className="h-1.5 w-full bg-brand" />
         <div className="p-5">
           <div className="mb-3 font-body text-sm font-semibold text-ink-muted">

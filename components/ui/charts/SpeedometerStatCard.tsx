@@ -8,7 +8,7 @@ import { SpeedometerChart } from './SpeedometerChart';
 
 // Faixas do velocímetro das taxas (escala 0–100).
 export const RATE_BANDS = [
-  { to: 20, color: '#c0392b' },
+  { to: 20, color: 'var(--color-danger-ink)' },
   { to: 40, color: '#e67e22' },
   { to: 60, color: '#f1c40f' },
   { to: 80, color: '#8fc23f' },
@@ -27,7 +27,7 @@ export const TURNOVER_BANDS = [
   { to: 10, color: '#8fc23f' },
   { to: 15, color: '#f1c40f' },
   { to: 25, color: '#e67e22' },
-  { to: 30, color: '#c0392b' },
+  { to: 30, color: 'var(--color-danger-ink)' },
 ];
 
 export interface SpeedometerStatCardProps {

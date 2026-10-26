@@ -173,7 +173,7 @@ function parseSeverityRules(text: string): Record<string, string> | string {
 // Mesmo desenho do contentor «Gerar relatório» (ReportsView) e da lista de
 // sessões dos eventos: cartão claro, cabeçalho com ícone circular.
 const NAVY_CARD =
-  'overflow-hidden rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]';
+  'overflow-hidden rounded-[24px] border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]';
 
 interface SectionProps {
   title: string;
@@ -193,7 +193,7 @@ function Section({ title, icon: Icon, children, footer }: SectionProps) {
       </div>
       <div className="px-6 py-6">{children}</div>
       {footer && (
-        <div className="border-t border-brand-line bg-[#F7FAFE] px-6 py-4">
+        <div className="border-t border-brand-line bg-brand-soft px-6 py-4">
           {footer}
         </div>
       )}
@@ -224,7 +224,7 @@ function RoleChips({ value, onChange, disabled }: RoleChipsProps) {
             className={`rounded-full border px-2.5 py-1 text-xs transition-colors disabled:opacity-70 ${
               on
                 ? 'border-brand bg-brand text-white'
-                : 'border-brand-line bg-white text-brand hover:border-brand'
+                : 'border-brand-line bg-surface text-brand hover:border-brand'
             }`}
           >
             {r}
@@ -423,7 +423,7 @@ export function PoliciesView() {
                     className={`rounded-full border px-2.5 py-1 text-xs transition-colors disabled:opacity-70 ${
                       on
                         ? 'border-brand bg-brand text-white'
-                        : 'border-brand-line bg-white text-brand hover:border-brand'
+                        : 'border-brand-line bg-surface text-brand hover:border-brand'
                     }`}
                   >
                     {actionLabel(ev)}

@@ -73,7 +73,7 @@ export function ModuleBanner({
           </div>
         </div>
         {action && (
-          <div className="[&_a]:border [&_a]:border-white [&_a]:!bg-white [&_a]:!text-brand [&_a]:transition-colors [&_a:hover]:!bg-brand [&_a:hover]:!text-white [&_button]:border [&_button]:border-white [&_button]:!bg-white [&_button]:!text-brand [&_button]:transition-colors [&_button:hover]:!bg-brand [&_button:hover]:!text-white">
+          <div className="[&_a]:border [&_a]:border-white [&_a]:!bg-surface [&_a]:!text-brand [&_a]:transition-colors [&_a:hover]:!bg-brand [&_a:hover]:!text-white [&_button]:border [&_button]:border-white [&_button]:!bg-surface [&_button]:!text-brand [&_button]:transition-colors [&_button:hover]:!bg-brand [&_button:hover]:!text-white">
             {action}
           </div>
         )}

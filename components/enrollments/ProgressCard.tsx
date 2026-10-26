@@ -45,7 +45,7 @@ export function ProgressCard({
   const palette = PALETTE[Math.abs(seed) % PALETTE.length];
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-panel border border-brand-line bg-white p-6 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+    <div className="relative flex h-full flex-col overflow-hidden rounded-panel border border-brand-line bg-surface p-6 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
       <div
         aria-hidden={avatar?.url ? undefined : true}
         className="pointer-events-none absolute right-0 top-0 hidden h-[68%] w-[34%] items-center justify-center overflow-hidden sm:flex"
@@ -104,7 +104,7 @@ export function ProgressCard({
               className={`shrink-0 ${danger ? 'text-[#E5384F]' : 'text-brand-muted'}`}
             />
             <span
-              className={`text-[15px] font-medium ${danger ? 'text-[#C42B40]' : 'text-brand'}`}
+              className={`text-[15px] font-medium ${danger ? 'text-danger-ink' : 'text-brand'}`}
             >
               {text}
             </span>

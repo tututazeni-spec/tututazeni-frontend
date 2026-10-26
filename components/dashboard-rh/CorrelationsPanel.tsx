@@ -60,7 +60,7 @@ export function CorrelationsPanel() {
               series={[
                 {
                   label: 'Performance média',
-                  color: '#0F1F3D',
+                  color: 'var(--color-brand-ink)',
                   values: [
                     data.trainingVsPerformance.highTrainingAvgPerf ?? 0,
                     data.trainingVsPerformance.lowTrainingAvgPerf ?? 0,
@@ -98,7 +98,7 @@ export function CorrelationsPanel() {
               series={[
                 {
                   label: 'Performance média',
-                  color: '#0F1F3D',
+                  color: 'var(--color-brand-ink)',
                   values: [
                     data.engagementVsPerformance.highEngAvgPerf ?? 0,
                     data.engagementVsPerformance.lowEngAvgPerf ?? 0,

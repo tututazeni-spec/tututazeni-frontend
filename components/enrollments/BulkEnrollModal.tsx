@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { VirtualList } from '@/components/ui/VirtualList';
 import {
   useCourseOptions,
   useDepartmentOptions,
@@ -227,26 +228,29 @@ export function BulkEnrollModal({
                 </div>
               )}
 
-              <div className="max-h-64 overflow-y-auto rounded-card border border-border">
-                {usersLoading ? (
-                  <div className="p-3">
-                    <Skeleton
-                      rows={4}
-                      wrapperClassName="space-y-2"
-                      itemClassName="h-10 rounded-card bg-surface-sunken"
-                    />
-                  </div>
-                ) : users.length === 0 ? (
+              {usersLoading ? (
+                <div className="max-h-64 overflow-y-auto rounded-card border border-border p-3">
+                  <Skeleton
+                    rows={4}
+                    wrapperClassName="space-y-2"
+                    itemClassName="h-10 rounded-card bg-surface-sunken"
+                  />
+                </div>
+              ) : users.length === 0 ? (
+                <div className="max-h-64 overflow-y-auto rounded-card border border-border">
                   <EmptyState
                     variant="inline"
                     title="Nenhum colaborador encontrado"
                   />
-                ) : (
-                  users.map((u) => (
-                    <label
-                      key={u.id}
-                      className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 last:border-0 hover:bg-surface-sunken"
-                    >
+                </div>
+              ) : (
+                <VirtualList
+                  items={users}
+                  getKey={(u) => u.id}
+                  estimateSize={57}
+                  className="max-h-64 rounded-card border border-border"
+                  renderItem={(u) => (
+                    <label className="flex cursor-pointer items-center gap-3 border-b border-border px-3 py-2 hover:bg-surface-sunken">
                       <Checkbox
                         checked={selected.has(u.id)}
                         onChange={() => toggle(u)}
@@ -265,9 +269,9 @@ export function BulkEnrollModal({
                         </div>
                       </div>
                     </label>
-                  ))
-                )}
-              </div>
+                  )}
+                />
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="Prazo (opcional)" htmlFor="be-deadline">

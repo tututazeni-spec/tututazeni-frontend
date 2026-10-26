@@ -58,7 +58,7 @@ export function AutomationsTab({ rules, onExecute }: AutomationsTabProps) {
           return (
             <Card
               key={rule.id}
-              className="overflow-hidden rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
+              className="overflow-hidden rounded-[24px] border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
             >
               <CardBody className="flex flex-wrap items-center gap-4 px-6 py-5">
                 <div className="min-w-0 flex-1">

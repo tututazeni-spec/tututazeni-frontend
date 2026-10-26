@@ -98,7 +98,7 @@ export function SuggestionField({
                       'inline-flex items-center gap-1 rounded-full border px-3 py-1 text-left text-xs transition-colors',
                       active
                         ? 'border-brand bg-brand text-white'
-                        : 'border-brand-line bg-white text-brand hover:border-brand',
+                        : 'border-brand-line bg-surface text-brand hover:border-brand',
                     )}
                   >
                     {active && <Check size={12} strokeWidth={2} />}

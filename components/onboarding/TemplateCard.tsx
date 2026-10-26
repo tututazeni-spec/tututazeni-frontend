@@ -114,7 +114,7 @@ export function TemplateCard({
           onOpen();
         }
       }}
-      className="cursor-pointer overflow-hidden rounded-[20px] border border-brand-line bg-white shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-shadow duration-150 hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+      className="cursor-pointer overflow-hidden rounded-[20px] border border-brand-line bg-surface shadow-[0_4px_14px_rgba(21,47,89,0.08)] transition-shadow duration-150 hover:shadow-[0_10px_24px_rgba(21,47,89,0.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
     >
       <div
         className="flex min-h-[190px] flex-col justify-between p-7 text-white"
@@ -125,7 +125,7 @@ export function TemplateCard({
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${t.active ? 'bg-[#16A765] text-white' : 'bg-white/20 text-white'}`}
           >
-            <span aria-hidden className="h-2 w-2 rounded-full bg-white" />
+            <span aria-hidden className="h-2 w-2 rounded-full bg-surface" />
             {t.active ? 'Activo' : 'Inactivo'}
           </span>
         </div>

@@ -10,3 +10,8 @@ import { afterEach } from 'vitest';
 afterEach(() => {
   cleanup();
 });
+
+// Acessibilidade: expect(await axe(container)).toHaveNoViolations()
+import * as axeMatchers from 'vitest-axe/matchers';
+import { expect } from 'vitest';
+expect.extend(axeMatchers);

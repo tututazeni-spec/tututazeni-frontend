@@ -32,43 +32,43 @@ const VARIANTS: Record<
 > = {
   warning: {
     icon: AlertTriangle,
-    box: 'border-[#FDBA74]/70 bg-[#FFFBEB]',
+    box: 'border-[#FDBA74]/70 bg-warning-subtle',
     accent: 'border-l-[#D97706]',
-    iconWrap: 'bg-[#FEF3C7]',
+    iconWrap: 'bg-warning-subtle',
     iconColor: 'text-[#D97706]',
-    title: 'text-[#92400E]',
-    message: 'text-[#78350F]',
-    detail: 'text-[#92400E]/80',
+    title: 'text-warning-ink',
+    message: 'text-warning-ink',
+    detail: 'text-warning-ink/80',
   },
   danger: {
     icon: AlertTriangle,
-    box: 'border-[#FCA5A5]/70 bg-[#FEF2F2]',
+    box: 'border-[#FCA5A5]/70 bg-danger-subtle',
     accent: 'border-l-danger',
-    iconWrap: 'bg-[#FEE2E2]',
+    iconWrap: 'bg-danger-subtle',
     iconColor: 'text-danger',
     title: 'text-danger-ink',
-    message: 'text-[#7F1D1D]',
+    message: 'text-danger-ink',
     detail: 'text-danger-ink/80',
   },
   info: {
     icon: Info,
-    box: 'border-[#93C5FD]/70 bg-[#EFF6FF]',
+    box: 'border-[#93C5FD]/70 bg-brand-soft',
     accent: 'border-l-[#2563EB]',
-    iconWrap: 'bg-[#DBEAFE]',
-    iconColor: 'text-[#2563EB]',
-    title: 'text-[#1E40AF]',
-    message: 'text-[#1E3A8A]',
-    detail: 'text-[#1E40AF]/80',
+    iconWrap: 'bg-brand-soft',
+    iconColor: 'text-brand-ink',
+    title: 'text-brand-ink',
+    message: 'text-brand-ink',
+    detail: 'text-brand-ink/80',
   },
   success: {
     icon: CheckCircle,
-    box: 'border-[#86EFAC]/70 bg-[#F0FDF4]',
+    box: 'border-success-subtle/70 bg-success-subtle',
     accent: 'border-l-[#16A34A]',
-    iconWrap: 'bg-[#DCFCE7]',
+    iconWrap: 'bg-success-subtle',
     iconColor: 'text-[#16A34A]',
-    title: 'text-[#166534]',
-    message: 'text-[#14532D]',
-    detail: 'text-[#166534]/80',
+    title: 'text-success-ink',
+    message: 'text-success-ink',
+    detail: 'text-success-ink/80',
   },
 };
 
@@ -102,7 +102,8 @@ export function AlertCard({
   const Icon = v.icon;
   return (
     <div
-      role="alert"
+      // Só erros/avisos interrompem o leitor de ecrã; info e sucesso são cordiais.
+      role={variant === 'danger' || variant === 'warning' ? 'alert' : 'status'}
       className={cn(
         'flex flex-col rounded-panel border border-l-4 shadow-sm sm:flex-row sm:items-center',
         compact ? 'gap-2 px-3 py-2' : 'gap-3 p-4',

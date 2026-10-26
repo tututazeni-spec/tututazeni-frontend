@@ -115,7 +115,7 @@ export function EditCourseModal({
             <Skeleton rows={4} />
           </div>
         ) : course.error ? (
-          <div className="mt-5 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-black">
+          <div className="mt-5 flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-ink">
             <AlertCircle size={16} strokeWidth={1.75} />
             Não foi possível carregar o curso.
           </div>
@@ -329,7 +329,7 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
     <>
       <div className="mt-5 space-y-5">
         {error && (
-          <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-black">
+          <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-ink">
             <AlertCircle size={16} strokeWidth={1.75} />
             {error}
           </div>

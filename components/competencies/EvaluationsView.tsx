@@ -181,6 +181,8 @@ export function EvaluationsView() {
                       {r.colaboradorAvatarUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
+                          loading="lazy"
+                          decoding="async"
                           src={r.colaboradorAvatarUrl}
                           alt={r.colaborador}
                           className="h-9 w-9 shrink-0 rounded-full object-cover"

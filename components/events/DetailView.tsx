@@ -218,7 +218,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
           evento num recorte inclinado no canto superior direito. */}
       <div
         className={cn(
-          'relative mb-5 overflow-hidden rounded-[24px] border bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]',
+          'relative mb-5 overflow-hidden rounded-[24px] border bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]',
           isLive ? 'border-danger' : 'border-brand-line',
         )}
       >
@@ -235,6 +235,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
           {event.bannerUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
+              decoding="async"
               src={event.bannerUrl}
               alt=""
               className="h-full w-full object-cover"
@@ -550,7 +551,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
       </div>
 
       {tab === 'info' && (
-        <Card className="rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <Card className="rounded-[24px] border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           <CardBody>
             <div className="mb-4 flex items-center gap-3">
               <Avatar
@@ -582,7 +583,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
       {tab === 'info' && <LogisticsSummaryCard eventId={eventId} />}
 
       {tab === 'participants' && (
-        <Card className="overflow-hidden rounded-[24px] border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <Card className="overflow-hidden rounded-[24px] border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
           {(event.participants ?? []).map((p) => (
             <div
               key={p.userId}

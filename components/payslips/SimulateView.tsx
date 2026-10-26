@@ -113,7 +113,7 @@ export function SimulateView() {
       <div className="grid overflow-hidden rounded-[18px] shadow-[0_8px_30px_rgba(11,61,145,0.10)] lg:grid-cols-[46fr_54fr]">
         {/* Formulário */}
         <form
-          className="bg-white p-6 sm:p-7"
+          className="bg-surface p-6 sm:p-7"
           onSubmit={(e) => {
             e.preventDefault();
             simulateMutation.mutate(form);
@@ -142,7 +142,7 @@ export function SimulateView() {
               <div key={key} className="flex items-end gap-3">
                 <span
                   aria-hidden="true"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-soft text-[#0D6EFD]"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-soft text-brand-ink"
                 >
                   <Icon
                     size={18}
@@ -254,7 +254,7 @@ export function SimulateView() {
       </div>
 
       {/* Tabela IRT */}
-      <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
+      <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
         <div className="flex items-center gap-2.5 bg-gradient-to-br from-brand-mid to-brand-dark px-6 py-4 text-white">
           <Percent size={20} strokeWidth={1.75} />
           <h3 className="font-body text-sm font-semibold uppercase tracking-wider">

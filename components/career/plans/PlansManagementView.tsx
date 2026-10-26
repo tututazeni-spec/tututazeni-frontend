@@ -130,7 +130,7 @@ export function PlansManagementView() {
                 Selecciona um plano
               </div>
             ) : (
-              <div className="overflow-hidden rounded-[18px] border border-brand-line bg-white shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
+              <div className="overflow-hidden rounded-[18px] border border-brand-line bg-surface shadow-[0_8px_30px_rgba(11,61,145,0.10)]">
                 <div className="flex items-start justify-between gap-3 bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-6 py-4 text-white">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2.5">

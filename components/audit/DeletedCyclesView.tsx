@@ -133,7 +133,7 @@ return (
               respostas
             </p>
             <Button
-              className="bg-white text-brand hover:bg-white/90"
+              className="bg-surface text-brand hover:bg-white/90"
               size="sm"
               onClick={() => handleRestore(c)}
             >

@@ -62,8 +62,8 @@ const HEADERS: { label: string; center: boolean }[] = [
 ];
 
 const HEADER_CELL =
-  'px-4 py-4 text-xs font-semibold uppercase tracking-wide text-[#0F2E5E] whitespace-nowrap';
-const BODY_CELL = 'px-4 py-4 text-sm text-[#0F2E5E]';
+  'px-4 py-4 text-xs font-semibold uppercase tracking-wide text-brand-ink whitespace-nowrap';
+const BODY_CELL = 'px-4 py-4 text-sm text-brand-ink';
 
 /* ── Badge de departamento (cor + ícone) ───────────────────── */
 interface DeptStyle {
@@ -109,7 +109,7 @@ function NumberPill({
 }) {
   const cls =
     tone === 'blue'
-      ? 'bg-[#E6F0FF] text-[#1D6BF3]'
+      ? 'bg-brand-soft text-brand-ink'
       : 'bg-slate-100 text-slate-500';
   return (
     <span
@@ -229,7 +229,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
         />
       ) : (
         <>
-          <div className="overflow-hidden rounded-panel border border-slate-200/70 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-panel border border-slate-200/70 bg-surface shadow-sm">
             {/* Barra de título */}
             <div className="flex items-center gap-4 bg-[#0F2E5E] px-6 py-5">
               <Users size={24} strokeWidth={1.75} className="text-[#3B82F6]" />
@@ -279,7 +279,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                               size="lg"
                             />
                             <div className="min-w-0">
-                              <p className="font-semibold text-[#0F2E5E]">
+                              <p className="font-semibold text-brand-ink">
                                 {r.fullName}
                               </p>
                               <p className="text-xs text-ink-faint">
@@ -337,7 +337,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
                         <TableCell className="px-4 py-4">
                           <span
                             aria-hidden
-                            className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-soft text-[#1D6BF3]"
+                            className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-soft text-brand-ink"
                           >
                             <ChevronRight size={18} strokeWidth={2} />
                           </span>

@@ -15,7 +15,7 @@ interface NavyPanelProps {
 export function NavyPanel({ seed, title, children }: NavyPanelProps) {
   const palette = PALETTE[Math.abs(seed) % PALETTE.length];
   return (
-    <section className="overflow-hidden rounded-[24px] border border-brand-line bg-white p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+    <section className="overflow-hidden rounded-[24px] border border-brand-line bg-surface p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
       <div className="flex items-center gap-3">
         <span
           aria-hidden

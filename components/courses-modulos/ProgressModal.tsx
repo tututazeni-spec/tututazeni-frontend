@@ -165,7 +165,7 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
                 {progress.map((p) => {
                   const ct = CONTENT_TYPE[p.lesson.type] ?? {
                     icon: BookMarked,
-                    color: '#64748b',
+                    color: 'var(--color-ink-muted)',
                     bg: '#f8fafc',
                     label: p.lesson.type,
                   };

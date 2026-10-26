@@ -181,7 +181,7 @@ export function MyDashboardView() {
 
       {/* Streak + Badges */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="overflow-hidden rounded-panel border border-border bg-white shadow-resting text-black">
+        <div className="overflow-hidden rounded-panel border border-border bg-surface shadow-resting text-ink">
           <div className="flex items-baseline justify-between bg-brand/60 px-5 py-3 text-white">
             <div className="font-body text-sm font-semibold">
               Sequência de Aprendizagem
@@ -208,7 +208,7 @@ export function MyDashboardView() {
             )}
           </div>
         </div>
-        <div className="overflow-hidden rounded-panel border border-border bg-white shadow-resting">
+        <div className="overflow-hidden rounded-panel border border-border bg-surface shadow-resting">
           <div className="bg-brand/60 px-5 py-3 font-body text-sm font-semibold text-white">
             Competências Top
           </div>
@@ -240,7 +240,7 @@ export function MyDashboardView() {
                       </div>
                     </div>
                     <div
-                      className={`text-xs font-data flex-shrink-0 ${behind ? 'text-black' : 'text-success'}`}
+                      className={`text-xs font-data flex-shrink-0 ${behind ? 'text-ink' : 'text-success'}`}
                     >
                       {c.currentLevel}/5
                     </div>
@@ -254,7 +254,7 @@ export function MyDashboardView() {
 
       {/* PDI */}
       {data.pdi.length > 0 && (
-        <div className="overflow-hidden rounded-panel border border-border bg-white shadow-resting">
+        <div className="overflow-hidden rounded-panel border border-border bg-surface shadow-resting">
           <div className="bg-brand/60 px-5 py-3 font-body text-sm font-semibold text-white">
             Os meus PDIs activos
           </div>

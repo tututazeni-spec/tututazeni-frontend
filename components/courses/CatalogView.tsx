@@ -124,7 +124,7 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
         </CardBody>
       </Card>
 
-      {error && <div className="text-sm text-black mb-4">{error.message}</div>}
+      {error && <div className="text-sm text-ink mb-4">{error.message}</div>}
 
       {loading && <Skeleton rows={3} />}
 

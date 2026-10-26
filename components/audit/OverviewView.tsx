@@ -277,7 +277,7 @@ export function OverviewView({
       </div>
 
       {/* Alertas de segurança pendentes */}
-      <div className="flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[24px] border border-brand-line bg-white px-5 py-4 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="flex flex-wrap items-center justify-between gap-3 overflow-hidden rounded-[24px] border border-brand-line bg-surface px-5 py-4 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div>
           <div className="font-body text-[15px] font-semibold text-brand">
             Alertas de segurança pendentes

@@ -100,8 +100,8 @@ function DeptCard({
       style={{ marginLeft: indent, width: `calc(100% - ${indent}px)` }}
       className={`relative mb-1.5 flex items-center gap-3 rounded-[14px] border px-4 py-3 text-left transition-colors ${
         selected
-          ? 'border-[#C9DDF8] bg-[#E5F0FF]'
-          : 'border-[#E1EAF6] bg-[#F0F6FF] hover:bg-[#E8F1FF]'
+          ? 'border-brand-line bg-brand-soft'
+          : 'border-brand-line bg-brand-soft hover:bg-brand-soft'
       }`}
     >
       {selected && (
@@ -120,12 +120,12 @@ function DeptCard({
             {node.name}
           </span>
         </div>
-        <div className="mt-0.5 flex flex-wrap items-center text-micro text-[#61758F]">
+        <div className="mt-0.5 flex flex-wrap items-center text-micro text-ink-muted">
           {stats.map((t, i) => (
             <span key={t} className="flex items-center">
               {i > 0 && (
                 <span
-                  className="mx-[calc(0.5rem+0.5cm)] h-3 w-px bg-[#C7D6E8]"
+                  className="mx-[calc(0.5rem+0.5cm)] h-3 w-px bg-brand-soft"
                   aria-hidden="true"
                 />
               )}
@@ -144,7 +144,7 @@ function DeptCard({
       <ChevronRight
         size={18}
         strokeWidth={1.75}
-        className={`flex-shrink-0 ${selected ? 'text-[#1765C1]' : 'text-brand-muted'}`}
+        className={`flex-shrink-0 ${selected ? 'text-brand-ink' : 'text-brand-muted'}`}
       />
     </button>
   );
@@ -178,7 +178,7 @@ function TreeRow({ node, parentName, selectedId, onPreview }: TreeRowProps) {
                 e.stopPropagation();
                 setExpanded((v) => !v);
               }}
-              className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-brand-muted hover:text-[#17365D]"
+              className="flex h-5 w-5 flex-shrink-0 items-center justify-center text-brand-muted hover:text-brand-ink"
             >
               {expanded ? (
                 <ChevronDown size={14} strokeWidth={1.75} />
@@ -290,8 +290,8 @@ interface PreviewFieldProps {
 
 function PreviewField({ icon: Icon, label, children }: PreviewFieldProps) {
   return (
-    <div className="flex items-center gap-3 border-b border-[#EAF3FF] py-3 last:border-b-0">
-      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-card bg-[#EAF3FF] text-brand">
+    <div className="flex items-center gap-3 border-b border-brand-line py-3 last:border-b-0">
+      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-card bg-brand-soft text-brand">
         <Icon className={PREVIEW_FIELD_ICON} strokeWidth={1.75} />
       </span>
       <div className="min-w-0 flex-1">
@@ -317,7 +317,7 @@ function PreviewPanel({ node, onViewDetail, onClose }: PreviewPanelProps) {
   return (
     <aside
       aria-label={`Resumo de ${node.name}`}
-      className="sticky top-4 self-start overflow-hidden rounded-[24px] border border-[#D6E6FB] bg-[#EAF3FF] shadow-[0_8px_24px_rgba(15,31,61,0.10)]"
+      className="sticky top-4 self-start overflow-hidden rounded-[24px] border border-brand-line bg-brand-soft shadow-[0_8px_24px_rgba(15,31,61,0.10)]"
     >
       <div className="relative h-44 overflow-hidden bg-gradient-to-br from-brand to-[#0756D9] px-5 pt-5 sm:h-52">
         <span className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#078BFF]/20" />
@@ -348,7 +348,7 @@ function PreviewPanel({ node, onViewDetail, onClose }: PreviewPanelProps) {
         </div>
       </div>
 
-      <div className="relative -mt-5 rounded-t-[24px] bg-white px-5 pb-5 pt-2">
+      <div className="relative -mt-5 rounded-t-[24px] bg-surface px-5 pb-5 pt-2">
         <dl>
           <PreviewField icon={User} label="Responsável">
             {node.head ? (

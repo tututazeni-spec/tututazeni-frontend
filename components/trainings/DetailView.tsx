@@ -160,7 +160,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
       {/* Header — desenho de "workshop de inovação.jpeg" (o mesmo do detalhe
           do plano de formação): cartão claro com etiquetas, ícone + título,
           dados e formador; a imagem da formação num recorte inclinado. */}
-      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-white shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         <div
           aria-hidden
           className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
@@ -174,6 +174,7 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
           {training.thumbnailUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
+              decoding="async"
               src={training.thumbnailUrl}
               alt=""
               className="h-full w-full object-cover"

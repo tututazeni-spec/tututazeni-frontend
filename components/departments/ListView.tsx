@@ -130,7 +130,7 @@ export function ListView({ onSelect }: ListViewProps) {
                 key={d.id}
                 type="button"
                 onClick={() => onSelect(d.id)}
-                className={`${GRID} mb-1.5 w-full rounded-[14px] border border-[#E1EAF6] bg-[#F0F6FF] px-4 py-3 text-left transition-colors hover:bg-[#E5F0FF]`}
+                className={`${GRID} mb-1.5 w-full rounded-[14px] border border-brand-line bg-brand-soft px-4 py-3 text-left transition-colors hover:bg-brand-soft`}
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand text-white">

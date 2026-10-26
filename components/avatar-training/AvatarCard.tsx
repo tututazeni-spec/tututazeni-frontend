@@ -61,7 +61,7 @@ export function AvatarCard({
   const language = `${a.language}${a.languageVariant ? ` (${a.languageVariant})` : ''}`;
 
   return (
-    <div className="relative flex h-full flex-col justify-between gap-3 overflow-hidden rounded-panel border border-brand-line bg-white p-4 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+    <div className="relative flex h-full flex-col justify-between gap-3 overflow-hidden rounded-panel border border-brand-line bg-surface p-4 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
       {/* Imagem do avatar: de cima a baixo, recortada na diagonal à esquerda */}
       <div
         aria-hidden={!a.imageUrl}
@@ -74,6 +74,8 @@ export function AvatarCard({
         {a.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            loading="lazy"
+            decoding="async"
             src={a.imageUrl}
             alt={`Imagem do avatar ${a.name}`}
             className="h-full w-full object-cover"

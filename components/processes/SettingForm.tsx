@@ -216,7 +216,7 @@ function Control({
                 className={`rounded-control border px-3 py-1.5 text-sm ${
                   on
                     ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-white text-ink-muted'
+                    : 'border-border bg-surface text-ink-muted'
                 }`}
               >
                 {d}

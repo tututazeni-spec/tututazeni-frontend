@@ -522,7 +522,7 @@ const statusIntent = (s: MonitoringStatus | null | undefined) =>
 const ERROR_RATE_BANDS = [
   { to: 40, color: '#2f9e63' },
   { to: 70, color: '#f1c40f' },
-  { to: 100, color: '#c0392b' },
+  { to: 100, color: 'var(--color-danger-ink)' },
 ];
 
 const navyTone = (i: Intent | undefined, base: NavyStatTone): NavyStatTone =>

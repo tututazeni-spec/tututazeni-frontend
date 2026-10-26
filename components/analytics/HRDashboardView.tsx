@@ -200,7 +200,7 @@ export function HRDashboardView() {
                   />
                 </div>
               </div>
-              <div className="text-sm font-data font-bold text-black w-8 text-right">
+              <div className="text-sm font-data font-bold text-ink w-8 text-right">
                 {d.count}
               </div>
             </div>

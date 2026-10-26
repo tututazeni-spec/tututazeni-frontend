@@ -45,10 +45,10 @@ function heatmapCellClass(
 ): string {
   if (level === null) return 'bg-surface-sunken';
   const t = max > min ? (level - min) / (max - min) : level / 5;
-  if (t >= 0.75) return 'bg-[#58D68D] text-[#0B3D1F]';
-  if (t >= 0.5) return 'bg-[#D5F5E3] text-[#1E8449]';
-  if (t >= 0.25) return 'bg-[#FDEBD0] text-[#9C640C]';
-  return 'bg-[#FADBD8] text-[#922B21]';
+  if (t >= 0.75) return 'bg-[#58D68D] text-success-ink';
+  if (t >= 0.5) return 'bg-success-subtle text-success-ink';
+  if (t >= 0.25) return 'bg-warning-subtle text-warning-ink';
+  return 'bg-danger-subtle text-danger-ink';
 }
 
 export function SkillGapsTab() {

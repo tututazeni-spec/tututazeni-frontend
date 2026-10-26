@@ -99,7 +99,7 @@ export function TwoFactorCardView({ ctl }: { ctl: TwoFactorController }) {
             <div className="flex gap-2">
               <Button
                 intent="primary"
-                className="border-white bg-white text-brand hover:bg-white/90"
+                className="border-white bg-surface text-brand hover:bg-white/90"
                 disabled={pending.enable || !codeComplete}
                 onClick={enable}
               >
@@ -117,7 +117,7 @@ export function TwoFactorCardView({ ctl }: { ctl: TwoFactorController }) {
         ) : (
           <Button
             intent="primary"
-            className="border-white bg-white text-brand hover:bg-white/90"
+            className="border-white bg-surface text-brand hover:bg-white/90"
             disabled={pending.setup}
             onClick={startSetup}
           >

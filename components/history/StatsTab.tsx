@@ -55,7 +55,7 @@ export function StatsTab({ userId }: { userId?: number }) {
     <div className="space-y-5">
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="group flex min-h-[155px] flex-col items-center justify-center rounded-panel border border-brand-line bg-white px-3 py-4 text-center shadow-[0_4px_14px_rgba(21,47,89,0.08)]">
+        <div className="group flex min-h-[155px] flex-col items-center justify-center rounded-panel border border-brand-line bg-surface px-3 py-4 text-center shadow-[0_4px_14px_rgba(21,47,89,0.08)]">
           <Flame
             aria-hidden
             className="h-20 w-20 fill-[#F59E0B] text-[#E85D04] drop-shadow-[0_4px_10px_rgba(232,93,4,0.45)] transition-transform duration-200 ease-out group-hover:scale-125 motion-reduce:transition-none motion-reduce:group-hover:scale-100"

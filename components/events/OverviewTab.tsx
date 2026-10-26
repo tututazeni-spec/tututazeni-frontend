@@ -277,12 +277,12 @@ export function OverviewTab({
                 className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
               >
                 <span
-                  className={`inline-flex items-center gap-1 rounded px-2 py-0.5 font-body text-xs ${typeCfg.cls} !text-black`}
+                  className={`inline-flex items-center gap-1 rounded px-2 py-0.5 font-body text-xs ${typeCfg.cls} !text-ink`}
                 >
                   <TypeIcon
                     size={12}
                     strokeWidth={1.75}
-                    className="text-black"
+                    className="text-ink"
                   />{' '}
                   {typeCfg.label}
                 </span>
@@ -303,7 +303,7 @@ export function OverviewTab({
                 <StatusBadge
                   value={e.status as EventStatus}
                   map={STATUS_CFG}
-                  className="!text-black"
+                  className="!text-ink"
                 />
               </button>
             );

@@ -90,7 +90,7 @@ export const ERROR_RATE_BANDS = [
   { to: 2, color: '#8fc23f' },
   { to: 3, color: '#f1c40f' },
   { to: 4, color: '#e67e22' },
-  { to: 5, color: '#c0392b' },
+  { to: 5, color: 'var(--color-danger-ink)' },
 ];
 
 // Cards "Crescimento" (public/images/crescimento diario…): fundo sólido,
