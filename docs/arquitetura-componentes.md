@@ -255,3 +255,26 @@ Ao criar ou alterar um primitivo de `components/ui/`, acrescentar o caso a
 8. Avisos em banner → `AlertCard`; seletores de período → `PeriodPills`; atalhos → `ShortcutPills`.
 9. Medir antes de otimizar; abas e modais pesados com `next/dynamic`, listas enormes com `VirtualList`, imagens de topo sem `lazy`.
 10. Antes de dar por concluído: `npx tsc --noEmit`, `npx eslint <ficheiros>`, `npx prettier --check` e os testes do módulo.
+
+---
+
+## 10. Tema claro / escuro
+
+O utilizador escolhe **claro** (omissão), **escuro** ou **sistema** no seletor da
+Topbar (`ThemeToggle`). A escolha fica no cookie `innova-theme`; o servidor lê-o em
+`app/layout.tsx` e emite `<html data-theme="…">` (sem script inline e sem piscar o
+tema errado). Lógica em `lib/theme.ts` e `hooks/useTheme.ts`.
+
+**Como funciona:** o tema escuro só redefine as variáveis de `app/globals.css`
+(`:root[data-theme='dark']`, e o mesmo bloco dentro de
+`@media (prefers-color-scheme: dark)` para `system`). Por isso **tudo o que usa
+tokens muda sozinho**.
+
+**Regras para não partir o escuro:**
+
+- Fundos e textos **só por tokens**: `bg-surface`, `bg-surface-sunken`, `bg-canvas`, `text-ink`, `text-ink-muted`, `border-border`, `*-subtle` / `*-ink` de estado. Nunca `bg-white`, `text-black`, nem hex ou paleta Tailwind para cores de interface.
+- Em `style={{ … }}` usar `var(--color-…)`, não hex.
+- A marca como **texto ou contorno** é `text-brand` / `border-brand` (ou `text-brand-ink`); como **fundo** é `bg-brand`. São valores diferentes no escuro (o fundo é escuro, o texto tem de ser claro), por isso não usar `bg-brand` para texto.
+- Texto branco só sobre fundos de marca ou de estado cheios (`bg-brand`, `bg-danger`…): os contrastes ≥ 4,5:1 estão validados nos dois temas.
+- Ao acrescentar um token, declará-lo no `@theme` **e** nos dois blocos escuros; `lib/theme.test.ts` falha se o bloco `system` divergir do `dark` ou se uma variável escura não existir no tema claro.
+- Cores de identidade de terceiros (ex.: azul do Facebook) e gradientes decorativos podem ficar fixos.
