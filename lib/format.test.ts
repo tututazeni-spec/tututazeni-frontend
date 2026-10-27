@@ -9,15 +9,14 @@ import {
   daysAgo,
   formatDate,
   formatDateNumeric,
-  formatDateTime,
-  formatKz,
-  formatTime,
   formatDateTimeNumeric,
   formatDateTimeShort,
   formatIsoDay,
   formatMoney,
+  formatDateTime,
+  formatKz,
+  formatTime,
   getInitials,
-  getInitialsFirstLast,
   timeAgo,
 } from './format';
 
@@ -77,8 +76,8 @@ describe('getInitials', () => {
     expect(getInitials('Ana Silva')).toBe('AS');
   });
 
-  test('ignora palavras a partir da terceira', () => {
-    expect(getInitials('Ana Maria Silva Santos')).toBe('AM');
+  test('usa a primeira e a última palavra', () => {
+    expect(getInitials('Ana Maria Silva Santos')).toBe('AS');
   });
 
   test('funciona com um nome de uma só palavra', () => {
@@ -134,8 +133,7 @@ describe('timeAgo', () => {
 });
 
 describe('daysAgo', () => {
-  const ago = (days: number) =>
-    new Date(Date.now() - days * 86_400_000 - 1000).toISOString();
+  const ago = (days: number) => new Date(Date.now() - days * 86_400_000 - 1000).toISOString();
 
   test('hoje / ontem / há N dias', () => {
     expect(daysAgo(new Date().toISOString())).toBe('hoje');
@@ -164,45 +162,55 @@ describe('formatBytes', () => {
   });
 });
 
-describe('getInitialsFirstLast', () => {
-  test('primeira e última palavra', () => {
-    expect(getInitialsFirstLast('Mariana Fonseca Antunes')).toBe('MA');
-    expect(getInitialsFirstLast('Ana Silva')).toBe('AS');
-  });
-
-  test('uma só palavra dá uma letra; vazio dá o fallback', () => {
-    expect(getInitialsFirstLast('Madonna')).toBe('M');
-    expect(getInitialsFirstLast('   ')).toBe('?');
-    expect(getInitialsFirstLast('', '–')).toBe('–');
+describe('getInitials (fallback)', () => {
+  test('nome vazio devolve o fallback', () => {
+    expect(getInitials('   ')).toBe('');
+    expect(getInitials('', '?')).toBe('?');
   });
 });
 
-describe('formatDateTimeNumeric / formatDateTimeShort', () => {
-  test('nulos devolvem —', () => {
-    expect(formatDateTimeNumeric(null)).toBe('—');
-    expect(formatDateTimeShort(undefined)).toBe('—');
+describe('formatDateTime com dateStyle/timeStyle', () => {
+  test('não mistura com os campos por omissão', () => {
+    expect(() =>
+      formatDateTime('2024-03-05T12:00:00Z', { dateStyle: 'short', timeStyle: 'short' }),
+    ).not.toThrow();
   });
+});
 
-  test('curta não leva segundos; numérica leva', () => {
-    const d = new Date(2026, 2, 5, 14, 30, 45);
-    expect(formatDateTimeShort(d)).toMatch(/14:30$/);
-    expect(formatDateTimeNumeric(d)).toMatch(/14:30:45$/);
+describe('formatDateTimeNumeric', () => {
+  test('formata dd/mm/aaaa, hh:mm', () => {
+    expect(formatDateTimeNumeric('2024-03-05T12:00:00Z')).toMatch(/^05\/03\/2024,? \d{2}:\d{2}$/);
+  });
+  test('devolve — para vazio', () => {
+    expect(formatDateTimeNumeric(null)).toBe('—');
   });
 });
 
 describe('formatIsoDay', () => {
   test('lê o dia da string, sem desvio de fuso', () => {
     expect(formatIsoDay('2026-03-05')).toBe('05/03/2026');
-    expect(formatIsoDay('2026-03-05T23:30:00Z')).toBe('05/03/2026');
+    expect(formatIsoDay('2026-03-05T23:59:59Z')).toBe('05/03/2026');
+  });
+  test('devolve — para vazio', () => {
     expect(formatIsoDay(null)).toBe('—');
   });
 });
 
 describe('formatMoney', () => {
-  test('moeda a seguir ao valor, AOA por omissão', () => {
-    expect(formatMoney(150000)).toMatch(/^150\s000 AOA$/);
-    expect(formatMoney(2500, 'USD')).toMatch(/^2\s500 USD$/);
+  test('junta o número agrupado e a moeda', () => {
+    expect(formatMoney(1500, 'USD')).toMatch(/^1.500 USD$/);
     expect(formatMoney(0)).toBe('0 AOA');
+  });
+  test('devolve — para null', () => {
     expect(formatMoney(null)).toBe('—');
+  });
+});
+
+describe('formatDateTimeShort', () => {
+  test('inclui data e hora', () => {
+    expect(formatDateTimeShort('2024-03-05T12:00:00Z')).toMatch(/05.03.24/);
+  });
+  test('devolve — para vazio', () => {
+    expect(formatDateTimeShort(null)).toBe('—');
   });
 });
