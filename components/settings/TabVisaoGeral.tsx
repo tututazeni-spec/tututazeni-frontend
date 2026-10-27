@@ -206,7 +206,11 @@ export function TabVisaoGeral() {
               <div className="flex items-center gap-3">
                 {form.logoUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={form.logoUrl} alt="Logo" className="h-10 w-auto" />
+                  <img
+                    src={form.logoUrl}
+                    alt="Logo"
+                    className="h-10 w-auto"
+                  />
                 )}
                 <input
                   id="logoUrl"

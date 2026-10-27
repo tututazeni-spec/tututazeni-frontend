@@ -52,8 +52,8 @@ export function HistoryTab() {
               {h.assignment.session.title}
             </div>
             <div className="font-body text-xs text-ink-muted">
-              {h.assignment.session.program.title} · tentativa{' '}
-              {h.attemptNumber} · {formatDateTime(h.startedAt)}
+              {h.assignment.session.program.title} · tentativa {h.attemptNumber}{' '}
+              · {formatDateTime(h.startedAt)}
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-3">

@@ -44,8 +44,8 @@ export function SettingsTab() {
           {data.textMode.available ? 'sempre disponível' : 'indisponível'}
         </span>
         . A voz e o vídeo são opcionais e exigem aviso de privacidade
-        reconhecido pelo formando. As transcrições são anonimizadas após o
-        prazo de retenção configurado.
+        reconhecido pelo formando. As transcrições são anonimizadas após o prazo
+        de retenção configurado.
       </div>
 
       <div className="space-y-2">
@@ -72,7 +72,9 @@ export function SettingsTab() {
       {data.lastIncident && (
         <p className="font-body text-xs text-ink-faint">
           Último incidente: {data.lastIncident.provider}
-          {data.lastIncident.errorCode ? ` (${data.lastIncident.errorCode})` : ''}{' '}
+          {data.lastIncident.errorCode
+            ? ` (${data.lastIncident.errorCode})`
+            : ''}{' '}
           em {formatDateTime(data.lastIncident.createdAt)}
         </p>
       )}

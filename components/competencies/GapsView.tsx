@@ -31,7 +31,7 @@ import {
 import { avatarColor } from './EvaluationsView';
 import { UserFilterSearch } from './UserFilterSearch';
 import type { CompetencyGap } from './types';
-import { getInitialsFirstLast, formatDateNumeric } from '@/lib/format';
+import { getInitials, formatDateNumeric } from '@/lib/format';
 
 const ALL = '';
 
@@ -109,7 +109,10 @@ export function GapsView() {
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
         <Select
-          items={[{ value: ALL, label: 'Departamento' }, ...departmentOptions]}
+          items={[
+            { value: ALL, label: 'Departamento' },
+            ...departmentOptions,
+          ]}
           value={departmentId}
           onValueChange={setDepartmentId}
         />
@@ -119,7 +122,10 @@ export function GapsView() {
           onValueChange={setPositionId}
         />
         <Select
-          items={[{ value: ALL, label: 'Competência' }, ...competencyOptions]}
+          items={[
+            { value: ALL, label: 'Competência' },
+            ...competencyOptions,
+          ]}
           value={competencyId}
           onValueChange={setCompetencyId}
         />
@@ -182,11 +188,9 @@ export function GapsView() {
                         <span
                           aria-hidden
                           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-                          style={{
-                            backgroundColor: avatarColor(r.colaborador),
-                          }}
+                          style={{ backgroundColor: avatarColor(r.colaborador) }}
                         >
-                          {getInitialsFirstLast(r.colaborador)}
+                          {getInitials(r.colaborador, '?')}
                         </span>
                       )}
                       <div className="min-w-0">
