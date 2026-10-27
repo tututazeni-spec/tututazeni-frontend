@@ -81,7 +81,12 @@ export const PRIVACIDADE: LegalDoc = {
     {
       title: '10. Cookies',
       paragraphs: [
-        'Usamos apenas cookies necessários ao funcionamento: o de sessão (guarda que iniciou sessão), o de proteção contra pedidos forjados (CSRF) e o do tema claro/escuro. Não usamos cookies de publicidade nem de rastreio de terceiros.',
+        'Usamos apenas cookies estritamente necessários ao funcionamento. Por isso não mostramos um aviso para os aceitar ou recusar: não dependem de consentimento e não servem para o identificar fora da plataforma.',
+        'Sessão: mantém a sua sessão iniciada e expira quando termina a sessão ou ao fim do prazo de inatividade.',
+        'Proteção contra pedidos forjados (csrf_token): impede que outro site faça ações em seu nome; renova-se no início de sessão.',
+        'Tema (innova-theme): guarda a sua escolha de tema claro ou escuro.',
+        'Guardamos ainda no seu navegador, sem os enviar a terceiros, preferências de utilização como o histórico das suas pesquisas recentes. Pode apagá-las nas definições do navegador.',
+        'Não usamos cookies de publicidade, de análise de terceiros nem de rastreio. Se um dia passarmos a usá-los, pediremos o seu consentimento antes e atualizaremos esta política.',
       ],
     },
     {
