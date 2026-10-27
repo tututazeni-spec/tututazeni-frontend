@@ -10,6 +10,7 @@ import Topbar from './Topbar';
 const push = vi.fn();
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push }),
+  usePathname: () => '/dashboard',
 }));
 
 vi.mock('@/hooks/useCurrentUser', () => ({
