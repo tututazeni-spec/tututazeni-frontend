@@ -1,7 +1,9 @@
 'use client';
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, Home, Search } from 'lucide-react';
+import { Bell, Home, Menu, Search } from 'lucide-react';
+import { useMobileNavStore } from '@/lib/mobileNav';
+import { FeedbackButton } from '@/components/product/FeedbackButton';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -23,6 +25,8 @@ export default function Topbar({ title }: TopbarProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const anyModalOpen = useAnyModalOpen();
+  const mobileNavOpen = useMobileNavStore((s) => s.open);
+  const toggleMobileNav = useMobileNavStore((s) => s.toggle);
 
   // Contador de não lidas — mesma key/endpoint que a página de notificações,
   // por isso partilha cache e refresca ao marcar como lida por lá.
@@ -43,10 +47,10 @@ export default function Topbar({ title }: TopbarProps) {
 
   return (
     <header
+      className="app-topbar"
       style={{
         position: 'fixed',
         top: 0,
-        left: 240,
         right: 0,
         height: 56,
         background: 'var(--color-surface)',
@@ -57,7 +61,6 @@ export default function Topbar({ title }: TopbarProps) {
         display: anyModalOpen ? 'none' : 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 24px',
         zIndex: 90,
       }}
     >
@@ -77,6 +80,26 @@ export default function Topbar({ title }: TopbarProps) {
         )}
         <button
           type="button"
+          className="app-menu-button"
+          onClick={toggleMobileNav}
+          aria-label="Abrir menu de navegação"
+          aria-expanded={mobileNavOpen}
+          aria-controls="navegacao-principal"
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            minWidth: 44,
+            minHeight: 44,
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+          }}
+        >
+          <Menu size={20} color="var(--color-ink-muted)" />
+        </button>
+        <button
+          type="button"
           onClick={() => router.push('/dashboard')}
           aria-label="Painel"
           title="Painel"
@@ -93,6 +116,7 @@ export default function Topbar({ title }: TopbarProps) {
         </button>
         <form
           role="search"
+          className="app-topbar-search"
           onSubmit={submitSearch}
           style={{
             display: 'flex',
@@ -136,6 +160,7 @@ export default function Topbar({ title }: TopbarProps) {
 
       {/* Right */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <FeedbackButton />
         <ThemeToggle />
         <button
           type="button"
@@ -171,6 +196,7 @@ export default function Topbar({ title }: TopbarProps) {
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Abrir foto de perfil"
+          className="app-topbar-identity"
           style={{
             display: 'flex',
             alignItems: 'center',

@@ -91,20 +91,35 @@ function forward(
   }
 }
 
-/** Mensagem amigável para mostrar ao utilizador a partir de um erro (API ou não). */
+/**
+ * Mensagem amigável para mostrar ao utilizador a partir de um erro (API ou não).
+ * Cada mensagem diz o que aconteceu E o que fazer a seguir; mensagens de
+ * validação devolvidas pelo backend (4xx com texto legível) são preservadas.
+ */
 export function friendlyMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    if (error.status === 0)
-      return 'Sem ligação ao servidor. Verifique a sua ligação à internet.';
-    if (error.status === 401)
-      return 'Sessão expirada. Inicie sessão novamente.';
-    if (error.status === 403) return 'Não tem permissão para esta acção.';
-    if (error.status === 404) return 'Recurso não encontrado.';
-    if (error.status >= 500)
-      return 'Erro no servidor. Tente novamente mais tarde.';
-    return error.message || 'Ocorreu um erro.';
+    const { status } = error;
+    if (status === 0)
+      return 'Sem ligação ao servidor. Verifique a sua internet e tente novamente.';
+    if (status === 401)
+      return 'A sua sessão expirou. Inicie sessão novamente para continuar.';
+    if (status === 403)
+      return 'Não tem permissão para esta acção. Peça acesso ao administrador da sua empresa.';
+    if (status === 404)
+      return 'Não encontrámos o que procura. Pode ter sido removido; volte atrás e tente de novo.';
+    if (status === 408 || status === 504)
+      return 'O pedido demorou demasiado. Tente novamente dentro de instantes.';
+    if (status === 409)
+      return error.message || 'Este registo já existe ou foi alterado entretanto. Actualize a página e reveja os dados.';
+    if (status === 413)
+      return 'O ficheiro é demasiado grande. Escolha um ficheiro mais pequeno.';
+    if (status === 429)
+      return 'Fez demasiados pedidos seguidos. Aguarde um minuto e tente novamente.';
+    if (status >= 500)
+      return 'Algo correu mal do nosso lado. Tente novamente dentro de instantes; se persistir, contacte o suporte.';
+    return error.message || 'Não foi possível concluir. Reveja os dados e tente novamente.';
   }
   if (error instanceof Error)
-    return error.message || 'Ocorreu um erro inesperado.';
-  return 'Ocorreu um erro inesperado.';
+    return error.message || 'Ocorreu um erro inesperado. Tente novamente.';
+  return 'Ocorreu um erro inesperado. Tente novamente.';
 }

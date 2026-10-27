@@ -426,3 +426,55 @@ select:focus {
   outline: none;
   box-shadow: 0 0 0 3px var(--color-field-soft);
 }
+
+/* ── Layout responsivo da plataforma ──────────────────────────────────────
+   Desktop (≥1024px): Sidebar fixa de 240px. Abaixo disso a Sidebar passa a
+   gaveta (abre pelo botão da Topbar) e o conteúdo ocupa a largura toda. */
+.app-shell-content {
+  margin-left: 240px;
+}
+.app-main {
+  padding: 32px;
+}
+.app-topbar {
+  left: 240px;
+  padding: 0 24px;
+}
+.app-menu-button,
+.app-sidebar-backdrop {
+  display: none;
+}
+@media (max-width: 1023px) {
+  .app-shell-content {
+    margin-left: 0;
+  }
+  .app-main {
+    padding: 16px;
+  }
+  .app-topbar {
+    left: 0;
+    padding: 0 12px;
+  }
+  .app-menu-button {
+    display: flex;
+  }
+  .app-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    max-width: 85vw;
+  }
+  .app-sidebar[data-open='true'] {
+    transform: translateX(0);
+  }
+  .app-sidebar-backdrop[data-open='true'] {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 95;
+    background: rgba(15, 31, 61, 0.45);
+  }
+  .app-topbar-search,
+  .app-topbar-identity {
+    display: none !important;
+  }
+}
