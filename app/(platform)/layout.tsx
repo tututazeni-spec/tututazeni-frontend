@@ -8,6 +8,7 @@ import { OfflineBanner } from '../../components/OfflineBanner';
 import { SkipLink } from '../../components/ui/SkipLink';
 import { UsageTracker } from '../../components/product/UsageTracker';
 import { NpsSurvey } from '../../components/product/NpsSurvey';
+import { LegalGate } from '../../components/legal/LegalGate';
 import { FrontendPerfReporter } from '../../components/scalability/FrontendPerfReporter';
 
 export default function PlatformLayout({
@@ -21,6 +22,7 @@ export default function PlatformLayout({
       <FrontendPerfReporter />
       <SessionActivityTracker />
       <UsageTracker />
+      <LegalGate />
       <Suspense fallback={null}>
         <TabFromUrl />
       </Suspense>
