@@ -35,16 +35,9 @@ export const NOVIDADES: readonly Novidade[] = [
   },
   {
     data: '2026-10-27',
-    titulo: 'Página de estado',
-    descricao:
-      'Pode consultar em qualquer momento se a plataforma está operacional e ver o histórico de incidentes, sem iniciar sessão.',
-    tipo: 'novo',
-  },
-  {
-    data: '2026-10-27',
     titulo: 'Privacidade dos seus dados',
     descricao:
-      'Pode pedir a exportação dos seus dados pessoais e a empresa passa a ter ferramentas para responder aos pedidos dos titulares e para apagar automaticamente dados que já não precisa de guardar.',
+      'A empresa passa a ter ferramentas para exportar os dados pessoais de um colaborador, responder aos pedidos dos titulares e apagar automaticamente dados que já não precisa de guardar.',
     tipo: 'melhoria',
   },
   {
