@@ -43,6 +43,7 @@ import {
   Handshake,
   ShieldCheck,
   MessageSquareHeart,
+  LifeBuoy,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useMobileNavStore } from '@/lib/mobileNav';
@@ -218,6 +219,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
     label: 'Sistema',
     items: [
       { href: '/settings', icon: Settings, label: 'Definições' },
+      { href: '/support', icon: LifeBuoy, label: 'Ajuda e Suporte' },
       {
         href: '/monitoring',
         icon: Activity,
