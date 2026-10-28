@@ -35,6 +35,7 @@ import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPic
 import type { DirectoryUser } from '@/components/users/types';
 import type { DepartmentNode } from '@/components/departments/types';
 import { CourseImageField } from './CourseImageField';
+import { CertificateCriteriaField } from './CertificateCriteriaField';
 import { Skeleton } from './shared';
 import type { CourseDetailData, PaginatedCourses } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
@@ -585,19 +586,11 @@ function EditCourseForm({ course, onClose, onSuccess }: EditCourseFormProps) {
 
           {form.certificateEnabled && (
             <div className="grid grid-cols-2 gap-3">
-              <FormField
-                label="Critérios para emissão"
-                htmlFor="ec-certificateCriteria"
-              >
-                <Input
-                  id="ec-certificateCriteria"
-                  value={form.certificateCriteria}
-                  onChange={(e) =>
-                    setField('certificateCriteria', e.target.value)
-                  }
-                  className="w-full"
-                />
-              </FormField>
+              <CertificateCriteriaField
+                idPrefix="ec-certificateCriteria"
+                value={form.certificateCriteria}
+                onChange={(v) => setField('certificateCriteria', v)}
+              />
               <FormField
                 label="Validade do certificado (dias)"
                 htmlFor="ec-certificateValidityDays"

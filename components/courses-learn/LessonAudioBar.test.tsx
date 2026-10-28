@@ -41,14 +41,6 @@ describe('LessonAudioBar', () => {
     expect(play).toHaveBeenCalledTimes(1);
   });
 
-  test('estado loading: botão desactivado "A gerar áudio…"', () => {
-    setHook({ state: 'loading' });
-    render(<LessonAudioBar lessonId={1} />);
-
-    const btn = screen.getByRole('button', { name: /a gerar áudio/i });
-    expect(btn).toBeDisabled();
-  });
-
   test('estado playing: pausar + parar + barra de progresso', async () => {
     setHook({ state: 'playing', progress: 40 });
     render(<LessonAudioBar lessonId={1} />);
@@ -73,11 +65,11 @@ describe('LessonAudioBar', () => {
   });
 
   test('estado error: mostra a mensagem e "Tentar de novo" chama play()', async () => {
-    setHook({ state: 'error', error: 'Leitura por voz não configurada' });
+    setHook({ state: 'error', error: 'Este browser não suporta leitura em voz alta.' });
     render(<LessonAudioBar lessonId={1} />);
 
     expect(
-      screen.getByText('Leitura por voz não configurada'),
+      screen.getByText('Este browser não suporta leitura em voz alta.'),
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /tentar de novo/i }));
     expect(play).toHaveBeenCalledTimes(1);

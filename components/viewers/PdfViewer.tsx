@@ -14,14 +14,39 @@ import type { PDFDocumentProxy } from 'pdfjs-dist';
 interface PdfViewerProps {
   src: string;
   title: string;
+  /** Bytes do PDF já descarregados: evita um fetch(blob:) extra (CSP/connect-src). */
+  data?: ArrayBuffer;
 }
 
 type Status = 'loading' | 'ready' | 'error';
 
-export function PdfViewer({ src, title }: PdfViewerProps) {
+type PdfjsModule = typeof import('pdfjs-dist');
+
+// O pdf.js é servido como ficheiro estático (public/pdfjs, cópia de
+// node_modules/pdfjs-dist/build — actualizar ao mudar a versão do pacote):
+// empacotado pelo webpack do Next rebenta com "Object.defineProperty called
+// on non-object". webpackIgnore deixa o import dinâmico ao browser.
+const PDFJS_URL = '/pdfjs/pdf.min.mjs';
+let pdfjsPromise: Promise<PdfjsModule> | null = null;
+function loadPdfjs(): Promise<PdfjsModule> {
+  pdfjsPromise ??= import(
+    /* webpackIgnore: true */ /* @vite-ignore */ PDFJS_URL
+  ).then((m) => {
+    m.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
+    return m;
+  });
+  pdfjsPromise.catch(() => {
+    pdfjsPromise = null;
+  });
+  return pdfjsPromise;
+}
+
+export function PdfViewer({ src, title, data }: PdfViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const docRef = useRef<PDFDocumentProxy | null>(null);
   const [status, setStatus] = useState<Status>('loading');
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
   const [pageNum, setPageNum] = useState(1);
   const [numPages, setNumPages] = useState(0);
 
@@ -32,13 +57,11 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
     async function load() {
       setStatus('loading');
       try {
-        const pdfjsLib = await import('pdfjs-dist');
-        pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-          'pdfjs-dist/build/pdf.worker.min.mjs',
-          import.meta.url,
-        ).toString();
-
-        const pdf = await pdfjsLib.getDocument({ url: src }).promise;
+        const pdfjsLib = await loadPdfjs();
+        const pdf = await pdfjsLib.getDocument(
+          // pdf.js transfere (esvazia) o buffer: dar-lhe sempre uma cópia.
+          data ? { data: new Uint8Array(data.slice(0)) } : { url: src },
+        ).promise;
         if (cancelled) {
           void pdf.destroy();
           return;
@@ -47,7 +70,8 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
         setNumPages(pdf.numPages);
         setPageNum(1);
         setStatus('ready');
-      } catch {
+      } catch (e) {
+        console.error('[PdfViewer] falha ao abrir o PDF', e);
         if (!cancelled) setStatus('error');
       }
     }
@@ -59,7 +83,18 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
       void docRef.current?.destroy();
       docRef.current = null;
     };
-  }, [src]);
+  }, [src, data]);
+
+  // Ajusta a página à largura disponível (muda ao maximizar/minimizar).
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    setWidth(el.clientWidth);
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setWidth(el.clientWidth));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // Renderiza a página actual num <canvas> sempre que o documento carrega
   // ou a página seleccionada muda.
@@ -74,7 +109,11 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
       if (!pdf || !canvas) return;
       const page = await pdf.getPage(pageNum);
       if (cancelled) return;
-      const viewport = page.getViewport({ scale: 1.4 });
+      const base = page.getViewport({ scale: 1 });
+      const fit = width > 0 ? (width - 32) / base.width : 1.4;
+      const viewport = page.getViewport({
+        scale: Math.min(3, Math.max(0.5, fit)),
+      });
       canvas.width = viewport.width;
       canvas.height = viewport.height;
       await page.render({ canvas, viewport }).promise;
@@ -84,7 +123,7 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
     return () => {
       cancelled = true;
     };
-  }, [status, pageNum]);
+  }, [status, pageNum, width]);
 
   if (status === 'error') {
     return (
@@ -114,7 +153,10 @@ export function PdfViewer({ src, title }: PdfViewerProps) {
           <span className="font-body text-sm text-ink-muted">A abrir PDF…</span>
         </div>
       )}
-      <div className="flex-1 w-full overflow-auto flex items-start justify-center px-4">
+      <div
+        ref={wrapRef}
+        className="flex-1 w-full overflow-auto flex items-start justify-center px-4"
+      >
         <canvas
           ref={canvasRef}
           className={status === 'ready' ? 'shadow-lg bg-surface' : 'hidden'}

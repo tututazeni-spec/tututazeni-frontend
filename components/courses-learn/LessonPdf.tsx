@@ -1,8 +1,8 @@
 // components/courses-learn/LessonPdf.tsx
-// PDF de uma lição dentro da página. Usa o visualizador nativo do browser
-// quando existe (navigator.pdfViewerEnabled) e cai para o PDF.js (PdfViewer)
-// onde não existe — telemóveis Android, browsers geridos pela TI, etc.
-// Em ambos os casos há sempre "Abrir noutro separador".
+// PDF de uma lição dentro da página. Usa sempre o PDF.js (PdfViewer): o
+// visualizador nativo num <iframe> de blob: falha sob a CSP da plataforma e
+// em browsers sem plugin de PDF. Abre sempre na própria página; maximizar/
+// minimizar é o botão único da lição (MaximizableStage).
 
 'use client';
 
@@ -11,15 +11,8 @@ import { PdfViewer } from '@/components/viewers/PdfViewer';
 import { useLessonPdf } from './useLessonPdf';
 import type { LessonProgress } from './types';
 
-/** `true` se o browser mostra PDFs embutidos; desconhecido conta como sim. */
-function hasNativePdfViewer(): boolean {
-  if (typeof navigator === 'undefined') return true;
-  return navigator.pdfViewerEnabled !== false;
-}
-
 export function LessonPdf({ lesson }: { lesson: LessonProgress }) {
   const pdf = useLessonPdf(lesson);
-
   if (pdf.status === 'none') return null;
 
   if (pdf.status === 'loading') {
@@ -44,31 +37,13 @@ export function LessonPdf({ lesson }: { lesson: LessonProgress }) {
     );
   }
 
-  const native = hasNativePdfViewer();
-
   return (
     <div className="overflow-hidden rounded-panel border border-brand-line bg-surface shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
-      {native ? (
-        <iframe
-          src={pdf.src}
-          title={lesson.title}
-          className="block h-[70vh] w-full border-0 sm:h-[80vh]"
-        />
-      ) : (
-        <div className="min-h-[60vh] bg-brand-soft">
-          <PdfViewer src={pdf.src} title={lesson.title} />
-        </div>
-      )}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-4 py-2 font-body text-xs">
-        <a
-          href={pdf.src}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-semibold text-ink underline"
-        >
-          Abrir noutro separador
-        </a>
-        {lesson.allowDownload && (
+      <div className="min-h-[60vh] bg-brand-soft">
+        <PdfViewer src={pdf.src} data={pdf.data} title={lesson.title} />
+      </div>
+      {lesson.allowDownload && (
+        <div className="flex justify-end border-t border-border px-4 py-2 font-body text-xs">
           <a
             href={pdf.src}
             download={`${lesson.title}.pdf`}
@@ -76,8 +51,8 @@ export function LessonPdf({ lesson }: { lesson: LessonProgress }) {
           >
             Descarregar PDF
           </a>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -44,6 +44,13 @@ import {
   fmtDuration,
 } from './shared';
 import { CourseThumbnail } from './CourseThumbnail';
+import { ContentPlayer } from '@/components/courses-learn/ContentPlayer';
+import { LessonReader } from '@/components/courses-learn/LessonReader';
+import { MaximizableStage } from '@/components/courses-learn/MaximizableStage';
+import type {
+  LessonProgress,
+  ModuleProgress,
+} from '@/components/courses-learn/types';
 import { ContentModule, CourseContentCard } from './CourseContentCard';
 import type { CourseDetailData, CourseProgress, Lesson } from './types';
 
@@ -55,6 +62,10 @@ export interface CourseDetailViewProps {
   isEnrolled: boolean;
   progressPct: number;
   activeLesson: Lesson | null;
+  /** Aula activa com conteúdo (GET /courses/:id/module-progress). */
+  lessonContent: LessonProgress | null;
+  lessonModule: ModuleProgress | null;
+  loadingLessonContent: boolean;
   onSelectLesson: (lesson: Lesson) => void;
   rating: number;
   onRatingChange: (rating: number) => void;
@@ -68,6 +79,21 @@ export interface CourseDetailViewProps {
   feedbackLoading: boolean;
 }
 
+// Texto e PDF abrem no leitor de página; os restantes tipos no ContentPlayer
+// (mesma regra da sala de aula em courses/[courseId]/learn).
+function LessonContentViewer(props: {
+  lesson: LessonProgress;
+  currentModule: ModuleProgress | null;
+  onComplete: () => void;
+  completing: boolean;
+}) {
+  const Viewer =
+    props.lesson.type === 'TEXT' || props.lesson.type === 'PDF'
+      ? LessonReader
+      : ContentPlayer;
+  return <Viewer {...props} />;
+}
+
 export function CourseDetailView({
   onBack,
   course,
@@ -76,6 +102,9 @@ export function CourseDetailView({
   isEnrolled,
   progressPct,
   activeLesson,
+  lessonContent,
+  lessonModule,
+  loadingLessonContent,
   onSelectLesson,
   rating,
   onRatingChange,
@@ -138,55 +167,31 @@ export function CourseDetailView({
         <div className="grid grid-cols-[1fr_300px] gap-5 mb-6">
           {/* Player principal */}
           <div>
-            <div className="bg-ink rounded-card overflow-hidden aspect-video flex items-center justify-center mb-3">
-              {activeLesson.type === 'VIDEO' ? (
-                <div className="text-canvas text-center">
-                  <div className="text-5xl mb-3">▶</div>
-                  <div className="text-sm text-canvas/80">
-                    {activeLesson.title}
-                  </div>
-                  <div className="text-xs text-canvas/60 mt-1">
-                    Player de vídeo aqui (embed YouTube/Vimeo/próprio)
-                  </div>
-                </div>
+            {/* Leitor real (o mesmo da sala de aula): PDF, PPTX, vídeo, áudio, texto… */}
+            <MaximizableStage className="mb-4 h-[75vh] min-h-[420px] overflow-hidden rounded-card border border-border bg-surface">
+              {lessonContent ? (
+                <LessonContentViewer
+                  lesson={lessonContent}
+                  currentModule={lessonModule}
+                  onComplete={onMarkComplete}
+                  completing={completing}
+                />
               ) : (
-                <div className="text-canvas text-center">
-                  <div className="text-5xl mb-3">
+                <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
+                  <div className="text-5xl">
                     <LessonIcon type={activeLesson.type} />
                   </div>
-                  <div className="text-sm text-canvas/80">
+                  <div className="text-sm font-semibold text-ink">
                     {activeLesson.title}
+                  </div>
+                  <div className="text-xs text-ink-muted">
+                    {loadingLessonContent
+                      ? 'A carregar o conteúdo da aula…'
+                      : 'Não foi possível carregar o conteúdo desta aula. Atualize a página ou abra-a na sala de aula.'}
                   </div>
                 </div>
               )}
-            </div>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-base font-semibold text-ink">
-                  {activeLesson.title}
-                </h3>
-                {activeLesson.durationMinutes && (
-                  <span className="text-xs text-ink-faint">
-                    {fmtDuration(null, activeLesson.durationMinutes)}
-                  </span>
-                )}
-              </div>
-              <Button
-                onClick={onMarkComplete}
-                disabled={completing || activeLesson.completed}
-                intent={activeLesson.completed ? 'secondary' : 'primary'}
-              >
-                {activeLesson.completed ? (
-                  <>
-                    <Check size={16} strokeWidth={1.75} /> Concluída
-                  </>
-                ) : completing ? (
-                  'A marcar…'
-                ) : (
-                  'Marcar concluída'
-                )}
-              </Button>
-            </div>
+            </MaximizableStage>
             {/* Progress */}
             <Card className="p-4">
               <div className="flex items-center justify-between mb-2">
@@ -218,7 +223,6 @@ export function CourseDetailView({
                 id={mod.id}
                 title={mod.title}
                 meta={`${mod.completedCount}/${mod.totalCount} aulas`}
-                defaultOpen
               >
                 {mod.lessons.map((lesson) => (
                   <div

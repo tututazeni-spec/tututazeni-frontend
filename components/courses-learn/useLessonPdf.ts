@@ -13,15 +13,15 @@ import type { LessonProgress } from './types';
 export type LessonPdfState =
   | { status: 'none' }
   | { status: 'loading' }
-  | { status: 'ready'; src: string }
+  | { status: 'ready'; src: string; data?: ArrayBuffer }
   | { status: 'error'; message: string };
 
-async function fetchPdf(lessonId: number): Promise<Blob> {
+async function fetchPdf(lessonId: number): Promise<ArrayBuffer> {
   const res = await apiClient.getRaw(`/lessons/${lessonId}/file`, {
     headers: { Accept: 'application/pdf' },
     errorMessage: 'Não foi possível abrir o PDF desta aula.',
   });
-  return res.blob();
+  return res.arrayBuffer();
 }
 
 export function useLessonPdf(
@@ -46,13 +46,13 @@ export function useLessonPdf(
     let objectUrl: string | null = null;
     setState({ status: 'loading' });
     fetchPdf(lesson.id)
-      .then((blob) => {
+      .then((buffer) => {
         if (cancelled) return;
         // Garante o tipo mesmo que o servidor responda com outro.
         objectUrl = URL.createObjectURL(
-          new Blob([blob], { type: 'application/pdf' }),
+          new Blob([buffer], { type: 'application/pdf' }),
         );
-        setState({ status: 'ready', src: objectUrl });
+        setState({ status: 'ready', src: objectUrl, data: buffer });
       })
       .catch((e: unknown) => {
         if (cancelled) return;

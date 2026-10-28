@@ -9,10 +9,19 @@
 // e qualquer estado sem leitor ou com falha parecia um ecrã preto. Cada
 // lição fica ainda dentro de um StageBoundary — uma falha ao desenhar o
 // conteúdo mostra uma mensagem em vez de deixar o ecrã vazio.
+//
+// Correcções desta versão:
+//  - Áudio por URL do Spotify (embed do Spotify em vez de <audio>).
+//  - Vídeo por URL do YouTube/Vimeo convertido sempre para embed.
+//  - O tipo da lição é normalizado e, se o tipo gravado não bater certo com o
+//    conteúdo (ex.: link do YouTube gravado como LINK), deduz-se pela URL.
+//  - URLs externas (YouTube/Spotify) já não passam pelo useBlobSrc.
+//  - Tipo desconhecido mostra o valor recebido (útil para diagnosticar).
+//  - Em desenvolvimento, regista no Console o que a lição trouxe.
 
 'use client';
 
-import { Component, useState, type ReactNode } from 'react';
+import { Component, useEffect, useState, type ReactNode } from 'react';
 import {
   Play,
   FileText,
@@ -33,6 +42,142 @@ import { lessonIcon } from './utils';
 import { LessonFooter } from './LessonFooter';
 import type { LessonProgress, ModuleProgress } from './types';
 import { safeHref } from '@/lib/safeHref';
+
+// ─── Embeds externos (YouTube, Vimeo, Spotify) ──────────────────────────────
+
+function parseHttpUrl(raw?: string | null): URL | null {
+  if (!raw) return null;
+  try {
+    const url = new URL(raw.trim());
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+/** YouTube / Vimeo → URL de embed. Devolve null se não for nenhum dos dois. */
+function videoEmbedUrl(raw?: string | null): string | null {
+  const url = parseHttpUrl(raw);
+  if (!url) return null;
+  const host = url.hostname.replace(/^(www|m)\./, '');
+
+  let id: string | null = null;
+  if (host === 'youtu.be') {
+    id = url.pathname.split('/')[1] ?? null;
+  } else if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
+    id =
+      url.searchParams.get('v') ??
+      url.pathname.match(/^\/(?:embed|shorts|live|v)\/([\w-]{11})/)?.[1] ??
+      null;
+  }
+  if (id && /^[\w-]{11}$/.test(id)) {
+    return `https://www.youtube-nocookie.com/embed/${id}`;
+  }
+
+  if (host === 'vimeo.com' || host === 'player.vimeo.com') {
+    const match = url.pathname.match(/\/(?:video\/)?(\d+)/);
+    if (match) return `https://player.vimeo.com/video/${match[1]}`;
+  }
+  return null;
+}
+
+/** open.spotify.com/(episode|track|show|playlist|album)/ID → embed do Spotify. */
+function spotifyEmbed(
+  raw?: string | null,
+): { src: string; height: number } | null {
+  const url = parseHttpUrl(raw);
+  if (!url || url.hostname !== 'open.spotify.com') return null;
+  // aceita também /intl-pt/episode/ID
+  const match = url.pathname.match(
+    /\/(episode|track|show|playlist|album)\/([A-Za-z0-9]+)/,
+  );
+  if (!match) return null;
+  const [, kind, id] = match;
+  return {
+    src: `https://open.spotify.com/embed/${kind}/${id}`,
+    height: kind === 'episode' || kind === 'track' ? 152 : 352,
+  };
+}
+
+// ─── Tipo efectivo da lição ─────────────────────────────────────────────────
+
+type Kind =
+  | 'VIDEO'
+  | 'PDF'
+  | 'SLIDE'
+  | 'AUDIO'
+  | 'LIVE'
+  | 'TEXT'
+  | 'LINK'
+  | 'SCORM'
+  | 'QUIZ'
+  | 'UNKNOWN';
+
+const TYPE_ALIASES: Record<string, Kind> = {
+  VIDEO: 'VIDEO',
+  VIDEO_URL: 'VIDEO',
+  YOUTUBE: 'VIDEO',
+  VIMEO: 'VIDEO',
+  PDF: 'PDF',
+  SLIDE: 'SLIDE',
+  SLIDES: 'SLIDE',
+  PPT: 'SLIDE',
+  PPTX: 'SLIDE',
+  PRESENTATION: 'SLIDE',
+  AUDIO: 'AUDIO',
+  AUDIO_URL: 'AUDIO',
+  PODCAST: 'AUDIO',
+  SPOTIFY: 'AUDIO',
+  LIVE: 'LIVE',
+  TEXT: 'TEXT',
+  ARTICLE: 'TEXT',
+  RICHTEXT: 'TEXT',
+  LINK: 'LINK',
+  URL: 'LINK',
+  SCORM: 'SCORM',
+  QUIZ: 'QUIZ',
+};
+
+const EXTENSION_KIND: Record<string, Kind> = {
+  pdf: 'PDF',
+  ppt: 'SLIDE',
+  pptx: 'SLIDE',
+  mp3: 'AUDIO',
+  m4a: 'AUDIO',
+  wav: 'AUDIO',
+  ogg: 'AUDIO',
+  mp4: 'VIDEO',
+  webm: 'VIDEO',
+  mov: 'VIDEO',
+};
+
+function resolveKind(lesson: LessonProgress): Kind {
+  const base: Kind =
+    TYPE_ALIASES[String(lesson.type).trim().toUpperCase()] ?? 'UNKNOWN';
+
+  // Link do YouTube/Vimeo/Spotify gravado como LINK (ou tipo desconhecido)
+  // abre como vídeo/áudio embebido.
+  if (
+    base === 'VIDEO' ||
+    base === 'AUDIO' ||
+    base === 'LINK' ||
+    base === 'UNKNOWN'
+  ) {
+    if (videoEmbedUrl(lesson.contentUrl)) return 'VIDEO';
+    if (spotifyEmbed(lesson.contentUrl)) return 'AUDIO';
+  }
+  if (base !== 'UNKNOWN') return base;
+
+  // Tipo desconhecido: deduz pela extensão do ficheiro ou pela presença de texto.
+  const extension = lesson.contentUrl
+    ? (lesson.contentUrl.split(/[?#]/)[0].split('.').pop()?.toLowerCase() ?? '')
+    : '';
+  if (EXTENSION_KIND[extension]) return EXTENSION_KIND[extension];
+  if (lesson.textContent) return 'TEXT';
+  return 'UNKNOWN';
+}
+
+// ─── Componentes auxiliares ─────────────────────────────────────────────────
 
 interface ContentPlayerProps {
   lesson: LessonProgress;
@@ -107,6 +252,8 @@ class StageBoundary extends Component<
   }
 }
 
+// ─── ContentPlayer ──────────────────────────────────────────────────────────
+
 export function ContentPlayer({
   lesson,
   onComplete,
@@ -117,14 +264,37 @@ export function ContentPlayer({
   hasPrevious,
   hasNext,
 }: ContentPlayerProps) {
-  const fileSrc = useBlobSrc(lesson.contentUrl);
-  const [showTranscript, setShowTranscript] = useState(false);
-  const embed =
-    lesson.contentUrl && /^https?:/.test(lesson.contentUrl)
-      ? embeddableVideoUrl(lesson.contentUrl)
+  const contentUrl = lesson.contentUrl;
+  const kind = resolveKind(lesson);
+
+  const videoEmbed =
+    kind === 'VIDEO' && contentUrl
+      ? (videoEmbedUrl(contentUrl) ??
+        (/^https?:/.test(contentUrl) ? embeddableVideoUrl(contentUrl) : null))
       : null;
-  const isVideo = lesson.type === 'VIDEO';
+  const audioEmbed = kind === 'AUDIO' ? spotifyEmbed(contentUrl) : null;
+
+  // URLs externas (YouTube/Spotify) não são ficheiros: não se descarregam.
+  const fileSrc = useBlobSrc(videoEmbed || audioEmbed ? null : contentUrl);
+
+  const [showTranscript, setShowTranscript] = useState(false);
+  const isVideo = kind === 'VIDEO';
   const materials = currentModule?.materials ?? [];
+  const audioSrc = fileSrc ?? contentUrl ?? undefined;
+
+  // Diagnóstico (só em desenvolvimento): o que a lição realmente trouxe.
+  // Pode apagar este bloco quando tudo estiver a funcionar.
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return;
+    console.debug('[ContentPlayer]', {
+      id: lesson.id,
+      type: lesson.type,
+      kind,
+      contentUrl,
+      hasText: Boolean(lesson.textContent),
+      fileSrc,
+    });
+  }, [lesson.id, lesson.type, lesson.textContent, kind, contentUrl, fileSrc]);
 
   return (
     <div className="flex flex-col h-full">
@@ -145,13 +315,13 @@ export function ContentPlayer({
           }`}
         >
           <StageBoundary resetKey={lesson.id} title={lesson.title}>
-            {lesson.type === 'VIDEO' ? (
-              lesson.contentUrl ? (
+            {kind === 'VIDEO' ? (
+              contentUrl ? (
                 <div className="w-full h-full flex flex-col">
                   <div className="flex-1 aspect-video max-h-[70vh] mx-auto w-full">
-                    {embed ? (
+                    {videoEmbed ? (
                       <iframe
-                        src={embed}
+                        src={videoEmbed}
                         title={lesson.title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -161,7 +331,7 @@ export function ContentPlayer({
                       <video
                         controls
                         className="w-full h-full bg-black"
-                        src={fileSrc ?? lesson.contentUrl}
+                        src={fileSrc ?? contentUrl}
                       >
                         {lesson.captionsUrl && (
                           <track
@@ -203,7 +373,7 @@ export function ContentPlayer({
                   </div>
                 </div>
               )
-            ) : lesson.type === 'PDF' ? (
+            ) : kind === 'PDF' ? (
               fileSrc ? (
                 <PdfViewer src={fileSrc} title={lesson.title} />
               ) : (
@@ -211,7 +381,7 @@ export function ContentPlayer({
                   Esta aula ainda não tem ficheiro PDF carregado.
                 </StageNotice>
               )
-            ) : lesson.type === 'SLIDE' ? (
+            ) : kind === 'SLIDE' ? (
               fileSrc ? (
                 <div className="w-full h-full flex flex-col">
                   <div className="flex-1 min-h-0">
@@ -232,7 +402,7 @@ export function ContentPlayer({
                   Esta aula ainda não tem ficheiro PPTX carregado.
                 </StageNotice>
               )
-            ) : lesson.type === 'AUDIO' ? (
+            ) : kind === 'AUDIO' ? (
               <div className="w-full max-w-lg px-8 py-10 text-center text-ink">
                 <Music
                   size={56}
@@ -242,15 +412,25 @@ export function ContentPlayer({
                 <div className="font-body text-base font-semibold mb-4">
                   {lesson.title}
                 </div>
-                {fileSrc ? (
-                  <audio controls className="w-full" src={fileSrc} />
+                {audioEmbed ? (
+                  <iframe
+                    src={audioEmbed.src}
+                    title={lesson.title}
+                    width="100%"
+                    height={audioEmbed.height}
+                    allow="encrypted-media; clipboard-write"
+                    loading="lazy"
+                    className="rounded-xl border-0"
+                  />
+                ) : audioSrc ? (
+                  <audio controls className="w-full" src={audioSrc} />
                 ) : (
                   <p className="font-body text-sm text-ink-muted">
-                    Esta aula ainda não tem ficheiro de áudio carregado.
+                    Esta aula ainda não tem áudio associado.
                   </p>
                 )}
               </div>
-            ) : lesson.type === 'LIVE' ? (
+            ) : kind === 'LIVE' ? (
               <div className="px-8 py-10 text-center text-ink">
                 <Calendar
                   size={56}
@@ -292,7 +472,7 @@ export function ContentPlayer({
                   </p>
                 )}
               </div>
-            ) : lesson.type === 'TEXT' ? (
+            ) : kind === 'TEXT' ? (
               <article className="my-6 w-full max-w-2xl rounded-panel border border-brand-line bg-surface p-8 text-ink shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
                 <h2 className="font-display text-xl font-semibold mb-4">
                   {lesson.title}
@@ -306,25 +486,26 @@ export function ContentPlayer({
                     Esta aula ainda não tem conteúdo escrito.
                   </p>
                 )}
-                <LessonAudioBar lessonId={lesson.id} />
+                <LessonAudioBar
+                  lessonId={lesson.id}
+                  text={lesson.textContent}
+                />
               </article>
-            ) : lesson.type === 'LINK' ? (
+            ) : kind === 'LINK' ? (
               <StageNotice icon={Link2} title={lesson.title}>
-                {lesson.contentUrl ? (
+                {contentUrl ? (
                   <>
                     Esta aula é uma ligação externa.
                     <div>
-                      <OpenButton url={lesson.contentUrl}>
-                        Abrir ligação
-                      </OpenButton>
+                      <OpenButton url={contentUrl}>Abrir ligação</OpenButton>
                     </div>
                   </>
                 ) : (
                   'Esta aula ainda não tem ligação associada.'
                 )}
               </StageNotice>
-            ) : lesson.type === 'SCORM' ? (
-              lesson.contentUrl && fileSrc ? (
+            ) : kind === 'SCORM' ? (
+              contentUrl && fileSrc ? (
                 <div className="flex h-[70vh] w-full flex-col bg-surface">
                   <iframe
                     src={fileSrc}
@@ -333,7 +514,7 @@ export function ContentPlayer({
                     className="h-full w-full flex-1 border-0"
                   />
                   <div className="border-t border-border px-6 py-2 text-center">
-                    <OpenButton url={lesson.contentUrl}>
+                    <OpenButton url={contentUrl}>
                       Abrir em ecrã inteiro
                     </OpenButton>
                   </div>
@@ -343,17 +524,16 @@ export function ContentPlayer({
                   Esta aula ainda não tem pacote SCORM associado.
                 </StageNotice>
               )
-            ) : lesson.type === 'QUIZ' ? (
+            ) : kind === 'QUIZ' ? (
               <StageNotice icon={lessonIcon('QUIZ')} title={lesson.title}>
                 {lesson.quizId
                   ? 'Esta aula é uma avaliação. Responda ao quiz abaixo.'
                   : 'Esta aula ainda não tem quiz associado.'}
               </StageNotice>
             ) : (
-              <StageNotice
-                icon={lessonIcon(lesson.type)}
-                title={lesson.title}
-              />
+              <StageNotice icon={lessonIcon(lesson.type)} title={lesson.title}>
+                Tipo de aula não reconhecido: {String(lesson.type)}
+              </StageNotice>
             )}
           </StageBoundary>
         </div>
@@ -410,7 +590,7 @@ export function ContentPlayer({
         hasPrevious={hasPrevious}
         hasNext={hasNext}
         extra={
-          lesson.type === 'PDF' && lesson.allowDownload && fileSrc ? (
+          kind === 'PDF' && lesson.allowDownload && fileSrc ? (
             <a
               href={fileSrc}
               download={`${lesson.title}.pdf`}

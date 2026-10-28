@@ -1,6 +1,6 @@
 // components/courses-learn/LessonAudioBar.tsx
 // Controlo compacto "Ouvir a aula" para lições de texto, montado no
-// ContentPlayer. A geração de áudio (TTS) é feita pelo backend — ver
+// ContentPlayer e LessonReader. Lê o texto com a voz nativa do browser — ver
 // hooks/useLessonAudio.
 
 'use client';
@@ -12,11 +12,15 @@ import { useLessonAudio } from '@/hooks/useLessonAudio';
 
 interface LessonAudioBarProps {
   lessonId: number;
+  /** Texto (ou HTML) da lição a ler. */
+  text?: string | null;
 }
 
-export function LessonAudioBar({ lessonId }: LessonAudioBarProps) {
-  const { state, progress, error, play, pause, stop } =
-    useLessonAudio(lessonId);
+export function LessonAudioBar({ lessonId, text }: LessonAudioBarProps) {
+  const { state, progress, error, play, pause, stop } = useLessonAudio(
+    lessonId,
+    text,
+  );
 
   // Card claro sobre a área escura do player, para os botões do design
   // system lerem com o contraste normal.
@@ -42,20 +46,9 @@ export function LessonAudioBar({ lessonId }: LessonAudioBarProps) {
                 </Button>
               </>
             ) : (
-              <Button
-                size="sm"
-                intent="secondary"
-                loading={state === 'loading'}
-                onClick={() => void play()}
-              >
-                {state !== 'loading' && (
-                  <Volume2 size={14} strokeWidth={1.75} />
-                )}
-                {state === 'loading'
-                  ? 'A gerar áudio…'
-                  : state === 'paused'
-                    ? 'Retomar'
-                    : 'Ouvir aula'}
+              <Button size="sm" intent="secondary" onClick={() => void play()}>
+                <Volume2 size={14} strokeWidth={1.75} />
+                {state === 'paused' ? 'Retomar' : 'Ouvir aula'}
               </Button>
             )}
           </div>

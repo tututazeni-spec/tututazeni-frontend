@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useApiMutation, useApiQuery } from './useApiQuery';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
@@ -19,6 +19,7 @@ import type {
   CourseProgress,
   Lesson,
 } from '@/components/courses/types';
+import type { ModuleProgress } from '@/components/courses-learn/types';
 
 export function useCourseDetail(courseId: number) {
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
@@ -39,6 +40,35 @@ export function useCourseDetail(courseId: number) {
     `/courses/${courseId}/progress`,
     { staleTime: STALE_TIME.DYNAMIC, retry: false },
   );
+
+  // /courses/:id/progress só traz o resumo das aulas (sem contentUrl/textContent).
+  // O conteúdo para o leitor vem de /module-progress — chave própria, porque
+  // a de progress(courseId) guarda o formato do resumo.
+  const isEnrolledEarly =
+    !!progress?.enrollment && progress.enrollment.status !== 'PENDING_APPROVAL';
+  const moduleProgressKey = [
+    ...queryKeys.courses.all,
+    'module-progress',
+    courseId,
+  ];
+  const { data: contentModules, isLoading: loadingLessonContent } = useApiQuery<
+    ModuleProgress[]
+  >(
+    moduleProgressKey,
+    `/courses/${courseId}/module-progress`,
+    { enabled: isEnrolledEarly, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const lessonModule = useMemo(
+    () =>
+      activeLesson
+        ? (contentModules?.find((m) =>
+            m.lessons.some((l) => l.id === activeLesson.id),
+          ) ?? null)
+        : null,
+    [contentModules, activeLesson],
+  );
+  const lessonContent =
+    lessonModule?.lessons.find((l) => l.id === activeLesson?.id) ?? null;
 
   // Auto-selecciona a 1ª aula incompleta quando o progresso chega.
   useEffect(() => {
@@ -71,6 +101,7 @@ export function useCourseDetail(courseId: number) {
       invalidateKeys: [
         queryKeys.courses.progress(courseId),
         queryKeys.courses.detail(courseId),
+        moduleProgressKey,
       ],
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
@@ -107,6 +138,9 @@ export function useCourseDetail(courseId: number) {
     isEnrolled,
     progressPct,
     activeLesson,
+    lessonContent,
+    lessonModule,
+    loadingLessonContent,
     setActiveLesson,
     rating,
     setRating,

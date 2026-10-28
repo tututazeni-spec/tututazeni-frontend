@@ -23,6 +23,8 @@ const LIVEKIT = 'https://*.livekit.cloud wss://*.livekit.cloud';
 // Embeds de vídeo das lições (fileSrc.ts / live-classes/utils.ts) e salas Jitsi.
 const BASE_FRAME_HOSTS = [
   'https://www.youtube.com',
+  'https://www.youtube-nocookie.com',
+  'https://open.spotify.com',
   'https://player.vimeo.com',
   'https://drive.google.com',
 ];
@@ -55,14 +57,17 @@ export function buildCsp({ nonce, isDev, imageHosts, jitsiDomain }: CspOptions):
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data: blob: ${imgExtra}`,
     "font-src 'self' data:",
-    `connect-src 'self' ${SIMLI} ${LIVEKIT}`,
-    "media-src 'self' blob: mediastream:",
+    // blob:/data: — PptxViewer e pdf.js fazem fetch() de object URLs das lições.
+    `connect-src 'self' blob: data: ${SIMLI} ${LIVEKIT}`,
+    // https: — vídeo/áudio de lições por URL externa.
+    "media-src 'self' blob: data: https: mediastream:",
     `frame-src 'self' blob: ${frameHosts.join(' ')}`,
     "worker-src 'self' blob:",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    "object-src 'none'",
+    // blob: — o visualizador de PDF do browser (iframe de blob:) precisa de object-src.
+    "object-src 'self' blob:",
     'upgrade-insecure-requests',
   ].join('; ');
 }
