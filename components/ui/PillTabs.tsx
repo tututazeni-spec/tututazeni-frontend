@@ -50,7 +50,7 @@ function Glass({
 }
 
 const PILL_BASE =
-  'group flex h-auto items-center gap-3 whitespace-nowrap rounded-full border border-white/70 bg-white/60 py-2 pl-2 pr-4 text-left font-body text-ink shadow-sm backdrop-blur transition-all duration-200 hover:scale-105 hover:bg-white/80 hover:shadow-md data-[state=inactive]:hover:border-primary motion-reduce:hover:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 data-[state=active]:border-transparent data-[state=active]:bg-brand data-[state=active]:text-white data-[state=active]:shadow-lg';
+  'group flex h-auto items-center gap-3 whitespace-nowrap rounded-full border border-white/70 bg-white/60 py-2 pl-2 pr-4 text-left font-body text-[#20241f] shadow-sm backdrop-blur transition-all duration-200 hover:scale-105 hover:bg-white/80 hover:shadow-md data-[state=inactive]:hover:border-primary motion-reduce:hover:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 data-[state=active]:border-transparent data-[state=active]:bg-brand data-[state=active]:text-white data-[state=active]:shadow-lg';
 
 function PillBody({ item, active }: { item: PillTabItem; active?: boolean }) {
   const Icon = item.icon;
@@ -59,7 +59,7 @@ function PillBody({ item, active }: { item: PillTabItem; active?: boolean }) {
       {Icon && (
         <span
           className={cn(
-            'flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/70 text-ink/70 group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white',
+            'flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/70 text-[#20241f]/70 group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white',
             active && 'bg-white/20 text-white',
           )}
         >
