@@ -2,6 +2,14 @@
 // Separador "Dashboard" — GET /crm/partners/dashboard, só ADMIN/RH/GESTOR.
 // Endpoint já existia no backend sem UI.
 
+import {
+  AlertTriangle,
+  Banknote,
+  CalendarClock,
+  CheckCircle2,
+  Handshake,
+  UserPlus,
+} from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { formatKz } from '@/lib/format';
 import {
@@ -41,31 +49,37 @@ export function DashboardView({
           label="Total"
           value={String(totals.total)}
           color="text-ink"
+          icon={Handshake}
         />
         <SummaryCard
           label="Novos este mês"
           value={String(totals.newThisMonth)}
           color="text-primary"
+          icon={UserPlus}
         />
         <SummaryCard
           label="Activos"
           value={String(totals.active)}
           color="text-success-ink"
+          icon={CheckCircle2}
         />
         <SummaryCard
           label="Valor total anual"
           value={formatKz(totals.totalValueAOA)}
           color="text-ink"
+          icon={Banknote}
         />
         <SummaryCard
           label="Contratos a expirar (30d)"
           value={String(totals.expiringContracts)}
           color="text-warning-ink"
+          icon={CalendarClock}
         />
         <SummaryCard
           label="Marcos em atraso"
           value={String(totals.overdueMilestones)}
           color="text-danger-ink"
+          icon={AlertTriangle}
         />
       </div>
 
