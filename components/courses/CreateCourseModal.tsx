@@ -34,6 +34,7 @@ import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPic
 import type { DirectoryUser } from '@/components/users/types';
 import type { DepartmentNode } from '@/components/departments/types';
 import { CourseImageField } from './CourseImageField';
+import { CertificateCriteriaField } from './CertificateCriteriaField';
 import type { CourseCategoryManaged, PaginatedCourses } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 
@@ -589,20 +590,11 @@ export function CreateCourseModal({
 
             {form.certificateEnabled && (
               <div className="grid grid-cols-2 gap-3">
-                <FormField
-                  label="Critérios para emissão"
-                  htmlFor="cc-certificateCriteria"
-                >
-                  <Input
-                    id="cc-certificateCriteria"
-                    value={form.certificateCriteria}
-                    onChange={(e) =>
-                      setField('certificateCriteria', e.target.value)
-                    }
-                    className="w-full"
-                    placeholder="Ex: nota final ≥ 70%"
-                  />
-                </FormField>
+                <CertificateCriteriaField
+                  idPrefix="cc-certificateCriteria"
+                  value={form.certificateCriteria}
+                  onChange={(v) => setField('certificateCriteria', v)}
+                />
                 <FormField
                   label="Validade do certificado (dias)"
                   htmlFor="cc-certificateValidityDays"

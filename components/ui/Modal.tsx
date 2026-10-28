@@ -91,7 +91,7 @@ export function ModalContent({
         onEscapeKeyDown={(event) => event.preventDefault()}
         className={cn(
           'fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2',
-          'max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain',
+          'max-h-[calc(100dvh-2rem)] modal-scroll overscroll-contain',
           'rounded-panel border border-border bg-surface p-6 shadow-elevated',
           'focus:outline-none',
           'scale-95 opacity-0 transition-[transform,opacity] duration-200',

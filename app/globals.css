@@ -102,6 +102,35 @@ body {
   background: var(--color-ink-faint);
 }
 
+/* Modais: barra vertical larga e sempre visível para o cursor a agarrar
+   com facilidade. */
+/* Também cobre os modais feitos à mão (Card com max-h-[9Xvh] + overflow-y-auto),
+   p.ex. LessonModal, que não passam por ui/Modal. */
+.modal-scroll,
+.overflow-y-auto[class*='max-h-[9'][class*='vh]'] {
+  overflow-y: scroll;
+}
+.modal-scroll::-webkit-scrollbar,
+.overflow-y-auto[class*='max-h-[9'][class*='vh]']::-webkit-scrollbar {
+  width: 17px;
+}
+.modal-scroll::-webkit-scrollbar-track,
+.overflow-y-auto[class*='max-h-[9'][class*='vh]']::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+.modal-scroll::-webkit-scrollbar-thumb,
+.overflow-y-auto[class*='max-h-[9'][class*='vh]']::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 8px;
+  border: 3px solid #f1f5f9;
+  min-height: 48px;
+}
+.modal-scroll::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto[class*='max-h-[9'][class*='vh]']::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-faint);
+}
+
 @theme {
   /* superfícies */
   --color-canvas: #f7f5ef;
