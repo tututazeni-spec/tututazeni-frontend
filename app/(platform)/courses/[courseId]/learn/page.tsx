@@ -20,6 +20,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { ModuleAccordion } from '@/components/courses-learn/ModuleAccordion';
 import { ContentPlayer } from '@/components/courses-learn/ContentPlayer';
+import { MaximizableStage } from '@/components/courses-learn/MaximizableStage';
 import { LessonReader } from '@/components/courses-learn/LessonReader';
 import { LessonEmptyState } from '@/components/courses-learn/LessonEmptyState';
 import { ModuleCompletedBanner } from '@/components/courses-learn/ModuleCompletedBanner';
@@ -330,16 +331,18 @@ export default function CourseLearnPage() {
               />
             ) : activeLesson ? (
               <>
-                <LessonView
-                  lesson={activeLesson}
-                  onComplete={handleMarkComplete}
-                  completing={completing}
-                  currentModule={activeModule}
-                  onPrevious={handlePrevious}
-                  onNext={handleNext}
-                  hasPrevious={!!previousEntry}
-                  hasNext={!!nextEntry && !nextEntry.moduleLocked}
-                />
+                <MaximizableStage className="min-h-0 flex-1">
+                  <LessonView
+                    lesson={activeLesson}
+                    onComplete={handleMarkComplete}
+                    completing={completing}
+                    currentModule={activeModule}
+                    onPrevious={handlePrevious}
+                    onNext={handleNext}
+                    hasPrevious={!!previousEntry}
+                    hasNext={!!nextEntry && !nextEntry.moduleLocked}
+                  />
+                </MaximizableStage>
                 <button
                   onClick={() => setTutorOpen(true)}
                   className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-pill bg-primary px-4 py-3 font-body text-sm font-semibold text-canvas shadow-elevated hover:bg-primary-hover transition-colors"

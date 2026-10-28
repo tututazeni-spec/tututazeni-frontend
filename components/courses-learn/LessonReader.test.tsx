@@ -106,7 +106,7 @@ describe('LessonReader', () => {
     expect(document.querySelector('[onerror]')).toBeNull();
   });
 
-  test('lição PDF abre no PDF.js, com ligação para abrir à parte', () => {
+  test('lição PDF abre no PDF.js na própria página e maximiza/minimiza', () => {
     renderReader({ type: 'PDF', textContent: null, hasFile: true });
     expect(screen.getByTestId('pdfjs-viewer')).toHaveAttribute(
       'data-src',
@@ -114,8 +114,16 @@ describe('LessonReader', () => {
     );
     expect(document.querySelector('iframe')).toBeNull();
     expect(
-      screen.getByRole('link', { name: 'Abrir noutro separador' }),
-    ).toHaveAttribute('href', 'blob:pdf');
+      screen.queryByRole('link', { name: 'Abrir noutro separador' }),
+    ).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Maximizar PDF' }));
+    expect(
+      screen.getByRole('button', { name: 'Minimizar PDF' }),
+    ).toBeInTheDocument();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(
+      screen.getByRole('button', { name: 'Maximizar PDF' }),
+    ).toBeInTheDocument();
   });
 
   test('lição de texto com PDF complementar mostra texto e PDF', () => {

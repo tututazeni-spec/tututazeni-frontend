@@ -73,7 +73,7 @@ export function LessonReader({
           window.open(a.href, '_blank', 'noopener,noreferrer');
         }}
       />
-      <LessonAudioBar lessonId={lesson.id} />
+      <LessonAudioBar lessonId={lesson.id} text={lesson.textContent} />
     </article>
   ) : null;
 

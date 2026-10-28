@@ -42,7 +42,7 @@ describe('useLessonPdf', () => {
     const fetchSpy = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      blob: async () => new Blob(['%PDF-1'], { type: 'application/pdf' }),
+      arrayBuffer: async () => new TextEncoder().encode('%PDF-1').buffer,
     });
     vi.stubGlobal('fetch', fetchSpy);
     const { result } = renderHook(() => useLessonPdf(lesson));
@@ -51,7 +51,7 @@ describe('useLessonPdf', () => {
       '/api/lessons/5/file',
       expect.objectContaining({ credentials: 'include' }),
     );
-    expect(result.current).toEqual({ status: 'ready', src: 'blob:abc' });
+    expect(result.current).toMatchObject({ status: 'ready', src: 'blob:abc' });
   });
 
   test('acesso negado mostra a mensagem do servidor e nunca um src', async () => {
@@ -77,7 +77,7 @@ describe('useLessonPdf', () => {
       vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        blob: async () => new Blob(['%PDF-1']),
+        arrayBuffer: async () => new TextEncoder().encode('%PDF-1').buffer,
       }),
     );
     const { result, unmount } = renderHook(() => useLessonPdf(lesson));

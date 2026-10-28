@@ -46,6 +46,7 @@ import {
 import { CourseThumbnail } from './CourseThumbnail';
 import { ContentPlayer } from '@/components/courses-learn/ContentPlayer';
 import { LessonReader } from '@/components/courses-learn/LessonReader';
+import { MaximizableStage } from '@/components/courses-learn/MaximizableStage';
 import type {
   LessonProgress,
   ModuleProgress,
@@ -167,7 +168,7 @@ export function CourseDetailView({
           {/* Player principal */}
           <div>
             {/* Leitor real (o mesmo da sala de aula): PDF, PPTX, vídeo, áudio, texto… */}
-            <div className="mb-4 h-[75vh] min-h-[420px] overflow-hidden rounded-card border border-border bg-surface">
+            <MaximizableStage className="mb-4 h-[75vh] min-h-[420px] overflow-hidden rounded-card border border-border bg-surface">
               {lessonContent ? (
                 <LessonContentViewer
                   lesson={lessonContent}
@@ -190,7 +191,7 @@ export function CourseDetailView({
                   </div>
                 </div>
               )}
-            </div>
+            </MaximizableStage>
             {/* Progress */}
             <Card className="p-4">
               <div className="flex items-center justify-between mb-2">

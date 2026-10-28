@@ -14,7 +14,7 @@ const getPage = vi.fn((_n: number) => Promise.resolve(makePage()));
 let numPages = 1;
 let shouldFail = false;
 
-vi.mock('pdfjs-dist', () => ({
+vi.mock('/pdfjs/pdf.min.mjs', () => ({
   GlobalWorkerOptions: {},
   getDocument: () => ({
     promise: shouldFail

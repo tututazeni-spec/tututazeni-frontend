@@ -1,76 +1,71 @@
 'use client';
 
 // hooks/useLessonAudio.ts
-// "Ouvir a aula" — reproduz o texto da lição em voz alta. O áudio é gerado
-// pelo backend (GET /lessons/:id/audio, proxy da ElevenLabs — a chave nunca
-// chega ao browser). Versão enxuta do antigo useCourseAvatarReader (apagado
-// em #419 com o CourseAvatarReaderExample), sem o widget de avatar.
-//
-// Cache: por lessonId em sessionStorage (o frontend já não recebe o
-// textContent no payload de /module-progress, por isso não dá para chavear
-// por hash do texto como a versão anterior). Áudio de uma aula é estável
-// dentro de uma sessão; se o texto for editado, o próprio backend emite
-// Cache-Control: private, max-age=86400.
+// "Ouvir a aula" — lê o texto da lição em voz alta com a voz nativa do
+// browser (Web Speech API / speechSynthesis). Não usa serviços externos nem o
+// backend. O texto é dividido em frases para contornar o corte de falas
+// longas que o Chrome faz ao fim de ~15 s.
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { apiClient, ApiError } from '@/lib/apiClient';
-import { reportError } from '@/lib/errorReporting';
 
 export type LessonAudioState =
   'idle' | 'loading' | 'playing' | 'paused' | 'error';
 
-// Acima disto não vale a pena encher o sessionStorage (quota ~5 MB e é
-// partilhada com o resto da app).
-const MAX_CACHE_BYTES = 2 * 1024 * 1024;
+const MAX_CHUNK = 220;
 
-class LessonAudioError extends Error {
-  status: number;
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = 'LessonAudioError';
-    this.status = status;
+/** HTML ou texto simples → texto simples (sem etiquetas, espaços normalizados). */
+export function toPlainText(input: string | null | undefined): string {
+  if (!input) return '';
+  let text = input;
+  if (/<[a-z][\s\S]*>/i.test(input) && typeof DOMParser !== 'undefined') {
+    const doc = new DOMParser().parseFromString(input, 'text/html');
+    doc.querySelectorAll('script,style').forEach((n) => n.remove());
+    doc
+      .querySelectorAll('p,div,li,h1,h2,h3,h4,br,tr')
+      .forEach((n) => n.append('\n'));
+    text = doc.body.textContent ?? '';
   }
+  return text
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\s*\n\s*/g, '\n')
+    .trim();
 }
 
-function cacheKey(lessonId: number): string {
-  return `innova_lesson_audio_${lessonId}`;
-}
-
-function loadCachedAudio(lessonId: number): string | null {
-  try {
-    return sessionStorage.getItem(cacheKey(lessonId));
-  } catch {
-    return null;
-  }
-}
-
-function saveCachedAudio(lessonId: number, blob: Blob): void {
-  if (blob.size > MAX_CACHE_BYTES) return;
-  try {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      try {
-        sessionStorage.setItem(cacheKey(lessonId), reader.result as string);
-      } catch {
-        /* quota excedida — ignorar */
+/** Parte o texto em pedaços de frase com no máximo MAX_CHUNK caracteres. */
+export function splitIntoChunks(text: string): string[] {
+  const chunks: string[] = [];
+  const sentences = text.match(/[^.!?\n]+[.!?]*\s*|\n/g) ?? [text];
+  let current = '';
+  const flush = () => {
+    if (current.trim()) chunks.push(current.trim());
+    current = '';
+  };
+  for (const s of sentences) {
+    if (s === '\n') {
+      flush();
+      continue;
+    }
+    if (s.length > MAX_CHUNK) {
+      flush();
+      for (let i = 0; i < s.length; i += MAX_CHUNK) {
+        chunks.push(s.slice(i, i + MAX_CHUNK).trim());
       }
-    };
-    reader.readAsDataURL(blob);
-  } catch {
-    /* ignorar */
+      continue;
+    }
+    if ((current + s).length > MAX_CHUNK) flush();
+    current += s;
   }
+  flush();
+  return chunks.filter(Boolean);
 }
 
-async function fetchLessonAudio(lessonId: number): Promise<Blob> {
-  try {
-    const res = await apiClient.getRaw(`/lessons/${lessonId}/audio`, {
-      errorMessage: 'Erro ao gerar áudio',
-    });
-    return await res.blob();
-  } catch (e) {
-    if (e instanceof ApiError) throw new LessonAudioError(e.message, e.status);
-    throw e;
-  }
+function pickPortugueseVoice(): SpeechSynthesisVoice | null {
+  const voices = window.speechSynthesis.getVoices();
+  return (
+    voices.find((v) => v.lang.toLowerCase() === 'pt-pt') ??
+    voices.find((v) => v.lang.toLowerCase().startsWith('pt')) ??
+    null
+  );
 }
 
 export interface UseLessonAudio {
@@ -83,107 +78,100 @@ export interface UseLessonAudio {
   stop: () => void;
 }
 
-export function useLessonAudio(lessonId: number): UseLessonAudio {
+export function useLessonAudio(
+  lessonId: number,
+  text: string | null | undefined,
+): UseLessonAudio {
   const [state, setState] = useState<LessonAudioState>('idle');
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
+  // Incrementa a cada início/paragem: callbacks de falas antigas ignoram-se.
+  const runRef = useRef(0);
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const objectUrlRef = useRef<string>('');
-
-  const teardown = useCallback(() => {
-    audioRef.current?.pause();
-    audioRef.current = null;
-    if (objectUrlRef.current) {
-      URL.revokeObjectURL(objectUrlRef.current);
-      objectUrlRef.current = '';
+  const cancel = useCallback(() => {
+    runRef.current += 1;
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
     }
   }, []);
 
-  // Limpar ao desmontar.
-  useEffect(() => teardown, [teardown]);
-
-  // Recomeçar do zero se a aula activa mudar.
+  // Parar ao desmontar e recomeçar do zero se a aula (ou o texto) mudar.
   useEffect(() => {
-    teardown();
     setState('idle');
     setProgress(0);
     setError('');
-  }, [lessonId, teardown]);
-
-  const attach = useCallback((src: string): HTMLAudioElement => {
-    const audio = new Audio(src);
-    audioRef.current = audio;
-    audio.ontimeupdate = () => {
-      if (audio.duration > 0) {
-        setProgress(Math.round((audio.currentTime / audio.duration) * 100));
-      }
-    };
-    audio.onended = () => {
-      setState('idle');
-      setProgress(100);
-    };
-    audio.onerror = () => {
-      setState('error');
-      setError('Erro ao reproduzir o áudio');
-    };
-    return audio;
-  }, []);
+    return cancel;
+  }, [lessonId, text, cancel]);
 
   const play = useCallback(async () => {
-    // Retomar de pausa.
-    if (state === 'paused' && audioRef.current) {
-      await audioRef.current.play();
-      setState('playing');
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      setState('error');
+      setError('Este browser não suporta leitura em voz alta.');
       return;
     }
-    // Repetir depois de terminar (áudio ainda montado).
-    if (state === 'idle' && audioRef.current) {
-      audioRef.current.currentTime = 0;
-      setProgress(0);
-      await audioRef.current.play();
+    const synth = window.speechSynthesis;
+
+    if (state === 'paused') {
+      synth.resume();
       setState('playing');
       return;
     }
 
-    setState('loading');
-    setError('');
-    try {
-      let src = loadCachedAudio(lessonId);
-      if (!src) {
-        const blob = await fetchLessonAudio(lessonId);
-        saveCachedAudio(lessonId, blob);
-        objectUrlRef.current = URL.createObjectURL(blob);
-        src = objectUrlRef.current;
-      }
-      const audio = attach(src);
-      await audio.play();
-      setState('playing');
-    } catch (e) {
-      // 503 = "leitura por voz não configurada" (ElevenLabs sem chaves) — é
-      // um estado de configuração esperado, não um erro a reportar. O resto
-      // (rede, 500, etc.) vai para o reporter — ver PR #283.
-      if (!(e instanceof LessonAudioError) || e.status !== 503) {
-        reportError(e, { source: 'useLessonAudio.play' });
-      }
+    const chunks = splitIntoChunks(toPlainText(text));
+    if (chunks.length === 0) {
       setState('error');
-      setError(
-        e instanceof Error ? e.message : 'Erro desconhecido ao gerar áudio',
-      );
+      setError('Esta aula não tem texto para ler.');
+      return;
     }
-  }, [state, lessonId, attach]);
+
+    cancel();
+    const run = runRef.current;
+    const total = chunks.reduce((n, c) => n + c.length, 0);
+    const voice = pickPortugueseVoice();
+    let done = 0;
+
+    const speak = (i: number) => {
+      if (run !== runRef.current) return;
+      if (i >= chunks.length) {
+        setState('idle');
+        setProgress(100);
+        return;
+      }
+      const u = new SpeechSynthesisUtterance(chunks[i]);
+      u.lang = voice?.lang ?? 'pt-PT';
+      if (voice) u.voice = voice;
+      u.onend = () => {
+        if (run !== runRef.current) return;
+        done += chunks[i].length;
+        setProgress(Math.round((done / total) * 100));
+        speak(i + 1);
+      };
+      u.onerror = (e) => {
+        if (run !== runRef.current) return;
+        // "canceled"/"interrupted" vêm de pararmos nós.
+        if (e.error === 'canceled' || e.error === 'interrupted') return;
+        setState('error');
+        setError('Não foi possível ler a aula em voz alta.');
+      };
+      synth.speak(u);
+    };
+
+    setProgress(0);
+    setError('');
+    setState('playing');
+    speak(0);
+  }, [state, text, cancel]);
 
   const pause = useCallback(() => {
-    audioRef.current?.pause();
+    window.speechSynthesis?.pause();
     setState('paused');
   }, []);
 
   const stop = useCallback(() => {
-    audioRef.current?.pause();
-    if (audioRef.current) audioRef.current.currentTime = 0;
+    cancel();
     setState('idle');
     setProgress(0);
-  }, []);
+  }, [cancel]);
 
   return { state, progress, error, play, pause, stop };
 }

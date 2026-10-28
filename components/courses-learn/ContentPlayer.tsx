@@ -486,7 +486,10 @@ export function ContentPlayer({
                     Esta aula ainda não tem conteúdo escrito.
                   </p>
                 )}
-                <LessonAudioBar lessonId={lesson.id} />
+                <LessonAudioBar
+                  lessonId={lesson.id}
+                  text={lesson.textContent}
+                />
               </article>
             ) : kind === 'LINK' ? (
               <StageNotice icon={Link2} title={lesson.title}>
