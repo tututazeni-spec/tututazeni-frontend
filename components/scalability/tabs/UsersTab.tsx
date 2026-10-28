@@ -245,7 +245,7 @@ export function UsersTab({ data, load }: UsersTabProps) {
           <Card>
             <CardBody>
               <p className="mb-1 font-body text-xs font-semibold uppercase tracking-wide text-ink-muted">
-                Utilizadores simultÃ¢neos (24h)
+                Utilizadores simultâneos (24h)
               </p>
               <p className="mb-3 font-body text-xs text-ink-faint">
                 Média {load.concurrent.avg24h} · Máximo {load.concurrent.max24h}{' '}

@@ -231,7 +231,7 @@ export function CapacityTab({
         />
         <Tile
           headed
-          label="Utilizadores simultÃ¢neos"
+          label="Utilizadores simultâneos"
           value={fmt(c.concurrentUsers, 0)}
           sub={`pico 24h: ${fmt(c.concurrentPeak24h, 0)}`}
         />
@@ -243,13 +243,13 @@ export function CapacityTab({
         />
         <Tile
           headed
-          label="LigaÃ§Ãµes Ã  base de dados"
+          label="Ligações à base de dados"
           value={fmt(c.dbConnections, 0)}
         />
         <Tile headed label="Armazenamento" value={fmt(c.storageGb)} unit="GB" />
         <Tile
           headed
-          label="DÃ©bito da fila"
+          label="Débito da fila"
           value={fmt(c.queueThroughputPerMin)}
           unit="jobs/min"
         />
@@ -526,7 +526,7 @@ export function AutoScalingTab({
               onChange={(v) => set('targetMemory', v)}
             />
             <NumField
-              label="Pedidos por instÃ¢ncia"
+              label="Pedidos por instância"
               value={p.requestsPerInstance}
               suffix="req/s"
               disabled={!canEdit}
