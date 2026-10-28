@@ -218,7 +218,6 @@ export function CourseDetailView({
                 id={mod.id}
                 title={mod.title}
                 meta={`${mod.completedCount}/${mod.totalCount} aulas`}
-                defaultOpen
               >
                 {mod.lessons.map((lesson) => (
                   <div
