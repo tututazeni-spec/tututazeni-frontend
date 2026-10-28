@@ -44,6 +44,11 @@ vi.mock('@/components/ui/AvatarUploader', () => ({
   AvatarUploader: () => <div data-testid="avatar-uploader" />,
 }));
 
+// O botão de feedback precisa de ToastProvider e não faz parte da navegação que a Topbar orquestra.
+vi.mock('@/components/product/FeedbackButton', () => ({
+  FeedbackButton: () => <div data-testid="feedback-button" />,
+}));
+
 beforeEach(() => {
   push.mockClear();
   unreadCount = 0;
