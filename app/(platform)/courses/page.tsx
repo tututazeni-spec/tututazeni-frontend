@@ -176,9 +176,15 @@ export default function CoursesPage() {
     }
   }, []);
 
-  const handleSelect = (id: number) =>
+  // Vista de onde se abriu o detalhe, para o "Voltar" regressar a ela (Meus
+  // cursos, dashboard, …) em vez de cair sempre no catálogo.
+  const [cameFrom, setCameFrom] = useState<TopLevelView>('catalog');
+
+  const handleSelect = (id: number) => {
+    if (nav.view !== 'detail') setCameFrom(nav.view);
     setNav({ view: 'detail', selectedId: id });
-  const handleBack = () => setNav({ view: 'catalog' });
+  };
+  const handleBack = () => setNav({ view: cameFrom });
   const handleManageModules = (id: number) => {
     setModulosCourseId(id);
     setNav({ view: 'modulos' });
