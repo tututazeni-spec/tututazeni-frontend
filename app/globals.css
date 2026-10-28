@@ -141,6 +141,7 @@ body {
   /* a marca usada como TEXTO/contorno (o fundo da marca é escuro; no tema escuro
      o texto precisa de uma versão clara) */
   --color-brand-ink: #0f1f3d;
+  --color-donut-track: #e3e8f0;
   /* superfícies escuras de marca (heróis, cartões navy) e o texto que vive nelas */
   --color-brand-deep: #071d3b;
   --color-brand-mid: #0b3a75;
