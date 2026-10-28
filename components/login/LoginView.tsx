@@ -600,6 +600,15 @@ export function LoginView({
           <div className="login-footer">
             © {new Date().getFullYear()} Innova — Propriedade da EVOS, LDA.
             Todos os direitos reservados.
+            <div style={{ marginTop: 6 }}>
+              <a href="/termos" style={{ color: 'inherit', textDecoration: 'underline' }}>
+                Termos de utilização
+              </a>
+              {' · '}
+              <a href="/privacidade" style={{ color: 'inherit', textDecoration: 'underline' }}>
+                Política de privacidade
+              </a>
+            </div>
           </div>
         </div>
       </div>

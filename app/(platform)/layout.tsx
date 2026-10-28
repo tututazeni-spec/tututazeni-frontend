@@ -6,6 +6,9 @@ import { SessionActivityTracker } from '../../components/SessionActivityTracker'
 import { TabFromUrl } from '../../components/TabFromUrl';
 import { OfflineBanner } from '../../components/OfflineBanner';
 import { SkipLink } from '../../components/ui/SkipLink';
+import { UsageTracker } from '../../components/product/UsageTracker';
+import { NpsSurvey } from '../../components/product/NpsSurvey';
+import { LegalGate } from '../../components/legal/LegalGate';
 import { FrontendPerfReporter } from '../../components/scalability/FrontendPerfReporter';
 
 export default function PlatformLayout({
@@ -18,13 +21,15 @@ export default function PlatformLayout({
       <SkipLink />
       <FrontendPerfReporter />
       <SessionActivityTracker />
+      <UsageTracker />
+      <LegalGate />
       <Suspense fallback={null}>
         <TabFromUrl />
       </Suspense>
       <Sidebar />
       <div
+        className="app-shell-content"
         style={{
-          marginLeft: '240px',
           flex: 1,
           minWidth: 0,
           display: 'flex',
@@ -35,11 +40,11 @@ export default function PlatformLayout({
         <Topbar />
         <main
           id="conteudo-principal"
+          className="app-main"
           tabIndex={-1}
           style={{
             flex: 1,
             outline: 'none', // destino do skip-link (tabIndex -1): sem anel ao receber foco
-            padding: '32px',
             marginTop: '56px',
             background: 'var(--color-canvas)',
           }}
@@ -47,6 +52,7 @@ export default function PlatformLayout({
           <OfflineBanner />
           {children}
         </main>
+        <NpsSurvey />
       </div>
     </div>
   );

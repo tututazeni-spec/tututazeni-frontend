@@ -42,8 +42,11 @@ import {
   Wallet,
   Handshake,
   ShieldCheck,
+  MessageSquareHeart,
+  LifeBuoy,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useMobileNavStore } from '@/lib/mobileNav';
 
 interface NavItem {
   href: string;
@@ -216,6 +219,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
     label: 'Sistema',
     items: [
       { href: '/settings', icon: Settings, label: 'Definições' },
+      { href: '/support', icon: LifeBuoy, label: 'Ajuda e Suporte' },
       {
         href: '/monitoring',
         icon: Activity,
@@ -227,6 +231,12 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
         icon: PieChart,
         label: 'Escalabilidade',
         roles: ['ADMIN', 'AUDITOR'],
+      },
+      {
+        href: '/feedback',
+        icon: MessageSquareHeart,
+        label: 'Feedback e Utilização',
+        roles: ADMIN_ROLES,
       },
       {
         href: '/api-integrations',
@@ -282,8 +292,34 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
     setCollapsed((c) => ({ ...c, [label]: !c[label] }));
   }
 
+  const mobileOpen = useMobileNavStore((s) => s.open);
+  const setMobileOpen = useMobileNavStore((s) => s.setOpen);
+
+  // Gaveta (ecrãs estreitos): fecha ao navegar e com Esc.
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname, setMobileOpen]);
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [mobileOpen, setMobileOpen]);
+
   return (
+    <>
+    <div
+      className="app-sidebar-backdrop"
+      data-open={mobileOpen}
+      onClick={() => setMobileOpen(false)}
+      aria-hidden="true"
+    />
     <aside
+      id="navegacao-principal"
+      className="app-sidebar"
+      data-open={mobileOpen}
       style={{
         width: 240,
         position: 'fixed',
@@ -431,5 +467,6 @@ const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
         </button>
       </div>
     </aside>
+    </>
   );
 }

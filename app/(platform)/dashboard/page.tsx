@@ -27,6 +27,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { ColaboradorDashboard } from '@/components/dashboard/ColaboradorDashboard';
 import { Slideshow } from '@/components/dashboard/Slideshow';
+import { GettingStartedCard } from '@/components/product/GettingStartedCard';
 
 const OrgDashboard = dynamic(
   () =>
@@ -203,6 +204,9 @@ export default function DashboardPage() {
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
+          <div className="mb-6 empty:hidden">
+            <GettingStartedCard />
+          </div>
           <TabsContent value="personal">
             <ColaboradorDashboard />
           </TabsContent>

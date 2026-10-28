@@ -10,6 +10,7 @@
 
 import { PillNav } from '@/components/ui/PillTabs';
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { NAV, TITLES } from '@/components/knowledge/constants';
 import { AdminDashboardView } from '@/components/knowledge/AdminDashboardView';
@@ -23,7 +24,13 @@ import { filterByRole, type Role } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 
 export default function KnowledgePage() {
-  const [nav, setNav] = useState<Nav>({ view: 'portal' });
+  // `?article=ID` abre logo o artigo (links da página Ajuda e Suporte).
+  const articleParam = Number(useSearchParams().get('article'));
+  const [nav, setNav] = useState<Nav>(
+    Number.isInteger(articleParam) && articleParam > 0
+      ? { view: 'article', selectedId: articleParam }
+      : { view: 'portal' },
+  );
   const [creating, setCreating] = useState(false);
   const { data: me } = useCurrentUser();
   const role = me?.role?.name as Role | undefined;
