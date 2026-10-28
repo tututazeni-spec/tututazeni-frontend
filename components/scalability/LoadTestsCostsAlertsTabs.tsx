@@ -189,7 +189,7 @@ function LoadTestModal({
     ['P99', f.p99Ms, true],
     ['Ligações à BD', f.dbPeakConn, true],
     ['Fila', f.queuePeak, true],
-    ['Utilizadores simultÃ¢neos', f.peakConcurrent, true],
+    ['Utilizadores simultâneos', f.peakConcurrent, true],
   ];
   const problems: string[] = [];
   if (!f.name.trim()) problems.push('Indique o nome do teste');
@@ -406,7 +406,7 @@ function LoadTestModal({
               {numField('RAM máx.', 'ramPeak', '%')}
               {numField('Ligações à BD (pico)', 'dbPeakConn')}
               {numField('Fila (pico)', 'queuePeak', 'jobs')}
-              {numField('Utilizadores simultÃ¢neos (pico)', 'peakConcurrent')}
+              {numField('Utilizadores simultâneos (pico)', 'peakConcurrent')}
               <p className="font-body text-xs text-ink-faint sm:col-span-3">
                 Limiares: P95 &lt; {thresholds.p95Ms} ms · P99 &lt;{' '}
                 {thresholds.p99Ms} ms · erros &lt; {thresholds.errorRatePercent}

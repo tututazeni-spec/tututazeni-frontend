@@ -2,6 +2,7 @@
 // Separador "Relatório" — GET /crm/funders/report?start&end, só ADMIN/RH.
 // Endpoint já existia no backend sem UI.
 
+import { Banknote, Building2, FileCheck, Landmark } from 'lucide-react';
 import {
   DateRangeForm,
   DistributionList,
@@ -50,21 +51,25 @@ export function ReportView({
               label={`Financiadores criados (${formatDate(report.period.start)} – ${formatDate(report.period.end)})`}
               value={String(report.created)}
               color="text-ink"
+              icon={Building2}
             />
             <SummaryCard
-              label="Grants criados"
+              label="Subvenções criadas"
               value={String(report.grantsCreated)}
               color="text-primary"
+              icon={Landmark}
             />
             <SummaryCard
               label="Total desembolsado"
               value={formatMoney(report.totalDisbursed)}
               color="text-success-ink"
+              icon={Banknote}
             />
             <SummaryCard
               label="Relatórios submetidos"
               value={String(report.reportsSubmitted)}
               color="text-ink"
+              icon={FileCheck}
             />
           </div>
           <DistributionList

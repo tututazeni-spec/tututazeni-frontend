@@ -2,7 +2,17 @@
 // Separador "Dashboard" — GET /crm/funders/dashboard, só ADMIN/RH/GESTOR.
 // Endpoint já existia no backend sem UI.
 
+import {
+  AlertTriangle,
+  Banknote,
+  Building2,
+  CheckCircle2,
+  Clock,
+  Landmark,
+  Wallet,
+} from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import {
   DistributionList,
   ListSkeleton,
@@ -43,41 +53,48 @@ export function DashboardView({
           label="Total"
           value={String(totals.total)}
           color="text-ink"
+          icon={Building2}
         />
         <SummaryCard
           label="Activos"
           value={String(totals.active)}
           color="text-success-ink"
+          icon={CheckCircle2}
         />
         <SummaryCard
-          label="Grants activos"
+          label="Subvenções activas"
           value={String(totals.activeGrants)}
           color="text-primary"
+          icon={Landmark}
         />
         <SummaryCard
           label="Relatórios em atraso"
           value={String(totals.overdueReports)}
           color="text-danger-ink"
+          icon={AlertTriangle}
         />
         <SummaryCard
           label="Comprometido"
           value={formatMoney(totals.totalCommitted)}
           color="text-ink"
+          icon={Wallet}
         />
         <SummaryCard
           label="Recebido"
           value={formatMoney(totals.totalReceived)}
           color="text-success-ink"
+          icon={Banknote}
         />
         <SummaryCard
           label="Pendente"
           value={formatMoney(totals.totalPending)}
           color="text-warning-ink"
+          icon={Clock}
         />
-        <SummaryCard
+        <DonutStatCard
           label="Taxa de execução"
-          value={`${totals.executionRate.toFixed(1)}%`}
-          color="text-primary"
+          value={totals.executionRate}
+          sub={`${totals.executionRate.toFixed(1)}%`}
         />
       </div>
 

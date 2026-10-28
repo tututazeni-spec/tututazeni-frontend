@@ -5,7 +5,7 @@
 // financiador tinha ainda um `money()` local. Ver memory
 // project_innova_component_separation_audit.
 
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, type LucideIcon } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
@@ -91,9 +91,16 @@ interface SummaryCardProps {
   label: string;
   value: string;
   color: string;
+  /** Ícone do cartão (omisso: BarChart3). */
+  icon?: LucideIcon;
 }
 
-export function SummaryCard({ label, value, color }: SummaryCardProps) {
+export function SummaryCard({
+  label,
+  value,
+  color,
+  icon = BarChart3,
+}: SummaryCardProps) {
   // `color` mantém-se por compatibilidade: a classe de texto escolhe o tom.
   const tone: NavyStatTone = color.includes('success')
     ? 'green'
@@ -103,7 +110,7 @@ export function SummaryCard({ label, value, color }: SummaryCardProps) {
         ? 'red'
         : 'blue';
   return (
-    <NavyStatCard icon={BarChart3} tone={tone} label={label} value={value} />
+    <NavyStatCard icon={icon} tone={tone} label={label} value={value} />
   );
 }
 

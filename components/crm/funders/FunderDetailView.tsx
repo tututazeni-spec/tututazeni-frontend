@@ -5,6 +5,8 @@
 // em useFunderDetail.
 
 import { useRouter } from 'next/navigation';
+import { Banknote, Clock, Wallet } from 'lucide-react';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -76,22 +78,21 @@ export function FunderDetailView({
           label="Comprometido"
           value={formatMoney(f.totalCommitted, f.currency)}
           color="text-ink"
+          icon={Wallet}
         />
         <SummaryCard
           label="Recebido"
           value={formatMoney(f.totalReceived, f.currency)}
           color="text-success-ink"
+          icon={Banknote}
         />
         <SummaryCard
           label="Pendente"
           value={formatMoney(f.totalPending, f.currency)}
           color="text-warning-ink"
+          icon={Clock}
         />
-        <SummaryCard
-          label="Taxa de execução"
-          value={`${executionRate.toFixed(1)}%`}
-          color="text-primary"
-        />
+        <DonutStatCard label="Taxa de execução" value={executionRate} />
       </div>
 
       {/* Dados gerais */}

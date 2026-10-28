@@ -129,7 +129,7 @@ function RoleCheckboxGroup({
               backgroundColor: on
                 ? ROLE_COLORS[role]
                 : `${ROLE_COLORS[role]}1A`,
-              color: on ? '#fff' : '#0F1F3D',
+              color: on ? '#fff' : 'var(--color-brand-ink)',
             }}
             className="flex cursor-pointer items-center rounded-full border px-3 py-1 text-xs font-medium transition-colors hover:brightness-95 focus-within:ring-2 focus-within:ring-brand/40"
           >

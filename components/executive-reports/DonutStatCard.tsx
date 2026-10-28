@@ -37,7 +37,7 @@ export function DonutStatCard({
         }
         data={[
           { label, value: p, color },
-          { label: 'Restante', value: 100 - p, color: '#E3E8F0' },
+          { label: 'Restante', value: 100 - p, color: 'var(--color-donut-track, #E3E8F0)' },
         ]}
       />
       {sub && (
