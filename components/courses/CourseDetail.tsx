@@ -23,6 +23,9 @@ export function CourseDetail({ courseId, onBack }: CourseDetailProps) {
     isEnrolled,
     progressPct,
     activeLesson,
+    lessonContent,
+    lessonModule,
+    loadingLessonContent,
     setActiveLesson,
     rating,
     setRating,
@@ -45,6 +48,9 @@ export function CourseDetail({ courseId, onBack }: CourseDetailProps) {
       isEnrolled={isEnrolled}
       progressPct={progressPct}
       activeLesson={activeLesson}
+      lessonContent={lessonContent}
+      lessonModule={lessonModule}
+      loadingLessonContent={loadingLessonContent}
       onSelectLesson={setActiveLesson}
       rating={rating}
       onRatingChange={setRating}

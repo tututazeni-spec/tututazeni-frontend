@@ -106,36 +106,28 @@ describe('LessonReader', () => {
     expect(document.querySelector('[onerror]')).toBeNull();
   });
 
-  test('lição PDF usa o visualizador nativo (iframe) quando o browser o tem', () => {
-    renderReader({ type: 'PDF', textContent: null, hasFile: true });
-    const frame = document.querySelector('iframe');
-    expect(frame).toHaveAttribute('src', 'blob:pdf');
-    expect(screen.queryByTestId('pdfjs-viewer')).toBeNull();
-    expect(
-      screen.getByRole('link', { name: 'Abrir noutro separador' }),
-    ).toHaveAttribute('href', 'blob:pdf');
-  });
-
-  test('sem visualizador nativo cai para o PDF.js', () => {
-    setNativePdf(false);
+  test('lição PDF abre no PDF.js, com ligação para abrir à parte', () => {
     renderReader({ type: 'PDF', textContent: null, hasFile: true });
     expect(screen.getByTestId('pdfjs-viewer')).toHaveAttribute(
       'data-src',
       'blob:pdf',
     );
     expect(document.querySelector('iframe')).toBeNull();
+    expect(
+      screen.getByRole('link', { name: 'Abrir noutro separador' }),
+    ).toHaveAttribute('href', 'blob:pdf');
   });
 
   test('lição de texto com PDF complementar mostra texto e PDF', () => {
     renderReader({ hasFile: true });
     expect(screen.getByText('Introdução')).toBeInTheDocument();
     expect(screen.getByText('Documento complementar')).toBeInTheDocument();
-    expect(document.querySelector('iframe')).not.toBeNull();
+    expect(screen.getByTestId('pdfjs-viewer')).toBeInTheDocument();
   });
 
   test('lição PDF com texto opcional mostra o PDF e as notas', () => {
     renderReader({ type: 'PDF', hasFile: true });
-    expect(document.querySelector('iframe')).not.toBeNull();
+    expect(screen.getByTestId('pdfjs-viewer')).toBeInTheDocument();
     expect(screen.getByText('Introdução')).toBeInTheDocument();
   });
 

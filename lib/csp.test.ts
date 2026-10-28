@@ -20,7 +20,7 @@ describe('buildCsp', () => {
   it('bloqueia enquadramento e plugins, e força upgrade de http', () => {
     const csp = buildCsp(base);
     expect(csp).toContain("frame-ancestors 'none'");
-    expect(csp).toContain("object-src 'none'");
+    expect(csp).toContain("object-src 'self' blob:");
     expect(csp).toContain('upgrade-insecure-requests');
   });
 
