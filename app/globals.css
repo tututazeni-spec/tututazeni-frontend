@@ -252,6 +252,7 @@ body {
   --color-brand-muted: #8aa6d6;
   --color-brand-line: #2a3a5c;
   --color-brand-ink: #8aa6d6;
+  --color-donut-track: #2f3a50;
 
   /* estado */
   --color-success: #1f8050;
@@ -327,6 +328,7 @@ body {
     --color-brand-muted: #8aa6d6;
     --color-brand-line: #2a3a5c;
   --color-brand-ink: #8aa6d6;
+    --color-donut-track: #2f3a50;
 
     /* estado */
     --color-success: #1f8050;

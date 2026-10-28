@@ -94,7 +94,7 @@ export function TemplatesTab() {
                 </>
               )}
               {t.category && (
-                <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 font-body text-micro font-medium text-ink shadow-sm">
+                <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 font-body text-micro font-medium text-[#20241f] shadow-sm">
                   <span
                     className={`h-2 w-2 rounded-full ${c.dot}`}
                     aria-hidden
@@ -133,10 +133,10 @@ export function TemplatesTab() {
                     className={`mt-0.5 shrink-0 ${c.accent}`}
                     aria-hidden
                   />
-                  <dt className="w-12 shrink-0 font-body text-xs text-ink-muted">
+                  <dt className="w-12 shrink-0 font-body text-xs text-[#6e756b]">
                     Quando
                   </dt>
-                  <dd className="min-w-0 break-words font-body text-xs font-semibold text-brand">
+                  <dd className="min-w-0 break-words font-body text-xs font-semibold text-[#0f1f3d]">
                     {triggerText(t.trigger)}
                   </dd>
                 </div>
@@ -149,10 +149,10 @@ export function TemplatesTab() {
                     className={`mt-0.5 shrink-0 ${c.accent}`}
                     aria-hidden
                   />
-                  <dt className="w-12 shrink-0 font-body text-xs text-ink-muted">
+                  <dt className="w-12 shrink-0 font-body text-xs text-[#6e756b]">
                     Então
                   </dt>
-                  <dd className="min-w-0 break-words font-body text-xs font-semibold text-brand">
+                  <dd className="min-w-0 break-words font-body text-xs font-semibold text-[#0f1f3d]">
                     {actionText(t.action)}
                   </dd>
                 </div>

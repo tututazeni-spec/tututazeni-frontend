@@ -155,7 +155,7 @@ function Chip({ active, onClick, color, children }: ChipProps) {
           ? {
               borderColor: color,
               backgroundColor: active ? color : `${color}1A`,
-              color: active ? '#fff' : '#0F1F3D',
+              color: active ? '#fff' : 'var(--color-brand-ink)',
             }
           : undefined
       }

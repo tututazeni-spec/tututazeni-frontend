@@ -88,14 +88,14 @@ export default function ReportsPage() {
                   className={`flex items-center gap-3 whitespace-nowrap rounded-full border py-2 pl-2 pr-4 text-left font-body backdrop-blur transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
                     active
                       ? 'border-transparent bg-brand text-white shadow-lg'
-                      : 'border-white/70 bg-white/60 text-ink shadow-sm duration-200 hover:scale-105 hover:border-primary hover:bg-white/80 hover:shadow-md motion-reduce:hover:scale-100'
+                      : 'border-white/70 bg-white/60 text-[#20241f] shadow-sm duration-200 hover:scale-105 hover:border-primary hover:bg-white/80 hover:shadow-md motion-reduce:hover:scale-100'
                   }`}
                 >
                   <span
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
                       active
                         ? 'bg-white/20 text-white'
-                        : 'bg-white/70 text-ink/70'
+                        : 'bg-white/70 text-[#20241f]/70'
                     }`}
                   >
                     <Icon size={16} strokeWidth={1.75} />

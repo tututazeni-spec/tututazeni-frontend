@@ -29,12 +29,12 @@ export function DonutStatCard({
     color
       ? [
           { v: pct, color },
-          { v: 100 - pct, color: '#CBD2DC' },
+          { v: 100 - pct, color: 'var(--color-donut-track, #CBD2DC)' },
         ]
       : [
           { v: Math.min(pct, 50), color: '#152F59' },
           { v: Math.max(0, pct - 50), color: '#6FA8DC' },
-          { v: 100 - pct, color: '#CBD2DC' },
+          { v: 100 - pct, color: 'var(--color-donut-track, #CBD2DC)' },
         ]
   ).filter((p) => p.v > 0);
   const scale = bare ? 1.1 : 1;
