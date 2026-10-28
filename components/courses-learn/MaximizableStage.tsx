@@ -56,7 +56,16 @@ export function MaximizableStage({
         )}
         {maximized ? 'Minimizar' : 'Maximizar'}
       </button>
-      <div className={maximized ? 'min-h-0 flex-1' : 'h-full'}>{children}</div>
+      <div
+        className={
+          maximized
+            ? // Coluna com altura fixa: o leitor ocupa o resto e é ele que faz scroll.
+              'flex min-h-0 flex-1 flex-col overflow-hidden [&>*]:min-h-0 [&>*]:flex-1'
+            : 'h-full'
+        }
+      >
+        {children}
+      </div>
     </div>
   );
 }
