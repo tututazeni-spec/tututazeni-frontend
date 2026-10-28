@@ -340,6 +340,7 @@ export const queryKeys = {
   scalability: {
     all: ['scalability'] as const,
     dashboard: () => [...queryKeys.scalability.all, 'dashboard'] as const,
+    tenant: (id: string) => [...queryKeys.scalability.all, 'tenant', id] as const,
     integrations: () => [...queryKeys.scalability.all, 'integrations'] as const,
     automations: () => [...queryKeys.scalability.all, 'automations'] as const,
     alerts: () => [...queryKeys.scalability.all, 'alerts'] as const,

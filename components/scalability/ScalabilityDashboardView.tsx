@@ -29,6 +29,7 @@ import {
   ListChecks,
   LayoutDashboard,
   LifeBuoy,
+  KeyRound,
   LineChart,
   Siren,
   FlaskConical,
@@ -44,6 +45,14 @@ import {
 import type { Alert } from './types';
 
 // ─── TABS CONFIG ──────────────────────────────────────────
+
+/** Aba só para o super administrador (ver LicensePanel). */
+export const LICENSE_TAB: PillTabItem = {
+  id: 'license',
+  label: 'Licença',
+  hint: 'Plano e validade',
+  icon: KeyRound,
+};
 
 export const TABS: PillTabItem[] = [
   {
@@ -165,6 +174,8 @@ export interface ScalabilityShellProps {
   onTabChange: (tab: string) => void;
   /** Conteúdo de cada aba, indexado pelo id em TABS. */
   panels: Record<string, ReactNode>;
+  /** Abas a mostrar (omisso: TABS). Permite acrescentar abas restritas. */
+  tabs?: PillTabItem[];
   alerts: Alert[];
   lastRefresh: Date;
 }
@@ -173,6 +184,7 @@ export function ScalabilityShell({
   activeTab,
   onTabChange,
   panels,
+  tabs = TABS,
   alerts,
   lastRefresh,
 }: ScalabilityShellProps) {
@@ -201,7 +213,7 @@ export function ScalabilityShell({
       <Tabs value={activeTab} onValueChange={onTabChange}>
         <div className={`mx-auto max-w-7xl ${BANNER_TABS_CLASS}`}>
           <PillTabsList
-            items={TABS.map((tab) =>
+            items={tabs.map((tab) =>
               tab.id === 'alerts' && openAlertCount > 0
                 ? {
                     ...tab,
@@ -221,7 +233,7 @@ export function ScalabilityShell({
         </div>
 
         <div className="mx-auto max-w-7xl px-6 py-6">
-          {TABS.map((tab) => (
+          {tabs.map((tab) => (
             <TabsContent key={tab.id} value={tab.id}>
               {panels[tab.id]}
             </TabsContent>

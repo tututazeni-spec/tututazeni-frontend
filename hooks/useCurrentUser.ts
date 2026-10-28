@@ -18,6 +18,8 @@ export interface CurrentUser {
   email: string;
   avatarUrl?: string | null;
   active: boolean;
+  /** Único super administrador (gere a licença em Escalabilidade). */
+  isSuperAdmin?: boolean;
   createdAt: string;
   role?: { name: string; code: string | null; permissions: { name: string }[] };
   unit?: { name: string };

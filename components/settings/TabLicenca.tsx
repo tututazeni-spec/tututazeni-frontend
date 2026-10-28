@@ -1,6 +1,6 @@
 // components/settings/TabLicenca.tsx
 // Tab "Licença e Módulos" (ADMIN): plano/utilizadores/validade (geridos em
-// Escalabilidade > Inquilinos — aqui só consulta) + módulos activos/inactivos
+// Escalabilidade > Licença (super administrador) — aqui só consulta) + módulos activos/inactivos
 // (feature flags) — GET /settings/license, PUT /settings/license/modules
 // (docs/modulo_settings.md §9).
 
@@ -93,8 +93,8 @@ export function TabLicenca() {
             Plano actual
           </h3>
           <p className="m-0 text-xs text-white/70">
-            Plano, utilizadores e validade geridos em Escalabilidade {'>'}{' '}
-            Inquilinos.
+            Plano, utilizadores e validade são geridos pelo super administrador
+            em Escalabilidade {'>'} Licença.
           </p>
         </div>
         <div className="grid grid-cols-5 gap-4">

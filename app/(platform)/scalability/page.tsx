@@ -22,7 +22,13 @@ import {
 } from '@/hooks/useScalability';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { ScalabilityShell } from '@/components/scalability/ScalabilityDashboardView';
+import {
+  LICENSE_TAB,
+  ScalabilityShell,
+  TABS,
+} from '@/components/scalability/ScalabilityDashboardView';
+import { LicensePanel } from '@/components/scalability/LicensePanel';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import {
   AlertsPanel,
   ApiPanel,
@@ -69,10 +75,13 @@ const PANELS = {
   costs: <CostsPanel />,
   reports: <ReportsPanel />,
   settings: <SettingsPanel />,
+  license: <LicensePanel />,
 };
 
 export default function ScalabilityPage() {
   const [activeTab, setActiveTab] = useState('overview');
+  const { data: me } = useCurrentUser();
+  const tabs = me?.isSuperAdmin ? [...TABS, LICENSE_TAB] : TABS;
   const {
     data: dashboard,
     isLoading,
@@ -118,6 +127,7 @@ export default function ScalabilityPage() {
       activeTab={activeTab}
       onTabChange={setActiveTab}
       panels={PANELS}
+      tabs={tabs}
       alerts={alerts}
       lastRefresh={new Date(dataUpdatedAt || Date.now())}
     />
