@@ -3,7 +3,6 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Input } from '@/components/ui/Input';
 
 interface SsoLoginOptions {
   ssoEnabled: boolean;
@@ -477,10 +476,10 @@ export function LoginView({
                 E-mail
               </label>
               <div className="login-input-wrap">
-                <Input
+                <input
                   id="login-email"
                   type="email"
-                  
+                  className="login-input"
                   placeholder="o.seu@email.com"
                   value={useLdap ? ldapEmail : email}
                   onChange={(e) => (useLdap ? setLdapEmail(e.target.value) : setEmail(e.target.value))}
