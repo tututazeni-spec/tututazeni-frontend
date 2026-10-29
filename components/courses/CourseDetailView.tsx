@@ -235,10 +235,10 @@ export function CourseDetailView({
               aside={`${(progress?.modules ?? []).length} módulos`}
               scrollClassName="max-h-[450px] overflow-y-auto"
             >
-              {(progress?.modules ?? []).map((mod) => (
+              {(progress?.modules ?? []).map((mod, modIdx) => (
                 <ContentModule
                   key={mod.id}
-                  id={mod.id}
+                  index={modIdx}
                   title={mod.title}
                   meta={`${mod.completedCount}/${mod.totalCount} aulas`}
                 >
@@ -556,10 +556,10 @@ export function CourseDetailView({
               title="Conteúdo do curso"
               aside={`${course.modules.length} módulos`}
             >
-              {course.modules.map((mod) => (
+              {course.modules.map((mod, modIdx) => (
                 <ContentModule
                   key={mod.id}
-                  id={mod.id}
+                  index={modIdx}
                   title={mod.title}
                   meta={`${mod.lessons?.length ?? 0} aulas`}
                 >

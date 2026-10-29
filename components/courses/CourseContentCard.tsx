@@ -5,8 +5,20 @@
 // dentro, com as suas lições; o ícone do módulo usa a cor da paleta (por id).
 
 import type { ReactNode } from 'react';
-import { ChevronDown, ClipboardList, Package } from 'lucide-react';
-import { PALETTE } from '@/components/onboarding/TemplateCard';
+import {
+  BarChart3,
+  ChevronDown,
+  ClipboardList,
+  ShieldCheck,
+} from 'lucide-react';
+
+// Ícone e cor de cada módulo, por ordem (azul, verde, laranja), como no visual
+// novo dentro do curso.
+const MODULE_STYLES = [
+  { Icon: ClipboardList, color: '#2563EB' },
+  { Icon: ShieldCheck, color: '#15803D' },
+  { Icon: BarChart3, color: '#F97316' },
+];
 
 interface CourseContentCardProps {
   title: string;
@@ -50,7 +62,8 @@ export function CourseContentCard({
 }
 
 interface ContentModuleProps {
-  id: number;
+  /** Posição do módulo na lista; define ícone e cor. */
+  index: number;
   title: string;
   /** Pílula à direita do título, p.ex. "2/5 aulas" ou "5 aulas". */
   meta: string;
@@ -59,13 +72,13 @@ interface ContentModuleProps {
 }
 
 export function ContentModule({
-  id,
+  index,
   title,
   meta,
   defaultOpen = false,
   children,
 }: ContentModuleProps) {
-  const palette = PALETTE[Math.abs(id) % PALETTE.length];
+  const { Icon, color } = MODULE_STYLES[index % MODULE_STYLES.length];
   return (
     <details
       open={defaultOpen}
@@ -74,9 +87,9 @@ export function ContentModule({
       <summary className="flex cursor-pointer list-none items-center gap-3 px-3 py-2.5 hover:bg-brand-soft [&::-webkit-details-marker]:hidden">
         <span
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white"
-          style={{ background: palette[3] }}
+          style={{ background: color }}
         >
-          <Package size={16} strokeWidth={1.75} />
+          <Icon size={16} strokeWidth={1.75} />
         </span>
         <span className="min-w-0 flex-1 break-words text-sm font-bold text-brand">
           {title}
