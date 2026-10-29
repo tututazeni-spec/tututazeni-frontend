@@ -182,7 +182,7 @@ export function CourseDetailView({
           <div className="flex min-w-0 flex-col gap-5">
             <LessonHero
               moduleSeq={activeModuleInfo?.seq ?? null}
-              title={course.title}
+              title={activeModuleInfo?.title ?? course.title}
               lessonTitle={activeLesson.title}
               durationMinutes={activeLesson.durationMinutes}
               completedCount={activeModuleInfo?.completedCount ?? 0}
