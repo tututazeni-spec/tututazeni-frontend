@@ -6,7 +6,7 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
-import { Maximize2, Minimize2 } from 'lucide-react';
+import { ArrowLeft, Maximize2, Minimize2 } from 'lucide-react';
 
 interface MaximizableStageProps {
   children: ReactNode;
@@ -59,6 +59,18 @@ export function MaximizableStage({
         )}
         {maximized ? 'Minimizar' : 'Maximizar'}
       </button>
+      {maximized && (
+        <div className="flex flex-shrink-0 items-center border-b border-border bg-surface px-3 py-2">
+          <button
+            type="button"
+            onClick={() => setMaximized(false)}
+            className="flex items-center gap-1.5 rounded-card px-2 py-1 font-body text-sm font-semibold text-ink hover:bg-surface-sunken"
+          >
+            <ArrowLeft size={16} strokeWidth={1.75} />
+            Voltar
+          </button>
+        </div>
+      )}
       <div
         className={
           maximized
