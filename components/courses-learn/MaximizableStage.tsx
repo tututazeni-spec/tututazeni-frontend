@@ -12,11 +12,13 @@ interface MaximizableStageProps {
   children: ReactNode;
   /** Classes do contentor quando NÃO está maximizado. */
   className?: string;
+  id?: string;
 }
 
 export function MaximizableStage({
   children,
   className = '',
+  id,
 }: MaximizableStageProps) {
   const [maximized, setMaximized] = useState(false);
 
@@ -36,6 +38,7 @@ export function MaximizableStage({
 
   return (
     <div
+      id={id}
       className={
         maximized
           ? 'fixed inset-0 z-50 flex flex-col bg-canvas'

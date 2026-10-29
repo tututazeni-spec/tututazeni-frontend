@@ -52,6 +52,9 @@ import type {
   ModuleProgress,
 } from '@/components/courses-learn/types';
 import { ContentModule, CourseContentCard } from './CourseContentCard';
+import { LessonHero } from './LessonHero';
+import { LessonMaterials } from './LessonMaterials';
+import { CourseProgressCard } from './CourseProgressCard';
 import type { CourseDetailData, CourseProgress, Lesson } from './types';
 
 export interface CourseDetailViewProps {
@@ -140,6 +143,16 @@ export function CourseDetailView({
     if (target) onSelectLesson(target);
   };
 
+  const activeModuleInfo =
+    lessonModule ??
+    progress?.modules?.find((m) =>
+      m.lessons.some((l) => l.id === activeLesson?.id),
+    ) ??
+    null;
+  const completedModules = (progress?.modules ?? []).filter(
+    (m) => m.totalCount > 0 && m.completedCount >= m.totalCount,
+  ).length;
+
   return (
     <div>
       <button
@@ -164,11 +177,26 @@ export function CourseDetailView({
 
       {/* Player Layout: sidebar + content */}
       {isEnrolled && !pendingApproval && activeLesson ? (
-        <div className="grid grid-cols-[1fr_300px] gap-5 mb-6">
-          {/* Player principal */}
-          <div>
+        <div className="mb-6 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_340px]">
+          {/* Coluna principal: faixa da aula, material e leitor real */}
+          <div className="flex min-w-0 flex-col gap-5">
+            <LessonHero
+              moduleSeq={activeModuleInfo?.seq ?? null}
+              title={course.title}
+              lessonTitle={activeLesson.title}
+              durationMinutes={activeLesson.durationMinutes}
+              completedCount={activeModuleInfo?.completedCount ?? 0}
+              totalCount={activeModuleInfo?.totalCount ?? 0}
+              imageUrl={course.thumbnailUrl}
+            />
+            {lessonContent && (
+              <LessonMaterials lesson={lessonContent} targetId="lesson-stage" />
+            )}
             {/* Leitor real (o mesmo da sala de aula): PDF, PPTX, vídeo, áudio, texto… */}
-            <MaximizableStage className="mb-4 h-[75vh] min-h-[420px] overflow-hidden rounded-card border border-border bg-surface">
+            <MaximizableStage
+              id="lesson-stage"
+              className="h-[75vh] min-h-[420px] overflow-hidden rounded-card border border-border bg-surface"
+            >
               {lessonContent ? (
                 <LessonContentViewer
                   lesson={lessonContent}
@@ -192,78 +220,69 @@ export function CourseDetailView({
                 </div>
               )}
             </MaximizableStage>
-            {/* Progress */}
-            <Card className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-ink-muted">
-                  Progresso geral
-                </span>
-                <span className="text-xs font-mono font-medium text-primary">
-                  {progressPct}%
-                </span>
-              </div>
-              <ProgressBar value={progressPct} className="h-2.5" />
-              <div className="text-xs text-ink-faint mt-1">
-                {progress?.courseProgress?.completedLessons ?? 0}/
-                {progress?.courseProgress?.totalLessons ?? 0} aulas concluídas
-              </div>
-            </Card>
           </div>
 
-          {/* Sidebar — lista de aulas */}
-          <CourseContentCard
-            title="Conteúdo do curso"
-            aside={`${(progress?.modules ?? []).length} módulos`}
-            className="self-start"
-            scrollClassName="max-h-[450px] overflow-y-auto"
-          >
-            {(progress?.modules ?? []).map((mod) => (
-              <ContentModule
-                key={mod.id}
-                id={mod.id}
-                title={mod.title}
-                meta={`${mod.completedCount}/${mod.totalCount} aulas`}
-              >
-                {mod.lessons.map((lesson) => (
-                  <div
-                    key={lesson.id}
-                    onClick={() => onSelectLesson(lesson)}
-                    className={`flex cursor-pointer items-center gap-3 rounded-card px-2.5 py-2 transition-colors ${
-                      activeLesson?.id === lesson.id
-                        ? 'bg-primary-subtle'
-                        : 'hover:bg-brand-soft'
-                    }`}
-                  >
+          {/* Barra lateral: progresso e lista de aulas */}
+          <div className="flex min-w-0 flex-col gap-5 self-start">
+            <CourseProgressCard
+              pct={progressPct}
+              completedModules={completedModules}
+              totalModules={(progress?.modules ?? []).length}
+              onContinue={continueOrReviewLesson}
+            />
+            <CourseContentCard
+              title="Conteúdo do curso"
+              aside={`${(progress?.modules ?? []).length} módulos`}
+              scrollClassName="max-h-[450px] overflow-y-auto"
+            >
+              {(progress?.modules ?? []).map((mod) => (
+                <ContentModule
+                  key={mod.id}
+                  id={mod.id}
+                  title={mod.title}
+                  meta={`${mod.completedCount}/${mod.totalCount} aulas`}
+                >
+                  {mod.lessons.map((lesson) => (
                     <div
-                      className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs ${
-                        lesson.completed
-                          ? 'bg-success-subtle text-success-ink'
-                          : 'bg-brand-line text-brand-muted'
+                      key={lesson.id}
+                      onClick={() => onSelectLesson(lesson)}
+                      className={`flex cursor-pointer items-center gap-3 rounded-card px-2.5 py-2 transition-colors ${
+                        activeLesson?.id === lesson.id
+                          ? 'bg-primary-subtle'
+                          : 'hover:bg-brand-soft'
                       }`}
                     >
-                      {lesson.completed ? (
-                        '✓'
-                      ) : (
-                        <LessonIcon type={lesson.type} />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
                       <div
-                        className={`truncate text-xs ${activeLesson?.id === lesson.id ? 'font-semibold text-primary' : 'font-medium text-brand'}`}
+                        className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs ${
+                          lesson.completed
+                            ? 'bg-success-subtle text-success-ink'
+                            : 'bg-brand-line text-brand-muted'
+                        }`}
                       >
-                        {lesson.title}
+                        {lesson.completed ? (
+                          '✓'
+                        ) : (
+                          <LessonIcon type={lesson.type} />
+                        )}
                       </div>
-                      {lesson.durationMinutes && (
-                        <div className="text-xs text-brand-muted">
-                          {fmtDuration(null, lesson.durationMinutes)}
+                      <div className="min-w-0 flex-1">
+                        <div
+                          className={`truncate text-xs ${activeLesson?.id === lesson.id ? 'font-semibold text-primary' : 'font-medium text-brand'}`}
+                        >
+                          {lesson.title}
                         </div>
-                      )}
+                        {lesson.durationMinutes && (
+                          <div className="text-xs text-brand-muted">
+                            {fmtDuration(null, lesson.durationMinutes)}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </ContentModule>
-            ))}
-          </CourseContentCard>
+                  ))}
+                </ContentModule>
+              ))}
+            </CourseContentCard>
+          </div>
         </div>
       ) : (
         /* Header do curso (não matriculado) — mesmo desenho do cartão de
