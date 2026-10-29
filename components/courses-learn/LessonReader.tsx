@@ -102,7 +102,7 @@ export function LessonReader({
       )}
 
       <div className="flex-1 overflow-y-auto bg-brand-soft">
-        <div className="mx-auto w-full max-w-4xl space-y-6 px-3 py-4 sm:px-6 sm:py-6">
+        <div className="w-full space-y-6 px-3 py-4 sm:px-6 sm:py-6">
           {!text && !pdf && (
             <div className="px-6 py-10 text-center text-ink">
               <FileText
