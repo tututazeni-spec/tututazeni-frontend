@@ -135,6 +135,9 @@ export function CourseDetailView({
   // de docs/06-modulo-courses.md.
   const palette = PALETTE[Math.abs(course.id) % PALETTE.length];
   const pendingApproval = progress?.enrollment.status === 'PENDING_APPROVAL';
+  // Curso terminado: o cabeçalho ganha a foto ao centro e o painel verde "Concluído".
+  const courseCompleted =
+    isEnrolled && progress?.enrollment.status === 'COMPLETED';
 
   const continueOrReviewLesson = () => {
     const modules = progress?.modules ?? [];
@@ -301,9 +304,15 @@ export function CourseDetailView({
           <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
             <div
               aria-hidden
-              className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
+              className={
+                courseCompleted
+                  ? 'absolute inset-y-0 right-[14%] hidden w-[46%] items-center justify-center text-white/70 sm:flex'
+                  : 'absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex'
+              }
               style={{
-                clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
+                clipPath: courseCompleted
+                  ? 'polygon(14% 0, 100% 0, 100% 100%, 0 100%)'
+                  : 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
                 background: course.thumbnailUrl
                   ? undefined
                   : `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
@@ -322,7 +331,41 @@ export function CourseDetailView({
               )}
             </div>
 
-            <div className="relative space-y-5 p-6 sm:pr-[36%]">
+            {courseCompleted && (
+              <div
+                className="absolute inset-y-0 right-0 hidden w-[30%] flex-col items-center justify-center gap-2 bg-gradient-to-br from-success-subtle to-surface px-6 pl-[9%] text-center sm:flex"
+                style={{
+                  clipPath: 'polygon(55% 0, 100% 0, 100% 100%, 0 100%)',
+                }}
+              >
+                <span className="relative flex h-[84px] w-[84px] items-center justify-center">
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 84 84"
+                    className="absolute inset-0 text-success/40"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  >
+                    <path d="M14 18l7 7M70 18l-7 7M4 42h9M71 42h9M14 66l7-7M70 66l-7-7" />
+                  </svg>
+                  <span className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-success text-white">
+                    <Check size={30} strokeWidth={2.5} />
+                  </span>
+                </span>
+                <p className="font-display text-2xl font-bold text-success">
+                  Concluído
+                </p>
+                <p className="text-sm leading-snug text-success-ink/80">
+                  Excelente! Você finalizou este curso.
+                </p>
+              </div>
+            )}
+
+            <div
+              className={`relative space-y-5 p-6 ${courseCompleted ? 'sm:pr-[58%]' : 'sm:pr-[36%]'}`}
+            >
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge value={course.level} map={COURSE_LEVEL_MAP} />
                 <StatusBadge
