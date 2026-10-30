@@ -263,11 +263,7 @@ export function CourseDetailView({
                             : 'bg-brand-line text-brand-muted'
                         }`}
                       >
-                        {lesson.completed ? (
-                          '✓'
-                        ) : (
-                          <LessonIcon type={lesson.type} />
-                        )}
+                        <LessonIcon type={lesson.type} />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div
@@ -281,6 +277,14 @@ export function CourseDetailView({
                           </div>
                         )}
                       </div>
+                      {lesson.completed && (
+                        <Check
+                          size={14}
+                          strokeWidth={2}
+                          aria-label="Concluída"
+                          className="shrink-0 text-success-ink"
+                        />
+                      )}
                     </div>
                   ))}
                 </ContentModule>
