@@ -28,7 +28,8 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { MGMT_ROLES } from '@/lib/roles';
+import { ADMIN_ROLES, MGMT_ROLES } from '@/lib/roles';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button, IconButton } from '@/components/ui/Button';
@@ -37,6 +38,7 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useUnits } from '@/components/departments/departmentFormData';
+import { PendingCycleCard } from './PendingCycleCard';
 import { EvaluationCard } from './EvaluationCard';
 import { EvaluationDetailModal } from './EvaluationDetailModal';
 import { SubmitEvaluationModal } from './SubmitEvaluationModal';
@@ -87,6 +89,8 @@ export function EvaluationsTab() {
   const notify = useToast();
   const { data: me } = useCurrentUser();
   const canManage = useHasRole(MGMT_ROLES);
+  const canActivate = useHasRole(ADMIN_ROLES);
+  const confirm = useConfirm();
 
   const [cycleId, setCycleId] = useState(ALL);
   const [departmentId, setDepartmentId] = useState(ALL);
@@ -124,6 +128,53 @@ export function EvaluationsTab() {
     staleTime: STALE_TIME.DYNAMIC,
     enabled: canManage,
   });
+
+  // Ciclos criados com âmbito Todos/Departamento/Unidade ainda não têm
+  // pedidos (só nascem na activação), logo não apareciam nesta lista.
+  // Mostram-se à parte, só sem filtros de linha activos.
+  const noRowFilters =
+    departmentId === ALL && unitId === ALL && status === ALL && purpose === ALL;
+  const pendingCycles = (cyclesData?.data ?? []).filter(
+    (c) =>
+      noRowFilters &&
+      (c.status === 'DRAFT' || c.status === 'PUBLISHED') &&
+      c.participation.total === 0 &&
+      (cycleId === ALL || cycleId === String(c.id)),
+  );
+
+  const publishCycle = useApiMutation<unknown, number>(
+    (id) => apiClient.post(`/evaluations/cycles/${id}/publish`, {}),
+    {
+      invalidateKeys: [queryKeys.evaluation.all],
+      onSuccess: () =>
+        notify({ title: 'Avaliação publicada', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: e instanceof Error ? e.message : 'Erro',
+          intent: 'danger',
+        }),
+    },
+  );
+  const activateCycle = useApiMutation<unknown, number>(
+    (id) => apiClient.post(`/evaluations/cycles/${id}/activate`, {}),
+    {
+      invalidateKeys: [queryKeys.evaluation.all],
+      onSuccess: () => notify({ title: 'Ciclo ativado', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: e instanceof Error ? e.message : 'Erro',
+          intent: 'danger',
+        }),
+    },
+  );
+  const askActivate = async (cycle: Cycle) => {
+    const ok = await confirm({
+      title: 'Ativar ciclo de avaliação',
+      message: `Ativar "${cycle.name}" cria os pedidos de avaliação e notifica já os avaliadores. Continuar?`,
+      confirmLabel: 'Ativar',
+    });
+    if (ok) activateCycle.mutate(cycle.id);
+  };
 
   const remind = useApiMutation(
     (id: number) => apiClient.post(`/evaluations/requests/${id}/remind`, {}),
@@ -289,6 +340,39 @@ export function EvaluationsTab() {
         />
       </div>
 
+      {pendingCycles.length > 0 && (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {pendingCycles.map((c) => (
+            <PendingCycleCard
+              key={c.id}
+              cycle={c}
+              footer={
+                canActivate &&
+                (c.status === 'DRAFT' ? (
+                  <Button
+                    intent="onDark"
+                    size="sm"
+                    onClick={() => publishCycle.mutate(c.id)}
+                    loading={publishCycle.isPending}
+                  >
+                    Publicar
+                  </Button>
+                ) : (
+                  <Button
+                    intent="onDark"
+                    size="sm"
+                    onClick={() => void askActivate(c)}
+                    loading={activateCycle.isPending}
+                  >
+                    Ativar
+                  </Button>
+                ))
+              }
+            />
+          ))}
+        </div>
+      )}
+
       {loading ? (
         <Skeleton
           rows={5}
@@ -296,10 +380,12 @@ export function EvaluationsTab() {
           itemClassName="skeleton-shimmer h-12 rounded-card"
         />
       ) : (data?.data.length ?? 0) === 0 ? (
-        <EmptyState
-          title="Sem avaliações"
-          description="Nenhuma avaliação corresponde aos filtros seleccionados."
-        />
+        pendingCycles.length > 0 ? null : (
+          <EmptyState
+            title="Sem avaliações"
+            description="Nenhuma avaliação corresponde aos filtros seleccionados."
+          />
+        )
       ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {data?.data.map((r) => {
