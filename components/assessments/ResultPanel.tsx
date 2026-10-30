@@ -21,6 +21,12 @@ export interface ResultReviewItem {
   correctAnswer?: string | null;
   /** Comentário de quem reviu a resposta aberta. */
   comment?: string | null;
+  /** Resposta aberta (corrigida à mão): mostra a nota atribuída em vez de certa/errada. */
+  open?: boolean;
+  /** Nota atribuída pelo revisor (0-100), nas respostas abertas já revistas. */
+  grade?: number | null;
+  /** Link do ficheiro enviado (pergunta de upload). */
+  fileUrl?: string | null;
 }
 
 interface ResultPanelProps {
@@ -155,7 +161,31 @@ export function ResultPanel({
                     {r.text}
                   </span>
                 </div>
-                {(r.yourAnswer || (r.correct === false && r.correctAnswer)) && (
+                {r.open && r.correct === null && (
+                  <div className="mt-2 pl-10 text-xs font-medium text-warning-ink">
+                    Aguarda revisão manual
+                  </div>
+                )}
+                {r.open && r.grade != null && (
+                  <div className="mt-2 pl-10 text-xs text-brand-muted">
+                    Nota atribuída:{' '}
+                    <span className="font-semibold text-brand">{r.grade}%</span>
+                  </div>
+                )}
+                {r.fileUrl && (
+                  <div className="mt-2 pl-10 text-xs">
+                    <a
+                      href={r.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-semibold text-info-ink underline"
+                    >
+                      Ficheiro enviado
+                    </a>
+                  </div>
+                )}
+                {(r.yourAnswer ||
+                  (r.correctAnswer && (r.open || r.correct === false))) && (
                   <div className="mt-2 space-y-0.5 pl-10 text-xs">
                     {r.yourAnswer && (
                       <p className="text-brand-muted">
@@ -165,9 +195,12 @@ export function ResultPanel({
                         </span>
                       </p>
                     )}
-                    {r.correct === false && r.correctAnswer && (
+                    {(r.open || r.correct === false) && r.correctAnswer && (
                       <p className="text-brand-muted">
-                        Resposta correcta:{' '}
+                        {r.open
+                          ? 'Resposta de referência'
+                          : 'Resposta correcta'}
+                        :{' '}
                         <span className="font-semibold text-success-ink">
                           {r.correctAnswer}
                         </span>

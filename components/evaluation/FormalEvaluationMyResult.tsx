@@ -18,6 +18,9 @@ interface MyReview {
     correctAnswer: string | null;
     explanation: string | null;
     reviewComment: string | null;
+    open?: boolean;
+    manualScore?: number | null;
+    fileUrl?: string | null;
   }[];
 }
 
@@ -63,6 +66,9 @@ export function FormalEvaluationMyResult({
           yourAnswer: i.yourAnswer,
           correctAnswer: i.correctAnswer,
           comment: i.reviewComment,
+          open: i.open,
+          grade: i.manualScore,
+          fileUrl: i.fileUrl,
         }))}
         footer={
           a.submittedAt
