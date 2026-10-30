@@ -11,6 +11,7 @@ import { ArrowLeft, Maximize2, Minimize2 } from 'lucide-react';
 import {
   StageMaximizedProvider,
   StageMinimizeProvider,
+  StageToggleHiddenProvider,
 } from '@/components/viewers/StageMaximizedContext';
 
 interface MaximizableStageProps {
@@ -26,6 +27,8 @@ export function MaximizableStage({
   id,
 }: MaximizableStageProps) {
   const [maximized, setMaximized] = useState(false);
+  // Leitores com ecrã inteiro próprio (PPTX) escondem o botão Maximizar.
+  const [toggleHidden, setToggleHidden] = useState(false);
   const minimize = useCallback(() => setMaximized(false), []);
 
   useEffect(() => {
@@ -52,20 +55,22 @@ export function MaximizableStage({
           : `relative ${className}`
       }
     >
-      <button
-        type="button"
-        onClick={() => setMaximized((v) => !v)}
-        aria-label={maximized ? 'Minimizar lição' : 'Maximizar lição'}
-        title={maximized ? 'Minimizar (Esc)' : 'Maximizar'}
-        className="absolute right-3 top-2 z-10 flex items-center gap-1 rounded-card border border-border bg-surface px-2 py-1 font-body text-xs font-semibold text-ink shadow-sm hover:bg-surface-sunken"
-      >
-        {maximized ? (
-          <Minimize2 size={14} strokeWidth={1.75} />
-        ) : (
-          <Maximize2 size={14} strokeWidth={1.75} />
-        )}
-        {maximized ? 'Minimizar' : 'Maximizar'}
-      </button>
+      {(!toggleHidden || maximized) && (
+        <button
+          type="button"
+          onClick={() => setMaximized((v) => !v)}
+          aria-label={maximized ? 'Minimizar lição' : 'Maximizar lição'}
+          title={maximized ? 'Minimizar (Esc)' : 'Maximizar'}
+          className="absolute right-3 top-2 z-10 flex items-center gap-1 rounded-card border border-border bg-surface px-2 py-1 font-body text-xs font-semibold text-ink shadow-sm hover:bg-surface-sunken"
+        >
+          {maximized ? (
+            <Minimize2 size={14} strokeWidth={1.75} />
+          ) : (
+            <Maximize2 size={14} strokeWidth={1.75} />
+          )}
+          {maximized ? 'Minimizar' : 'Maximizar'}
+        </button>
+      )}
       {maximized && (
         <div className="flex flex-shrink-0 items-center border-b border-border bg-surface px-3 py-2">
           <button
@@ -88,7 +93,9 @@ export function MaximizableStage({
       >
         <StageMaximizedProvider value={maximized}>
           <StageMinimizeProvider value={minimize}>
-            {children}
+            <StageToggleHiddenProvider value={setToggleHidden}>
+              {children}
+            </StageToggleHiddenProvider>
           </StageMinimizeProvider>
         </StageMaximizedProvider>
       </div>
