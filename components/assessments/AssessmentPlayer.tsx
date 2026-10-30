@@ -322,6 +322,7 @@ export function AssessmentPlayer({
       {/* Question */}
       {currentQ && (
         <QuestionPlayer
+          key={currentQ.id}
           question={currentQ}
           index={currentIdx}
           total={questions.length}
