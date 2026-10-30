@@ -5,7 +5,7 @@
 // Partilhado pelo resultado logo após a avaliação (ResultView) e pelo "Ver
 // resultado" das avaliações formais (FormalEvaluationMyResult).
 
-import { Check, Hourglass, Lightbulb, X } from 'lucide-react';
+import { Check, Hourglass, Lightbulb, Paperclip, X } from 'lucide-react';
 
 export type ResultTone = 'pass' | 'fail' | 'pending';
 
@@ -57,6 +57,68 @@ const CONFETTI = [
   { cls: 'right-[22%] top-[17%] h-1.5 w-1.5 bg-warning', rot: '' },
   { cls: 'right-[34%] top-[27%] h-2 w-2 bg-info', rot: 'rotate-12' },
 ];
+
+function fileKind(url: string): 'image' | 'pdf' | 'other' {
+  const clean = url.split(/[?#]/)[0].toLowerCase();
+  if (
+    url.startsWith('data:image/') ||
+    /\.(png|jpe?g|gif|webp|svg)$/.test(clean)
+  )
+    return 'image';
+  if (url.startsWith('data:application/pdf') || clean.endsWith('.pdf'))
+    return 'pdf';
+  return 'other';
+}
+
+/** Ficheiro enviado na resposta, mostrado dentro do resultado. */
+function UploadedFile({ url }: { url: string }) {
+  const kind = fileKind(url);
+  const name = decodeURIComponent(
+    url.startsWith('data:')
+      ? 'Ficheiro enviado'
+      : (url.split(/[?#]/)[0].split('/').pop() ?? 'Ficheiro enviado'),
+  );
+  return (
+    <div className="overflow-hidden rounded-card border border-brand-line bg-brand-soft">
+      {kind === 'image' && (
+        // Pode ser data URL (base64) — <img> nativo.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          loading="lazy"
+          decoding="async"
+          src={url}
+          alt="Ficheiro enviado"
+          className="max-h-64 w-full object-contain bg-white"
+        />
+      )}
+      {kind === 'pdf' && (
+        <iframe
+          src={url}
+          title="Ficheiro enviado"
+          className="h-72 w-full bg-white"
+        />
+      )}
+      <div className="flex items-center gap-2 px-3 py-2 text-xs">
+        <Paperclip
+          size={14}
+          strokeWidth={1.75}
+          className="shrink-0 text-brand-muted"
+        />
+        <span className="min-w-0 flex-1 truncate font-medium text-brand">
+          {name}
+        </span>
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="shrink-0 font-semibold text-info-ink underline"
+        >
+          Abrir
+        </a>
+      </div>
+    </div>
+  );
+}
 
 export function ResultPanel({
   tone,
@@ -173,15 +235,8 @@ export function ResultPanel({
                   </div>
                 )}
                 {r.fileUrl && (
-                  <div className="mt-2 pl-10 text-xs">
-                    <a
-                      href={r.fileUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="font-semibold text-info-ink underline"
-                    >
-                      Ficheiro enviado
-                    </a>
+                  <div className="mt-2 pl-10">
+                    <UploadedFile url={r.fileUrl} />
                   </div>
                 )}
                 {(r.yourAnswer ||
