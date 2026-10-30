@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, FileWarning, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useStageMaximized } from './StageMaximizedContext';
+import { useIdleHide } from './useFullscreen';
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 
 interface PdfViewerProps {
@@ -49,6 +50,10 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
   const renderTaskRef = useRef<RenderTask | null>(null);
   const [status, setStatus] = useState<Status>('loading');
   const wrapRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  // O ecrã inteiro é do palco que contém este leitor (ver ContentPlayer).
+  const [inFs, setInFs] = useState(false);
+  const controlsVisible = useIdleHide(inFs);
   const maximized = useStageMaximized();
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
@@ -89,6 +94,37 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
       docRef.current = null;
     };
   }, [src, data]);
+
+  useEffect(() => {
+    const onChange = () =>
+      setInFs(!!document.fullscreenElement?.contains(rootRef.current));
+    onChange();
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
+  // ← → mudam de página: em ecrã inteiro, ou com o foco dentro do leitor.
+  useEffect(() => {
+    if (status !== 'ready') return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.isContentEditable ||
+          ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
+      )
+        return;
+      if (!inFs && !rootRef.current?.contains(target)) return;
+      e.preventDefault();
+      setPageNum((p) =>
+        e.key === 'ArrowRight' ? Math.min(numPages, p + 1) : Math.max(1, p - 1),
+      );
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [status, inFs, numPages]);
 
   // Ajusta a página à largura disponível (muda ao maximizar/minimizar).
   useEffect(() => {
@@ -183,7 +219,8 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
 
   return (
     <div
-      className={`flex flex-col items-center w-full h-full ${
+      ref={rootRef}
+      className={`relative flex flex-col items-center w-full h-full ${
         maximized ? 'gap-1' : 'gap-3 py-6'
       }`}
     >
@@ -205,7 +242,17 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
         />
       </div>
       {status === 'ready' && numPages > 1 && (
-        <div className="flex items-center gap-3 bg-ink/10 rounded-full px-3 py-1.5">
+        <div
+          className={`flex items-center gap-3 rounded-full px-3 py-1.5 ${
+            inFs
+              ? `absolute bottom-4 left-1/2 z-20 -translate-x-1/2 bg-black/70 text-white transition-opacity duration-300 ${
+                  controlsVisible
+                    ? 'opacity-100'
+                    : 'pointer-events-none opacity-0'
+                }`
+              : 'bg-ink/10'
+          }`}
+        >
           <Button
             intent="ghost"
             size="sm"
@@ -215,7 +262,9 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
           >
             <ChevronLeft size={16} strokeWidth={1.75} />
           </Button>
-          <span className="font-body text-xs text-ink">
+          <span
+            className={`font-body text-xs ${inFs ? 'text-white' : 'text-ink'}`}
+          >
             Página {pageNum} de {numPages}
           </span>
           <Button

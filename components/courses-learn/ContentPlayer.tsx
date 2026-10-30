@@ -43,7 +43,12 @@ import { lessonIcon } from './utils';
 import { LessonFooter } from './LessonFooter';
 import type { LessonProgress, ModuleProgress } from './types';
 import { safeHref } from '@/lib/safeHref';
-import { useStageMaximized } from '@/components/viewers/StageMaximizedContext';
+import {
+  StageMaximizedProvider,
+  useStageMaximized,
+} from '@/components/viewers/StageMaximizedContext';
+import { useFullscreen } from '@/components/viewers/useFullscreen';
+import { FullscreenControls } from '@/components/viewers/FullscreenControls';
 
 // ─── Embeds externos (YouTube, Vimeo, Spotify) ──────────────────────────────
 
@@ -269,7 +274,12 @@ export function ContentPlayer({
   hasNext,
   onBackToCourses,
 }: ContentPlayerProps) {
-  const maximized = useStageMaximized();
+  const stageMaximized = useStageMaximized();
+  // Ecrã inteiro real: um para o conteúdo da aula, outro para o questionário.
+  const stageFs = useFullscreen();
+  const quizFs = useFullscreen();
+  // Em ecrã inteiro o conteúdo ocupa o ecrã todo, como no palco maximizado.
+  const maximized = stageMaximized || stageFs.isFs;
   const contentUrl = lesson.contentUrl;
   const kind = resolveKind(lesson);
 
@@ -318,240 +328,264 @@ export function ContentPlayer({
       >
         {/* Área do conteúdo */}
         <div
-          className={`${
+          ref={stageFs.ref}
+          tabIndex={-1}
+          className={`relative outline-none ${
             maximized ? 'flex-1 min-h-0' : 'min-h-[50vh]'
-          } flex items-center justify-center ${
+          } flex justify-center ${
+            // Texto longo cresce para baixo (com scroll) em vez de cortar o topo.
+            stageFs.isFs && kind === 'TEXT' ? 'items-start' : 'items-center'
+          } ${stageFs.isFs ? 'h-full w-full overflow-auto' : ''} ${
             isVideo ? 'bg-ink' : 'bg-brand-soft'
-          }`}
+          } ${stageFs.isFs && !stageFs.controlsVisible ? 'cursor-none' : ''}`}
         >
-          <StageBoundary resetKey={lesson.id} title={lesson.title}>
-            {kind === 'VIDEO' ? (
-              contentUrl ? (
-                <div className="w-full h-full flex flex-col">
-                  <div
-                    className={
-                      maximized
-                        ? 'flex-1 min-h-0 w-full'
-                        : 'flex-1 aspect-video max-h-[70vh] mx-auto w-full'
-                    }
-                  >
-                    {videoEmbed ? (
-                      <iframe
-                        src={videoEmbed}
-                        title={lesson.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-full border-0"
-                      />
-                    ) : (
-                      <video
-                        controls
-                        className="w-full h-full bg-black"
-                        src={fileSrc ?? contentUrl}
-                      >
-                        {lesson.captionsUrl && (
-                          <track
-                            kind="captions"
-                            src={lesson.captionsUrl}
-                            default
-                          />
-                        )}
-                      </video>
-                    )}
-                  </div>
-                  {lesson.transcript && (
-                    <div className="px-6 py-3 bg-ink border-t border-canvas/10">
-                      <button
-                        type="button"
-                        onClick={() => setShowTranscript((v) => !v)}
-                        className="font-body text-xs text-canvas/70 hover:text-canvas underline"
-                      >
-                        {showTranscript
-                          ? 'Ocultar transcrição'
-                          : 'Ver transcrição'}
-                      </button>
-                      {showTranscript && (
-                        <p className="mt-2 font-body text-sm text-canvas/80 whitespace-pre-wrap leading-relaxed">
-                          {lesson.transcript}
-                        </p>
+          {/* O leitor de PPTX tem o seu próprio ecrã inteiro; o quiz tem o seu abaixo. */}
+          {kind !== 'SLIDE' && kind !== 'QUIZ' && (
+            <FullscreenControls
+              isFs={stageFs.isFs}
+              visible={stageFs.controlsVisible}
+              onToggle={stageFs.toggle}
+            />
+          )}
+          <StageMaximizedProvider value={maximized}>
+            <StageBoundary resetKey={lesson.id} title={lesson.title}>
+              {kind === 'VIDEO' ? (
+                contentUrl ? (
+                  <div className="w-full h-full flex flex-col">
+                    <div
+                      className={
+                        maximized
+                          ? 'flex-1 min-h-0 w-full'
+                          : 'flex-1 aspect-video max-h-[70vh] mx-auto w-full'
+                      }
+                    >
+                      {videoEmbed ? (
+                        <iframe
+                          src={videoEmbed}
+                          title={lesson.title}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="w-full h-full border-0"
+                        />
+                      ) : (
+                        <video
+                          controls
+                          className="w-full h-full bg-black"
+                          src={fileSrc ?? contentUrl}
+                        >
+                          {lesson.captionsUrl && (
+                            <track
+                              kind="captions"
+                              src={lesson.captionsUrl}
+                              default
+                            />
+                          )}
+                        </video>
                       )}
                     </div>
-                  )}
-                </div>
-              ) : (
-                <div className="px-8 py-10 text-center text-canvas">
-                  <Play size={56} strokeWidth={1.5} className="mx-auto mb-4" />
-                  <div className="font-body text-base font-medium">
+                    {lesson.transcript && (
+                      <div className="px-6 py-3 bg-ink border-t border-canvas/10">
+                        <button
+                          type="button"
+                          onClick={() => setShowTranscript((v) => !v)}
+                          className="font-body text-xs text-canvas/70 hover:text-canvas underline"
+                        >
+                          {showTranscript
+                            ? 'Ocultar transcrição'
+                            : 'Ver transcrição'}
+                        </button>
+                        {showTranscript && (
+                          <p className="mt-2 font-body text-sm text-canvas/80 whitespace-pre-wrap leading-relaxed">
+                            {lesson.transcript}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="px-8 py-10 text-center text-canvas">
+                    <Play
+                      size={56}
+                      strokeWidth={1.5}
+                      className="mx-auto mb-4"
+                    />
+                    <div className="font-body text-base font-medium">
+                      {lesson.title}
+                    </div>
+                    <div className="font-body text-sm text-canvas/70 mt-2">
+                      Esta aula ainda não tem vídeo associado.
+                    </div>
+                  </div>
+                )
+              ) : kind === 'PDF' ? (
+                fileSrc ? (
+                  <PdfViewer src={fileSrc} title={lesson.title} />
+                ) : (
+                  <StageNotice icon={FileText} title={lesson.title}>
+                    Esta aula ainda não tem ficheiro PDF carregado.
+                  </StageNotice>
+                )
+              ) : kind === 'SLIDE' ? (
+                fileSrc ? (
+                  <div className="w-full h-full flex flex-col">
+                    <div className="flex-1 min-h-0">
+                      <PptxViewer src={fileSrc} title={lesson.title} />
+                    </div>
+                    <div className="px-6 py-3 border-t border-border text-center">
+                      <a
+                        href={fileSrc}
+                        download={`${lesson.title}.pptx`}
+                        className="font-body text-xs text-ink-muted hover:text-ink underline"
+                      >
+                        Descarregar apresentação
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <StageNotice icon={BarChart3} title={lesson.title}>
+                    Esta aula ainda não tem ficheiro PPTX carregado.
+                  </StageNotice>
+                )
+              ) : kind === 'AUDIO' ? (
+                <div className="w-full max-w-lg px-8 py-10 text-center text-ink">
+                  <Music
+                    size={56}
+                    strokeWidth={1.5}
+                    className="mx-auto mb-4 text-ink-muted"
+                  />
+                  <div className="font-body text-base font-semibold mb-4">
                     {lesson.title}
                   </div>
-                  <div className="font-body text-sm text-canvas/70 mt-2">
-                    Esta aula ainda não tem vídeo associado.
-                  </div>
+                  {audioEmbed ? (
+                    <iframe
+                      src={audioEmbed.src}
+                      title={lesson.title}
+                      width="100%"
+                      height={audioEmbed.height}
+                      allow="encrypted-media; clipboard-write"
+                      loading="lazy"
+                      className="rounded-xl border-0"
+                    />
+                  ) : audioSrc ? (
+                    <audio controls className="w-full" src={audioSrc} />
+                  ) : (
+                    <p className="font-body text-sm text-ink-muted">
+                      Esta aula ainda não tem áudio associado.
+                    </p>
+                  )}
                 </div>
-              )
-            ) : kind === 'PDF' ? (
-              fileSrc ? (
-                <PdfViewer src={fileSrc} title={lesson.title} />
-              ) : (
-                <StageNotice icon={FileText} title={lesson.title}>
-                  Esta aula ainda não tem ficheiro PDF carregado.
-                </StageNotice>
-              )
-            ) : kind === 'SLIDE' ? (
-              fileSrc ? (
-                <div className="w-full h-full flex flex-col">
-                  <div className="flex-1 min-h-0">
-                    <PptxViewer src={fileSrc} title={lesson.title} />
-                  </div>
-                  <div className="px-6 py-3 border-t border-border text-center">
-                    <a
-                      href={fileSrc}
-                      download={`${lesson.title}.pptx`}
-                      className="font-body text-xs text-ink-muted hover:text-ink underline"
-                    >
-                      Descarregar apresentação
-                    </a>
-                  </div>
-                </div>
-              ) : (
-                <StageNotice icon={BarChart3} title={lesson.title}>
-                  Esta aula ainda não tem ficheiro PPTX carregado.
-                </StageNotice>
-              )
-            ) : kind === 'AUDIO' ? (
-              <div className="w-full max-w-lg px-8 py-10 text-center text-ink">
-                <Music
-                  size={56}
-                  strokeWidth={1.5}
-                  className="mx-auto mb-4 text-ink-muted"
-                />
-                <div className="font-body text-base font-semibold mb-4">
-                  {lesson.title}
-                </div>
-                {audioEmbed ? (
-                  <iframe
-                    src={audioEmbed.src}
-                    title={lesson.title}
-                    width="100%"
-                    height={audioEmbed.height}
-                    allow="encrypted-media; clipboard-write"
-                    loading="lazy"
-                    className="rounded-xl border-0"
+              ) : kind === 'LIVE' ? (
+                <div className="px-8 py-10 text-center text-ink">
+                  <Calendar
+                    size={56}
+                    strokeWidth={1.5}
+                    className="mx-auto mb-4 text-ink-muted"
                   />
-                ) : audioSrc ? (
-                  <audio controls className="w-full" src={audioSrc} />
-                ) : (
-                  <p className="font-body text-sm text-ink-muted">
-                    Esta aula ainda não tem áudio associado.
-                  </p>
-                )}
-              </div>
-            ) : kind === 'LIVE' ? (
-              <div className="px-8 py-10 text-center text-ink">
-                <Calendar
-                  size={56}
-                  strokeWidth={1.5}
-                  className="mx-auto mb-4 text-ink-muted"
-                />
-                <div className="font-body text-base font-semibold">
-                  {lesson.title}
-                </div>
-                {lesson.liveDate ? (
-                  <div className="font-body text-sm text-ink-muted mt-2">
-                    {new Date(lesson.liveDate).toLocaleString('pt', {
-                      dateStyle: 'long',
-                      timeStyle: 'short',
-                    })}
+                  <div className="font-body text-base font-semibold">
+                    {lesson.title}
                   </div>
-                ) : (
-                  <div className="font-body text-sm text-ink-muted mt-2">
-                    Data ainda por confirmar
-                  </div>
-                )}
-                {lesson.liveInstructor && (
-                  <div className="font-body text-sm text-ink-muted mt-1">
-                    Com {lesson.liveInstructor.fullName}
-                  </div>
-                )}
-                {lesson.liveSessionUrl ? (
-                  <a
-                    href={safeHref(lesson.liveSessionUrl)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block mt-4 rounded-control bg-brand px-4 py-2 font-body text-sm font-semibold text-white hover:bg-[#1B2F57]"
-                  >
-                    Entrar na sessão
-                  </a>
-                ) : (
-                  <p className="font-body text-sm text-ink-muted mt-4">
-                    O link da sessão ainda não está disponível.
-                  </p>
-                )}
-              </div>
-            ) : kind === 'TEXT' ? (
-              <article className="my-6 w-full max-w-2xl rounded-panel border border-brand-line bg-surface p-8 text-ink shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
-                <h2 className="font-display text-xl font-semibold mb-4">
-                  {lesson.title}
-                </h2>
-                {lesson.textContent ? (
-                  <p className="font-body text-ink leading-relaxed whitespace-pre-wrap">
-                    {lesson.textContent}
-                  </p>
-                ) : (
-                  <p className="font-body text-ink-muted leading-relaxed italic">
-                    Esta aula ainda não tem conteúdo escrito.
-                  </p>
-                )}
-                <LessonAudioBar
-                  lessonId={lesson.id}
-                  text={lesson.textContent}
-                />
-              </article>
-            ) : kind === 'LINK' ? (
-              <StageNotice icon={Link2} title={lesson.title}>
-                {contentUrl ? (
-                  <>
-                    Esta aula é uma ligação externa.
-                    <div>
-                      <OpenButton url={contentUrl}>Abrir ligação</OpenButton>
+                  {lesson.liveDate ? (
+                    <div className="font-body text-sm text-ink-muted mt-2">
+                      {new Date(lesson.liveDate).toLocaleString('pt', {
+                        dateStyle: 'long',
+                        timeStyle: 'short',
+                      })}
                     </div>
-                  </>
-                ) : (
-                  'Esta aula ainda não tem ligação associada.'
-                )}
-              </StageNotice>
-            ) : kind === 'SCORM' ? (
-              contentUrl && fileSrc ? (
-                <div className="flex h-[70vh] w-full flex-col bg-surface">
-                  <iframe
-                    src={fileSrc}
-                    title={lesson.title}
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                    className="h-full w-full flex-1 border-0"
-                  />
-                  <div className="border-t border-border px-6 py-2 text-center">
-                    <OpenButton url={contentUrl}>
-                      Abrir em ecrã inteiro
-                    </OpenButton>
-                  </div>
+                  ) : (
+                    <div className="font-body text-sm text-ink-muted mt-2">
+                      Data ainda por confirmar
+                    </div>
+                  )}
+                  {lesson.liveInstructor && (
+                    <div className="font-body text-sm text-ink-muted mt-1">
+                      Com {lesson.liveInstructor.fullName}
+                    </div>
+                  )}
+                  {lesson.liveSessionUrl ? (
+                    <a
+                      href={safeHref(lesson.liveSessionUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block mt-4 rounded-control bg-brand px-4 py-2 font-body text-sm font-semibold text-white hover:bg-[#1B2F57]"
+                    >
+                      Entrar na sessão
+                    </a>
+                  ) : (
+                    <p className="font-body text-sm text-ink-muted mt-4">
+                      O link da sessão ainda não está disponível.
+                    </p>
+                  )}
                 </div>
-              ) : (
-                <StageNotice icon={Package} title={lesson.title}>
-                  Esta aula ainda não tem pacote SCORM associado.
+              ) : kind === 'TEXT' ? (
+                <article className="my-6 w-full max-w-2xl rounded-panel border border-brand-line bg-surface p-8 text-ink shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+                  <h2 className="font-display text-xl font-semibold mb-4">
+                    {lesson.title}
+                  </h2>
+                  {lesson.textContent ? (
+                    <p className="font-body text-ink leading-relaxed whitespace-pre-wrap">
+                      {lesson.textContent}
+                    </p>
+                  ) : (
+                    <p className="font-body text-ink-muted leading-relaxed italic">
+                      Esta aula ainda não tem conteúdo escrito.
+                    </p>
+                  )}
+                  <LessonAudioBar
+                    lessonId={lesson.id}
+                    text={lesson.textContent}
+                  />
+                </article>
+              ) : kind === 'LINK' ? (
+                <StageNotice icon={Link2} title={lesson.title}>
+                  {contentUrl ? (
+                    <>
+                      Esta aula é uma ligação externa.
+                      <div>
+                        <OpenButton url={contentUrl}>Abrir ligação</OpenButton>
+                      </div>
+                    </>
+                  ) : (
+                    'Esta aula ainda não tem ligação associada.'
+                  )}
                 </StageNotice>
-              )
-            ) : kind === 'QUIZ' ? (
-              <StageNotice icon={lessonIcon('QUIZ')} title={lesson.title}>
-                {lesson.quizId
-                  ? 'Esta aula é uma avaliação. Responda ao quiz abaixo.'
-                  : 'Esta aula ainda não tem quiz associado.'}
-              </StageNotice>
-            ) : (
-              <StageNotice icon={lessonIcon(lesson.type)} title={lesson.title}>
-                Tipo de aula não reconhecido: {String(lesson.type)}
-              </StageNotice>
-            )}
-          </StageBoundary>
+              ) : kind === 'SCORM' ? (
+                contentUrl && fileSrc ? (
+                  <div
+                    className={`flex w-full flex-col bg-surface ${maximized ? 'h-full' : 'h-[70vh]'}`}
+                  >
+                    <iframe
+                      src={fileSrc}
+                      title={lesson.title}
+                      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                      className="h-full w-full flex-1 border-0"
+                    />
+                    <div className="border-t border-border px-6 py-2 text-center">
+                      <OpenButton url={contentUrl}>
+                        Abrir em ecrã inteiro
+                      </OpenButton>
+                    </div>
+                  </div>
+                ) : (
+                  <StageNotice icon={Package} title={lesson.title}>
+                    Esta aula ainda não tem pacote SCORM associado.
+                  </StageNotice>
+                )
+              ) : kind === 'QUIZ' ? (
+                <StageNotice icon={lessonIcon('QUIZ')} title={lesson.title}>
+                  {lesson.quizId
+                    ? 'Esta aula é uma avaliação. Responda ao quiz abaixo.'
+                    : 'Esta aula ainda não tem quiz associado.'}
+                </StageNotice>
+              ) : (
+                <StageNotice
+                  icon={lessonIcon(lesson.type)}
+                  title={lesson.title}
+                >
+                  Tipo de aula não reconhecido: {String(lesson.type)}
+                </StageNotice>
+              )}
+            </StageBoundary>
+          </StageMaximizedProvider>
         </div>
 
         {/* Actividades da aula */}
@@ -586,7 +620,18 @@ export function ContentPlayer({
 
         {/* Avaliação (quiz) — docs/06-modulo-courses.md secção 8 */}
         {lesson.quizId && (
-          <div className="px-6 py-5 border-t border-border">
+          <div
+            ref={quizFs.ref}
+            tabIndex={-1}
+            className={`relative outline-none px-6 py-5 border-t border-border ${
+              quizFs.isFs ? 'h-full w-full overflow-auto bg-surface' : ''
+            }`}
+          >
+            <FullscreenControls
+              isFs={quizFs.isFs}
+              visible={quizFs.controlsVisible}
+              onToggle={quizFs.toggle}
+            />
             <h3 className="font-body text-sm font-semibold text-ink mb-3">
               Avaliação
             </h3>

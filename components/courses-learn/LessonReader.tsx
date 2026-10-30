@@ -14,7 +14,12 @@ import { SafeHtml } from '@/components/ui/SafeHtml';
 import { LessonAudioBar } from './LessonAudioBar';
 import { QuizPlayer } from './QuizPlayer';
 import { ActivityList, FileList } from './LessonExtras';
-import { useStageMaximized } from '@/components/viewers/StageMaximizedContext';
+import {
+  StageMaximizedProvider,
+  useStageMaximized,
+} from '@/components/viewers/StageMaximizedContext';
+import { useFullscreen } from '@/components/viewers/useFullscreen';
+import { FullscreenControls } from '@/components/viewers/FullscreenControls';
 import { LessonBreadcrumb } from './LessonBreadcrumb';
 import { LessonFooter } from './LessonFooter';
 import { LessonPdf } from './LessonPdf';
@@ -55,7 +60,12 @@ export function LessonReader({
   hasNext,
   onBackToCourses,
 }: LessonReaderProps) {
-  const maximized = useStageMaximized();
+  const stageMaximized = useStageMaximized();
+  // Ecrã inteiro real: um para o texto/PDF da aula, outro para o questionário.
+  const stageFs = useFullscreen();
+  const quizFs = useFullscreen();
+  // Em ecrã inteiro o conteúdo ocupa o ecrã todo, como no palco maximizado.
+  const maximized = stageMaximized || stageFs.isFs;
   const html = lessonTextToHtml(lesson.textContent);
   const hasPdf = !!lesson.hasFile || /^https?:/i.test(lesson.contentUrl ?? '');
   const materials = currentModule?.materials ?? [];
@@ -115,63 +125,91 @@ export function LessonReader({
         />
       )}
 
-      <div className="flex-1 overflow-y-auto bg-brand-soft">
-        <div
-          className={
-            maximized
-              ? 'flex min-h-full w-full flex-col'
-              : 'mx-auto w-full max-w-4xl space-y-6 px-3 py-4 sm:px-6 sm:py-6'
-          }
-        >
-          {!text && !pdf && (
-            <div className="px-6 py-10 text-center text-ink">
-              <FileText
-                size={48}
-                strokeWidth={1.5}
-                className="mx-auto mb-3 text-ink-muted"
-              />
-              <div className="font-body text-base font-semibold">
-                {lesson.title}
-              </div>
-              <p className="mt-2 font-body text-sm text-ink-muted">
-                Esta aula ainda não tem conteúdo.
-              </p>
-            </div>
-          )}
-          {blocks}
+      <div
+        ref={stageFs.ref}
+        tabIndex={-1}
+        className={`relative flex min-h-0 flex-1 flex-col bg-brand-soft outline-none ${
+          stageFs.isFs && !stageFs.controlsVisible ? 'cursor-none' : ''
+        }`}
+      >
+        <FullscreenControls
+          isFs={stageFs.isFs}
+          visible={stageFs.controlsVisible}
+          onToggle={stageFs.toggle}
+        />
+        <div className="flex-1 overflow-y-auto">
+          <StageMaximizedProvider value={maximized}>
+            <div
+              className={
+                maximized
+                  ? 'flex min-h-full w-full flex-col'
+                  : 'mx-auto w-full max-w-4xl space-y-6 px-3 py-4 sm:px-6 sm:py-6'
+              }
+            >
+              {!text && !pdf && (
+                <div className="px-6 py-10 text-center text-ink">
+                  <FileText
+                    size={48}
+                    strokeWidth={1.5}
+                    className="mx-auto mb-3 text-ink-muted"
+                  />
+                  <div className="font-body text-base font-semibold">
+                    {lesson.title}
+                  </div>
+                  <p className="mt-2 font-body text-sm text-ink-muted">
+                    Esta aula ainda não tem conteúdo.
+                  </p>
+                </div>
+              )}
+              {blocks}
 
-          {lesson.activities.length > 0 && (
-            <section className="rounded-panel bg-surface px-4 py-4 sm:px-6">
-              <h3 className="mb-3 font-body text-sm font-semibold text-ink">
-                Actividades
-              </h3>
-              <ActivityList activities={lesson.activities} />
-            </section>
-          )}
-          {lesson.resources.length > 0 && (
-            <section className="rounded-panel bg-surface px-4 py-4 sm:px-6">
-              <h3 className="mb-3 font-body text-sm font-semibold text-ink">
-                Recursos
-              </h3>
-              <FileList files={lesson.resources} />
-            </section>
-          )}
-          {materials.length > 0 && (
-            <section className="rounded-panel bg-surface px-4 py-4 sm:px-6">
-              <h3 className="mb-3 font-body text-sm font-semibold text-ink">
-                Materiais do módulo
-              </h3>
-              <FileList files={materials} />
-            </section>
-          )}
-          {lesson.quizId && (
-            <section className="rounded-panel bg-surface px-4 py-4 sm:px-6">
-              <h3 className="mb-3 font-body text-sm font-semibold text-ink">
-                Avaliação
-              </h3>
-              <QuizPlayer quizId={lesson.quizId} />
-            </section>
-          )}
+              {lesson.activities.length > 0 && (
+                <section className="rounded-panel bg-surface px-4 py-4 sm:px-6">
+                  <h3 className="mb-3 font-body text-sm font-semibold text-ink">
+                    Actividades
+                  </h3>
+                  <ActivityList activities={lesson.activities} />
+                </section>
+              )}
+              {lesson.resources.length > 0 && (
+                <section className="rounded-panel bg-surface px-4 py-4 sm:px-6">
+                  <h3 className="mb-3 font-body text-sm font-semibold text-ink">
+                    Recursos
+                  </h3>
+                  <FileList files={lesson.resources} />
+                </section>
+              )}
+              {materials.length > 0 && (
+                <section className="rounded-panel bg-surface px-4 py-4 sm:px-6">
+                  <h3 className="mb-3 font-body text-sm font-semibold text-ink">
+                    Materiais do módulo
+                  </h3>
+                  <FileList files={materials} />
+                </section>
+              )}
+              {lesson.quizId && (
+                <section
+                  ref={quizFs.ref}
+                  tabIndex={-1}
+                  className={`relative rounded-panel bg-surface px-4 py-4 outline-none sm:px-6 ${
+                    quizFs.isFs
+                      ? 'h-full w-full overflow-auto rounded-none'
+                      : ''
+                  }`}
+                >
+                  <FullscreenControls
+                    isFs={quizFs.isFs}
+                    visible={quizFs.controlsVisible}
+                    onToggle={quizFs.toggle}
+                  />
+                  <h3 className="mb-3 font-body text-sm font-semibold text-ink">
+                    Avaliação
+                  </h3>
+                  <QuizPlayer quizId={lesson.quizId} />
+                </section>
+              )}
+            </div>
+          </StageMaximizedProvider>
         </div>
       </div>
 
