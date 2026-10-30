@@ -3,7 +3,7 @@
 // alerta de avaliadores com viés, ajuste manual de scores com justificação,
 // comparação entre equipas/distribuição e histórico de alterações
 // (docs/modulo_evaluation.md ponto 9). Dados próprios (useApiMutation,
-// pesquisa manual por ID) + apresentação. Extraído de
+// escolha de ciclo/departamento pelo nome) + apresentação. Extraído de
 // app/(platform)/evaluation/page.tsx.
 
 'use client';
@@ -19,9 +19,11 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { SCORE_COLOR } from './constants';
+import { ALL, useCycleOptions, useDepartmentOptions } from './filterOptions';
 import type { CalibrationData, CalibrationHistoryEntry } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDateTimeNumeric } from '@/lib/format';
@@ -32,6 +34,11 @@ export function CalibrationTab() {
   const [departmentId, setDepartmentId] = useState('');
   const [notes, setNotes] = useState<Record<number, string>>({});
   const [showHistory, setShowHistory] = useState(false);
+  const cycleItems = useCycleOptions();
+  const departmentItems = [
+    { value: ALL, label: 'Todos' },
+    ...useDepartmentOptions(),
+  ];
 
   const loadCalibration = useApiMutation(
     (params: { id: string; dept?: string }) =>
@@ -98,22 +105,23 @@ export function CalibrationTab() {
             <label className="mb-1 block text-xs font-medium text-ink-muted">
               Ciclo
             </label>
-            <Input
+            <Select
+              items={cycleItems}
               value={cycleId}
-              onChange={(e) => setCycleId(e.target.value)}
-              placeholder="ID do ciclo..."
-              className="w-40"
+              onValueChange={setCycleId}
+              placeholder="Escolher ciclo…"
+              className="w-56"
             />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
               Departamento (opcional)
             </label>
-            <Input
-              value={departmentId}
-              onChange={(e) => setDepartmentId(e.target.value)}
-              placeholder="ID do departamento..."
-              className="w-48"
+            <Select
+              items={departmentItems}
+              value={departmentId || ALL}
+              onValueChange={(v) => setDepartmentId(v === ALL ? '' : v)}
+              className="w-56"
             />
           </div>
           <Button onClick={load}>Abrir Calibração</Button>

@@ -27,6 +27,9 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
+import type { DirectoryUser } from '@/components/departments/departmentFormData';
+import { useDepartmentOptions } from '@/components/evaluation/filterOptions';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -178,10 +181,18 @@ function Chip({ active, onClick, color, children }: ChipProps) {
 const toggle = (list: string[], v: string) =>
   list.includes(v) ? list.filter((x) => x !== v) : [...list, v];
 
+// Valor do item "sem filtro" do Select (não aceita valor vazio).
+const NO_FILTER = 'ALL';
+
 export function ReportsView() {
   const notify = useToast();
   const qc = useQueryClient();
   const [form, setForm] = useState<Form>(EMPTY);
+  const [reportUser, setReportUser] = useState<DirectoryUser | null>(null);
+  const departmentItems = [
+    { value: NO_FILTER, label: 'Todos' },
+    ...useDepartmentOptions(),
+  ];
   const [applied, setApplied] = useState<Record<string, string> | null>(null);
   const [exporting, setExporting] = useState<string | null>(null);
   const set = (patch: Partial<Form>) => setForm((f) => ({ ...f, ...patch }));
@@ -333,22 +344,22 @@ export function ReportsView() {
                   />
                 </FormField>
               )}
-              <FormField label="Utilizador (ID)" htmlFor="rep-user">
-                <Input
-                  id="rep-user"
-                  type="number"
-                  min={1}
-                  value={form.userId}
-                  onChange={(e) => set({ userId: e.target.value })}
-                />
-              </FormField>
-              <FormField label="Unidade / departamento (ID)" htmlFor="rep-dep">
-                <Input
-                  id="rep-dep"
-                  type="number"
-                  min={1}
-                  value={form.departmentId}
-                  onChange={(e) => set({ departmentId: e.target.value })}
+              <DepartmentUserPicker
+                label="Utilizador"
+                htmlFor="rep-user"
+                value={reportUser}
+                onChange={(u) => {
+                  setReportUser(u);
+                  set({ userId: u ? String(u.id) : '' });
+                }}
+              />
+              <FormField label="Unidade / departamento" htmlFor="rep-dep">
+                <Select
+                  items={departmentItems}
+                  value={form.departmentId || NO_FILTER}
+                  onValueChange={(v) =>
+                    set({ departmentId: v === NO_FILTER ? '' : v })
+                  }
                 />
               </FormField>
               <FormField
@@ -412,7 +423,13 @@ export function ReportsView() {
               <Play size={14} strokeWidth={1.75} className="mr-1.5" />
               Pré-visualizar
             </Button>
-            <Button intent="ghost" onClick={() => setForm(EMPTY)}>
+            <Button
+              intent="ghost"
+              onClick={() => {
+                setForm(EMPTY);
+                setReportUser(null);
+              }}
+            >
               Limpar filtros
             </Button>
             <div className="ml-auto flex flex-wrap items-center gap-2">
