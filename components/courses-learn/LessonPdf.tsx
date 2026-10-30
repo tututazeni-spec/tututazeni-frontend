@@ -8,10 +8,12 @@
 
 import { FileWarning, Loader2 } from 'lucide-react';
 import { PdfViewer } from '@/components/viewers/PdfViewer';
+import { useStageMaximized } from '@/components/viewers/StageMaximizedContext';
 import { useLessonPdf } from './useLessonPdf';
 import type { LessonProgress } from './types';
 
 export function LessonPdf({ lesson }: { lesson: LessonProgress }) {
+  const maximized = useStageMaximized();
   const pdf = useLessonPdf(lesson);
   if (pdf.status === 'none') return null;
 
@@ -38,8 +40,20 @@ export function LessonPdf({ lesson }: { lesson: LessonProgress }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-panel border border-brand-line bg-surface shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
-      <div className="min-h-[60vh] bg-brand-soft">
+    <div
+      className={
+        maximized
+          ? 'flex h-full flex-col bg-surface'
+          : 'overflow-hidden rounded-panel border border-brand-line bg-surface shadow-[0_8px_24px_rgba(15,31,61,0.08)]'
+      }
+    >
+      <div
+        className={
+          maximized
+            ? 'min-h-0 flex-1 bg-brand-soft'
+            : 'min-h-[60vh] bg-brand-soft'
+        }
+      >
         <PdfViewer src={pdf.src} data={pdf.data} title={lesson.title} />
       </div>
       {lesson.allowDownload && (

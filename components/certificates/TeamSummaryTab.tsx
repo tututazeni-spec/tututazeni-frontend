@@ -6,6 +6,15 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  AlarmClock,
+  BadgeCheck,
+  CalendarX,
+  ClipboardList,
+  GraduationCap,
+  Hourglass,
+  Users,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -14,6 +23,7 @@ import { KpiCard } from '@/components/ui/KpiCard';
 import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import {
   Table,
   TableBody,
@@ -102,46 +112,67 @@ export function TeamSummaryTab({
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <KpiCard
               href="/users"
+              icon={Users}
               label="Colaboradores"
               value={t.members}
               intent="primary"
             />
+            {t.mandatoryCoveragePct === null ? (
+              <KpiCard
+                label="Cobertura obrigatória"
+                value="—"
+                sub="Obrigatórias concluídas com certificado válido"
+                intent="success"
+              />
+            ) : (
+              <DonutStatCard
+                label="Cobertura obrigatória"
+                value={t.mandatoryCoveragePct}
+                sub="Obrigatórias concluídas com certificado válido"
+                bare
+              />
+            )}
             <KpiCard
-              label="Cobertura obrigatória"
-              value={
-                t.mandatoryCoveragePct === null
-                  ? '—'
-                  : `${t.mandatoryCoveragePct}%`
-              }
-              sub="Obrigatórias concluídas com certificado válido"
-              intent="success"
-            />
-            <KpiCard
+              icon={BadgeCheck}
               label="Certificados válidos"
               value={t.active}
               intent="success"
             />
-            <KpiCard label="Expirados" value={t.expired} intent="warning" />
             <KpiCard
+              icon={CalendarX}
+              label="Expirados"
+              value={t.expired}
+              intent="danger"
+            />
+            <KpiCard
+              icon={AlarmClock}
               label="Vencem em 30 dias"
               value={t.expiringSoon}
               intent="warning"
             />
             <KpiCard
+              icon={Hourglass}
               label="Aguardam aprovação"
               value={t.pendingApproval}
-              intent="info"
+              intent="warning"
+              iconIntent="caution"
             />
             <KpiCard
+              icon={ClipboardList}
               label="Obrigatórias por concluir"
               value={t.mandatoryPending}
               intent="danger"
             />
-            <KpiCard label="Em formação" value={t.inProgress} intent="info" />
+            <KpiCard
+              icon={GraduationCap}
+              label="Em formação"
+              value={t.inProgress}
+              intent="info"
+            />
           </div>
           <Table>
-            <TableHead>
-              <TableRow>
+            <TableHead className="bg-brand/60 [&_th]:text-white">
+              <TableRow className="hover:bg-transparent">
                 <TableHeaderCell>Colaborador</TableHeaderCell>
                 <TableHeaderCell>Válidos</TableHeaderCell>
                 <TableHeaderCell>Expirados</TableHeaderCell>

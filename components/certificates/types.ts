@@ -213,6 +213,8 @@ export interface TemplateSummaryRow {
   currentVersion: number;
   colors: TemplateColors;
   updatedAt: string;
+  /** Modelo em uso na plataforma (emissões sem modelo próprio na regra). */
+  inUse: boolean;
 }
 
 export interface TemplateDetailDto extends TemplateSummaryRow {

@@ -1430,6 +1430,10 @@ export const queryKeys = {
       [...queryKeys.courses.all, 'detail', id] as const,
     progress: (id: number | string) =>
       [...queryKeys.courses.all, 'progress', id] as const,
+    // Aulas por módulo (/courses/:id/module-progress): formato diferente do
+    // resumo em `progress`, por isso nunca partilham chave.
+    moduleProgress: (id: number | string) =>
+      [...queryKeys.courses.all, 'module-progress', id] as const,
     categories: () => [...queryKeys.courses.all, 'categories'] as const,
     myEnrollments: () => [...queryKeys.courses.all, 'my-enrollments'] as const,
     myCertificates: () =>

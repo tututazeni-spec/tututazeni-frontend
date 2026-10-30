@@ -35,6 +35,37 @@ export function saveBlob(blob: Blob, filename: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
+/**
+ * GET `path` e abre o corpo (ex.: um PDF) num separador novo, para ver sem
+ * descarregar. O separador abre-se antes do pedido (senão o bloqueador de
+ * popups barra-o); se mesmo assim for bloqueado, descarrega o ficheiro.
+ */
+export async function openFromApi(
+  path: string,
+  {
+    params,
+    fallbackName = 'ficheiro',
+    errorMessage = 'Não foi possível abrir o ficheiro',
+  }: Omit<DownloadOptions, 'filename'> = {},
+): Promise<void> {
+  const tab = window.open('', '_blank');
+  try {
+    const res = await apiClient.getRaw(path, { params, errorMessage });
+    const blob = await res.blob();
+    if (!tab) {
+      saveBlob(blob, fallbackName);
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    tab.location.href = url;
+    // Revogar já deixaria o separador sem o ficheiro.
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } catch (e) {
+    tab?.close();
+    throw e;
+  }
+}
+
 export function buildQuery(params: DownloadParams = {}): string {
   const qs = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {

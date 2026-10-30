@@ -16,6 +16,7 @@ const detail: TemplateDetailDto = {
     background: '#0B1426',
   },
   updatedAt: '2026-10-20T00:00:00.000Z',
+  inUse: false,
   config: {
     layoutKey: 'executivo-premium',
     colors: {

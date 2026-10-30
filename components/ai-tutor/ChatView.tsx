@@ -161,8 +161,9 @@ export function ChatView() {
   // Pelo avatar o texto aparece inteiro; só a voz do browser o vai acendendo.
   const charIndex = avatarBusy ? avatarText.length : browserVoice.charIndex;
 
-  // Com o avatar ligado a voz vem da ElevenLabs, enviada ao Simli; sem
-  // avatar (ou se a voz falhar) cai na voz do browser — plano B.
+  // Com o avatar ligado a voz vem sempre da ElevenLabs, enviada ao Simli (se
+  // falhar, avisa em vez de usar a voz do browser); só sem avatar é que fala
+  // a voz do browser.
   const speak = useCallback(
     async (markdown: string) => {
       const text = toSpeakable(markdown);
@@ -203,10 +204,15 @@ export function ChatView() {
         if (run !== speakRun.current) return;
         reportError(e, { source: 'ChatView.speak' });
         setAvatarBusy(false);
-        browserVoice.speak(markdown);
+        // Com o avatar ligado não há voz do browser como plano B: avisa.
+        notify({
+          title: 'Voz da Ísis indisponível',
+          description: e instanceof Error ? e.message : undefined,
+          intent: 'danger',
+        });
       }
     },
-    [avatarConnected, browserVoice],
+    [avatarConnected, browserVoice, notify],
   );
 
   useEffect(() => {

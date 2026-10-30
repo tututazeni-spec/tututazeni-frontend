@@ -13,7 +13,7 @@
 'use client';
 
 import { PALETTE } from '@/components/onboarding/TemplateCard';
-import type { ComponentType, ReactNode } from 'react';
+import { useState, type ComponentType, type ReactNode } from 'react';
 import {
   ArrowLeft,
   Check,
@@ -32,7 +32,11 @@ import {
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { actionPillClass } from '@/components/ui/Pills';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { openFromApi } from '@/lib/download';
+import { reportError } from '@/lib/errorReporting';
+import { useToast } from '@/providers/ToastProvider';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import {
@@ -52,6 +56,9 @@ import type {
   ModuleProgress,
 } from '@/components/courses-learn/types';
 import { ContentModule, CourseContentCard } from './CourseContentCard';
+import { LessonHero } from './LessonHero';
+import { LessonMaterials } from './LessonMaterials';
+import { CourseProgressCard } from './CourseProgressCard';
 import type { CourseDetailData, CourseProgress, Lesson } from './types';
 
 export interface CourseDetailViewProps {
@@ -86,6 +93,7 @@ function LessonContentViewer(props: {
   currentModule: ModuleProgress | null;
   onComplete: () => void;
   completing: boolean;
+  onBackToCourses: () => void;
 }) {
   const Viewer =
     props.lesson.type === 'TEXT' || props.lesson.type === 'PDF'
@@ -117,6 +125,31 @@ export function CourseDetailView({
   completing,
   feedbackLoading,
 }: CourseDetailViewProps) {
+  const notify = useToast();
+  const [openingCertificate, setOpeningCertificate] = useState(false);
+
+  // O PDF exige sessão: vai-se buscar com ela e abre-se num separador.
+  const viewCertificate = async (certificateId: number) => {
+    setOpeningCertificate(true);
+    try {
+      await openFromApi(`/certificates/${certificateId}/pdf`, {
+        fallbackName: `certificado-${certificateId}.pdf`,
+        errorMessage: 'Não foi possível abrir o certificado.',
+      });
+    } catch (e) {
+      reportError(e, { source: 'CourseDetailView.viewCertificate' });
+      notify({
+        title:
+          e instanceof Error
+            ? e.message
+            : 'Não foi possível abrir o certificado.',
+        intent: 'danger',
+      });
+    } finally {
+      setOpeningCertificate(false);
+    }
+  };
+
   if (loadingCourse || !course)
     return (
       <div>
@@ -131,6 +164,9 @@ export function CourseDetailView({
   // de docs/06-modulo-courses.md.
   const palette = PALETTE[Math.abs(course.id) % PALETTE.length];
   const pendingApproval = progress?.enrollment.status === 'PENDING_APPROVAL';
+  // Curso terminado: o cabeçalho ganha a foto ao centro e o painel verde "Concluído".
+  const courseCompleted =
+    isEnrolled && progress?.enrollment.status === 'COMPLETED';
 
   const continueOrReviewLesson = () => {
     const modules = progress?.modules ?? [];
@@ -139,6 +175,16 @@ export function CourseDetailView({
       modules[0]?.lessons[0];
     if (target) onSelectLesson(target);
   };
+
+  const activeModuleInfo =
+    lessonModule ??
+    progress?.modules?.find((m) =>
+      m.lessons.some((l) => l.id === activeLesson?.id),
+    ) ??
+    null;
+  const completedModules = (progress?.modules ?? []).filter(
+    (m) => m.totalCount > 0 && m.completedCount >= m.totalCount,
+  ).length;
 
   return (
     <div>
@@ -164,17 +210,35 @@ export function CourseDetailView({
 
       {/* Player Layout: sidebar + content */}
       {isEnrolled && !pendingApproval && activeLesson ? (
-        <div className="grid grid-cols-[1fr_300px] gap-5 mb-6">
-          {/* Player principal */}
-          <div>
+        <div className="mb-6 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_340px]">
+          {/* Coluna principal: faixa da aula, material e leitor real */}
+          <div className="flex min-w-0 flex-col gap-5">
+            <LessonHero
+              moduleSeq={activeModuleInfo?.seq ?? null}
+              title={activeModuleInfo?.title ?? course.title}
+              lessonTitle={activeLesson.title}
+              durationMinutes={activeLesson.durationMinutes}
+              completedCount={activeModuleInfo?.completedCount ?? 0}
+              totalCount={activeModuleInfo?.totalCount ?? 0}
+              imageUrl={course.thumbnailUrl}
+            />
+            {lessonContent && (
+              <LessonMaterials lesson={lessonContent} targetId="lesson-stage" />
+            )}
             {/* Leitor real (o mesmo da sala de aula): PDF, PPTX, vídeo, áudio, texto… */}
-            <MaximizableStage className="mb-4 h-[75vh] min-h-[420px] overflow-hidden rounded-card border border-border bg-surface">
+            <MaximizableStage
+              id="lesson-stage"
+              className="h-[75vh] min-h-[420px] overflow-hidden rounded-card border border-border bg-surface"
+            >
               {lessonContent ? (
                 <LessonContentViewer
                   lesson={lessonContent}
                   currentModule={lessonModule}
                   onComplete={onMarkComplete}
                   completing={completing}
+                  onBackToCourses={() =>
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }
                 />
               ) : (
                 <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
@@ -192,78 +256,73 @@ export function CourseDetailView({
                 </div>
               )}
             </MaximizableStage>
-            {/* Progress */}
-            <Card className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-ink-muted">
-                  Progresso geral
-                </span>
-                <span className="text-xs font-mono font-medium text-primary">
-                  {progressPct}%
-                </span>
-              </div>
-              <ProgressBar value={progressPct} className="h-2.5" />
-              <div className="text-xs text-ink-faint mt-1">
-                {progress?.courseProgress?.completedLessons ?? 0}/
-                {progress?.courseProgress?.totalLessons ?? 0} aulas concluídas
-              </div>
-            </Card>
           </div>
 
-          {/* Sidebar — lista de aulas */}
-          <CourseContentCard
-            title="Conteúdo do curso"
-            aside={`${(progress?.modules ?? []).length} módulos`}
-            className="self-start"
-            scrollClassName="max-h-[450px] overflow-y-auto"
-          >
-            {(progress?.modules ?? []).map((mod) => (
-              <ContentModule
-                key={mod.id}
-                id={mod.id}
-                title={mod.title}
-                meta={`${mod.completedCount}/${mod.totalCount} aulas`}
-              >
-                {mod.lessons.map((lesson) => (
-                  <div
-                    key={lesson.id}
-                    onClick={() => onSelectLesson(lesson)}
-                    className={`flex cursor-pointer items-center gap-3 rounded-card px-2.5 py-2 transition-colors ${
-                      activeLesson?.id === lesson.id
-                        ? 'bg-primary-subtle'
-                        : 'hover:bg-brand-soft'
-                    }`}
-                  >
+          {/* Barra lateral: progresso e lista de aulas */}
+          <div className="flex min-w-0 flex-col gap-5 self-start">
+            <CourseProgressCard
+              pct={progressPct}
+              completedModules={completedModules}
+              totalModules={(progress?.modules ?? []).length}
+              onContinue={continueOrReviewLesson}
+            />
+            <CourseContentCard
+              title="Conteúdo do curso"
+              aside={`${(progress?.modules ?? []).length} módulos`}
+              scrollClassName="max-h-[450px] overflow-y-auto"
+            >
+              {(progress?.modules ?? []).map((mod, modIdx) => (
+                <ContentModule
+                  key={mod.id}
+                  index={modIdx}
+                  title={mod.title}
+                  meta={`${mod.completedCount}/${mod.totalCount} aulas`}
+                >
+                  {mod.lessons.map((lesson) => (
                     <div
-                      className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs ${
-                        lesson.completed
-                          ? 'bg-success-subtle text-success-ink'
-                          : 'bg-brand-line text-brand-muted'
+                      key={lesson.id}
+                      onClick={() => onSelectLesson(lesson)}
+                      className={`flex cursor-pointer items-center gap-3 rounded-card px-2.5 py-2 transition-colors ${
+                        activeLesson?.id === lesson.id
+                          ? 'bg-primary-subtle'
+                          : 'hover:bg-brand-soft'
                       }`}
                     >
-                      {lesson.completed ? (
-                        '✓'
-                      ) : (
-                        <LessonIcon type={lesson.type} />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
                       <div
-                        className={`truncate text-xs ${activeLesson?.id === lesson.id ? 'font-semibold text-primary' : 'font-medium text-brand'}`}
+                        className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs ${
+                          lesson.completed
+                            ? 'bg-success-subtle text-success-ink'
+                            : 'bg-brand-line text-brand-muted'
+                        }`}
                       >
-                        {lesson.title}
+                        <LessonIcon type={lesson.type} />
                       </div>
-                      {lesson.durationMinutes && (
-                        <div className="text-xs text-brand-muted">
-                          {fmtDuration(null, lesson.durationMinutes)}
+                      <div className="min-w-0 flex-1">
+                        <div
+                          className={`truncate text-xs ${activeLesson?.id === lesson.id ? 'font-semibold text-primary' : 'font-medium text-brand'}`}
+                        >
+                          {lesson.title}
                         </div>
+                        {lesson.durationMinutes && (
+                          <div className="text-xs text-brand-muted">
+                            {fmtDuration(null, lesson.durationMinutes)}
+                          </div>
+                        )}
+                      </div>
+                      {lesson.completed && (
+                        <Check
+                          size={14}
+                          strokeWidth={2}
+                          aria-label="Concluída"
+                          className="shrink-0 text-success-ink"
+                        />
                       )}
                     </div>
-                  </div>
-                ))}
-              </ContentModule>
-            ))}
-          </CourseContentCard>
+                  ))}
+                </ContentModule>
+              ))}
+            </CourseContentCard>
+          </div>
         </div>
       ) : (
         /* Header do curso (não matriculado) — mesmo desenho do cartão de
@@ -274,9 +333,15 @@ export function CourseDetailView({
           <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
             <div
               aria-hidden
-              className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
+              className={
+                courseCompleted
+                  ? 'absolute inset-y-0 right-[14%] hidden w-[46%] items-center justify-center text-white/70 sm:flex'
+                  : 'absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex'
+              }
               style={{
-                clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
+                clipPath: courseCompleted
+                  ? 'polygon(14% 0, 100% 0, 100% 100%, 0 100%)'
+                  : 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
                 background: course.thumbnailUrl
                   ? undefined
                   : `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
@@ -295,7 +360,41 @@ export function CourseDetailView({
               )}
             </div>
 
-            <div className="relative space-y-5 p-6 sm:pr-[36%]">
+            {courseCompleted && (
+              <div
+                className="absolute inset-y-0 right-0 hidden w-[30%] flex-col items-center justify-center gap-2 bg-gradient-to-br from-success-subtle to-surface px-6 pl-[9%] text-center sm:flex"
+                style={{
+                  clipPath: 'polygon(55% 0, 100% 0, 100% 100%, 0 100%)',
+                }}
+              >
+                <span className="relative flex h-[84px] w-[84px] items-center justify-center">
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 84 84"
+                    className="absolute inset-0 text-success/40"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  >
+                    <path d="M14 18l7 7M70 18l-7 7M4 42h9M71 42h9M14 66l7-7M70 66l-7-7" />
+                  </svg>
+                  <span className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-success text-white">
+                    <Check size={30} strokeWidth={2.5} />
+                  </span>
+                </span>
+                <p className="font-display text-2xl font-bold text-success">
+                  Concluído
+                </p>
+                <p className="text-sm leading-snug text-success-ink/80">
+                  Excelente! Você finalizou este curso.
+                </p>
+              </div>
+            )}
+
+            <div
+              className={`relative space-y-5 p-6 ${courseCompleted ? 'sm:pr-[58%]' : 'sm:pr-[36%]'}`}
+            >
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge value={course.level} map={COURSE_LEVEL_MAP} />
                 <StatusBadge
@@ -389,7 +488,8 @@ export function CourseDetailView({
                         Curso indisponível
                       </Button>
                     )}
-                    {isEnrolled && (
+                    {/* Curso concluído: o painel verde já diz "Concluído"; sem selo, barra nem botão. */}
+                    {isEnrolled && !courseCompleted && (
                       <div className="space-y-2">
                         <EnrollBadge
                           status={progress!.enrollment.status}
@@ -462,12 +562,25 @@ export function CourseDetailView({
               )}
             </div>
             <div className="flex items-center gap-2">
-              <Button intent="secondary" onClick={continueOrReviewLesson}>
+              <button
+                type="button"
+                onClick={continueOrReviewLesson}
+                className={actionPillClass}
+              >
                 Rever curso
-              </Button>
+              </button>
               {progress.enrollment.certificate && (
                 <>
-                  <Button intent="secondary">Ver certificado</Button>
+                  <button
+                    type="button"
+                    disabled={openingCertificate}
+                    onClick={() =>
+                      void viewCertificate(progress.enrollment.certificate!.id)
+                    }
+                    className={actionPillClass}
+                  >
+                    {openingCertificate ? 'A abrir…' : 'Ver certificado'}
+                  </button>
                   {progress.enrollment.certificate.fileUrl && (
                     <a
                       href={progress.enrollment.certificate.fileUrl}
@@ -537,10 +650,10 @@ export function CourseDetailView({
               title="Conteúdo do curso"
               aside={`${course.modules.length} módulos`}
             >
-              {course.modules.map((mod) => (
+              {course.modules.map((mod, modIdx) => (
                 <ContentModule
                   key={mod.id}
-                  id={mod.id}
+                  index={modIdx}
                   title={mod.title}
                   meta={`${mod.lessons?.length ?? 0} aulas`}
                 >

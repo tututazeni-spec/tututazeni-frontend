@@ -49,8 +49,8 @@ export function HistoryTab() {
   return (
     <div>
       <Table>
-        <TableHead>
-          <TableRow>
+        <TableHead className="bg-brand/60 [&_th]:text-white">
+          <TableRow className="hover:bg-transparent">
             <TableHeaderCell>Quando</TableHeaderCell>
             <TableHeaderCell>Acção</TableHeaderCell>
             <TableHeaderCell>Responsável</TableHeaderCell>

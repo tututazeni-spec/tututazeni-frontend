@@ -379,8 +379,8 @@ export function CertificatesTab({
       ) : (
         <>
           <Table>
-            <TableHead>
-              <TableRow>
+            <TableHead className="bg-brand/60 [&_th]:text-white">
+              <TableRow className="hover:bg-transparent">
                 <TableHeaderCell>Titular</TableHeaderCell>
                 <TableHeaderCell>Formação</TableHeaderCell>
                 <TableHeaderCell>Departamento</TableHeaderCell>

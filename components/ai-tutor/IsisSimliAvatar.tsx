@@ -153,13 +153,14 @@ export const IsisSimliAvatar = forwardRef<
   const connect = useCallback(async () => {
     if (clientRef.current || !videoRef.current || !audioRef.current) return;
     setStatus('connecting');
+    let client: SimliClient | null = null;
     try {
       const session = await apiClient.post<AvatarSession>(
         '/ai-tutor/avatar/session',
       );
       // Import dinâmico: o SDK usa APIs do browser e não deve correr no SSR.
       const { SimliClient, LogLevel } = await import('simli-client');
-      const client = new SimliClient(
+      client = new SimliClient(
         session.sessionToken,
         videoRef.current,
         audioRef.current,
@@ -170,6 +171,7 @@ export const IsisSimliAvatar = forwardRef<
         LogLevel.CRITICAL,
         'livekit',
       );
+      const current = client;
       client.on('start', () => {
         setStatus('connected');
         // Dá tempo ao vídeo para ter imagem antes de guardar o fotograma.
@@ -179,7 +181,7 @@ export const IsisSimliAvatar = forwardRef<
       client.on('silent', () => onSpeakingChange?.(false));
       // Fim por limite de duração ou inactividade (definidos no backend).
       client.on('stop', () => {
-        if (clientRef.current === client) void disconnect('ended', true);
+        if (clientRef.current === current) void disconnect('ended', true);
       });
       // O SDK dá o motivo no argumento; sem o registar, o erro final
       // ("Called Disconnect Before A Connection succeeded") esconde a causa.
@@ -187,17 +189,21 @@ export const IsisSimliAvatar = forwardRef<
         reportError(new Error(`Simli error: ${message}`), {
           source: 'IsisSimliAvatar.error',
         });
-        if (clientRef.current === client) void disconnect('error', true);
+        if (clientRef.current === current) void disconnect('error', true);
       });
       client.on('startup_error', (message: string) => {
         reportError(new Error(`Simli startup_error: ${message}`), {
           source: 'IsisSimliAvatar.startup_error',
         });
-        if (clientRef.current === client) void disconnect('error', true);
+        if (clientRef.current === current) void disconnect('error', true);
       });
       clientRef.current = client;
       await client.start();
     } catch (e) {
+      // Desligado de propósito enquanto ligava (Terminar, sair da página): o
+      // SDK rejeita o start() com "Disconnect Already Called" — não é uma
+      // falha do avatar, por isso não é reportada nem mostra o aviso de erro.
+      if (client && clientRef.current !== client) return;
       reportError(e, { source: 'IsisSimliAvatar.connect' });
       await disconnect('error', true);
     }

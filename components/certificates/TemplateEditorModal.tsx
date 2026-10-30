@@ -1,6 +1,6 @@
 // components/certificates/TemplateEditorModal.tsx
 // Editor de um dos nove modelos: textos (com variáveis), cores, imagens, posição e
-// versões. Guardar cria uma versão nova; os certificados já emitidos não mudam.
+// versões. Guardar cria uma versão nova; ao descarregar, os certificados usam a versão actual.
 // Valida no cliente (o backend valida de novo) e permite pré-visualizar o rascunho.
 
 'use client';
@@ -204,7 +204,7 @@ function EditorForm({ detail, canEdit, onClose }: EditorFormProps) {
     <Modal open onOpenChange={(o) => !o && onClose()}>
       <ModalContent
         title={`Editar modelo — ${detail.name}`}
-        description="Cada gravação cria uma versão nova; os certificados já emitidos não mudam."
+        description="Cada gravação cria uma versão nova; ao descarregar, os certificados usam a versão actual."
         className="max-w-3xl"
         navyHeader
       >
@@ -572,7 +572,7 @@ function EditorForm({ detail, canEdit, onClose }: EditorFormProps) {
       {restoring !== null && (
         <ConfirmDialog
           title={`Restaurar a versão ${restoring}?`}
-          message={`Será criada uma nova versão com o conteúdo da versão ${restoring}. As versões anteriores e os certificados já emitidos não são alterados.`}
+          message={`Será criada uma nova versão com o conteúdo da versão ${restoring}. As versões anteriores não são apagadas.`}
           confirmLabel={restore.isPending ? 'A restaurar…' : 'Restaurar'}
           onConfirm={() => restore.mutate(restoring)}
           onCancel={() => setRestoring(null)}

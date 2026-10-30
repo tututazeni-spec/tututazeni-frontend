@@ -9,7 +9,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, FileWarning, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import type { PDFDocumentProxy } from 'pdfjs-dist';
+import { useStageMaximized } from './StageMaximizedContext';
+import { useIdleHide } from './useFullscreen';
+import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 
 interface PdfViewerProps {
   src: string;
@@ -44,9 +46,17 @@ function loadPdfjs(): Promise<PdfjsModule> {
 export function PdfViewer({ src, title, data }: PdfViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const docRef = useRef<PDFDocumentProxy | null>(null);
+  // O pdf.js não aceita dois render() no mesmo canvas ao mesmo tempo.
+  const renderTaskRef = useRef<RenderTask | null>(null);
   const [status, setStatus] = useState<Status>('loading');
   const wrapRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  // O ecrã inteiro é do palco que contém este leitor (ver ContentPlayer).
+  const [inFs, setInFs] = useState(false);
+  const controlsVisible = useIdleHide(inFs);
+  const maximized = useStageMaximized();
   const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
   const [pageNum, setPageNum] = useState(1);
   const [numPages, setNumPages] = useState(0);
 
@@ -85,13 +95,48 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
     };
   }, [src, data]);
 
+  useEffect(() => {
+    const onChange = () =>
+      setInFs(!!document.fullscreenElement?.contains(rootRef.current));
+    onChange();
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
+  // ← → mudam de página: em ecrã inteiro, ou com o foco dentro do leitor.
+  useEffect(() => {
+    if (status !== 'ready') return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.isContentEditable ||
+          ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
+      )
+        return;
+      if (!inFs && !rootRef.current?.contains(target)) return;
+      e.preventDefault();
+      setPageNum((p) =>
+        e.key === 'ArrowRight' ? Math.min(numPages, p + 1) : Math.max(1, p - 1),
+      );
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [status, inFs, numPages]);
+
   // Ajusta a página à largura disponível (muda ao maximizar/minimizar).
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    setWidth(el.clientWidth);
+    const measure = () => {
+      setWidth(el.clientWidth);
+      setHeight(el.clientHeight);
+    };
+    measure();
     if (typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(() => setWidth(el.clientWidth));
+    const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -110,20 +155,47 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
       const page = await pdf.getPage(pageNum);
       if (cancelled) return;
       const base = page.getViewport({ scale: 1 });
-      const fit = width > 0 ? (width - 32) / base.width : 1.4;
+      // Maximizado: a página inteira cabe no ecrã (largura e altura), sem margens.
+      const pad = maximized ? 0 : 32;
+      const byWidth = width > 0 ? (width - pad) / base.width : 1.4;
+      const fit =
+        maximized && height > 0
+          ? Math.min(byWidth, height / base.height)
+          : byWidth;
       const viewport = page.getViewport({
         scale: Math.min(3, Math.max(0.5, fit)),
       });
+      // Cancela o desenho anterior e espera que largue o canvas.
+      const previous = renderTaskRef.current;
+      if (previous) {
+        previous.cancel();
+        try {
+          await previous.promise;
+        } catch {
+          // RenderingCancelledException: esperado ao cancelar.
+        }
+      }
+      if (cancelled) return;
       canvas.width = viewport.width;
       canvas.height = viewport.height;
-      await page.render({ canvas, viewport }).promise;
+      const task = page.render({ canvas, viewport });
+      renderTaskRef.current = task;
+      try {
+        await task.promise;
+      } catch (e) {
+        if ((e as { name?: string }).name !== 'RenderingCancelledException')
+          throw e;
+      }
     }
 
-    void renderPage();
+    void renderPage().catch((e) =>
+      console.error('[PdfViewer] falha ao desenhar a página', e),
+    );
     return () => {
       cancelled = true;
+      renderTaskRef.current?.cancel();
     };
-  }, [status, pageNum, width]);
+  }, [status, pageNum, width, height, maximized]);
 
   if (status === 'error') {
     return (
@@ -146,7 +218,12 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 w-full h-full py-6">
+    <div
+      ref={rootRef}
+      className={`relative flex flex-col items-center w-full h-full ${
+        maximized ? 'gap-1' : 'gap-3 py-6'
+      }`}
+    >
       {status === 'loading' && (
         <div className="text-ink flex flex-col items-center gap-2">
           <Loader2 size={32} strokeWidth={1.75} className="animate-spin" />
@@ -155,7 +232,9 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
       )}
       <div
         ref={wrapRef}
-        className="flex-1 w-full overflow-auto flex items-start justify-center px-4"
+        className={`flex-1 min-h-0 w-full overflow-auto flex justify-center ${
+          maximized ? 'items-center' : 'items-start px-4'
+        }`}
       >
         <canvas
           ref={canvasRef}
@@ -163,7 +242,17 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
         />
       </div>
       {status === 'ready' && numPages > 1 && (
-        <div className="flex items-center gap-3 bg-ink/10 rounded-full px-3 py-1.5">
+        <div
+          className={`flex items-center gap-3 rounded-full px-3 py-1.5 ${
+            inFs
+              ? `absolute bottom-4 left-1/2 z-20 -translate-x-1/2 bg-black/70 text-white transition-opacity duration-300 ${
+                  controlsVisible
+                    ? 'opacity-100'
+                    : 'pointer-events-none opacity-0'
+                }`
+              : 'bg-ink/10'
+          }`}
+        >
           <Button
             intent="ghost"
             size="sm"
@@ -173,7 +262,9 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
           >
             <ChevronLeft size={16} strokeWidth={1.75} />
           </Button>
-          <span className="font-body text-xs text-ink">
+          <span
+            className={`font-body text-xs ${inFs ? 'text-white' : 'text-ink'}`}
+          >
             Página {pageNum} de {numPages}
           </span>
           <Button
