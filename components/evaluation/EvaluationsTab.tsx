@@ -141,18 +141,13 @@ export function EvaluationsTab() {
 
   // Ciclos criados com âmbito Todos/Departamento/Unidade ainda não têm
   // pedidos (só nascem na activação), logo não apareciam nesta lista.
-  // Também ficam sem pedidos os ciclos já ativos cuja atribuição automática
-  // não encontrou ninguém (ex.: modelo só com gestor e colaboradores sem
-  // gestor): sem este caso o ciclo ficava invisível em todo o ecrã.
   // Mostram-se à parte, só sem filtros de linha activos.
   const noRowFilters =
     departmentId === ALL && unitId === ALL && status === ALL && purpose === ALL;
   const pendingCycles = (cyclesData?.data ?? []).filter(
     (c) =>
       noRowFilters &&
-      (c.status === 'DRAFT' ||
-        c.status === 'PUBLISHED' ||
-        c.status === 'ACTIVE') &&
+      (c.status === 'DRAFT' || c.status === 'PUBLISHED') &&
       c.participation.total === 0 &&
       (cycleId === ALL || cycleId === String(c.id)),
   );
@@ -441,7 +436,6 @@ export function EvaluationsTab() {
               }
               footer={
                 canActivate &&
-                c.status !== 'ACTIVE' &&
                 (c.status === 'DRAFT' ? (
                   <Button
                     intent="onDark"
