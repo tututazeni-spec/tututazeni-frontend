@@ -88,6 +88,13 @@ export function FormalEvaluationsParticipantView() {
           key={e.id}
           evaluation={e}
           participant
+          onSelect={() =>
+            setNav(
+              e.myAttempt
+                ? { view: 'result', evaluation: e }
+                : { view: 'player', id: e.id },
+            )
+          }
           footer={
             e.myAttempt ? (
               <Button
