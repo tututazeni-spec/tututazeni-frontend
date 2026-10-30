@@ -135,13 +135,11 @@ export function FormalEvaluationCard({
         </div>
       </div>
 
-      {!participant && (
-        <div className="flex min-h-[28px] flex-wrap items-center gap-2 px-5 pt-3">
-          <Badge intent={status.intent}>{status.label}</Badge>
-        </div>
-      )}
+      <div className="flex min-h-[28px] flex-wrap items-center gap-2 px-5 pt-3">
+        {!participant && <Badge intent={status.intent}>{status.label}</Badge>}
+      </div>
 
-      <div className={`space-y-3 px-5 ${participant ? 'pt-3' : 'pt-4'}`}>
+      <div className="space-y-3 px-5 pt-4">
         <Metric icon={ClipboardList}>{e._count.questions} perguntas</Metric>
         {participant ? (
           <Metric icon={Award}>Nota máxima: {e.maxGrade}</Metric>
