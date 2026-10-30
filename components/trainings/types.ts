@@ -348,16 +348,34 @@ export interface CalendarResponse {
   events: CalendarEvent[];
 }
 
+/** Campos mínimos para desenhar o cartão da formação (/trainings/my devolve só estes). */
+export type TrainingCardData = Pick<
+  Training,
+  'id' | 'title' | 'thumbnailUrl' | 'type' | 'workloadHours'
+> &
+  Partial<
+    Pick<
+      Training,
+      | 'level'
+      | 'category'
+      | 'mandatory'
+      | 'shortDescription'
+      | 'issueCertificate'
+      | 'instructor'
+      | 'status'
+      | 'colorIndex'
+      | '_count'
+      | 'avgRating'
+    >
+  >;
+
 export interface MyTrainingEntry {
   id: number;
   status: ParticipantStatus;
   finalScore: number | null;
   session?: {
     sessionDate: string;
-    training: Pick<
-      Training,
-      'id' | 'title' | 'thumbnailUrl' | 'type' | 'workloadHours'
-    >;
+    training: TrainingCardData;
   } | null;
 }
 
