@@ -142,7 +142,13 @@ export function FormalEvaluationCard({
       <div className="space-y-3 px-5 pt-4">
         <Metric icon={ClipboardList}>{e._count.questions} perguntas</Metric>
         {participant ? (
-          <Metric icon={Award}>Nota máxima: {e.maxGrade}</Metric>
+          <Metric icon={Award}>
+            {e.myAttempt
+              ? e.myAttempt.needsManualReview && e.myAttempt.score == null
+                ? 'Aguarda revisão'
+                : `Nota: ${e.myAttempt.displayGrade ?? e.myAttempt.score ?? '—'} / ${e.maxGrade}`
+              : `Nota máxima: ${e.maxGrade}`}
+          </Metric>
         ) : (
           <Metric icon={Users}>{e._count.attempts} tentativas</Metric>
         )}

@@ -16,8 +16,12 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import type { FormalEvaluation } from './formalEvaluationTypes';
 import { FormalEvaluationCard } from './FormalEvaluationCard';
+import { FormalEvaluationMyResult } from './FormalEvaluationMyResult';
 
-type Nav = { view: 'list' } | { view: 'player'; id: number };
+type Nav =
+  | { view: 'list' }
+  | { view: 'player'; id: number }
+  | { view: 'result'; evaluation: FormalEvaluation };
 
 export function FormalEvaluationsParticipantView() {
   const [nav, setNav] = useState<Nav>({ view: 'list' });
@@ -48,6 +52,23 @@ export function FormalEvaluationsParticipantView() {
     );
   }
 
+  if (nav.view === 'result') {
+    return (
+      <div>
+        <Button
+          intent="ghost"
+          size="sm"
+          onClick={() => setNav({ view: 'list' })}
+          className="mb-4"
+        >
+          <ArrowLeft size={14} strokeWidth={1.75} />
+          Voltar
+        </Button>
+        <FormalEvaluationMyResult evaluation={nav.evaluation} />
+      </div>
+    );
+  }
+
   if (isLoading) return <Skeleton />;
 
   if (evaluations.length === 0) {
@@ -68,13 +89,23 @@ export function FormalEvaluationsParticipantView() {
           evaluation={e}
           participant
           footer={
-            <Button
-              intent="onDark"
-              size="sm"
-              onClick={() => setNav({ view: 'player', id: e.id })}
-            >
-              Iniciar
-            </Button>
+            e.myAttempt ? (
+              <Button
+                intent="onDark"
+                size="sm"
+                onClick={() => setNav({ view: 'result', evaluation: e })}
+              >
+                Ver resultado
+              </Button>
+            ) : (
+              <Button
+                intent="onDark"
+                size="sm"
+                onClick={() => setNav({ view: 'player', id: e.id })}
+              >
+                Iniciar
+              </Button>
+            )
           }
         />
       ))}

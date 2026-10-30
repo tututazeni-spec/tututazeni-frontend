@@ -23,6 +23,19 @@ export interface FormalEvaluation {
   availableUntil: string | null;
   createdAt: string;
   _count: { questions: number; attempts: number };
+  /** Só em /assessments/available: a tentativa já submetida pelo próprio utilizador. */
+  myAttempt?: MyAttempt | null;
+}
+
+export interface MyAttempt {
+  id: number;
+  status: string;
+  score: number | null;
+  passed: boolean | null;
+  needsManualReview: boolean;
+  submittedAt: string | null;
+  displayGrade: number | null;
+  qualitativeLabel: string | null;
 }
 
 /** Avaliação em rascunho com as perguntas e respostas correctas (GET /assessments/:id/edit). */
