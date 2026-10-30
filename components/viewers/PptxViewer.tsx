@@ -21,11 +21,39 @@ type Previewer = ReturnType<typeof PptxPreviewInit>;
 
 const SLIDE_WIDTH = 960;
 const SLIDE_HEIGHT = 540;
+// Espaço vertical reservado a cabeçalho/rodapé/margens quando se calcula a
+// altura máxima do slide a partir da janela.
+const CHROME_HEIGHT = 240;
 
 export function PptxViewer({ src, title }: PptxViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const previewerRef = useRef<Previewer | null>(null);
   const [status, setStatus] = useState<Status>('loading');
+  const fitRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  // O slide é desenhado em 960x540; aqui é só escalado para caber por inteiro
+  // (largura da coluna e altura da janela), sem cortes nem scroll.
+  useEffect(() => {
+    const el = fitRef.current;
+    if (!el) return;
+    const fit = () => {
+      const byWidth = el.clientWidth / SLIDE_WIDTH;
+      const byHeight =
+        Math.max(window.innerHeight - CHROME_HEIGHT, 200) / SLIDE_HEIGHT;
+      const next = Math.min(byWidth, byHeight);
+      if (next > 0) setScale(next);
+    };
+    fit();
+    const ro =
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(fit) : null;
+    ro?.observe(el);
+    window.addEventListener('resize', fit);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', fit);
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -91,12 +119,21 @@ export function PptxViewer({ src, title }: PptxViewerProps) {
           </span>
         </div>
       )}
-      <div className="w-full overflow-auto px-4 flex justify-center">
+      <div ref={fitRef} className="w-full px-4 flex justify-center">
         <div
-          ref={containerRef}
           className={status === 'ready' ? 'shadow-lg' : 'hidden'}
-          style={{ width: SLIDE_WIDTH, height: SLIDE_HEIGHT }}
-        />
+          style={{ width: SLIDE_WIDTH * scale, height: SLIDE_HEIGHT * scale }}
+        >
+          <div
+            ref={containerRef}
+            style={{
+              width: SLIDE_WIDTH,
+              height: SLIDE_HEIGHT,
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+            }}
+          />
+        </div>
       </div>
     </div>
   );
