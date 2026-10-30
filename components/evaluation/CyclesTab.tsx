@@ -6,6 +6,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Building2,
   Calendar,
@@ -44,8 +45,18 @@ const CYCLE_TONE: Record<string, BadgeProps['intent']> = {
   ARCHIVED: 'neutral',
 };
 
+const ACTION_DONE = {
+  publish: 'Ciclo publicado',
+  activate: 'Ciclo ativado',
+  pause: 'Ciclo pausado',
+  close: 'Ciclo encerrado',
+  reopen: 'Ciclo reaberto',
+  remind: 'Lembretes enviados',
+} as const;
+
 export function CyclesTab() {
   const notify = useToast();
+  const qc = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
   // Publicar/Activar/Criar espelham @Roles(ADMIN, RH) de POST
   // /evaluations/cycles(/:id/publish|/activate) (evaluation.controller.ts) —
@@ -55,9 +66,8 @@ export function CyclesTab() {
   const canManageCycle = useHasRole(ADMIN_ROLES);
 
   // docs/modulo_evaluation.md ponto 3 — Pausar/Encerrar/Reabrir/Enviar
-  // lembretes, mesmo padrão de publish/activate já existente (reload após
-  // sucesso em vez de invalidação de cache, ver comentário histórico
-  // acima destas duas acções).
+  // lembretes, publicar e activar. Depois do sucesso invalida-se a cache em
+  // vez de recarregar a página: um reload voltava ao separador por omissão.
   const runCycleAction = (
     cycleId: number,
     action: 'publish' | 'activate' | 'pause' | 'close' | 'reopen' | 'remind',
@@ -65,7 +75,10 @@ export function CyclesTab() {
   ) => {
     const call = method === 'POST' ? apiClient.post : apiClient.patch;
     call(`/evaluations/cycles/${cycleId}/${action}`, {})
-      .then(() => window.location.reload())
+      .then(() => {
+        qc.invalidateQueries({ queryKey: queryKeys.evaluation.all });
+        notify({ title: ACTION_DONE[action], intent: 'success' });
+      })
       .catch((e) => {
         reportError(e, { source: `CyclesTab.${action}` });
         notify({
