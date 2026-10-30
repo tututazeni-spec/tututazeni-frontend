@@ -32,6 +32,7 @@ import {
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { actionPillClass } from '@/components/ui/Pills';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { openFromApi } from '@/lib/download';
 import { reportError } from '@/lib/errorReporting';
@@ -561,20 +562,25 @@ export function CourseDetailView({
               )}
             </div>
             <div className="flex items-center gap-2">
-              <Button intent="secondary" onClick={continueOrReviewLesson}>
+              <button
+                type="button"
+                onClick={continueOrReviewLesson}
+                className={actionPillClass}
+              >
                 Rever curso
-              </Button>
+              </button>
               {progress.enrollment.certificate && (
                 <>
-                  <Button
-                    intent="secondary"
+                  <button
+                    type="button"
                     disabled={openingCertificate}
                     onClick={() =>
                       void viewCertificate(progress.enrollment.certificate!.id)
                     }
+                    className={actionPillClass}
                   >
                     {openingCertificate ? 'A abrir…' : 'Ver certificado'}
-                  </Button>
+                  </button>
                   {progress.enrollment.certificate.fileUrl && (
                     <a
                       href={progress.enrollment.certificate.fileUrl}

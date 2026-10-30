@@ -26,6 +26,14 @@ const PILL_ACTIVE_HOVER_INVERT =
 export const pillClass = (active: boolean) =>
   cn(PILL, active ? PILL_ACTIVE : PILL_IDLE);
 
+/** Pílula de acção (botão avulso): clara, fica navy com letra branca ao passar o cursor. */
+export const actionPillClass = cn(
+  PILL,
+  PILL_IDLE,
+  PILL_HOVER_NAVY,
+  'disabled:pointer-events-none disabled:opacity-60',
+);
+
 export interface PeriodPillOption<T extends string | number> {
   value: T;
   label: string;
