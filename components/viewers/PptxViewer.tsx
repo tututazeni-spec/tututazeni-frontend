@@ -17,7 +17,7 @@ import {
   Minimize,
 } from 'lucide-react';
 import type { init as PptxPreviewInit } from 'pptx-preview';
-import { useHideStageToggle, useStageMaximized } from './StageMaximizedContext';
+import { useStageMaximized } from './StageMaximizedContext';
 
 interface PptxViewerProps {
   src: string;
@@ -40,13 +40,6 @@ export function PptxViewer({ src, title }: PptxViewerProps) {
   const previewerRef = useRef<Previewer | null>(null);
   const [status, setStatus] = useState<Status>('loading');
   const stageMaximized = useStageMaximized();
-  const hideStageToggle = useHideStageToggle();
-
-  // O ecrã inteiro próprio substitui o botão Maximizar do palco.
-  useEffect(() => {
-    hideStageToggle?.(true);
-    return () => hideStageToggle?.(false);
-  }, [hideStageToggle]);
   const stageRef = useRef<HTMLDivElement>(null);
   const fitRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
