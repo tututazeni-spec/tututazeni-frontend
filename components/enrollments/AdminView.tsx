@@ -348,7 +348,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
           />
         )}
 
-        <div className="space-y-5">
+        <div className="space-y-3">
           {!loading &&
             data?.data?.map((e) => (
               <AdminEnrollmentCard
@@ -413,7 +413,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                     <Button
                       type="button"
                       intent="primary"
-                      size="md"
+                      size="sm"
                       disabled={rowBusy(e.id)}
                       onClick={() => remind.mutate(e.id)}
                     >
@@ -425,7 +425,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                         <Button
                           type="button"
                           intent="secondary"
-                          size="md"
+                          size="sm"
                           disabled={rowBusy(e.id)}
                         >
                           <MoreHorizontal size={16} strokeWidth={1.75} />
