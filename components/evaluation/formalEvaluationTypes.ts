@@ -23,6 +23,19 @@ export interface FormalEvaluation {
   _count: { questions: number; attempts: number };
 }
 
+/** Avaliação em rascunho com as perguntas e respostas correctas (GET /assessments/:id/edit). */
+export interface FormalEvaluationDetail extends FormalEvaluation {
+  questions: {
+    id: number;
+    type: FormalQuestionType;
+    questionText: string;
+    weight: number;
+    seq: number;
+    /** JSON: `[{ text, isCorrect }]`; nulo nas respostas abertas. */
+    options: string | null;
+  }[];
+}
+
 export interface RosterRow {
   attemptId: number;
   userId: number;

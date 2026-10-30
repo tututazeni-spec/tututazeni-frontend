@@ -10,7 +10,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BarChart3, ClipboardList, Copy, Plus, Trash2 } from 'lucide-react';
+import { BarChart3, ClipboardList, MoreHorizontal, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -19,6 +19,12 @@ import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/assessments/Skeleton';
 import { CreateFormalEvaluationModal } from './CreateFormalEvaluationModal';
@@ -32,6 +38,7 @@ function ManagementView() {
   const confirm = useConfirm();
   const [showCreate, setShowCreate] = useState(false);
   const [resultsId, setResultsId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const { data, isLoading } = useApiQuery<FormalEvaluation[]>(
     queryKeys.formalEvaluations.list(),
@@ -115,30 +122,37 @@ function ManagementView() {
               e.status !== 'DRAFT' ? () => setResultsId(e.id) : undefined
             }
             actions={
-              <>
-                <Button
-                  type="button"
-                  intent="onDarkGhost"
-                  size="icon"
-                  aria-label="Duplicar"
-                  title="Duplicar"
-                  onClick={() => duplicate.mutate(e.id)}
-                >
-                  <Copy size={15} strokeWidth={1.75} />
-                </Button>
-                {e.status !== 'PUBLISHED' && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
                   <Button
                     type="button"
                     intent="onDarkGhost"
                     size="icon"
-                    aria-label="Eliminar"
-                    title="Eliminar"
-                    onClick={() => handleRemove(e)}
+                    aria-label="Mais opções"
+                    title="Mais opções"
                   >
-                    <Trash2 size={15} strokeWidth={1.75} />
+                    <MoreHorizontal size={16} strokeWidth={1.75} />
                   </Button>
-                )}
-              </>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {e.status === 'DRAFT' && (
+                    <DropdownMenuItem onSelect={() => setEditingId(e.id)}>
+                      Editar
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onSelect={() => duplicate.mutate(e.id)}>
+                    Duplicar
+                  </DropdownMenuItem>
+                  {e.status !== 'PUBLISHED' && (
+                    <DropdownMenuItem
+                      className="text-danger-ink"
+                      onSelect={() => handleRemove(e)}
+                    >
+                      Eliminar
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             }
             footer={
               <>
@@ -180,6 +194,12 @@ function ManagementView() {
 
       {showCreate && (
         <CreateFormalEvaluationModal onClose={() => setShowCreate(false)} />
+      )}
+      {editingId !== null && (
+        <CreateFormalEvaluationModal
+          evaluationId={editingId}
+          onClose={() => setEditingId(null)}
+        />
       )}
       {resultsId !== null && (
         <FormalEvaluationResultsPanel

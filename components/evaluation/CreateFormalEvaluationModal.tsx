@@ -8,6 +8,7 @@
 
 'use client';
 
+import { useEffect } from 'react';
 import { useFormState } from '@/hooks/useFormState';
 import { AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
@@ -24,12 +25,39 @@ import type { PaginatedDepts } from '@/components/departments/types';
 import type { Course, PaginatedCourses } from '@/components/courses/types';
 import type {
   DraftQuestion,
+  FormalEvaluationDetail,
   FormalQuestionType,
 } from './formalEvaluationTypes';
 import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface CreateFormalEvaluationModalProps {
   onClose: () => void;
+  /** Com id, edita uma avaliação em rascunho em vez de criar uma nova. */
+  evaluationId?: number;
+}
+
+/** ISO → valor de <input type="datetime-local"> na hora local. */
+function toLocalInput(iso: string | null): string {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function parseOptions(raw: string | null): DraftQuestion['options'] {
+  if (!raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed)
+      ? parsed.map((o: { text?: string; isCorrect?: boolean }) => ({
+          text: o.text ?? '',
+          isCorrect: !!o.isCorrect,
+        }))
+      : [];
+  } catch {
+    return [];
+  }
 }
 
 const QUESTION_TYPE_ITEMS: { value: FormalQuestionType; label: string }[] = [
@@ -66,23 +94,28 @@ interface CreateFormalEvaluationModalFormValues {
 
 export function CreateFormalEvaluationModal({
   onClose,
+  evaluationId,
 }: CreateFormalEvaluationModalProps) {
   const notify = useToast();
+  const editing = evaluationId !== undefined;
 
-  const { values: formValues, set: setField } =
-    useFormState<CreateFormalEvaluationModalFormValues>({
-      title: '',
-      description: '',
-      courseId: '',
-      availableFrom: '',
-      availableUntil: '',
-      maxGrade: '20',
-      passingScore: '70',
-      allDepartments: true,
-      targetDepartmentIds: [],
-      questions: [blankQuestion()],
-      submitError: '',
-    });
+  const {
+    values: formValues,
+    set: setField,
+    setValues,
+  } = useFormState<CreateFormalEvaluationModalFormValues>({
+    title: '',
+    description: '',
+    courseId: '',
+    availableFrom: '',
+    availableUntil: '',
+    maxGrade: '20',
+    passingScore: '70',
+    allDepartments: true,
+    targetDepartmentIds: [],
+    questions: [blankQuestion()],
+    submitError: '',
+  });
   const {
     title,
     description,
@@ -96,6 +129,44 @@ export function CreateFormalEvaluationModal({
     questions,
     submitError,
   } = formValues;
+
+  // Edição: carrega o rascunho (com as respostas correctas) e preenche o formulário.
+  const detailQ = useApiQuery<FormalEvaluationDetail>(
+    queryKeys.formalEvaluations.edit(evaluationId ?? 0),
+    `/assessments/${evaluationId}/edit`,
+    { enabled: editing, staleTime: 0 },
+  );
+  const detail = detailQ.data;
+  useEffect(() => {
+    if (!detail) return;
+    setValues({
+      title: detail.title,
+      description: detail.description ?? '',
+      courseId: detail.courseId ? String(detail.courseId) : '',
+      availableFrom: toLocalInput(detail.availableFrom),
+      availableUntil: toLocalInput(detail.availableUntil),
+      maxGrade: String(detail.maxGrade),
+      passingScore: String(detail.passingScore),
+      allDepartments: detail.targetDepartmentIds.length === 0,
+      targetDepartmentIds: detail.targetDepartmentIds,
+      questions: [...detail.questions]
+        .sort((a, b) => a.seq - b.seq)
+        .map((q) => ({
+          type: q.type,
+          questionText: q.questionText,
+          weight: q.weight,
+          options:
+            q.type === 'OPEN_TEXT'
+              ? [
+                  { text: '', isCorrect: true },
+                  { text: '', isCorrect: false },
+                ]
+              : parseOptions(q.options),
+        })),
+      submitError: '',
+    });
+  }, [detail, setValues]);
+  const loadingDetail = editing && !detail && !detailQ.error;
 
   const coursesQ = useApiQuery<PaginatedCourses>(
     queryKeys.courses.list({ status: 'PUBLISHED', limit: 100 }),
@@ -182,21 +253,32 @@ export function CreateFormalEvaluationModal({
       return filled.length >= 2 && filled.some((o) => o.isCorrect);
     });
 
-  const canSubmit = title.trim().length > 0 && datesOk && questionsOk;
+  const canSubmit =
+    title.trim().length > 0 && datesOk && questionsOk && !loadingDetail;
 
   const createEvaluation = useApiMutation(
     (body: Record<string, unknown>) =>
-      apiClient.post<{ id: number }>('/assessments', body),
+      editing
+        ? apiClient.put<{ id: number }>(`/assessments/${evaluationId}`, body)
+        : apiClient.post<{ id: number }>('/assessments', body),
     {
       invalidateKeys: [queryKeys.formalEvaluations.list()],
       onSuccess: () => {
-        notify({ title: 'Avaliação criada como rascunho', intent: 'success' });
+        notify({
+          title: editing
+            ? 'Avaliação guardada'
+            : 'Avaliação criada como rascunho',
+          intent: 'success',
+        });
         onClose();
       },
       onError: (e) =>
         setField(
           'submitError',
-          e.message || 'Erro ao criar a avaliação. Tente novamente.',
+          e.message ||
+            (editing
+              ? 'Erro ao guardar a avaliação. Tente novamente.'
+              : 'Erro ao criar a avaliação. Tente novamente.'),
         ),
     },
   );
@@ -234,11 +316,25 @@ export function CreateFormalEvaluationModal({
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
-        title="Nova avaliação formal"
-        description="Fica como rascunho até seres tu a publicá-la."
+        title={editing ? 'Editar avaliação formal' : 'Nova avaliação formal'}
+        description={
+          editing
+            ? 'Só se edita antes de publicar.'
+            : 'Fica como rascunho até seres tu a publicá-la.'
+        }
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
       >
         <div className="mt-5 space-y-6">
+          {loadingDetail && (
+            <p className="text-sm text-ink-muted">A carregar a avaliação…</p>
+          )}
+          {editing && detailQ.error && (
+            <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
+              <AlertCircle size={16} strokeWidth={1.75} />
+              {detailQ.error.message ||
+                'Não foi possível carregar a avaliação para editar.'}
+            </div>
+          )}
           {submitError && (
             <div className="flex items-center gap-2 rounded-card bg-danger-subtle p-3 text-sm text-danger-ink">
               <AlertCircle size={16} strokeWidth={1.75} />
@@ -502,7 +598,7 @@ export function CreateFormalEvaluationModal({
             disabled={!canSubmit}
             loading={loading}
           >
-            Criar avaliação
+            {editing ? 'Guardar alterações' : 'Criar avaliação'}
           </Button>
         </div>
       </ModalContent>
