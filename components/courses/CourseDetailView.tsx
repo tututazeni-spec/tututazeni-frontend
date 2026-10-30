@@ -13,7 +13,7 @@
 'use client';
 
 import { PALETTE } from '@/components/onboarding/TemplateCard';
-import type { ComponentType, ReactNode } from 'react';
+import { useState, type ComponentType, type ReactNode } from 'react';
 import {
   ArrowLeft,
   Check,
@@ -33,6 +33,9 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { openFromApi } from '@/lib/download';
+import { reportError } from '@/lib/errorReporting';
+import { useToast } from '@/providers/ToastProvider';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import {
@@ -121,6 +124,31 @@ export function CourseDetailView({
   completing,
   feedbackLoading,
 }: CourseDetailViewProps) {
+  const notify = useToast();
+  const [openingCertificate, setOpeningCertificate] = useState(false);
+
+  // O PDF exige sessão: vai-se buscar com ela e abre-se num separador.
+  const viewCertificate = async (certificateId: number) => {
+    setOpeningCertificate(true);
+    try {
+      await openFromApi(`/certificates/${certificateId}/pdf`, {
+        fallbackName: `certificado-${certificateId}.pdf`,
+        errorMessage: 'Não foi possível abrir o certificado.',
+      });
+    } catch (e) {
+      reportError(e, { source: 'CourseDetailView.viewCertificate' });
+      notify({
+        title:
+          e instanceof Error
+            ? e.message
+            : 'Não foi possível abrir o certificado.',
+        intent: 'danger',
+      });
+    } finally {
+      setOpeningCertificate(false);
+    }
+  };
+
   if (loadingCourse || !course)
     return (
       <div>
@@ -538,7 +566,15 @@ export function CourseDetailView({
               </Button>
               {progress.enrollment.certificate && (
                 <>
-                  <Button intent="secondary">Ver certificado</Button>
+                  <Button
+                    intent="secondary"
+                    disabled={openingCertificate}
+                    onClick={() =>
+                      void viewCertificate(progress.enrollment.certificate!.id)
+                    }
+                  >
+                    {openingCertificate ? 'A abrir…' : 'Ver certificado'}
+                  </Button>
                   {progress.enrollment.certificate.fileUrl && (
                     <a
                       href={progress.enrollment.certificate.fileUrl}

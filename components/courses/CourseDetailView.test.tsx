@@ -1,9 +1,16 @@
 import { describe, expect, test, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { CourseDetailView } from './CourseDetailView';
 import type { CourseDetailData } from './types';
 
 const noop = () => {};
+
+const openFromApi = vi.fn(() => Promise.resolve());
+const toast = vi.fn();
+vi.mock('@/lib/download', () => ({
+  openFromApi: (...a: unknown[]) => openFromApi(...(a as [])),
+}));
+vi.mock('@/providers/ToastProvider', () => ({ useToast: () => toast }));
 
 const baseCourse: CourseDetailData = {
   id: 1,
@@ -147,6 +154,68 @@ describe('CourseDetailView — secções do doc renderizadas com dados reais', (
     expect(
       screen.getByRole('link', { name: /descarregar certificado/i }),
     ).toHaveAttribute('href', 'https://cdn.example.com/cert.pdf');
+  });
+
+  describe('"Ver certificado"', () => {
+    const completed = {
+      enrollment: {
+        id: 1,
+        status: 'COMPLETED' as const,
+        deadline: null,
+        completedAt: '2026-02-01T00:00:00.000Z',
+        certificate: {
+          id: 42,
+          code: 'CERT-42',
+          issuedAt: '2026-02-01T00:00:00.000Z',
+          fileUrl: null,
+        },
+      },
+      courseProgress: { totalLessons: 4, completedLessons: 4, pct: 100 },
+      modules: [],
+    };
+
+    test('abre o PDF do certificado certo', async () => {
+      openFromApi.mockClear();
+      render(
+        <CourseDetailView
+          {...baseProps}
+          course={baseCourse}
+          isEnrolled
+          progressPct={100}
+          progress={completed}
+        />,
+      );
+      fireEvent.click(screen.getByRole('button', { name: /ver certificado/i }));
+      await waitFor(() =>
+        expect(openFromApi).toHaveBeenCalledWith(
+          '/certificates/42/pdf',
+          expect.anything(),
+        ),
+      );
+    });
+
+    test('se falhar, avisa o utilizador e o botão volta a estar disponível', async () => {
+      toast.mockClear();
+      openFromApi.mockRejectedValueOnce(new Error('Sem permissão'));
+      render(
+        <CourseDetailView
+          {...baseProps}
+          course={baseCourse}
+          isEnrolled
+          progressPct={100}
+          progress={completed}
+        />,
+      );
+      fireEvent.click(screen.getByRole('button', { name: /ver certificado/i }));
+      await waitFor(() =>
+        expect(toast).toHaveBeenCalledWith(
+          expect.objectContaining({ title: 'Sem permissão', intent: 'danger' }),
+        ),
+      );
+      expect(
+        screen.getByRole('button', { name: /ver certificado/i }),
+      ).toBeEnabled();
+    });
   });
 
   test('utilizador inscrito sem aula activa tem botão "Continuar curso"', () => {

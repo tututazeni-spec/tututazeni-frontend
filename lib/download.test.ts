@@ -94,3 +94,50 @@ describe('saveBlob / downloadFromApi', () => {
     expect(clicked).toHaveLength(0);
   });
 });
+
+describe('openFromApi', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  const mockGetRaw = async (blob: Blob) => {
+    const { apiClient } = await import('@/lib/apiClient');
+    vi.spyOn(apiClient, 'getRaw').mockResolvedValue({
+      blob: () => Promise.resolve(blob),
+      headers: new Headers(),
+    } as unknown as Response);
+  };
+
+  it('abre o ficheiro no separador aberto antes do pedido', async () => {
+    const tab = { location: { href: '' }, close: vi.fn() };
+    vi.spyOn(window, 'open').mockReturnValue(tab as unknown as Window);
+    URL.createObjectURL = vi.fn(() => 'blob:pdf');
+    URL.revokeObjectURL = vi.fn();
+    await mockGetRaw(new Blob(['%PDF-']));
+    const { openFromApi } = await import('./download');
+    await openFromApi('/certificates/5/pdf');
+    expect(window.open).toHaveBeenCalledWith('', '_blank');
+    expect(tab.location.href).toBe('blob:pdf');
+  });
+
+  it('com o separador bloqueado, descarrega o ficheiro', async () => {
+    vi.spyOn(window, 'open').mockReturnValue(null);
+    URL.createObjectURL = vi.fn(() => 'blob:pdf');
+    URL.revokeObjectURL = vi.fn();
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => undefined);
+    await mockGetRaw(new Blob(['%PDF-']));
+    const { openFromApi } = await import('./download');
+    await openFromApi('/certificates/5/pdf', { fallbackName: 'c.pdf' });
+    expect(click).toHaveBeenCalled();
+  });
+
+  it('se o pedido falha, fecha o separador e propaga o erro', async () => {
+    const tab = { location: { href: '' }, close: vi.fn() };
+    vi.spyOn(window, 'open').mockReturnValue(tab as unknown as Window);
+    const { apiClient } = await import('@/lib/apiClient');
+    vi.spyOn(apiClient, 'getRaw').mockRejectedValue(new Error('falhou'));
+    const { openFromApi } = await import('./download');
+    await expect(openFromApi('/x')).rejects.toThrow('falhou');
+    expect(tab.close).toHaveBeenCalled();
+  });
+});
