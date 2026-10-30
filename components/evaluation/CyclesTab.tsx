@@ -112,9 +112,20 @@ export function CyclesTab() {
     method: 'POST' | 'PATCH',
   ) => {
     const call = method === 'POST' ? apiClient.post : apiClient.patch;
-    call(`/evaluations/cycles/${cycleId}/${action}`, {})
-      .then(() => {
+    call<{ requestsCount?: number } | undefined>(
+      `/evaluations/cycles/${cycleId}/${action}`,
+      {},
+    )
+      .then((res) => {
         qc.invalidateQueries({ queryKey: queryKeys.evaluation.all });
+        if (action === 'activate' && res?.requestsCount === 0) {
+          notify({
+            title:
+              'Ciclo ativado, mas não gerou nenhuma avaliação. Confirma se os colaboradores deste âmbito têm gestor atribuído, ou usa "Adicionar avaliação".',
+            intent: 'danger',
+          });
+          return;
+        }
         notify({ title: ACTION_DONE[action], intent: 'success' });
       })
       .catch((e) => {

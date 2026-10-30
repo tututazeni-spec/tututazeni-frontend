@@ -209,11 +209,18 @@ export function EvaluationsTab() {
     });
     if (ok) deleteCycle.mutate(cycle.id);
   };
-  const activateCycle = useApiMutation<unknown, number>(
+  const activateCycle = useApiMutation<{ requestsCount?: number }, number>(
     (id) => apiClient.post(`/evaluations/cycles/${id}/activate`, {}),
     {
       invalidateKeys: [queryKeys.evaluation.all],
-      onSuccess: () => notify({ title: 'Ciclo ativado', intent: 'success' }),
+      onSuccess: (res) =>
+        res?.requestsCount === 0
+          ? notify({
+              title:
+                'Ciclo ativado, mas não gerou nenhuma avaliação. Confirma se os colaboradores deste âmbito têm gestor atribuído, ou usa "Adicionar avaliação".',
+              intent: 'danger',
+            })
+          : notify({ title: 'Ciclo ativado', intent: 'success' }),
       onError: (e) =>
         notify({
           title: e instanceof Error ? e.message : 'Erro',
@@ -322,6 +329,16 @@ export function EvaluationsTab() {
           <Button size="sm" intent="secondary" onClick={exportCsv}>
             Exportar
           </Button>
+          {cycleId !== ALL && (
+            <Button
+              size="sm"
+              intent="secondary"
+              onClick={() => setAddToCycleId(Number(cycleId))}
+            >
+              <Plus size={14} strokeWidth={1.75} className="mr-1" />
+              Adicionar ao ciclo
+            </Button>
+          )}
           <Button size="sm" onClick={() => setShowWizard(true)}>
             <Plus size={14} strokeWidth={1.75} className="mr-1" />
             Nova Avaliação
