@@ -31,8 +31,9 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import type { BadgeProps } from '@/components/ui/Badge';
 import { CycleCard } from './CycleCard';
 import { CreateCycleModal } from './CreateCycleModal';
+import { SubmitEvaluationModal } from './SubmitEvaluationModal';
 import { MODEL_LABEL, STATUS_MAP } from './constants';
-import type { Cycle } from './types';
+import type { Cycle, EvalRequest } from './types';
 import { formatDateNumeric } from '@/lib/format';
 
 const CYCLE_TONE: Record<string, BadgeProps['intent']> = {
@@ -58,6 +59,28 @@ export function CyclesTab() {
   const notify = useToast();
   const qc = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
+  const [toSubmit, setToSubmit] = useState<EvalRequest | null>(null);
+  // Avaliações que EU tenho de preencher (mesmo endpoint do separador
+  // "Avaliações Pendentes"): clicar no cartão de um ciclo abre a primeira
+  // pendente desse ciclo.
+  const { data: myPending = [] } = useApiQuery<EvalRequest[]>(
+    queryKeys.evaluation.pending(),
+    '/evaluations/pending',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const startEvaluation = (cycle: Cycle) => {
+    const request = myPending.find((r) => r.cycle?.id === cycle.id);
+    if (request) setToSubmit(request);
+    else
+      notify({
+        title: 'Sem avaliação para preencher neste ciclo',
+        description:
+          cycle.status === 'ACTIVE'
+            ? 'Não tens avaliações pendentes neste ciclo.'
+            : 'O ciclo ainda não está ativo para avaliações.',
+        intent: 'info',
+      });
+  };
   // Publicar/Activar/Criar espelham @Roles(ADMIN, RH) de POST
   // /evaluations/cycles(/:id/publish|/activate) (evaluation.controller.ts) —
   // um COLABORADOR pode ver este separador (participa nas suas avaliações),
@@ -162,6 +185,7 @@ export function CyclesTab() {
             <CycleCard
               key={cycle.id}
               seed={cycle.id}
+              onSelect={() => startEvaluation(cycle)}
               kicker={MODEL_LABEL[cycle.model] ?? cycle.model}
               kickerIcon={ClipboardList}
               title={cycle.name}
@@ -210,6 +234,16 @@ export function CyclesTab() {
               }}
               footer={
                 <>
+                  {myPending.some((r) => r.cycle?.id === cycle.id) && (
+                    <Button
+                      type="button"
+                      intent="onDark"
+                      size="sm"
+                      onClick={() => startEvaluation(cycle)}
+                    >
+                      Avaliar →
+                    </Button>
+                  )}
                   {canManageCycle && cycle.status === 'DRAFT' && (
                     <Button
                       type="button"
@@ -308,6 +342,18 @@ export function CyclesTab() {
           />
         )}
       </div>
+
+      {toSubmit && (
+        <SubmitEvaluationModal
+          requestId={toSubmit.id}
+          cycleId={toSubmit.cycle?.id}
+          evaluatedName={toSubmit.evaluated.fullName}
+          onClose={() => setToSubmit(null)}
+          onSuccess={() =>
+            qc.invalidateQueries({ queryKey: queryKeys.evaluation.all })
+          }
+        />
+      )}
     </div>
   );
 }

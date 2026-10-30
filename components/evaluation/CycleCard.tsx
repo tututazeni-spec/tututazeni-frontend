@@ -40,6 +40,8 @@ interface CycleCardProps {
   progress: { value: number; label: string };
   /** Botões de acção no painel inferior. */
   footer?: ReactNode;
+  /** Clique no cartão (ex.: iniciar a avaliação). Sem valor, não é clicável. */
+  onSelect?: () => void;
 }
 
 export function CycleCard({
@@ -53,6 +55,7 @@ export function CycleCard({
   infos,
   progress,
   footer,
+  onSelect,
 }: CycleCardProps) {
   // Cada ciclo mantém a sua cor própria, escolhida pelo id.
   const palette = PALETTE[Math.abs(seed) % PALETTE.length];
@@ -61,7 +64,17 @@ export function CycleCard({
 
   return (
     <div
-      className="relative flex h-full flex-col overflow-hidden rounded-panel border border-white/10 text-white shadow-[0_4px_14px_rgba(21,47,89,0.25)] transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-[0_10px_24px_rgba(21,47,89,0.4)] motion-reduce:hover:scale-100"
+      role={onSelect ? 'button' : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      onClick={onSelect}
+      onKeyDown={(ev) => {
+        if (!onSelect || ev.target !== ev.currentTarget) return;
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          onSelect();
+        }
+      }}
+      className={`relative flex h-full flex-col overflow-hidden rounded-panel border border-white/10 text-white shadow-[0_4px_14px_rgba(21,47,89,0.25)] transition-all duration-200 ease-out hover:scale-[1.02] hover:shadow-[0_10px_24px_rgba(21,47,89,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 motion-reduce:hover:scale-100 ${onSelect ? 'cursor-pointer' : ''}`}
       style={{
         background: `linear-gradient(165deg, ${palette[1]} 0%, ${palette[2]} 60%, ${palette[2]} 100%)`,
       }}
@@ -154,7 +167,15 @@ export function CycleCard({
             </span>
           </div>
         </div>
-        {footer && <div className="flex flex-wrap gap-2">{footer}</div>}
+        {footer && (
+          <div
+            className="flex flex-wrap gap-2"
+            onClick={(ev) => ev.stopPropagation()}
+            onKeyDown={(ev) => ev.stopPropagation()}
+          >
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );
