@@ -6,8 +6,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Eye, Pencil } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { Check, Eye, Pencil } from 'lucide-react';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { apiClient } from '@/lib/apiClient';
+import { useToast } from '@/providers/ToastProvider';
+import { Badge } from '@/components/ui/Badge';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Button } from '@/components/ui/Button';
@@ -23,11 +26,26 @@ import type { TemplateSummaryRow } from './types';
 export function TemplateGallery({ canEdit }: { canEdit: boolean }) {
   const [editing, setEditing] = useState<string | null>(null);
   const [previewing, setPreviewing] = useState<string | null>(null);
+  const toast = useToast();
 
   const { data, isLoading, error, refetch } = useApiQuery<TemplateSummaryRow[]>(
     queryKeys.certificates.templates(),
     '/certificates/templates',
     { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+
+  // Troca-se a qualquer momento: só afecta emissões futuras sem modelo próprio.
+  const setInUse = useApiMutation<unknown, TemplateSummaryRow>(
+    (t) => apiClient.post(`/certificates/templates/${t.id}/in-use`, {}),
+    {
+      invalidateKeys: [queryKeys.certificates.templates()],
+      onSuccess: (_d, t) =>
+        toast({
+          title: `"${t.name}" é agora o modelo em uso.`,
+          intent: 'success',
+        }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
   );
 
   if (isLoading) return <Skeleton rows={3} />;
@@ -46,12 +64,16 @@ export function TemplateGallery({ canEdit }: { canEdit: boolean }) {
       <p className="text-sm text-ink-muted">
         Nove modelos de certificado, todos personalizáveis. Cada gravação cria
         uma versão nova do modelo; os certificados já emitidos mantêm o aspecto
-        com que foram emitidos.
+        com que foram emitidos. O modelo em uso é aplicado nas emissões cuja
+        regra não escolhe um modelo próprio, e pode ser trocado a qualquer
+        momento.
       </p>
       <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {data.map((t) => (
           <li key={t.id}>
-            <Card className="h-full overflow-hidden">
+            <Card
+              className={`h-full overflow-hidden ${t.inUse ? 'ring-2 ring-success' : ''}`}
+            >
               <div
                 className="h-3"
                 style={{
@@ -61,9 +83,12 @@ export function TemplateGallery({ canEdit }: { canEdit: boolean }) {
               <div className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <h3 className="font-semibold text-ink">{t.name}</h3>
-                  <span className="whitespace-nowrap text-xs text-ink-muted">
-                    Versão {t.currentVersion}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    {t.inUse && <Badge intent="success">Em uso</Badge>}
+                    <span className="whitespace-nowrap text-xs text-ink-muted">
+                      Versão {t.currentVersion}
+                    </span>
+                  </div>
                 </div>
                 {t.description && (
                   <p className="text-sm text-ink-muted">{t.description}</p>
@@ -90,6 +115,17 @@ export function TemplateGallery({ canEdit }: { canEdit: boolean }) {
                     <Eye size={14} strokeWidth={1.75} />
                     Pré-visualizar
                   </Button>
+                  {canEdit && !t.inUse && (
+                    <Button
+                      intent="secondary"
+                      size="sm"
+                      disabled={setInUse.isPending}
+                      onClick={() => setInUse.mutate(t)}
+                    >
+                      <Check size={14} strokeWidth={1.75} />
+                      Usar este modelo
+                    </Button>
+                  )}
                   {canEdit && (
                     <Button size="sm" onClick={() => setEditing(t.id)}>
                       <Pencil size={14} strokeWidth={1.75} />
