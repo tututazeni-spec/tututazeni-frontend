@@ -36,28 +36,18 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { type NavyTone } from '@/components/courses/NavyCard';
 import { AdminEnrollmentCard } from './AdminEnrollmentCard';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { ORIGIN_LABELS, STATUS_CFG } from './constants';
+import { ORIGIN_LABELS, STATUS_CFG, STATUS_TONE } from './constants';
 import { useCourseOptions, useDepartmentOptions } from './enrollData';
 import { deadlineCountdown } from './utils';
 import { RunsModal } from './RunsModal';
 import type { Enrollment } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { formatDateNumeric } from '@/lib/format';
-
-const STATUS_TONE: Record<string, NavyTone> = {
-  NOT_STARTED: 'warning',
-  IN_PROGRESS: 'info',
-  COMPLETED: 'success',
-  OVERDUE: 'danger',
-  CANCELLED: 'neutral',
-  EXPIRED: 'neutral',
-};
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
@@ -392,9 +382,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                   {
                     icon: CalendarDays,
                     text: `Inscrição: ${formatDateNumeric(e.enrolledAt)} → Conclusão: ${
-                      e.completedAt
-                        ? formatDateNumeric(e.completedAt)
-                        : '—'
+                      e.completedAt ? formatDateNumeric(e.completedAt) : '—'
                     }`,
                   },
                   {
