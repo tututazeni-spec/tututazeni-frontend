@@ -14,6 +14,7 @@ import { SafeHtml } from '@/components/ui/SafeHtml';
 import { LessonAudioBar } from './LessonAudioBar';
 import { QuizPlayer } from './QuizPlayer';
 import { ActivityList, FileList } from './LessonExtras';
+import { LessonBreadcrumb } from './LessonBreadcrumb';
 import { LessonFooter } from './LessonFooter';
 import { LessonPdf } from './LessonPdf';
 import type { LessonProgress, ModuleProgress } from './types';
@@ -27,6 +28,8 @@ interface LessonReaderProps {
   onNext?: () => void;
   hasPrevious?: boolean;
   hasNext?: boolean;
+  /** Clique no nome do módulo; omisso = página anterior do browser. */
+  onBackToCourses?: () => void;
 }
 
 // Estilo do texto formatado (o projecto não usa o plugin typography).
@@ -49,6 +52,7 @@ export function LessonReader({
   onNext,
   hasPrevious,
   hasNext,
+  onBackToCourses,
 }: LessonReaderProps) {
   const html = lessonTextToHtml(lesson.textContent);
   const hasPdf = !!lesson.hasFile || /^https?:/i.test(lesson.contentUrl ?? '');
@@ -94,11 +98,11 @@ export function LessonReader({
   return (
     <div className="flex h-full flex-col">
       {currentModule && (
-        <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface-sunken px-4 py-2 font-body text-xs text-ink-muted sm:px-6">
-          <span className="font-medium">{currentModule.title}</span>
-          <span className="text-ink-faint">›</span>
-          <span>{lesson.title}</span>
-        </div>
+        <LessonBreadcrumb
+          moduleTitle={currentModule.title}
+          lessonTitle={lesson.title}
+          onBack={onBackToCourses}
+        />
       )}
 
       <div className="flex-1 overflow-y-auto bg-brand-soft">

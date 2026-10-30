@@ -1,6 +1,6 @@
 // components/courses-learn/MaximizableStage.tsx
 // Envolve o leitor de uma lição com um botão Maximizar/Minimizar: maximizado,
-// ocupa o ecrã todo (por cima do menu, da estrutura do curso e do cabeçalho);
+// ocupa o ecrã todo à direita do menu lateral (por cima da estrutura do curso e do cabeçalho);
 // Esc minimiza. Usado na sala de aula e no detalhe do curso.
 
 'use client';
@@ -41,7 +41,9 @@ export function MaximizableStage({
       id={id}
       className={
         maximized
-          ? 'fixed inset-0 z-50 flex flex-col bg-canvas'
+          ? // lg:left-60 = largura da Sidebar fixa (240px, ver globals.css): o palco
+            // começa à direita dela em vez de ficar escondido por trás.
+            'fixed inset-0 z-50 flex flex-col bg-canvas lg:left-60'
           : `relative ${className}`
       }
     >

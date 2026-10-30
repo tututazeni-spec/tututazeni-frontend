@@ -89,6 +89,7 @@ function LessonContentViewer(props: {
   currentModule: ModuleProgress | null;
   onComplete: () => void;
   completing: boolean;
+  onBackToCourses: () => void;
 }) {
   const Viewer =
     props.lesson.type === 'TEXT' || props.lesson.type === 'PDF'
@@ -203,6 +204,7 @@ export function CourseDetailView({
                   currentModule={lessonModule}
                   onComplete={onMarkComplete}
                   completing={completing}
+                  onBackToCourses={onBack}
                 />
               ) : (
                 <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">

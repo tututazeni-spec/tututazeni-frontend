@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { PdfViewer } from '@/components/viewers/PdfViewer';
 import { PptxViewer } from '@/components/viewers/PptxViewer';
+import { LessonBreadcrumb } from './LessonBreadcrumb';
 import { LessonAudioBar } from './LessonAudioBar';
 import { QuizPlayer } from './QuizPlayer';
 import { ActivityList, FileList, OpenButton } from './LessonExtras';
@@ -188,6 +189,8 @@ interface ContentPlayerProps {
   onNext?: () => void;
   hasPrevious?: boolean;
   hasNext?: boolean;
+  /** Clique no nome do módulo; omisso = página anterior do browser. */
+  onBackToCourses?: () => void;
 }
 
 interface StageNoticeProps {
@@ -263,6 +266,7 @@ export function ContentPlayer({
   onNext,
   hasPrevious,
   hasNext,
+  onBackToCourses,
 }: ContentPlayerProps) {
   const contentUrl = lesson.contentUrl;
   const kind = resolveKind(lesson);
@@ -300,11 +304,11 @@ export function ContentPlayer({
     <div className="flex flex-col h-full">
       {/* Module breadcrumb */}
       {currentModule && (
-        <div className="px-6 py-2 border-b border-border bg-surface-sunken font-body text-xs text-ink-muted flex items-center gap-2">
-          <span className="font-medium">{currentModule.title}</span>
-          <span className="text-ink-faint">›</span>
-          <span>{lesson.title}</span>
-        </div>
+        <LessonBreadcrumb
+          moduleTitle={currentModule.title}
+          lessonTitle={lesson.title}
+          onBack={onBackToCourses}
+        />
       )}
 
       <div className="flex-1 overflow-y-auto">
