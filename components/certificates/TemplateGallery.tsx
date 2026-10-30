@@ -1,7 +1,7 @@
 // components/certificates/TemplateGallery.tsx
 // Biblioteca dos nove modelos de certificado. Todos usam o mesmo motor; cada um tem
 // a sua composição visual e pode ser personalizado (cada gravação cria uma versão
-// nova — os certificados já emitidos não mudam).
+// nova; ao descarregar, os certificados usam a versão actual).
 
 'use client';
 
@@ -63,10 +63,10 @@ export function TemplateGallery({ canEdit }: { canEdit: boolean }) {
     <div className="space-y-4">
       <p className="text-sm text-ink-muted">
         Nove modelos de certificado, todos personalizáveis. Cada gravação cria
-        uma versão nova do modelo; os certificados já emitidos mantêm o aspecto
-        com que foram emitidos. O modelo em uso é aplicado nas emissões cuja
-        regra não escolhe um modelo próprio, e pode ser trocado a qualquer
-        momento.
+        uma versão nova do modelo. O modelo em uso é aplicado a todos os
+        certificados, novos e já emitidos, ao emitir e ao descarregar o PDF,
+        exceto aos de regras que escolhem um modelo próprio. Pode ser trocado a
+        qualquer momento.
       </p>
       <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {data.map((t) => (
