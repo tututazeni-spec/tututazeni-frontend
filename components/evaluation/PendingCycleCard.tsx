@@ -27,6 +27,7 @@ const STATUS: Record<string, { label: string; intent: BadgeProps['intent'] }> =
   {
     DRAFT: { label: 'Rascunho', intent: 'neutral' },
     PUBLISHED: { label: 'Publicada', intent: 'success' },
+    ACTIVE: { label: 'Ativa, sem avaliações atribuídas', intent: 'warning' },
   };
 
 interface PendingCycleCardProps {
