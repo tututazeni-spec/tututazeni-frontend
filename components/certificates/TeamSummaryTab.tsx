@@ -140,8 +140,8 @@ export function TeamSummaryTab({
             <KpiCard label="Em formação" value={t.inProgress} intent="info" />
           </div>
           <Table>
-            <TableHead>
-              <TableRow>
+            <TableHead className="bg-brand/60 [&_th]:text-white">
+              <TableRow className="hover:bg-transparent">
                 <TableHeaderCell>Colaborador</TableHeaderCell>
                 <TableHeaderCell>Válidos</TableHeaderCell>
                 <TableHeaderCell>Expirados</TableHeaderCell>
