@@ -25,17 +25,34 @@ import { Button } from '@/components/ui/Button';
 
 // Cor própria do PDI (mesma do cartão e do detalhe), escolhida pelo
 // utilizador e pelo id — estável entre renders.
-export function planPalette(plan: Plan) {
+export function planPalette(plan: PlanCardData) {
   return PALETTE[Math.abs((plan.user?.id ?? 0) * 3 + plan.id) % PALETTE.length];
 }
 
 // Fundo em fachada de vidro — usado no cartão lateral do detalhe.
-export function planHeaderBackground(plan: Plan) {
+export function planHeaderBackground(plan: PlanCardData) {
   return headerBackground(planPalette(plan));
 }
 
+/** Dados mínimos do cartão — a lista pessoal e a vista da equipa partilham-no. */
+export type PlanCardData = Pick<Plan, 'id' | 'name' | 'status'> &
+  Partial<
+    Pick<
+      Plan,
+      | 'goal'
+      | 'priority'
+      | 'period'
+      | 'endDate'
+      | 'overallProgress'
+      | 'actionProgress'
+      | 'overdueActions'
+      | 'imageUrl'
+      | '_count'
+    >
+  > & { user?: Pick<Plan['user'], 'id' | 'fullName'> };
+
 interface PlanCardProps {
-  plan: Plan;
+  plan: PlanCardData;
   onClick: () => void;
   onDelete?: () => void;
 }
@@ -55,10 +72,12 @@ const PRIORITY_TONE: Record<string, NavyTone> = {
 };
 
 export function PlanCard({ plan, onClick, onDelete }: PlanCardProps) {
-  const pct = plan.actionProgress ?? plan.overallProgress;
+  const pct = plan.actionProgress ?? plan.overallProgress ?? 0;
   const overdue = plan.overdueActions ?? 0;
   const statusLabel = STATUS_CFG[plan.status]?.label ?? plan.status;
-  const priorityLabel = PRIORITY_CFG[plan.priority]?.label ?? plan.priority;
+  const priorityLabel = plan.priority
+    ? (PRIORITY_CFG[plan.priority]?.label ?? plan.priority)
+    : null;
   const endOverdue = !!plan.endDate && isOverdue(plan.endDate, plan.status);
 
   return (
@@ -76,9 +95,11 @@ export function PlanCard({ plan, onClick, onDelete }: PlanCardProps) {
           <NavyBadge tone={STATUS_TONE[plan.status] ?? 'neutral'}>
             {statusLabel}
           </NavyBadge>
-          <NavyBadge tone={PRIORITY_TONE[plan.priority] ?? 'neutral'}>
-            {priorityLabel}
-          </NavyBadge>
+          {plan.priority && priorityLabel && (
+            <NavyBadge tone={PRIORITY_TONE[plan.priority] ?? 'neutral'}>
+              {priorityLabel}
+            </NavyBadge>
+          )}
         </>
       }
       metrics={[
