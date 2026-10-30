@@ -15,6 +15,7 @@ import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { Button, IconButton } from '@/components/ui/Button';
+import { CourseImageField } from '@/components/courses/CourseImageField';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -81,6 +82,7 @@ function blankQuestion(): DraftQuestion {
 interface CreateFormalEvaluationModalFormValues {
   title: string;
   description: string;
+  imageUrl: string;
   courseId: string;
   availableFrom: string;
   availableUntil: string;
@@ -106,6 +108,7 @@ export function CreateFormalEvaluationModal({
   } = useFormState<CreateFormalEvaluationModalFormValues>({
     title: '',
     description: '',
+    imageUrl: '',
     courseId: '',
     availableFrom: '',
     availableUntil: '',
@@ -119,6 +122,7 @@ export function CreateFormalEvaluationModal({
   const {
     title,
     description,
+    imageUrl,
     courseId,
     availableFrom,
     availableUntil,
@@ -142,6 +146,7 @@ export function CreateFormalEvaluationModal({
     setValues({
       title: detail.title,
       description: detail.description ?? '',
+      imageUrl: detail.imageUrl ?? '',
       courseId: detail.courseId ? String(detail.courseId) : '',
       availableFrom: toLocalInput(detail.availableFrom),
       availableUntil: toLocalInput(detail.availableUntil),
@@ -291,6 +296,8 @@ export function CreateFormalEvaluationModal({
       title: title.trim(),
       type: 'EXAM',
       ...(description.trim() ? { description: description.trim() } : {}),
+      // Ao editar, '' limpa a imagem; ao criar, só se envia quando existe.
+      ...(editing ? { imageUrl } : imageUrl ? { imageUrl } : {}),
       ...(courseId ? { courseId: Number(courseId) } : {}),
       ...(availableFrom
         ? { availableFrom: new Date(availableFrom).toISOString() }
@@ -365,6 +372,13 @@ export function CreateFormalEvaluationModal({
                 rows={2}
                 value={description}
                 onChange={(e) => setField('description', e.target.value)}
+              />
+            </FormField>
+            <FormField label="Imagem da avaliação" htmlFor="fe-image">
+              <CourseImageField
+                value={imageUrl || null}
+                onChange={(v) => setField('imageUrl', v ?? '')}
+                alt="Pré-visualização da imagem da avaliação"
               />
             </FormField>
             <FormField

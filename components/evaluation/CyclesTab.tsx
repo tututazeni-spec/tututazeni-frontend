@@ -152,6 +152,7 @@ export function CyclesTab() {
               kicker={MODEL_LABEL[cycle.model] ?? cycle.model}
               kickerIcon={ClipboardList}
               title={cycle.name}
+              imageUrl={cycle.imageUrl}
               subtitle={[
                 `${formatDateNumeric(cycle.startDate)} → ${formatDateNumeric(cycle.endDate)}`,
                 cycle.selfEvalDueDate &&

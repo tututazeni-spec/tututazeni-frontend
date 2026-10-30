@@ -20,6 +20,7 @@ import {
   Metric,
   titleLines,
 } from '@/components/courses/CourseListCard';
+import { CourseThumbnail } from '@/components/courses/CourseThumbnail';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { formatDateTimeNumeric } from '@/lib/format';
 import type {
@@ -81,14 +82,23 @@ export function FormalEvaluationCard({
           style={{ background: palette[0] }}
         />
         <div
-          aria-hidden
+          aria-hidden={e.imageUrl ? undefined : true}
           className="absolute right-0 top-0 flex h-[220px] w-[57%] items-center justify-center overflow-hidden rounded-bl-[56px] rounded-tl-[48px] bg-white/10"
         >
-          <ClipboardCheck
-            size={84}
-            strokeWidth={1.25}
-            className="text-white/60"
-          />
+          {e.imageUrl ? (
+            <CourseThumbnail
+              src={e.imageUrl}
+              alt={`Imagem da avaliação ${e.title}`}
+              className="object-cover"
+              fallbackClassName="text-white/60"
+            />
+          ) : (
+            <ClipboardCheck
+              size={84}
+              strokeWidth={1.25}
+              className="text-white/60"
+            />
+          )}
         </div>
         {actions && (
           <div

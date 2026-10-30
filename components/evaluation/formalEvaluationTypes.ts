@@ -12,6 +12,8 @@ export interface FormalEvaluation {
   id: number;
   title: string;
   description: string | null;
+  /** Imagem do cartão (data URL ou URL), opcional. */
+  imageUrl?: string | null;
   status: FormalEvaluationStatus;
   courseId: number | null;
   passingScore: number;

@@ -14,6 +14,7 @@ import {
   Metric,
   titleLines,
 } from '@/components/courses/CourseListCard';
+import { CourseThumbnail } from '@/components/courses/CourseThumbnail';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
 
 export interface CycleCardInfo {
@@ -29,6 +30,8 @@ interface CycleCardProps {
   kicker: string;
   kickerIcon: LucideIcon;
   title: string;
+  /** Imagem do ciclo (data URL ou URL), opcional: sem ela, o ícone do modelo. */
+  imageUrl?: string | null;
   /** Linha por baixo do título (datas). */
   subtitle?: string;
   status: { label: string; intent: BadgeProps['intent'] };
@@ -44,6 +47,7 @@ export function CycleCard({
   kicker,
   kickerIcon: KickerIcon,
   title,
+  imageUrl,
   subtitle,
   status,
   infos,
@@ -69,10 +73,23 @@ export function CycleCard({
           style={{ background: palette[0] }}
         />
         <div
-          aria-hidden
+          aria-hidden={imageUrl ? undefined : true}
           className="absolute right-0 top-0 flex h-[220px] w-[57%] items-center justify-center overflow-hidden rounded-bl-[56px] rounded-tl-[48px] bg-white/10"
         >
-          <KickerIcon size={84} strokeWidth={1.25} className="text-white/60" />
+          {imageUrl ? (
+            <CourseThumbnail
+              src={imageUrl}
+              alt={`Imagem do ciclo ${title}`}
+              className="object-cover"
+              fallbackClassName="text-white/60"
+            />
+          ) : (
+            <KickerIcon
+              size={84}
+              strokeWidth={1.25}
+              className="text-white/60"
+            />
+          )}
         </div>
         <div className="relative z-10 w-[56%] px-5 pt-5">
           <div className="flex items-center gap-3">

@@ -22,6 +22,7 @@ import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
+import { CourseImageField } from '@/components/courses/CourseImageField';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -72,6 +73,7 @@ export function CreateCycleModal({
       name: '',
       model: '360',
       description: '',
+      imageUrl: '',
       startDate: '',
       endDate: '',
     },
@@ -97,6 +99,7 @@ export function CreateCycleModal({
         ...(form.description.trim()
           ? { description: form.description.trim() }
           : {}),
+        ...(form.imageUrl ? { imageUrl: form.imageUrl } : {}),
         weights: WEIGHT_TYPES.filter((t) => (Number(weights[t]) || 0) > 0).map(
           (t) => ({
             type: t,
@@ -200,6 +203,14 @@ export function CreateCycleModal({
               className="w-full"
               rows={2}
               placeholder="Âmbito, objectivos, notas para os participantes…"
+            />
+          </FormField>
+
+          <FormField label="Imagem do ciclo" htmlFor="cyc-image">
+            <CourseImageField
+              value={form.imageUrl || null}
+              onChange={(v) => setField('imageUrl', v ?? '')}
+              alt="Pré-visualização da imagem do ciclo"
             />
           </FormField>
 
