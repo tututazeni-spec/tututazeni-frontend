@@ -5,7 +5,7 @@ import { PdfViewer } from './PdfViewer';
 function makePage() {
   return {
     getViewport: () => ({ width: 100, height: 200 }),
-    render: () => ({ promise: Promise.resolve() }),
+    render: () => ({ promise: Promise.resolve(), cancel: vi.fn() }),
   };
 }
 

@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, FileWarning, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useStageMaximized } from './StageMaximizedContext';
-import type { PDFDocumentProxy } from 'pdfjs-dist';
+import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 
 interface PdfViewerProps {
   src: string;
@@ -45,6 +45,8 @@ function loadPdfjs(): Promise<PdfjsModule> {
 export function PdfViewer({ src, title, data }: PdfViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const docRef = useRef<PDFDocumentProxy | null>(null);
+  // O pdf.js não aceita dois render() no mesmo canvas ao mesmo tempo.
+  const renderTaskRef = useRef<RenderTask | null>(null);
   const [status, setStatus] = useState<Status>('loading');
   const wrapRef = useRef<HTMLDivElement>(null);
   const maximized = useStageMaximized();
@@ -127,14 +129,35 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
       const viewport = page.getViewport({
         scale: Math.min(3, Math.max(0.5, fit)),
       });
+      // Cancela o desenho anterior e espera que largue o canvas.
+      const previous = renderTaskRef.current;
+      if (previous) {
+        previous.cancel();
+        try {
+          await previous.promise;
+        } catch {
+          // RenderingCancelledException: esperado ao cancelar.
+        }
+      }
+      if (cancelled) return;
       canvas.width = viewport.width;
       canvas.height = viewport.height;
-      await page.render({ canvas, viewport }).promise;
+      const task = page.render({ canvas, viewport });
+      renderTaskRef.current = task;
+      try {
+        await task.promise;
+      } catch (e) {
+        if ((e as { name?: string }).name !== 'RenderingCancelledException')
+          throw e;
+      }
     }
 
-    void renderPage();
+    void renderPage().catch((e) =>
+      console.error('[PdfViewer] falha ao desenhar a página', e),
+    );
     return () => {
       cancelled = true;
+      renderTaskRef.current?.cancel();
     };
   }, [status, pageNum, width, height, maximized]);
 
