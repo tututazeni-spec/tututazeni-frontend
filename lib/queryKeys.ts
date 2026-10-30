@@ -186,6 +186,8 @@ export const queryKeys = {
       [...queryKeys.formalEvaluations.all, 'results', id] as const,
     attemptReview: (id: number) =>
       [...queryKeys.formalEvaluations.all, 'attempt-review', id] as const,
+    myReview: (attemptId: number) =>
+      [...queryKeys.formalEvaluations.all, 'my-review', attemptId] as const,
   },
 
   departments: {

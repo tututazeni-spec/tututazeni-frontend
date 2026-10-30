@@ -15,6 +15,12 @@ export interface ResultReviewItem {
   /** true certa, false errada, null aguarda revisão. */
   correct: boolean | null;
   explanation?: string | null;
+  /** O que o utilizador respondeu (texto das opções ou resposta escrita). */
+  yourAnswer?: string | null;
+  /** Resposta certa, quando a correcção a revela. */
+  correctAnswer?: string | null;
+  /** Comentário de quem reviu a resposta aberta. */
+  comment?: string | null;
 }
 
 interface ResultPanelProps {
@@ -149,6 +155,31 @@ export function ResultPanel({
                     {r.text}
                   </span>
                 </div>
+                {(r.yourAnswer || (r.correct === false && r.correctAnswer)) && (
+                  <div className="mt-2 space-y-0.5 pl-10 text-xs">
+                    {r.yourAnswer && (
+                      <p className="text-brand-muted">
+                        A tua resposta:{' '}
+                        <span className="font-semibold text-brand">
+                          {r.yourAnswer}
+                        </span>
+                      </p>
+                    )}
+                    {r.correct === false && r.correctAnswer && (
+                      <p className="text-brand-muted">
+                        Resposta correcta:{' '}
+                        <span className="font-semibold text-success-ink">
+                          {r.correctAnswer}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                )}
+                {r.comment && (
+                  <div className="mt-2 pl-10 text-xs italic text-brand-muted">
+                    Comentário: {r.comment}
+                  </div>
+                )}
                 {r.explanation && (
                   <div className="mt-2 pl-10 text-xs text-brand-muted">
                     <Lightbulb

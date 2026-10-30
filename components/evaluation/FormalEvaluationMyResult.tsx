@@ -4,8 +4,22 @@
 // tentativa devolvida por GET /assessments/available (não há repetição).
 
 import { ResultPanel } from '@/components/assessments/ResultPanel';
+import { useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
 import { formatDateTimeNumeric } from '@/lib/format';
 import type { FormalEvaluation } from './formalEvaluationTypes';
+
+interface MyReview {
+  items: {
+    questionId: number;
+    questionText: string;
+    isCorrect: boolean | null;
+    yourAnswer: string | null;
+    correctAnswer: string | null;
+    explanation: string | null;
+    reviewComment: string | null;
+  }[];
+}
 
 export function FormalEvaluationMyResult({
   evaluation: e,
@@ -13,6 +27,13 @@ export function FormalEvaluationMyResult({
   evaluation: FormalEvaluation;
 }) {
   const a = e.myAttempt;
+  // A correcção pode estar desligada na avaliação (allowReview/RESULT_ONLY):
+  // nesse caso o pedido falha ou vem vazio e mostra-se só a nota.
+  const { data: review } = useApiQuery<MyReview>(
+    queryKeys.formalEvaluations.myReview(a?.id ?? 0),
+    `/assessments/attempts/${a?.id}/my-review`,
+    { enabled: !!a, retry: false },
+  );
   if (!a) return null;
 
   const pending = a.needsManualReview && a.score == null;
@@ -34,6 +55,15 @@ export function FormalEvaluationMyResult({
         }
         score={pending ? undefined : score}
         passingScore={e.passingScore}
+        review={review?.items.map((i) => ({
+          id: i.questionId,
+          text: i.questionText,
+          correct: i.isCorrect,
+          explanation: i.explanation,
+          yourAnswer: i.yourAnswer,
+          correctAnswer: i.correctAnswer,
+          comment: i.reviewComment,
+        }))}
         footer={
           a.submittedAt
             ? `Submetida em ${formatDateTimeNumeric(a.submittedAt)}`
