@@ -15,9 +15,11 @@ import {
   Clock,
   FilePlus2,
   FileText,
+  ListFilter,
+  type LucideIcon,
+  MapPin,
   Send,
   Sparkles,
-  type LucideIcon,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -238,6 +240,7 @@ export function DocumentsView({
         <div className="grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] items-center gap-3">
           <div className="col-span-full sm:col-span-2">
             <Input
+              variant="underline"
               type="text"
               placeholder="Pesquisar documento, tipo ou processo…"
               value={search}
@@ -249,6 +252,8 @@ export function DocumentsView({
             />
           </div>
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={status}
             onValueChange={(v) => {
@@ -267,6 +272,8 @@ export function DocumentsView({
             className="w-full"
           />
           <Select
+            variant="underline"
+            icon={ListFilter}
             items={ASSIGNED_ITEMS}
             value={assigned}
             onValueChange={(v) => {

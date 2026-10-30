@@ -11,9 +11,13 @@
 import {
   AlertTriangle,
   Bell,
+  Building2,
   CalendarDays,
+  GraduationCap,
   Hourglass,
+  ListFilter,
   Mail,
+  MapPin,
   MoreHorizontal,
   TrendingUp,
 } from 'lucide-react';
@@ -177,7 +181,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
     (recycle.isPending && recycle.variables === id) ||
     (remind.isPending && remind.variables === id);
 
-  // Deadline em massa: dispara os PATCH em paralelo; ao concluir invalida as listas.
+  // Prazo limite em massa: dispara os PATCH em paralelo; ao concluir invalida as listas.
   const bulkDeadlineMut = useApiMutation(
     () =>
       Promise.all(
@@ -244,6 +248,8 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
       <Card className="mb-5 p-4">
         <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={filters.status || 'ALL'}
             onValueChange={(v) =>
@@ -252,6 +258,8 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             className="w-full"
           />
           <Select
+            variant="underline"
+            icon={GraduationCap}
             items={[
               { value: 'ALL', label: 'Todos os cursos' },
               ...courseOptions,
@@ -263,6 +271,8 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             className="w-full lg:col-span-2"
           />
           <Select
+            variant="underline"
+            icon={Building2}
             items={[
               { value: 'ALL', label: 'Todos os departamentos' },
               ...departmentOptions,
@@ -274,6 +284,8 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             className="w-full"
           />
           <Select
+            variant="underline"
+            icon={ListFilter}
             items={MANDATORY_ITEMS}
             value={filters.mandatory || 'ALL'}
             onValueChange={(v) =>
@@ -315,7 +327,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             onClick={handleBulkDeadline}
             disabled={!bulkDeadline || bulkLoading}
           >
-            {bulkLoading ? 'A aplicar…' : 'Actualizar deadline'}
+            {bulkLoading ? 'A aplicar…' : 'Actualizar prazo limite'}
           </Button>
           <button
             onClick={() => setSelected([])}
@@ -336,7 +348,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
           />
         )}
 
-        <div className="space-y-5">
+        <div className="space-y-3">
           {!loading &&
             data?.data?.map((e) => (
               <AdminEnrollmentCard
@@ -387,7 +399,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                   },
                   {
                     icon: e.isOverdue ? AlertTriangle : Hourglass,
-                    text: `Deadline: ${e.deadline ? deadlineCountdown(e.deadline) : '—'}`,
+                    text: `Prazo limite: ${e.deadline ? deadlineCountdown(e.deadline) : '—'}`,
                     danger: !!e.isOverdue,
                   },
                 ]}
@@ -401,7 +413,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                     <Button
                       type="button"
                       intent="primary"
-                      size="md"
+                      size="sm"
                       disabled={rowBusy(e.id)}
                       onClick={() => remind.mutate(e.id)}
                     >
@@ -413,7 +425,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                         <Button
                           type="button"
                           intent="secondary"
-                          size="md"
+                          size="sm"
                           disabled={rowBusy(e.id)}
                         >
                           <MoreHorizontal size={16} strokeWidth={1.75} />

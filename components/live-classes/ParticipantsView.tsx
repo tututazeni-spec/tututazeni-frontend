@@ -12,6 +12,7 @@ import {
   BookOpen,
   CalendarDays,
   Clock,
+  MapPin,
   Plus,
   Star,
   Trash2,
@@ -238,6 +239,8 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
             className="w-56"
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={status}
             onValueChange={(v) => {

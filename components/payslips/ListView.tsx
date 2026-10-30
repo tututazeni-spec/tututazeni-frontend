@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Download, Eye } from 'lucide-react';
+import { Download, Eye, ListFilter } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { API_URL as API_BASE } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -81,6 +81,8 @@ export function ListView({ onSelect }: ListViewProps) {
           {data?.meta.total ?? 0} recibos
         </span>
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={EXPORT_MONTHS}
           value={exportMonth}
           onValueChange={setExportMonth}

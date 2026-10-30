@@ -34,6 +34,7 @@ import { EventListCard } from './EventListCard';
 import { DetailView } from './DetailView';
 import { useDepartmentOptions, useUnitOptions } from './eventFormData';
 import type { Event } from './types';
+import { Building2, Filter, Landmark, List, ListFilter } from 'lucide-react';
 
 interface Paginated {
   data: Event[];
@@ -177,27 +178,36 @@ export function EventsTab({ initialStatus }: { initialStatus?: string }) {
     <div>
       <div className="mb-5 flex flex-wrap items-end gap-3">
         <Input
+          variant="underline"
           placeholder="Pesquisar por nome…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-56"
         />
         <Select
+          variant="underline"
+          icon={Filter}
           items={TYPE_ITEMS}
           value={filters.type}
           onValueChange={(v) => updateFilters({ type: v })}
         />
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={STATUS_ITEMS}
           value={filters.status}
           onValueChange={(v) => updateFilters({ status: v })}
         />
         <Select
+          variant="underline"
+          icon={List}
           items={MODALITY_ITEMS}
           value={filters.modalidade}
           onValueChange={(v) => updateFilters({ modalidade: v })}
         />
         <Select
+          variant="underline"
+          icon={Building2}
           items={[
             { value: 'ALL', label: 'Todos os departamentos' },
             ...departmentOptions,
@@ -206,6 +216,8 @@ export function EventsTab({ initialStatus }: { initialStatus?: string }) {
           onValueChange={(v) => updateFilters({ departmentId: v })}
         />
         <Select
+          variant="underline"
+          icon={Landmark}
           items={[{ value: 'ALL', label: 'Todas as unidades' }, ...unitOptions]}
           value={filters.unitId}
           onValueChange={(v) => updateFilters({ unitId: v })}

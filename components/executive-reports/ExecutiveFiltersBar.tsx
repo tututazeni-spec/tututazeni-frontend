@@ -6,7 +6,14 @@
 'use client';
 
 import { useState } from 'react';
-import { SlidersHorizontal } from 'lucide-react';
+import {
+  Briefcase,
+  Building2,
+  GraduationCap,
+  Link2,
+  MapPin,
+  SlidersHorizontal,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -151,6 +158,8 @@ export function ExecutiveFiltersBar({
         ) : (
           <>
             <Select
+              variant="underline"
+              icon={Building2}
               className="min-w-[13rem]"
               items={deptItems}
               value={filters.departmentId ? String(filters.departmentId) : ALL}
@@ -179,6 +188,8 @@ export function ExecutiveFiltersBar({
       {showMore && (
         <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-border pt-3">
           <Select
+            variant="underline"
+            icon={Briefcase}
             className="min-w-[12rem]"
             items={positionItems}
             value={filters.positionId ? String(filters.positionId) : ALL}
@@ -187,6 +198,8 @@ export function ExecutiveFiltersBar({
             }
           />
           <Select
+            variant="underline"
+            icon={Link2}
             className="min-w-[12rem]"
             items={contractItems}
             value={filters.contractType ?? ALL}
@@ -195,6 +208,8 @@ export function ExecutiveFiltersBar({
             }
           />
           <Select
+            variant="underline"
+            icon={GraduationCap}
             className="min-w-[13rem]"
             items={courseItems}
             value={filters.courseId ? String(filters.courseId) : ALL}
@@ -203,6 +218,8 @@ export function ExecutiveFiltersBar({
             }
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             className="min-w-[12rem]"
             items={stateItems}
             value={filters.kpiState ?? ALL}

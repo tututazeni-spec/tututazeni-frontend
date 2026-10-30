@@ -20,7 +20,14 @@
 'use client';
 
 import { useState } from 'react';
-import { UserRound, type LucideIcon } from 'lucide-react';
+import {
+  Briefcase,
+  Building2,
+  Layers,
+  ListFilter,
+  type LucideIcon,
+  UserRound,
+} from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -116,6 +123,8 @@ export function SkillMatrixView() {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Select
+          variant="underline"
+          icon={Building2}
           items={[
             { value: 'ALL', label: 'Todos os departamentos' },
             ...departmentOptions,
@@ -125,6 +134,8 @@ export function SkillMatrixView() {
           className="w-[180px]"
         />
         <Select
+          variant="underline"
+          icon={Briefcase}
           items={[
             { value: 'ALL', label: 'Todos os cargos' },
             ...positionOptions,
@@ -134,6 +145,8 @@ export function SkillMatrixView() {
           className="w-[180px]"
         />
         <Select
+          variant="underline"
+          icon={Layers}
           items={[
             { value: 'ALL', label: 'Todas as competências' },
             ...competencyOptions,
@@ -143,6 +156,8 @@ export function SkillMatrixView() {
           className="w-[200px]"
         />
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={[
             { value: 'ALL', label: 'Todos os níveis hierárquicos' },
             ...HIERARCHY_LEVEL_OPTIONS,
@@ -152,6 +167,8 @@ export function SkillMatrixView() {
           className="w-[200px]"
         />
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={[
             { value: 'ALL', label: 'Todos os níveis actuais' },
             ...CURRENT_LEVEL_OPTIONS,

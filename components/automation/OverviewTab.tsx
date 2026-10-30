@@ -8,10 +8,13 @@ import {
   AlertTriangle,
   Clock,
   Hourglass,
+  Layers,
+  LayoutGrid,
+  ListChecks,
+  MapPin,
   Play,
   Timer,
   Zap,
-  ListChecks,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -145,18 +148,24 @@ export function OverviewTab() {
               className="min-w-[130px]"
             />
             <Select
+              variant="underline"
+              icon={Layers}
               items={moduleItems}
               value={module}
               onValueChange={setModule}
               className="min-w-[170px]"
             />
             <Select
+              variant="underline"
+              icon={LayoutGrid}
               items={CATEGORY_ITEMS}
               value={category}
               onValueChange={setCategory}
               className="min-w-[170px]"
             />
             <Select
+              variant="underline"
+              icon={MapPin}
               items={STATUS_ITEMS}
               value={status}
               onValueChange={setStatus}

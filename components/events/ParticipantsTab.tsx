@@ -14,7 +14,15 @@
 
 import { useMemo, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Download, MoreVertical, Plus, Users as UsersIcon } from 'lucide-react';
+import {
+  Building2,
+  Download,
+  Landmark,
+  MapPin,
+  MoreVertical,
+  Plus,
+  Users as UsersIcon,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useDirectoryUsers } from '@/components/enrollments/enrollData';
@@ -226,17 +234,22 @@ export function ParticipantsTab() {
 
       <div className="flex flex-wrap items-end gap-3">
         <Input
+          variant="underline"
           placeholder="Pesquisar por nome…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-56"
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={filters.status}
           onValueChange={(v) => updateFilters({ status: v })}
         />
         <Select
+          variant="underline"
+          icon={Building2}
           items={[
             { value: 'ALL', label: 'Todos os departamentos' },
             ...departmentOptions,
@@ -245,6 +258,8 @@ export function ParticipantsTab() {
           onValueChange={(v) => updateFilters({ departmentId: v })}
         />
         <Select
+          variant="underline"
+          icon={Landmark}
           items={[{ value: 'ALL', label: 'Todas as unidades' }, ...unitOptions]}
           value={filters.unitId}
           onValueChange={(v) => updateFilters({ unitId: v })}

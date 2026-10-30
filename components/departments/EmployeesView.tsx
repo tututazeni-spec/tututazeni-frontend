@@ -170,6 +170,7 @@ export function EmployeesView() {
       {/* Filtros */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Input
+          variant="underline"
           type="text"
           placeholder="Pesquisar por nome, e-mail ou nº de colaborador…"
           value={search}

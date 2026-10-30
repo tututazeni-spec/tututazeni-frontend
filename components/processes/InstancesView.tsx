@@ -8,7 +8,13 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Download, MoreHorizontal } from 'lucide-react';
+import {
+  Building2,
+  Download,
+  Filter,
+  MapPin,
+  MoreHorizontal,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
@@ -270,6 +276,7 @@ export function InstancesView({
         <div className="grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] items-end gap-3">
           <div className="col-span-full sm:col-span-2">
             <Input
+              variant="underline"
               type="text"
               placeholder="Pesquisar por código, nome ou entidade…"
               value={filters.search}
@@ -278,6 +285,8 @@ export function InstancesView({
             />
           </div>
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={filters.status || ALL}
             onValueChange={setSelect('status')}
@@ -290,12 +299,16 @@ export function InstancesView({
             className="w-full"
           />
           <Select
+            variant="underline"
+            icon={Filter}
             items={categoryItems}
             value={filters.category || ALL}
             onValueChange={setSelect('category')}
             className="w-full"
           />
           <Select
+            variant="underline"
+            icon={Building2}
             items={idItems('Todos os departamentos', options?.departments)}
             value={filters.departmentId || ALL}
             onValueChange={setSelect('departmentId')}

@@ -5,7 +5,9 @@
 import {
   CheckCircle2,
   ClipboardCheck,
+  Filter,
   Hourglass,
+  MapPin,
   Plus,
   Search,
 } from 'lucide-react';
@@ -90,12 +92,16 @@ export function AuditsListView({
       <div>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Select
+            variant="underline"
+            icon={MapPin}
             items={statusItems}
             value={filters.status || 'ALL'}
             onValueChange={(v) => setFilter({ status: v === 'ALL' ? '' : v })}
             className="w-56"
           />
           <Select
+            variant="underline"
+            icon={Filter}
             items={typeItems}
             value={filters.type || 'ALL'}
             onValueChange={(v) => setFilter({ type: v === 'ALL' ? '' : v })}

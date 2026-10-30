@@ -24,6 +24,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Building2, MapPin } from 'lucide-react';
 
 const ALL = 'ALL';
 
@@ -98,6 +99,8 @@ export function AvaliadosTab() {
             Estado
           </div>
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_OPTIONS}
             value={status}
             onValueChange={setStatus}
@@ -108,6 +111,8 @@ export function AvaliadosTab() {
             Departamento
           </div>
           <Select
+            variant="underline"
+            icon={Building2}
             items={departmentOptions}
             value={departmentId}
             onValueChange={setDepartmentId}

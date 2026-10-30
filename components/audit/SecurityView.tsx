@@ -10,7 +10,10 @@ import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
   AlertCircle,
+  Flag,
   FolderOpen,
+  LayoutGrid,
+  MapPin,
   Plus,
   SearchCheck,
   ShieldCheck,
@@ -650,18 +653,24 @@ export function SecurityView() {
       <div>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Select
+            variant="underline"
+            icon={MapPin}
             items={statusItems}
             value={filters.status || 'ALL'}
             onValueChange={(v) => set({ status: v === 'ALL' ? '' : v })}
             className="w-44"
           />
           <Select
+            variant="underline"
+            icon={Flag}
             items={sevItems}
             value={filters.severity || 'ALL'}
             onValueChange={(v) => set({ severity: v === 'ALL' ? '' : v })}
             className="w-48"
           />
           <Select
+            variant="underline"
+            icon={LayoutGrid}
             items={catItems}
             value={filters.category || 'ALL'}
             onValueChange={(v) => set({ category: v === 'ALL' ? '' : v })}

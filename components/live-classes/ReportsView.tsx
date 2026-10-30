@@ -107,6 +107,8 @@ export function ReportsView() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Select
+          variant="underline"
+          icon={CalendarDays}
           items={YEAR_ITEMS}
           value={year}
           onValueChange={setYear}

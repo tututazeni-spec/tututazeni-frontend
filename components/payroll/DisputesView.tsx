@@ -25,6 +25,7 @@ import {
   type PayslipDispute,
 } from './types';
 import { LinkButton } from '@/components/ui/LinkButton';
+import { ListFilter } from 'lucide-react';
 
 export interface DisputesViewProps {
   onOpenPayslip: (payslipId: number) => void;
@@ -63,6 +64,8 @@ export function DisputesView({ onOpenPayslip }: DisputesViewProps) {
     <div>
       <div className="mb-5 flex items-center gap-3">
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={STATUS_ITEMS}
           value={status}
           onValueChange={(v) => {

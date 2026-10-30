@@ -14,9 +14,12 @@ import { formatDate as fmtDate } from '@/lib/format';
 import {
   AlarmClock,
   BadgeCheck,
+  Building2,
   CheckCircle2,
   FileSearch,
   FileStack,
+  Filter,
+  MapPin,
   PencilRuler,
   PlayCircle,
   Stamp,
@@ -143,6 +146,8 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
           />
         </label>
         <Select
+          variant="underline"
+          icon={Building2}
           items={[
             { value: ALL, label: 'Todos os departamentos' },
             ...(opts?.departments ?? []).map((d) => ({
@@ -154,6 +159,8 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
           onValueChange={(v) => set({ departmentId: v })}
         />
         <Select
+          variant="underline"
+          icon={Filter}
           items={[
             { value: ALL, label: 'Todos os tipos' },
             ...(opts?.categories ?? []).map((c) => ({ value: c, label: c })),
@@ -162,6 +169,8 @@ export function DashboardView({ onOpenInstance }: DashboardViewProps) {
           onValueChange={(v) => set({ category: v })}
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={filters.status}
           onValueChange={(v) => set({ status: v })}

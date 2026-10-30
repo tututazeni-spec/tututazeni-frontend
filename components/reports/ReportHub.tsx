@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { CAT_CONFIG } from './constants';
 import { TemplateCard } from './TemplateCard';
 import type { Template } from './types';
+import { LayoutGrid } from 'lucide-react';
 
 interface ReportHubProps {
   onRun: (t: Template) => void;
@@ -51,6 +52,7 @@ export function ReportHub({ onRun }: ReportHubProps) {
         <CardBody className="flex flex-wrap items-center gap-3">
           <div className="relative min-w-[200px] flex-1">
             <Input
+              variant="underline"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Pesquisar modelos..."
@@ -58,6 +60,8 @@ export function ReportHub({ onRun }: ReportHubProps) {
             />
           </div>
           <Select
+            variant="underline"
+            icon={LayoutGrid}
             items={CATEGORY_ITEMS}
             value={category || 'ALL'}
             onValueChange={(v) => setCategory(v === 'ALL' ? '' : v)}

@@ -28,13 +28,17 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
 import {
+  Briefcase,
+  Building2,
   CheckCircle2,
+  Filter,
+  Landmark,
+  type LucideIcon,
   Percent,
   Star,
   TrendingUp,
   Trophy,
   Users,
-  type LucideIcon,
 } from 'lucide-react';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -215,6 +219,8 @@ export function RelatoriosTab() {
             Departamento
           </div>
           <Select
+            variant="underline"
+            icon={Building2}
             items={departmentOptions}
             value={departmentId}
             onValueChange={setDepartmentId}
@@ -225,6 +231,8 @@ export function RelatoriosTab() {
             Unidade
           </div>
           <Select
+            variant="underline"
+            icon={Landmark}
             items={unitOptions}
             value={unitId}
             onValueChange={setUnitId}
@@ -233,6 +241,8 @@ export function RelatoriosTab() {
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Cargo</div>
           <Select
+            variant="underline"
+            icon={Briefcase}
             items={positionOptions}
             value={positionId}
             onValueChange={setPositionId}
@@ -243,6 +253,8 @@ export function RelatoriosTab() {
             Grupo de avaliador
           </div>
           <Select
+            variant="underline"
+            icon={Filter}
             items={roleOptions}
             value={evaluatorRole}
             onValueChange={setEvaluatorRole}

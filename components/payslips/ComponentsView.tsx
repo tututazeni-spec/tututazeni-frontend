@@ -7,7 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Filter, ListFilter, Trash2 } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -107,12 +107,16 @@ export function ComponentsView() {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Select
+          variant="underline"
+          icon={Filter}
           items={TYPE_ITEMS}
           value={type}
           onValueChange={setType}
           placeholder="Seleccionar tipo"
         />
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={STATE_ITEMS}
           value={state}
           onValueChange={(v) => setState(v as StateFilter)}

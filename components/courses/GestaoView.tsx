@@ -10,7 +10,15 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { MoreHorizontal, Plus } from 'lucide-react';
+import {
+  Building2,
+  Filter,
+  LayoutGrid,
+  List,
+  MapPin,
+  MoreHorizontal,
+  Plus,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
@@ -35,7 +43,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Input } from '@/components/ui/Input';
+import { SearchInput } from '@/components/ui/SearchInput';
 import { ShortcutPills } from '@/components/ui/Pills';
 import { RecycleBinView } from './RecycleBinView';
 import { Select } from '@/components/ui/Select';
@@ -263,47 +271,59 @@ export function GestaoView({
       {/* Painel de filtros: Card + CardBody (padrão do separador Relatórios do roi-impact) */}
       <Card className="mb-5">
         <CardBody>
-          <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <Input
-              type="text"
+          {/* Design dos filtros: ícone + linha por baixo; 3 colunas na 1.ª linha,
+              modalidades (1/3) + estados (2/3) na 2.ª e departamentos na 3.ª. */}
+          <div className="mb-4 grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-6">
+            <SearchInput
+              variant="underline"
               placeholder="Pesquisar cursos…"
               value={filters.search}
               onChange={(e) => updateFilters({ search: e.target.value })}
-              className="w-full"
+              className="lg:col-span-2"
             />
             <Select
+              variant="underline"
+              icon={LayoutGrid}
               items={categoryItems}
               value={filters.category || 'ALL'}
               onValueChange={(v) =>
                 updateFilters({ category: v === 'ALL' ? '' : v })
               }
-              className="w-full"
+              className="lg:col-span-2"
             />
             <Select
+              variant="underline"
+              icon={Filter}
               items={TYPE_ITEMS}
               value={filters.type || 'ALL'}
               onValueChange={(v) =>
                 updateFilters({ type: v === 'ALL' ? '' : v })
               }
-              className="w-full"
+              className="lg:col-span-2"
             />
             <Select
+              variant="underline"
+              icon={List}
               items={MODALITY_ITEMS}
               value={filters.modality || 'ALL'}
               onValueChange={(v) =>
                 updateFilters({ modality: v === 'ALL' ? '' : v })
               }
-              className="w-full"
+              className="lg:col-span-2"
             />
             <Select
+              variant="underline"
+              icon={MapPin}
               items={STATUS_ITEMS}
               value={filters.status || 'ALL'}
               onValueChange={(v) =>
                 updateFilters({ status: v === 'ALL' ? '' : v })
               }
-              className="w-full"
+              className="lg:col-span-4"
             />
             <Select
+              variant="underline"
+              icon={Building2}
               items={[
                 { value: 'ALL', label: 'Todos os departamentos' },
                 ...departmentOptions,
@@ -312,7 +332,7 @@ export function GestaoView({
               onValueChange={(v) =>
                 updateFilters({ departmentId: v === 'ALL' ? '' : v })
               }
-              className="w-full lg:col-span-2"
+              className="sm:col-span-2 lg:col-span-6"
             />
           </div>
           <div className="flex items-center justify-between gap-3">
@@ -321,9 +341,7 @@ export function GestaoView({
                 { label: 'Reciclagem', onClick: () => setShowRecycle(true) },
               ]}
             />
-            <span className="text-sm text-ink">
-              {data?.total ?? 0} cursos
-            </span>
+            <span className="text-sm text-ink">{data?.total ?? 0} cursos</span>
           </div>
         </CardBody>
       </Card>

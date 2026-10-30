@@ -35,6 +35,7 @@ import { useCompetencyOptions, type DirectoryUser } from './modelFormData';
 import { UserFilterSearch } from './UserFilterSearch';
 import type { CompetencyDevelopmentAction } from './types';
 import { formatDateNumeric } from '@/lib/format';
+import { Filter, Layers, MapPin } from 'lucide-react';
 
 const ALL = 'ALL';
 
@@ -80,6 +81,8 @@ export function DevelopmentView() {
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
         <Select
+          variant="underline"
+          icon={Layers}
           items={[
             { value: ALL, label: 'Todas as competências' },
             ...competencyOptions,
@@ -87,8 +90,8 @@ export function DevelopmentView() {
           value={competencyId}
           onValueChange={setCompetencyId}
         />
-        <Select items={TYPE_ITEMS} value={type} onValueChange={setType} />
-        <Select items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
+        <Select variant="underline" icon={Filter} items={TYPE_ITEMS} value={type} onValueChange={setType} />
+        <Select variant="underline" icon={MapPin} items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
         <UserFilterSearch
           selected={user}
           onChange={setUser}

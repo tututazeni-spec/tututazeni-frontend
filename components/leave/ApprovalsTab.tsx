@@ -12,7 +12,9 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
+  Filter,
   Hourglass,
+  Layers,
   Repeat2,
   X,
 } from 'lucide-react';
@@ -147,12 +149,15 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Input
+            variant="underline"
             placeholder="Procurar colaborador"
             value={filters.search}
             onChange={(e) => set({ search: e.target.value })}
             className="w-full"
           />
           <Select
+            variant="underline"
+            icon={Filter}
             className="w-full"
             value={filters.leaveTypeCode || ALL}
             onValueChange={(v) => set({ leaveTypeCode: pick(v) })}
@@ -162,6 +167,8 @@ export function ApprovalsTab({ leaveTypes }: ApprovalsTabProps) {
             ]}
           />
           <Select
+            variant="underline"
+            icon={Layers}
             className="w-full"
             value={filters.stage || ALL}
             onValueChange={(v) => set({ stage: pick(v) })}

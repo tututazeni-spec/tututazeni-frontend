@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Search } from 'lucide-react';
+import { FileText, ListFilter, Search } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -115,6 +115,7 @@ export function CatalogueTab() {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
             />
             <Input
+              variant="underline"
               value={search}
               onChange={(e) => updateFilters({ search: e.target.value })}
               placeholder="Pesquisar conteúdos..."
@@ -124,11 +125,15 @@ export function CatalogueTab() {
 
           <div className="flex flex-wrap items-center gap-2">
             <Select
+              variant="underline"
+              icon={FileText}
               items={FORMAT_ITEMS}
               value={format}
               onValueChange={(v) => updateFilters({ format: v })}
             />
             <Select
+              variant="underline"
+              icon={ListFilter}
               items={LEVEL_ITEMS}
               value={level}
               onValueChange={(v) => updateFilters({ level: v })}

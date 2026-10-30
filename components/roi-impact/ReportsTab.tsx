@@ -9,7 +9,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { BarChart3, Download, Info, Lightbulb } from 'lucide-react';
+import { BarChart3, Download, Filter, Info, Lightbulb } from 'lucide-react';
 import { NavyPanel, NavyPanelRow } from './NavyPanel';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { downloadFromApi } from '@/lib/download';
@@ -180,6 +180,8 @@ export function ReportsTab() {
               Tipo de iniciativa
             </p>
             <Select
+              variant="underline"
+              icon={Filter}
               items={INITIATIVE_TYPE_ITEMS}
               value={initiativeType}
               onValueChange={setInitiativeType}

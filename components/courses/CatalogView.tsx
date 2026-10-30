@@ -10,7 +10,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { SearchX } from 'lucide-react';
+import { Filter, List, SearchX } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -18,7 +18,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Input } from '@/components/ui/Input';
+import { SearchInput } from '@/components/ui/SearchInput';
 import { Select } from '@/components/ui/Select';
 import { COURSE_MODALITY_LABELS, COURSE_TYPE_LABELS, Skeleton } from './shared';
 import { CourseListCard } from './CourseListCard';
@@ -101,20 +101,23 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
     <div>
       {/* Filtros — Card + CardBody (padrão do separador Relatórios do roi-impact) */}
       <Card className="mb-6">
-        <CardBody className="flex flex-wrap items-center gap-3">
-          <Input
-            type="text"
+        <CardBody className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-3">
+          <SearchInput
+            variant="underline"
             placeholder="Pesquisar cursos…"
             value={search}
             onChange={(e) => updateFilters({ search: e.target.value })}
-            className="min-w-[160px] flex-1"
           />
           <Select
+            variant="underline"
+            icon={Filter}
             items={TYPE_ITEMS}
             value={type || 'ALL'}
             onValueChange={(v) => updateFilters({ type: v === 'ALL' ? '' : v })}
           />
           <Select
+            variant="underline"
+            icon={List}
             items={MODALITY_ITEMS}
             value={modality || 'ALL'}
             onValueChange={(v) =>

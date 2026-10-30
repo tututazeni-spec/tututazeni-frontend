@@ -17,6 +17,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { HIERARCHY_LEVEL_CFG, STATUS_CFG } from './constants';
 import { useDepartmentOptions } from './modelFormData';
 import type { CompetencyModel } from './types';
+import { Building2, MapPin } from 'lucide-react';
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
@@ -53,6 +54,8 @@ export function ModelsView({ onSelect }: ModelsViewProps) {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Select
+          variant="underline"
+          icon={Building2}
           items={[
             { value: 'ALL', label: 'Todos os departamentos' },
             ...departmentOptions,
@@ -61,7 +64,13 @@ export function ModelsView({ onSelect }: ModelsViewProps) {
           onValueChange={setDepartmentId}
           className="min-w-[200px]"
         />
-        <Select items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
+        <Select
+          variant="underline"
+          icon={MapPin}
+          items={STATUS_ITEMS}
+          value={status}
+          onValueChange={setStatus}
+        />
         <span className="font-body text-sm text-ink-faint">
           {data?.total ?? 0} modelos
         </span>

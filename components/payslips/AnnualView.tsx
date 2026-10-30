@@ -5,7 +5,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Download } from 'lucide-react';
+import { Download, ListFilter } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { API_URL as API_BASE } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -65,6 +65,8 @@ export function AnnualView() {
           onValueChange={setYear}
         />
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={EXPORT_MONTHS}
           value={exportMonth}
           onValueChange={setExportMonth}

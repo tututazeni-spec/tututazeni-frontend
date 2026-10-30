@@ -22,9 +22,9 @@ const TONE_PILL: Record<AdminEnrollmentTone, string> = {
 };
 
 export const ADMIN_ENROLLMENT_BTN_PRIMARY =
-  'inline-flex h-10 items-center justify-center gap-1.5 rounded-control bg-brand px-4 text-sm font-semibold text-white hover:bg-[#1B2F57] disabled:opacity-50';
+  'inline-flex h-9 items-center justify-center gap-1.5 rounded-control bg-brand px-3.5 text-sm font-semibold text-white hover:bg-[#1B2F57] disabled:opacity-50';
 export const ADMIN_ENROLLMENT_BTN_GHOST =
-  'inline-flex h-10 items-center justify-center gap-1.5 rounded-control border border-brand-line bg-surface px-3 text-sm font-semibold text-brand hover:bg-brand-soft disabled:opacity-50';
+  'inline-flex h-9 items-center justify-center gap-1.5 rounded-control border border-brand-line bg-surface px-3 text-sm font-semibold text-brand hover:bg-brand-soft disabled:opacity-50';
 
 export interface AdminEnrollmentInfo {
   icon: LucideIcon;
@@ -66,11 +66,11 @@ export function AdminEnrollmentCard({
   const palette = PALETTE[Math.abs(seed) % PALETTE.length];
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-panel border border-brand-line bg-surface p-6 shadow-[0_8px_24px_rgba(15,31,61,0.08)]">
+    <div className="relative flex h-full flex-col overflow-hidden rounded-panel border border-brand-line bg-surface p-4 shadow-[0_6px_18px_rgba(15,31,61,0.08)]">
       {/* Painel recortado na diagonal com a foto do avatar */}
       <div
         aria-hidden={avatar.url ? undefined : true}
-        className="pointer-events-none absolute right-0 top-0 hidden h-[68%] w-[34%] items-center justify-center overflow-hidden sm:flex"
+        className="pointer-events-none absolute right-0 top-0 hidden h-[56%] w-[30%] items-center justify-center overflow-hidden sm:flex"
         style={{
           background: `linear-gradient(150deg, ${palette[0]} 0%, ${palette[1]} 55%, ${palette[2]} 100%)`,
           clipPath: 'polygon(28% 0, 100% 0, 100% 100%, 0 78%)',
@@ -87,67 +87,71 @@ export function AdminEnrollmentCard({
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
-          <span className="ml-8 text-5xl font-extrabold text-white/90">
+          <span className="ml-6 text-3xl font-extrabold text-white/90">
             {getInitials(avatar.name, '?')}
           </span>
         )}
       </div>
 
-      <div className="relative flex flex-wrap items-center gap-2 sm:max-w-[62%]">
+      {/* Linha 1: estado, etiquetas e departamento/unidade (antes no rodapé) */}
+      <div className="relative flex flex-wrap items-center gap-x-2 gap-y-1 sm:max-w-[68%]">
         {lead}
         <span
-          className={`inline-flex items-center rounded-full px-3.5 py-1.5 text-sm font-semibold ${TONE_PILL[status.tone]}`}
+          className={`inline-flex items-center rounded-full px-3 py-0.5 text-xs font-semibold ${TONE_PILL[status.tone]}`}
         >
           {status.label}
         </span>
         {tags.map((t) => (
           <span
             key={t}
-            className="inline-flex items-center rounded-full bg-[#6366F1] px-3.5 py-1.5 text-sm font-semibold text-white"
+            className="inline-flex items-center rounded-full bg-[#6366F1] px-3 py-0.5 text-xs font-semibold text-white"
           >
             {t}
           </span>
         ))}
+        {footerLabel && (
+          <span className="min-w-0 truncate text-xs text-brand-muted">
+            {footerLabel}
+          </span>
+        )}
       </div>
 
-      <div className="relative mt-5 flex items-center gap-4 sm:max-w-[62%]">
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-success text-white">
-          <GraduationCap size={26} strokeWidth={1.75} />
+      {/* Linha 2: ícone redondo + curso + utilizador */}
+      <div className="relative mt-2 flex items-center gap-3 sm:max-w-[68%]">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success text-white">
+          <GraduationCap size={20} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
-          <h3 className="break-words font-body text-2xl font-extrabold leading-tight text-brand">
+          <h3 className="truncate font-body text-lg font-extrabold leading-tight text-brand">
             {title}
           </h3>
           {subtitle && (
-            <p className="line-clamp-2 pt-0.5 text-base text-brand-muted">
+            <p className="truncate text-sm leading-tight text-brand-muted">
               {subtitle}
             </p>
           )}
         </div>
       </div>
 
-      <div className="relative mt-6 flex flex-1 flex-col gap-3">
-        {infos.map(({ icon: Icon, text, danger }) => (
-          <div key={text} className="flex items-center gap-3">
-            <Icon
-              size={20}
-              strokeWidth={1.75}
-              className={`shrink-0 ${danger ? 'text-[#E5384F]' : 'text-brand-muted'}`}
-            />
-            <span
-              className={`text-[15px] font-medium ${danger ? 'text-danger-ink' : 'text-brand'}`}
-            >
-              {text}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div className="relative mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-brand-line pt-4">
-        <span className="min-w-0 truncate text-sm text-brand-muted">
-          {footerLabel}
-        </span>
-        <div className="flex items-center gap-2">{actions}</div>
+      {/* Linha 3: informações em linha corrida + botões à direita */}
+      <div className="relative mt-3 flex flex-wrap items-end justify-between gap-x-4 gap-y-2 border-t border-brand-line pt-2.5">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1">
+          {infos.map(({ icon: Icon, text, danger }) => (
+            <div key={text} className="flex items-center gap-1.5">
+              <Icon
+                size={15}
+                strokeWidth={1.75}
+                className={`shrink-0 ${danger ? 'text-[#E5384F]' : 'text-brand-muted'}`}
+              />
+              <span
+                className={`text-[13px] font-medium ${danger ? 'text-danger-ink' : 'text-brand'}`}
+              >
+                {text}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">{actions}</div>
       </div>
     </div>
   );

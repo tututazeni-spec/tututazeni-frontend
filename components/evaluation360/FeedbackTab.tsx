@@ -38,6 +38,7 @@ import { Button } from '@/components/ui/Button';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { daysAgo } from '@/lib/format';
+import { Filter } from 'lucide-react';
 
 const ALL = 'ALL';
 
@@ -191,6 +192,8 @@ function CycleFeedbackSection() {
             Tipo de avaliador
           </div>
           <Select
+            variant="underline"
+            icon={Filter}
             items={ROLE_OPTIONS}
             value={evaluatorRole}
             onValueChange={setEvaluatorRole}

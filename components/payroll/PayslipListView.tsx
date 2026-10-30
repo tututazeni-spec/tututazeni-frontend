@@ -28,7 +28,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Pagination } from '@/components/ui/Pagination';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Download, Eye } from 'lucide-react';
+import { Download, Eye, MapPin } from 'lucide-react';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import type { Paginated } from './types';
@@ -133,6 +133,8 @@ export function PayslipListView({ onSelect, onCreate }: PayslipListViewProps) {
           className="w-60"
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={status}
           onValueChange={(v) => {

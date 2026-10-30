@@ -1,7 +1,7 @@
 // components/crm/beneficiaries/BeneficiariesListView.tsx
 
 import Link from 'next/link';
-import { UserPlus } from 'lucide-react';
+import { Filter, MapPin, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -68,6 +68,7 @@ export function BeneficiariesListView({
       {/* Filtros */}
       <div className="flex gap-4 flex-wrap items-center">
         <Input
+          variant="underline"
           type="text"
           placeholder="Pesquisar por nome, email, código..."
           value={search}
@@ -75,6 +76,8 @@ export function BeneficiariesListView({
           className="min-w-[160px] flex-1"
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           value={statusFilter}
           onValueChange={onStatusFilterChange}
           items={[
@@ -86,6 +89,8 @@ export function BeneficiariesListView({
           ]}
         />
         <Select
+          variant="underline"
+          icon={Filter}
           value={typeFilter}
           onValueChange={onTypeFilterChange}
           items={[

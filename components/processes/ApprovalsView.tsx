@@ -7,7 +7,15 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { CheckCircle2, Clock, Hourglass, TimerReset } from 'lucide-react';
+import {
+  Activity,
+  CheckCircle2,
+  Clock,
+  Hourglass,
+  Layers,
+  ListFilter,
+  TimerReset,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -131,6 +139,7 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Input
+          variant="underline"
           type="text"
           placeholder="Pesquisar por código, processo ou etapa…"
           value={search}
@@ -142,6 +151,8 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
         />
         <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
           <Select
+            variant="underline"
+            icon={Activity}
             items={scopeItems}
             value={scope}
             onValueChange={(v) => {
@@ -151,6 +162,8 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
             className="w-full"
           />
           <Select
+            variant="underline"
+            icon={ListFilter}
             items={STATE_ITEMS}
             value={state}
             onValueChange={(v) => {
@@ -160,6 +173,8 @@ export function ApprovalsView({ canManage }: ApprovalsViewProps) {
             className="w-full"
           />
           <Select
+            variant="underline"
+            icon={Layers}
             items={[
               { value: ALL, label: 'Todos os módulos' },
               ...SOURCE_MODULES.map((m) => ({

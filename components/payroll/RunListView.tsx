@@ -20,6 +20,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { CreateRunModal } from './CreateRunModal';
 import { RUN_STATUS_MAP, type Paginated, type PayrollRun } from './types';
+import { MapPin } from 'lucide-react';
 
 export interface RunListViewProps {
   onSelect: (runId: number) => void;
@@ -68,6 +69,8 @@ export function RunListView({ onSelect }: RunListViewProps) {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={status}
           onValueChange={(v) => {

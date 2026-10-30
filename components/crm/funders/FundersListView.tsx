@@ -12,6 +12,7 @@ import { Select } from '@/components/ui/Select';
 import { ListSkeleton, ErrorBanner } from '@/components/crm/shared';
 import { STATUS_COLORS, TYPE_LABELS } from './types';
 import type { Funder } from './types';
+import { Filter, MapPin } from 'lucide-react';
 
 interface FundersListViewProps {
   data: Funder[];
@@ -54,6 +55,7 @@ export function FundersListView({
       {/* Filtros */}
       <div className="flex gap-4 flex-wrap">
         <Input
+          variant="underline"
           type="text"
           placeholder="Pesquisar por nome, código, email..."
           value={search}
@@ -61,6 +63,8 @@ export function FundersListView({
           className="min-w-[160px] flex-1"
         />
         <Select
+          variant="underline"
+          icon={Filter}
           value={typeFilter}
           onValueChange={onTypeFilterChange}
           items={[
@@ -72,6 +76,8 @@ export function FundersListView({
           ]}
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           value={statusFilter}
           onValueChange={onStatusFilterChange}
           items={[

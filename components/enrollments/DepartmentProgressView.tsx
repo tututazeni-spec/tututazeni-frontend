@@ -35,7 +35,7 @@ function ProgressTable({
       {rows.length === 0 ? (
         <EmptyState variant="inline" title="Sem inscrições registadas" />
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-3">
           {rows.map((r) => (
             <ProgressCard
               key={r.id}

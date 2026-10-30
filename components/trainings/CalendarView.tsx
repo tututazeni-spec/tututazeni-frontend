@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Clock,
   GraduationCap,
+  List,
   MapPin,
   User,
   Users,
@@ -135,12 +136,16 @@ export function CalendarView({ onSelectTraining }: CalendarViewProps) {
         </div>
         <div className="flex gap-2">
           <Select
+            variant="underline"
+            icon={List}
             items={MODALITY_ITEMS}
             value={modality}
             onValueChange={setModality}
             className="w-44"
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={status}
             onValueChange={setStatus}

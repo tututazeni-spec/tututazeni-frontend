@@ -9,10 +9,12 @@
 import { useState } from 'react';
 import {
   AlarmClock,
+  Building2,
   CheckCircle2,
   Clock,
   Download,
   FileText,
+  Landmark,
   Star,
   Users,
 } from 'lucide-react';
@@ -115,6 +117,8 @@ export function ReportsTab() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2">
           <Select
+            variant="underline"
+            icon={Building2}
             items={[
               { value: 'ALL', label: 'Todos os departamentos' },
               ...departmentOptions,
@@ -124,6 +128,8 @@ export function ReportsTab() {
             className="w-52"
           />
           <Select
+            variant="underline"
+            icon={Landmark}
             items={[
               { value: 'ALL', label: 'Todas as unidades' },
               ...unitOptions,

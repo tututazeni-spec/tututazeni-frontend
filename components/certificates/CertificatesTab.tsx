@@ -8,7 +8,15 @@
 
 import { useEffect, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Download, FileUp, Layers, Route } from 'lucide-react';
+import {
+  Building2,
+  Download,
+  FileUp,
+  Filter,
+  Layers,
+  MapPin,
+  Route,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { usePdfDownload } from '@/hooks/usePdfDownload';
 import { apiClient } from '@/lib/apiClient';
@@ -321,6 +329,7 @@ export function CertificatesTab({
       <Card className="p-4">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Input
+            variant="underline"
             placeholder="Pesquisar por titular ou formação"
             value={searchDraft}
             onChange={(e) => setSearchDraft(e.target.value)}
@@ -333,16 +342,22 @@ export function CertificatesTab({
             onChange={(e) => set({ code: e.target.value })}
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={filters.status || ALL}
             onValueChange={(v) => set({ status: v === ALL ? '' : v })}
           />
           <Select
+            variant="underline"
+            icon={Filter}
             items={KIND_ITEMS}
             value={filters.activityKind || ALL}
             onValueChange={(v) => set({ activityKind: v === ALL ? '' : v })}
           />
           <Select
+            variant="underline"
+            icon={Building2}
             items={deptItems}
             value={filters.departmentId || ALL}
             onValueChange={(v) => set({ departmentId: v === ALL ? '' : v })}

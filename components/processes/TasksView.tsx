@@ -22,6 +22,7 @@ import { Skeleton } from './Skeleton';
 import { TaskPanel } from './TaskPanel';
 import type { PaginatedTasks, TaskState } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { ListChecks, MapPin } from 'lucide-react';
 
 export interface TasksViewProps {
   canManage: boolean;
@@ -75,6 +76,7 @@ export function TasksView({ canManage }: TasksViewProps) {
       <div className="mb-4 grid grid-cols-[repeat(auto-fill,minmax(190px,1fr))] items-center gap-3">
         <div className="col-span-full sm:col-span-2">
           <Input
+            variant="underline"
             type="text"
             placeholder="Pesquisar por tarefa, processo ou código…"
             value={search}
@@ -87,6 +89,8 @@ export function TasksView({ canManage }: TasksViewProps) {
         </div>
         {canManage && (
           <Select
+            variant="underline"
+            icon={ListChecks}
             items={[
               { value: 'all', label: 'Todas as tarefas' },
               { value: 'mine', label: 'Minhas tarefas' },
@@ -100,6 +104,8 @@ export function TasksView({ canManage }: TasksViewProps) {
           />
         )}
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATE_ITEMS}
           value={status || ALL}
           onValueChange={(v) => {

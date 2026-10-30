@@ -8,7 +8,7 @@
 
 import { useMemo, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Download, ScrollText } from 'lucide-react';
+import { Activity, Download, ListFilter, ScrollText, User } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
@@ -195,12 +195,15 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
         <>
           <div className="flex flex-wrap items-end gap-3">
             <Input
+              variant="underline"
               placeholder="Procurar processo, justificação ou erro…"
               value={filters.search}
               onChange={(e) => set({ search: e.target.value })}
               className="w-72"
             />
             <Select
+              variant="underline"
+              icon={User}
               items={[
                 { value: ALL, label: 'Todos os utilizadores' },
                 ...(options?.users ?? []).map((u) => ({
@@ -213,6 +216,8 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
               className="w-52"
             />
             <Select
+              variant="underline"
+              icon={Activity}
               items={[
                 { value: ALL, label: 'Todos os eventos' },
                 ...(options?.actions ?? []),
@@ -361,6 +366,8 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
         <>
           <div className="flex flex-wrap items-end gap-3">
             <Select
+              variant="underline"
+              icon={ListFilter}
               items={[
                 { value: 'ALL', label: 'Integrações e automações' },
                 { value: 'INTEGRATION', label: 'Só integrações' },

@@ -12,12 +12,14 @@ import {
   ClipboardCheck,
   ClipboardList,
   Plus,
+  Trash2,
   TrendingUp,
 } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -74,6 +76,27 @@ export function CyclesTab() {
           intent: 'danger',
         });
       });
+  };
+
+  // Só se elimina um ciclo sem avaliações atribuídas (o backend recusa os
+  // restantes); eliminar é lógico, os dados não saem da base de dados.
+  const confirm = useConfirm();
+  const deleteCycle = useApiMutation<unknown, number>(
+    (id) => apiClient.delete(`/evaluations/cycles/${id}`),
+    {
+      invalidateKeys: [queryKeys.evaluation.cycles()],
+      onSuccess: () => notify({ title: 'Ciclo eliminado', intent: 'success' }),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
+  );
+  const handleDelete = async (cycle: Cycle) => {
+    const ok = await confirm({
+      title: 'Eliminar ciclo de avaliação',
+      message: `Tens a certeza que queres eliminar "${cycle.name}"?`,
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) deleteCycle.mutate(cycle.id);
   };
 
   const { data, isLoading: loading } = useApiQuery<{
@@ -234,6 +257,18 @@ export function CyclesTab() {
                         Lembretes
                       </Button>
                     </>
+                  )}
+                  {canManageCycle && participation.total === 0 && (
+                    <Button
+                      type="button"
+                      intent="onDarkGhost"
+                      size="md"
+                      disabled={deleteCycle.isPending}
+                      onClick={() => void handleDelete(cycle)}
+                    >
+                      <Trash2 size={15} strokeWidth={1.75} />
+                      Eliminar
+                    </Button>
                   )}
                   {canManageCycle &&
                     (cycle.status === 'PAUSED' ||

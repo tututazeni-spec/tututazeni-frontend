@@ -15,7 +15,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { MessageSquare, Plus } from 'lucide-react';
+import { Filter, MessageSquare, Plus, Radio } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { useToast } from '@/providers/ToastProvider';
@@ -122,6 +122,8 @@ export function CommunicationTab() {
             className="w-64"
           />
           <Select
+            variant="underline"
+            icon={Filter}
             items={TYPE_ITEMS}
             value={type}
             onValueChange={(v) => {
@@ -130,6 +132,8 @@ export function CommunicationTab() {
             }}
           />
           <Select
+            variant="underline"
+            icon={Radio}
             items={CHANNEL_ITEMS}
             value={channel}
             onValueChange={(v) => {

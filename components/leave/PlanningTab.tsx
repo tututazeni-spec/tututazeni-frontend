@@ -10,10 +10,12 @@
 import { useState } from 'react';
 import {
   AlertTriangle,
+  Building2,
   CalendarClock,
   CalendarOff,
   GitCompareArrows,
   Info,
+  Landmark,
   Users,
   UsersRound,
 } from 'lucide-react';
@@ -130,6 +132,8 @@ export function PlanningTab() {
             className="w-full"
           />
           <Select
+            variant="underline"
+            icon={Landmark}
             className="w-full"
             value={filters.unitId || ALL}
             onValueChange={(v) => set({ unitId: pick(v) })}
@@ -139,6 +143,8 @@ export function PlanningTab() {
             ]}
           />
           <Select
+            variant="underline"
+            icon={Building2}
             className="w-full"
             value={filters.departmentId || ALL}
             onValueChange={(v) => set({ departmentId: pick(v) })}

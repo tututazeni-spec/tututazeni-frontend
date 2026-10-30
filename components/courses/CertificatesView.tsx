@@ -165,6 +165,7 @@ export function CertificatesView() {
           <Card className="space-y-3 p-4">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
               <Input
+                variant="underline"
                 placeholder="Pesquisar por formação"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}

@@ -14,7 +14,15 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from 'react';
-import { FolderOpen, Grid, List, RefreshCcw, Search, X } from 'lucide-react';
+import {
+  FolderOpen,
+  Grid,
+  List,
+  RefreshCcw,
+  Search,
+  ShieldCheck,
+  X,
+} from 'lucide-react';
 import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
@@ -121,6 +129,7 @@ export default function DocumentRepositoryPage() {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
             />
             <Input
+              variant="underline"
               value={filters.search}
               onChange={(e) => updateFilters({ search: e.target.value })}
               placeholder="Pesquisar por nome, tag, OCR text..."
@@ -137,6 +146,8 @@ export default function DocumentRepositoryPage() {
           </div>
 
           <Select
+            variant="underline"
+            icon={ShieldCheck}
             items={SENSITIVITY_ITEMS}
             value={filters.sensitivity || 'ALL'}
             onValueChange={(v) =>

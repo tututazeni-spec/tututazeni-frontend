@@ -1,7 +1,15 @@
 // components/library/LibraryListView.tsx
 
 import Link from 'next/link';
-import { Plus, Eye, Download, Star, Package, Search } from 'lucide-react';
+import {
+  Download,
+  Eye,
+  Filter,
+  Package,
+  Plus,
+  Search,
+  Star,
+} from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -93,6 +101,7 @@ export function LibraryListView({
       <div className="flex flex-wrap gap-4">
         <div className="relative min-w-[200px] flex-1">
           <Input
+            variant="underline"
             type="text"
             placeholder="Pesquisar por título, autor, palavra-chave..."
             value={search}
@@ -112,6 +121,8 @@ export function LibraryListView({
           </button>
         </div>
         <Select
+          variant="underline"
+          icon={Filter}
           items={TYPE_FILTER_ITEMS}
           value={typeFilter || 'ALL'}
           onValueChange={(v) => onTypeFilterChange(v === 'ALL' ? '' : v)}

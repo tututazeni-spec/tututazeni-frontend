@@ -55,6 +55,7 @@ export function CompensationsView({ onOpenDetail }: CompensationsViewProps) {
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Input
+          variant="underline"
           value={rawSearch}
           onChange={(e) => {
             setRawSearch(e.target.value);

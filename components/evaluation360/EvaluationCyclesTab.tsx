@@ -27,7 +27,15 @@ import { EVAL_CREATOR_ROLES, EVAL_CYCLE_DELETE_ROLES } from '@/lib/roles';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Input } from '@/components/ui/Input';
-import { Trash2 } from 'lucide-react';
+import {
+  Briefcase,
+  Building2,
+  Filter,
+  Landmark,
+  MapPin,
+  Trash2,
+  User,
+} from 'lucide-react';
 import { cycleStatusDisplay } from './colors';
 import { CreateCycleModal } from './CreateCycleModal';
 import {
@@ -204,6 +212,8 @@ export function EvaluationCyclesTab() {
             Estado
           </div>
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_OPTIONS}
             value={status}
             onValueChange={setStatus}
@@ -211,13 +221,21 @@ export function EvaluationCyclesTab() {
         </div>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Tipo</div>
-          <Select items={TYPE_OPTIONS} value={type} onValueChange={setType} />
+          <Select
+            variant="underline"
+            icon={Filter}
+            items={TYPE_OPTIONS}
+            value={type}
+            onValueChange={setType}
+          />
         </div>
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">
             Departamento
           </div>
           <Select
+            variant="underline"
+            icon={Building2}
             items={departmentOptions}
             value={departmentId}
             onValueChange={setDepartmentId}
@@ -228,6 +246,8 @@ export function EvaluationCyclesTab() {
             Unidade
           </div>
           <Select
+            variant="underline"
+            icon={Landmark}
             items={unitOptions}
             value={unitId}
             onValueChange={setUnitId}
@@ -236,6 +256,8 @@ export function EvaluationCyclesTab() {
         <div>
           <div className="text-xs font-semibold text-ink-muted mb-1">Cargo</div>
           <Select
+            variant="underline"
+            icon={Briefcase}
             items={positionOptions}
             value={positionId}
             onValueChange={setPositionId}
@@ -246,6 +268,8 @@ export function EvaluationCyclesTab() {
             Responsável
           </div>
           <Select
+            variant="underline"
+            icon={User}
             items={creatorOptions}
             value={createdBy}
             onValueChange={setCreatedBy}

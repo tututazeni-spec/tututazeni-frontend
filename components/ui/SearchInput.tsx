@@ -19,6 +19,12 @@ export interface SearchInputProps extends Omit<
   invalid?: boolean;
   /** Mostra a lupa à esquerda (por omissão sim). */
   showIcon?: boolean;
+  /**
+   * `capsule` (por omissão): cápsula com borda.
+   * `underline`: filtro minimalista — lupa à esquerda e só uma linha por baixo
+   * (design dos filtros).
+   */
+  variant?: 'capsule' | 'underline';
 }
 
 const MAX_SUGGESTIONS = 6;
@@ -67,6 +73,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       historyKey,
       invalid,
       showIcon = true,
+      variant = 'capsule',
       value,
       onChange,
       onFocus,
@@ -111,16 +118,20 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       <div className={cn('relative min-w-0', className)}>
         <div
           className={cn(
-            'flex items-center gap-2 rounded-pill border-[1.5px] border-field bg-surface px-4 py-[9px]',
-            'focus-within:bg-field-soft focus-within:ring-[3px] focus-within:ring-field-soft',
+            variant === 'underline'
+              ? 'flex min-h-[44px] items-center gap-3 border-b border-brand-line bg-transparent px-1 pb-2.5 pt-3 transition-colors hover:border-brand-muted focus-within:border-brand'
+              : 'flex items-center gap-2 rounded-pill border-[1.5px] border-field bg-surface px-4 py-[9px] focus-within:bg-field-soft focus-within:ring-[3px] focus-within:ring-field-soft',
             invalid && 'border-danger',
           )}
         >
           {showIcon && (
             <Search
-              size={16}
-              strokeWidth={1.75}
-              className="shrink-0 text-field"
+              size={variant === 'underline' ? 20 : 16}
+              strokeWidth={variant === 'underline' ? 1.5 : 1.75}
+              className={cn(
+                'shrink-0',
+                variant === 'underline' ? 'text-brand-muted' : 'text-field',
+              )}
               aria-hidden
             />
           )}
@@ -164,7 +175,10 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
               }
               onKeyDown?.(e);
             }}
-            className="min-w-0 flex-1 bg-transparent font-body text-sm text-field-ink outline-none placeholder:text-ink-muted"
+            className={cn(
+              'min-w-0 flex-1 bg-transparent font-body text-sm outline-none placeholder:text-brand-muted',
+              variant === 'underline' ? 'text-brand' : 'text-field-ink',
+            )}
             {...props}
           />
           {text && (

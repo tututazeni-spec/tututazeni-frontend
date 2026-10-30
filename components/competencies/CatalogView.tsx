@@ -17,12 +17,14 @@ import {
   ArrowRight,
   Boxes,
   ChessKing,
+  LayoutGrid,
+  ListFilter,
+  type LucideIcon,
   MessageCircleMore,
   Monitor,
   Search,
   Target,
   UsersRound,
-  type LucideIcon,
 } from 'lucide-react';
 
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -145,6 +147,7 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
             <Search size={16} strokeWidth={1.75} />
           </button>
           <Input
+            variant="underline"
             type="text"
             placeholder="Pesquisar competências, tags…"
             value={search}
@@ -157,6 +160,8 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
           />
         </div>
         <Select
+          variant="underline"
+          icon={LayoutGrid}
           items={CATEGORY_ITEMS}
           value={category}
           onValueChange={(v) => {
@@ -166,6 +171,8 @@ export function CatalogView({ onSelect, canManage = false }: CatalogViewProps) {
         />
         {canManage && (
           <Select
+            variant="underline"
+            icon={ListFilter}
             items={STATUS_ITEMS}
             value={statusFilter}
             onValueChange={(v) => {

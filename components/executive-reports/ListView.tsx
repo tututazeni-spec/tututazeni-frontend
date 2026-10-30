@@ -6,7 +6,14 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { CheckCircle2, Clock, FilePen, FileText } from 'lucide-react';
+import {
+  CheckCircle2,
+  Clock,
+  FilePen,
+  FileText,
+  Filter,
+  MapPin,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -96,12 +103,16 @@ export function ListView({ onSelect, onGenerate }: ListViewProps) {
       {/* Filtros */}
       <div className="mb-5 flex items-center gap-3">
         <Select
+          variant="underline"
+          icon={Filter}
           items={TYPE_ITEMS}
           value={typeFilter || 'ALL'}
           onValueChange={(v) => setTypeFilter(v === 'ALL' ? '' : v)}
           className="w-56"
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={statusFilter || 'ALL'}
           onValueChange={(v) => setStatusFilter(v === 'ALL' ? '' : v)}

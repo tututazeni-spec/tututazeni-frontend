@@ -11,6 +11,7 @@ import {
   CalendarCheck,
   CalendarClock,
   CalendarOff,
+  ListFilter,
   Palmtree,
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
@@ -128,6 +129,8 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
         <div className="text-xs text-ink-muted space-y-1">
           <span>Unidade</span>
           <Select
+            variant="underline"
+            icon={ListFilter}
             className="w-full"
             value={filters.unitId || ALL}
             onValueChange={(v) => set({ unitId: pick(v) })}
@@ -137,6 +140,8 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
         <div className="text-xs text-ink-muted space-y-1">
           <span>Departamento</span>
           <Select
+            variant="underline"
+            icon={ListFilter}
             className="w-full"
             value={filters.departmentId || ALL}
             onValueChange={(v) => set({ departmentId: pick(v) })}
@@ -146,6 +151,8 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
         <div className="text-xs text-ink-muted space-y-1">
           <span>Tipo de ausência</span>
           <Select
+            variant="underline"
+            icon={ListFilter}
             className="w-full"
             value={filters.leaveTypeCode || ALL}
             onValueChange={(v) => set({ leaveTypeCode: pick(v) })}
@@ -158,6 +165,8 @@ export function OverviewTab({ leaveTypes }: OverviewTabProps) {
         <div className="text-xs text-ink-muted space-y-1">
           <span>Estado</span>
           <Select
+            variant="underline"
+            icon={ListFilter}
             className="w-full"
             value={filters.status || ALL}
             onValueChange={(v) => set({ status: pick(v) })}

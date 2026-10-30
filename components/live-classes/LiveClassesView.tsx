@@ -13,7 +13,16 @@
 // uma das 14 abas principais, não uma sub-vista de "Aulas") — ver
 // RecordingsView.tsx.
 
-import { Circle, Calendar, Clapperboard, Search, Video } from 'lucide-react';
+import {
+  Calendar,
+  Circle,
+  Clapperboard,
+  Filter,
+  List,
+  MapPin,
+  Search,
+  Video,
+} from 'lucide-react';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
 import { ClassCard } from './ClassCard';
@@ -200,6 +209,8 @@ export function LiveClassesView({
             <Search size={16} strokeWidth={1.75} />
           </button>
           <Select
+            variant="underline"
+            icon={Filter}
             items={TYPE_ITEMS}
             value={filters.type}
             onValueChange={(v) =>
@@ -208,6 +219,8 @@ export function LiveClassesView({
             className="w-44"
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={filters.status}
             onValueChange={(v) =>
@@ -216,6 +229,8 @@ export function LiveClassesView({
             className="w-44"
           />
           <Select
+            variant="underline"
+            icon={List}
             items={MODALITY_ITEMS}
             value={filters.modality}
             onValueChange={(v) =>

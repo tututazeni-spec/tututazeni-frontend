@@ -22,6 +22,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { CATEGORY_CFG, PHASE_LABELS, TASK_STATUS_CFG } from './constants';
 import { PlanDetailModal } from './PlanDetailModal';
 import type { OnboardingTaskListItem, TaskPriority } from './types';
+import { LayoutGrid, MapPin } from 'lucide-react';
 
 interface Paginated {
   data: OnboardingTaskListItem[];
@@ -109,11 +110,15 @@ export function TasksTab({
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={filters.status}
           onValueChange={(v) => updateFilters({ status: v })}
         />
         <Select
+          variant="underline"
+          icon={LayoutGrid}
           items={CATEGORY_ITEMS}
           value={filters.category}
           onValueChange={(v) => updateFilters({ category: v })}

@@ -11,18 +11,20 @@ import { useState } from 'react';
 import {
   Award,
   CalendarClock,
+  CalendarDays,
   CheckCircle2,
   Clock,
   Download,
   GraduationCap,
   Lightbulb,
+  List,
   Megaphone,
   Star,
   ThumbsUp,
   UserCheck,
   UserMinus,
-  UserX,
   Users,
+  UserX,
   XCircle,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -124,12 +126,16 @@ export function ReportsView() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-2">
           <Select
+            variant="underline"
+            icon={CalendarDays}
             items={YEAR_ITEMS}
             value={year}
             onValueChange={setYear}
             className="w-40"
           />
           <Select
+            variant="underline"
+            icon={List}
             items={MODALITY_ITEMS}
             value={modality}
             onValueChange={setModality}

@@ -16,6 +16,8 @@ import {
   Clock,
   Cpu,
   FileSearch,
+  ListFilter,
+  type LucideIcon,
   MessageSquareWarning,
   MessagesSquare,
   Play,
@@ -25,7 +27,6 @@ import {
   TrendingUp,
   Users,
   Wallet,
-  type LucideIcon,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -98,6 +99,8 @@ function OverviewFilters({
       </FormField>
       <FormField label="Departamento" htmlFor="ov-dept">
         <Select
+          variant="underline"
+          icon={ListFilter}
           value={departmentId}
           onValueChange={(v) => onChange({ departmentId: v })}
           items={[
@@ -111,6 +114,8 @@ function OverviewFilters({
       </FormField>
       <FormField label="Formação" htmlFor="ov-prog">
         <Select
+          variant="underline"
+          icon={ListFilter}
           value={programId}
           onValueChange={(v) => onChange({ programId: v })}
           items={[

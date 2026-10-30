@@ -243,6 +243,7 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Input
+          variant="underline"
           placeholder="Pesquisar materiais…"
           value={search}
           onChange={(e) => {

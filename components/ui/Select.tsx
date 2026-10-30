@@ -2,7 +2,7 @@
 'use client';
 
 import { Select as RadixSelect } from 'radix-ui';
-import { Check, ChevronDown } from 'lucide-react';
+import { Check, ChevronDown, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 export interface SelectItemOption {
@@ -20,6 +20,14 @@ export interface SelectProps {
   invalid?: boolean;
   disabled?: boolean;
   className?: string;
+  /**
+   * `box` (por omissão): campo com caixa e rótulo flutuante.
+   * `underline`: filtro minimalista — ícone à esquerda, só uma linha por baixo
+   * e seta à direita (design dos filtros).
+   */
+  variant?: 'box' | 'underline';
+  /** Só na variante `underline`: ícone à esquerda do filtro. */
+  icon?: LucideIcon;
 }
 
 export function Select({
@@ -31,6 +39,8 @@ export function Select({
   invalid,
   disabled,
   className,
+  variant = 'box',
+  icon: Icon,
 }: SelectProps) {
   const emptyItem = items.find((i) => i.value === '');
   const shownLabel = label ?? emptyItem?.label ?? placeholder;
@@ -41,51 +51,95 @@ export function Select({
       onValueChange={onValueChange}
       disabled={disabled}
     >
-      <RadixSelect.Trigger
-        aria-invalid={invalid || undefined}
-        className={cn(
-          'group relative inline-flex min-h-[48px] max-w-full items-center justify-between gap-2 rounded-control border-[1.5px] border-field',
-          'bg-surface px-3 pb-[6px] pt-[18px] text-left font-body text-sm text-field-ink',
-          'focus:bg-field-soft focus:outline-none focus:ring-[3px] focus:ring-field-soft',
-          'disabled:cursor-not-allowed disabled:opacity-50',
-          invalid && 'border-danger focus:ring-danger-subtle',
-          className,
-        )}
-      >
-        <span
-          aria-hidden
+      {variant === 'underline' ? (
+        <RadixSelect.Trigger
+          aria-invalid={invalid || undefined}
           className={cn(
-            'pointer-events-none absolute left-3 max-w-[calc(100%-2.75rem)] truncate whitespace-nowrap origin-left font-body text-ink-muted transition-all duration-150',
-            'top-[6px] text-micro font-medium text-field',
-            'group-data-[placeholder]:top-1/2 group-data-[placeholder]:-translate-y-1/2 group-data-[placeholder]:text-sm',
-            'group-data-[placeholder]:font-normal group-data-[placeholder]:text-ink-muted',
-            'group-focus:top-[6px] group-focus:translate-y-0 group-focus:text-micro group-focus:font-medium group-focus:text-field',
+            'group flex min-h-[44px] min-w-[10rem] max-w-full items-center gap-3 border-b border-brand-line bg-transparent px-1 pb-2.5 pt-3 text-left font-body text-sm text-brand',
+            'transition-colors hover:border-brand-muted focus-visible:border-brand focus-visible:outline-none',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            invalid && 'border-danger',
+            className,
           )}
         >
-          {shownLabel}
-        </span>
-        <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)] overflow-hidden">
-          {[shownLabel, ...items.map((i) => i.label)].map((t, n) => (
-            <span
-              key={n}
+          {Icon && (
+            <Icon
               aria-hidden
-              className="invisible col-start-1 row-start-1 whitespace-nowrap"
-            >
-              {t}
+              size={20}
+              strokeWidth={1.5}
+              className="shrink-0 text-brand-muted"
+            />
+          )}
+          {/* Reserva a largura do rótulo mais comprido: não salta ao mudar de opção. */}
+          <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)] overflow-hidden">
+            {[placeholder, ...items.map((i) => i.label)].map((t, n) => (
+              <span
+                key={n}
+                aria-hidden
+                className="invisible col-start-1 row-start-1 whitespace-nowrap"
+              >
+                {t}
+              </span>
+            ))}
+            <span className="col-start-1 row-start-1 min-w-0 truncate whitespace-nowrap">
+              <RadixSelect.Value placeholder={placeholder} />
             </span>
-          ))}
-          <span className="col-start-1 row-start-1 min-w-0 truncate whitespace-nowrap">
-            <RadixSelect.Value placeholder={' '} />
           </span>
-        </span>
-        <RadixSelect.Icon>
-          <ChevronDown
-            size={16}
-            strokeWidth={1.75}
-            className="shrink-0 text-field"
-          />
-        </RadixSelect.Icon>
-      </RadixSelect.Trigger>
+          <RadixSelect.Icon>
+            <ChevronDown
+              size={16}
+              strokeWidth={1.75}
+              className="shrink-0 text-brand-muted"
+            />
+          </RadixSelect.Icon>
+        </RadixSelect.Trigger>
+      ) : (
+        <RadixSelect.Trigger
+          aria-invalid={invalid || undefined}
+          className={cn(
+            'group relative inline-flex min-h-[48px] max-w-full items-center justify-between gap-2 rounded-control border-[1.5px] border-field',
+            'bg-surface px-3 pb-[6px] pt-[18px] text-left font-body text-sm text-field-ink',
+            'focus:bg-field-soft focus:outline-none focus:ring-[3px] focus:ring-field-soft',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            invalid && 'border-danger focus:ring-danger-subtle',
+            className,
+          )}
+        >
+          <span
+            aria-hidden
+            className={cn(
+              'pointer-events-none absolute left-3 max-w-[calc(100%-2.75rem)] truncate whitespace-nowrap origin-left font-body text-ink-muted transition-all duration-150',
+              'top-[6px] text-micro font-medium text-field',
+              'group-data-[placeholder]:top-1/2 group-data-[placeholder]:-translate-y-1/2 group-data-[placeholder]:text-sm',
+              'group-data-[placeholder]:font-normal group-data-[placeholder]:text-ink-muted',
+              'group-focus:top-[6px] group-focus:translate-y-0 group-focus:text-micro group-focus:font-medium group-focus:text-field',
+            )}
+          >
+            {shownLabel}
+          </span>
+          <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)] overflow-hidden">
+            {[shownLabel, ...items.map((i) => i.label)].map((t, n) => (
+              <span
+                key={n}
+                aria-hidden
+                className="invisible col-start-1 row-start-1 whitespace-nowrap"
+              >
+                {t}
+              </span>
+            ))}
+            <span className="col-start-1 row-start-1 min-w-0 truncate whitespace-nowrap">
+              <RadixSelect.Value placeholder={' '} />
+            </span>
+          </span>
+          <RadixSelect.Icon>
+            <ChevronDown
+              size={16}
+              strokeWidth={1.75}
+              className="shrink-0 text-field"
+            />
+          </RadixSelect.Icon>
+        </RadixSelect.Trigger>
+      )}
       <RadixSelect.Portal>
         <RadixSelect.Content
           className="z-[700] min-w-[var(--radix-select-trigger-width)] max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"

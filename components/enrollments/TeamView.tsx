@@ -41,7 +41,7 @@ export function TeamView() {
       <div className="mb-4 text-xs text-ink-faint">
         {data.total} membros na equipa
       </div>
-      <div className="space-y-5">
+      <div className="space-y-3">
         {data.team.map((member) => {
           const compliance =
             member.stats.total > 0
