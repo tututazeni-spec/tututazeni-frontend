@@ -13,10 +13,12 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   invalid?: boolean;
   /** Só para campos de pesquisa: esconde a lupa. */
   showIcon?: boolean;
+  /** Só para campos de pesquisa: `underline` = design dos filtros (ver SearchInput). */
+  variant?: 'capsule' | 'underline';
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, invalid, showIcon, ...props }, ref) => {
+  ({ className, invalid, showIcon, variant, ...props }, ref) => {
     const isSearch =
       props.type === 'search' ||
       ((props.type === undefined || props.type === 'text') &&
@@ -29,6 +31,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           invalid={invalid}
           showIcon={showIcon}
+          variant={variant}
           className={className}
           historyKey={props.placeholder}
           {...rest}
