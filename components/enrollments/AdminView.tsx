@@ -181,7 +181,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
     (recycle.isPending && recycle.variables === id) ||
     (remind.isPending && remind.variables === id);
 
-  // Deadline em massa: dispara os PATCH em paralelo; ao concluir invalida as listas.
+  // Prazo limite em massa: dispara os PATCH em paralelo; ao concluir invalida as listas.
   const bulkDeadlineMut = useApiMutation(
     () =>
       Promise.all(
@@ -327,7 +327,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
             onClick={handleBulkDeadline}
             disabled={!bulkDeadline || bulkLoading}
           >
-            {bulkLoading ? 'A aplicar…' : 'Actualizar deadline'}
+            {bulkLoading ? 'A aplicar…' : 'Actualizar prazo limite'}
           </Button>
           <button
             onClick={() => setSelected([])}
@@ -399,7 +399,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
                   },
                   {
                     icon: e.isOverdue ? AlertTriangle : Hourglass,
-                    text: `Deadline: ${e.deadline ? deadlineCountdown(e.deadline) : '—'}`,
+                    text: `Prazo limite: ${e.deadline ? deadlineCountdown(e.deadline) : '—'}`,
                     danger: !!e.isOverdue,
                   },
                 ]}
