@@ -172,16 +172,18 @@ export function ResultView({
         <Button intent="secondary" className="flex-1" onClick={onBack}>
           ← Voltar
         </Button>
-        {!isPass && assessment.maxAttempts === 0 && (
-          <Button intent="primary" className="flex-1" onClick={onRetry}>
-            <RefreshCw
-              size={14}
-              strokeWidth={1.75}
-              className="inline align-[-2px]"
-            />{' '}
-            Repetir avaliação
-          </Button>
-        )}
+        {!isPass &&
+          assessment.maxAttempts === 0 &&
+          assessment.type !== 'EXAM' && (
+            <Button intent="primary" className="flex-1" onClick={onRetry}>
+              <RefreshCw
+                size={14}
+                strokeWidth={1.75}
+                className="inline align-[-2px]"
+              />{' '}
+              Repetir avaliação
+            </Button>
+          )}
       </div>
     </div>
   );
