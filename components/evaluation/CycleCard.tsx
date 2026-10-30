@@ -42,6 +42,8 @@ interface CycleCardProps {
   footer?: ReactNode;
   /** Clique no cartão (ex.: iniciar a avaliação). Sem valor, não é clicável. */
   onSelect?: () => void;
+  /** Botões redondos sobre o canto superior direito (menu de 3 pontos). */
+  actions?: ReactNode;
 }
 
 export function CycleCard({
@@ -56,6 +58,7 @@ export function CycleCard({
   progress,
   footer,
   onSelect,
+  actions,
 }: CycleCardProps) {
   // Cada ciclo mantém a sua cor própria, escolhida pelo id.
   const palette = PALETTE[Math.abs(seed) % PALETTE.length];
@@ -104,6 +107,15 @@ export function CycleCard({
             />
           )}
         </div>
+        {actions && (
+          <div
+            className="absolute right-3 top-3 z-20 flex items-center gap-1"
+            onClick={(ev) => ev.stopPropagation()}
+            onKeyDown={(ev) => ev.stopPropagation()}
+          >
+            {actions}
+          </div>
+        )}
         <div className="relative z-10 w-[56%] px-5 pt-5">
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">

@@ -148,15 +148,27 @@ const INITIAL_VALUES: NewEvaluationFormValues = {
 
 export interface NewEvaluationWizardProps {
   onClose: () => void;
+  /** Abre já associado a este ciclo existente (ex.: menu do cartão do ciclo). */
+  cycleId?: number;
 }
 
-export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
+export function NewEvaluationWizard({
+  onClose,
+  cycleId: presetCycleId,
+}: NewEvaluationWizardProps) {
   const notify = useToast();
   const qc = useQueryClient();
   const { step, busy, error, next, back, goTo, begin, end, fail } =
     useWizardFlow();
-  const { values: form, set } =
-    useFormState<NewEvaluationFormValues>(INITIAL_VALUES);
+  const { values: form, set } = useFormState<NewEvaluationFormValues>(
+    presetCycleId
+      ? {
+          ...INITIAL_VALUES,
+          cycleMode: 'existing',
+          existingCycleId: String(presetCycleId),
+        }
+      : INITIAL_VALUES,
+  );
   const {
     name,
     purpose,

@@ -6,10 +6,12 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Building2,
   Calendar,
+  MoreHorizontal,
   ClipboardCheck,
   ClipboardList,
   Plus,
@@ -24,8 +26,14 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { ADMIN_ROLES } from '@/lib/roles';
+import { ADMIN_ROLES, MGMT_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { BadgeProps } from '@/components/ui/Badge';
@@ -35,6 +43,10 @@ import { SubmitEvaluationModal } from './SubmitEvaluationModal';
 import { MODEL_LABEL, STATUS_MAP } from './constants';
 import type { Cycle, EvalRequest } from './types';
 import { formatDateNumeric } from '@/lib/format';
+
+const NewEvaluationWizard = dynamic(() =>
+  import('./NewEvaluationWizard').then((m) => m.NewEvaluationWizard),
+);
 
 const CYCLE_TONE: Record<string, BadgeProps['intent']> = {
   DRAFT: 'neutral',
@@ -87,6 +99,9 @@ export function CyclesTab() {
   // mas não gere o ciclo. Sem isto os botões apareciam para todos e
   // rebentavam com 403 ao clicar.
   const canManageCycle = useHasRole(ADMIN_ROLES);
+  // Mesmos papéis que vêem o separador "Avaliações" e o assistente "Nova Avaliação".
+  const canAddEvaluation = useHasRole(MGMT_ROLES);
+  const [addToCycleId, setAddToCycleId] = useState<number | null>(null);
 
   // docs/modulo_evaluation.md ponto 3 — Pausar/Encerrar/Reabrir/Enviar
   // lembretes, publicar e activar. Depois do sucesso invalida-se a cache em
@@ -186,6 +201,30 @@ export function CyclesTab() {
               key={cycle.id}
               seed={cycle.id}
               onSelect={() => startEvaluation(cycle)}
+              actions={
+                canAddEvaluation && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        intent="onDarkGhost"
+                        size="icon"
+                        aria-label="Mais opções"
+                        title="Mais opções"
+                      >
+                        <MoreHorizontal size={16} strokeWidth={1.75} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onSelect={() => setAddToCycleId(cycle.id)}
+                      >
+                        Adicionar avaliação
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )
+              }
               kicker={MODEL_LABEL[cycle.model] ?? cycle.model}
               kickerIcon={ClipboardList}
               title={cycle.name}
@@ -342,6 +381,13 @@ export function CyclesTab() {
           />
         )}
       </div>
+
+      {addToCycleId !== null && (
+        <NewEvaluationWizard
+          cycleId={addToCycleId}
+          onClose={() => setAddToCycleId(null)}
+        />
+      )}
 
       {toSubmit && (
         <SubmitEvaluationModal
