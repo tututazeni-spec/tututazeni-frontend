@@ -43,6 +43,7 @@ import { lessonIcon } from './utils';
 import { LessonFooter } from './LessonFooter';
 import type { LessonProgress, ModuleProgress } from './types';
 import { safeHref } from '@/lib/safeHref';
+import { useStageMaximized } from '@/components/viewers/StageMaximizedContext';
 
 // ─── Embeds externos (YouTube, Vimeo, Spotify) ──────────────────────────────
 
@@ -268,6 +269,7 @@ export function ContentPlayer({
   hasNext,
   onBackToCourses,
 }: ContentPlayerProps) {
+  const maximized = useStageMaximized();
   const contentUrl = lesson.contentUrl;
   const kind = resolveKind(lesson);
 
@@ -311,10 +313,14 @@ export function ContentPlayer({
         />
       )}
 
-      <div className="flex-1 overflow-y-auto">
+      <div
+        className={`flex-1 ${maximized ? 'min-h-0 flex flex-col' : 'overflow-y-auto'}`}
+      >
         {/* Área do conteúdo */}
         <div
-          className={`min-h-[50vh] flex items-center justify-center ${
+          className={`${
+            maximized ? 'flex-1 min-h-0' : 'min-h-[50vh]'
+          } flex items-center justify-center ${
             isVideo ? 'bg-ink' : 'bg-brand-soft'
           }`}
         >
@@ -322,7 +328,13 @@ export function ContentPlayer({
             {kind === 'VIDEO' ? (
               contentUrl ? (
                 <div className="w-full h-full flex flex-col">
-                  <div className="flex-1 aspect-video max-h-[70vh] mx-auto w-full">
+                  <div
+                    className={
+                      maximized
+                        ? 'flex-1 min-h-0 w-full'
+                        : 'flex-1 aspect-video max-h-[70vh] mx-auto w-full'
+                    }
+                  >
                     {videoEmbed ? (
                       <iframe
                         src={videoEmbed}

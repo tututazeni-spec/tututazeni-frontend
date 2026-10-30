@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, FileWarning, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useStageMaximized } from './StageMaximizedContext';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 
 interface PdfViewerProps {
@@ -46,7 +47,9 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
   const docRef = useRef<PDFDocumentProxy | null>(null);
   const [status, setStatus] = useState<Status>('loading');
   const wrapRef = useRef<HTMLDivElement>(null);
+  const maximized = useStageMaximized();
   const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
   const [pageNum, setPageNum] = useState(1);
   const [numPages, setNumPages] = useState(0);
 
@@ -89,9 +92,13 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    setWidth(el.clientWidth);
+    const measure = () => {
+      setWidth(el.clientWidth);
+      setHeight(el.clientHeight);
+    };
+    measure();
     if (typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(() => setWidth(el.clientWidth));
+    const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -110,7 +117,13 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
       const page = await pdf.getPage(pageNum);
       if (cancelled) return;
       const base = page.getViewport({ scale: 1 });
-      const fit = width > 0 ? (width - 32) / base.width : 1.4;
+      // Maximizado: a página inteira cabe no ecrã (largura e altura), sem margens.
+      const pad = maximized ? 0 : 32;
+      const byWidth = width > 0 ? (width - pad) / base.width : 1.4;
+      const fit =
+        maximized && height > 0
+          ? Math.min(byWidth, height / base.height)
+          : byWidth;
       const viewport = page.getViewport({
         scale: Math.min(3, Math.max(0.5, fit)),
       });
@@ -123,7 +136,7 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
     return () => {
       cancelled = true;
     };
-  }, [status, pageNum, width]);
+  }, [status, pageNum, width, height, maximized]);
 
   if (status === 'error') {
     return (
@@ -146,7 +159,11 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 w-full h-full py-6">
+    <div
+      className={`flex flex-col items-center w-full h-full ${
+        maximized ? 'gap-1' : 'gap-3 py-6'
+      }`}
+    >
       {status === 'loading' && (
         <div className="text-ink flex flex-col items-center gap-2">
           <Loader2 size={32} strokeWidth={1.75} className="animate-spin" />
@@ -155,7 +172,9 @@ export function PdfViewer({ src, title, data }: PdfViewerProps) {
       )}
       <div
         ref={wrapRef}
-        className="flex-1 w-full overflow-auto flex items-start justify-center px-4"
+        className={`flex-1 min-h-0 w-full overflow-auto flex justify-center ${
+          maximized ? 'items-center' : 'items-start px-4'
+        }`}
       >
         <canvas
           ref={canvasRef}

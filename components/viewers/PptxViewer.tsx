@@ -10,6 +10,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { FileWarning, Loader2 } from 'lucide-react';
 import type { init as PptxPreviewInit } from 'pptx-preview';
+import { useStageMaximized } from './StageMaximizedContext';
 
 interface PptxViewerProps {
   src: string;
@@ -29,8 +30,11 @@ export function PptxViewer({ src, title }: PptxViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const previewerRef = useRef<Previewer | null>(null);
   const [status, setStatus] = useState<Status>('loading');
+  const maximized = useStageMaximized();
   const fitRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  // Altura real do slide a SLIDE_WIDTH de largura (a proporção vem do ficheiro).
+  const [slideH, setSlideH] = useState(SLIDE_HEIGHT);
 
   // O slide é desenhado em 960x540; aqui é só escalado para caber por inteiro
   // (largura da coluna e altura da janela), sem cortes nem scroll.
@@ -39,8 +43,12 @@ export function PptxViewer({ src, title }: PptxViewerProps) {
     if (!el) return;
     const fit = () => {
       const byWidth = el.clientWidth / SLIDE_WIDTH;
-      const byHeight =
-        Math.max(window.innerHeight - CHROME_HEIGHT, 200) / SLIDE_HEIGHT;
+      // Maximizado: usa a altura real do palco; senão, a da janela menos margens.
+      const availH =
+        maximized && el.clientHeight > 0
+          ? el.clientHeight
+          : Math.max(window.innerHeight - CHROME_HEIGHT, 200);
+      const byHeight = availH / slideH;
       const next = Math.min(byWidth, byHeight);
       if (next > 0) setScale(next);
     };
@@ -53,7 +61,7 @@ export function PptxViewer({ src, title }: PptxViewerProps) {
       ro?.disconnect();
       window.removeEventListener('resize', fit);
     };
-  }, []);
+  }, [maximized, slideH]);
 
   useEffect(() => {
     let cancelled = false;
@@ -82,6 +90,27 @@ export function PptxViewer({ src, title }: PptxViewerProps) {
         previewerRef.current = previewer;
         await previewer.preview(buffer);
         if (cancelled) return;
+
+        // O pptx-preview mantém a proporção do slide e centra-o na caixa dada;
+        // se não for 16:9 sobram faixas pretas. Mede o slide e volta a
+        // desenhar numa caixa com a altura exacta, para preencher sem faixas.
+        const slide = container.querySelector<HTMLElement>(
+          '.pptx-preview-slide-wrapper',
+        );
+        const realH = Math.round(slide?.offsetHeight ?? 0);
+        if (realH > 0 && Math.abs(realH - SLIDE_HEIGHT) > 1) {
+          previewer.destroy();
+          container.innerHTML = '';
+          const exact = init(container, {
+            width: SLIDE_WIDTH,
+            height: realH,
+            mode: 'slide',
+          });
+          previewerRef.current = exact;
+          await exact.preview(buffer);
+          if (cancelled) return;
+          setSlideH(realH);
+        }
         setStatus('ready');
       } catch {
         if (!cancelled) setStatus('error');
@@ -110,7 +139,11 @@ export function PptxViewer({ src, title }: PptxViewerProps) {
   }
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-3 py-6">
+    <div
+      className={`w-full h-full flex flex-col items-center justify-center ${
+        maximized ? '' : 'gap-3 py-6'
+      }`}
+    >
       {status === 'loading' && (
         <div className="text-ink flex flex-col items-center gap-2">
           <Loader2 size={32} strokeWidth={1.75} className="animate-spin" />
@@ -119,16 +152,21 @@ export function PptxViewer({ src, title }: PptxViewerProps) {
           </span>
         </div>
       )}
-      <div ref={fitRef} className="w-full px-4 flex justify-center">
+      <div
+        ref={fitRef}
+        className={`w-full flex justify-center items-center ${
+          maximized ? 'flex-1 min-h-0' : 'px-4'
+        }`}
+      >
         <div
           className={status === 'ready' ? 'shadow-lg' : 'hidden'}
-          style={{ width: SLIDE_WIDTH * scale, height: SLIDE_HEIGHT * scale }}
+          style={{ width: SLIDE_WIDTH * scale, height: slideH * scale }}
         >
           <div
             ref={containerRef}
             style={{
               width: SLIDE_WIDTH,
-              height: SLIDE_HEIGHT,
+              height: slideH,
               transform: `scale(${scale})`,
               transformOrigin: 'top left',
             }}

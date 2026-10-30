@@ -1,12 +1,17 @@
 // components/courses-learn/MaximizableStage.tsx
 // Envolve o leitor de uma lição com um botão Maximizar/Minimizar: maximizado,
-// ocupa o ecrã todo à direita do menu lateral (por cima da estrutura do curso e do cabeçalho);
+// ocupa o ecrã inteiro (por cima do menu lateral, da estrutura do curso e do
+// cabeçalho), mantendo o caminho Módulo › Lição e os botões Voltar/Minimizar;
 // Esc minimiza. Usado na sala de aula e no detalhe do curso.
 
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { ArrowLeft, Maximize2, Minimize2 } from 'lucide-react';
+import {
+  StageMaximizedProvider,
+  StageMinimizeProvider,
+} from '@/components/viewers/StageMaximizedContext';
 
 interface MaximizableStageProps {
   children: ReactNode;
@@ -21,6 +26,7 @@ export function MaximizableStage({
   id,
 }: MaximizableStageProps) {
   const [maximized, setMaximized] = useState(false);
+  const minimize = useCallback(() => setMaximized(false), []);
 
   useEffect(() => {
     if (!maximized) return;
@@ -41,9 +47,8 @@ export function MaximizableStage({
       id={id}
       className={
         maximized
-          ? // lg:left-60 = largura da Sidebar fixa (240px, ver globals.css): o palco
-            // começa à direita dela em vez de ficar escondido por trás.
-            'fixed inset-0 z-50 flex flex-col bg-canvas lg:left-60'
+          ? // Ecrã inteiro: z acima da Sidebar fixa (z-index 100), que também cobre.
+            'fixed inset-0 z-[200] flex flex-col bg-canvas'
           : `relative ${className}`
       }
     >
@@ -81,7 +86,11 @@ export function MaximizableStage({
             : 'h-full'
         }
       >
-        {children}
+        <StageMaximizedProvider value={maximized}>
+          <StageMinimizeProvider value={minimize}>
+            {children}
+          </StageMinimizeProvider>
+        </StageMaximizedProvider>
       </div>
     </div>
   );

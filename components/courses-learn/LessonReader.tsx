@@ -14,6 +14,7 @@ import { SafeHtml } from '@/components/ui/SafeHtml';
 import { LessonAudioBar } from './LessonAudioBar';
 import { QuizPlayer } from './QuizPlayer';
 import { ActivityList, FileList } from './LessonExtras';
+import { useStageMaximized } from '@/components/viewers/StageMaximizedContext';
 import { LessonBreadcrumb } from './LessonBreadcrumb';
 import { LessonFooter } from './LessonFooter';
 import { LessonPdf } from './LessonPdf';
@@ -54,6 +55,7 @@ export function LessonReader({
   hasNext,
   onBackToCourses,
 }: LessonReaderProps) {
+  const maximized = useStageMaximized();
   const html = lessonTextToHtml(lesson.textContent);
   const hasPdf = !!lesson.hasFile || /^https?:/i.test(lesson.contentUrl ?? '');
   const materials = currentModule?.materials ?? [];
@@ -61,7 +63,11 @@ export function LessonReader({
   const text = html ? (
     <article
       key="text"
-      className="rounded-panel border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(15,31,61,0.08)] sm:p-8"
+      className={
+        maximized
+          ? 'w-full flex-1 bg-surface px-6 py-5 sm:px-10'
+          : 'rounded-panel border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(15,31,61,0.08)] sm:p-8'
+      }
     >
       <h2 className="mb-4 font-display text-xl font-semibold text-ink">
         {lesson.title}
@@ -82,7 +88,11 @@ export function LessonReader({
   ) : null;
 
   const pdf = hasPdf ? (
-    <section key="pdf" aria-label="Documento PDF">
+    <section
+      key="pdf"
+      aria-label="Documento PDF"
+      className={maximized ? 'flex-1' : undefined}
+    >
       {lesson.type === 'TEXT' && (
         <h3 className="mb-2 font-body text-sm font-semibold text-ink">
           Documento complementar
@@ -106,7 +116,13 @@ export function LessonReader({
       )}
 
       <div className="flex-1 overflow-y-auto bg-brand-soft">
-        <div className="mx-auto w-full max-w-4xl space-y-6 px-3 py-4 sm:px-6 sm:py-6">
+        <div
+          className={
+            maximized
+              ? 'flex min-h-full w-full flex-col'
+              : 'mx-auto w-full max-w-4xl space-y-6 px-3 py-4 sm:px-6 sm:py-6'
+          }
+        >
           {!text && !pdf && (
             <div className="px-6 py-10 text-center text-ink">
               <FileText

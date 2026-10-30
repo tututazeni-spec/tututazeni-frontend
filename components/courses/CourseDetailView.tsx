@@ -204,7 +204,9 @@ export function CourseDetailView({
                   currentModule={lessonModule}
                   onComplete={onMarkComplete}
                   completing={completing}
-                  onBackToCourses={onBack}
+                  onBackToCourses={() =>
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }
                 />
               ) : (
                 <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
