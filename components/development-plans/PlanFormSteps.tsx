@@ -34,6 +34,7 @@ import {
   type WizardStepId,
 } from './constants';
 import {
+  useCareerPlanOptions,
   useCompetencyOptions,
   useCourseOptions,
   useDirectoryUsers,
@@ -277,6 +278,7 @@ export function PlanFormSteps({
     stepId === 'competencies',
   );
   const { options: courseOptions } = useCourseOptions(stepId === 'actionPlan');
+  const { options: careerPlanItems } = useCareerPlanOptions(form.careerLinked);
 
   switch (stepId) {
     case 'identification':
@@ -498,17 +500,12 @@ export function PlanFormSteps({
           </div>
           {form.careerLinked && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                label="ID do plano de carreira"
-                htmlFor="pdi-career-id"
-              >
-                <Input
-                  id="pdi-career-id"
-                  type="number"
-                  min={1}
+              <FormField label="Plano de carreira" htmlFor="pdi-career-id">
+                <Select
+                  items={careerPlanItems}
                   value={form.careerPlanId}
-                  onChange={(e) => setField('careerPlanId', e.target.value)}
-                  placeholder="Ver em Carreira → Planos de Carreira"
+                  onValueChange={(v) => setField('careerPlanId', v)}
+                  placeholder="Escolher plano de carreira…"
                   className="w-full"
                 />
               </FormField>

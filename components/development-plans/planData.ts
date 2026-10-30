@@ -72,3 +72,18 @@ export function useCourseOptions(enabled = true) {
   }));
   return { options, loading: query.isLoading };
 }
+
+/** Planos de carreira pelo título e colaborador (para o campo "Plano de carreira" do PDI). */
+export function useCareerPlanOptions(enabled = true) {
+  const query = useApiQuery<{
+    data: { id: number; title: string; user?: { fullName: string } }[];
+  }>(queryKeys.careerPlans.list({}), '/career-plans', {
+    staleTime: STALE_TIME.DYNAMIC,
+    enabled,
+  });
+  const options: Option[] = (query.data?.data ?? []).map((p) => ({
+    value: String(p.id),
+    label: p.user?.fullName ? `${p.title} — ${p.user.fullName}` : p.title,
+  }));
+  return { options, loading: query.isLoading };
+}

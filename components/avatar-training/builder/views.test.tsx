@@ -15,6 +15,13 @@ import type { NewSessionController } from '@/hooks/useNewSession';
 import type { SessionBuilderController } from '@/hooks/useSessionBuilder';
 import type { BuilderStep } from '../types';
 
+// FailRules lista as sessões pelo nome (useSessionList faz pedidos à API).
+vi.mock('../SessionPicker', () => ({
+  useSessionList: () => ({
+    data: [{ id: 7, title: 'Sessão 7', program: { title: 'Programa X' } }],
+  }),
+}));
+
 const as = <T,>(v: unknown) => v as T;
 const btn = (name: string | RegExp) => screen.getByRole('button', { name });
 
@@ -271,18 +278,16 @@ describe('FailRules', () => {
     expect(onClear).toHaveBeenCalledWith({});
   });
 
-  it('sessão complementar vazia ou 0 não é gravada', () => {
-    const onChange = vi.fn();
+  it('sessão complementar mostra o nome da sessão escolhida, não o id', () => {
     render(
       <FailRules
         rules={{ onFail: { recommendSessionId: 7 } }}
-        onChange={onChange}
+        onChange={vi.fn()}
       />,
     );
-    fireEvent.change(screen.getByLabelText('Sessão complementar (id)'), {
-      target: { value: '' },
-    });
-    expect(onChange).toHaveBeenCalledWith({});
+    expect(screen.getAllByText('Programa X — Sessão 7').length).toBeGreaterThan(
+      0,
+    );
   });
 });
 

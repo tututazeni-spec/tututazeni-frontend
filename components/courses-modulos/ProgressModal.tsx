@@ -5,12 +5,17 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2, Search, BookMarked } from 'lucide-react';
+import { CheckCircle2, BookMarked } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
 import { apiClient } from '@/lib/apiClient';
 import { CONTENT_TYPE } from './constants';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
+import type { DirectoryUser } from '@/components/departments/departmentFormData';
+import { useApiQuery } from '@/hooks/useApiQuery';
 import { FormField } from '@/components/ui/FormField';
 import { Card, CardBody } from '@/components/ui/Card';
 import { useToast } from '@/providers/ToastProvider';
@@ -23,8 +28,21 @@ interface ProgressModalProps {
 
 export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
   const notify = useToast();
+  const [colaborador, setColaborador] = useState<DirectoryUser | null>(null);
   const [enrollmentId, setEnrollmentId] = useState('');
   const [lessonId, setLessonId] = useState('');
+
+  // Matrículas do colaborador escolhido, mostradas pelo título do curso.
+  const enrollmentsQuery = useApiQuery<{
+    enrollments: Array<{ id: number; course: { title: string } }>;
+  }>(
+    queryKeys.enrollments.byUser(colaborador?.id ?? 0),
+    `/enrollments/users/${colaborador?.id}`,
+    { enabled: !!colaborador, staleTime: STALE_TIME.DYNAMIC },
+  );
+  const enrollmentItems = (enrollmentsQuery.data?.enrollments ?? []).map(
+    (e) => ({ value: String(e.id), label: e.course.title }),
+  );
 
   const progressQuery = useApiMutation(
     (enrId: string) =>
@@ -32,7 +50,6 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
     { onError: (e) => notify({ title: e.message, intent: 'danger' }) },
   );
   const progress = progressQuery.data ?? [];
-  const loading = progressQuery.isPending;
   const loadProgress = () => {
     if (enrollmentId) progressQuery.mutate(enrollmentId);
   };
@@ -57,6 +74,9 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
   };
 
   const completedCount = progress.filter((p) => p.completed).length;
+  const pendingLessonItems = progress
+    .filter((p) => !p.completed)
+    .map((p) => ({ value: String(p.lessonId), label: p.lesson.title }));
 
   return (
     <div
@@ -87,23 +107,48 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
               <CheckCircle2 size={16} strokeWidth={1.75} /> Marcar Lição como
               Concluída
             </h3>
-            <div className="grid grid-cols-1 gap-3 items-end sm:grid-cols-3">
-              <FormField label="ID Matrícula" htmlFor="prog-enrollment">
-                <Input
-                  id="prog-enrollment"
-                  type="number"
+            <div className="grid grid-cols-1 gap-3 items-end sm:grid-cols-2">
+              <DepartmentUserPicker
+                label="Colaborador"
+                htmlFor="prog-user"
+                value={colaborador}
+                onChange={(u) => {
+                  setColaborador(u);
+                  setEnrollmentId('');
+                  setLessonId('');
+                  progressQuery.reset();
+                }}
+              />
+              <FormField label="Curso (matrícula)" htmlFor="prog-enrollment">
+                <Select
+                  items={enrollmentItems}
                   value={enrollmentId}
-                  onChange={(e) => setEnrollmentId(e.target.value)}
-                  placeholder="Ex: 1"
+                  onValueChange={(v) => {
+                    setEnrollmentId(v);
+                    setLessonId('');
+                    progressQuery.mutate(v);
+                  }}
+                  placeholder={
+                    colaborador
+                      ? 'Escolher curso…'
+                      : 'Escolha primeiro o colaborador'
+                  }
+                  disabled={!colaborador}
+                  className="w-full"
                 />
               </FormField>
-              <FormField label="ID Lição" htmlFor="prog-lesson">
-                <Input
-                  id="prog-lesson"
-                  type="number"
+              <FormField label="Lição por concluir" htmlFor="prog-lesson">
+                <Select
+                  items={pendingLessonItems}
                   value={lessonId}
-                  onChange={(e) => setLessonId(e.target.value)}
-                  placeholder="Ex: 3"
+                  onValueChange={setLessonId}
+                  placeholder={
+                    enrollmentId
+                      ? 'Escolher lição…'
+                      : 'Escolha primeiro o curso'
+                  }
+                  disabled={!enrollmentId}
+                  className="w-full"
                 />
               </FormField>
               <Button
@@ -114,34 +159,6 @@ export function ProgressModal({ onClose, onMarked }: ProgressModalProps) {
                 className="w-full inline-flex items-center justify-center gap-1.5"
               >
                 <CheckCircle2 size={15} strokeWidth={1.75} /> Marcar
-              </Button>
-            </div>
-          </div>
-
-          {/* Ver progresso */}
-          <div>
-            <div className="flex gap-3 items-end">
-              <div className="flex-1">
-                <FormField
-                  label="Ver Progresso (ID Matrícula)"
-                  htmlFor="prog-view-enrollment"
-                >
-                  <Input
-                    id="prog-view-enrollment"
-                    type="number"
-                    value={enrollmentId}
-                    onChange={(e) => setEnrollmentId(e.target.value)}
-                    placeholder="Ex: 1"
-                  />
-                </FormField>
-              </div>
-              <Button
-                onClick={loadProgress}
-                disabled={loading || !enrollmentId}
-                intent="ghost"
-                className="inline-flex items-center gap-1.5"
-              >
-                <Search size={15} strokeWidth={1.75} /> Ver
               </Button>
             </div>
           </div>

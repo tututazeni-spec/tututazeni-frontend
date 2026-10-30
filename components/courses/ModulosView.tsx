@@ -30,6 +30,8 @@ import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
 import { Card, CardBody } from '@/components/ui/Card';
 import { ModuleModal } from '@/components/courses-modulos/ModuleModal';
+import { useCourseOptions } from './useCourseOptions';
+import { Select } from '@/components/ui/Select';
 import { ProgressModal } from '@/components/courses-modulos/ProgressModal';
 import { ModuleBlock } from '@/components/courses-modulos/ModuleBlock';
 import { ModuleStatTile } from '@/components/courses-modulos/ModuleStatTile';
@@ -59,6 +61,7 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
   );
   const [modal, dispatchModal] = useReducer(modalReducer, { kind: 'none' });
   const toast = useToast();
+  const courseItems = useCourseOptions();
 
   // Sincroniza sempre que o pai muda o courseId (ex.: clicar "Gerir
   // módulos" noutro curso enquanto já se está nesta aba) — ao contrário da
@@ -190,17 +193,16 @@ export function ModulosView({ initialCourseId }: ModulosViewProps) {
         <CardBody>
           <div className="flex gap-3 items-end flex-wrap">
             <div className="min-w-[160px] flex-1">
-              <FormField label="ID do Curso" htmlFor="courseId">
-                <Input
-                  id="courseId"
-                  type="number"
+              <FormField label="Curso" htmlFor="courseId">
+                <Select
+                  items={courseItems}
                   value={courseIdInput}
-                  onChange={(e) => {
-                    setCourseIdInput(e.target.value);
+                  onValueChange={(v) => {
+                    setCourseIdInput(v);
                     setSubmittedCourseId(null);
                   }}
-                  placeholder="Ex: 1"
-                  onKeyDown={(e) => e.key === 'Enter' && loadCourse()}
+                  placeholder="Escolher curso…"
+                  className="w-full"
                 />
               </FormField>
             </div>
