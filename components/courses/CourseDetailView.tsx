@@ -459,7 +459,8 @@ export function CourseDetailView({
                         Curso indisponível
                       </Button>
                     )}
-                    {isEnrolled && (
+                    {/* Curso concluído: o painel verde já diz "Concluído"; sem selo, barra nem botão. */}
+                    {isEnrolled && !courseCompleted && (
                       <div className="space-y-2">
                         <EnrollBadge
                           status={progress!.enrollment.status}
