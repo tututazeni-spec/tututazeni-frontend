@@ -123,6 +123,7 @@ export interface OneOnOneMinutes {
 export interface Cycle {
   id: number;
   name: string;
+  description?: string | null;
   /** Imagem do cartão (data URL ou URL), opcional. */
   imageUrl?: string | null;
   model: string;

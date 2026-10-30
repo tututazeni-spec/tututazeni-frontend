@@ -31,11 +31,17 @@ const STATUS: Record<string, { label: string; intent: BadgeProps['intent'] }> =
 
 interface PendingCycleCardProps {
   cycle: Cycle;
+  /** Botões redondos sobre o canto superior direito (menu de 3 pontos). */
+  actions?: ReactNode;
   /** Botões principais no painel inferior (publicar, ativar). */
   footer?: ReactNode;
 }
 
-export function PendingCycleCard({ cycle: c, footer }: PendingCycleCardProps) {
+export function PendingCycleCard({
+  cycle: c,
+  actions,
+  footer,
+}: PendingCycleCardProps) {
   // Cada avaliação mantém a sua cor própria, escolhida pelo id.
   const palette = PALETTE[Math.abs(c.id) % PALETTE.length];
   const status = STATUS[c.status] ?? STATUS.DRAFT;
@@ -75,6 +81,11 @@ export function PendingCycleCard({ cycle: c, footer }: PendingCycleCardProps) {
             />
           )}
         </div>
+        {actions && (
+          <div className="absolute right-3 top-3 z-20 flex items-center gap-1">
+            {actions}
+          </div>
+        )}
         <div className="relative z-10 w-[56%] px-5 pt-5">
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">

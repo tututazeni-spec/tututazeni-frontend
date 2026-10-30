@@ -17,6 +17,7 @@ import {
   Filter,
   Landmark,
   MapPin,
+  MoreHorizontal,
   Plus,
   RefreshCw,
   RotateCcw,
@@ -33,12 +34,19 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button, IconButton } from '@/components/ui/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useUnits } from '@/components/departments/departmentFormData';
 import { PendingCycleCard } from './PendingCycleCard';
+import { EditCycleModal } from './EditCycleModal';
 import { EvaluationCard } from './EvaluationCard';
 import { EvaluationDetailModal } from './EvaluationDetailModal';
 import { SubmitEvaluationModal } from './SubmitEvaluationModal';
@@ -99,6 +107,7 @@ export function EvaluationsTab() {
   const [purpose, setPurpose] = useState(ALL);
   const [page, setPage] = useState(1);
   const [showWizard, setShowWizard] = useState(false);
+  const [editingCycle, setEditingCycle] = useState<Cycle | null>(null);
   const [viewingId, setViewingId] = useState<number | null>(null);
   const [submittingRow, setSubmittingRow] =
     useState<EvaluationRequestRow | null>(null);
@@ -155,6 +164,50 @@ export function EvaluationsTab() {
         }),
     },
   );
+  const archiveCycle = useApiMutation<unknown, number>(
+    (id) =>
+      apiClient.patch(`/evaluations/cycles/${id}`, { status: 'ARCHIVED' }),
+    {
+      invalidateKeys: [queryKeys.evaluation.all],
+      onSuccess: () =>
+        notify({ title: 'Avaliação arquivada', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: e instanceof Error ? e.message : 'Erro',
+          intent: 'danger',
+        }),
+    },
+  );
+  const askArchive = async (cycle: Cycle) => {
+    const ok = await confirm({
+      title: 'Arquivar avaliação',
+      message: `Arquivar "${cycle.name}"? Deixa de aparecer nesta lista.`,
+      confirmLabel: 'Arquivar',
+    });
+    if (ok) archiveCycle.mutate(cycle.id);
+  };
+  const deleteCycle = useApiMutation<unknown, number>(
+    (id) => apiClient.delete(`/evaluations/cycles/${id}`),
+    {
+      invalidateKeys: [queryKeys.evaluation.all],
+      onSuccess: () =>
+        notify({ title: 'Avaliação eliminada', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: e instanceof Error ? e.message : 'Erro',
+          intent: 'danger',
+        }),
+    },
+  );
+  const askDelete = async (cycle: Cycle) => {
+    const ok = await confirm({
+      title: 'Eliminar avaliação',
+      message: `Tens a certeza que queres eliminar "${cycle.name}"?`,
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) deleteCycle.mutate(cycle.id);
+  };
   const activateCycle = useApiMutation<unknown, number>(
     (id) => apiClient.post(`/evaluations/cycles/${id}/activate`, {}),
     {
@@ -346,6 +399,37 @@ export function EvaluationsTab() {
             <PendingCycleCard
               key={c.id}
               cycle={c}
+              actions={
+                canActivate && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        intent="onDarkGhost"
+                        size="icon"
+                        aria-label="Mais opções"
+                        title="Mais opções"
+                      >
+                        <MoreHorizontal size={16} strokeWidth={1.75} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => setEditingCycle(c)}>
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => void askArchive(c)}>
+                        Arquivar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-danger-ink"
+                        onSelect={() => void askDelete(c)}
+                      >
+                        Eliminar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )
+              }
               footer={
                 canActivate &&
                 (c.status === 'DRAFT' ? (
@@ -492,6 +576,12 @@ export function EvaluationsTab() {
         </div>
       )}
 
+      {editingCycle && (
+        <EditCycleModal
+          cycle={editingCycle}
+          onClose={() => setEditingCycle(null)}
+        />
+      )}
       {viewingId != null && (
         <EvaluationDetailModal
           requestId={viewingId}
