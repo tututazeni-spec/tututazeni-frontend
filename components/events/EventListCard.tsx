@@ -24,8 +24,8 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
-import { STATUS_CFG, TYPE_CFG } from './constants';
-import type { Event } from './types';
+import { PARTICIPANT_STATUS, STATUS_CFG, TYPE_CFG } from './constants';
+import type { Event, ParticipantStatus } from './types';
 
 export interface MetricProps {
   icon: LucideIcon;
@@ -106,9 +106,16 @@ export interface EventListCardProps {
   onOpen: () => void;
   /** Itens do menu de acções (DropdownMenuItem); omitido = sem menu. */
   menu?: React.ReactNode;
+  /** Estado do próprio utilizador no evento (colaborador: catálogo e meus eventos). */
+  myStatus?: ParticipantStatus;
 }
 
-export function EventListCard({ event: e, onOpen, menu }: EventListCardProps) {
+export function EventListCard({
+  event: e,
+  onOpen,
+  menu,
+  myStatus,
+}: EventListCardProps) {
   const palette = PALETTE[Math.abs(e.id) % PALETTE.length];
   const typeCfg = TYPE_CFG[e.type] ?? TYPE_CFG.CORPORATE;
   const TypeIcon = typeCfg.icon;
@@ -162,6 +169,14 @@ export function EventListCard({ event: e, onOpen, menu }: EventListCardProps) {
           }}
         />
         <div className="absolute right-4 top-4 flex items-center gap-2">
+          {e.mandatory && (
+            <span className="rounded-full bg-white/90 px-2 py-0.5 text-xs font-semibold text-danger">
+              Obrigatório
+            </span>
+          )}
+          {myStatus && (
+            <StatusBadge value={myStatus} map={PARTICIPANT_STATUS} />
+          )}
           <StatusBadge value={e.status} map={STATUS_CFG} />
           {menu && (
             <DropdownMenu>
