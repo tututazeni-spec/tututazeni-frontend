@@ -65,10 +65,10 @@ export default function CourseLearnPage() {
   };
   const [tutorOpen, setTutorOpen] = useState(false);
 
-  const progressKey = queryKeys.courses.progress(courseId);
-  // GET /courses/:id/progress devolve { enrollment, courseProgress, modules }
-  // (resumo). Esta sala precisa do array por módulo com drip/sequencial,
-  // materiais e pct — isso é o /module-progress (course-modules.controller).
+  // Chave própria: courses.progress guarda o resumo { enrollment,
+  // courseProgress, modules } do detalhe do curso, e esta sala precisa do array
+  // por módulo com drip/sequencial, materiais e pct (/module-progress).
+  const progressKey = queryKeys.courses.moduleProgress(courseId);
   const { data: modules = [], isLoading: loading } = useApiQuery<
     ModuleProgress[]
   >(progressKey, `/courses/${courseId}/module-progress`, {
@@ -176,6 +176,16 @@ export default function CourseLearnPage() {
         `/courses/${courseId}/module-progress`,
       );
       qc.setQueryData(progressKey, updated);
+      // O detalhe do curso e "Meus cursos" mostram a % e o estado: refrescar.
+      void qc.invalidateQueries({
+        queryKey: queryKeys.courses.progress(courseId),
+      });
+      void qc.invalidateQueries({
+        queryKey: queryKeys.courses.detail(courseId),
+      });
+      void qc.invalidateQueries({
+        queryKey: queryKeys.courses.myEnrollments(),
+      });
 
       const updatedModule = updated.find((m) => m.id === activeModule.id);
       if (updatedModule?.completed && !activeModule.completed) {

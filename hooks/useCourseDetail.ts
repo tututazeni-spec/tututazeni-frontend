@@ -46,18 +46,13 @@ export function useCourseDetail(courseId: number) {
   // a de progress(courseId) guarda o formato do resumo.
   const isEnrolledEarly =
     !!progress?.enrollment && progress.enrollment.status !== 'PENDING_APPROVAL';
-  const moduleProgressKey = [
-    ...queryKeys.courses.all,
-    'module-progress',
-    courseId,
-  ];
+  const moduleProgressKey = queryKeys.courses.moduleProgress(courseId);
   const { data: contentModules, isLoading: loadingLessonContent } = useApiQuery<
     ModuleProgress[]
-  >(
-    moduleProgressKey,
-    `/courses/${courseId}/module-progress`,
-    { enabled: isEnrolledEarly, staleTime: STALE_TIME.DYNAMIC },
-  );
+  >(moduleProgressKey, `/courses/${courseId}/module-progress`, {
+    enabled: isEnrolledEarly,
+    staleTime: STALE_TIME.DYNAMIC,
+  });
   const lessonModule = useMemo(
     () =>
       activeLesson
@@ -101,6 +96,7 @@ export function useCourseDetail(courseId: number) {
       invalidateKeys: [
         queryKeys.courses.progress(courseId),
         queryKeys.courses.detail(courseId),
+        queryKeys.courses.myEnrollments(),
         moduleProgressKey,
       ],
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
@@ -129,7 +125,18 @@ export function useCourseDetail(courseId: number) {
   };
 
   const isEnrolled = !!progress?.enrollment;
-  const progressPct = progress?.courseProgress?.pct ?? 0;
+  // Curso concluído = 100%; senão a percentagem da API, ou deduzida das aulas.
+  const lessons = (progress?.modules ?? []).flatMap((m) => m.lessons ?? []);
+  const progressPct =
+    progress?.enrollment?.status === 'COMPLETED'
+      ? 100
+      : (progress?.courseProgress?.pct ??
+        (lessons.length
+          ? Math.round(
+              (lessons.filter((l) => l.completed).length / lessons.length) *
+                100,
+            )
+          : 0));
 
   return {
     course,

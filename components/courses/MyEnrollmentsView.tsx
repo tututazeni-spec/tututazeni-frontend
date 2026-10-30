@@ -34,9 +34,10 @@ function matchesFilter(e: MyEnrollment, filter: FilterId) {
 function getProgress(e: MyEnrollment) {
   // Usa o progresso da API se existir; caso contrário, deduz pelo estado.
   const raw = e.progress;
+  if (e.status === 'COMPLETED') return 100;
   if (typeof raw === 'number')
     return Math.min(100, Math.max(0, Math.round(raw)));
-  return e.status === 'COMPLETED' ? 100 : 0;
+  return 0;
 }
 
 interface MyEnrollmentsViewProps {
