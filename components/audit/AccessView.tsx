@@ -12,6 +12,7 @@ import { PeriodPills } from '@/components/ui/Pills';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
+  Activity,
   AlertTriangle,
   KeyRound,
   LogIn,
@@ -279,6 +280,8 @@ export function AccessView() {
       <div>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Select
+            variant="underline"
+            icon={Activity}
             items={TYPE_ITEMS}
             value={filters.type || 'ALL'}
             onValueChange={(v) => set({ type: v === 'ALL' ? '' : v })}

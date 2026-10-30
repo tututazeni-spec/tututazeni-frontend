@@ -156,6 +156,7 @@ export function RoiAnalysisTab() {
       </div>
 
       <Input
+        variant="underline"
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);

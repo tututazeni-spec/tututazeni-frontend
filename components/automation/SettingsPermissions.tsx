@@ -5,7 +5,7 @@
 
 'use client';
 
-import { Lock } from 'lucide-react';
+import { Activity, Lock } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -114,6 +114,8 @@ export function PermissionsPanel() {
                 ))}
                 <td className="px-4 py-2.5">
                   <Select
+                    variant="underline"
+                    icon={Activity}
                     items={SCOPE_ITEMS}
                     value={r.scope}
                     disabled={r.locked || update.isPending}

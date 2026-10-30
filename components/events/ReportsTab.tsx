@@ -8,12 +8,16 @@
 
 import { useState } from 'react';
 import {
+  Building2,
   CalendarDays,
   CheckCircle2,
   ClipboardList,
   Download,
+  Filter,
+  Landmark,
   LogIn,
   MailCheck,
+  MapPin,
   Megaphone,
   Radio,
   Receipt,
@@ -176,6 +180,8 @@ export function ReportsTab() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-wrap items-end gap-3">
           <Select
+            variant="underline"
+            icon={CalendarDays}
             items={YEAR_ITEMS}
             value={filters.year}
             onValueChange={(v) => setFilters((f) => ({ ...f, year: v }))}
@@ -194,11 +200,15 @@ export function ReportsTab() {
             className="w-56"
           />
           <Select
+            variant="underline"
+            icon={Filter}
             items={TYPE_ITEMS}
             value={filters.type}
             onValueChange={(v) => setFilters((f) => ({ ...f, type: v }))}
           />
           <Select
+            variant="underline"
+            icon={Building2}
             items={[
               { value: 'ALL', label: 'Todos os departamentos' },
               ...departmentOptions,
@@ -209,6 +219,8 @@ export function ReportsTab() {
             }
           />
           <Select
+            variant="underline"
+            icon={Landmark}
             items={[
               { value: 'ALL', label: 'Todas as unidades' },
               ...unitOptions,
@@ -217,6 +229,8 @@ export function ReportsTab() {
             onValueChange={(v) => setFilters((f) => ({ ...f, unitId: v }))}
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={filters.status}
             onValueChange={(v) => setFilters((f) => ({ ...f, status: v }))}

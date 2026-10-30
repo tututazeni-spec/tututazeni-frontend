@@ -32,6 +32,7 @@ import { Checkbox } from '@/components/ui/Checkbox';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDateNumeric, formatDateTimeNumeric } from '@/lib/format';
+import { MapPin } from 'lucide-react';
 
 const DSR_TYPE_LABELS: Record<DsrType, string> = {
   ACCESS: 'Acesso',
@@ -400,6 +401,8 @@ export function TabPrivacidade() {
           Pedidos de direitos dos titulares
           <div className="flex items-center gap-2">
             <Select
+              variant="underline"
+              icon={MapPin}
               className="w-44"
               items={[
                 { value: STATUS_FILTER_ALL, label: 'Todos os estados' },

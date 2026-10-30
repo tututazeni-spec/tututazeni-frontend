@@ -10,10 +10,13 @@
 import { useState } from 'react';
 import {
   AlertTriangle,
+  Building2,
   ChevronLeft,
   ChevronRight,
   Download,
+  Filter,
   Printer,
+  User,
   Users,
 } from 'lucide-react';
 import { Button, IconButton } from '@/components/ui/Button';
@@ -397,6 +400,8 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
         </h3>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
           <Select
+            variant="underline"
+            icon={Building2}
             className="w-full"
             value={filters.departmentId || ALL}
             onValueChange={(v) => set({ departmentId: pick(v) })}
@@ -408,12 +413,16 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
           {isReviewer && (
             <>
               <Select
+                variant="underline"
+                icon={Users}
                 className="w-full"
                 value={filters.managerId || ALL}
                 onValueChange={(v) => set({ managerId: pick(v) })}
                 items={[{ value: ALL, label: 'Todas as equipas' }, ...people]}
               />
               <Select
+                variant="underline"
+                icon={User}
                 className="w-full"
                 value={filters.userId || ALL}
                 onValueChange={(v) => set({ userId: pick(v) })}
@@ -425,6 +434,8 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
             </>
           )}
           <Select
+            variant="underline"
+            icon={Filter}
             className="w-full"
             value={filters.leaveTypeCode || ALL}
             onValueChange={(v) => set({ leaveTypeCode: pick(v) })}

@@ -12,7 +12,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { X } from 'lucide-react';
+import { Building2, Filter, Layers, X } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -257,6 +257,7 @@ export function HistoryFilterBar() {
           </>
         )}
         <Input
+          variant="underline"
           value={f.search}
           placeholder="Pesquisar…"
           onChange={(e) => setFilters({ search: e.target.value })}
@@ -274,6 +275,8 @@ export function HistoryFilterBar() {
           onChange={(p) => setFilters({ actor: p })}
         />
         <Select
+          variant="underline"
+          icon={Layers}
           className="w-44"
           placeholder="Módulo"
           value={f.module || ALL}
@@ -281,6 +284,8 @@ export function HistoryFilterBar() {
           items={toItems(MODULE_LABEL, 'Todos os módulos')}
         />
         <Select
+          variant="underline"
+          icon={Building2}
           className="w-44"
           placeholder="Departamento"
           value={f.departmentId || ALL}
@@ -294,6 +299,8 @@ export function HistoryFilterBar() {
           ]}
         />
         <Select
+          variant="underline"
+          icon={Filter}
           className="w-44"
           placeholder="Tipo de evento"
           value={f.eventType || ALL}

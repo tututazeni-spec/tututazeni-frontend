@@ -2,7 +2,7 @@
 // Catálogo/Gestão de formações: filtros e cartões (apresentação). Dados e
 // acções do ciclo de vida: hooks/useProgramsList.ts.
 
-import { GraduationCap, Plus } from 'lucide-react';
+import { GraduationCap, ListFilter, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
@@ -99,6 +99,8 @@ export function ProgramsListView({
           <div className="min-w-[140px]">
             <FormField label="Estado" htmlFor="ap-status">
               <Select
+                variant="underline"
+                icon={ListFilter}
                 value={status}
                 onValueChange={setStatus}
                 items={[

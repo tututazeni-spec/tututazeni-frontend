@@ -201,6 +201,7 @@ export function DirectoryView({ onSelect }: DirectoryViewProps) {
   return (
     <div>
       <Input
+        variant="underline"
         type="text"
         placeholder="Pesquisar colaborador, cargo, departamento…"
         value={search}

@@ -7,7 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, FormInput } from 'lucide-react';
+import { Building2, Download, Filter, FormInput, Landmark } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -178,6 +178,8 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
             {usesDepartment && (
               <>
                 <Select
+                  variant="underline"
+                  icon={Landmark}
                   className="w-full"
                   value={filters.unitId || ALL}
                   onValueChange={(v) => set({ unitId: pick(v) })}
@@ -187,6 +189,8 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
                   ]}
                 />
                 <Select
+                  variant="underline"
+                  icon={Building2}
                   className="w-full"
                   value={filters.departmentId || ALL}
                   onValueChange={(v) => set({ departmentId: pick(v) })}
@@ -201,6 +205,8 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
               kind === 'LICENSES_BY_TYPE' ||
               kind === 'PAYROLL_IMPACT') && (
               <Select
+                variant="underline"
+                icon={Filter}
                 className="w-full"
                 value={filters.leaveTypeCode || ALL}
                 onValueChange={(v) => set({ leaveTypeCode: pick(v) })}

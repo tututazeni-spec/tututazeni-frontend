@@ -12,6 +12,8 @@ import {
   ArrowRight,
   CalendarClock,
   Clock,
+  Filter,
+  MapPin,
   Pause,
   Pencil,
   Play,
@@ -178,6 +180,7 @@ export function SchedulesTab() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
         <Input
+          variant="underline"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Pesquisar por nome"
@@ -185,6 +188,8 @@ export function SchedulesTab() {
           className="max-w-[260px]"
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           items={[
             { value: ALL, label: 'Todos os estados' },
             ...Object.entries(STATUS_META).map(([value, m]) => ({
@@ -197,6 +202,8 @@ export function SchedulesTab() {
           className="min-w-[170px]"
         />
         <Select
+          variant="underline"
+          icon={Filter}
           items={[{ value: ALL, label: 'Todos os tipos' }, ...TYPE_ITEMS]}
           value={type}
           onValueChange={setType}

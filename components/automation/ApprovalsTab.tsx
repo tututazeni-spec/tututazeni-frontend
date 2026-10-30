@@ -13,6 +13,9 @@ import {
   ClipboardCheck,
   Clock,
   Download,
+  Filter,
+  Flag,
+  MapPin,
   MessageSquare,
   UserRoundCog,
   XCircle,
@@ -187,6 +190,7 @@ export function ApprovalsTab() {
 
       <div className="flex flex-wrap items-center gap-3">
         <Input
+          variant="underline"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Pesquisar por título, descrição ou registo"
@@ -194,6 +198,8 @@ export function ApprovalsTab() {
           className="max-w-[300px]"
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           items={[
             { value: ALL, label: 'Todos os estados' },
             ...Object.entries(STATUS_META).map(([value, m]) => ({
@@ -206,6 +212,8 @@ export function ApprovalsTab() {
           className="min-w-[170px]"
         />
         <Select
+          variant="underline"
+          icon={Filter}
           items={[
             { value: ALL, label: 'Todos os tipos' },
             { value: 'APPROVAL', label: 'Aprovações' },
@@ -216,6 +224,8 @@ export function ApprovalsTab() {
           className="min-w-[160px]"
         />
         <Select
+          variant="underline"
+          icon={Flag}
           items={[
             { value: ALL, label: 'Todas as prioridades' },
             ...Object.entries(PRIORITY_META).map(([value, m]) => ({

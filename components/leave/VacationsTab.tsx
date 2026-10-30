@@ -12,10 +12,12 @@ import {
   Briefcase,
   Building2,
   ChevronRight,
+  Landmark,
+  type LucideIcon,
+  MapPin,
   Plus,
   Settings,
   Users,
-  type LucideIcon,
 } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
@@ -175,6 +177,7 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Input
+            variant="underline"
             placeholder="Procurar nome ou n.º interno"
             value={filters.search}
             onChange={(e) => set({ search: e.target.value })}
@@ -190,18 +193,24 @@ export function VacationsTab({ onSelectUser }: VacationsTabProps = {}) {
             }))}
           />
           <Select
+            variant="underline"
+            icon={Landmark}
             className="w-full"
             value={filters.unitId || ALL}
             onValueChange={(v) => set({ unitId: pick(v) })}
             items={withAll(units.options, 'Todas as unidades')}
           />
           <Select
+            variant="underline"
+            icon={Building2}
             className="w-full"
             value={filters.departmentId || ALL}
             onValueChange={(v) => set({ departmentId: pick(v) })}
             items={withAll(departments.options, 'Todos os departamentos')}
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             className="w-full"
             value={filters.planState || ALL}
             onValueChange={(v) => set({ planState: pick(v) })}

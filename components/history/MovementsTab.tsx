@@ -19,6 +19,7 @@ import {
   type Column,
 } from './shared';
 import type { Movement } from './types';
+import { Filter } from 'lucide-react';
 
 const ALL = 'ALL';
 
@@ -56,6 +57,8 @@ export function MovementsTab() {
   return (
     <div className="space-y-3">
       <Select
+        variant="underline"
+        icon={Filter}
         className="w-64"
         value={type || ALL}
         onValueChange={(v) => setType(v === ALL ? '' : v)}

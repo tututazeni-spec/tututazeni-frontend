@@ -12,7 +12,14 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { ListOrdered, MoreVertical, Plus } from 'lucide-react';
+import {
+  Building2,
+  Landmark,
+  ListOrdered,
+  MapPin,
+  MoreVertical,
+  Plus,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -228,6 +235,8 @@ export function ScheduleTab() {
             className="w-64"
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={status}
             onValueChange={(v) => {
@@ -236,6 +245,8 @@ export function ScheduleTab() {
             }}
           />
           <Select
+            variant="underline"
+            icon={Building2}
             items={[
               { value: 'ALL', label: 'Todos os departamentos' },
               ...departmentOptions,
@@ -247,6 +258,8 @@ export function ScheduleTab() {
             }}
           />
           <Select
+            variant="underline"
+            icon={Landmark}
             items={[
               { value: 'ALL', label: 'Todas as unidades' },
               ...unitOptions,

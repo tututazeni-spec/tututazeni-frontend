@@ -9,9 +9,12 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
+  CircleCheck,
   Download,
   FileSpreadsheet,
   FileText,
+  Flag,
+  ListFilter,
   Play,
   SlidersHorizontal,
 } from 'lucide-react';
@@ -263,6 +266,8 @@ export function ReportsView() {
             <div className="grid gap-3 md:grid-cols-3">
               <FormField label="Relatório" htmlFor="rep-type">
                 <Select
+                  variant="underline"
+                  icon={ListFilter}
                   items={(catalog ?? []).map((c) => ({
                     value: c.type,
                     label: c.title,
@@ -303,6 +308,8 @@ export function ReportsView() {
             <div className="grid gap-3 md:grid-cols-3">
               <FormField label="Gravidade" htmlFor="rep-sev">
                 <Select
+                  variant="underline"
+                  icon={Flag}
                   items={SEVERITY_ITEMS}
                   value={form.severity}
                   onValueChange={(v) => set({ severity: v })}
@@ -310,6 +317,8 @@ export function ReportsView() {
               </FormField>
               <FormField label="Resultado" htmlFor="rep-res">
                 <Select
+                  variant="underline"
+                  icon={CircleCheck}
                   items={RESULT_ITEMS}
                   value={form.result}
                   onValueChange={(v) => set({ result: v })}

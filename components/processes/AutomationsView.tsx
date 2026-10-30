@@ -11,6 +11,7 @@ import {
   Activity,
   AlertTriangle,
   Copy,
+  ListFilter,
   Pencil,
   Plus,
   Power,
@@ -142,6 +143,7 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Input
+          variant="underline"
           type="text"
           placeholder="Pesquisar por nome, código ou descrição…"
           value={search}
@@ -149,6 +151,8 @@ export function AutomationsView({ canManage }: AutomationsViewProps) {
           className="min-w-[160px] flex-1"
         />
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={[
             { value: 'ALL', label: 'Todas' },
             { value: 'active', label: 'Activas' },

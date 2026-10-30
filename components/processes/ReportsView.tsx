@@ -9,19 +9,23 @@
 import { useMemo, useState } from 'react';
 import {
   AlarmClock,
+  Building2,
   CalendarCheck,
   CheckCircle2,
   ClipboardList,
   Download,
   FileStack,
+  Filter,
+  Layers,
+  LayoutTemplate,
   ListTodo,
+  type LucideIcon,
   RotateCcw,
   Stamp,
   Timer,
   Undo2,
   XCircle,
   Zap,
-  type LucideIcon,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { downloadFromApi } from '@/lib/download';
@@ -289,6 +293,8 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
           />
         </label>
         <Select
+          variant="underline"
+          icon={Building2}
           items={[
             { value: ALL, label: 'Todos os departamentos' },
             ...(options?.departments ?? []).map((d) => ({
@@ -301,6 +307,8 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
           className="w-52"
         />
         <Select
+          variant="underline"
+          icon={LayoutTemplate}
           items={[
             { value: ALL, label: 'Todos os modelos' },
             ...(options?.templates ?? []).map((t) => ({
@@ -313,6 +321,8 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
           className="w-52"
         />
         <Select
+          variant="underline"
+          icon={Filter}
           items={[
             { value: ALL, label: 'Todos os tipos' },
             ...(options?.categories ?? []).map((c) => ({ value: c, label: c })),
@@ -322,6 +332,8 @@ export function ReportsView({ canExport, onOpenInstance }: ReportsViewProps) {
           className="w-44"
         />
         <Select
+          variant="underline"
+          icon={Layers}
           items={[
             { value: ALL, label: 'Todos os módulos' },
             ...(options?.sourceModules ?? []).map((m) => ({

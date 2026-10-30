@@ -16,10 +16,14 @@
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
+  Building2,
   CalendarCheck,
+  Compass,
   Download,
+  Landmark,
   LogIn,
   LogOut,
+  MapPin,
   MoreVertical,
   QrCode,
 } from 'lucide-react';
@@ -175,22 +179,29 @@ export function CheckinAttendanceTab() {
             className="min-w-[160px] flex-1"
           />
           <Input
+            variant="underline"
             placeholder="Pesquisar por nome…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-52"
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={filters.status}
             onValueChange={(v) => updateFilters({ status: v })}
           />
           <Select
+            variant="underline"
+            icon={Compass}
             items={METHOD_ITEMS}
             value={filters.method}
             onValueChange={(v) => updateFilters({ method: v })}
           />
           <Select
+            variant="underline"
+            icon={Building2}
             items={[
               { value: 'ALL', label: 'Todos os departamentos' },
               ...departmentOptions,
@@ -199,6 +210,8 @@ export function CheckinAttendanceTab() {
             onValueChange={(v) => updateFilters({ departmentId: v })}
           />
           <Select
+            variant="underline"
+            icon={Landmark}
             items={[
               { value: 'ALL', label: 'Todas as unidades' },
               ...unitOptions,

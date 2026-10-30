@@ -9,6 +9,7 @@ import type { LoginHistoryController } from '@/hooks/useLoginHistory';
 import { fmtDate, loginActionIntent, type LoginOutcome } from './logic';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ListFilter } from 'lucide-react';
 
 interface LoginHistoryCardViewProps {
   title: string;
@@ -29,6 +30,8 @@ export function LoginHistoryCardView({
         {title}
         {showOutcomeFilter && (
           <Select
+            variant="underline"
+            icon={ListFilter}
             className="w-44"
             items={[
               { value: 'ALL', label: 'Todos' },

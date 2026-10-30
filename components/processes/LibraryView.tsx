@@ -7,7 +7,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FileStack } from 'lucide-react';
+import { FileStack, Flag, MapPin } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -74,6 +74,7 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
       {/* Filtros */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Input
+          variant="underline"
           type="text"
           placeholder="Pesquisar por nome, código, tag…"
           value={search}
@@ -84,6 +85,8 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
           className="min-w-[160px] flex-1"
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={status || 'ALL'}
           onValueChange={(v) => {
@@ -93,6 +96,8 @@ export function LibraryView({ onSelect }: LibraryViewProps) {
           className="w-44"
         />
         <Select
+          variant="underline"
+          icon={Flag}
           items={RISK_ITEMS}
           value={risk || 'ALL'}
           onValueChange={(v) => {

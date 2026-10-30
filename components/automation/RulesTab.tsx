@@ -6,22 +6,24 @@ import { useDeferredValue, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import {
   AlertTriangle,
+  ArrowRight,
+  Clock,
   Copy,
   Download,
   Eye,
-  Layers,
-  MoreVertical,
   History,
+  Layers,
+  LayoutGrid,
+  MapPin,
+  MoreVertical,
   Pause,
+  Pencil,
   Play,
   PlayCircle,
-  Pencil,
   Plus,
-  Rocket,
   RefreshCw,
+  Rocket,
   Trash2,
-  ArrowRight,
-  Clock,
   User,
   Zap,
 } from 'lucide-react';
@@ -376,6 +378,7 @@ export function RulesTab({
       <div className="space-y-2 rounded-card border border-border bg-surface p-3">
         <div className="flex flex-wrap items-center gap-2">
           <Input
+            variant="underline"
             type="search"
             placeholder="Pesquisar por nome ou código…"
             aria-label="Pesquisar por nome ou código"
@@ -384,18 +387,24 @@ export function RulesTab({
             className="min-w-[160px] flex-1"
           />
           <Select
+            variant="underline"
+            icon={Layers}
             items={moduleItems}
             value={module}
             onValueChange={setModule}
             className="min-w-[160px]"
           />
           <Select
+            variant="underline"
+            icon={LayoutGrid}
             items={CATEGORY_ITEMS}
             value={category}
             onValueChange={setCategory}
             className="min-w-[160px]"
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={status}
             onValueChange={setStatus}

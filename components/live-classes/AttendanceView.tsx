@@ -10,7 +10,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2, Clock, LogIn, LogOut } from 'lucide-react';
+import { CheckCircle2, Clock, LogIn, LogOut, MapPin } from 'lucide-react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -175,6 +175,8 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
           className="w-56"
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={status}
           onValueChange={(v) => {

@@ -153,6 +153,7 @@ export default function WorkDeclarationsPage() {
               className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint"
             />
             <Input
+              variant="underline"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Pesquisar por colaborador, título ou código..."

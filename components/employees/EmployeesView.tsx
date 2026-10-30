@@ -220,6 +220,7 @@ export function EmployeesView() {
               className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
             />
             <Input
+              variant="underline"
               value={filters.search}
               onChange={(e) => updateFilters({ search: e.target.value })}
               placeholder="Buscar por nome, e-mail, matrícula, cargo..."

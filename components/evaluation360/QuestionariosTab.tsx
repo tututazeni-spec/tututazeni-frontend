@@ -7,7 +7,7 @@
 
 import { FilterPanelCard } from './FilterPanelCard';
 import { useState } from 'react';
-import { FileText } from 'lucide-react';
+import { FileText, MapPin } from 'lucide-react';
 import type { QuestionnaireListItem, QuestionnaireStatus } from './types';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -97,6 +97,8 @@ export function QuestionariosTab() {
             Estado
           </div>
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_OPTIONS}
             value={status}
             onValueChange={setStatus}

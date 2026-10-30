@@ -21,6 +21,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { MODALITY_CFG, TYPE_CFG } from './constants';
 import { EventCard } from './EventCard';
 import type { Event } from './types';
+import { Filter } from 'lucide-react';
 
 interface CatalogViewProps {
   onSelect: (id: number) => void;
@@ -57,6 +58,8 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
       {/* Filtros */}
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <Select
+          variant="underline"
+          icon={Filter}
           items={TYPE_ITEMS}
           value={typeFilter || 'ALL'}
           onValueChange={(v) => setTypeFilter(v === 'ALL' ? '' : v)}

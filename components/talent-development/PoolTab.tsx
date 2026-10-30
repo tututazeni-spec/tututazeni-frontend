@@ -118,6 +118,7 @@ export function PoolTab() {
           <div className="flex items-center gap-3 border-b border-border p-4">
             <div className="relative flex-1">
               <Input
+                variant="underline"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Pesquisar colaborador..."

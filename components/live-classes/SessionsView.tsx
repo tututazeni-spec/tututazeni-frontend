@@ -189,6 +189,8 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={status}
           onValueChange={(v) => {

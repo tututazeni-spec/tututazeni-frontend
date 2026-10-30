@@ -74,6 +74,7 @@ export function RolesTab() {
               className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-faint"
             />
             <Input
+              variant="underline"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Pesquisar funções..."

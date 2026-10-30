@@ -109,6 +109,7 @@ export function UserListView({ onSelect }: UserListViewProps) {
       {/* Filtros */}
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <Input
+          variant="underline"
           type="text"
           placeholder="Pesquisar por nome, email, nº funcionário…"
           value={filters.search}

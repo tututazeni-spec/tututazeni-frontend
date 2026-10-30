@@ -6,7 +6,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, List, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -105,6 +105,8 @@ export function CalendarView() {
           </Button>
         </div>
         <Select
+          variant="underline"
+          icon={List}
           items={MODALITY_ITEMS}
           value={modality}
           onValueChange={setModality}

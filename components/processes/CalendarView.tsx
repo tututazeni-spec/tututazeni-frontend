@@ -10,9 +10,14 @@ import { useMemo, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
   AlertTriangle,
+  Building2,
   ChevronLeft,
   ChevronRight,
+  Clock,
   Download,
+  Landmark,
+  ListFilter,
+  MapPin,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -373,6 +378,7 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
       {/* Filtros */}
       <div className="flex flex-wrap items-center gap-3">
         <Input
+          variant="underline"
           type="text"
           placeholder="Pesquisar tarefa, processo ou código…"
           value={search}
@@ -381,6 +387,8 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
         />
         {canManage && (
           <Select
+            variant="underline"
+            icon={Clock}
             items={[
               { value: 'all', label: 'Todos os prazos' },
               { value: 'mine', label: 'Os meus prazos' },
@@ -391,18 +399,24 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
           />
         )}
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={KIND_ITEMS}
           value={kind}
           onValueChange={setKind}
           className="w-48"
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={status}
           onValueChange={setStatus}
           className="w-44"
         />
         <Select
+          variant="underline"
+          icon={Landmark}
           items={[
             { value: ALL, label: 'Todas as unidades' },
             ...(options?.units ?? []).map((u) => ({
@@ -415,6 +429,8 @@ export function CalendarView({ canManage, onOpenInstance }: CalendarViewProps) {
           className="w-44"
         />
         <Select
+          variant="underline"
+          icon={Building2}
           items={[
             { value: ALL, label: 'Todos os departamentos' },
             ...(options?.departments ?? []).map((d) => ({

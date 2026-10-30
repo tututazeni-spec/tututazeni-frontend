@@ -9,7 +9,14 @@
 import { PeriodPills } from '@/components/ui/Pills';
 import { Fragment, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { ChevronDown, ChevronRight, FilePenLine, Users } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronRight,
+  Database,
+  FilePenLine,
+  ListFilter,
+  Users,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -223,12 +230,16 @@ export function ChangesView() {
       <div>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Select
+            variant="underline"
+            icon={Database}
             items={entityItems}
             value={filters.entity || 'ALL'}
             onValueChange={(v) => set({ entity: v === 'ALL' ? '' : v })}
             className="w-52"
           />
           <Select
+            variant="underline"
+            icon={ListFilter}
             items={actionItems}
             value={filters.action || 'ALL'}
             onValueChange={(v) => set({ action: v === 'ALL' ? '' : v })}

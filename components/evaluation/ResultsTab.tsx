@@ -12,7 +12,7 @@
 
 'use client';
 
-import { Flame, Target } from 'lucide-react';
+import { CalendarDays, Flame, Target } from 'lucide-react';
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
@@ -144,6 +144,8 @@ export function ResultsTab() {
                 Mês
               </label>
               <Select
+                variant="underline"
+                icon={CalendarDays}
                 items={MONTH_ITEMS}
                 value={month}
                 onValueChange={setMonth}
@@ -155,6 +157,8 @@ export function ResultsTab() {
                 Ano
               </label>
               <Select
+                variant="underline"
+                icon={CalendarDays}
                 items={YEAR_ITEMS}
                 value={year}
                 onValueChange={setYear}

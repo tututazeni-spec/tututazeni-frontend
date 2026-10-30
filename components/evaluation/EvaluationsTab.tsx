@@ -11,9 +11,14 @@ import dynamic from 'next/dynamic';
 import {
   AlarmClock,
   Bell,
+  Building2,
   CheckCircle2,
   Eye,
+  Filter,
+  Landmark,
+  MapPin,
   Plus,
+  RefreshCw,
   RotateCcw,
   Sparkles,
 } from 'lucide-react';
@@ -221,6 +226,8 @@ export function EvaluationsTab() {
 
       <div className="flex flex-wrap gap-2">
         <Select
+          variant="underline"
+          icon={RefreshCw}
           items={[
             { value: ALL, label: 'Todos os ciclos' },
             ...(cyclesData?.data ?? []).map((c) => ({
@@ -235,6 +242,8 @@ export function EvaluationsTab() {
           }}
         />
         <Select
+          variant="underline"
+          icon={Building2}
           items={[
             { value: ALL, label: 'Todos os departamentos' },
             ...departments.map((d) => ({ value: String(d.id), label: d.name })),
@@ -246,6 +255,8 @@ export function EvaluationsTab() {
           }}
         />
         <Select
+          variant="underline"
+          icon={Landmark}
           items={[
             { value: ALL, label: 'Todas as unidades' },
             ...units.map((u) => ({ value: String(u.id), label: u.name })),
@@ -257,6 +268,8 @@ export function EvaluationsTab() {
           }}
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={status}
           onValueChange={(v) => {
@@ -265,6 +278,8 @@ export function EvaluationsTab() {
           }}
         />
         <Select
+          variant="underline"
+          icon={Filter}
           items={PURPOSE_ITEMS}
           value={purpose}
           onValueChange={(v) => {

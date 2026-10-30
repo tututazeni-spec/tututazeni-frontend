@@ -35,6 +35,14 @@ import {
 } from './planData';
 import type { OnboardingPlanListItem } from './types';
 import { Input } from '@/components/ui/Input';
+import {
+  Briefcase,
+  Building2,
+  ClipboardList,
+  Landmark,
+  ListFilter,
+  MapPin,
+} from 'lucide-react';
 
 interface Paginated {
   data: OnboardingPlanListItem[];
@@ -124,11 +132,15 @@ export function OnboardingsTab({
     <div>
       <div className="mb-5 flex flex-wrap items-end gap-3">
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={filters.status}
           onValueChange={(v) => updateFilters({ status: v })}
         />
         <Select
+          variant="underline"
+          icon={ClipboardList}
           items={[
             { value: 'ALL', label: 'Todos os planos' },
             ...templateOptions,
@@ -137,6 +149,8 @@ export function OnboardingsTab({
           onValueChange={(v) => updateFilters({ templateId: v })}
         />
         <Select
+          variant="underline"
+          icon={Building2}
           items={[
             { value: 'ALL', label: 'Todos os departamentos' },
             ...departmentOptions,
@@ -145,11 +159,15 @@ export function OnboardingsTab({
           onValueChange={(v) => updateFilters({ departmentId: v })}
         />
         <Select
+          variant="underline"
+          icon={Landmark}
           items={[{ value: 'ALL', label: 'Todas as unidades' }, ...unitOptions]}
           value={filters.unitId}
           onValueChange={(v) => updateFilters({ unitId: v })}
         />
         <Select
+          variant="underline"
+          icon={Briefcase}
           items={[
             { value: 'ALL', label: 'Todos os cargos' },
             ...positionOptions,
@@ -158,6 +176,8 @@ export function OnboardingsTab({
           onValueChange={(v) => updateFilters({ positionId: v })}
         />
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={PROGRESS_ITEMS}
           value={filters.progress}
           onValueChange={(v) => updateFilters({ progress: v })}

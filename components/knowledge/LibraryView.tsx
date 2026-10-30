@@ -66,6 +66,7 @@ export function LibraryView({ onSelectArticle }: LibraryViewProps) {
             className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
           />
           <Input
+            variant="underline"
             type="text"
             placeholder="Pesquisar…"
             value={search}

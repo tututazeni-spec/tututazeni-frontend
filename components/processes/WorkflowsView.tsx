@@ -55,6 +55,7 @@ export function WorkflowsView({ canEdit }: WorkflowsViewProps) {
     <div>
       <div className="mb-4 flex items-center gap-3">
         <Input
+          variant="underline"
           type="text"
           placeholder="Pesquisar modelo para abrir o fluxo…"
           value={search}

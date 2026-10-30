@@ -8,7 +8,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Layers, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -82,6 +82,8 @@ export function LevelsView({ canManage }: LevelsViewProps) {
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <Select
+          variant="underline"
+          icon={Layers}
           items={[
             { value: 'ALL', label: 'Todas as competências' },
             ...competencyOptions,

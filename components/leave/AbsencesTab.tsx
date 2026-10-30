@@ -7,7 +7,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, FileLock2, Paperclip, Plus, RefreshCw } from 'lucide-react';
+import {
+  Building2,
+  Compass,
+  Download,
+  FileLock2,
+  Filter,
+  MapPin,
+  Paperclip,
+  Plus,
+  RefreshCw,
+} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -177,12 +187,15 @@ export function AbsencesTab() {
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           <Input
+            variant="underline"
             placeholder="Procurar nome ou n.º interno"
             value={filters.search}
             onChange={(e) => set({ search: e.target.value })}
             className="w-full col-span-2"
           />
           <Select
+            variant="underline"
+            icon={Filter}
             className="w-full"
             value={filters.occurrenceType || ALL}
             onValueChange={(v) => set({ occurrenceType: pick(v) })}
@@ -195,6 +208,8 @@ export function AbsencesTab() {
             ]}
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             className="w-full"
             value={filters.justificationStatus || ALL}
             onValueChange={(v) => set({ justificationStatus: pick(v) })}
@@ -207,6 +222,8 @@ export function AbsencesTab() {
             ]}
           />
           <Select
+            variant="underline"
+            icon={Compass}
             className="w-full"
             value={filters.source || ALL}
             onValueChange={(v) => set({ source: pick(v) })}
@@ -221,6 +238,8 @@ export function AbsencesTab() {
             ]}
           />
           <Select
+            variant="underline"
+            icon={Building2}
             className="w-full"
             value={filters.departmentId || ALL}
             onValueChange={(v) => set({ departmentId: pick(v) })}

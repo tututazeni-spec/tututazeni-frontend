@@ -8,8 +8,10 @@ import { useState } from 'react';
 import {
   AlertCircle,
   CheckCircle2,
+  Database,
   Download,
   KeyRound,
+  ListFilter,
   Plus,
   RotateCcw,
   Trash2,
@@ -154,6 +156,8 @@ export function DeadLettersPanel() {
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={[
             { value: '', label: 'Todas' },
             ...Object.entries(DL_STATUS).map(([value, m]) => ({
@@ -738,6 +742,8 @@ function AuditSection() {
           </p>
         </div>
         <Select
+          variant="underline"
+          icon={Database}
           items={AUDIT_ENTITY}
           value={entity}
           onValueChange={setEntity}

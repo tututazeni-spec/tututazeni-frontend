@@ -27,6 +27,7 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import type { DepartmentNode, PaginatedHierarchy } from './types';
+import { Building2 } from 'lucide-react';
 
 function flattenTree(
   nodes: DepartmentNode[],
@@ -76,6 +77,7 @@ export function HierarchyView() {
       {/* Filtros */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Input
+          variant="underline"
           type="text"
           placeholder="Pesquisar por nome ou e-mail…"
           value={search}
@@ -86,6 +88,8 @@ export function HierarchyView() {
           className="min-w-[160px] flex-1"
         />
         <Select
+          variant="underline"
+          icon={Building2}
           items={deptItems}
           value={departmentId || 'ALL'}
           onValueChange={(v) => {

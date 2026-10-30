@@ -14,12 +14,13 @@ import {
   CreditCard,
   FileText,
   Landmark,
+  type LucideIcon,
+  MapPin,
   ShieldCheck,
   TrendingDown,
   Users,
   Wallet,
   XCircle,
-  type LucideIcon,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -210,12 +211,16 @@ export function ReportsView() {
           className="w-28"
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           items={STATUS_ITEMS}
           value={status}
           onValueChange={setStatus}
           className="w-44"
         />
         <Select
+          variant="underline"
+          icon={Building2}
           items={[
             { value: 'all', label: 'Todos os departamentos' },
             ...depOptions.map((d) => ({

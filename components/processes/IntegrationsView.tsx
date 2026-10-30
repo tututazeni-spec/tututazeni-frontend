@@ -9,7 +9,14 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { AlertTriangle, Boxes, Inbox, Plug, PlugZap } from 'lucide-react';
+import {
+  AlertTriangle,
+  Boxes,
+  Inbox,
+  MapPin,
+  Plug,
+  PlugZap,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -214,12 +221,15 @@ export function IntegrationsView({
 
           <div className="flex flex-wrap items-end gap-3">
             <Input
+              variant="underline"
               placeholder="Procurar módulo…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="min-w-[160px] flex-1"
             />
             <Select
+              variant="underline"
+              icon={MapPin}
               items={[
                 { value: ALL, label: 'Todos os estados' },
                 { value: 'ACTIVE', label: 'Activas' },

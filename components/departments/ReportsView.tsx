@@ -9,7 +9,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Briefcase, Clock, LogIn, LogOut, Users } from 'lucide-react';
+import {
+  Briefcase,
+  Building2,
+  Clock,
+  Landmark,
+  LogIn,
+  LogOut,
+  MapPin,
+  Users,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -147,18 +156,24 @@ export function ReportsView() {
       {/* Filtros */}
       <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
         <Select
+          variant="underline"
+          icon={Building2}
           items={deptItems}
           value={departmentId || 'ALL'}
           onValueChange={(v) => setDepartmentId(v === 'ALL' ? '' : v)}
           className="w-full"
         />
         <Select
+          variant="underline"
+          icon={Landmark}
           items={unitItems}
           value={unitId || 'ALL'}
           onValueChange={(v) => setUnitId(v === 'ALL' ? '' : v)}
           className="w-full"
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           items={ACTIVE_ITEMS}
           value={active || 'ALL'}
           onValueChange={(v) => setActive(v === 'ALL' ? '' : v)}

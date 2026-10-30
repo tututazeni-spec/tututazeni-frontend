@@ -24,6 +24,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Textarea } from '@/components/ui/Textarea';
 import { CHECKIN_STATUS_CFG, CHECKIN_TYPE_LABELS } from './constants';
 import type { OnboardingCheckin } from './types';
+import { MapPin } from 'lucide-react';
 
 interface Paginated {
   data: OnboardingCheckin[];
@@ -169,7 +170,13 @@ export function CheckinsTab() {
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Select items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
+        <Select
+          variant="underline"
+          icon={MapPin}
+          items={STATUS_ITEMS}
+          value={status}
+          onValueChange={setStatus}
+        />
         <button
           type="button"
           onClick={() => setOverdue((v) => !v)}

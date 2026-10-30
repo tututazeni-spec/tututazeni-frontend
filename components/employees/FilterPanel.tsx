@@ -8,7 +8,7 @@
 // Item value=""); botão fechar passa a IconButton; botão "Limpar
 // filtros" passa a Button.
 
-import { X } from 'lucide-react';
+import { ListFilter, X } from 'lucide-react';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -83,6 +83,8 @@ export function FilterPanel({ filters, onChange, onClose }: FilterPanelProps) {
 
         <FormField label="Estado" htmlFor="filter-status">
           <Select
+            variant="underline"
+            icon={ListFilter}
             items={STATUS_ITEMS}
             value={filters.status || 'ALL'}
             onValueChange={(v) => onChange({ status: v === 'ALL' ? '' : v })}
@@ -92,6 +94,8 @@ export function FilterPanel({ filters, onChange, onClose }: FilterPanelProps) {
 
         <FormField label="Senioridade" htmlFor="filter-seniority">
           <Select
+            variant="underline"
+            icon={ListFilter}
             items={seniorityItems}
             value={filters.seniority || 'ALL'}
             onValueChange={(v) => onChange({ seniority: v === 'ALL' ? '' : v })}
@@ -101,6 +105,8 @@ export function FilterPanel({ filters, onChange, onClose }: FilterPanelProps) {
 
         <FormField label="Modalidade" htmlFor="filter-workmode">
           <Select
+            variant="underline"
+            icon={ListFilter}
             items={workModeItems}
             value={filters.workMode || 'ALL'}
             onValueChange={(v) => onChange({ workMode: v === 'ALL' ? '' : v })}
@@ -110,6 +116,8 @@ export function FilterPanel({ filters, onChange, onClose }: FilterPanelProps) {
 
         <FormField label="Contrato" htmlFor="filter-contract">
           <Select
+            variant="underline"
+            icon={ListFilter}
             items={contractItems}
             value={filters.contractType || 'ALL'}
             onValueChange={(v) =>

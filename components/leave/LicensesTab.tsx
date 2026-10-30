@@ -9,9 +9,12 @@
 
 import { useState } from 'react';
 import {
+  Building2,
   CalendarDays,
   Clock,
   FileLock2,
+  Filter,
+  MapPin,
   Paperclip,
   Plus,
   UserCheck,
@@ -123,12 +126,15 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           <Input
+            variant="underline"
             placeholder="Procurar nome ou n.º interno"
             value={filters.search}
             onChange={(e) => set({ search: e.target.value })}
             className="w-full col-span-2 md:col-span-2"
           />
           <Select
+            variant="underline"
+            icon={Filter}
             className="w-full"
             value={filters.leaveTypeCode || ALL}
             onValueChange={(v) => set({ leaveTypeCode: pick(v) })}
@@ -138,6 +144,8 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
             ]}
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             className="w-full"
             value={filters.phase || ALL}
             onValueChange={(v) => set({ phase: pick(v) })}
@@ -150,6 +158,8 @@ export function LicensesTab({ leaveTypes, onCancel }: LicensesTabProps) {
             ]}
           />
           <Select
+            variant="underline"
+            icon={Building2}
             className="w-full"
             value={filters.departmentId || ALL}
             onValueChange={(v) => set({ departmentId: pick(v) })}

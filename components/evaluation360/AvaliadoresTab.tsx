@@ -18,6 +18,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Select, type SelectItemOption } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Filter, MapPin } from 'lucide-react';
 
 const ALL = 'ALL';
 
@@ -94,6 +95,8 @@ export function AvaliadoresTab() {
             Estado
           </div>
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_OPTIONS}
             value={status}
             onValueChange={setStatus}
@@ -103,7 +106,13 @@ export function AvaliadoresTab() {
           <div className="text-xs font-semibold text-ink-muted mb-1">
             Tipo de avaliador
           </div>
-          <Select items={ROLE_OPTIONS} value={role} onValueChange={setRole} />
+          <Select
+            variant="underline"
+            icon={Filter}
+            items={ROLE_OPTIONS}
+            value={role}
+            onValueChange={setRole}
+          />
         </div>
       </FilterPanelCard>
 

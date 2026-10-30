@@ -31,6 +31,7 @@ import {
   describeAuditMeta,
 } from './auditLogLabels';
 import type { ModuleAuditLogsResponse } from './types';
+import { Activity } from 'lucide-react';
 
 const ACTION_ITEMS = [
   { value: 'ALL', label: 'Todas as ações' },
@@ -68,6 +69,8 @@ export function AuditHistoryView() {
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Select
+          variant="underline"
+          icon={Activity}
           items={ACTION_ITEMS}
           value={action || 'ALL'}
           onValueChange={(v) => {

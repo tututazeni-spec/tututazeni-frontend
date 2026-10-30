@@ -10,6 +10,7 @@ import { ListSkeleton, ErrorBanner } from '@/components/crm/shared';
 import { STATUS_COLORS, TIER_COLORS, TYPE_LABELS } from './types';
 import type { Partner } from './types';
 import { formatMoney } from '@/lib/format';
+import { ListFilter, MapPin } from 'lucide-react';
 
 interface PartnersListViewProps {
   data: Partner[];
@@ -52,6 +53,7 @@ export function PartnersListView({
       {/* Filtros */}
       <div className="flex gap-4 flex-wrap">
         <Input
+          variant="underline"
           type="text"
           placeholder="Pesquisar por nome, código, NIF..."
           value={search}
@@ -59,6 +61,8 @@ export function PartnersListView({
           className="min-w-[160px] flex-1"
         />
         <Select
+          variant="underline"
+          icon={ListFilter}
           value={tierFilter}
           onValueChange={onTierFilterChange}
           items={[
@@ -70,6 +74,8 @@ export function PartnersListView({
           ]}
         />
         <Select
+          variant="underline"
+          icon={MapPin}
           value={statusFilter}
           onValueChange={onStatusFilterChange}
           items={[

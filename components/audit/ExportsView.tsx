@@ -12,9 +12,12 @@ import {
   AlertCircle,
   Archive,
   Download,
-  Files,
   FileCheck2,
+  Files,
+  FileText,
   HardDrive,
+  ListFilter,
+  MapPin,
   Paperclip,
   ShieldCheck,
   Trash2,
@@ -534,24 +537,32 @@ export function ExportsView() {
       <div>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Select
+            variant="underline"
+            icon={ListFilter}
             items={KIND_ITEMS}
             value={filters.kind || 'ALL'}
             onValueChange={pick('kind')}
             className="w-56"
           />
           <Select
+            variant="underline"
+            icon={FileText}
             items={FORMAT_ITEMS}
             value={filters.format || 'ALL'}
             onValueChange={pick('format')}
             className="w-44"
           />
           <Select
+            variant="underline"
+            icon={ListFilter}
             items={CONF_FILTER}
             value={filters.confidentiality || 'ALL'}
             onValueChange={pick('confidentiality')}
             className="w-52"
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={filters.status || 'ALL'}
             onValueChange={pick('status')}

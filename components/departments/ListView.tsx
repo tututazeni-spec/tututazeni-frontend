@@ -72,6 +72,7 @@ export function ListView({ onSelect }: ListViewProps) {
       {/* Filtros */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Input
+          variant="underline"
           type="text"
           placeholder="Pesquisar por nome, código ou gestor…"
           value={search}

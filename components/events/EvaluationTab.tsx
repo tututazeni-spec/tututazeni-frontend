@@ -15,7 +15,13 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Download, MessageSquareText, Star } from 'lucide-react';
+import {
+  Building2,
+  Download,
+  Landmark,
+  MessageSquareText,
+  Star,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -154,12 +160,15 @@ export function EvaluationTab() {
             className="min-w-[160px] flex-1"
           />
           <Input
+            variant="underline"
             placeholder="Pesquisar por nome…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-52"
           />
           <Select
+            variant="underline"
+            icon={Building2}
             items={[
               { value: 'ALL', label: 'Todos os departamentos' },
               ...departmentOptions,
@@ -168,6 +177,8 @@ export function EvaluationTab() {
             onValueChange={(v) => updateFilters({ departmentId: v })}
           />
           <Select
+            variant="underline"
+            icon={Landmark}
             items={[
               { value: 'ALL', label: 'Todas as unidades' },
               ...unitOptions,

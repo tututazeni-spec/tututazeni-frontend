@@ -9,7 +9,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { History as HistoryIcon } from 'lucide-react';
+import { Building2, History as HistoryIcon } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -88,6 +88,8 @@ export function HistoryView() {
       {/* Filtros */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <Select
+          variant="underline"
+          icon={Building2}
           items={deptItems}
           value={departmentId || 'ALL'}
           onValueChange={(v) => {

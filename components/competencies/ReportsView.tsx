@@ -14,9 +14,15 @@ import {
   AlertTriangle,
   ArrowUpRight,
   BarChart3,
+  Briefcase,
+  Building2,
   CalendarCheck,
   Download,
+  Landmark,
   Layers,
+  LayoutGrid,
+  ListFilter,
+  MapPin,
   Target,
   TrendingDown,
   TrendingUp,
@@ -209,11 +215,15 @@ export function ReportsView() {
             className="w-40"
           />
           <Select
+            variant="underline"
+            icon={Landmark}
             items={[{ value: ALL, label: 'Todas as unidades' }, ...unitOptions]}
             value={unitId}
             onValueChange={setUnitId}
           />
           <Select
+            variant="underline"
+            icon={Building2}
             items={[
               { value: ALL, label: 'Todos os departamentos' },
               ...departmentOptions,
@@ -225,6 +235,8 @@ export function ReportsView() {
             }}
           />
           <Select
+            variant="underline"
+            icon={Building2}
             items={[
               { value: ALL, label: 'Todos os subdepartamentos' },
               ...subDepartmentOptions,
@@ -233,6 +245,8 @@ export function ReportsView() {
             onValueChange={setSubDepartmentId}
           />
           <Select
+            variant="underline"
+            icon={Briefcase}
             items={[
               { value: ALL, label: 'Todos os cargos' },
               ...positionOptions,
@@ -241,6 +255,8 @@ export function ReportsView() {
             onValueChange={setPositionId}
           />
           <Select
+            variant="underline"
+            icon={Layers}
             items={[
               { value: ALL, label: 'Todas as competências' },
               ...competencyOptions,
@@ -249,6 +265,8 @@ export function ReportsView() {
             onValueChange={setCompetencyId}
           />
           <Select
+            variant="underline"
+            icon={LayoutGrid}
             items={[
               { value: ALL, label: 'Todas as categorias' },
               ...Object.entries(CATEGORY_CFG).map(([value, cfg]) => ({
@@ -260,6 +278,8 @@ export function ReportsView() {
             onValueChange={setCategory}
           />
           <Select
+            variant="underline"
+            icon={ListFilter}
             items={[
               { value: ALL, label: 'Todos os níveis hierárquicos' },
               ...Object.entries(POSITION_LEVEL_CFG).map(([value, cfg]) => ({
@@ -271,6 +291,8 @@ export function ReportsView() {
             onValueChange={setHierarchyLevel}
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             items={[
               { value: ALL, label: 'Todos os estados' },
               ...Object.entries(STATUS_CFG).map(([value, cfg]) => ({

@@ -13,7 +13,7 @@
 
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Mic2, MoreVertical, Plus } from 'lucide-react';
+import { Filter, MapPin, Mic2, MoreVertical, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -346,6 +346,8 @@ export function SpeakersGuestsTab() {
             className="max-w-sm"
           />
           <Select
+            variant="underline"
+            icon={Filter}
             items={TYPE_ITEMS}
             value={type}
             onValueChange={(v) => {
@@ -354,6 +356,8 @@ export function SpeakersGuestsTab() {
             }}
           />
           <Select
+            variant="underline"
+            icon={MapPin}
             items={STATUS_ITEMS}
             value={status}
             onValueChange={(v) => {

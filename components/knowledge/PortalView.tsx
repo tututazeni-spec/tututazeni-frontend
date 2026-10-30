@@ -62,6 +62,7 @@ export function PortalView({ onSelectArticle, onSearch }: PortalViewProps) {
         </div>
         <div className="mx-auto flex max-w-xl gap-2">
           <Input
+            variant="underline"
             type="text"
             placeholder="Pesquisar artigos, políticas, processos…"
             value={searchQ}

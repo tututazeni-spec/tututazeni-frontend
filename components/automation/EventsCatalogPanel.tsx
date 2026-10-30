@@ -312,6 +312,7 @@ export function EventsCatalogPanel() {
 
       <div className="flex flex-wrap items-center gap-3">
         <SearchInput
+          variant="underline"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Procurar módulo ou evento"

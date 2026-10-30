@@ -8,7 +8,13 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { Download, SlidersHorizontal } from 'lucide-react';
+import {
+  Building2,
+  Download,
+  Layers,
+  ListFilter,
+  SlidersHorizontal,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
@@ -207,18 +213,24 @@ export function LogsView() {
           className="w-64"
         />
         <Select
+          variant="underline"
+          icon={Layers}
           items={entityItems}
           value={filters.entity || 'ALL'}
           onValueChange={(v) => set({ entity: v === 'ALL' ? '' : v })}
           className="w-48"
         />
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={actionItems}
           value={filters.action || 'ALL'}
           onValueChange={(v) => set({ action: v === 'ALL' ? '' : v })}
           className="w-48"
         />
         <Select
+          variant="underline"
+          icon={ListFilter}
           items={STATUS_ITEMS}
           value={filters.status || 'ALL'}
           onValueChange={(v) => set({ status: v === 'ALL' ? '' : v })}
@@ -227,12 +239,16 @@ export function LogsView() {
         {advanced && (
           <>
             <Select
+              variant="underline"
+              icon={ListFilter}
               items={ACTOR_ITEMS}
               value={filters.actorType || 'ALL'}
               onValueChange={(v) => set({ actorType: v === 'ALL' ? '' : v })}
               className="w-52"
             />
             <Select
+              variant="underline"
+              icon={Building2}
               items={departmentItems}
               value={filters.departmentId || 'ALL'}
               onValueChange={(v) => set({ departmentId: v === 'ALL' ? '' : v })}

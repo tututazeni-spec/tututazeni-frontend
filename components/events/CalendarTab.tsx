@@ -10,7 +10,14 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Building2,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Landmark,
+  MapPin,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -232,9 +239,23 @@ export function CalendarTab() {
       </div>
 
       <div className="flex flex-wrap items-end gap-3">
-        <Select items={TYPE_ITEMS} value={type} onValueChange={setType} />
-        <Select items={STATUS_ITEMS} value={status} onValueChange={setStatus} />
         <Select
+          variant="underline"
+          icon={Filter}
+          items={TYPE_ITEMS}
+          value={type}
+          onValueChange={setType}
+        />
+        <Select
+          variant="underline"
+          icon={MapPin}
+          items={STATUS_ITEMS}
+          value={status}
+          onValueChange={setStatus}
+        />
+        <Select
+          variant="underline"
+          icon={Building2}
           items={[
             { value: 'ALL', label: 'Todos os departamentos' },
             ...departmentOptions,
@@ -243,6 +264,8 @@ export function CalendarTab() {
           onValueChange={setDepartmentId}
         />
         <Select
+          variant="underline"
+          icon={Landmark}
           items={[{ value: 'ALL', label: 'Todas as unidades' }, ...unitOptions]}
           value={unitId}
           onValueChange={setUnitId}
