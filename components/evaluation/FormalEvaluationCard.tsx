@@ -8,6 +8,7 @@
 
 import { Fragment, type ReactNode } from 'react';
 import {
+  Award,
   ClipboardCheck,
   ClipboardList,
   Building2,
@@ -45,6 +46,8 @@ interface FormalEvaluationCardProps {
   actions?: ReactNode;
   /** Botões principais no painel inferior (resultados, publicar, arquivar). */
   footer?: ReactNode;
+  /** Vista do colaborador: esconde estado, tentativas e departamentos (dados de gestão). */
+  participant?: boolean;
 }
 
 export function FormalEvaluationCard({
@@ -52,6 +55,7 @@ export function FormalEvaluationCard({
   onSelect,
   actions,
   footer,
+  participant = false,
 }: FormalEvaluationCardProps) {
   // Cada avaliação mantém a sua cor própria, escolhida pelo id.
   const palette = PALETTE[Math.abs(e.id) % PALETTE.length];
@@ -131,13 +135,19 @@ export function FormalEvaluationCard({
         </div>
       </div>
 
-      <div className="flex min-h-[28px] flex-wrap items-center gap-2 px-5 pt-3">
-        <Badge intent={status.intent}>{status.label}</Badge>
-      </div>
+      {!participant && (
+        <div className="flex min-h-[28px] flex-wrap items-center gap-2 px-5 pt-3">
+          <Badge intent={status.intent}>{status.label}</Badge>
+        </div>
+      )}
 
-      <div className="space-y-3 px-5 pt-4">
+      <div className={`space-y-3 px-5 ${participant ? 'pt-3' : 'pt-4'}`}>
         <Metric icon={ClipboardList}>{e._count.questions} perguntas</Metric>
-        <Metric icon={Users}>{e._count.attempts} tentativas</Metric>
+        {participant ? (
+          <Metric icon={Award}>Nota máxima: {e.maxGrade}</Metric>
+        ) : (
+          <Metric icon={Users}>{e._count.attempts} tentativas</Metric>
+        )}
         {e.availableUntil && (
           <Metric icon={Timer}>
             Até {formatDateTimeNumeric(e.availableUntil)}
@@ -146,13 +156,15 @@ export function FormalEvaluationCard({
       </div>
 
       <div className="mx-5 mt-4 flex-1 divide-y divide-white/10 border-t border-white/15">
-        <InfoRow icon={Building2}>
-          <span className="line-clamp-1">
-            {e.targetDepartmentIds.length === 0
-              ? 'Todos os departamentos'
-              : `${e.targetDepartmentIds.length} departamento(s)`}
-          </span>
-        </InfoRow>
+        {!participant && (
+          <InfoRow icon={Building2}>
+            <span className="line-clamp-1">
+              {e.targetDepartmentIds.length === 0
+                ? 'Todos os departamentos'
+                : `${e.targetDepartmentIds.length} departamento(s)`}
+            </span>
+          </InfoRow>
+        )}
       </div>
 
       {footer && (
