@@ -107,6 +107,7 @@ export function EvaluationsTab() {
   const [purpose, setPurpose] = useState(ALL);
   const [page, setPage] = useState(1);
   const [showWizard, setShowWizard] = useState(false);
+  const [addToCycleId, setAddToCycleId] = useState<number | null>(null);
   const [editingCycle, setEditingCycle] = useState<Cycle | null>(null);
   const [viewingId, setViewingId] = useState<number | null>(null);
   const [submittingRow, setSubmittingRow] =
@@ -414,6 +415,9 @@ export function EvaluationsTab() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => setAddToCycleId(c.id)}>
+                        Adicionar avaliação
+                      </DropdownMenuItem>
                       <DropdownMenuItem onSelect={() => setEditingCycle(c)}>
                         Editar
                       </DropdownMenuItem>
@@ -595,6 +599,12 @@ export function EvaluationsTab() {
           cycleId={submittingRow.cycle?.id}
           evaluatedName={submittingRow.evaluated.fullName}
           onClose={() => setSubmittingRow(null)}
+        />
+      )}
+      {addToCycleId !== null && (
+        <NewEvaluationWizard
+          cycleId={addToCycleId}
+          onClose={() => setAddToCycleId(null)}
         />
       )}
       {showWizard && (
