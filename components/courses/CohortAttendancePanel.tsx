@@ -7,9 +7,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check, X } from 'lucide-react';
+import { Check, Download, X } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useToast } from '@/providers/ToastProvider';
@@ -58,6 +59,7 @@ export function CohortAttendancePanel({ cohortId }: { cohortId: number }) {
   const toast = useToast();
   const [day, setDay] = useState<string>('');
   const [draft, setDraft] = useState<Record<number, Mark>>({});
+  const [exporting, setExporting] = useState(false);
 
   const { data: sheet } = useApiQuery<CohortAttendanceSheet>(
     queryKeys.courses.cohortAttendanceSheet(cohortId),
@@ -102,6 +104,23 @@ export function CohortAttendancePanel({ cohortId }: { cohortId: number }) {
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
+
+  async function exportSheet(format: 'xlsx' | 'pdf') {
+    setExporting(true);
+    try {
+      await downloadFromApi(`/courses/cohorts/${cohortId}/attendance/export`, {
+        params: { format },
+        fallbackName: `presencas.${format}`,
+      });
+    } catch (e) {
+      toast({
+        title: e instanceof Error ? e.message : 'Não foi possível exportar.',
+        intent: 'danger',
+      });
+    } finally {
+      setExporting(false);
+    }
+  }
 
   if (!sheet) return null;
   if (sheet.participants.length === 0) return null;
@@ -211,9 +230,29 @@ export function CohortAttendancePanel({ cohortId }: { cohortId: number }) {
       </div>
 
       <div>
-        <h4 className="mb-2 text-sm font-medium text-ink">
-          Folha de presenças
-        </h4>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <h4 className="text-sm font-medium text-ink">Folha de presenças</h4>
+          <div className="flex gap-2" role="group" aria-label="Exportar">
+            <Button
+              size="sm"
+              intent="secondary"
+              disabled={exporting}
+              onClick={() => void exportSheet('xlsx')}
+            >
+              <Download size={14} strokeWidth={1.75} />
+              Exportar Excel
+            </Button>
+            <Button
+              size="sm"
+              intent="secondary"
+              disabled={exporting}
+              onClick={() => void exportSheet('pdf')}
+            >
+              <Download size={14} strokeWidth={1.75} />
+              Exportar PDF
+            </Button>
+          </div>
+        </div>
         <div className="overflow-x-auto rounded-card border border-border">
           <table className="w-full text-left text-xs">
             <thead className="bg-surface-sunken text-ink-muted">
