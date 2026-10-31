@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import {
+  BookOpen,
   CalendarDays,
   Clock,
   Download,
@@ -357,6 +358,8 @@ export function TurmasView() {
         <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
           <div className="w-full sm:w-72">
             <Combobox
+              variant="underline"
+              icon={BookOpen}
               items={courseOptions}
               value={courseId}
               onValueChange={(v) => {

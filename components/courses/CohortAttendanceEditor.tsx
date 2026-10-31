@@ -7,7 +7,18 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Eraser, Save } from 'lucide-react';
+import {
+  ArrowUpDown,
+  CalendarDays,
+  CircleCheck,
+  Clock,
+  Eraser,
+  Filter,
+  GraduationCap,
+  Save,
+  User,
+  Users,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -20,6 +31,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { NativeSelect } from '@/components/ui/NativeSelect';
 import { SearchInput } from '@/components/ui/SearchInput';
+import { Select } from '@/components/ui/Select';
 import {
   Table,
   TableBody,
@@ -31,6 +43,8 @@ import {
 import {
   MODALITY_LABEL,
   SESSION_STATUS,
+  STATUS_TONE,
+  SessionDateBlock,
   sessionDay,
 } from './CohortSessionsPanel';
 import { Skeleton } from './shared';
@@ -86,6 +100,8 @@ export function CohortAttendanceEditor({
   const [filter, setFilter] = useState<string>('ALL');
   const [sortBy, setSortBy] = useState<'name' | 'status'>('name');
   const [reason, setReason] = useState('');
+  const [bulkIn, setBulkIn] = useState('');
+  const [bulkOut, setBulkOut] = useState('');
 
   const usable = sessions.filter((s) => s.status !== 'CANCELLED');
   const { data, isLoading } = useApiQuery<SessionAttendance>(
@@ -183,6 +199,17 @@ export function CohortAttendanceEditor({
     onSessionChange(id);
   }
 
+  /** Aplica a mesma hora de entrada ou de saída a todos os participantes. */
+  function applyTime(field: 'checkInTime' | 'checkOutTime', time: string) {
+    if (!time) return;
+    setRows((c) =>
+      Object.fromEntries(
+        Object.entries(c).map(([id, r]) => [id, { ...r, [field]: time }]),
+      ),
+    );
+    setDirty(true);
+  }
+
   function markAllPresent() {
     setRows((c) =>
       Object.fromEntries(
@@ -278,21 +305,18 @@ export function CohortAttendanceEditor({
 
   return (
     <section className="space-y-4">
-      <label className="block space-y-1 text-xs text-ink-muted">
-        Sessão
-        <NativeSelect
-          value={sessionId ?? ''}
-          onChange={(e) => void changeSession(Number(e.target.value))}
-          className="w-full"
-        >
-          {sessionId === null && <option value="">Escolha uma sessão…</option>}
-          {usable.map((s) => (
-            <option key={s.id} value={s.id}>
-              {sessionDay(s.date)} · {s.startTime}–{s.endTime} · {s.title}
-            </option>
-          ))}
-        </NativeSelect>
-      </label>
+      <Select
+        variant="underline"
+        icon={CalendarDays}
+        placeholder="Escolha uma sessão…"
+        items={usable.map((s) => ({
+          value: String(s.id),
+          label: `${sessionDay(s.date)} · ${s.startTime}–${s.endTime} · ${s.title}`,
+        }))}
+        value={sessionId === null ? '' : String(sessionId)}
+        onValueChange={(v) => void changeSession(Number(v))}
+        className="w-full"
+      />
 
       {sessionId === null ? (
         <p className="text-sm text-ink-muted">
@@ -302,34 +326,48 @@ export function CohortAttendanceEditor({
         <Skeleton rows={4} />
       ) : (
         <>
-          <div className="grid gap-2 rounded-card border border-border p-3 text-sm sm:grid-cols-3">
-            <div>
-              <div className="text-xs uppercase tracking-wide text-ink-faint">
-                Turma
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-card bg-brand-soft px-4 py-3">
+            <SessionDateBlock date={session.date} />
+
+            <div className="min-w-0 flex-1 basis-56 space-y-1">
+              <div className="truncate text-base font-bold text-ink">
+                {session.title}
               </div>
-              {data.cohort.name}
-              <div className="text-xs text-ink-muted">
-                {data.cohort.courseTitle}
+              <div className="flex items-center gap-1.5 text-sm text-ink-muted">
+                <GraduationCap
+                  size={14}
+                  strokeWidth={1.75}
+                  className="shrink-0"
+                />
+                <span className="truncate">
+                  {data.cohort.name} · {data.cohort.courseTitle}
+                </span>
               </div>
-            </div>
-            <div>
-              <div className="text-xs uppercase tracking-wide text-ink-faint">
-                Data e horário
+              <div className="flex items-center gap-1.5 text-sm text-ink-muted">
+                <Clock size={14} strokeWidth={1.75} className="shrink-0" />
+                {session.startTime}–{session.endTime} ·{' '}
+                {MODALITY_LABEL[session.modality]}
               </div>
-              {sessionDay(session.date)} · {session.startTime}–{session.endTime}
-            </div>
-            <div>
-              <div className="text-xs uppercase tracking-wide text-ink-faint">
-                Formador · Modalidade
+              <div className="flex items-center gap-1.5 text-sm text-ink-muted">
+                <User size={14} strokeWidth={1.75} className="shrink-0" />
+                {session.instructor?.fullName ?? '—'}
               </div>
-              {session.instructor?.fullName ?? '—'} ·{' '}
-              {MODALITY_LABEL[session.modality]}
-              {sessionBadge && (
-                <Badge intent={sessionBadge.intent} className="ml-2">
-                  {sessionBadge.label}
-                </Badge>
+              {session.attendanceRecorded && (
+                <div className="flex items-center gap-1.5 text-sm font-medium text-success-ink">
+                  <Users size={14} strokeWidth={1.75} className="shrink-0" />
+                  Presenças registadas ({session.recordedCount})
+                </div>
               )}
             </div>
+
+            {sessionBadge && (
+              <span
+                className={`inline-flex items-center gap-1.5 text-sm font-semibold ${STATUS_TONE[sessionBadge.intent]}`}
+              >
+                <CircleCheck size={16} strokeWidth={2} />
+                {sessionBadge.label}
+              </span>
+            )}
           </div>
 
           {dirty && (
@@ -357,35 +395,78 @@ export function CohortAttendanceEditor({
 
           <div className="flex flex-wrap items-center gap-2">
             <SearchInput
+              variant="underline"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Pesquisar nome ou identificador…"
               aria-label="Pesquisar participante"
               className="min-w-[14rem] flex-1"
             />
-            <NativeSelect
-              density="sm"
+            <Select
+              variant="underline"
+              icon={Filter}
+              items={[
+                { value: 'ALL', label: 'Todos os estados' },
+                ...Object.entries(ATTENDANCE_LABEL).map(([v, l]) => ({
+                  value: v,
+                  label: l.label,
+                })),
+                { value: NONE, label: 'Sem registo' },
+              ]}
               value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              aria-label="Filtrar por estado"
-            >
-              <option value="ALL">Todos os estados</option>
-              {Object.entries(ATTENDANCE_LABEL).map(([v, l]) => (
-                <option key={v} value={v}>
-                  {l.label}
-                </option>
-              ))}
-              <option value={NONE}>Sem registo</option>
-            </NativeSelect>
-            <NativeSelect
-              density="sm"
+              onValueChange={setFilter}
+            />
+            <Select
+              variant="underline"
+              icon={ArrowUpDown}
+              items={[
+                { value: 'name', label: 'Ordenar por nome' },
+                { value: 'status', label: 'Ordenar por estado' },
+              ]}
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'name' | 'status')}
-              aria-label="Ordenar por"
-            >
-              <option value="name">Ordenar por nome</option>
-              <option value="status">Ordenar por estado</option>
-            </NativeSelect>
+              onValueChange={(v) => setSortBy(v as 'name' | 'status')}
+            />
+          </div>
+
+          <div className="flex flex-wrap items-end gap-x-6 gap-y-3 rounded-card bg-brand-soft px-4 py-3">
+            <div className="flex items-end gap-2">
+              <label className="space-y-1 text-xs font-semibold text-brand-muted">
+                Hora de entrada para todos
+                <Input
+                  type="time"
+                  value={bulkIn}
+                  onChange={(e) => setBulkIn(e.target.value)}
+                  className="w-32"
+                />
+              </label>
+              <Button
+                size="sm"
+                intent="secondary"
+                disabled={!bulkIn}
+                onClick={() => applyTime('checkInTime', bulkIn)}
+              >
+                Aplicar a todos
+              </Button>
+            </div>
+            <div className="flex items-end gap-2">
+              <label className="space-y-1 text-xs font-semibold text-brand-muted">
+                Hora de saída para todos
+                <Input
+                  type="time"
+                  value={bulkOut}
+                  onChange={(e) => setBulkOut(e.target.value)}
+                  className="w-32"
+                />
+              </label>
+              <Button
+                size="sm"
+                intent="secondary"
+                disabled={!bulkOut}
+                onClick={() => applyTime('checkOutTime', bulkOut)}
+              >
+                Aplicar a todos
+              </Button>
+            </div>
           </div>
 
           <div className="max-h-[26rem] overflow-auto">

@@ -9,6 +9,7 @@ import { useState } from 'react';
 import {
   AlarmClock,
   BadgeCheck,
+  Building2,
   CalendarX,
   ClipboardList,
   GraduationCap,
@@ -68,6 +69,8 @@ export function TeamSummaryTab({
   const picker = pickDepartment && (
     <div className="max-w-xs">
       <Select
+        variant="underline"
+        icon={Building2}
         items={(depts.data?.data ?? []).map((d) => ({
           value: String(d.id),
           label: d.name,

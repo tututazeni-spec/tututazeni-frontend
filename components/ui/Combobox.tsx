@@ -6,7 +6,7 @@
 
 import { useId, useMemo, useRef, useState } from 'react';
 import { Popover } from 'radix-ui';
-import { Check, ChevronDown, Search } from 'lucide-react';
+import { Check, ChevronDown, Search, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { VirtualList } from './VirtualList';
 
@@ -29,6 +29,14 @@ export interface ComboboxProps {
   className?: string;
   /** Permite escrever um valor que não está na lista (Enter ou "Usar «texto»"). */
   allowCustom?: boolean;
+  /**
+   * `box` (por omissão): campo com caixa e rótulo flutuante.
+   * `underline`: filtro minimalista (Filtros Underline) — ícone à esquerda,
+   * só uma linha por baixo e seta à direita; mantém a pesquisa na lista.
+   */
+  variant?: 'box' | 'underline';
+  /** Só na variante `underline`: ícone à esquerda do filtro. */
+  icon?: LucideIcon;
 }
 
 function normalize(text: string): string {
@@ -51,6 +59,8 @@ export function Combobox({
   disabled,
   className,
   allowCustom,
+  variant = 'box',
+  icon: Icon,
 }: ComboboxProps) {
   const [open, setOpen] = useState(false);
   const contentId = useId();
@@ -101,34 +111,72 @@ export function Combobox({
           aria-invalid={invalid || undefined}
           data-placeholder={selected ? undefined : ''}
           className={cn(
-            'group relative inline-flex min-h-[48px] w-full items-center justify-between gap-2 rounded-control border-[1.5px] border-field',
-            'bg-surface px-3 pb-[6px] pt-[18px] text-left font-body text-sm text-field-ink',
-            'focus:bg-field-soft focus:outline-none focus:ring-[3px] focus:ring-field-soft',
-            'disabled:cursor-not-allowed disabled:opacity-50',
-            invalid && 'border-danger focus:ring-danger-subtle',
+            variant === 'underline'
+              ? [
+                  'group flex min-h-[44px] w-full items-center gap-3 border-b border-brand-line bg-transparent px-1 pb-2.5 pt-3 text-left font-body text-sm text-brand',
+                  'transition-colors hover:border-brand-muted focus-visible:border-brand focus-visible:outline-none',
+                  'disabled:cursor-not-allowed disabled:opacity-50',
+                  invalid && 'border-danger',
+                ]
+              : [
+                  'group relative inline-flex min-h-[48px] w-full items-center justify-between gap-2 rounded-control border-[1.5px] border-field',
+                  'bg-surface px-3 pb-[6px] pt-[18px] text-left font-body text-sm text-field-ink',
+                  'focus:bg-field-soft focus:outline-none focus:ring-[3px] focus:ring-field-soft',
+                  'disabled:cursor-not-allowed disabled:opacity-50',
+                  invalid && 'border-danger focus:ring-danger-subtle',
+                ],
             className,
           )}
         >
-          <span
-            aria-hidden
-            className={cn(
-              'pointer-events-none absolute left-3 origin-left font-body transition-all duration-150',
-              'top-[6px] text-micro font-medium text-field',
-              'group-data-[placeholder]:top-1/2 group-data-[placeholder]:-translate-y-1/2 group-data-[placeholder]:text-sm',
-              'group-data-[placeholder]:font-normal group-data-[placeholder]:text-ink-muted',
-              'group-focus:top-[6px] group-focus:translate-y-0 group-focus:text-micro group-focus:font-medium group-focus:text-field',
-            )}
-          >
-            {label ?? placeholder}
-          </span>
-          <span className="min-w-0 flex-1 truncate">
-            {selected ? selected.label : ' '}
-          </span>
-          <ChevronDown
-            size={16}
-            strokeWidth={1.75}
-            className="shrink-0 text-field"
-          />
+          {variant === 'underline' ? (
+            <>
+              {Icon && (
+                <Icon
+                  aria-hidden
+                  size={20}
+                  strokeWidth={1.5}
+                  className="shrink-0 text-brand-muted"
+                />
+              )}
+              <span className="min-w-0 flex-1 truncate">
+                {selected ? (
+                  selected.label
+                ) : (
+                  <span className="text-brand-muted">
+                    {label ?? placeholder}
+                  </span>
+                )}
+              </span>
+              <ChevronDown
+                size={16}
+                strokeWidth={1.75}
+                className="shrink-0 text-brand-muted"
+              />
+            </>
+          ) : (
+            <>
+              <span
+                aria-hidden
+                className={cn(
+                  'pointer-events-none absolute left-3 origin-left font-body transition-all duration-150',
+                  'top-[6px] text-micro font-medium text-field',
+                  'group-data-[placeholder]:top-1/2 group-data-[placeholder]:-translate-y-1/2 group-data-[placeholder]:text-sm',
+                  'group-data-[placeholder]:font-normal group-data-[placeholder]:text-ink-muted',
+                  'group-focus:top-[6px] group-focus:translate-y-0 group-focus:text-micro group-focus:font-medium group-focus:text-field',
+                )}
+              >
+                {label ?? placeholder}
+              </span>
+              <span className="min-w-0 flex-1 truncate">
+                {selected ? selected.label : ' '}
+              </span>
+              <ChevronDown
+                size={16}
+                strokeWidth={1.75}
+                className="shrink-0 text-field"
+              />
+            </>
+          )}
         </button>
       </Popover.Trigger>
       <Popover.Portal>
