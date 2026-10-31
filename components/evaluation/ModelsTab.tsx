@@ -6,7 +6,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   Layers,
   MoreHorizontal,
@@ -33,9 +32,9 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { CriteriaFormModal } from './CriteriaFormModal';
+import { AddCriterionToTemplateModal } from './AddCriterionToTemplateModal';
 import { TemplateFormModal } from './TemplateFormModal';
-import type { EvalCriteria, EvalTemplate } from './types';
+import type { EvalTemplate } from './types';
 
 export function ModelsTab() {
   const isAdmin = useHasRole(ADMIN_ROLES);
@@ -66,33 +65,6 @@ export function ModelsTab() {
   const [addCriterionTo, setAddCriterionTo] = useState<EvalTemplate | null>(
     null,
   );
-  const queryClient = useQueryClient();
-
-  // Liga o critério acabado de criar ao modelo, mantendo os já ligados.
-  const linkCriterion = async (
-    template: EvalTemplate,
-    created: EvalCriteria,
-  ) => {
-    const detail = await apiClient.get<EvalTemplate>(
-      `/evaluations/templates/${template.id}`,
-    );
-    const current = (detail.criteria ?? []).map((c) => ({
-      criteriaId: c.criteriaId,
-      weight: Number(c.weight ?? 1),
-    }));
-    await apiClient.patch(`/evaluations/templates/${template.id}`, {
-      criteria: [
-        ...current,
-        { criteriaId: created.id, weight: Number(created.weight ?? 1) },
-      ],
-    });
-    await queryClient.invalidateQueries({
-      queryKey: queryKeys.evaluation.templates(),
-    });
-    await queryClient.invalidateQueries({
-      queryKey: queryKeys.evaluation.templateDetail(template.id),
-    });
-  };
 
   const remove = async (t: EvalTemplate) => {
     if (
@@ -226,10 +198,8 @@ export function ModelsTab() {
         />
       )}
       {addCriterionTo && (
-        <CriteriaFormModal
-          criteria={null}
-          defaultScaleId={addCriterionTo.scaleId}
-          onCreated={(created) => linkCriterion(addCriterionTo, created)}
+        <AddCriterionToTemplateModal
+          template={addCriterionTo}
           onClose={() => setAddCriterionTo(null)}
         />
       )}
