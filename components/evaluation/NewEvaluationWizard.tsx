@@ -42,6 +42,7 @@ import {
 import {
   BLOCK_OPTIONS,
   MODEL_LABEL,
+  MODEL_PARTICIPANTS,
   POPULATION_TYPE_LABEL,
   PURPOSE_LABEL,
 } from './constants';
@@ -78,7 +79,9 @@ const PURPOSE_ITEMS = Object.entries(PURPOSE_LABEL).map(([value, label]) => ({
 }));
 const MODEL_ITEMS = Object.entries(MODEL_LABEL).map(([value, label]) => ({
   value,
-  label,
+  label: MODEL_PARTICIPANTS[value]
+    ? `${label} — ${MODEL_PARTICIPANTS[value]}`
+    : label,
 }));
 const POPULATION_ITEMS = Object.entries(POPULATION_TYPE_LABEL).map(
   ([value, label]) => ({ value, label }),
