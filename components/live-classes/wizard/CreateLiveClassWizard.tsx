@@ -36,6 +36,7 @@ function buildPayload(form: WizardForm): Record<string, unknown> {
     topic: form.topic.trim(),
     code: form.code.trim() || undefined,
     description: form.description.trim() || undefined,
+    thumbnailUrl: form.thumbnailUrl || undefined,
     type: form.type,
     moduleId: n(form.moduleId),
     lessonId: n(form.lessonId),

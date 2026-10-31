@@ -47,6 +47,7 @@ export interface LiveClass {
 
   code?: string | null;
   description?: string | null;
+  thumbnailUrl?: string | null;
   type: LiveClassType;
   status: LiveClassStatus;
   moduleId?: number | null;

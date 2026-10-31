@@ -20,6 +20,7 @@ export interface WizardForm {
   topic: string;
   code: string;
   description: string;
+  thumbnailUrl: string;
   type: LiveClassType;
   courseId: string;
   moduleId: string;
@@ -85,6 +86,7 @@ export const EMPTY_WIZARD_FORM: WizardForm = {
   topic: '',
   code: '',
   description: '',
+  thumbnailUrl: '',
   type: 'AULA',
   courseId: '',
   moduleId: '',

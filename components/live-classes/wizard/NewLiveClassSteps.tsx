@@ -10,6 +10,7 @@ import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { CourseImageField } from '@/components/courses/CourseImageField';
 import { ItemList, ListOrTextField, MaterialsPicker } from './ContentFields';
 import { Textarea } from '@/components/ui/Textarea';
 import {
@@ -128,6 +129,13 @@ export function NewLiveClassSteps({
             onChange={(e) => setField('description', e.target.value)}
             rows={2}
             className="w-full resize-none"
+          />
+        </FormField>
+        <FormField label="Imagem da aula" htmlFor="lc-thumbnail">
+          <CourseImageField
+            value={form.thumbnailUrl || null}
+            onChange={(v) => setField('thumbnailUrl', v ?? '')}
+            alt="Pré-visualização da imagem da aula"
           />
         </FormField>
         <div className="grid grid-cols-2 gap-3">
