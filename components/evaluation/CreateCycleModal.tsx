@@ -28,7 +28,7 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { CycleDescriptionBuilder } from './CycleDescriptionBuilder';
-import { MODEL_LABEL, TYPE_LABEL } from './constants';
+import { MODEL_LABEL, MODEL_PARTICIPANTS, TYPE_LABEL } from './constants';
 
 export interface CreateCycleModalProps {
   onClose: () => void;
@@ -37,7 +37,9 @@ export interface CreateCycleModalProps {
 
 const MODEL_ITEMS = Object.entries(MODEL_LABEL).map(([value, label]) => ({
   value,
-  label,
+  label: MODEL_PARTICIPANTS[value]
+    ? `${label} — ${MODEL_PARTICIPANTS[value]}`
+    : label,
 }));
 
 // Espelha EvalType (evaluation.dto.ts) — pesos por omissão que somam 100

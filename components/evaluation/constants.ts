@@ -118,6 +118,16 @@ export const MODEL_LABEL: Record<string, string> = {
   PROJECT: 'Por Projecto',
 };
 
+/** Partes que participam em cada modelo de ciclo (mostradas ao escolher o modelo). */
+export const MODEL_PARTICIPANTS: Record<string, string> = {
+  '90': 'Gestor',
+  '180': 'Autoavaliação + Gestor',
+  '270': 'Autoavaliação + Gestor + Pares',
+  '360': 'Autoavaliação + Gestor + Pares + Subordinados + Clientes',
+  CONTINUOUS: 'Gestor, com feedback ao longo do ano',
+  PROJECT: 'Gestor e equipa do projeto',
+};
+
 export const SCORE_TONE = (score: number): NavyStatTone =>
   score >= 4 ? 'green' : score >= 3 ? 'blue' : score >= 2 ? 'orange' : 'red';
 
