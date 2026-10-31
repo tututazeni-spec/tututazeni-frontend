@@ -38,6 +38,7 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { AdminEnrollmentCard } from './AdminEnrollmentCard';
 import { Select } from '@/components/ui/Select';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -95,6 +96,16 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
     setFilters((f) => ({ ...f, page: f.page + delta }));
   }
 
+  // As inscrições só são carregadas quando há pelo menos um filtro aplicado
+  // (a lista completa pode ter milhares de linhas).
+  const hasFilter = Boolean(
+    filters.status ||
+    filters.mandatory ||
+    filters.overdue ||
+    filters.courseId ||
+    filters.departmentId,
+  );
+
   const params = {
     page: filters.page,
     limit: 20,
@@ -114,6 +125,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
     params,
     staleTime: STALE_TIME.DYNAMIC,
     placeholderData: keepPreviousData,
+    enabled: hasFilter,
   });
 
   const invalidateKeys = [queryKeys.enrollments.lists()];
@@ -295,7 +307,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
         </div>
         <div className="flex justify-end">
           <span className="text-sm text-ink">
-            {data?.total ?? 0} matrículas
+            {hasFilter ? (data?.total ?? 0) : 0} matrículas
           </span>
         </div>
       </Card>
@@ -338,8 +350,16 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
           />
         )}
 
+        {!hasFilter && (
+          <EmptyState
+            title="Pesquise para ver inscrições"
+            description="Escolha um curso, departamento, estado ou outro filtro acima para listar as inscrições."
+          />
+        )}
+
         <div className="space-y-3">
-          {!loading &&
+          {hasFilter &&
+            !loading &&
             data?.data?.map((e) => (
               <AdminEnrollmentCard
                 key={e.id}
@@ -463,7 +483,7 @@ export function AdminView({ initialCourseId }: AdminViewProps) {
       </div>
 
       {/* Paginação */}
-      {data && data.totalPages > 1 && (
+      {hasFilter && data && data.totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <span className="text-xs text-ink">
             Página {data.page} de {data.totalPages}
