@@ -12,6 +12,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Lightbulb,
+  MapPin,
   Sparkles,
   Star,
   Wand2,
@@ -26,7 +27,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { LinkButton } from '@/components/ui/LinkButton';
 import { Modal, ModalContent } from '@/components/ui/Modal';
-import { NativeSelect } from '@/components/ui/NativeSelect';
+import { Select } from '@/components/ui/Select';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -157,24 +158,23 @@ function RecommendationRow({
           </p>
         ) : (
           trackable && (
-            <label className="flex items-center gap-2 text-xs text-ink-muted">
-              Estado
-              <NativeSelect
-                density="sm"
-                aria-label={`Estado da recomendação ${rec.action}`}
+            <div className="flex items-center gap-3 text-xs text-ink-muted">
+              <span>Estado</span>
+              <Select
+                variant="underline"
+                icon={MapPin}
+                placeholder="Estado da recomendação"
+                items={Object.entries(RECOMMENDATION_STATUS_LABELS).map(
+                  ([value, label]) => ({ value, label }),
+                )}
                 value={rec.status}
                 disabled={saving}
-                onChange={(e) =>
-                  onTrack(rec.id, e.target.value as RecommendationStatus)
+                onValueChange={(v) =>
+                  onTrack(rec.id, v as RecommendationStatus)
                 }
-              >
-                {Object.entries(RECOMMENDATION_STATUS_LABELS).map(([v, l]) => (
-                  <option key={v} value={v}>
-                    {l}
-                  </option>
-                ))}
-              </NativeSelect>
-            </label>
+                className="w-48"
+              />
+            </div>
           )
         )}
         <div className="flex min-w-[140px] flex-1 items-center gap-3">

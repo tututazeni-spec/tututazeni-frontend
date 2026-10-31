@@ -7,14 +7,14 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowDown, ArrowRight, ArrowUp } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, Filter } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { AlertCard } from '@/components/ui/AlertCard';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/cn';
 import { actionPillClass } from '@/components/ui/Pills';
-import { NativeSelect } from '@/components/ui/NativeSelect';
+import { Select } from '@/components/ui/Select';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { EvaluationComparison, PerformanceHistory } from './apiTypes';
@@ -167,18 +167,18 @@ export function PerformanceHistoryPanel({
     <section aria-label={title} className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className={titleClassName}>{title}</h3>
-        <NativeSelect
-          density="sm"
-          aria-label="Tipo de avaliação"
+        <Select
+          variant="underline"
+          icon={Filter}
+          placeholder="Tipo de avaliação"
+          items={Object.entries(TYPE_LABELS).map(([value, label]) => ({
+            value,
+            label,
+          }))}
           value={type}
-          onChange={(e) => setType(e.target.value)}
-        >
-          {Object.entries(TYPE_LABELS).map(([v, l]) => (
-            <option key={v} value={v}>
-              {l}
-            </option>
-          ))}
-        </NativeSelect>
+          onValueChange={setType}
+          className="w-64"
+        />
       </div>
 
       {q.isLoading ? (
