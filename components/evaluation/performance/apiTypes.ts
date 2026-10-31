@@ -109,6 +109,8 @@ export interface CompetencyCount {
 }
 
 export interface PerformanceIndicators {
+  /** Poucas avaliações: listas por competência/classificação ocultas por privacidade. */
+  restricted?: boolean;
   byRating: { label: string; count: number }[];
   topStrengths: CompetencyCount[];
   recurringImprovements: CompetencyCount[];

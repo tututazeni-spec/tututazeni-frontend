@@ -306,3 +306,28 @@ describe('PerformanceIndicatorsPanel', () => {
     ).toBeInTheDocument();
   });
 });
+
+describe('PerformanceIndicatorsPanel — privacidade', () => {
+  test('com poucas avaliações explica que os dados estão ocultos', () => {
+    render(
+      <PerformanceIndicatorsPanel
+        data={{
+          restricted: true,
+          byRating: [],
+          topStrengths: [],
+          recurringImprovements: [],
+          recommendations: {
+            total: 1,
+            byStatus: { CONCLUIDA: 1 },
+            byPriority: {},
+            overdue: 0,
+            trainingNeeds: 0,
+          },
+          pdi: { plans: 0, avgProgress: null },
+        }}
+      />,
+    );
+    expect(screen.getAllByText(/Oculto por privacidade/).length).toBe(3);
+    expect(screen.queryByText(/Sem pontos fortes registados/)).toBeNull();
+  });
+});

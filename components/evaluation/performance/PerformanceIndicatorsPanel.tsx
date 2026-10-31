@@ -14,6 +14,8 @@ import {
 } from './apiTypes';
 import { RECOMMENDATION_PRIORITY_LABELS } from './types';
 
+const HIDDEN = 'Oculto por privacidade: há poucas avaliações neste filtro.';
+
 const HEAD =
   'px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide';
 
@@ -74,12 +76,20 @@ export function PerformanceIndicatorsPanel({
         <CompetencyList
           title="Principais pontos fortes"
           rows={data.topStrengths}
-          empty="Sem pontos fortes registados neste filtro."
+          empty={
+            data.restricted
+              ? HIDDEN
+              : 'Sem pontos fortes registados neste filtro.'
+          }
         />
         <CompetencyList
           title="Áreas de melhoria mais recorrentes"
           rows={data.recurringImprovements}
-          empty="Sem áreas de melhoria registadas neste filtro."
+          empty={
+            data.restricted
+              ? HIDDEN
+              : 'Sem áreas de melhoria registadas neste filtro.'
+          }
         />
 
         <Card className="overflow-hidden">
@@ -87,7 +97,7 @@ export function PerformanceIndicatorsPanel({
           <CardBody>
             {data.byRating.length === 0 ? (
               <p className="text-xs text-ink-faint">
-                Ainda sem classificações finais.
+                {data.restricted ? HIDDEN : 'Ainda sem classificações finais.'}
               </p>
             ) : (
               <ul className="space-y-1.5">

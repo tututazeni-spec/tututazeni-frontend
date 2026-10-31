@@ -32,6 +32,8 @@ import { SCORE_COLOR, SCORE_TONE } from './constants';
 import { ALL, useCycleOptions, useDepartmentOptions } from './filterOptions';
 import type { EvaluationReportGroup, EvaluationReportsOverview } from './types';
 import { PerformanceIndicatorsPanel } from './performance/PerformanceIndicatorsPanel';
+import { RECOMMENDATION_STATUS_LABELS } from './performance/apiTypes';
+import { AlertCard } from '@/components/ui/AlertCard';
 
 function GroupTable({
   title,
@@ -65,6 +67,45 @@ function GroupTable({
   );
 }
 
+const TYPE_ITEMS = [
+  { value: ALL, label: 'Todos' },
+  { value: 'MANAGER', label: 'Chefia' },
+  { value: 'SELF', label: 'Autoavaliação' },
+  { value: 'PEER', label: 'Colegas' },
+  { value: 'SUBORDINATE', label: 'Subordinados' },
+  { value: 'CLIENT', label: 'Clientes' },
+];
+
+const ACTION_STATUS_ITEMS = [
+  { value: ALL, label: 'Todos' },
+  ...Object.entries(RECOMMENDATION_STATUS_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  })),
+];
+
+/** Aviso quando a regra de privacidade ocultou grupos ou restringiu o relatório. */
+function PrivacyNotice({
+  privacy,
+}: {
+  privacy: NonNullable<EvaluationReportsOverview['privacy']>;
+}) {
+  const hidden = Object.values(privacy.suppressed).reduce((a, b) => a + b, 0);
+  if (!privacy.restricted && hidden === 0) return null;
+  return (
+    <AlertCard
+      variant="info"
+      title="Alguns dados estão ocultos para proteger a privacidade"
+      message={
+        privacy.restricted
+          ? `Há menos de ${privacy.minGroupSize} avaliações neste filtro: as listas por competência e classificação não são mostradas.`
+          : `Os grupos com menos de ${privacy.minGroupSize} avaliações não são mostrados, nem nos ficheiros exportados.`
+      }
+      detail={hidden > 0 ? `${hidden} grupo(s) ocultos` : undefined}
+    />
+  );
+}
+
 export function ReportsTab() {
   const [filters, setFilters] = useState({
     cycleId: '',
@@ -73,6 +114,8 @@ export function ReportsTab() {
     positionId: '',
     managerId: '',
     period: '',
+    type: '',
+    recommendationStatus: '',
   });
   const [manager, setManager] = useState<DirectoryUser | null>(null);
   const cycleItems = [{ value: ALL, label: 'Todos' }, ...useCycleOptions()];
@@ -177,6 +220,35 @@ export function ReportsTab() {
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
+              Tipo de avaliação
+            </label>
+            <Select
+              items={TYPE_ITEMS}
+              value={filters.type || ALL}
+              onValueChange={(v) =>
+                setFilters((f) => ({ ...f, type: v === ALL ? '' : v }))
+              }
+              className="w-44"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">
+              Estado das ações
+            </label>
+            <Select
+              items={ACTION_STATUS_ITEMS}
+              value={filters.recommendationStatus || ALL}
+              onValueChange={(v) =>
+                setFilters((f) => ({
+                  ...f,
+                  recommendationStatus: v === ALL ? '' : v,
+                }))
+              }
+              className="w-40"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">
               Período
             </label>
             <Input
@@ -231,6 +303,7 @@ export function ReportsTab() {
 
       {data && (
         <div className="space-y-4">
+          {data.privacy && <PrivacyNotice privacy={data.privacy} />}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <NavyStatCard
               tab="evaluations"

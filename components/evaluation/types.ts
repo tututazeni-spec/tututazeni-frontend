@@ -403,6 +403,18 @@ export interface EvaluationReportsOverview {
   objectivesAchieved: { total: number; avgAchievement: number | null };
   /** Indicadores da avaliação estruturada (só avaliações submetidas). */
   performance?: PerformanceIndicators;
+  /** Regras de privacidade aplicadas ao relatório (grupos pequenos ocultos). */
+  privacy?: {
+    minGroupSize: number;
+    restricted: boolean;
+    suppressed: {
+      byDepartment: number;
+      byUnit: number;
+      byPosition: number;
+      byManager: number;
+      evolution: number;
+    };
+  };
 }
 
 // docs/modulo_evaluation.md ponto 12 — Configurações
