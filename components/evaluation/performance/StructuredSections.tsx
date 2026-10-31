@@ -17,6 +17,7 @@ import {
   IMPROVEMENT_PRIORITY_LABELS,
   OBJECTIVE_SUGGESTIONS,
   RECOMMENDATION_PRIORITY_LABELS,
+  SUCCESS_INDICATOR_SUGGESTIONS,
   emptyImprovement,
   emptyRecommendation,
   emptyStrength,
@@ -627,18 +628,27 @@ export function RecommendationsSection({
             <FormField
               label="Indicador de sucesso *"
               htmlFor={`rc-ind-${r.key}`}
-              hint="Evidência ou métrica que mostra o resultado."
+              hint="Escolha da lista ou escreva a evidência ou métrica."
             >
-              <Input
-                id={`rc-ind-${r.key}`}
-                maxLength={1000}
-                value={r.successIndicator}
-                onChange={(e) =>
-                  onChange(
-                    patch(items, r.key, { successIndicator: e.target.value }),
-                  )
-                }
-              />
+              <>
+                <Input
+                  id={`rc-ind-${r.key}`}
+                  list={`rc-ind-${r.key}-list`}
+                  maxLength={1000}
+                  placeholder="Escolha da lista ou escreva"
+                  value={r.successIndicator}
+                  onChange={(e) =>
+                    onChange(
+                      patch(items, r.key, { successIndicator: e.target.value }),
+                    )
+                  }
+                />
+                <datalist id={`rc-ind-${r.key}-list`}>
+                  {SUCCESS_INDICATOR_SUGGESTIONS.map((o) => (
+                    <option key={o} value={o} />
+                  ))}
+                </datalist>
+              </>
             </FormField>
           </div>
           <FormField label="Comentários" htmlFor={`rc-not-${r.key}`}>

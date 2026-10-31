@@ -96,6 +96,18 @@ export const OBJECTIVE_SUGGESTIONS: string[] = [
   'Preparar a progressão para um novo nível de responsabilidade',
 ];
 
+/** Sugestões para "Indicador de sucesso": escolher da lista ou escrever. */
+export const SUCCESS_INDICATOR_SUGGESTIONS: string[] = [
+  'Avaliação seguinte com nota igual ou superior a 4',
+  'Redução de erros ou retrabalho nas entregas',
+  'Entregas concluídas dentro do prazo acordado',
+  'Conclusão da formação com aprovação',
+  'Feedback positivo da chefia ou da equipa',
+  'Objetivos individuais do trimestre atingidos',
+  'Melhoria do indicador de desempenho da função',
+  'Aplicação prática demonstrada num projeto ou tarefa',
+];
+
 export const RECOMMENDATION_PRIORITY_LABELS: Record<number, string> = {
   1: 'Baixa',
   2: 'Moderada',
