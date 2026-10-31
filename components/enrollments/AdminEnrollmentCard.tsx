@@ -70,7 +70,7 @@ export function AdminEnrollmentCard({
       {/* Painel recortado na diagonal com a foto do avatar */}
       <div
         aria-hidden={avatar.url ? undefined : true}
-        className="pointer-events-none absolute right-0 top-0 hidden h-[56%] w-[30%] items-center justify-center overflow-hidden sm:flex"
+        className="pointer-events-none absolute right-0 top-0 hidden h-[78%] w-[30%] items-center justify-center overflow-hidden sm:flex"
         style={{
           background: `linear-gradient(150deg, ${palette[0]} 0%, ${palette[1]} 55%, ${palette[2]} 100%)`,
           clipPath: 'polygon(28% 0, 100% 0, 100% 100%, 0 78%)',
@@ -84,7 +84,7 @@ export function AdminEnrollmentCard({
             decoding="async"
             src={avatar.url}
             alt={`Foto de ${avatar.name}`}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover object-top"
           />
         ) : (
           <span className="ml-6 text-3xl font-extrabold text-white/90">

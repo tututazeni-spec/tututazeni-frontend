@@ -9,6 +9,7 @@
 import { useEffect, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
+  ArrowUpDown,
   Building2,
   Download,
   FileUp,
@@ -375,6 +376,8 @@ export function CertificatesTab({
             onChange={(e) => set({ issuedTo: e.target.value })}
           />
           <Select
+            variant="underline"
+            icon={ArrowUpDown}
             items={SORT_ITEMS}
             value={filters.sort}
             onValueChange={(v) => set({ sort: v })}

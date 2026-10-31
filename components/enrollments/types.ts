@@ -122,6 +122,7 @@ export interface DepartmentProgressRow {
 export interface ProgressByDepartment {
   byDepartment: DepartmentProgressRow[];
   byUnit: DepartmentProgressRow[];
+  byPosition: DepartmentProgressRow[];
 }
 
 export type View = 'my' | 'admin' | 'compliance' | 'team';

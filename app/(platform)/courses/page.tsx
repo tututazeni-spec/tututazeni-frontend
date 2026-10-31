@@ -10,7 +10,6 @@ import {
   GraduationCap,
   Layers,
   LayoutDashboard,
-  Tags,
   TrendingUp,
   Users,
 } from 'lucide-react';
@@ -71,14 +70,6 @@ const InscricoesView = dynamic(
   },
 );
 
-const CategoriasView = dynamic(
-  () =>
-    import('@/components/courses/CategoriasView').then((m) => m.CategoriasView),
-  {
-    loading: () => <Skeleton />,
-  },
-);
-
 const ModulosView = dynamic(
   () => import('@/components/courses/ModulosView').then((m) => m.ModulosView),
   {
@@ -134,7 +125,6 @@ const TurmasView = dynamic(
 const NAV_META: Record<string, { icon: LucideIcon; hint: string }> = {
   dashboard: { icon: LayoutDashboard, hint: 'Resumo da formação' },
   catalog: { icon: BookOpen, hint: 'Catálogo de cursos' },
-  categorias: { icon: Tags, hint: 'Organização por área' },
   inscricoes: { icon: ClipboardList, hint: 'Matrículas e pedidos' },
   progresso: { icon: TrendingUp, hint: 'Evolução dos formandos' },
   turmas: { icon: Users, hint: 'Grupos de formação' },
@@ -282,9 +272,6 @@ export default function CoursesPage() {
       )}
       {nav.view === 'turmas' &&
         (canManageCohorts ? <TurmasView /> : <MyCohortsView />)}
-      {nav.view === 'categorias' && (
-        <CategoriasView onSelectCourse={handleSelect} />
-      )}
       {nav.view === 'relatorios' && <RelatoriosView onSelect={handleSelect} />}
 
       {showCreate && (

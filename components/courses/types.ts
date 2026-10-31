@@ -511,7 +511,6 @@ export type View =
   | 'progresso'
   | 'modulos'
   | 'turmas'
-  | 'categorias'
   | 'relatorios';
 export type TopLevelView = Exclude<View, 'detail'>;
 
