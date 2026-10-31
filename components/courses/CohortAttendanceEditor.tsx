@@ -7,7 +7,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Eraser, Save } from 'lucide-react';
+import { CalendarDays, Eraser, Save } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { NativeSelect } from '@/components/ui/NativeSelect';
 import { SearchInput } from '@/components/ui/SearchInput';
+import { Select } from '@/components/ui/Select';
 import {
   Table,
   TableBody,
@@ -278,21 +279,18 @@ export function CohortAttendanceEditor({
 
   return (
     <section className="space-y-4">
-      <label className="block space-y-1 text-xs text-ink-muted">
-        Sessão
-        <NativeSelect
-          value={sessionId ?? ''}
-          onChange={(e) => void changeSession(Number(e.target.value))}
-          className="w-full"
-        >
-          {sessionId === null && <option value="">Escolha uma sessão…</option>}
-          {usable.map((s) => (
-            <option key={s.id} value={s.id}>
-              {sessionDay(s.date)} · {s.startTime}–{s.endTime} · {s.title}
-            </option>
-          ))}
-        </NativeSelect>
-      </label>
+      <Select
+        variant="underline"
+        icon={CalendarDays}
+        placeholder="Escolha uma sessão…"
+        items={usable.map((s) => ({
+          value: String(s.id),
+          label: `${sessionDay(s.date)} · ${s.startTime}–${s.endTime} · ${s.title}`,
+        }))}
+        value={sessionId === null ? '' : String(sessionId)}
+        onValueChange={(v) => void changeSession(Number(v))}
+        className="w-full"
+      />
 
       {sessionId === null ? (
         <p className="text-sm text-ink-muted">

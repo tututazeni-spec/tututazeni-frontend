@@ -31,6 +31,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { SearchInput } from '@/components/ui/SearchInput';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -423,11 +424,12 @@ export function CohortDetailModal({
                       />
                     </div>
                     <div className="relative mb-3">
-                      <Input
+                      <SearchInput
+                        variant="underline"
                         value={addSearch}
                         onChange={(e) => setAddSearch(e.target.value)}
                         placeholder="Pesquisar colaborador para adicionar…"
-                        className="w-full"
+                        aria-label="Pesquisar colaborador para adicionar"
                         autoComplete="off"
                       />
                       {addSearch.trim().length > 0 && (
