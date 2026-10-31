@@ -163,44 +163,47 @@ export function CohortAttendanceReportView({
         <Badge intent="neutral">Sem registo: {g.unmarked}</Badge>
       </div>
 
-      <div className="space-y-3 rounded-card border border-border p-4">
-        <h4 className="text-sm font-medium text-ink">
+      <div className="overflow-hidden rounded-card border border-border">
+        {/* Cabeçalho no padrão das tabelas da plataforma */}
+        <h4 className="bg-brand/60 px-4 py-2.5 text-sm font-semibold text-white">
           Critério de assiduidade
         </h4>
-        <p className="text-xs text-ink-muted">
-          Presente e Atrasado contam como presença. Só entram sessões
-          concluídas; sessões canceladas ficam de fora. Sessão concluída sem
-          registo conta como falta. {report.criteria.note}
-        </p>
-        {isPrivileged && (
-          <div className="flex flex-wrap items-end gap-3">
-            <label className="space-y-1 text-xs text-ink-muted">
-              Presença mínima (%) — predefinição 75
-              <Input
-                type="number"
-                min={0}
-                max={100}
-                value={min}
-                onChange={(e) => setMin(e.target.value)}
-                className="w-28"
-              />
-            </label>
-            <label className="flex items-center gap-2 pb-3 text-sm text-ink">
-              <Checkbox
-                checked={excludeExcused}
-                onChange={(e) => setExcludeExcused(e.target.checked)}
-              />
-              Faltas justificadas não entram no total de sessões
-            </label>
-            <Button
-              size="sm"
-              onClick={submitPolicy}
-              loading={savePolicy.isPending}
-            >
-              Guardar critério
-            </Button>
-          </div>
-        )}
+        <div className="space-y-3 p-4">
+          <p className="text-xs text-ink-muted">
+            Presente e Atrasado contam como presença. Só entram sessões
+            concluídas; sessões canceladas ficam de fora. Sessão concluída sem
+            registo conta como falta. {report.criteria.note}
+          </p>
+          {isPrivileged && (
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="space-y-1 text-xs text-ink-muted">
+                Presença mínima (%) — predefinição 75
+                <Input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={min}
+                  onChange={(e) => setMin(e.target.value)}
+                  className="w-28"
+                />
+              </label>
+              <label className="flex items-center gap-2 pb-3 text-sm text-ink">
+                <Checkbox
+                  checked={excludeExcused}
+                  onChange={(e) => setExcludeExcused(e.target.checked)}
+                />
+                Faltas justificadas não entram no total de sessões
+              </label>
+              <Button
+                size="sm"
+                onClick={submitPolicy}
+                loading={savePolicy.isPending}
+              >
+                Guardar critério
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div>
