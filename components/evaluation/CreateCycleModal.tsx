@@ -27,7 +27,7 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
-import { Textarea } from '@/components/ui/Textarea';
+import { CycleDescriptionBuilder } from './CycleDescriptionBuilder';
 import { MODEL_LABEL, TYPE_LABEL } from './constants';
 
 export interface CreateCycleModalProps {
@@ -196,13 +196,8 @@ export function CreateCycleModal({
           </div>
 
           <FormField label="Descrição" htmlFor="cyc-description">
-            <Textarea
-              id="cyc-description"
-              value={form.description}
-              onChange={(e) => setField('description', e.target.value)}
-              className="w-full"
-              rows={2}
-              placeholder="Âmbito, objectivos, notas para os participantes…"
+            <CycleDescriptionBuilder
+              onChange={(v) => setField('description', v)}
             />
           </FormField>
 

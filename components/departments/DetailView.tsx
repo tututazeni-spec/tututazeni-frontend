@@ -7,7 +7,6 @@
 'use client';
 
 import { useState } from 'react';
-import type { QueryKey } from '@tanstack/react-query';
 import { useToast } from '@/providers/ToastProvider';
 import {
   ArrowLeft,
@@ -19,7 +18,6 @@ import {
   Users,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
-import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -29,6 +27,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -40,9 +39,17 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { CreateDepartmentModal } from './CreateDepartmentModal';
+import { DepartmentUserPicker } from './DepartmentUserPicker';
+import type { DirectoryUser } from './departmentFormData';
 import { departmentIcon } from './departmentIcon';
 import { HeadcountCard } from './HeadcountCard';
-import type { Department, HeadHistoryEntry, Member, Metrics } from './types';
+import type {
+  Department,
+  DepartmentNode,
+  HeadHistoryEntry,
+  Member,
+  Metrics,
+} from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDateNumeric, formatMoney } from '@/lib/format';
 
@@ -72,57 +79,18 @@ function Breadcrumb({
   );
 }
 
-type LookupStatus = 'idle' | 'loading' | 'found' | 'notfound';
-
-// Resolve um ID escrito à mão para uma entidade real, para que o nome seja
-// mostrado antes de qualquer acção. Debounced para não pedir por tecla; sem
-// retry para que um 404 apareça já como "não encontrado".
-function useEntityLookup<T>(
-  rawId: string,
-  buildPath: (id: number) => string,
-  buildKey: (id: number) => QueryKey,
-  getLabel: (data: T) => string,
-): { status: LookupStatus; label: string | null } {
-  const parsed = Number.parseInt(rawId, 10);
-  const valid = rawId.trim() !== '' && Number.isInteger(parsed) && parsed > 0;
-  const debouncedId = useDebounce(valid ? parsed : 0, 400);
-  const q = useApiQuery<T>(
-    buildKey(debouncedId || 0),
-    buildPath(debouncedId || 0),
-    { enabled: debouncedId > 0, retry: false, staleTime: STALE_TIME.DYNAMIC },
-  );
-
-  if (!valid) return { status: 'idle', label: null };
-  if (debouncedId !== parsed || q.isLoading || q.isFetching)
-    return { status: 'loading', label: null };
-  if (q.isError || !q.data) return { status: 'notfound', label: null };
-  return { status: 'found', label: getLabel(q.data) };
-}
-
-interface LookupHintProps {
-  status: LookupStatus;
-  label: string | null;
-  foundPrefix: string;
-}
-
-function LookupHint({ status, label, foundPrefix }: LookupHintProps) {
-  if (status === 'idle') return null;
-  if (status === 'loading')
-    return <p className="mt-2 text-xs text-ink-faint">A procurar…</p>;
-  if (status === 'notfound')
-    return (
-      <p className="mt-2 text-xs text-danger">
-        Não encontrado — verifica o ID.
-      </p>
-    );
-  return (
-    <p className="mt-2 flex items-center gap-1.5 text-xs text-success-ink">
-      <Check size={13} strokeWidth={2} />
-      <span>
-        {foundPrefix} <strong className="font-medium">{label}</strong>
-      </span>
-    </p>
-  );
+// Lista plana (com indentação por nível) dos departamentos, sem o actual.
+function flattenTree(
+  nodes: DepartmentNode[],
+  excludeId: number,
+  depth = 0,
+): Array<{ value: string; label: string }> {
+  return nodes.flatMap((n) => [
+    ...(n.id === excludeId
+      ? []
+      : [{ value: String(n.id), label: `${'— '.repeat(depth)}${n.name}` }]),
+    ...flattenTree(n.children ?? [], excludeId, depth + 1),
+  ]);
 }
 
 function HeaderIcon({
@@ -141,33 +109,20 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   const [activeTab, setActiveTab] = useState<
     'members' | 'subdepts' | 'history' | 'metrics'
   >('members');
-  const [transferUserId, setTransferUserId] = useState('');
+  const [transferUser, setTransferUser] = useState<DirectoryUser | null>(null);
   const [transferTargetId, setTransferTargetId] = useState('');
   const [transferReason, setTransferReason] = useState('');
-  const [addUserId, setAddUserId] = useState('');
+  const [addUser, setAddUser] = useState<DirectoryUser | null>(null);
   const [addReason, setAddReason] = useState('');
   const [createSubOpen, setCreateSubOpen] = useState(false);
 
-  // Confirmação do nome antes de qualquer acção: só é possível adicionar /
-  // transferir depois de o colaborador (e o departamento destino) resolverem.
-  const addUserLookup = useEntityLookup<Member>(
-    addUserId,
-    (id) => `/users/${id}`,
-    (id) => queryKeys.users.detail(id),
-    (u) => `${u.fullName} · ${u.email}`,
+  // Colaborador escolhido por pesquisa de nome; departamento destino por lista.
+  const treeQ = useApiQuery<DepartmentNode[]>(
+    queryKeys.departments.tree(),
+    '/departments/tree',
+    { staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const transferUserLookup = useEntityLookup<Member>(
-    transferUserId,
-    (id) => `/users/${id}`,
-    (id) => queryKeys.users.detail(id),
-    (u) => `${u.fullName} · ${u.email}`,
-  );
-  const transferTargetLookup = useEntityLookup<Department>(
-    transferTargetId,
-    (id) => `/departments/${id}`,
-    (id) => queryKeys.departments.detail(id),
-    (d) => `${d.name} · ${d.code}`,
-  );
+  const targetItems = flattenTree(treeQ.data ?? [], deptId);
 
   const deptQ = useApiQuery<
     Department & { users: Member[]; headHistory: HeadHistoryEntry[] }
@@ -217,8 +172,8 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   const transferMutation = useApiMutation(
     () =>
       apiClient.post('/departments/members/transfer', {
-        userId: parseInt(transferUserId),
-        targetDepartmentId: parseInt(transferTargetId),
+        userId: transferUser?.id,
+        targetDepartmentId: Number(transferTargetId),
         reason: transferReason || undefined,
       }),
     {
@@ -228,7 +183,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           title: 'Transferência realizada com sucesso',
           intent: 'success',
         });
-        setTransferUserId('');
+        setTransferUser(null);
         setTransferTargetId('');
         setTransferReason('');
       },
@@ -236,9 +191,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
     },
   );
   const transferLoading = transferMutation.isPending;
-  const canTransfer =
-    transferUserLookup.status === 'found' &&
-    transferTargetLookup.status === 'found';
+  const canTransfer = !!transferUser && transferTargetId !== '';
   const handleTransfer = () => {
     if (!canTransfer) return;
     transferMutation.mutate(undefined);
@@ -250,7 +203,7 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
   const addMemberMutation = useApiMutation(
     () =>
       apiClient.post('/departments/members/transfer', {
-        userId: parseInt(addUserId),
+        userId: addUser?.id,
         targetDepartmentId: deptId,
         reason: addReason || undefined,
       }),
@@ -261,14 +214,14 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
           title: 'Colaborador adicionado ao departamento',
           intent: 'success',
         });
-        setAddUserId('');
+        setAddUser(null);
         setAddReason('');
       },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
   const addMemberLoading = addMemberMutation.isPending;
-  const canAddMember = addUserLookup.status === 'found';
+  const canAddMember = !!addUser;
   const handleAddMember = () => {
     if (!canAddMember) return;
     addMemberMutation.mutate(undefined);
@@ -453,13 +406,14 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
               Adicionar colaborador ao departamento
             </div>
             <div className="flex flex-wrap gap-3">
-              <Input
-                type="number"
-                placeholder="ID do colaborador"
-                value={addUserId}
-                onChange={(e) => setAddUserId(e.target.value)}
-                className="min-w-[140px] flex-1"
-              />
+              <div className="min-w-[220px] flex-1">
+                <DepartmentUserPicker
+                  label="Colaborador"
+                  htmlFor="dept-add-user"
+                  value={addUser}
+                  onChange={setAddUser}
+                />
+              </div>
               <Input
                 type="text"
                 placeholder="Motivo (opcional)"
@@ -475,11 +429,6 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                 Adicionar
               </Button>
             </div>
-            <LookupHint
-              status={addUserLookup.status}
-              label={addUserLookup.label}
-              foundPrefix="Colaborador:"
-            />
           </Card>
 
           {/* Transfer form */}
@@ -488,19 +437,20 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
               Transferir colaborador
             </div>
             <div className="flex flex-wrap gap-3">
-              <Input
-                type="number"
-                placeholder="ID do colaborador"
-                value={transferUserId}
-                onChange={(e) => setTransferUserId(e.target.value)}
-                className="min-w-[140px] flex-1"
-              />
-              <Input
-                type="number"
-                placeholder="ID do departamento destino"
+              <div className="min-w-[220px] flex-1">
+                <DepartmentUserPicker
+                  label="Colaborador"
+                  htmlFor="dept-transfer-user"
+                  value={transferUser}
+                  onChange={setTransferUser}
+                />
+              </div>
+              <Select
+                items={targetItems}
                 value={transferTargetId}
-                onChange={(e) => setTransferTargetId(e.target.value)}
-                className="min-w-[180px] flex-1"
+                onValueChange={setTransferTargetId}
+                placeholder="Departamento destino"
+                className="min-w-[200px] flex-1"
               />
               <Input
                 type="text"
@@ -517,16 +467,6 @@ export function DetailView({ deptId, onBack }: DetailViewProps) {
                 Transferir
               </Button>
             </div>
-            <LookupHint
-              status={transferUserLookup.status}
-              label={transferUserLookup.label}
-              foundPrefix="Colaborador:"
-            />
-            <LookupHint
-              status={transferTargetLookup.status}
-              label={transferTargetLookup.label}
-              foundPrefix="Departamento destino:"
-            />
           </Card>
 
           {/* Members list */}

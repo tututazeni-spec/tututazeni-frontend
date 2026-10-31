@@ -3,9 +3,14 @@
 
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { useSessionList } from '../SessionPicker';
 import { Textarea } from '@/components/ui/Textarea';
 import { cleanFailRules } from './logic';
 import type { SessionRules } from '../types';
+
+// Valor do item "sem sessão" do Select (não aceita valor vazio).
+const NO_SESSION = 'NONE';
 
 /** Regras de conclusão (§7): o que recomendar quando a nota fica abaixo da mínima. */
 export function FailRules({
@@ -16,6 +21,7 @@ export function FailRules({
   onChange: (rules: SessionRules) => void;
 }) {
   const f = rules.onFail ?? {};
+  const { data: sessions } = useSessionList();
   const set = (next: NonNullable<SessionRules['onFail']>) =>
     onChange(cleanFailRules(next));
   return (
@@ -39,18 +45,25 @@ export function FailRules({
             onChange={(e) => set({ ...f, resourceUrl: e.target.value })}
           />
         </FormField>
-        <FormField label="Sessão complementar (id)" htmlFor="fr-sess">
-          <Input
-            id="fr-sess"
-            type="number"
-            min={1}
-            value={f.recommendSessionId ?? ''}
-            onChange={(e) =>
+        <FormField label="Sessão complementar" htmlFor="fr-sess">
+          <Select
+            items={[
+              { value: NO_SESSION, label: 'Nenhuma' },
+              ...(sessions ?? []).map((s) => ({
+                value: String(s.id),
+                label: `${s.program.title} — ${s.title}`,
+              })),
+            ]}
+            value={
+              f.recommendSessionId ? String(f.recommendSessionId) : NO_SESSION
+            }
+            onValueChange={(v) =>
               set({
                 ...f,
-                recommendSessionId: Number(e.target.value) || undefined,
+                recommendSessionId: v === NO_SESSION ? undefined : Number(v),
               })
             }
+            className="w-full"
           />
         </FormField>
       </div>

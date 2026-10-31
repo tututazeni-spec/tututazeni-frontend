@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { Select } from '@/components/ui/Select';
+import { useCourseOptions } from '@/components/courses/useCourseOptions';
 import { ClassCard } from './ClassCard';
 import { Spinner } from './Spinner';
 import { UpcomingStrip } from './UpcomingStrip';
@@ -45,6 +46,9 @@ export interface Filters {
   status: LiveClassStatus | '';
   modality: SessionModality | '';
 }
+
+// Valor do item "sem filtro" do Select (não aceita valor vazio).
+const ALL_COURSES = 'ALL';
 
 const TYPE_ITEMS = [
   { value: '', label: 'Todos os tipos' },
@@ -116,6 +120,10 @@ export function LiveClassesView({
   onCancel,
   onDuplicate,
 }: LiveClassesViewProps) {
+  const courseItems = [
+    { value: ALL_COURSES, label: 'Todos os cursos' },
+    ...useCourseOptions(),
+  ];
   return (
     <>
       <style>{`
@@ -194,12 +202,13 @@ export function LiveClassesView({
             placeholder="Pesquisar por tópico ou curso..."
             className={`${INP} min-w-65`}
           />
-          <input
-            value={filters.courseId}
-            onChange={(e) => onFiltersChange({ courseId: e.target.value })}
-            placeholder="ID do Curso"
-            type="number"
-            className={`${INP} w-32`}
+          <Select
+            items={courseItems}
+            value={filters.courseId || ALL_COURSES}
+            onValueChange={(v) =>
+              onFiltersChange({ courseId: v === ALL_COURSES ? '' : v })
+            }
+            className="w-56"
           />
           <button
             type="submit"

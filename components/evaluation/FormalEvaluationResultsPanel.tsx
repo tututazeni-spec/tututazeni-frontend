@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { Badge, type BadgeProps } from '@/components/ui/Badge';
@@ -43,6 +43,20 @@ export function FormalEvaluationResultsPanel({
     queryKeys.formalEvaluations.results(assessmentId),
     `/assessments/${assessmentId}/results`,
   );
+  // Da maior nota para a menor; sem nota (a aguardar revisão) no fim.
+  const roster = useMemo(
+    () =>
+      [...(data?.roster ?? [])].sort((a, b) => {
+        const ga = a.displayGrade ?? a.score;
+        const gb = b.displayGrade ?? b.score;
+        if (ga == null && gb == null)
+          return a.fullName.localeCompare(b.fullName);
+        if (ga == null) return 1;
+        if (gb == null) return -1;
+        return gb - ga || a.fullName.localeCompare(b.fullName);
+      }),
+    [data?.roster],
+  );
   const [reviewAttemptId, setReviewAttemptId] = useState<number | null>(null);
 
   return (
@@ -62,16 +76,22 @@ export function FormalEvaluationResultsPanel({
           )}
           {data && data.roster.length > 0 && (
             <Table>
-              <TableHead>
-                <TableRow>
-                  <TableHeaderCell>Participante</TableHeaderCell>
-                  <TableHeaderCell>Departamento</TableHeaderCell>
-                  <TableHeaderCell>Nota</TableHeaderCell>
-                  <TableHeaderCell>Resultado</TableHeaderCell>
+              <TableHead className="bg-brand/60">
+                <TableRow className="hover:bg-transparent">
+                  <TableHeaderCell className="text-white">
+                    Participante
+                  </TableHeaderCell>
+                  <TableHeaderCell className="text-white">
+                    Departamento
+                  </TableHeaderCell>
+                  <TableHeaderCell className="text-white">Nota</TableHeaderCell>
+                  <TableHeaderCell className="text-white">
+                    Resultado
+                  </TableHeaderCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.roster.map((row) => (
+                {roster.map((row) => (
                   <TableRow
                     key={row.attemptId}
                     className="cursor-pointer"

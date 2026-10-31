@@ -1,12 +1,12 @@
 // components/evaluation/ResultsTab.tsx
 // Separador "Resultados" — pesquisa por colaborador + score 360°,
 // concordância, radar de competências e sugestão de PDI. Dados próprios
-// (useApiMutation, pesquisa manual por ID) + apresentação. Extraído de
+// (useApiMutation, pesquisa de colaborador pelo nome) + apresentação. Extraído de
 // app/(platform)/evaluation/page.tsx.
 //
 // COLABORADOR só pode ver os seus próprios resultados (GET
 // /evaluations/results/:userId aplica assertCanAccess — ver
-// evaluation.controller.ts) — por isso não tem a pesquisa livre por ID;
+// evaluation.controller.ts) — por isso não tem a pesquisa livre de colaborador;
 // em vez disso escolhe mês/ano (ou "Ver Total") e o ID usado é sempre o
 // seu próprio, vindo de useCurrentUser().
 
@@ -24,7 +24,8 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { Input } from '@/components/ui/Input';
+import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
+import type { DirectoryUser } from '@/components/departments/departmentFormData';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
@@ -59,7 +60,7 @@ export function ResultsTab() {
   // mostrar a pesquisa por ID no primeiro render.
   const isColaborador = role === 'COLABORADOR';
 
-  const [userId, setUserId] = useState('');
+  const [selectedUser, setSelectedUser] = useState<DirectoryUser | null>(null);
   const [month, setMonth] = useState('ALL');
   const [year, setYear] = useState('ALL');
   const notify = useToast();
@@ -84,17 +85,8 @@ export function ResultsTab() {
   const result = raw && !noResults ? raw : null;
 
   const load = () => {
-    const id = userId.trim();
-    if (!id) return;
-    if (!/^\d+$/.test(id)) {
-      notify({
-        title: 'ID inválido',
-        description: 'O ID do colaborador é numérico (ex.: 42).',
-        intent: 'danger',
-      });
-      return;
-    }
-    loadResults.mutate({ uid: id });
+    if (!selectedUser) return;
+    loadResults.mutate({ uid: String(selectedUser.id) });
   };
 
   const periodFromFilters = () => {
@@ -117,7 +109,7 @@ export function ResultsTab() {
   const triggerPdi = useApiMutation(
     () =>
       apiClient.post(
-        `/evaluations/results/${isColaborador ? me?.id : userId}/trigger-pdi`,
+        `/evaluations/results/${isColaborador ? me?.id : selectedUser?.id}/trigger-pdi`,
         {},
       ),
     {
@@ -173,14 +165,18 @@ export function ResultsTab() {
             </Button>
           </CardBody>
         ) : (
-          <CardBody className="flex gap-3">
-            <Input
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              placeholder="ID do colaborador..."
-              className="flex-1"
-            />
-            <Button onClick={load}>Ver Resultados</Button>
+          <CardBody className="flex items-end gap-3">
+            <div className="flex-1">
+              <DepartmentUserPicker
+                label="Colaborador"
+                htmlFor="eval-results-user"
+                value={selectedUser}
+                onChange={setSelectedUser}
+              />
+            </div>
+            <Button onClick={load} disabled={!selectedUser}>
+              Ver Resultados
+            </Button>
           </CardBody>
         )}
       </Card>

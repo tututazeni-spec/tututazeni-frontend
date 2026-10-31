@@ -15,6 +15,11 @@ import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
+import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
+import type { DirectoryUser } from '@/components/departments/departmentFormData';
+import { useUnits } from '@/components/departments/departmentFormData';
+import { usePositionOptions } from '@/components/competencies/modelFormData';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { QueryError } from '@/components/ui/QueryError';
 import {
@@ -24,6 +29,7 @@ import {
 import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { SCORE_COLOR, SCORE_TONE } from './constants';
+import { ALL, useCycleOptions, useDepartmentOptions } from './filterOptions';
 import type { EvaluationReportGroup, EvaluationReportsOverview } from './types';
 
 function GroupTable({
@@ -67,6 +73,21 @@ export function ReportsTab() {
     managerId: '',
     period: '',
   });
+  const [manager, setManager] = useState<DirectoryUser | null>(null);
+  const cycleItems = [{ value: ALL, label: 'Todos' }, ...useCycleOptions()];
+  const departmentItems = [
+    { value: ALL, label: 'Todos' },
+    ...useDepartmentOptions(),
+  ];
+  const { units } = useUnits();
+  const unitItems = [
+    { value: ALL, label: 'Todas' },
+    ...units.map((u) => ({ value: String(u.id), label: u.name })),
+  ];
+  const positionItems = [
+    { value: ALL, label: 'Todos' },
+    ...usePositionOptions().options,
+  ];
 
   const load = useApiMutation((qs: string) =>
     apiClient.get<EvaluationReportsOverview>(
@@ -94,65 +115,63 @@ export function ReportsTab() {
             <label className="mb-1 block text-xs font-medium text-ink-muted">
               Ciclo
             </label>
-            <Input
-              value={filters.cycleId}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, cycleId: e.target.value }))
+            <Select
+              items={cycleItems}
+              value={filters.cycleId || ALL}
+              onValueChange={(v) =>
+                setFilters((f) => ({ ...f, cycleId: v === ALL ? '' : v }))
               }
-              placeholder="ID do ciclo"
-              className="w-32"
+              className="w-48"
             />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
               Departamento
             </label>
-            <Input
-              value={filters.departmentId}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, departmentId: e.target.value }))
+            <Select
+              items={departmentItems}
+              value={filters.departmentId || ALL}
+              onValueChange={(v) =>
+                setFilters((f) => ({ ...f, departmentId: v === ALL ? '' : v }))
               }
-              placeholder="ID"
-              className="w-24"
+              className="w-48"
             />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
               Unidade
             </label>
-            <Input
-              value={filters.unitId}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, unitId: e.target.value }))
+            <Select
+              items={unitItems}
+              value={filters.unitId || ALL}
+              onValueChange={(v) =>
+                setFilters((f) => ({ ...f, unitId: v === ALL ? '' : v }))
               }
-              placeholder="ID"
-              className="w-24"
+              className="w-40"
             />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
               Cargo
             </label>
-            <Input
-              value={filters.positionId}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, positionId: e.target.value }))
+            <Select
+              items={positionItems}
+              value={filters.positionId || ALL}
+              onValueChange={(v) =>
+                setFilters((f) => ({ ...f, positionId: v === ALL ? '' : v }))
               }
-              placeholder="ID"
-              className="w-24"
+              className="w-44"
             />
           </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">
-              Gestor
-            </label>
-            <Input
-              value={filters.managerId}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, managerId: e.target.value }))
-              }
-              placeholder="ID"
-              className="w-24"
+          <div className="w-60">
+            <DepartmentUserPicker
+              label="Gestor"
+              htmlFor="rep-manager"
+              value={manager}
+              onChange={(u) => {
+                setManager(u);
+                setFilters((f) => ({ ...f, managerId: u ? String(u.id) : '' }));
+              }}
             />
           </div>
           <div>

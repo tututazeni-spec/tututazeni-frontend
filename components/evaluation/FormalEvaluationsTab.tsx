@@ -118,8 +118,8 @@ function ManagementView() {
           <FormalEvaluationCard
             key={e.id}
             evaluation={e}
-            onSelect={
-              e.status !== 'DRAFT' ? () => setResultsId(e.id) : undefined
+            onSelect={() =>
+              e.status === 'DRAFT' ? setEditingId(e.id) : setResultsId(e.id)
             }
             actions={
               <DropdownMenu>

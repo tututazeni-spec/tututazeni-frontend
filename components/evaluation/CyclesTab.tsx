@@ -6,9 +6,12 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Building2,
   Calendar,
+  MoreHorizontal,
   ClipboardCheck,
   ClipboardList,
   Plus,
@@ -23,16 +26,27 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { ADMIN_ROLES } from '@/lib/roles';
+import { ADMIN_ROLES, MGMT_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { BadgeProps } from '@/components/ui/Badge';
 import { CycleCard } from './CycleCard';
 import { CreateCycleModal } from './CreateCycleModal';
+import { SubmitEvaluationModal } from './SubmitEvaluationModal';
 import { MODEL_LABEL, STATUS_MAP } from './constants';
-import type { Cycle } from './types';
+import type { Cycle, EvalRequest } from './types';
 import { formatDateNumeric } from '@/lib/format';
+
+const NewEvaluationWizard = dynamic(() =>
+  import('./NewEvaluationWizard').then((m) => m.NewEvaluationWizard),
+);
 
 const CYCLE_TONE: Record<string, BadgeProps['intent']> = {
   DRAFT: 'neutral',
@@ -44,28 +58,76 @@ const CYCLE_TONE: Record<string, BadgeProps['intent']> = {
   ARCHIVED: 'neutral',
 };
 
+const ACTION_DONE = {
+  publish: 'Ciclo publicado',
+  activate: 'Ciclo ativado',
+  pause: 'Ciclo pausado',
+  close: 'Ciclo encerrado',
+  reopen: 'Ciclo reaberto',
+  remind: 'Lembretes enviados',
+} as const;
+
 export function CyclesTab() {
   const notify = useToast();
+  const qc = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
+  const [toSubmit, setToSubmit] = useState<EvalRequest | null>(null);
+  // Avaliações que EU tenho de preencher (mesmo endpoint do separador
+  // "Avaliações Pendentes"): clicar no cartão de um ciclo abre a primeira
+  // pendente desse ciclo.
+  const { data: myPending = [] } = useApiQuery<EvalRequest[]>(
+    queryKeys.evaluation.pending(),
+    '/evaluations/pending',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const startEvaluation = (cycle: Cycle) => {
+    const request = myPending.find((r) => r.cycle?.id === cycle.id);
+    if (request) setToSubmit(request);
+    else
+      notify({
+        title: 'Sem avaliação para preencher neste ciclo',
+        description:
+          cycle.status === 'ACTIVE'
+            ? 'Não tens avaliações pendentes neste ciclo.'
+            : 'O ciclo ainda não está ativo para avaliações.',
+        intent: 'info',
+      });
+  };
   // Publicar/Activar/Criar espelham @Roles(ADMIN, RH) de POST
   // /evaluations/cycles(/:id/publish|/activate) (evaluation.controller.ts) —
   // um COLABORADOR pode ver este separador (participa nas suas avaliações),
   // mas não gere o ciclo. Sem isto os botões apareciam para todos e
   // rebentavam com 403 ao clicar.
   const canManageCycle = useHasRole(ADMIN_ROLES);
+  // Mesmos papéis que vêem o separador "Avaliações" e o assistente "Nova Avaliação".
+  const canAddEvaluation = useHasRole(MGMT_ROLES);
+  const [addToCycleId, setAddToCycleId] = useState<number | null>(null);
 
   // docs/modulo_evaluation.md ponto 3 — Pausar/Encerrar/Reabrir/Enviar
-  // lembretes, mesmo padrão de publish/activate já existente (reload após
-  // sucesso em vez de invalidação de cache, ver comentário histórico
-  // acima destas duas acções).
+  // lembretes, publicar e activar. Depois do sucesso invalida-se a cache em
+  // vez de recarregar a página: um reload voltava ao separador por omissão.
   const runCycleAction = (
     cycleId: number,
     action: 'publish' | 'activate' | 'pause' | 'close' | 'reopen' | 'remind',
     method: 'POST' | 'PATCH',
   ) => {
     const call = method === 'POST' ? apiClient.post : apiClient.patch;
-    call(`/evaluations/cycles/${cycleId}/${action}`, {})
-      .then(() => window.location.reload())
+    call<{ requestsCount?: number } | undefined>(
+      `/evaluations/cycles/${cycleId}/${action}`,
+      {},
+    )
+      .then((res) => {
+        qc.invalidateQueries({ queryKey: queryKeys.evaluation.all });
+        if (action === 'activate' && res?.requestsCount === 0) {
+          notify({
+            title:
+              'Ciclo ativado, mas não gerou nenhuma avaliação. Confirma se os colaboradores deste âmbito têm gestor atribuído, ou usa "Adicionar avaliação".',
+            intent: 'danger',
+          });
+          return;
+        }
+        notify({ title: ACTION_DONE[action], intent: 'success' });
+      })
       .catch((e) => {
         reportError(e, { source: `CyclesTab.${action}` });
         notify({
@@ -149,6 +211,31 @@ export function CyclesTab() {
             <CycleCard
               key={cycle.id}
               seed={cycle.id}
+              onSelect={() => startEvaluation(cycle)}
+              actions={
+                canAddEvaluation && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        intent="onDarkGhost"
+                        size="icon"
+                        aria-label="Mais opções"
+                        title="Mais opções"
+                      >
+                        <MoreHorizontal size={16} strokeWidth={1.75} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onSelect={() => setAddToCycleId(cycle.id)}
+                      >
+                        Adicionar avaliação
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )
+              }
               kicker={MODEL_LABEL[cycle.model] ?? cycle.model}
               kickerIcon={ClipboardList}
               title={cycle.name}
@@ -197,6 +284,16 @@ export function CyclesTab() {
               }}
               footer={
                 <>
+                  {myPending.some((r) => r.cycle?.id === cycle.id) && (
+                    <Button
+                      type="button"
+                      intent="onDark"
+                      size="sm"
+                      onClick={() => startEvaluation(cycle)}
+                    >
+                      Avaliar →
+                    </Button>
+                  )}
                   {canManageCycle && cycle.status === 'DRAFT' && (
                     <Button
                       type="button"
@@ -295,6 +392,25 @@ export function CyclesTab() {
           />
         )}
       </div>
+
+      {addToCycleId !== null && (
+        <NewEvaluationWizard
+          cycleId={addToCycleId}
+          onClose={() => setAddToCycleId(null)}
+        />
+      )}
+
+      {toSubmit && (
+        <SubmitEvaluationModal
+          requestId={toSubmit.id}
+          cycleId={toSubmit.cycle?.id}
+          evaluatedName={toSubmit.evaluated.fullName}
+          onClose={() => setToSubmit(null)}
+          onSuccess={() =>
+            qc.invalidateQueries({ queryKey: queryKeys.evaluation.all })
+          }
+        />
+      )}
     </div>
   );
 }

@@ -13,16 +13,16 @@ import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type { NavyStatTone } from '@/components/ui/NavyStatCard';
 
 export const STATUS_MAP: StatusBadgeMap<string> = {
-  DRAFT: { label: 'DRAFT', cls: 'bg-surface-sunken text-ink-muted' },
-  PUBLISHED: { label: 'PUBLISHED', cls: 'bg-info-subtle text-info-ink' },
-  ACTIVE: { label: 'ACTIVE', cls: 'bg-success-subtle text-success-ink' },
-  PAUSED: { label: 'PAUSADO', cls: 'bg-warning-subtle text-warning-ink' },
+  DRAFT: { label: 'Rascunho', cls: 'bg-surface-sunken text-ink-muted' },
+  PUBLISHED: { label: 'Publicado', cls: 'bg-info-subtle text-info-ink' },
+  ACTIVE: { label: 'Activo', cls: 'bg-success-subtle text-success-ink' },
+  PAUSED: { label: 'Pausado', cls: 'bg-warning-subtle text-warning-ink' },
   CALIBRATING: {
-    label: 'CALIBRATING',
+    label: 'Em calibração',
     cls: 'bg-warning-subtle text-warning-ink',
   },
-  COMPLETED: { label: 'COMPLETED', cls: 'bg-primary-subtle text-primary' },
-  ARCHIVED: { label: 'ARCHIVED', cls: 'bg-surface-sunken text-ink-faint' },
+  COMPLETED: { label: 'Concluído', cls: 'bg-primary-subtle text-primary' },
+  ARCHIVED: { label: 'Arquivado', cls: 'bg-surface-sunken text-ink-faint' },
 };
 
 // Estado agregado de uma linha da aba "Avaliações" (EvaluationRequestFilterDto

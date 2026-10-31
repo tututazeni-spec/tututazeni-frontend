@@ -7,7 +7,9 @@
 
 import { useState } from 'react';
 import { ClipboardCheck, Plus, Trash2 } from 'lucide-react';
-import { useApiMutation } from '@/hooks/useApiQuery';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { Select } from '@/components/ui/Select';
+import type { FormalEvaluation } from '@/components/evaluation/formalEvaluationTypes';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { formatDateTime } from '@/lib/format';
@@ -22,8 +24,17 @@ import { useSessionDetail } from './SessionPicker';
 import type { RubricCriterion, SessionDetail } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 
+// Valor do item "sem avaliação formal" do Select (não aceita valor vazio).
+const NO_FORMAL = 'NONE';
+
 function AssessmentForm({ session }: { session: SessionDetail }) {
   const notify = useToast();
+  // Avaliações formais (módulo Avaliações) escolhidas pelo título.
+  const { data: formalEvaluations } = useApiQuery<FormalEvaluation[]>(
+    queryKeys.formalEvaluations.list(),
+    '/assessments',
+    { params: { type: 'EXAM' } },
+  );
   const a = session.assessment;
   const [passingScore, setPassingScore] = useState(a?.passingScore ?? 70);
   const [maxAttempts, setMaxAttempts] = useState(a?.maxAttempts ?? 0);
@@ -110,14 +121,21 @@ function AssessmentForm({ session }: { session: SessionDetail }) {
           />
         </FormField>
         <FormField
-          label="ID da avaliação formal"
+          label="Avaliação formal"
           htmlFor="as-formal"
           hint="Opcional (módulo Avaliações)"
         >
-          <Input
-            id="as-formal"
-            value={assessmentId}
-            onChange={(e) => setAssessmentId(e.target.value)}
+          <Select
+            items={[
+              { value: NO_FORMAL, label: 'Nenhuma' },
+              ...(formalEvaluations ?? []).map((e) => ({
+                value: String(e.id),
+                label: e.title,
+              })),
+            ]}
+            value={assessmentId || NO_FORMAL}
+            onValueChange={(v) => setAssessmentId(v === NO_FORMAL ? '' : v)}
+            className="w-full"
           />
         </FormField>
       </div>

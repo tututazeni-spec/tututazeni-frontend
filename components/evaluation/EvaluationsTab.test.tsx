@@ -56,6 +56,7 @@ vi.mock('@/hooks/useCurrentUser', () => ({
 
 const notify = vi.fn();
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
+vi.mock('@/providers/ConfirmProvider', () => ({ useConfirm: () => vi.fn() }));
 
 vi.mock('./NewEvaluationWizard', () => ({
   NewEvaluationWizard: () => <div data-testid="wizard" />,

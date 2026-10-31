@@ -15,6 +15,19 @@ vi.mock('@/hooks/useApiQuery', () => ({
     error: null,
   }),
 }));
+// Pesquisa de colaborador por nome: o picker real faz pedidos ao diretório,
+// aqui basta um botão que escolhe um colaborador.
+vi.mock('@/components/departments/DepartmentUserPicker', () => ({
+  DepartmentUserPicker: ({
+    onChange,
+  }: {
+    onChange: (u: { id: number; fullName: string }) => void;
+  }) => (
+    <button onClick={() => onChange({ id: 42, fullName: 'Maria Silva' })}>
+      Escolher colaborador
+    </button>
+  ),
+}));
 vi.mock('@/lib/apiClient', () => ({
   apiClient: { get: vi.fn(), post: vi.fn() },
 }));
@@ -83,16 +96,14 @@ describe('ResultsTab', () => {
     ).toBeInTheDocument();
   });
 
-  test('ID não numérico — não dispara a query, avisa por toast', () => {
+  test('colaborador escolhido pelo nome — só então consulta os resultados', () => {
     render(<ResultsTab />);
-    fireEvent.change(screen.getByPlaceholderText('ID do colaborador...'), {
-      target: { value: 'abc' },
-    });
+    expect(
+      screen.getByRole('button', { name: 'Ver Resultados' }),
+    ).toBeDisabled();
+    fireEvent.click(screen.getByText('Escolher colaborador'));
     fireEvent.click(screen.getByRole('button', { name: 'Ver Resultados' }));
-    expect(mutate).not.toHaveBeenCalled();
-    expect(notify).toHaveBeenCalledWith(
-      expect.objectContaining({ intent: 'danger' }),
-    );
+    expect(mutate).toHaveBeenCalledWith({ uid: '42' });
   });
 
   describe('COLABORADOR — só vê os seus próprios resultados', () => {
@@ -104,7 +115,7 @@ describe('ResultsTab', () => {
     test('sem pesquisa por ID — só filtro de mês/ano e o próprio ID', () => {
       render(<ResultsTab />);
       expect(
-        screen.queryByPlaceholderText('ID do colaborador...'),
+        screen.queryByText('Escolher colaborador'),
       ).not.toBeInTheDocument();
       expect(
         screen.getByRole('button', { name: 'Ver Resultados' }),

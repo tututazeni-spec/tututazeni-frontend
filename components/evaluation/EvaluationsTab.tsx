@@ -17,6 +17,7 @@ import {
   Filter,
   Landmark,
   MapPin,
+  MoreHorizontal,
   Plus,
   RefreshCw,
   RotateCcw,
@@ -28,15 +29,24 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { MGMT_ROLES } from '@/lib/roles';
+import { ADMIN_ROLES, MGMT_ROLES } from '@/lib/roles';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button, IconButton } from '@/components/ui/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { useUnits } from '@/components/departments/departmentFormData';
+import { PendingCycleCard } from './PendingCycleCard';
+import { EditCycleModal } from './EditCycleModal';
 import { EvaluationCard } from './EvaluationCard';
 import { EvaluationDetailModal } from './EvaluationDetailModal';
 import { SubmitEvaluationModal } from './SubmitEvaluationModal';
@@ -87,6 +97,8 @@ export function EvaluationsTab() {
   const notify = useToast();
   const { data: me } = useCurrentUser();
   const canManage = useHasRole(MGMT_ROLES);
+  const canActivate = useHasRole(ADMIN_ROLES);
+  const confirm = useConfirm();
 
   const [cycleId, setCycleId] = useState(ALL);
   const [departmentId, setDepartmentId] = useState(ALL);
@@ -95,6 +107,8 @@ export function EvaluationsTab() {
   const [purpose, setPurpose] = useState(ALL);
   const [page, setPage] = useState(1);
   const [showWizard, setShowWizard] = useState(false);
+  const [addToCycleId, setAddToCycleId] = useState<number | null>(null);
+  const [editingCycle, setEditingCycle] = useState<Cycle | null>(null);
   const [viewingId, setViewingId] = useState<number | null>(null);
   const [submittingRow, setSubmittingRow] =
     useState<EvaluationRequestRow | null>(null);
@@ -124,6 +138,104 @@ export function EvaluationsTab() {
     staleTime: STALE_TIME.DYNAMIC,
     enabled: canManage,
   });
+
+  // Ciclos criados com âmbito Todos/Departamento/Unidade ainda não têm
+  // pedidos (só nascem na activação), logo não apareciam nesta lista.
+  // Mostram-se à parte, só sem filtros de linha activos.
+  const noRowFilters =
+    departmentId === ALL && unitId === ALL && status === ALL && purpose === ALL;
+  const pendingCycles = (cyclesData?.data ?? []).filter(
+    (c) =>
+      noRowFilters &&
+      (c.status === 'DRAFT' || c.status === 'PUBLISHED') &&
+      c.participation.total === 0 &&
+      (cycleId === ALL || cycleId === String(c.id)),
+  );
+
+  const publishCycle = useApiMutation<unknown, number>(
+    (id) => apiClient.post(`/evaluations/cycles/${id}/publish`, {}),
+    {
+      invalidateKeys: [queryKeys.evaluation.all],
+      onSuccess: () =>
+        notify({ title: 'Avaliação publicada', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: e instanceof Error ? e.message : 'Erro',
+          intent: 'danger',
+        }),
+    },
+  );
+  const archiveCycle = useApiMutation<unknown, number>(
+    (id) =>
+      apiClient.patch(`/evaluations/cycles/${id}`, { status: 'ARCHIVED' }),
+    {
+      invalidateKeys: [queryKeys.evaluation.all],
+      onSuccess: () =>
+        notify({ title: 'Avaliação arquivada', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: e instanceof Error ? e.message : 'Erro',
+          intent: 'danger',
+        }),
+    },
+  );
+  const askArchive = async (cycle: Cycle) => {
+    const ok = await confirm({
+      title: 'Arquivar avaliação',
+      message: `Arquivar "${cycle.name}"? Deixa de aparecer nesta lista.`,
+      confirmLabel: 'Arquivar',
+    });
+    if (ok) archiveCycle.mutate(cycle.id);
+  };
+  const deleteCycle = useApiMutation<unknown, number>(
+    (id) => apiClient.delete(`/evaluations/cycles/${id}`),
+    {
+      invalidateKeys: [queryKeys.evaluation.all],
+      onSuccess: () =>
+        notify({ title: 'Avaliação eliminada', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: e instanceof Error ? e.message : 'Erro',
+          intent: 'danger',
+        }),
+    },
+  );
+  const askDelete = async (cycle: Cycle) => {
+    const ok = await confirm({
+      title: 'Eliminar avaliação',
+      message: `Tens a certeza que queres eliminar "${cycle.name}"?`,
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) deleteCycle.mutate(cycle.id);
+  };
+  const activateCycle = useApiMutation<{ requestsCount?: number }, number>(
+    (id) => apiClient.post(`/evaluations/cycles/${id}/activate`, {}),
+    {
+      invalidateKeys: [queryKeys.evaluation.all],
+      onSuccess: (res) =>
+        res?.requestsCount === 0
+          ? notify({
+              title:
+                'Ciclo ativado, mas não gerou nenhuma avaliação. Confirma se os colaboradores deste âmbito têm gestor atribuído, ou usa "Adicionar avaliação".',
+              intent: 'danger',
+            })
+          : notify({ title: 'Ciclo ativado', intent: 'success' }),
+      onError: (e) =>
+        notify({
+          title: e instanceof Error ? e.message : 'Erro',
+          intent: 'danger',
+        }),
+    },
+  );
+  const askActivate = async (cycle: Cycle) => {
+    const ok = await confirm({
+      title: 'Ativar ciclo de avaliação',
+      message: `Ativar "${cycle.name}" cria os pedidos de avaliação e notifica já os avaliadores. Continuar?`,
+      confirmLabel: 'Ativar',
+    });
+    if (ok) activateCycle.mutate(cycle.id);
+  };
 
   const remind = useApiMutation(
     (id: number) => apiClient.post(`/evaluations/requests/${id}/remind`, {}),
@@ -217,6 +329,16 @@ export function EvaluationsTab() {
           <Button size="sm" intent="secondary" onClick={exportCsv}>
             Exportar
           </Button>
+          {cycleId !== ALL && (
+            <Button
+              size="sm"
+              intent="secondary"
+              onClick={() => setAddToCycleId(Number(cycleId))}
+            >
+              <Plus size={14} strokeWidth={1.75} className="mr-1" />
+              Adicionar ao ciclo
+            </Button>
+          )}
           <Button size="sm" onClick={() => setShowWizard(true)}>
             <Plus size={14} strokeWidth={1.75} className="mr-1" />
             Nova Avaliação
@@ -289,6 +411,73 @@ export function EvaluationsTab() {
         />
       </div>
 
+      {pendingCycles.length > 0 && (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {pendingCycles.map((c) => (
+            <PendingCycleCard
+              key={c.id}
+              cycle={c}
+              actions={
+                canActivate && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        intent="onDarkGhost"
+                        size="icon"
+                        aria-label="Mais opções"
+                        title="Mais opções"
+                      >
+                        <MoreHorizontal size={16} strokeWidth={1.75} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => setAddToCycleId(c.id)}>
+                        Adicionar avaliação
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => setEditingCycle(c)}>
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => void askArchive(c)}>
+                        Arquivar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-danger-ink"
+                        onSelect={() => void askDelete(c)}
+                      >
+                        Eliminar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )
+              }
+              footer={
+                canActivate &&
+                (c.status === 'DRAFT' ? (
+                  <Button
+                    intent="onDark"
+                    size="sm"
+                    onClick={() => publishCycle.mutate(c.id)}
+                    loading={publishCycle.isPending}
+                  >
+                    Publicar
+                  </Button>
+                ) : (
+                  <Button
+                    intent="onDark"
+                    size="sm"
+                    onClick={() => void askActivate(c)}
+                    loading={activateCycle.isPending}
+                  >
+                    Ativar
+                  </Button>
+                ))
+              }
+            />
+          ))}
+        </div>
+      )}
+
       {loading ? (
         <Skeleton
           rows={5}
@@ -296,10 +485,12 @@ export function EvaluationsTab() {
           itemClassName="skeleton-shimmer h-12 rounded-card"
         />
       ) : (data?.data.length ?? 0) === 0 ? (
-        <EmptyState
-          title="Sem avaliações"
-          description="Nenhuma avaliação corresponde aos filtros seleccionados."
-        />
+        pendingCycles.length > 0 ? null : (
+          <EmptyState
+            title="Sem avaliações"
+            description="Nenhuma avaliação corresponde aos filtros seleccionados."
+          />
+        )
       ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {data?.data.map((r) => {
@@ -406,6 +597,12 @@ export function EvaluationsTab() {
         </div>
       )}
 
+      {editingCycle && (
+        <EditCycleModal
+          cycle={editingCycle}
+          onClose={() => setEditingCycle(null)}
+        />
+      )}
       {viewingId != null && (
         <EvaluationDetailModal
           requestId={viewingId}
@@ -419,6 +616,12 @@ export function EvaluationsTab() {
           cycleId={submittingRow.cycle?.id}
           evaluatedName={submittingRow.evaluated.fullName}
           onClose={() => setSubmittingRow(null)}
+        />
+      )}
+      {addToCycleId !== null && (
+        <NewEvaluationWizard
+          cycleId={addToCycleId}
+          onClose={() => setAddToCycleId(null)}
         />
       )}
       {showWizard && (

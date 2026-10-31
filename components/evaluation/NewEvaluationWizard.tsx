@@ -148,15 +148,27 @@ const INITIAL_VALUES: NewEvaluationFormValues = {
 
 export interface NewEvaluationWizardProps {
   onClose: () => void;
+  /** Abre já associado a este ciclo existente (ex.: menu do cartão do ciclo). */
+  cycleId?: number;
 }
 
-export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
+export function NewEvaluationWizard({
+  onClose,
+  cycleId: presetCycleId,
+}: NewEvaluationWizardProps) {
   const notify = useToast();
   const qc = useQueryClient();
   const { step, busy, error, next, back, goTo, begin, end, fail } =
     useWizardFlow();
-  const { values: form, set } =
-    useFormState<NewEvaluationFormValues>(INITIAL_VALUES);
+  const { values: form, set } = useFormState<NewEvaluationFormValues>(
+    presetCycleId
+      ? {
+          ...INITIAL_VALUES,
+          cycleMode: 'existing',
+          existingCycleId: String(presetCycleId),
+        }
+      : INITIAL_VALUES,
+  );
   const {
     name,
     purpose,
@@ -292,6 +304,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
       }
 
       let cycleId: number;
+      let partialFailures = 0;
       if (cycleMode === 'existing') {
         cycleId = Number(existingCycleId);
       } else {
@@ -379,14 +392,21 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
         });
         if (result && result.succeeded === 0 && result.failed > 0) {
           throw new Error(
-            'O ciclo foi criado, mas não foi possível atribuir as avaliações. Verifica os avaliadores e tenta de novo.',
+            'Não foi possível atribuir as avaliações. Verifica se estes avaliadores já estão atribuídos a este ciclo e tenta de novo.',
           );
         }
+        partialFailures = result?.failed ?? 0;
       }
 
       qc.invalidateQueries({ queryKey: queryKeys.evaluation.cycles() });
       qc.invalidateQueries({ queryKey: queryKeys.evaluation.all });
-      notify({ title: 'Avaliação criada', intent: 'success' });
+      notify({
+        title:
+          partialFailures > 0
+            ? `Avaliação criada, mas ${partialFailures} atribuições falharam (provavelmente já existiam)`
+            : 'Avaliação criada',
+        intent: partialFailures > 0 ? 'danger' : 'success',
+      });
       onClose();
     } catch (e) {
       fail(e instanceof Error ? e.message : 'Erro ao criar a avaliação.');
@@ -478,7 +498,10 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
               <Button
                 size="sm"
                 intent={cycleMode === 'existing' ? 'primary' : 'secondary'}
-                onClick={() => set('cycleMode', 'existing')}
+                onClick={() => {
+                  set('cycleMode', 'existing');
+                  set('populationType', 'GROUP');
+                }}
               >
                 Associar a ciclo existente
               </Button>
@@ -549,7 +572,13 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
           <div className="space-y-4">
             <FormField label="População abrangida" htmlFor="ne-pop">
               <Select
-                items={POPULATION_ITEMS}
+                items={
+                  // Num ciclo existente só a atribuição explícita cria pedidos;
+                  // Todos/Departamento/Unidade só valem ao criar um ciclo novo.
+                  cycleMode === 'existing'
+                    ? POPULATION_ITEMS.filter((i) => i.value === 'GROUP')
+                    : POPULATION_ITEMS
+                }
                 value={populationType}
                 onValueChange={(v) =>
                   set('populationType', v as typeof populationType)
