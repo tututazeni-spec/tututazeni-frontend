@@ -6,7 +6,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Layers, Pencil, Plus, Tag, Trash2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  Layers,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Tag,
+  Trash2,
+} from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -17,10 +25,17 @@ import { useToast } from '@/providers/ToastProvider';
 import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { CriteriaFormModal } from './CriteriaFormModal';
 import { TemplateFormModal } from './TemplateFormModal';
-import type { EvalTemplate } from './types';
+import type { EvalCriteria, EvalTemplate } from './types';
 
 export function ModelsTab() {
   const isAdmin = useHasRole(ADMIN_ROLES);
@@ -46,6 +61,38 @@ export function ModelsTab() {
     `/evaluations/templates/${editingId}`,
     { enabled: typeof editingId === 'number' },
   );
+
+  // Modelo a que se está a adicionar um critério novo (menu de 3 pontos).
+  const [addCriterionTo, setAddCriterionTo] = useState<EvalTemplate | null>(
+    null,
+  );
+  const queryClient = useQueryClient();
+
+  // Liga o critério acabado de criar ao modelo, mantendo os já ligados.
+  const linkCriterion = async (
+    template: EvalTemplate,
+    created: EvalCriteria,
+  ) => {
+    const detail = await apiClient.get<EvalTemplate>(
+      `/evaluations/templates/${template.id}`,
+    );
+    const current = (detail.criteria ?? []).map((c) => ({
+      criteriaId: c.criteriaId,
+      weight: Number(c.weight ?? 1),
+    }));
+    await apiClient.patch(`/evaluations/templates/${template.id}`, {
+      criteria: [
+        ...current,
+        { criteriaId: created.id, weight: Number(created.weight ?? 1) },
+      ],
+    });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.evaluation.templates(),
+    });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.evaluation.templateDetail(template.id),
+    });
+  };
 
   const remove = async (t: EvalTemplate) => {
     if (
@@ -126,6 +173,24 @@ export function ModelsTab() {
               actions={
                 isAdmin && (
                   <>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          intent="onDarkGhost"
+                          size="sm"
+                          aria-label={`Mais opções de ${t.name}`}
+                          title="Mais opções"
+                        >
+                          <MoreHorizontal size={15} strokeWidth={1.75} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => setAddCriterionTo(t)}>
+                          Adicionar critério
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                     <Button
                       type="button"
                       intent="onDarkGhost"
@@ -158,6 +223,14 @@ export function ModelsTab() {
         <TemplateFormModal
           template={null}
           onClose={() => setEditingId(undefined)}
+        />
+      )}
+      {addCriterionTo && (
+        <CriteriaFormModal
+          criteria={null}
+          defaultScaleId={addCriterionTo.scaleId}
+          onCreated={(created) => linkCriterion(addCriterionTo, created)}
+          onClose={() => setAddCriterionTo(null)}
         />
       )}
       {typeof editingId === 'number' && editingDetail && (

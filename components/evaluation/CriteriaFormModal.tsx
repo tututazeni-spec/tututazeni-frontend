@@ -26,6 +26,10 @@ import { Checkbox } from '@/components/ui/Checkbox';
 export interface CriteriaFormModalProps {
   criteria?: EvalCriteria | null;
   onClose: () => void;
+  /** Chamado após criar um critério novo (ex.: para o ligar a um modelo). */
+  onCreated?: (created: EvalCriteria) => void | Promise<void>;
+  /** Escala pré-seleccionada ao criar (ex.: a escala do modelo). */
+  defaultScaleId?: number | null;
 }
 
 const CATEGORY_ITEMS = CRITERIA_CATEGORY_OPTIONS.map((c) => ({
@@ -58,6 +62,8 @@ const splitIndicators = (text: string) =>
 export function CriteriaFormModal({
   criteria,
   onClose,
+  onCreated,
+  defaultScaleId,
 }: CriteriaFormModalProps) {
   const notify = useToast();
   const isEdit = !!criteria;
@@ -79,7 +85,10 @@ export function CriteriaFormModal({
       description: criteria?.description ?? '',
       category: criteria?.category ?? '',
       weight: String(criteria?.weight ?? 1),
-      scaleId: criteria?.scaleId ? String(criteria.scaleId) : '',
+      scaleId:
+        (criteria?.scaleId ?? defaultScaleId)
+          ? String(criteria?.scaleId ?? defaultScaleId)
+          : '',
       behavioralIndicators: criteria?.behavioralIndicators ?? '',
     },
     { name: [required()] },
@@ -102,10 +111,22 @@ export function CriteriaFormModal({
     () =>
       criteria
         ? apiClient.patch(`/evaluations/criteria/${criteria.id}`, payload())
-        : apiClient.post('/evaluations/criteria', payload()),
+        : apiClient.post<EvalCriteria>('/evaluations/criteria', payload()),
     {
       invalidateKeys: [queryKeys.evaluation.criteria()],
-      onSuccess: () => {
+      onSuccess: async (data) => {
+        if (!isEdit && onCreated) {
+          try {
+            await onCreated(data as EvalCriteria);
+          } catch (e) {
+            setSubmitError(
+              e instanceof Error
+                ? e.message
+                : 'Critério criado, mas não foi possível ligá-lo ao modelo.',
+            );
+            return;
+          }
+        }
         notify({
           title: isEdit ? 'Critério actualizado' : 'Critério criado',
           intent: 'success',
