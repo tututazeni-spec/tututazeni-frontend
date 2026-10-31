@@ -261,9 +261,7 @@ export function EvaluationDetailModal({
                 <div>
                   <p className="text-xs text-ink-faint">Prazo</p>
                   <p className="text-ink">
-                    {data.dueDate
-                      ? formatDateNumeric(data.dueDate)
-                      : '—'}
+                    {data.dueDate ? formatDateNumeric(data.dueDate) : '—'}
                   </p>
                 </div>
                 <div>
