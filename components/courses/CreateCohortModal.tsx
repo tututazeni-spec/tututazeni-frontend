@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { useToast } from '@/providers/ToastProvider';
 import { CohortDepartmentPicker } from './CohortDepartmentPicker';
+import { CohortSchedulePicker } from './CohortSchedulePicker';
 import {
   useDirectoryUsers,
   type DirectoryUser,
@@ -268,14 +269,9 @@ export function CreateCohortModal({
             </FormField>
           </div>
 
-          <FormField label="Horário" htmlFor="ch-schedule">
-            <Input
-              id="ch-schedule"
-              autoComplete="off"
-              value={schedule}
-              onChange={(e) => setField('schedule', e.target.value)}
-              className="w-full"
-              placeholder="Ex: Seg/Qua 18h-20h"
+          <FormField label="Horário" htmlFor="ch-schedule-start">
+            <CohortSchedulePicker
+              onChange={(value) => setField('schedule', value)}
             />
           </FormField>
 
