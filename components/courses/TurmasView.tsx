@@ -121,8 +121,8 @@ function CohortCard({
 }: CohortCardProps) {
   const place = [c.location, c.room].filter(Boolean).join(' • ');
   const statusCfg = COHORT_STATUS_MAP[c.status];
-  // Turma com inscrições abertas: desenho "turmas abertas" (foto + azul profundo).
-  const open = c.status === 'OPEN';
+  // Turmas abertas e activas: desenho "turmas abertas" (foto + azul profundo).
+  const open = c.status === 'OPEN' || c.status === 'ACTIVE';
   return (
     <NavyCard
       variant={open ? 'photo' : 'default'}
