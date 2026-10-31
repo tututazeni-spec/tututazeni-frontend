@@ -112,16 +112,6 @@ export function validateSections(
       out.improvements.push(
         `Área ${n}: escolha a prioridade de desenvolvimento`,
       );
-    if (
-      a.score !== undefined &&
-      a.score >= 4 &&
-      blank(a.evidence) &&
-      blank(a.comment)
-    ) {
-      out.improvements.push(
-        `Área ${n}: com nota ${a.score}, justifique em evidência ou comentário porque ainda é uma área de melhoria`,
-      );
-    }
   });
   duplicates(improvements).forEach((c) =>
     out.improvements.push(
@@ -216,10 +206,7 @@ export function buildStructuredPayload(
 const strengthDone = (s: StrengthDraft) =>
   !blank(s.competency) && s.score !== undefined;
 const improvementDone = (a: ImprovementDraft) =>
-  !blank(a.competency) &&
-  a.score !== undefined &&
-  !!a.priority &&
-  !(a.score >= 4 && blank(a.evidence) && blank(a.comment));
+  !blank(a.competency) && a.score !== undefined && !!a.priority;
 const recommendationDone = (r: RecommendationDraft) =>
   !blank(r.action) &&
   !blank(r.objective) &&

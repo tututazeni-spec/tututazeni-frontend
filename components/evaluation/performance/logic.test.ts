@@ -96,7 +96,7 @@ describe('validateSections', () => {
       [],
     );
     expect(e.strengths.join()).toMatch(/repetida/);
-    expect(e.improvements.join()).toMatch(/justifique/);
+    expect(e.improvements).toHaveLength(0);
   });
   test('prazo no passado e área removida', () => {
     const e = validateSections(
