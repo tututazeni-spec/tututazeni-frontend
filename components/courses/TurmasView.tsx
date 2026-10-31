@@ -28,7 +28,14 @@ import { useCourseOptions } from '@/components/enrollments/enrollData';
 import { CohortDetailModal } from './CohortDetailModal';
 import { CreateCohortModal } from './CreateCohortModal';
 import { Skeleton } from './shared';
-import { NAVY_ACTION, NavyBadge, NavyCard, type NavyTone } from './NavyCard';
+import {
+  NAVY_ACTION,
+  NavyBadge,
+  NavyCard,
+  PHOTO_ACCENT_DEFAULT,
+  type NavyTone,
+  type PhotoAccent,
+} from './NavyCard';
 import { PeriodPills } from '@/components/ui/Pills';
 import { cn } from '@/lib/cn';
 import type { Cohort, CohortDetail, CohortStatus } from './types';
@@ -50,6 +57,41 @@ const OPEN_COHORT_PHOTO = '/images/turma-aberta-foto.jpg';
 const OPEN_ROUND_BTN =
   'h-10 w-10 rounded-full bg-[#0F1F3D]/85 p-0 text-white hover:bg-[#0F1F3D]';
 
+/**
+ * Cores do cartão de turma aberta: a primeira turma de um curso fica no azul
+ * padrão; cada turma seguinte do mesmo curso muda para outra cor.
+ */
+const OTHER_ACCENTS: PhotoAccent[] = [
+  { light: '#5B2BC0', base: '#34156F', deep: '#220D4C', circle: '#7C4DDB' },
+  { light: '#0E8C86', base: '#0B5A56', deep: '#063A37', circle: '#14B3AB' },
+  { light: '#C0264D', base: '#7A1432', deep: '#520C21', circle: '#E0476E' },
+  { light: '#12915A', base: '#0B5D3A', deep: '#073D26', circle: '#1FB874' },
+  { light: '#C2680F', base: '#7A400A', deep: '#522A06', circle: '#E08A2E' },
+  { light: '#B0289E', base: '#6E1763', deep: '#490F42', circle: '#D44BC1' },
+];
+
+/** Posição 0 → azul padrão; 1, 2, … → as outras cores, por ordem (e a repetir). */
+export function accentForRank(rank: number): PhotoAccent {
+  if (rank <= 0) return PHOTO_ACCENT_DEFAULT;
+  return OTHER_ACCENTS[(rank - 1) % OTHER_ACCENTS.length];
+}
+
+/** rank de cada turma dentro do seu curso (mais antiga = 0), por id crescente. */
+function cohortRanks(
+  list: Array<{ id: number; courseId: number }>,
+): Map<number, number> {
+  const seen = new Map<number, number>();
+  const ranks = new Map<number, number>();
+  [...list]
+    .sort((a, b) => a.id - b.id)
+    .forEach((c) => {
+      const n = seen.get(c.courseId) ?? 0;
+      ranks.set(c.id, n);
+      seen.set(c.courseId, n + 1);
+    });
+  return ranks;
+}
+
 const COHORT_TONE: Record<CohortStatus, NavyTone> = {
   DRAFT: 'neutral',
   OPEN: 'info',
@@ -60,12 +102,23 @@ const COHORT_TONE: Record<CohortStatus, NavyTone> = {
 
 interface CohortCardProps {
   c: Cohort;
+  /** Posição da turma entre as do mesmo curso (0 = primeira → azul padrão). */
+  rank?: number;
+  /** Nome do curso da turma — numa linha; o nome da turma fica na linha por baixo. */
+  courseTitle?: string;
   onOpen: () => void;
   onDelete: () => void;
   onClose: () => void;
 }
 
-function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
+function CohortCard({
+  c,
+  rank = 0,
+  courseTitle,
+  onOpen,
+  onDelete,
+  onClose,
+}: CohortCardProps) {
   const place = [c.location, c.room].filter(Boolean).join(' • ');
   const statusCfg = COHORT_STATUS_MAP[c.status];
   // Turma com inscrições abertas: desenho "turmas abertas" (foto + azul profundo).
@@ -73,12 +126,14 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
   return (
     <NavyCard
       variant={open ? 'photo' : 'default'}
+      accent={accentForRank(rank)}
       image={open ? OPEN_COHORT_PHOTO : undefined}
       onClick={onOpen}
       seed={c.id}
       kicker={c.instructor?.fullName ?? 'Sem formador'}
       kickerIcon={Users2}
-      title={c.name}
+      title={courseTitle ?? c.name}
+      titleBelow={courseTitle ? c.name : undefined}
       subtitle={place || undefined}
       infos={[
         {
@@ -155,6 +210,9 @@ export function TurmasView() {
   const { options: courseOptions } = useCourseOptions();
   const [courseId, setCourseId] = useState<string | undefined>(undefined);
   const [showCreate, setShowCreate] = useState(false);
+  const selectedCourseTitle = courseOptions.find(
+    (o) => String(o.value) === courseId,
+  )?.label;
   const [detailId, setDetailId] = useState<number | null>(null);
   const [panel, setPanel] = useState<'OPEN' | 'ACTIVE' | null>(null);
   const showOpen = panel !== null;
@@ -190,11 +248,19 @@ export function TurmasView() {
     },
   ];
 
+  // Turmas do mesmo curso ficam com cores diferentes (a primeira no azul padrão).
+  const panelRanks = cohortRanks([
+    ...(openQuery.data ?? []),
+    ...(activeQuery.data ?? []),
+  ]);
+
   const { data = [], isLoading } = useApiQuery<Cohort[]>(
     queryKeys.courses.cohorts(Number(courseId)),
     `/courses/${courseId}/cohorts`,
     { staleTime: STALE_TIME.DYNAMIC, enabled: !!courseId },
   );
+
+  const courseRanks = cohortRanks(data);
 
   const close = useApiMutation(
     (id: number) => apiClient.patch(`/courses/cohorts/${id}/close`),
@@ -298,7 +364,9 @@ export function TurmasView() {
               {openCohorts.map((c) => (
                 <CohortCard
                   key={c.id}
-                  c={{ ...c, name: `${c.name} • ${c.course.title}` }}
+                  c={c}
+                  rank={panelRanks.get(c.id)}
+                  courseTitle={c.course.title}
                   onOpen={() => setDetailId(c.id)}
                   onDelete={() => onDelete(c)}
                   onClose={() => onClose(c)}
@@ -332,6 +400,8 @@ export function TurmasView() {
               <CohortCard
                 key={c.id}
                 c={c}
+                rank={courseRanks.get(c.id)}
+                courseTitle={selectedCourseTitle}
                 onOpen={() => setDetailId(c.id)}
                 onDelete={() => onDelete(c)}
                 onClose={() => onClose(c)}

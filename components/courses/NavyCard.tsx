@@ -127,10 +127,21 @@ const COLS: Record<number, string> = {
   4: 'lg:grid-cols-4',
 };
 
-// Azuis do cartão "turmas abertas" (variante photo).
-const PHOTO_BLUE_LIGHT = '#0F46B8';
-const PHOTO_BLUE = '#0A2A6B';
-const PHOTO_BLUE_DEEP = '#071C4A';
+/** Cores da variante photo: canto claro, tom base, tom fundo e círculo do ícone. */
+export interface PhotoAccent {
+  light: string;
+  base: string;
+  deep: string;
+  circle: string;
+}
+
+/** Azul padrão do cartão "turmas abertas". */
+export const PHOTO_ACCENT_DEFAULT: PhotoAccent = {
+  light: '#0F46B8',
+  base: '#0A2A6B',
+  deep: '#071C4A',
+  circle: '#1D56E0',
+};
 
 /**
  * Células do painel da variante photo: 2×2 em cartões estreitos e 4 numa só
@@ -157,6 +168,8 @@ function seedFrom(title: string) {
 
 interface NavyCardProps {
   title: string;
+  /** Segunda linha do título, por baixo da primeira (ex.: a turma, sob o nome do curso). */
+  titleBelow?: string;
   /** Elemento antes do título (ex.: checkbox de selecção). */
   lead?: ReactNode;
   badge?: ReactNode;
@@ -178,6 +191,8 @@ interface NavyCardProps {
    * painel de informações maiores. Pede `image`; os outros cartões usam `default`.
    */
   variant?: 'default' | 'photo';
+  /** Cores da variante `photo` (por omissão, o azul padrão). */
+  accent?: PhotoAccent;
   infos: NavyInfo[];
   /** Encosta o ícone da 1.ª informação à esquerda do painel de vidro. */
   flushFirstInfo?: boolean;
@@ -192,6 +207,7 @@ interface NavyCardProps {
 
 export function NavyCard({
   title,
+  titleBelow,
   lead,
   badge,
   actions,
@@ -203,6 +219,7 @@ export function NavyCard({
   seed,
   image,
   variant = 'default',
+  accent = PHOTO_ACCENT_DEFAULT,
   infos,
   flushFirstInfo,
   compact,
@@ -220,7 +237,7 @@ export function NavyCard({
       className={`relative overflow-hidden rounded-panel text-white ${compact ? 'p-2' : photo ? '@container flex min-h-[300px] flex-col p-5 sm:p-6' : 'p-5'} shadow-[0_8px_24px_rgba(15,31,61,0.25)] ${onClick ? 'cursor-pointer' : ''}`}
       style={{
         background: photo
-          ? `linear-gradient(115deg, ${PHOTO_BLUE_LIGHT} 0%, ${PHOTO_BLUE} 42%, ${PHOTO_BLUE_DEEP} 100%)`
+          ? `linear-gradient(115deg, ${accent.light} 0%, ${accent.base} 42%, ${accent.deep} 100%)`
           : `linear-gradient(135deg, ${palette[1]} 0%, ${palette[2]} 65%, ${palette[2]} 100%)`,
       }}
     >
@@ -250,7 +267,7 @@ export function NavyCard({
         style={{
           background: photo
             ? // Azul sólido à esquerda (onde está o texto) que se esbate sobre a foto.
-              `linear-gradient(90deg, ${PHOTO_BLUE} 0%, ${PHOTO_BLUE} 44%, ${PHOTO_BLUE}D9 52%, ${PHOTO_BLUE}66 64%, ${PHOTO_BLUE}14 82%, transparent 100%)`
+              `linear-gradient(90deg, ${accent.base} 0%, ${accent.base} 44%, ${accent.base}D9 52%, ${accent.base}66 64%, ${accent.base}14 82%, transparent 100%)`
             : image
               ? `linear-gradient(90deg, ${palette[2]}F2 0%, ${palette[2]}B3 55%, ${palette[2]}66 100%)`
               : `radial-gradient(circle at 92% 8%, ${palette[0]}99 0%, transparent 45%)`,
@@ -332,7 +349,10 @@ export function NavyCard({
                 ) : (
                   kicker && (
                     <span
-                      className={`flex shrink-0 items-center justify-center rounded-full ${photo ? 'h-12 w-12 bg-[#1D56E0]' : `bg-white/15 ${compact ? 'h-7 w-7' : 'h-9 w-9'}`}`}
+                      className={`flex shrink-0 items-center justify-center rounded-full ${photo ? 'h-12 w-12' : `bg-white/15 ${compact ? 'h-7 w-7' : 'h-9 w-9'}`}`}
+                      style={
+                        photo ? { backgroundColor: accent.circle } : undefined
+                      }
                     >
                       <KickerIcon
                         size={compact ? 16 : photo ? 24 : 20}
@@ -364,6 +384,7 @@ export function NavyCard({
             className={`break-words font-body font-extrabold uppercase leading-tight tracking-wide ${compact ? 'mt-1.5 text-lg' : photo ? 'mt-auto max-w-[68%] pt-5 text-[1.15rem] tracking-normal' : 'mt-4 text-2xl'}`}
           >
             {title}
+            {titleBelow && <span className="mt-1 block">{titleBelow}</span>}
           </h3>
           {subtitle && !compact && (
             <div
@@ -388,8 +409,11 @@ export function NavyCard({
             <div
               className={
                 photo
-                  ? 'mt-5 grid grid-cols-2 gap-y-3 rounded-[1.5rem] bg-[#0A2A6B]/80 px-3 py-3.5 @2xl:grid-cols-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] backdrop-blur-md'
+                  ? 'mt-5 grid grid-cols-2 gap-y-3 rounded-[1.5rem] px-3 py-3.5 @2xl:grid-cols-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] backdrop-blur-md'
                   : `grid grid-cols-2 gap-y-2 rounded-card bg-white/10 px-3 backdrop-blur-sm lg:gap-y-0 ${compact ? 'mt-2 py-1.5' : 'mt-4 gap-y-3 py-3'} ${COLS[Math.min(infos.length, 4)]}`
+              }
+              style={
+                photo ? { backgroundColor: `${accent.base}CC` } : undefined
               }
             >
               {infos.map((info, i) => (
