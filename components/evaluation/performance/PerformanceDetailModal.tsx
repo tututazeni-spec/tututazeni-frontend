@@ -335,7 +335,7 @@ export function PerformanceDetailModal({
                       {a.competency} — nota {a.score}/5 · prioridade{' '}
                       {IMPROVEMENT_PRIORITY_LABELS[a.priority]}
                     </p>
-                    <p>{a.description}</p>
+                    {a.description && <p>{a.description}</p>}
                     {a.evidence && <p>Evidência: {a.evidence}</p>}
                   </li>
                 ))}

@@ -82,6 +82,20 @@ export const ACTION_TYPE_LABELS: Record<RecommendationActionType, string> = {
   OUTRA: 'Outra',
 };
 
+/** Sugestões para "Objetivo pretendido": o avaliador escolhe uma ou escreve a sua. */
+export const OBJECTIVE_SUGGESTIONS: string[] = [
+  'Melhorar a qualidade das entregas',
+  'Cumprir os prazos acordados de forma consistente',
+  'Reforçar a comunicação com a equipa e as partes interessadas',
+  'Desenvolver competências de liderança',
+  'Aumentar a autonomia e a tomada de decisão',
+  'Melhorar a gestão do tempo e das prioridades',
+  'Aprofundar o conhecimento técnico da função',
+  'Reforçar o trabalho em equipa e a colaboração',
+  'Aumentar o foco no cliente e na qualidade do serviço',
+  'Preparar a progressão para um novo nível de responsabilidade',
+];
+
 export const RECOMMENDATION_PRIORITY_LABELS: Record<number, string> = {
   1: 'Baixa',
   2: 'Moderada',

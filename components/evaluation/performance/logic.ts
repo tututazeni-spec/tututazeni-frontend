@@ -108,8 +108,6 @@ export function validateSections(
       out.improvements.push(`Área ${n}: indique a competência`);
     if (a.score === undefined)
       out.improvements.push(`Área ${n}: escolha a nota de desempenho atual`);
-    if (blank(a.description))
-      out.improvements.push(`Área ${n}: descreva a necessidade`);
     if (!a.priority)
       out.improvements.push(
         `Área ${n}: escolha a prioridade de desenvolvimento`,
@@ -220,7 +218,6 @@ const strengthDone = (s: StrengthDraft) =>
 const improvementDone = (a: ImprovementDraft) =>
   !blank(a.competency) &&
   a.score !== undefined &&
-  !blank(a.description) &&
   !!a.priority &&
   !(a.score >= 4 && blank(a.evidence) && blank(a.comment));
 const recommendationDone = (r: RecommendationDraft) =>

@@ -15,6 +15,7 @@ import { RatingScale } from './RatingScale';
 import {
   ACTION_TYPE_LABELS,
   IMPROVEMENT_PRIORITY_LABELS,
+  OBJECTIVE_SUGGESTIONS,
   RECOMMENDATION_PRIORITY_LABELS,
   emptyImprovement,
   emptyRecommendation,
@@ -330,7 +331,7 @@ export function ImprovementsSection({
             />
           </div>
           <FormField
-            label="Descrição da necessidade *"
+            label="Descrição da necessidade"
             htmlFor={`im-desc-${a.key}`}
           >
             <Textarea
@@ -464,16 +465,28 @@ export function RecommendationsSection({
               }
             />
           </FormField>
-          <FormField label="Objetivo pretendido *" htmlFor={`rc-obj-${r.key}`}>
-            <Textarea
-              id={`rc-obj-${r.key}`}
-              rows={2}
-              maxLength={2000}
-              value={r.objective}
-              onChange={(e) =>
-                onChange(patch(items, r.key, { objective: e.target.value }))
-              }
-            />
+          <FormField
+            label="Objetivo pretendido *"
+            htmlFor={`rc-obj-${r.key}`}
+            hint="Escolha da lista ou escreva o seu próprio objetivo."
+          >
+            <>
+              <Input
+                id={`rc-obj-${r.key}`}
+                list={`rc-obj-${r.key}-list`}
+                maxLength={2000}
+                placeholder="Escolha da lista ou escreva"
+                value={r.objective}
+                onChange={(e) =>
+                  onChange(patch(items, r.key, { objective: e.target.value }))
+                }
+              />
+              <datalist id={`rc-obj-${r.key}-list`}>
+                {OBJECTIVE_SUGGESTIONS.map((o) => (
+                  <option key={o} value={o} />
+                ))}
+              </datalist>
+            </>
           </FormField>
           <div className="grid gap-3 md:grid-cols-2">
             <FormField label="Tipo de ação *" htmlFor={`rc-typ-${r.key}`}>
