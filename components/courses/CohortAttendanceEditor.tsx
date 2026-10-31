@@ -7,7 +7,16 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, Eraser, Save } from 'lucide-react';
+import {
+  CalendarDays,
+  CircleCheck,
+  Clock,
+  Eraser,
+  GraduationCap,
+  Save,
+  User,
+  Users,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -32,6 +41,8 @@ import {
 import {
   MODALITY_LABEL,
   SESSION_STATUS,
+  STATUS_TONE,
+  SessionDateBlock,
   sessionDay,
 } from './CohortSessionsPanel';
 import { Skeleton } from './shared';
@@ -300,34 +311,48 @@ export function CohortAttendanceEditor({
         <Skeleton rows={4} />
       ) : (
         <>
-          <div className="grid gap-2 rounded-card border border-border p-3 text-sm sm:grid-cols-3">
-            <div>
-              <div className="text-xs uppercase tracking-wide text-ink-faint">
-                Turma
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-card bg-brand-soft px-4 py-3">
+            <SessionDateBlock date={session.date} />
+
+            <div className="min-w-0 flex-1 basis-56 space-y-1">
+              <div className="truncate text-base font-bold text-ink">
+                {session.title}
               </div>
-              {data.cohort.name}
-              <div className="text-xs text-ink-muted">
-                {data.cohort.courseTitle}
+              <div className="flex items-center gap-1.5 text-sm text-ink-muted">
+                <GraduationCap
+                  size={14}
+                  strokeWidth={1.75}
+                  className="shrink-0"
+                />
+                <span className="truncate">
+                  {data.cohort.name} · {data.cohort.courseTitle}
+                </span>
               </div>
-            </div>
-            <div>
-              <div className="text-xs uppercase tracking-wide text-ink-faint">
-                Data e horário
+              <div className="flex items-center gap-1.5 text-sm text-ink-muted">
+                <Clock size={14} strokeWidth={1.75} className="shrink-0" />
+                {session.startTime}–{session.endTime} ·{' '}
+                {MODALITY_LABEL[session.modality]}
               </div>
-              {sessionDay(session.date)} · {session.startTime}–{session.endTime}
-            </div>
-            <div>
-              <div className="text-xs uppercase tracking-wide text-ink-faint">
-                Formador · Modalidade
+              <div className="flex items-center gap-1.5 text-sm text-ink-muted">
+                <User size={14} strokeWidth={1.75} className="shrink-0" />
+                {session.instructor?.fullName ?? '—'}
               </div>
-              {session.instructor?.fullName ?? '—'} ·{' '}
-              {MODALITY_LABEL[session.modality]}
-              {sessionBadge && (
-                <Badge intent={sessionBadge.intent} className="ml-2">
-                  {sessionBadge.label}
-                </Badge>
+              {session.attendanceRecorded && (
+                <div className="flex items-center gap-1.5 text-sm font-medium text-success-ink">
+                  <Users size={14} strokeWidth={1.75} className="shrink-0" />
+                  Presenças registadas ({session.recordedCount})
+                </div>
               )}
             </div>
+
+            {sessionBadge && (
+              <span
+                className={`inline-flex items-center gap-1.5 text-sm font-semibold ${STATUS_TONE[sessionBadge.intent]}`}
+              >
+                <CircleCheck size={16} strokeWidth={2} />
+                {sessionBadge.label}
+              </span>
+            )}
           </div>
 
           {dirty && (

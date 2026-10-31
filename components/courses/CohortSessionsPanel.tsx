@@ -61,7 +61,10 @@ const MONTH_ABBR = [
   'DEZ',
 ];
 
-const STATUS_TONE: Record<'info' | 'warning' | 'success' | 'danger', string> = {
+export const STATUS_TONE: Record<
+  'info' | 'warning' | 'success' | 'danger',
+  string
+> = {
   info: 'text-info-ink',
   warning: 'text-warning-ink',
   success: 'text-success-ink',
@@ -72,6 +75,23 @@ const STATUS_TONE: Record<'info' | 'warning' | 'success' | 'danger', string> = {
 export function sessionDay(iso: string) {
   const [y, m, d] = iso.slice(0, 10).split('-');
   return `${d}/${m}/${y}`;
+}
+
+/** Data em destaque (dia, mês abreviado e ano) com fio vertical à direita. */
+export function SessionDateBlock({ date }: { date: string }) {
+  const [year, month, day] = date.slice(0, 10).split('-');
+  return (
+    <div className="flex items-center gap-4">
+      <div className="w-14 text-center font-display leading-none text-brand">
+        <div className="text-3xl font-extrabold">{day}</div>
+        <div className="mt-1 text-base font-bold">
+          {MONTH_ABBR[Number(month) - 1]}
+        </div>
+        <div className="mt-0.5 text-xs font-medium">{year}</div>
+      </div>
+      <div aria-hidden className="h-14 w-px bg-brand-line" />
+    </div>
+  );
 }
 
 interface Draft {
@@ -330,24 +350,13 @@ export function CohortSessionsPanel({
         <div className="space-y-3">
           {(sessions ?? []).map((s) => {
             const st = SESSION_STATUS[s.status];
-            const [year, month, day] = s.date.slice(0, 10).split('-');
             const tone = STATUS_TONE[st.intent];
             return (
               <div
                 key={s.id}
                 className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-card bg-brand-soft px-4 py-3"
               >
-                {/* Data em destaque */}
-                <div className="flex items-center gap-4">
-                  <div className="w-14 text-center font-display leading-none text-brand">
-                    <div className="text-3xl font-extrabold">{day}</div>
-                    <div className="mt-1 text-base font-bold">
-                      {MONTH_ABBR[Number(month) - 1]}
-                    </div>
-                    <div className="mt-0.5 text-xs font-medium">{year}</div>
-                  </div>
-                  <div aria-hidden className="h-14 w-px bg-brand-line" />
-                </div>
+                <SessionDateBlock date={s.date} />
 
                 {/* Título e detalhes */}
                 <div className="min-w-0 flex-1 basis-56 space-y-1">
