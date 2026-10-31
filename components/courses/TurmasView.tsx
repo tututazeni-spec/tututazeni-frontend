@@ -10,6 +10,7 @@ import { useState } from 'react';
 import {
   CalendarDays,
   Clock,
+  Download,
   Plus,
   Ticket,
   Trash2,
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -214,7 +216,7 @@ export function TurmasView() {
     (o) => String(o.value) === courseId,
   )?.label;
   const [detailId, setDetailId] = useState<number | null>(null);
-  const [panel, setPanel] = useState<'OPEN' | 'ACTIVE' | null>(null);
+  const [panel, setPanel] = useState<'OPEN' | 'ACTIVE' | 'CLOSED' | null>(null);
   const showOpen = panel !== null;
 
   type CohortWithCourse = Cohort & { course: CohortDetail['course'] };
@@ -228,11 +230,21 @@ export function TurmasView() {
     '/courses/cohorts/open?status=ACTIVE',
     { staleTime: STALE_TIME.DYNAMIC },
   );
-  const panelQuery = panel === 'ACTIVE' ? activeQuery : openQuery;
+  const closedQuery = useApiQuery<CohortWithCourse[]>(
+    queryKeys.courses.openCohorts('CLOSED'),
+    '/courses/cohorts/open?status=CLOSED',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const panelQuery =
+    panel === 'ACTIVE'
+      ? activeQuery
+      : panel === 'CLOSED'
+        ? closedQuery
+        : openQuery;
   const openCohorts = panelQuery.data ?? [];
   const openLoading = panelQuery.isLoading;
   const panelCards: Array<{
-    key: 'OPEN' | 'ACTIVE';
+    key: 'OPEN' | 'ACTIVE' | 'CLOSED';
     label: string;
     count: number;
   }> = [
@@ -246,12 +258,37 @@ export function TurmasView() {
       label: 'Turmas Activas',
       count: activeQuery.data?.length ?? 0,
     },
+    {
+      key: 'CLOSED',
+      label: 'Turmas Encerradas',
+      count: closedQuery.data?.length ?? 0,
+    },
   ];
+
+  const [exporting, setExporting] = useState(false);
+  async function exportPanel(format: 'xlsx' | 'pdf') {
+    if (!panel) return;
+    setExporting(true);
+    try {
+      await downloadFromApi('/courses/cohorts/export', {
+        params: { status: panel, format },
+        fallbackName: `turmas.${format}`,
+      });
+    } catch (e) {
+      toast({
+        title: e instanceof Error ? e.message : 'Não foi possível exportar.',
+        intent: 'danger',
+      });
+    } finally {
+      setExporting(false);
+    }
+  }
 
   // Turmas do mesmo curso ficam com cores diferentes (a primeira no azul padrão).
   const panelRanks = cohortRanks([
     ...(openQuery.data ?? []),
     ...(activeQuery.data ?? []),
+    ...(closedQuery.data ?? []),
   ]);
 
   const { data = [], isLoading } = useApiQuery<Cohort[]>(
@@ -269,6 +306,7 @@ export function TurmasView() {
         queryKeys.courses.cohorts(Number(courseId)),
         queryKeys.courses.openCohorts('OPEN'),
         queryKeys.courses.openCohorts('ACTIVE'),
+        queryKeys.courses.openCohorts('CLOSED'),
       ],
       onSuccess: () => toast({ title: 'Turma encerrada', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
@@ -282,6 +320,7 @@ export function TurmasView() {
         queryKeys.courses.cohorts(Number(courseId)),
         queryKeys.courses.openCohorts('OPEN'),
         queryKeys.courses.openCohorts('ACTIVE'),
+        queryKeys.courses.openCohorts('CLOSED'),
       ],
       onSuccess: () => toast({ title: 'Turma eliminada', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
@@ -329,7 +368,7 @@ export function TurmasView() {
             value={panel ?? ''}
             onChange={(v) => setPanel((p) => (p === v ? null : v || null))}
             options={panelCards.map(({ key, label, count }) => ({
-              value: key as 'OPEN' | 'ACTIVE' | '',
+              value: key as 'OPEN' | 'ACTIVE' | 'CLOSED' | '',
               label: `${label} (${count})`,
             }))}
           />
@@ -346,16 +385,46 @@ export function TurmasView() {
 
       {showOpen && (
         <div>
+          <div
+            className="mb-4 flex flex-wrap gap-2"
+            role="group"
+            aria-label="Exportar relatório"
+          >
+            <Button
+              intent="secondary"
+              size="sm"
+              disabled={exporting || openCohorts.length === 0}
+              onClick={() => void exportPanel('xlsx')}
+            >
+              <Download size={14} strokeWidth={1.75} />
+              Exportar Excel
+            </Button>
+            <Button
+              intent="secondary"
+              size="sm"
+              disabled={exporting || openCohorts.length === 0}
+              onClick={() => void exportPanel('pdf')}
+            >
+              <Download size={14} strokeWidth={1.75} />
+              Exportar PDF
+            </Button>
+          </div>
           {openLoading && <Skeleton rows={3} />}
           {!openLoading && openCohorts.length === 0 && (
             <EmptyState
               title={
-                panel === 'ACTIVE' ? 'Sem turmas activas' : 'Sem turmas abertas'
+                panel === 'ACTIVE'
+                  ? 'Sem turmas activas'
+                  : panel === 'CLOSED'
+                    ? 'Sem turmas encerradas'
+                    : 'Sem turmas abertas'
               }
               description={
                 panel === 'ACTIVE'
                   ? 'Não há turmas a decorrer neste momento.'
-                  : 'Não há turmas com inscrições abertas neste momento.'
+                  : panel === 'CLOSED'
+                    ? 'Ainda não há turmas encerradas.'
+                    : 'Não há turmas com inscrições abertas neste momento.'
               }
             />
           )}
