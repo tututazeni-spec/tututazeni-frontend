@@ -17,6 +17,14 @@ import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { PeriodPills } from '@/components/ui/Pills';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/components/ui/Table';
 import type { CohortAttendanceSheet } from './types';
 
 const WEEKDAY = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -253,46 +261,42 @@ export function CohortAttendancePanel({ cohortId }: { cohortId: number }) {
             </Button>
           </div>
         </div>
-        <div className="overflow-x-auto rounded-card border border-border">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-surface-sunken text-ink-muted">
-              <tr>
-                <th className="sticky left-0 bg-surface-sunken px-3 py-2 font-medium">
-                  Participante
-                </th>
-                {sheet.days.map((d) => (
-                  <th key={d} className="px-2 py-2 text-center font-medium">
-                    <div>{shortDay(d)}</div>
-                    <div className="font-normal">{weekday(d)}</div>
-                  </th>
-                ))}
-                <th className="px-3 py-2 text-center font-medium">Presenças</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {sheet.participants.map((p) => (
-                <tr key={p.userId}>
-                  <td className="sticky left-0 bg-surface px-3 py-2 text-ink">
-                    {p.fullName}
-                  </td>
-                  {sheet.days.map((d) => (
-                    <td key={d} className="px-2 py-2 text-center">
-                      <MarkIcon status={p.marks[d]} />
-                    </td>
-                  ))}
-                  <td className="px-3 py-2 text-center font-medium tabular-nums text-ink">
-                    {p.present}/{p.total}
-                    {p.absent > 0 && (
-                      <span className="ml-1 font-normal text-danger-ink">
-                        ({p.absent} falta{p.absent > 1 ? 's' : ''})
-                      </span>
-                    )}
-                  </td>
-                </tr>
+        <Table>
+          <TableHead className="bg-brand/60 [&_th]:text-white">
+            <TableRow className="hover:bg-transparent">
+              <TableHeaderCell>Participante</TableHeaderCell>
+              {sheet.days.map((d) => (
+                <TableHeaderCell key={d} className="px-2 text-center">
+                  <div>{shortDay(d)}</div>
+                  <div className="font-normal normal-case">{weekday(d)}</div>
+                </TableHeaderCell>
               ))}
-            </tbody>
-          </table>
-        </div>
+              <TableHeaderCell className="text-center">
+                Presenças
+              </TableHeaderCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sheet.participants.map((p) => (
+              <TableRow key={p.userId}>
+                <TableCell>{p.fullName}</TableCell>
+                {sheet.days.map((d) => (
+                  <TableCell key={d} className="px-2 text-center">
+                    <MarkIcon status={p.marks[d]} />
+                  </TableCell>
+                ))}
+                <TableCell className="text-center font-medium tabular-nums">
+                  {p.present}/{p.total}
+                  {p.absent > 0 && (
+                    <span className="ml-1 font-normal text-danger-ink">
+                      ({p.absent} falta{p.absent > 1 ? 's' : ''})
+                    </span>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </section>
   );
