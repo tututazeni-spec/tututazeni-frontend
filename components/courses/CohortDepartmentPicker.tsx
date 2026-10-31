@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, X } from 'lucide-react';
+import { Building2, Users, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import { useDepartmentOptions } from '@/components/enrollments/enrollData';
@@ -37,6 +37,8 @@ export function CohortDepartmentPicker({
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <Combobox
+          variant="underline"
+          icon={Building2}
           items={available}
           value={undefined}
           onValueChange={(id) =>
