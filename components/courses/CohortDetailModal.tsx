@@ -7,7 +7,14 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { Check, Pencil, UserMinus, X } from 'lucide-react';
+import {
+  CalendarDays,
+  Check,
+  Pencil,
+  UserMinus,
+  Users2,
+  X,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -28,6 +35,12 @@ import { CohortSessionsPanel } from './CohortSessionsPanel';
 import { CohortInfoEditor } from './CohortInfoEditor';
 import { Skeleton } from './shared';
 import type { CohortDetail, CohortSession } from './types';
+
+/** Foto do painel esquerdo (mesma do cartão de turma aberta). */
+const COHORT_PHOTO = '/images/turma-aberta-foto.jpg';
+
+const TAB_TRIGGER =
+  'px-4 py-3 text-base data-[state=active]:border-brand data-[state=active]:font-bold data-[state=active]:text-brand';
 import { formatDateNumeric } from '@/lib/format';
 
 export interface CohortDetailModalProps {
@@ -180,263 +193,317 @@ export function CohortDetailModal({
       <ModalContent
         title={cohort?.name ?? 'Turma'}
         description={cohort?.course.title}
-        className="max-w-4xl max-h-[90vh] overflow-y-auto"
+        hideHeading
+        navyClose
+        className="flex max-h-[90vh] max-w-5xl flex-col overflow-hidden p-0"
       >
+        {/* Banner azul: ícone, nome da turma e curso (desenho "turmas") */}
+        <div className="flex items-center gap-4 bg-gradient-to-br from-brand via-brand-mid to-brand-dark px-6 py-5 pr-14 text-white">
+          <Users2 aria-hidden size={40} strokeWidth={1.5} />
+          <div className="min-w-0">
+            <div className="truncate font-display text-xl font-bold">
+              {cohort?.name ?? 'Turma'}
+            </div>
+            {cohort?.course.title && (
+              <div className="truncate text-sm text-white/80">
+                {cohort.course.title}
+              </div>
+            )}
+          </div>
+        </div>
+
         {isLoading || !cohort ? (
-          <Skeleton rows={4} />
+          <div className="p-6">
+            <Skeleton rows={4} />
+          </div>
         ) : (
           <Tabs
             value={tab}
             onValueChange={(v) => void changeTab(v)}
-            className="mt-5"
+            className="flex min-h-0 flex-1 flex-col"
           >
-            <TabsList className="overflow-x-auto">
-              <TabsTrigger value="overview">Visão geral</TabsTrigger>
-              <TabsTrigger value="participants">
+            <TabsList className="overflow-x-auto bg-surface px-4">
+              <TabsTrigger value="overview" className={TAB_TRIGGER}>
+                <CalendarDays
+                  aria-hidden
+                  size={20}
+                  strokeWidth={1.5}
+                  className="mr-2 inline"
+                />
+                Visão geral
+              </TabsTrigger>
+              <TabsTrigger value="participants" className={TAB_TRIGGER}>
                 Participantes ({cohort.participants.length})
               </TabsTrigger>
-              <TabsTrigger value="sessions">Sessões</TabsTrigger>
-              <TabsTrigger value="attendance">Presenças</TabsTrigger>
-              <TabsTrigger value="report">Relatórios</TabsTrigger>
+              <TabsTrigger value="sessions" className={TAB_TRIGGER}>
+                Sessões
+              </TabsTrigger>
+              <TabsTrigger value="attendance" className={TAB_TRIGGER}>
+                Presenças
+              </TabsTrigger>
+              <TabsTrigger value="report" className={TAB_TRIGGER}>
+                Relatórios
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-2 gap-3 text-sm text-ink-muted sm:grid-cols-4">
-                <div>
-                  <div className="text-xs uppercase tracking-wide text-ink-faint">
-                    Formador
-                  </div>
-                  {cohort.instructor?.fullName ?? '—'}
-                </div>
-                <div>
-                  <div className="text-xs uppercase tracking-wide text-ink-faint">
-                    Local
-                  </div>
-                  {[cohort.location, cohort.room].filter(Boolean).join(' · ') ||
-                    '—'}
-                </div>
-                <div>
-                  <div className="text-xs uppercase tracking-wide text-ink-faint">
-                    Horário
-                  </div>
-                  {cohort.schedule ?? '—'}
-                </div>
-                <div>
-                  <div className="text-xs uppercase tracking-wide text-ink-faint">
-                    Vagas
-                  </div>
-                  {editingCapacity ? (
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        min={Math.max(1, cohort.participants.length)}
-                        value={capacityDraft}
-                        onChange={(e) => setCapacityDraft(e.target.value)}
-                        className="w-20"
-                        aria-label="Capacidade da turma"
-                        autoFocus
-                      />
-                      <IconButton
-                        icon={Check}
-                        label="Guardar vagas"
-                        intent="ghost"
-                        size="compact"
-                        type="button"
-                        onClick={saveCapacity}
-                        disabled={updateCapacity.isPending}
-                      />
-                      <IconButton
-                        icon={X}
-                        label="Cancelar"
-                        intent="ghost"
-                        size="compact"
-                        type="button"
-                        onClick={() => setEditingCapacity(false)}
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1">
-                      {cohort.availableSlots}/{cohort.capacity}
-                      <IconButton
-                        icon={Pencil}
-                        label="Editar vagas"
-                        intent="ghost"
-                        size="xs"
-                        type="button"
-                        onClick={() => {
-                          setCapacityDraft(String(cohort.capacity));
-                          setEditingCapacity(true);
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {editingInfo ? (
-                <CohortInfoEditor
-                  cohort={cohort}
-                  invalidateKeys={invalidateKeys}
-                  onDone={() => setEditingInfo(false)}
+            <div className="flex min-h-0 flex-1 gap-6 overflow-y-auto p-4">
+              {/* Foto à esquerda com a margem curva e fio azul */}
+              <div
+                aria-hidden
+                className="hidden w-[30%] shrink-0 self-stretch overflow-hidden rounded-r-[50%] border-r-[6px] border-brand md:block"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={COHORT_PHOTO}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full min-h-[16rem] w-full object-cover object-top"
                 />
-              ) : (
-                <div className="-mt-3 flex items-center justify-between text-sm text-ink-muted">
-                  <span>
-                    {formatDateNumeric(cohort.startDate)}
-                    {cohort.endDate
-                      ? ` → ${formatDateNumeric(cohort.endDate)}`
-                      : ''}
-                  </span>
-                  <Button
-                    size="sm"
-                    intent="secondary"
-                    onClick={() => setEditingInfo(true)}
-                  >
-                    <Pencil size={14} strokeWidth={1.75} className="mr-1" />
-                    Editar dados da turma
-                  </Button>
-                </div>
-              )}
-
-              <p className="text-sm text-ink-muted">
-                Assiduidade mínima: {cohort.minAttendancePercent}% (configurável
-                no separador Relatórios).
-              </p>
-            </TabsContent>
-
-            <TabsContent value="participants">
-              <section>
-                <h3 className="mb-2 text-sm font-medium text-ink">
-                  Participantes ({cohort.participants.length})
-                </h3>
-                <div className="mb-3">
-                  <CohortDepartmentPicker
-                    onAdd={async (ids) => {
-                      await addDepartment
-                        .mutateAsync(ids)
-                        .catch(() => undefined);
-                    }}
-                    loading={addDepartment.isPending}
-                  />
-                </div>
-                <div className="relative mb-3">
-                  <Input
-                    value={addSearch}
-                    onChange={(e) => setAddSearch(e.target.value)}
-                    placeholder="Pesquisar colaborador para adicionar…"
-                    className="w-full"
-                    autoComplete="off"
-                  />
-                  {addSearch.trim().length > 0 && (
-                    <div className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
-                      {usersLoading && (
-                        <div className="px-3 py-2 text-sm text-ink-muted">
-                          A pesquisar…
+              </div>
+              <div className="min-w-0 flex-1">
+                <TabsContent value="overview" className="space-y-6">
+                  <div className="grid grid-cols-2 gap-3 text-sm text-ink-muted sm:grid-cols-4">
+                    <div>
+                      <div className="text-xs uppercase tracking-wide text-ink-faint">
+                        Formador
+                      </div>
+                      {cohort.instructor?.fullName ?? '—'}
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-wide text-ink-faint">
+                        Local
+                      </div>
+                      {[cohort.location, cohort.room]
+                        .filter(Boolean)
+                        .join(' · ') || '—'}
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-wide text-ink-faint">
+                        Horário
+                      </div>
+                      {cohort.schedule ?? '—'}
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-wide text-ink-faint">
+                        Vagas
+                      </div>
+                      {editingCapacity ? (
+                        <div className="flex items-center gap-1">
+                          <Input
+                            type="number"
+                            min={Math.max(1, cohort.participants.length)}
+                            value={capacityDraft}
+                            onChange={(e) => setCapacityDraft(e.target.value)}
+                            className="w-20"
+                            aria-label="Capacidade da turma"
+                            autoFocus
+                          />
+                          <IconButton
+                            icon={Check}
+                            label="Guardar vagas"
+                            intent="ghost"
+                            size="compact"
+                            type="button"
+                            onClick={saveCapacity}
+                            disabled={updateCapacity.isPending}
+                          />
+                          <IconButton
+                            icon={X}
+                            label="Cancelar"
+                            intent="ghost"
+                            size="compact"
+                            type="button"
+                            onClick={() => setEditingCapacity(false)}
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          {cohort.availableSlots}/{cohort.capacity}
+                          <IconButton
+                            icon={Pencil}
+                            label="Editar vagas"
+                            intent="ghost"
+                            size="xs"
+                            type="button"
+                            onClick={() => {
+                              setCapacityDraft(String(cohort.capacity));
+                              setEditingCapacity(true);
+                            }}
+                          />
                         </div>
                       )}
-                      {!usersLoading &&
-                        users
-                          .filter((u) => !existingIds.has(u.id))
-                          .map((u) => (
-                            <button
-                              key={u.id}
-                              type="button"
-                              onClick={() => addParticipant.mutate(u.id)}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
-                            >
-                              <Avatar
-                                name={u.fullName}
-                                url={u.avatarUrl ?? undefined}
-                                size="sm"
-                              />
-                              <div className="min-w-0 truncate text-sm text-ink">
-                                {u.fullName}
-                              </div>
-                            </button>
-                          ))}
+                    </div>
+                  </div>
+
+                  {editingInfo ? (
+                    <CohortInfoEditor
+                      cohort={cohort}
+                      invalidateKeys={invalidateKeys}
+                      onDone={() => setEditingInfo(false)}
+                    />
+                  ) : (
+                    <div className="-mt-3 flex items-center justify-between text-sm text-ink-muted">
+                      <span>
+                        {formatDateNumeric(cohort.startDate)}
+                        {cohort.endDate
+                          ? ` → ${formatDateNumeric(cohort.endDate)}`
+                          : ''}
+                      </span>
+                      <Button
+                        size="sm"
+                        intent="secondary"
+                        onClick={() => setEditingInfo(true)}
+                      >
+                        <Pencil size={14} strokeWidth={1.75} className="mr-1" />
+                        Editar dados da turma
+                      </Button>
                     </div>
                   )}
-                </div>
 
-                {cohort.participants.length === 0 ? (
-                  <p className="text-sm text-ink-faint">
-                    Ainda sem participantes.
+                  <p className="text-sm text-ink-muted">
+                    Assiduidade mínima: {cohort.minAttendancePercent}%
+                    (configurável no separador Relatórios).
                   </p>
-                ) : (
-                  <div className="divide-y divide-border rounded-card border border-border">
-                    {cohort.participants.map((p) => (
-                      <div
-                        key={p.id}
-                        className="flex items-center gap-3 px-3 py-2"
-                      >
-                        <Avatar
-                          name={p.user.fullName}
-                          url={p.user.avatarUrl ?? undefined}
-                          size="sm"
-                        />
-                        <div className="min-w-0 flex-1 truncate text-sm text-ink">
-                          {p.user.fullName}
+                </TabsContent>
+
+                <TabsContent value="participants">
+                  <section>
+                    <h3 className="mb-2 text-sm font-medium text-ink">
+                      Participantes ({cohort.participants.length})
+                    </h3>
+                    <div className="mb-3">
+                      <CohortDepartmentPicker
+                        onAdd={async (ids) => {
+                          await addDepartment
+                            .mutateAsync(ids)
+                            .catch(() => undefined);
+                        }}
+                        loading={addDepartment.isPending}
+                      />
+                    </div>
+                    <div className="relative mb-3">
+                      <Input
+                        value={addSearch}
+                        onChange={(e) => setAddSearch(e.target.value)}
+                        placeholder="Pesquisar colaborador para adicionar…"
+                        className="w-full"
+                        autoComplete="off"
+                      />
+                      {addSearch.trim().length > 0 && (
+                        <div className="absolute z-10 mt-1 max-h-56 w-full overflow-y-auto rounded-card border border-border bg-surface shadow-elevated">
+                          {usersLoading && (
+                            <div className="px-3 py-2 text-sm text-ink-muted">
+                              A pesquisar…
+                            </div>
+                          )}
+                          {!usersLoading &&
+                            users
+                              .filter((u) => !existingIds.has(u.id))
+                              .map((u) => (
+                                <button
+                                  key={u.id}
+                                  type="button"
+                                  onClick={() => addParticipant.mutate(u.id)}
+                                  className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-primary-subtle"
+                                >
+                                  <Avatar
+                                    name={u.fullName}
+                                    url={u.avatarUrl ?? undefined}
+                                    size="sm"
+                                  />
+                                  <div className="min-w-0 truncate text-sm text-ink">
+                                    {u.fullName}
+                                  </div>
+                                </button>
+                              ))}
                         </div>
-                        <IconButton
-                          icon={UserMinus}
-                          label="Remover participante"
-                          intent="ghostDanger"
-                          size="compact"
-                          type="button"
-                          onClick={() => onRemove(p.userId, p.user.fullName)}
-                        />
+                      )}
+                    </div>
+
+                    {cohort.participants.length === 0 ? (
+                      <p className="text-sm text-ink-faint">
+                        Ainda sem participantes.
+                      </p>
+                    ) : (
+                      <div className="divide-y divide-border rounded-card border border-border">
+                        {cohort.participants.map((p) => (
+                          <div
+                            key={p.id}
+                            className="flex items-center gap-3 px-3 py-2"
+                          >
+                            <Avatar
+                              name={p.user.fullName}
+                              url={p.user.avatarUrl ?? undefined}
+                              size="sm"
+                            />
+                            <div className="min-w-0 flex-1 truncate text-sm text-ink">
+                              {p.user.fullName}
+                            </div>
+                            <IconButton
+                              icon={UserMinus}
+                              label="Remover participante"
+                              intent="ghostDanger"
+                              size="compact"
+                              type="button"
+                              onClick={() =>
+                                onRemove(p.userId, p.user.fullName)
+                              }
+                            />
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            </TabsContent>
+                    )}
+                  </section>
+                </TabsContent>
 
-            <TabsContent value="sessions">
-              <CohortSessionsPanel
-                cohortId={cohortId}
-                startDate={cohort.startDate}
-                endDate={cohort.endDate}
-                canManage={canManage}
-                onOpenAttendance={(id) => {
-                  setSessionId(id);
-                  setTab('attendance');
-                }}
-              />
-            </TabsContent>
+                <TabsContent value="sessions">
+                  <CohortSessionsPanel
+                    cohortId={cohortId}
+                    startDate={cohort.startDate}
+                    endDate={cohort.endDate}
+                    canManage={canManage}
+                    onOpenAttendance={(id) => {
+                      setSessionId(id);
+                      setTab('attendance');
+                    }}
+                  />
+                </TabsContent>
 
-            <TabsContent value="attendance">
-              <CohortAttendanceEditor
-                cohortId={cohortId}
-                sessions={sessions ?? []}
-                sessionId={sessionId}
-                onSessionChange={setSessionId}
-                isPrivileged={isPrivileged}
-                onDirtyChange={onDirtyChange}
-              />
-            </TabsContent>
+                <TabsContent value="attendance">
+                  <CohortAttendanceEditor
+                    cohortId={cohortId}
+                    sessions={sessions ?? []}
+                    sessionId={sessionId}
+                    onSessionChange={setSessionId}
+                    isPrivileged={isPrivileged}
+                    onDirtyChange={onDirtyChange}
+                  />
+                </TabsContent>
 
-            <TabsContent value="report">
-              {canManage ? (
-                <CohortAttendanceReportView
-                  cohortId={cohortId}
-                  isPrivileged={isPrivileged}
-                />
-              ) : (
-                <p className="text-sm text-ink-muted">
-                  Sem permissão para ver o relatório desta turma.
-                </p>
-              )}
-            </TabsContent>
+                <TabsContent value="report">
+                  {canManage ? (
+                    <CohortAttendanceReportView
+                      cohortId={cohortId}
+                      isPrivileged={isPrivileged}
+                    />
+                  ) : (
+                    <p className="text-sm text-ink-muted">
+                      Sem permissão para ver o relatório desta turma.
+                    </p>
+                  )}
+                </TabsContent>
+              </div>
+            </div>
           </Tabs>
         )}
 
-        <div className="mt-6 flex border-t border-border pt-4">
+        <div className="px-4 pb-4">
           <Button
-            intent="secondary"
-            className="flex-1 justify-center"
+            className="w-full justify-center"
             onClick={() => void requestClose()}
           >
+            <CalendarDays size={16} strokeWidth={1.75} className="mr-2" />
             Fechar
           </Button>
         </div>

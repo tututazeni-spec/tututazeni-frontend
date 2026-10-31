@@ -35,6 +35,8 @@ export interface ModalContentProps {
   gradientBanner?: boolean;
   /** Título e descrição só para leitores de ecrã (o consumidor desenha o seu próprio cabeçalho). */
   hideHeading?: boolean;
+  /** Botão de fechar branco — para consumidores que desenham o seu próprio banner azul. */
+  navyClose?: boolean;
   /** Passthrough para `Dialog.Content` — permite ao consumidor controlar o foco inicial de forma determinística. */
   onOpenAutoFocus?: (event: Event) => void;
 }
@@ -48,9 +50,10 @@ export function ModalContent({
   navyBanner,
   gradientBanner,
   hideHeading,
+  navyClose,
   onOpenAutoFocus,
 }: ModalContentProps) {
-  const onNavy = navyHeader || navyBanner || gradientBanner;
+  const onNavy = navyHeader || navyBanner || gradientBanner || navyClose;
   const heading = (
     <>
       <Dialog.Title
