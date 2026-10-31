@@ -9,11 +9,18 @@
 import { useCallback, useState } from 'react';
 import {
   CalendarDays,
+  CalendarRange,
   Check,
+  Clock,
+  MapPin,
   Pencil,
+  ShieldCheck,
+  User,
   UserMinus,
+  Users,
   Users2,
   X,
+  type LucideIcon,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -42,6 +49,34 @@ const COHORT_PHOTO = '/images/turma-aberta-foto.jpg';
 const TAB_TRIGGER =
   'px-4 py-3 text-base data-[state=active]:border-brand data-[state=active]:font-bold data-[state=active]:text-brand';
 import { formatDateNumeric } from '@/lib/format';
+
+/** Item de informação da visão geral: ícone, rótulo e valor. */
+function InfoItem({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: LucideIcon;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start gap-3 rounded-card bg-brand-soft px-4 py-3">
+      <Icon
+        aria-hidden
+        size={20}
+        strokeWidth={1.5}
+        className="mt-0.5 shrink-0 text-brand-muted"
+      />
+      <div className="min-w-0 flex-1">
+        <div className="text-xs font-semibold uppercase tracking-wide text-brand-muted">
+          {label}
+        </div>
+        <div className="mt-0.5 text-sm font-medium text-ink">{children}</div>
+      </div>
+    </div>
+  );
+}
 
 export interface CohortDetailModalProps {
   cohortId: number;
@@ -262,32 +297,20 @@ export function CohortDetailModal({
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <TabsContent value="overview" className="space-y-6">
-                  <div className="grid grid-cols-2 gap-3 text-sm text-ink-muted sm:grid-cols-4">
-                    <div>
-                      <div className="text-xs uppercase tracking-wide text-ink-faint">
-                        Formador
-                      </div>
+                <TabsContent value="overview" className="space-y-5">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <InfoItem icon={User} label="Formador">
                       {cohort.instructor?.fullName ?? '—'}
-                    </div>
-                    <div>
-                      <div className="text-xs uppercase tracking-wide text-ink-faint">
-                        Local
-                      </div>
+                    </InfoItem>
+                    <InfoItem icon={MapPin} label="Local">
                       {[cohort.location, cohort.room]
                         .filter(Boolean)
                         .join(' · ') || '—'}
-                    </div>
-                    <div>
-                      <div className="text-xs uppercase tracking-wide text-ink-faint">
-                        Horário
-                      </div>
+                    </InfoItem>
+                    <InfoItem icon={Clock} label="Horário">
                       {cohort.schedule ?? '—'}
-                    </div>
-                    <div>
-                      <div className="text-xs uppercase tracking-wide text-ink-faint">
-                        Vagas
-                      </div>
+                    </InfoItem>
+                    <InfoItem icon={Users} label="Vagas">
                       {editingCapacity ? (
                         <div className="flex items-center gap-1">
                           <Input
@@ -333,7 +356,7 @@ export function CohortDetailModal({
                           />
                         </div>
                       )}
-                    </div>
+                    </InfoItem>
                   </div>
 
                   {editingInfo ? (
@@ -343,8 +366,14 @@ export function CohortDetailModal({
                       onDone={() => setEditingInfo(false)}
                     />
                   ) : (
-                    <div className="-mt-3 flex items-center justify-between text-sm text-ink-muted">
-                      <span>
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-ink">
+                        <CalendarRange
+                          aria-hidden
+                          size={18}
+                          strokeWidth={1.5}
+                          className="text-brand-muted"
+                        />
                         {formatDateNumeric(cohort.startDate)}
                         {cohort.endDate
                           ? ` → ${formatDateNumeric(cohort.endDate)}`
@@ -361,9 +390,20 @@ export function CohortDetailModal({
                     </div>
                   )}
 
-                  <p className="text-sm text-ink-muted">
-                    Assiduidade mínima: {cohort.minAttendancePercent}%
-                    (configurável no separador Relatórios).
+                  <p className="flex items-center gap-2 rounded-card bg-brand-soft px-4 py-3 text-sm text-ink-muted">
+                    <ShieldCheck
+                      aria-hidden
+                      size={18}
+                      strokeWidth={1.5}
+                      className="shrink-0 text-brand-muted"
+                    />
+                    <span>
+                      Assiduidade mínima:{' '}
+                      <strong className="text-ink">
+                        {cohort.minAttendancePercent}%
+                      </strong>{' '}
+                      (configurável no separador Relatórios).
+                    </span>
                   </p>
                 </TabsContent>
 
