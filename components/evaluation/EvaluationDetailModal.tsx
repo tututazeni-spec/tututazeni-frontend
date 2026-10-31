@@ -273,7 +273,7 @@ export function EvaluationDetailModal({
                 <div>
                   <p className="text-xs text-ink-faint">Resultado</p>
                   <p className="text-ink">
-                    {data.result != null ? data.result.toFixed(1) : '—'}
+                    {data.result != null ? Number(data.result).toFixed(1) : '—'}
                   </p>
                 </div>
               </div>
