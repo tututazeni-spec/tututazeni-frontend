@@ -18,7 +18,8 @@ export const NAVY_ACTION =
 export const NAVY_BTN =
   'inline-flex h-9 items-center justify-center rounded-full bg-white/90 px-4 text-sm font-semibold text-brand hover:bg-surface disabled:opacity-50';
 
-export type NavyTone = 'success' | 'danger' | 'warning' | 'info' | 'neutral';
+export type NavyTone =
+  'success' | 'danger' | 'warning' | 'info' | 'neutral' | 'light';
 
 const TONE: Record<NavyTone, { pill: string; dot: string }> = {
   success: { pill: 'bg-success-subtle text-success-ink', dot: 'bg-[#22A15A]' },
@@ -26,21 +27,27 @@ const TONE: Record<NavyTone, { pill: string; dot: string }> = {
   warning: { pill: 'bg-warning-subtle text-warning-ink', dot: 'bg-[#F2B01E]' },
   info: { pill: 'bg-brand-soft text-brand-ink', dot: 'bg-[#2F7BEA]' },
   neutral: { pill: 'bg-white/85 text-brand', dot: 'bg-[#6B7A90]' },
+  // Pílula branca com ponto azul (cartão "turmas abertas").
+  light: { pill: 'bg-white text-brand', dot: 'bg-[#2F7BEA]' },
 };
 
 export interface NavyBadgeProps {
   children: ReactNode;
   onClick?: () => void;
   tone?: NavyTone;
+  /** Pílula maior (variante `photo` do cartão). */
+  large?: boolean;
 }
 
 export function NavyBadge({
   children,
   onClick,
   tone = 'success',
+  large,
 }: NavyBadgeProps) {
   const t = TONE[tone];
-  const cls = `inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${t.pill}`;
+  const size = large ? 'px-4 py-1.5 text-sm font-bold' : 'px-3 py-1 text-xs';
+  const cls = `inline-flex shrink-0 items-center gap-1.5 rounded-full font-semibold ${size} ${t.pill}`;
   const dot = <span aria-hidden className={`h-2 w-2 rounded-full ${t.dot}`} />;
   if (onClick)
     return (
@@ -70,6 +77,19 @@ export interface NavyInfo {
   disabled?: boolean;
 }
 
+/** Impede que um intervalo "09:30-14:34" se parta ao meio quando o valor muda de linha. */
+function keepTimesTogether(value: string): ReactNode {
+  return value.split(/(\d{1,2}:\d{2}-\d{1,2}:\d{2})/).map((part, i) =>
+    i % 2 === 1 ? (
+      <span key={i} className="whitespace-nowrap">
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  );
+}
+
 function Info({
   icon: Icon,
   value,
@@ -77,21 +97,22 @@ function Info({
   danger,
   flush,
   compact,
-}: NavyInfo & { flush?: boolean; compact?: boolean }) {
+  large,
+}: NavyInfo & { flush?: boolean; compact?: boolean; large?: boolean }) {
   return (
     <div
-      className={`flex min-w-0 items-center text-left px-2 ${compact ? 'gap-2' : 'gap-3'} ${flush ? 'pl-0 sm:pl-0 sm:pr-4' : 'sm:px-4'}`}
+      className={`flex min-w-0 items-center text-left ${large ? 'gap-3 px-1 @2xl:gap-1.5 @2xl:px-0.5' : `px-2 ${compact ? 'gap-2' : 'gap-3'} ${flush ? 'pl-0 sm:pl-0 sm:pr-4' : 'sm:px-4'}`}`}
     >
       <span
-        className={`flex shrink-0 items-center justify-center rounded-full bg-white/90 text-brand ${compact ? 'h-7 w-7' : 'h-9 w-9'}`}
+        className={`flex shrink-0 items-center justify-center rounded-full bg-white/90 text-brand ${compact ? 'h-7 w-7' : large ? 'h-10 w-10 @2xl:h-8 @2xl:w-8' : 'h-9 w-9'}`}
       >
-        <Icon size={compact ? 14 : 18} strokeWidth={1.75} />
+        <Icon size={compact ? 14 : large ? 16 : 18} strokeWidth={1.75} />
       </span>
-      <div className="min-w-0">
+      <div className={`min-w-0 ${large ? '@2xl:max-w-[7rem]' : ''}`}>
         <div
-          className={`text-sm font-semibold leading-tight ${danger ? 'text-red-300' : 'text-white'}`}
+          className={`font-semibold leading-tight ${large ? 'text-base font-bold @2xl:text-sm' : 'text-sm'} ${danger ? 'text-red-300' : 'text-white'}`}
         >
-          {value}
+          {large ? keepTimesTogether(value) : value}
         </div>
         <div className="text-xs leading-tight text-white/70">{label}</div>
       </div>
@@ -105,6 +126,28 @@ const COLS: Record<number, string> = {
   3: 'lg:grid-cols-3',
   4: 'lg:grid-cols-4',
 };
+
+// Azuis do cartão "turmas abertas" (variante photo).
+const PHOTO_BLUE_LIGHT = '#0F46B8';
+const PHOTO_BLUE = '#0A2A6B';
+const PHOTO_BLUE_DEEP = '#071C4A';
+
+/**
+ * Células do painel da variante photo: 2×2 em cartões estreitos e 4 numa só
+ * linha quando o cartão tem largura (container query), com separadores certos
+ * para cada disposição.
+ */
+function photoCellClass(i: number) {
+  const row2 =
+    i >= 2 ? 'border-t border-white/15 pt-3 @2xl:border-t-0 @2xl:pt-0' : '';
+  const col =
+    i % 2 === 1
+      ? 'border-l border-white/30 pl-4 @2xl:pl-3'
+      : i > 0
+        ? '@2xl:border-l @2xl:border-white/30 @2xl:pl-3'
+        : '';
+  return `${row2} ${col}`;
+}
 
 function seedFrom(title: string) {
   let h = 0;
@@ -129,6 +172,12 @@ interface NavyCardProps {
   seed?: number;
   /** Foto de fundo (opcional) — fica sob uma película escura. */
   image?: string | null;
+  /**
+   * `photo`: desenho do cartão "turmas abertas" (public/images/turmas abertas.jpeg) —
+   * azul profundo, foto na metade direita que se esbate para o azul, topo e
+   * painel de informações maiores. Pede `image`; os outros cartões usam `default`.
+   */
+  variant?: 'default' | 'photo';
   infos: NavyInfo[];
   /** Encosta o ícone da 1.ª informação à esquerda do painel de vidro. */
   flushFirstInfo?: boolean;
@@ -153,6 +202,7 @@ export function NavyCard({
   kickerIcon: KickerIcon = GraduationCap,
   seed,
   image,
+  variant = 'default',
   infos,
   flushFirstInfo,
   compact,
@@ -162,16 +212,29 @@ export function NavyCard({
 }: NavyCardProps) {
   const palette = PALETTE[Math.abs(seed ?? seedFrom(title)) % PALETTE.length];
   const hasTop = lead || avatar || kicker || actions;
+  const photo = variant === 'photo' && !compact;
 
   return (
     <div
       onClick={onClick}
-      className={`relative overflow-hidden rounded-panel text-white ${compact ? 'p-2' : 'p-5'} shadow-[0_8px_24px_rgba(15,31,61,0.25)] ${onClick ? 'cursor-pointer' : ''}`}
+      className={`relative overflow-hidden rounded-panel text-white ${compact ? 'p-2' : photo ? '@container flex min-h-[300px] flex-col p-5 sm:p-6' : 'p-5'} shadow-[0_8px_24px_rgba(15,31,61,0.25)] ${onClick ? 'cursor-pointer' : ''}`}
       style={{
-        background: `linear-gradient(135deg, ${palette[1]} 0%, ${palette[2]} 65%, ${palette[2]} 100%)`,
+        background: photo
+          ? `linear-gradient(115deg, ${PHOTO_BLUE_LIGHT} 0%, ${PHOTO_BLUE} 42%, ${PHOTO_BLUE_DEEP} 100%)`
+          : `linear-gradient(135deg, ${palette[1]} 0%, ${palette[2]} 65%, ${palette[2]} 100%)`,
       }}
     >
-      {image && (
+      {image && photo && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          loading="lazy"
+          decoding="async"
+          src={image}
+          alt=""
+          className="absolute inset-y-0 right-0 h-full w-[56%] object-cover object-center"
+        />
+      )}
+      {image && !photo && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           loading="lazy"
@@ -185,9 +248,12 @@ export function NavyCard({
         aria-hidden
         className="absolute inset-0"
         style={{
-          background: image
-            ? `linear-gradient(90deg, ${palette[2]}F2 0%, ${palette[2]}B3 55%, ${palette[2]}66 100%)`
-            : `radial-gradient(circle at 92% 8%, ${palette[0]}99 0%, transparent 45%)`,
+          background: photo
+            ? // Azul sólido à esquerda (onde está o texto) que se esbate sobre a foto.
+              `linear-gradient(90deg, ${PHOTO_BLUE} 0%, ${PHOTO_BLUE} 44%, ${PHOTO_BLUE}D9 52%, ${PHOTO_BLUE}66 64%, ${PHOTO_BLUE}14 82%, transparent 100%)`
+            : image
+              ? `linear-gradient(90deg, ${palette[2]}F2 0%, ${palette[2]}B3 55%, ${palette[2]}66 100%)`
+              : `radial-gradient(circle at 92% 8%, ${palette[0]}99 0%, transparent 45%)`,
         }}
       />
 
@@ -243,7 +309,7 @@ export function NavyCard({
           )}
         </div>
       ) : (
-        <div className="relative">
+        <div className={photo ? 'relative flex flex-1 flex-col' : 'relative'}>
           {hasTop && (
             <div className="flex items-center justify-between gap-3">
               <div className="flex min-w-0 items-center gap-3">
@@ -266,14 +332,19 @@ export function NavyCard({
                 ) : (
                   kicker && (
                     <span
-                      className={`flex shrink-0 items-center justify-center rounded-full bg-white/15 ${compact ? 'h-7 w-7' : 'h-9 w-9'}`}
+                      className={`flex shrink-0 items-center justify-center rounded-full ${photo ? 'h-12 w-12 bg-[#1D56E0]' : `bg-white/15 ${compact ? 'h-7 w-7' : 'h-9 w-9'}`}`}
                     >
-                      <KickerIcon size={compact ? 16 : 20} strokeWidth={1.75} />
+                      <KickerIcon
+                        size={compact ? 16 : photo ? 24 : 20}
+                        strokeWidth={1.75}
+                      />
                     </span>
                   )
                 )}
                 {(avatar || kicker) && (
-                  <span className="truncate text-sm font-medium">
+                  <span
+                    className={`truncate font-medium ${photo ? 'text-base font-semibold' : 'text-sm'}`}
+                  >
                     {avatar?.name ?? kicker}
                   </span>
                 )}
@@ -290,12 +361,14 @@ export function NavyCard({
           )}
 
           <h3
-            className={`break-words font-body font-extrabold uppercase leading-tight tracking-wide ${compact ? 'mt-1.5 text-lg' : 'mt-4 text-2xl'}`}
+            className={`break-words font-body font-extrabold uppercase leading-tight tracking-wide ${compact ? 'mt-1.5 text-lg' : photo ? 'mt-auto max-w-[68%] pt-5 text-[1.15rem] tracking-normal' : 'mt-4 text-2xl'}`}
           >
             {title}
           </h3>
           {subtitle && !compact && (
-            <div className="mt-1 flex items-center gap-1.5 text-sm text-white/75">
+            <div
+              className={`mt-1 flex items-center gap-1.5 text-white/80 ${photo ? 'text-lg' : 'text-sm'}`}
+            >
               {SubIcon && (
                 <SubIcon size={14} strokeWidth={1.75} className="shrink-0" />
               )}
@@ -313,12 +386,22 @@ export function NavyCard({
 
           {infos.length > 0 && (
             <div
-              className={`grid grid-cols-2 gap-y-2 rounded-card bg-white/10 px-3 backdrop-blur-sm lg:gap-y-0 ${compact ? 'mt-2 py-1.5' : 'mt-4 gap-y-3 py-3'} ${COLS[Math.min(infos.length, 4)]}`}
+              className={
+                photo
+                  ? 'mt-5 grid grid-cols-2 gap-y-3 rounded-[1.5rem] bg-[#0A2A6B]/80 px-3 py-3.5 @2xl:grid-cols-4 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)] backdrop-blur-md'
+                  : `grid grid-cols-2 gap-y-2 rounded-card bg-white/10 px-3 backdrop-blur-sm lg:gap-y-0 ${compact ? 'mt-2 py-1.5' : 'mt-4 gap-y-3 py-3'} ${COLS[Math.min(infos.length, 4)]}`
+              }
             >
               {infos.map((info, i) => (
                 <div
                   key={info.label + i}
-                  className={i > 0 ? 'lg:border-l lg:border-white/15' : ''}
+                  className={
+                    photo
+                      ? `min-w-0 ${photoCellClass(i)}`
+                      : i > 0
+                        ? 'lg:border-l lg:border-white/15'
+                        : ''
+                  }
                 >
                   {info.onClick ? (
                     <button
@@ -334,6 +417,7 @@ export function NavyCard({
                         {...info}
                         flush={flushFirstInfo && i === 0}
                         compact={compact}
+                        large={photo}
                       />
                     </button>
                   ) : (
@@ -341,6 +425,7 @@ export function NavyCard({
                       {...info}
                       flush={flushFirstInfo && i === 0}
                       compact={compact}
+                      large={photo}
                     />
                   )}
                 </div>

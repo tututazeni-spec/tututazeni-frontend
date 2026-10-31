@@ -43,6 +43,13 @@ const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> =
     CANCELLED: { label: 'Cancelada', cls: 'bg-danger-subtle text-danger-ink' },
   };
 
+/** Foto do cartão de turma aberta (recorte do desenho em public/images). */
+const OPEN_COHORT_PHOTO = '/images/turma-aberta-foto.jpg';
+
+/** Botões redondos escuros do cartão de turma aberta. */
+const OPEN_ROUND_BTN =
+  'h-10 w-10 rounded-full bg-[#0F1F3D]/85 p-0 text-white hover:bg-[#0F1F3D]';
+
 const COHORT_TONE: Record<CohortStatus, NavyTone> = {
   DRAFT: 'neutral',
   OPEN: 'info',
@@ -59,10 +66,14 @@ interface CohortCardProps {
 }
 
 function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
-  const place = [c.location, c.room].filter(Boolean).join(' · ');
+  const place = [c.location, c.room].filter(Boolean).join(' • ');
   const statusCfg = COHORT_STATUS_MAP[c.status];
+  // Turma com inscrições abertas: desenho "turmas abertas" (foto + azul profundo).
+  const open = c.status === 'OPEN';
   return (
     <NavyCard
+      variant={open ? 'photo' : 'default'}
+      image={open ? OPEN_COHORT_PHOTO : undefined}
       onClick={onOpen}
       seed={c.id}
       kicker={c.instructor?.fullName ?? 'Sem formador'}
@@ -88,7 +99,10 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
         },
       ]}
       badge={
-        <NavyBadge tone={COHORT_TONE[c.status] ?? 'neutral'}>
+        <NavyBadge
+          tone={open ? 'light' : (COHORT_TONE[c.status] ?? 'neutral')}
+          large={open}
+        >
           {statusCfg?.label ?? c.status}
         </NavyBadge>
       }
@@ -100,6 +114,7 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
             size="sm"
             aria-label="Ver participantes"
             title="Ver participantes"
+            className={open ? OPEN_ROUND_BTN : undefined}
             onClick={onOpen}
           >
             <Users2 size={15} strokeWidth={1.75} />
@@ -110,6 +125,7 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
             size="sm"
             aria-label={`Eliminar turma ${c.name}`}
             title="Eliminar turma"
+            className={open ? OPEN_ROUND_BTN : undefined}
             onClick={onDelete}
           >
             <Trash2 size={15} strokeWidth={1.75} />
@@ -117,7 +133,11 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
           {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
             <button
               type="button"
-              className={`${NAVY_ACTION} border border-white/25`}
+              className={
+                open
+                  ? 'inline-flex h-10 items-center justify-center rounded-full bg-[#0F1F3D]/85 px-5 text-sm font-bold text-white hover:bg-[#0F1F3D]'
+                  : `${NAVY_ACTION} border border-white/25`
+              }
               onClick={onClose}
             >
               Encerrar
@@ -278,7 +298,7 @@ export function TurmasView() {
               {openCohorts.map((c) => (
                 <CohortCard
                   key={c.id}
-                  c={{ ...c, name: `${c.name} · ${c.course.title}` }}
+                  c={{ ...c, name: `${c.name} • ${c.course.title}` }}
                   onOpen={() => setDetailId(c.id)}
                   onDelete={() => onDelete(c)}
                   onClose={() => onClose(c)}
