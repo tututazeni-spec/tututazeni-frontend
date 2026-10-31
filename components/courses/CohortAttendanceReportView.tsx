@@ -5,14 +5,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  CalendarCheck,
-  Download,
-  Percent,
-  UserCheck,
-  UserX,
-  Users,
-} from 'lucide-react';
+import { CalendarCheck, Download, UserCheck, UserX, Users } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { downloadFromApi } from '@/lib/download';
@@ -24,6 +17,7 @@ import { Button } from '@/components/ui/Button';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { Input } from '@/components/ui/Input';
 import { KpiCard } from '@/components/ui/KpiCard';
+import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import {
   Table,
   TableBody,
@@ -136,17 +130,21 @@ export function CohortAttendanceReportView({
           }
           intent="info"
         />
-        <KpiCard
-          icon={Percent}
+        {/* Rosca fora do quadrado (sem moldura) */}
+        <DonutStatCard
+          bare
           label="Taxa média de presença"
-          value={pct(g.averageRate)}
-          sub={`Mínimo ${report.criteria.minAttendancePercent}%`}
-          intent={
+          value={g.averageRate ?? 0}
+          color={
+            g.averageRate !== null &&
+            g.averageRate < report.criteria.minAttendancePercent
+              ? '#F28C28'
+              : '#16A765'
+          }
+          sub={
             g.averageRate === null
-              ? 'info'
-              : g.averageRate >= report.criteria.minAttendancePercent
-                ? 'success'
-                : 'warning'
+              ? `Ainda sem dados · mínimo ${report.criteria.minAttendancePercent}%`
+              : `Mínimo ${report.criteria.minAttendancePercent}%`
           }
         />
         <KpiCard
