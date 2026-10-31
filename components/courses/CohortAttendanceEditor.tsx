@@ -8,10 +8,12 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
+  ArrowUpDown,
   CalendarDays,
   CircleCheck,
   Clock,
   Eraser,
+  Filter,
   GraduationCap,
   Save,
   User,
@@ -98,6 +100,8 @@ export function CohortAttendanceEditor({
   const [filter, setFilter] = useState<string>('ALL');
   const [sortBy, setSortBy] = useState<'name' | 'status'>('name');
   const [reason, setReason] = useState('');
+  const [bulkIn, setBulkIn] = useState('');
+  const [bulkOut, setBulkOut] = useState('');
 
   const usable = sessions.filter((s) => s.status !== 'CANCELLED');
   const { data, isLoading } = useApiQuery<SessionAttendance>(
@@ -193,6 +197,17 @@ export function CohortAttendanceEditor({
       if (!ok) return;
     }
     onSessionChange(id);
+  }
+
+  /** Aplica a mesma hora de entrada ou de saída a todos os participantes. */
+  function applyTime(field: 'checkInTime' | 'checkOutTime', time: string) {
+    if (!time) return;
+    setRows((c) =>
+      Object.fromEntries(
+        Object.entries(c).map(([id, r]) => [id, { ...r, [field]: time }]),
+      ),
+    );
+    setDirty(true);
   }
 
   function markAllPresent() {
@@ -380,35 +395,78 @@ export function CohortAttendanceEditor({
 
           <div className="flex flex-wrap items-center gap-2">
             <SearchInput
+              variant="underline"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Pesquisar nome ou identificador…"
               aria-label="Pesquisar participante"
               className="min-w-[14rem] flex-1"
             />
-            <NativeSelect
-              density="sm"
+            <Select
+              variant="underline"
+              icon={Filter}
+              items={[
+                { value: 'ALL', label: 'Todos os estados' },
+                ...Object.entries(ATTENDANCE_LABEL).map(([v, l]) => ({
+                  value: v,
+                  label: l.label,
+                })),
+                { value: NONE, label: 'Sem registo' },
+              ]}
               value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              aria-label="Filtrar por estado"
-            >
-              <option value="ALL">Todos os estados</option>
-              {Object.entries(ATTENDANCE_LABEL).map(([v, l]) => (
-                <option key={v} value={v}>
-                  {l.label}
-                </option>
-              ))}
-              <option value={NONE}>Sem registo</option>
-            </NativeSelect>
-            <NativeSelect
-              density="sm"
+              onValueChange={setFilter}
+            />
+            <Select
+              variant="underline"
+              icon={ArrowUpDown}
+              items={[
+                { value: 'name', label: 'Ordenar por nome' },
+                { value: 'status', label: 'Ordenar por estado' },
+              ]}
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'name' | 'status')}
-              aria-label="Ordenar por"
-            >
-              <option value="name">Ordenar por nome</option>
-              <option value="status">Ordenar por estado</option>
-            </NativeSelect>
+              onValueChange={(v) => setSortBy(v as 'name' | 'status')}
+            />
+          </div>
+
+          <div className="flex flex-wrap items-end gap-x-6 gap-y-3 rounded-card bg-brand-soft px-4 py-3">
+            <div className="flex items-end gap-2">
+              <label className="space-y-1 text-xs font-semibold text-brand-muted">
+                Hora de entrada para todos
+                <Input
+                  type="time"
+                  value={bulkIn}
+                  onChange={(e) => setBulkIn(e.target.value)}
+                  className="w-32"
+                />
+              </label>
+              <Button
+                size="sm"
+                intent="secondary"
+                disabled={!bulkIn}
+                onClick={() => applyTime('checkInTime', bulkIn)}
+              >
+                Aplicar a todos
+              </Button>
+            </div>
+            <div className="flex items-end gap-2">
+              <label className="space-y-1 text-xs font-semibold text-brand-muted">
+                Hora de saída para todos
+                <Input
+                  type="time"
+                  value={bulkOut}
+                  onChange={(e) => setBulkOut(e.target.value)}
+                  className="w-32"
+                />
+              </label>
+              <Button
+                size="sm"
+                intent="secondary"
+                disabled={!bulkOut}
+                onClick={() => applyTime('checkOutTime', bulkOut)}
+              >
+                Aplicar a todos
+              </Button>
+            </div>
           </div>
 
           <div className="max-h-[26rem] overflow-auto">
