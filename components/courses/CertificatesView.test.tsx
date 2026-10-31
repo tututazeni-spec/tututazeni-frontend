@@ -1,5 +1,5 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { CertificatesView } from './CertificatesView';
 import type { Certificate } from './types';
 import type { MySummary } from '@/components/certificates/types';
@@ -92,40 +92,58 @@ describe('CertificatesView — área pessoal', () => {
     ).toBe(false);
   });
 
-  test('o filtro de estado "Expirados" esconde os válidos e mostra a contagem', () => {
+  test('revogado tem botão "Apagar"; válido não tem', () => {
     certs = [
-      cert({ id: 1, displayTitle: 'Válido A' }),
-      cert({
-        id: 2,
-        displayTitle: 'Expirado B',
-        status: 'EXPIRED',
-        linkedInUrl: undefined,
-      }),
-      cert({ id: 3, displayTitle: 'Válido C' }),
+      cert({ id: 1, status: 'REVOKED', linkedInUrl: undefined }),
+      cert({ id: 2, displayTitle: 'Válido' }),
     ];
     render(<CertificatesView />);
-    expect(screen.getByText('3 de 3')).toBeInTheDocument();
-    fireEvent.click(
-      within(screen.getByRole('tablist', { name: 'Estado' })).getByText(
-        'Expirados',
-      ),
-    );
-    expect(screen.getByText('1 de 3')).toBeInTheDocument();
-    expect(screen.getByText('Expirado B')).toBeInTheDocument();
-    expect(screen.queryByText('Válido A')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Apagar' })).toHaveLength(1);
   });
 
-  test('a pesquisa filtra por título', () => {
+  test('mostra todos os certificados, do mais recente ao mais antigo, sem filtros', () => {
     certs = [
-      cert({ id: 1, displayTitle: 'Segurança' }),
-      cert({ id: 2, displayTitle: 'Liderança' }),
+      cert({
+        id: 1,
+        displayTitle: 'Antigo',
+        issuedAt: '2026-01-10T00:00:00.000Z',
+      }),
+      cert({
+        id: 2,
+        displayTitle: 'Curso do meio',
+        status: 'EXPIRED',
+        linkedInUrl: undefined,
+        issuedAt: '2026-05-20T00:00:00.000Z',
+      }),
+      cert({
+        id: 3,
+        displayTitle: 'Recente',
+        issuedAt: '2026-09-30T00:00:00.000Z',
+      }),
     ];
     render(<CertificatesView />);
-    fireEvent.change(screen.getByPlaceholderText('Pesquisar por formação'), {
-      target: { value: 'lider' },
+    const titles = screen
+      .getAllByText(/^(Antigo|Curso do meio|Recente)$/)
+      .map((n) => n.textContent);
+    expect(titles).toEqual(['Recente', 'Curso do meio', 'Antigo']);
+    expect(
+      screen.queryByPlaceholderText('Pesquisar por formação'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('tablist', { name: 'Estado' }),
+    ).not.toBeInTheDocument();
+  });
+
+  test('colaborador só verifica os seus próprios certificados', () => {
+    certs = [cert()];
+    render(<CertificatesView onlyOwnVerify />);
+    fireEvent.change(screen.getByPlaceholderText(/Código do certificado/), {
+      target: { value: 'ZZZZ9999ZZZZ9999' },
     });
-    expect(screen.getByText('Liderança')).toBeInTheDocument();
-    expect(screen.queryByText('Segurança')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Verificar' }));
+    expect(
+      screen.getByText('Só pode verificar os seus próprios certificados.'),
+    ).toBeInTheDocument();
   });
 
   test('"Copiar ligação" copia a ligação pública de verificação', async () => {

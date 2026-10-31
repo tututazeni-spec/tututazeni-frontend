@@ -448,6 +448,15 @@ button:not([class*='focus-visible']):focus-visible {
   outline-offset: 2px;
 }
 
+/* Módulo Cursos (separadores): sem efeito de zoom nos cartões. A classe
+   `no-card-zoom` é posta no contentor da página; o `!important` ganha às
+   utilitárias `hover:scale-*` dos cartões partilhados (NavyStatCard, PhotoCard,
+   CourseListCard…) sem as alterar nos outros módulos. */
+.no-card-zoom [class*='hover:scale']:hover {
+  scale: none !important;
+  transform: none !important;
+}
+
 /* <select> nativos: mesmo contorno e texto dos Select/Combobox partilhados */
 select {
   border: 1.5px solid var(--color-field);

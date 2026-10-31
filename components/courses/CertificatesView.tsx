@@ -7,13 +7,21 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { CalendarDays, Check, Copy, Download, Mail } from 'lucide-react';
+import {
+  CalendarDays,
+  Check,
+  Copy,
+  Download,
+  Mail,
+  Trash2,
+} from 'lucide-react';
 import { usePdfDownload } from '@/hooks/usePdfDownload';
 import { Badge } from '@/components/ui/Badge';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { cn } from '@/lib/cn';
 import { formatDate as fmtDate } from '@/lib/format';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
@@ -194,6 +202,34 @@ function CertificateCard({
     },
   );
 
+  // "Apagar" só oculta da lista do titular: o certificado fica nos relatórios e na auditoria.
+  const hide = useApiMutation(
+    () => apiClient.delete(`/certificates/my/${cert.id}`),
+    {
+      invalidateKeys: [
+        queryKeys.courses.myCertificates(),
+        queryKeys.certificates.mySummary(),
+      ],
+      onSuccess: () =>
+        toast({
+          title: 'Certificado apagado da sua lista.',
+          intent: 'success',
+        }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  async function onDelete() {
+    const ok = await confirm({
+      title: 'Apagar este certificado revogado da sua lista?',
+      message:
+        'Deixa de aparecer em "Os meus certificados". O registo mantém-se nos relatórios e na auditoria.',
+      confirmLabel: 'Apagar',
+      destructive: true,
+    });
+    if (ok) hide.mutate(undefined);
+  }
+
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(cert.verifyUrl);
@@ -214,8 +250,8 @@ function CertificateCard({
   const pill = STATUS_PILL[badge.intent];
   // Botões altos, ícone à esquerda e rótulo em duas linhas (desenho de referência).
   const BTN =
-    'h-8 min-h-0 w-fit shrink-0 justify-start gap-2 whitespace-nowrap rounded-control px-3 py-0 text-left text-sm font-semibold';
-  const OUTLINE = `${BTN} border-[1.5px] border-brand bg-surface text-brand hover:bg-brand-soft`;
+    'group transition-colors hover:border-brand hover:bg-brand hover:text-white active:border-brand active:bg-brand active:text-white h-8 min-h-0 w-fit shrink-0 justify-start gap-2 whitespace-nowrap rounded-control px-3 py-0 text-left text-sm font-semibold';
+  const OUTLINE = `${BTN} border-[1.5px] border-brand bg-surface text-brand`;
 
   return (
     <div className="relative overflow-hidden rounded-[22px] border border-brand-line bg-gradient-to-br from-brand-soft/60 via-surface to-surface p-6 shadow-[0_8px_24px_rgba(15,31,61,0.10)]">
@@ -225,7 +261,7 @@ function CertificateCard({
       <div className="relative flex items-start gap-4 sm:pr-[190px]">
         <div
           aria-hidden
-          className="flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full bg-brand text-white"
+          className="flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full bg-success text-white"
         >
           <Check size={38} strokeWidth={3.25} />
         </div>
@@ -268,11 +304,11 @@ function CertificateCard({
         </span>
       </div>
 
-      <div className="relative mt-4 flex flex-wrap gap-3">
+      <div className="relative mt-4 grid grid-cols-2 justify-items-start gap-3">
         {downloadable && (
           <Button
             size="sm"
-            className={`${BTN} bg-primary text-white hover:bg-primary-active`}
+            className={`${BTN} border-[1.5px] border-primary bg-primary text-white`}
             onClick={() => void download()}
             disabled={loading}
           >
@@ -302,6 +338,21 @@ function CertificateCard({
           >
             <LinkedInMark />
             <span>Adicionar ao LinkedIn</span>
+          </Button>
+        )}
+        {cert.status === 'REVOKED' && (
+          <Button
+            intent="secondary"
+            size="sm"
+            className={cn(
+              BTN,
+              'border-[1.5px] border-danger bg-surface text-danger hover:border-danger hover:bg-danger hover:text-white active:border-danger active:bg-danger active:text-white',
+            )}
+            onClick={() => void onDelete()}
+            disabled={hide.isPending}
+          >
+            <Trash2 size={18} strokeWidth={1.75} className="shrink-0" />
+            Apagar
           </Button>
         )}
         {emailEnabled && cert.status === 'ACTIVE' && (
@@ -336,10 +387,15 @@ const STATUS_PILL: Record<
 function LinkedInMark() {
   return (
     <svg aria-hidden viewBox="0 0 24 24" className="h-[18px] w-[18px] shrink-0">
-      <rect width="24" height="24" rx="4" className="fill-primary" />
+      <rect
+        width="24"
+        height="24"
+        rx="4"
+        className="fill-primary group-hover:fill-white group-active:fill-white"
+      />
       <path
         d="M7.2 10.2v6.6M7.2 7.4v.1M10.6 16.8v-6.6m0 3.1c0-1.9 1.2-3.2 2.8-3.2 1.5 0 2.4 1 2.4 2.9v3.8"
-        stroke="white"
+        className="stroke-white group-hover:stroke-brand group-active:stroke-brand"
         strokeWidth="2.1"
         strokeLinecap="round"
         fill="none"
