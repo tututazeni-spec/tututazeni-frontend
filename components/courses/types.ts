@@ -376,6 +376,21 @@ export type CohortDetail = Cohort & {
   participants: CohortParticipant[];
 };
 
+export interface CohortAttendanceSheet {
+  /** Dias de aula (YYYY-MM-DD). */
+  days: string[];
+  participants: Array<{
+    userId: number;
+    fullName: string;
+    avatarUrl: string | null;
+    /** Estado por dia; dia ausente = sem registo. */
+    marks: Record<string, string>;
+    present: number;
+    absent: number;
+    total: number;
+  }>;
+}
+
 export interface CohortAttendanceEntry {
   userId: number;
   status: 'PRESENT' | 'ABSENT' | string;
