@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Pencil, Plus } from 'lucide-react';
+import { Box, CalendarDays, GraduationCap, Pencil, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -14,9 +14,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate } from '@/lib/format';
 import { useToast } from '@/providers/ToastProvider';
 import { AlertCard } from '@/components/ui/AlertCard';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -389,6 +387,33 @@ function RuleFormModal({
   );
 }
 
+/** Lâmpada sobre livros, como no desenho de referência das regras. */
+function RuleIllustration() {
+  return (
+    <svg
+      viewBox="0 0 120 150"
+      className="h-[70px] w-[52px]"
+      role="presentation"
+    >
+      <defs>
+        <radialGradient id="rule-bulb" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stopColor="#FFE680" />
+          <stop offset="100%" stopColor="#F5B800" />
+        </radialGradient>
+      </defs>
+      <g stroke="#F5C542" strokeWidth="3" strokeLinecap="round">
+        <path d="M60 4v10M24 18l7 7M96 18l-7 7M10 50h10M100 50h10" />
+      </g>
+      <circle cx="60" cy="46" r="27" fill="url(#rule-bulb)" />
+      <rect x="50" y="70" width="20" height="14" rx="3" fill="#2F6FDB" />
+      <rect x="6" y="104" width="108" height="16" rx="3" fill="#E8EEF9" />
+      <rect x="6" y="116" width="108" height="14" rx="3" fill="#2F6FDB" />
+      <rect x="16" y="86" width="90" height="16" rx="3" fill="#E8EEF9" />
+      <rect x="16" y="98" width="90" height="12" rx="3" fill="#1F55B8" />
+    </svg>
+  );
+}
+
 export function RulesTab({ canEdit }: { canEdit: boolean }) {
   const templates = useApiQuery<TemplateSummaryRow[]>(
     queryKeys.certificates.templates(),
@@ -436,32 +461,74 @@ export function RulesTab({ canEdit }: { canEdit: boolean }) {
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {data.map((r) => (
-            <Card key={r.id} className="p-4">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <div className="font-semibold text-ink">
-                    {r.activityTitle ??
-                      `${KIND_LABEL[r.activityKind as ActivityKind]} #${r.activityId}`}
+            <article
+              key={r.id}
+              className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B1A38] via-[#0F2A5C] to-[#12388A] text-white shadow-md"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 400 200"
+                preserveAspectRatio="none"
+                className="pointer-events-none absolute bottom-0 right-0 h-3/4 w-3/4 opacity-60"
+              >
+                <path
+                  d="M400 20 C300 80 220 150 120 200 L400 200 Z"
+                  fill="#1D4FB8"
+                />
+              </svg>
+              <div className="relative flex gap-3 px-4 py-3">
+                <div
+                  aria-hidden="true"
+                  className="flex w-[70px] shrink-0 items-center justify-center self-stretch border-r border-white/25 pr-3"
+                >
+                  <RuleIllustration />
+                </div>
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-[17px] font-bold leading-tight">
+                      {r.activityTitle ??
+                        `${KIND_LABEL[r.activityKind as ActivityKind]} #${r.activityId}`}
+                    </h3>
+                    <span
+                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                        r.active
+                          ? 'bg-green-200 text-green-900'
+                          : 'bg-white/20 text-white'
+                      }`}
+                    >
+                      <span
+                        className={`h-2 w-2 rounded-full ${r.active ? 'bg-green-600' : 'bg-white/60'}`}
+                      />
+                      {r.active ? 'Activa' : 'Inactiva'}
+                    </span>
                   </div>
-                  <div className="text-xs text-ink-muted">
-                    {KIND_LABEL[r.activityKind as ActivityKind]} ·{' '}
-                    {MODE_LABEL[r.mode]}
+                  <div className="flex items-center gap-2 text-xs">
+                    <GraduationCap size={14} strokeWidth={1.75} />
+                    <span>
+                      {KIND_LABEL[r.activityKind as ActivityKind]} ·{' '}
+                      {MODE_LABEL[r.mode]}
+                    </span>
+                  </div>
+                  <ul className="flex flex-wrap items-start gap-1">
+                    {describeCriteria(r.criteria).map((c) => (
+                      <li
+                        key={c}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-green-200 px-2.5 py-0.5 text-xs font-semibold text-green-950"
+                      >
+                        <span className="h-2 w-2 rounded-full bg-green-600" />
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex items-center gap-2 text-xs">
+                    <Box size={14} strokeWidth={1.75} />
+                    <span>Modelo: {templateName(r.templateId)}</span>
                   </div>
                 </div>
-                <Badge intent={r.active ? 'success' : 'neutral'}>
-                  {r.active ? 'Activa' : 'Inactiva'}
-                </Badge>
               </div>
-              <ul className="mt-3 list-disc space-y-0.5 pl-5 text-sm text-ink">
-                {describeCriteria(r.criteria).map((c) => (
-                  <li key={c}>{c}</li>
-                ))}
-              </ul>
-              <div className="mt-2 text-xs text-ink-muted">
-                Modelo: {templateName(r.templateId)}
-              </div>
-              <div className="mt-3 flex items-center justify-between text-xs text-ink-muted">
-                <span>
+              <div className="relative flex items-center justify-between gap-3 bg-black/25 px-4 py-2 text-xs">
+                <span className="flex items-center gap-2">
+                  <CalendarDays size={14} strokeWidth={1.75} />
                   {r.validityDays
                     ? `Validade ${r.validityDays} dias`
                     : 'Sem expiração'}
@@ -469,17 +536,17 @@ export function RulesTab({ canEdit }: { canEdit: boolean }) {
                   Actualizada em {formatDate(r.updatedAt)}
                 </span>
                 {canEdit && (
-                  <Button
-                    intent="secondary"
-                    size="sm"
+                  <button
+                    type="button"
                     onClick={() => setEditing(r)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-white px-3.5 py-1 text-sm font-bold text-[#0F1F3D] hover:bg-white/90"
                   >
                     <Pencil size={14} strokeWidth={1.75} />
                     Editar
-                  </Button>
+                  </button>
                 )}
               </div>
-            </Card>
+            </article>
           ))}
         </div>
       )}
