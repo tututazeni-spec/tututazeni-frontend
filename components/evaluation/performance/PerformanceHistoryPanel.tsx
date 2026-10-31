@@ -142,6 +142,8 @@ export interface PerformanceHistoryPanelProps {
   userId: number | string;
   /** Título da secção (por omissão "Evolução entre ciclos"). */
   title?: string;
+  /** Classes do título, para o destacar quando a secção é um cartão. */
+  titleClassName?: string;
   /** Se definido, cada avaliação ganha o botão "Ver detalhe". */
   onOpenDetail?: (evaluationId: number) => void;
 }
@@ -149,6 +151,7 @@ export interface PerformanceHistoryPanelProps {
 export function PerformanceHistoryPanel({
   userId,
   title = 'Evolução entre ciclos',
+  titleClassName = 'text-sm font-semibold text-ink',
   onOpenDetail,
 }: PerformanceHistoryPanelProps) {
   const [type, setType] = useState('MANAGER');
@@ -161,7 +164,7 @@ export function PerformanceHistoryPanel({
   return (
     <section aria-label={title} className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-ink">{title}</h3>
+        <h3 className={titleClassName}>{title}</h3>
         <NativeSelect
           density="sm"
           aria-label="Tipo de avaliação"
