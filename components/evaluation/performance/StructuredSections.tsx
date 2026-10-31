@@ -133,8 +133,8 @@ function CompetencyField({
 }: CompetencyFieldProps) {
   const listId = `${id}-list`;
   return (
-    <FormField label="Competência *" htmlFor={id}>
-      <>
+    <>
+      <FormField label="Competência *" htmlFor={id}>
         <Input
           id={id}
           list={listId}
@@ -149,13 +149,13 @@ function CompetencyField({
             onChange(text, match?.id);
           }}
         />
-        <datalist id={listId}>
-          {options.map((o) => (
-            <option key={o.id} value={o.name} />
-          ))}
-        </datalist>
-      </>
-    </FormField>
+      </FormField>
+      <datalist id={listId}>
+        {options.map((o) => (
+          <option key={o.id} value={o.name} />
+        ))}
+      </datalist>
+    </>
   );
 }
 
@@ -471,24 +471,22 @@ export function RecommendationsSection({
             htmlFor={`rc-obj-${r.key}`}
             hint="Escolha da lista ou escreva o seu próprio objetivo."
           >
-            <>
-              <Input
-                id={`rc-obj-${r.key}`}
-                list={`rc-obj-${r.key}-list`}
-                maxLength={2000}
-                placeholder="Escolha da lista ou escreva"
-                value={r.objective}
-                onChange={(e) =>
-                  onChange(patch(items, r.key, { objective: e.target.value }))
-                }
-              />
-              <datalist id={`rc-obj-${r.key}-list`}>
-                {OBJECTIVE_SUGGESTIONS.map((o) => (
-                  <option key={o} value={o} />
-                ))}
-              </datalist>
-            </>
+            <Input
+              id={`rc-obj-${r.key}`}
+              list={`rc-obj-${r.key}-list`}
+              maxLength={2000}
+              placeholder="Escolha da lista ou escreva"
+              value={r.objective}
+              onChange={(e) =>
+                onChange(patch(items, r.key, { objective: e.target.value }))
+              }
+            />
           </FormField>
+          <datalist id={`rc-obj-${r.key}-list`}>
+            {OBJECTIVE_SUGGESTIONS.map((o) => (
+              <option key={o} value={o} />
+            ))}
+          </datalist>
           <div className="grid gap-3 md:grid-cols-2">
             <FormField label="Tipo de ação *" htmlFor={`rc-typ-${r.key}`}>
               <NativeSelect
@@ -630,26 +628,24 @@ export function RecommendationsSection({
               htmlFor={`rc-ind-${r.key}`}
               hint="Escolha da lista ou escreva a evidência ou métrica."
             >
-              <>
-                <Input
-                  id={`rc-ind-${r.key}`}
-                  list={`rc-ind-${r.key}-list`}
-                  maxLength={1000}
-                  placeholder="Escolha da lista ou escreva"
-                  value={r.successIndicator}
-                  onChange={(e) =>
-                    onChange(
-                      patch(items, r.key, { successIndicator: e.target.value }),
-                    )
-                  }
-                />
-                <datalist id={`rc-ind-${r.key}-list`}>
-                  {SUCCESS_INDICATOR_SUGGESTIONS.map((o) => (
-                    <option key={o} value={o} />
-                  ))}
-                </datalist>
-              </>
+              <Input
+                id={`rc-ind-${r.key}`}
+                list={`rc-ind-${r.key}-list`}
+                maxLength={1000}
+                placeholder="Escolha da lista ou escreva"
+                value={r.successIndicator}
+                onChange={(e) =>
+                  onChange(
+                    patch(items, r.key, { successIndicator: e.target.value }),
+                  )
+                }
+              />
             </FormField>
+            <datalist id={`rc-ind-${r.key}-list`}>
+              {SUCCESS_INDICATOR_SUGGESTIONS.map((o) => (
+                <option key={o} value={o} />
+              ))}
+            </datalist>
           </div>
           <FormField label="Comentários" htmlFor={`rc-not-${r.key}`}>
             <Textarea
