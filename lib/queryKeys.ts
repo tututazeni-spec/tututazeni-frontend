@@ -288,8 +288,7 @@ export const queryKeys = {
       [...queryKeys.automation.all, 'task', id] as const,
     govSettings: () => [...queryKeys.automation.all, 'gov-settings'] as const,
     permissions: () => [...queryKeys.automation.all, 'permissions'] as const,
-    publications: () =>
-      [...queryKeys.automation.all, 'publications'] as const,
+    publications: () => [...queryKeys.automation.all, 'publications'] as const,
     audit: (params?: Record<string, unknown>) =>
       [...queryKeys.automation.all, 'audit', params ?? {}] as const,
     connections: () => [...queryKeys.automation.all, 'connections'] as const,
@@ -310,7 +309,8 @@ export const queryKeys = {
     roles: () => [...queryKeys.settings.all, 'roles'] as const,
     departmentScopes: () =>
       [...queryKeys.settings.all, 'department-scopes'] as const,
-    securityPolicy: () => [...queryKeys.settings.all, 'security-policy'] as const,
+    securityPolicy: () =>
+      [...queryKeys.settings.all, 'security-policy'] as const,
     lockedUsers: () => [...queryKeys.settings.all, 'locked-users'] as const,
     sessions: (scope: 'all' | 'me') =>
       [...queryKeys.settings.all, 'sessions', scope] as const,
@@ -321,12 +321,14 @@ export const queryKeys = {
     integrations: () => [...queryKeys.settings.all, 'integrations'] as const,
     integrationsOverview: () =>
       [...queryKeys.settings.all, 'integrations-overview'] as const,
-    whatsappStatus: () => [...queryKeys.settings.all, 'whatsapp-status'] as const,
+    whatsappStatus: () =>
+      [...queryKeys.settings.all, 'whatsapp-status'] as const,
     certificates: () => [...queryKeys.settings.all, 'certificates'] as const,
     certificateTemplates: () =>
       [...queryKeys.settings.all, 'certificate-templates'] as const,
     privacy: () => [...queryKeys.settings.all, 'privacy'] as const,
-    consentVersions: () => [...queryKeys.settings.all, 'consent-versions'] as const,
+    consentVersions: () =>
+      [...queryKeys.settings.all, 'consent-versions'] as const,
     dsrRequests: (status: string, page: number) =>
       [...queryKeys.settings.all, 'dsr-requests', status, page] as const,
     license: () => [...queryKeys.settings.all, 'license'] as const,
@@ -334,17 +336,21 @@ export const queryKeys = {
     authSettings: () => [...queryKeys.settings.all, 'auth-settings'] as const,
     ssoOptions: () => [...queryKeys.settings.all, 'sso-options'] as const,
     emailSettings: () => [...queryKeys.settings.all, 'email-settings'] as const,
-    whatsappSettings: () => [...queryKeys.settings.all, 'whatsapp-settings'] as const,
-    whatsappMetaTemplates: () => [...queryKeys.settings.all, 'whatsapp-meta-templates'] as const,
+    whatsappSettings: () =>
+      [...queryKeys.settings.all, 'whatsapp-settings'] as const,
+    whatsappMetaTemplates: () =>
+      [...queryKeys.settings.all, 'whatsapp-meta-templates'] as const,
     backups: () => [...queryKeys.settings.all, 'backups'] as const,
-    systemSettings: () => [...queryKeys.settings.all, 'system-settings'] as const,
+    systemSettings: () =>
+      [...queryKeys.settings.all, 'system-settings'] as const,
     systemStatus: () => [...queryKeys.settings.all, 'system-status'] as const,
   },
 
   scalability: {
     all: ['scalability'] as const,
     dashboard: () => [...queryKeys.scalability.all, 'dashboard'] as const,
-    tenant: (id: string) => [...queryKeys.scalability.all, 'tenant', id] as const,
+    tenant: (id: string) =>
+      [...queryKeys.scalability.all, 'tenant', id] as const,
     integrations: () => [...queryKeys.scalability.all, 'integrations'] as const,
     automations: () => [...queryKeys.scalability.all, 'automations'] as const,
     alerts: () => [...queryKeys.scalability.all, 'alerts'] as const,
@@ -362,8 +368,7 @@ export const queryKeys = {
       [...queryKeys.scalability.all, 'storage-metrics'] as const,
     capacityMetrics: () =>
       [...queryKeys.scalability.all, 'capacity-metrics'] as const,
-    autoScaling: () =>
-      [...queryKeys.scalability.all, 'auto-scaling'] as const,
+    autoScaling: () => [...queryKeys.scalability.all, 'auto-scaling'] as const,
     resilienceMetrics: () =>
       [...queryKeys.scalability.all, 'resilience-metrics'] as const,
     incidents: () => [...queryKeys.scalability.all, 'incidents'] as const,
@@ -445,6 +450,18 @@ export const queryKeys = {
     reports: (filters?: Record<string, unknown>) =>
       [...queryKeys.evaluation.all, 'reports', filters ?? {}] as const,
     settings: () => [...queryKeys.evaluation.all, 'settings'] as const,
+    ratingScale: () => [...queryKeys.evaluation.all, 'rating-scale'] as const,
+    trainingOptions: () =>
+      [...queryKeys.evaluation.all, 'training-options'] as const,
+    performanceItems: (id: number) =>
+      [...queryKeys.evaluation.all, 'performance-items', id] as const,
+    performanceHistory: (userId: number | string, type: string) =>
+      [
+        ...queryKeys.evaluation.all,
+        'performance-history',
+        userId,
+        type,
+      ] as const,
   },
 
   // Módulo real de Avaliação 360º (src/evaluation360/, backend `/evaluation360`)
@@ -1471,7 +1488,11 @@ export const queryKeys = {
     rules: () => [...queryKeys.certificates.all, 'rules'] as const,
     mySummary: () => [...queryKeys.certificates.all, 'my-summary'] as const,
     teamSummary: (departmentId?: number) =>
-      [...queryKeys.certificates.all, 'team-summary', departmentId ?? null] as const,
+      [
+        ...queryKeys.certificates.all,
+        'team-summary',
+        departmentId ?? null,
+      ] as const,
     templates: () => [...queryKeys.certificates.all, 'templates'] as const,
     template: (id: string) =>
       [...queryKeys.certificates.all, 'template', id] as const,

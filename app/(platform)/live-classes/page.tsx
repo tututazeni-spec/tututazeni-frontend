@@ -37,6 +37,7 @@ import { InstructorsView } from '@/components/live-classes/InstructorsView';
 import { LiveClassesView } from '@/components/live-classes/LiveClassesView';
 import { MaterialsView } from '@/components/live-classes/MaterialsView';
 import { ParticipantsView } from '@/components/live-classes/ParticipantsView';
+import { AddInstructorModal } from '@/components/live-classes/AddInstructorModal';
 import { PostponeModal } from '@/components/live-classes/PostponeModal';
 import { RecordingModal } from '@/components/live-classes/RecordingModal';
 import { RecordingsView } from '@/components/live-classes/RecordingsView';
@@ -78,6 +79,9 @@ export default function LivePage() {
   const [showCreate, setShowCreate] = useState(false);
   const [viewRecording, setViewRecording] = useState<LiveClass | null>(null);
   const [postponing, setPostponing] = useState<LiveClass | null>(null);
+  const [addingInstructor, setAddingInstructor] = useState<LiveClass | null>(
+    null,
+  );
   const [toast, setToast] = useState<{
     msg: string;
     type: 'success' | 'error' | 'info';
@@ -279,6 +283,7 @@ export default function LivePage() {
             onPostpone={setPostponing}
             onCancel={cancelClass}
             onDuplicate={duplicateClass}
+            onAddInstructor={setAddingInstructor}
           />
 
           {/* ── Modals ── */}
@@ -289,6 +294,12 @@ export default function LivePage() {
             <RecordingModal
               lc={viewRecording}
               onClose={() => setViewRecording(null)}
+            />
+          )}
+          {addingInstructor && (
+            <AddInstructorModal
+              lc={addingInstructor}
+              onClose={() => setAddingInstructor(null)}
             />
           )}
           {postponing && (

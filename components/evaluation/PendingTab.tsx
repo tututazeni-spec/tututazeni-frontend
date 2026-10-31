@@ -47,6 +47,7 @@ import {
 } from '@/components/ui/Table';
 import { EVAL_TYPE_MAP, REQUEST_STATUS_MAP, SCORE_COLOR } from './constants';
 import { SubmitEvaluationModal } from './SubmitEvaluationModal';
+import { PerformanceDetailModal } from './performance/PerformanceDetailModal';
 import type {
   EvalRequest,
   EvaluationRequestRow,
@@ -128,9 +129,7 @@ function ManagerQueue() {
               infos={[
                 {
                   icon: isOverdue ? AlertTriangle : AlarmClock,
-                  value: r.dueDate
-                    ? formatDateNumeric(r.dueDate)
-                    : '—',
+                  value: r.dueDate ? formatDateNumeric(r.dueDate) : '—',
                   label: 'Prazo',
                   danger: isOverdue,
                 },
@@ -186,6 +185,7 @@ function ManagerQueue() {
           requestId={toSubmit.id}
           cycleId={toSubmit.cycle?.id}
           evaluatedName={toSubmit.evaluated.fullName}
+          evaluatedId={toSubmit.evaluated.id}
           onClose={() => setToSubmit(null)}
         />
       )}
@@ -244,9 +244,7 @@ function MyPendingList() {
             infos={[
               {
                 icon: isOverdue ? AlertTriangle : AlarmClock,
-                value: r.dueDate
-                  ? formatDateNumeric(r.dueDate)
-                  : '—',
+                value: r.dueDate ? formatDateNumeric(r.dueDate) : '—',
                 label: 'Prazo',
                 danger: isOverdue,
               },
@@ -275,6 +273,7 @@ function MyPendingList() {
           requestId={toSubmit.id}
           cycleId={toSubmit.cycle?.id}
           evaluatedName={toSubmit.evaluated.fullName}
+          evaluatedId={toSubmit.evaluated.id}
           onClose={() => setToSubmit(null)}
         />
       )}
@@ -288,6 +287,8 @@ function MyCompletedAndFeedback() {
   >(queryKeys.evaluation.myEvaluations(), '/evaluations/my-evaluations', {
     staleTime: STALE_TIME.SEMI_STATIC,
   });
+  const [detailEvalId, setDetailEvalId] = useState<number | null>(null);
+  const meQ = useCurrentUser();
 
   if (loading)
     return (
@@ -313,6 +314,13 @@ function MyCompletedAndFeedback() {
 
   return (
     <div className="space-y-6">
+      {detailEvalId !== null && (
+        <PerformanceDetailModal
+          evaluationId={detailEvalId}
+          evaluatedId={meQ.data?.id}
+          onClose={() => setDetailEvalId(null)}
+        />
+      )}
       <div>
         <h4 className="font-body text-sm font-semibold text-ink mb-2">
           Avaliações concluídas
@@ -320,11 +328,16 @@ function MyCompletedAndFeedback() {
         <Table>
           <TableHead>
             <TableRow>
-              {['Período', 'Avaliador', 'Tipo', 'Resultado', 'Data'].map(
-                (h) => (
-                  <TableHeaderCell key={h}>{h}</TableHeaderCell>
-                ),
-              )}
+              {[
+                'Período',
+                'Avaliador',
+                'Tipo',
+                'Resultado',
+                'Data',
+                'Plano',
+              ].map((h) => (
+                <TableHeaderCell key={h}>{h}</TableHeaderCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -353,6 +366,15 @@ function MyCompletedAndFeedback() {
                 </TableCell>
                 <TableCell className="text-ink-faint">
                   {formatDateNumeric(r.createdAt)}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    size="sm"
+                    intent="secondary"
+                    onClick={() => setDetailEvalId(r.id)}
+                  >
+                    Plano de ação
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

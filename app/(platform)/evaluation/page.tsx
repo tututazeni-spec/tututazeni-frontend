@@ -72,7 +72,9 @@ import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
 // é separador próprio: vive dentro de EvaluationDetailModal (ligada à
 // EvaluationRequest da etapa ONE_ON_ONE), tal como "Objetivos" já vivia.
 // "Relatórios" (11) e "Configurações" (12) são novos separadores —
-// Relatórios espelha @Roles(ADMIN, RH) de GET /evaluations/reports/overview;
+// Relatórios espelha @Roles(MGMT_ROLES) de GET /evaluations/reports/overview
+// (chefias só vêem a equipa direta; exportações e filtro de gestor são de
+// ADMIN/RH);
 // Configurações é leitura MGMT_ROLES (mesmo nível de Escalas/Critérios/
 // Modelos, que aqui são só agregados, não recriados).
 const TABS = [
@@ -150,9 +152,9 @@ const TABS = [
   {
     id: 'reports',
     label: 'Relatórios',
-    hint: 'Exportações',
+    hint: 'Indicadores e exportações',
     icon: FileBarChart,
-    roles: ADMIN_ROLES,
+    roles: MGMT_ROLES,
   },
   {
     id: 'settings',

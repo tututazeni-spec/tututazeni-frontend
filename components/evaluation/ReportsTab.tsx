@@ -31,6 +31,11 @@ import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { SCORE_COLOR, SCORE_TONE } from './constants';
 import { ALL, useCycleOptions, useDepartmentOptions } from './filterOptions';
 import type { EvaluationReportGroup, EvaluationReportsOverview } from './types';
+import { PerformanceIndicatorsPanel } from './performance/PerformanceIndicatorsPanel';
+import { RECOMMENDATION_STATUS_LABELS } from './performance/apiTypes';
+import { AlertCard } from '@/components/ui/AlertCard';
+import { useHasRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 
 function GroupTable({
   title,
@@ -64,7 +69,49 @@ function GroupTable({
   );
 }
 
+const TYPE_ITEMS = [
+  { value: ALL, label: 'Todos' },
+  { value: 'MANAGER', label: 'Chefia' },
+  { value: 'SELF', label: 'Autoavaliação' },
+  { value: 'PEER', label: 'Colegas' },
+  { value: 'SUBORDINATE', label: 'Subordinados' },
+  { value: 'CLIENT', label: 'Clientes' },
+];
+
+const ACTION_STATUS_ITEMS = [
+  { value: ALL, label: 'Todos' },
+  ...Object.entries(RECOMMENDATION_STATUS_LABELS).map(([value, label]) => ({
+    value,
+    label,
+  })),
+];
+
+/** Aviso quando a regra de privacidade ocultou grupos ou restringiu o relatório. */
+function PrivacyNotice({
+  privacy,
+}: {
+  privacy: NonNullable<EvaluationReportsOverview['privacy']>;
+}) {
+  const hidden = Object.values(privacy.suppressed).reduce((a, b) => a + b, 0);
+  if (!privacy.restricted && hidden === 0) return null;
+  return (
+    <AlertCard
+      variant="info"
+      title="Alguns dados estão ocultos para proteger a privacidade"
+      message={
+        privacy.restricted
+          ? `Há menos de ${privacy.minGroupSize} avaliações neste filtro: as listas por competência e classificação não são mostradas.`
+          : `Os grupos com menos de ${privacy.minGroupSize} avaliações não são mostrados, nem nos ficheiros exportados.`
+      }
+      detail={hidden > 0 ? `${hidden} grupo(s) ocultos` : undefined}
+    />
+  );
+}
+
 export function ReportsTab() {
+  // ADMIN/RH veem toda a organização e exportam; chefias só a sua equipa direta.
+  const isOrgWide = useHasRole(ADMIN_ROLES);
+
   const [filters, setFilters] = useState({
     cycleId: '',
     departmentId: '',
@@ -72,6 +119,8 @@ export function ReportsTab() {
     positionId: '',
     managerId: '',
     period: '',
+    type: '',
+    recommendationStatus: '',
   });
   const [manager, setManager] = useState<DirectoryUser | null>(null);
   const cycleItems = [{ value: ALL, label: 'Todos' }, ...useCycleOptions()];
@@ -163,15 +212,49 @@ export function ReportsTab() {
               className="w-44"
             />
           </div>
-          <div className="w-60">
-            <DepartmentUserPicker
-              label="Gestor"
-              htmlFor="rep-manager"
-              value={manager}
-              onChange={(u) => {
-                setManager(u);
-                setFilters((f) => ({ ...f, managerId: u ? String(u.id) : '' }));
-              }}
+          {isOrgWide && (
+            <div className="w-60">
+              <DepartmentUserPicker
+                label="Gestor"
+                htmlFor="rep-manager"
+                value={manager}
+                onChange={(u) => {
+                  setManager(u);
+                  setFilters((f) => ({
+                    ...f,
+                    managerId: u ? String(u.id) : '',
+                  }));
+                }}
+              />
+            </div>
+          )}
+          <div>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">
+              Tipo de avaliação
+            </label>
+            <Select
+              items={TYPE_ITEMS}
+              value={filters.type || ALL}
+              onValueChange={(v) =>
+                setFilters((f) => ({ ...f, type: v === ALL ? '' : v }))
+              }
+              className="w-44"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">
+              Estado das ações
+            </label>
+            <Select
+              items={ACTION_STATUS_ITEMS}
+              value={filters.recommendationStatus || ALL}
+              onValueChange={(v) =>
+                setFilters((f) => ({
+                  ...f,
+                  recommendationStatus: v === ALL ? '' : v,
+                }))
+              }
+              className="w-40"
             />
           </div>
           <div>
@@ -190,26 +273,36 @@ export function ReportsTab() {
           <Button onClick={run} loading={load.isPending}>
             Gerar Relatório
           </Button>
-          <a
-            href={`/api/evaluations/reports/export.csv${buildQuery()}`}
-            className={buttonVariants({ intent: 'secondary', size: 'md' })}
-          >
-            <Download size={14} strokeWidth={1.75} /> CSV
-          </a>
-          <a
-            href={`/api/evaluations/reports/export.xlsx${buildQuery()}`}
-            className={buttonVariants({ intent: 'secondary', size: 'md' })}
-          >
-            <Download size={14} strokeWidth={1.75} /> Excel
-          </a>
-          <a
-            href={`/api/evaluations/reports/export.pdf${buildQuery()}`}
-            className={buttonVariants({ intent: 'secondary', size: 'md' })}
-          >
-            <Download size={14} strokeWidth={1.75} /> PDF
-          </a>
+          {isOrgWide && (
+            <>
+              <a
+                href={`/api/evaluations/reports/export.csv${buildQuery()}`}
+                className={buttonVariants({ intent: 'secondary', size: 'md' })}
+              >
+                <Download size={14} strokeWidth={1.75} /> CSV
+              </a>
+              <a
+                href={`/api/evaluations/reports/export.xlsx${buildQuery()}`}
+                className={buttonVariants({ intent: 'secondary', size: 'md' })}
+              >
+                <Download size={14} strokeWidth={1.75} /> Excel
+              </a>
+              <a
+                href={`/api/evaluations/reports/export.pdf${buildQuery()}`}
+                className={buttonVariants({ intent: 'secondary', size: 'md' })}
+              >
+                <Download size={14} strokeWidth={1.75} /> PDF
+              </a>
+            </>
+          )}
         </CardBody>
       </Card>
+
+      {!isOrgWide && (
+        <p className="text-xs text-ink-muted">
+          Estes relatórios mostram apenas a equipa que lidera diretamente.
+        </p>
+      )}
 
       {load.isPending && (
         <Skeleton
@@ -230,6 +323,7 @@ export function ReportsTab() {
 
       {data && (
         <div className="space-y-4">
+          {data.privacy && <PrivacyNotice privacy={data.privacy} />}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <NavyStatCard
               tab="evaluations"
@@ -310,6 +404,10 @@ export function ReportsTab() {
                 </div>
               </CardBody>
             </Card>
+          )}
+
+          {data.performance && (
+            <PerformanceIndicatorsPanel data={data.performance} />
           )}
         </div>
       )}
