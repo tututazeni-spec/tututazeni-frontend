@@ -26,7 +26,6 @@ export const NAV: Array<{
 }> = [
   { id: 'dashboard', label: 'Visão Geral', roles: ['ADMIN', 'RH'] },
   { id: 'catalog', label: 'Cursos' },
-  { id: 'categorias', label: 'Categorias', roles: ['ADMIN', 'RH'] },
   { id: 'inscricoes', label: 'Inscrições', roles: ['ADMIN', 'RH', 'GESTOR'] },
   { id: 'progresso', label: 'Progresso', roles: ['ADMIN', 'RH', 'GESTOR'] },
   // Todos veem a aba: ADMIN/RH/INSTRUCTOR gerem, os restantes vêem as suas turmas.
@@ -47,6 +46,5 @@ export const TITLES: Record<View, string> = {
   progresso: 'Progresso',
   modulos: 'Módulos & Lições',
   turmas: 'Turmas',
-  categorias: 'Categorias',
   relatorios: 'Relatórios',
 };
