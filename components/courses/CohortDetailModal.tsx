@@ -283,10 +283,15 @@ export function CohortDetailModal({
             </TabsList>
 
             <div className="flex min-h-0 flex-1 gap-6 overflow-y-auto p-4">
-              {/* Foto à esquerda com a margem curva e fio azul */}
+              {/* Foto à esquerda com a margem curva e fio azul. Nos Relatórios e Presenças
+                  fica de fora: a tabela usa a largura toda do cartão. */}
               <div
                 aria-hidden
-                className="hidden w-[30%] shrink-0 self-stretch overflow-hidden rounded-r-[50%] border-r-[6px] border-brand md:block"
+                className={`w-[30%] shrink-0 self-stretch overflow-hidden rounded-r-[50%] border-r-[6px] border-brand ${
+                  tab === 'report' || tab === 'attendance'
+                    ? 'hidden'
+                    : 'hidden md:block'
+                }`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
