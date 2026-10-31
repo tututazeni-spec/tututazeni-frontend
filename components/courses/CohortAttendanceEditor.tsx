@@ -390,13 +390,23 @@ export function CohortAttendanceEditor({
 
           <div className="max-h-[26rem] overflow-auto">
             <Table>
-              <TableHead>
+              <TableHead className="bg-brand/60">
                 <TableRow className="hover:bg-transparent">
-                  <TableHeaderCell>Participante</TableHeaderCell>
-                  <TableHeaderCell>Estado</TableHeaderCell>
-                  <TableHeaderCell>Entrada</TableHeaderCell>
-                  <TableHeaderCell>Saída</TableHeaderCell>
-                  <TableHeaderCell>Observação</TableHeaderCell>
+                  <TableHeaderCell className="text-white">
+                    Participante
+                  </TableHeaderCell>
+                  <TableHeaderCell className="text-white">
+                    Estado
+                  </TableHeaderCell>
+                  <TableHeaderCell className="text-white">
+                    Entrada
+                  </TableHeaderCell>
+                  <TableHeaderCell className="text-white">
+                    Saída
+                  </TableHeaderCell>
+                  <TableHeaderCell className="text-white">
+                    Observação
+                  </TableHeaderCell>
                 </TableRow>
               </TableHead>
               <TableBody>

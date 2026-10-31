@@ -210,28 +210,32 @@ export function CohortAttendanceReportView({
         </div>
         <div className="overflow-x-auto">
           <Table>
-            <TableHead>
+            <TableHead className="bg-brand/60">
               <TableRow className="hover:bg-transparent">
-                <TableHeaderCell>Participante</TableHeaderCell>
-                <TableHeaderCell className="text-center">
+                <TableHeaderCell className="text-white">
+                  Participante
+                </TableHeaderCell>
+                <TableHeaderCell className="text-center text-white">
                   Sessões
                 </TableHeaderCell>
-                <TableHeaderCell className="text-center">
+                <TableHeaderCell className="text-center text-white">
                   Presenças
                 </TableHeaderCell>
-                <TableHeaderCell className="text-center">
+                <TableHeaderCell className="text-center text-white">
                   Atrasos
                 </TableHeaderCell>
-                <TableHeaderCell className="text-center">
+                <TableHeaderCell className="text-center text-white">
                   Faltas
                 </TableHeaderCell>
-                <TableHeaderCell className="text-center">
+                <TableHeaderCell className="text-center text-white">
                   Justificadas
                 </TableHeaderCell>
-                <TableHeaderCell className="text-center">
+                <TableHeaderCell className="text-center text-white">
                   % presença
                 </TableHeaderCell>
-                <TableHeaderCell>Situação</TableHeaderCell>
+                <TableHeaderCell className="text-white">
+                  Situação
+                </TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>
