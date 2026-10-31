@@ -99,22 +99,35 @@ export function CreateCohortModal({
     });
   }
 
-  async function addDepartment(departmentId: number) {
+  async function addDepartments(departmentIds: number[]) {
     try {
       // Sem pesquisa, o diretório devolve o departamento inteiro (sem limite).
-      const members = await apiClient.get<DirectoryUser[]>('/users/directory', {
-        params: { departmentId },
-      });
+      const lists = await Promise.all(
+        departmentIds.map((departmentId) =>
+          apiClient.get<DirectoryUser[]>('/users/directory', {
+            params: { departmentId },
+          }),
+        ),
+      );
+      const members = lists.flat();
       if (members.length === 0) {
         toast({
-          title: 'Departamento sem colaboradores activos',
+          title:
+            departmentIds.length > 1
+              ? 'Departamentos sem colaboradores activos'
+              : 'Departamento sem colaboradores activos',
           intent: 'danger',
         });
         return;
       }
-      addParticipants(members);
+      const alreadyIn = new Set(participants.map((p) => p.id));
+      const unique = new Map(members.map((u) => [u.id, u]));
+      const added = [...unique.keys()].filter(
+        (id) => !alreadyIn.has(id),
+      ).length;
+      addParticipants([...unique.values()]);
       toast({
-        title: `${members.length} colaborador(es) adicionado(s)`,
+        title: `${added} colaborador(es) adicionado(s)`,
         intent: 'success',
       });
     } catch (e) {
@@ -280,7 +293,7 @@ export function CreateCohortModal({
             htmlFor="ch-participants"
           >
             <div className="space-y-2">
-              <CohortDepartmentPicker onAdd={addDepartment} />
+              <CohortDepartmentPicker onAdd={addDepartments} />
               <div className="relative">
                 <Input
                   id="ch-participants"

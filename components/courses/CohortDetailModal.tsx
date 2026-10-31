@@ -104,10 +104,10 @@ export function CohortDetailModal({
   );
 
   const addDepartment = useApiMutation(
-    (departmentId: number) =>
+    (departmentIds: number[]) =>
       apiClient.post<{ added: number; alreadyIn: number }>(
         `/courses/cohorts/${cohortId}/participants`,
-        { departmentIds: [departmentId] },
+        { departmentIds },
       ),
     {
       invalidateKeys,
@@ -278,7 +278,9 @@ export function CohortDetailModal({
               <div className="-mt-3 flex items-center justify-between text-sm text-ink-muted">
                 <span>
                   {formatDateNumeric(cohort.startDate)}
-                  {cohort.endDate ? ` → ${formatDateNumeric(cohort.endDate)}` : ''}
+                  {cohort.endDate
+                    ? ` → ${formatDateNumeric(cohort.endDate)}`
+                    : ''}
                 </span>
                 <Button
                   size="sm"
@@ -297,8 +299,8 @@ export function CohortDetailModal({
               </h3>
               <div className="mb-3">
                 <CohortDepartmentPicker
-                  onAdd={async (id) => {
-                    await addDepartment.mutateAsync(id).catch(() => undefined);
+                  onAdd={async (ids) => {
+                    await addDepartment.mutateAsync(ids).catch(() => undefined);
                   }}
                   loading={addDepartment.isPending}
                 />
