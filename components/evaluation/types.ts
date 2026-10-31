@@ -6,7 +6,6 @@ export type Tab =
   | 'overview'
   | 'evaluations'
   | 'cycles'
-  | 'templates'
   | 'criteria'
   | 'competencies'
   | 'pending'
