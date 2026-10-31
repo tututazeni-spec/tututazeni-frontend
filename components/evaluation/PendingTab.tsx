@@ -326,8 +326,8 @@ function MyCompletedAndFeedback() {
           Avaliações concluídas
         </h4>
         <Table>
-          <TableHead>
-            <TableRow>
+          <TableHead className="bg-brand/60">
+            <TableRow className="hover:bg-transparent">
               {[
                 'Período',
                 'Avaliador',
@@ -336,7 +336,9 @@ function MyCompletedAndFeedback() {
                 'Data',
                 'Plano',
               ].map((h) => (
-                <TableHeaderCell key={h}>{h}</TableHeaderCell>
+                <TableHeaderCell key={h} className="text-white">
+                  {h}
+                </TableHeaderCell>
               ))}
             </TableRow>
           </TableHead>
