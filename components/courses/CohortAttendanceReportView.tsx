@@ -5,7 +5,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Download } from 'lucide-react';
+import {
+  CalendarCheck,
+  Download,
+  Percent,
+  UserCheck,
+  UserX,
+  Users,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { downloadFromApi } from '@/lib/download';
@@ -112,8 +119,14 @@ export function CohortAttendanceReportView({
   return (
     <section className="space-y-5">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <KpiCard label="Inscritos" value={g.enrolled} />
         <KpiCard
+          icon={Users}
+          label="Inscritos"
+          value={g.enrolled}
+          intent="primary"
+        />
+        <KpiCard
+          icon={CalendarCheck}
           label="Sessões realizadas"
           value={g.sessionsCompleted}
           sub={
@@ -121,16 +134,26 @@ export function CohortAttendanceReportView({
               ? `${g.sessionsCancelled} cancelada(s)`
               : undefined
           }
+          intent="info"
         />
         <KpiCard
+          icon={Percent}
           label="Taxa média de presença"
           value={pct(g.averageRate)}
           sub={`Mínimo ${report.criteria.minAttendancePercent}%`}
+          intent={
+            g.averageRate === null
+              ? 'info'
+              : g.averageRate >= report.criteria.minAttendancePercent
+                ? 'success'
+                : 'warning'
+          }
         />
         <KpiCard
+          icon={g.belowMinimum > 0 ? UserX : UserCheck}
           label="Abaixo do mínimo"
           value={g.belowMinimum}
-          intent={g.belowMinimum > 0 ? 'danger' : undefined}
+          intent={g.belowMinimum > 0 ? 'danger' : 'success'}
         />
       </div>
 
