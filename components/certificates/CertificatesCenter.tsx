@@ -65,8 +65,8 @@ export function CertificatesCenter() {
           onChange={() => undefined}
           label="Certificados"
         />
-        {/* Certificados conseguidos nos cursos concluídos */}
-        <CertificatesView defaultKind="COURSE" onlyOwnVerify />
+        {/* Todos os certificados, do mais recente ao mais antigo */}
+        <CertificatesView onlyOwnVerify />
       </div>
     );
   }

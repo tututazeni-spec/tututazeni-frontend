@@ -7,7 +7,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Copy, Download, Mail, Share2 } from 'lucide-react';
+import { CalendarDays, Check, Copy, Download, Mail } from 'lucide-react';
 import { usePdfDownload } from '@/hooks/usePdfDownload';
 import { Badge } from '@/components/ui/Badge';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
@@ -27,29 +27,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
-import { PeriodPills } from '@/components/ui/Pills';
 import { Skeleton } from './shared';
 import type { Certificate, CertificateVerifyResult } from './types';
-import { Checkbox } from '@/components/ui/Checkbox';
-
-type StatusFilter = 'ALL' | Certificate['status'];
-type KindFilter = 'ALL' | 'COURSE' | 'EVENT' | 'TRAINING' | 'LEARNING_PATH';
-
-const STATUS_OPTIONS = [
-  { value: 'ALL', label: 'Todos' },
-  { value: 'ACTIVE', label: 'Válidos' },
-  { value: 'EXPIRED', label: 'Expirados' },
-  { value: 'REVOKED', label: 'Revogados' },
-  { value: 'PENDING_APPROVAL', label: 'Pendentes' },
-] as const;
-
-const KIND_OPTIONS = [
-  { value: 'ALL', label: 'Todos' },
-  { value: 'COURSE', label: 'Cursos' },
-  { value: 'EVENT', label: 'Eventos' },
-  { value: 'TRAINING', label: 'Formações' },
-  { value: 'LEARNING_PATH', label: 'Trilhas' },
-] as const;
 
 const STATUS_BADGE: Record<
   Certificate['status'],
@@ -63,23 +42,14 @@ const STATUS_BADGE: Record<
 };
 
 export function CertificatesView({
-  defaultKind = 'ALL',
   onlyOwnVerify = false,
 }: {
-  /** Tipo de certificado pré-seleccionado (o colaborador abre em "Cursos"). */
-  defaultKind?: KindFilter;
   /** Colaborador: "Verificar certificado" só aceita códigos dos seus certificados. */
   onlyOwnVerify?: boolean;
 } = {}) {
   const [verifyCode, setVerifyCode] = useState('');
   const [verifyResult, setVerifyResult] =
     useState<CertificateVerifyResult | null>(null);
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<StatusFilter>('ALL');
-  const [kind, setKind] = useState<KindFilter>(defaultKind);
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
-  const [withExpiry, setWithExpiry] = useState(false);
 
   const { data = [], isLoading: loading } = useApiQuery<Certificate[]>(
     queryKeys.courses.myCertificates(),
@@ -125,18 +95,15 @@ export function CertificatesView({
     verifyMut.mutate(code);
   };
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return data.filter((c) => {
-      if (q && !c.displayTitle.toLowerCase().includes(q)) return false;
-      if (status !== 'ALL' && c.status !== status) return false;
-      if (kind !== 'ALL' && c.activityKind !== kind) return false;
-      if (from && c.issuedAt.slice(0, 10) < from) return false;
-      if (to && c.issuedAt.slice(0, 10) > to) return false;
-      if (withExpiry && !c.expiresAt) return false;
-      return true;
-    });
-  }, [data, search, status, kind, from, to, withExpiry]);
+  // Todos, do mais recente para o mais antigo.
+  const sorted = useMemo(
+    () =>
+      [...data].sort(
+        (x, y) =>
+          new Date(y.issuedAt).getTime() - new Date(x.issuedAt).getTime(),
+      ),
+    [data],
+  );
 
   if (loading) return <Skeleton rows={3} />;
 
@@ -152,68 +119,15 @@ export function CertificatesView({
         />
       ) : (
         <>
-          <Card className="space-y-3 p-4">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-              <Input
-                variant="underline"
-                placeholder="Pesquisar por formação"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="sm:col-span-2"
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {sorted.map((cert) => (
+              <CertificateCard
+                key={cert.id}
+                cert={cert}
+                emailEnabled={!!summary?.emailEnabled}
               />
-              <Input
-                type="date"
-                aria-label="Emitidos desde"
-                value={from}
-                onChange={(e) => setFrom(e.target.value)}
-              />
-              <Input
-                type="date"
-                aria-label="Emitidos até"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-              />
-            </div>
-            <PeriodPills
-              label="Estado"
-              options={STATUS_OPTIONS}
-              value={status}
-              onChange={setStatus}
-            />
-            <PeriodPills
-              label="Tipo"
-              options={KIND_OPTIONS}
-              value={kind}
-              onChange={setKind}
-            />
-            <div className="flex items-center justify-between text-sm text-ink-muted">
-              <label className="flex items-center gap-2">
-                <Checkbox
-                  checked={withExpiry}
-                  onChange={(e) => setWithExpiry(e.target.checked)}
-                />
-                Só com data de validade
-              </label>
-              <span>{`${filtered.length} de ${data.length}`}</span>
-            </div>
-          </Card>
-
-          {filtered.length === 0 ? (
-            <EmptyState
-              title="Nenhum certificado corresponde aos filtros"
-              description="Altere ou limpe os filtros para ver os restantes."
-            />
-          ) : (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {filtered.map((cert) => (
-                <CertificateCard
-                  key={cert.id}
-                  cert={cert}
-                  emailEnabled={!!summary?.emailEnabled}
-                />
-              ))}
-            </div>
-          )}
+            ))}
+          </div>
         </>
       )}
 
@@ -297,77 +211,191 @@ function CertificateCard({
     if (ok) emailMe.mutate(undefined);
   }
 
+  const pill = STATUS_PILL[badge.intent];
+  // Botões altos, ícone à esquerda e rótulo em duas linhas (desenho de referência).
+  const BTN =
+    'h-8 min-h-0 w-fit shrink-0 justify-start gap-2 whitespace-nowrap rounded-control px-3 py-0 text-left text-sm font-semibold';
+  const OUTLINE = `${BTN} border-[1.5px] border-brand bg-surface text-brand hover:bg-brand-soft`;
+
   return (
-    <Card className="overflow-hidden">
-      <div className="bg-gradient-to-r from-primary to-primary-active p-5 text-canvas">
-        <div className="text-xs text-canvas/70 mb-1">
-          {cert.origin === 'EXTERNAL'
-            ? 'Certificado externo'
-            : 'Certificado de conclusão'}
+    <div className="relative overflow-hidden rounded-[22px] border border-brand-line bg-gradient-to-br from-brand-soft/60 via-surface to-surface p-6 shadow-[0_8px_24px_rgba(15,31,61,0.10)]">
+      {/* Ilustração do certificado (canto superior direito) */}
+      <CertificateIllustration className="pointer-events-none absolute right-2 top-2 hidden h-[150px] w-[200px] sm:block" />
+
+      <div className="relative flex items-start gap-4 sm:pr-[190px]">
+        <div
+          aria-hidden
+          className="flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full bg-brand text-white"
+        >
+          <Check size={38} strokeWidth={3.25} />
         </div>
-        <div className="text-base font-semibold">{cert.displayTitle}</div>
-        <div className="text-xs text-canvas/70 mt-1 font-mono">
-          {cert.validationCode}
-        </div>
-      </div>
-      <div className="px-4 py-3">
-        <div className="flex items-center justify-between text-xs text-ink-muted">
-          <span>Emitido: {fmtDate(cert.issuedAt)}</span>
-          <Badge intent={badge.intent}>{badge.label}</Badge>
-        </div>
-        {cert.expiresAt && (
-          <div className="mt-1 text-xs text-ink-muted">
-            Validade: {fmtDate(cert.expiresAt)}
+        <div className="min-w-0">
+          <div className="text-[15px] text-ink-muted">
+            {cert.origin === 'EXTERNAL'
+              ? 'Certificado externo'
+              : 'Certificado de conclusão'}
           </div>
-        )}
-        <div className="mt-3 flex flex-wrap gap-2">
-          {downloadable && (
-            <Button
-              intent="secondary"
-              size="sm"
-              onClick={() => void download()}
-              disabled={loading}
-            >
-              <Download size={14} strokeWidth={1.75} />
-              {loading ? 'A gerar…' : 'Download PDF'}
-            </Button>
-          )}
-          {shareable && (
-            <Button
-              intent="secondary"
-              size="sm"
-              onClick={() => void copyLink()}
-            >
-              <Copy size={14} strokeWidth={1.75} />
-              Copiar ligação
-            </Button>
-          )}
-          {cert.linkedInUrl && (
-            <Button
-              intent="secondary"
-              size="sm"
-              onClick={() =>
-                window.open(cert.linkedInUrl, '_blank', 'noopener,noreferrer')
-              }
-            >
-              <Share2 size={14} strokeWidth={1.75} />
-              Adicionar ao LinkedIn
-            </Button>
-          )}
-          {emailEnabled && cert.status === 'ACTIVE' && (
-            <Button
-              intent="secondary"
-              size="sm"
-              onClick={() => void onEmail()}
-              disabled={emailMe.isPending}
-            >
-              <Mail size={14} strokeWidth={1.75} />
-              Enviar por e-mail
-            </Button>
+          <div className="mt-1 font-display text-2xl font-bold leading-tight text-brand">
+            {cert.displayTitle}
+          </div>
+          <div className="mt-2 break-all text-[15px] uppercase tracking-wide text-ink-muted">
+            {cert.validationCode}
+          </div>
+        </div>
+      </div>
+
+      <div className="relative mt-5 sm:w-[62%]">
+        <div className="border-t border-brand-line" />
+      </div>
+
+      <div className="relative mt-4 flex flex-wrap items-center justify-between gap-2">
+        <div className="space-y-0.5 text-[15px] text-ink">
+          <div className="flex items-center gap-2.5">
+            <CalendarDays size={22} strokeWidth={1.5} className="text-brand" />
+            Emitido: {fmtDate(cert.issuedAt)}
+          </div>
+          {cert.expiresAt && (
+            <div className="pl-8 text-xs text-ink-muted">
+              Validade: {fmtDate(cert.expiresAt)}
+            </div>
           )}
         </div>
-        {error && <p className="mt-2 text-xs text-danger">{error}</p>}
+        <span
+          className={`inline-flex items-center gap-2 rounded-pill px-4 py-1 text-[15px] font-semibold ${pill.box}`}
+        >
+          <span className={`h-2.5 w-2.5 rounded-full ${pill.dot}`} />
+          {badge.label}
+        </span>
       </div>
-    </Card>
+
+      <div className="relative mt-4 flex flex-wrap gap-3">
+        {downloadable && (
+          <Button
+            size="sm"
+            className={`${BTN} bg-primary text-white hover:bg-primary-active`}
+            onClick={() => void download()}
+            disabled={loading}
+          >
+            <Download size={18} strokeWidth={1.75} className="shrink-0" />
+            <span>{loading ? 'A gerar…' : 'Download PDF'}</span>
+          </Button>
+        )}
+        {shareable && (
+          <Button
+            intent="secondary"
+            size="sm"
+            className={OUTLINE}
+            onClick={() => void copyLink()}
+          >
+            <Copy size={18} strokeWidth={1.75} className="shrink-0" />
+            <span>Copiar ligação</span>
+          </Button>
+        )}
+        {cert.linkedInUrl && (
+          <Button
+            intent="secondary"
+            size="sm"
+            className={OUTLINE}
+            onClick={() =>
+              window.open(cert.linkedInUrl, '_blank', 'noopener,noreferrer')
+            }
+          >
+            <LinkedInMark />
+            <span>Adicionar ao LinkedIn</span>
+          </Button>
+        )}
+        {emailEnabled && cert.status === 'ACTIVE' && (
+          <Button
+            intent="secondary"
+            size="sm"
+            className={OUTLINE}
+            onClick={() => void onEmail()}
+            disabled={emailMe.isPending}
+          >
+            <Mail size={18} strokeWidth={1.75} className="shrink-0" />
+            Enviar por e-mail
+          </Button>
+        )}
+      </div>
+      {error && <p className="relative mt-2 text-xs text-danger">{error}</p>}
+    </div>
+  );
+}
+
+const STATUS_PILL: Record<
+  'success' | 'warning' | 'danger' | 'neutral',
+  { box: string; dot: string }
+> = {
+  success: { box: 'bg-success-subtle text-success-ink', dot: 'bg-success' },
+  warning: { box: 'bg-warning-subtle text-warning-ink', dot: 'bg-warning' },
+  danger: { box: 'bg-danger-subtle text-danger-ink', dot: 'bg-danger' },
+  neutral: { box: 'bg-brand-line text-brand-muted', dot: 'bg-brand-muted' },
+};
+
+/** Quadrado azul com "in" (marca do LinkedIn). */
+function LinkedInMark() {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" className="h-[18px] w-[18px] shrink-0">
+      <rect width="24" height="24" rx="4" className="fill-primary" />
+      <path
+        d="M7.2 10.2v6.6M7.2 7.4v.1M10.6 16.8v-6.6m0 3.1c0-1.9 1.2-3.2 2.8-3.2 1.5 0 2.4 1 2.4 2.9v3.8"
+        stroke="white"
+        strokeWidth="2.1"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+/** Pergaminho inclinado com linhas, medalha dourada e brilhos — ilustração do cartão. */
+function CertificateIllustration({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden viewBox="0 0 220 165" fill="none" className={className}>
+      <ellipse cx="108" cy="92" rx="88" ry="66" fill="#EAF1FD" />
+      <g transform="rotate(-7 100 80)">
+        <rect x="52" y="22" width="86" height="102" rx="9" fill="#FFFFFF" />
+        <rect
+          x="52"
+          y="22"
+          width="86"
+          height="102"
+          rx="9"
+          stroke="#2F6FDE"
+          strokeWidth="5"
+        />
+        <rect x="52" y="22" width="86" height="15" rx="7" fill="#3B7BEA" />
+        <rect x="64" y="48" width="56" height="7" rx="3.5" fill="#4C8CF2" />
+        <rect x="64" y="63" width="44" height="7" rx="3.5" fill="#9DBDF6" />
+        <rect x="64" y="78" width="52" height="7" rx="3.5" fill="#9DBDF6" />
+        <path
+          d="M52 124c10 0 14 8 24 8h62"
+          stroke="#2F6FDE"
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
+      </g>
+      <path d="M140 96l-12 34 14-6 7 14 12-42z" fill="#F2833B" />
+      <path d="M156 94l8 38 8-12 12 6-7-38z" fill="#E86A25" />
+      <circle cx="150" cy="86" r="22" fill="#F5B731" />
+      <circle
+        cx="150"
+        cy="86"
+        r="15"
+        fill="#F9D262"
+        stroke="#E7A21C"
+        strokeWidth="2.5"
+      />
+      <path
+        d="M150 76l3 6.3 6.9 1-5 4.8 1.2 6.9-6.1-3.2-6.1 3.2 1.2-6.9-5-4.8 6.9-1z"
+        fill="#F5B731"
+      />
+      <path
+        d="M186 22l3 9M198 34l-8 5M176 14l-1 8"
+        stroke="#3B7BEA"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
