@@ -258,7 +258,7 @@ export function CohortDetailModal({
             onValueChange={(v) => void changeTab(v)}
             className="flex min-h-0 flex-1 flex-col"
           >
-            <TabsList className="overflow-x-auto bg-surface px-4">
+            <TabsList className="shrink-0 overflow-x-auto bg-surface px-4">
               <TabsTrigger value="overview" className={TAB_TRIGGER}>
                 <CalendarDays
                   aria-hidden
