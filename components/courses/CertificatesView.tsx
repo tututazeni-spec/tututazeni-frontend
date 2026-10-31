@@ -62,13 +62,21 @@ const STATUS_BADGE: Record<
   PENDING_APPROVAL: { label: 'Aguarda aprovação', intent: 'neutral' },
 };
 
-export function CertificatesView() {
+export function CertificatesView({
+  defaultKind = 'ALL',
+  onlyOwnVerify = false,
+}: {
+  /** Tipo de certificado pré-seleccionado (o colaborador abre em "Cursos"). */
+  defaultKind?: KindFilter;
+  /** Colaborador: "Verificar certificado" só aceita códigos dos seus certificados. */
+  onlyOwnVerify?: boolean;
+} = {}) {
   const [verifyCode, setVerifyCode] = useState('');
   const [verifyResult, setVerifyResult] =
     useState<CertificateVerifyResult | null>(null);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<StatusFilter>('ALL');
-  const [kind, setKind] = useState<KindFilter>('ALL');
+  const [kind, setKind] = useState<KindFilter>(defaultKind);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [withExpiry, setWithExpiry] = useState(false);
@@ -76,7 +84,8 @@ export function CertificatesView() {
   const { data = [], isLoading: loading } = useApiQuery<Certificate[]>(
     queryKeys.courses.myCertificates(),
     '/certificates/my',
-    { staleTime: STALE_TIME.SEMI_STATIC },
+    // Um certificado novo (curso acabado de concluir) tem de aparecer logo.
+    { staleTime: STALE_TIME.DYNAMIC },
   );
   const { data: summary } = useApiQuery<MySummary>(
     queryKeys.certificates.mySummary(),
@@ -102,7 +111,18 @@ export function CertificatesView() {
     },
   );
   const verify = () => {
-    if (verifyCode.trim()) verifyMut.mutate(verifyCode.trim());
+    const code = verifyCode.trim();
+    if (!code) return;
+    if (
+      onlyOwnVerify &&
+      !data.some((c) => c.validationCode.toLowerCase() === code.toLowerCase())
+    ) {
+      setVerifyResult({
+        error: 'Só pode verificar os seus próprios certificados.',
+      });
+      return;
+    }
+    verifyMut.mutate(code);
   };
 
   const filtered = useMemo(() => {
@@ -124,36 +144,6 @@ export function CertificatesView() {
     <div className="space-y-6">
       {summary && <MySummaryPanel summary={summary} />}
       <MyLearningPathsPanel paths={learningPaths} />
-
-      {/* Verificar certificado */}
-      <Card className="p-4">
-        <div className="text-xs font-medium text-ink-muted uppercase tracking-wide mb-3">
-          Verificar certificado
-        </div>
-        <div className="flex gap-3">
-          <Input
-            type="text"
-            placeholder="Código do certificado (ex: CERT-1-42-1234567890)"
-            value={verifyCode}
-            onChange={(e) => setVerifyCode(e.target.value)}
-            className="flex-1"
-          />
-          <Button onClick={verify}>Verificar</Button>
-        </div>
-        {verifyResult && (
-          <div
-            className={`mt-3 p-3 rounded-control text-sm ${verifyResult.error ? 'bg-danger-subtle text-ink' : verifyResult.valid ? 'bg-success-subtle text-ink' : 'bg-warning-subtle text-ink'}`}
-          >
-            {verifyResult.error
-              ? `${verifyResult.error}`
-              : verifyResult.valid
-                ? `Certificado válido — ${verifyResult.holderName} — ${verifyResult.title}`
-                : verifyResult.status === 'REVOKED'
-                  ? 'Certificado revogado'
-                  : 'Certificado expirado'}
-          </div>
-        )}
-      </Card>
 
       {data.length === 0 ? (
         <EmptyState
@@ -226,6 +216,36 @@ export function CertificatesView() {
           )}
         </>
       )}
+
+      {/* Verificar certificado */}
+      <Card className="p-4">
+        <div className="text-xs font-medium text-ink-muted uppercase tracking-wide mb-3">
+          Verificar certificado
+        </div>
+        <div className="flex gap-3">
+          <Input
+            type="text"
+            placeholder="Código do certificado (ex: CERT-1-42-1234567890)"
+            value={verifyCode}
+            onChange={(e) => setVerifyCode(e.target.value)}
+            className="flex-1"
+          />
+          <Button onClick={verify}>Verificar</Button>
+        </div>
+        {verifyResult && (
+          <div
+            className={`mt-3 p-3 rounded-control text-sm ${verifyResult.error ? 'bg-danger-subtle text-ink' : verifyResult.valid ? 'bg-success-subtle text-ink' : 'bg-warning-subtle text-ink'}`}
+          >
+            {verifyResult.error
+              ? `${verifyResult.error}`
+              : verifyResult.valid
+                ? `Certificado válido — ${verifyResult.holderName} — ${verifyResult.title}`
+                : verifyResult.status === 'REVOKED'
+                  ? 'Certificado revogado'
+                  : 'Certificado expirado'}
+          </div>
+        )}
+      </Card>
     </div>
   );
 }
