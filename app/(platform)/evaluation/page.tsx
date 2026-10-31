@@ -14,7 +14,6 @@ import {
   Clock,
   FileBarChart,
   Layers,
-  ListChecks,
   Settings,
   Shield,
   Sparkles,
@@ -24,11 +23,9 @@ import {
 import { AnalyticsTab } from '@/components/evaluation/AnalyticsTab';
 import { CalibrationTab } from '@/components/evaluation/CalibrationTab';
 import { CompetenciesTab } from '@/components/evaluation/CompetenciesTab';
-import { CriteriaTab } from '@/components/evaluation/CriteriaTab';
 import { CyclesTab } from '@/components/evaluation/CyclesTab';
 import { EvaluationsTab } from '@/components/evaluation/EvaluationsTab';
 import { FormalEvaluationsTab } from '@/components/evaluation/FormalEvaluationsTab';
-import { ModelsTab } from '@/components/evaluation/ModelsTab';
 import { OverviewTab } from '@/components/evaluation/OverviewTab';
 import { PendingTab } from '@/components/evaluation/PendingTab';
 import { ReportsTab } from '@/components/evaluation/ReportsTab';
@@ -96,20 +93,6 @@ const TABS = [
     label: 'Ciclos de Avaliação',
     hint: 'Períodos e campanhas',
     icon: Layers,
-  },
-  {
-    id: 'templates',
-    label: 'Modelos',
-    hint: 'Formulários base',
-    icon: Layers,
-    roles: MGMT_ROLES,
-  },
-  {
-    id: 'criteria',
-    label: 'Critérios',
-    hint: 'O que se avalia',
-    icon: ListChecks,
-    roles: MGMT_ROLES,
   },
   {
     id: 'competencies',
@@ -202,16 +185,6 @@ export default function EvaluationsPage() {
           <TabsContent value="cycles">
             <CyclesTab />
           </TabsContent>
-          {visibleTabs.some((t) => t.id === 'templates') && (
-            <TabsContent value="templates">
-              <ModelsTab />
-            </TabsContent>
-          )}
-          {visibleTabs.some((t) => t.id === 'criteria') && (
-            <TabsContent value="criteria">
-              <CriteriaTab />
-            </TabsContent>
-          )}
           <TabsContent value="competencies">
             <CompetenciesTab />
           </TabsContent>
