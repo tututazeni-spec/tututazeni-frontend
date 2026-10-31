@@ -31,6 +31,7 @@ import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { SCORE_COLOR, SCORE_TONE } from './constants';
 import { ALL, useCycleOptions, useDepartmentOptions } from './filterOptions';
 import type { EvaluationReportGroup, EvaluationReportsOverview } from './types';
+import { PerformanceIndicatorsPanel } from './performance/PerformanceIndicatorsPanel';
 
 function GroupTable({
   title,
@@ -310,6 +311,10 @@ export function ReportsTab() {
                 </div>
               </CardBody>
             </Card>
+          )}
+
+          {data.performance && (
+            <PerformanceIndicatorsPanel data={data.performance} />
           )}
         </div>
       )}

@@ -32,6 +32,11 @@ export interface CompetencyOption {
   name: string;
 }
 
+export interface TrainingOption {
+  id: number;
+  title: string;
+}
+
 export interface ResponsibleOption {
   id: number;
   label: string;
@@ -421,6 +426,7 @@ export interface RecommendationsSectionProps {
   onChange: (items: RecommendationDraft[]) => void;
   improvements: ImprovementDraft[];
   responsibles: ResponsibleOption[];
+  trainings: TrainingOption[];
   errors: string[];
 }
 
@@ -429,6 +435,7 @@ export function RecommendationsSection({
   onChange,
   improvements,
   responsibles,
+  trainings,
   errors,
 }: RecommendationsSectionProps) {
   return (
@@ -513,6 +520,35 @@ export function RecommendationsSection({
                 ))}
               </NativeSelect>
             </FormField>
+            {r.actionType === 'FORMACAO' && (
+              <FormField
+                label="Formação do catálogo"
+                htmlFor={`rc-trn-${r.key}`}
+                hint="Recomenda a formação; não inscreve o colaborador."
+              >
+                <NativeSelect
+                  id={`rc-trn-${r.key}`}
+                  className="w-full"
+                  value={r.trainingId ?? ''}
+                  onChange={(e) =>
+                    onChange(
+                      patch(items, r.key, {
+                        trainingId: e.target.value
+                          ? Number(e.target.value)
+                          : undefined,
+                      }),
+                    )
+                  }
+                >
+                  <option value="">Sem formação associada</option>
+                  {trainings.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.title}
+                    </option>
+                  ))}
+                </NativeSelect>
+              </FormField>
+            )}
             <FormField label="Responsável" htmlFor={`rc-resp-${r.key}`}>
               <NativeSelect
                 id={`rc-resp-${r.key}`}

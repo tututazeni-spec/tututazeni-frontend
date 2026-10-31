@@ -451,6 +451,17 @@ export const queryKeys = {
       [...queryKeys.evaluation.all, 'reports', filters ?? {}] as const,
     settings: () => [...queryKeys.evaluation.all, 'settings'] as const,
     ratingScale: () => [...queryKeys.evaluation.all, 'rating-scale'] as const,
+    trainingOptions: () =>
+      [...queryKeys.evaluation.all, 'training-options'] as const,
+    performanceItems: (id: number) =>
+      [...queryKeys.evaluation.all, 'performance-items', id] as const,
+    performanceHistory: (userId: number | string, type: string) =>
+      [
+        ...queryKeys.evaluation.all,
+        'performance-history',
+        userId,
+        type,
+      ] as const,
   },
 
   // Módulo real de Avaliação 360º (src/evaluation360/, backend `/evaluation360`)

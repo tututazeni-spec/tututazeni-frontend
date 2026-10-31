@@ -34,6 +34,7 @@ import {
   StrengthsSection,
   type CompetencyOption,
   type ResponsibleOption,
+  type TrainingOption,
 } from './performance/StructuredSections';
 import {
   buildStructuredPayload,
@@ -169,6 +170,12 @@ export function SubmitEvaluationModal({
     { params: { limit: 100 } },
   );
 
+  const trainingsQ = useApiQuery<{ data: TrainingOption[] }>(
+    queryKeys.evaluation.trainingOptions(),
+    '/trainings',
+    { params: { limit: 100 } },
+  );
+  const trainings = trainingsQ.data?.data ?? [];
   const levels = scaleQ.data?.levels ?? FALLBACK_RATING_LEVELS;
   const questions = useMemo(() => formQ.data?.questions ?? [], [formQ.data]);
   const competencies: CompetencyOption[] = catalogQ.data?.data ?? [];
@@ -464,6 +471,7 @@ export function SubmitEvaluationModal({
               onChange={setRecommendations}
               improvements={improvements}
               responsibles={responsibles}
+              trainings={trainings}
               errors={showErrors ? errors.recommendations : []}
             />
           )}

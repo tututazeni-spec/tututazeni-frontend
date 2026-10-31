@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { PerformanceHistoryPanel } from './performance/PerformanceHistoryPanel';
 import { apiClient } from '@/lib/apiClient';
 import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
@@ -488,6 +489,12 @@ export function ResultsTab() {
                 </div>
               )}
             </div>
+          )}
+
+          {(isColaborador ? me?.id : selectedUser?.id) != null && (
+            <PerformanceHistoryPanel
+              userId={(isColaborador ? me?.id : selectedUser?.id) as number}
+            />
           )}
 
           {/* PDI trigger — só quem gere avaliações (não-colaborador) desenha

@@ -121,6 +121,8 @@ export interface RecommendationDraft {
   objective: string;
   actionType?: RecommendationActionType;
   responsibleId?: number;
+  /** Formação real recomendada (não cria inscrição). */
+  trainingId?: number;
   dueDate: string;
   successIndicator: string;
   priority?: number;

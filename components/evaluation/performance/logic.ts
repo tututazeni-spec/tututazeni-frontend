@@ -204,6 +204,7 @@ export function buildStructuredPayload(
       objective: r.objective.trim(),
       actionType: r.actionType,
       responsibleId: r.responsibleId,
+      trainingId: r.trainingId,
       dueDate: r.dueDate || undefined,
       successIndicator: r.successIndicator.trim(),
       priority: r.priority,
