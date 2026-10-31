@@ -6,14 +6,23 @@
 'use client';
 
 import { useState } from 'react';
-import { CalendarPlus, ClipboardCheck, Pencil, Plus, X } from 'lucide-react';
+import {
+  CalendarPlus,
+  CircleCheck,
+  ClipboardCheck,
+  Clock,
+  Pencil,
+  Plus,
+  User,
+  Users,
+  X,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { NativeSelect } from '@/components/ui/NativeSelect';
@@ -35,6 +44,28 @@ export const SESSION_STATUS: Record<
   IN_PROGRESS: { label: 'Em curso', intent: 'warning' },
   COMPLETED: { label: 'Concluída', intent: 'success' },
   CANCELLED: { label: 'Cancelada', intent: 'danger' },
+};
+
+const MONTH_ABBR = [
+  'JAN',
+  'FEV',
+  'MAR',
+  'ABR',
+  'MAI',
+  'JUN',
+  'JUL',
+  'AGO',
+  'SET',
+  'OUT',
+  'NOV',
+  'DEZ',
+];
+
+const STATUS_TONE: Record<'info' | 'warning' | 'success' | 'danger', string> = {
+  info: 'text-info-ink',
+  warning: 'text-warning-ink',
+  success: 'text-success-ink',
+  danger: 'text-danger',
 };
 
 /** "02/11/2026" a partir do ISO (data de calendário, sem fuso). */
@@ -296,23 +327,58 @@ export function CohortSessionsPanel({
           Ainda não há sessões nesta turma.
         </p>
       ) : (
-        <div className="divide-y divide-border rounded-card border border-border">
+        <div className="space-y-3">
           {(sessions ?? []).map((s) => {
             const st = SESSION_STATUS[s.status];
+            const [year, month, day] = s.date.slice(0, 10).split('-');
+            const tone = STATUS_TONE[st.intent];
             return (
               <div
                 key={s.id}
-                className="flex flex-wrap items-center gap-3 px-3 py-2.5"
+                className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-card bg-brand-soft px-4 py-3"
               >
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-ink">
+                {/* Data em destaque */}
+                <div className="flex items-center gap-4">
+                  <div className="w-14 text-center font-display leading-none text-brand">
+                    <div className="text-3xl font-extrabold">{day}</div>
+                    <div className="mt-1 text-base font-bold">
+                      {MONTH_ABBR[Number(month) - 1]}
+                    </div>
+                    <div className="mt-0.5 text-xs font-medium">{year}</div>
+                  </div>
+                  <div aria-hidden className="h-14 w-px bg-brand-line" />
+                </div>
+
+                {/* Título e detalhes */}
+                <div className="min-w-0 flex-1 basis-56 space-y-1">
+                  <div className="truncate text-base font-bold text-ink">
                     {s.title}
                   </div>
-                  <div className="text-xs text-ink-muted">
-                    {sessionDay(s.date)} · {s.startTime}–{s.endTime} (
-                    {Math.round(s.durationMinutes / 6) / 10} h) ·{' '}
-                    {MODALITY_LABEL[s.modality]}
-                    {s.instructor ? ` · ${s.instructor.fullName}` : ''}
+                  <div className="flex items-center gap-1.5 text-sm text-ink-muted">
+                    <Clock size={14} strokeWidth={1.75} className="shrink-0" />
+                    <span>
+                      {s.startTime}–{s.endTime} (
+                      {Math.round(s.durationMinutes / 6) / 10} h) ·{' '}
+                      {MODALITY_LABEL[s.modality]}
+                    </span>
+                  </div>
+                  {s.instructor && (
+                    <div className="flex items-center gap-1.5 text-sm text-ink-muted">
+                      <User size={14} strokeWidth={1.75} className="shrink-0" />
+                      {s.instructor.fullName}
+                    </div>
+                  )}
+                  <div
+                    className={`flex items-center gap-1.5 text-sm font-medium ${
+                      s.attendanceRecorded
+                        ? 'text-success-ink'
+                        : 'text-ink-muted'
+                    }`}
+                  >
+                    <Users size={14} strokeWidth={1.75} className="shrink-0" />
+                    {s.attendanceRecorded
+                      ? `Presenças registadas (${s.recordedCount})`
+                      : 'Sem presenças'}
                   </div>
                   {s.status === 'CANCELLED' && s.cancelReason && (
                     <div className="text-xs text-ink-faint">
@@ -320,12 +386,15 @@ export function CohortSessionsPanel({
                     </div>
                   )}
                 </div>
-                <Badge intent={st.intent}>{st.label}</Badge>
-                <Badge intent={s.attendanceRecorded ? 'success' : 'neutral'}>
-                  {s.attendanceRecorded
-                    ? `Presenças registadas (${s.recordedCount})`
-                    : 'Sem presenças'}
-                </Badge>
+
+                {/* Estado */}
+                <span
+                  className={`inline-flex items-center gap-1.5 text-sm font-semibold ${tone}`}
+                >
+                  <CircleCheck size={16} strokeWidth={2} />
+                  {st.label}
+                </span>
+
                 <div className="flex gap-1">
                   {s.status !== 'CANCELLED' && (
                     <Button
