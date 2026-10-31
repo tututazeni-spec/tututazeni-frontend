@@ -17,6 +17,7 @@ import {
   Layers,
   MapPin,
   Route,
+  Trash2,
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { usePdfDownload } from '@/hooks/usePdfDownload';
@@ -81,7 +82,7 @@ const SORT_ITEMS = [
   { value: 'holderName:asc', label: 'Nome do titular (A–Z)' },
 ];
 
-type RowAction = 'approve' | 'revoke' | 'reissue' | 'resend';
+type RowAction = 'approve' | 'revoke' | 'reissue' | 'resend' | 'delete';
 
 interface RowActionsProps {
   row: AdminCertificateRow;
@@ -142,6 +143,16 @@ function RowActions({ row, canManage, canApprove, onAction }: RowActionsProps) {
             onClick={() => onAction('revoke', row)}
           >
             Revogar
+          </Button>
+        )}
+        {canManage && row.status === 'REVOKED' && (
+          <Button
+            intent="danger"
+            size="sm"
+            onClick={() => onAction('delete', row)}
+          >
+            <Trash2 size={14} strokeWidth={1.75} />
+            Remover da lista
           </Button>
         )}
       </div>
@@ -288,10 +299,36 @@ export function CertificatesTab({
     },
   );
 
+  // "Remover da lista" só tira o revogado da lista: continua nas exportações, relatórios e auditoria.
+  const hideRevoked = useApiMutation(
+    (id: number) => apiClient.delete(`/certificates/${id}`),
+    {
+      invalidateKeys: invalidate,
+      onSuccess: () =>
+        toast({
+          title:
+            'Certificado removido da lista. Continua nos relatórios e na auditoria.',
+          intent: 'success',
+        }),
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
   async function onAction(action: RowAction, row: AdminCertificateRow) {
     if (action === 'revoke' || action === 'reissue') {
       setReasonError(undefined);
       setReasonFor({ kind: action, row });
+      return;
+    }
+    if (action === 'delete') {
+      const del = await confirm({
+        title: `Remover da lista o certificado revogado de ${row.holderName}?`,
+        message:
+          'Deixa de aparecer nesta lista. O registo mantém-se nos relatórios, nas exportações e na auditoria.',
+        confirmLabel: 'Remover',
+        destructive: true,
+      });
+      if (del) hideRevoked.mutate(row.id);
       return;
     }
     const ok = await confirm({

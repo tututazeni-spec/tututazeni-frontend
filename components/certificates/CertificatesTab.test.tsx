@@ -126,6 +126,21 @@ describe('CertificatesTab', () => {
     expect(has('Revogar') || has('Reemitir') || has('Reenviar')).toBe(false);
   });
 
+  test('revogado tem "Remover da lista" para quem gere; válido e auditor não', () => {
+    rows = [row({ status: 'REVOKED' })];
+    const { unmount } = render(<CertificatesTab canManage canApprove />);
+    expect(has('Remover da lista')).toBe(true);
+    unmount();
+    render(<CertificatesTab canManage={false} canApprove={false} />);
+    expect(has('Remover da lista')).toBe(false);
+  });
+
+  test('válido não tem "Remover da lista"', () => {
+    rows = [row({ status: 'ACTIVE' })];
+    render(<CertificatesTab canManage canApprove />);
+    expect(has('Remover da lista')).toBe(false);
+  });
+
   test('pendente de aprovação pode ser aprovado ou revogado, não reemitido', () => {
     rows = [row({ status: 'PENDING_APPROVAL' })];
     render(<CertificatesTab canManage canApprove />);

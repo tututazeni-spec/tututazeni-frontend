@@ -477,7 +477,7 @@ export function CourseDetailView({
                           ? 'A processar…'
                           : course.requiresApproval
                             ? 'Solicitar inscrição'
-                            : 'Inscrever-me gratuitamente'}
+                            : 'Inscrever-me'}
                       </Button>
                     )}
                     {!isEnrolled && course.status !== 'PUBLISHED' && (

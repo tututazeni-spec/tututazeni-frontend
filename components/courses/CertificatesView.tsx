@@ -202,7 +202,7 @@ function CertificateCard({
     },
   );
 
-  // "Apagar" só oculta da lista do titular: o certificado fica nos relatórios e na auditoria.
+  // "Remover da lista" só oculta da lista do titular: o certificado fica nos relatórios e na auditoria.
   const hide = useApiMutation(
     () => apiClient.delete(`/certificates/my/${cert.id}`),
     {
@@ -212,7 +212,7 @@ function CertificateCard({
       ],
       onSuccess: () =>
         toast({
-          title: 'Certificado apagado da sua lista.',
+          title: 'Certificado removido da sua lista.',
           intent: 'success',
         }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
@@ -221,10 +221,10 @@ function CertificateCard({
 
   async function onDelete() {
     const ok = await confirm({
-      title: 'Apagar este certificado revogado da sua lista?',
+      title: 'Remover este certificado revogado da sua lista?',
       message:
         'Deixa de aparecer em "Os meus certificados". O registo mantém-se nos relatórios e na auditoria.',
-      confirmLabel: 'Apagar',
+      confirmLabel: 'Remover',
       destructive: true,
     });
     if (ok) hide.mutate(undefined);
@@ -352,7 +352,7 @@ function CertificateCard({
             disabled={hide.isPending}
           >
             <Trash2 size={18} strokeWidth={1.75} className="shrink-0" />
-            Apagar
+            Remover da lista
           </Button>
         )}
         {emailEnabled && cert.status === 'ACTIVE' && (

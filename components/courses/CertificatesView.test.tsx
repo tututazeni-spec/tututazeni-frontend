@@ -92,13 +92,15 @@ describe('CertificatesView — área pessoal', () => {
     ).toBe(false);
   });
 
-  test('revogado tem botão "Apagar"; válido não tem', () => {
+  test('revogado tem botão "Remover da lista"; válido não tem', () => {
     certs = [
       cert({ id: 1, status: 'REVOKED', linkedInUrl: undefined }),
       cert({ id: 2, displayTitle: 'Válido' }),
     ];
     render(<CertificatesView />);
-    expect(screen.getAllByRole('button', { name: 'Apagar' })).toHaveLength(1);
+    expect(
+      screen.getAllByRole('button', { name: 'Remover da lista' }),
+    ).toHaveLength(1);
   });
 
   test('mostra todos os certificados, do mais recente ao mais antigo, sem filtros', () => {
