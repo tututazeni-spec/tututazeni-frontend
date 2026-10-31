@@ -108,18 +108,21 @@ interface CohortCardProps {
   rank?: number;
   /** Nome do curso da turma — numa linha; o nome da turma fica na linha por baixo. */
   courseTitle?: string;
-  onOpen: () => void;
-  onDelete: () => void;
-  onClose: () => void;
+  onOpen?: () => void;
+  onDelete?: () => void;
+  onClose?: () => void;
+  /** Só leitura (colaborador): sem participantes, eliminar nem encerrar. */
+  readOnly?: boolean;
 }
 
-function CohortCard({
+export function CohortCard({
   c,
   rank = 0,
   courseTitle,
   onOpen,
   onDelete,
   onClose,
+  readOnly,
 }: CohortCardProps) {
   const place = [c.location, c.room].filter(Boolean).join(' • ');
   const statusCfg = COHORT_STATUS_MAP[c.status];
@@ -164,43 +167,45 @@ function CohortCard({
         </NavyBadge>
       }
       actions={
-        <>
-          <Button
-            type="button"
-            intent="onDarkGhost"
-            size="sm"
-            aria-label="Ver participantes"
-            title="Ver participantes"
-            className={open ? OPEN_ROUND_BTN : undefined}
-            onClick={onOpen}
-          >
-            <Users2 size={15} strokeWidth={1.75} />
-          </Button>
-          <Button
-            type="button"
-            intent="onDarkGhost"
-            size="sm"
-            aria-label={`Eliminar turma ${c.name}`}
-            title="Eliminar turma"
-            className={open ? OPEN_ROUND_BTN : undefined}
-            onClick={onDelete}
-          >
-            <Trash2 size={15} strokeWidth={1.75} />
-          </Button>
-          {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
-            <button
+        readOnly ? undefined : (
+          <>
+            <Button
               type="button"
-              className={
-                open
-                  ? 'inline-flex h-10 items-center justify-center rounded-full bg-[#0F1F3D]/85 px-5 text-sm font-bold text-white hover:bg-[#0F1F3D]'
-                  : `${NAVY_ACTION} border border-white/25`
-              }
-              onClick={onClose}
+              intent="onDarkGhost"
+              size="sm"
+              aria-label="Ver participantes"
+              title="Ver participantes"
+              className={open ? OPEN_ROUND_BTN : undefined}
+              onClick={onOpen}
             >
-              Encerrar
-            </button>
-          )}
-        </>
+              <Users2 size={15} strokeWidth={1.75} />
+            </Button>
+            <Button
+              type="button"
+              intent="onDarkGhost"
+              size="sm"
+              aria-label={`Eliminar turma ${c.name}`}
+              title="Eliminar turma"
+              className={open ? OPEN_ROUND_BTN : undefined}
+              onClick={onDelete}
+            >
+              <Trash2 size={15} strokeWidth={1.75} />
+            </Button>
+            {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
+              <button
+                type="button"
+                className={
+                  open
+                    ? 'inline-flex h-10 items-center justify-center rounded-full bg-[#0F1F3D]/85 px-5 text-sm font-bold text-white hover:bg-[#0F1F3D]'
+                    : `${NAVY_ACTION} border border-white/25`
+                }
+                onClick={onClose}
+              >
+                Encerrar
+              </button>
+            )}
+          </>
+        )
       }
     />
   );

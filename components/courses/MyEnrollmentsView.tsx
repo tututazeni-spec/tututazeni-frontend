@@ -13,6 +13,7 @@ import { formatDate as fmtDate } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PeriodPills } from '@/components/ui/Pills';
 import { CourseListCard } from './CourseListCard';
+import { MyCohortsSection } from './MyCohortsSection';
 import { Skeleton, isOverdue } from './shared';
 import type { MyEnrollment } from './types';
 
@@ -64,6 +65,7 @@ export function MyEnrollmentsView({ onSelect }: MyEnrollmentsViewProps) {
 
   return (
     <div>
+      <MyCohortsSection />
       {/* Cabeçalho: título + filtros em pílula */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-2xl font-medium text-ink">Meus cursos</h2>
