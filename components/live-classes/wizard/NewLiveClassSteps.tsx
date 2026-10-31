@@ -10,6 +10,7 @@ import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { ItemList, ListOrTextField, MaterialsPicker } from './ContentFields';
 import { Textarea } from '@/components/ui/Textarea';
 import {
   ENROLLMENT_MODE_CFG,
@@ -133,7 +134,11 @@ export function NewLiveClassSteps({
           <FormField
             label="Módulo associado"
             htmlFor="lc-module"
-            hint={!form.courseId ? 'Opcional — escolhe primeiro um curso.' : undefined}
+            hint={
+              !form.courseId
+                ? 'Opcional — escolhe primeiro um curso.'
+                : undefined
+            }
           >
             <Select
               items={[
@@ -393,7 +398,7 @@ export function NewLiveClassSteps({
             <label className="flex items-center gap-2 pt-2 text-sm text-ink">
               <Checkbox
                 id="lc-waitlist"
-                
+
                 checked={form.waitlistEnabled}
                 onChange={(e) => setField('waitlistEnabled', e.target.checked)}
               />
@@ -413,7 +418,6 @@ export function NewLiveClassSteps({
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
                   <Checkbox
-                    
                     checked={form.targetUnitIds.includes(u.id)}
                     onChange={() =>
                       setField(
@@ -438,7 +442,6 @@ export function NewLiveClassSteps({
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
                   <Checkbox
-                    
                     checked={form.targetDeptIds.includes(d.id)}
                     onChange={() =>
                       setField(
@@ -463,7 +466,6 @@ export function NewLiveClassSteps({
                   className="flex items-center gap-2 text-xs text-ink-muted"
                 >
                   <Checkbox
-                    
                     checked={form.targetPositionIds.includes(p.id)}
                     onChange={() =>
                       setField(
@@ -485,49 +487,36 @@ export function NewLiveClassSteps({
   if (stepId === 'content') {
     return (
       <div className="space-y-4">
-        <FormField label="Objetivos da aula" htmlFor="lc-objectives">
-          <Textarea
-            id="lc-objectives"
-            value={form.objectives}
-            onChange={(e) => setField('objectives', e.target.value)}
-            rows={2}
-            className="w-full resize-none"
+        <ListOrTextField
+          label="Objetivos da aula"
+          inputId="lc-objectives"
+          value={form.objectives}
+          onChange={(v) => setField('objectives', v)}
+          placeholder="Ex.: Compreender o fluxo de vendas"
+          addLabel="Adicionar objetivo"
+        />
+        <ListOrTextField
+          label="Agenda"
+          inputId="lc-agenda"
+          value={form.agenda}
+          onChange={(v) => setField('agenda', v)}
+          placeholder="Ex.: 10:00 — Introdução"
+          addLabel="Adicionar ponto"
+          textRows={5}
+        />
+        <FormField label="Tópicos" htmlFor="lc-topics">
+          <ItemList
+            items={form.topics}
+            onChange={(items) => setField('topics', items)}
+            inputId="lc-topics"
+            placeholder="Ex.: Casos práticos"
+            addLabel="Adicionar tópico"
           />
         </FormField>
-        <FormField label="Agenda" htmlFor="lc-agenda">
-          <Textarea
-            id="lc-agenda"
-            value={form.agenda}
-            onChange={(e) => setField('agenda', e.target.value)}
-            rows={3}
-            className="w-full resize-none"
-          />
-        </FormField>
-        <FormField
-          label="Tópicos"
-          htmlFor="lc-topics"
-          hint="Separados por vírgula."
-        >
-          <Input
-            id="lc-topics"
-            value={form.topics}
-            onChange={(e) => setField('topics', e.target.value)}
-            className="w-full"
-            placeholder="Ex.: Introdução, Casos práticos, Perguntas"
-          />
-        </FormField>
-        <FormField
-          label="Materiais da Biblioteca"
-          htmlFor="lc-materials"
-          hint="IDs de documentos, separados por vírgula."
-        >
-          <Input
-            id="lc-materials"
-            value={form.materialDocumentIds}
-            onChange={(e) => setField('materialDocumentIds', e.target.value)}
-            className="w-full"
-          />
-        </FormField>
+        <MaterialsPicker
+          value={form.materials}
+          onChange={(v) => setField('materials', v)}
+        />
       </div>
     );
   }
@@ -537,7 +526,6 @@ export function NewLiveClassSteps({
       <div className="space-y-4">
         <label className="flex items-center gap-2 text-sm text-ink">
           <Checkbox
-            
             checked={form.attendanceAutoRegister}
             onChange={(e) =>
               setField('attendanceAutoRegister', e.target.checked)
@@ -547,7 +535,6 @@ export function NewLiveClassSteps({
         </label>
         <label className="flex items-center gap-2 text-sm text-ink">
           <Checkbox
-            
             checked={form.attendanceRequired}
             onChange={(e) => setField('attendanceRequired', e.target.checked)}
           />
@@ -592,7 +579,6 @@ export function NewLiveClassSteps({
       <div className="space-y-4">
         <label className="flex items-center gap-2 text-sm text-ink">
           <Checkbox
-            
             checked={form.recordSession}
             onChange={(e) => setField('recordSession', e.target.checked)}
           />
@@ -600,7 +586,6 @@ export function NewLiveClassSteps({
         </label>
         <label className="flex items-center gap-2 text-sm text-ink">
           <Checkbox
-            
             checked={form.allowRecordingDownload}
             onChange={(e) =>
               setField('allowRecordingDownload', e.target.checked)
@@ -630,7 +615,6 @@ export function NewLiveClassSteps({
       <div className="space-y-4">
         <label className="flex items-center gap-2 text-sm text-ink">
           <Checkbox
-            
             checked={form.evaluationRequired}
             onChange={(e) => setField('evaluationRequired', e.target.checked)}
           />
@@ -670,7 +654,6 @@ export function NewLiveClassSteps({
           className="flex items-center gap-2 text-sm text-ink"
         >
           <Checkbox
-            
             checked={form[item.key] as boolean}
             onChange={(e) =>
               setField(

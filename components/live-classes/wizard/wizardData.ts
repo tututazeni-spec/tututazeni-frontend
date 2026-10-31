@@ -62,6 +62,21 @@ export function useInstructorOptions() {
   return { options, loading: query.isLoading };
 }
 
+// Biblioteca (`Document`) — pesquisa por título para escolher materiais.
+export function useDocumentSearch(search: string) {
+  const term = search.trim();
+  const query = useApiQuery<{ data: { id: number; title: string }[] }>(
+    ['live-classes-wizard', 'documents-picker', term],
+    '/documents',
+    {
+      params: { search: term, limit: 10 },
+      staleTime: STALE_TIME.DYNAMIC,
+      enabled: term.length >= 2,
+    },
+  );
+  return { results: query.data?.data ?? [], loading: query.isLoading };
+}
+
 export interface OrgOption {
   id: number;
   name: string;

@@ -16,6 +16,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { WIZARD_STEPS } from '../constants';
+import { splitLines } from './ContentFields';
 import { NewLiveClassSteps } from './NewLiveClassSteps';
 import { EMPTY_WIZARD_FORM, type WizardForm } from './wizardTypes';
 
@@ -72,19 +73,11 @@ function buildPayload(form: WizardForm): Record<string, unknown> {
       ? form.targetPositionIds
       : undefined,
 
-    objectives: form.objectives.trim() || undefined,
-    agenda: form.agenda.trim() || undefined,
-    topics: form.topics.trim()
-      ? form.topics
-          .split(',')
-          .map((t) => t.trim())
-          .filter(Boolean)
-      : undefined,
-    materialDocumentIds: form.materialDocumentIds.trim()
-      ? form.materialDocumentIds
-          .split(',')
-          .map((v) => Number(v.trim()))
-          .filter((v) => Number.isFinite(v))
+    objectives: splitLines(form.objectives).join('\n') || undefined,
+    agenda: splitLines(form.agenda).join('\n') || undefined,
+    topics: form.topics.length ? form.topics : undefined,
+    materialDocumentIds: form.materials.length
+      ? form.materials.map((m) => m.id)
       : undefined,
 
     attendanceAutoRegister: form.attendanceAutoRegister,

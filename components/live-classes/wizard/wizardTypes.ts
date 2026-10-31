@@ -10,6 +10,11 @@ import type {
   SessionModality,
 } from '../types';
 
+export interface WizardMaterial {
+  id: number;
+  title: string;
+}
+
 export interface WizardForm {
   // Etapa 1 — Informações gerais
   topic: string;
@@ -49,8 +54,8 @@ export interface WizardForm {
   // Etapa 5 — Conteúdo
   objectives: string;
   agenda: string;
-  topics: string;
-  materialDocumentIds: string;
+  topics: string[];
+  materials: WizardMaterial[];
 
   // Etapa 6 — Presença
   attendanceAutoRegister: boolean;
@@ -110,8 +115,8 @@ export const EMPTY_WIZARD_FORM: WizardForm = {
 
   objectives: '',
   agenda: '',
-  topics: '',
-  materialDocumentIds: '',
+  topics: [],
+  materials: [],
 
   attendanceAutoRegister: true,
   attendanceRequired: false,
