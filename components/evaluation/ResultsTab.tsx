@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { PerformanceDetailModal } from './performance/PerformanceDetailModal';
 import { PerformanceHistoryPanel } from './performance/PerformanceHistoryPanel';
 import { apiClient } from '@/lib/apiClient';
 import { useToast } from '@/providers/ToastProvider';
@@ -64,7 +65,16 @@ export function ResultsTab() {
   const [selectedUser, setSelectedUser] = useState<DirectoryUser | null>(null);
   const [month, setMonth] = useState('ALL');
   const [year, setYear] = useState('ALL');
+  const [detailEvaluationId, setDetailEvaluationId] = useState<number | null>(
+    null,
+  );
   const notify = useToast();
+  // Colaborador vê sempre as suas. Os restantes veem as do colaborador
+  // pesquisado e, enquanto não escolhem ninguém, as que eles próprios receberam.
+  const viewedUserId = (
+    isColaborador ? me?.id : (selectedUser?.id ?? me?.id)
+  ) as number | undefined;
+  const viewingSelf = viewedUserId != null && viewedUserId === me?.id;
 
   const loadResults = useApiMutation(({ uid, period }: LoadParams) =>
     apiClient.get<EvalResults>(
@@ -491,12 +501,6 @@ export function ResultsTab() {
             </div>
           )}
 
-          {(isColaborador ? me?.id : selectedUser?.id) != null && (
-            <PerformanceHistoryPanel
-              userId={(isColaborador ? me?.id : selectedUser?.id) as number}
-            />
-          )}
-
           {/* PDI trigger — só quem gere avaliações (não-colaborador) desenha
               PDIs a partir dos resultados de outros; um colaborador a ver os
               seus próprios resultados não tem esta acção. */}
@@ -518,6 +522,32 @@ export function ResultsTab() {
             </Button>
           )}
         </div>
+      )}
+
+      {/* Avaliação de desempenho recebida (chefia, autoavaliação, etc.) —
+          fora do bloco 360° para aparecer mesmo sem resultados 360°. */}
+      {viewedUserId != null && (
+        <Card>
+          <CardBody>
+            <PerformanceHistoryPanel
+              userId={viewedUserId}
+              title={
+                viewingSelf
+                  ? 'A minha avaliação de desempenho recebida'
+                  : `Avaliação de desempenho recebida${selectedUser ? ` — ${selectedUser.fullName}` : ''}`
+              }
+              onOpenDetail={setDetailEvaluationId}
+            />
+          </CardBody>
+        </Card>
+      )}
+
+      {detailEvaluationId != null && (
+        <PerformanceDetailModal
+          evaluationId={detailEvaluationId}
+          evaluatedId={viewedUserId ?? undefined}
+          onClose={() => setDetailEvaluationId(null)}
+        />
       )}
 
       {!loading && loadResults.isError && (

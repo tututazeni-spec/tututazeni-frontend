@@ -140,10 +140,16 @@ function ComparisonView({ c }: { c: EvaluationComparison }) {
 
 export interface PerformanceHistoryPanelProps {
   userId: number | string;
+  /** Título da secção (por omissão "Evolução entre ciclos"). */
+  title?: string;
+  /** Se definido, cada avaliação ganha o botão "Ver detalhe". */
+  onOpenDetail?: (evaluationId: number) => void;
 }
 
 export function PerformanceHistoryPanel({
   userId,
+  title = 'Evolução entre ciclos',
+  onOpenDetail,
 }: PerformanceHistoryPanelProps) {
   const [type, setType] = useState('MANAGER');
   const q = useApiQuery<PerformanceHistory>(
@@ -153,11 +159,9 @@ export function PerformanceHistoryPanel({
   );
 
   return (
-    <section aria-label="Evolução entre ciclos" className="space-y-3">
+    <section aria-label={title} className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-ink">
-          Evolução entre ciclos
-        </h3>
+        <h3 className="text-sm font-semibold text-ink">{title}</h3>
         <NativeSelect
           density="sm"
           aria-label="Tipo de avaliação"
@@ -209,6 +213,15 @@ export function PerformanceHistoryPanel({
                     {e.recommendations.overdue > 0 &&
                       ` · ${e.recommendations.overdue} em atraso`}
                   </span>
+                  {onOpenDetail && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenDetail(e.evaluationId)}
+                      className="rounded-pill border-[1.5px] border-border-strong bg-surface px-3 py-1 text-xs font-semibold text-ink-muted hover:bg-surface-sunken"
+                    >
+                      Ver detalhe
+                    </button>
+                  )}
                 </span>
               </li>
             ))}

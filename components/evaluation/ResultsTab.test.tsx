@@ -49,6 +49,14 @@ vi.mock('@/hooks/useCurrentUser', () => ({
 
 const notify = vi.fn();
 vi.mock('@/providers/ToastProvider', () => ({ useToast: () => notify }));
+vi.mock('./performance/PerformanceHistoryPanel', () => ({
+  PerformanceHistoryPanel: ({ title }: { title?: string }) => (
+    <div data-testid="perf-history">{title}</div>
+  ),
+}));
+vi.mock('./performance/PerformanceDetailModal', () => ({
+  PerformanceDetailModal: () => null,
+}));
 vi.mock('./RadarChart', () => ({
   RadarChart: () => <div data-testid="radar" />,
 }));
