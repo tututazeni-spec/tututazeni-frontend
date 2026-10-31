@@ -214,7 +214,7 @@ export function StrengthsSection({
               onChange={(score) => onChange(patch(items, s.key, { score }))}
             />
           </div>
-          <FormField label="Descrição *" htmlFor={`st-desc-${s.key}`}>
+          <FormField label="Descrição" htmlFor={`st-desc-${s.key}`}>
             <Textarea
               id={`st-desc-${s.key}`}
               rows={2}

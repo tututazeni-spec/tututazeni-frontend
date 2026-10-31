@@ -97,8 +97,6 @@ export function validateSections(
       out.strengths.push(`Ponto forte ${n}: indique a competência`);
     if (s.score === undefined)
       out.strengths.push(`Ponto forte ${n}: escolha uma nota de 1 a 5`);
-    if (blank(s.description))
-      out.strengths.push(`Ponto forte ${n}: descreva o ponto forte`);
   });
   duplicates(strengths).forEach((c) =>
     out.strengths.push(`A competência "${c}" está repetida nos pontos fortes`),
@@ -218,7 +216,7 @@ export function buildStructuredPayload(
 // já completos e o ecrã avisa quantos ficaram de fora.
 
 const strengthDone = (s: StrengthDraft) =>
-  !blank(s.competency) && s.score !== undefined && !blank(s.description);
+  !blank(s.competency) && s.score !== undefined;
 const improvementDone = (a: ImprovementDraft) =>
   !blank(a.competency) &&
   a.score !== undefined &&

@@ -103,7 +103,7 @@ describe('SubmitEvaluationModal', () => {
       target: { value: 'Liderança' },
     });
     fireEvent.click(screen.getByRole('radio', { name: /5 — Excelente/ }));
-    fireEvent.change(screen.getByLabelText('Descrição *'), {
+    fireEvent.change(screen.getByLabelText('Descrição'), {
       target: { value: 'Motiva a equipa' },
     });
 

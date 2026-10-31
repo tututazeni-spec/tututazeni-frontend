@@ -311,7 +311,7 @@ export function PerformanceDetailModal({
                     <p className="font-semibold">
                       {s.competency} — nota {s.score}/5
                     </p>
-                    <p>{s.description}</p>
+                    {s.description && <p>{s.description}</p>}
                     {s.evidence && <p>Evidência: {s.evidence}</p>}
                   </li>
                 ))}
