@@ -12,6 +12,11 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { CourseImageField } from '@/components/courses/CourseImageField';
 import { ItemList, ListOrTextField, MaterialsPicker } from './ContentFields';
+import {
+  DEFAULT_AGENDA,
+  DEFAULT_OBJECTIVES,
+  DEFAULT_TOPICS,
+} from './contentOptions';
 import { Textarea } from '@/components/ui/Textarea';
 import {
   ENROLLMENT_MODE_CFG,
@@ -21,6 +26,7 @@ import {
 } from '../constants';
 import {
   useCourseModules,
+  useContentSuggestions,
   useCourseOptions,
   useDepartmentOptions,
   useInstructorOptions,
@@ -70,6 +76,11 @@ export function NewLiveClassSteps({
   const { options: courseOptions } = useCourseOptions();
   const { options: instructorOptions } = useInstructorOptions();
   const modules = useCourseModules(form.courseId);
+  const suggestions = useContentSuggestions(
+    form.courseId,
+    form.moduleId,
+    form.lessonId,
+  );
   const departmentOptions = useDepartmentOptions();
   const unitOptions = useUnitOptions();
   const positionOptions = usePositionOptions();
@@ -500,25 +511,24 @@ export function NewLiveClassSteps({
           inputId="lc-objectives"
           value={form.objectives}
           onChange={(v) => setField('objectives', v)}
-          placeholder="Ex.: Compreender o fluxo de vendas"
-          addLabel="Adicionar objetivo"
+          placeholder="Escolher objetivo…"
+          options={[...suggestions.objectives, ...DEFAULT_OBJECTIVES]}
         />
         <ListOrTextField
           label="Agenda"
           inputId="lc-agenda"
           value={form.agenda}
           onChange={(v) => setField('agenda', v)}
-          placeholder="Ex.: 10:00 — Introdução"
-          addLabel="Adicionar ponto"
-          textRows={5}
+          placeholder="Escolher ponto da agenda…"
+          options={[...suggestions.agenda, ...DEFAULT_AGENDA]}
         />
         <FormField label="Tópicos" htmlFor="lc-topics">
           <ItemList
             items={form.topics}
             onChange={(items) => setField('topics', items)}
             inputId="lc-topics"
-            placeholder="Ex.: Casos práticos"
-            addLabel="Adicionar tópico"
+            placeholder="Escolher tópico…"
+            options={[...suggestions.topics, ...DEFAULT_TOPICS]}
           />
         </FormField>
         <MaterialsPicker

@@ -25,15 +25,28 @@ export function useCourseOptions() {
   return { options, loading: query.isLoading };
 }
 
+interface CourseLesson {
+  id: number;
+  title: string;
+  durationMinutes?: number | null;
+  learningObjectives?: string[];
+}
+
 interface CourseModule {
   id: number;
   title: string;
-  lessons: { id: number; title: string }[];
+  learningObjectives?: string[];
+  lessons: CourseLesson[];
 }
 
-export function useCourseModules(courseId: string) {
+interface CourseDetail {
+  learningObjectives?: string[];
+  modules: CourseModule[];
+}
+
+function useCourseDetail(courseId: string) {
   const id = Number(courseId);
-  const query = useApiQuery<{ modules: CourseModule[] }>(
+  return useApiQuery<CourseDetail>(
     ['live-classes-wizard', 'course-detail', id],
     `/courses/${id}`,
     {
@@ -41,7 +54,60 @@ export function useCourseModules(courseId: string) {
       staleTime: STALE_TIME.SEMI_STATIC,
     },
   );
-  return query.data?.modules ?? [];
+}
+
+export function useCourseModules(courseId: string) {
+  return useCourseDetail(courseId).data?.modules ?? [];
+}
+
+export interface ContentSuggestions {
+  objectives: string[];
+  agenda: string[];
+  topics: string[];
+}
+
+const uniq = (list: (string | null | undefined)[]): string[] => [
+  ...new Set(list.map((s) => s?.trim()).filter((s): s is string => !!s)),
+];
+
+/**
+ * Opções para escolher na etapa "Conteúdo", tiradas do curso (e do módulo /
+ * lição) escolhidos na etapa 1: objetivos de aprendizagem, lições com a
+ * duração como agenda, e módulos + lições como tópicos.
+ */
+export function useContentSuggestions(
+  courseId: string,
+  moduleId: string,
+  lessonId: string,
+): ContentSuggestions {
+  const course = useCourseDetail(courseId).data;
+  const allModules = course?.modules ?? [];
+  const modules = moduleId
+    ? allModules.filter((m) => String(m.id) === moduleId)
+    : allModules;
+  const lessons = modules.flatMap((m) =>
+    m.lessons.map((l) => ({ ...l, moduleTitle: m.title })),
+  );
+  const lesson = lessons.find((l) => String(l.id) === lessonId);
+
+  return {
+    objectives: uniq([
+      ...(course?.learningObjectives ?? []),
+      ...modules.flatMap((m) => m.learningObjectives ?? []),
+      ...(lesson?.learningObjectives ?? []),
+    ]),
+    agenda: uniq(
+      lessons.map((l) => {
+        const dur = l.durationMinutes ? ` (${l.durationMinutes} min)` : '';
+        const prefix = moduleId ? '' : `${l.moduleTitle} — `;
+        return `${prefix}${l.title}${dur}`;
+      }),
+    ),
+    topics: uniq([
+      ...modules.map((m) => m.title),
+      ...lessons.map((l) => l.title),
+    ]),
+  };
 }
 
 // docs/aulas-ao-vivo.md secção 7 — "Liga aos formadores no módulo

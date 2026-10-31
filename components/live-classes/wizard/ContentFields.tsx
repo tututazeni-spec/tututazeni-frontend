@@ -8,10 +8,9 @@
 import { useState } from 'react';
 import { FileText, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
-import { PeriodPills } from '@/components/ui/Pills';
-import { Textarea } from '@/components/ui/Textarea';
 import { useDocumentSearch } from './wizardData';
 import type { WizardMaterial } from './wizardTypes';
 
@@ -25,29 +24,43 @@ interface ItemListProps {
   items: string[];
   onChange: (items: string[]) => void;
   inputId: string;
+  /** Opções do seletor (setinha): as do curso primeiro, depois as predefinidas. */
+  options: string[];
   placeholder: string;
-  addLabel: string;
 }
 
-/** Lista de itens curtos: escreve-se um, Enter ou "Adicionar" acrescenta. */
+/**
+ * Lista de itens escolhidos. O seletor com a setinha mostra as opções para
+ * clicar; também se pode escrever um item próprio (Enter ou «Usar …»).
+ */
 export function ItemList({
   items,
   onChange,
   inputId,
+  options,
   placeholder,
-  addLabel,
 }: ItemListProps) {
-  const [draft, setDraft] = useState('');
+  const choices = [...new Set(options)]
+    .filter((o) => !items.includes(o))
+    .map((o) => ({ value: o, label: o }));
 
-  const add = () => {
-    const v = draft.trim();
-    if (!v) return;
+  const add = (value: string) => {
+    const v = value.trim();
+    if (!v || items.includes(v)) return;
     onChange([...items, v]);
-    setDraft('');
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" id={inputId}>
+      <Combobox
+        items={choices}
+        value=""
+        onValueChange={add}
+        placeholder={placeholder}
+        searchPlaceholder="Escolhe da lista ou escreve o teu…"
+        emptyText="Sem mais opções — escreve o teu"
+        allowCustom
+      />
       {items.length > 0 && (
         <ul className="space-y-1">
           {items.map((item, i) => (
@@ -68,91 +81,37 @@ export function ItemList({
           ))}
         </ul>
       )}
-      <div className="flex gap-2">
-        <Input
-          id={inputId}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              add();
-            }
-          }}
-          placeholder={placeholder}
-          className="w-full"
-        />
-        <Button
-          type="button"
-          intent="secondary"
-          size="compact"
-          onClick={add}
-          disabled={!draft.trim()}
-        >
-          <Plus size={14} strokeWidth={1.75} />
-          {addLabel}
-        </Button>
-      </div>
     </div>
   );
 }
 
-type Mode = 'list' | 'text';
-const MODE_OPTIONS = [
-  { value: 'list' as const, label: 'Lista' },
-  { value: 'text' as const, label: 'Manual' },
-];
-
-interface ListOrTextFieldProps {
+interface ListFieldProps {
   label: string;
   inputId: string;
   value: string; // um item por linha
   onChange: (value: string) => void;
   placeholder: string;
-  addLabel: string;
-  textRows?: number;
+  options: string[];
 }
 
-/** Lista de itens OU texto livre; ambos guardam-se como texto (um item por linha). */
+/** Campo de lista (seletor + escrita manual); guarda-se como texto, um item por linha. */
 export function ListOrTextField({
   label,
   inputId,
   value,
   onChange,
   placeholder,
-  addLabel,
-  textRows = 4,
-}: ListOrTextFieldProps) {
-  const [mode, setMode] = useState<Mode>('list');
-
+  options,
+}: ListFieldProps) {
   return (
     <FormField label={label} htmlFor={inputId}>
-      <div className="space-y-2">
-        <PeriodPills
-          value={mode}
-          onChange={setMode}
-          options={MODE_OPTIONS}
-          label={`Modo de edição: ${label}`}
-        />
-        {mode === 'list' ? (
-          <ItemList
-            items={splitLines(value)}
-            onChange={(items) => onChange(items.join('\n'))}
-            inputId={inputId}
-            placeholder={placeholder}
-            addLabel={addLabel}
-          />
-        ) : (
-          <Textarea
-            id={inputId}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            rows={textRows}
-            className="w-full resize-none"
-            placeholder="Escreve livremente (uma linha por item)."
-          />
-        )}
-      </div>
+      <ItemList
+        items={splitLines(value)}
+        onChange={(items) => onChange(items.join('\n'))}
+        inputId={inputId}
+        placeholder={placeholder}
+        options={options}
+      />
     </FormField>
   );
 }

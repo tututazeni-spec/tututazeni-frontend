@@ -94,6 +94,7 @@ export interface LiveClassesViewProps {
   onPostpone: (lc: LiveClass) => void;
   onCancel: (lc: LiveClass) => void;
   onDuplicate: (lc: LiveClass) => void;
+  onAddInstructor: (lc: LiveClass) => void;
 }
 
 export function LiveClassesView({
@@ -119,6 +120,7 @@ export function LiveClassesView({
   onPostpone,
   onCancel,
   onDuplicate,
+  onAddInstructor,
 }: LiveClassesViewProps) {
   const courseItems = [
     { value: ALL_COURSES, label: 'Todos os cursos' },
@@ -298,6 +300,7 @@ export function LiveClassesView({
                   onPostpone={onPostpone}
                   onCancel={onCancel}
                   onDuplicate={onDuplicate}
+                  onAddInstructor={onAddInstructor}
                 />
               ))}
             </div>

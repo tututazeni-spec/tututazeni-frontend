@@ -1,50 +1,44 @@
 // components/live-classes/ClassCard.tsx
-// Cartão de aula ao vivo no separador "Todas as Aulas" — mesmo desenho do
-// cartão de curso criado (CourseListCard): fundo em gradiente na cor da
-// paleta, título em maiúsculas, imagem recortada no canto superior direito,
-// métricas empilhadas e linhas com seta. Mantém a informação própria da aula
-// (estado, data/hora, duração, presenças, formador, modalidade) e as ações.
+// Cartão de aula ao vivo no separador "Aulas" — desenho de
+// public/images/cardaulasaovivo.jpeg: fundo azul-escuro com onda, imagem
+// grande de contorno curvo no canto superior direito, título em maiúsculas,
+// selos de estado, métricas com ícone, linhas com seta e botão laranja.
 
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import {
-  AlarmClock,
   Ban,
   BookOpen,
-  Calendar,
   CalendarClock,
+  CalendarDays,
+  ChevronRight,
   Clapperboard,
+  Clock,
   Copy,
+  Hourglass,
   MonitorPlay,
   MoreVertical,
   Play,
   Radio,
-  Timer,
   Trash2,
+  UserPlus,
   UserRound,
   Users,
   Video,
+  type LucideIcon,
 } from 'lucide-react';
-import { cn } from '@/lib/cn';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
-import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { CourseThumbnail } from '@/components/courses/CourseThumbnail';
-import {
-  InfoRow,
-  Metric,
-  titleLines,
-} from '@/components/courses/CourseListCard';
-import { fmtDate, getStatus } from './utils';
+import { titleLines } from '@/components/courses/CourseListCard';
+import { getStatus } from './utils';
 import { MODALITY_CFG, STATUS_CFG, TYPE_CFG } from './constants';
-import { formatTime as fmtTime } from '@/lib/format';
+import { formatDateNumeric, formatTime as fmtTime } from '@/lib/format';
 import type { LiveClass } from './types';
 
 export interface ClassCardProps {
@@ -57,6 +51,67 @@ export interface ClassCardProps {
   onPostpone: (lc: LiveClass) => void;
   onCancel: (lc: LiveClass) => void;
   onDuplicate: (lc: LiveClass) => void;
+  onAddInstructor: (lc: LiveClass) => void;
+}
+
+/** Tamanho do título: cabe a linha mais comprida em ~46% da largura do cartão. */
+function titleFontSize(lines: string[]): string {
+  const longest = Math.max(1, ...lines.map((l) => l.length));
+  return `min(28px, calc((46cqw - 20px) / ${(longest * 0.74).toFixed(2)}))`;
+}
+
+/** "sábado, 31/10/2026" */
+function weekdayDate(iso: string): string {
+  const weekday = new Date(iso).toLocaleDateString('pt-PT', {
+    weekday: 'long',
+  });
+  return `${weekday}, ${formatDateNumeric(iso)}`;
+}
+
+function Metric({
+  icon: Icon,
+  children,
+}: {
+  icon: LucideIcon;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-3.5 text-[15px] font-semibold text-white">
+      <Icon
+        size={24}
+        strokeWidth={1.5}
+        className="shrink-0 text-white"
+        aria-hidden
+      />
+      <span>{children}</span>
+    </div>
+  );
+}
+
+function Row({
+  icon: Icon,
+  children,
+}: {
+  icon: LucideIcon;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-3.5 py-1.5 text-[15px] text-white">
+      <Icon
+        size={22}
+        strokeWidth={1.5}
+        className="shrink-0 text-white"
+        aria-hidden
+      />
+      <span className="min-w-0 flex-1 truncate">{children}</span>
+      <ChevronRight
+        size={18}
+        strokeWidth={1.75}
+        className="shrink-0 text-white/80"
+        aria-hidden
+      />
+    </div>
+  );
 }
 
 export function ClassCard({
@@ -69,11 +124,18 @@ export function ClassCard({
   onPostpone,
   onCancel,
   onDuplicate,
+  onAddInstructor,
 }: ClassCardProps) {
   const status = getStatus(lc.scheduledAt, lc.duration);
   const isLive = status === 'live';
-  const palette = PALETTE[Math.abs(lc.id) % PALETTE.length];
+  const lines = titleLines(lc.topic);
   const typeLabel = TYPE_CFG[lc.type]?.label ?? lc.type;
+  const statusLabel =
+    status === 'upcoming'
+      ? 'Agendada'
+      : status === 'past'
+        ? 'Concluída'
+        : (STATUS_CFG[lc.status]?.label ?? 'Em curso');
 
   return (
     <div
@@ -87,22 +149,26 @@ export function ClassCard({
           onOpen(lc.id);
         }
       }}
-      className={cn(
-        'relative flex h-full cursor-pointer flex-col overflow-hidden rounded-panel border text-white shadow-[0_4px_14px_rgba(21,47,89,0.25)] transition-all duration-200 ease-out hover:scale-[1.03] hover:shadow-[0_10px_24px_rgba(21,47,89,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 motion-reduce:hover:scale-100',
-        isLive ? 'border-danger ring-2 ring-danger/60' : 'border-white/10',
-      )}
+      className="relative flex h-full cursor-pointer flex-col overflow-hidden rounded-[28px] border border-white/10 text-white shadow-[0_6px_18px_rgba(10,30,90,0.35)] transition-shadow duration-200 ease-out hover:shadow-[0_12px_28px_rgba(10,30,90,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       style={{
-        background: `linear-gradient(165deg, ${palette[1]} 0%, ${palette[2]} 60%, ${palette[2]} 100%)`,
+        background:
+          'linear-gradient(160deg, #0B3FA8 0%, #0A2F86 45%, #071E5C 100%)',
+        containerType: 'inline-size',
       }}
     >
-      {/* Zona de topo: texto à esquerda, imagem recortada à direita */}
-      <div className="relative min-h-[240px] shrink-0">
-        <div
-          aria-hidden
-          className="absolute -right-6 -top-4 h-[231px] w-[62%] rotate-6 rounded-[48px] opacity-80"
-          style={{ background: palette[0] }}
-        />
-        <div className="absolute right-0 top-0 h-[220px] w-[57%] overflow-hidden rounded-bl-[56px] rounded-tl-[48px] bg-white/10">
+      {/* Onda decorativa atrás da imagem */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-16 top-0 h-[300px] w-[85%] rounded-bl-[200px] opacity-60"
+        style={{
+          background:
+            'linear-gradient(200deg, rgba(60,130,255,0.55) 0%, rgba(30,80,200,0) 80%)',
+        }}
+      />
+
+      {/* Topo: texto à esquerda, imagem de contorno curvo à direita */}
+      <div className="relative min-h-[300px] shrink-0">
+        <div className="absolute right-0 top-0 h-[250px] w-[50%] overflow-hidden rounded-bl-[130px] rounded-tl-[130px] rounded-tr-[28px] bg-white/10">
           <CourseThumbnail
             src={lc.thumbnailUrl}
             alt={`Imagem da aula ${lc.topic}`}
@@ -110,9 +176,11 @@ export function ClassCard({
             fallbackClassName="text-white/60"
           />
         </div>
+
         {canManage && (
           <div
-            className="absolute right-3 top-3 z-20 rounded-full bg-brand/70"
+            role="presentation"
+            className="absolute right-3 top-3 z-20 rounded-full bg-black/40"
             onClick={(ev) => ev.stopPropagation()}
             onKeyDown={(ev) => ev.stopPropagation()}
           >
@@ -121,15 +189,23 @@ export function ClassCard({
                 <button
                   type="button"
                   aria-label="Mais ações"
-                  className="rounded-control p-1.5 text-on-brand-muted hover:bg-white/10 hover:text-white"
+                  className="rounded-full p-2 text-white hover:bg-white/15"
                 >
-                  <MoreVertical size={16} strokeWidth={1.75} />
+                  <MoreVertical size={18} strokeWidth={2} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onSelect={() => onStart(lc)}>
                   <Play size={13} strokeWidth={1.75} className="mr-2 inline" />
                   Iniciar aula
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onAddInstructor(lc)}>
+                  <UserPlus
+                    size={13}
+                    strokeWidth={1.75}
+                    className="mr-2 inline"
+                  />
+                  Adicionar formador
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => onPostpone(lc)}>
                   <CalendarClock
@@ -159,102 +235,100 @@ export function ClassCard({
             </DropdownMenu>
           </div>
         )}
-        <div className="relative z-10 w-[56%] px-5 pt-5">
+
+        <div className="relative z-10 w-[52%] pl-5 pt-5">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
-              <Video size={20} strokeWidth={1.75} />
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#1E5BD8] shadow-inner">
+              <Video size={22} strokeWidth={1.75} />
             </span>
-            <span className="line-clamp-2 text-sm font-medium leading-tight">
+            <span className="line-clamp-2 text-lg font-semibold leading-tight">
               {typeLabel}
             </span>
           </div>
-          <div className="pt-5">
-            <h3 className="font-body text-2xl font-extrabold uppercase leading-tight tracking-wide">
-              {titleLines(lc.topic).map((line, i) => (
-                <Fragment key={i}>
-                  {i > 0 && ' '}
-                  <span className="block whitespace-nowrap">{line}</span>
-                </Fragment>
-              ))}
-            </h3>
-            {lc.course && (
-              <p className="line-clamp-2 pt-2 text-sm text-on-brand-muted">
-                {lc.course.title}
-              </p>
-            )}
-          </div>
+          <h3
+            className="pt-5 font-body font-extrabold uppercase leading-[1.1] tracking-wide"
+            // A letra encolhe para que a linha mais comprida caiba sempre ao
+            // lado da imagem (≈ 46% da largura do cartão), sem passar por baixo.
+            style={{ fontSize: titleFontSize(lines) }}
+          >
+            {lines.map((line, i) => (
+              <Fragment key={i}>
+                {i > 0 && ' '}
+                <span className="block whitespace-nowrap">{line}</span>
+              </Fragment>
+            ))}
+          </h3>
         </div>
+
+        {lc.course && (
+          <p className="relative z-10 line-clamp-2 px-5 pt-3 text-lg leading-snug text-white/90">
+            {lc.course.title}
+          </p>
+        )}
       </div>
 
-      <div className="flex min-h-[28px] flex-wrap items-center gap-2 px-5 pt-3">
-        {isLive ? (
-          <Badge intent="danger">Ao vivo</Badge>
-        ) : (
-          <Badge intent={status === 'upcoming' ? 'warning' : 'neutral'}>
-            {status === 'upcoming' ? 'Agendada' : 'Concluída'}
-          </Badge>
+      {/* Selos de estado */}
+      <div className="flex flex-wrap items-center gap-2.5 px-5">
+        {isLive && (
+          <span className="inline-flex items-center gap-2 rounded-full bg-[#FFE3C7] px-3.5 py-1.5 text-sm font-bold text-[#C2410C]">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#F97316]" />
+            Ao vivo
+          </span>
         )}
-        <Badge intent="info" dot={false}>
-          {STATUS_CFG[lc.status]?.label ?? lc.status}
-        </Badge>
+        <span className="inline-flex items-center gap-2 rounded-full bg-[#DCE9FF] px-3.5 py-1.5 text-sm font-bold text-[#0B3FA8]">
+          <CalendarDays size={16} strokeWidth={1.75} />
+          {statusLabel}
+        </span>
         {lc.recordingUrl && (
-          <Badge intent="success" dot={false}>
-            <Clapperboard size={11} strokeWidth={1.75} /> Gravação
-          </Badge>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-sm font-semibold">
+            <Clapperboard size={14} strokeWidth={1.75} /> Gravação
+          </span>
         )}
       </div>
 
-      <div className="space-y-3 px-5 pt-4">
-        <Metric icon={Calendar}>{fmtDate(lc.scheduledAt)}</Metric>
-        <Metric icon={AlarmClock}>{fmtTime(lc.scheduledAt)}</Metric>
-        <Metric icon={Timer}>{lc.duration} min</Metric>
+      {/* Métricas */}
+      <div className="space-y-3.5 px-5 pt-5">
+        <Metric icon={CalendarDays}>{weekdayDate(lc.scheduledAt)}</Metric>
+        <Metric icon={Clock}>{fmtTime(lc.scheduledAt)}</Metric>
+        <Metric icon={Hourglass}>{lc.duration} min</Metric>
         <Metric icon={Users}>Presenças: {lc._count?.attendances ?? 0}</Metric>
       </div>
 
-      <div className="mx-5 mt-4 flex-1 divide-y divide-white/10 border-t border-white/15">
-        <InfoRow icon={UserRound}>
-          <span className="line-clamp-1">
-            {lc.instructor?.name ?? 'Sem formador'}
-          </span>
-        </InfoRow>
-        <InfoRow icon={BookOpen}>
-          <span className="line-clamp-1">{lc.course?.title ?? '—'}</span>
-        </InfoRow>
-        <InfoRow icon={MonitorPlay}>
-          <span className="line-clamp-1">
-            {MODALITY_CFG[lc.modality]?.label ?? lc.modality}
-          </span>
-        </InfoRow>
+      {/* Linhas com seta */}
+      <div className="mx-5 mt-5 flex-1 border-t border-white/20 pt-2.5">
+        <Row icon={UserRound}>{lc.instructor?.name ?? 'Sem formador'}</Row>
+        <Row icon={BookOpen}>{lc.course?.title ?? '—'}</Row>
+        <Row icon={MonitorPlay}>
+          {MODALITY_CFG[lc.modality]?.label ?? lc.modality}
+        </Row>
       </div>
 
+      {/* Ações */}
       <div
-        className="m-4 mt-2 flex gap-2"
+        role="presentation"
+        className="flex gap-2 p-4 pt-3"
         onClick={(ev) => ev.stopPropagation()}
         onKeyDown={(ev) => ev.stopPropagation()}
       >
-        <Button
+        <button
           type="button"
-          intent={isLive ? 'danger' : 'onDark'}
-          className="flex-[2] rounded-pill"
           onClick={() => onOpen(lc.id)}
+          className="inline-flex flex-[2] items-center justify-center gap-2 rounded-full px-5 py-3.5 text-base font-bold text-white shadow-[0_4px_12px_rgba(249,115,22,0.45)] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          style={{
+            background: 'linear-gradient(90deg, #F97316 0%, #EA580C 100%)',
+          }}
         >
-          {isLive ? (
-            <>
-              <Radio size={14} strokeWidth={1.75} /> Entrar agora
-            </>
-          ) : (
-            'Abrir sala'
-          )}
-        </Button>
+          <Radio size={18} strokeWidth={2} />
+          {isLive ? 'Entrar agora' : 'Abrir sala'}
+        </button>
         {lc.recordingUrl && (
-          <Button
+          <button
             type="button"
-            intent="onDarkGhost"
-            className="flex-1"
             onClick={() => onViewRecording(lc)}
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-white/15 px-4 py-3.5 text-sm font-semibold text-white hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            <Clapperboard size={14} strokeWidth={1.75} /> Ver
-          </Button>
+            <Clapperboard size={16} strokeWidth={1.75} /> Ver
+          </button>
         )}
       </div>
     </div>
