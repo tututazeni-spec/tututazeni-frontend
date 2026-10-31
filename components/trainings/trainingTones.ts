@@ -26,4 +26,5 @@ export const TONE_COLOR: Record<NavyTone, string> = {
   warning: '#F28C28',
   info: '#1267B8',
   neutral: '#64748B',
+  light: '#2F7BEA',
 };
