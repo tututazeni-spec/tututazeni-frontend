@@ -12,6 +12,8 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { AlertCard } from '@/components/ui/AlertCard';
 import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/lib/cn';
+import { actionPillClass } from '@/components/ui/Pills';
 import { NativeSelect } from '@/components/ui/NativeSelect';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -220,7 +222,7 @@ export function PerformanceHistoryPanel({
                     <button
                       type="button"
                       onClick={() => onOpenDetail(e.evaluationId)}
-                      className="rounded-pill border-[1.5px] border-border-strong bg-surface px-3 py-1 text-xs font-semibold text-ink-muted hover:bg-surface-sunken"
+                      className={cn(actionPillClass, 'px-3 py-1 text-xs')}
                     >
                       Ver detalhe
                     </button>
