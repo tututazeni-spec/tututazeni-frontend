@@ -7,19 +7,27 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   AlertCircle,
+  CalendarDays,
   CheckCircle2,
+  GraduationCap,
+  type LucideIcon,
   Lightbulb,
   MapPin,
   Sparkles,
   Star,
+  Tag,
+  Target,
+  TrendingUp,
+  User,
   Wand2,
 } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
+import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
 import { AlertCard } from '@/components/ui/AlertCard';
@@ -87,6 +95,38 @@ interface RecommendationRowProps {
   onTrack: (id: number, status: RecommendationStatus) => void;
 }
 
+interface FactProps {
+  icon: LucideIcon;
+  label: string;
+  children: ReactNode;
+  className?: string;
+}
+
+/** Campo da recomendação: ícone, rótulo pequeno em maiúsculas e valor. */
+function Fact({ icon: Icon, label, children, className }: FactProps) {
+  return (
+    <div
+      className={cn(
+        'flex items-start gap-2.5 rounded-control bg-surface-sunken px-3 py-2',
+        className,
+      )}
+    >
+      <Icon
+        size={15}
+        strokeWidth={1.75}
+        aria-hidden
+        className="mt-0.5 shrink-0 text-brand-muted"
+      />
+      <div className="min-w-0">
+        <dt className="text-micro font-semibold uppercase tracking-wide text-ink-faint">
+          {label}
+        </dt>
+        <dd className="text-xs font-medium text-ink">{children}</dd>
+      </div>
+    </div>
+  );
+}
+
 function RecommendationRow({
   rec,
   canTrack,
@@ -96,61 +136,52 @@ function RecommendationRow({
   const trackable = canTrack && rec.source === 'RECOMENDACAO';
   return (
     <li className="space-y-3 rounded-card border border-border bg-surface p-4">
-      <p className="text-sm font-bold text-ink">{rec.action}</p>
-      <div className="grid gap-4 sm:grid-cols-[1fr_auto_1fr]">
-        <dl className="space-y-1 text-xs text-ink-muted">
-          <div>
-            <dt className="inline font-semibold text-ink">Objetivo: </dt>
-            <dd className="inline">{rec.objective}</dd>
-          </div>
-          <div>
-            <dt className="inline font-semibold text-ink">Tipo: </dt>
-            <dd className="inline">
-              {ACTION_TYPE_LABELS[rec.actionType as RecommendationActionType] ??
-                rec.actionType}
-            </dd>
-          </div>
-          {rec.dueDate && (
-            <div>
-              <dt className="inline font-semibold text-ink">Prazo: </dt>
-              <dd className="inline">{formatDate(rec.dueDate)}</dd>
-            </div>
-          )}
-        </dl>
-        <div aria-hidden className="hidden w-px bg-border sm:block" />
-        <div className="space-y-1 text-xs text-ink-muted">
-          <div className="flex flex-wrap gap-1.5">
-            <Badge intent={STATUS_INTENT[rec.status]}>
-              {RECOMMENDATION_STATUS_LABELS[rec.status]}
-            </Badge>
-            {rec.overdue && <Badge intent="danger">Em atraso</Badge>}
-            <Badge intent="neutral">
-              Prioridade {rec.priority} —{' '}
-              {RECOMMENDATION_PRIORITY_LABELS[rec.priority]}
-            </Badge>
-          </div>
-          <p>
-            <span className="font-semibold text-ink">Indicador: </span>
-            {rec.successIndicator}
-          </p>
-          {rec.responsible && (
-            <p>
-              <span className="font-semibold text-ink">Responsável: </span>
-              {rec.responsible.fullName}
-            </p>
-          )}
-          {rec.training && (
-            <p>
-              <span className="font-semibold text-ink">Formação: </span>
-              {rec.training.title} ·{' '}
-              {rec.trainingParticipation
-                ? (TRAINING_STATUS_LABELS[rec.trainingParticipation.status] ??
-                  rec.trainingParticipation.status)
-                : 'Sem inscrição'}
-            </p>
-          )}
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <p className="min-w-0 flex-1 text-sm font-bold text-ink">
+          {rec.action}
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          <Badge intent={STATUS_INTENT[rec.status]}>
+            {RECOMMENDATION_STATUS_LABELS[rec.status]}
+          </Badge>
+          {rec.overdue && <Badge intent="danger">Em atraso</Badge>}
+          <Badge intent={rec.priority >= 4 ? 'warning' : 'neutral'}>
+            Prioridade {rec.priority} —{' '}
+            {RECOMMENDATION_PRIORITY_LABELS[rec.priority]}
+          </Badge>
         </div>
       </div>
+      <dl className="grid gap-2 sm:grid-cols-3">
+        <Fact icon={Target} label="Objetivo" className="sm:col-span-3">
+          {rec.objective}
+        </Fact>
+        <Fact icon={Tag} label="Tipo">
+          {ACTION_TYPE_LABELS[rec.actionType as RecommendationActionType] ??
+            rec.actionType}
+        </Fact>
+        {rec.dueDate && (
+          <Fact icon={CalendarDays} label="Prazo">
+            {formatDate(rec.dueDate)}
+          </Fact>
+        )}
+        {rec.responsible && (
+          <Fact icon={User} label="Responsável">
+            {rec.responsible.fullName}
+          </Fact>
+        )}
+        <Fact icon={TrendingUp} label="Indicador" className="sm:col-span-3">
+          {rec.successIndicator}
+        </Fact>
+        {rec.training && (
+          <Fact icon={GraduationCap} label="Formação" className="sm:col-span-3">
+            {rec.training.title} ·{' '}
+            {rec.trainingParticipation
+              ? (TRAINING_STATUS_LABELS[rec.trainingParticipation.status] ??
+                rec.trainingParticipation.status)
+              : 'Sem inscrição'}
+          </Fact>
+        )}
+      </dl>
       <div className="flex flex-wrap items-center gap-3">
         {rec.source === 'PDI' ? (
           <p className="text-xs text-ink-faint">
