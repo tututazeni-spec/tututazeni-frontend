@@ -112,6 +112,14 @@ const RelatoriosView = dynamic(
   },
 );
 
+const MyCohortsView = dynamic(
+  () =>
+    import('@/components/courses/MyCohortsView').then((m) => m.MyCohortsView),
+  {
+    loading: () => <Skeleton />,
+  },
+);
+
 const TurmasView = dynamic(
   () => import('@/components/courses/TurmasView').then((m) => m.TurmasView),
   {
@@ -143,6 +151,7 @@ export default function CoursesPage() {
   // como não-privilegiado — os separadores restritos aparecem assim que
   // /auth/me resolve.
   const isAdmin = useHasRole(ADMIN_ROLES);
+  const canManageCohorts = useHasRole(['ADMIN', 'RH', 'INSTRUCTOR']);
   const visibleNav = NAV.filter(
     (n) => !n.roles || (!!role && n.roles.includes(role)),
   );
@@ -271,7 +280,8 @@ export default function CoursesPage() {
       {nav.view === 'modulos' && (
         <ModulosView initialCourseId={modulosCourseId} />
       )}
-      {nav.view === 'turmas' && <TurmasView />}
+      {nav.view === 'turmas' &&
+        (canManageCohorts ? <TurmasView /> : <MyCohortsView />)}
       {nav.view === 'categorias' && (
         <CategoriasView onSelectCourse={handleSelect} />
       )}

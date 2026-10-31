@@ -10,6 +10,7 @@ import { useState } from 'react';
 import {
   CalendarDays,
   Clock,
+  Download,
   Plus,
   Ticket,
   Trash2,
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
+import { downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -28,7 +30,14 @@ import { useCourseOptions } from '@/components/enrollments/enrollData';
 import { CohortDetailModal } from './CohortDetailModal';
 import { CreateCohortModal } from './CreateCohortModal';
 import { Skeleton } from './shared';
-import { NAVY_ACTION, NavyBadge, NavyCard, type NavyTone } from './NavyCard';
+import {
+  NAVY_ACTION,
+  NavyBadge,
+  NavyCard,
+  PHOTO_ACCENT_DEFAULT,
+  type NavyTone,
+  type PhotoAccent,
+} from './NavyCard';
 import { PeriodPills } from '@/components/ui/Pills';
 import { cn } from '@/lib/cn';
 import type { Cohort, CohortDetail, CohortStatus } from './types';
@@ -43,6 +52,48 @@ const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> =
     CANCELLED: { label: 'Cancelada', cls: 'bg-danger-subtle text-danger-ink' },
   };
 
+/** Foto do cartão de turma aberta (recorte do desenho em public/images). */
+const OPEN_COHORT_PHOTO = '/images/turma-aberta-foto.jpg';
+
+/** Botões redondos escuros do cartão de turma aberta. */
+const OPEN_ROUND_BTN =
+  'h-10 w-10 rounded-full bg-[#0F1F3D]/85 p-0 text-white hover:bg-[#0F1F3D]';
+
+/**
+ * Cores do cartão de turma aberta: a primeira turma de um curso fica no azul
+ * padrão; cada turma seguinte do mesmo curso muda para outra cor.
+ */
+const OTHER_ACCENTS: PhotoAccent[] = [
+  { light: '#5B2BC0', base: '#34156F', deep: '#220D4C', circle: '#7C4DDB' },
+  { light: '#0E8C86', base: '#0B5A56', deep: '#063A37', circle: '#14B3AB' },
+  { light: '#C0264D', base: '#7A1432', deep: '#520C21', circle: '#E0476E' },
+  { light: '#12915A', base: '#0B5D3A', deep: '#073D26', circle: '#1FB874' },
+  { light: '#C2680F', base: '#7A400A', deep: '#522A06', circle: '#E08A2E' },
+  { light: '#B0289E', base: '#6E1763', deep: '#490F42', circle: '#D44BC1' },
+];
+
+/** Posição 0 → azul padrão; 1, 2, … → as outras cores, por ordem (e a repetir). */
+export function accentForRank(rank: number): PhotoAccent {
+  if (rank <= 0) return PHOTO_ACCENT_DEFAULT;
+  return OTHER_ACCENTS[(rank - 1) % OTHER_ACCENTS.length];
+}
+
+/** rank de cada turma dentro do seu curso (mais antiga = 0), por id crescente. */
+function cohortRanks(
+  list: Array<{ id: number; courseId: number }>,
+): Map<number, number> {
+  const seen = new Map<number, number>();
+  const ranks = new Map<number, number>();
+  [...list]
+    .sort((a, b) => a.id - b.id)
+    .forEach((c) => {
+      const n = seen.get(c.courseId) ?? 0;
+      ranks.set(c.id, n);
+      seen.set(c.courseId, n + 1);
+    });
+  return ranks;
+}
+
 const COHORT_TONE: Record<CohortStatus, NavyTone> = {
   DRAFT: 'neutral',
   OPEN: 'info',
@@ -53,21 +104,41 @@ const COHORT_TONE: Record<CohortStatus, NavyTone> = {
 
 interface CohortCardProps {
   c: Cohort;
-  onOpen: () => void;
-  onDelete: () => void;
-  onClose: () => void;
+  /** Posição da turma entre as do mesmo curso (0 = primeira → azul padrão). */
+  rank?: number;
+  /** Nome do curso da turma — numa linha; o nome da turma fica na linha por baixo. */
+  courseTitle?: string;
+  onOpen?: () => void;
+  onDelete?: () => void;
+  onClose?: () => void;
+  /** Só leitura (colaborador): sem participantes, eliminar nem encerrar. */
+  readOnly?: boolean;
 }
 
-function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
-  const place = [c.location, c.room].filter(Boolean).join(' · ');
+export function CohortCard({
+  c,
+  rank = 0,
+  courseTitle,
+  onOpen,
+  onDelete,
+  onClose,
+  readOnly,
+}: CohortCardProps) {
+  const place = [c.location, c.room].filter(Boolean).join(' • ');
   const statusCfg = COHORT_STATUS_MAP[c.status];
+  // Turmas abertas e activas: desenho "turmas abertas" (foto + azul profundo).
+  const open = c.status === 'OPEN' || c.status === 'ACTIVE';
   return (
     <NavyCard
+      variant={open ? 'photo' : 'default'}
+      accent={accentForRank(rank)}
+      image={open ? OPEN_COHORT_PHOTO : undefined}
       onClick={onOpen}
       seed={c.id}
       kicker={c.instructor?.fullName ?? 'Sem formador'}
       kickerIcon={Users2}
-      title={c.name}
+      title={courseTitle ?? c.name}
+      titleBelow={courseTitle ? c.name : undefined}
       subtitle={place || undefined}
       infos={[
         {
@@ -88,42 +159,53 @@ function CohortCard({ c, onOpen, onDelete, onClose }: CohortCardProps) {
         },
       ]}
       badge={
-        <NavyBadge tone={COHORT_TONE[c.status] ?? 'neutral'}>
+        <NavyBadge
+          tone={open ? 'light' : (COHORT_TONE[c.status] ?? 'neutral')}
+          large={open}
+        >
           {statusCfg?.label ?? c.status}
         </NavyBadge>
       }
       actions={
-        <>
-          <Button
-            type="button"
-            intent="onDarkGhost"
-            size="sm"
-            aria-label="Ver participantes"
-            title="Ver participantes"
-            onClick={onOpen}
-          >
-            <Users2 size={15} strokeWidth={1.75} />
-          </Button>
-          <Button
-            type="button"
-            intent="onDarkGhost"
-            size="sm"
-            aria-label={`Eliminar turma ${c.name}`}
-            title="Eliminar turma"
-            onClick={onDelete}
-          >
-            <Trash2 size={15} strokeWidth={1.75} />
-          </Button>
-          {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
-            <button
+        readOnly ? undefined : (
+          <>
+            <Button
               type="button"
-              className={`${NAVY_ACTION} border border-white/25`}
-              onClick={onClose}
+              intent="onDarkGhost"
+              size="sm"
+              aria-label="Ver participantes"
+              title="Ver participantes"
+              className={open ? OPEN_ROUND_BTN : undefined}
+              onClick={onOpen}
             >
-              Encerrar
-            </button>
-          )}
-        </>
+              <Users2 size={15} strokeWidth={1.75} />
+            </Button>
+            <Button
+              type="button"
+              intent="onDarkGhost"
+              size="sm"
+              aria-label={`Eliminar turma ${c.name}`}
+              title="Eliminar turma"
+              className={open ? OPEN_ROUND_BTN : undefined}
+              onClick={onDelete}
+            >
+              <Trash2 size={15} strokeWidth={1.75} />
+            </Button>
+            {c.status !== 'CLOSED' && c.status !== 'CANCELLED' && (
+              <button
+                type="button"
+                className={
+                  open
+                    ? 'inline-flex h-10 items-center justify-center rounded-full bg-[#0F1F3D]/85 px-5 text-sm font-bold text-white hover:bg-[#0F1F3D]'
+                    : `${NAVY_ACTION} border border-white/25`
+                }
+                onClick={onClose}
+              >
+                Encerrar
+              </button>
+            )}
+          </>
+        )
       }
     />
   );
@@ -135,8 +217,11 @@ export function TurmasView() {
   const { options: courseOptions } = useCourseOptions();
   const [courseId, setCourseId] = useState<string | undefined>(undefined);
   const [showCreate, setShowCreate] = useState(false);
+  const selectedCourseTitle = courseOptions.find(
+    (o) => String(o.value) === courseId,
+  )?.label;
   const [detailId, setDetailId] = useState<number | null>(null);
-  const [panel, setPanel] = useState<'OPEN' | 'ACTIVE' | null>(null);
+  const [panel, setPanel] = useState<'OPEN' | 'ACTIVE' | 'CLOSED' | null>(null);
   const showOpen = panel !== null;
 
   type CohortWithCourse = Cohort & { course: CohortDetail['course'] };
@@ -150,11 +235,21 @@ export function TurmasView() {
     '/courses/cohorts/open?status=ACTIVE',
     { staleTime: STALE_TIME.DYNAMIC },
   );
-  const panelQuery = panel === 'ACTIVE' ? activeQuery : openQuery;
+  const closedQuery = useApiQuery<CohortWithCourse[]>(
+    queryKeys.courses.openCohorts('CLOSED'),
+    '/courses/cohorts/open?status=CLOSED',
+    { staleTime: STALE_TIME.DYNAMIC },
+  );
+  const panelQuery =
+    panel === 'ACTIVE'
+      ? activeQuery
+      : panel === 'CLOSED'
+        ? closedQuery
+        : openQuery;
   const openCohorts = panelQuery.data ?? [];
   const openLoading = panelQuery.isLoading;
   const panelCards: Array<{
-    key: 'OPEN' | 'ACTIVE';
+    key: 'OPEN' | 'ACTIVE' | 'CLOSED';
     label: string;
     count: number;
   }> = [
@@ -168,13 +263,46 @@ export function TurmasView() {
       label: 'Turmas Activas',
       count: activeQuery.data?.length ?? 0,
     },
+    {
+      key: 'CLOSED',
+      label: 'Turmas Encerradas',
+      count: closedQuery.data?.length ?? 0,
+    },
   ];
+
+  const [exporting, setExporting] = useState(false);
+  async function exportPanel(format: 'xlsx' | 'pdf') {
+    if (!panel) return;
+    setExporting(true);
+    try {
+      await downloadFromApi('/courses/cohorts/export', {
+        params: { status: panel, format },
+        fallbackName: `turmas.${format}`,
+      });
+    } catch (e) {
+      toast({
+        title: e instanceof Error ? e.message : 'Não foi possível exportar.',
+        intent: 'danger',
+      });
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  // Turmas do mesmo curso ficam com cores diferentes (a primeira no azul padrão).
+  const panelRanks = cohortRanks([
+    ...(openQuery.data ?? []),
+    ...(activeQuery.data ?? []),
+    ...(closedQuery.data ?? []),
+  ]);
 
   const { data = [], isLoading } = useApiQuery<Cohort[]>(
     queryKeys.courses.cohorts(Number(courseId)),
     `/courses/${courseId}/cohorts`,
     { staleTime: STALE_TIME.DYNAMIC, enabled: !!courseId },
   );
+
+  const courseRanks = cohortRanks(data);
 
   const close = useApiMutation(
     (id: number) => apiClient.patch(`/courses/cohorts/${id}/close`),
@@ -183,6 +311,7 @@ export function TurmasView() {
         queryKeys.courses.cohorts(Number(courseId)),
         queryKeys.courses.openCohorts('OPEN'),
         queryKeys.courses.openCohorts('ACTIVE'),
+        queryKeys.courses.openCohorts('CLOSED'),
       ],
       onSuccess: () => toast({ title: 'Turma encerrada', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
@@ -196,6 +325,7 @@ export function TurmasView() {
         queryKeys.courses.cohorts(Number(courseId)),
         queryKeys.courses.openCohorts('OPEN'),
         queryKeys.courses.openCohorts('ACTIVE'),
+        queryKeys.courses.openCohorts('CLOSED'),
       ],
       onSuccess: () => toast({ title: 'Turma eliminada', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
@@ -243,7 +373,7 @@ export function TurmasView() {
             value={panel ?? ''}
             onChange={(v) => setPanel((p) => (p === v ? null : v || null))}
             options={panelCards.map(({ key, label, count }) => ({
-              value: key as 'OPEN' | 'ACTIVE' | '',
+              value: key as 'OPEN' | 'ACTIVE' | 'CLOSED' | '',
               label: `${label} (${count})`,
             }))}
           />
@@ -260,16 +390,46 @@ export function TurmasView() {
 
       {showOpen && (
         <div>
+          <div
+            className="mb-4 flex flex-wrap gap-2"
+            role="group"
+            aria-label="Exportar relatório"
+          >
+            <Button
+              intent="secondary"
+              size="sm"
+              disabled={exporting || openCohorts.length === 0}
+              onClick={() => void exportPanel('xlsx')}
+            >
+              <Download size={14} strokeWidth={1.75} />
+              Exportar Excel
+            </Button>
+            <Button
+              intent="secondary"
+              size="sm"
+              disabled={exporting || openCohorts.length === 0}
+              onClick={() => void exportPanel('pdf')}
+            >
+              <Download size={14} strokeWidth={1.75} />
+              Exportar PDF
+            </Button>
+          </div>
           {openLoading && <Skeleton rows={3} />}
           {!openLoading && openCohorts.length === 0 && (
             <EmptyState
               title={
-                panel === 'ACTIVE' ? 'Sem turmas activas' : 'Sem turmas abertas'
+                panel === 'ACTIVE'
+                  ? 'Sem turmas activas'
+                  : panel === 'CLOSED'
+                    ? 'Sem turmas encerradas'
+                    : 'Sem turmas abertas'
               }
               description={
                 panel === 'ACTIVE'
                   ? 'Não há turmas a decorrer neste momento.'
-                  : 'Não há turmas com inscrições abertas neste momento.'
+                  : panel === 'CLOSED'
+                    ? 'Ainda não há turmas encerradas.'
+                    : 'Não há turmas com inscrições abertas neste momento.'
               }
             />
           )}
@@ -278,7 +438,9 @@ export function TurmasView() {
               {openCohorts.map((c) => (
                 <CohortCard
                   key={c.id}
-                  c={{ ...c, name: `${c.name} · ${c.course.title}` }}
+                  c={c}
+                  rank={panelRanks.get(c.id)}
+                  courseTitle={c.course.title}
                   onOpen={() => setDetailId(c.id)}
                   onDelete={() => onDelete(c)}
                   onClose={() => onClose(c)}
@@ -312,6 +474,8 @@ export function TurmasView() {
               <CohortCard
                 key={c.id}
                 c={c}
+                rank={courseRanks.get(c.id)}
+                courseTitle={selectedCourseTitle}
                 onOpen={() => setDetailId(c.id)}
                 onDelete={() => onDelete(c)}
                 onClose={() => onClose(c)}

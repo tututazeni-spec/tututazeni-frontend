@@ -1467,12 +1467,22 @@ export const queryKeys = {
       [...queryKeys.courses.all, 'quiz-attempt', quizId] as const,
     cohorts: (courseId: number) =>
       [...queryKeys.courses.all, 'cohorts', courseId] as const,
+    myCohorts: () => [...queryKeys.courses.all, 'cohorts', 'mine'] as const,
     openCohorts: (status: string) =>
       [...queryKeys.courses.all, 'cohorts', 'open', status] as const,
     cohortDetail: (cohortId: number) =>
       [...queryKeys.courses.all, 'cohort-detail', cohortId] as const,
-    cohortAttendance: (cohortId: number, date: string) =>
-      [...queryKeys.courses.all, 'cohort-attendance', cohortId, date] as const,
+    cohortSessions: (cohortId: number) =>
+      [...queryKeys.courses.all, 'cohort-sessions', cohortId] as const,
+    cohortSessionAttendance: (cohortId: number, sessionId: number) =>
+      [
+        ...queryKeys.courses.all,
+        'cohort-session-attendance',
+        cohortId,
+        sessionId,
+      ] as const,
+    cohortAttendanceReport: (cohortId: number) =>
+      [...queryKeys.courses.all, 'cohort-attendance-report', cohortId] as const,
     categoriesManaged: () =>
       [...queryKeys.courses.all, 'categories-managed'] as const,
     reports: () => [...queryKeys.courses.all, 'reports'] as const,

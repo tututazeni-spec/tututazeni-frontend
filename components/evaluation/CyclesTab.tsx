@@ -12,6 +12,8 @@ import {
   Building2,
   Calendar,
   MoreHorizontal,
+  Pause,
+  Play,
   ClipboardCheck,
   ClipboardList,
   Plus,
@@ -318,17 +320,35 @@ export function CyclesTab() {
                       Activar
                     </Button>
                   )}
+                  {canManageCycle &&
+                    (cycle.status === 'PAUSED' ||
+                      cycle.status === 'COMPLETED') && (
+                      <Button
+                        type="button"
+                        intent="onDark"
+                        size="icon"
+                        aria-label="Reabrir"
+                        title="Reabrir"
+                        onClick={() =>
+                          runCycleAction(cycle.id, 'reopen', 'PATCH')
+                        }
+                      >
+                        <Play size={16} strokeWidth={1.75} />
+                      </Button>
+                    )}
                   {canManageCycle && cycle.status === 'ACTIVE' && (
                     <>
                       <Button
                         type="button"
                         intent="onDark"
-                        size="sm"
+                        size="icon"
+                        aria-label="Pausar"
+                        title="Pausar"
                         onClick={() =>
                           runCycleAction(cycle.id, 'pause', 'PATCH')
                         }
                       >
-                        Pausar
+                        <Pause size={16} strokeWidth={1.75} />
                       </Button>
                       <Button
                         type="button"
@@ -364,20 +384,6 @@ export function CyclesTab() {
                       Eliminar
                     </Button>
                   )}
-                  {canManageCycle &&
-                    (cycle.status === 'PAUSED' ||
-                      cycle.status === 'COMPLETED') && (
-                      <Button
-                        type="button"
-                        intent="onDark"
-                        size="sm"
-                        onClick={() =>
-                          runCycleAction(cycle.id, 'reopen', 'PATCH')
-                        }
-                      >
-                        Reabrir
-                      </Button>
-                    )}
                 </>
               }
             />

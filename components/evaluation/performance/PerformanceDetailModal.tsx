@@ -7,10 +7,27 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import {
+  AlertCircle,
+  CalendarDays,
+  CheckCircle2,
+  GraduationCap,
+  type LucideIcon,
+  Lightbulb,
+  MapPin,
+  Sparkles,
+  Star,
+  Tag,
+  Target,
+  TrendingUp,
+  User,
+  Wand2,
+} from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { apiClient } from '@/lib/apiClient';
+import { cn } from '@/lib/cn';
 import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
 import { AlertCard } from '@/components/ui/AlertCard';
@@ -18,7 +35,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { LinkButton } from '@/components/ui/LinkButton';
 import { Modal, ModalContent } from '@/components/ui/Modal';
-import { NativeSelect } from '@/components/ui/NativeSelect';
+import { Select } from '@/components/ui/Select';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -35,6 +52,9 @@ import {
   RECOMMENDATION_PRIORITY_LABELS,
   type RecommendationActionType,
 } from './types';
+
+/** Desenho do painel esquerdo do modal (public/images). */
+const PLAN_PANEL_IMAGE = '/images/Plano de ação da avaliação.jpeg';
 
 export interface PerformanceDetailModalProps {
   evaluationId: number;
@@ -75,6 +95,38 @@ interface RecommendationRowProps {
   onTrack: (id: number, status: RecommendationStatus) => void;
 }
 
+interface FactProps {
+  icon: LucideIcon;
+  label: string;
+  children: ReactNode;
+  className?: string;
+}
+
+/** Campo da recomendação: ícone, rótulo pequeno em maiúsculas e valor. */
+function Fact({ icon: Icon, label, children, className }: FactProps) {
+  return (
+    <div
+      className={cn(
+        'flex items-start gap-2.5 rounded-control bg-surface-sunken px-3 py-2',
+        className,
+      )}
+    >
+      <Icon
+        size={15}
+        strokeWidth={1.75}
+        aria-hidden
+        className="mt-0.5 shrink-0 text-brand-muted"
+      />
+      <div className="min-w-0">
+        <dt className="text-micro font-semibold uppercase tracking-wide text-ink-faint">
+          {label}
+        </dt>
+        <dd className="text-xs font-medium text-ink">{children}</dd>
+      </div>
+    </div>
+  );
+}
+
 function RecommendationRow({
   rec,
   canTrack,
@@ -83,96 +135,89 @@ function RecommendationRow({
 }: RecommendationRowProps) {
   const trackable = canTrack && rec.source === 'RECOMENDACAO';
   return (
-    <li className="space-y-2 rounded-card border border-border bg-surface p-3">
+    <li className="space-y-3 rounded-card border border-border bg-surface p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <p className="text-sm font-medium text-ink">{rec.action}</p>
+        <p className="min-w-0 flex-1 text-sm font-bold text-ink">
+          {rec.action}
+        </p>
         <div className="flex flex-wrap gap-1.5">
           <Badge intent={STATUS_INTENT[rec.status]}>
             {RECOMMENDATION_STATUS_LABELS[rec.status]}
           </Badge>
           {rec.overdue && <Badge intent="danger">Em atraso</Badge>}
-          <Badge intent="neutral">
+          <Badge intent={rec.priority >= 4 ? 'warning' : 'neutral'}>
             Prioridade {rec.priority} —{' '}
             {RECOMMENDATION_PRIORITY_LABELS[rec.priority]}
           </Badge>
         </div>
       </div>
-      <dl className="grid gap-x-4 gap-y-1 text-xs text-ink-muted sm:grid-cols-2">
-        <div>
-          <dt className="inline font-semibold text-ink">Objetivo: </dt>
-          <dd className="inline">{rec.objective}</dd>
-        </div>
-        <div>
-          <dt className="inline font-semibold text-ink">Indicador: </dt>
-          <dd className="inline">{rec.successIndicator}</dd>
-        </div>
-        <div>
-          <dt className="inline font-semibold text-ink">Tipo: </dt>
-          <dd className="inline">
-            {ACTION_TYPE_LABELS[rec.actionType as RecommendationActionType] ??
-              rec.actionType}
-          </dd>
-        </div>
-        {rec.responsible && (
-          <div>
-            <dt className="inline font-semibold text-ink">Responsável: </dt>
-            <dd className="inline">{rec.responsible.fullName}</dd>
-          </div>
-        )}
+      <dl className="grid gap-2 sm:grid-cols-3">
+        <Fact icon={Target} label="Objetivo" className="sm:col-span-3">
+          {rec.objective}
+        </Fact>
+        <Fact icon={Tag} label="Tipo">
+          {ACTION_TYPE_LABELS[rec.actionType as RecommendationActionType] ??
+            rec.actionType}
+        </Fact>
         {rec.dueDate && (
-          <div>
-            <dt className="inline font-semibold text-ink">Prazo: </dt>
-            <dd className="inline">{formatDate(rec.dueDate)}</dd>
-          </div>
+          <Fact icon={CalendarDays} label="Prazo">
+            {formatDate(rec.dueDate)}
+          </Fact>
         )}
+        {rec.responsible && (
+          <Fact icon={User} label="Responsável">
+            {rec.responsible.fullName}
+          </Fact>
+        )}
+        <Fact icon={TrendingUp} label="Indicador" className="sm:col-span-3">
+          {rec.successIndicator}
+        </Fact>
         {rec.training && (
-          <div>
-            <dt className="inline font-semibold text-ink">Formação: </dt>
-            <dd className="inline">
-              {rec.training.title} ·{' '}
-              {rec.trainingParticipation
-                ? (TRAINING_STATUS_LABELS[rec.trainingParticipation.status] ??
-                  rec.trainingParticipation.status)
-                : 'Sem inscrição'}
-            </dd>
-          </div>
+          <Fact icon={GraduationCap} label="Formação" className="sm:col-span-3">
+            {rec.training.title} ·{' '}
+            {rec.trainingParticipation
+              ? (TRAINING_STATUS_LABELS[rec.trainingParticipation.status] ??
+                rec.trainingParticipation.status)
+              : 'Sem inscrição'}
+          </Fact>
         )}
       </dl>
-      <div className="flex items-center gap-3">
-        <ProgressBar
-          value={rec.progressPct}
-          intent={rec.status === 'CONCLUIDA' ? 'success' : 'accent'}
-        />
-        <span className="w-10 shrink-0 text-right text-xs text-ink-muted">
-          {rec.progressPct}%
-        </span>
+      <div className="flex flex-wrap items-center gap-3">
+        {rec.source === 'PDI' ? (
+          <p className="text-xs text-ink-faint">
+            Estado gerido no PDI — atualize a ação no plano.
+          </p>
+        ) : (
+          trackable && (
+            <div className="flex items-center gap-3 text-xs text-ink-muted">
+              <span>Estado</span>
+              <Select
+                variant="underline"
+                icon={MapPin}
+                placeholder="Estado da recomendação"
+                items={Object.entries(RECOMMENDATION_STATUS_LABELS).map(
+                  ([value, label]) => ({ value, label }),
+                )}
+                value={rec.status}
+                disabled={saving}
+                onValueChange={(v) =>
+                  onTrack(rec.id, v as RecommendationStatus)
+                }
+                className="w-48"
+              />
+            </div>
+          )
+        )}
+        <div className="flex min-w-[140px] flex-1 items-center gap-3">
+          <ProgressBar
+            value={rec.progressPct}
+            intent={rec.status === 'CONCLUIDA' ? 'success' : 'accent'}
+          />
+          <span className="w-10 shrink-0 text-right text-xs text-ink-muted">
+            {rec.progressPct}%
+          </span>
+        </div>
       </div>
-      {rec.source === 'PDI' ? (
-        <p className="text-xs text-ink-faint">
-          Estado gerido no PDI — atualize a ação no plano.
-        </p>
-      ) : (
-        trackable && (
-          <label className="flex items-center gap-2 text-xs text-ink-muted">
-            Estado
-            <NativeSelect
-              density="sm"
-              aria-label={`Estado da recomendação ${rec.action}`}
-              value={rec.status}
-              disabled={saving}
-              onChange={(e) =>
-                onTrack(rec.id, e.target.value as RecommendationStatus)
-              }
-            >
-              {Object.entries(RECOMMENDATION_STATUS_LABELS).map(([v, l]) => (
-                <option key={v} value={v}>
-                  {l}
-                </option>
-              ))}
-            </NativeSelect>
-          </label>
-        )
-      )}
     </li>
   );
 }
@@ -241,144 +286,212 @@ export function PerformanceDetailModal({
       <ModalContent
         title="Plano de ação da avaliação"
         description="Pontos fortes, áreas de melhoria e recomendações com o estado real."
-        className="max-h-[90vh] max-w-3xl overflow-y-auto"
+        hideHeading
+        className="max-h-[90vh] max-w-4xl overflow-y-auto p-0"
       >
-        {evaluatedId && (
-          <div role="tablist" className="mt-4 flex gap-1.5">
-            {(
-              [
-                ['plan', 'Plano de ação'],
-                ['history', 'Evolução'],
-              ] as const
-            ).map(([k, label]) => (
-              <button
-                key={k}
-                role="tab"
-                type="button"
-                aria-selected={tab === k}
-                onClick={() => setTab(k)}
-                className={
-                  tab === k
-                    ? 'rounded-pill border-[1.5px] border-brand bg-brand px-3 py-1 text-xs font-semibold text-white'
-                    : 'rounded-pill border-[1.5px] border-border-strong bg-surface px-3 py-1 text-xs font-semibold text-ink-muted hover:bg-surface-sunken'
-                }
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {tab === 'history' && evaluatedId ? (
-          <div className="mt-4">
-            <PerformanceHistoryPanel userId={evaluatedId} />
-          </div>
-        ) : itemsQ.isLoading ? (
-          <Skeleton
-            rows={3}
-            wrapperClassName="mt-4 space-y-3"
-            itemClassName="skeleton-shimmer h-16 rounded-card"
-          />
-        ) : itemsQ.isError ? (
-          <div className="mt-4">
-            <QueryError error={itemsQ.error} onRetry={() => itemsQ.refetch()} />
-          </div>
-        ) : items ? (
-          <div className="mt-4 space-y-5">
-            {items.pdiPlanId && (
-              <AlertCard
-                variant="success"
-                title="Esta avaliação já tem PDI"
-                message="As ações ligadas ao PDI mostram o estado do plano; atualize-as lá."
-                actionUrl="/development-plans"
-                actionLabel="Ver planos de desenvolvimento"
-              />
+        <div className="flex min-h-[520px]">
+          {/* Painel do desenho "Plano de ação da avaliação" (public/images). */}
+          <aside className="hidden w-[260px] shrink-0 flex-col bg-[linear-gradient(160deg,#04234f_0%,#06396e_38%,#072652_72%,#0b3f7a_100%)] sm:flex">
+            {/* Ilustração recortada do desenho; o texto abaixo é HTML real. */}
+            <div
+              aria-hidden
+              className="h-[250px] shrink-0 bg-no-repeat"
+              style={{
+                backgroundImage: `url("${encodeURI(PLAN_PANEL_IMAGE)}")`,
+                backgroundSize: '890px auto',
+                backgroundPosition: '0 -16px',
+                WebkitMaskImage:
+                  'linear-gradient(to bottom, #000 80%, transparent 100%)',
+                maskImage:
+                  'linear-gradient(to bottom, #000 80%, transparent 100%)',
+              }}
+            />
+            <div className="px-6 pb-8 pt-2 text-white">
+              <p className="font-display text-2xl font-bold leading-tight">
+                Notas e Resultados
+              </p>
+              <p className="mt-2 text-sm text-white/85">
+                O seu desempenho em destaque
+              </p>
+            </div>
+          </aside>
+          <div className="min-w-0 flex-1 p-5 pr-12 sm:p-6 sm:pr-12">
+            {evaluatedId && (
+              <div role="tablist" className="mt-0 flex gap-1.5">
+                {(
+                  [
+                    ['plan', 'Plano de ação'],
+                    ['history', 'Evolução'],
+                  ] as const
+                ).map(([k, label]) => (
+                  <button
+                    key={k}
+                    role="tab"
+                    type="button"
+                    aria-selected={tab === k}
+                    onClick={() => setTab(k)}
+                    className={
+                      tab === k
+                        ? 'rounded-pill border-[1.5px] border-brand bg-brand px-3 py-1 text-xs font-semibold text-white'
+                        : 'rounded-pill border-[1.5px] border-border-strong bg-surface px-3 py-1 text-xs font-semibold text-ink-muted hover:bg-surface-sunken'
+                    }
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             )}
 
-            <section aria-label="Pontos fortes" className="space-y-2">
-              <h3 className="text-sm font-semibold text-success-ink">
-                Pontos Fortes
-              </h3>
-              {items.strengths.length === 0 && (
-                <p className="text-xs text-ink-faint">Sem registos.</p>
-              )}
-              <ul className="space-y-2">
-                {items.strengths.map((s) => (
-                  <li
-                    key={s.id}
-                    className="rounded-card bg-success-subtle p-3 text-xs text-success-ink"
-                  >
-                    <p className="font-semibold">
-                      {s.competency} — nota {s.score}/5
-                    </p>
-                    <p>{s.description}</p>
-                    {s.evidence && <p>Evidência: {s.evidence}</p>}
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section aria-label="Áreas de melhoria" className="space-y-2">
-              <h3 className="text-sm font-semibold text-warning-ink">
-                Áreas de Melhoria
-              </h3>
-              {items.improvements.length === 0 && (
-                <p className="text-xs text-ink-faint">Sem registos.</p>
-              )}
-              <ul className="space-y-2">
-                {items.improvements.map((a) => (
-                  <li
-                    key={a.id}
-                    className="rounded-card bg-warning-subtle p-3 text-xs text-warning-ink"
-                  >
-                    <p className="font-semibold">
-                      {a.competency} — nota {a.score}/5 · prioridade{' '}
-                      {IMPROVEMENT_PRIORITY_LABELS[a.priority]}
-                    </p>
-                    <p>{a.description}</p>
-                    {a.evidence && <p>Evidência: {a.evidence}</p>}
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section aria-label="Recomendações" className="space-y-2">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold text-ink">
-                  Recomendações
-                </h3>
-                {canManage && unlinked > 0 && (
-                  <Button
-                    size="sm"
-                    loading={generate.isPending}
-                    onClick={() => generate.mutate(undefined)}
-                  >
-                    {items.pdiPlanId
-                      ? `Acrescentar ${unlinked} ao PDI`
-                      : 'Gerar PDI'}
-                  </Button>
-                )}
+            {tab === 'history' && evaluatedId ? (
+              <div className="mt-4">
+                <PerformanceHistoryPanel userId={evaluatedId} />
               </div>
-              {items.recommendations.length === 0 && (
-                <p className="text-xs text-ink-faint">Sem registos.</p>
-              )}
-              <ul className="space-y-2">
-                {items.recommendations.map((r) => (
-                  <RecommendationRow
-                    key={r.id}
-                    rec={r}
-                    canTrack={canManage}
-                    saving={track.isPending}
-                    onTrack={(id, status) => track.mutate({ id, status })}
+            ) : itemsQ.isLoading ? (
+              <Skeleton
+                rows={3}
+                wrapperClassName="mt-4 space-y-3"
+                itemClassName="skeleton-shimmer h-16 rounded-card"
+              />
+            ) : itemsQ.isError ? (
+              <div className="mt-4">
+                <QueryError
+                  error={itemsQ.error}
+                  onRetry={() => itemsQ.refetch()}
+                />
+              </div>
+            ) : items ? (
+              <div className="mt-4 space-y-5">
+                {items.pdiPlanId && (
+                  <AlertCard
+                    variant="success"
+                    title="Esta avaliação já tem PDI"
+                    message="As ações ligadas ao PDI mostram o estado do plano; atualize-as lá."
+                    actionUrl="/development-plans"
+                    actionLabel="Ver planos de desenvolvimento"
                   />
-                ))}
-              </ul>
-            </section>
-          </div>
-        ) : null}
+                )}
 
-        <div className="mt-6 flex justify-end border-t border-border pt-4">
-          <LinkButton onClick={onClose}>Fechar</LinkButton>
+                <section aria-label="Pontos fortes" className="space-y-2">
+                  <h3 className="flex items-center gap-2 text-sm font-semibold text-ink">
+                    <Sparkles
+                      size={16}
+                      strokeWidth={1.75}
+                      className="text-success-ink"
+                      aria-hidden
+                    />
+                    Pontos Fortes
+                  </h3>
+                  {items.strengths.length === 0 && (
+                    <p className="text-xs text-ink-faint">Sem registos.</p>
+                  )}
+                  <ul className="space-y-2">
+                    {items.strengths.map((s) => (
+                      <li
+                        key={s.id}
+                        className="flex items-start gap-3 rounded-card bg-success-subtle px-4 py-2.5 text-success-ink"
+                      >
+                        <CheckCircle2
+                          size={18}
+                          strokeWidth={1.75}
+                          className="mt-0.5 shrink-0"
+                          aria-hidden
+                        />
+                        <div className="text-xs">
+                          <p className="text-sm font-medium">
+                            {s.competency} — nota {s.score}/5
+                          </p>
+                          {s.description && <p>{s.description}</p>}
+                          {s.evidence && <p>Evidência: {s.evidence}</p>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section aria-label="Áreas de melhoria" className="space-y-2">
+                  <h3 className="flex items-center gap-2 text-sm font-semibold text-ink">
+                    <Star
+                      size={16}
+                      strokeWidth={1.75}
+                      className="text-warning-ink"
+                      aria-hidden
+                    />
+                    Áreas de Melhoria
+                  </h3>
+                  {items.improvements.length === 0 && (
+                    <p className="text-xs text-ink-faint">Sem registos.</p>
+                  )}
+                  <ul className="space-y-2">
+                    {items.improvements.map((a) => (
+                      <li
+                        key={a.id}
+                        className="flex items-start gap-3 rounded-card bg-warning-subtle px-4 py-2.5 text-warning-ink"
+                      >
+                        <AlertCircle
+                          size={18}
+                          strokeWidth={1.75}
+                          className="mt-0.5 shrink-0"
+                          aria-hidden
+                        />
+                        <div className="text-xs">
+                          <p className="text-sm font-medium">
+                            {a.competency} — nota {a.score}/5 · prioridade{' '}
+                            {IMPROVEMENT_PRIORITY_LABELS[a.priority]}
+                          </p>
+                          {a.description && <p>{a.description}</p>}
+                          {a.evidence && <p>Evidência: {a.evidence}</p>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section aria-label="Recomendações" className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold text-ink">
+                      <Lightbulb
+                        size={16}
+                        strokeWidth={1.75}
+                        className="text-info-ink"
+                        aria-hidden
+                      />
+                      Recomendações
+                    </h3>
+                    {canManage && unlinked > 0 && (
+                      <Button
+                        size="sm"
+                        loading={generate.isPending}
+                        onClick={() => generate.mutate(undefined)}
+                      >
+                        <Wand2 size={14} strokeWidth={1.75} aria-hidden />
+                        {items.pdiPlanId
+                          ? `Acrescentar ${unlinked} ao PDI`
+                          : 'Gerar PDI'}
+                      </Button>
+                    )}
+                  </div>
+                  {items.recommendations.length === 0 && (
+                    <p className="text-xs text-ink-faint">Sem registos.</p>
+                  )}
+                  <ul className="space-y-2">
+                    {items.recommendations.map((r) => (
+                      <RecommendationRow
+                        key={r.id}
+                        rec={r}
+                        canTrack={canManage}
+                        saving={track.isPending}
+                        onTrack={(id, status) => track.mutate({ id, status })}
+                      />
+                    ))}
+                  </ul>
+                </section>
+              </div>
+            ) : null}
+
+            <div className="mt-6 flex justify-end border-t border-border pt-4">
+              <LinkButton onClick={onClose}>Fechar</LinkButton>
+            </div>
+          </div>
         </div>
       </ModalContent>
     </Modal>

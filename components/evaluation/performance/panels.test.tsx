@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type {
   PerformanceHistory,
@@ -8,6 +8,28 @@ import type {
 import { PerformanceDetailModal } from './PerformanceDetailModal';
 import { PerformanceHistoryPanel } from './PerformanceHistoryPanel';
 import { PerformanceIndicatorsPanel } from './PerformanceIndicatorsPanel';
+
+// O Radix Select usa Pointer Capture / scrollIntoView, ausentes no jsdom.
+beforeAll(() => {
+  if (!Element.prototype.hasPointerCapture) {
+    Element.prototype.hasPointerCapture = () => false;
+    Element.prototype.setPointerCapture = () => {};
+    Element.prototype.releasePointerCapture = () => {};
+  }
+  if (!Element.prototype.scrollIntoView) {
+    Element.prototype.scrollIntoView = () => {};
+  }
+  if (typeof window.PointerEvent === 'undefined') {
+    class MockPointerEvent extends MouseEvent {
+      pointerType: string;
+      constructor(type: string, props: PointerEventInit = {}) {
+        super(type, props);
+        this.pointerType = props.pointerType ?? 'mouse';
+      }
+    }
+    window.PointerEvent = MockPointerEvent as unknown as typeof PointerEvent;
+  }
+});
 
 const post = vi.fn().mockResolvedValue({ planId: 1, actionsCreated: 2 });
 const patch = vi.fn().mockResolvedValue({});
@@ -132,9 +154,10 @@ describe('PerformanceDetailModal', () => {
       expect(post).toHaveBeenCalledWith('/evaluations/performance/7/pdi', {}),
     );
 
-    fireEvent.change(screen.getByLabelText(/Estado da recomendação/), {
-      target: { value: 'EM_CURSO' },
-    });
+    fireEvent.pointerDown(screen.getByRole('combobox'), { button: 0 });
+    fireEvent.click(
+      await screen.findByRole('option', { name: 'Em curso', hidden: true }),
+    );
     await waitFor(() =>
       expect(patch).toHaveBeenCalledWith('/evaluations/recommendations/1', {
         status: 'EM_CURSO',

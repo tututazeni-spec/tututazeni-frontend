@@ -369,6 +369,8 @@ export interface Cohort {
   instructor: { id: number; fullName: string; avatarUrl: string | null } | null;
   enrolled: number;
   availableSlots: number;
+  minAttendancePercent: number;
+  excludeExcusedFromTotal: boolean;
 }
 
 export type CohortDetail = Cohort & {
@@ -376,10 +378,91 @@ export type CohortDetail = Cohort & {
   participants: CohortParticipant[];
 };
 
-export interface CohortAttendanceEntry {
-  userId: number;
-  status: 'PRESENT' | 'ABSENT' | string;
+export type SessionModality = 'IN_PERSON' | 'ONLINE' | 'HYBRID';
+export type SessionStatus =
+  'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+export type AttendanceState = 'PRESENT' | 'ABSENT' | 'LATE' | 'JUSTIFIED';
+
+export interface CohortSession {
+  id: number;
+  cohortId: number;
+  title: string;
+  /** ISO; a data de calendário é os primeiros 10 caracteres. */
+  date: string;
+  startTime: string;
+  endTime: string;
+  durationMinutes: number;
+  instructorId: number | null;
+  instructor: { id: number; fullName: string } | null;
+  modality: SessionModality;
+  status: SessionStatus;
   notes: string | null;
+  cancelReason: string | null;
+  attendanceRecorded: boolean;
+  recordedCount: number;
+}
+
+export interface SessionAttendanceRow {
+  userId: number;
+  fullName: string;
+  identifier: string;
+  status: AttendanceState | null;
+  checkInTime: string | null;
+  checkOutTime: string | null;
+  note: string | null;
+}
+
+export interface SessionAttendance {
+  cohort: { id: number; name: string; courseTitle: string };
+  session: CohortSession;
+  summary: {
+    enrolled: number;
+    present: number;
+    absent: number;
+    late: number;
+    justified: number;
+    unmarked: number;
+  };
+  participants: SessionAttendanceRow[];
+}
+
+export interface AttendanceSummaryRow {
+  userId: number;
+  fullName: string;
+  identifier: string;
+  eligibleSessions: number;
+  present: number;
+  late: number;
+  absent: number;
+  justified: number;
+  unmarked: number;
+  rate: number | null;
+  meetsMinimum: boolean | null;
+}
+
+export interface CohortAttendanceReport {
+  cohort: { id: number; name: string; courseTitle: string };
+  generatedAt: string;
+  period: { from: string | null; to: string | null };
+  criteria: {
+    minAttendancePercent: number;
+    excludeExcusedFromTotal: boolean;
+    note: string;
+  };
+  general: {
+    enrolled: number;
+    sessionsTotal: number;
+    sessionsCompleted: number;
+    sessionsCancelled: number;
+    present: number;
+    late: number;
+    absent: number;
+    justified: number;
+    unmarked: number;
+    averageRate: number | null;
+    belowMinimum: number;
+  };
+  participants: AttendanceSummaryRow[];
 }
 
 // ─── Categorias (docs/modulo_courses.md secção 6) ──────────────────────────

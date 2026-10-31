@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { PerformanceDetailModal } from './performance/PerformanceDetailModal';
 import { PerformanceHistoryPanel } from './performance/PerformanceHistoryPanel';
 import { apiClient } from '@/lib/apiClient';
 import { useToast } from '@/providers/ToastProvider';
@@ -47,6 +48,10 @@ const YEAR_ITEMS = [
   }),
 ];
 
+/** Desenho do cartão "A minha avaliação de desempenho recebida" (public/images). */
+const PERFORMANCE_CARD_IMAGE =
+  '/images/A minha avaliação de desempenho recebida.jpeg';
+
 interface LoadParams {
   uid: string;
   period?: string;
@@ -64,7 +69,16 @@ export function ResultsTab() {
   const [selectedUser, setSelectedUser] = useState<DirectoryUser | null>(null);
   const [month, setMonth] = useState('ALL');
   const [year, setYear] = useState('ALL');
+  const [detailEvaluationId, setDetailEvaluationId] = useState<number | null>(
+    null,
+  );
   const notify = useToast();
+  // Colaborador vê sempre as suas. Os restantes veem as do colaborador
+  // pesquisado e, enquanto não escolhem ninguém, as que eles próprios receberam.
+  const viewedUserId = (
+    isColaborador ? me?.id : (selectedUser?.id ?? me?.id)
+  ) as number | undefined;
+  const viewingSelf = viewedUserId != null && viewedUserId === me?.id;
 
   const loadResults = useApiMutation(({ uid, period }: LoadParams) =>
     apiClient.get<EvalResults>(
@@ -491,12 +505,6 @@ export function ResultsTab() {
             </div>
           )}
 
-          {(isColaborador ? me?.id : selectedUser?.id) != null && (
-            <PerformanceHistoryPanel
-              userId={(isColaborador ? me?.id : selectedUser?.id) as number}
-            />
-          )}
-
           {/* PDI trigger — só quem gere avaliações (não-colaborador) desenha
               PDIs a partir dos resultados de outros; um colaborador a ver os
               seus próprios resultados não tem esta acção. */}
@@ -518,6 +526,54 @@ export function ResultsTab() {
             </Button>
           )}
         </div>
+      )}
+
+      {/* Avaliação de desempenho recebida (chefia, autoavaliação, etc.) —
+          fora do bloco 360° para aparecer mesmo sem resultados 360°. */}
+      {viewedUserId != null && (
+        <section
+          aria-label="Avaliação de desempenho recebida"
+          className="flex flex-col gap-5 rounded-panel border border-border bg-gradient-to-br from-[#f4f7fe] to-[#e3ebfb] p-5 shadow-[0_4px_14px_rgba(21,47,89,0.10)] sm:flex-row sm:items-stretch sm:p-6"
+        >
+          {/* Ilustração do cartão: recorte da imagem de desenho do módulo. */}
+          <div
+            aria-hidden
+            className="mx-auto h-[154px] w-[140px] shrink-0 self-center bg-no-repeat mix-blend-multiply sm:mx-0"
+            style={{
+              backgroundImage: `url("${encodeURI(PERFORMANCE_CARD_IMAGE)}")`,
+              backgroundSize: '630px auto',
+              backgroundPosition: '-31px -34px',
+              WebkitMaskImage:
+                'radial-gradient(ellipse at center, #000 62%, transparent 100%)',
+              maskImage:
+                'radial-gradient(ellipse at center, #000 62%, transparent 100%)',
+            }}
+          />
+          <div
+            aria-hidden
+            className="hidden w-px shrink-0 bg-border-strong/60 sm:block"
+          />
+          <div className="min-w-0 flex-1">
+            <PerformanceHistoryPanel
+              userId={viewedUserId}
+              title={
+                viewingSelf
+                  ? 'A minha avaliação de desempenho recebida'
+                  : `Avaliação de desempenho recebida${selectedUser ? ` — ${selectedUser.fullName}` : ''}`
+              }
+              titleClassName="font-display text-xl font-bold leading-tight text-ink sm:text-2xl"
+              onOpenDetail={setDetailEvaluationId}
+            />
+          </div>
+        </section>
+      )}
+
+      {detailEvaluationId != null && (
+        <PerformanceDetailModal
+          evaluationId={detailEvaluationId}
+          evaluatedId={viewedUserId ?? undefined}
+          onClose={() => setDetailEvaluationId(null)}
+        />
       )}
 
       {!loading && loadResults.isError && (

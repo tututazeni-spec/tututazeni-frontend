@@ -7,12 +7,14 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowDown, ArrowRight, ArrowUp } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, Filter } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { AlertCard } from '@/components/ui/AlertCard';
 import { Badge } from '@/components/ui/Badge';
-import { NativeSelect } from '@/components/ui/NativeSelect';
+import { cn } from '@/lib/cn';
+import { actionPillClass } from '@/components/ui/Pills';
+import { Select } from '@/components/ui/Select';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { EvaluationComparison, PerformanceHistory } from './apiTypes';
@@ -140,10 +142,19 @@ function ComparisonView({ c }: { c: EvaluationComparison }) {
 
 export interface PerformanceHistoryPanelProps {
   userId: number | string;
+  /** Título da secção (por omissão "Evolução entre ciclos"). */
+  title?: string;
+  /** Classes do título, para o destacar quando a secção é um cartão. */
+  titleClassName?: string;
+  /** Se definido, cada avaliação ganha o botão "Ver detalhe". */
+  onOpenDetail?: (evaluationId: number) => void;
 }
 
 export function PerformanceHistoryPanel({
   userId,
+  title = 'Evolução entre ciclos',
+  titleClassName = 'text-sm font-semibold text-ink',
+  onOpenDetail,
 }: PerformanceHistoryPanelProps) {
   const [type, setType] = useState('MANAGER');
   const q = useApiQuery<PerformanceHistory>(
@@ -153,23 +164,21 @@ export function PerformanceHistoryPanel({
   );
 
   return (
-    <section aria-label="Evolução entre ciclos" className="space-y-3">
+    <section aria-label={title} className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-ink">
-          Evolução entre ciclos
-        </h3>
-        <NativeSelect
-          density="sm"
-          aria-label="Tipo de avaliação"
+        <h3 className={titleClassName}>{title}</h3>
+        <Select
+          variant="underline"
+          icon={Filter}
+          placeholder="Tipo de avaliação"
+          items={Object.entries(TYPE_LABELS).map(([value, label]) => ({
+            value,
+            label,
+          }))}
           value={type}
-          onChange={(e) => setType(e.target.value)}
-        >
-          {Object.entries(TYPE_LABELS).map(([v, l]) => (
-            <option key={v} value={v}>
-              {l}
-            </option>
-          ))}
-        </NativeSelect>
+          onValueChange={setType}
+          className="w-64"
+        />
       </div>
 
       {q.isLoading ? (
@@ -209,6 +218,15 @@ export function PerformanceHistoryPanel({
                     {e.recommendations.overdue > 0 &&
                       ` · ${e.recommendations.overdue} em atraso`}
                   </span>
+                  {onOpenDetail && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenDetail(e.evaluationId)}
+                      className={cn(actionPillClass, 'px-3 py-1 text-xs')}
+                    >
+                      Ver detalhe
+                    </button>
+                  )}
                 </span>
               </li>
             ))}

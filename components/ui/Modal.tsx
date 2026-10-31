@@ -33,6 +33,8 @@ export interface ModalContentProps {
   navyBanner?: boolean;
   /** Como `navyBanner`, mas no gradiente azul do cartão "Plano de integração" (título em maiúsculas, descrição em #C7D4E8). */
   gradientBanner?: boolean;
+  /** Título e descrição só para leitores de ecrã (o consumidor desenha o seu próprio cabeçalho). */
+  hideHeading?: boolean;
   /** Passthrough para `Dialog.Content` — permite ao consumidor controlar o foco inicial de forma determinística. */
   onOpenAutoFocus?: (event: Event) => void;
 }
@@ -45,6 +47,7 @@ export function ModalContent({
   navyHeader,
   navyBanner,
   gradientBanner,
+  hideHeading,
   onOpenAutoFocus,
 }: ModalContentProps) {
   const onNavy = navyHeader || navyBanner || gradientBanner;
@@ -108,6 +111,8 @@ export function ModalContent({
           <div className="-mx-6 -mt-6 mb-4 bg-brand px-6 py-4 pr-14">
             {heading}
           </div>
+        ) : hideHeading ? (
+          <div className="sr-only">{heading}</div>
         ) : (
           heading
         )}

@@ -29,7 +29,8 @@ export const NAV: Array<{
   { id: 'categorias', label: 'Categorias', roles: ['ADMIN', 'RH'] },
   { id: 'inscricoes', label: 'Inscrições', roles: ['ADMIN', 'RH', 'GESTOR'] },
   { id: 'progresso', label: 'Progresso', roles: ['ADMIN', 'RH', 'GESTOR'] },
-  { id: 'turmas', label: 'Turmas', roles: ['ADMIN', 'RH', 'INSTRUCTOR'] },
+  // Todos veem a aba: ADMIN/RH/INSTRUCTOR gerem, os restantes vêem as suas turmas.
+  { id: 'turmas', label: 'Turmas' },
   { id: 'my-courses', label: 'Meus cursos' },
   { id: 'certificates', label: 'Certificados' },
   { id: 'relatorios', label: 'Relatórios', roles: ['ADMIN', 'RH'] },
