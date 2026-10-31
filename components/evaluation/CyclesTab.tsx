@@ -405,6 +405,7 @@ export function CyclesTab() {
           requestId={toSubmit.id}
           cycleId={toSubmit.cycle?.id}
           evaluatedName={toSubmit.evaluated.fullName}
+          evaluatedId={toSubmit.evaluated.id}
           onClose={() => setToSubmit(null)}
           onSuccess={() =>
             qc.invalidateQueries({ queryKey: queryKeys.evaluation.all })

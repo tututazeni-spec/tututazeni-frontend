@@ -615,6 +615,7 @@ export function EvaluationsTab() {
           requestId={submittingRow.id}
           cycleId={submittingRow.cycle?.id}
           evaluatedName={submittingRow.evaluated.fullName}
+          evaluatedId={submittingRow.evaluated.id}
           onClose={() => setSubmittingRow(null)}
         />
       )}

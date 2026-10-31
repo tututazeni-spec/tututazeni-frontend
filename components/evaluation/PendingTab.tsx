@@ -128,9 +128,7 @@ function ManagerQueue() {
               infos={[
                 {
                   icon: isOverdue ? AlertTriangle : AlarmClock,
-                  value: r.dueDate
-                    ? formatDateNumeric(r.dueDate)
-                    : '—',
+                  value: r.dueDate ? formatDateNumeric(r.dueDate) : '—',
                   label: 'Prazo',
                   danger: isOverdue,
                 },
@@ -186,6 +184,7 @@ function ManagerQueue() {
           requestId={toSubmit.id}
           cycleId={toSubmit.cycle?.id}
           evaluatedName={toSubmit.evaluated.fullName}
+          evaluatedId={toSubmit.evaluated.id}
           onClose={() => setToSubmit(null)}
         />
       )}
@@ -244,9 +243,7 @@ function MyPendingList() {
             infos={[
               {
                 icon: isOverdue ? AlertTriangle : AlarmClock,
-                value: r.dueDate
-                  ? formatDateNumeric(r.dueDate)
-                  : '—',
+                value: r.dueDate ? formatDateNumeric(r.dueDate) : '—',
                 label: 'Prazo',
                 danger: isOverdue,
               },
@@ -275,6 +272,7 @@ function MyPendingList() {
           requestId={toSubmit.id}
           cycleId={toSubmit.cycle?.id}
           evaluatedName={toSubmit.evaluated.fullName}
+          evaluatedId={toSubmit.evaluated.id}
           onClose={() => setToSubmit(null)}
         />
       )}
