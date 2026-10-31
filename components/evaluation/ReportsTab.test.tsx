@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ReportsTab } from './ReportsTab';
 
 const get = vi.fn();
+let orgWide = true;
 let overview: unknown;
 
 vi.mock('@/lib/apiClient', () => ({
@@ -23,6 +24,9 @@ vi.mock('@/hooks/useApiQuery', async () => {
     },
   };
 });
+vi.mock('@/hooks/useCurrentRole', () => ({
+  useHasRole: () => orgWide,
+}));
 vi.mock('./filterOptions', () => ({
   ALL: '__all__',
   useCycleOptions: () => [],
@@ -54,6 +58,7 @@ const base = {
 
 describe('ReportsTab — filtros e privacidade', () => {
   beforeEach(() => {
+    orgWide = true;
     get.mockReset();
     overview = base;
     get.mockImplementation(async () => overview);
@@ -111,5 +116,24 @@ describe('ReportsTab — filtros e privacidade', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Gerar Relatório' }));
     await waitFor(() => expect(get).toHaveBeenCalled());
     expect(screen.queryByText(/Alguns dados estão ocultos/)).toBeNull();
+  });
+
+  test('ADMIN/RH têm filtro de gestor e exportações', () => {
+    render(<ReportsTab />);
+    expect(screen.getByText('CSV')).toBeInTheDocument();
+    expect(screen.getByText('Excel')).toBeInTheDocument();
+    expect(screen.getByText('PDF')).toBeInTheDocument();
+    expect(screen.queryByText(/equipa que lidera diretamente/)).toBeNull();
+  });
+
+  test('chefias não têm exportações e veem o aviso de âmbito da equipa', () => {
+    orgWide = false;
+    render(<ReportsTab />);
+    expect(screen.queryByText('CSV')).toBeNull();
+    expect(screen.queryByText('Excel')).toBeNull();
+    expect(screen.queryByText('PDF')).toBeNull();
+    expect(
+      screen.getByText(/equipa que lidera diretamente/),
+    ).toBeInTheDocument();
   });
 });

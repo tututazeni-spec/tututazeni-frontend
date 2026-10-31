@@ -34,6 +34,8 @@ import type { EvaluationReportGroup, EvaluationReportsOverview } from './types';
 import { PerformanceIndicatorsPanel } from './performance/PerformanceIndicatorsPanel';
 import { RECOMMENDATION_STATUS_LABELS } from './performance/apiTypes';
 import { AlertCard } from '@/components/ui/AlertCard';
+import { useHasRole } from '@/hooks/useCurrentRole';
+import { ADMIN_ROLES } from '@/lib/roles';
 
 function GroupTable({
   title,
@@ -107,6 +109,9 @@ function PrivacyNotice({
 }
 
 export function ReportsTab() {
+  // ADMIN/RH veem toda a organização e exportam; chefias só a sua equipa direta.
+  const isOrgWide = useHasRole(ADMIN_ROLES);
+
   const [filters, setFilters] = useState({
     cycleId: '',
     departmentId: '',
@@ -207,17 +212,22 @@ export function ReportsTab() {
               className="w-44"
             />
           </div>
-          <div className="w-60">
-            <DepartmentUserPicker
-              label="Gestor"
-              htmlFor="rep-manager"
-              value={manager}
-              onChange={(u) => {
-                setManager(u);
-                setFilters((f) => ({ ...f, managerId: u ? String(u.id) : '' }));
-              }}
-            />
-          </div>
+          {isOrgWide && (
+            <div className="w-60">
+              <DepartmentUserPicker
+                label="Gestor"
+                htmlFor="rep-manager"
+                value={manager}
+                onChange={(u) => {
+                  setManager(u);
+                  setFilters((f) => ({
+                    ...f,
+                    managerId: u ? String(u.id) : '',
+                  }));
+                }}
+              />
+            </div>
+          )}
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
               Tipo de avaliação
@@ -263,26 +273,36 @@ export function ReportsTab() {
           <Button onClick={run} loading={load.isPending}>
             Gerar Relatório
           </Button>
-          <a
-            href={`/api/evaluations/reports/export.csv${buildQuery()}`}
-            className={buttonVariants({ intent: 'secondary', size: 'md' })}
-          >
-            <Download size={14} strokeWidth={1.75} /> CSV
-          </a>
-          <a
-            href={`/api/evaluations/reports/export.xlsx${buildQuery()}`}
-            className={buttonVariants({ intent: 'secondary', size: 'md' })}
-          >
-            <Download size={14} strokeWidth={1.75} /> Excel
-          </a>
-          <a
-            href={`/api/evaluations/reports/export.pdf${buildQuery()}`}
-            className={buttonVariants({ intent: 'secondary', size: 'md' })}
-          >
-            <Download size={14} strokeWidth={1.75} /> PDF
-          </a>
+          {isOrgWide && (
+            <>
+              <a
+                href={`/api/evaluations/reports/export.csv${buildQuery()}`}
+                className={buttonVariants({ intent: 'secondary', size: 'md' })}
+              >
+                <Download size={14} strokeWidth={1.75} /> CSV
+              </a>
+              <a
+                href={`/api/evaluations/reports/export.xlsx${buildQuery()}`}
+                className={buttonVariants({ intent: 'secondary', size: 'md' })}
+              >
+                <Download size={14} strokeWidth={1.75} /> Excel
+              </a>
+              <a
+                href={`/api/evaluations/reports/export.pdf${buildQuery()}`}
+                className={buttonVariants({ intent: 'secondary', size: 'md' })}
+              >
+                <Download size={14} strokeWidth={1.75} /> PDF
+              </a>
+            </>
+          )}
         </CardBody>
       </Card>
+
+      {!isOrgWide && (
+        <p className="text-xs text-ink-muted">
+          Estes relatórios mostram apenas a equipa que lidera diretamente.
+        </p>
+      )}
 
       {load.isPending && (
         <Skeleton
