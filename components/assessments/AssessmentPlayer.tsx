@@ -109,6 +109,17 @@ function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
   }
 }
 
+/** Duas versões da mesma resposta são iguais (o fileUrl compara-se por valor, sem o reenviar). */
+function sameAnswer(a: AttemptAnswer, b: AttemptAnswer | undefined): boolean {
+  if (!b) return false;
+  return (
+    a.textAnswer === b.textAnswer &&
+    a.fileUrl === b.fileUrl &&
+    JSON.stringify(a.selectedIndices ?? null) ===
+      JSON.stringify(b.selectedIndices ?? null)
+  );
+}
+
 export interface AssessmentPlayerProps {
   assessmentId: number;
   onBack: () => void;
@@ -132,6 +143,11 @@ export function AssessmentPlayer({
   useEffect(() => {
     answersRef.current = answers;
   }, [answers]);
+
+  // Última versão de cada resposta que o servidor já tem. O auto-save só
+  // envia o que mudou: um ficheiro de upload pesa vários MB e não deve
+  // repetir-se de 30 em 30 s.
+  const savedRef = useRef<Record<number, AttemptAnswer>>({});
 
   // Carregar avaliação e iniciar tentativa
   useEffect(() => {
@@ -174,6 +190,7 @@ export function AssessmentPlayer({
           }
         }
 
+        savedRef.current = { ...restored };
         dispatch({
           type: 'LOADED',
           assessment: parsed,
@@ -195,12 +212,18 @@ export function AssessmentPlayer({
   useEffect(() => {
     if (!attempt || !assessment) return;
     const interval = setInterval(async () => {
-      const answersList = Object.values(answersRef.current);
-      if (answersList.length === 0) return;
+      const changed = Object.values(answersRef.current).filter(
+        (a) => !sameAnswer(a, savedRef.current[a.questionId]),
+      );
+      if (changed.length === 0) return;
       await apiClient
         .post('/assessments/attempts/save', {
           attemptId: attempt.id,
-          answers: answersList,
+          answers: changed,
+        })
+        .then(() => {
+          // Só marca como guardado depois de o servidor confirmar.
+          for (const a of changed) savedRef.current[a.questionId] = a;
         })
         .catch((e) => reportError(e, { source: 'AssessmentPlayer.autosave' }));
     }, 30000);
@@ -322,6 +345,7 @@ export function AssessmentPlayer({
       {/* Question */}
       {currentQ && (
         <QuestionPlayer
+          key={currentQ.id}
           question={currentQ}
           index={currentIdx}
           total={questions.length}

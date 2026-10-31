@@ -12,6 +12,8 @@ export interface FormalEvaluation {
   id: number;
   title: string;
   description: string | null;
+  /** Imagem do cartão (data URL ou URL), opcional. */
+  imageUrl?: string | null;
   status: FormalEvaluationStatus;
   courseId: number | null;
   passingScore: number;
@@ -21,6 +23,32 @@ export interface FormalEvaluation {
   availableUntil: string | null;
   createdAt: string;
   _count: { questions: number; attempts: number };
+  /** Só em /assessments/available: a tentativa já submetida pelo próprio utilizador. */
+  myAttempt?: MyAttempt | null;
+}
+
+export interface MyAttempt {
+  id: number;
+  status: string;
+  score: number | null;
+  passed: boolean | null;
+  needsManualReview: boolean;
+  submittedAt: string | null;
+  displayGrade: number | null;
+  qualitativeLabel: string | null;
+}
+
+/** Avaliação em rascunho com as perguntas e respostas correctas (GET /assessments/:id/edit). */
+export interface FormalEvaluationDetail extends FormalEvaluation {
+  questions: {
+    id: number;
+    type: FormalQuestionType;
+    questionText: string;
+    weight: number;
+    seq: number;
+    /** JSON: `[{ text, isCorrect }]`; nulo nas respostas abertas. */
+    options: string | null;
+  }[];
 }
 
 export interface RosterRow {

@@ -10,17 +10,7 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import {
-  Archive,
-  CalendarDays,
-  Clock,
-  GraduationCap,
-  Pencil,
-  Plus,
-  Trash2,
-  UserCheck,
-  Users,
-} from 'lucide-react';
+import { Archive, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -28,17 +18,11 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import {
-  NAVY_ACTION,
-  NavyBadge,
-  NavyCard,
-} from '@/components/courses/NavyCard';
+import { NAVY_ACTION } from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { formatDate } from '@/lib/format';
 import { INVERT_ON_HOVER } from './buttonStyles';
-import { LEVEL_CFG, STATUS_CFG, TYPE_CFG } from './constants';
-import { LEVEL_TONE, STATUS_TONE } from './trainingTones';
+import { TrainingCard } from './TrainingCard';
 import type { Training } from './types';
 
 const TrainingFormModal = dynamic(() =>
@@ -176,7 +160,7 @@ export function GestaoView({ onManage }: GestaoViewProps) {
           description="As formações que crias (ou, se fores ADMIN/RH, todas as formações) aparecem aqui."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-5">
+        <div className="grid grid-cols-3 gap-4">
           {list.map((t) => {
             const busy = rowBusy(t.id);
             const closed =
@@ -184,63 +168,11 @@ export function GestaoView({ onManage }: GestaoViewProps) {
               t.status === 'CANCELLED' ||
               t.status === 'COMPLETED';
             return (
-              <NavyCard
+              <TrainingCard
                 key={t.id}
-                seed={t.colorIndex ?? t.id}
-                image={t.thumbnailUrl}
-                flushFirstInfo
+                training={t}
+                showStatus
                 onClick={() => onManage(t.id)}
-                kicker={t.category ?? TYPE_CFG[t.type]?.label}
-                kickerIcon={GraduationCap}
-                title={t.title}
-                subtitle={t.shortDescription ?? t.thematicArea ?? undefined}
-                badge={
-                  <>
-                    <NavyBadge tone={STATUS_TONE[t.status]}>
-                      {STATUS_CFG[t.status].label}
-                    </NavyBadge>
-                    {t.mandatory && (
-                      <NavyBadge tone="danger">Obrigatória</NavyBadge>
-                    )}
-                    <NavyBadge tone={LEVEL_TONE[t.level]}>
-                      {LEVEL_CFG[t.level].label}
-                    </NavyBadge>
-                    <NavyBadge tone="neutral">
-                      {TYPE_CFG[t.type]?.label ?? t.type}
-                    </NavyBadge>
-                  </>
-                }
-                infos={[
-                  {
-                    icon: Clock,
-                    value:
-                      t.workloadHours != null ? `${t.workloadHours}h` : '—',
-                    label: 'Carga horária',
-                  },
-                  {
-                    icon: Users,
-                    value:
-                      t.capacity != null
-                        ? `${t._count.participants}/${t.capacity}`
-                        : String(t._count.participants),
-                    label: 'Participantes',
-                  },
-                  {
-                    icon: CalendarDays,
-                    value: t.startDate ? formatDate(t.startDate) : '—',
-                    label: t.endDate
-                      ? `até ${formatDate(t.endDate)}`
-                      : 'Data de início',
-                  },
-                  {
-                    icon: UserCheck,
-                    value:
-                      t.instructor?.fullName ??
-                      t.externalInstructor?.name ??
-                      'Sem formador',
-                    label: 'Formador',
-                  },
-                ]}
                 actions={
                   <>
                     <Button

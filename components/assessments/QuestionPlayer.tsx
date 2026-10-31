@@ -3,7 +3,10 @@
 // aberto, upload de ficheiro, media). Extraído de
 // app/(platform)/assessments/page.tsx.
 
+import { useState } from 'react';
 import { Paperclip } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { DOC_ACCEPT, useDocUpload } from '@/components/leave/useDocUpload';
 import Image from 'next/image';
 import { Card } from '@/components/ui/Card';
 import { parseOptions } from './utils';
@@ -26,6 +29,11 @@ export function QuestionPlayer({
   onChange,
 }: QuestionPlayerProps) {
   const options = parseOptions(question.options);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const upload = useDocUpload((_i, doc) => {
+    setFileName(doc.fileName);
+    onChange({ questionId: question.id, fileUrl: doc.fileUrl });
+  });
 
   const handleSingleChoice = (idx: number) => {
     onChange({ questionId: question.id, selectedIndices: [idx] });
@@ -182,12 +190,38 @@ export function QuestionPlayer({
           <div className="text-sm font-medium text-ink mb-1">
             Upload de ficheiro
           </div>
-          <button className="text-xs text-primary underline">
-            Seleccionar ficheiro
-          </button>
+          <input
+            ref={upload.inputRef}
+            type="file"
+            accept={DOC_ACCEPT}
+            className="hidden"
+            onChange={upload.onChange}
+          />
+          <Button
+            type="button"
+            intent="secondary"
+            size="sm"
+            onClick={() => upload.pick(0)}
+          >
+            {answer?.fileUrl ? 'Trocar ficheiro' : 'Seleccionar ficheiro'}
+          </Button>
+          <div className="mt-2 text-xs text-ink-faint">
+            PDF, PNG, JPG ou WebP, até 4 MB
+          </div>
           {answer?.fileUrl && (
-            <div className="mt-2 text-xs text-success">
-              ✓ Ficheiro carregado
+            <div className="mt-2 flex items-center justify-center gap-2 text-xs text-success">
+              ✓ {fileName ?? 'Ficheiro carregado'}
+              <Button
+                type="button"
+                intent="ghost"
+                size="sm"
+                onClick={() => {
+                  setFileName(null);
+                  onChange({ questionId: question.id });
+                }}
+              >
+                Remover
+              </Button>
             </div>
           )}
         </div>

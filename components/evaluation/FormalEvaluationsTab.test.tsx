@@ -93,7 +93,7 @@ describe('FormalEvaluationsTab', () => {
     evaluations = [
       {
         id: 1,
-        title: 'Rascunho',
+        title: 'Avaliação A',
         status: 'DRAFT',
         targetDepartmentIds: [],
         availableUntil: null,
@@ -101,7 +101,7 @@ describe('FormalEvaluationsTab', () => {
       },
       {
         id: 2,
-        title: 'Publicada',
+        title: 'Avaliação B',
         status: 'PUBLISHED',
         targetDepartmentIds: [1, 2],
         availableUntil: null,
@@ -109,8 +109,8 @@ describe('FormalEvaluationsTab', () => {
       },
     ];
     render(<FormalEvaluationsTab />);
-    expect(screen.getByText('Rascunho')).toBeInTheDocument();
-    expect(screen.getByText('Publicada')).toBeInTheDocument();
+    expect(screen.getByText('Avaliação A')).toBeInTheDocument();
+    expect(screen.getByText('Avaliação B')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Publicar' }),
     ).toBeInTheDocument();

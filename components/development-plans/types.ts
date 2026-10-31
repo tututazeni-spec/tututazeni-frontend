@@ -200,10 +200,19 @@ export interface MyStats {
 export interface TeamPlanSummary {
   id: number;
   name: string;
+  status?: PlanStatus;
+  priority?: Priority;
+  goal?: string;
+  period?: string | null;
+  imageUrl?: string | null;
+  endDate?: string | null;
+  actionCount?: number;
+  goalCount?: number;
   progress: number;
   overdueActions?: number;
   pendingApproval?: boolean;
   user: {
+    id: number;
     fullName: string;
     avatarUrl: string | null;
     position?: { name: string } | null;

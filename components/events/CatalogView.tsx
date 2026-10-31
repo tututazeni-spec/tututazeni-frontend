@@ -19,7 +19,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { MODALITY_CFG, TYPE_CFG } from './constants';
-import { EventCard } from './EventCard';
+import { EventListCard } from './EventListCard';
 import type { Event } from './types';
 import { Filter } from 'lucide-react';
 
@@ -90,7 +90,7 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {(data?.data ?? []).map((e) => (
-            <EventCard key={e.id} event={e} onSelect={() => onSelect(e.id)} />
+            <EventListCard key={e.id} event={e} onOpen={() => onSelect(e.id)} />
           ))}
           {(data?.data ?? []).length === 0 && (
             <div className="col-span-2">

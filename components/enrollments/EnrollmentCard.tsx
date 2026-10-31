@@ -1,23 +1,26 @@
 // components/enrollments/EnrollmentCard.tsx
-// Cartão de matrícula na vista do learner. Extraído de
-// app/(platform)/enrollments/page.tsx.
+// Cartão de matrícula na vista do learner. O desenho é o mesmo do cartão da
+// vista de gestão (AdminEnrollmentCard) — só mudam a informação e os botões:
+// aqui o painel leva a imagem do curso e os botões abrem/continuam a aula.
 
 'use client';
 
-import Image from 'next/image';
 import {
   AlertTriangle,
+  BookOpen,
   Award,
   CheckCircle2,
-  BookOpen,
   Hourglass,
+  TrendingUp,
 } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
-import { buttonVariants } from '@/components/ui/Button';
-import { ProgressBar } from '@/components/ui/ProgressBar';
-import { StatusBadge } from '@/components/ui/StatusBadge';
-import { CARD_BORDER_CFG, STATUS_CFG } from './constants';
-import { deadlineCountdown, deadlineIntent } from './utils';
+import {
+  AdminEnrollmentCard,
+  ADMIN_ENROLLMENT_BTN_GHOST,
+  ADMIN_ENROLLMENT_BTN_PRIMARY,
+  type AdminEnrollmentInfo,
+} from './AdminEnrollmentCard';
+import { STATUS_CFG, STATUS_TONE } from './constants';
+import { deadlineCountdown } from './utils';
 import type { Enrollment } from './types';
 
 interface EnrollmentCardProps {
@@ -36,152 +39,80 @@ export function EnrollmentCard({ enrollment, onCancel }: EnrollmentCardProps) {
     totalLessons,
     deadline,
   } = enrollment;
+  const href = `/courses/${enrollment.courseId}/learn`;
 
-  const borderCls = isOverdue
-    ? 'border-danger'
-    : (CARD_BORDER_CFG[status] ?? 'border-border');
+  const infos: AdminEnrollmentInfo[] = [];
+  if (status !== 'NOT_STARTED' && status !== 'CANCELLED' && totalLessons > 0) {
+    infos.push({
+      icon: TrendingUp,
+      text: `Progresso: ${progressPercent}% · ${completedLessons}/${totalLessons} aulas`,
+      danger: isOverdue,
+    });
+  }
+  if (deadline) {
+    infos.push({
+      icon: isOverdue ? AlertTriangle : Hourglass,
+      text: `Prazo limite: ${deadlineCountdown(deadline)}`,
+      danger: isOverdue,
+    });
+  }
+  if (enrollment.certificate) {
+    infos.push({ icon: Award, text: 'Certificado disponível' });
+  }
+  if (infos.length === 0) {
+    infos.push({ icon: BookOpen, text: 'Ainda sem progresso' });
+  }
 
   return (
-    <div
-      className={`overflow-hidden rounded-card border bg-surface transition-all ${borderCls}`}
-    >
-      <div className="flex gap-4 p-4">
-        {/* Thumbnail */}
-        <div className="relative h-14 w-20 flex-shrink-0 overflow-hidden rounded-control bg-surface-sunken">
-          {course.thumbnailUrl ? (
-            <Image
-              src={course.thumbnailUrl}
-              alt={course.title}
-              fill
-              sizes="80px"
-              className="object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-ink-faint">
-              <BookOpen size={22} strokeWidth={1.75} />
-            </div>
-          )}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-start justify-between gap-2">
-            <div>
-              <div className="mb-0.5 flex items-center gap-2">
-                {mandatory && (
-                  <Badge intent="danger" className="px-1.5 py-0">
-                    Obrigatório
-                  </Badge>
-                )}
-                {course.category && (
-                  <span className="text-xs text-ink-faint">
-                    {course.category}
-                  </span>
-                )}
-              </div>
-              <div className="line-clamp-1 text-sm font-medium text-ink">
-                {course.title}
-              </div>
-            </div>
-            <StatusBadge value={status} map={STATUS_CFG} variant="dot" />
-          </div>
-
-          {/* Progress */}
-          {status !== 'NOT_STARTED' &&
+    <AdminEnrollmentCard
+      seed={enrollment.courseId}
+      title={course.title}
+      subtitle={course.category ?? undefined}
+      avatar={{ name: course.title, url: course.thumbnailUrl }}
+      status={{
+        label: STATUS_CFG[status]?.label ?? status,
+        tone: STATUS_TONE[status] ?? 'neutral',
+      }}
+      tags={mandatory ? ['Obrigatório'] : []}
+      infos={infos}
+      actions={
+        <>
+          {!mandatory &&
+            status !== 'COMPLETED' &&
             status !== 'CANCELLED' &&
-            totalLessons > 0 && (
-              <div className="mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <ProgressBar value={progressPercent} />
-                  </div>
-                  <span
-                    className={`w-8 text-right font-mono text-xs ${isOverdue ? 'text-danger' : 'text-ink-muted'}`}
-                  >
-                    {progressPercent}%
-                  </span>
-                </div>
-                <div className="mt-0.5 text-xs text-ink-faint">
-                  {completedLessons}/{totalLessons} aulas
-                </div>
-              </div>
+            onCancel && (
+              <button
+                type="button"
+                onClick={() => onCancel(enrollment.id)}
+                className={ADMIN_ENROLLMENT_BTN_GHOST}
+              >
+                Cancelar
+              </button>
             )}
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {deadline && (
-                <Badge intent={deadlineIntent(deadline, isOverdue)}>
-                  {isOverdue ? (
-                    <AlertTriangle
-                      size={12}
-                      strokeWidth={1.75}
-                      className="inline mr-1"
-                    />
-                  ) : (
-                    <Hourglass
-                      size={12}
-                      strokeWidth={1.75}
-                      className="inline mr-1"
-                    />
-                  )}
-                  {deadlineCountdown(deadline)}
-                </Badge>
-              )}
-              {enrollment.certificate && (
-                <span className="flex items-center gap-1 rounded px-2 py-0.5 text-xs bg-success-subtle text-success-ink">
-                  <Award size={14} strokeWidth={1.75} />
-                  Certificado
-                </span>
-              )}
-            </div>
-
-            {/* CTA button */}
-            <div>
-              {status === 'NOT_STARTED' && (
-                <a
-                  href={`/courses/${enrollment.courseId}/learn`}
-                  className={buttonVariants({ intent: 'primary', size: 'sm' })}
-                >
-                  Iniciar →
-                </a>
-              )}
-              {status === 'IN_PROGRESS' && (
-                <a
-                  href={`/courses/${enrollment.courseId}/learn`}
-                  className={buttonVariants({ intent: 'primary', size: 'sm' })}
-                >
-                  Continuar →
-                </a>
-              )}
-              {status === 'OVERDUE' && (
-                <a
-                  href={`/courses/${enrollment.courseId}/learn`}
-                  className={buttonVariants({ intent: 'danger', size: 'sm' })}
-                >
-                  <AlertTriangle size={14} strokeWidth={1.75} />
-                  Iniciar agora →
-                </a>
-              )}
-              {status === 'COMPLETED' && (
-                <span className="flex items-center gap-1 text-xs font-medium text-success-ink">
-                  <CheckCircle2 size={14} strokeWidth={1.75} />
-                  Concluído
-                </span>
-              )}
-              {!mandatory &&
-                status !== 'COMPLETED' &&
-                status !== 'CANCELLED' &&
-                onCancel && (
-                  <button
-                    onClick={() => onCancel(enrollment.id)}
-                    className="ml-2 text-xs text-ink-faint hover:text-danger"
-                  >
-                    Cancelar
-                  </button>
-                )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          {status === 'NOT_STARTED' && (
+            <a href={href} className={ADMIN_ENROLLMENT_BTN_PRIMARY}>
+              Iniciar →
+            </a>
+          )}
+          {status === 'IN_PROGRESS' && (
+            <a href={href} className={ADMIN_ENROLLMENT_BTN_PRIMARY}>
+              Continuar →
+            </a>
+          )}
+          {status === 'OVERDUE' && (
+            <a href={href} className={ADMIN_ENROLLMENT_BTN_PRIMARY}>
+              <AlertTriangle size={14} strokeWidth={1.75} />
+              Iniciar agora →
+            </a>
+          )}
+          {status === 'COMPLETED' && (
+            <span className="inline-flex items-center gap-1 text-sm font-semibold text-success-ink">
+              <CheckCircle2 size={15} strokeWidth={1.75} />
+              Concluído
+            </span>
+          )}
+        </>
+      }
+    />
   );
 }

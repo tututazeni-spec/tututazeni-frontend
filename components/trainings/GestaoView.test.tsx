@@ -85,7 +85,7 @@ describe('GestaoView (trainings)', () => {
     render(<GestaoView onManage={vi.fn()} />);
     expect(screen.getByText('Liderança 101')).toBeInTheDocument();
     expect(screen.getByText('Workshop de Vendas')).toBeInTheDocument();
-    expect(screen.getByText('Obrigatória')).toBeInTheDocument();
+    expect(screen.getByText('Obrigatório')).toBeInTheDocument();
   });
 
   test('estado vazio quando não há formações geríveis', () => {

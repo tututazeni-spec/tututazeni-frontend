@@ -27,17 +27,14 @@ import { ADMIN_ROLES } from '@/lib/roles';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import {
-  NavyBadge,
-  NavyCard,
-  type NavyTone,
-} from '@/components/courses/NavyCard';
+import type { BadgeProps } from '@/components/ui/Badge';
+import { CycleCard } from './CycleCard';
 import { CreateCycleModal } from './CreateCycleModal';
 import { MODEL_LABEL, STATUS_MAP } from './constants';
 import type { Cycle } from './types';
 import { formatDateNumeric } from '@/lib/format';
 
-const CYCLE_TONE: Record<string, NavyTone> = {
+const CYCLE_TONE: Record<string, BadgeProps['intent']> = {
   DRAFT: 'neutral',
   PUBLISHED: 'info',
   ACTIVE: 'success',
@@ -149,12 +146,13 @@ export function CyclesTab() {
             rate: 0,
           };
           return (
-            <NavyCard
+            <CycleCard
               key={cycle.id}
               seed={cycle.id}
               kicker={MODEL_LABEL[cycle.model] ?? cycle.model}
               kickerIcon={ClipboardList}
               title={cycle.name}
+              imageUrl={cycle.imageUrl}
               subtitle={[
                 `${formatDateNumeric(cycle.startDate)} → ${formatDateNumeric(cycle.endDate)}`,
                 cycle.selfEvalDueDate &&
@@ -164,11 +162,10 @@ export function CyclesTab() {
               ]
                 .filter(Boolean)
                 .join(' · ')}
-              badge={
-                <NavyBadge tone={CYCLE_TONE[cycle.status] ?? 'neutral'}>
-                  {STATUS_MAP[cycle.status]?.label ?? cycle.status}
-                </NavyBadge>
-              }
+              status={{
+                label: STATUS_MAP[cycle.status]?.label ?? cycle.status,
+                intent: CYCLE_TONE[cycle.status] ?? 'neutral',
+              }}
               infos={[
                 {
                   icon: TrendingUp,
@@ -204,7 +201,7 @@ export function CyclesTab() {
                     <Button
                       type="button"
                       intent="onDark"
-                      size="md"
+                      size="sm"
                       onClick={() =>
                         runCycleAction(cycle.id, 'publish', 'POST')
                       }
@@ -216,7 +213,7 @@ export function CyclesTab() {
                     <Button
                       type="button"
                       intent="onDark"
-                      size="md"
+                      size="sm"
                       onClick={() =>
                         runCycleAction(cycle.id, 'activate', 'POST')
                       }
@@ -229,7 +226,7 @@ export function CyclesTab() {
                       <Button
                         type="button"
                         intent="onDark"
-                        size="md"
+                        size="sm"
                         onClick={() =>
                           runCycleAction(cycle.id, 'pause', 'PATCH')
                         }
@@ -239,7 +236,7 @@ export function CyclesTab() {
                       <Button
                         type="button"
                         intent="onDark"
-                        size="md"
+                        size="sm"
                         onClick={() =>
                           runCycleAction(cycle.id, 'close', 'PATCH')
                         }
@@ -249,7 +246,7 @@ export function CyclesTab() {
                       <Button
                         type="button"
                         intent="onDark"
-                        size="md"
+                        size="sm"
                         onClick={() =>
                           runCycleAction(cycle.id, 'remind', 'POST')
                         }
@@ -262,7 +259,7 @@ export function CyclesTab() {
                     <Button
                       type="button"
                       intent="onDarkGhost"
-                      size="md"
+                      size="sm"
                       disabled={deleteCycle.isPending}
                       onClick={() => void handleDelete(cycle)}
                     >
@@ -276,7 +273,7 @@ export function CyclesTab() {
                       <Button
                         type="button"
                         intent="onDark"
-                        size="md"
+                        size="sm"
                         onClick={() =>
                           runCycleAction(cycle.id, 'reopen', 'PATCH')
                         }

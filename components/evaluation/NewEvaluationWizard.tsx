@@ -27,6 +27,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { CourseImageField } from '@/components/courses/CourseImageField';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -93,6 +94,7 @@ interface NewEvaluationFormValues {
   cycleMode: 'standalone' | 'existing';
   existingCycleId: string;
   description: string;
+  imageUrl: string;
   startDate: string;
   endDate: string;
   dueDate: string;
@@ -121,6 +123,7 @@ const INITIAL_VALUES: NewEvaluationFormValues = {
   cycleMode: 'standalone',
   existingCycleId: '',
   description: '',
+  imageUrl: '',
   startDate: '',
   endDate: '',
   dueDate: '',
@@ -160,6 +163,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
     cycleMode,
     existingCycleId,
     description,
+    imageUrl,
     startDate,
     endDate,
     dueDate,
@@ -300,6 +304,7 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
             startDate,
             endDate,
             ...(description.trim() ? { description: description.trim() } : {}),
+            ...(imageUrl ? { imageUrl } : {}),
             templateId,
             blocks,
             populationType,
@@ -528,6 +533,13 @@ export function NewEvaluationWizard({ onClose }: NewEvaluationWizardProps) {
                 onChange={(e) => set('description', e.target.value)}
                 rows={2}
                 className="w-full"
+              />
+            </FormField>
+            <FormField label="Imagem da avaliação" htmlFor="ne-image">
+              <CourseImageField
+                value={imageUrl || null}
+                onChange={(v) => set('imageUrl', v ?? '')}
+                alt="Pré-visualização da imagem da avaliação"
               />
             </FormField>
           </div>

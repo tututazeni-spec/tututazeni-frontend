@@ -179,11 +179,15 @@ export const queryKeys = {
   formalEvaluations: {
     all: ['formal-evaluations'] as const,
     list: () => [...queryKeys.formalEvaluations.all, 'list'] as const,
+    edit: (id: number) =>
+      [...queryKeys.formalEvaluations.all, 'edit', id] as const,
     available: () => [...queryKeys.formalEvaluations.all, 'available'] as const,
     results: (id: number) =>
       [...queryKeys.formalEvaluations.all, 'results', id] as const,
     attemptReview: (id: number) =>
       [...queryKeys.formalEvaluations.all, 'attempt-review', id] as const,
+    myReview: (attemptId: number) =>
+      [...queryKeys.formalEvaluations.all, 'my-review', attemptId] as const,
   },
 
   departments: {

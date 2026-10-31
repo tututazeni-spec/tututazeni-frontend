@@ -34,6 +34,19 @@ export const STATUS_CFG: StatusBadgeMap<EnrollmentStatus> = {
   CANCELLED: { label: 'Cancelado', cls: 'bg-surface-sunken text-ink-faint' },
 };
 
+/** Tom da pílula de estado do cartão de inscrição (igual para todos os roles). */
+export const STATUS_TONE: Record<
+  string,
+  'success' | 'danger' | 'warning' | 'info' | 'neutral'
+> = {
+  NOT_STARTED: 'warning',
+  IN_PROGRESS: 'info',
+  COMPLETED: 'success',
+  OVERDUE: 'danger',
+  CANCELLED: 'neutral',
+  EXPIRED: 'neutral',
+};
+
 /** Mapa de cor do card do learner por estado — só os estados com borda própria. */
 export const CARD_BORDER_CFG: Partial<Record<EnrollmentStatus, string>> = {
   COMPLETED: 'border-success',

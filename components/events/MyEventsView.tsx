@@ -13,7 +13,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { EventCard } from './EventCard';
+import { EventListCard } from './EventListCard';
 import type { MyEvents } from './types';
 
 interface MyEventsViewProps {
@@ -75,11 +75,11 @@ export function MyEventsView({ onSelect }: MyEventsViewProps) {
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {items.map((p) => (
-            <EventCard
+            <EventListCard
               key={p.id}
               event={p.event}
               myStatus={p.status}
-              onSelect={() => onSelect(p.event.id)}
+              onOpen={() => onSelect(p.event.id)}
             />
           ))}
         </div>

@@ -10,14 +10,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  BarChart3,
-  ClipboardList,
-  Copy,
-  Plus,
-  Timer,
-  Trash2,
-} from 'lucide-react';
+import { BarChart3, ClipboardList, MoreHorizontal, Plus } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -25,27 +18,27 @@ import { useHasRole } from '@/hooks/useCurrentRole';
 import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { Badge, type BadgeProps } from '@/components/ui/Badge';
-import { Button, IconButton } from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/assessments/Skeleton';
 import { CreateFormalEvaluationModal } from './CreateFormalEvaluationModal';
+import { FormalEvaluationCard } from './FormalEvaluationCard';
 import { FormalEvaluationResultsPanel } from './FormalEvaluationResultsPanel';
 import { FormalEvaluationsParticipantView } from './FormalEvaluationsParticipantView';
 import type { FormalEvaluation } from './formalEvaluationTypes';
-import { formatDateTimeNumeric } from '@/lib/format';
-
-const STATUS_INTENT: Record<string, BadgeProps['intent']> = {
-  DRAFT: 'neutral',
-  PUBLISHED: 'success',
-  ARCHIVED: 'warning',
-};
 
 function ManagementView() {
   const notify = useToast();
   const confirm = useConfirm();
   const [showCreate, setShowCreate] = useState(false);
   const [resultsId, setResultsId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const { data, isLoading } = useApiQuery<FormalEvaluation[]>(
     queryKeys.formalEvaluations.list(),
@@ -120,88 +113,93 @@ function ManagementView() {
         />
       )}
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {evaluations.map((e) => (
-          <div
+          <FormalEvaluationCard
             key={e.id}
-            className="flex items-center gap-4 rounded-card border border-border bg-surface p-5"
-          >
-            <div className="flex-1">
-              <div className="mb-0.5 flex items-center gap-2 text-sm font-semibold text-ink">
-                {e.title}
-                <Badge intent={STATUS_INTENT[e.status]}>{e.status}</Badge>
-              </div>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-ink-faint">
-                <span>{e._count.questions} perguntas</span>
-                <span>{e._count.attempts} tentativas</span>
-                <span>
-                  {e.targetDepartmentIds.length === 0
-                    ? 'Todos os departamentos'
-                    : `${e.targetDepartmentIds.length} departamento(s)`}
-                </span>
-                {e.availableUntil && (
-                  <span className="inline-flex items-center gap-1">
-                    <Timer size={12} strokeWidth={1.75} />
-                    Até {formatDateTimeNumeric(e.availableUntil)}
-                  </span>
+            evaluation={e}
+            onSelect={
+              e.status !== 'DRAFT' ? () => setResultsId(e.id) : undefined
+            }
+            actions={
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    intent="onDarkGhost"
+                    size="icon"
+                    aria-label="Mais opções"
+                    title="Mais opções"
+                  >
+                    <MoreHorizontal size={16} strokeWidth={1.75} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {e.status === 'DRAFT' && (
+                    <DropdownMenuItem onSelect={() => setEditingId(e.id)}>
+                      Editar
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onSelect={() => duplicate.mutate(e.id)}>
+                    Duplicar
+                  </DropdownMenuItem>
+                  {e.status !== 'PUBLISHED' && (
+                    <DropdownMenuItem
+                      className="text-danger-ink"
+                      onSelect={() => handleRemove(e)}
+                    >
+                      Eliminar
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            }
+            footer={
+              <>
+                {e.status !== 'DRAFT' && (
+                  <Button
+                    intent="onDark"
+                    size="sm"
+                    onClick={() => setResultsId(e.id)}
+                  >
+                    <BarChart3 size={14} strokeWidth={1.75} />
+                    Resultados
+                  </Button>
                 )}
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {e.status !== 'DRAFT' && (
-                <Button
-                  intent="secondary"
-                  size="sm"
-                  onClick={() => setResultsId(e.id)}
-                >
-                  <BarChart3 size={14} strokeWidth={1.75} />
-                  Resultados
-                </Button>
-              )}
-              {e.status === 'DRAFT' && (
-                <Button
-                  size="sm"
-                  onClick={() => publish.mutate(e.id)}
-                  loading={publish.isPending}
-                >
-                  Publicar
-                </Button>
-              )}
-              {e.status === 'PUBLISHED' && (
-                <Button
-                  intent="secondary"
-                  size="sm"
-                  onClick={() => archive.mutate(e.id)}
-                  loading={archive.isPending}
-                >
-                  Arquivar
-                </Button>
-              )}
-              <IconButton
-                icon={Copy}
-                label="Duplicar"
-                intent="ghost"
-                size="compact"
-                type="button"
-                onClick={() => duplicate.mutate(e.id)}
-              />
-              {e.status !== 'PUBLISHED' && (
-                <IconButton
-                  icon={Trash2}
-                  label="Eliminar"
-                  intent="ghostDanger"
-                  size="compact"
-                  type="button"
-                  onClick={() => handleRemove(e)}
-                />
-              )}
-            </div>
-          </div>
+                {e.status === 'DRAFT' && (
+                  <Button
+                    intent="onDark"
+                    size="sm"
+                    onClick={() => publish.mutate(e.id)}
+                    loading={publish.isPending}
+                  >
+                    Publicar
+                  </Button>
+                )}
+                {e.status === 'PUBLISHED' && (
+                  <Button
+                    intent="onDarkGhost"
+                    size="sm"
+                    onClick={() => archive.mutate(e.id)}
+                    loading={archive.isPending}
+                  >
+                    Arquivar
+                  </Button>
+                )}
+              </>
+            }
+          />
         ))}
       </div>
 
       {showCreate && (
         <CreateFormalEvaluationModal onClose={() => setShowCreate(false)} />
+      )}
+      {editingId !== null && (
+        <CreateFormalEvaluationModal
+          evaluationId={editingId}
+          onClose={() => setEditingId(null)}
+        />
       )}
       {resultsId !== null && (
         <FormalEvaluationResultsPanel

@@ -226,8 +226,7 @@ export function TrainingFormModal({
       passingScore: training?.passingScore?.toString() ?? '70',
       issueCertificate: training?.issueCertificate ?? false,
       completionMode: training?.completionMode ?? 'MANUAL',
-      minAttendancePercent:
-        training?.minAttendancePercent?.toString() ?? '75',
+      minAttendancePercent: training?.minAttendancePercent?.toString() ?? '75',
       startDate: training?.startDate?.slice(0, 10) ?? '',
       endDate: training?.endDate?.slice(0, 10) ?? '',
       completionDeadlineDays:
@@ -497,7 +496,10 @@ export function TrainingFormModal({
               >
                 <div className="max-h-36 space-y-1 overflow-y-auto rounded-control border border-border p-2">
                   {competencyOptions.length === 0 && (
-                    <EmptyState variant="inline" title="Sem competências cadastradas" />
+                    <EmptyState
+                      variant="inline"
+                      title="Sem competências cadastradas"
+                    />
                   )}
                   {competencyOptions.map((c) => (
                     <label
@@ -505,7 +507,6 @@ export function TrainingFormModal({
                       className="flex items-center gap-2 text-xs text-ink-muted"
                     >
                       <Checkbox
-                        
                         checked={competencyIds.includes(c.id)}
                         onChange={() =>
                           toggle(competencyIds, setCompetencyIds, c.id)
@@ -647,7 +648,6 @@ export function TrainingFormModal({
                       className="flex items-center gap-2 text-xs text-ink-muted"
                     >
                       <Checkbox
-                        
                         checked={coInstructorIds.includes(Number(u.value))}
                         onChange={() =>
                           toggle(
@@ -841,7 +841,6 @@ export function TrainingFormModal({
                         className="flex items-center gap-2 text-xs text-ink-muted"
                       >
                         <Checkbox
-                          
                           checked={targetUnitIds.includes(u.id)}
                           onChange={() =>
                             toggle(targetUnitIds, setTargetUnitIds, u.id)
@@ -866,7 +865,6 @@ export function TrainingFormModal({
                         className="flex items-center gap-2 text-xs text-ink-muted"
                       >
                         <Checkbox
-                          
                           checked={targetDeptIds.includes(d.id)}
                           onChange={() =>
                             toggle(targetDeptIds, setTargetDeptIds, d.id)
@@ -888,7 +886,6 @@ export function TrainingFormModal({
                         className="flex items-center gap-2 text-xs text-ink-muted"
                       >
                         <Checkbox
-                          
                           checked={targetPositionIds.includes(p.id)}
                           onChange={() =>
                             toggle(
@@ -910,7 +907,6 @@ export function TrainingFormModal({
             <TabsContent value="participants" className="space-y-4">
               <label className="flex items-center gap-2 text-sm text-ink">
                 <Checkbox
-                  
                   checked={form.requiresApproval}
                   onChange={(e) =>
                     setField('requiresApproval', e.target.checked)
@@ -926,7 +922,6 @@ export function TrainingFormModal({
 
               <label className="flex items-center gap-2 text-sm text-ink">
                 <Checkbox
-                  
                   checked={form.mandatory}
                   onChange={(e) => setField('mandatory', e.target.checked)}
                 />
@@ -935,7 +930,6 @@ export function TrainingFormModal({
 
               <label className="flex items-center gap-2 text-sm text-ink">
                 <Checkbox
-                  
                   checked={form.issueCertificate}
                   onChange={(e) =>
                     setField('issueCertificate', e.target.checked)
@@ -971,10 +965,7 @@ export function TrainingFormModal({
                       items={COMPLETION_MODE_ITEMS}
                       value={form.completionMode}
                       onValueChange={(v) =>
-                        setField(
-                          'completionMode',
-                          v as TrainingCompletionMode,
-                        )
+                        setField('completionMode', v as TrainingCompletionMode)
                       }
                       className="w-full"
                     />
