@@ -7,14 +7,19 @@
 
 'use client';
 
-import { ClipboardList, Download, Star } from 'lucide-react';
+import {
+  CalendarDays,
+  ClipboardList,
+  Download,
+  Filter,
+  Star,
+} from 'lucide-react';
 import { useState } from 'react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/departments/departmentFormData';
@@ -70,7 +75,7 @@ function GroupTable({
 }
 
 const TYPE_ITEMS = [
-  { value: ALL, label: 'Todos' },
+  { value: ALL, label: 'Todos os tipos de avaliação' },
   { value: 'MANAGER', label: 'Chefia' },
   { value: 'SELF', label: 'Autoavaliação' },
   { value: 'PEER', label: 'Colegas' },
@@ -79,7 +84,7 @@ const TYPE_ITEMS = [
 ];
 
 const ACTION_STATUS_ITEMS = [
-  { value: ALL, label: 'Todos' },
+  { value: ALL, label: 'Todos os estados das ações' },
   ...Object.entries(RECOMMENDATION_STATUS_LABELS).map(([value, label]) => ({
     value,
     label,
@@ -123,18 +128,21 @@ export function ReportsTab() {
     recommendationStatus: '',
   });
   const [manager, setManager] = useState<DirectoryUser | null>(null);
-  const cycleItems = [{ value: ALL, label: 'Todos' }, ...useCycleOptions()];
+  const cycleItems = [
+    { value: ALL, label: 'Todos os ciclos' },
+    ...useCycleOptions(),
+  ];
   const departmentItems = [
-    { value: ALL, label: 'Todos' },
+    { value: ALL, label: 'Todos os departamentos' },
     ...useDepartmentOptions(),
   ];
   const { units } = useUnits();
   const unitItems = [
-    { value: ALL, label: 'Todas' },
+    { value: ALL, label: 'Todas as unidades' },
     ...units.map((u) => ({ value: String(u.id), label: u.name })),
   ];
   const positionItems = [
-    { value: ALL, label: 'Todos' },
+    { value: ALL, label: 'Todos os cargos' },
     ...usePositionOptions().options,
   ];
 
@@ -159,61 +167,84 @@ export function ReportsTab() {
   return (
     <div className="space-y-4">
       <Card>
-        <CardBody className="flex flex-wrap items-end gap-3">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">
-              Ciclo
-            </label>
+        <CardBody className="space-y-5">
+          <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-3">
             <Select
+              variant="underline"
+              icon={Filter}
               items={cycleItems}
               value={filters.cycleId || ALL}
               onValueChange={(v) =>
                 setFilters((f) => ({ ...f, cycleId: v === ALL ? '' : v }))
               }
-              className="w-48"
             />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">
-              Departamento
-            </label>
             <Select
+              variant="underline"
+              icon={Filter}
               items={departmentItems}
               value={filters.departmentId || ALL}
               onValueChange={(v) =>
                 setFilters((f) => ({ ...f, departmentId: v === ALL ? '' : v }))
               }
-              className="w-48"
             />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">
-              Unidade
-            </label>
             <Select
+              variant="underline"
+              icon={Filter}
               items={unitItems}
               value={filters.unitId || ALL}
               onValueChange={(v) =>
                 setFilters((f) => ({ ...f, unitId: v === ALL ? '' : v }))
               }
-              className="w-40"
             />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">
-              Cargo
-            </label>
             <Select
+              variant="underline"
+              icon={Filter}
               items={positionItems}
               value={filters.positionId || ALL}
               onValueChange={(v) =>
                 setFilters((f) => ({ ...f, positionId: v === ALL ? '' : v }))
               }
-              className="w-44"
             />
-          </div>
-          {isOrgWide && (
-            <div className="w-60">
+            <Select
+              variant="underline"
+              icon={Filter}
+              items={TYPE_ITEMS}
+              value={filters.type || ALL}
+              onValueChange={(v) =>
+                setFilters((f) => ({ ...f, type: v === ALL ? '' : v }))
+              }
+            />
+            <Select
+              variant="underline"
+              icon={Filter}
+              items={ACTION_STATUS_ITEMS}
+              value={filters.recommendationStatus || ALL}
+              onValueChange={(v) =>
+                setFilters((f) => ({
+                  ...f,
+                  recommendationStatus: v === ALL ? '' : v,
+                }))
+              }
+            />
+            <div className="flex min-h-[44px] items-center gap-3 border-b border-brand-line bg-transparent px-1 pb-2.5 pt-3 transition-colors focus-within:border-brand hover:border-brand-muted">
+              <CalendarDays
+                size={20}
+                strokeWidth={1.5}
+                className="shrink-0 text-brand-muted"
+                aria-hidden
+              />
+              <input
+                type="text"
+                aria-label="Período"
+                value={filters.period}
+                onChange={(e) =>
+                  setFilters((f) => ({ ...f, period: e.target.value }))
+                }
+                placeholder="Período (2026 ou 2026-03)"
+                className="min-w-0 flex-1 bg-transparent font-body text-sm text-brand outline-none placeholder:text-brand-muted"
+              />
+            </div>
+            {isOrgWide && (
               <DepartmentUserPicker
                 label="Gestor"
                 htmlFor="rep-manager"
@@ -226,75 +257,44 @@ export function ReportsTab() {
                   }));
                 }}
               />
-            </div>
-          )}
-          <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">
-              Tipo de avaliação
-            </label>
-            <Select
-              items={TYPE_ITEMS}
-              value={filters.type || ALL}
-              onValueChange={(v) =>
-                setFilters((f) => ({ ...f, type: v === ALL ? '' : v }))
-              }
-              className="w-44"
-            />
+            )}
           </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">
-              Estado das ações
-            </label>
-            <Select
-              items={ACTION_STATUS_ITEMS}
-              value={filters.recommendationStatus || ALL}
-              onValueChange={(v) =>
-                setFilters((f) => ({
-                  ...f,
-                  recommendationStatus: v === ALL ? '' : v,
-                }))
-              }
-              className="w-40"
-            />
+          <div className="flex flex-wrap items-center gap-3">
+            <Button onClick={run} loading={load.isPending}>
+              Gerar Relatório
+            </Button>
+            {isOrgWide && (
+              <>
+                <a
+                  href={`/api/evaluations/reports/export.csv${buildQuery()}`}
+                  className={buttonVariants({
+                    intent: 'secondary',
+                    size: 'md',
+                  })}
+                >
+                  <Download size={14} strokeWidth={1.75} /> CSV
+                </a>
+                <a
+                  href={`/api/evaluations/reports/export.xlsx${buildQuery()}`}
+                  className={buttonVariants({
+                    intent: 'secondary',
+                    size: 'md',
+                  })}
+                >
+                  <Download size={14} strokeWidth={1.75} /> Excel
+                </a>
+                <a
+                  href={`/api/evaluations/reports/export.pdf${buildQuery()}`}
+                  className={buttonVariants({
+                    intent: 'secondary',
+                    size: 'md',
+                  })}
+                >
+                  <Download size={14} strokeWidth={1.75} /> PDF
+                </a>
+              </>
+            )}
           </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-ink-muted">
-              Período
-            </label>
-            <Input
-              value={filters.period}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, period: e.target.value }))
-              }
-              placeholder="2026 ou 2026-03"
-              className="w-32"
-            />
-          </div>
-          <Button onClick={run} loading={load.isPending}>
-            Gerar Relatório
-          </Button>
-          {isOrgWide && (
-            <>
-              <a
-                href={`/api/evaluations/reports/export.csv${buildQuery()}`}
-                className={buttonVariants({ intent: 'secondary', size: 'md' })}
-              >
-                <Download size={14} strokeWidth={1.75} /> CSV
-              </a>
-              <a
-                href={`/api/evaluations/reports/export.xlsx${buildQuery()}`}
-                className={buttonVariants({ intent: 'secondary', size: 'md' })}
-              >
-                <Download size={14} strokeWidth={1.75} /> Excel
-              </a>
-              <a
-                href={`/api/evaluations/reports/export.pdf${buildQuery()}`}
-                className={buttonVariants({ intent: 'secondary', size: 'md' })}
-              >
-                <Download size={14} strokeWidth={1.75} /> PDF
-              </a>
-            </>
-          )}
         </CardBody>
       </Card>
 
