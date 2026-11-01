@@ -52,6 +52,7 @@ import { useInstructorOptions } from './wizard/wizardData';
 import type {
   LiveClassSession,
   LiveClassStatus,
+  MeetingProvider,
   PaginatedSessions,
 } from './types';
 
@@ -69,6 +70,7 @@ interface SessionFormState {
   sessionDate: string;
   durationMinutes: string;
   location: string;
+  meetingProvider: MeetingProvider | '';
   meetingUrl: string;
   notes: string;
 }
@@ -78,9 +80,16 @@ const EMPTY: SessionFormState = {
   sessionDate: '',
   durationMinutes: '60',
   location: '',
+  meetingProvider: '',
   meetingUrl: '',
   notes: '',
 };
+
+const SESSION_PROVIDER_ITEMS = [
+  { value: 'NONE', label: 'Outro link / sala da aula' },
+  { value: 'ZOOM', label: 'Zoom' },
+  { value: 'TEAMS', label: 'Microsoft Teams' },
+];
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
@@ -166,6 +175,10 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
       sessionDate: s.sessionDate.slice(0, 16),
       durationMinutes: String(s.durationMinutes),
       location: s.location ?? '',
+      meetingProvider:
+        s.meetingProvider && s.meetingProvider !== 'JITSI'
+          ? s.meetingProvider
+          : '',
       meetingUrl: s.meetingUrl ?? '',
       notes: s.notes ?? '',
     });
@@ -180,6 +193,7 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
         sessionDate: new Date(form.sessionDate).toISOString(),
         durationMinutes: Number(form.durationMinutes) || 60,
         location: form.location || undefined,
+        meetingProvider: form.meetingProvider || undefined,
         meetingUrl: form.meetingUrl || undefined,
         notes: form.notes || undefined,
       };
@@ -458,7 +472,30 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                   className="w-full"
                 />
               </FormField>
-              <FormField label="Link da reunião" htmlFor="sv-meetingUrl">
+              <FormField label="Plataforma" htmlFor="sv-provider">
+                <Select
+                  items={SESSION_PROVIDER_ITEMS}
+                  value={form.meetingProvider || 'NONE'}
+                  onValueChange={(v) =>
+                    setForm((f) => ({
+                      ...f,
+                      meetingProvider:
+                        v === 'NONE' ? '' : (v as MeetingProvider),
+                    }))
+                  }
+                  className="w-full"
+                />
+              </FormField>
+              <FormField
+                label={
+                  form.meetingProvider === 'ZOOM'
+                    ? 'Link ou ID da reunião Zoom'
+                    : form.meetingProvider === 'TEAMS'
+                      ? 'Link da reunião Teams'
+                      : 'Link da reunião'
+                }
+                htmlFor="sv-meetingUrl"
+              >
                 <Input
                   id="sv-meetingUrl"
                   value={form.meetingUrl}
