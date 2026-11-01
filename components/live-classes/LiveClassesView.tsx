@@ -13,6 +13,7 @@
 // uma das 14 abas principais, não uma sub-vista de "Aulas") — ver
 // RecordingsView.tsx.
 
+import { useState } from 'react';
 import {
   Calendar,
   Circle,
@@ -39,6 +40,9 @@ import type {
 } from './types';
 import { Button } from '@/components/ui/Button';
 
+// Valor do item "Todos os cursos" (o Select não aceita valor vazio).
+const ALL_COURSES = 'ALL';
+
 export interface Filters {
   page: number;
   courseId: string;
@@ -46,9 +50,6 @@ export interface Filters {
   status: LiveClassStatus | '';
   modality: SessionModality | '';
 }
-
-// Valor do item "sem filtro" do Select (não aceita valor vazio).
-const ALL_COURSES = 'ALL';
 
 const TYPE_ITEMS = [
   { value: '', label: 'Todos os tipos' },
@@ -122,6 +123,9 @@ export function LiveClassesView({
   onDuplicate,
   onAddInstructor,
 }: LiveClassesViewProps) {
+  // Por omissão o filtro mostra só "Selecionar"; "Todos os cursos" e os cursos
+  // aparecem ao abrir a lista.
+  const [allChosen, setAllChosen] = useState(false);
   const courseItems = [
     { value: ALL_COURSES, label: 'Todos os cursos' },
     ...useCourseOptions(),
@@ -206,10 +210,12 @@ export function LiveClassesView({
           />
           <Select
             items={courseItems}
-            value={filters.courseId || ALL_COURSES}
-            onValueChange={(v) =>
-              onFiltersChange({ courseId: v === ALL_COURSES ? '' : v })
-            }
+            value={filters.courseId || (allChosen ? ALL_COURSES : '')}
+            placeholder="Selecionar"
+            onValueChange={(v) => {
+              setAllChosen(v === ALL_COURSES);
+              onFiltersChange({ courseId: v === ALL_COURSES ? '' : v });
+            }}
             className="w-56"
           />
           <button
@@ -258,6 +264,7 @@ export function LiveClassesView({
               type="button"
               onClick={() => {
                 onSearchChange('');
+                setAllChosen(false);
                 onFiltersChange({
                   courseId: '',
                   type: '',
