@@ -54,7 +54,8 @@ describe('buildCreateUserPayload', () => {
     // employeeNumber/username são @unique no backend: "" colidiria
     expect(p.employeeNumber).toBeUndefined();
     expect(p.username).toBeUndefined();
-    expect(p.password).toBeUndefined();
+    // a password nunca é enviada: o utilizador define-a pelo link de convite
+    expect(p).not.toHaveProperty('password');
     expect(Object.values(p).filter((v) => v === '')).toEqual([]);
     expect(p).toMatchObject({
       fullName: 'Ana Silva',
