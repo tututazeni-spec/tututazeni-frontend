@@ -9,6 +9,7 @@ import { reportError } from '@/lib/errorReporting';
 import { apiClient } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
 import { ExternalMeetingCard } from './ExternalMeetingCard';
+import { ZoomRoom, type ZoomSdkAccess } from './ZoomRoom';
 import type { JitsiAPI, LiveClass } from './types';
 
 interface JitsiRoomProps {
@@ -43,6 +44,7 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     provider: 'ZOOM' | 'TEAMS';
     joinUrl: string;
     passcode: string | null;
+    sdk?: ZoomSdkAccess;
   } | null>(null);
 
   useEffect(() => {
@@ -54,6 +56,7 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
             provider: 'ZOOM' | 'TEAMS';
             joinUrl: string;
             passcode: string | null;
+            sdk?: ZoomSdkAccess;
           }
       >(`/live-classes/${liveClass.id}/room`)
       .then((r) => {
@@ -209,6 +212,19 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     setFrameReady(false);
     setRetryToken((t) => t + 1);
   }, []);
+
+  if (external?.provider === 'ZOOM' && external.sdk) {
+    return (
+      <ZoomRoom
+        joinUrl={external.joinUrl}
+        passcode={external.passcode}
+        topic={liveClass.topic}
+        sdk={external.sdk}
+        onJoined={onJoined}
+        onLeft={onLeft}
+      />
+    );
+  }
 
   if (external) {
     return (
