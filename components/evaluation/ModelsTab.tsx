@@ -6,7 +6,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Layers, MoreVertical, Plus, Power, Tag } from 'lucide-react';
+import {
+  Layers,
+  LayoutTemplate,
+  MoreVertical,
+  Plus,
+  Power,
+  Tag,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -25,9 +32,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
+import { OPEN_ROUND_BTN, accentForRank } from '@/components/courses/TurmasView';
 import { CriteriaFormModal } from './CriteriaFormModal';
 import { TemplateFormModal } from './TemplateFormModal';
 import type { EvalTemplate } from './types';
+
+/** Foto do cartão de modelo (public/images/modelos de avaliacao.jpeg). */
+const MODEL_PHOTO = '/images/modelos%20de%20avaliacao.jpeg';
 
 export function ModelsTab() {
   const isAdmin = useHasRole(ADMIN_ROLES);
@@ -136,21 +147,29 @@ export function ModelsTab() {
         />
       ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          {templates.map((t) => (
+          {templates.map((t, i) => (
             <NavyCard
               key={t.id}
+              variant="photo"
+              accent={accentForRank(i)}
+              image={MODEL_PHOTO}
+              imagePosition="15% center"
               seed={t.id}
               kicker="Modelo"
-              kickerIcon={Layers}
+              kickerIcon={LayoutTemplate}
               title={t.name}
               subtitle={t.description || undefined}
               badge={
                 <>
                   {t.isDefault && (
-                    <NavyBadge tone="success">Por omissão</NavyBadge>
+                    <NavyBadge tone="light" large>
+                      Por omissão
+                    </NavyBadge>
                   )}
                   {!t.isActive && (
-                    <NavyBadge tone="neutral">Inactivo</NavyBadge>
+                    <NavyBadge tone="light" large>
+                      Inactivo
+                    </NavyBadge>
                   )}
                 </>
               }
@@ -171,6 +190,7 @@ export function ModelsTab() {
                       size="sm"
                       aria-label={`${t.isActive ? 'Desactivar' : 'Activar'} ${t.name}`}
                       title={t.isActive ? 'Desactivar' : 'Activar'}
+                      className={OPEN_ROUND_BTN}
                       onClick={() => toggleActive.mutate(t)}
                     >
                       <Power size={15} strokeWidth={1.75} />
@@ -180,9 +200,10 @@ export function ModelsTab() {
                         <Button
                           type="button"
                           intent="onDarkGhost"
-                          size="icon"
+                          size="sm"
                           aria-label={`Mais opções de ${t.name}`}
                           title="Mais opções"
+                          className={OPEN_ROUND_BTN}
                         >
                           <MoreVertical size={15} strokeWidth={1.75} />
                         </Button>

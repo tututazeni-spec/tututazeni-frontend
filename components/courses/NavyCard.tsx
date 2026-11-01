@@ -185,6 +185,8 @@ interface NavyCardProps {
   seed?: number;
   /** Foto de fundo (opcional) — fica sob uma película escura. */
   image?: string | null;
+  /** Enquadramento da foto da variante `photo` (CSS object-position); por omissão, ao centro. */
+  imagePosition?: string;
   /**
    * `photo`: desenho do cartão "turmas abertas" (public/images/turmas abertas.jpeg) —
    * azul profundo, foto na metade direita que se esbate para o azul, topo e
@@ -218,6 +220,7 @@ export function NavyCard({
   kickerIcon: KickerIcon = GraduationCap,
   seed,
   image,
+  imagePosition,
   variant = 'default',
   accent = PHOTO_ACCENT_DEFAULT,
   infos,
@@ -249,6 +252,7 @@ export function NavyCard({
           src={image}
           alt=""
           className="absolute inset-y-0 right-0 h-full w-[56%] object-cover object-center"
+          style={imagePosition ? { objectPosition: imagePosition } : undefined}
         />
       )}
       {image && !photo && (

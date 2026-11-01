@@ -54,10 +54,10 @@ const COHORT_STATUS_MAP: Record<CohortStatus, { label: string; cls: string }> =
   };
 
 /** Foto do cartão de turma aberta (recorte do desenho em public/images). */
-const OPEN_COHORT_PHOTO = '/images/turma-aberta-foto.jpg';
+export const OPEN_COHORT_PHOTO = '/images/turma-aberta-foto.jpg';
 
 /** Botões redondos escuros do cartão de turma aberta. */
-const OPEN_ROUND_BTN =
+export const OPEN_ROUND_BTN =
   'h-10 w-10 rounded-full bg-[#0F1F3D]/85 p-0 text-white hover:bg-[#0F1F3D]';
 
 /**
