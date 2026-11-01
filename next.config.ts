@@ -6,7 +6,13 @@ import type { NextConfig } from 'next';
 //
 // Câmara/microfone/ecrã são delegados ao Jitsi (aulas ao vivo): com `camera=()`
 // o iframe da sala nunca conseguia pedir a câmara.
-const JITSI = '"https://meet.jit.si"';
+// JITSI_DOMAIN (ex.: 8x8.vc para JaaS) tem de estar definido também no build.
+const jitsiDomain = /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?(:\d{1,5})?$/.test(
+  process.env.JITSI_DOMAIN ?? '',
+)
+  ? process.env.JITSI_DOMAIN
+  : 'meet.jit.si';
+const JITSI = `"https://${jitsiDomain}"`;
 const securityHeaders = [
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
