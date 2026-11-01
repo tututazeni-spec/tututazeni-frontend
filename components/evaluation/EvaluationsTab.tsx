@@ -121,6 +121,11 @@ export function EvaluationsTab() {
     { staleTime: STALE_TIME.SEMI_STATIC, enabled: canManage },
   );
 
+  // A lista só se carrega depois de o utilizador escolher pelo menos um filtro.
+  const hasFilters = [cycleId, departmentId, unitId, status, purpose].some(
+    (v) => v !== ALL,
+  );
+
   const filters = {
     ...(cycleId !== ALL ? { cycleId: Number(cycleId) } : {}),
     ...(departmentId !== ALL ? { departmentId: Number(departmentId) } : {}),
@@ -136,7 +141,7 @@ export function EvaluationsTab() {
   }>(queryKeys.evaluation.requests(filters), '/evaluations/requests', {
     params: filters,
     staleTime: STALE_TIME.DYNAMIC,
-    enabled: canManage,
+    enabled: canManage && hasFilters,
   });
 
   // Ciclos criados com âmbito Todos/Departamento/Unidade ainda não têm
@@ -146,6 +151,7 @@ export function EvaluationsTab() {
     departmentId === ALL && unitId === ALL && status === ALL && purpose === ALL;
   const pendingCycles = (cyclesData?.data ?? []).filter(
     (c) =>
+      hasFilters &&
       noRowFilters &&
       (c.status === 'DRAFT' || c.status === 'PUBLISHED') &&
       c.participation.total === 0 &&
@@ -478,7 +484,12 @@ export function EvaluationsTab() {
         </div>
       )}
 
-      {loading ? (
+      {!hasFilters ? (
+        <EmptyState
+          title="Escolha um filtro"
+          description="Seleccione um ciclo, departamento, unidade, estado ou tipo para ver as avaliações."
+        />
+      ) : loading ? (
         <Skeleton
           rows={5}
           wrapperClassName="space-y-2"
