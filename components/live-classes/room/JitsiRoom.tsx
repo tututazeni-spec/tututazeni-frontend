@@ -34,13 +34,14 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     roomName: string;
     domain: string;
     jwt?: string;
+    appId?: string;
   } | null>(null);
   const roomName = access?.roomName ?? null;
 
   useEffect(() => {
     let cancelled = false;
     apiClient
-      .get<{ roomName: string; domain: string; jwt?: string }>(
+      .get<{ roomName: string; domain: string; jwt?: string; appId?: string }>(
         `/live-classes/${liveClass.id}/room`,
       )
       .then((r) => {
@@ -157,7 +158,10 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
 
     const script = document.createElement('script');
     script.id = 'jitsi-api-script';
-    script.src = `https://${access.domain}/external_api.js`;
+    // JaaS (8x8.vc) serve o external_api.js sob o caminho do appId.
+    script.src = access.appId
+      ? `https://${access.domain}/${access.appId}/external_api.js`
+      : `https://${access.domain}/external_api.js`;
     script.async = true;
     // Sem SRI de propósito: o external_api.js muda a cada release da Jitsi
     // (cache de 60 s), um hash fixo partia as aulas ao vivo. Em compensação não
