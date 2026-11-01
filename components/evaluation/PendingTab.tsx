@@ -327,7 +327,7 @@ function MyCompletedAndFeedback() {
           Avaliações concluídas
         </h4>
         <Table>
-          <TableHead>
+          <TableHead className="bg-brand/60 [&_th]:text-white">
             <TableRow>
               {[
                 'Período',
