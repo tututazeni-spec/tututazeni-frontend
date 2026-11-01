@@ -20,6 +20,10 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<JitsiAPI | null>(null);
   const [loaded, setLoaded] = useState(false);
+  // O iframe do Jitsi já carregou: a sobreposição "A conectar" sai de cima dele,
+  // para se verem os ecrãs do próprio Jitsi (login, "à espera do anfitrião", erros).
+  const [frameReady, setFrameReady] = useState(false);
+  const [slow, setSlow] = useState(false);
   const [participants, setParticipants] = useState(0);
   const [loadError, setLoadError] = useState(false);
   const [retryToken, setRetryToken] = useState(0);
@@ -118,6 +122,7 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     });
 
     apiRef.current = jitsi;
+    jitsi.getIFrame?.().addEventListener('load', () => setFrameReady(true));
 
     jitsi.addEventListeners({
       videoConferenceJoined: () => {
@@ -174,7 +179,16 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     };
   }, [access, initJitsi, retryToken]);
 
+  // Passado algum tempo sem entrar na sala, oferece abri-la numa janela própria.
+  useEffect(() => {
+    if (!access || loaded) return;
+    setSlow(false);
+    const timer = setTimeout(() => setSlow(true), 20000);
+    return () => clearTimeout(timer);
+  }, [access, loaded, retryToken]);
+
   const retry = useCallback(() => {
+    setFrameReady(false);
     setRetryToken((t) => t + 1);
   }, []);
 
@@ -195,7 +209,7 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
           </Button>
         </div>
       )}
-      {!loaded && !loadError && (
+      {!loaded && !loadError && !frameReady && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-slate-900">
           {/* fundo escuro intencional: overlay de carregamento */}
           <div
@@ -212,6 +226,19 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
         </div>
       )}
       <div ref={containerRef} className="w-full h-full" />
+      {!loaded && !loadError && slow && access && (
+        <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 rounded-control bg-black/70 px-3 py-2 text-xs text-canvas">
+          <span>A sala demora a abrir.</span>
+          <a
+            href={`https://${access.domain}/${access.roomName}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium underline"
+          >
+            Abrir a sala numa nova janela
+          </a>
+        </div>
+      )}
       {loaded && participants > 0 && (
         <div className="absolute top-3 right-3 bg-black/60 rounded-control py-1 px-2.5 text-xs text-canvas flex items-center gap-1.25 pointer-events-none z-20">
           <span className="w-2 h-2 rounded-full bg-success inline-block" />

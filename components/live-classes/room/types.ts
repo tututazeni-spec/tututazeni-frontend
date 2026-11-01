@@ -43,6 +43,7 @@ export interface JitsiAPI {
   ) => void;
   executeCommand: (command: string, ...args: unknown[]) => void;
   getNumberOfParticipants: () => number;
+  getIFrame?: () => HTMLIFrameElement;
   dispose: () => void;
 }
 
