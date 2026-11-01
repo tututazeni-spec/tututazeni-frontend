@@ -72,7 +72,12 @@ export function QuizPlayer({ quizId }: QuizPlayerProps) {
   const submit = useApiMutation<SubmitResult, void>(
     () => apiClient.post(`/courses/quizzes/${quizId}/submit`, { answers }),
     {
-      invalidateKeys: [queryKeys.courses.quizAttempt(quizId)],
+      invalidateKeys: [
+        queryKeys.courses.quizAttempt(quizId),
+        // Passar no quiz final pode concluir o curso e emitir o certificado.
+        queryKeys.courses.myCertificates(),
+        queryKeys.certificates.mySummary(),
+      ],
       onSuccess: (data) => setResult(data),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },

@@ -43,6 +43,9 @@ const MANAGER_TABS = [
   { id: 'mine', label: 'Os meus' },
 ] as const;
 
+// Colaborador (restantes papéis): um único separador com os seus certificados.
+const EMPLOYEE_TABS = [{ id: 'mine', label: 'Os meus certificados' }] as const;
+
 type TabId = (typeof ADMIN_TABS)[number]['id'];
 
 export function CertificatesCenter() {
@@ -53,7 +56,20 @@ export function CertificatesCenter() {
   const [tab, setTab] = useState<TabId | null>(null);
   const [status, setStatus] = useState<EffectiveStatus | ''>('');
 
-  if (!isAdmin && !isManager) return <CertificatesView />;
+  if (!isAdmin && !isManager) {
+    return (
+      <div className="space-y-6">
+        <PillNav
+          items={EMPLOYEE_TABS}
+          value="mine"
+          onChange={() => undefined}
+          label="Certificados"
+        />
+        {/* Todos os certificados, do mais recente ao mais antigo */}
+        <CertificatesView onlyOwnVerify />
+      </div>
+    );
+  }
 
   const tabs = isAdmin ? ADMIN_TABS : MANAGER_TABS;
   const current: TabId = tab ?? tabs[0].id;

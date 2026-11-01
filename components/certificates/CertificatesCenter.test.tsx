@@ -35,11 +35,13 @@ describe('CertificatesCenter', () => {
     role = undefined;
   });
 
-  test('colaborador vê só "Os meus certificados"', () => {
+  test('colaborador vê só o separador "Os meus certificados"', () => {
     role = 'COLABORADOR';
     render(<CertificatesCenter />);
     expect(screen.getByTestId('my-certificates')).toBeInTheDocument();
-    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('tab').map((t) => t.textContent)).toEqual([
+      'Os meus certificados',
+    ]);
   });
 
   test.each(['GESTOR', 'LIDER', 'DIRECTOR'])(
@@ -60,7 +62,9 @@ describe('CertificatesCenter', () => {
     role = 'INSTRUCTOR';
     render(<CertificatesCenter />);
     expect(screen.getByTestId('my-certificates')).toBeInTheDocument();
-    expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('tab').map((t) => t.textContent)).toEqual([
+      'Os meus certificados',
+    ]);
   });
 
   test.each(['RH', 'ADMIN', 'AUDITOR'])('%s vê os 7 separadores', (r) => {

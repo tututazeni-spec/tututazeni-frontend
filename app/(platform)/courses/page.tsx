@@ -194,7 +194,9 @@ export default function CoursesPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div
+      className={`max-w-6xl mx-auto px-4 py-8 ${nav.view === 'detail' ? '' : 'no-card-zoom'}`}
+    >
       {/* Banner: a foto ocupa a largura toda (proporção ~3,5:1, por isso
           object-cover recorta pelos lados em ecrãs estreitos e mantém o
           orador ao centro). O gradiente azul-escuro só cobre a metade

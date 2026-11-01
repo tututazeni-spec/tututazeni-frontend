@@ -98,6 +98,10 @@ export function useCourseDetail(courseId: number) {
         queryKeys.courses.detail(courseId),
         queryKeys.courses.myEnrollments(),
         moduleProgressKey,
+        // Concluir o curso pode emitir o certificado.
+        queryKeys.courses.myCertificates(),
+        queryKeys.certificates.mySummary(),
+        queryKeys.certificates.myLearningPaths(),
       ],
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
