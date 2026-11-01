@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/cn';
 import { actionPillClass } from '@/components/ui/Pills';
 import { Select } from '@/components/ui/Select';
+import { TYPE_LABEL } from '../constants';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { EvaluationComparison, PerformanceHistory } from './apiTypes';
@@ -201,9 +202,14 @@ export function PerformanceHistoryPanel({
                 key={e.evaluationId}
                 className="flex flex-wrap items-center justify-between gap-2 rounded-card border border-border bg-surface px-3 py-2 text-sm"
               >
-                <span className="text-ink">
-                  {e.period}
-                  {e.cycleName ? ` · ${e.cycleName}` : ''}
+                <span className="flex flex-wrap items-center gap-2 text-ink">
+                  <span>
+                    {e.period}
+                    {e.cycleName ? ` · ${e.cycleName}` : ''}
+                  </span>
+                  <Badge intent="neutral">
+                    Avaliador: {TYPE_LABEL[type] ?? type}
+                  </Badge>
                 </span>
                 <span className="flex flex-wrap items-center gap-2">
                   {e.overallScore !== null && e.ratingLabel ? (
