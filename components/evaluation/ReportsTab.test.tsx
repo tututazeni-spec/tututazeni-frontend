@@ -66,8 +66,13 @@ describe('ReportsTab — filtros e privacidade', () => {
 
   test('o pedido inclui tipo de avaliação e estado das ações escolhidos', async () => {
     render(<ReportsTab />);
-    expect(screen.getByText('Tipo de avaliação')).toBeInTheDocument();
-    expect(screen.getByText('Estado das ações')).toBeInTheDocument();
+    // Filtros Underline: sem etiqueta por cima, o valor por omissão diz o filtro.
+    expect(
+      screen.getAllByText('Todos os tipos de avaliação').length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText('Todos os estados das ações').length,
+    ).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole('button', { name: 'Gerar Relatório' }));
     await waitFor(() => expect(get).toHaveBeenCalledTimes(1));
     expect(get.mock.calls[0][0]).toBe('/evaluations/reports/overview');

@@ -34,6 +34,10 @@ beforeAll(() => {
 const post = vi.fn().mockResolvedValue({ planId: 1, actionsCreated: 2 });
 const patch = vi.fn().mockResolvedValue({});
 const notify = vi.fn();
+const downloadFromApi = vi.fn().mockResolvedValue(undefined);
+vi.mock('@/lib/download', () => ({
+  downloadFromApi: (...a: unknown[]) => downloadFromApi(...a),
+}));
 let items: PerformanceItems;
 let history: PerformanceHistory;
 let currentUser = { id: 10, role: { name: 'GESTOR' } };
@@ -297,6 +301,29 @@ describe('PerformanceHistoryPanel', () => {
     };
     render(<PerformanceHistoryPanel userId={5} />);
     expect(screen.getByText('Sem classificação final')).toBeInTheDocument();
+  });
+
+  test('cada avaliação tem o seu "Exportar PDF"', async () => {
+    history = {
+      userId: 5,
+      type: 'MANAGER',
+      entries: [entry(1, '2025', 3.2), entry(2, '2026', 4)],
+      comparison: null,
+    };
+    render(<PerformanceHistoryPanel userId={5} />);
+    const buttons = screen.getAllByRole('button', {
+      name: /Exportar avaliação/,
+    });
+    expect(buttons).toHaveLength(2);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Exportar avaliação de 2025' }),
+    );
+    await waitFor(() =>
+      expect(downloadFromApi).toHaveBeenCalledWith(
+        '/evaluations/performance/1/export.pdf',
+        expect.any(Object),
+      ),
+    );
   });
 });
 

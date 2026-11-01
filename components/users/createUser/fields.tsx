@@ -1,7 +1,8 @@
 // components/users/createUser/fields.tsx
 // Campos reutilizáveis do formulário «Novo Utilizador» (apresentação).
 
-import { X } from 'lucide-react';
+import { useState } from 'react';
+import { Eye, EyeOff, X } from 'lucide-react';
 import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -30,15 +31,34 @@ export function Field({
   value,
   onChange,
 }: FieldProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === 'password';
   return (
     <FormField label={required ? `${label} *` : label} htmlFor={id}>
-      <Input
-        id={id}
-        type={type}
-        value={value}
-        onChange={onChange}
-        className="w-full"
-      />
+      <div className="relative">
+        <Input
+          id={id}
+          type={isPassword && showPassword ? 'text' : type}
+          value={value}
+          onChange={onChange}
+          className={isPassword ? 'w-full pr-11' : 'w-full'}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink"
+            aria-label={showPassword ? 'Ocultar password' : 'Mostrar password'}
+            title={showPassword ? 'Ocultar password' : 'Mostrar password'}
+          >
+            {showPassword ? (
+              <EyeOff strokeWidth={1.75} size={18} />
+            ) : (
+              <Eye strokeWidth={1.75} size={18} />
+            )}
+          </button>
+        )}
+      </div>
     </FormField>
   );
 }

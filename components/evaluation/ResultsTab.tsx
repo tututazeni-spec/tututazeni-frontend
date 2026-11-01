@@ -24,16 +24,14 @@ import { useToast } from '@/providers/ToastProvider';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/departments/departmentFormData';
-import { ProgressBar } from '@/components/ui/ProgressBar';
 import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { RadarChart } from './RadarChart';
-import { MONTH_OPTIONS, SCORE_BG, SCORE_COLOR, TYPE_LABEL } from './constants';
+import { MONTH_OPTIONS, SCORE_BG } from './constants';
 import type { EvalResults } from './types';
 
 const MONTH_ITEMS = [
@@ -204,77 +202,9 @@ export function ResultsTab() {
         />
       )}
 
-      {!loading && noResults && (
-        <EmptyState
-          title="Sem avaliações registadas"
-          description={
-            raw?.evaluated?.fullName
-              ? `${raw.evaluated.fullName} ainda não tem avaliações de desempenho concluídas.`
-              : 'Este colaborador ainda não tem avaliações de desempenho concluídas.'
-          }
-        />
-      )}
-
       {!loading && result && (
         <div className="space-y-4">
-          {/* Header */}
-          <div
-            className={`rounded-card border p-5 ${SCORE_BG(result.finalScore)}`}
-          >
-            <div className="flex items-start gap-4">
-              <div>
-                <p className="text-xs text-ink-faint mb-0.5">Score 360°</p>
-                <p
-                  className={`text-5xl font-black ${SCORE_COLOR(result.finalScore)}`}
-                >
-                  {result.finalScore.toFixed(1)}
-                </p>
-                <p className="font-semibold text-ink mt-1">
-                  {result.scoreLabel}
-                </p>
-              </div>
-              <div className="ml-auto text-right">
-                <p className="text-sm font-semibold text-ink">
-                  {result.evaluated.fullName}
-                </p>
-                <p className="text-xs text-ink-faint">
-                  {result.evaluated.position?.name}
-                </p>
-                <p className="text-xs text-ink-faint">
-                  {result.evaluated.department?.name}
-                </p>
-                <p className="text-xs text-ink-muted mt-1">
-                  {result.totalEvaluators} avaliadores
-                </p>
-              </div>
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* By evaluator type */}
-            <Card className="overflow-hidden">
-              <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
-                Por Tipo de Avaliador
-              </div>
-              <CardBody>
-                <div className="space-y-3">
-                  {Object.entries(result.byType).map(([type, score]) => (
-                    <div key={type}>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-ink-muted">
-                          {TYPE_LABEL[type] ?? type}
-                        </span>
-                        <span className={`font-bold ${SCORE_COLOR(+score)}`}>
-                          {(+score).toFixed(1)}/5
-                        </span>
-                      </div>
-                      <ProgressBar value={(+score / 5) * 100} />
-                    </div>
-                  ))}
-                </div>
-              </CardBody>
-            </Card>
-
             {/* Concordance */}
             {result.concordance && (
               <Card className="overflow-hidden">

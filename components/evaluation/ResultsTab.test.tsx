@@ -72,14 +72,15 @@ beforeEach(() => {
 });
 
 describe('ResultsTab', () => {
-  test('hasResults:false — mostra estado vazio, sem rebentar', () => {
+  test('hasResults:false — não mostra o cartão "Sem avaliações registadas" nem rebenta', () => {
     mutationData = {
       evaluated: { id: 7, fullName: 'Maria Silva' },
       hasResults: false,
     };
     render(<ResultsTab />);
-    expect(screen.getByText('Sem avaliações registadas')).toBeInTheDocument();
-    expect(screen.getByText(/Maria Silva/)).toBeInTheDocument();
+    expect(
+      screen.queryByText('Sem avaliações registadas'),
+    ).not.toBeInTheDocument();
     // O bloco de resultados (que faria finalScore.toFixed) não é renderizado.
     expect(screen.queryByText('Score 360°')).not.toBeInTheDocument();
   });
@@ -96,8 +97,9 @@ describe('ResultsTab', () => {
       qualitative: { strengths: [], improvements: [], recommendations: [] },
     };
     render(<ResultsTab />);
-    expect(screen.getByText('Score 360°')).toBeInTheDocument();
-    expect(screen.getByText('3.9')).toBeInTheDocument();
+    // Os cartões "Score 360°" e "Por Tipo de Avaliador" já não existem.
+    expect(screen.queryByText('Score 360°')).not.toBeInTheDocument();
+    expect(screen.queryByText('Por Tipo de Avaliador')).not.toBeInTheDocument();
     // Não-colaborador (role ainda não carregado) mantém a acção de PDI.
     expect(
       screen.getByText(/Gerar Sugestão de PDI com base nestes resultados/),

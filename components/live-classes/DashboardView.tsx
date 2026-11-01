@@ -126,7 +126,7 @@ export function DashboardView() {
 
       {data.byModality.length > 0 && (
         <Card className="overflow-hidden p-0">
-          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Aulas por modalidade
           </div>
           {data.byModality.map((m) => (
@@ -147,7 +147,7 @@ export function DashboardView() {
 
       {data.byInstructor.length > 0 && (
         <Card className="overflow-hidden p-0">
-          <div className="border-b border-border px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+          <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
             Aulas por formador
           </div>
           {data.byInstructor.map((i) => (

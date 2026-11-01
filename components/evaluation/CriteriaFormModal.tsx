@@ -20,11 +20,13 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { CRITERIA_CATEGORY_OPTIONS } from './constants';
-import type { EvalCriteria, EvalScale } from './types';
+import type { EvalCriteria, EvalScale, EvalTemplate } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
 
 export interface CriteriaFormModalProps {
   criteria?: EvalCriteria | null;
+  /** Modelo ao qual o novo critério fica ligado depois de guardado. */
+  template?: EvalTemplate | null;
   onClose: () => void;
 }
 
@@ -57,6 +59,7 @@ const splitIndicators = (text: string) =>
 
 export function CriteriaFormModal({
   criteria,
+  template,
   onClose,
 }: CriteriaFormModalProps) {
   const notify = useToast();
@@ -98,13 +101,39 @@ export function CriteriaFormModal({
     ...(isEdit ? { isActive } : {}),
   });
 
+  // Ao criar a partir de um modelo, o critério novo é ligado a esse modelo:
+  // o PATCH do modelo substitui os critérios, por isso reenviam-se os que já
+  // lá estavam e acrescenta-se o novo (com o peso padrão do critério).
   const save = useApiMutation(
-    () =>
-      criteria
-        ? apiClient.patch(`/evaluations/criteria/${criteria.id}`, payload())
-        : apiClient.post('/evaluations/criteria', payload()),
+    async () => {
+      if (criteria)
+        return apiClient.patch(
+          `/evaluations/criteria/${criteria.id}`,
+          payload(),
+        );
+      const created = await apiClient.post<{ id: number }>(
+        '/evaluations/criteria',
+        payload(),
+      );
+      if (template) {
+        await apiClient.patch(`/evaluations/templates/${template.id}`, {
+          criteria: [
+            ...(template.criteria ?? []).map((c) => ({
+              criteriaId: c.criteriaId,
+              weight: Number(c.weight ?? 1),
+            })),
+            { criteriaId: created.id, weight: Number(form.weight) || 1 },
+          ],
+        });
+      }
+      return created;
+    },
     {
-      invalidateKeys: [queryKeys.evaluation.criteria()],
+      invalidateKeys: [
+        queryKeys.evaluation.criteria(),
+        queryKeys.evaluation.templates(),
+        ...(template ? [queryKeys.evaluation.templateDetail(template.id)] : []),
+      ],
       onSuccess: () => {
         notify({
           title: isEdit ? 'Critério actualizado' : 'Critério criado',
@@ -140,8 +169,12 @@ export function CriteriaFormModal({
   return (
     <Modal open onOpenChange={(open) => !open && onClose()}>
       <ModalContent
-        title={isEdit ? 'Editar Critério' : 'Novo Critério'}
-        description="Critério reutilizável na biblioteca central — pode ser ligado a vários modelos de avaliação."
+        title={isEdit ? 'Editar Critério' : 'Novo critério de avaliação'}
+        description={
+          template
+            ? `Fica ligado ao modelo "${template.name}".`
+            : 'Critério reutilizável — pode ser ligado a vários modelos de avaliação.'
+        }
         className="max-w-lg max-h-[90vh] overflow-y-auto"
       >
         <div className="mt-5 space-y-4">
@@ -275,7 +308,7 @@ export function CriteriaFormModal({
             onClick={handleSubmit}
             loading={save.isPending}
           >
-            {isEdit ? 'Guardar' : 'Criar Critério'}
+            {isEdit ? 'Guardar' : 'Guardar critério'}
           </Button>
         </div>
       </ModalContent>

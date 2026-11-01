@@ -43,7 +43,6 @@ export const INITIAL_USER_FORM = {
   address: '',
   emergencyContactName: '',
   emergencyContactPhone: '',
-  password: '',
   username: '',
   roleId: '',
   systemFunction: '',
@@ -90,7 +89,6 @@ export function buildCreateUserPayload(
   return {
     fullName: form.fullName,
     email: form.email,
-    password: form.password || undefined,
     preferredName: form.preferredName || undefined,
     avatarUrl: form.avatarUrl || undefined,
     gender: form.gender || undefined,

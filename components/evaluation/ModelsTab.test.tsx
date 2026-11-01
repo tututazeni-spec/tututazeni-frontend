@@ -1,11 +1,20 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 let templatesData: unknown[] = [];
 const del = vi.fn().mockResolvedValue({});
+const patch = vi.fn().mockResolvedValue({});
+const getFn = vi
+  .fn()
+  .mockResolvedValue({ id: 5, name: 'Modelo X', criteria: [] });
 
 vi.mock('@/lib/apiClient', () => ({
-  apiClient: { delete: (...a: unknown[]) => del(...a) },
+  apiClient: {
+    delete: (...a: unknown[]) => del(...a),
+    patch: (...a: unknown[]) => patch(...a),
+    get: (...a: unknown[]) => getFn(...a),
+  },
 }));
 
 vi.mock('@/hooks/useApiQuery', () => ({
@@ -14,6 +23,10 @@ vi.mock('@/hooks/useApiQuery', () => ({
       return { data: templatesData, isLoading: false };
     return { data: undefined, isLoading: false };
   },
+  useApiMutation: (fn: (v: unknown) => Promise<unknown>) => ({
+    mutate: (v: unknown) => void fn(v),
+    isPending: false,
+  }),
 }));
 
 let currentRole: string | undefined = 'ADMIN';
@@ -88,10 +101,64 @@ describe('ModelsTab', () => {
       },
     ];
     render(<ModelsTab />);
-    fireEvent.click(screen.getByRole('button', { name: /^Remover/ }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /^Mais opções de/ }),
+    );
+    await userEvent.click(
+      await screen.findByRole('menuitem', { name: 'Remover' }),
+    );
     expect(confirmFn).toHaveBeenCalled();
     await waitFor(() =>
       expect(del).toHaveBeenCalledWith('/evaluations/templates/5'),
     );
+  });
+
+  test('botão Desactivar faz PATCH isActive=false ao modelo', async () => {
+    templatesData = [
+      {
+        id: 5,
+        name: 'Modelo X',
+        type: 'GENERIC',
+        isDefault: false,
+        isActive: true,
+        criteria: [],
+        _count: { criteria: 0 },
+      },
+    ];
+    render(<ModelsTab />);
+    fireEvent.click(screen.getByRole('button', { name: /^Desactivar/ }));
+    await waitFor(() =>
+      expect(patch).toHaveBeenCalledWith('/evaluations/templates/5', {
+        isActive: false,
+      }),
+    );
+  });
+
+  test('menu de três pontos abre "Novo critério de avaliação"', async () => {
+    templatesData = [
+      {
+        id: 5,
+        name: 'Modelo X',
+        type: 'GENERIC',
+        isDefault: false,
+        isActive: true,
+        criteria: [],
+        _count: { criteria: 0 },
+      },
+    ];
+    render(<ModelsTab />);
+    await userEvent.click(
+      screen.getByRole('button', { name: /^Mais opções de/ }),
+    );
+    await userEvent.click(
+      await screen.findByRole('menuitem', {
+        name: 'Novo critério de avaliação',
+      }),
+    );
+    expect(
+      await screen.findByText('Novo critério de avaliação', {
+        selector: 'h2, [role=dialog] *',
+      }),
+    ).toBeInTheDocument();
   });
 });

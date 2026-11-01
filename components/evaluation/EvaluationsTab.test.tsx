@@ -79,6 +79,18 @@ beforeEach(() => {
   notify.mockClear();
 });
 
+// A lista só carrega depois de escolhido um filtro: escolhe-se o 1.º estado.
+async function pickStatusFilter() {
+  Element.prototype.scrollIntoView = vi.fn();
+  fireEvent.click(
+    screen
+      .getAllByRole('combobox')
+      .find((c) => c.textContent?.includes('Todos os estados'))!,
+  );
+  const options = await screen.findAllByRole('option');
+  fireEvent.click(options.find((o) => o.textContent !== 'Todos os estados')!);
+}
+
 describe('EvaluationsTab', () => {
   test('COLABORADOR sem MGMT_ROLES vê "Sem acesso"', () => {
     currentRole = 'COLABORADOR';
@@ -86,12 +98,23 @@ describe('EvaluationsTab', () => {
     expect(screen.getByText('Sem acesso')).toBeInTheDocument();
   });
 
-  test('lista vazia mostra EmptyState', () => {
+  test('sem filtros a lista fica vazia e pede para escolher um filtro', () => {
+    requestsData = {
+      data: [{ key: 'x', id: 1 }],
+      meta: { total: 1, totalPages: 1 },
+    };
     render(<EvaluationsTab />);
-    expect(screen.getByText('Sem avaliações')).toBeInTheDocument();
+    expect(screen.getByText('Escolha um filtro')).toBeInTheDocument();
   });
 
-  test('linha com avaliador = utilizador actual mostra "Continuar avaliação" e chama o submit modal', () => {
+  test('lista vazia com filtro mostra EmptyState', async () => {
+    requestsData = { data: [], meta: { total: 0, totalPages: 1 } };
+    render(<EvaluationsTab />);
+    await pickStatusFilter();
+    expect(await screen.findByText('Sem avaliações')).toBeInTheDocument();
+  });
+
+  test('linha com avaliador = utilizador actual mostra "Continuar avaliação" e chama o submit modal', async () => {
     requestsData = {
       data: [
         {
@@ -120,7 +143,8 @@ describe('EvaluationsTab', () => {
       meta: { total: 1, totalPages: 1 },
     };
     render(<EvaluationsTab />);
-    expect(screen.getByText('Colaborador X')).toBeInTheDocument();
+    await pickStatusFilter();
+    expect(await screen.findByText('Colaborador X')).toBeInTheDocument();
     fireEvent.click(screen.getByLabelText('Continuar avaliação'));
     expect(screen.getByTestId('submit')).toBeInTheDocument();
   });
@@ -149,7 +173,8 @@ describe('EvaluationsTab', () => {
       meta: { total: 1, totalPages: 1 },
     };
     render(<EvaluationsTab />);
-    fireEvent.click(screen.getByLabelText('Enviar lembrete'));
+    await pickStatusFilter();
+    fireEvent.click(await screen.findByLabelText('Enviar lembrete'));
     await waitFor(() =>
       expect(post).toHaveBeenCalledWith('/evaluations/requests/10/remind', {}),
     );

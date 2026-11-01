@@ -36,13 +36,6 @@ export function AccessSection({ ctl }: { ctl: CreateUserFormController }) {
     <>
       <SectionTitle>Conta de acesso</SectionTitle>
       <Field
-        label="Password provisória"
-        id="password"
-        type="password"
-        value={form.password}
-        onChange={handle('password')}
-      />
-      <Field
         label="Username"
         id="username"
         value={form.username}

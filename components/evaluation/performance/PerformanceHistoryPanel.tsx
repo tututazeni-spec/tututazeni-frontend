@@ -7,14 +7,17 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowDown, ArrowRight, ArrowUp, Filter } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, Download, Filter } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
+import { downloadFromApi } from '@/lib/download';
+import { useToast } from '@/providers/ToastProvider';
 import { AlertCard } from '@/components/ui/AlertCard';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/cn';
 import { actionPillClass } from '@/components/ui/Pills';
 import { Select } from '@/components/ui/Select';
+import { TYPE_LABEL } from '../constants';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { EvaluationComparison, PerformanceHistory } from './apiTypes';
@@ -157,6 +160,32 @@ export function PerformanceHistoryPanel({
   onOpenDetail,
 }: PerformanceHistoryPanelProps) {
   const [type, setType] = useState('MANAGER');
+  const notify = useToast();
+  const [exportingId, setExportingId] = useState<number | null>(null);
+
+  // Exporta uma avaliação (PDF) — cada linha do histórico é uma avaliação.
+  const exportPdf = async (evaluationId: number) => {
+    setExportingId(evaluationId);
+    try {
+      await downloadFromApi(
+        `/evaluations/performance/${evaluationId}/export.pdf`,
+        {
+          fallbackName: `avaliacao-${evaluationId}.pdf`,
+          errorMessage: 'Não foi possível exportar a avaliação',
+        },
+      );
+    } catch (e) {
+      notify({
+        title:
+          e instanceof Error
+            ? e.message
+            : 'Não foi possível exportar a avaliação',
+        intent: 'danger',
+      });
+    } finally {
+      setExportingId(null);
+    }
+  };
   const q = useApiQuery<PerformanceHistory>(
     queryKeys.evaluation.performanceHistory(userId, type),
     `/evaluations/performance/history/${userId}`,
@@ -201,9 +230,14 @@ export function PerformanceHistoryPanel({
                 key={e.evaluationId}
                 className="flex flex-wrap items-center justify-between gap-2 rounded-card border border-border bg-surface px-3 py-2 text-sm"
               >
-                <span className="text-ink">
-                  {e.period}
-                  {e.cycleName ? ` · ${e.cycleName}` : ''}
+                <span className="flex flex-wrap items-center gap-2 text-ink">
+                  <span>
+                    {e.period}
+                    {e.cycleName ? ` · ${e.cycleName}` : ''}
+                  </span>
+                  <Badge intent="neutral">
+                    Avaliador: {TYPE_LABEL[type] ?? type}
+                  </Badge>
                 </span>
                 <span className="flex flex-wrap items-center gap-2">
                   {e.overallScore !== null && e.ratingLabel ? (
@@ -218,6 +252,21 @@ export function PerformanceHistoryPanel({
                     {e.recommendations.overdue > 0 &&
                       ` · ${e.recommendations.overdue} em atraso`}
                   </span>
+                  <button
+                    type="button"
+                    disabled={exportingId === e.evaluationId}
+                    onClick={() => void exportPdf(e.evaluationId)}
+                    className={cn(
+                      actionPillClass,
+                      'inline-flex items-center gap-1 px-3 py-1 text-xs',
+                    )}
+                    aria-label={`Exportar avaliação de ${e.period}`}
+                  >
+                    <Download size={12} aria-hidden />
+                    {exportingId === e.evaluationId
+                      ? 'A exportar…'
+                      : 'Exportar PDF'}
+                  </button>
                   {onOpenDetail && (
                     <button
                       type="button"

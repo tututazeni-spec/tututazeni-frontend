@@ -153,11 +153,9 @@ export function CalibrationTab() {
       </Card>
 
       {showHistory && (
-        <Card>
-          <div className="px-4 py-3 border-b border-border">
-            <h4 className="font-display font-semibold text-ink">
-              Histórico de Alterações
-            </h4>
+        <Card className="overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+            Histórico de Alterações
           </div>
           <div className="divide-y divide-border max-h-64 overflow-y-auto">
             {loadHistory.isPending && (
@@ -372,7 +370,7 @@ export function CalibrationTab() {
                               },
                             );
                             notify({
-                              title: 'PontuaÃ§Ã£o calibrada',
+                              title: 'Pontuação calibrada',
                               intent: 'success',
                             });
                           } catch (err) {
