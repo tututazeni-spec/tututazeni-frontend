@@ -12,10 +12,12 @@ import {
   BookOpen,
   Clock,
   MapPin,
+  MoreVertical,
   Pencil,
   Plus,
   Trash2,
   User,
+  UserPlus,
   Users,
   Video,
 } from 'lucide-react';
@@ -31,6 +33,13 @@ import { Button } from '@/components/ui/Button';
 import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
 import { PhotoCard } from '@/components/courses/PhotoCard';
 import { Combobox } from '@/components/ui/Combobox';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -39,6 +48,7 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { STATUS_CFG } from './constants';
+import { useInstructorOptions } from './wizard/wizardData';
 import type {
   LiveClassSession,
   LiveClassStatus,
@@ -94,21 +104,45 @@ function useLiveClassOptions() {
   return { options, loading: query.isLoading };
 }
 
+function useUserOptions(enabled: boolean) {
+  const params = { limit: 200 };
+  const query = useApiQuery<{ data: { id: number; fullName: string }[] }>(
+    ['live-classes', 'users-picker'],
+    '/users',
+    { params, enabled, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  return (query.data?.data ?? []).map((u) => ({
+    value: String(u.id),
+    label: u.fullName,
+  }));
+}
+
 export function SessionsView({ canManage }: { canManage: boolean }) {
   const toast = useToast();
   const confirm = useConfirm();
   const { options: liveClassOptions } = useLiveClassOptions();
 
-  const [status, setStatus] = useState('ALL');
+  const [status, setStatus] = useState(''); // '' = Selecionar; 'ALL' = Todos os estados
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<LiveClassSession | 'new' | null>(null);
   const [form, setForm] = useState<SessionFormState>(EMPTY);
+  const [instructorFor, setInstructorFor] = useState<LiveClassSession | null>(
+    null,
+  );
+  const [instructorId, setInstructorId] = useState('');
+  const [attendanceFor, setAttendanceFor] = useState<LiveClassSession | null>(
+    null,
+  );
+  const [attendeeId, setAttendeeId] = useState('');
+  const { options: instructorOptions, loading: instructorsLoading } =
+    useInstructorOptions();
+  const userOptions = useUserOptions(!!attendanceFor);
 
   const params: Record<string, string | number | boolean | null | undefined> = {
     page,
     limit: 20,
   };
-  if (status !== 'ALL') params.status = status;
+  if (status && status !== 'ALL') params.status = status;
 
   const { data, isLoading } = useApiQuery<PaginatedSessions>(
     queryKeys.liveClasses.allSessions(params),
@@ -166,6 +200,37 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
     },
   );
 
+  const saveInstructor = useApiMutation(
+    (s: LiveClassSession) =>
+      apiClient.put(`/live-classes/${s.liveClassId}/sessions/${s.id}`, {
+        instructorId: Number(instructorId),
+      }),
+    {
+      invalidateKeys,
+      onSuccess: () => {
+        toast({ title: 'Formador guardado.', intent: 'success' });
+        setInstructorFor(null);
+      },
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  const addAttendance = useApiMutation(
+    (s: LiveClassSession) =>
+      apiClient.post(`/live-classes/${s.liveClassId}/attendance`, {
+        userId: Number(attendeeId),
+        sessionId: s.id,
+      }),
+    {
+      invalidateKeys,
+      onSuccess: () => {
+        toast({ title: 'Presença adicionada.', intent: 'success' });
+        setAttendanceFor(null);
+      },
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
   const remove = useApiMutation(
     (s: LiveClassSession) =>
       apiClient.delete(`/live-classes/${s.liveClassId}/sessions/${s.id}`),
@@ -193,6 +258,7 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
           icon={MapPin}
           items={STATUS_ITEMS}
           value={status}
+          placeholder="Selecionar"
           onValueChange={(v) => {
             setStatus(v);
             setPage(1);
@@ -248,31 +314,66 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                 ]}
                 actions={
                   canManage && (
-                    <>
-                      <Button
-                        type="button"
-                        intent="onDarkGhost"
-                        size="icon"
-                        aria-label="Editar sessão"
-                        title="Editar sessão"
-                        onClick={() => openEdit(s)}
-                      >
-                        <Pencil size={15} strokeWidth={1.75} />
-                      </Button>
-                      <Button
-                        type="button"
-                        intent="onDarkGhost"
-                        size="icon"
-                        aria-label="Eliminar sessão"
-                        title="Eliminar sessão"
-                        disabled={
-                          remove.isPending && remove.variables?.id === s.id
-                        }
-                        onClick={() => onDelete(s)}
-                      >
-                        <Trash2 size={15} strokeWidth={1.75} />
-                      </Button>
-                    </>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          intent="onDarkGhost"
+                          size="icon"
+                          aria-label="Mais ações"
+                          title="Mais ações"
+                        >
+                          <MoreVertical size={15} strokeWidth={1.75} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => openEdit(s)}>
+                          <Pencil
+                            size={13}
+                            strokeWidth={1.75}
+                            className="mr-2 inline"
+                          />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setInstructorId(
+                              s.instructor?.id ? String(s.instructor.id) : '',
+                            );
+                            setInstructorFor(s);
+                          }}
+                        >
+                          <UserPlus
+                            size={13}
+                            strokeWidth={1.75}
+                            className="mr-2 inline"
+                          />
+                          Adicionar formadores
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setAttendeeId('');
+                            setAttendanceFor(s);
+                          }}
+                        >
+                          <Users
+                            size={13}
+                            strokeWidth={1.75}
+                            className="mr-2 inline"
+                          />
+                          Adicionar presenças
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onSelect={() => onDelete(s)}>
+                          <Trash2
+                            size={13}
+                            strokeWidth={1.75}
+                            className="mr-2 inline"
+                          />
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )
                 }
               />
@@ -319,7 +420,7 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                     onValueChange={(v) =>
                       setForm((f) => ({ ...f, liveClassId: v }))
                     }
-                    placeholder="Selecionar aula…"
+                    placeholder="Selecionar aula"
                     searchPlaceholder="Escreva para filtrar…"
                   />
                 </FormField>
@@ -396,6 +497,84 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                 }
               >
                 Guardar
+              </Button>
+            </div>
+          </ModalContent>
+        </Modal>
+      )}
+
+      {instructorFor && (
+        <Modal open onOpenChange={(open) => !open && setInstructorFor(null)}>
+          <ModalContent
+            title={`Adicionar formador — sessão ${instructorFor.seq}`}
+            className="max-w-md"
+          >
+            <div className="mt-4 space-y-4">
+              <FormField label="Formador *" htmlFor="sv-instructor">
+                <Combobox
+                  items={instructorOptions}
+                  value={instructorId}
+                  onValueChange={setInstructorId}
+                  placeholder={
+                    instructorsLoading ? 'A carregar…' : 'Selecionar formador'
+                  }
+                  searchPlaceholder="Escreva para filtrar…"
+                />
+              </FormField>
+            </div>
+            <div className="mt-6 flex gap-3 border-t border-border pt-4">
+              <Button
+                intent="secondary"
+                className="flex-1 justify-center"
+                onClick={() => setInstructorFor(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="flex-1 justify-center"
+                onClick={() => saveInstructor.mutate(instructorFor)}
+                loading={saveInstructor.isPending}
+                disabled={!instructorId}
+              >
+                Guardar
+              </Button>
+            </div>
+          </ModalContent>
+        </Modal>
+      )}
+
+      {attendanceFor && (
+        <Modal open onOpenChange={(open) => !open && setAttendanceFor(null)}>
+          <ModalContent
+            title={`Adicionar presença — sessão ${attendanceFor.seq}`}
+            className="max-w-md"
+          >
+            <div className="mt-4 space-y-4">
+              <FormField label="Colaborador *" htmlFor="sv-attendee">
+                <Combobox
+                  items={userOptions}
+                  value={attendeeId}
+                  onValueChange={setAttendeeId}
+                  placeholder="Selecionar colaborador"
+                  searchPlaceholder="Escreva para filtrar…"
+                />
+              </FormField>
+            </div>
+            <div className="mt-6 flex gap-3 border-t border-border pt-4">
+              <Button
+                intent="secondary"
+                className="flex-1 justify-center"
+                onClick={() => setAttendanceFor(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="flex-1 justify-center"
+                onClick={() => addAttendance.mutate(attendanceFor)}
+                loading={addAttendance.isPending}
+                disabled={!attendeeId}
+              >
+                Adicionar
               </Button>
             </div>
           </ModalContent>
