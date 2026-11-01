@@ -7,6 +7,7 @@ import type {
   LiveClassEnrollmentMode,
   LiveClassRecurrence,
   LiveClassType,
+  MeetingProvider,
   SessionModality,
 } from '../types';
 
@@ -38,7 +39,9 @@ export interface WizardForm {
 
   // Etapa 3 — Modalidade
   modality: SessionModality;
-  zoomMeetingId: string;
+  meetingProvider: MeetingProvider;
+  meetingUrl: string;
+  meetingPasscode: string;
   location: string;
   building: string;
   room: string;
@@ -102,7 +105,9 @@ export const EMPTY_WIZARD_FORM: WizardForm = {
   recurrenceDaysOfWeek: [],
 
   modality: 'ONLINE',
-  zoomMeetingId: '',
+  meetingProvider: 'JITSI',
+  meetingUrl: '',
+  meetingPasscode: '',
   location: '',
   building: '',
   room: '',

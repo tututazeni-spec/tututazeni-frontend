@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { reportError } from '@/lib/errorReporting';
 import { apiClient } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
+import { ExternalMeetingCard } from './ExternalMeetingCard';
 import type { JitsiAPI, LiveClass } from './types';
 
 interface JitsiRoomProps {
@@ -37,15 +38,28 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     appId?: string;
   } | null>(null);
   const roomName = access?.roomName ?? null;
+  // Zoom/Teams: não se embebem num iframe; o backend devolve só o link.
+  const [external, setExternal] = useState<{
+    provider: 'ZOOM' | 'TEAMS';
+    joinUrl: string;
+    passcode: string | null;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     apiClient
-      .get<{ roomName: string; domain: string; jwt?: string; appId?: string }>(
-        `/live-classes/${liveClass.id}/room`,
-      )
+      .get<
+        | { roomName: string; domain: string; jwt?: string; appId?: string }
+        | {
+            provider: 'ZOOM' | 'TEAMS';
+            joinUrl: string;
+            passcode: string | null;
+          }
+      >(`/live-classes/${liveClass.id}/room`)
       .then((r) => {
-        if (!cancelled) setAccess(r);
+        if (cancelled) return;
+        if ('joinUrl' in r) setExternal(r);
+        else setAccess(r);
       })
       .catch((e) => {
         reportError(e, { source: 'JitsiRoom.roomName' });
@@ -195,6 +209,19 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     setFrameReady(false);
     setRetryToken((t) => t + 1);
   }, []);
+
+  if (external) {
+    return (
+      <ExternalMeetingCard
+        provider={external.provider}
+        joinUrl={external.joinUrl}
+        passcode={external.passcode}
+        topic={liveClass.topic}
+        onJoined={onJoined}
+        onLeft={onLeft}
+      />
+    );
+  }
 
   return (
     <div className="relative w-full h-full bg-slate-900 rounded-[14px] overflow-hidden">

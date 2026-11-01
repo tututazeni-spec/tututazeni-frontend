@@ -59,7 +59,16 @@ function buildPayload(form: WizardForm): Record<string, unknown> {
         : undefined,
 
     modality: form.modality,
-    zoomMeetingId: form.zoomMeetingId.trim() || undefined,
+    meetingProvider:
+      form.modality === 'PRESENTIAL' ? 'JITSI' : form.meetingProvider,
+    meetingUrl:
+      form.modality !== 'PRESENTIAL' && form.meetingProvider !== 'JITSI'
+        ? form.meetingUrl.trim() || undefined
+        : undefined,
+    meetingPasscode:
+      form.modality !== 'PRESENTIAL' && form.meetingProvider !== 'JITSI'
+        ? form.meetingPasscode.trim() || undefined
+        : undefined,
     location: form.location.trim() || undefined,
     building: form.building.trim() || undefined,
     room: form.room.trim() || undefined,
