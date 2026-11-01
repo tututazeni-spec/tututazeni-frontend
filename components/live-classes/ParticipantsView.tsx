@@ -100,7 +100,8 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
   const confirm = useConfirm();
   const liveClassOptions = useLiveClassOptions();
 
-  const [liveClassId, setLiveClassId] = useState('ALL');
+  // '' = ainda nada escolhido (mostra "Selecionar aula"); 'ALL' = Todas as aulas.
+  const [liveClassId, setLiveClassId] = useState('');
   const [status, setStatus] = useState('ALL');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -123,7 +124,8 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
     page,
     limit: 20,
   };
-  if (liveClassId !== 'ALL') params.liveClassId = Number(liveClassId);
+  if (liveClassId && liveClassId !== 'ALL')
+    params.liveClassId = Number(liveClassId);
   if (status !== 'ALL') params.status = status;
   if (search) params.search = search;
 
@@ -232,6 +234,7 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
               ...liveClassOptions,
             ]}
             value={liveClassId}
+            placeholder="Selecionar aula"
             onValueChange={(v) => {
               setLiveClassId(v);
               setPage(1);
@@ -411,7 +414,7 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
                   onValueChange={(v) =>
                     setAddForm((f) => ({ ...f, liveClassId: v }))
                   }
-                  placeholder="Selecionar aula…"
+                  placeholder="Selecionar aula"
                   searchPlaceholder="Escreva para filtrar…"
                 />
               </FormField>

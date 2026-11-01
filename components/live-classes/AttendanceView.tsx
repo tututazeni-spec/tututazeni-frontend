@@ -74,7 +74,8 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
   const toast = useToast();
   const liveClassOptions = useLiveClassOptions();
 
-  const [liveClassId, setLiveClassId] = useState('ALL');
+  // '' = ainda nada escolhido (mostra "Selecionar aula"); 'ALL' = Todas as aulas.
+  const [liveClassId, setLiveClassId] = useState('');
   const [status, setStatus] = useState('ALL');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -91,7 +92,8 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
     page,
     limit: 20,
   };
-  if (liveClassId !== 'ALL') params.liveClassId = Number(liveClassId);
+  if (liveClassId && liveClassId !== 'ALL')
+    params.liveClassId = Number(liveClassId);
   if (status !== 'ALL') params.status = status;
   if (dateFrom) params.dateFrom = new Date(dateFrom).toISOString();
   if (dateTo) params.dateTo = new Date(dateTo).toISOString();
@@ -168,6 +170,7 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
             ...liveClassOptions,
           ]}
           value={liveClassId}
+          placeholder="Selecionar aula"
           onValueChange={(v) => {
             setLiveClassId(v);
             setPage(1);
