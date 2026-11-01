@@ -14,7 +14,6 @@ import {
   Clock,
   FileBarChart,
   Layers,
-  ListChecks,
   Settings,
   Shield,
   Sparkles,
@@ -24,7 +23,6 @@ import {
 import { AnalyticsTab } from '@/components/evaluation/AnalyticsTab';
 import { CalibrationTab } from '@/components/evaluation/CalibrationTab';
 import { CompetenciesTab } from '@/components/evaluation/CompetenciesTab';
-import { CriteriaTab } from '@/components/evaluation/CriteriaTab';
 import { CyclesTab } from '@/components/evaluation/CyclesTab';
 import { EvaluationsTab } from '@/components/evaluation/EvaluationsTab';
 import { FormalEvaluationsTab } from '@/components/evaluation/FormalEvaluationsTab';
@@ -102,13 +100,6 @@ const TABS = [
     label: 'Modelos',
     hint: 'Formulários base',
     icon: Layers,
-    roles: MGMT_ROLES,
-  },
-  {
-    id: 'criteria',
-    label: 'Critérios',
-    hint: 'O que se avalia',
-    icon: ListChecks,
     roles: MGMT_ROLES,
   },
   {
@@ -205,11 +196,6 @@ export default function EvaluationsPage() {
           {visibleTabs.some((t) => t.id === 'templates') && (
             <TabsContent value="templates">
               <ModelsTab />
-            </TabsContent>
-          )}
-          {visibleTabs.some((t) => t.id === 'criteria') && (
-            <TabsContent value="criteria">
-              <CriteriaTab />
             </TabsContent>
           )}
           <TabsContent value="competencies">

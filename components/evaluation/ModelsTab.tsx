@@ -1,13 +1,13 @@
 // components/evaluation/ModelsTab.tsx
 // Separador "Modelos" (docs/modulo_evaluation.md pt.4) — biblioteca de
 // modelos de avaliação (critérios+pesos+escala), usados pelo ciclo/wizard
-// "Nova Avaliação". Mesmo padrão de acesso que CriteriaTab.
+// "Nova Avaliação". Os critérios criam-se a partir do menu de três pontos de cada modelo.
 
 'use client';
 
 import { useState } from 'react';
-import { Layers, Pencil, Plus, Tag, Trash2 } from 'lucide-react';
-import { useApiQuery } from '@/hooks/useApiQuery';
+import { Layers, MoreVertical, Plus, Power, Tag } from 'lucide-react';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -19,6 +19,13 @@ import { Button } from '@/components/ui/Button';
 import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
+import { CriteriaFormModal } from './CriteriaFormModal';
 import { TemplateFormModal } from './TemplateFormModal';
 import type { EvalTemplate } from './types';
 
@@ -45,6 +52,38 @@ export function ModelsTab() {
     ),
     `/evaluations/templates/${editingId}`,
     { enabled: typeof editingId === 'number' },
+  );
+
+  // Modelo a que o novo critério vai ficar ligado (detalhe completo, com os
+  // critérios já ligados, porque o PATCH do modelo substitui a lista).
+  const [criterionFor, setCriterionFor] = useState<EvalTemplate | undefined>(
+    undefined,
+  );
+  const openNewCriterion = async (t: EvalTemplate) => {
+    try {
+      setCriterionFor(
+        await apiClient.get<EvalTemplate>(`/evaluations/templates/${t.id}`),
+      );
+    } catch {
+      notify({ title: 'Não foi possível abrir o modelo', intent: 'danger' });
+    }
+  };
+
+  const toggleActive = useApiMutation(
+    (t: EvalTemplate) =>
+      apiClient.patch(`/evaluations/templates/${t.id}`, {
+        isActive: !t.isActive,
+      }),
+    {
+      invalidateKeys: [queryKeys.evaluation.templates()],
+      onSuccess: () =>
+        notify({ title: 'Estado do modelo actualizado', intent: 'success' }),
+      onError: () =>
+        notify({
+          title: 'Não foi possível alterar o estado do modelo',
+          intent: 'danger',
+        }),
+    },
   );
 
   const remove = async (t: EvalTemplate) => {
@@ -130,22 +169,41 @@ export function ModelsTab() {
                       type="button"
                       intent="onDarkGhost"
                       size="sm"
-                      aria-label={`Editar ${t.name}`}
-                      title="Editar modelo"
-                      onClick={() => setEditingId(t.id)}
+                      aria-label={`${t.isActive ? 'Desactivar' : 'Activar'} ${t.name}`}
+                      title={t.isActive ? 'Desactivar' : 'Activar'}
+                      onClick={() => toggleActive.mutate(t)}
                     >
-                      <Pencil size={15} strokeWidth={1.75} />
+                      <Power size={15} strokeWidth={1.75} />
                     </Button>
-                    <Button
-                      type="button"
-                      intent="onDarkGhost"
-                      size="sm"
-                      aria-label={`Remover ${t.name}`}
-                      title="Remover modelo"
-                      onClick={() => remove(t)}
-                    >
-                      <Trash2 size={15} strokeWidth={1.75} />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          intent="onDarkGhost"
+                          size="icon"
+                          aria-label={`Mais opções de ${t.name}`}
+                          title="Mais opções"
+                        >
+                          <MoreVertical size={15} strokeWidth={1.75} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onSelect={() => void openNewCriterion(t)}
+                        >
+                          Novo critério de avaliação
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => setEditingId(t.id)}>
+                          Editar modelo
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-danger-ink"
+                          onSelect={() => void remove(t)}
+                        >
+                          Remover
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </>
                 )
               }
@@ -154,6 +212,12 @@ export function ModelsTab() {
         </div>
       )}
 
+      {criterionFor && (
+        <CriteriaFormModal
+          template={criterionFor}
+          onClose={() => setCriterionFor(undefined)}
+        />
+      )}
       {editingId === 'new' && (
         <TemplateFormModal
           template={null}
