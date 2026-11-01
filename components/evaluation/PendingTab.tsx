@@ -16,6 +16,7 @@ import { useState } from 'react';
 import {
   AlertTriangle,
   AlarmClock,
+  Building2,
   ClipboardList,
   MessageSquare,
 } from 'lucide-react';
@@ -31,7 +32,8 @@ import { cn } from '@/lib/cn';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
+import { NavyBadge } from '@/components/courses/NavyCard';
+import { PendingEvaluationCard } from './PendingEvaluationCard';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProgressBar } from '@/components/ui/ProgressBar';
@@ -106,40 +108,40 @@ function ManagerQueue() {
         {rows.map((r) => {
           const isOverdue = !!r.dueDate && new Date(r.dueDate) < new Date();
           return (
-            <NavyCard
+            <PendingEvaluationCard
               key={r.key}
               seed={r.id}
-              avatar={{
-                name: r.evaluated.fullName,
-                url: r.evaluated.avatarUrl,
-              }}
               title={r.name ?? r.cycle?.name ?? 'Avaliação'}
+              kicker={REQUEST_STATUS_MAP[r.status]?.label ?? r.status}
               subtitle={
                 [r.evaluated.position?.name, r.evaluated.department?.name]
                   .filter(Boolean)
                   .join(' · ') || undefined
               }
-              badge={
-                <NavyBadge
-                  tone={r.status === 'IN_PROGRESS' ? 'info' : 'warning'}
-                >
-                  {REQUEST_STATUS_MAP[r.status]?.label ?? r.status}
-                </NavyBadge>
+              badges={
+                isOverdue ? <NavyBadge tone="danger">ATRASADO</NavyBadge> : null
               }
-              infos={[
+              metrics={[
                 {
                   icon: isOverdue ? AlertTriangle : AlarmClock,
-                  value: r.dueDate ? formatDateNumeric(r.dueDate) : '—',
-                  label: 'Prazo',
+                  text: r.dueDate
+                    ? `Prazo: ${formatDateNumeric(r.dueDate)}`
+                    : 'Sem prazo',
                   danger: isOverdue,
                 },
+              ]}
+              evaluated={{
+                name: r.evaluated.fullName,
+                avatarUrl: r.evaluated.avatarUrl,
+              }}
+              rows={[
+                { icon: ClipboardList, text: r.cycle?.name },
                 {
-                  icon: ClipboardList,
-                  value: r.cycle?.name ?? '—',
-                  label: 'Ciclo',
+                  icon: Building2,
+                  text: r.evaluated.department?.name,
                 },
               ]}
-              progress={{ value: Math.round(r.progress) }}
+              progress={Math.round(r.progress)}
               footer={
                 <>
                   <Button
@@ -223,36 +225,35 @@ function MyPendingList() {
       {pending.map((r) => {
         const isOverdue = !!r.dueDate && new Date(r.dueDate) < new Date();
         return (
-          <NavyCard
+          <PendingEvaluationCard
             key={r.id}
             seed={r.id}
-            avatar={{ name: r.evaluated.fullName, url: r.evaluated.avatarUrl }}
             title={r.cycle?.name ?? 'Avaliação'}
+            kicker={EVAL_TYPE_MAP[r.type]?.label ?? r.type}
             subtitle={
               [r.evaluated.position?.name, r.evaluated.department?.name]
                 .filter(Boolean)
                 .join(' · ') || undefined
             }
-            badge={
-              <>
-                <NavyBadge tone="info">
-                  {EVAL_TYPE_MAP[r.type]?.label ?? r.type}
-                </NavyBadge>
-                {isOverdue && <NavyBadge tone="danger">ATRASADO</NavyBadge>}
-              </>
+            badges={
+              isOverdue ? <NavyBadge tone="danger">ATRASADO</NavyBadge> : null
             }
-            infos={[
+            metrics={[
               {
                 icon: isOverdue ? AlertTriangle : AlarmClock,
-                value: r.dueDate ? formatDateNumeric(r.dueDate) : '—',
-                label: 'Prazo',
+                text: r.dueDate
+                  ? `Prazo: ${formatDateNumeric(r.dueDate)}`
+                  : 'Sem prazo',
                 danger: isOverdue,
               },
-              {
-                icon: ClipboardList,
-                value: r.cycle?.name ?? '—',
-                label: 'Ciclo',
-              },
+            ]}
+            evaluated={{
+              name: r.evaluated.fullName,
+              avatarUrl: r.evaluated.avatarUrl,
+            }}
+            rows={[
+              { icon: ClipboardList, text: r.cycle?.name },
+              { icon: Building2, text: r.evaluated.department?.name },
             ]}
             footer={
               <Button
