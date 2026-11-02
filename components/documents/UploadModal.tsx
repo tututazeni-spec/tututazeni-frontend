@@ -12,7 +12,10 @@
 
 import { useRef, useState } from 'react';
 import { AlertCircle, Plus, Upload, X } from 'lucide-react';
-import { useApiMutation } from '@/hooks/useApiQuery';
+import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
+import { queryKeys } from '@/lib/queryKeys';
+import { STALE_TIME } from '@/lib/queryClient';
+import type { DepartmentNode } from '@/components/departments/types';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { apiClient } from '@/lib/apiClient';
 import { required } from '@/lib/validation';
@@ -46,6 +49,20 @@ const SENSITIVITY_ITEMS = Object.entries(SENSITIVITY_CONFIG).map(([k, v]) => ({
   label: v.label,
 }));
 
+/** O Select não aceita valor vazio — sentinela para "sem departamento". */
+const NO_DEPARTMENT = '__none__';
+
+// O documento guarda o nome do departamento (não o id).
+function flattenDepartments(
+  nodes: DepartmentNode[],
+  depth = 0,
+): { value: string; label: string }[] {
+  return nodes.flatMap((n) => [
+    { value: n.name, label: `${'— '.repeat(depth)}${n.name}` },
+    ...flattenDepartments(n.children ?? [], depth + 1),
+  ]);
+}
+
 export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
   const {
     values: form,
@@ -71,6 +88,15 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
     },
     { title: [required()], fileUrl: [required()] },
   );
+  const { data: deptTree } = useApiQuery<DepartmentNode[]>(
+    queryKeys.departments.tree(),
+    '/departments/tree',
+    { staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const departmentItems = [
+    { value: NO_DEPARTMENT, label: 'Sem departamento' },
+    ...flattenDepartments(deptTree ?? []),
+  ];
   const [tagInput, setTagInput] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [fileName, setFileName] = useState('');
@@ -251,13 +277,15 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Departamento" htmlFor="upload-department">
-              <Input
-                id="upload-department"
-                value={form.department}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, department: e.target.value }))
+              <Select
+                items={departmentItems}
+                value={form.department || NO_DEPARTMENT}
+                onValueChange={(v) =>
+                  setForm((f) => ({
+                    ...f,
+                    department: v === NO_DEPARTMENT ? '' : v,
+                  }))
                 }
-                placeholder="Ex: Tecnologia"
                 className="w-full"
               />
             </FormField>
