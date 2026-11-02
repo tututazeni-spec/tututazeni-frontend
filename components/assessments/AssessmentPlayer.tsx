@@ -210,7 +210,9 @@ export function AssessmentPlayer({
 
   // Auto-save a cada 30s
   useEffect(() => {
-    if (!attempt || !assessment) return;
+    // Só enquanto se responde: depois de submeter (a submeter / resultado) a
+    // tentativa já está fechada e o servidor recusa o auto-save.
+    if (!attempt || !assessment || status !== 'playing') return;
     const interval = setInterval(async () => {
       const changed = Object.values(answersRef.current).filter(
         (a) => !sameAnswer(a, savedRef.current[a.questionId]),
@@ -228,7 +230,7 @@ export function AssessmentPlayer({
         .catch((e) => reportError(e, { source: 'AssessmentPlayer.autosave' }));
     }, 30000);
     return () => clearInterval(interval);
-  }, [attempt, assessment]);
+  }, [attempt, assessment, status]);
 
   const handleSubmit = async () => {
     if (!attempt || !assessment) return;
