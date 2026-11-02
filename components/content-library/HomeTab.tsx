@@ -8,7 +8,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, RotateCcw, Shield, Star, TrendingUp } from 'lucide-react';
+import { Search, RotateCcw, Shield, Star } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -42,11 +42,6 @@ export function HomeTab() {
     '/content-library/recommended',
     { params: { limit: 8 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const trendingQuery = useApiQuery<Content[]>(
-    queryKeys.contentLibrary.trending(),
-    '/content-library/trending',
-    { params: { limit: 8 }, staleTime: STALE_TIME.SEMI_STATIC },
-  );
   const continueQuery = useApiQuery<Content[]>(
     queryKeys.contentLibrary.continueWatching(),
     '/content-library/continue-watching',
@@ -59,10 +54,9 @@ export function HomeTab() {
   );
 
   const recommended = recQuery.data ?? [];
-  const trending = trendingQuery.data ?? [];
   const continueW = continueQuery.data ?? [];
   const mandatory = mandatoryQuery.data ?? [];
-  const loading = recQuery.isLoading || trendingQuery.isLoading;
+  const loading = recQuery.isLoading;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,11 +167,6 @@ export function HomeTab() {
             title="Recomendado para ti"
             items={recommended}
             icon={Star}
-          />
-          <ContentRow
-            title="Em Tendência esta semana"
-            items={trending}
-            icon={TrendingUp}
           />
         </>
       )}

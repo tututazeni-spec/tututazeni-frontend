@@ -47,6 +47,48 @@ const TYPE_FILTER_ITEMS = [
   })),
 ];
 
+export function LibraryItemCard({ item }: { item: Item }) {
+  return (
+    <Link href={`/library/${item.id}`} className="block h-full">
+      <Card className="h-full hover:shadow-hover">
+        <CardBody className="flex h-full flex-col">
+          {(() => {
+            const TypeIcon = TYPE_ICONS[item.type] || Package;
+            return (
+              <TypeIcon
+                size={32}
+                strokeWidth={1.5}
+                className="mb-3 text-ink-muted"
+              />
+            );
+          })()}
+          <h3 className="mb-1 line-clamp-2 font-display font-semibold text-ink">
+            {item.title}
+          </h3>
+          {item.author && (
+            <p className="mb-2 font-body text-sm text-ink-muted">
+              {item.author}
+            </p>
+          )}
+          <div className="mt-auto flex items-center justify-between pt-3 font-body text-xs text-ink-faint">
+            <span className="inline-flex items-center gap-1">
+              <Eye size={12} strokeWidth={1.75} /> {item.views}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Download size={12} strokeWidth={1.75} /> {item.downloads}
+            </span>
+            {item.rating > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <Star size={12} strokeWidth={1.75} /> {item.rating.toFixed(1)}
+              </span>
+            )}
+          </div>
+        </CardBody>
+      </Card>
+    </Link>
+  );
+}
+
 export function LibraryListView({
   data,
   total,
@@ -139,48 +181,7 @@ export function LibraryListView({
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {data.map((item) => (
-            <Link
-              key={item.id}
-              href={`/library/${item.id}`}
-              className="block h-full"
-            >
-              <Card className="h-full hover:shadow-hover">
-                <CardBody className="flex h-full flex-col">
-                  {(() => {
-                    const TypeIcon = TYPE_ICONS[item.type] || Package;
-                    return (
-                      <TypeIcon
-                        size={32}
-                        strokeWidth={1.5}
-                        className="mb-3 text-ink-muted"
-                      />
-                    );
-                  })()}
-                  <h3 className="mb-1 line-clamp-2 font-display font-semibold text-ink">
-                    {item.title}
-                  </h3>
-                  {item.author && (
-                    <p className="mb-2 font-body text-sm text-ink-muted">
-                      {item.author}
-                    </p>
-                  )}
-                  <div className="mt-auto flex items-center justify-between pt-3 font-body text-xs text-ink-faint">
-                    <span className="inline-flex items-center gap-1">
-                      <Eye size={12} strokeWidth={1.75} /> {item.views}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Download size={12} strokeWidth={1.75} /> {item.downloads}
-                    </span>
-                    {item.rating > 0 && (
-                      <span className="inline-flex items-center gap-1">
-                        <Star size={12} strokeWidth={1.75} />{' '}
-                        {item.rating.toFixed(1)}
-                      </span>
-                    )}
-                  </div>
-                </CardBody>
-              </Card>
-            </Link>
+            <LibraryItemCard key={item.id} item={item} />
           ))}
         </div>
       )}

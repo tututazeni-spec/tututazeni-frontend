@@ -15,6 +15,9 @@
 import { useState } from 'react';
 import { CheckCircle2, FileText, Plus } from 'lucide-react';
 import { useHasRole } from '@/hooks/useCurrentRole';
+import { useQueryClient } from '@tanstack/react-query';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { RECYCLE_BIN_KEY } from './RecycleBinPanel';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
@@ -102,6 +105,36 @@ export function CorporateDocsTab() {
   const confirmRead = useConfirmRead();
 
   const canAuthor = useHasRole(AUTHOR_ROLES);
+  const isAdmin = useHasRole(['ADMIN']);
+  const confirm = useConfirm();
+  const qc = useQueryClient();
+
+  const handleDelete = async (doc: Document) => {
+    const ok = await confirm({
+      title: 'Apagar documento?',
+      message: `"${doc.title}" vai para a reciclagem e fica 30 dias antes de ser apagado de vez. Pode restaurá-lo no separador Repositório.`,
+      confirmLabel: 'Apagar',
+      destructive: true,
+    });
+    if (!ok) return;
+    try {
+      await apiClient.delete(`/documents/${doc.id}`, {
+        body: { reason: 'Apagado para a reciclagem' },
+      });
+      notify({
+        title: 'Documento enviado para a reciclagem',
+        intent: 'success',
+      });
+      refetch();
+      void qc.invalidateQueries({ queryKey: [...RECYCLE_BIN_KEY] });
+    } catch (e) {
+      reportError(e, { source: 'CorporateDocsTab.handleDelete' });
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
+    }
+  };
 
   const handleDownload = async (doc: Document) => {
     try {
@@ -260,6 +293,7 @@ export function CorporateDocsTab() {
               doc={d}
               onView={setSelectedDoc}
               onDownload={handleDownload}
+              onDelete={isAdmin ? handleDelete : undefined}
             />
           ))}
         </div>

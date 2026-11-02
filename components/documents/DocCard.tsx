@@ -8,7 +8,13 @@
 
 'use client';
 
-import { AlertCircle, Download, Eye, MoreHorizontal } from 'lucide-react';
+import {
+  AlertCircle,
+  Download,
+  Eye,
+  MoreHorizontal,
+  Trash2,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { IconButton } from '@/components/ui/Button';
 import {
@@ -26,9 +32,11 @@ interface DocCardProps {
   doc: Document;
   onView: (d: Document) => void;
   onDownload: (d: Document) => void;
+  /** Só passado a quem pode apagar (ADMIN): envia para a reciclagem. */
+  onDelete?: (d: Document) => void;
 }
 
-export function DocCard({ doc, onView, onDownload }: DocCardProps) {
+export function DocCard({ doc, onView, onDownload, onDelete }: DocCardProps) {
   const Icon = getFileIcon(doc.mimeType);
   const catCfg = CATEGORY_CONFIG[doc.category];
   const sensCfg = SENSITIVITY_CONFIG[doc.sensitivity];
@@ -80,6 +88,13 @@ export function DocCard({ doc, onView, onDownload }: DocCardProps) {
                   <Eye size={13} strokeWidth={1.75} /> Ver detalhe
                 </span>
               </DropdownMenuItem>
+              {onDelete && (
+                <DropdownMenuItem onSelect={() => onDelete(doc)}>
+                  <span className="flex items-center gap-2 text-danger">
+                    <Trash2 size={13} strokeWidth={1.75} /> Apagar
+                  </span>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
