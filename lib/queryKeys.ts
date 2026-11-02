@@ -1385,6 +1385,8 @@ export const queryKeys = {
     avatars: () => [...queryKeys.avatarTraining.all, 'avatars'] as const,
     programs: (params: Record<string, unknown>) =>
       [...queryKeys.avatarTraining.all, 'programs', params] as const,
+    programsRecycle: () =>
+      [...queryKeys.avatarTraining.all, 'programs-recycle'] as const,
     program: (id: number) =>
       [...queryKeys.avatarTraining.all, 'program', id] as const,
     sessions: () => [...queryKeys.avatarTraining.all, 'sessions'] as const,

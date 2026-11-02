@@ -10,6 +10,7 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from './useApiQuery';
 import { useHasRole } from './useCurrentRole';
@@ -23,11 +24,12 @@ import {
 } from '@/components/avatar-training/programs/logic';
 import type { AvatarProgram } from '@/components/avatar-training/types';
 
-export type ProgramsMode = 'catalog' | 'manage';
+export type ProgramsMode = 'catalog' | 'manage' | 'recycle';
 export type ProgramVerb = 'submit-review' | 'publish' | 'archive';
 
 export function useProgramsList() {
   const notify = useToast();
+  const confirm = useConfirm();
   const isAuthor = useHasRole(AUTHOR_ROLES);
   const isAdmin = useHasRole(ADMIN_ROLES);
   const [mode, setMode] = useState<ProgramsMode>('catalog');
@@ -63,6 +65,33 @@ export function useProgramsList() {
     },
   );
 
+  const remove = useApiMutation(
+    (id: number) => apiClient.delete(`/avatar-training/programs/${id}`),
+    {
+      invalidateKeys: [queryKeys.avatarTraining.all],
+      onSuccess: () =>
+        notify({
+          title: 'Formação movida para a reciclagem',
+          description: 'Pode restaurá-la durante 30 dias.',
+          intent: 'success',
+        }),
+      onError: (e) =>
+        notify({
+          title: 'Não foi possível eliminar',
+          description: e.message,
+          intent: 'danger',
+        }),
+    },
+  );
+  const removeProgram = async (p: Pick<AvatarProgram, 'id' | 'title'>) => {
+    const ok = await confirm({
+      title: 'Eliminar formação',
+      message: `"${p.title}" vai para a reciclagem e pode ser restaurada durante 30 dias. Depois é apagada em definitivo.`,
+      destructive: true,
+    });
+    if (ok) remove.mutate(p.id);
+  };
+
   return {
     isAuthor,
     isAdmin,
@@ -81,6 +110,7 @@ export function useProgramsList() {
     error,
     refetch,
     runAction: (id: number, verb: ProgramVerb) => action.mutate({ id, verb }),
+    removeProgram,
   };
 }
 
