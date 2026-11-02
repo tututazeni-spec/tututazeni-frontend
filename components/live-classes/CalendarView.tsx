@@ -1,7 +1,6 @@
 // components/live-classes/CalendarView.tsx
-// Separador "Calendário" (docs/aulas-ao-vivo.md secção 4) — visualização em
-// agenda (lista agrupada por dia), navegável por mês. Mesmo padrão de
-// components/trainings/CalendarView.tsx.
+// Separador "Calendário" (docs/aulas-ao-vivo.md secção 4) — grelha mensal
+// navegável (mês anterior/seguinte) + detalhe do dia seleccionado.
 
 'use client';
 
@@ -14,7 +13,6 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate, formatTime } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { MODALITY_CFG, STATUS_CFG } from './constants';
@@ -27,20 +25,37 @@ const MODALITY_ITEMS = [
   { value: 'HYBRID', label: 'Híbrida' },
 ];
 
+const WEEKDAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+
 function startOfMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), 1);
 }
 function endOfMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59);
 }
+/** Chave de dia em hora local (YYYY-MM-DD). */
 function dayKey(d: Date) {
-  return d.toISOString().slice(0, 10);
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+/** Dias da grelha mensal (semanas completas, a começar à segunda-feira). */
+function buildGrid(anchor: Date): Date[] {
+  const first = startOfMonth(anchor);
+  const offset = (first.getDay() + 6) % 7;
+  const total = Math.ceil((offset + endOfMonth(anchor).getDate()) / 7) * 7;
+  return Array.from(
+    { length: total },
+    (_, i) => new Date(first.getFullYear(), first.getMonth(), 1 - offset + i),
+  );
 }
 
 export function CalendarView() {
   const router = useRouter();
   const [monthAnchor, setMonthAnchor] = useState(() => new Date());
   const [modality, setModality] = useState('ALL');
+  const [selectedDay, setSelectedDay] = useState(() => dayKey(new Date()));
 
   const from = startOfMonth(monthAnchor);
   const to = endOfMonth(monthAnchor);
@@ -52,54 +67,57 @@ export function CalendarView() {
     { params, staleTime: STALE_TIME.DYNAMIC },
   );
 
-  const groups = useMemo(() => {
-    const byDay = new Map<string, LiveClassCalendarEvent[]>();
+  const gridDays = useMemo(() => buildGrid(monthAnchor), [monthAnchor]);
+  const todayKey = dayKey(new Date());
+
+  const byDay = useMemo(() => {
+    const map = new Map<string, LiveClassCalendarEvent[]>();
     for (const ev of data ?? []) {
       if (modality !== 'ALL' && ev.modality !== modality) continue;
       const key = dayKey(new Date(ev.start));
-      const arr = byDay.get(key) ?? [];
+      const arr = map.get(key) ?? [];
       arr.push(ev);
-      byDay.set(key, arr);
+      map.set(key, arr);
     }
-    return [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b));
+    for (const arr of map.values()) {
+      arr.sort((a, b) => a.start.localeCompare(b.start));
+    }
+    return map;
   }, [data, modality]);
+
+  const selectedEvents = byDay.get(selectedDay) ?? [];
+
+  function goToMonth(delta: number) {
+    setMonthAnchor((d) => {
+      const next = new Date(d.getFullYear(), d.getMonth() + delta, 1);
+      setSelectedDay(dayKey(next));
+      return next;
+    });
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Button
-            intent="ghost"
-            size="sm"
-            onClick={() =>
-              setMonthAnchor(
-                (d) => new Date(d.getFullYear(), d.getMonth() - 1, 1),
-              )
-            }
-          >
+          <Button intent="ghost" size="sm" onClick={() => goToMonth(-1)}>
             <ChevronLeft size={16} strokeWidth={1.75} />
           </Button>
-          <span className="min-w-[140px] text-center font-body text-sm font-medium text-ink">
+          <span className="min-w-[140px] text-center font-body text-sm font-medium capitalize text-ink">
             {monthAnchor.toLocaleDateString('pt-AO', {
               month: 'long',
               year: 'numeric',
             })}
           </span>
-          <Button
-            intent="ghost"
-            size="sm"
-            onClick={() =>
-              setMonthAnchor(
-                (d) => new Date(d.getFullYear(), d.getMonth() + 1, 1),
-              )
-            }
-          >
+          <Button intent="ghost" size="sm" onClick={() => goToMonth(1)}>
             <ChevronRight size={16} strokeWidth={1.75} />
           </Button>
           <Button
             intent="ghost"
             size="sm"
-            onClick={() => setMonthAnchor(new Date())}
+            onClick={() => {
+              setMonthAnchor(new Date());
+              setSelectedDay(dayKey(new Date()));
+            }}
           >
             Hoje
           </Button>
@@ -116,24 +134,102 @@ export function CalendarView() {
 
       {isLoading ? (
         <Skeleton rows={4} />
-      ) : groups.length === 0 ? (
-        <EmptyState
-          title="Sem aulas/sessões neste período"
-          description="Ajusta o mês ou os filtros para ver outras datas."
-        />
       ) : (
-        <div className="space-y-3">
-          {groups.map(([day, events]) => (
-            <Card key={day} className="overflow-hidden p-0">
-              <div className="border-b border-border bg-surface-sunken px-4 py-2 font-body text-xs font-medium text-ink-muted">
-                {formatDate(day, {
+        <>
+          <Card className="overflow-hidden p-0">
+            <div className="grid grid-cols-7 border-b border-border bg-brand/60">
+              {WEEKDAYS.map((w) => (
+                <div
+                  key={w}
+                  className="px-2 py-3 text-center text-xs font-medium uppercase tracking-wide text-white"
+                >
+                  {w}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7">
+              {gridDays.map((d) => {
+                const key = dayKey(d);
+                const inMonth = d.getMonth() === monthAnchor.getMonth();
+                const events = byDay.get(key) ?? [];
+                const isToday = key === todayKey;
+                const isSelected = key === selectedDay;
+                return (
+                  <div
+                    key={key}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelectedDay(key)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setSelectedDay(key);
+                      }
+                    }}
+                    className={`min-h-[84px] cursor-pointer border-b border-r border-border p-1.5 hover:bg-surface-sunken ${
+                      inMonth ? '' : 'bg-surface-sunken/50'
+                    } ${isSelected ? 'ring-2 ring-inset ring-[#0F1F3D]' : ''}`}
+                  >
+                    <span
+                      className={`inline-flex h-6 w-6 items-center justify-center rounded-full font-body text-xs ${
+                        isToday
+                          ? 'bg-[#0F1F3D] font-medium text-white'
+                          : inMonth
+                            ? 'text-ink'
+                            : 'text-ink-faint'
+                      }`}
+                    >
+                      {d.getDate()}
+                    </span>
+                    <div className="mt-1 space-y-0.5">
+                      {events.slice(0, 2).map((ev) => (
+                        <button
+                          key={ev.id}
+                          type="button"
+                          title={ev.title}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/live-classes/${ev.liveClassId}`);
+                          }}
+                          className="block w-full truncate rounded bg-[#0F1F3D]/10 px-1 py-0.5 text-left font-body text-[11px] text-ink hover:bg-[#0F1F3D]/20"
+                        >
+                          {formatTime(ev.start)} {ev.title}
+                        </button>
+                      ))}
+                      {events.length > 2 && (
+                        <div className="px-1 font-body text-[11px] text-ink-faint">
+                          +{events.length - 2} mais
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          <Card className="overflow-hidden p-0">
+            <div className="border-b border-border bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+              {formatDate(
+                new Date(
+                  Number(selectedDay.slice(0, 4)),
+                  Number(selectedDay.slice(5, 7)) - 1,
+                  Number(selectedDay.slice(8, 10)),
+                ),
+                {
                   weekday: 'long',
                   day: '2-digit',
                   month: 'long',
-                })}
+                  year: 'numeric',
+                },
+              )}
+            </div>
+            {selectedEvents.length === 0 ? (
+              <div className="px-4 py-6 text-center font-body text-sm text-ink-faint">
+                Sem aulas/sessões neste dia.
               </div>
+            ) : (
               <div className="divide-y divide-border">
-                {events.map((ev) => (
+                {selectedEvents.map((ev) => (
                   <button
                     key={ev.id}
                     type="button"
@@ -171,9 +267,9 @@ export function CalendarView() {
                   </button>
                 ))}
               </div>
-            </Card>
-          ))}
-        </div>
+            )}
+          </Card>
+        </>
       )}
     </div>
   );
