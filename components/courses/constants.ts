@@ -12,23 +12,14 @@
 // "Gestão" (tabela admin) — mesmo `id` ('catalog'), a página escolhe o
 // componente por role.
 
-import type { Role } from '@/lib/roles';
+import { AUTHENTICATED_ROLES, type Role } from '@/lib/roles';
 import type { TopLevelView, View } from './types';
 
 // `roles` — restringe o separador aos papéis listados (undefined = todos os
 // autenticados). Espelha os @Roles() dos endpoints por trás de cada aba:
 // admin/dashboard e a tabela de gestão de cursos são ADMIN/RH; inscrições e
 // progresso (courses/enrollments) também aceitam GESTOR.
-const ALL_BUT_EXTERNAL: readonly Role[] = [
-  'ADMIN',
-  'RH',
-  'GESTOR',
-  'LIDER',
-  'COLABORADOR',
-  'INSTRUCTOR',
-  'DIRECTOR',
-  'AUDITOR',
-];
+const ALL_BUT_EXTERNAL: readonly Role[] = AUTHENTICATED_ROLES;
 
 export const NAV: Array<{
   id: TopLevelView;
