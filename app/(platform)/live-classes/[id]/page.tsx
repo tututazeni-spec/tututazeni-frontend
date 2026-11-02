@@ -3,7 +3,7 @@
 // sidebar/timer) e compõe a sala Jitsi + painel de gravação. Ver memory
 // project_innova_component_separation_audit.
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   XCircle,
   ArrowLeft,
@@ -54,6 +54,7 @@ export default function LiveRoomPage() {
     { staleTime: STALE_TIME.DYNAMIC },
   );
   const [joined, setJoined] = useState(false);
+  const joinedRef = useRef(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const {
     seconds: sessionTime,
@@ -81,6 +82,8 @@ export default function LiveRoomPage() {
 
   const handleLeft = useCallback(async () => {
     stopSessionTimer();
+    joinedRef.current = false;
+    setJoined(false);
     try {
       await apiClient.post(`/live-classes/${classId}/leave`, {});
     } catch (e) {
@@ -88,6 +91,24 @@ export default function LiveRoomPage() {
     }
     router.push('/live-classes');
   }, [classId, stopSessionTimer, router]);
+
+  // Saída automática: ao fechar o separador ou sair da página sem carregar em
+  // "Sair", fecha-se a presença para a duração ficar correcta.
+  joinedRef.current = joined;
+  useEffect(() => {
+    const leaveSilently = () => {
+      if (!joinedRef.current) return;
+      joinedRef.current = false;
+      apiClient
+        .post(`/live-classes/${classId}/leave`, {}, { keepalive: true })
+        .catch(() => undefined);
+    };
+    window.addEventListener('pagehide', leaveSilently);
+    return () => {
+      window.removeEventListener('pagehide', leaveSilently);
+      leaveSilently();
+    };
+  }, [classId]);
 
   // Loading
   if (loading) {
