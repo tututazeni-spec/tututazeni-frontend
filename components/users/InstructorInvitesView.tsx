@@ -49,7 +49,7 @@ const accessEnded = (row: InstructorInvite) =>
 
 export function InstructorInvitesView() {
   const confirm = useConfirm();
-  const { list, create, resend, revoke, extend, deactivate } =
+  const { list, create, resend, revoke, extend, deactivate, resetDevices } =
     useInstructorInvites();
   const [filter, setFilter] = useState<Filter>('ALL');
   const [open, setOpen] = useState(false);
@@ -150,6 +150,20 @@ export function InstructorInvitesView() {
                 }
               >
                 Prolongar 30 dias
+              </Button>
+              <Button
+                size="sm"
+                intent="ghost"
+                onClick={() =>
+                  ask(
+                    'Repor dispositivo',
+                    `${r.fullName} terá de confirmar o dispositivo com um código enviado por email no próximo acesso.`,
+                    false,
+                    () => resetDevices.mutate(r.userId),
+                  )
+                }
+              >
+                Repor dispositivo
               </Button>
               {!accessEnded(r) && (
                 <Button

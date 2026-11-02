@@ -5,7 +5,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiClient, API_URL } from '@/lib/apiClient';
+import { apiClient, ApiError, API_URL } from '@/lib/apiClient';
+import { getDeviceId } from '@/lib/deviceId';
 import { reportError } from '@/lib/errorReporting';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -37,6 +38,16 @@ export function useLogin() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // Instrutor externo: depois da senha, o servidor pede um código enviado por email.
+  const [needsCode, setNeedsCode] = useState(false);
+  const [codePurpose, setCodePurpose] = useState<'LOGIN' | 'NEW_DEVICE'>('LOGIN');
+  const [emailCode, setEmailCode] = useState('');
+
+  function cancelCode() {
+    setNeedsCode(false);
+    setEmailCode('');
+    setError(null);
+  }
 
   useEffect(() => {
     setNotice(sessionExpiredNotice());
@@ -76,7 +87,12 @@ export function useLogin() {
       // O backend define o cookie httpOnly 'token'; o JS nunca toca no token.
       const res = await apiClient.post<{ mustChangePassword?: boolean }>(
         '/auth/login',
-        { email, password },
+        {
+          email,
+          password,
+          deviceId: getDeviceId(),
+          ...(needsCode && emailCode ? { emailCode } : {}),
+        },
       );
       // Navegação forçada para garantir que o middleware revê o cookie.
       // Conta convidada com password temporária (política de utilizadores):
@@ -85,6 +101,14 @@ export function useLogin() {
         ? '/settings?tab=seguranca&firstLogin=1'
         : '/dashboard';
     } catch (err) {
+      const body = err instanceof ApiError ? (err.body as { code?: string; purpose?: string } | undefined) : undefined;
+      if (err instanceof ApiError && err.status === 401 && body?.code === 'EMAIL_CODE_REQUIRED') {
+        // Passo seguinte, não é um erro: mostra o campo do código.
+        setCodePurpose(body.purpose === 'NEW_DEVICE' ? 'NEW_DEVICE' : 'LOGIN');
+        setNeedsCode(true);
+        setEmailCode('');
+        return;
+      }
       reportError(err, { source: 'useLogin.handleSubmit' });
       setError(err instanceof Error ? err.message : 'Erro ao entrar');
     } finally {
@@ -103,6 +127,11 @@ export function useLogin() {
     notice,
     loading,
     handleSubmit,
+    needsCode,
+    codePurpose,
+    emailCode,
+    setEmailCode,
+    cancelCode,
     sso: sso.data,
     startSsoLogin,
     ldapEmail,
