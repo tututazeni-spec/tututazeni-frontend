@@ -1,13 +1,36 @@
 // components/library/LibraryCreateView.tsx
 
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+'use client';
+
+import { useRef, useState } from 'react';
+import { ArrowLeft, FileUp, Link2, X } from 'lucide-react';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
+import { cn } from '@/lib/cn';
+import { formatBytes } from '@/lib/format';
+import {
+  MAX_UPLOAD_BYTES,
+  readAsDataUrl,
+} from '@/components/content-library/inlineFile';
 import { TYPE_LABELS } from './types';
+
+// Espelha FILE_POLICIES.DOCUMENT do backend (@IsAllowedFileUrl inline em
+// CreateItemDto): PDF, Office moderno, imagem e texto, até 5 MB.
+const UPLOAD_MIMES = [
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+  'text/plain',
+  'text/csv',
+];
 
 interface LibraryCreateForm {
   type: string;
@@ -50,6 +73,43 @@ export function LibraryCreateView({
   submit,
   onCancel,
 }: LibraryCreateViewProps) {
+  const [source, setSource] = useState<'url' | 'file'>('url');
+  const [file, setFile] = useState<{ name: string; size: number } | null>(null);
+  const [fileError, setFileError] = useState('');
+  const [reading, setReading] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  const switchSource = (next: 'url' | 'file') => {
+    if (next === source) return;
+    setSource(next);
+    setFile(null);
+    setFileError('');
+    setField('fileUrl', '');
+  };
+
+  const pickFile = async (f: File | undefined) => {
+    setFileError('');
+    if (!f) return;
+    if (f.size === 0) return setFileError('O ficheiro está vazio.');
+    if (f.size > MAX_UPLOAD_BYTES)
+      return setFileError(
+        `O ficheiro tem ${formatBytes(f.size)} — o máximo é 5 MB.`,
+      );
+    if (!UPLOAD_MIMES.includes(f.type))
+      return setFileError(
+        'Tipo não suportado (PDF, Word, Excel, PowerPoint, imagem ou texto).',
+      );
+    setReading(true);
+    try {
+      setField('fileUrl', await readAsDataUrl(f));
+      setFile({ name: f.name, size: f.size });
+    } catch {
+      setFileError('Não foi possível ler o ficheiro.');
+    } finally {
+      setReading(false);
+    }
+  };
+
   return (
     <div className="max-w-3xl p-6">
       <Button intent="ghost" size="sm" className="mb-2" onClick={onCancel}>
@@ -109,17 +169,106 @@ export function LibraryCreateView({
               </FormField>
             </div>
 
-            <div className="md:col-span-2">
-              <FormField label="URL do ficheiro *" htmlFor="library-fileUrl">
-                <Input
-                  id="library-fileUrl"
-                  required
-                  placeholder="https://storage.innova.ao/docs/ficheiro.pdf"
-                  value={form.fileUrl}
-                  onChange={(e) => setField('fileUrl', e.target.value)}
-                  className="w-full"
-                />
-              </FormField>
+            <div className="space-y-2 md:col-span-2">
+              <span className="font-body text-sm font-medium text-ink">
+                Origem do ficheiro *
+              </span>
+              <div
+                className="grid grid-cols-2 gap-2"
+                role="group"
+                aria-label="Origem do ficheiro"
+              >
+                {(
+                  [
+                    { key: 'url', label: 'Adicionar por URL', icon: Link2 },
+                    { key: 'file', label: 'Carregar ficheiro', icon: FileUp },
+                  ] as const
+                ).map((o) => (
+                  <button
+                    key={o.key}
+                    type="button"
+                    aria-pressed={source === o.key}
+                    onClick={() => switchSource(o.key)}
+                    className={cn(
+                      'inline-flex items-center justify-center gap-2 rounded-control border px-3 py-2 font-body text-sm transition-colors',
+                      source === o.key
+                        ? 'border-primary bg-primary-subtle text-primary'
+                        : 'border-border-strong bg-surface text-ink-muted',
+                    )}
+                  >
+                    <o.icon size={15} strokeWidth={1.75} />
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+
+              {source === 'url' ? (
+                <FormField label="URL do ficheiro *" htmlFor="library-fileUrl">
+                  <Input
+                    id="library-fileUrl"
+                    required
+                    placeholder="https://storage.innova.ao/docs/ficheiro.pdf"
+                    value={form.fileUrl}
+                    onChange={(e) => setField('fileUrl', e.target.value)}
+                    className="w-full"
+                  />
+                </FormField>
+              ) : (
+                <FormField
+                  label="Ficheiro *"
+                  htmlFor="library-file"
+                  hint="Tamanho máximo: 5 MB. PDF, Word, Excel, PowerPoint, imagem ou texto."
+                  error={fileError || undefined}
+                >
+                  <input
+                    ref={fileInput}
+                    id="library-file"
+                    type="file"
+                    accept={UPLOAD_MIMES.join(',')}
+                    className="sr-only"
+                    onChange={(e) => {
+                      void pickFile(e.target.files?.[0]);
+                      e.target.value = '';
+                    }}
+                  />
+                  {file ? (
+                    <div className="flex items-center gap-3 rounded-control border border-border-strong bg-surface px-3 py-2 text-sm">
+                      <FileUp
+                        size={16}
+                        strokeWidth={1.75}
+                        className="shrink-0 text-ink-muted"
+                      />
+                      <span className="min-w-0 flex-1 truncate text-ink">
+                        {file.name}
+                      </span>
+                      <span className="shrink-0 text-xs text-ink-faint">
+                        {formatBytes(file.size)}
+                      </span>
+                      <IconButton
+                        icon={X}
+                        label="Remover ficheiro"
+                        intent="ghostDanger"
+                        size="xs"
+                        type="button"
+                        onClick={() => {
+                          setFile(null);
+                          setField('fileUrl', '');
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <Button
+                      intent="secondary"
+                      type="button"
+                      loading={reading}
+                      onClick={() => fileInput.current?.click()}
+                    >
+                      <FileUp size={15} strokeWidth={1.75} />
+                      Escolher ficheiro…
+                    </Button>
+                  )}
+                </FormField>
+              )}
             </div>
 
             <FormField label="Autor" htmlFor="library-author">
@@ -209,7 +358,7 @@ export function LibraryCreateView({
             </div>
 
             <div className="flex gap-3 md:col-span-2">
-              <Button type="submit" disabled={saving}>
+              <Button type="submit" disabled={saving || reading}>
                 {saving ? 'A guardar...' : 'Adicionar Recurso'}
               </Button>
               <Button type="button" intent="secondary" onClick={onCancel}>
