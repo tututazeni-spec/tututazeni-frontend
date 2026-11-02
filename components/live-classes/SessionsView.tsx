@@ -275,10 +275,10 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
               <PhotoCard
                 key={s.id}
                 seed={s.id}
-                kicker={s.liveClass?.course?.title ?? 'Aula ao vivo'}
+                kicker={`Sessão ${s.seq}`}
                 kickerIcon={Video}
                 title={s.liveClass?.topic ?? `Aula #${s.liveClassId}`}
-                subtitle={`Sessão ${s.seq}`}
+                caption={s.liveClass?.course?.title}
                 image={s.thumbnailUrl}
                 fallback={<Video size={56} strokeWidth={1.25} />}
                 badges={

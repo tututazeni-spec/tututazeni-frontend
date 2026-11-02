@@ -38,6 +38,8 @@ interface PhotoCardProps {
   kickerIcon?: LucideIcon;
   title: string;
   subtitle?: string | null;
+  /** Linha em largura total por baixo do título (ex.: curso da sessão). */
+  caption?: string | null;
   /** URL da imagem; sem ela mostra `fallback`. */
   image?: string | null;
   fallback?: ReactNode;
@@ -55,12 +57,19 @@ interface PhotoCardProps {
   onSelect?: () => void;
 }
 
+/** Tamanho do título: a palavra mais comprida cabe inteira na coluna (56% − padding). */
+function titleFontSize(title: string): string {
+  const longest = Math.max(1, ...title.split(/\s+/).map((w) => w.length));
+  return `min(24px, calc((56cqw - 40px) / ${(longest * 0.74).toFixed(2)}))`;
+}
+
 export function PhotoCard({
   seed,
   kicker,
   kickerIcon: KickerIcon = GraduationCap,
   title,
   subtitle,
+  caption,
   image,
   fallback,
   badges,
@@ -91,6 +100,7 @@ export function PhotoCard({
       className={`relative flex h-full flex-col overflow-hidden rounded-panel border border-white/10 text-white shadow-[0_4px_14px_rgba(21,47,89,0.25)] transition-all duration-200 ease-out hover:shadow-[0_10px_24px_rgba(21,47,89,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${clickable ? 'cursor-pointer hover:scale-[1.02] motion-reduce:hover:scale-100' : ''}`}
       style={{
         background: `linear-gradient(165deg, ${palette[1]} 0%, ${palette[2]} 60%, ${palette[2]} 100%)`,
+        containerType: 'inline-size',
       }}
     >
       <div
@@ -144,12 +154,15 @@ export function PhotoCard({
           </div>
           <div className={compact ? 'pt-3' : 'pt-5'}>
             <h3
-              className={`font-body font-extrabold uppercase leading-tight tracking-wide ${compact ? 'break-words text-base' : 'text-2xl'}`}
+              className={`font-body font-extrabold uppercase leading-tight tracking-wide ${compact ? 'break-words text-base' : ''}`}
+              // A letra encolhe para que a palavra mais comprida caiba inteira
+              // na coluna do texto, sem partir palavras nem passar sob a imagem.
+              style={compact ? undefined : { fontSize: titleFontSize(title) }}
             >
               {compact
                 ? title
                 : titleLines(title).map((line, i) => (
-                    <span key={i} className="block whitespace-nowrap">
+                    <span key={i} className="block">
                       {line}
                     </span>
                   ))}
@@ -161,6 +174,11 @@ export function PhotoCard({
             )}
           </div>
         </div>
+        {caption && !compact && (
+          <p className="relative z-10 line-clamp-2 px-5 pt-3 text-base leading-snug text-white/90">
+            {caption}
+          </p>
+        )}
       </div>
 
       {badges && (
