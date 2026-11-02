@@ -50,7 +50,7 @@ export function ActivityFeedView() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Card className="overflow-hidden">
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-[#0F1F3D] font-body text-xs font-medium text-white uppercase tracking-wide">
           <MessageCircle size={14} strokeWidth={1.75} />
           Perguntas realizadas
         </div>
@@ -74,7 +74,7 @@ export function ActivityFeedView() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-[#0F1F3D] font-body text-xs font-medium text-white uppercase tracking-wide">
           <HelpCircle size={14} strokeWidth={1.75} />
           Exercícios gerados
         </div>
@@ -103,7 +103,7 @@ export function ActivityFeedView() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-[#0F1F3D] font-body text-xs font-medium text-white uppercase tracking-wide">
           <Sparkles size={14} strokeWidth={1.75} />
           Recomendações
         </div>
@@ -130,7 +130,7 @@ export function ActivityFeedView() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-border font-body text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-[#0F1F3D] font-body text-xs font-medium text-white uppercase tracking-wide">
           <Lightbulb size={14} strokeWidth={1.75} />
           Conteúdos consultados
         </div>

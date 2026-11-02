@@ -14,6 +14,8 @@ export interface FormalEvaluation {
   description: string | null;
   /** Imagem do cartão (data URL ou URL), opcional. */
   imageUrl?: string | null;
+  /** AI_TUTOR = exportada de exercícios gerados por IA (perguntas já geradas). */
+  source?: string | null;
   status: FormalEvaluationStatus;
   courseId: number | null;
   passingScore: number;
