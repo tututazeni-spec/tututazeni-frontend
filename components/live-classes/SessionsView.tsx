@@ -87,6 +87,7 @@ const EMPTY: SessionFormState = {
 
 const SESSION_PROVIDER_ITEMS = [
   { value: 'NONE', label: 'Outro link / sala da aula' },
+  { value: 'JITSI', label: 'Jitsi (sala da plataforma)' },
   { value: 'ZOOM', label: 'Zoom' },
   { value: 'TEAMS', label: 'Microsoft Teams' },
 ];
@@ -175,10 +176,7 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
       sessionDate: s.sessionDate.slice(0, 16),
       durationMinutes: String(s.durationMinutes),
       location: s.location ?? '',
-      meetingProvider:
-        s.meetingProvider && s.meetingProvider !== 'JITSI'
-          ? s.meetingProvider
-          : '',
+      meetingProvider: s.meetingProvider ?? '',
       meetingUrl: s.meetingUrl ?? '',
       notes: s.notes ?? '',
     });
@@ -486,25 +484,27 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                   className="w-full"
                 />
               </FormField>
-              <FormField
-                label={
-                  form.meetingProvider === 'ZOOM'
-                    ? 'Link ou ID da reunião Zoom'
-                    : form.meetingProvider === 'TEAMS'
-                      ? 'Link da reunião Teams'
-                      : 'Link da reunião'
-                }
-                htmlFor="sv-meetingUrl"
-              >
-                <Input
-                  id="sv-meetingUrl"
-                  value={form.meetingUrl}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, meetingUrl: e.target.value }))
+              {form.meetingProvider !== 'JITSI' && (
+                <FormField
+                  label={
+                    form.meetingProvider === 'ZOOM'
+                      ? 'Link ou ID da reunião Zoom'
+                      : form.meetingProvider === 'TEAMS'
+                        ? 'Link da reunião Teams'
+                        : 'Link da reunião'
                   }
-                  className="w-full"
-                />
-              </FormField>
+                  htmlFor="sv-meetingUrl"
+                >
+                  <Input
+                    id="sv-meetingUrl"
+                    value={form.meetingUrl}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, meetingUrl: e.target.value }))
+                    }
+                    className="w-full"
+                  />
+                </FormField>
+              )}
               <FormField label="Notas" htmlFor="sv-notes">
                 <Textarea
                   id="sv-notes"
