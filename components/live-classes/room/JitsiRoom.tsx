@@ -29,6 +29,7 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   const [participants, setParticipants] = useState(0);
   const [loadError, setLoadError] = useState(false);
   const [retryToken, setRetryToken] = useState(0);
+  const [copied, setCopied] = useState(false);
 
   // Nome da sala emitido pelo backend (HMAC): o meet.jit.si público não tem
   // autenticação, por isso um nome previsível deixava entrar qualquer pessoa.
@@ -38,6 +39,18 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     jwt?: string;
     appId?: string;
   } | null>(null);
+
+  // Partilha o link cru da sala Jitsi.
+  const copyLink = useCallback(() => {
+    if (!access) return;
+    navigator.clipboard
+      ?.writeText(`https://${access.domain}/${access.roomName}`)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch((e) => reportError(e, { source: 'JitsiRoom.copyLink' }));
+  }, [access]);
   const roomName = access?.roomName ?? null;
   // Zoom/Teams: não se embebem num iframe; o backend devolve só o link.
   const [external, setExternal] = useState<{
@@ -129,6 +142,8 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
           'help',
           'mute-everyone',
           'security',
+          'invite',
+          'info',
         ],
         SETTINGS_SECTIONS: ['devices', 'language', 'moderator'],
         VIDEO_QUALITY_LABEL_DISABLED: false,
@@ -285,6 +300,15 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
             Abrir a sala numa nova janela
           </a>
         </div>
+      )}
+      {access && (
+        <button
+          type="button"
+          onClick={copyLink}
+          className="absolute top-3 left-3 z-20 rounded-control bg-black/60 px-2.5 py-1 text-xs text-canvas hover:bg-black/80"
+        >
+          {copied ? 'Link copiado' : 'Copiar link do Jitsi'}
+        </button>
       )}
       {loaded && participants > 0 && (
         <div className="absolute top-3 right-3 bg-black/60 rounded-control py-1 px-2.5 text-xs text-canvas flex items-center gap-1.25 pointer-events-none z-20">
