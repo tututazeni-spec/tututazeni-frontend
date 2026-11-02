@@ -5,7 +5,7 @@
 // delega em `onClose` (X, clique fora, Escape).
 //
 // Submete em POST /content-library (@Roles(ADMIN, RH, INSTRUCTOR) no backend,
-// AUTHOR_ROLES). O conteúdo é criado em DRAFT e precisa de publicação à parte.
+// AUTHOR_ROLES). O conteúdo é criado já ACTIVO (aparece logo no catálogo e na pesquisa).
 // O botão que abre esta modal já está escondido para quem não pode criar —
 // aqui só blindamos o payload: campos vazios omitidos, duração -> inteiro.
 
