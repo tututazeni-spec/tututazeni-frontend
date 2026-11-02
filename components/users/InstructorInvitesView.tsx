@@ -131,6 +131,15 @@ export function InstructorInvitesView() {
               Revogar
             </Button>
           )}
+          {(r.status === 'PENDING' || r.status === 'EXPIRED') && (
+            <Button
+              size="sm"
+              intent="ghost"
+              onClick={() => extend.mutate({ userId: r.userId, accessDays: 30 })}
+            >
+              Prolongar 30 dias
+            </Button>
+          )}
           {r.status === 'ACCEPTED' && (
             <>
               <Button

@@ -41,15 +41,24 @@ export function useInstructorInvites() {
 
   const create = useApiMutation(
     (body: NewInstructorInvite) =>
-      apiClient.post<{ inviteId: string }>('/instructor-invites', body),
+      apiClient.post<{ inviteId: string; emailSent: boolean }>(
+        '/instructor-invites',
+        body,
+      ),
     {
       invalidateKeys: [KEY],
-      onSuccess: () =>
-        notify({
-          title: 'Convite enviado',
-          description: 'O instrutor recebeu um link de uso único por email.',
-          intent: 'success',
-        }),
+      onSuccess: (res) =>
+        res.emailSent
+          ? notify({
+              title: 'Convite enviado',
+              description: 'O instrutor recebeu um link de uso único por email.',
+              intent: 'success',
+            })
+          : notify({
+              title: 'Convite criado, mas o email não foi enviado',
+              description: 'Use "Reenviar" na linha do convite para tentar de novo.',
+              intent: 'danger',
+            }),
     },
   );
   const resend = useApiMutation(
