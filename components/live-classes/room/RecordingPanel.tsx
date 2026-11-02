@@ -147,7 +147,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
             <li>
               Clica em <strong className="text-danger">Iniciar Gravação</strong>
             </li>
-            <li>Selecciona a janela/ecrã com a aula Jitsi</li>
+            <li>Selecciona este separador: só o player da aula é gravado</li>
             <li>
               Quando terminar, clica{' '}
               <strong className="text-danger">Parar</strong>
@@ -174,7 +174,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
 
         {rec.state === 'idle' && (
           <button
-            onClick={rec.start}
+            onClick={() => void rec.start()}
             className="w-full py-3 rounded-xl bg-[#1d5fd6] hover:bg-[#1a52b8] border-none text-white text-sm font-bold cursor-pointer inline-flex items-center justify-center gap-2.5"
           >
             <span className="w-3 h-3 rounded-full bg-white inline-block" />

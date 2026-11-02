@@ -9,6 +9,9 @@ import { reportError } from '@/lib/errorReporting';
 import { useStopwatch } from '@/hooks/useStopwatch';
 import type { RecordingData, RecordingState } from './types';
 
+/** id do elemento do player da aula: é só esta área que se grava. */
+export const LIVE_PLAYER_ELEMENT_ID = 'live-class-player';
+
 export function useRecording() {
   const [state, setState] = useState<RecordingState>('idle');
   const [data, setData] = useState<RecordingData | null>(null);
@@ -36,12 +39,34 @@ export function useRecording() {
   const start = useCallback(async () => {
     setError('');
     try {
-      // Ask user to share screen (includes audio if available)
+      // Ask user to share screen (includes audio if available).
+      // `preferCurrentTab` sugere o separador actual, o único que permite
+      // recortar a gravação ao player (Region Capture).
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: { frameRate: 30 },
         audio: true,
-      });
+        preferCurrentTab: true,
+      } as DisplayMediaStreamOptions);
       streamRef.current = stream;
+
+      // Limita a gravação à área do player (Chrome/Edge). Se o utilizador
+      // escolheu outra janela/ecrã ou o browser não suporta, grava tudo.
+      try {
+        const player = document.getElementById(LIVE_PLAYER_ELEMENT_ID);
+        const CropTargetApi = (
+          window as unknown as {
+            CropTarget?: { fromElement: (el: Element) => Promise<unknown> };
+          }
+        ).CropTarget;
+        const track = stream.getVideoTracks()[0] as MediaStreamTrack & {
+          cropTo?: (target: unknown) => Promise<void>;
+        };
+        if (player && CropTargetApi && track.cropTo) {
+          await track.cropTo(await CropTargetApi.fromElement(player));
+        }
+      } catch {
+        // Sem recorte: segue com a captura completa.
+      }
 
       // Choose best supported format
       const mimeType =

@@ -8,9 +8,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { reportError } from '@/lib/errorReporting';
 import { apiClient } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
+import { useFullscreen } from '@/components/viewers/useFullscreen';
+import { FullscreenControls } from '@/components/viewers/FullscreenControls';
 import { ExternalMeetingCard } from './ExternalMeetingCard';
 import { ZoomRoom, type ZoomSdkAccess } from './ZoomRoom';
 import type { JitsiAPI, LiveClass } from './types';
+import { LIVE_PLAYER_ELEMENT_ID } from './useRecording';
 
 interface JitsiRoomProps {
   liveClass: LiveClass;
@@ -21,6 +24,7 @@ interface JitsiRoomProps {
 export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<JitsiAPI | null>(null);
+  const stageFs = useFullscreen();
   const [loaded, setLoaded] = useState(false);
   // O iframe do Jitsi já carregou: a sobreposição "A conectar" sai de cima dele,
   // para se verem os ecrãs do próprio Jitsi (login, "à espera do anfitrião", erros).
@@ -255,7 +259,19 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   }
 
   return (
-    <div className="relative w-full h-full bg-slate-900 rounded-[14px] overflow-hidden">
+    <div
+      ref={stageFs.ref}
+      id={LIVE_PLAYER_ELEMENT_ID}
+      tabIndex={-1}
+      className={`relative w-full h-full bg-slate-900 overflow-hidden outline-none ${
+        stageFs.isFs ? '' : 'rounded-[14px]'
+      } ${stageFs.isFs && !stageFs.controlsVisible ? 'cursor-none' : ''}`}
+    >
+      <FullscreenControls
+        isFs={stageFs.isFs}
+        visible={stageFs.controlsVisible}
+        onToggle={stageFs.toggle}
+      />
       {/* fundo escuro intencional: container da sala Jitsi */}
       {!loaded && loadError && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-slate-900 px-6 text-center">
@@ -311,7 +327,7 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
         </button>
       )}
       {loaded && participants > 0 && (
-        <div className="absolute top-3 right-3 bg-black/60 rounded-control py-1 px-2.5 text-xs text-canvas flex items-center gap-1.25 pointer-events-none z-20">
+        <div className="absolute top-12 right-3 bg-black/60 rounded-control py-1 px-2.5 text-xs text-canvas flex items-center gap-1.25 pointer-events-none z-20">
           <span className="w-2 h-2 rounded-full bg-success inline-block" />
           {participants} participante{participants !== 1 ? 's' : ''}
         </div>
