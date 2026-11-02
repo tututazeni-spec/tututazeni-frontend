@@ -48,19 +48,21 @@ export function DocCard({ doc, onView, onDownload, onDelete }: DocCardProps) {
   const isExpired = doc.status === 'EXPIRED';
 
   const open = () => onView(doc);
+  // O olho da miniatura abre o ficheiro carregado; o resto do cartão abre o detalhe.
+  const openFile = () => onDownload(doc);
 
   return (
     <Card className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-hover">
       {/* Miniatura */}
       <div
         className={`relative flex h-36 items-center justify-center ${isExpired ? 'bg-danger-subtle' : 'bg-surface-sunken'}`}
-        onClick={open}
+        onClick={openFile}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            open();
+            openFile();
           }
         }}
       >
