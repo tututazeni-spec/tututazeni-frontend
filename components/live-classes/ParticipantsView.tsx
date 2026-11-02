@@ -26,11 +26,13 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
+import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
 import {
-  NavyBadge,
-  NavyCard,
-  type NavyTone,
-} from '@/components/courses/NavyCard';
+  ROW_BTN_ICON,
+  ROW_BTN_OUTLINE,
+  ROW_BTN_PRIMARY,
+  RowCard,
+} from './RowCard';
 import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
@@ -100,7 +102,8 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
   const confirm = useConfirm();
   const liveClassOptions = useLiveClassOptions();
 
-  const [liveClassId, setLiveClassId] = useState('ALL');
+  // '' = ainda nada escolhido (mostra "Selecionar aula"); 'ALL' = Todas as aulas.
+  const [liveClassId, setLiveClassId] = useState('');
   const [status, setStatus] = useState('ALL');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -123,7 +126,8 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
     page,
     limit: 20,
   };
-  if (liveClassId !== 'ALL') params.liveClassId = Number(liveClassId);
+  if (liveClassId && liveClassId !== 'ALL')
+    params.liveClassId = Number(liveClassId);
   if (status !== 'ALL') params.status = status;
   if (search) params.search = search;
 
@@ -232,6 +236,7 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
               ...liveClassOptions,
             ]}
             value={liveClassId}
+            placeholder="Selecionar aula"
             onValueChange={(v) => {
               setLiveClassId(v);
               setPage(1);
@@ -276,12 +281,11 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="flex flex-col gap-4">
             {rows.map((p) => (
-              <NavyCard
+              <RowCard
                 key={p.id}
-                seed={p.liveClassId}
-                avatar={{ name: p.user.fullName }}
+                name={p.user.fullName}
                 title={p.liveClass.topic}
                 subtitle={
                   [
@@ -327,37 +331,30 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
                     label: 'Avaliação',
                   },
                 ]}
-                footer={
+                actions={
                   canManage && (
                     <>
-                      <Button
+                      <button
                         type="button"
-                        intent="onDark"
-                        size="md"
+                        className={ROW_BTN_PRIMARY}
                         onClick={() => openRegister(p)}
                       >
-                        <UserCheck
-                          size={14}
-                          strokeWidth={1.75}
-                          className="mr-1.5"
-                        />
+                        <UserCheck size={14} strokeWidth={1.75} />
                         Registar presença
-                      </Button>
-                      <Button
+                      </button>
+                      <button
                         type="button"
-                        intent="onDark"
-                        size="md"
+                        className={ROW_BTN_OUTLINE}
                         onClick={() => {
                           setJustifying(p);
                           setJustification(p.justification ?? '');
                         }}
                       >
                         Justificar
-                      </Button>
-                      <Button
+                      </button>
+                      <button
                         type="button"
-                        intent="onDark"
-                        size="md"
+                        className={ROW_BTN_ICON}
                         aria-label="Remover participante"
                         title="Remover participante"
                         disabled={
@@ -366,7 +363,7 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
                         onClick={() => onRemove(p)}
                       >
                         <Trash2 size={14} strokeWidth={1.75} />
-                      </Button>
+                      </button>
                     </>
                   )
                 }
@@ -411,7 +408,7 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
                   onValueChange={(v) =>
                     setAddForm((f) => ({ ...f, liveClassId: v }))
                   }
-                  placeholder="Selecionar aula…"
+                  placeholder="Selecionar aula"
                   searchPlaceholder="Escreva para filtrar…"
                 />
               </FormField>

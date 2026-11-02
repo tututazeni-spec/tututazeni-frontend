@@ -17,6 +17,7 @@
 'use client';
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -91,9 +92,9 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
   const canWorkflow = WORKFLOW_ROLES.includes(role ?? '');
   const canApprove = APPROVER_ROLES.includes(role ?? '');
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-40 flex justify-end"
+      className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-[100] flex justify-end"
       onClick={onClose}
     >
       <div
@@ -101,15 +102,17 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 border-b border-border">
-          <div className="flex items-start justify-between">
-            <div>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
               {doc.documentCode && (
                 <p className="text-xs font-mono text-ink-faint mb-1">
                   {doc.documentCode}
                   {doc.documentNumber && ` · ${doc.documentNumber}`}
                 </p>
               )}
-              <h2 className="font-bold text-ink text-lg">{doc.title}</h2>
+              <h2 className="break-words font-bold text-ink text-lg">
+                {doc.title}
+              </h2>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {catCfg && <Badge intent={catCfg.intent}>{catCfg.label}</Badge>}
                 {statusCfg && (
@@ -121,6 +124,7 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
               icon={X}
               label="Fechar"
               intent="ghost"
+              className="shrink-0"
               onClick={onClose}
             />
           </div>
@@ -183,9 +187,7 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
             },
             {
               label: 'Validade',
-              value: doc.expiresAt
-                ? formatDateNumeric(doc.expiresAt)
-                : '—',
+              value: doc.expiresAt ? formatDateNumeric(doc.expiresAt) : '—',
             },
             {
               label: 'Retenção legal',
@@ -227,7 +229,7 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
             </div>
           )}
 
-          {canWorkflow && (
+          {canWorkflow && doc.status !== 'ACTIVE' && (
             <div className="flex flex-col gap-2 pt-2 border-t border-border">
               <p className="text-xs text-ink-muted">Fluxo de aprovação</p>
               <div className="flex flex-wrap gap-2">
@@ -280,17 +282,6 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
                     }
                   >
                     Publicar
-                  </Button>
-                )}
-                {doc.status === 'ACTIVE' && (
-                  <Button
-                    size="sm"
-                    intent="secondary"
-                    onClick={() =>
-                      workflow.mutate({ id: doc.id, action: 'suspend' })
-                    }
-                  >
-                    Suspender
                   </Button>
                 )}
                 {doc.status === 'SUSPENSO' && (
@@ -385,6 +376,7 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

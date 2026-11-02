@@ -12,10 +12,12 @@ import {
   BookOpen,
   Clock,
   MapPin,
+  MoreVertical,
   Pencil,
   Plus,
   Trash2,
   User,
+  UserPlus,
   Users,
   Video,
 } from 'lucide-react';
@@ -30,7 +32,15 @@ import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
 import { PhotoCard } from '@/components/courses/PhotoCard';
+import { CourseImageField } from '@/components/courses/CourseImageField';
 import { Combobox } from '@/components/ui/Combobox';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -39,9 +49,12 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { STATUS_CFG } from './constants';
+import { useInstructorOptions } from './wizard/wizardData';
+import { SessionAttendanceModal } from './SessionAttendanceModal';
 import type {
   LiveClassSession,
   LiveClassStatus,
+  MeetingProvider,
   PaginatedSessions,
 } from './types';
 
@@ -59,8 +72,10 @@ interface SessionFormState {
   sessionDate: string;
   durationMinutes: string;
   location: string;
+  meetingProvider: MeetingProvider | '';
   meetingUrl: string;
   notes: string;
+  thumbnailUrl: string;
 }
 
 const EMPTY: SessionFormState = {
@@ -68,9 +83,18 @@ const EMPTY: SessionFormState = {
   sessionDate: '',
   durationMinutes: '60',
   location: '',
+  meetingProvider: '',
   meetingUrl: '',
   notes: '',
+  thumbnailUrl: '',
 };
+
+const SESSION_PROVIDER_ITEMS = [
+  { value: 'NONE', label: 'Outro link / sala da aula' },
+  { value: 'JITSI', label: 'Jitsi (sala da plataforma)' },
+  { value: 'ZOOM', label: 'Zoom' },
+  { value: 'TEAMS', label: 'Microsoft Teams' },
+];
 
 const STATUS_ITEMS = [
   { value: 'ALL', label: 'Todos os estados' },
@@ -99,16 +123,25 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
   const confirm = useConfirm();
   const { options: liveClassOptions } = useLiveClassOptions();
 
-  const [status, setStatus] = useState('ALL');
+  const [status, setStatus] = useState(''); // '' = Selecionar; 'ALL' = Todos os estados
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<LiveClassSession | 'new' | null>(null);
   const [form, setForm] = useState<SessionFormState>(EMPTY);
+  const [instructorFor, setInstructorFor] = useState<LiveClassSession | null>(
+    null,
+  );
+  const [instructorId, setInstructorId] = useState('');
+  const [attendanceFor, setAttendanceFor] = useState<LiveClassSession | null>(
+    null,
+  );
+  const { options: instructorOptions, loading: instructorsLoading } =
+    useInstructorOptions();
 
   const params: Record<string, string | number | boolean | null | undefined> = {
     page,
     limit: 20,
   };
-  if (status !== 'ALL') params.status = status;
+  if (status && status !== 'ALL') params.status = status;
 
   const { data, isLoading } = useApiQuery<PaginatedSessions>(
     queryKeys.liveClasses.allSessions(params),
@@ -132,8 +165,10 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
       sessionDate: s.sessionDate.slice(0, 16),
       durationMinutes: String(s.durationMinutes),
       location: s.location ?? '',
+      meetingProvider: s.meetingProvider ?? '',
       meetingUrl: s.meetingUrl ?? '',
       notes: s.notes ?? '',
+      thumbnailUrl: s.thumbnailUrl ?? '',
     });
     setEditing(s);
   };
@@ -146,8 +181,11 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
         sessionDate: new Date(form.sessionDate).toISOString(),
         durationMinutes: Number(form.durationMinutes) || 60,
         location: form.location || undefined,
+        meetingProvider: form.meetingProvider || undefined,
         meetingUrl: form.meetingUrl || undefined,
         notes: form.notes || undefined,
+        // '' limpa a imagem ao editar; ao criar é ignorado
+        thumbnailUrl: form.thumbnailUrl,
       };
       return editing !== 'new' && editing
         ? apiClient.put(
@@ -161,6 +199,21 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
       onSuccess: () => {
         toast({ title: 'Sessão guardada.', intent: 'success' });
         setEditing(null);
+      },
+      onError: (e) => toast({ title: e.message, intent: 'danger' }),
+    },
+  );
+
+  const saveInstructor = useApiMutation(
+    (s: LiveClassSession) =>
+      apiClient.put(`/live-classes/${s.liveClassId}/sessions/${s.id}`, {
+        instructorId: Number(instructorId),
+      }),
+    {
+      invalidateKeys,
+      onSuccess: () => {
+        toast({ title: 'Formador guardado.', intent: 'success' });
+        setInstructorFor(null);
       },
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
@@ -193,6 +246,7 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
           icon={MapPin}
           items={STATUS_ITEMS}
           value={status}
+          placeholder="Selecionar"
           onValueChange={(v) => {
             setStatus(v);
             setPage(1);
@@ -221,10 +275,11 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
               <PhotoCard
                 key={s.id}
                 seed={s.id}
-                kicker={s.liveClass?.course?.title ?? 'Aula ao vivo'}
+                kicker={`Sessão ${s.seq}`}
                 kickerIcon={Video}
                 title={s.liveClass?.topic ?? `Aula #${s.liveClassId}`}
-                subtitle={`Sessão ${s.seq}`}
+                caption={s.liveClass?.course?.title}
+                image={s.thumbnailUrl}
                 fallback={<Video size={56} strokeWidth={1.25} />}
                 badges={
                   <NavyBadge tone={STATUS_TONE[s.status] ?? 'neutral'}>
@@ -248,31 +303,65 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                 ]}
                 actions={
                   canManage && (
-                    <>
-                      <Button
-                        type="button"
-                        intent="onDarkGhost"
-                        size="icon"
-                        aria-label="Editar sessão"
-                        title="Editar sessão"
-                        onClick={() => openEdit(s)}
-                      >
-                        <Pencil size={15} strokeWidth={1.75} />
-                      </Button>
-                      <Button
-                        type="button"
-                        intent="onDarkGhost"
-                        size="icon"
-                        aria-label="Eliminar sessão"
-                        title="Eliminar sessão"
-                        disabled={
-                          remove.isPending && remove.variables?.id === s.id
-                        }
-                        onClick={() => onDelete(s)}
-                      >
-                        <Trash2 size={15} strokeWidth={1.75} />
-                      </Button>
-                    </>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          intent="onDarkGhost"
+                          size="icon"
+                          aria-label="Mais ações"
+                          title="Mais ações"
+                        >
+                          <MoreVertical size={15} strokeWidth={1.75} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => openEdit(s)}>
+                          <Pencil
+                            size={13}
+                            strokeWidth={1.75}
+                            className="mr-2 inline"
+                          />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setInstructorId(
+                              s.instructor?.id ? String(s.instructor.id) : '',
+                            );
+                            setInstructorFor(s);
+                          }}
+                        >
+                          <UserPlus
+                            size={13}
+                            strokeWidth={1.75}
+                            className="mr-2 inline"
+                          />
+                          Adicionar formadores
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => {
+                            setAttendanceFor(s);
+                          }}
+                        >
+                          <Users
+                            size={13}
+                            strokeWidth={1.75}
+                            className="mr-2 inline"
+                          />
+                          Adicionar presenças
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onSelect={() => onDelete(s)}>
+                          <Trash2
+                            size={13}
+                            strokeWidth={1.75}
+                            className="mr-2 inline"
+                          />
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )
                 }
               />
@@ -319,7 +408,7 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                     onValueChange={(v) =>
                       setForm((f) => ({ ...f, liveClassId: v }))
                     }
-                    placeholder="Selecionar aula…"
+                    placeholder="Selecionar aula"
                     searchPlaceholder="Escreva para filtrar…"
                   />
                 </FormField>
@@ -357,14 +446,48 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                   className="w-full"
                 />
               </FormField>
-              <FormField label="Link da reunião" htmlFor="sv-meetingUrl">
-                <Input
-                  id="sv-meetingUrl"
-                  value={form.meetingUrl}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, meetingUrl: e.target.value }))
+              <FormField label="Plataforma" htmlFor="sv-provider">
+                <Select
+                  items={SESSION_PROVIDER_ITEMS}
+                  value={form.meetingProvider || 'NONE'}
+                  onValueChange={(v) =>
+                    setForm((f) => ({
+                      ...f,
+                      meetingProvider:
+                        v === 'NONE' ? '' : (v as MeetingProvider),
+                    }))
                   }
                   className="w-full"
+                />
+              </FormField>
+              {form.meetingProvider !== 'JITSI' && (
+                <FormField
+                  label={
+                    form.meetingProvider === 'ZOOM'
+                      ? 'Link ou ID da reunião Zoom'
+                      : form.meetingProvider === 'TEAMS'
+                        ? 'Link da reunião Teams'
+                        : 'Link da reunião'
+                  }
+                  htmlFor="sv-meetingUrl"
+                >
+                  <Input
+                    id="sv-meetingUrl"
+                    value={form.meetingUrl}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, meetingUrl: e.target.value }))
+                    }
+                    className="w-full"
+                  />
+                </FormField>
+              )}
+              <FormField label="Imagem da sessão" htmlFor="sv-thumbnail">
+                <CourseImageField
+                  value={form.thumbnailUrl || null}
+                  onChange={(v) =>
+                    setForm((f) => ({ ...f, thumbnailUrl: v ?? '' }))
+                  }
+                  alt="Pré-visualização da imagem da sessão"
                 />
               </FormField>
               <FormField label="Notas" htmlFor="sv-notes">
@@ -400,6 +523,53 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
             </div>
           </ModalContent>
         </Modal>
+      )}
+
+      {instructorFor && (
+        <Modal open onOpenChange={(open) => !open && setInstructorFor(null)}>
+          <ModalContent
+            title={`Adicionar formador — sessão ${instructorFor.seq}`}
+            className="max-w-md"
+          >
+            <div className="mt-4 space-y-4">
+              <FormField label="Formador *" htmlFor="sv-instructor">
+                <Combobox
+                  items={instructorOptions}
+                  value={instructorId}
+                  onValueChange={setInstructorId}
+                  placeholder={
+                    instructorsLoading ? 'A carregar…' : 'Selecionar formador'
+                  }
+                  searchPlaceholder="Escreva para filtrar…"
+                />
+              </FormField>
+            </div>
+            <div className="mt-6 flex gap-3 border-t border-border pt-4">
+              <Button
+                intent="secondary"
+                className="flex-1 justify-center"
+                onClick={() => setInstructorFor(null)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="flex-1 justify-center"
+                onClick={() => saveInstructor.mutate(instructorFor)}
+                loading={saveInstructor.isPending}
+                disabled={!instructorId}
+              >
+                Guardar
+              </Button>
+            </div>
+          </ModalContent>
+        </Modal>
+      )}
+
+      {attendanceFor && (
+        <SessionAttendanceModal
+          session={attendanceFor}
+          onClose={() => setAttendanceFor(null)}
+        />
       )}
     </div>
   );

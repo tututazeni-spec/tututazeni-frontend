@@ -16,7 +16,7 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
-import { NavyCard } from '@/components/courses/NavyCard';
+import { RowCard } from './RowCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -45,13 +45,13 @@ export function InstructorsView() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="flex flex-col gap-4">
         {instructors.map((t) => (
-          <NavyCard
+          <RowCard
             key={t.id}
-            seed={t.id}
             onClick={() => setViewing(t)}
-            avatar={{ name: t.name, url: t.user?.avatarUrl }}
+            name={t.name}
+            avatarUrl={t.user?.avatarUrl}
             title={
               t.specialties.length > 0
                 ? t.specialties.join(', ')

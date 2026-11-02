@@ -24,6 +24,7 @@ export type LiveClassRecurrence = 'ONCE' | 'DAILY' | 'WEEKLY' | 'CUSTOM';
 export type LiveClassEnrollmentMode = 'AUTO' | 'MANUAL' | 'SELF' | 'APPROVAL';
 
 export type SessionModality = 'PRESENTIAL' | 'ONLINE' | 'HYBRID';
+export type MeetingProvider = 'JITSI' | 'ZOOM' | 'TEAMS';
 
 export type LiveAttendanceStatus =
   'PRESENTE' | 'AUSENTE' | 'ATRASADO' | 'PARCIAL' | 'JUSTIFICADO';
@@ -41,6 +42,9 @@ export interface LiveClass {
   duration: number;
   recordingUrl?: string;
   zoomMeetingId?: string;
+  meetingProvider?: MeetingProvider;
+  meetingUrl?: string | null;
+  meetingPasscode?: string | null;
   course?: { id: number; title: string };
   _count?: { attendances: number; messages: number; sessions?: number };
   postEvaluation?: { id: number; averageScore: number };
@@ -111,8 +115,10 @@ export interface LiveClassSession {
   instructor?: InstructorRef | null;
   location?: string | null;
   meetingUrl?: string | null;
+  meetingProvider?: MeetingProvider | null;
   status: LiveClassStatus;
   notes?: string | null;
+  thumbnailUrl?: string | null;
   recordingUrl?: string | null;
   recordingPublishedAt?: string | null;
   liveClass?: {

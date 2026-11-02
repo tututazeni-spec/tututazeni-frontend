@@ -14,7 +14,33 @@ export async function fetchIsisSpeech(text: string): Promise<Uint8Array> {
     { text },
     { errorMessage: 'Voz da Ísis indisponível' },
   );
-  return new Uint8Array(await res.arrayBuffer());
+  return trimSilence(new Uint8Array(await res.arrayBuffer()));
+}
+
+const SILENCE_AMPLITUDE = 300; // ~ -40 dB em PCM16
+const KEEP_PAD_BYTES = 640; // 20 ms de margem à volta da fala
+
+/**
+ * Corta o silêncio do início e do fim de cada frase. A ElevenLabs devolve
+ * cada frase com uns décimos de segundo de silêncio nas pontas; com a voz
+ * pedida frase a frase isso vira pausas que fazem o avatar "travar" entre
+ * frases e dessincronizam o texto, que usa a duração do áudio.
+ */
+export function trimSilence(pcm: Uint8Array): Uint8Array {
+  const samples = pcm.length >> 1;
+  if (samples === 0) return pcm;
+  const view = new DataView(pcm.buffer, pcm.byteOffset, samples * 2);
+  const loud = (i: number) =>
+    Math.abs(view.getInt16(i * 2, true)) > SILENCE_AMPLITUDE;
+  let first = 0;
+  while (first < samples && !loud(first)) first++;
+  if (first === samples) return pcm; // tudo silêncio: não mexer
+  let last = samples - 1;
+  while (last > first && !loud(last)) last--;
+  const pad = KEEP_PAD_BYTES >> 1;
+  const start = Math.max(0, first - pad) * 2;
+  const end = Math.min(samples, last + 1 + pad) * 2;
+  return pcm.subarray(start, end);
 }
 
 export function splitPcm(pcm: Uint8Array): Uint8Array[] {

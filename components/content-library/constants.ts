@@ -49,6 +49,36 @@ export const FORMAT_CLS: Record<string, string> = {
 };
 export const FORMAT_CLS_FALLBACK = 'bg-surface-sunken text-ink-muted';
 
+export const LEVEL_LABEL: Record<string, string> = {
+  BEGINNER: 'Iniciante',
+  INTERMEDIATE: 'Intermédio',
+  ADVANCED: 'Avançado',
+  EXPERT: 'Especialista',
+};
+
+// Rótulos dos formatos (ContentFormat) — o valor do enum nunca se mostra cru.
+export const FORMAT_LABEL: Record<string, string> = {
+  VIDEO: 'Vídeo',
+  ARTICLE: 'Artigo',
+  PODCAST: 'Podcast',
+  PDF: 'PDF',
+  EBOOK: 'E-book',
+  SCORM: 'SCORM',
+  COURSE: 'Curso',
+  MICROLEARNING: 'Micro-aprendizagem',
+  INFOGRAPHIC: 'Infográfico',
+  QUIZ: 'Questionário',
+  TEMPLATE: 'Modelo',
+  PRESENTATION: 'Apresentação',
+  WEBINAR: 'Webinar',
+  HTML5: 'HTML5',
+};
+
+export const formatLabel = (format: string): string =>
+  FORMAT_LABEL[format] ?? format;
+
+export const levelLabel = (level: string): string => LEVEL_LABEL[level] ?? level;
+
 export const LEVEL_CLS: Record<string, string> = {
   BEGINNER: 'text-success',
   INTERMEDIATE: 'text-warning',

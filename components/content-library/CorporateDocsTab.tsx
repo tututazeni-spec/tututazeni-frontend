@@ -15,6 +15,9 @@
 import { useState } from 'react';
 import { CheckCircle2, FileText, Plus } from 'lucide-react';
 import { useHasRole } from '@/hooks/useCurrentRole';
+import { useQueryClient } from '@tanstack/react-query';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { RECYCLE_BIN_KEY } from './RecycleBinPanel';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
@@ -32,6 +35,7 @@ import {
   usePendingReads,
   useRecentDocuments,
 } from '@/components/documents/hooks';
+import { openFile } from '@/components/courses-learn/fileSrc';
 import { UploadModal } from '@/components/documents/UploadModal';
 import {
   CORPORATE_DOC_CATEGORIES,
@@ -102,13 +106,43 @@ export function CorporateDocsTab() {
   const confirmRead = useConfirmRead();
 
   const canAuthor = useHasRole(AUTHOR_ROLES);
+  const isAdmin = useHasRole(['ADMIN']);
+  const confirm = useConfirm();
+  const qc = useQueryClient();
+
+  const handleDelete = async (doc: Document) => {
+    const ok = await confirm({
+      title: 'Apagar documento?',
+      message: `"${doc.title}" vai para a reciclagem e fica 30 dias antes de ser apagado de vez. Pode restaurá-lo no separador Repositório.`,
+      confirmLabel: 'Apagar',
+      destructive: true,
+    });
+    if (!ok) return;
+    try {
+      await apiClient.delete(`/documents/${doc.id}`, {
+        body: { reason: 'Apagado para a reciclagem' },
+      });
+      notify({
+        title: 'Documento enviado para a reciclagem',
+        intent: 'success',
+      });
+      refetch();
+      void qc.invalidateQueries({ queryKey: [...RECYCLE_BIN_KEY] });
+    } catch (e) {
+      reportError(e, { source: 'CorporateDocsTab.handleDelete' });
+      notify({
+        title: e instanceof Error ? e.message : String(e),
+        intent: 'danger',
+      });
+    }
+  };
 
   const handleDownload = async (doc: Document) => {
     try {
       const result = await apiClient.get<{ fileUrl: string }>(
         `/documents/${doc.id}/download`,
       );
-      window.open(result.fileUrl, '_blank');
+      openFile(result.fileUrl);
     } catch (e) {
       reportError(e, { source: 'CorporateDocsTab.handleDownload' });
       notify({
@@ -243,8 +277,8 @@ export function CorporateDocsTab() {
       ) : loading ? (
         <Skeleton
           rows={8}
-          wrapperClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
-          itemClassName="h-40 rounded-panel bg-surface-sunken"
+          wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4"
+          itemClassName="h-56 rounded-panel bg-surface-sunken"
         />
       ) : docsToShow.length === 0 ? (
         <EmptyState
@@ -253,13 +287,14 @@ export function CorporateDocsTab() {
           description="Não há documentos para o filtro seleccionado."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
           {docsToShow.map((d) => (
             <DocCard
               key={d.id}
               doc={d}
               onView={setSelectedDoc}
               onDownload={handleDownload}
+              onDelete={isAdmin ? handleDelete : undefined}
             />
           ))}
         </div>

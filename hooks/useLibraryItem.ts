@@ -10,6 +10,7 @@ import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
+import { openFile } from '@/components/courses-learn/fileSrc';
 import type { ItemDetail } from '@/components/library/types';
 
 export function useLibraryItem(id: string) {
@@ -42,7 +43,7 @@ export function useLibraryItem(id: string) {
       apiClient.post<{ fileUrl?: string }>(`/library/items/${id}/download`, {}),
     {
       onSuccess: (json) => {
-        if (json.fileUrl) window.open(json.fileUrl, '_blank');
+        if (json.fileUrl) openFile(json.fileUrl);
       },
       onError: (e) =>
         notify({ title: e.message || 'Erro inesperado', intent: 'danger' }),

@@ -470,6 +470,7 @@ export interface DirectoryUser {
   email?: string;
   position?: { name: string } | null;
   department?: { name: string } | null;
+  role?: { name: string } | null;
 }
 
 export interface PaginatedUsers {
@@ -499,6 +500,7 @@ export type View =
   | 'directory'
   | 'import'
   | 'audit'
+  | 'instructors'
   | 'permissions';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto

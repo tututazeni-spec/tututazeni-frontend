@@ -1,16 +1,21 @@
 // components/documents/DocCard.tsx
-// Cartão de documento na vista em grelha. Extraído de
-// app/(platform)/documents/page.tsx. Migrado para a fundação de design:
-// classes Tailwind cruas passam a tokens; pill de categoria passa a Badge;
-// menu de acções local (useState + posicionamento absolute manual) passa a
-// DropdownMenu (Radix, components/ui/DropdownMenu), mesmo padrão de
-// components/work-declaration/DeclarationRow.tsx.
+// Cartão de documento na vista em grelha. Desenho igual ao dos cartões do
+// separador Repositório (content-library/ContentCard): miniatura em cima com
+// ícone do ficheiro, selos no canto e acções à direita; corpo com selo de
+// categoria, título e linha de metadados. A informação é a do documento
+// (categoria, versão, sensibilidade, tamanho, validade, tags).
 
 'use client';
 
-import { AlertCircle, Download, Eye, MoreHorizontal } from 'lucide-react';
+import {
+  AlertCircle,
+  Download,
+  Eye,
+  MoreHorizontal,
+  Trash2,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
-import { IconButton } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,9 +31,11 @@ interface DocCardProps {
   doc: Document;
   onView: (d: Document) => void;
   onDownload: (d: Document) => void;
+  /** Só passado a quem pode apagar (ADMIN): envia para a reciclagem. */
+  onDelete?: (d: Document) => void;
 }
 
-export function DocCard({ doc, onView, onDownload }: DocCardProps) {
+export function DocCard({ doc, onView, onDownload, onDelete }: DocCardProps) {
   const Icon = getFileIcon(doc.mimeType);
   const catCfg = CATEGORY_CONFIG[doc.category];
   const sensCfg = SENSITIVITY_CONFIG[doc.sensitivity];
@@ -40,34 +47,75 @@ export function DocCard({ doc, onView, onDownload }: DocCardProps) {
     doc.status === 'ACTIVE';
   const isExpired = doc.status === 'EXPIRED';
 
+  const open = () => onView(doc);
+  // O olho da miniatura abre o ficheiro carregado; o resto do cartão abre o detalhe.
+  const openFile = () => onDownload(doc);
+
   return (
-    <div
-      className={`bg-surface rounded-panel border p-4 hover:shadow-hover transition-all group cursor-pointer ${isExpired ? 'border-danger-subtle bg-danger-subtle/40' : isExpiringSoon ? 'border-warning-subtle' : 'border-border hover:border-primary-subtle'}`}
-      onClick={() => onView(doc)}
-    >
-      {/* Icon + menu */}
-      <div className="flex items-start justify-between mb-3">
-        <div
-          className={`w-10 h-10 rounded-control flex items-center justify-center ${isExpired ? 'bg-danger-subtle' : 'bg-primary-subtle'}`}
-        >
-          <Icon
-            size={20}
-            strokeWidth={1.75}
-            className={isExpired ? 'text-danger' : 'text-primary'}
-          />
+    <Card className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-hover">
+      {/* Miniatura */}
+      <div
+        className={`relative flex h-36 items-center justify-center ${isExpired ? 'bg-danger-subtle' : 'bg-surface-sunken'}`}
+        onClick={openFile}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openFile();
+          }
+        }}
+      >
+        <Icon
+          size={24}
+          strokeWidth={1.75}
+          className={isExpired ? 'text-danger' : 'text-ink-faint'}
+        />
+        {/* Overlay */}
+        <div className="absolute inset-0 flex items-center justify-center bg-ink/20 opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface/90 shadow-elevated">
+            <Eye size={18} strokeWidth={1.75} className="text-ink" />
+          </div>
         </div>
+        {/* Selos */}
+        <div className="absolute left-2 top-2 flex gap-1">
+          {isExpired && (
+            <span className="rounded bg-danger px-1.5 py-0.5 font-body text-micro font-bold text-canvas">
+              EXPIRADO
+            </span>
+          )}
+          {doc.version !== '1.0' && (
+            <span className="rounded bg-primary px-1.5 py-0.5 font-body text-micro font-bold text-canvas">
+              v{doc.version}
+            </span>
+          )}
+        </div>
+        {/* Acções */}
         <div
-          className="opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute right-2 top-2 flex gap-1"
           onClick={(e) => e.stopPropagation()}
         >
+          {onDelete && (
+            <button
+              onClick={() => onDelete(doc)}
+              aria-label="Apagar documento"
+              className="rounded-full bg-surface/80 p-1.5 transition-colors hover:bg-surface"
+            >
+              <Trash2 size={14} strokeWidth={1.75} className="text-danger" />
+            </button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <IconButton
-                icon={MoreHorizontal}
-                label="Mais ações"
-                intent="ghost"
-                className="h-7 w-7"
-              />
+              <button
+                aria-label="Mais ações"
+                className="rounded-full bg-surface/80 p-1.5 transition-colors hover:bg-surface"
+              >
+                <MoreHorizontal
+                  size={14}
+                  strokeWidth={1.75}
+                  className="text-ink-muted"
+                />
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => onDownload(doc)}>
@@ -75,71 +123,72 @@ export function DocCard({ doc, onView, onDownload }: DocCardProps) {
                   <Download size={13} strokeWidth={1.75} /> Download
                 </span>
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => onView(doc)}>
+              <DropdownMenuItem onSelect={open}>
                 <span className="flex items-center gap-2">
                   <Eye size={13} strokeWidth={1.75} /> Ver detalhe
                 </span>
               </DropdownMenuItem>
+              {onDelete && (
+                <DropdownMenuItem onSelect={() => onDelete(doc)}>
+                  <span className="flex items-center gap-2 text-danger">
+                    <Trash2 size={13} strokeWidth={1.75} /> Apagar
+                  </span>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
-      {/* Title */}
-      <p className="text-sm font-semibold text-ink truncate group-hover:text-primary transition-colors">
-        {doc.title}
-      </p>
+      {/* Corpo */}
+      <CardBody className="p-3" onClick={open}>
+        <div className="mb-1.5 flex items-center gap-2">
+          <Badge intent={catCfg.intent} className="py-0">
+            {catCfg.label}
+          </Badge>
+        </div>
 
-      {/* Meta */}
-      <div className="mt-2 flex flex-wrap gap-1">
-        <Badge intent={catCfg.intent} className="py-0">
-          {catCfg.label}
-        </Badge>
-        {doc.version !== '1.0' && (
-          <span className="text-xs px-2 py-0.5 rounded-pill bg-surface-sunken text-ink-muted">
-            v{doc.version}
+        <h4 className="mb-1 line-clamp-2 font-body text-sm font-semibold leading-snug text-ink">
+          {doc.title}
+        </h4>
+
+        <div className="flex items-center gap-3 font-body text-micro text-ink-faint">
+          <span className="flex items-center gap-0.5">
+            <SensIcon size={14} strokeWidth={1.75} className={sensCfg.color} />
+            <span className={sensCfg.color}>{sensCfg.label}</span>
           </span>
+          <span>{formatBytes(doc.fileSize)}</span>
+        </div>
+
+        {(isExpiringSoon || isExpired) && (
+          <div
+            className={`mt-2 flex items-center gap-1.5 font-body text-micro font-medium ${isExpired ? 'text-danger' : 'text-warning-ink'}`}
+          >
+            <AlertCircle size={14} strokeWidth={1.75} />
+            {isExpired
+              ? 'Expirado'
+              : `Expira ${formatDateNumeric(doc.expiresAt!)}`}
+          </div>
         )}
-      </div>
 
-      <div className="mt-3 flex items-center justify-between text-xs text-ink-faint">
-        <div className="flex items-center gap-1">
-          <SensIcon size={11} strokeWidth={1.75} className={sensCfg.color} />
-          <span className={sensCfg.color}>{sensCfg.label}</span>
-        </div>
-        <span>{formatBytes(doc.fileSize)}</span>
-      </div>
-
-      {/* Expiry warning */}
-      {(isExpiringSoon || isExpired) && (
-        <div
-          className={`mt-2 flex items-center gap-1.5 text-xs font-medium ${isExpired ? 'text-danger' : 'text-warning-ink'}`}
-        >
-          <AlertCircle size={11} strokeWidth={1.75} />
-          {isExpired
-            ? 'Expirado'
-            : `Expira ${formatDateNumeric(doc.expiresAt!)}`}
-        </div>
-      )}
-
-      {/* Tags */}
-      {doc.tags.length > 0 && (
-        <div className="mt-2 flex gap-1 flex-wrap">
-          {doc.tags.slice(0, 3).map((t) => (
-            <span
-              key={t}
-              className="text-xs bg-surface-sunken text-ink-muted px-1.5 py-0.5 rounded"
-            >
-              {t}
-            </span>
-          ))}
-          {doc.tags.length > 3 && (
-            <span className="text-xs text-ink-faint">
-              +{doc.tags.length - 3}
-            </span>
-          )}
-        </div>
-      )}
-    </div>
+        {doc.tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1">
+            {doc.tags.slice(0, 3).map((t) => (
+              <span
+                key={t}
+                className="rounded bg-surface-sunken px-1.5 py-0.5 font-body text-micro text-ink-muted"
+              >
+                {t}
+              </span>
+            ))}
+            {doc.tags.length > 3 && (
+              <span className="font-body text-micro text-ink-faint">
+                +{doc.tags.length - 3}
+              </span>
+            )}
+          </div>
+        )}
+      </CardBody>
+    </Card>
   );
 }

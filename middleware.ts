@@ -12,6 +12,7 @@ const OPEN_PATHS = [
   '/verify',
   '/health',
   '/auth/reset-password',
+  '/auth/instructor-invite',
   '/auth/forgot-password',
   '/termos',
   '/privacidade',

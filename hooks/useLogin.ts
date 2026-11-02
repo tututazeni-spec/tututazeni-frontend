@@ -5,10 +5,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiClient, API_URL } from '@/lib/apiClient';
+import { apiClient, ApiError, API_URL } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
+import { homeFor, type Role } from '@/lib/roles';
 
 // Definições §11 (Autenticação/SSO): opções públicas de login — sem sessão,
 // por isso não pode depender de nada que exija o cookie já estar presente.
@@ -37,6 +38,40 @@ export function useLogin() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // Instrutor externo: depois da senha, o servidor pede um código enviado por email.
+  const [needsCode, setNeedsCode] = useState(false);
+  const [codePurpose, setCodePurpose] = useState<'LOGIN' | 'NEW_DEVICE'>('LOGIN');
+  const [emailCode, setEmailCode] = useState('');
+  const [codeNotice, setCodeNotice] = useState<string | null>(null);
+
+  function cancelCode() {
+    setNeedsCode(false);
+    setEmailCode('');
+    setError(null);
+    setCodeNotice(null);
+  }
+
+  // Pede outro código: repete o login sem código. O servidor reaproveita o código vivo se o
+  // último pedido foi há menos de 60 s; queimado ou expirado, envia um novo.
+  async function requestNewCode() {
+    setError(null);
+    setCodeNotice(null);
+    setLoading(true);
+    try {
+      await apiClient.post('/auth/login', { email, password });
+    } catch (err) {
+      const body = err instanceof ApiError ? (err.body as { code?: string } | undefined) : undefined;
+      if (err instanceof ApiError && err.status === 401 && body?.code === 'EMAIL_CODE_REQUIRED') {
+        setEmailCode('');
+        setCodeNotice('Enviámos um código para o seu e-mail. Se acabou de pedir um, aguarde um minuto.');
+      } else {
+        reportError(err, { source: 'useLogin.requestNewCode' });
+        setError(err instanceof Error ? err.message : 'Não foi possível enviar o código');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     setNotice(sessionExpiredNotice());
@@ -74,17 +109,32 @@ export function useLogin() {
     setLoading(true);
     try {
       // O backend define o cookie httpOnly 'token'; o JS nunca toca no token.
-      const res = await apiClient.post<{ mustChangePassword?: boolean }>(
+      const res = await apiClient.post<{
+        mustChangePassword?: boolean;
+        user?: { role?: { name?: string } | null };
+      }>(
         '/auth/login',
-        { email, password },
+        {
+          email,
+          password,
+          ...(needsCode && emailCode ? { emailCode } : {}),
+        },
       );
       // Navegação forçada para garantir que o middleware revê o cookie.
       // Conta convidada com password temporária (política de utilizadores):
       // vai directa ao separador Segurança para a trocar.
       window.location.href = res?.mustChangePassword
         ? '/settings?tab=seguranca&firstLogin=1'
-        : '/dashboard';
+        : homeFor(res?.user?.role?.name as Role | undefined);
     } catch (err) {
+      const body = err instanceof ApiError ? (err.body as { code?: string; purpose?: string } | undefined) : undefined;
+      if (err instanceof ApiError && err.status === 401 && body?.code === 'EMAIL_CODE_REQUIRED') {
+        // Passo seguinte, não é um erro: mostra o campo do código.
+        setCodePurpose(body.purpose === 'NEW_DEVICE' ? 'NEW_DEVICE' : 'LOGIN');
+        setNeedsCode(true);
+        setEmailCode('');
+        return;
+      }
       reportError(err, { source: 'useLogin.handleSubmit' });
       setError(err instanceof Error ? err.message : 'Erro ao entrar');
     } finally {
@@ -103,6 +153,13 @@ export function useLogin() {
     notice,
     loading,
     handleSubmit,
+    needsCode,
+    codePurpose,
+    emailCode,
+    setEmailCode,
+    cancelCode,
+    requestNewCode,
+    codeNotice,
     sso: sso.data,
     startSsoLogin,
     ldapEmail,

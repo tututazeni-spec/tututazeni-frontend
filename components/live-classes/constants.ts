@@ -37,7 +37,13 @@ export const CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES: readonly Role[] = [
   'ADMIN',
   'RH',
   'LIDER',
+  // O instrutor externo vê as avaliações e relatórios das suas próprias aulas.
+  'INSTRUCTOR_EXTERNO',
 ];
+
+// Espelha @Roles(…, INSTRUCTOR_EXTERNO) nos endpoints de criar/editar aulas, sessões, participantes
+// e material. Publicar gravações, salas virtuais e definições continuam só ADMIN/RH.
+export const CAN_AUTHOR_LIVE_CLASSES_ROLES: readonly Role[] = [...ADMIN_ROLES, 'INSTRUCTOR_EXTERNO'];
 
 // ─── Navegação de topo (docs/aulas-ao-vivo.md — abas principais) ───────────
 // Materiais/Avaliações/Relatórios/Configurações (secções 11/12/13/14)

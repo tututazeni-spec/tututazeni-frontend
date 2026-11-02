@@ -12,13 +12,15 @@
 // "Gestão" (tabela admin) — mesmo `id` ('catalog'), a página escolhe o
 // componente por role.
 
-import type { Role } from '@/lib/roles';
+import { AUTHENTICATED_ROLES, type Role } from '@/lib/roles';
 import type { TopLevelView, View } from './types';
 
 // `roles` — restringe o separador aos papéis listados (undefined = todos os
 // autenticados). Espelha os @Roles() dos endpoints por trás de cada aba:
 // admin/dashboard e a tabela de gestão de cursos são ADMIN/RH; inscrições e
 // progresso (courses/enrollments) também aceitam GESTOR.
+const ALL_BUT_EXTERNAL: readonly Role[] = AUTHENTICATED_ROLES;
+
 export const NAV: Array<{
   id: TopLevelView;
   label: string;
@@ -26,12 +28,19 @@ export const NAV: Array<{
 }> = [
   { id: 'dashboard', label: 'Visão Geral', roles: ['ADMIN', 'RH'] },
   { id: 'catalog', label: 'Cursos' },
-  { id: 'inscricoes', label: 'Inscrições', roles: ['ADMIN', 'RH', 'GESTOR'] },
+  {
+    id: 'inscricoes',
+    label: 'Inscrições',
+    roles: ['ADMIN', 'RH', 'GESTOR', 'INSTRUCTOR_EXTERNO'],
+  },
   { id: 'progresso', label: 'Progresso', roles: ['ADMIN', 'RH', 'GESTOR'] },
   // Todos veem a aba: ADMIN/RH/INSTRUCTOR gerem, os restantes vêem as suas turmas.
   { id: 'turmas', label: 'Turmas' },
-  { id: 'my-courses', label: 'Meus cursos' },
-  { id: 'certificates', label: 'Certificados' },
+  // O instrutor externo gere os módulos e lições dos seus cursos (ADMIN/RH chegam por Cursos → Gerir módulos).
+  { id: 'modulos', label: 'Módulos & Lições', roles: ['INSTRUCTOR_EXTERNO'] },
+  // Aprendizagem pessoal: o instrutor externo não é aluno.
+  { id: 'my-courses', label: 'Meus cursos', roles: ALL_BUT_EXTERNAL },
+  { id: 'certificates', label: 'Certificados', roles: ALL_BUT_EXTERNAL },
   { id: 'relatorios', label: 'Relatórios', roles: ['ADMIN', 'RH'] },
 ];
 

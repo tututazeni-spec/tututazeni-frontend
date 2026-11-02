@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { pcmDurationMs, splitForSpeech, splitPcm } from './isisAvatarSpeech';
+import {
+  pcmDurationMs,
+  splitForSpeech,
+  splitPcm,
+  trimSilence,
+} from './isisAvatarSpeech';
 
 describe('isisAvatarSpeech', () => {
   it('divide o PCM em pedaços de 6000 bytes sem perder bytes', () => {
@@ -24,5 +29,18 @@ describe('isisAvatarSpeech', () => {
 
   it('texto sem pontuação vira um único pedaço', () => {
     expect(splitForSpeech('sem pontuação')).toEqual(['sem pontuação']);
+  });
+
+  it('trimSilence corta o silêncio das pontas e mantém 20 ms de margem', () => {
+    const pcm = new Uint8Array(32000); // 1 s de silêncio
+    const view = new DataView(pcm.buffer);
+    for (let i = 8000; i < 8100; i++) view.setInt16(i * 2, 5000, true);
+    const out = trimSilence(pcm);
+    expect(out.length).toBe((100 + 2 * 320) * 2);
+  });
+
+  it('trimSilence não mexe em áudio todo silêncio', () => {
+    const pcm = new Uint8Array(1000);
+    expect(trimSilence(pcm)).toBe(pcm);
   });
 });

@@ -8,7 +8,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { reportError } from '@/lib/errorReporting';
 import { apiClient } from '@/lib/apiClient';
 import { Button } from '@/components/ui/Button';
+import { useFullscreen } from '@/components/viewers/useFullscreen';
+import { FullscreenControls } from '@/components/viewers/FullscreenControls';
+import { ExternalMeetingCard } from './ExternalMeetingCard';
+import { ZoomRoom, type ZoomSdkAccess } from './ZoomRoom';
 import type { JitsiAPI, LiveClass } from './types';
+import { LIVE_PLAYER_ELEMENT_ID } from './useRecording';
 
 interface JitsiRoomProps {
   liveClass: LiveClass;
@@ -19,10 +24,16 @@ interface JitsiRoomProps {
 export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<JitsiAPI | null>(null);
+  const stageFs = useFullscreen();
   const [loaded, setLoaded] = useState(false);
+  // O iframe do Jitsi já carregou: a sobreposição "A conectar" sai de cima dele,
+  // para se verem os ecrãs do próprio Jitsi (login, "à espera do anfitrião", erros).
+  const [frameReady, setFrameReady] = useState(false);
+  const [slow, setSlow] = useState(false);
   const [participants, setParticipants] = useState(0);
   const [loadError, setLoadError] = useState(false);
   const [retryToken, setRetryToken] = useState(0);
+  const [copied, setCopied] = useState(false);
 
   // Nome da sala emitido pelo backend (HMAC): o meet.jit.si público não tem
   // autenticação, por isso um nome previsível deixava entrar qualquer pessoa.
@@ -30,17 +41,45 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     roomName: string;
     domain: string;
     jwt?: string;
+    appId?: string;
   } | null>(null);
+
+  // Partilha o link cru da sala Jitsi.
+  const copyLink = useCallback(() => {
+    if (!access) return;
+    navigator.clipboard
+      ?.writeText(`https://${access.domain}/${access.roomName}`)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch((e) => reportError(e, { source: 'JitsiRoom.copyLink' }));
+  }, [access]);
   const roomName = access?.roomName ?? null;
+  // Zoom/Teams: não se embebem num iframe; o backend devolve só o link.
+  const [external, setExternal] = useState<{
+    provider: 'ZOOM' | 'TEAMS';
+    joinUrl: string;
+    passcode: string | null;
+    sdk?: ZoomSdkAccess;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     apiClient
-      .get<{ roomName: string; domain: string; jwt?: string }>(
-        `/live-classes/${liveClass.id}/room`,
-      )
+      .get<
+        | { roomName: string; domain: string; jwt?: string; appId?: string }
+        | {
+            provider: 'ZOOM' | 'TEAMS';
+            joinUrl: string;
+            passcode: string | null;
+            sdk?: ZoomSdkAccess;
+          }
+      >(`/live-classes/${liveClass.id}/room`)
       .then((r) => {
-        if (!cancelled) setAccess(r);
+        if (cancelled) return;
+        if ('joinUrl' in r) setExternal(r);
+        else setAccess(r);
       })
       .catch((e) => {
         reportError(e, { source: 'JitsiRoom.roomName' });
@@ -107,6 +146,8 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
           'help',
           'mute-everyone',
           'security',
+          'invite',
+          'info',
         ],
         SETTINGS_SECTIONS: ['devices', 'language', 'moderator'],
         VIDEO_QUALITY_LABEL_DISABLED: false,
@@ -118,6 +159,7 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     });
 
     apiRef.current = jitsi;
+    jitsi.getIFrame?.().addEventListener('load', () => setFrameReady(true));
 
     jitsi.addEventListeners({
       videoConferenceJoined: () => {
@@ -152,7 +194,10 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
 
     const script = document.createElement('script');
     script.id = 'jitsi-api-script';
-    script.src = `https://${access.domain}/external_api.js`;
+    // JaaS (8x8.vc) serve o external_api.js sob o caminho do appId.
+    script.src = access.appId
+      ? `https://${access.domain}/${access.appId}/external_api.js`
+      : `https://${access.domain}/external_api.js`;
     script.async = true;
     // Sem SRI de propósito: o external_api.js muda a cada release da Jitsi
     // (cache de 60 s), um hash fixo partia as aulas ao vivo. Em compensação não
@@ -174,12 +219,59 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
     };
   }, [access, initJitsi, retryToken]);
 
+  // Passado algum tempo sem entrar na sala, oferece abri-la numa janela própria.
+  useEffect(() => {
+    if (!access || loaded) return;
+    setSlow(false);
+    const timer = setTimeout(() => setSlow(true), 20000);
+    return () => clearTimeout(timer);
+  }, [access, loaded, retryToken]);
+
   const retry = useCallback(() => {
+    setFrameReady(false);
     setRetryToken((t) => t + 1);
   }, []);
 
+  if (external?.provider === 'ZOOM' && external.sdk) {
+    return (
+      <ZoomRoom
+        joinUrl={external.joinUrl}
+        passcode={external.passcode}
+        topic={liveClass.topic}
+        sdk={external.sdk}
+        onJoined={onJoined}
+        onLeft={onLeft}
+      />
+    );
+  }
+
+  if (external) {
+    return (
+      <ExternalMeetingCard
+        provider={external.provider}
+        joinUrl={external.joinUrl}
+        passcode={external.passcode}
+        topic={liveClass.topic}
+        onJoined={onJoined}
+        onLeft={onLeft}
+      />
+    );
+  }
+
   return (
-    <div className="relative w-full h-full bg-slate-900 rounded-[14px] overflow-hidden">
+    <div
+      ref={stageFs.ref}
+      id={LIVE_PLAYER_ELEMENT_ID}
+      tabIndex={-1}
+      className={`relative w-full h-full bg-slate-900 overflow-hidden outline-none ${
+        stageFs.isFs ? '' : 'rounded-[14px]'
+      } ${stageFs.isFs && !stageFs.controlsVisible ? 'cursor-none' : ''}`}
+    >
+      <FullscreenControls
+        isFs={stageFs.isFs}
+        visible={stageFs.controlsVisible}
+        onToggle={stageFs.toggle}
+      />
       {/* fundo escuro intencional: container da sala Jitsi */}
       {!loaded && loadError && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-slate-900 px-6 text-center">
@@ -195,7 +287,7 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
           </Button>
         </div>
       )}
-      {!loaded && !loadError && (
+      {!loaded && !loadError && !frameReady && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 bg-slate-900">
           {/* fundo escuro intencional: overlay de carregamento */}
           <div
@@ -212,8 +304,30 @@ export function JitsiRoom({ liveClass, onJoined, onLeft }: JitsiRoomProps) {
         </div>
       )}
       <div ref={containerRef} className="w-full h-full" />
+      {!loaded && !loadError && slow && access && (
+        <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 rounded-control bg-black/70 px-3 py-2 text-xs text-canvas">
+          <span>A sala demora a abrir.</span>
+          <a
+            href={`https://${access.domain}/${access.roomName}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium underline"
+          >
+            Abrir a sala numa nova janela
+          </a>
+        </div>
+      )}
+      {access && (
+        <button
+          type="button"
+          onClick={copyLink}
+          className="absolute top-3 left-3 z-20 rounded-control bg-black/60 px-2.5 py-1 text-xs text-canvas hover:bg-black/80"
+        >
+          {copied ? 'Link copiado' : 'Copiar link do Jitsi'}
+        </button>
+      )}
       {loaded && participants > 0 && (
-        <div className="absolute top-3 right-3 bg-black/60 rounded-control py-1 px-2.5 text-xs text-canvas flex items-center gap-1.25 pointer-events-none z-20">
+        <div className="absolute top-12 right-3 bg-black/60 rounded-control py-1 px-2.5 text-xs text-canvas flex items-center gap-1.25 pointer-events-none z-20">
           <span className="w-2 h-2 rounded-full bg-success inline-block" />
           {participants} participante{participants !== 1 ? 's' : ''}
         </div>

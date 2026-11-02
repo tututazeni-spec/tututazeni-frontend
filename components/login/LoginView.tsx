@@ -28,6 +28,13 @@ interface LoginViewProps {
   notice: string | null;
   loading: boolean;
   handleSubmit: (e: React.FormEvent) => void;
+  needsCode: boolean;
+  codePurpose: 'LOGIN' | 'NEW_DEVICE';
+  emailCode: string;
+  setEmailCode: (value: string) => void;
+  cancelCode: () => void;
+  requestNewCode: () => void;
+  codeNotice: string | null;
   sso?: SsoLoginOptions;
   startSsoLogin: () => void;
   ldapEmail: string;
@@ -50,6 +57,13 @@ export function LoginView({
   notice,
   loading,
   handleSubmit,
+  needsCode,
+  codePurpose,
+  emailCode,
+  setEmailCode,
+  cancelCode,
+  requestNewCode,
+  codeNotice,
   sso,
   startSsoLogin,
   ldapEmail,
@@ -556,7 +570,46 @@ export function LoginView({
               </div>
             </div>
 
-            {!useLdap && (
+            {!useLdap && needsCode && (
+              <div className="login-field">
+                <label className="login-label" htmlFor="login-code">
+                  Código enviado por e-mail
+                </label>
+                <div className="login-input-wrap">
+                  <input
+                    id="login-code"
+                    className="login-input"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    pattern="\d{6}"
+                    placeholder="000000"
+                    value={emailCode}
+                    onChange={(e) => setEmailCode(e.target.value.replace(/\D/g, ''))}
+                    required
+                    autoFocus
+                  />
+                </div>
+                <p style={{ color: '#fff', fontSize: 13, margin: '8px 0 0' }}>
+                  {codePurpose === 'NEW_DEVICE'
+                    ? 'Dispositivo novo: enviámos um código para o seu e-mail. Vale 10 minutos.'
+                    : 'Enviámos um código para o seu e-mail. Vale 10 minutos.'}
+                </p>
+                {codeNotice && (
+                  <p role="status" style={{ color: '#fff', fontSize: 13, margin: '8px 0 0' }}>
+                    {codeNotice}
+                  </p>
+                )}
+                <button type="button" className="login-ldap-toggle" onClick={requestNewCode}>
+                  Enviar novo código
+                </button>
+                <button type="button" className="login-ldap-toggle" onClick={cancelCode}>
+                  Voltar
+                </button>
+              </div>
+            )}
+
+            {!useLdap && !needsCode && (
               <div style={{ textAlign: 'right', margin: '-6px 0 14px' }}>
                 <a
                   href="/auth/forgot-password"

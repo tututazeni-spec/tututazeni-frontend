@@ -21,10 +21,22 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { NavyStatCard } from '@/components/ui/NavyStatCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { FORMAT_CLS, FORMAT_CLS_FALLBACK } from './constants';
+import { FORMAT_CLS, FORMAT_CLS_FALLBACK, formatLabel } from './constants';
 import type { ContentAnalytics } from './types';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDateNumeric } from '@/lib/format';
+
+// Uma cor por formato na distribuição (reaproveitada em ciclo se houver mais).
+const FORMAT_BAR_COLORS = [
+  '#0F1F3D',
+  '#2A9D8F',
+  '#E9A23B',
+  '#D1495B',
+  '#6C63B5',
+  '#3A86C8',
+  '#7FB069',
+  '#C77DA3',
+];
 
 // Espelha @Roles(...) em GET /documents/compliance-overview.
 const COMPLIANCE_ROLES = ['ADMIN', 'RH', 'DIRECTOR'];
@@ -81,21 +93,28 @@ export function AnalyticsTab() {
           </div>
           <CardBody>
             <div className="space-y-2">
-              {(data?.formatBreakdown ?? []).map((f) => {
+              {(data?.formatBreakdown ?? []).map((f, i) => {
                 const total = (data?.formatBreakdown ?? []).reduce(
                   (s, x) => s + x.count,
                   0,
                 );
                 const pct = total > 0 ? Math.round((f.count / total) * 100) : 0;
                 return (
-                  <div key={f.format} className="flex items-center gap-3">
+                  <div
+                    key={formatLabel(f.format)}
+                    className="flex items-center gap-3"
+                  >
                     <span
                       className={`w-24 rounded px-1.5 py-0.5 text-center font-body text-micro font-medium ${FORMAT_CLS[f.format] ?? FORMAT_CLS_FALLBACK}`}
                     >
-                      {f.format}
+                      {formatLabel(f.format)}
                     </span>
                     <div className="flex-1">
-                      <ProgressBar value={pct} className="h-2" />
+                      <ProgressBar
+                        value={pct}
+                        color={FORMAT_BAR_COLORS[i % FORMAT_BAR_COLORS.length]}
+                        className="h-2"
+                      />
                     </div>
                     <span className="w-8 text-right font-body text-xs font-semibold text-ink-muted">
                       {f.count}
@@ -124,11 +143,11 @@ export function AnalyticsTab() {
                       {v.content?.title}
                     </p>
                     <p className="font-body text-micro text-ink-faint">
-                      {v.content?.type}
+                      {v.content?.type ? formatLabel(v.content.type) : null}
                     </p>
                   </div>
                   <span className="shrink-0 font-body text-xs font-bold text-primary">
-                    {v.weeklyViews} views
+                    {v.weeklyViews} visualizações
                   </span>
                 </div>
               ))}
@@ -156,7 +175,7 @@ export function AnalyticsTab() {
                   <span
                     className={`w-20 rounded px-1.5 py-0.5 text-center font-body text-micro font-medium ${FORMAT_CLS[c.type] ?? FORMAT_CLS_FALLBACK}`}
                   >
-                    {c.type}
+                    {formatLabel(c.type)}
                   </span>
                   <p className="flex-1 truncate font-body text-sm font-medium text-ink">
                     {c.title}

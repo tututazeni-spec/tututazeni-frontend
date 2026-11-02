@@ -3,8 +3,17 @@
 // sidebar/timer) e compõe a sala Jitsi + painel de gravação. Ver memory
 // project_innova_component_separation_audit.
 
-import { useCallback, useState } from 'react';
-import { XCircle, BookOpen, Clapperboard } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  XCircle,
+  ArrowLeft,
+  BookOpen,
+  Clapperboard,
+  Video,
+  CalendarDays,
+  Clock,
+  Hourglass,
+} from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -45,6 +54,7 @@ export default function LiveRoomPage() {
     { staleTime: STALE_TIME.DYNAMIC },
   );
   const [joined, setJoined] = useState(false);
+  const joinedRef = useRef(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const {
     seconds: sessionTime,
@@ -72,6 +82,8 @@ export default function LiveRoomPage() {
 
   const handleLeft = useCallback(async () => {
     stopSessionTimer();
+    joinedRef.current = false;
+    setJoined(false);
     try {
       await apiClient.post(`/live-classes/${classId}/leave`, {});
     } catch (e) {
@@ -79,6 +91,24 @@ export default function LiveRoomPage() {
     }
     router.push('/live-classes');
   }, [classId, stopSessionTimer, router]);
+
+  // Saída automática: ao fechar o separador ou sair da página sem carregar em
+  // "Sair", fecha-se a presença para a duração ficar correcta.
+  joinedRef.current = joined;
+  useEffect(() => {
+    const leaveSilently = () => {
+      if (!joinedRef.current) return;
+      joinedRef.current = false;
+      apiClient
+        .post(`/live-classes/${classId}/leave`, {}, { keepalive: true })
+        .catch(() => undefined);
+    };
+    window.addEventListener('pagehide', leaveSilently);
+    return () => {
+      window.removeEventListener('pagehide', leaveSilently);
+      leaveSilently();
+    };
+  }, [classId]);
 
   // Loading
   if (loading) {
@@ -132,59 +162,84 @@ export default function LiveRoomPage() {
         {/* ── Main area ── */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top bar */}
-          <div className="flex items-center gap-3.5 py-2.5 px-4.5 bg-white/3 border-b border-white/7 flex-shrink-0">
-            {/* Back */}
-            <button
-              onClick={() => router.push('/live-classes')}
-              className="bg-white/8 border-none rounded-control py-1.5 px-3 text-ink-muted text-xs cursor-pointer flex items-center gap-1.5"
-            >
-              ← Sair
-            </button>
+          <div className="flex-shrink-0 px-3.5 pt-3.5">
+            <div className="relative flex items-stretch overflow-hidden rounded-2xl bg-white shadow-lg">
+              {/* Back — bloco azul com corte diagonal */}
+              <div
+                className="flex items-center bg-gradient-to-r from-[#1d5fd6] to-[#2563eb] py-3 pl-3.5 pr-9"
+                style={{
+                  clipPath:
+                    'polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0 100%)',
+                }}
+              >
+                <button
+                  onClick={() => router.push('/live-classes')}
+                  className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/40 bg-white/10 px-3.5 py-1.5 text-sm font-semibold text-white"
+                >
+                  <ArrowLeft size={16} strokeWidth={2} /> Sair
+                </button>
+              </div>
 
-            {/* Live indicator */}
-            {isRunning && joined && (
-              <div className="flex items-center gap-1.5 py-1 px-2.5 bg-danger-subtle border border-danger-subtle rounded-full">
-                <span
-                  className="w-2 h-2 rounded-full bg-danger inline-block"
-                  style={{ animation: 'lc-ping 1.2s ease-in-out infinite' }}
+              {/* Title */}
+              <div className="flex min-w-0 flex-1 items-center gap-3 px-4">
+                <BookOpen
+                  size={26}
+                  strokeWidth={1.75}
+                  className="flex-shrink-0 text-[#0f1f3d]"
+                  fill="currentColor"
                 />
-                <span className="text-xs font-black text-danger">AO VIVO</span>
+                <div className="min-w-0">
+                  <p className="m-0 overflow-hidden text-ellipsis whitespace-nowrap text-base font-bold text-[#0f1f3d]">
+                    {liveClass.course?.title ?? liveClass.topic}
+                    <span className="mx-2 text-slate-400">•</span>
+                    <span className="font-medium text-slate-500">
+                      {fmtDate(liveClass.scheduledAt)}{' '}
+                      {fmtTime(liveClass.scheduledAt)}
+                    </span>
+                  </p>
+                  {liveClass.course && (
+                    <p className="m-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs text-slate-500">
+                      {liveClass.topic}
+                    </p>
+                  )}
+                </div>
               </div>
-            )}
 
-            {/* Title */}
-            <div className="flex-1 min-w-0">
-              <p className="m-0 text-sm font-bold text-ink overflow-hidden text-ellipsis whitespace-nowrap">
-                {liveClass.topic}
-              </p>
-              {liveClass.course && (
-                <p className="m-0 inline-flex items-center gap-1 text-xs text-ink-muted">
-                  <BookOpen size={12} strokeWidth={1.75} />{' '}
-                  {liveClass.course.title} · {fmtDate(liveClass.scheduledAt)}{' '}
-                  {fmtTime(liveClass.scheduledAt)}
-                </p>
-              )}
+              <div className="flex items-center gap-3 pr-3.5">
+                {/* Live indicator */}
+                {isRunning && joined && (
+                  <div className="flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-2.5 py-1">
+                    <span
+                      className="inline-block h-2 w-2 rounded-full bg-red-600"
+                      style={{ animation: 'lc-ping 1.2s ease-in-out infinite' }}
+                    />
+                    <span className="text-xs font-black text-red-600">
+                      AO VIVO
+                    </span>
+                  </div>
+                )}
+
+                {/* Session timer */}
+                {joined && (
+                  <div className="rounded-[9px] bg-slate-100 px-3 py-1.5 text-center">
+                    <p className="m-0 text-xs uppercase tracking-wider text-slate-500">
+                      Sessão
+                    </p>
+                    <p className="m-0 font-mono text-base font-black text-[#0f1f3d]">
+                      {fmtDuration(sessionTime)}
+                    </p>
+                  </div>
+                )}
+
+                {/* Toggle sidebar */}
+                <button
+                  onClick={() => setShowSidebar((s) => !s)}
+                  className="cursor-pointer rounded-lg border-none bg-slate-100 px-3 py-1.75 text-xs font-medium text-slate-600"
+                >
+                  {showSidebar ? 'Ocultar ▶' : '◀ Painel'}
+                </button>
+              </div>
             </div>
-
-            {/* Session timer */}
-            {joined && (
-              <div className="text-center bg-white/6 rounded-[9px] py-1.5 px-3">
-                <p className="m-0 text-xs text-ink-muted uppercase tracking-wider">
-                  Sessão
-                </p>
-                <p className="m-0 text-base font-black text-ink font-mono">
-                  {fmtDuration(sessionTime)}
-                </p>
-              </div>
-            )}
-
-            {/* Toggle sidebar */}
-            <button
-              onClick={() => setShowSidebar((s) => !s)}
-              className="bg-white/8 border-none rounded-control py-1.75 px-3 text-ink-muted text-xs cursor-pointer"
-            >
-              {showSidebar ? 'Ocultar ▶' : '◀ Painel'}
-            </button>
           </div>
 
           {/* Jitsi room */}
@@ -199,60 +254,81 @@ export default function LiveRoomPage() {
 
         {/* ── Sidebar ── */}
         {showSidebar && (
-          <div className="w-80 border-l border-white/7 flex flex-col overflow-y-auto bg-surface-sunken gap-0 flex-shrink-0">
-            {/* Class info */}
-            <div className="py-4 px-4.5 border-b border-white/7">
-              <p className="m-0 mb-2.5 text-xs font-bold text-ink-muted uppercase tracking-wider">
-                Informações da Aula
-              </p>
-              {[
-                { label: 'Data', value: fmtDate(liveClass.scheduledAt) },
-                { label: 'Início', value: fmtTime(liveClass.scheduledAt) },
-                { label: 'Duração', value: `${liveClass.duration} min` },
-              ].map((f) => (
-                <div
-                  key={f.label}
-                  className="flex justify-between py-1.25 border-b border-white/4"
-                >
-                  <span className="text-xs text-ink-muted">{f.label}</span>
-                  <span
-                    className={`text-xs text-ink-muted ${
-                      f.label === 'Sala Jitsi' ? 'font-mono' : ''
-                    }`}
-                  >
-                    {f.value}
-                  </span>
-                </div>
-              ))}
-
-              {/* Existing recording link */}
-              {liveClass.recordingUrl && (
-                <a
-                  href={safeHref(liveClass.recordingUrl)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1.5 mt-2.5 py-1.75 px-3 bg-accent-subtle border border-accent-subtle rounded-control text-accent text-xs no-underline font-semibold"
-                >
-                  <Clapperboard size={13} strokeWidth={1.75} /> Ver Gravação
-                  Anterior ↗
-                </a>
-              )}
-            </div>
-
-            {/* Recording panel — ADMIN/RH apenas (PUT /live-classes/:id) */}
-            {canManageRecording && (
-              <div className="p-4 flex-1">
-                <RecordingPanel
-                  liveClass={liveClass}
-                  onUrlSaved={(url) =>
-                    queryClient.setQueryData<LiveClass>(
-                      queryKeys.liveClasses.detail(classId),
-                      (lc) => (lc ? { ...lc, recordingUrl: url } : lc),
-                    )
-                  }
-                />
+          <div className="w-80 border-l border-white/7 flex flex-col overflow-y-auto bg-surface-sunken flex-shrink-0 p-3">
+            {/* Cartão Informações da Aula (+ gravação para ADMIN/RH) */}
+            <div className="bg-white rounded-2xl overflow-hidden shadow-lg text-slate-900">
+              <div className="flex items-center gap-3 py-3.5 px-4 bg-gradient-to-r from-[#1e3a8a] to-[#2563eb] text-white">
+                <Video size={22} strokeWidth={2} />
+                <p className="m-0 text-sm font-extrabold uppercase tracking-wide">
+                  Informações da Aula
+                </p>
               </div>
-            )}
+
+              <div className="p-4 flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
+                  {[
+                    {
+                      label: 'Data',
+                      value: fmtDate(liveClass.scheduledAt),
+                      icon: CalendarDays,
+                    },
+                    {
+                      label: 'Início',
+                      value: fmtTime(liveClass.scheduledAt),
+                      icon: Clock,
+                    },
+                    {
+                      label: 'Duração',
+                      value: `${liveClass.duration} min`,
+                      icon: Hourglass,
+                    },
+                  ].map((f) => (
+                    <div key={f.label} className="flex items-center gap-3">
+                      <f.icon
+                        size={20}
+                        strokeWidth={1.75}
+                        className="text-[#1e3a8a] flex-shrink-0"
+                      />
+                      <span className="flex-1 text-sm text-slate-700">
+                        {f.label}
+                      </span>
+                      <span className="text-sm font-medium text-slate-800">
+                        {f.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Existing recording link */}
+                {liveClass.recordingUrl && (
+                  <a
+                    href={safeHref(liveClass.recordingUrl)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1.5 py-2 px-3 bg-blue-50 border border-blue-200 rounded-lg text-[#1d4ed8] text-xs no-underline font-semibold"
+                  >
+                    <Clapperboard size={13} strokeWidth={1.75} /> Ver Gravação
+                    Anterior ↗
+                  </a>
+                )}
+
+                {/* Recording panel — ADMIN/RH apenas (PUT /live-classes/:id) */}
+                {canManageRecording && (
+                  <>
+                    <div className="border-t border-slate-200" />
+                    <RecordingPanel
+                      liveClass={liveClass}
+                      onUrlSaved={(url) =>
+                        queryClient.setQueryData<LiveClass>(
+                          queryKeys.liveClasses.detail(classId),
+                          (lc) => (lc ? { ...lc, recordingUrl: url } : lc),
+                        )
+                      }
+                    />
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>

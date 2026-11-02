@@ -52,6 +52,12 @@ const ENROLLMENT_MODE_ITEMS = Object.entries(ENROLLMENT_MODE_CFG).map(
     label: cfg.label,
   }),
 );
+const PROVIDER_ITEMS = [
+  { value: 'JITSI', label: 'Jitsi (sala da plataforma)' },
+  { value: 'ZOOM', label: 'Zoom' },
+  { value: 'TEAMS', label: 'Microsoft Teams' },
+];
+
 const MODALITY_ITEMS = [
   { value: 'ONLINE', label: 'Online' },
   { value: 'PRESENTIAL', label: 'Presencial' },
@@ -329,17 +335,59 @@ export function NewLiveClassSteps({
         </FormField>
         {form.modality !== 'PRESENTIAL' && (
           <FormField
-            label="Link/ID da reunião"
-            htmlFor="lc-zoom"
-            hint="Sala Jitsi própria da plataforma é criada automaticamente; usa este campo só para um link/ID externo."
+            label="Plataforma da reunião"
+            htmlFor="lc-provider"
+            hint="Jitsi cria a sala automaticamente. Para Zoom ou Teams, cole o link da reunião que criou nessa plataforma."
           >
-            <Input
-              id="lc-zoom"
-              value={form.zoomMeetingId}
-              onChange={(e) => setField('zoomMeetingId', e.target.value)}
+            <Select
+              items={PROVIDER_ITEMS}
+              value={form.meetingProvider}
+              onValueChange={(v) =>
+                setField('meetingProvider', v as WizardForm['meetingProvider'])
+              }
               className="w-full"
             />
           </FormField>
+        )}
+        {form.modality !== 'PRESENTIAL' && form.meetingProvider !== 'JITSI' && (
+          <>
+            <FormField
+              label={
+                form.meetingProvider === 'ZOOM'
+                  ? 'Link ou ID da reunião Zoom'
+                  : 'Link da reunião Teams'
+              }
+              htmlFor="lc-meeting-url"
+              hint={
+                form.meetingProvider === 'ZOOM'
+                  ? 'Ex.: https://zoom.us/j/123456789 ou só o ID da reunião.'
+                  : 'Copie o link em "Reunião do Teams" no convite.'
+              }
+            >
+              <Input
+                id="lc-meeting-url"
+                value={form.meetingUrl}
+                onChange={(e) => setField('meetingUrl', e.target.value)}
+                placeholder={
+                  form.meetingProvider === 'ZOOM'
+                    ? 'https://zoom.us/j/...'
+                    : 'https://teams.microsoft.com/...'
+                }
+                className="w-full"
+              />
+            </FormField>
+            <FormField
+              label="Código de acesso (opcional)"
+              htmlFor="lc-meeting-passcode"
+            >
+              <Input
+                id="lc-meeting-passcode"
+                value={form.meetingPasscode}
+                onChange={(e) => setField('meetingPasscode', e.target.value)}
+                className="w-full"
+              />
+            </FormField>
+          </>
         )}
         {form.modality !== 'ONLINE' && (
           <div className="grid grid-cols-3 gap-3">
@@ -454,6 +502,26 @@ export function NewLiveClassSteps({
             <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
               {departmentOptions.length === 0 && (
                 <EmptyState variant="inline" title="Sem departamentos" />
+              )}
+              {departmentOptions.length > 0 && (
+                <label className="flex items-center gap-2 border-b border-border pb-1 text-xs font-medium text-ink">
+                  <Checkbox
+                    checked={departmentOptions.every((d) =>
+                      form.targetDeptIds.includes(d.id),
+                    )}
+                    onChange={() =>
+                      setField(
+                        'targetDeptIds',
+                        departmentOptions.every((d) =>
+                          form.targetDeptIds.includes(d.id),
+                        )
+                          ? []
+                          : departmentOptions.map((d) => d.id),
+                      )
+                    }
+                  />
+                  Selecionar todos
+                </label>
               )}
               {departmentOptions.map((d) => (
                 <label

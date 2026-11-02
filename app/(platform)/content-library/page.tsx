@@ -9,7 +9,6 @@
 
 import { useState } from 'react';
 import {
-  Archive,
   BarChart2,
   BookOpen,
   Landmark,
@@ -23,7 +22,6 @@ import { CatalogueTab } from '@/components/content-library/CatalogueTab';
 import { CorporateDocsTab } from '@/components/content-library/CorporateDocsTab';
 import { HomeTab } from '@/components/content-library/HomeTab';
 import { MyProgressTab } from '@/components/content-library/MyProgressTab';
-import { RepositoryTab } from '@/components/content-library/RepositoryTab';
 import type { Tab } from '@/components/content-library/types';
 import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
 import { Button } from '@/components/ui/Button';
@@ -41,15 +39,9 @@ const TABS: Array<PillTabItem & { id: Tab }> = [
   { id: 'home', label: 'Início', hint: 'Destaques', icon: BookOpen },
   {
     id: 'catalogue',
-    label: 'Catálogo',
-    hint: 'Pesquisar conteúdos',
-    icon: Search,
-  },
-  {
-    id: 'repository',
     label: 'Repositório',
-    hint: 'Ficheiros e media',
-    icon: Archive,
+    hint: 'Conteúdos, ficheiros e media',
+    icon: Search,
   },
   {
     id: 'corporate-docs',
@@ -111,9 +103,6 @@ export default function ContentLibraryPage() {
           </TabsContent>
           <TabsContent value="catalogue">
             <CatalogueTab />
-          </TabsContent>
-          <TabsContent value="repository">
-            <RepositoryTab />
           </TabsContent>
           <TabsContent value="corporate-docs">
             <CorporateDocsTab />
