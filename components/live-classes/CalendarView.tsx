@@ -5,7 +5,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, List, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, List, User, Video } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -190,9 +190,26 @@ export function CalendarView() {
                             e.stopPropagation();
                             router.push(`/live-classes/${ev.liveClassId}`);
                           }}
-                          className="block w-full truncate rounded bg-[#0F1F3D]/10 px-1 py-0.5 text-left font-body text-[11px] text-ink hover:bg-[#0F1F3D]/20"
+                          className="flex w-full items-center gap-1 overflow-hidden rounded-md bg-gradient-to-br from-[#0F1F3D] via-[#14284f] to-[#1d3a8a] px-1.5 py-1 text-left font-body text-[11px] text-white transition hover:brightness-110"
                         >
-                          {formatTime(ev.start)} {ev.title}
+                          {ev.status === 'EM_CURSO' ? (
+                            <span
+                              className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#E11D48] ring-2 ring-white/40"
+                              title="Ao vivo"
+                            />
+                          ) : (
+                            <Video
+                              size={11}
+                              strokeWidth={1.75}
+                              className="flex-shrink-0"
+                            />
+                          )}
+                          <span className="flex-shrink-0 font-bold">
+                            {formatTime(ev.start)}
+                          </span>
+                          <span className="truncate text-white/80">
+                            {ev.title}
+                          </span>
                         </button>
                       ))}
                       {events.length > 2 && (
@@ -228,44 +245,60 @@ export function CalendarView() {
                 Sem aulas/sessões neste dia.
               </div>
             ) : (
-              <div className="divide-y divide-border">
-                {selectedEvents.map((ev) => (
-                  <button
-                    key={ev.id}
-                    type="button"
-                    onClick={() =>
-                      router.push(`/live-classes/${ev.liveClassId}`)
-                    }
-                    className="flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left hover:bg-surface-sunken"
-                  >
-                    <span className="w-14 flex-shrink-0 font-mono text-xs text-ink-faint">
-                      {formatTime(ev.start)}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-ink">
-                        {ev.title}
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-ink-faint">
-                        {ev.courseTitle && <span>{ev.courseTitle}</span>}
-                        {ev.instructorName && (
-                          <span className="flex items-center gap-1">
-                            <User size={12} strokeWidth={1.75} />
-                            {ev.instructorName}
+              <div className="grid gap-3 p-3 sm:grid-cols-2 lg:grid-cols-3">
+                {selectedEvents.map((ev) => {
+                  const isLive = ev.status === 'EM_CURSO';
+                  return (
+                    <button
+                      key={ev.id}
+                      type="button"
+                      onClick={() =>
+                        router.push(`/live-classes/${ev.liveClassId}`)
+                      }
+                      className="relative flex min-h-[150px] w-full flex-col justify-between overflow-hidden rounded-[14px] bg-gradient-to-br from-[#0F1F3D] via-[#14284f] to-[#1d3a8a] p-4 text-left text-white shadow-sm transition hover:brightness-110"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-white">
+                          <Video size={20} strokeWidth={1.75} />
+                        </span>
+                        {isLive ? (
+                          <span className="flex items-center gap-1.5 rounded-full bg-[#E11D48] px-3 py-1 text-xs font-semibold">
+                            <span className="h-2 w-2 rounded-full bg-white" />
+                            Ao vivo
+                          </span>
+                        ) : (
+                          <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-medium">
+                            {STATUS_CFG[ev.status]?.label ?? ev.status}
                           </span>
                         )}
-                        {ev.sessionId && <span>Sessão</span>}
                       </div>
-                    </div>
-                    <span className="rounded px-2 py-0.5 font-body text-xs font-medium bg-surface-sunken text-ink-muted">
-                      {MODALITY_CFG[ev.modality]?.label ?? ev.modality}
-                    </span>
-                    <span
-                      className={`rounded px-2 py-0.5 font-body text-xs font-medium ${STATUS_CFG[ev.status]?.cls ?? ''}`}
-                    >
-                      {STATUS_CFG[ev.status]?.label ?? ev.status}
-                    </span>
-                  </button>
-                ))}
+                      <div className="mt-3">
+                        <div className="text-3xl font-bold leading-none">
+                          {formatTime(ev.start)}
+                        </div>
+                        <div
+                          className="mt-1.5 truncate text-sm text-white/80"
+                          title={ev.title}
+                        >
+                          {ev.title}
+                        </div>
+                        <div className="mt-1 flex flex-wrap items-center gap-x-3 text-xs text-white/60">
+                          {ev.courseTitle && <span>{ev.courseTitle}</span>}
+                          {ev.instructorName && (
+                            <span className="flex items-center gap-1">
+                              <User size={12} strokeWidth={1.75} />
+                              {ev.instructorName}
+                            </span>
+                          )}
+                          <span>
+                            {ev.sessionId ? 'Sessão · ' : ''}
+                            {MODALITY_CFG[ev.modality]?.label ?? ev.modality}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </Card>
