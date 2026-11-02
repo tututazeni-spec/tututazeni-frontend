@@ -27,6 +27,7 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { AttendanceView } from '@/components/live-classes/AttendanceView';
 import { CalendarView } from '@/components/live-classes/CalendarView';
 import {
+  CAN_AUTHOR_LIVE_CLASSES_ROLES,
   CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES,
   NAV,
   type NavId,
@@ -65,11 +66,14 @@ const INITIAL_FILTERS: Filters = {
 
 export default function LivePage() {
   const router = useRouter();
-  const canCreate = useHasRole(ADMIN_ROLES);
+  // canCreate: criar/editar aulas, sessões, participantes e material (inclui o instrutor externo,
+  // nas suas aulas). isAdmin: definições, salas virtuais e publicar gravações.
+  const canCreate = useHasRole(CAN_AUTHOR_LIVE_CLASSES_ROLES);
+  const isAdmin = useHasRole(ADMIN_ROLES);
   const canViewReports = useHasRole(CAN_VIEW_LIVE_CLASSES_REPORTS_ROLES);
   const visibleNav = NAV.filter(
     (n) =>
-      (n.id !== 'settings' || canCreate) &&
+      (n.id !== 'settings' || isAdmin) &&
       (n.id !== 'reports' && n.id !== 'evaluations' ? true : canViewReports),
   );
 
@@ -251,13 +255,13 @@ export default function LivePage() {
       {nav === 'sessions' && <SessionsView canManage={canCreate} />}
       {nav === 'participants' && <ParticipantsView canManage={canCreate} />}
       {nav === 'instructors' && <InstructorsView />}
-      {nav === 'rooms' && <RoomsView canManage={canCreate} />}
-      {nav === 'recordings' && <RecordingsView canManage={canCreate} />}
+      {nav === 'rooms' && <RoomsView canManage={isAdmin} />}
+      {nav === 'recordings' && <RecordingsView canManage={isAdmin} />}
       {nav === 'attendance' && <AttendanceView canManage={canCreate} />}
       {nav === 'materials' && <MaterialsView canManage={canCreate} />}
       {nav === 'evaluations' && canViewReports && <EvaluationsView />}
       {nav === 'reports' && canViewReports && <ReportsView />}
-      {nav === 'settings' && canCreate && <SettingsView />}
+      {nav === 'settings' && isAdmin && <SettingsView />}
       {nav === 'list' && (
         <>
           <LiveClassesView

@@ -5,8 +5,11 @@
 
 import { describe, expect, test } from 'vitest';
 import {
+  AUTHENTICATED_ROLES,
   filterByRole,
   filterNavSections,
+  homeFor,
+  isExternalInstructorRole,
   isRoleAllowed,
   type Role,
 } from './roles';
@@ -86,5 +89,54 @@ describe('filterNavSections', () => {
         items: [{ href: '/users', roles: ['ADMIN', 'RH'] }, { href: '/leave' }],
       },
     ]);
+  });
+});
+
+describe('instrutor externo', () => {
+  type NavItem = { href: string; roles?: readonly Role[] };
+  const sections: { label: string; items: NavItem[] }[] = [
+    {
+      label: 'Aprender',
+      items: [
+        { href: '/courses' },
+        { href: '/evaluation' },
+        { href: '/live-classes' },
+        { href: '/ai-tutor' },
+      ],
+    },
+    { label: 'Pessoas', items: [{ href: '/users', roles: ['ADMIN', 'RH'] }, { href: '/leave' }] },
+    { label: 'Sistema', items: [{ href: '/settings' }, { href: '/support' }] },
+  ];
+
+  test('o menu só mostra Cursos e Aulas ao Vivo, mesmo em itens sem restrição de papel', () => {
+    const result = filterNavSections(sections, 'INSTRUCTOR_EXTERNO');
+    expect(result.map((s) => s.items.map((i) => i.href))).toEqual([
+      ['/courses', '/live-classes'],
+    ]);
+  });
+
+  test('os outros papéis não mudam', () => {
+    const result = filterNavSections(sections, 'COLABORADOR');
+    expect(result.flatMap((s) => s.items.map((i) => i.href))).toEqual([
+      '/courses',
+      '/evaluation',
+      '/live-classes',
+      '/ai-tutor',
+      '/leave',
+      '/settings',
+      '/support',
+    ]);
+  });
+
+  test('o externo aterra nas aulas ao vivo; os outros no dashboard', () => {
+    expect(homeFor('INSTRUCTOR_EXTERNO')).toBe('/live-classes');
+    expect(homeFor('ADMIN')).toBe('/dashboard');
+    expect(homeFor(undefined)).toBe('/dashboard');
+  });
+
+  test('AUTHENTICATED_ROLES não inclui o externo (espelha o backend)', () => {
+    expect(AUTHENTICATED_ROLES).not.toContain('INSTRUCTOR_EXTERNO');
+    expect(isExternalInstructorRole('INSTRUCTOR_EXTERNO')).toBe(true);
+    expect(isExternalInstructorRole('INSTRUCTOR')).toBe(false);
   });
 });

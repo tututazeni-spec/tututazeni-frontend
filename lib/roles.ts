@@ -22,7 +22,10 @@ export type Role =
   | 'DIRECTOR'
   | 'AUDITOR';
 
-/** Espelha AUTHENTICATED_ROLES em src/auth/enums/role.enum.ts. */
+/**
+ * Espelha AUTHENTICATED_ROLES em src/auth/enums/role.enum.ts. O instrutor externo fica DE FORA
+ * de propósito: só entra nos endpoints que o listam explicitamente (fase 3 do instrutor externo).
+ */
 export const AUTHENTICATED_ROLES: readonly Role[] = [
   'COLABORADOR',
   'LIDER',
@@ -30,10 +33,22 @@ export const AUTHENTICATED_ROLES: readonly Role[] = [
   'RH',
   'ADMIN',
   'INSTRUCTOR',
-  'INSTRUCTOR_EXTERNO',
   'DIRECTOR',
   'AUDITOR',
 ];
+
+/** Instrutor externo: convidado por tempo limitado, só vê o que ele próprio criou. */
+export function isExternalInstructorRole(role: Role | undefined): boolean {
+  return role === 'INSTRUCTOR_EXTERNO';
+}
+
+/** Entradas de menu a que o instrutor externo tem acesso (o backend recusa o resto). */
+export const EXTERNAL_INSTRUCTOR_NAV: readonly string[] = ['/courses', '/live-classes'];
+
+/** Página inicial após o login: o dashboard geral não existe para o instrutor externo. */
+export function homeFor(role: Role | undefined): string {
+  return isExternalInstructorRole(role) ? '/live-classes' : '/dashboard';
+}
 
 /** Espelha MGMT_ROLES em src/dashboard/dashboard.controller.ts. */
 export const MGMT_ROLES: readonly Role[] = ['ADMIN', 'RH', 'LIDER', 'GESTOR'];
@@ -174,7 +189,11 @@ export function filterNavSections<
   return sections
     .map((section) => ({
       ...section,
-      items: filterByRole(section.items, role),
+      items: filterByRole(section.items, role).filter(
+        (item) =>
+          !isExternalInstructorRole(role) ||
+          EXTERNAL_INSTRUCTOR_NAV.includes((item as { href?: string }).href ?? ''),
+      ),
     }))
     .filter((section) => section.items.length > 0);
 }

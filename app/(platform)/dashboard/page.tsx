@@ -9,7 +9,7 @@
 // app/(platform)/leader/page.tsx (mesmo esqueleto header+Tabs, já
 // migrado).
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { BarChart2, CircleCheck, LayoutDashboard, Users } from 'lucide-react';
 import { DashboardWatermark } from '@/components/dashboard/DashboardWatermark';
@@ -87,6 +87,10 @@ const TABS = [
 export default function DashboardPage() {
   const [tab, setTab] = useState('personal');
   const role = useCurrentRole() ?? 'COLABORADOR';
+  // O instrutor externo não tem dashboard geral (os endpoints recusam-no): segue para as suas aulas.
+  useEffect(() => {
+    if (role === 'INSTRUCTOR_EXTERNO') window.location.replace('/live-classes');
+  }, [role]);
 
   // Nome do tenant definido em Definições → Visão Geral (aberto a qualquer
   // utilizador autenticado, ao contrário de /settings/organization).

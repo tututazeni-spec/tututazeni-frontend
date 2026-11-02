@@ -152,6 +152,12 @@ export default function CoursesPage() {
   );
 
   const [nav, setNav] = useState<Nav>({ view: 'dashboard' });
+  // A "Visão Geral" é ADMIN/RH: o instrutor externo começa em Cursos (os seus).
+  useEffect(() => {
+    if (role === 'INSTRUCTOR_EXTERNO') {
+      setNav((n) => (n.view === 'dashboard' ? { view: 'catalog' } : n));
+    }
+  }, [role]);
   const [showCreate, setShowCreate] = useState(false);
   // Curso pré-seleccionado ao entrar na aba "Módulos & Lições" — via
   // "Gerir módulos" na aba Cursos (handleManageModules), "Ver inscrições"
