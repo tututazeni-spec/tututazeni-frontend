@@ -87,21 +87,19 @@ export function HomeTab() {
           Acede a cursos, vídeos, artigos e muito mais
         </p>
         <form onSubmit={handleSearch} className="flex gap-2">
-          <div className="relative flex-1">
-            <Search
-              size={16}
-              strokeWidth={1.75}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
-            />
+          <div className="relative flex-1 rounded-control bg-surface px-3">
             <Input
               variant="underline"
+              showIcon={false}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por título, habilidades, tags..."
-              className="w-full pl-10"
+              className="w-full"
             />
           </div>
-          <Button type="submit">Pesquisar</Button>
+          <Button type="submit" aria-label="Pesquisar">
+            <Search size={18} strokeWidth={1.75} aria-hidden />
+          </Button>
         </form>
       </div>
 
