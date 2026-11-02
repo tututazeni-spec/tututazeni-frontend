@@ -62,17 +62,23 @@ function dataUrlToBlobUrl(dataUrl: string): string {
   return URL.createObjectURL(new Blob([bytes], { type: mime }));
 }
 
-/** Abre o conteúdo: ligação normal, ou ficheiro inline (vai buscar ao detalhe). */
+/** URL do conteúdo (vai buscar ao detalhe se o ficheiro estiver inline). */
+export async function resolveContentUrl(
+  content: Pick<Content, 'id' | 'url' | 'hasInlineFile'>,
+): Promise<string | null> {
+  if (content.url) return content.url;
+  if (!content.hasInlineFile) return null;
+  const full = await apiClient.get<Pick<Content, 'url'>>(
+    `/content-library/${content.id}`,
+  );
+  return full.url || null;
+}
+
+/** Abre o conteúdo num novo separador (formatos sem leitor na plataforma). */
 export async function openContent(
   content: Pick<Content, 'id' | 'url' | 'hasInlineFile'>,
 ) {
-  let url = content.url;
-  if (!url && content.hasInlineFile) {
-    const full = await apiClient.get<Pick<Content, 'url'>>(
-      `/content-library/${content.id}`,
-    );
-    url = full.url;
-  }
+  const url = await resolveContentUrl(content);
   if (!url) return;
   window.open(url.startsWith('data:') ? dataUrlToBlobUrl(url) : url, '_blank');
 }
