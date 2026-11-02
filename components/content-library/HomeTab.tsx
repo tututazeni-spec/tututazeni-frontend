@@ -84,7 +84,7 @@ export function HomeTab() {
           O que queres aprender hoje?
         </h2>
         <p className="mb-4 font-body text-sm text-canvas/70">
-          Acede a cursos, vídeos, artigos e muito mais
+          Acede a conteúdos, vídeos, artigos e muito mais
         </p>
         <form onSubmit={handleSearch} className="flex gap-2">
           <div className="relative flex-1 rounded-control bg-surface px-3">
