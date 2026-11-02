@@ -11,7 +11,19 @@
 'use client';
 
 import { useState } from 'react';
-import { ExternalLink, Plus, Trash2, Video } from 'lucide-react';
+import {
+  BookOpen,
+  Building2,
+  CalendarCheck,
+  CalendarDays,
+  ExternalLink,
+  Pencil,
+  Plus,
+  Trash2,
+  Users,
+  Video,
+  Wrench,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -20,7 +32,6 @@ import { formatDateTime } from '@/lib/format';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -29,6 +40,12 @@ import { ResourceFormModal } from '../trainings/ResourceFormModal';
 import type { TrainingResourceItem } from '../trainings/types';
 import { STATUS_CFG } from './constants';
 import { tabBtn } from './utils';
+import {
+  ROW_BTN_ICON,
+  ROW_BTN_OUTLINE,
+  ROW_BTN_PRIMARY,
+  RowCard,
+} from './RowCard';
 import type { PaginatedMeta, VirtualRoom } from './types';
 import { safeHref } from '@/lib/safeHref';
 
@@ -130,51 +147,61 @@ export function RoomsView({ canManage }: { canManage: boolean }) {
             description="Regista salas físicas para as aulas presenciais/híbridas."
           />
         ) : (
-          <Card className="divide-y divide-border">
+          <div className="flex flex-col gap-4">
             {rooms.map((r) => (
-              <div
+              <RowCard
                 key={r.id}
-                className="flex flex-wrap items-center gap-3 px-4 py-3"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-ink">
-                    {r.name}
-                    {r.code ? ` · ${r.code}` : ''}
-                  </div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 font-body text-xs text-ink-faint">
-                    <span>{r.location ?? 'Sem localização'}</span>
-                    {r.capacity != null && (
-                      <span>· Capacidade {r.capacity}</span>
-                    )}
-                    {r.equipment.length > 0 && (
-                      <span>· {r.equipment.join(', ')}</span>
-                    )}
-                    <span>
-                      · {r._count?.bookings ?? 0} reserva(s) activa(s)
-                    </span>
-                  </div>
-                </div>
-                <StatusBadge value={r.status} map={RESOURCE_STATUS_CFG} />
-                <div className="flex gap-2">
-                  <Button
-                    intent="ghost"
-                    size="sm"
-                    onClick={() => setEditing(r)}
-                  >
-                    Editar
-                  </Button>
-                  <Button
-                    intent="danger"
-                    size="sm"
-                    onClick={() => onRemove(r)}
-                    loading={remove.isPending && remove.variables?.id === r.id}
-                  >
-                    <Trash2 size={14} strokeWidth={1.75} />
-                  </Button>
-                </div>
-              </div>
+                name={r.location ?? 'Sem localização'}
+                icon={Building2}
+                title={`${r.name}${r.code ? ` · ${r.code}` : ''}`}
+                badge={
+                  <StatusBadge value={r.status} map={RESOURCE_STATUS_CFG} />
+                }
+                infos={[
+                  {
+                    icon: Users,
+                    value: r.capacity != null ? String(r.capacity) : '—',
+                    label: 'Capacidade',
+                  },
+                  {
+                    icon: Wrench,
+                    value:
+                      r.equipment.length > 0 ? r.equipment.join(', ') : '—',
+                    label: 'Equipamento',
+                  },
+                  {
+                    icon: CalendarCheck,
+                    value: String(r._count?.bookings ?? 0),
+                    label: 'Reservas activas',
+                  },
+                ]}
+                actions={
+                  <>
+                    <button
+                      type="button"
+                      className={ROW_BTN_OUTLINE}
+                      onClick={() => setEditing(r)}
+                    >
+                      <Pencil size={14} strokeWidth={1.75} />
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      className={ROW_BTN_ICON}
+                      aria-label="Eliminar sala"
+                      title="Eliminar sala"
+                      disabled={
+                        remove.isPending && remove.variables?.id === r.id
+                      }
+                      onClick={() => onRemove(r)}
+                    >
+                      <Trash2 size={14} strokeWidth={1.75} />
+                    </button>
+                  </>
+                }
+              />
             ))}
-          </Card>
+          </div>
         ))}
 
       {tab === 'virtual' &&
@@ -186,45 +213,48 @@ export function RoomsView({ canManage }: { canManage: boolean }) {
             description="As salas virtuais aparecem aqui para aulas online/híbridas com Zoom ou link de reunião configurado."
           />
         ) : (
-          <Card className="divide-y divide-border">
+          <div className="flex flex-col gap-4">
             {virtualRooms.map((v) => (
-              <div
+              <RowCard
                 key={v.liveClassId}
-                className="flex flex-wrap items-center gap-3 px-4 py-3"
-              >
-                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-control bg-brand/60 text-white">
-                  <Video size={16} strokeWidth={1.75} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-ink">
-                    {v.topic}
-                  </div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-2 font-body text-xs text-ink-faint">
-                    <span>{v.platform}</span>
-                    {v.meetingId && <span>· ID {v.meetingId}</span>}
-                    <span>· {v.course?.title ?? '—'}</span>
-                    <span>· {v.instructor?.name ?? 'Sem formador'}</span>
-                    <span>· {formatDateTime(v.scheduledAt)}</span>
-                  </div>
-                </div>
-                <span
-                  className={`rounded px-2 py-0.5 font-body text-xs font-medium ${STATUS_CFG[v.status]?.cls ?? ''}`}
-                >
-                  {STATUS_CFG[v.status]?.label ?? v.status}
-                </span>
-                {v.link && (
-                  <a
-                    href={safeHref(v.link)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 font-body text-xs text-accent"
+                name={v.instructor?.name ?? 'Sem formador'}
+                icon={Video}
+                title={v.topic}
+                subtitle={`${v.platform}${v.meetingId ? ` · ID ${v.meetingId}` : ''}`}
+                badge={
+                  <span
+                    className={`rounded px-2 py-0.5 font-body text-xs font-medium ${STATUS_CFG[v.status]?.cls ?? ''}`}
                   >
-                    Abrir <ExternalLink size={12} strokeWidth={1.75} />
-                  </a>
-                )}
-              </div>
+                    {STATUS_CFG[v.status]?.label ?? v.status}
+                  </span>
+                }
+                infos={[
+                  {
+                    icon: BookOpen,
+                    value: v.course?.title ?? '—',
+                    label: 'Curso',
+                  },
+                  {
+                    icon: CalendarDays,
+                    value: formatDateTime(v.scheduledAt),
+                    label: 'Data',
+                  },
+                ]}
+                actions={
+                  v.link && (
+                    <a
+                      href={safeHref(v.link)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={ROW_BTN_PRIMARY}
+                    >
+                      Abrir <ExternalLink size={14} strokeWidth={1.75} />
+                    </a>
+                  )
+                }
+              />
             ))}
-          </Card>
+          </div>
         ))}
 
       {editing && (

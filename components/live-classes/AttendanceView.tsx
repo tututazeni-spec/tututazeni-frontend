@@ -19,11 +19,8 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import {
-  NavyBadge,
-  NavyCard,
-  type NavyTone,
-} from '@/components/courses/NavyCard';
+import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
+import { ROW_BTN_OUTLINE, ROW_BTN_PRIMARY, RowCard } from './RowCard';
 import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
@@ -217,12 +214,11 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="flex flex-col gap-4">
             {rows.map((p) => (
-              <NavyCard
+              <RowCard
                 key={p.id}
-                seed={p.liveClassId}
-                avatar={{ name: p.user.fullName }}
+                name={p.user.fullName}
                 title={p.liveClass.topic}
                 subtitle={
                   p.justification
@@ -259,33 +255,27 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
                     label: `Presença ${p.attendancePercent ?? 0}%`,
                   },
                 ]}
-                footer={
+                actions={
                   canManage && (
                     <>
-                      <Button
+                      <button
                         type="button"
-                        intent="onDark"
-                        size="md"
+                        className={ROW_BTN_PRIMARY}
                         onClick={() => openRegister(p)}
                       >
-                        <CheckCircle2
-                          size={14}
-                          strokeWidth={1.75}
-                          className="mr-1.5"
-                        />
+                        <CheckCircle2 size={14} strokeWidth={1.75} />
                         Registar
-                      </Button>
-                      <Button
+                      </button>
+                      <button
                         type="button"
-                        intent="onDark"
-                        size="md"
+                        className={ROW_BTN_OUTLINE}
                         onClick={() => {
                           setJustifying(p);
                           setJustification(p.justification ?? '');
                         }}
                       >
                         Justificar
-                      </Button>
+                      </button>
                     </>
                   )
                 }
