@@ -10,7 +10,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { AlertCircle, Plus, Upload, X } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { useFormValidation } from '@/hooks/useFormValidation';
@@ -22,6 +22,12 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
+import {
+  ACCEPT_ATTR,
+  readAsDataUrl,
+  validateUpload,
+} from '@/components/content-library/inlineFile';
+import { formatBytes } from '@/lib/format';
 import { CATEGORY_CONFIG, SENSITIVITY_CONFIG } from './constants';
 import type { DocCategory, DocSensitivity } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
@@ -67,6 +73,32 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
   );
   const [tagInput, setTagInput] = useState('');
   const [submitError, setSubmitError] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [dragging, setDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const pickFile = async (file: File | undefined) => {
+    if (!file) return;
+    const problem = validateUpload(file);
+    if (problem) {
+      setSubmitError(problem);
+      return;
+    }
+    try {
+      const dataUrl = await readAsDataUrl(file);
+      setSubmitError('');
+      setFileName(file.name);
+      setForm((f) => ({
+        ...f,
+        fileUrl: dataUrl,
+        mimeType: file.type,
+        fileSize: file.size,
+        title: f.title || file.name.replace(/\.[^.]+$/, ''),
+      }));
+    } catch {
+      setSubmitError('Não foi possível ler o ficheiro.');
+    }
+  };
   const error = validationError || submitError;
 
   const addTag = () => {
@@ -118,28 +150,70 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
           )}
 
           {/* Área de upload */}
-          <div className="border-2 border-dashed border-border-strong rounded-panel p-6 text-center hover:border-accent hover:bg-accent-subtle/30 transition-colors cursor-pointer">
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragging(false);
+              void pickFile(e.dataTransfer.files[0]);
+            }}
+            className={`border-2 border-dashed rounded-panel p-6 text-center transition-colors cursor-pointer hover:border-accent hover:bg-accent-subtle/30 ${dragging ? 'border-accent bg-accent-subtle/30' : 'border-border-strong'}`}
+          >
             <Upload
               size={28}
               strokeWidth={1.75}
               className="mx-auto text-ink-faint mb-2"
             />
-            <p className="text-sm text-ink-muted">
-              Arraste o ficheiro ou clique para carregar
-            </p>
+            {fileName ? (
+              <p className="text-sm font-medium text-ink">
+                {fileName} · {formatBytes(form.fileSize)}
+              </p>
+            ) : (
+              <p className="text-sm text-ink-muted">
+                Arraste o ficheiro ou clique para carregar
+              </p>
+            )}
             <p className="text-xs text-ink-faint mt-1">
-              PDF, DOCX, XLS, imagens — máx. 100MB
+              PDF, Office, texto e imagens — máx. 5 MB
             </p>
-            <Input
-              type="text"
-              value={form.fileUrl}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, fileUrl: e.target.value }))
-              }
-              placeholder="(temporário: cole a URL do ficheiro)"
-              className="mt-3 w-full"
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={ACCEPT_ATTR}
+              className="hidden"
+              onChange={(e) => {
+                void pickFile(e.target.files?.[0]);
+                e.target.value = '';
+              }}
             />
           </div>
+          {!fileName && (
+            <FormField label="Ou cole a URL do ficheiro" htmlFor="upload-url">
+              <Input
+                id="upload-url"
+                type="text"
+                value={form.fileUrl}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, fileUrl: e.target.value }))
+                }
+                placeholder="https://..."
+                className="w-full"
+              />
+            </FormField>
+          )}
 
           <FormField label="Título *" htmlFor="upload-title">
             <Input
