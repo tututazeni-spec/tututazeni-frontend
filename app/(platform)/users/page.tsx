@@ -27,6 +27,7 @@ import { UserListView } from '@/components/users/UserListView';
 import { UserProfile } from '@/components/users/UserProfile';
 import { ImportView } from '@/components/users/ImportView';
 import { AuditHistoryView } from '@/components/users/AuditHistoryView';
+import { InstructorInvitesView } from '@/components/users/InstructorInvitesView';
 import { RolesPermissionsView } from '@/components/roles-permissions/RolesPermissionsView';
 import type { Nav } from '@/components/users/types';
 
@@ -92,6 +93,7 @@ export default function UsersPage() {
       {nav.view === 'directory' && <DirectoryView onSelect={handleSelect} />}
       {nav.view === 'import' && <ImportView />}
       {nav.view === 'audit' && <AuditHistoryView />}
+      {nav.view === 'instructors' && <InstructorInvitesView />}
       {nav.view === 'permissions' && <RolesPermissionsView />}
     </div>
   );

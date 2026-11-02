@@ -500,6 +500,7 @@ export type View =
   | 'directory'
   | 'import'
   | 'audit'
+  | 'instructors'
   | 'permissions';
 
 // view e selectedId eram dois useState separados sempre definidos em conjunto

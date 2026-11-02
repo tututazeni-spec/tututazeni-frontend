@@ -15,7 +15,15 @@
 // directamente. Substituído por "Importação" e "Histórico & Auditoria"
 // (Ponto 5 e Ponto 6).
 
-import { BarChart3, FileUp, History, KeyRound, Search, Users } from 'lucide-react';
+import {
+  BarChart3,
+  FileUp,
+  History,
+  KeyRound,
+  Search,
+  UserCheck,
+  Users,
+} from 'lucide-react';
 import type { PillTabItem } from '@/components/ui/PillTabs';
 import type { View } from './types';
 
@@ -43,6 +51,12 @@ export const NAV: Array<
     icon: History,
   },
   {
+    id: 'instructors',
+    label: 'Instrutores externos',
+    hint: 'Convites com prazo',
+    icon: UserCheck,
+  },
+  {
     id: 'permissions',
     label: 'Permissões por Cargos',
     hint: 'Acessos por perfil',
@@ -58,5 +72,6 @@ export const TITLES: Record<View, string> = {
   directory: 'Diretório Interno',
   import: 'Importação',
   audit: 'Histórico & Auditoria',
+  instructors: 'Instrutores externos',
   permissions: 'Permissões por Cargos',
 };
