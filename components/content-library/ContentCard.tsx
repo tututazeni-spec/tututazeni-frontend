@@ -14,6 +14,7 @@ import {
   Star,
   Trash2,
 } from 'lucide-react';
+import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useHasRole } from '@/hooks/useCurrentRole';
 import { useConfirm } from '@/providers/ConfirmProvider';
@@ -31,7 +32,8 @@ import {
   LEVEL_CLS,
   levelLabel,
 } from './constants';
-import { openContent } from './inlineFile';
+import { openContent, resolveContentUrl } from './inlineFile';
+import { ContentViewerModal, canViewInPlatform } from './ContentViewerModal';
 import type { Content } from './types';
 
 export interface ContentCardProps {
@@ -50,6 +52,7 @@ export function ContentCard({
   const notify = useToast();
   const isAdmin = useHasRole(['ADMIN']);
   const confirm = useConfirm();
+  const [viewerUrl, setViewerUrl] = useState<string | null>(null);
   const qc = useQueryClient();
 
   const handleDelete = async (e: React.MouseEvent) => {
@@ -74,7 +77,10 @@ export function ContentCard({
     } catch (err) {
       // 404 = já foi apagado (cartão desatualizado): só refresca a lista.
       if (err instanceof ApiError && err.status === 404) {
-        notify({ title: 'Este conteúdo já tinha sido apagado', intent: 'info' });
+        notify({
+          title: 'Este conteúdo já tinha sido apagado',
+          intent: 'info',
+        });
         void qc.invalidateQueries({
           queryKey: [...queryKeys.contentLibrary.all],
         });
@@ -101,190 +107,216 @@ export function ContentCard({
     await apiClient
       .patch(`/content-library/${content.id}/view`, {})
       .catch((err) => reportError(err, { source: 'ContentCard.handleView' }));
+    if (canViewInPlatform(content.type)) {
+      try {
+        const url = await resolveContentUrl(content);
+        if (url) {
+          setViewerUrl(url);
+          return;
+        }
+      } catch (err) {
+        reportError(err, { source: 'ContentCard.openViewer' });
+      }
+    }
     await openContent(content).catch((err) =>
       reportError(err, { source: 'ContentCard.openContent' }),
     );
   };
 
+  // Wrapper clicável implementado com div própria (role="button" + tabIndex +
+  // onKeyDown manual) em vez do `Card` da fundação com `interactive` — bug
+  // conhecido (ver plano de rollout), mesmo padrão de micro-learning/MicroCard.tsx.
   if (compact)
     return (
-      // Wrapper clicável implementado com div própria (role="button" +
-      // tabIndex + onKeyDown manual) em vez do `Card` da fundação com a
-      // prop `interactive` — bug conhecido (ver plano de rollout), mesmo
-      // padrão já usado em components/micro-learning/MicroCard.tsx.
-      <div
-        onClick={handleView}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            handleView();
-          }
-        }}
-        className="flex cursor-pointer items-center gap-3 rounded-card border border-border bg-surface p-3 shadow-resting transition-shadow duration-150 hover:shadow-hover"
-      >
+      <>
         <div
-          className={`shrink-0 rounded-control p-2 ${FORMAT_CLS[content.type] ?? FORMAT_CLS_FALLBACK}`}
+          onClick={handleView}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleView();
+            }
+          }}
+          className="flex cursor-pointer items-center gap-3 rounded-card border border-border bg-surface p-3 shadow-resting transition-shadow duration-150 hover:shadow-hover"
         >
-          <Icon size={16} strokeWidth={1.75} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-body text-sm font-medium text-ink">
-            {content.title}
-          </p>
-          <p className="font-body text-micro text-ink-faint">
-            {content.durationMin ? `${content.durationMin} min` : ''}{' '}
-            {content.level ? `· ${levelLabel(content.level)}` : ''}
-          </p>
-          {progress > 0 && (
-            <ProgressBar value={progress} className="mt-1 h-1" />
+          <div
+            className={`shrink-0 rounded-control p-2 ${FORMAT_CLS[content.type] ?? FORMAT_CLS_FALLBACK}`}
+          >
+            <Icon size={16} strokeWidth={1.75} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-body text-sm font-medium text-ink">
+              {content.title}
+            </p>
+            <p className="font-body text-micro text-ink-faint">
+              {content.durationMin ? `${content.durationMin} min` : ''}{' '}
+              {content.level ? `· ${levelLabel(content.level)}` : ''}
+            </p>
+            {progress > 0 && (
+              <ProgressBar value={progress} className="mt-1 h-1" />
+            )}
+          </div>
+          {progress === 100 && (
+            <CheckCircle
+              size={14}
+              strokeWidth={1.75}
+              className="shrink-0 text-success"
+            />
           )}
         </div>
-        {progress === 100 && (
-          <CheckCircle
-            size={14}
-            strokeWidth={1.75}
-            className="shrink-0 text-success"
-          />
-        )}
-      </div>
+        <ContentViewerModal
+          title={content.title}
+          format={content.type}
+          url={viewerUrl}
+          onClose={() => setViewerUrl(null)}
+        />
+      </>
     );
 
   return (
-    <Card className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-hover">
-      {/* Thumbnail */}
-      <div
-        className="relative flex h-36 items-center justify-center bg-surface-sunken"
-        onClick={handleView}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            handleView();
-          }
-        }}
-      >
-        {content.thumbnailUrl ? (
-          <Image
-            src={content.thumbnailUrl}
-            alt={content.title}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <Icon size={24} strokeWidth={1.75} className="text-ink-faint" />
-        )}
-        {/* Overlay */}
-        <div className="absolute inset-0 flex items-center justify-center bg-ink/20 opacity-0 transition-opacity group-hover:opacity-100">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface/90 shadow-elevated">
-            <Play size={18} strokeWidth={1.75} className="ml-0.5 text-ink" />
-          </div>
-        </div>
-        {/* Badges */}
-        <div className="absolute left-2 top-2 flex gap-1">
-          {content.mandatory && (
-            <span className="rounded bg-danger px-1.5 py-0.5 font-body text-micro font-bold text-canvas">
-              OBRIG.
-            </span>
-          )}
-          {content.hasCertification && (
-            <span className="rounded bg-accent px-1.5 py-0.5 font-body text-micro font-bold text-canvas">
-              CERT.
-            </span>
-          )}
-          {content.isMicrolearning && (
-            <span className="rounded bg-info px-1.5 py-0.5 font-body text-micro font-bold text-canvas">
-              MICRO
-            </span>
-          )}
-        </div>
-        {isAdmin && (
-          <button
-            onClick={handleDelete}
-            aria-label="Apagar conteúdo"
-            className="absolute right-10 top-2 rounded-full bg-surface/80 p-1.5 transition-colors hover:bg-surface"
-          >
-            <Trash2 size={14} strokeWidth={1.75} className="text-danger" />
-          </button>
-        )}
-        <button
-          onClick={handleBookmark}
-          aria-label={
-            content.isBookmarked ? 'Remover dos guardados' : 'Guardar'
-          }
-          className="absolute right-2 top-2 rounded-full bg-surface/80 p-1.5 transition-colors hover:bg-surface"
-        >
-          <Bookmark
-            size={14}
-            strokeWidth={1.75}
-            className={
-              content.isBookmarked
-                ? 'fill-accent text-accent'
-                : 'text-ink-muted'
+    <>
+      <Card className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-hover">
+        {/* Thumbnail */}
+        <div
+          className="relative flex h-36 items-center justify-center bg-surface-sunken"
+          onClick={handleView}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleView();
             }
-          />
-        </button>
-        {/* Progress bar on thumbnail bottom — cor mono da fundação; o
-            estado "concluído" que a cor original comunicava passa para o
-            ícone de confirmação adjacente. */}
-        {progress > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 flex items-center gap-1 bg-ink/10 px-1 py-0.5">
-            <ProgressBar value={progress} className="h-1" />
-            {progress === 100 && (
-              <CheckCircle
-                size={14}
-                strokeWidth={1.75}
-                className="shrink-0 text-success"
-              />
+          }}
+        >
+          {content.thumbnailUrl ? (
+            <Image
+              src={content.thumbnailUrl}
+              alt={content.title}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <Icon size={24} strokeWidth={1.75} className="text-ink-faint" />
+          )}
+          {/* Overlay */}
+          <div className="absolute inset-0 flex items-center justify-center bg-ink/20 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface/90 shadow-elevated">
+              <Play size={18} strokeWidth={1.75} className="ml-0.5 text-ink" />
+            </div>
+          </div>
+          {/* Badges */}
+          <div className="absolute left-2 top-2 flex gap-1">
+            {content.mandatory && (
+              <span className="rounded bg-danger px-1.5 py-0.5 font-body text-micro font-bold text-canvas">
+                OBRIG.
+              </span>
+            )}
+            {content.hasCertification && (
+              <span className="rounded bg-accent px-1.5 py-0.5 font-body text-micro font-bold text-canvas">
+                CERT.
+              </span>
+            )}
+            {content.isMicrolearning && (
+              <span className="rounded bg-info px-1.5 py-0.5 font-body text-micro font-bold text-canvas">
+                MICRO
+              </span>
             )}
           </div>
-        )}
-      </div>
-
-      {/* Body */}
-      <CardBody className="p-3">
-        <div className="mb-1.5 flex items-center gap-2">
-          <span
-            className={`rounded px-1.5 py-0.5 font-body text-micro font-medium ${FORMAT_CLS[content.type] ?? FORMAT_CLS_FALLBACK}`}
-          >
-            {content.type}
-          </span>
-          {content.level && (
-            <span
-              className={`font-body text-micro font-medium ${LEVEL_CLS[content.level] ?? 'text-ink-muted'}`}
+          {isAdmin && (
+            <button
+              onClick={handleDelete}
+              aria-label="Apagar conteúdo"
+              className="absolute right-10 top-2 rounded-full bg-surface/80 p-1.5 transition-colors hover:bg-surface"
             >
-              {levelLabel(content.level)}
-            </span>
+              <Trash2 size={14} strokeWidth={1.75} className="text-danger" />
+            </button>
+          )}
+          <button
+            onClick={handleBookmark}
+            aria-label={
+              content.isBookmarked ? 'Remover dos guardados' : 'Guardar'
+            }
+            className="absolute right-2 top-2 rounded-full bg-surface/80 p-1.5 transition-colors hover:bg-surface"
+          >
+            <Bookmark
+              size={14}
+              strokeWidth={1.75}
+              className={
+                content.isBookmarked
+                  ? 'fill-accent text-accent'
+                  : 'text-ink-muted'
+              }
+            />
+          </button>
+          {/* Progress bar on thumbnail bottom — cor mono da fundação; o
+            estado "concluído" que a cor original comunicava passa para o
+            ícone de confirmação adjacente. */}
+          {progress > 0 && (
+            <div className="absolute bottom-0 left-0 right-0 flex items-center gap-1 bg-ink/10 px-1 py-0.5">
+              <ProgressBar value={progress} className="h-1" />
+              {progress === 100 && (
+                <CheckCircle
+                  size={14}
+                  strokeWidth={1.75}
+                  className="shrink-0 text-success"
+                />
+              )}
+            </div>
           )}
         </div>
 
-        <h4 className="mb-1 line-clamp-2 font-body text-sm font-semibold leading-snug text-ink">
-          {content.title}
-        </h4>
+        {/* Body */}
+        <CardBody className="p-3">
+          <div className="mb-1.5 flex items-center gap-2">
+            <span
+              className={`rounded px-1.5 py-0.5 font-body text-micro font-medium ${FORMAT_CLS[content.type] ?? FORMAT_CLS_FALLBACK}`}
+            >
+              {content.type}
+            </span>
+            {content.level && (
+              <span
+                className={`font-body text-micro font-medium ${LEVEL_CLS[content.level] ?? 'text-ink-muted'}`}
+              >
+                {levelLabel(content.level)}
+              </span>
+            )}
+          </div>
 
-        <div className="flex items-center gap-3 font-body text-micro text-ink-faint">
-          {content.durationMin && (
-            <span className="flex items-center gap-0.5">
-              <Clock size={14} strokeWidth={1.75} />
-              {content.durationMin} min
-            </span>
-          )}
-          {content.avgRating && (
-            <span className="flex items-center gap-0.5 text-accent">
-              <Star size={14} strokeWidth={1.75} className="fill-accent" />
-              {content.avgRating}
-            </span>
-          )}
-          {content.viewCount !== undefined && (
-            <span className="flex items-center gap-0.5">
-              <Eye size={14} strokeWidth={1.75} />
-              {content.viewCount}
-            </span>
-          )}
-        </div>
-      </CardBody>
-    </Card>
+          <h4 className="mb-1 line-clamp-2 font-body text-sm font-semibold leading-snug text-ink">
+            {content.title}
+          </h4>
+
+          <div className="flex items-center gap-3 font-body text-micro text-ink-faint">
+            {content.durationMin && (
+              <span className="flex items-center gap-0.5">
+                <Clock size={14} strokeWidth={1.75} />
+                {content.durationMin} min
+              </span>
+            )}
+            {content.avgRating && (
+              <span className="flex items-center gap-0.5 text-accent">
+                <Star size={14} strokeWidth={1.75} className="fill-accent" />
+                {content.avgRating}
+              </span>
+            )}
+            {content.viewCount !== undefined && (
+              <span className="flex items-center gap-0.5">
+                <Eye size={14} strokeWidth={1.75} />
+                {content.viewCount}
+              </span>
+            )}
+          </div>
+        </CardBody>
+      </Card>
+      <ContentViewerModal
+        title={content.title}
+        format={content.type}
+        url={viewerUrl}
+        onClose={() => setViewerUrl(null)}
+      />
+    </>
   );
 }
