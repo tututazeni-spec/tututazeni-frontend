@@ -172,6 +172,8 @@ export function CreateFormalEvaluationModal({
     });
   }, [detail, setValues]);
   const loadingDetail = editing && !detail && !detailQ.error;
+  // Avaliações exportadas do ai-tutor já trazem as perguntas geradas: não se editam aqui.
+  const importedFromAi = detail?.source === 'AI_TUTOR';
 
   const coursesQ = useApiQuery<PaginatedCourses>(
     queryKeys.courses.list({ status: 'PUBLISHED', limit: 100 }),
@@ -250,13 +252,14 @@ export function CreateFormalEvaluationModal({
     new Date(availableUntil).getTime() > new Date(availableFrom).getTime();
 
   const questionsOk =
-    questions.length > 0 &&
-    questions.every((q) => {
-      if (!q.questionText.trim()) return false;
-      if (q.type === 'OPEN_TEXT') return true;
-      const filled = q.options.filter((o) => o.text.trim());
-      return filled.length >= 2 && filled.some((o) => o.isCorrect);
-    });
+    importedFromAi ||
+    (questions.length > 0 &&
+      questions.every((q) => {
+        if (!q.questionText.trim()) return false;
+        if (q.type === 'OPEN_TEXT') return true;
+        const filled = q.options.filter((o) => o.text.trim());
+        return filled.length >= 2 && filled.some((o) => o.isCorrect);
+      }));
 
   const canSubmit =
     title.trim().length > 0 && datesOk && questionsOk && !loadingDetail;
@@ -308,15 +311,19 @@ export function CreateFormalEvaluationModal({
       maxGrade: Number(maxGrade) || 20,
       passingScore: Number(passingScore) || 70,
       targetDepartmentIds: allDepartments ? [] : targetDepartmentIds,
-      questions: questions.map((q, i) => ({
-        type: q.type,
-        questionText: q.questionText.trim(),
-        weight: q.weight || 1,
-        seq: i,
-        ...(q.type !== 'OPEN_TEXT'
-          ? { options: q.options.filter((o) => o.text.trim()) }
-          : {}),
-      })),
+      ...(importedFromAi
+        ? {}
+        : {
+            questions: questions.map((q, i) => ({
+              type: q.type,
+              questionText: q.questionText.trim(),
+              weight: q.weight || 1,
+              seq: i,
+              ...(q.type !== 'OPEN_TEXT'
+                ? { options: q.options.filter((o) => o.text.trim()) }
+                : {}),
+            })),
+          }),
     });
   };
 
@@ -492,115 +499,119 @@ export function CreateFormalEvaluationModal({
           </div>
 
           {/* Perguntas */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-display text-xs font-bold uppercase tracking-wide text-ink-faint">
-                Perguntas
-              </h3>
-              <Button intent="ghost" size="sm" onClick={addQuestion}>
-                <Plus size={14} strokeWidth={1.75} />
-                Adicionar pergunta
-              </Button>
-            </div>
+          {!importedFromAi && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-xs font-bold uppercase tracking-wide text-ink-faint">
+                  Perguntas
+                </h3>
+                <Button intent="ghost" size="sm" onClick={addQuestion}>
+                  <Plus size={14} strokeWidth={1.75} />
+                  Adicionar pergunta
+                </Button>
+              </div>
 
-            {questions.map((q, qIndex) => (
-              <div
-                key={qIndex}
-                className="space-y-3 rounded-card border border-border p-4"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex-1 space-y-3">
-                    <Select
-                      items={QUESTION_TYPE_ITEMS}
-                      value={q.type}
-                      onValueChange={(v) =>
-                        updateQuestion(qIndex, {
-                          type: v as FormalQuestionType,
-                          options:
-                            v === 'OPEN_TEXT'
-                              ? []
-                              : q.options.length
-                                ? q.options
-                                : blankQuestion().options,
-                        })
-                      }
-                    />
-                    <Textarea
-                      rows={2}
-                      value={q.questionText}
-                      onChange={(e) =>
-                        updateQuestion(qIndex, { questionText: e.target.value })
-                      }
-                      placeholder={`Pergunta ${qIndex + 1}`}
-                    />
+              {questions.map((q, qIndex) => (
+                <div
+                  key={qIndex}
+                  className="space-y-3 rounded-card border border-border p-4"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1 space-y-3">
+                      <Select
+                        items={QUESTION_TYPE_ITEMS}
+                        value={q.type}
+                        onValueChange={(v) =>
+                          updateQuestion(qIndex, {
+                            type: v as FormalQuestionType,
+                            options:
+                              v === 'OPEN_TEXT'
+                                ? []
+                                : q.options.length
+                                  ? q.options
+                                  : blankQuestion().options,
+                          })
+                        }
+                      />
+                      <Textarea
+                        rows={2}
+                        value={q.questionText}
+                        onChange={(e) =>
+                          updateQuestion(qIndex, {
+                            questionText: e.target.value,
+                          })
+                        }
+                        placeholder={`Pergunta ${qIndex + 1}`}
+                      />
+                    </div>
+                    {questions.length > 1 && (
+                      <IconButton
+                        icon={Trash2}
+                        label="Remover pergunta"
+                        intent="ghostDanger"
+                        size="compact"
+                        className="mt-1"
+                        type="button"
+                        onClick={() => removeQuestion(qIndex)}
+                      />
+                    )}
                   </div>
-                  {questions.length > 1 && (
-                    <IconButton
-                      icon={Trash2}
-                      label="Remover pergunta"
-                      intent="ghostDanger"
-                      size="compact"
-                      className="mt-1"
-                      type="button"
-                      onClick={() => removeQuestion(qIndex)}
-                    />
+
+                  {q.type !== 'OPEN_TEXT' && (
+                    <div className="space-y-2 pl-1">
+                      {q.options.map((o, oIndex) => (
+                        <div key={oIndex} className="flex items-center gap-2">
+                          <input
+                            type={
+                              q.type === 'MULTIPLE_CHOICE_SINGLE'
+                                ? 'radio'
+                                : 'checkbox'
+                            }
+                            name={`fe-correct-${qIndex}`}
+                            checked={o.isCorrect}
+                            onChange={(e) =>
+                              updateOption(qIndex, oIndex, {
+                                isCorrect: e.target.checked,
+                              })
+                            }
+                            className="h-4 w-4"
+                          />
+                          <Input
+                            value={o.text}
+                            onChange={(e) =>
+                              updateOption(qIndex, oIndex, {
+                                text: e.target.value,
+                              })
+                            }
+                            placeholder={`Opção ${oIndex + 1}`}
+                            className="flex-1"
+                          />
+                          {q.options.length > 2 && (
+                            <IconButton
+                              icon={Trash2}
+                              label="Remover opção"
+                              intent="ghostDanger"
+                              size="xs"
+                              type="button"
+                              onClick={() => removeOption(qIndex, oIndex)}
+                            />
+                          )}
+                        </div>
+                      ))}
+                      <Button
+                        intent="ghost"
+                        size="sm"
+                        onClick={() => addOption(qIndex)}
+                      >
+                        <Plus size={12} strokeWidth={1.75} />
+                        Adicionar opção
+                      </Button>
+                    </div>
                   )}
                 </div>
-
-                {q.type !== 'OPEN_TEXT' && (
-                  <div className="space-y-2 pl-1">
-                    {q.options.map((o, oIndex) => (
-                      <div key={oIndex} className="flex items-center gap-2">
-                        <input
-                          type={
-                            q.type === 'MULTIPLE_CHOICE_SINGLE'
-                              ? 'radio'
-                              : 'checkbox'
-                          }
-                          name={`fe-correct-${qIndex}`}
-                          checked={o.isCorrect}
-                          onChange={(e) =>
-                            updateOption(qIndex, oIndex, {
-                              isCorrect: e.target.checked,
-                            })
-                          }
-                          className="h-4 w-4"
-                        />
-                        <Input
-                          value={o.text}
-                          onChange={(e) =>
-                            updateOption(qIndex, oIndex, {
-                              text: e.target.value,
-                            })
-                          }
-                          placeholder={`Opção ${oIndex + 1}`}
-                          className="flex-1"
-                        />
-                        {q.options.length > 2 && (
-                          <IconButton
-                            icon={Trash2}
-                            label="Remover opção"
-                            intent="ghostDanger"
-                            size="xs"
-                            type="button"
-                            onClick={() => removeOption(qIndex, oIndex)}
-                          />
-                        )}
-                      </div>
-                    ))}
-                    <Button
-                      intent="ghost"
-                      size="sm"
-                      onClick={() => addOption(qIndex)}
-                    >
-                      <Plus size={12} strokeWidth={1.75} />
-                      Adicionar opção
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
