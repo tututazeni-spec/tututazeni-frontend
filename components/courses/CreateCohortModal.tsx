@@ -252,6 +252,11 @@ export function CreateCohortModal({
                         />
                         <div className="min-w-0 truncate text-sm text-ink">
                           {u.fullName}
+                          {u.role?.name === 'INSTRUCTOR_EXTERNO' && (
+                            <span className="ml-2 text-xs text-ink-muted">
+                              Instructor Externo
+                            </span>
+                          )}
                         </div>
                       </button>
                     ))}

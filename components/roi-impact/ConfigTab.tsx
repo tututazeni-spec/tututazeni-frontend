@@ -51,6 +51,7 @@ const ROLE_LABELS: Record<Role, string> = {
   LIDER: 'Líder',
   COLABORADOR: 'Colaborador',
   INSTRUCTOR: 'Instrutor',
+  INSTRUCTOR_EXTERNO: 'Instructor Externo',
   DIRECTOR: 'Direção',
   AUDITOR: 'Auditor',
 };
@@ -64,6 +65,7 @@ const ROLE_COLORS: Record<Role, string> = {
   LIDER: '#12A594',
   COLABORADOR: '#30A46C',
   INSTRUCTOR: '#D6409F',
+  INSTRUCTOR_EXTERNO: '#B8860B',
   AUDITOR: '#6E56CF',
 };
 

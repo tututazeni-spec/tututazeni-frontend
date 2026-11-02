@@ -18,6 +18,7 @@ export type Role =
   | 'LIDER'
   | 'COLABORADOR'
   | 'INSTRUCTOR'
+  | 'INSTRUCTOR_EXTERNO'
   | 'DIRECTOR'
   | 'AUDITOR';
 
@@ -29,6 +30,7 @@ export const AUTHENTICATED_ROLES: readonly Role[] = [
   'RH',
   'ADMIN',
   'INSTRUCTOR',
+  'INSTRUCTOR_EXTERNO',
   'DIRECTOR',
   'AUDITOR',
 ];
