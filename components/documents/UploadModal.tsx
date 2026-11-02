@@ -136,10 +136,16 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
 
   const uploadDoc = useApiMutation(
     () => {
-      const { asDraft, readDeadlineDays, requiresReadConfirmation, ...rest } =
-        form;
+      const {
+        asDraft,
+        readDeadlineDays,
+        requiresReadConfirmation,
+        expiresAt,
+        ...rest
+      } = form;
       return apiClient.post('/documents', {
         ...rest,
+        ...(expiresAt && { expiresAt }),
         requiresReadConfirmation,
         ...(requiresReadConfirmation && { readDeadlineDays }),
         ...(asDraft && { status: 'DRAFT' }),
