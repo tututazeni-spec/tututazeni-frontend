@@ -10,6 +10,7 @@ import { UsageTracker } from '../../components/product/UsageTracker';
 import { NpsSurvey } from '../../components/product/NpsSurvey';
 import { LegalGate } from '../../components/legal/LegalGate';
 import { FrontendPerfReporter } from '../../components/scalability/FrontendPerfReporter';
+import { NotForExternal } from '../../components/NotForExternal';
 
 export default function PlatformLayout({
   children,
@@ -19,9 +20,11 @@ export default function PlatformLayout({
   return (
     <div style={{ display: 'flex', margin: 0, padding: 0 }}>
       <SkipLink />
-      <FrontendPerfReporter />
+      <NotForExternal>
+        <FrontendPerfReporter />
+        <UsageTracker />
+      </NotForExternal>
       <SessionActivityTracker />
-      <UsageTracker />
       <LegalGate />
       <Suspense fallback={null}>
         <TabFromUrl />
@@ -52,7 +55,9 @@ export default function PlatformLayout({
           <OfflineBanner />
           {children}
         </main>
-        <NpsSurvey />
+        <NotForExternal>
+          <NpsSurvey />
+        </NotForExternal>
       </div>
     </div>
   );

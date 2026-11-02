@@ -19,6 +19,17 @@ import type { TopLevelView, View } from './types';
 // autenticados). Espelha os @Roles() dos endpoints por trás de cada aba:
 // admin/dashboard e a tabela de gestão de cursos são ADMIN/RH; inscrições e
 // progresso (courses/enrollments) também aceitam GESTOR.
+const ALL_BUT_EXTERNAL: readonly Role[] = [
+  'ADMIN',
+  'RH',
+  'GESTOR',
+  'LIDER',
+  'COLABORADOR',
+  'INSTRUCTOR',
+  'DIRECTOR',
+  'AUDITOR',
+];
+
 export const NAV: Array<{
   id: TopLevelView;
   label: string;
@@ -26,12 +37,19 @@ export const NAV: Array<{
 }> = [
   { id: 'dashboard', label: 'Visão Geral', roles: ['ADMIN', 'RH'] },
   { id: 'catalog', label: 'Cursos' },
-  { id: 'inscricoes', label: 'Inscrições', roles: ['ADMIN', 'RH', 'GESTOR'] },
+  {
+    id: 'inscricoes',
+    label: 'Inscrições',
+    roles: ['ADMIN', 'RH', 'GESTOR', 'INSTRUCTOR_EXTERNO'],
+  },
   { id: 'progresso', label: 'Progresso', roles: ['ADMIN', 'RH', 'GESTOR'] },
   // Todos veem a aba: ADMIN/RH/INSTRUCTOR gerem, os restantes vêem as suas turmas.
   { id: 'turmas', label: 'Turmas' },
-  { id: 'my-courses', label: 'Meus cursos' },
-  { id: 'certificates', label: 'Certificados' },
+  // O instrutor externo gere os módulos e lições dos seus cursos (ADMIN/RH chegam por Cursos → Gerir módulos).
+  { id: 'modulos', label: 'Módulos & Lições', roles: ['INSTRUCTOR_EXTERNO'] },
+  // Aprendizagem pessoal: o instrutor externo não é aluno.
+  { id: 'my-courses', label: 'Meus cursos', roles: ALL_BUT_EXTERNAL },
+  { id: 'certificates', label: 'Certificados', roles: ALL_BUT_EXTERNAL },
   { id: 'relatorios', label: 'Relatórios', roles: ['ADMIN', 'RH'] },
 ];
 

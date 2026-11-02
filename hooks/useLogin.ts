@@ -9,6 +9,7 @@ import { apiClient, ApiError, API_URL } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
+import { homeFor, type Role } from '@/lib/roles';
 
 // Definições §11 (Autenticação/SSO): opções públicas de login — sem sessão,
 // por isso não pode depender de nada que exija o cookie já estar presente.
@@ -108,7 +109,10 @@ export function useLogin() {
     setLoading(true);
     try {
       // O backend define o cookie httpOnly 'token'; o JS nunca toca no token.
-      const res = await apiClient.post<{ mustChangePassword?: boolean }>(
+      const res = await apiClient.post<{
+        mustChangePassword?: boolean;
+        user?: { role?: { name?: string } | null };
+      }>(
         '/auth/login',
         {
           email,
@@ -121,7 +125,7 @@ export function useLogin() {
       // vai directa ao separador Segurança para a trocar.
       window.location.href = res?.mustChangePassword
         ? '/settings?tab=seguranca&firstLogin=1'
-        : '/dashboard';
+        : homeFor(res?.user?.role?.name as Role | undefined);
     } catch (err) {
       const body = err instanceof ApiError ? (err.body as { code?: string; purpose?: string } | undefined) : undefined;
       if (err instanceof ApiError && err.status === 401 && body?.code === 'EMAIL_CODE_REQUIRED') {
