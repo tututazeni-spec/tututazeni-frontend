@@ -1,6 +1,6 @@
 // components/content-library/HomeTab.tsx
 // Separador "Início" — pesquisa hero, continuar a ver, obrigatórios,
-// recomendados, trending, recentes. Dados próprios (useApiQuery) +
+// recomendados, em tendência. Os adicionados recentemente estão no Catálogo. Dados próprios (useApiQuery) +
 // apresentação, mesmo padrão auto-contido usado em
 // components/payslips/page.tsx. Extraído de
 // app/(platform)/content-library/page.tsx.
@@ -8,7 +8,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, RotateCcw, Shield, Star, TrendingUp, Zap } from 'lucide-react';
+import { Search, RotateCcw, Shield, Star, TrendingUp } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -47,11 +47,6 @@ export function HomeTab() {
     '/content-library/trending',
     { params: { limit: 8 }, staleTime: STALE_TIME.SEMI_STATIC },
   );
-  const newQuery = useApiQuery<Content[]>(
-    queryKeys.contentLibrary.new(),
-    '/content-library/new',
-    { params: { limit: 6 }, staleTime: STALE_TIME.SEMI_STATIC },
-  );
   const continueQuery = useApiQuery<Content[]>(
     queryKeys.contentLibrary.continueWatching(),
     '/content-library/continue-watching',
@@ -65,11 +60,9 @@ export function HomeTab() {
 
   const recommended = recQuery.data ?? [];
   const trending = trendingQuery.data ?? [];
-  const newContent = newQuery.data ?? [];
   const continueW = continueQuery.data ?? [];
   const mandatory = mandatoryQuery.data ?? [];
-  const loading =
-    recQuery.isLoading || trendingQuery.isLoading || newQuery.isLoading;
+  const loading = recQuery.isLoading || trendingQuery.isLoading;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,14 +175,9 @@ export function HomeTab() {
             icon={Star}
           />
           <ContentRow
-            title="Em Trending esta semana"
+            title="Em Tendência esta semana"
             items={trending}
             icon={TrendingUp}
-          />
-          <ContentRow
-            title="Adicionados recentemente"
-            items={newContent}
-            icon={Zap}
           />
         </>
       )}

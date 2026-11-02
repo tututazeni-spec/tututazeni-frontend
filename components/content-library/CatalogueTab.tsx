@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { FileText, ListFilter, Search } from 'lucide-react';
+import { FileText, ListFilter, Search, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ContentCard } from './ContentCard';
+import { ContentRow } from './ContentRow';
 import type { Content } from './types';
 
 // value = ContentFormat/ContentAssetLevel (Prisma enum, validado por
@@ -28,10 +29,16 @@ const FORMATS = [
   { value: 'ARTICLE', label: 'Artigos' },
   { value: 'PODCAST', label: 'Podcast' },
   { value: 'PDF', label: 'PDF' },
+  { value: 'EBOOK', label: 'E-book' },
   { value: 'SCORM', label: 'SCORM' },
   { value: 'COURSE', label: 'Cursos' },
   { value: 'MICROLEARNING', label: 'Micro-aprendizagem' },
+  { value: 'INFOGRAPHIC', label: 'Infográfico' },
   { value: 'QUIZ', label: 'Questionário' },
+  { value: 'TEMPLATE', label: 'Modelo' },
+  { value: 'PRESENTATION', label: 'Apresentação' },
+  { value: 'WEBINAR', label: 'Webinar' },
+  { value: 'HTML5', label: 'HTML5' },
 ];
 const LEVELS = [
   { value: 'BEGINNER', label: 'Iniciante' },
@@ -96,6 +103,20 @@ export function CatalogueTab() {
   });
   const loading = isLoading;
 
+  // "Adicionados recentemente": só na vista sem pesquisa nem filtros.
+  const showRecent =
+    page === 1 && !debouncedSearch && format === 'ALL' && level === 'ALL';
+  const recentQuery = useApiQuery<Content[]>(
+    queryKeys.contentLibrary.new(),
+    '/content-library/new',
+    {
+      params: { limit: 6 },
+      staleTime: STALE_TIME.SEMI_STATIC,
+      enabled: showRecent,
+    },
+  );
+  const recent = recentQuery.data ?? [];
+
   return (
     <div className="space-y-4">
       {/* Search + filters */}
@@ -143,6 +164,14 @@ export function CatalogueTab() {
           </div>
         </CardBody>
       </Card>
+
+      {showRecent && recent.length > 0 && (
+        <ContentRow
+          title="Adicionados recentemente"
+          items={recent}
+          icon={Zap}
+        />
+      )}
 
       {/* Grid */}
       {loading ? (
