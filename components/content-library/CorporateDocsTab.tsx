@@ -277,8 +277,8 @@ export function CorporateDocsTab() {
       ) : loading ? (
         <Skeleton
           rows={8}
-          wrapperClassName="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
-          itemClassName="h-40 rounded-panel bg-surface-sunken"
+          wrapperClassName="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4"
+          itemClassName="h-56 rounded-panel bg-surface-sunken"
         />
       ) : docsToShow.length === 0 ? (
         <EmptyState
@@ -287,7 +287,7 @@ export function CorporateDocsTab() {
           description="Não há documentos para o filtro seleccionado."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
           {docsToShow.map((d) => (
             <DocCard
               key={d.id}
