@@ -88,11 +88,20 @@ export function DocCard({ doc, onView, onDownload, onDelete }: DocCardProps) {
             </span>
           )}
         </div>
-        {/* Menu de acções */}
+        {/* Acções */}
         <div
-          className="absolute right-2 top-2"
+          className="absolute right-2 top-2 flex gap-1"
           onClick={(e) => e.stopPropagation()}
         >
+          {onDelete && (
+            <button
+              onClick={() => onDelete(doc)}
+              aria-label="Apagar documento"
+              className="rounded-full bg-surface/80 p-1.5 transition-colors hover:bg-surface"
+            >
+              <Trash2 size={14} strokeWidth={1.75} className="text-danger" />
+            </button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button

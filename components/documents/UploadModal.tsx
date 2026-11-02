@@ -84,7 +84,6 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
       documentNumber: '',
       requiresReadConfirmation: false,
       readDeadlineDays: 15,
-      asDraft: false,
     },
     { title: [required()], fileUrl: [required()] },
   );
@@ -136,19 +135,13 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
 
   const uploadDoc = useApiMutation(
     () => {
-      const {
-        asDraft,
-        readDeadlineDays,
-        requiresReadConfirmation,
-        expiresAt,
-        ...rest
-      } = form;
+      const { readDeadlineDays, requiresReadConfirmation, expiresAt, ...rest } =
+        form;
       return apiClient.post('/documents', {
         ...rest,
         ...(expiresAt && { expiresAt }),
         requiresReadConfirmation,
         ...(requiresReadConfirmation && { readDeadlineDays }),
-        ...(asDraft && { status: 'DRAFT' }),
       });
     },
     {
@@ -319,16 +312,6 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
               className="w-full"
             />
           </FormField>
-
-          <label className="flex items-center gap-2 cursor-pointer text-sm text-ink">
-            <Checkbox
-              checked={form.asDraft}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, asDraft: e.target.checked }))
-              }
-            />
-            Guardar como rascunho (inicia fluxo de revisão/aprovação)
-          </label>
 
           <label className="flex items-center gap-2 cursor-pointer text-sm text-ink">
             <Checkbox
