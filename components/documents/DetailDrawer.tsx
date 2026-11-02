@@ -373,9 +373,6 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
                 )}
               </div>
             )}
-            <Button intent="secondary" onClick={onClose}>
-              <X size={15} strokeWidth={1.75} /> Sair
-            </Button>
           </div>
         </div>
       </div>
