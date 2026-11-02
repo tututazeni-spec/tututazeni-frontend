@@ -3,7 +3,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { ArrowLeft, FileUp, Link2, X } from 'lucide-react';
+import { ArrowLeft, ChevronDown, FileUp, Link2, X } from 'lucide-react';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { FormField } from '@/components/ui/FormField';
@@ -78,6 +78,8 @@ export function LibraryCreateView({
   const [fileError, setFileError] = useState('');
   const [reading, setReading] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const isBook = form.type === 'PDF' || form.type === 'EBOOK';
 
   const switchSource = (next: 'url' | 'file') => {
     if (next === source) return;
@@ -271,53 +273,86 @@ export function LibraryCreateView({
               )}
             </div>
 
-            <FormField label="Autor" htmlFor="library-author">
-              <Input
-                id="library-author"
-                value={form.author}
-                onChange={(e) => setField('author', e.target.value)}
-                className="w-full"
-              />
-            </FormField>
+            <div className="md:col-span-2">
+              <button
+                type="button"
+                aria-expanded={advancedOpen}
+                aria-controls="library-advanced"
+                onClick={() => setAdvancedOpen((v) => !v)}
+                className="inline-flex items-center gap-1.5 font-body text-sm font-medium text-primary"
+              >
+                <ChevronDown
+                  size={15}
+                  strokeWidth={1.75}
+                  className={cn(
+                    'transition-transform',
+                    advancedOpen && 'rotate-180',
+                  )}
+                />
+                Opções Avançadas
+              </button>
+              {advancedOpen && !isBook && (
+                <p className="mt-2 font-body text-xs text-ink-faint">
+                  Autor, editora, ISBN, ano e páginas só estão disponíveis para
+                  os tipos PDF e E-book.
+                </p>
+              )}
+            </div>
 
-            <FormField label="Editora" htmlFor="library-publisher">
-              <Input
-                id="library-publisher"
-                value={form.publisher}
-                onChange={(e) => setField('publisher', e.target.value)}
-                className="w-full"
-              />
-            </FormField>
+            {advancedOpen && isBook && (
+              <div
+                id="library-advanced"
+                className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2"
+              >
+                <FormField label="Autor" htmlFor="library-author">
+                  <Input
+                    id="library-author"
+                    value={form.author}
+                    onChange={(e) => setField('author', e.target.value)}
+                    className="w-full"
+                  />
+                </FormField>
 
-            <FormField label="ISBN" htmlFor="library-isbn">
-              <Input
-                id="library-isbn"
-                value={form.isbn}
-                onChange={(e) => setField('isbn', e.target.value)}
-                className="w-full"
-              />
-            </FormField>
+                <FormField label="Editora" htmlFor="library-publisher">
+                  <Input
+                    id="library-publisher"
+                    value={form.publisher}
+                    onChange={(e) => setField('publisher', e.target.value)}
+                    className="w-full"
+                  />
+                </FormField>
 
-            <FormField label="Ano" htmlFor="library-year">
-              <Input
-                id="library-year"
-                type="number"
-                value={form.year}
-                onChange={(e) => setField('year', e.target.value)}
-                className="w-full"
-              />
-            </FormField>
+                <FormField label="ISBN" htmlFor="library-isbn">
+                  <Input
+                    id="library-isbn"
+                    value={form.isbn}
+                    onChange={(e) => setField('isbn', e.target.value)}
+                    className="w-full"
+                  />
+                </FormField>
 
-            <FormField label="Páginas" htmlFor="library-pages">
-              <Input
-                id="library-pages"
-                type="number"
-                min={1}
-                value={form.pages}
-                onChange={(e) => setField('pages', e.target.value)}
-                className="w-full"
-              />
-            </FormField>
+                <FormField label="Ano" htmlFor="library-year">
+                  <Input
+                    id="library-year"
+                    type="number"
+                    value={form.year}
+                    onChange={(e) => setField('year', e.target.value)}
+                    className="w-full"
+                  />
+                </FormField>
+
+                <FormField label="Páginas" htmlFor="library-pages">
+                  <Input
+                    id="library-pages"
+                    type="number"
+                    min={1}
+                    value={form.pages}
+                    onChange={(e) => setField('pages', e.target.value)}
+                    className="w-full"
+                  />
+                </FormField>
+              </div>
+            )}
 
             <FormField
               label="Categorias (separadas por vírgula)"
