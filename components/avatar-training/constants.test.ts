@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  ADMIN_ROLES,
-  AUTHOR_ROLES,
-  PROGRESS_ROLES,
-  TABS,
-} from './constants';
+import { ADMIN_ROLES, AUTHOR_ROLES, PROGRESS_ROLES, TABS } from './constants';
 
 const visibleFor = (role: Parameters<typeof AUTHOR_ROLES.includes>[0]) =>
   TABS.filter((t) => !t.roles || t.roles.includes(role)).map((t) => t.id);
@@ -13,8 +8,8 @@ describe('avatar-training tabs por papel', () => {
   it('COLABORADOR vê só as abas de formando', () => {
     expect(visibleFor('COLABORADOR')).toEqual([
       'overview',
-      'room',
       'programs',
+      'room',
       'simulations',
       'competencies',
       'progress',

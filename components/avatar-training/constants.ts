@@ -50,16 +50,16 @@ export const TABS: Array<PillTabItem & { id: TabId; roles?: readonly Role[] }> =
       icon: LayoutDashboard,
     },
     {
-      id: 'room',
-      label: 'Sala de Formação Virtual',
-      hint: 'Sessões ao vivo',
-      icon: Presentation,
-    },
-    {
       id: 'programs',
       label: 'Formações com Avatar',
       hint: 'Programas publicados',
       icon: GraduationCap,
+    },
+    {
+      id: 'room',
+      label: 'Sala de Formação Virtual',
+      hint: 'Sessões ao vivo',
+      icon: Presentation,
     },
     {
       id: 'simulations',
@@ -229,7 +229,13 @@ export const SPECIALTY_OPTIONS = [
   'Segurança da Informação',
 ];
 
-export const PROVIDER_OPTIONS = ['Simli', 'HeyGen', 'D-ID', 'Synthesia', 'Tavus'];
+export const PROVIDER_OPTIONS = [
+  'Simli',
+  'HeyGen',
+  'D-ID',
+  'Synthesia',
+  'Tavus',
+];
 
 export const OBJECTIVE_OPTIONS = [
   'Desenvolver competências de comunicação',
