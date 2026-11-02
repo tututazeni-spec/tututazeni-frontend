@@ -29,6 +29,7 @@ import {
   FORMAT_CLS_FALLBACK,
   FORMAT_ICON,
   LEVEL_CLS,
+  levelLabel,
 } from './constants';
 import { openContent } from './inlineFile';
 import type { Content } from './types';
@@ -125,7 +126,7 @@ export function ContentCard({
           </p>
           <p className="font-body text-micro text-ink-faint">
             {content.durationMin ? `${content.durationMin} min` : ''}{' '}
-            {content.level ? `· ${content.level}` : ''}
+            {content.level ? `· ${levelLabel(content.level)}` : ''}
           </p>
           {progress > 0 && (
             <ProgressBar value={progress} className="mt-1 h-1" />
@@ -245,7 +246,7 @@ export function ContentCard({
             <span
               className={`font-body text-micro font-medium ${LEVEL_CLS[content.level] ?? 'text-ink-muted'}`}
             >
-              {content.level}
+              {levelLabel(content.level)}
             </span>
           )}
         </div>
