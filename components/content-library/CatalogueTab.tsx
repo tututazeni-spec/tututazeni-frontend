@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { FileText, ListFilter, TrendingUp, Zap } from 'lucide-react';
+import { ArrowUpDown, FileText, ListFilter, TrendingUp, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -197,6 +197,8 @@ export function CatalogueTab() {
               onValueChange={(v) => updateFilters({ level: v })}
             />
             <Select
+              variant="underline"
+              icon={ArrowUpDown}
               items={SORT_ITEMS}
               value={sortBy}
               onValueChange={(v) => updateFilters({ sortBy: v })}
