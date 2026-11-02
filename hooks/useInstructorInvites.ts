@@ -98,5 +98,20 @@ export function useInstructorInvites() {
     },
   );
 
-  return { list, create, resend, revoke, extend, deactivate };
+  const resetDevices = useApiMutation(
+    (userId: number) =>
+      apiClient.post(`/instructor-invites/users/${userId}/devices/reset`),
+    {
+      invalidateKeys: [KEY],
+      onSuccess: () =>
+        notify({
+          title: 'Dispositivo reposto',
+          description: 'No próximo acesso o instrutor confirma o dispositivo por código.',
+          intent: 'success',
+        }),
+      onError,
+    },
+  );
+
+  return { list, create, resend, revoke, extend, deactivate, resetDevices };
 }
