@@ -32,6 +32,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
 import { PhotoCard } from '@/components/courses/PhotoCard';
+import { CourseImageField } from '@/components/courses/CourseImageField';
 import { Combobox } from '@/components/ui/Combobox';
 import {
   DropdownMenu,
@@ -49,6 +50,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Textarea } from '@/components/ui/Textarea';
 import { STATUS_CFG } from './constants';
 import { useInstructorOptions } from './wizard/wizardData';
+import { SessionAttendanceModal } from './SessionAttendanceModal';
 import type {
   LiveClassSession,
   LiveClassStatus,
@@ -73,6 +75,7 @@ interface SessionFormState {
   meetingProvider: MeetingProvider | '';
   meetingUrl: string;
   notes: string;
+  thumbnailUrl: string;
 }
 
 const EMPTY: SessionFormState = {
@@ -83,6 +86,7 @@ const EMPTY: SessionFormState = {
   meetingProvider: '',
   meetingUrl: '',
   notes: '',
+  thumbnailUrl: '',
 };
 
 const SESSION_PROVIDER_ITEMS = [
@@ -114,19 +118,6 @@ function useLiveClassOptions() {
   return { options, loading: query.isLoading };
 }
 
-function useUserOptions(enabled: boolean) {
-  const params = { limit: 200 };
-  const query = useApiQuery<{ data: { id: number; fullName: string }[] }>(
-    ['live-classes', 'users-picker'],
-    '/users',
-    { params, enabled, staleTime: STALE_TIME.SEMI_STATIC },
-  );
-  return (query.data?.data ?? []).map((u) => ({
-    value: String(u.id),
-    label: u.fullName,
-  }));
-}
-
 export function SessionsView({ canManage }: { canManage: boolean }) {
   const toast = useToast();
   const confirm = useConfirm();
@@ -143,10 +134,8 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
   const [attendanceFor, setAttendanceFor] = useState<LiveClassSession | null>(
     null,
   );
-  const [attendeeId, setAttendeeId] = useState('');
   const { options: instructorOptions, loading: instructorsLoading } =
     useInstructorOptions();
-  const userOptions = useUserOptions(!!attendanceFor);
 
   const params: Record<string, string | number | boolean | null | undefined> = {
     page,
@@ -179,6 +168,7 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
       meetingProvider: s.meetingProvider ?? '',
       meetingUrl: s.meetingUrl ?? '',
       notes: s.notes ?? '',
+      thumbnailUrl: s.thumbnailUrl ?? '',
     });
     setEditing(s);
   };
@@ -194,6 +184,8 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
         meetingProvider: form.meetingProvider || undefined,
         meetingUrl: form.meetingUrl || undefined,
         notes: form.notes || undefined,
+        // '' limpa a imagem ao editar; ao criar é ignorado
+        thumbnailUrl: form.thumbnailUrl,
       };
       return editing !== 'new' && editing
         ? apiClient.put(
@@ -222,22 +214,6 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
       onSuccess: () => {
         toast({ title: 'Formador guardado.', intent: 'success' });
         setInstructorFor(null);
-      },
-      onError: (e) => toast({ title: e.message, intent: 'danger' }),
-    },
-  );
-
-  const addAttendance = useApiMutation(
-    (s: LiveClassSession) =>
-      apiClient.post(`/live-classes/${s.liveClassId}/attendance`, {
-        userId: Number(attendeeId),
-        sessionId: s.id,
-      }),
-    {
-      invalidateKeys,
-      onSuccess: () => {
-        toast({ title: 'Presença adicionada.', intent: 'success' });
-        setAttendanceFor(null);
       },
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
@@ -303,6 +279,7 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                 kickerIcon={Video}
                 title={s.liveClass?.topic ?? `Aula #${s.liveClassId}`}
                 subtitle={`Sessão ${s.seq}`}
+                image={s.thumbnailUrl}
                 fallback={<Video size={56} strokeWidth={1.25} />}
                 badges={
                   <NavyBadge tone={STATUS_TONE[s.status] ?? 'neutral'}>
@@ -364,7 +341,6 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onSelect={() => {
-                            setAttendeeId('');
                             setAttendanceFor(s);
                           }}
                         >
@@ -505,6 +481,15 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
                   />
                 </FormField>
               )}
+              <FormField label="Imagem da sessão" htmlFor="sv-thumbnail">
+                <CourseImageField
+                  value={form.thumbnailUrl || null}
+                  onChange={(v) =>
+                    setForm((f) => ({ ...f, thumbnailUrl: v ?? '' }))
+                  }
+                  alt="Pré-visualização da imagem da sessão"
+                />
+              </FormField>
               <FormField label="Notas" htmlFor="sv-notes">
                 <Textarea
                   id="sv-notes"
@@ -581,41 +566,10 @@ export function SessionsView({ canManage }: { canManage: boolean }) {
       )}
 
       {attendanceFor && (
-        <Modal open onOpenChange={(open) => !open && setAttendanceFor(null)}>
-          <ModalContent
-            title={`Adicionar presença — sessão ${attendanceFor.seq}`}
-            className="max-w-md"
-          >
-            <div className="mt-4 space-y-4">
-              <FormField label="Colaborador *" htmlFor="sv-attendee">
-                <Combobox
-                  items={userOptions}
-                  value={attendeeId}
-                  onValueChange={setAttendeeId}
-                  placeholder="Selecionar colaborador"
-                  searchPlaceholder="Escreva para filtrar…"
-                />
-              </FormField>
-            </div>
-            <div className="mt-6 flex gap-3 border-t border-border pt-4">
-              <Button
-                intent="secondary"
-                className="flex-1 justify-center"
-                onClick={() => setAttendanceFor(null)}
-              >
-                Cancelar
-              </Button>
-              <Button
-                className="flex-1 justify-center"
-                onClick={() => addAttendance.mutate(attendanceFor)}
-                loading={addAttendance.isPending}
-                disabled={!attendeeId}
-              >
-                Adicionar
-              </Button>
-            </div>
-          </ModalContent>
-        </Modal>
+        <SessionAttendanceModal
+          session={attendanceFor}
+          onClose={() => setAttendanceFor(null)}
+        />
       )}
     </div>
   );

@@ -118,6 +118,7 @@ export interface LiveClassSession {
   meetingProvider?: MeetingProvider | null;
   status: LiveClassStatus;
   notes?: string | null;
+  thumbnailUrl?: string | null;
   recordingUrl?: string | null;
   recordingPublishedAt?: string | null;
   liveClass?: {
