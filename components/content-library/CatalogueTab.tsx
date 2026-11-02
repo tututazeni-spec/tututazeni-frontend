@@ -12,7 +12,6 @@ import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -55,8 +54,6 @@ interface CatalogueFilters {
   format: string;
   level: string;
   sortBy: string;
-  micro: boolean;
-  cert: boolean;
   page: number;
 }
 const INITIAL_CATALOGUE_FILTERS: CatalogueFilters = {
@@ -64,8 +61,6 @@ const INITIAL_CATALOGUE_FILTERS: CatalogueFilters = {
   format: 'ALL',
   level: 'ALL',
   sortBy: 'newest',
-  micro: false,
-  cert: false,
   page: 1,
 };
 
@@ -73,7 +68,7 @@ export function CatalogueTab() {
   const [filters, setFilters] = useState<CatalogueFilters>(
     INITIAL_CATALOGUE_FILTERS,
   );
-  const { search, format, level, sortBy, micro, cert, page } = filters;
+  const { search, format, level, sortBy, page } = filters;
 
   function updateFilters(patch: Partial<Omit<CatalogueFilters, 'page'>>) {
     setFilters((f) => ({ ...f, ...patch, page: 1 }));
@@ -90,8 +85,6 @@ export function CatalogueTab() {
     ...(debouncedSearch ? { search: debouncedSearch } : {}),
     ...(format !== 'ALL' ? { format } : {}),
     ...(level !== 'ALL' ? { level } : {}),
-    ...(micro ? { isMicrolearning: 'true' } : {}),
-    ...(cert ? { hasCertification: 'true' } : {}),
   };
   const { data, isLoading } = useApiQuery<{
     data: Content[];
@@ -143,30 +136,6 @@ export function CatalogueTab() {
               value={sortBy}
               onValueChange={(v) => updateFilters({ sortBy: v })}
             />
-
-            {[
-              {
-                label: 'Micro-aprendizagem',
-                value: micro,
-                key: 'micro' as const,
-              },
-              { label: 'Certificação', value: cert, key: 'cert' as const },
-            ].map((t) => (
-              <button
-                key={t.label}
-                type="button"
-                aria-pressed={t.value}
-                onClick={() => updateFilters({ [t.key]: !t.value })}
-                className={cn(
-                  'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
-                  t.value
-                    ? 'border-primary bg-primary-subtle text-primary'
-                    : 'border-border-strong bg-surface text-ink-muted',
-                )}
-              >
-                {t.label}
-              </button>
-            ))}
 
             <span className="ml-auto font-body text-xs text-ink-faint">
               {data?.meta.total ?? 0} conteúdos
