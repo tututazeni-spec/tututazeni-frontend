@@ -19,7 +19,7 @@ import { useHasRole } from '@/hooks/useCurrentRole';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { queryKeys } from '@/lib/queryKeys';
 import { RECYCLE_BIN_KEY } from './RecycleBinPanel';
-import { apiClient } from '@/lib/apiClient';
+import { apiClient, ApiError } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -72,6 +72,15 @@ export function ContentCard({
       });
       void qc.invalidateQueries({ queryKey: [...RECYCLE_BIN_KEY] });
     } catch (err) {
+      // 404 = já foi apagado (cartão desatualizado): só refresca a lista.
+      if (err instanceof ApiError && err.status === 404) {
+        notify({ title: 'Este conteúdo já tinha sido apagado', intent: 'info' });
+        void qc.invalidateQueries({
+          queryKey: [...queryKeys.contentLibrary.all],
+        });
+        void qc.invalidateQueries({ queryKey: [...RECYCLE_BIN_KEY] });
+        return;
+      }
       reportError(err, { source: 'ContentCard.handleDelete' });
       notify({ title: 'Não foi possível apagar', intent: 'danger' });
     }
