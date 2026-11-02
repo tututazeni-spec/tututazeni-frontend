@@ -6,7 +6,6 @@
 import { useEffect, useState } from 'react';
 import { apiClient, ApiError } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
-import { getDeviceId } from '@/lib/deviceId';
 import { AlertCard } from '@/components/ui/AlertCard';
 import { Button } from '@/components/ui/Button';
 
@@ -43,7 +42,6 @@ export default function InstructorInvitePage() {
       await apiClient.post('/auth/instructor-invite/accept', {
         token,
         password,
-        deviceId: getDeviceId(),
       });
       setDone(true);
     } catch (err) {

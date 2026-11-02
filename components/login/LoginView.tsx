@@ -33,6 +33,8 @@ interface LoginViewProps {
   emailCode: string;
   setEmailCode: (value: string) => void;
   cancelCode: () => void;
+  requestNewCode: () => void;
+  codeNotice: string | null;
   sso?: SsoLoginOptions;
   startSsoLogin: () => void;
   ldapEmail: string;
@@ -60,6 +62,8 @@ export function LoginView({
   emailCode,
   setEmailCode,
   cancelCode,
+  requestNewCode,
+  codeNotice,
   sso,
   startSsoLogin,
   ldapEmail,
@@ -591,6 +595,14 @@ export function LoginView({
                     ? 'Dispositivo novo: enviámos um código para o seu e-mail. Vale 10 minutos.'
                     : 'Enviámos um código para o seu e-mail. Vale 10 minutos.'}
                 </p>
+                {codeNotice && (
+                  <p role="status" style={{ color: '#fff', fontSize: 13, margin: '8px 0 0' }}>
+                    {codeNotice}
+                  </p>
+                )}
+                <button type="button" className="login-ldap-toggle" onClick={requestNewCode}>
+                  Enviar novo código
+                </button>
                 <button type="button" className="login-ldap-toggle" onClick={cancelCode}>
                   Voltar
                 </button>
