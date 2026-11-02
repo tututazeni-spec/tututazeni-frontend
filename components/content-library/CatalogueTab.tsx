@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { FileText, ListFilter, Search, TrendingUp, Zap } from 'lucide-react';
+import { FileText, ListFilter, TrendingUp, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -173,20 +173,13 @@ export function CatalogueTab() {
       {/* Search + filters */}
       <Card>
         <CardBody className="space-y-3">
-          <div className="relative">
-            <Search
-              size={16}
-              strokeWidth={1.75}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
-            />
-            <Input
-              variant="underline"
-              value={search}
-              onChange={(e) => updateFilters({ search: e.target.value })}
-              placeholder="Pesquisar conteúdos..."
-              className="w-full pl-9"
-            />
-          </div>
+          <Input
+            variant="underline"
+            value={search}
+            onChange={(e) => updateFilters({ search: e.target.value })}
+            placeholder="Pesquisar conteúdos..."
+            className="w-full"
+          />
 
           <div className="flex flex-wrap items-center gap-2">
             <Select
