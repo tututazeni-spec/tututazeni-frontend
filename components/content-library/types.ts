@@ -3,12 +3,7 @@
 // app/(platform)/content-library/page.tsx.
 
 export type Tab =
-  | 'home'
-  | 'catalogue'
-  | 'repository'
-  | 'corporate-docs'
-  | 'my-progress'
-  | 'analytics';
+  'home' | 'catalogue' | 'corporate-docs' | 'my-progress' | 'analytics';
 
 export interface Content {
   id: number;

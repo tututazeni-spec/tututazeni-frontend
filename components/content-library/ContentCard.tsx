@@ -5,7 +5,20 @@
 'use client';
 
 import Image from 'next/image';
-import { Bookmark, CheckCircle, Clock, Eye, Play, Star } from 'lucide-react';
+import {
+  Bookmark,
+  CheckCircle,
+  Clock,
+  Eye,
+  Play,
+  Star,
+  Trash2,
+} from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useHasRole } from '@/hooks/useCurrentRole';
+import { useConfirm } from '@/providers/ConfirmProvider';
+import { queryKeys } from '@/lib/queryKeys';
+import { RECYCLE_BIN_KEY } from './RecycleBinPanel';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { useToast } from '@/providers/ToastProvider';
@@ -34,6 +47,34 @@ export function ContentCard({
   const Icon = FORMAT_ICON[content.type] ?? FORMAT_ICON.DEFAULT;
   const progress = content.progress?.progress ?? 0;
   const notify = useToast();
+  const isAdmin = useHasRole(['ADMIN']);
+  const confirm = useConfirm();
+  const qc = useQueryClient();
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const ok = await confirm({
+      title: 'Apagar conteúdo?',
+      message: `"${content.title}" vai para a reciclagem e fica 30 dias antes de ser apagado de vez. Pode restaurá-lo no separador Repositório.`,
+      confirmLabel: 'Apagar',
+      destructive: true,
+    });
+    if (!ok) return;
+    try {
+      await apiClient.delete(`/content-library/${content.id}`);
+      notify({
+        title: 'Conteúdo enviado para a reciclagem',
+        intent: 'success',
+      });
+      void qc.invalidateQueries({
+        queryKey: [...queryKeys.contentLibrary.all],
+      });
+      void qc.invalidateQueries({ queryKey: [...RECYCLE_BIN_KEY] });
+    } catch (err) {
+      reportError(err, { source: 'ContentCard.handleDelete' });
+      notify({ title: 'Não foi possível apagar', intent: 'danger' });
+    }
+  };
 
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -149,6 +190,15 @@ export function ContentCard({
             </span>
           )}
         </div>
+        {isAdmin && (
+          <button
+            onClick={handleDelete}
+            aria-label="Apagar conteúdo"
+            className="absolute right-10 top-2 rounded-full bg-surface/80 p-1.5 transition-colors hover:bg-surface"
+          >
+            <Trash2 size={14} strokeWidth={1.75} className="text-danger" />
+          </button>
+        )}
         <button
           onClick={handleBookmark}
           aria-label={

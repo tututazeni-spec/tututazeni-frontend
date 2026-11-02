@@ -1,5 +1,6 @@
 // components/content-library/CatalogueTab.tsx
-// Separador "Catálogo" — pesquisa/filtros/ordenação + grelha paginada.
+// Separador "Repositório" (ex-Catálogo + ex-Repositório) — pesquisa/filtros/
+// ordenação + grelha paginada de conteúdos e cards de recursos.
 // Dados próprios (useApiQuery) + apresentação. Extraído de
 // app/(platform)/content-library/page.tsx.
 
@@ -7,7 +8,7 @@
 
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import { FileText, ListFilter, Search, Zap } from 'lucide-react';
+import { FileText, ListFilter, Search, TrendingUp, Zap } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { queryKeys } from '@/lib/queryKeys';
@@ -20,6 +21,10 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ContentCard } from './ContentCard';
 import { ContentRow } from './ContentRow';
+import { RecycleBinPanel } from './RecycleBinPanel';
+import { useHasRole } from '@/hooks/useCurrentRole';
+import { LibraryItemCard } from '@/components/library/LibraryListView';
+import type { Item } from '@/components/library/types';
 import type { Content } from './types';
 
 // value = ContentFormat/ContentAssetLevel (Prisma enum, validado por
@@ -46,6 +51,17 @@ const LEVELS = [
   { value: 'ADVANCED', label: 'Avançado' },
   { value: 'EXPERT', label: 'Perito' },
 ];
+
+// ContentFormat -> tipo do repositório de recursos (/library/items). Formatos
+// sem equivalente não têm recursos no repositório.
+const LIBRARY_TYPE_BY_FORMAT: Record<string, string> = {
+  VIDEO: 'VIDEO',
+  PDF: 'PDF',
+  EBOOK: 'EBOOK',
+  SCORM: 'SCORM',
+  PRESENTATION: 'PRESENTATION',
+  PODCAST: 'AUDIO',
+};
 
 const FORMAT_ITEMS = [{ value: 'ALL', label: 'Todos os formatos' }, ...FORMATS];
 const LEVEL_ITEMS = [{ value: 'ALL', label: 'Todos os níveis' }, ...LEVELS];
@@ -76,6 +92,7 @@ export function CatalogueTab() {
     INITIAL_CATALOGUE_FILTERS,
   );
   const { search, format, level, sortBy, page } = filters;
+  const isAdmin = useHasRole(['ADMIN']);
 
   function updateFilters(patch: Partial<Omit<CatalogueFilters, 'page'>>) {
     setFilters((f) => ({ ...f, ...patch, page: 1 }));
@@ -93,6 +110,9 @@ export function CatalogueTab() {
     ...(format !== 'ALL' ? { format } : {}),
     ...(level !== 'ALL' ? { level } : {}),
   };
+  // Com "Todos os formatos" e sem pesquisa não se lista nada: os conteúdos só
+  // aparecem depois de escolher um formato ou pesquisar pelo nome.
+  const hasQuery = !!debouncedSearch || format !== 'ALL';
   const { data, isLoading } = useApiQuery<{
     data: Content[];
     meta: { total: number; totalPages: number };
@@ -100,25 +120,56 @@ export function CatalogueTab() {
     params,
     staleTime: STALE_TIME.SEMI_STATIC,
     placeholderData: keepPreviousData,
+    enabled: hasQuery,
   });
-  const loading = isLoading;
+  const loading = hasQuery && isLoading;
 
-  // "Adicionados recentemente": só na vista sem pesquisa nem filtros.
-  const showRecent =
-    page === 1 && !debouncedSearch && format === 'ALL' && level === 'ALL';
+  // Cards do repositório de recursos (ex-separador Repositório).
+  const libraryType = format !== 'ALL' ? LIBRARY_TYPE_BY_FORMAT[format] : '';
+  const libraryParams = {
+    page: 1,
+    limit: 20,
+    ...(debouncedSearch ? { search: debouncedSearch } : {}),
+    ...(libraryType ? { type: libraryType } : {}),
+  };
+  const libraryQuery = useApiQuery<{ data: Item[] }>(
+    queryKeys.library.items(libraryParams),
+    '/library/items',
+    {
+      params: libraryParams,
+      staleTime: STALE_TIME.SEMI_STATIC,
+      enabled: hasQuery && (format === 'ALL' || !!libraryType) && page === 1,
+    },
+  );
+  const libraryItems = libraryQuery.data?.data ?? [];
+
+  // "Adicionados recentemente" e "Em Tendência esta semana": só sem pesquisa.
+  const showHighlights = !hasQuery;
   const recentQuery = useApiQuery<Content[]>(
     queryKeys.contentLibrary.new(),
     '/content-library/new',
     {
       params: { limit: 6 },
       staleTime: STALE_TIME.SEMI_STATIC,
-      enabled: showRecent,
+      enabled: showHighlights,
     },
   );
   const recent = recentQuery.data ?? [];
+  const trendingQuery = useApiQuery<Content[]>(
+    queryKeys.contentLibrary.trending(),
+    '/content-library/trending',
+    {
+      params: { limit: 8 },
+      staleTime: STALE_TIME.SEMI_STATIC,
+      enabled: showHighlights,
+    },
+  );
+  const trending = trendingQuery.data ?? [];
 
   return (
     <div className="space-y-4">
+      {isAdmin && <RecycleBinPanel />}
+
       {/* Search + filters */}
       <Card>
         <CardBody className="space-y-3">
@@ -159,13 +210,21 @@ export function CatalogueTab() {
             />
 
             <span className="ml-auto font-body text-xs text-ink-faint">
-              {data?.meta.total ?? 0} conteúdos
+              {hasQuery ? (data?.meta.total ?? 0) : 0} conteúdos
             </span>
           </div>
         </CardBody>
       </Card>
 
-      {showRecent && recent.length > 0 && (
+      {showHighlights && trending.length > 0 && (
+        <ContentRow
+          title="Em Tendência esta semana"
+          items={trending}
+          icon={TrendingUp}
+        />
+      )}
+
+      {showHighlights && recent.length > 0 && (
         <ContentRow
           title="Adicionados recentemente"
           items={recent}
@@ -180,7 +239,12 @@ export function CatalogueTab() {
           wrapperClassName="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse"
           itemClassName="bg-surface-sunken rounded-card h-52"
         />
-      ) : (data?.data.length ?? 0) === 0 ? (
+      ) : !hasQuery ? (
+        <EmptyState
+          title="Escolhe um formato para ver os conteúdos"
+          description="Seleciona um formato no filtro ou pesquisa pelo nome do conteúdo."
+        />
+      ) : (data?.data.length ?? 0) === 0 && libraryItems.length === 0 ? (
         <EmptyState
           title="Nenhum conteúdo encontrado"
           description="Ajusta os filtros ou a pesquisa para veres mais resultados."
@@ -190,6 +254,17 @@ export function CatalogueTab() {
           {data?.data.map((c) => (
             <ContentCard key={c.id} content={c} />
           ))}
+        </div>
+      )}
+
+      {libraryItems.length > 0 && (
+        <div>
+          <h3 className="mb-3 font-body font-semibold text-ink">Recursos</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {libraryItems.map((item) => (
+              <LibraryItemCard key={item.id} item={item} />
+            ))}
+          </div>
         </div>
       )}
 
