@@ -180,7 +180,7 @@ Actualizado em ${formatDateTime(i.updatedAt)}`;
               ? i.unit.replace(/^%\s*/, '')
               : i.status === 'RESTRICTED'
                 ? 'Restrito'
-                : undefined
+                : 'Sem dados'
           }
         />
       </div>
@@ -211,10 +211,12 @@ Actualizado em ${formatDateTime(i.updatedAt)}`}
           i.status === 'RESTRICTED'
             ? 'Restrito'
             : noData
-              ? ''
+              ? '—'
               : (i.value as number)
         }
-        sub={noData ? undefined : i.unit}
+        sub={
+          i.status === 'RESTRICTED' ? undefined : noData ? 'Sem dados' : i.unit
+        }
       />
     </div>
   );
