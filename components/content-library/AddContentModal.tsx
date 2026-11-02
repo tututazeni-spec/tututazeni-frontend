@@ -24,11 +24,8 @@ import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import { cn } from '@/lib/cn';
-import {
-  ACCEPT_ATTR,
-  readAsDataUrl,
-  validateUpload,
-} from './inlineFile';
+import { CourseImageField } from '@/components/courses/CourseImageField';
+import { ACCEPT_ATTR, readAsDataUrl, validateUpload } from './inlineFile';
 import { useToast } from '@/providers/ToastProvider';
 import { formatBytes } from '@/lib/format';
 
@@ -78,13 +75,6 @@ const LEVEL_ITEMS = [
   { value: 'EXPERT', label: 'Perito' },
 ];
 
-const TOGGLES = [
-  { key: 'mandatory', label: 'Obrigatório' },
-  { key: 'isMicrolearning', label: 'Micro-aprendizagem' },
-  { key: 'hasCertification', label: 'Certificação' },
-] as const;
-type ToggleKey = (typeof TOGGLES)[number]['key'];
-
 interface AddContentModalFormValues {
   title: string;
   format: string;
@@ -101,7 +91,7 @@ interface AddContentModalFormValues {
   category: string;
   level: string;
   duration: string;
-  flags: Record<ToggleKey, boolean>;
+  thumbnail: string | null;
   submitError: string;
 }
 
@@ -121,11 +111,7 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
       category: NONE,
       level: NONE,
       duration: '',
-      flags: {
-        mandatory: false,
-        isMicrolearning: false,
-        hasCertification: false,
-      },
+      thumbnail: null,
       submitError: '',
     });
   const {
@@ -140,7 +126,7 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
     category,
     level,
     duration,
-    flags,
+    thumbnail,
     submitError,
   } = formValues;
   const fileInput = useRef<HTMLInputElement>(null);
@@ -207,15 +193,13 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
       title: title.trim(),
       format,
       url: source === 'url' ? url.trim() : file!.dataUrl,
+      ...(thumbnail ? { thumbnailUrl: thumbnail } : {}),
       ...(description.trim() ? { description: description.trim() } : {}),
       ...(category !== NONE ? { category } : {}),
       ...(level !== NONE ? { level } : {}),
       ...(duration.trim() !== ''
         ? { durationMin: Math.trunc(durationNum) }
         : {}),
-      ...(flags.mandatory ? { mandatory: true } : {}),
-      ...(flags.isMicrolearning ? { isMicrolearning: true } : {}),
-      ...(flags.hasCertification ? { hasCertification: true } : {}),
     });
   };
 
@@ -372,6 +356,14 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
             )}
           </div>
 
+          <FormField label="Imagem de capa" htmlFor="ac-thumbnail">
+            <CourseImageField
+              value={thumbnail}
+              onChange={(v) => setField('thumbnail', v)}
+              alt="Pré-visualização da capa"
+            />
+          </FormField>
+
           <FormField label="Descrição" htmlFor="ac-description">
             <Textarea
               id="ac-description"
@@ -401,27 +393,6 @@ export function AddContentModal({ onClose }: AddContentModalProps) {
                 className="w-full"
               />
             </FormField>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {TOGGLES.map((t) => (
-              <button
-                key={t.key}
-                type="button"
-                aria-pressed={flags[t.key]}
-                onClick={() =>
-                  setField('flags', (f) => ({ ...f, [t.key]: !f[t.key] }))
-                }
-                className={cn(
-                  'rounded-control border px-3 py-1.5 font-body text-xs transition-colors',
-                  flags[t.key]
-                    ? 'border-primary bg-primary-subtle text-primary'
-                    : 'border-border-strong bg-surface text-ink-muted',
-                )}
-              >
-                {t.label}
-              </button>
-            ))}
           </div>
         </div>
 
