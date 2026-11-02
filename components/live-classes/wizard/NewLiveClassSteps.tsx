@@ -503,6 +503,26 @@ export function NewLiveClassSteps({
               {departmentOptions.length === 0 && (
                 <EmptyState variant="inline" title="Sem departamentos" />
               )}
+              {departmentOptions.length > 0 && (
+                <label className="flex items-center gap-2 border-b border-border pb-1 text-xs font-medium text-ink">
+                  <Checkbox
+                    checked={departmentOptions.every((d) =>
+                      form.targetDeptIds.includes(d.id),
+                    )}
+                    onChange={() =>
+                      setField(
+                        'targetDeptIds',
+                        departmentOptions.every((d) =>
+                          form.targetDeptIds.includes(d.id),
+                        )
+                          ? []
+                          : departmentOptions.map((d) => d.id),
+                      )
+                    }
+                  />
+                  Selecionar todos
+                </label>
+              )}
               {departmentOptions.map((d) => (
                 <label
                   key={d.id}
