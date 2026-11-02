@@ -35,6 +35,7 @@ import {
   usePendingReads,
   useRecentDocuments,
 } from '@/components/documents/hooks';
+import { openFile } from '@/components/courses-learn/fileSrc';
 import { UploadModal } from '@/components/documents/UploadModal';
 import {
   CORPORATE_DOC_CATEGORIES,
@@ -141,7 +142,7 @@ export function CorporateDocsTab() {
       const result = await apiClient.get<{ fileUrl: string }>(
         `/documents/${doc.id}/download`,
       );
-      window.open(result.fileUrl, '_blank');
+      openFile(result.fileUrl);
     } catch (e) {
       reportError(e, { source: 'CorporateDocsTab.handleDownload' });
       notify({
