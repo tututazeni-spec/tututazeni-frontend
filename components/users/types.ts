@@ -470,6 +470,7 @@ export interface DirectoryUser {
   email?: string;
   position?: { name: string } | null;
   department?: { name: string } | null;
+  role?: { name: string } | null;
 }
 
 export interface PaginatedUsers {

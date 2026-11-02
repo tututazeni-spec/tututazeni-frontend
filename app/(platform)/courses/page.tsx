@@ -141,7 +141,12 @@ export default function CoursesPage() {
   // como não-privilegiado — os separadores restritos aparecem assim que
   // /auth/me resolve.
   const isAdmin = useHasRole(ADMIN_ROLES);
-  const canManageCohorts = useHasRole(['ADMIN', 'RH', 'INSTRUCTOR']);
+  const canManageCohorts = useHasRole([
+    'ADMIN',
+    'RH',
+    'INSTRUCTOR',
+    'INSTRUCTOR_EXTERNO',
+  ]);
   const visibleNav = NAV.filter(
     (n) => !n.roles || (!!role && n.roles.includes(role)),
   );
