@@ -17,6 +17,7 @@
 'use client';
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -91,9 +92,9 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
   const canWorkflow = WORKFLOW_ROLES.includes(role ?? '');
   const canApprove = APPROVER_ROLES.includes(role ?? '');
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-[60] flex justify-end"
+      className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-[100] flex justify-end"
       onClick={onClose}
     >
       <div
@@ -378,6 +379,7 @@ export function DetailDrawer({ doc, onClose, onDownload }: DetailDrawerProps) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
