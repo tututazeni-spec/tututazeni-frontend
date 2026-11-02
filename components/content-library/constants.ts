@@ -49,6 +49,15 @@ export const FORMAT_CLS: Record<string, string> = {
 };
 export const FORMAT_CLS_FALLBACK = 'bg-surface-sunken text-ink-muted';
 
+export const LEVEL_LABEL: Record<string, string> = {
+  BEGINNER: 'Iniciante',
+  INTERMEDIATE: 'Intermédio',
+  ADVANCED: 'Avançado',
+  EXPERT: 'Especialista',
+};
+
+export const levelLabel = (level: string): string => LEVEL_LABEL[level] ?? level;
+
 export const LEVEL_CLS: Record<string, string> = {
   BEGINNER: 'text-success',
   INTERMEDIATE: 'text-warning',

@@ -8,7 +8,6 @@
 // project_innova_component_separation_audit.
 
 import { useState } from 'react';
-import Link from 'next/link';
 import {
   BarChart2,
   BookOpen,
@@ -25,7 +24,7 @@ import { HomeTab } from '@/components/content-library/HomeTab';
 import { MyProgressTab } from '@/components/content-library/MyProgressTab';
 import type { Tab } from '@/components/content-library/types';
 import { useCurrentRole, useHasRole } from '@/hooks/useCurrentRole';
-import { Button, buttonVariants } from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { Tabs, TabsContent } from '@/components/ui/Tabs';
 import { PillTabsList, type PillTabItem } from '@/components/ui/PillTabs';
 import { BANNER_TABS_CLASS, ModuleBanner } from '@/components/ui/ModuleBanner';
@@ -81,22 +80,10 @@ export default function ContentLibraryPage() {
           position="center 40%"
           action={
             canAddContent && (
-              <div className="flex gap-2">
-                <Link
-                  href="/library/novo"
-                  className={buttonVariants({
-                    intent: 'secondary',
-                    size: 'sm',
-                  })}
-                >
-                  <Plus size={14} strokeWidth={1.75} />
-                  Adicionar Recurso
-                </Link>
-                <Button size="sm" onClick={() => setShowAdd(true)}>
-                  <Plus size={14} strokeWidth={1.75} />
-                  Adicionar Conteúdo
-                </Button>
-              </div>
+              <Button size="sm" onClick={() => setShowAdd(true)}>
+                <Plus size={14} strokeWidth={1.75} />
+                Adicionar Conteúdo
+              </Button>
             )
           }
         />
