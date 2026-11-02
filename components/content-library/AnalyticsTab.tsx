@@ -147,7 +147,7 @@ export function AnalyticsTab() {
                     </p>
                   </div>
                   <span className="shrink-0 font-body text-xs font-bold text-primary">
-                    {v.weeklyViews} views
+                    {v.weeklyViews} visualizações
                   </span>
                 </div>
               ))}
