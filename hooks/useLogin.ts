@@ -6,7 +6,6 @@
 
 import { useEffect, useState } from 'react';
 import { apiClient, ApiError, API_URL } from '@/lib/apiClient';
-import { getDeviceId } from '@/lib/deviceId';
 import { reportError } from '@/lib/errorReporting';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
@@ -42,11 +41,35 @@ export function useLogin() {
   const [needsCode, setNeedsCode] = useState(false);
   const [codePurpose, setCodePurpose] = useState<'LOGIN' | 'NEW_DEVICE'>('LOGIN');
   const [emailCode, setEmailCode] = useState('');
+  const [codeNotice, setCodeNotice] = useState<string | null>(null);
 
   function cancelCode() {
     setNeedsCode(false);
     setEmailCode('');
     setError(null);
+    setCodeNotice(null);
+  }
+
+  // Pede outro código: repete o login sem código. O servidor reaproveita o código vivo se o
+  // último pedido foi há menos de 60 s; queimado ou expirado, envia um novo.
+  async function requestNewCode() {
+    setError(null);
+    setCodeNotice(null);
+    setLoading(true);
+    try {
+      await apiClient.post('/auth/login', { email, password });
+    } catch (err) {
+      const body = err instanceof ApiError ? (err.body as { code?: string } | undefined) : undefined;
+      if (err instanceof ApiError && err.status === 401 && body?.code === 'EMAIL_CODE_REQUIRED') {
+        setEmailCode('');
+        setCodeNotice('Enviámos um código para o seu e-mail. Se acabou de pedir um, aguarde um minuto.');
+      } else {
+        reportError(err, { source: 'useLogin.requestNewCode' });
+        setError(err instanceof Error ? err.message : 'Não foi possível enviar o código');
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -90,7 +113,6 @@ export function useLogin() {
         {
           email,
           password,
-          deviceId: getDeviceId(),
           ...(needsCode && emailCode ? { emailCode } : {}),
         },
       );
@@ -132,6 +154,8 @@ export function useLogin() {
     emailCode,
     setEmailCode,
     cancelCode,
+    requestNewCode,
+    codeNotice,
     sso: sso.data,
     startSsoLogin,
     ldapEmail,
