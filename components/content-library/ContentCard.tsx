@@ -29,6 +29,7 @@ import {
   FORMAT_CLS,
   FORMAT_CLS_FALLBACK,
   FORMAT_ICON,
+  formatLabel,
   LEVEL_CLS,
   levelLabel,
 } from './constants';
@@ -274,7 +275,7 @@ export function ContentCard({
             <span
               className={`rounded px-1.5 py-0.5 font-body text-micro font-medium ${FORMAT_CLS[content.type] ?? FORMAT_CLS_FALLBACK}`}
             >
-              {content.type}
+              {formatLabel(content.type)}
             </span>
             {content.level && (
               <span
