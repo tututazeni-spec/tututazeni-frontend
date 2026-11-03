@@ -4,6 +4,7 @@
 
 'use client';
 
+import { PlanExportMenu } from './PlanExportMenu';
 import { useState } from 'react';
 import {
   ArrowLeft,
@@ -12,7 +13,6 @@ import {
   ClipboardList,
   Clock,
   Download,
-  FileText,
   Plus,
   UserCheck,
 } from 'lucide-react';
@@ -22,7 +22,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { Button, buttonVariants } from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -245,24 +245,18 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
               ) : (
                 <span />
               )}
-              <a
-                href={`/api/training-plans/${plan.id}/export`}
-                className={buttonVariants({ intent: 'secondary', size: 'sm' })}
-                aria-label="Exportar plano em CSV"
-                title="Exportar CSV"
-              >
-                <Download size={15} strokeWidth={1.75} />
-                CSV
-              </a>
-              <a
-                href={`/api/training-plans/${plan.id}/export?format=pdf`}
-                className={buttonVariants({ intent: 'secondary', size: 'sm' })}
-                aria-label="Exportar plano em PDF"
-                title="Exportar PDF"
-              >
-                <FileText size={15} strokeWidth={1.75} />
-                PDF
-              </a>
+              <PlanExportMenu planId={plan.id}>
+                <Button
+                  type="button"
+                  intent="secondary"
+                  size="sm"
+                  aria-label="Exportar plano"
+                  title="Exportar"
+                >
+                  <Download size={15} strokeWidth={1.75} />
+                  Exportar
+                </Button>
+              </PlanExportMenu>
             </div>
           </div>
         </div>
@@ -335,18 +329,16 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
             Formações previstas
           </span>
           <div className="flex gap-2">
-            <a
-              href={`/api/training-plans/${plan.id}/export`}
-              className={`${buttonVariants({ intent: 'ghost', size: 'sm' })} !text-white`}
-            >
-              CSV
-            </a>
-            <a
-              href={`/api/training-plans/${plan.id}/export?format=pdf`}
-              className={`${buttonVariants({ intent: 'ghost', size: 'sm' })} !text-white`}
-            >
-              PDF
-            </a>
+            <PlanExportMenu planId={plan.id}>
+              <Button
+                type="button"
+                intent="ghost"
+                size="sm"
+                className="!text-white"
+              >
+                Exportar
+              </Button>
+            </PlanExportMenu>
             <Button
               size="sm"
               className="border border-white/40 hover:!bg-surface hover:!text-brand"
