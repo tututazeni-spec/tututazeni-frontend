@@ -19,8 +19,12 @@ import { formatDate } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
-import { CardGrid } from './cards';
+import {
+  NavyBadge,
+  NavyCard,
+  PHOTO_ACCENT_DEFAULT,
+} from '@/components/courses/NavyCard';
+import { CardGrid, PROGRESS_PHOTO } from './cards';
 import { DIFFICULTY_LABEL, LEVEL_FIT_LABEL } from './constants';
 import type { CompetencyResult, Recommendation } from './types';
 
@@ -33,6 +37,45 @@ const REASON_LABEL: Record<string, string> = {
   LEARNING_PATH: 'Percurso de aprendizagem',
   TRAINING: 'Plano de formação',
 };
+
+const MAX_REASONS = 3;
+
+/** Motivos da recomendação: etiqueta curta em cima, explicação por baixo. */
+function ReasonList({ reasons }: { reasons: Recommendation['reasons'] }) {
+  const shown = reasons.slice(0, MAX_REASONS);
+  const extra = reasons.length - shown.length;
+  return (
+    <div className="w-full rounded-card bg-white/10 px-3 py-2.5 backdrop-blur-sm">
+      <p className="text-xs font-semibold uppercase tracking-wide text-white/70">
+        Porque é recomendada
+      </p>
+      <ul className="mt-1.5 space-y-2">
+        {shown.map((x, i) => (
+          <li key={`${x.type}-${i}`} className="flex items-start gap-2.5">
+            <Target
+              size={14}
+              strokeWidth={1.75}
+              className="mt-0.5 shrink-0 text-white/80"
+            />
+            <div className="min-w-0">
+              <div className="text-sm font-semibold leading-tight text-white">
+                {REASON_LABEL[x.type] ?? x.type}
+              </div>
+              <div className="text-xs leading-snug text-white/70">
+                {x.detail}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+      {extra > 0 && (
+        <p className="mt-2 text-xs text-white/70">
+          + {extra} {extra === 1 ? 'outro motivo' : 'outros motivos'}
+        </p>
+      )}
+    </div>
+  );
+}
 
 export function CompetenciesTab() {
   const results = useApiQuery<{ data: CompetencyResult[]; note: string }>(
@@ -72,13 +115,17 @@ export function CompetenciesTab() {
             {results.data.data.map((r) => (
               <NavyCard
                 key={r.id}
+                variant="photo"
+                image={PROGRESS_PHOTO}
+                imagePosition="right center"
+                accent={PHOTO_ACCENT_DEFAULT}
                 seed={r.competencyId}
                 kicker="Competência demonstrada"
                 kickerIcon={Target}
                 title={r.competencyName ?? `Competência ${r.competencyId}`}
                 subtitle={r.evidence ?? undefined}
                 badge={
-                  <NavyBadge tone={r.applied ? 'success' : 'neutral'}>
+                  <NavyBadge large tone={r.applied ? 'success' : 'light'}>
                     {r.applied ? 'Nível aplicado' : 'Não aplicado'}
                   </NavyBadge>
                 }
@@ -126,21 +173,29 @@ export function CompetenciesTab() {
             {recs.data.data.map((r) => (
               <NavyCard
                 key={r.programId}
+                variant="photo"
+                image={PROGRESS_PHOTO}
+                imagePosition="right center"
+                accent={PHOTO_ACCENT_DEFAULT}
                 seed={r.programId}
                 kicker="Formação recomendada"
                 kickerIcon={GraduationCap}
                 title={r.title}
-                subtitle={DIFFICULTY_LABEL[r.difficulty] ?? r.difficulty}
                 badge={
-                  <NavyBadge tone="info">
-                    {LEVEL_FIT_LABEL[r.levelFit]}
-                  </NavyBadge>
+                  <>
+                    <NavyBadge large tone="light">
+                      {DIFFICULTY_LABEL[r.difficulty] ?? r.difficulty}
+                    </NavyBadge>
+                    <NavyBadge
+                      large
+                      tone={r.levelFit === 'MATCH' ? 'success' : 'warning'}
+                    >
+                      {LEVEL_FIT_LABEL[r.levelFit]}
+                    </NavyBadge>
+                  </>
                 }
-                infos={r.reasons.slice(0, 3).map((x) => ({
-                  icon: Target,
-                  value: x.detail,
-                  label: REASON_LABEL[x.type] ?? x.type,
-                }))}
+                infos={[]}
+                footer={<ReasonList reasons={r.reasons} />}
               />
             ))}
           </CardGrid>
