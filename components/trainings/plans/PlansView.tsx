@@ -15,6 +15,7 @@ import {
   Clock,
   Copy,
   Download,
+  FileText,
   Pencil,
   Plus,
   Users,
@@ -242,9 +243,17 @@ export function PlansView({ onOpen }: PlansViewProps) {
                       href={`/api/training-plans/${p.id}/export`}
                       className={PHOTO_CARD_ACTION}
                       aria-label={`Exportar ${p.name}`}
-                      title="Exportar"
+                      title="Exportar CSV"
                     >
                       <Download size={15} strokeWidth={1.75} />
+                    </a>
+                    <a
+                      href={`/api/training-plans/${p.id}/export?format=pdf`}
+                      className={PHOTO_CARD_ACTION}
+                      aria-label={`Exportar ${p.name} em PDF`}
+                      title="Exportar PDF"
+                    >
+                      <FileText size={15} strokeWidth={1.75} />
                     </a>
                     {p.status !== 'ARCHIVED' && (
                       <Button
