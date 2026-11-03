@@ -7,7 +7,7 @@ import type { TrainingLevel, TrainingStatus } from './types';
 
 export const STATUS_TONE: Record<TrainingStatus, NavyTone> = {
   DRAFT: 'neutral',
-  PUBLISHED: 'info',
+  PUBLISHED: 'success',
   ARCHIVED: 'neutral',
   CANCELLED: 'danger',
   COMPLETED: 'info',
