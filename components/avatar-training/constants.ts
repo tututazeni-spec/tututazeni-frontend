@@ -15,7 +15,7 @@ import {
   Workflow,
 } from 'lucide-react';
 import type { PillTabItem } from '@/components/ui/PillTabs';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { ADMIN_ROLES, NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   AssignmentStatus,
@@ -48,6 +48,7 @@ export const TABS: Array<PillTabItem & { id: TabId; roles?: readonly Role[] }> =
       label: 'Visão Geral',
       hint: 'Resumo do módulo',
       icon: LayoutDashboard,
+      roles: NON_COLABORADOR_ROLES,
     },
     {
       id: 'programs',
