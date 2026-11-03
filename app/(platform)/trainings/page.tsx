@@ -119,12 +119,17 @@ const ReportsView = dynamic(
 );
 
 export default function TrainingsPage() {
-  const [nav, setNav] = useState<Nav>({ view: 'catalog' });
+  // `null` = o utilizador ainda não escolheu nada → abre no separador por
+  // defeito: «Visão Geral» (dashboard) para ADMIN/RH, Catálogo para os restantes
+  // (que não têm acesso à Visão Geral).
+  const [chosenNav, setNav] = useState<Nav | null>(null);
   const role = useCurrentRole();
 
   const canManage =
     !!role && (CAN_MANAGE_TRAININGS_ROLES as readonly string[]).includes(role);
   const isAdminOrRh = role === 'ADMIN' || role === 'RH';
+  const nav: Nav =
+    chosenNav ?? (isAdminOrRh ? { view: 'dashboard' } : { view: 'catalog' });
   // Só a UI — a autorização real é sempre feita no backend (403 se o
   // separador for forçado por URL/estado sem o papel certo).
   const visibleNav = NAV.filter((n) => {
@@ -174,7 +179,11 @@ export default function TrainingsPage() {
           />
         )}
 
-      {nav.view === 'catalog' && <CatalogView onSelect={handleSelect} />}
+      {/* Papel ainda a carregar e sem escolha → evita piscar o Catálogo antes da Visão Geral */}
+      {!role && !chosenNav && <Skeleton />}
+      {(role || chosenNav) && nav.view === 'catalog' && (
+        <CatalogView onSelect={handleSelect} />
+      )}
       {nav.view === 'detail' && (
         <DetailView trainingId={nav.selectedId} onBack={handleBack} />
       )}
