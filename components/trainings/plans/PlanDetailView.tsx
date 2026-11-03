@@ -12,6 +12,7 @@ import {
   ClipboardList,
   Clock,
   Download,
+  FileText,
   Plus,
   UserCheck,
 } from 'lucide-react';
@@ -247,11 +248,20 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
               <a
                 href={`/api/training-plans/${plan.id}/export`}
                 className={buttonVariants({ intent: 'secondary', size: 'sm' })}
-                aria-label="Exportar plano"
-                title="Exportar"
+                aria-label="Exportar plano em CSV"
+                title="Exportar CSV"
               >
                 <Download size={15} strokeWidth={1.75} />
-                Exportar
+                CSV
+              </a>
+              <a
+                href={`/api/training-plans/${plan.id}/export?format=pdf`}
+                className={buttonVariants({ intent: 'secondary', size: 'sm' })}
+                aria-label="Exportar plano em PDF"
+                title="Exportar PDF"
+              >
+                <FileText size={15} strokeWidth={1.75} />
+                PDF
               </a>
             </div>
           </div>
@@ -329,7 +339,13 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
               href={`/api/training-plans/${plan.id}/export`}
               className={`${buttonVariants({ intent: 'ghost', size: 'sm' })} !text-white`}
             >
-              Exportar
+              CSV
+            </a>
+            <a
+              href={`/api/training-plans/${plan.id}/export?format=pdf`}
+              className={`${buttonVariants({ intent: 'ghost', size: 'sm' })} !text-white`}
+            >
+              PDF
             </a>
             <Button
               size="sm"
