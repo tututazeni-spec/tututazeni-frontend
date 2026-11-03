@@ -6,17 +6,20 @@
 'use client';
 
 import { useState } from 'react';
-import { BookOpen, Trash2 } from 'lucide-react';
+import { BookOpen, Filter, GraduationCap, List, Trash2 } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
+import { Combobox } from '@/components/ui/Combobox';
+import { useSourceOptions } from '@/hooks/useSourceOptions';
 import { SessionCardPicker } from './cards';
 import { useSessionDetail } from './SessionPicker';
 import { SOURCE_LABEL } from './constants';
@@ -27,6 +30,9 @@ export function KnowledgeTab() {
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [sourceType, setSourceType] = useState<SourceType>('LESSON');
   const [sourceId, setSourceId] = useState('');
+  const [lessonCourse, setLessonCourse] = useState('');
+  const [manual, setManual] = useState(false);
+  const options = useSourceOptions(sourceType, lessonCourse);
   const { data, error, refetch } = useSessionDetail(sessionId);
   const key = queryKeys.avatarTraining.session(sessionId ?? 0);
 
@@ -104,35 +110,90 @@ export function KnowledgeTab() {
               )}
             </div>
 
-            <div className="flex flex-wrap items-end gap-3 rounded-card border border-border bg-surface p-4">
-              <FormField label="Tipo" htmlFor="ks-type">
-                <Select
-                  value={sourceType}
-                  onValueChange={(v) => setSourceType(v as SourceType)}
-                  items={(Object.keys(SOURCE_LABEL) as SourceType[]).map(
-                    (t) => ({
-                      value: t,
-                      label: SOURCE_LABEL[t],
-                    }),
+            <Card>
+              <CardBody className="space-y-5">
+                <div className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-3">
+                  <Select
+                    variant="underline"
+                    icon={Filter}
+                    value={sourceType}
+                    onValueChange={(v) => {
+                      setSourceType(v as SourceType);
+                      setSourceId('');
+                      setLessonCourse('');
+                    }}
+                    items={(Object.keys(SOURCE_LABEL) as SourceType[]).map(
+                      (t) => ({
+                        value: t,
+                        label: SOURCE_LABEL[t],
+                      }),
+                    )}
+                  />
+                  {sourceType === 'LESSON' && !manual && (
+                    <Combobox
+                      variant="underline"
+                      icon={GraduationCap}
+                      items={options.courseOptions}
+                      value={lessonCourse || undefined}
+                      onValueChange={(v) => {
+                        setLessonCourse(v);
+                        setSourceId('');
+                      }}
+                      placeholder="Curso da lição"
+                      searchPlaceholder="Escreva para filtrar cursos…"
+                      emptyText="Nenhum curso encontrado"
+                    />
                   )}
-                />
-              </FormField>
-              <FormField label="ID da fonte" htmlFor="ks-id">
-                <Input
-                  id="ks-id"
-                  value={sourceId}
-                  onChange={(e) => setSourceId(e.target.value)}
-                />
-              </FormField>
-              <Button
-                size="sm"
-                loading={add.isPending}
-                disabled={!sourceId.trim()}
-                onClick={() => add.mutate(undefined)}
-              >
-                Associar fonte
-              </Button>
-            </div>
+                  {manual ? (
+                    <FormField label="ID da fonte" htmlFor="ks-id">
+                      <Input
+                        id="ks-id"
+                        value={sourceId}
+                        onChange={(e) => setSourceId(e.target.value)}
+                      />
+                    </FormField>
+                  ) : (
+                    <Combobox
+                      variant="underline"
+                      icon={List}
+                      items={options.items}
+                      value={sourceId || undefined}
+                      onValueChange={setSourceId}
+                      disabled={sourceType === 'LESSON' && !lessonCourse}
+                      placeholder={
+                        options.loading
+                          ? 'A carregar…'
+                          : sourceType === 'LESSON' && !lessonCourse
+                            ? 'Escolha primeiro o curso'
+                            : `Escolher ${SOURCE_LABEL[sourceType].toLowerCase()}`
+                      }
+                      searchPlaceholder="Escreva para filtrar…"
+                      emptyText="Nada encontrado"
+                    />
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    size="sm"
+                    loading={add.isPending}
+                    disabled={!sourceId.trim()}
+                    onClick={() => add.mutate(undefined)}
+                  >
+                    Associar fonte
+                  </Button>
+                  <Button
+                    size="sm"
+                    intent="ghost"
+                    onClick={() => {
+                      setManual((m) => !m);
+                      setSourceId('');
+                    }}
+                  >
+                    {manual ? 'Escolher da lista' : 'Introduzir ID'}
+                  </Button>
+                </div>
+              </CardBody>
+            </Card>
           </>
         )
       )}
