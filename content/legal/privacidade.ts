@@ -23,7 +23,7 @@ export const PRIVACIDADE: LegalDoc = {
         'Dados profissionais: cargo, departamento, chefia, histórico, competências e planos de desenvolvimento.',
         'Dados de formação e avaliação: inscrições, progresso, notas, certificados, avaliações de desempenho e 360º.',
         'Dados de gestão de pessoas: pedidos de férias e licenças, presenças, declarações; e, se a sua empresa usar o módulo de pagamentos, recibos de vencimento, NIF e NIB (estes dois são guardados cifrados).',
-        'Voz e imagem: apenas se usar aulas ao vivo ou o Avatar Training.',
+        'Voz e imagem: apenas se usar aulas ao vivo ou o Treino com Avatar.',
         'Dados técnicos: registos de acesso (data, IP, dispositivo), ações na plataforma para fins de auditoria e segurança, e os ecrãs que visita para medirmos a utilização do produto.',
         'Conteúdo que escreve: mensagens ao Tutor de IA, pedidos de suporte, feedback e comentários.',
       ],

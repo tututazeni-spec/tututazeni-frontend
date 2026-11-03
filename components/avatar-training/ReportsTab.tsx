@@ -133,7 +133,7 @@ export function ReportsTab() {
       <EmptyState
         icon={BarChart2}
         title="Sem relatórios disponíveis"
-        description="O seu perfil não tem acesso a relatórios do Avatar Training."
+        description="O seu perfil não tem acesso a relatórios do Treino com Avatar."
       />
     );
 
