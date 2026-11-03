@@ -15,7 +15,7 @@ interface TranscriptProps {
 const TUTOR_STATUS_TEXT: Record<string, string> = {
   OK: 'Resposta do tutor de IA.',
   NO_SOURCE:
-    'Não encontrei nas fontes aprovadas desta formação informação suficiente para responder. A dúvida foi encaminhada para um formador.',
+    'Não encontrei nada sobre isso no conteúdo desta formação. Tente perguntar de outra forma ou peça ajuda a um formador.',
   UNAVAILABLE:
     'O tutor de IA está temporariamente indisponível. Pode continuar a sessão ou pedir ajuda a um formador.',
   LIMIT_REACHED: 'Atingiu o limite de perguntas ao tutor de IA por agora.',
