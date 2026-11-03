@@ -75,7 +75,7 @@ export function TrainingCard({
               {LEVEL_CFG[training.level].label}
             </NavyBadge>
           )}
-          {typeCfg && <NavyBadge tone="info">{typeCfg.label}</NavyBadge>}
+          {typeCfg && <NavyBadge tone="neutral">{typeCfg.label}</NavyBadge>}
           {training.mandatory && (
             <NavyBadge tone="danger">Obrigatório</NavyBadge>
           )}
