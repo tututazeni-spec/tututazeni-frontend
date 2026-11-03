@@ -26,8 +26,8 @@ export function VoiceControls({ ctl }: { ctl: TrainingRoomController }) {
   return (
     <>
       {open && (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-card border border-border bg-surface px-3 py-2 font-body text-sm text-ink">
-          <label className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3 font-body text-sm text-ink">
+          <label className="flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-1.5 font-semibold text-brand">
             <Checkbox
               checked={voiceOn}
               disabled={pending.media}
@@ -35,7 +35,7 @@ export function VoiceControls({ ctl }: { ctl: TrainingRoomController }) {
             />
             Voz do instrutor
           </label>
-          <label className="flex items-center gap-2">
+          <label className="flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-1.5 font-semibold text-brand">
             <Checkbox
               checked={captions}
               onChange={(e) => setCaptions(e.target.checked)}
