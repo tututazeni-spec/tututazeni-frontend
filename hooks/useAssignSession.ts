@@ -23,6 +23,7 @@ interface FoundUser {
   id: number;
   fullName: string;
   email?: string | null;
+  avatarUrl?: string | null;
 }
 
 export function useAssignSession(sessionId: number) {
