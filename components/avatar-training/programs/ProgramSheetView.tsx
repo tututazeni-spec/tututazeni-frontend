@@ -26,12 +26,46 @@ import {
 import type { AvatarProgramDetail } from '../types';
 import { EmptyState } from '@/components/ui/EmptyState';
 
-function Row({ label, children }: { label: string; children: ReactNode }) {
+/** Campo em mosaico: rótulo pequeno por cima, valor por baixo. */
+function Field({
+  label,
+  children,
+  wide,
+}: {
+  label: string;
+  children: ReactNode;
+  wide?: boolean;
+}) {
   return (
-    <div className="grid grid-cols-3 gap-2 font-body text-sm">
-      <dt className="text-ink-muted">{label}</dt>
-      <dd className="col-span-2 text-ink">{children}</dd>
+    <div className={`min-w-0 ${wide ? 'sm:col-span-2' : ''}`}>
+      <dt className="font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        {label}
+      </dt>
+      <dd className="mt-0.5 font-body text-sm text-ink">{children}</dd>
     </div>
+  );
+}
+
+function Group({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="rounded-card border border-border bg-surface p-3">
+      <h3 className="mb-2 font-display text-sm font-semibold text-ink">
+        {title}
+      </h3>
+      <dl className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+        {children}
+      </dl>
+    </section>
+  );
+}
+
+function BulletList({ items }: { items: ReactNode[] }) {
+  return (
+    <ul className="list-disc space-y-0.5 pl-4">
+      {items.map((it, i) => (
+        <li key={i}>{it}</li>
+      ))}
+    </ul>
   );
 }
 
@@ -63,76 +97,86 @@ export function ProgramSheetView({
             <Skeleton rows={4} itemClassName="h-6 rounded bg-surface-sunken" />
           ) : (
             <>
-              <dl className="space-y-2">
-                <Row label="Estado">
+              <Group title="Resumo">
+                <Field label="Estado">
                   <StatusBadge
                     value={data.status}
                     map={PROGRAM_STATUS}
                     variant="dot"
                   />{' '}
                   · v{data.version}
-                </Row>
+                </Field>
+                <Field label="Experiência">
+                  {EXPERIENCE_LABEL[data.experienceType]}
+                </Field>
+                <Field label="Categoria e nível">
+                  {categoryAndLevel(data)}
+                </Field>
+                <Field label="Idioma e duração">
+                  {languageAndDuration(data)}
+                </Field>
                 {data.description && (
-                  <Row label="Descrição">{data.description}</Row>
+                  <Field label="Descrição" wide>
+                    {data.description}
+                  </Field>
                 )}
                 {data.objectives.length > 0 && (
-                  <Row label="Objectivos">
-                    <ul className="list-disc pl-4">
-                      {data.objectives.map((o) => (
-                        <li key={o}>{o}</li>
-                      ))}
-                    </ul>
-                  </Row>
+                  <Field label="Objectivos" wide>
+                    <BulletList items={data.objectives} />
+                  </Field>
                 )}
-                <Row label="Categoria e nível">{categoryAndLevel(data)}</Row>
-                <Row label="Experiência">
-                  {EXPERIENCE_LABEL[data.experienceType]}
-                </Row>
-                <Row label="Idioma e duração">{languageAndDuration(data)}</Row>
-                <Row label="Avatar">
-                  {data.avatar?.name ?? 'Sem avatar por defeito'}
-                </Row>
-                <Row label="Formador responsável">
+              </Group>
+
+              <Group title="Responsáveis e certificação">
+                <Field label="Formador responsável">
                   {data.responsibleName ?? '—'}
-                </Row>
-                <Row label="Curso associado">{courseSummary(data)}</Row>
-                <Row label="Aprovação">{approvalSummary(data)}</Row>
-                <Row label="Certificação">{certificationSummary(data)}</Row>
-                {links && links.trainings.length > 0 && (
-                  <Row label="Formações ligadas (Trainings)">
-                    <ul className="list-disc pl-4">
-                      {links.trainings.map((t) => (
-                        <li key={t.id}>{linkedTrainingLabel(t)}</li>
-                      ))}
-                    </ul>
-                  </Row>
-                )}
-                {links && links.learningPaths.length > 0 && (
-                  <Row label="Percursos de aprendizagem">
-                    <ul className="list-disc pl-4">
-                      {links.learningPaths.map((l) => (
-                        <li key={l.id}>{learningPathLabel(l)}</li>
-                      ))}
-                    </ul>
-                  </Row>
-                )}
+                </Field>
+                <Field label="Avatar">
+                  {data.avatar?.name ?? 'Sem avatar por defeito'}
+                </Field>
+                <Field label="Curso associado">{courseSummary(data)}</Field>
+                <Field label="Aprovação">{approvalSummary(data)}</Field>
+                <Field label="Certificação" wide={!certification?.enabled}>
+                  {certificationSummary(data)}
+                </Field>
                 {certification?.enabled && (
-                  <Row label="A minha elegibilidade">
+                  <Field label="A minha elegibilidade">
                     {certification.eligible ? (
                       'Elegível ao certificado'
                     ) : (
-                      <ul className="list-disc pl-4">
-                        {certification.reasons.map((r) => (
-                          <li key={r}>{r}</li>
-                        ))}
-                      </ul>
+                      <BulletList items={certification.reasons} />
                     )}
-                  </Row>
+                  </Field>
                 )}
-              </dl>
+              </Group>
 
-              <section>
-                <h3 className="mb-1 font-display text-sm font-semibold text-ink">
+              {links &&
+                (links.trainings.length > 0 ||
+                  links.learningPaths.length > 0) && (
+                  <Group title="Ligações">
+                    {links.trainings.length > 0 && (
+                      <Field label="Formações ligadas (Trainings)">
+                        <BulletList
+                          items={links.trainings.map((t) =>
+                            linkedTrainingLabel(t),
+                          )}
+                        />
+                      </Field>
+                    )}
+                    {links.learningPaths.length > 0 && (
+                      <Field label="Percursos de aprendizagem">
+                        <BulletList
+                          items={links.learningPaths.map((l) =>
+                            learningPathLabel(l),
+                          )}
+                        />
+                      </Field>
+                    )}
+                  </Group>
+                )}
+
+              <section className="rounded-card border border-border bg-surface p-3">
+                <h3 className="mb-2 font-display text-sm font-semibold text-ink">
                   Sessões, avaliação e fontes aprovadas
                 </h3>
                 {data.sessions.length === 0 ? (
@@ -142,7 +186,7 @@ export function ProgramSheetView({
                     {data.sessions.map((s) => (
                       <div
                         key={s.id}
-                        className="rounded-card border border-border bg-surface p-2 font-body text-xs"
+                        className="rounded-card border border-border bg-surface-sunken p-2.5 font-body text-xs"
                       >
                         <div className="text-sm font-medium text-ink">
                           {sessionHeading(s)}
