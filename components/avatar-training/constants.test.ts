@@ -7,7 +7,6 @@ const visibleFor = (role: Parameters<typeof AUTHOR_ROLES.includes>[0]) =>
 describe('avatar-training tabs por papel', () => {
   it('COLABORADOR vê só as abas de formando', () => {
     expect(visibleFor('COLABORADOR')).toEqual([
-      'overview',
       'programs',
       'room',
       'simulations',
@@ -15,6 +14,11 @@ describe('avatar-training tabs por papel', () => {
       'progress',
       'history',
     ]);
+  });
+
+  it('Visão Geral escondida só para COLABORADOR', () => {
+    expect(visibleFor('COLABORADOR')).not.toContain('overview');
+    expect(visibleFor('GESTOR')).toContain('overview');
   });
 
   it('abas de autoria só para ADMIN/RH/INSTRUCTOR', () => {

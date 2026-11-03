@@ -32,7 +32,9 @@ export default function AvatarTrainingPage() {
   const visible = TABS.filter(
     (t) => !t.roles || (!!role && t.roles.includes(role)),
   );
-  const current = visible.some((t) => t.id === tab) ? tab : 'overview';
+  const current: TabId = visible.some((t) => t.id === tab)
+    ? tab
+    : (visible[0]?.id ?? 'programs');
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
