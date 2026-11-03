@@ -67,7 +67,7 @@ const NAV: Array<{ label: string; items: NavItem[] }> = [
       { href: '/live-classes', icon: Play, label: 'Aulas ao Vivo' },
       { href: '/content-library', icon: Library, label: 'Biblioteca' },
       { href: '/ai-tutor', icon: Bot, label: 'Tutor de IA' },
-      { href: '/avatar-training', icon: Presentation, label: 'Avatar Training' },
+      { href: '/avatar-training', icon: Presentation, label: 'Treino com Avatar' },
       { href: '/trainings', icon: GraduationCap, label: 'Gestão de Formações' },
       { href: '/events', icon: Calendar, label: 'Eventos Corporativos' },
     ],

@@ -123,7 +123,7 @@ export const MODULE_LABEL: Record<string, string> = {
   HR: 'Recursos Humanos',
   ENGAGEMENT: 'Envolvimento',
   TALENT: 'Talento',
-  AVATAR: 'Avatar Training',
+  AVATAR: 'Treino com Avatar',
   DOCUMENTS: 'Documentos',
   SYSTEM: 'Sistema',
   PAYROLL: 'Salários',

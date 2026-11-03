@@ -38,7 +38,7 @@ export default function AvatarTrainingPage() {
     <div className="mx-auto max-w-5xl px-4 py-8">
       <ModuleBanner
         src="/images/avatar training.jpg"
-        title="Avatar Training"
+        title="Treino com Avatar"
         hint={visible.find((t) => t.id === current)?.hint}
         position="center 38%"
       />
@@ -47,7 +47,7 @@ export default function AvatarTrainingPage() {
         items={visible}
         value={current}
         onChange={(id) => setTab(id as TabId)}
-        label="Avatar Training"
+        label="Treino com Avatar"
         className={BANNER_TABS_CLASS}
       />
 
