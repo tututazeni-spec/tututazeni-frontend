@@ -26,6 +26,7 @@ import { accentForRank } from '@/components/courses/TurmasView';
 import {
   NavyBadge,
   NavyCard,
+  PHOTO_ACCENT_DEFAULT,
   type NavyTone,
 } from '@/components/courses/NavyCard';
 import { useSessionList } from './SessionPicker';
@@ -196,6 +197,10 @@ export function AssignmentNavyCard({
   const f = assignmentFacts(a);
   return (
     <NavyCard
+      variant="photo"
+      image={PROGRESS_PHOTO}
+      imagePosition="right center"
+      accent={PHOTO_ACCENT_DEFAULT}
       seed={a.sessionId}
       kicker={a.session.program.title}
       kickerIcon={Bot}
@@ -203,10 +208,14 @@ export function AssignmentNavyCard({
       subtitle={EXPERIENCE_LABEL[a.session.experienceType]}
       badge={
         <>
-          <NavyBadge tone={ASSIGNMENT_TONE[a.status]}>
+          <NavyBadge large tone={ASSIGNMENT_TONE[a.status]}>
             {ASSIGNMENT_STATUS[a.status].label}
           </NavyBadge>
-          {a.mandatory && <NavyBadge tone="danger">Obrigatória</NavyBadge>}
+          {a.mandatory && (
+            <NavyBadge large tone="danger">
+              Obrigatória
+            </NavyBadge>
+          )}
         </>
       }
       infos={[
