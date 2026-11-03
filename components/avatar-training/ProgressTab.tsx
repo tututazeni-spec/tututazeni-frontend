@@ -16,11 +16,11 @@ import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
 import { accentForRank } from '@/components/courses/TurmasView';
+import { PROGRESS_PHOTO } from './cards';
 import { ASSIGNMENT_STATUS } from './constants';
 import type { Paginated, ProgressRow } from './types';
 
 const LIMIT = 20;
-const PROGRESS_PHOTO = '/images/progresso dos formandos.jpeg';
 
 export function ProgressTab() {
   const [page, setPage] = useState(1);

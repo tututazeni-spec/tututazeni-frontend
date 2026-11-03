@@ -22,6 +22,7 @@ import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate } from '@/lib/format';
 import { PhotoCard } from '@/components/courses/PhotoCard';
+import { accentForRank } from '@/components/courses/TurmasView';
 import {
   NavyBadge,
   NavyCard,
@@ -56,6 +57,9 @@ export const ASSIGNMENT_TONE: Record<AssignmentStatus, NavyTone> = {
   OVERDUE: 'danger',
   CANCELLED: 'neutral',
 };
+
+/** Foto dos cartões de progresso dos formandos (também usada nas sessões das abas de autoria). */
+export const PROGRESS_PHOTO = '/images/progresso dos formandos.jpeg';
 
 /** Classe dos botões de acção sobre os cartões escuros. */
 export const CARD_BTN =
@@ -220,12 +224,15 @@ export function AssignmentNavyCard({
 
 export interface SessionNavyCardProps {
   session: SessionListItem;
+  /** Posição da sessão entre as da mesma formação (0 = azul padrão). */
+  rank?: number;
   selected?: boolean;
   onSelect: () => void;
 }
 
 export function SessionNavyCard({
   session: s,
+  rank = 0,
   selected,
   onSelect,
 }: SessionNavyCardProps) {
@@ -243,12 +250,16 @@ export function SessionNavyCard({
       className={`rounded-panel outline-none focus-visible:ring-2 focus-visible:ring-accent ${selected ? 'ring-4 ring-accent ring-offset-2' : ''}`}
     >
       <NavyCard
+        variant="photo"
+        image={PROGRESS_PHOTO}
+        imagePosition="right center"
+        accent={accentForRank(rank)}
         seed={s.id}
         kicker={s.program.title}
         kickerIcon={Bot}
         title={s.title}
         badge={
-          <NavyBadge tone={PROGRAM_TONE[s.status]}>
+          <NavyBadge tone="light" large>
             {PROGRAM_STATUS[s.status].label}
           </NavyBadge>
         }
@@ -286,16 +297,27 @@ export function SessionCardPicker({
         Ainda não existem sessões disponíveis.
       </p>
     );
+  // Sessões da mesma formação mudam de cor (a primeira fica no azul padrão).
+  const seen = new Map<number, number>();
+  const ranks = new Map<number, number>();
+  [...data]
+    .sort((a, b) => a.id - b.id)
+    .forEach((x) => {
+      const n = seen.get(x.programId) ?? 0;
+      ranks.set(x.id, n);
+      seen.set(x.programId, n + 1);
+    });
   return (
     <section className="space-y-2" aria-label="Sessões disponíveis">
       <h2 className="font-display text-sm font-semibold text-ink">
         Sessões disponíveis <Badge dot={false}>{data.length}</Badge>
       </h2>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
         {data.map((s) => (
           <SessionNavyCard
             key={s.id}
             session={s}
+            rank={ranks.get(s.id)}
             selected={s.id === value}
             onSelect={() => onChange(s.id)}
           />
