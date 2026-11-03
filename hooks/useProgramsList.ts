@@ -32,7 +32,10 @@ export function useProgramsList() {
   const confirm = useConfirm();
   const isAuthor = useHasRole(AUTHOR_ROLES);
   const isAdmin = useHasRole(ADMIN_ROLES);
-  const [mode, setMode] = useState<ProgramsMode>('catalog');
+  // Predefinição: autores abrem em «Gestão»; os restantes só têm o catálogo.
+  // Derivado (não useState inicial) porque o papel pode chegar depois do 1.º render.
+  const [chosenMode, setMode] = useState<ProgramsMode | null>(null);
+  const mode: ProgramsMode = chosenMode ?? (isAuthor ? 'manage' : 'catalog');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState(ALL);

@@ -2,7 +2,8 @@
 // Atribuir a sessão a colaboradores (apresentação). Procura, seleção e pedido:
 // hooks/useAssignSession.ts.
 
-import { X } from 'lucide-react';
+import { Building2, X } from 'lucide-react';
+import { MultiCombobox } from '@/components/ui/MultiCombobox';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -27,6 +28,12 @@ export function AssignBoxView({ ctl, published }: AssignBoxViewProps) {
     userIds,
     pick,
     unpick,
+    departments,
+    departmentIds,
+    allDepartments,
+    setDepartments,
+    toggleAllDepartments,
+    hasTargets,
     dueDate,
     setDueDate,
     mandatory,
@@ -116,6 +123,21 @@ export function AssignBoxView({ ctl, published }: AssignBoxViewProps) {
           ))}
         </div>
       )}
+      <FormField label="Por departamento" htmlFor="as-dept">
+        <MultiCombobox
+          label="Escolher departamentos"
+          icon={Building2}
+          items={departments.map((d) => ({
+            value: String(d.id),
+            label: d.name,
+          }))}
+          value={departmentIds.map(String)}
+          onValueChange={setDepartments}
+          allLabel="Todos os departamentos"
+          allSelected={allDepartments}
+          onToggleAll={toggleAllDepartments}
+        />
+      </FormField>
       <div className="flex flex-wrap items-end gap-3">
         <FormField label="Prazo" htmlFor="as-due">
           <Input
@@ -135,10 +157,16 @@ export function AssignBoxView({ ctl, published }: AssignBoxViewProps) {
         <Button
           size="sm"
           loading={isAssigning}
-          disabled={!published || userIds.length === 0}
+          disabled={!published || !hasTargets}
           onClick={assign}
         >
-          Atribuir ({userIds.length})
+          Atribuir (
+          {allDepartments
+            ? 'todos os departamentos'
+            : departmentIds.length > 0
+              ? `${userIds.length} + ${departmentIds.length} dep.`
+              : userIds.length}
+          )
         </Button>
       </div>
     </div>

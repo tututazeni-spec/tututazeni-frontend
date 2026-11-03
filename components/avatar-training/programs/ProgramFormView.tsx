@@ -97,7 +97,7 @@ export function ProgramFormView({
         description={
           program?.status === 'IN_REVIEW'
             ? 'Editar uma formação em revisão devolve-a a rascunho.'
-            : 'Fica em rascunho até ser revista e publicada.'
+            : 'Fica publicada logo após a criação.'
         }
       >
         <div className="mt-4 max-h-[70vh] space-y-3 overflow-y-auto pr-1">
