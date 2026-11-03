@@ -250,8 +250,16 @@ export const buildAssignPayload = (
   userIds: number[],
   dueDate: string,
   mandatory: boolean,
+  departmentIds: number[] = [],
+  allDepartments = false,
 ) => ({
   userIds,
+  // «Todos os departamentos» substitui a lista de departamentos escolhidos.
+  ...(allDepartments
+    ? { allDepartments: true }
+    : departmentIds.length
+      ? { departmentIds }
+      : {}),
   dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
   mandatory,
 });

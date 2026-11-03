@@ -311,10 +311,39 @@ describe('AssignBoxView', () => {
       setMandatory: vi.fn(),
       assign: vi.fn(),
       isAssigning: false,
+      departments: [
+        { id: 1, name: 'Vendas' },
+        { id: 2, name: 'Finanças' },
+      ],
+      departmentIds: [],
+      allDepartments: false,
+      setDepartments: vi.fn(),
+      toggleAllDepartments: vi.fn(),
       ...over,
     };
-    return ctl as unknown as AssignSessionController & typeof ctl;
+    const hasTargets =
+      (over.hasTargets as boolean | undefined) ??
+      (ctl.userIds.length > 0 ||
+        ctl.departmentIds.length > 0 ||
+        ctl.allDepartments);
+    return { ...ctl, hasTargets } as unknown as AssignSessionController &
+      typeof ctl;
   };
+
+  it('departamentos: filtro com lista e «todos» num clique', () => {
+    const ctl = make();
+    render(<AssignBoxView ctl={ctl} published />);
+    fireEvent.click(btn(/Escolher departamentos/));
+    fireEvent.click(screen.getByLabelText('Todos os departamentos'));
+    expect(ctl.toggleAllDepartments).toHaveBeenCalled();
+    fireEvent.click(screen.getByLabelText('Vendas'));
+    expect(ctl.setDepartments).toHaveBeenCalledWith(['1']);
+  });
+
+  it('só departamentos escolhidos já permitem «Atribuir»', () => {
+    render(<AssignBoxView ctl={make({ departmentIds: [2] })} published />);
+    expect((btn(/Atribuir \(/) as HTMLButtonElement).disabled).toBe(false);
+  });
 
   it('sessão por publicar avisa e bloqueia «Atribuir»', () => {
     render(
