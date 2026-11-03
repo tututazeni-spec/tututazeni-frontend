@@ -12,18 +12,9 @@ export type ExperienceType =
   | 'PRACTICAL_ASSESSMENT'
   | 'PERSONALIZED_REVIEW';
 export type AssignmentStatus =
-  | 'ASSIGNED'
-  | 'IN_PROGRESS'
-  | 'COMPLETED'
-  | 'OVERDUE'
-  | 'CANCELLED';
+  'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE' | 'CANCELLED';
 export type AttemptStatus =
-  | 'IN_PROGRESS'
-  | 'PAUSED'
-  | 'SUBMITTED'
-  | 'COMPLETED'
-  | 'FAILED'
-  | 'ABANDONED';
+  'IN_PROGRESS' | 'PAUSED' | 'SUBMITTED' | 'COMPLETED' | 'FAILED' | 'ABANDONED';
 
 export type SourceType = 'COURSE' | 'LESSON' | 'DOCUMENT' | 'LIBRARY_ITEM';
 
@@ -103,7 +94,11 @@ export interface ProgramSessionSummary {
     maxAttempts: number;
     requireFormalAssessment: boolean;
   } | null;
-  knowledgeSources: { id: number; sourceType: SourceType; title: string | null }[];
+  knowledgeSources: {
+    id: number;
+    sourceType: SourceType;
+    title: string | null;
+  }[];
 }
 
 export interface AvatarProgramDetail extends AvatarProgram {
@@ -132,8 +127,18 @@ export interface CertificateRequestResult {
 
 export interface ProgramLinks {
   courseId: number | null;
-  trainings: { id: number; title: string; status: string; trainingPlanId: number | null }[];
-  learningPaths: { id: number; title: string; mandatory: boolean; required: boolean }[];
+  trainings: {
+    id: number;
+    title: string;
+    status: string;
+    trainingPlanId: number | null;
+  }[];
+  learningPaths: {
+    id: number;
+    title: string;
+    mandatory: boolean;
+    required: boolean;
+  }[];
 }
 
 export interface MyAssignment {
@@ -213,11 +218,20 @@ export interface RoomInteraction {
   stepKey: string | null;
   content: string;
   metadata?: {
+    channel?: string;
+    status?: string;
     aiMessageId?: number;
     explanation?: string | null;
     reinforcement?: StepReinforcementPayload | null;
   } | null;
   createdAt: string;
+}
+
+/** Resposta do AI-Tutor devolvida por POST /attempts/:id/tutor (o texto não fica nas interacções). */
+export interface TutorReply {
+  status: string;
+  question: string;
+  message: string;
 }
 
 export interface Room {
@@ -306,7 +320,11 @@ export interface ProgressRow {
   bestScore: number | null;
   evolution: number | null;
   user?: { id: number; fullName: string };
-  session?: { id: number; title: string; program?: { id: number; title: string } };
+  session?: {
+    id: number;
+    title: string;
+    program?: { id: number; title: string };
+  };
 }
 
 export interface Paginated<T> {
@@ -326,7 +344,11 @@ export interface HistoryRow {
   startedAt: string;
   completedAt: string | null;
   assignment: {
-    session: { id: number; title: string; program: { id: number; title: string } };
+    session: {
+      id: number;
+      title: string;
+      program: { id: number; title: string };
+    };
   };
 }
 
@@ -357,7 +379,11 @@ export interface ProviderHealth {
     costPerUnit?: number;
     monthlyCostLimit?: number | null;
   }[];
-  lastIncident: { provider: string; errorCode: string | null; createdAt: string } | null;
+  lastIncident: {
+    provider: string;
+    errorCode: string | null;
+    createdAt: string;
+  } | null;
 }
 
 export type TabId =
@@ -399,7 +425,11 @@ export interface StepReinforcement {
 }
 
 export interface SessionRules {
-  onFail?: { message?: string; resourceUrl?: string; recommendSessionId?: number };
+  onFail?: {
+    message?: string;
+    resourceUrl?: string;
+    recommendSessionId?: number;
+  };
 }
 
 export interface BuilderStep {

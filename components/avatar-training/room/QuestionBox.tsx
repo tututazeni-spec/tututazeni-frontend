@@ -24,6 +24,7 @@ export function QuestionBox({ ctl }: { ctl: TrainingRoomController }) {
         <div className="flex gap-2">
           <Textarea
             rows={2}
+            className="min-w-0 flex-1"
             value={question}
             disabled={paused}
             placeholder="Pergunte ao instrutor virtual (responde só com fontes aprovadas)"

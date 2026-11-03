@@ -31,6 +31,7 @@ import type {
   CertificationStatus,
   CompleteResult,
   Room,
+  TutorReply,
 } from '@/components/avatar-training/types';
 
 /** Tempo efectivo de sessão (sem as pausas), actualizado de segundo a segundo. */
@@ -52,6 +53,7 @@ export function useTrainingRoom(attemptId: number, onExit: () => void) {
   const [result, setResult] = useState<CompleteResult | null>(null);
   const [captions, setCaptions] = useState(true);
   const [askNotice, setAskNotice] = useState(false);
+  const [tutorReplies, setTutorReplies] = useState<TutorReply[]>([]);
   const key = queryKeys.avatarTraining.room(attemptId);
   const base = `/avatar-training/attempts/${attemptId}`;
 
@@ -118,12 +120,13 @@ export function useTrainingRoom(attemptId: number, onExit: () => void) {
   );
   const ask = useApiMutation(
     (v: { question?: string; mode?: 'ASK' | 'EXPLAIN_DIFFERENTLY' }) =>
-      apiClient.post(`${base}/tutor`, {
+      apiClient.post<TutorReply>(`${base}/tutor`, {
         ...v,
         stepKey: room?.currentStep?.key,
       }),
     {
       invalidateKeys: [key],
+      onSuccess: (reply) => setTutorReplies((r) => [...r, reply]),
       // Falha do AI-Tutor nunca bloqueia a sessão — a sala continua por texto.
       onError: () =>
         notify({
@@ -186,6 +189,7 @@ export function useTrainingRoom(attemptId: number, onExit: () => void) {
     setQuestion,
     askNotice,
     setAskNotice,
+    tutorReplies,
     result,
     certification: certification.data,
     certificateRequested: requestCertificate.isSuccess,
