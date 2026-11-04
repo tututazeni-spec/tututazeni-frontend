@@ -6,7 +6,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import {
+  Building2,
+  Mail,
+  Pencil,
+  Plus,
+  Tag,
+  Trash2,
+  UserCog,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -15,12 +24,12 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { INVERT_ON_HOVER } from './buttonStyles';
 import { TRAINER_STATUS_CFG, TRAINER_TYPE_LABEL } from './constants';
 import type { Trainer } from './types';
+import { TrainerDetailModal } from './TrainerDetailModal';
 import { TrainerFormModal } from './TrainerFormModal';
 
 interface TrainersResponse {
@@ -33,6 +42,7 @@ export function TrainersView() {
   const toast = useToast();
   const [showCreate, setShowCreate] = useState(false);
   const [editTrainer, setEditTrainer] = useState<Trainer | null>(null);
+  const [viewTrainer, setViewTrainer] = useState<Trainer | null>(null);
 
   const { data, isLoading } = useApiQuery<TrainersResponse>(
     queryKeys.trainingTrainers.list({ limit: 100 }),
@@ -79,57 +89,99 @@ export function TrainersView() {
           description="Regista formadores internos ou externos para os atribuir a formações e turmas."
         />
       ) : (
-        <Card className="divide-y divide-border">
+        <div className="space-y-3">
           {list.map((t) => {
-            const statusCfg = TRAINER_STATUS_CFG[t.status];
+            const active = t.status === 'ACTIVE';
+            const deleting = remove.isPending && remove.variables === t.id;
+            const meta = [
+              { icon: UserCog, text: TRAINER_TYPE_LABEL[t.type] },
+              t.entity ? { icon: Building2, text: t.entity } : null,
+              t.trainingAreas.length > 0
+                ? { icon: Tag, text: t.trainingAreas.join(', ') }
+                : null,
+              t.email ? { icon: Mail, text: t.email } : null,
+            ].filter((m): m is { icon: LucideIcon; text: string } => !!m);
             return (
               <div
                 key={t.id}
-                className="flex flex-wrap items-center gap-3 px-4 py-3"
+                role="button"
+                tabIndex={0}
+                onClick={() => setViewTrainer(t)}
+                onKeyDown={(e) => {
+                  if (e.target === e.currentTarget && e.key === 'Enter')
+                    setViewTrainer(t);
+                }}
+                className="flex cursor-pointer flex-wrap items-center gap-4 rounded-2xl bg-[var(--color-brand-ink)] px-4 py-3 text-white shadow-sm transition-opacity hover:opacity-95"
               >
-                <Avatar
-                  name={t.name}
-                  url={t.user?.avatarUrl ?? undefined}
-                  size="sm"
-                />
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
+                  <Avatar
+                    name={t.name}
+                    url={t.user?.avatarUrl ?? undefined}
+                    size="sm"
+                  />
+                </div>
+
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-ink">
-                    {t.name}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="truncate text-base font-semibold">
+                      {t.name}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-xs font-medium ${
+                        active
+                          ? 'bg-teal-500/80 text-white'
+                          : 'bg-white/15 text-white'
+                      }`}
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          active ? 'bg-emerald-300' : 'bg-white/60'
+                        }`}
+                      />
+                      {TRAINER_STATUS_CFG[t.status].label}
+                    </span>
                   </div>
-                  <div className="text-xs text-ink-faint">
-                    {TRAINER_TYPE_LABEL[t.type]}
-                    {t.entity ? ` · ${t.entity}` : ''}
-                    {t.trainingAreas.length > 0
-                      ? ` · ${t.trainingAreas.join(', ')}`
-                      : ''}
+                  <div className="mt-1 flex flex-wrap items-center text-sm text-white/85">
+                    {meta.map((m, i) => (
+                      <span
+                        key={m.text}
+                        className={`inline-flex items-center gap-1.5 ${
+                          i > 0 ? 'ml-3 border-l border-white/25 pl-3' : ''
+                        }`}
+                      >
+                        <m.icon size={14} strokeWidth={1.75} />
+                        {m.text}
+                      </span>
+                    ))}
                   </div>
                 </div>
-                <span
-                  className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}
+
+                <div
+                  className="flex flex-shrink-0 items-center gap-2 border-l border-white/25 pl-4"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  {statusCfg.label}
-                </span>
-                <div className="flex flex-shrink-0 items-center gap-2">
-                  <Button
-                    intent="ghost"
-                    size="sm"
+                  <button
+                    type="button"
+                    aria-label={`Editar ${t.name}`}
                     onClick={() => setEditTrainer(t)}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 text-white transition-colors hover:bg-white hover:text-[var(--color-brand-ink)]"
                   >
-                    Editar
-                  </Button>
-                  <Button
-                    intent="danger"
-                    size="sm"
+                    <Pencil size={16} strokeWidth={1.75} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Eliminar ${t.name}`}
+                    disabled={deleting}
                     onClick={() => onRemove(t)}
-                    loading={remove.isPending && remove.variables === t.id}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 text-white transition-colors hover:bg-white hover:text-[var(--color-brand-ink)] disabled:opacity-50"
                   >
-                    Eliminar
-                  </Button>
+                    <Trash2 size={16} strokeWidth={1.75} />
+                  </button>
                 </div>
               </div>
             );
           })}
-        </Card>
+        </div>
       )}
 
       {showCreate && (
@@ -139,6 +191,16 @@ export function TrainersView() {
           onSuccess={() =>
             toast({ title: 'Formador criado.', intent: 'success' })
           }
+        />
+      )}
+      {viewTrainer && (
+        <TrainerDetailModal
+          trainer={viewTrainer}
+          onClose={() => setViewTrainer(null)}
+          onEdit={(t) => {
+            setViewTrainer(null);
+            setEditTrainer(t);
+          }}
         />
       )}
       {editTrainer && (

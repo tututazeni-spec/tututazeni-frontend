@@ -32,13 +32,15 @@ export default function AvatarTrainingPage() {
   const visible = TABS.filter(
     (t) => !t.roles || (!!role && t.roles.includes(role)),
   );
-  const current = visible.some((t) => t.id === tab) ? tab : 'overview';
+  const current: TabId = visible.some((t) => t.id === tab)
+    ? tab
+    : (visible[0]?.id ?? 'programs');
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
       <ModuleBanner
         src="/images/avatar training.jpg"
-        title="Avatar Training"
+        title="Treino com Avatar"
         hint={visible.find((t) => t.id === current)?.hint}
         position="center 38%"
       />
@@ -47,7 +49,7 @@ export default function AvatarTrainingPage() {
         items={visible}
         value={current}
         onChange={(id) => setTab(id as TabId)}
-        label="Avatar Training"
+        label="Treino com Avatar"
         className={BANNER_TABS_CLASS}
       />
 

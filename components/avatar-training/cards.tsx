@@ -22,6 +22,7 @@ import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate } from '@/lib/format';
 import { PhotoCard } from '@/components/courses/PhotoCard';
+import { NAVY_ACCENT } from '@/components/courses/TurmasView';
 import {
   NavyBadge,
   NavyCard,
@@ -56,6 +57,17 @@ export const ASSIGNMENT_TONE: Record<AssignmentStatus, NavyTone> = {
   OVERDUE: 'danger',
   CANCELLED: 'neutral',
 };
+
+/** Foto dos cartões de progresso dos formandos (também usada nas sessões das abas de autoria). */
+/** Paleta azul marinho da marca (#0F1F3D) para o PhotoCard. */
+export const NAVY_PALETTE: [string, string, string, string] = [
+  '#1E3A5F',
+  '#14284A',
+  '#0F1F3D',
+  '#0F1F3D',
+];
+
+export const PROGRESS_PHOTO = '/images/progresso dos formandos.jpeg';
 
 /** Classe dos botões de acção sobre os cartões escuros. */
 export const CARD_BTN =
@@ -158,6 +170,7 @@ export function AssignmentPhotoCard({
   return (
     <PhotoCard
       seed={a.sessionId}
+      palette={NAVY_PALETTE}
       kicker={a.session.program.title}
       kickerIcon={Bot}
       title={a.session.title}
@@ -192,6 +205,10 @@ export function AssignmentNavyCard({
   const f = assignmentFacts(a);
   return (
     <NavyCard
+      variant="photo"
+      image={PROGRESS_PHOTO}
+      imagePosition="right center"
+      accent={NAVY_ACCENT}
       seed={a.sessionId}
       kicker={a.session.program.title}
       kickerIcon={Bot}
@@ -199,10 +216,14 @@ export function AssignmentNavyCard({
       subtitle={EXPERIENCE_LABEL[a.session.experienceType]}
       badge={
         <>
-          <NavyBadge tone={ASSIGNMENT_TONE[a.status]}>
+          <NavyBadge large tone={ASSIGNMENT_TONE[a.status]}>
             {ASSIGNMENT_STATUS[a.status].label}
           </NavyBadge>
-          {a.mandatory && <NavyBadge tone="danger">Obrigatória</NavyBadge>}
+          {a.mandatory && (
+            <NavyBadge large tone="danger">
+              Obrigatória
+            </NavyBadge>
+          )}
         </>
       }
       infos={[
@@ -243,12 +264,16 @@ export function SessionNavyCard({
       className={`rounded-panel outline-none focus-visible:ring-2 focus-visible:ring-accent ${selected ? 'ring-4 ring-accent ring-offset-2' : ''}`}
     >
       <NavyCard
+        variant="photo"
+        image={PROGRESS_PHOTO}
+        imagePosition="right center"
+        accent={NAVY_ACCENT}
         seed={s.id}
         kicker={s.program.title}
         kickerIcon={Bot}
         title={s.title}
         badge={
-          <NavyBadge tone={PROGRAM_TONE[s.status]}>
+          <NavyBadge tone="light" large>
             {PROGRAM_STATUS[s.status].label}
           </NavyBadge>
         }
@@ -291,7 +316,7 @@ export function SessionCardPicker({
       <h2 className="font-display text-sm font-semibold text-ink">
         Sessões disponíveis <Badge dot={false}>{data.length}</Badge>
       </h2>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
         {data.map((s) => (
           <SessionNavyCard
             key={s.id}

@@ -217,6 +217,7 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
           <div className="flex flex-col gap-4">
             {rows.map((p) => (
               <RowCard
+                navy
                 key={p.id}
                 name={p.user.fullName}
                 title={p.liveClass.topic}

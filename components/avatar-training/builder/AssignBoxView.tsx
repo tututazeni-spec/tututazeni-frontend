@@ -2,7 +2,9 @@
 // Atribuir a sessão a colaboradores (apresentação). Procura, seleção e pedido:
 // hooks/useAssignSession.ts.
 
-import { X } from 'lucide-react';
+import { Building2, X } from 'lucide-react';
+import { MultiCombobox } from '@/components/ui/MultiCombobox';
+import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -27,6 +29,12 @@ export function AssignBoxView({ ctl, published }: AssignBoxViewProps) {
     userIds,
     pick,
     unpick,
+    departments,
+    departmentIds,
+    allDepartments,
+    setDepartments,
+    toggleAllDepartments,
+    hasTargets,
     dueDate,
     setDueDate,
     mandatory,
@@ -69,13 +77,22 @@ export function AssignBoxView({ ctl, published }: AssignBoxViewProps) {
             <li key={u.id}>
               <button
                 type="button"
-                className="w-full px-3 py-2 text-left font-body text-sm text-ink hover:bg-surface-sunken"
+                className="flex w-full items-center gap-3 px-3 py-2 text-left font-body text-sm text-ink hover:bg-surface-sunken"
                 onClick={() => pick(u.id, u.fullName)}
               >
-                {u.fullName}
-                {u.email && (
-                  <span className="ml-2 text-xs text-ink-faint">{u.email}</span>
-                )}
+                <Avatar
+                  name={u.fullName}
+                  url={u.avatarUrl ?? undefined}
+                  size="sm"
+                />
+                <span className="min-w-0 flex-1 truncate">
+                  {u.fullName}
+                  {u.email && (
+                    <span className="ml-2 text-xs text-ink-faint">
+                      {u.email}
+                    </span>
+                  )}
+                </span>
               </button>
             </li>
           ))}
@@ -116,6 +133,21 @@ export function AssignBoxView({ ctl, published }: AssignBoxViewProps) {
           ))}
         </div>
       )}
+      <FormField label="Por departamento" htmlFor="as-dept">
+        <MultiCombobox
+          label="Escolher departamentos"
+          icon={Building2}
+          items={departments.map((d) => ({
+            value: String(d.id),
+            label: d.name,
+          }))}
+          value={departmentIds.map(String)}
+          onValueChange={setDepartments}
+          allLabel="Todos os departamentos"
+          allSelected={allDepartments}
+          onToggleAll={toggleAllDepartments}
+        />
+      </FormField>
       <div className="flex flex-wrap items-end gap-3">
         <FormField label="Prazo" htmlFor="as-due">
           <Input
@@ -135,10 +167,16 @@ export function AssignBoxView({ ctl, published }: AssignBoxViewProps) {
         <Button
           size="sm"
           loading={isAssigning}
-          disabled={!published || userIds.length === 0}
+          disabled={!published || !hasTargets}
           onClick={assign}
         >
-          Atribuir ({userIds.length})
+          Atribuir (
+          {allDepartments
+            ? 'todos os departamentos'
+            : departmentIds.length > 0
+              ? `${userIds.length} + ${departmentIds.length} dep.`
+              : userIds.length}
+          )
         </Button>
       </div>
     </div>

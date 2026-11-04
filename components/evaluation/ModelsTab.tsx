@@ -32,7 +32,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
-import { OPEN_ROUND_BTN, accentForRank } from '@/components/courses/TurmasView';
+import { OPEN_ROUND_BTN, NAVY_ACCENT } from '@/components/courses/TurmasView';
 import { CriteriaFormModal } from './CriteriaFormModal';
 import { TemplateFormModal } from './TemplateFormModal';
 import type { EvalTemplate } from './types';
@@ -151,7 +151,7 @@ export function ModelsTab() {
             <NavyCard
               key={t.id}
               variant="photo"
-              accent={accentForRank(i)}
+              accent={NAVY_ACCENT}
               image={MODEL_PHOTO}
               imagePosition="15% center"
               seed={t.id}

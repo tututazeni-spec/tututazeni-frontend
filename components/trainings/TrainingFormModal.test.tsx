@@ -96,6 +96,16 @@ function fillRequired() {
   fireEvent.change(selects[3], { target: { value: 'BEGINNER' } }); // Nível
 }
 
+function submitCreate() {
+  // Ao criar, «Criar Formação» só aparece no último separador.
+  for (let i = 0; i < 10; i++) {
+    const next = screen.queryByRole('button', { name: 'Continuar' });
+    if (!next) break;
+    fireEvent.click(next);
+  }
+  fireEvent.click(screen.getByRole('button', { name: 'Criar Formação' }));
+}
+
 describe('TrainingFormModal — criação', () => {
   test('payload mínimo inclui title/type/level e arrays vazios de competências/co-instrutores', async () => {
     render(
@@ -106,7 +116,7 @@ describe('TrainingFormModal — criação', () => {
       />,
     );
     fillRequired();
-    fireEvent.click(screen.getByRole('button', { name: 'Criar Formação' }));
+    submitCreate();
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     expect(post).toHaveBeenCalledWith('/trainings', {
@@ -138,7 +148,7 @@ describe('TrainingFormModal — criação', () => {
         onSuccess={vi.fn()}
       />,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Criar Formação' }));
+    submitCreate();
     expect(post).not.toHaveBeenCalled();
   });
 
@@ -160,7 +170,7 @@ describe('TrainingFormModal — criação', () => {
         target: { value: 'liderança, gestão' },
       },
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Criar Formação' }));
+    submitCreate();
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1));
     const payload = post.mock.calls[0][1];

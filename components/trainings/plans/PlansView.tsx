@@ -6,6 +6,7 @@
 
 'use client';
 
+import { PlanActionsMenu } from './PlanActionsMenu';
 import { useState } from 'react';
 import {
   Archive,
@@ -36,6 +37,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { PLAN_PERIOD_LABEL, PLAN_STATUS_CFG, PRIORITY_CFG } from '../constants';
 import type { TrainingPlan } from '../types';
 import { INVERT_ON_HOVER } from '../buttonStyles';
+import { AddTrainingToPlanModal } from './AddTrainingToPlanModal';
 import { PlanFormModal } from './PlanFormModal';
 import { PLAN_TONE, PRIORITY_TONE } from './planTones';
 
@@ -55,6 +57,9 @@ export function PlansView({ onOpen }: PlansViewProps) {
   const toast = useToast();
   const [showCreate, setShowCreate] = useState(false);
   const [editPlan, setEditPlan] = useState<TrainingPlan | null>(null);
+  const [addTrainingPlanId, setAddTrainingPlanId] = useState<number | null>(
+    null,
+  );
 
   const { data, isLoading } = useApiQuery<PlansResponse>(
     queryKeys.trainingPlans.list({ limit: 100 }),
@@ -107,17 +112,17 @@ export function PlansView({ onOpen }: PlansViewProps) {
       onError: toastError,
     },
   );
-  const duplicate = useApiMutation(
-    (id: number) => apiClient.post(`/training-plans/${id}/duplicate`, {}),
+  const remove = useApiMutation(
+    (id: number) => apiClient.delete(`/training-plans/${id}`),
     {
       invalidateKeys,
-      onSuccess: () => toast({ title: 'Plano duplicado.', intent: 'success' }),
+      onSuccess: () => toast({ title: 'Plano eliminado.', intent: 'success' }),
       onError: toastError,
     },
   );
 
   const rowBusy = (id: number) =>
-    [submit, approve, reject, publish, archive, duplicate].some(
+    [submit, approve, reject, publish, archive, remove].some(
       (m) => m.isPending && m.variables === id,
     );
 
@@ -142,6 +147,17 @@ export function PlansView({ onOpen }: PlansViewProps) {
       confirmLabel: 'Arquivar',
     });
     if (ok) archive.mutate(p.id);
+  }
+
+  async function onDelete(p: TrainingPlan) {
+    const ok = await confirm({
+      title: `Eliminar "${p.name}"?`,
+      message:
+        'O plano é apagado de forma definitiva. As formações associadas ficam sem plano.',
+      confirmLabel: 'Eliminar',
+      destructive: true,
+    });
+    if (ok) remove.mutate(p.id);
   }
 
   if (isLoading) return <Skeleton rows={3} />;
@@ -213,53 +229,16 @@ export function PlansView({ onOpen }: PlansViewProps) {
                   },
                 ]}
                 actions={
-                  <>
-                    {(p.status === 'DRAFT' || p.status === 'REJECTED') && (
-                      <Button
-                        type="button"
-                        intent="onDarkGhost"
-                        size="icon"
-                        aria-label={`Editar ${p.name}`}
-                        title="Editar"
-                        disabled={busy}
-                        onClick={() => setEditPlan(p)}
-                      >
-                        <Pencil size={15} strokeWidth={1.75} />
-                      </Button>
-                    )}
-                    <Button
-                      type="button"
-                      intent="onDarkGhost"
-                      size="icon"
-                      aria-label={`Duplicar ${p.name}`}
-                      title="Duplicar"
-                      disabled={busy}
-                      onClick={() => duplicate.mutate(p.id)}
-                    >
-                      <Copy size={15} strokeWidth={1.75} />
-                    </Button>
-                    <a
-                      href={`/api/training-plans/${p.id}/export`}
-                      className={PHOTO_CARD_ACTION}
-                      aria-label={`Exportar ${p.name}`}
-                      title="Exportar"
-                    >
-                      <Download size={15} strokeWidth={1.75} />
-                    </a>
-                    {p.status !== 'ARCHIVED' && (
-                      <Button
-                        type="button"
-                        intent="onDarkGhost"
-                        size="icon"
-                        aria-label={`Arquivar ${p.name}`}
-                        title="Arquivar"
-                        disabled={busy}
-                        onClick={() => onArchive(p)}
-                      >
-                        <Archive size={15} strokeWidth={1.75} />
-                      </Button>
-                    )}
-                  </>
+                  <PlanActionsMenu
+                    planId={p.id}
+                    planName={p.name}
+                    status={p.status}
+                    disabled={busy}
+                    onEdit={() => setEditPlan(p)}
+                    onAddTraining={() => setAddTrainingPlanId(p.id)}
+                    onArchive={() => onArchive(p)}
+                    onDelete={() => onDelete(p)}
+                  />
                 }
                 footer={
                   <>
@@ -333,6 +312,12 @@ export function PlansView({ onOpen }: PlansViewProps) {
               intent: 'success',
             })
           }
+        />
+      )}
+      {addTrainingPlanId !== null && (
+        <AddTrainingToPlanModal
+          planId={addTrainingPlanId}
+          onClose={() => setAddTrainingPlanId(null)}
         />
       )}
     </div>

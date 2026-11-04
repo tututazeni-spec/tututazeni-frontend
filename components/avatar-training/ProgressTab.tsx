@@ -15,8 +15,9 @@ import { Button } from '@/components/ui/Button';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
+import { NAVY_ACCENT } from '@/components/courses/TurmasView';
+import { PROGRESS_PHOTO } from './cards';
 import { ASSIGNMENT_STATUS } from './constants';
-import { ASSIGNMENT_TONE, CardGrid } from './cards';
 import type { Paginated, ProgressRow } from './types';
 
 const LIMIT = 20;
@@ -51,16 +52,20 @@ export function ProgressTab() {
   const pages = Math.max(1, Math.ceil(data.total / LIMIT));
   return (
     <div className="space-y-3">
-      <CardGrid>
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
         {data.data.map((r) => (
           <NavyCard
             key={r.id}
+            variant="photo"
+            image={PROGRESS_PHOTO}
+            imagePosition="right center"
+            accent={NAVY_ACCENT}
             seed={r.session?.id ?? r.id}
             kicker={r.user?.fullName ?? '—'}
             kickerIcon={Users}
             title={r.session?.title ?? '—'}
             badge={
-              <NavyBadge tone={ASSIGNMENT_TONE[r.status]}>
+              <NavyBadge tone="light" large>
                 {ASSIGNMENT_STATUS[r.status].label}
               </NavyBadge>
             }
@@ -91,7 +96,7 @@ export function ProgressTab() {
             ]}
           />
         ))}
-      </CardGrid>
+      </div>
       <div className="flex items-center justify-between font-body text-xs text-ink-muted">
         <span>
           {data.total} registo(s) · página {page} de {pages}

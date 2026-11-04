@@ -34,6 +34,8 @@ export interface PhotoCardRow {
 interface PhotoCardProps {
   /** Identificador que escolhe a cor própria do cartão. */
   seed: number;
+  /** Paleta fixa (ex.: azul marinho) em vez da escolhida pelo `seed`. */
+  palette?: [string, string, string, string];
   kicker: string;
   kickerIcon?: LucideIcon;
   title: string;
@@ -65,6 +67,7 @@ function titleFontSize(title: string): string {
 
 export function PhotoCard({
   seed,
+  palette: paletteProp,
   kicker,
   kickerIcon: KickerIcon = GraduationCap,
   title,
@@ -81,7 +84,7 @@ export function PhotoCard({
   footer,
   onSelect,
 }: PhotoCardProps) {
-  const palette = PALETTE[Math.abs(seed) % PALETTE.length];
+  const palette = paletteProp ?? PALETTE[Math.abs(seed) % PALETTE.length];
   const [imageFailed, setImageFailed] = useState(false);
   const clickable = !!onSelect;
 

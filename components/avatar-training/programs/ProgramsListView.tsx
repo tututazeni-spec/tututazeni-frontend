@@ -13,12 +13,40 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import type { ProgramsListController } from '@/hooks/useProgramsList';
 import { CardGrid, ProgramCard } from '../cards';
 import { PROGRAM_STATUS } from '../constants';
+import { ProgramsRecycleView } from './ProgramsRecycleView';
 import { ALL, programActions } from './logic';
 
 interface ProgramsListViewProps {
   list: ProgramsListController;
   onCreate: () => void;
   onOpenSheet: (id: number) => void;
+}
+
+function ModeSwitch({ list }: { list: ProgramsListController }) {
+  return (
+    <div role="group" aria-label="Vista" className="flex gap-2">
+      {(
+        [
+          ['manage', 'Gestão'],
+          ['catalog', 'Catálogo'],
+          ['recycle', 'Reciclagem'],
+        ] as const
+      ).map(([id, label]) => (
+        <button
+          key={id}
+          aria-pressed={list.mode === id}
+          onClick={() => list.setMode(id)}
+          className={`rounded-control border px-3 py-1.5 text-xs font-medium transition-colors ${
+            list.mode === id
+              ? 'border-primary bg-primary/10 text-primary'
+              : 'border-border bg-surface text-ink-muted hover:text-ink'
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 export function ProgramsListView({
@@ -43,7 +71,17 @@ export function ProgramsListView({
     error,
     refetch,
     runAction,
+    removeProgram,
   } = list;
+
+  if (isAuthor && mode === 'recycle') {
+    return (
+      <div className="space-y-4">
+        <ModeSwitch list={list} />
+        <ProgramsRecycleView />
+      </div>
+    );
+  }
 
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   if (isLoading || !data)
@@ -54,29 +92,7 @@ export function ProgramsListView({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-3">
-        {isAuthor && (
-          <div role="group" aria-label="Vista" className="flex gap-2">
-            {(
-              [
-                ['catalog', 'Catálogo'],
-                ['manage', 'Gestão'],
-              ] as const
-            ).map(([id, label]) => (
-              <button
-                key={id}
-                aria-pressed={mode === id}
-                onClick={() => setMode(id)}
-                className={`rounded-control border px-3 py-1.5 text-xs font-medium transition-colors ${
-                  mode === id
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-surface text-ink-muted hover:text-ink'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
+        {isAuthor && <ModeSwitch list={list} />}
         <div className="min-w-[180px] flex-1">
           <FormField label="Pesquisar" htmlFor="ap-search">
             <Input
@@ -168,6 +184,16 @@ export function ProgramsListView({
                         onClick={() => runAction(p.id, 'publish')}
                       >
                         Publicar
+                      </Button>
+                    )}
+                    {manage && p.status !== 'PUBLISHED' && (
+                      <Button
+                        type="button"
+                        intent="onDarkGhost"
+                        size="sm"
+                        onClick={() => removeProgram(p)}
+                      >
+                        Eliminar
                       </Button>
                     )}
                     {actions.canArchive && (

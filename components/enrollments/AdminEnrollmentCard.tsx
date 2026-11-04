@@ -17,9 +17,16 @@ const TONE_PILL: Record<AdminEnrollmentTone, string> = {
   success: 'bg-[#12A150] text-white',
   danger: 'bg-[#E5384F] text-white',
   warning: 'bg-[#F2B01E] text-warning-ink',
-  info: 'bg-[#2B7FE8] text-white',
+  info: 'bg-[var(--color-brand-ink)] text-white',
   neutral: 'bg-brand-line text-brand-muted',
 };
+
+const NAVY_PALETTE: [string, string, string, string] = [
+  '#1B2F57',
+  '#15264A',
+  '#0F1F3D',
+  '#0F1F3D',
+];
 
 export const ADMIN_ENROLLMENT_BTN_PRIMARY =
   'inline-flex h-9 items-center justify-center gap-1.5 rounded-control bg-brand px-3.5 text-sm font-semibold text-white hover:bg-[#1B2F57] disabled:opacity-50';
@@ -63,7 +70,10 @@ export function AdminEnrollmentCard({
   footerLabel,
   actions,
 }: AdminEnrollmentCardProps) {
-  const palette = PALETTE[Math.abs(seed) % PALETTE.length];
+  const paletteIdx = Math.abs(seed) % PALETTE.length;
+  // Os tons azuis da paleta (azul e índigo) passam a azul marinho da marca.
+  const palette =
+    paletteIdx === 0 || paletteIdx === 6 ? NAVY_PALETTE : PALETTE[paletteIdx];
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden rounded-panel border border-brand-line bg-surface p-4 shadow-[0_6px_18px_rgba(15,31,61,0.08)]">
@@ -118,7 +128,7 @@ export function AdminEnrollmentCard({
 
       {/* Linha 2: ícone redondo + curso + utilizador */}
       <div className="relative mt-2 flex items-center gap-3 sm:max-w-[68%]">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success text-white">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-ink)] text-white">
           <GraduationCap size={20} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">

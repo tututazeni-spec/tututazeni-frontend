@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { STALE_TIME } from '@/lib/queryClient';
+import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/providers/ToastProvider';
 import { useApiMutation, useApiQuery } from './useApiQuery';
 import { useDebounce } from './useDebounce';
@@ -22,6 +23,7 @@ interface FoundUser {
   id: number;
   fullName: string;
   email?: string | null;
+  avatarUrl?: string | null;
 }
 
 export function useAssignSession(sessionId: number) {
@@ -34,6 +36,16 @@ export function useAssignSession(sessionId: number) {
   const [dueDate, setDueDate] = useState('');
   const [mandatory, setMandatory] = useState(true);
   const userIds = Object.keys(picked).map(Number);
+  // Atribuição por departamento (ids escolhidos) ou a todos os departamentos.
+  const [departmentIds, setDepartmentIds] = useState<number[]>([]);
+  const [allDepartments, setAllDepartments] = useState(false);
+  const deptParams = { limit: 200 };
+  const depts = useApiQuery<{ data: { id: number; name: string }[] }>(
+    queryKeys.departments.list(deptParams),
+    '/departments',
+    { params: deptParams, staleTime: STALE_TIME.SEMI_STATIC },
+  );
+  const departments = depts.data?.data ?? [];
 
   const found = useApiQuery<{ data: FoundUser[] }>(
     ['avatar-training', 'assign-user-search', debounced],
@@ -49,12 +61,20 @@ export function useAssignSession(sessionId: number) {
     () =>
       apiClient.post(
         `/avatar-training/sessions/${sessionId}/assign`,
-        buildAssignPayload(userIds, dueDate, mandatory),
+        buildAssignPayload(
+          userIds,
+          dueDate,
+          mandatory,
+          departmentIds,
+          allDepartments,
+        ),
       ),
     {
       onSuccess: () => {
         notify({ title: 'Sessão atribuída', intent: 'success' });
         setPicked({});
+        setDepartmentIds([]);
+        setAllDepartments(false);
       },
       onError: (e) =>
         notify({
@@ -86,6 +106,20 @@ export function useAssignSession(sessionId: number) {
         const { [id]: _removed, ...rest } = p;
         return rest;
       }),
+    departments,
+    departmentIds,
+    allDepartments,
+    setDepartments: (ids: string[]) => {
+      setAllDepartments(false);
+      setDepartmentIds(ids.map(Number));
+    },
+    toggleAllDepartments: () => {
+      setDepartmentIds([]);
+      setAllDepartments((v) => !v);
+    },
+    /** Há destinatários: colaboradores escolhidos e/ou departamentos. */
+    hasTargets:
+      userIds.length > 0 || departmentIds.length > 0 || allDepartments,
     dueDate,
     setDueDate,
     mandatory,

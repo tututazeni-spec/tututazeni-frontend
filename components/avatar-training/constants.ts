@@ -15,7 +15,7 @@ import {
   Workflow,
 } from 'lucide-react';
 import type { PillTabItem } from '@/components/ui/PillTabs';
-import { ADMIN_ROLES, type Role } from '@/lib/roles';
+import { ADMIN_ROLES, NON_COLABORADOR_ROLES, type Role } from '@/lib/roles';
 import type { StatusBadgeMap } from '@/lib/statusBadge';
 import type {
   AssignmentStatus,
@@ -48,18 +48,19 @@ export const TABS: Array<PillTabItem & { id: TabId; roles?: readonly Role[] }> =
       label: 'Visão Geral',
       hint: 'Resumo do módulo',
       icon: LayoutDashboard,
-    },
-    {
-      id: 'room',
-      label: 'Sala de Formação Virtual',
-      hint: 'Sessões ao vivo',
-      icon: Presentation,
+      roles: NON_COLABORADOR_ROLES,
     },
     {
       id: 'programs',
       label: 'Formações com Avatar',
       hint: 'Programas publicados',
       icon: GraduationCap,
+    },
+    {
+      id: 'room',
+      label: 'Sala de Formação Virtual',
+      hint: 'Sessões ao vivo',
+      icon: Presentation,
     },
     {
       id: 'simulations',
@@ -229,7 +230,13 @@ export const SPECIALTY_OPTIONS = [
   'Segurança da Informação',
 ];
 
-export const PROVIDER_OPTIONS = ['Simli', 'HeyGen', 'D-ID', 'Synthesia', 'Tavus'];
+export const PROVIDER_OPTIONS = [
+  'Simli',
+  'HeyGen',
+  'D-ID',
+  'Synthesia',
+  'Tavus',
+];
 
 export const OBJECTIVE_OPTIONS = [
   'Desenvolver competências de comunicação',
@@ -294,9 +301,9 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
 
 /** Classes da bolha de cada tipo de interacção na conversa da sala. */
 export const BUBBLE: Record<string, string> = {
-  AVATAR_MESSAGE: 'bg-primary-subtle text-ink self-start',
+  AVATAR_MESSAGE: 'bg-surface-sunken text-ink self-start',
   FEEDBACK: 'bg-info-subtle text-info-ink self-start',
-  USER_MESSAGE: 'bg-surface-sunken text-ink self-end',
+  USER_MESSAGE: 'bg-[#1F4FB8] text-white self-end',
   USER_ANSWER: 'bg-surface-sunken text-ink self-end',
   HELP_REQUEST: 'bg-surface-sunken text-ink self-end',
 };

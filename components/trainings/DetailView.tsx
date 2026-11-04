@@ -325,30 +325,36 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                     </div>
                   )}
                 </div>
-                <Button
-                  size="sm"
-                  intent={
-                    isFull && !session.waitlistEnabled
-                      ? 'secondary'
-                      : isFull
-                        ? 'warning'
-                        : 'primary'
-                  }
-                  onClick={() => handleEnroll(session.id)}
-                  disabled={
-                    (isFull && !session.waitlistEnabled) ||
-                    enrolling === session.id
-                  }
-                  className="flex-shrink-0"
-                >
-                  {enrolling === session.id
-                    ? '…'
-                    : isFull && session.waitlistEnabled
-                      ? 'Lista de espera'
-                      : isFull
-                        ? 'Esgotado'
-                        : 'Inscrever-me'}
-                </Button>
+                {training.mySessionIds?.includes(session.id) ? (
+                  <span className="flex-shrink-0 rounded-pill bg-brand px-3 py-1 font-body text-xs font-semibold text-white">
+                    Inscrito
+                  </span>
+                ) : (
+                  <Button
+                    size="sm"
+                    intent={
+                      isFull && !session.waitlistEnabled
+                        ? 'secondary'
+                        : isFull
+                          ? 'warning'
+                          : 'primary'
+                    }
+                    onClick={() => handleEnroll(session.id)}
+                    disabled={
+                      (isFull && !session.waitlistEnabled) ||
+                      enrolling === session.id
+                    }
+                    className="flex-shrink-0"
+                  >
+                    {enrolling === session.id
+                      ? '…'
+                      : isFull && session.waitlistEnabled
+                        ? 'Lista de espera'
+                        : isFull
+                          ? 'Esgotado'
+                          : 'Inscrever-me'}
+                  </Button>
+                )}
               </div>
             );
           })}

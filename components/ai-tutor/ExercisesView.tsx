@@ -8,9 +8,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Lightbulb, Sparkles } from 'lucide-react';
+import { ClipboardCheck, Lightbulb, Sparkles } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
+import { useHasRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
+import { queryKeys } from '@/lib/queryKeys';
+import { EVAL_CREATOR_ROLES } from '@/lib/roles';
+import { buildQuestions, isExportable } from './exportToFormalEvaluation';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -125,14 +129,21 @@ function ExerciseFeedbackBox({
   );
 }
 
+interface GradedCardProps<T, A> {
+  item: T;
+  index: number;
+  answer: A | null;
+  onAnswer: (v: A) => void;
+  submitted: boolean;
+}
+
 function TrueFalseCard({
   item,
   index,
-}: {
-  item: TrueFalseItem;
-  index: number;
-}) {
-  const [answer, setAnswer] = useState<boolean | null>(null);
+  answer,
+  onAnswer,
+  submitted,
+}: GradedCardProps<TrueFalseItem, boolean>) {
   return (
     <Card className="p-4">
       <div className="font-body text-sm font-semibold text-ink mb-3">
@@ -143,22 +154,82 @@ function TrueFalseCard({
           <Button
             key={String(v)}
             size="sm"
+            disabled={submitted}
             intent={
-              answer === v
+              submitted
                 ? v === item.isTrue
                   ? 'success'
-                  : 'danger'
-                : 'secondary'
+                  : answer === v
+                    ? 'danger'
+                    : 'secondary'
+                : answer === v
+                  ? 'primary'
+                  : 'secondary'
             }
-            onClick={() => setAnswer(v)}
+            onClick={() => onAnswer(v)}
           >
             {v ? 'Verdadeiro' : 'Falso'}
           </Button>
         ))}
       </div>
-      {answer !== null && item.explanation && (
+      {submitted && item.explanation && (
         <div className="mt-3 font-body text-xs text-info-ink bg-info-subtle rounded-control px-3 py-2">
           {item.explanation}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function QuizCard({
+  item: q,
+  index,
+  answer,
+  onAnswer,
+  submitted,
+}: GradedCardProps<QuizQuestion, number>) {
+  return (
+    <Card className="p-4">
+      <div className="font-body text-sm font-semibold text-ink mb-3">
+        {index + 1}. {q.question}
+      </div>
+      <div className="space-y-1.5">
+        {(q.options ?? []).map((opt: string, j: number) => {
+          const isCorrect = opt.startsWith(q.correct);
+          const isChosen = answer === j;
+          let cls = 'bg-surface-sunken text-ink hover:bg-surface';
+          if (submitted) {
+            if (isCorrect) {
+              cls = 'bg-success-subtle text-success-ink font-medium';
+            } else if (isChosen) {
+              cls = 'bg-danger-subtle text-danger-ink';
+            } else {
+              cls = 'bg-surface-sunken text-ink-muted';
+            }
+          } else if (isChosen) {
+            cls = 'bg-[#0F1F3D] text-white';
+          }
+          return (
+            <button
+              key={j}
+              type="button"
+              disabled={submitted}
+              onClick={() => onAnswer(j)}
+              className={`w-full text-left font-body text-sm px-3 py-2 rounded-control transition-colors ${cls}`}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+      {submitted && q.explanation && (
+        <div className="mt-3 font-body text-xs text-info-ink bg-info-subtle rounded-control px-3 py-2">
+          <Lightbulb
+            size={14}
+            strokeWidth={1.75}
+            className="inline align-[-2px]"
+          />{' '}
+          {q.explanation}
         </div>
       )}
     </Card>
@@ -168,34 +239,43 @@ function TrueFalseCard({
 function SimulationCard({
   item,
   index,
-}: {
-  item: SimulationItem;
-  index: number;
-}) {
-  const [chosen, setChosen] = useState<number | null>(null);
+  answer: chosen,
+  onAnswer,
+  submitted,
+}: GradedCardProps<SimulationItem, number>) {
   return (
     <Card className="p-4">
       <div className="font-body text-sm font-semibold text-ink mb-3">
         {index + 1}. {item.situation}
       </div>
       <div className="space-y-2">
-        {item.options.map((opt, i) => (
-          <button
-            key={i}
-            onClick={() => setChosen(i)}
-            className={`w-full text-left font-body text-sm px-3 py-2 rounded-control border transition-colors ${
-              chosen === i
-                ? opt.isBest
-                  ? 'bg-success-subtle border-success text-success-ink'
-                  : 'bg-warning-subtle border-warning text-warning-ink'
-                : 'border-border bg-surface-sunken text-ink hover:bg-surface'
-            }`}
-          >
-            {opt.text}
-          </button>
-        ))}
+        {item.options.map((opt, i) => {
+          let cls = 'border-border bg-surface-sunken text-ink hover:bg-surface';
+          if (submitted) {
+            if (opt.isBest) {
+              cls = 'bg-success-subtle border-success text-success-ink';
+            } else if (chosen === i) {
+              cls = 'bg-warning-subtle border-warning text-warning-ink';
+            } else {
+              cls = 'border-border bg-surface-sunken text-ink-muted';
+            }
+          } else if (chosen === i) {
+            cls = 'border-[#0F1F3D] bg-[#0F1F3D] text-white';
+          }
+          return (
+            <button
+              key={i}
+              type="button"
+              disabled={submitted}
+              onClick={() => onAnswer(i)}
+              className={`w-full text-left font-body text-sm px-3 py-2 rounded-control border transition-colors ${cls}`}
+            >
+              {opt.text}
+            </button>
+          );
+        })}
       </div>
-      {chosen !== null && (
+      {submitted && chosen !== null && (
         <div className="mt-3 font-body text-xs text-ink-muted bg-surface-sunken rounded-control px-3 py-2">
           {item.options[chosen].isBest ? '✅ ' : 'ℹ️ '}
           {item.options[chosen].consequence}
@@ -205,17 +285,77 @@ function SimulationCard({
   );
 }
 
+interface SubmitBarProps {
+  total: number;
+  answered: number;
+  submitted: boolean;
+  correct: number;
+  onSubmit: () => void;
+}
+
+function SubmitBar({
+  total,
+  answered,
+  submitted,
+  correct,
+  onSubmit,
+}: SubmitBarProps) {
+  if (submitted) {
+    return (
+      <Card className="p-4 font-body text-sm font-semibold text-ink">
+        Resultado: {correct}/{total} correctas
+      </Card>
+    );
+  }
+  return (
+    <div className="flex items-center gap-3">
+      <Button onClick={onSubmit} disabled={answered === 0}>
+        Submeter respostas
+      </Button>
+      <span className="font-body text-xs text-ink-muted">
+        {answered}/{total} respondidas
+      </span>
+    </div>
+  );
+}
+
 export function ExercisesView() {
   const notify = useToast();
   const [type, setType] = useState<ExerciseType>('QUIZ');
   const [topic, setTopic] = useState('');
   const [count, setCount] = useState(5);
+  const [runId, setRunId] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, number | boolean>>({});
+  const [submitted, setSubmitted] = useState(false);
+  // Tipo e tema no momento de gerar — o utilizador pode mudá-los depois.
+  const [generated, setGenerated] = useState({ type: 'QUIZ', topic: '' });
+  const canExport = useHasRole(EVAL_CREATOR_ROLES);
   const generateMutation = useApiMutation(
     (payload: { type: ExerciseType; topic: string; count: number }) =>
       apiClient.post<GeneratedContent>('/ai-tutor/generate', payload),
     { onError: (e) => notify({ title: e.message, intent: 'danger' }) },
   );
   const result = generateMutation.data ?? null;
+  // Cria a avaliação formal em rascunho: o tema escrito vira o título e as
+  // perguntas geradas seguem já preenchidas.
+  const exportMutation = useApiMutation(
+    (_: void) =>
+      apiClient.post('/assessments', {
+        title: generated.topic.slice(0, 200),
+        type: 'EXAM',
+        source: 'AI_TUTOR',
+        questions: buildQuestions(generated.type, result?.content),
+      }),
+    {
+      invalidateKeys: [queryKeys.formalEvaluations.list()],
+      onSuccess: () =>
+        notify({
+          title: 'Exportado para Avaliações formais como rascunho',
+          intent: 'success',
+        }),
+      onError: (e) => notify({ title: e.message, intent: 'danger' }),
+    },
+  );
   const loading = generateMutation.isPending;
   const activeType = EXERCISE_TYPES.find((t) => t.id === type)!;
 
@@ -224,6 +364,11 @@ export function ExercisesView() {
       notify({ title: 'Introduz um tema', intent: 'danger' });
       return;
     }
+    setAnswers({});
+    setSubmitted(false);
+    setRunId((n) => n + 1);
+    setGenerated({ type, topic: topic.trim() });
+    exportMutation.reset();
     generateMutation.mutate({ type, topic, count });
   };
 
@@ -231,50 +376,62 @@ export function ExercisesView() {
     if (!result) return null;
     const content = result.content;
 
+    const setAnswer = (i: number) => (v: number | boolean) =>
+      setAnswers((prev) => ({ ...prev, [i]: v }));
+    const answered = Object.keys(answers).length;
+
     if (type === 'QUIZ' && Array.isArray(content)) {
+      const items = content as QuizQuestion[];
+      const correct = items.filter(
+        (q, i) =>
+          typeof answers[i] === 'number' &&
+          (q.options ?? [])[answers[i] as number]?.startsWith(q.correct),
+      ).length;
       return (
-        <div className="space-y-4">
-          {(content as QuizQuestion[]).map((q, i) => (
-            <Card key={i} className="p-4">
-              <div className="font-body text-sm font-semibold text-ink mb-3">
-                {i + 1}. {q.question}
-              </div>
-              <div className="space-y-1.5">
-                {(q.options ?? []).map((opt: string, j: number) => (
-                  <div
-                    key={j}
-                    className={`font-body text-sm px-3 py-2 rounded-control ${
-                      opt.startsWith(q.correct)
-                        ? 'bg-success-subtle text-success-ink font-medium'
-                        : 'bg-surface-sunken text-ink-muted'
-                    }`}
-                  >
-                    {opt}
-                  </div>
-                ))}
-              </div>
-              {q.explanation && (
-                <div className="mt-3 font-body text-xs text-info-ink bg-info-subtle rounded-control px-3 py-2">
-                  <Lightbulb
-                    size={14}
-                    strokeWidth={1.75}
-                    className="inline align-[-2px]"
-                  />{' '}
-                  {q.explanation}
-                </div>
-              )}
-            </Card>
+        <div className="space-y-4" key={runId}>
+          {items.map((q, i) => (
+            <QuizCard
+              key={i}
+              item={q}
+              index={i}
+              answer={(answers[i] as number | undefined) ?? null}
+              onAnswer={setAnswer(i)}
+              submitted={submitted}
+            />
           ))}
+          <SubmitBar
+            total={items.length}
+            answered={answered}
+            submitted={submitted}
+            correct={correct}
+            onSubmit={() => setSubmitted(true)}
+          />
         </div>
       );
     }
 
     if (type === 'TRUE_FALSE' && Array.isArray(content)) {
+      const items = content as TrueFalseItem[];
+      const correct = items.filter((q, i) => answers[i] === q.isTrue).length;
       return (
-        <div className="space-y-4">
-          {(content as TrueFalseItem[]).map((item, i) => (
-            <TrueFalseCard key={i} item={item} index={i} />
+        <div className="space-y-4" key={runId}>
+          {items.map((item, i) => (
+            <TrueFalseCard
+              key={i}
+              item={item}
+              index={i}
+              answer={(answers[i] as boolean | undefined) ?? null}
+              onAnswer={setAnswer(i)}
+              submitted={submitted}
+            />
           ))}
+          <SubmitBar
+            total={items.length}
+            answered={answered}
+            submitted={submitted}
+            correct={correct}
+            onSubmit={() => setSubmitted(true)}
+          />
         </div>
       );
     }
@@ -324,11 +481,31 @@ export function ExercisesView() {
     }
 
     if (type === 'SIMULATION' && Array.isArray(content)) {
+      const items = content as SimulationItem[];
+      const correct = items.filter(
+        (it, i) =>
+          typeof answers[i] === 'number' &&
+          it.options[answers[i] as number]?.isBest,
+      ).length;
       return (
-        <div className="space-y-4">
-          {(content as SimulationItem[]).map((item, i) => (
-            <SimulationCard key={i} item={item} index={i} />
+        <div className="space-y-4" key={runId}>
+          {items.map((item, i) => (
+            <SimulationCard
+              key={i}
+              item={item}
+              index={i}
+              answer={(answers[i] as number | undefined) ?? null}
+              onAnswer={setAnswer(i)}
+              submitted={submitted}
+            />
           ))}
+          <SubmitBar
+            total={items.length}
+            answered={answered}
+            submitted={submitted}
+            correct={correct}
+            onSubmit={() => setSubmitted(true)}
+          />
         </div>
       );
     }
@@ -421,7 +598,7 @@ export function ExercisesView() {
             <span className="font-body text-xs text-ink-muted">
               Quantidade:
             </span>
-            {[2, 3, 5, 8, 10].map((n) => (
+            {[2, 5, 10, 15, 20].map((n) => (
               <Button
                 key={n}
                 size="sm"
@@ -449,9 +626,22 @@ export function ExercisesView() {
 
       {result && (
         <div>
-          <div className="font-body text-xs text-ink-faint mb-3">
-            Gerado por {result.provider}
-          </div>
+          {canExport && isExportable(generated.type) && (
+            <div className="mb-3 flex justify-end">
+              <Button
+                size="sm"
+                intent="secondary"
+                onClick={() => exportMutation.mutate()}
+                loading={exportMutation.isPending}
+                disabled={exportMutation.isSuccess}
+              >
+                <ClipboardCheck size={14} strokeWidth={1.75} />
+                {exportMutation.isSuccess
+                  ? 'Exportado para Avaliações formais'
+                  : 'Exportar para Avaliações formais'}
+              </Button>
+            </div>
+          )}
           {renderContent()}
         </div>
       )}

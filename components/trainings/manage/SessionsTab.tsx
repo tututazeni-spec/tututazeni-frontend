@@ -20,11 +20,6 @@ import { queryKeys } from '@/lib/queryKeys';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import {
-  NAVY_ACTION,
-  NavyBadge,
-  NavyCard,
-} from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -51,6 +46,7 @@ interface SessionsTabProps {
 }
 
 interface SessionFormState {
+  title: string;
   sessionDate: string;
   durationMinutes: string;
   modality: string;
@@ -61,7 +57,29 @@ interface SessionFormState {
   notes: string;
 }
 
+const PLATFORM_ITEMS = [
+  { value: 'ZOOM', label: 'Zoom' },
+  { value: 'TEAMS', label: 'Teams' },
+  { value: 'JITSI', label: 'Jitsi' },
+];
+
+const PLATFORM_HINT: Record<string, string> = {
+  ZOOM: 'https://zoom.us/j/...',
+  TEAMS: 'https://teams.microsoft.com/l/meetup-join/...',
+  JITSI: 'https://meet.jit.si/...',
+};
+
+/** Deduz a plataforma a partir do link guardado (não há campo próprio no backend). */
+function platformFromUrl(url: string): string {
+  const u = url.toLowerCase();
+  if (u.includes('zoom.')) return 'ZOOM';
+  if (u.includes('teams.')) return 'TEAMS';
+  if (u.includes('jit.si') || u.includes('jitsi')) return 'JITSI';
+  return '';
+}
+
 const EMPTY: SessionFormState = {
+  title: '',
   sessionDate: '',
   durationMinutes: '90',
   modality: 'PRESENTIAL',
@@ -77,15 +95,20 @@ export function SessionsTab({ training }: SessionsTabProps) {
   const toast = useToast();
   const [editing, setEditing] = useState<Session | 'new' | null>(null);
   const [form, setForm] = useState<SessionFormState>(EMPTY);
+  const [platform, setPlatform] = useState('');
+
+  const isRemote = form.modality === 'ONLINE' || form.modality === 'HYBRID';
 
   const invalidateKeys = [queryKeys.trainings.detail(training.id)];
 
   const openNew = () => {
     setForm(EMPTY);
+    setPlatform('');
     setEditing('new');
   };
   const openEdit = (s: Session) => {
     setForm({
+      title: s.title ?? '',
       sessionDate: s.sessionDate.slice(0, 16),
       durationMinutes: String(s.durationMinutes),
       modality: s.modality,
@@ -95,6 +118,7 @@ export function SessionsTab({ training }: SessionsTabProps) {
       waitlistEnabled: s.waitlistEnabled,
       notes: '',
     });
+    setPlatform(platformFromUrl(s.meetingUrl ?? ''));
     setEditing(s);
   };
 
@@ -102,11 +126,12 @@ export function SessionsTab({ training }: SessionsTabProps) {
     () => {
       const payload = {
         trainingId: training.id,
+        title: form.title.trim() || undefined,
         sessionDate: new Date(form.sessionDate).toISOString(),
         durationMinutes: Number(form.durationMinutes) || 60,
         modality: form.modality,
         location: form.location || undefined,
-        meetingUrl: form.meetingUrl || undefined,
+        meetingUrl: isRemote ? form.meetingUrl || undefined : undefined,
         maxParticipants: Number(form.maxParticipants) || 0,
         waitlistEnabled: form.waitlistEnabled,
         notes: form.notes || undefined,
@@ -164,69 +189,82 @@ export function SessionsTab({ training }: SessionsTabProps) {
           {sessions.map((s) => {
             const busy = remove.isPending && remove.variables === s.id;
             return (
-              <NavyCard
+              <div
                 key={s.id}
-                compact
-                seed={training.colorIndex ?? training.id}
-                image={training.thumbnailUrl}
-                kicker="Sessão"
-                kickerIcon={CalendarClock}
-                title={fmtDate(s.sessionDate)}
-                badge={
-                  <>
-                    <NavyBadge tone="info">
+                className="flex flex-wrap items-center gap-4 rounded-2xl border border-[#0F1F3D] bg-[#F3F7FE] px-4 py-3"
+              >
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
+                  <CalendarClock size={26} strokeWidth={1.75} />
+                </div>
+                <div className="hidden h-14 w-px bg-[#0F1F3D]/40 sm:block" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  {s.title && (
+                    <p className="truncate text-base font-semibold text-[#0F1F3D]">
+                      {s.title}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-lg font-bold text-[#0F1F3D]">
+                      {fmtDate(s.sessionDate)}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0F1F3D] px-3 py-1 text-sm font-semibold text-white">
+                      <span className="h-2 w-2 rounded-full bg-white" />
                       {MODALITY_LABEL[s.modality] ?? s.modality}
-                    </NavyBadge>
+                    </span>
                     {s.waitlistEnabled && (
-                      <NavyBadge tone="neutral">Lista de espera</NavyBadge>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E3E9F5] px-3 py-1 text-sm font-semibold text-[#0F1F3D]">
+                        <span className="h-2 w-2 rounded-full bg-[#7A869E]" />
+                        Lista de espera
+                      </span>
                     )}
-                  </>
-                }
-                infos={[
-                  {
-                    icon: Clock,
-                    value: `${s.durationMinutes} min`,
-                    label: 'Duração',
-                  },
-                  {
-                    icon: MapPin,
-                    value: s.location ?? '—',
-                    label: 'Local',
-                  },
-                  {
-                    icon: Users,
-                    value:
-                      s.maxParticipants > 0
-                        ? `${s._count.participants}/${s.maxParticipants}`
-                        : String(s._count.participants),
-                    label: 'Inscritos',
-                  },
-                ]}
-                actions={
-                  <>
-                    <Button
-                      type="button"
-                      intent="onDarkGhost"
-                      size="sm"
-                      aria-label={`Editar sessão de ${fmtDate(s.sessionDate)}`}
-                      title="Editar"
-                      onClick={() => openEdit(s)}
-                    >
-                      <Pencil size={15} strokeWidth={1.75} />
-                    </Button>
-                    <button
-                      type="button"
-                      className={`${NAVY_ACTION} hover:!bg-red-500 hover:!text-white`}
-                      aria-label={`Eliminar sessão de ${fmtDate(s.sessionDate)}`}
-                      title="Eliminar"
-                      disabled={busy}
-                      onClick={() => onDelete(s)}
-                    >
-                      <Trash2 size={15} strokeWidth={1.75} />
-                    </button>
-                  </>
-                }
-              />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#0F1F3D]">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock size={16} strokeWidth={1.75} />
+                      <b>{s.durationMinutes} min</b>
+                      <span className="text-[#4B5873]">Duração</span>
+                    </span>
+                    <span className="h-4 w-px bg-[#0F1F3D]/40" />
+                    <span className="inline-flex items-center gap-1.5">
+                      <MapPin size={16} strokeWidth={1.75} />
+                      <b>{s.location ?? '—'}</b>
+                      <span className="text-[#4B5873]">Local</span>
+                    </span>
+                    <span className="h-4 w-px bg-[#0F1F3D]/40" />
+                    <span className="inline-flex items-center gap-1.5">
+                      <Users size={16} strokeWidth={1.75} />
+                      <b>
+                        {s.maxParticipants > 0
+                          ? `${s._count.participants}/${s.maxParticipants}`
+                          : s._count.participants}
+                      </b>
+                      <span className="text-[#4B5873]">inscritos</span>
+                    </span>
+                  </div>
+                </div>
+                <div className="hidden h-14 w-px bg-[#0F1F3D]/40 sm:block" />
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0F1F3D] text-white transition hover:bg-[#1E3A5F]"
+                    aria-label={`Editar sessão de ${fmtDate(s.sessionDate)}`}
+                    title="Editar"
+                    onClick={() => openEdit(s)}
+                  >
+                    <Pencil size={18} strokeWidth={1.75} />
+                  </button>
+                  <button
+                    type="button"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0F1F3D] text-white transition hover:bg-red-500 disabled:opacity-50"
+                    aria-label={`Eliminar sessão de ${fmtDate(s.sessionDate)}`}
+                    title="Eliminar"
+                    disabled={busy}
+                    onClick={() => onDelete(s)}
+                  >
+                    <Trash2 size={18} strokeWidth={1.75} />
+                  </button>
+                </div>
+              </div>
             );
           })}
         </div>
@@ -238,6 +276,17 @@ export function SessionsTab({ training }: SessionsTabProps) {
             title={editing === 'new' ? 'Nova sessão' : 'Editar sessão'}
           >
             <div className="mt-4 space-y-4">
+              <FormField label="Título da sessão" htmlFor="st-title">
+                <Input
+                  id="st-title"
+                  value={form.title}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, title: e.target.value }))
+                  }
+                  maxLength={200}
+                  className="w-full"
+                />
+              </FormField>
               <FormField label="Data e hora" htmlFor="st-date">
                 <Input
                   id="st-date"
@@ -286,19 +335,36 @@ export function SessionsTab({ training }: SessionsTabProps) {
                   className="w-full"
                 />
               </FormField>
-              <FormField
-                label="Link da reunião (online/híbrida)"
-                htmlFor="st-meetingUrl"
-              >
-                <Input
-                  id="st-meetingUrl"
-                  value={form.meetingUrl}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, meetingUrl: e.target.value }))
-                  }
-                  className="w-full"
-                />
-              </FormField>
+              {isRemote && (
+                <>
+                  <FormField
+                    label="Plataforma da reunião"
+                    htmlFor="st-platform"
+                  >
+                    <Select
+                      items={PLATFORM_ITEMS}
+                      value={platform || undefined}
+                      onValueChange={setPlatform}
+                      className="w-full"
+                      placeholder="Selecionar"
+                    />
+                  </FormField>
+                  <FormField
+                    label="Link da reunião (online/híbrida)"
+                    htmlFor="st-meetingUrl"
+                  >
+                    <Input
+                      id="st-meetingUrl"
+                      placeholder={PLATFORM_HINT[platform]}
+                      value={form.meetingUrl}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, meetingUrl: e.target.value }))
+                      }
+                      className="w-full"
+                    />
+                  </FormField>
+                </>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="Capacidade (0 = ilimitado)" htmlFor="st-max">
                   <Input

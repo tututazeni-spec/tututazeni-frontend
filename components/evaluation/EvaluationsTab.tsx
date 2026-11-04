@@ -307,7 +307,7 @@ export function EvaluationsTab() {
         r.cycle?.name ?? '',
         REQUEST_STATUS_MAP[r.status]?.label ?? r.status,
         r.dueDate ? formatDateNumeric(r.dueDate) : '',
-        r.result != null ? r.result.toFixed(1) : '',
+        r.result != null ? Number(r.result).toFixed(1) : '',
         r.completedAt ? formatDateNumeric(r.completedAt) : '',
       ]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)

@@ -6,7 +6,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Unlock } from 'lucide-react';
+import {
+  Boxes,
+  CalendarClock,
+  MapPin,
+  Pencil,
+  Plus,
+  Tag,
+  Trash2,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -14,13 +24,12 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { INVERT_ON_HOVER } from './buttonStyles';
 import { RESOURCE_KIND_LABEL, RESOURCE_STATUS_CFG } from './constants';
-import { fmtDate } from './utils';
 import type { TrainingResourceItem } from './types';
+import { ResourceDetailModal } from './ResourceDetailModal';
 import { ResourceFormModal } from './ResourceFormModal';
 
 interface ResourcesResponse {
@@ -35,18 +44,14 @@ export function ResourcesView() {
   const [editResource, setEditResource] = useState<TrainingResourceItem | null>(
     null,
   );
-  const [expanded, setExpanded] = useState<number | null>(null);
+  const [viewResource, setViewResource] = useState<TrainingResourceItem | null>(
+    null,
+  );
 
   const { data, isLoading } = useApiQuery<ResourcesResponse>(
     queryKeys.trainingResources.list({ limit: 100 }),
     '/training-resources',
     { params: { limit: 100 }, staleTime: STALE_TIME.DYNAMIC },
-  );
-
-  const { data: detail } = useApiQuery<TrainingResourceItem>(
-    ['training-resources', 'detail', expanded],
-    `/training-resources/${expanded}`,
-    { enabled: !!expanded, staleTime: STALE_TIME.DYNAMIC },
   );
 
   const invalidateKeys = [queryKeys.trainingResources.all];
@@ -56,16 +61,6 @@ export function ResourcesView() {
       invalidateKeys,
       onSuccess: () =>
         toast({ title: 'Recurso eliminado.', intent: 'success' }),
-      onError: (e) => toast({ title: e.message, intent: 'danger' }),
-    },
-  );
-  const release = useApiMutation(
-    (bookingId: number) =>
-      apiClient.post(`/training-resources/bookings/${bookingId}/release`, {}),
-    {
-      invalidateKeys,
-      onSuccess: () =>
-        toast({ title: 'Recurso libertado.', intent: 'success' }),
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
   );
@@ -98,99 +93,107 @@ export function ResourcesView() {
           description="Regista salas, equipamento e outros recursos para os reservar em turmas e sessões."
         />
       ) : (
-        <Card className="divide-y divide-border">
+        <div className="space-y-3">
           {list.map((r) => {
-            const statusCfg = RESOURCE_STATUS_CFG[r.status];
-            const isOpen = expanded === r.id;
+            const active = r.status === 'AVAILABLE';
+            const deleting = remove.isPending && remove.variables === r.id;
+            const meta = [
+              { icon: Tag, text: RESOURCE_KIND_LABEL[r.kind] },
+              r.location ? { icon: MapPin, text: r.location } : null,
+              r.capacity
+                ? { icon: Users, text: `Capacidade: ${r.capacity}` }
+                : null,
+              r.kind !== 'ROOM'
+                ? { icon: Boxes, text: `Qtd: ${r.quantity}` }
+                : null,
+              r._count
+                ? {
+                    icon: CalendarClock,
+                    text: `${r._count.bookings} reserva(s) activa(s)`,
+                  }
+                : null,
+            ].filter((m): m is { icon: LucideIcon; text: string } => !!m);
             return (
-              <div key={r.id}>
-                <div className="flex flex-wrap items-center gap-3 px-4 py-3">
-                  <button
-                    type="button"
-                    className="min-w-0 flex-1 text-left"
-                    onClick={() => setExpanded(isOpen ? null : r.id)}
-                  >
-                    <div className="truncate text-sm font-medium text-ink">
+              <div
+                key={r.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => setViewResource(r)}
+                onKeyDown={(e) => {
+                  if (e.target === e.currentTarget && e.key === 'Enter')
+                    setViewResource(r);
+                }}
+                className="flex cursor-pointer flex-wrap items-center gap-4 rounded-2xl bg-[var(--color-brand-ink)] px-4 py-3 text-white shadow-sm transition-opacity hover:opacity-95"
+              >
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white text-[var(--color-brand-ink)]">
+                  {r.kind === 'ROOM' ? (
+                    <MapPin size={22} strokeWidth={1.75} />
+                  ) : (
+                    <Boxes size={22} strokeWidth={1.75} />
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="truncate text-base font-semibold">
                       {r.name}
-                    </div>
-                    <div className="text-xs text-ink-faint">
-                      {RESOURCE_KIND_LABEL[r.kind]}
-                      {r.location ? ` · ${r.location}` : ''}
-                      {r.capacity ? ` · Capacidade: ${r.capacity}` : ''}
-                      {r.kind !== 'ROOM' ? ` · Qtd: ${r.quantity}` : ''}
-                      {r._count
-                        ? ` · ${r._count.bookings} reserva(s) activa(s)`
-                        : ''}
-                    </div>
-                  </button>
-                  <span
-                    className={`flex-shrink-0 rounded px-2 py-0.5 font-body text-xs font-medium ${statusCfg.cls}`}
-                  >
-                    {statusCfg.label}
-                  </span>
-                  <div className="flex flex-shrink-0 items-center gap-2">
-                    <Button
-                      intent="ghost"
-                      size="sm"
-                      onClick={() => setEditResource(r)}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-xs font-medium ${
+                        active
+                          ? 'bg-teal-500/80 text-white'
+                          : 'bg-white/15 text-white'
+                      }`}
                     >
-                      Editar
-                    </Button>
-                    <Button
-                      intent="danger"
-                      size="sm"
-                      onClick={() => onRemove(r)}
-                      loading={remove.isPending && remove.variables === r.id}
-                    >
-                      Eliminar
-                    </Button>
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          active ? 'bg-emerald-300' : 'bg-white/60'
+                        }`}
+                      />
+                      {RESOURCE_STATUS_CFG[r.status].label}
+                    </span>
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center text-sm text-white/85">
+                    {meta.map((m, i) => (
+                      <span
+                        key={m.text}
+                        className={`inline-flex items-center gap-1.5 ${
+                          i > 0 ? 'ml-3 border-l border-white/25 pl-3' : ''
+                        }`}
+                      >
+                        <m.icon size={14} strokeWidth={1.75} />
+                        {m.text}
+                      </span>
+                    ))}
                   </div>
                 </div>
 
-                {isOpen && (
-                  <div className="bg-surface-sunken px-4 py-3">
-                    <div className="mb-2 font-body text-xs font-semibold text-ink-muted">
-                      Reservas activas
-                    </div>
-                    {(detail?.bookings ?? []).length === 0 ? (
-                      <EmptyState
-                        variant="inline"
-                        title="Sem reservas activas"
-                      />
-                    ) : (
-                      <div className="space-y-1.5">
-                        {(detail?.bookings ?? []).map((b) => (
-                          <div
-                            key={b.id}
-                            className="flex items-center justify-between gap-3 text-xs"
-                          >
-                            <span className="text-ink-muted">
-                              {b.training?.title ?? `Sessão #${b.sessionId}`} —{' '}
-                              {fmtDate(b.startAt)}
-                              {' – '}
-                              {fmtDate(b.endAt)}
-                            </span>
-                            <Button
-                              intent="ghost"
-                              size="sm"
-                              onClick={() => release.mutate(b.id)}
-                              loading={
-                                release.isPending && release.variables === b.id
-                              }
-                            >
-                              <Unlock size={12} strokeWidth={1.75} />
-                              Libertar
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
+                <div
+                  className="flex flex-shrink-0 items-center gap-2 border-l border-white/25 pl-4"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    aria-label={`Editar ${r.name}`}
+                    onClick={() => setEditResource(r)}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 text-white transition-colors hover:bg-white hover:text-[var(--color-brand-ink)]"
+                  >
+                    <Pencil size={16} strokeWidth={1.75} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Eliminar ${r.name}`}
+                    disabled={deleting}
+                    onClick={() => onRemove(r)}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 text-white transition-colors hover:bg-white hover:text-[var(--color-brand-ink)] disabled:opacity-50"
+                  >
+                    <Trash2 size={16} strokeWidth={1.75} />
+                  </button>
+                </div>
               </div>
             );
           })}
-        </Card>
+        </div>
       )}
 
       {showCreate && (
@@ -200,6 +203,16 @@ export function ResourcesView() {
           onSuccess={() =>
             toast({ title: 'Recurso criado.', intent: 'success' })
           }
+        />
+      )}
+      {viewResource && (
+        <ResourceDetailModal
+          resource={viewResource}
+          onClose={() => setViewResource(null)}
+          onEdit={(r) => {
+            setViewResource(null);
+            setEditResource(r);
+          }}
         />
       )}
       {editResource && (

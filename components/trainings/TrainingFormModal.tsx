@@ -10,14 +10,14 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { required } from '@/lib/validation';
-import { Button } from '@/components/ui/Button';
+import { Button, IconButton } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -48,6 +48,7 @@ import {
   TRAINING_THEMATIC_AREA_OPTIONS,
 } from './trainingOptions';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { AlertCard } from '@/components/ui/AlertCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface TrainingFormModalProps {
@@ -109,6 +110,14 @@ function n(value: string): number | undefined {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
 }
+
+const TAB_ORDER = [
+  'info',
+  'planning',
+  'participants',
+  'operation',
+  'costs',
+] as const;
 
 export function TrainingFormModal({
   training,
@@ -199,7 +208,6 @@ export function TrainingFormModal({
     {
       title: training?.title ?? '',
       code: training?.code ?? '',
-      shortDescription: training?.shortDescription ?? '',
       description: training?.description ?? '',
       objectives: training?.objectives ?? '',
       targetAudience: training?.targetAudience ?? '',
@@ -256,6 +264,34 @@ export function TrainingFormModal({
   const legacySchedule =
     training?.schedule && !parsedSchedule ? training.schedule : undefined;
   const [submitError, setSubmitError] = useState('');
+  const [otherCostItems, setOtherCostItems] = useState<
+    { name: string; amount: string }[]
+  >(
+    training?.otherCosts
+      ? [{ name: 'Outros custos', amount: String(training.otherCosts) }]
+      : [],
+  );
+  const [costsAttempted, setCostsAttempted] = useState(false);
+  const [tab, setTab] = useState<(typeof TAB_ORDER)[number]>('info');
+  const tabIndex = TAB_ORDER.indexOf(tab);
+  // Ao criar, o utilizador percorre os separadores por ordem; «Criar Formação» só no último.
+  const isLastTab = editing || tabIndex === TAB_ORDER.length - 1;
+  const otherCostsTotal = otherCostItems.reduce(
+    (sum, it) => sum + (Number(it.amount) || 0),
+    0,
+  );
+  const fixedCostKeys = [
+    'instructorCost',
+    'materialCost',
+    'transportCost',
+    'foodCost',
+    'lodgingCost',
+  ] as const;
+  const costsTotal =
+    fixedCostKeys.reduce((sum, k) => sum + (Number(form[k]) || 0), 0) +
+    otherCostsTotal;
+  const budget = Number(form.plannedBudget) || 0;
+  const costsExceedBudget = budget > 0 && costsTotal > budget;
   const error = validationError || submitError;
 
   function buildPayload(): Record<string, unknown> {
@@ -269,7 +305,6 @@ export function TrainingFormModal({
       if (v) payload[target] = v;
     };
     str('code');
-    str('shortDescription');
     str('description');
     str('objectives');
     str('targetAudience');
@@ -333,11 +368,11 @@ export function TrainingFormModal({
         'transportCost',
         'foodCost',
         'lodgingCost',
-        'otherCosts',
       ] as const
     ).forEach((key) => {
       if (form[key]) payload[key] = n(form[key]);
     });
+    if (otherCostsTotal > 0) payload.otherCosts = otherCostsTotal;
 
     payload.coInstructorIds = coInstructorIds;
     payload.competencyIds = competencyIds;
@@ -369,8 +404,24 @@ export function TrainingFormModal({
   const loading = mutation.isPending;
   const handleSubmit = withValidation(() => {
     setSubmitError('');
+    setCostsAttempted(true);
+    if (costsExceedBudget) {
+      setTab('costs');
+      return;
+    }
     mutation.mutate(undefined);
   });
+
+  /** Prazo de conclusão = dias entre início e fim (mínimo 1). */
+  function syncDeadline(start: string, end: string) {
+    if (!start || !end) return;
+    const days = Math.round(
+      (new Date(end).getTime() - new Date(start).getTime()) / 86_400_000,
+    );
+    if (Number.isFinite(days) && days >= 0) {
+      setField('completionDeadlineDays', String(Math.max(1, days)));
+    }
+  }
 
   function toggle(list: number[], setList: (v: number[]) => void, id: number) {
     setList(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
@@ -395,7 +446,10 @@ export function TrainingFormModal({
             </div>
           )}
 
-          <Tabs defaultValue="info">
+          <Tabs
+            value={tab}
+            onValueChange={(v) => setTab(v as (typeof TAB_ORDER)[number])}
+          >
             <TabsList className="flex-wrap">
               <TabsTrigger value="info">Informações</TabsTrigger>
               <TabsTrigger value="planning">Planeamento</TabsTrigger>
@@ -436,15 +490,6 @@ export function TrainingFormModal({
                   />
                 </FormField>
               </div>
-
-              <FormField label="Descrição curta" htmlFor="tf-shortDescription">
-                <Input
-                  id="tf-shortDescription"
-                  value={form.shortDescription}
-                  onChange={(e) => setField('shortDescription', e.target.value)}
-                  className="w-full"
-                />
-              </FormField>
 
               <FormField label="Descrição" htmlFor="tf-description">
                 <Textarea
@@ -716,7 +761,10 @@ export function TrainingFormModal({
                     id="tf-startDate"
                     type="date"
                     value={form.startDate}
-                    onChange={(e) => setField('startDate', e.target.value)}
+                    onChange={(e) => {
+                      setField('startDate', e.target.value);
+                      syncDeadline(e.target.value, form.endDate);
+                    }}
                     className="w-full"
                   />
                 </FormField>
@@ -725,7 +773,10 @@ export function TrainingFormModal({
                     id="tf-endDate"
                     type="date"
                     value={form.endDate}
-                    onChange={(e) => setField('endDate', e.target.value)}
+                    onChange={(e) => {
+                      setField('endDate', e.target.value);
+                      syncDeadline(form.startDate, e.target.value);
+                    }}
                     className="w-full"
                   />
                 </FormField>
@@ -832,6 +883,21 @@ export function TrainingFormModal({
               <div className="grid grid-cols-3 gap-3">
                 <FormField label="Unidades abrangidas" htmlFor="tf-units">
                   <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
+                    {unitOptions.length > 0 && (
+                      <label className="mb-1 flex items-center gap-2 border-b border-border pb-1 text-xs font-medium text-ink">
+                        <Checkbox
+                          checked={targetUnitIds.length === unitOptions.length}
+                          onChange={(e) =>
+                            setTargetUnitIds(
+                              e.target.checked
+                                ? unitOptions.map((o) => o.id)
+                                : [],
+                            )
+                          }
+                        />
+                        Todas as unidades
+                      </label>
+                    )}
                     {unitOptions.length === 0 && (
                       <EmptyState variant="inline" title="Sem unidades" />
                     )}
@@ -856,6 +922,23 @@ export function TrainingFormModal({
                   htmlFor="tf-departments"
                 >
                   <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
+                    {departmentOptions.length > 0 && (
+                      <label className="mb-1 flex items-center gap-2 border-b border-border pb-1 text-xs font-medium text-ink">
+                        <Checkbox
+                          checked={
+                            targetDeptIds.length === departmentOptions.length
+                          }
+                          onChange={(e) =>
+                            setTargetDeptIds(
+                              e.target.checked
+                                ? departmentOptions.map((o) => o.id)
+                                : [],
+                            )
+                          }
+                        />
+                        Todos os departamentos
+                      </label>
+                    )}
                     {departmentOptions.length === 0 && (
                       <EmptyState variant="inline" title="Sem departamentos" />
                     )}
@@ -877,6 +960,23 @@ export function TrainingFormModal({
                 </FormField>
                 <FormField label="Cargos abrangidos" htmlFor="tf-positions">
                   <div className="max-h-32 space-y-1 overflow-y-auto rounded-control border border-border p-2">
+                    {positionOptions.length > 0 && (
+                      <label className="mb-1 flex items-center gap-2 border-b border-border pb-1 text-xs font-medium text-ink">
+                        <Checkbox
+                          checked={
+                            targetPositionIds.length === positionOptions.length
+                          }
+                          onChange={(e) =>
+                            setTargetPositionIds(
+                              e.target.checked
+                                ? positionOptions.map((o) => o.id)
+                                : [],
+                            )
+                          }
+                        />
+                        Todos os cargos
+                      </label>
+                    )}
                     {positionOptions.length === 0 && (
                       <EmptyState variant="inline" title="Sem cargos" />
                     )}
@@ -1072,17 +1172,69 @@ export function TrainingFormModal({
                     className="w-full"
                   />
                 </FormField>
-                <FormField label="Outros custos (AOA)" htmlFor="tf-otherCosts">
-                  <Input
-                    id="tf-otherCosts"
-                    type="number"
-                    min={0}
-                    value={form.otherCosts}
-                    onChange={(e) => setField('otherCosts', e.target.value)}
-                    className="w-full"
-                  />
-                </FormField>
               </div>
+              <div className="space-y-2">
+                <p className="font-body text-xs text-brand-muted">
+                  Outros custos (AOA)
+                </p>
+                {otherCostItems.map((it, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <Input
+                      aria-label="Descrição do custo"
+                      placeholder="Que custo é? Ex: Licenças, Certificação"
+                      value={it.name}
+                      onChange={(e) =>
+                        setOtherCostItems((l) =>
+                          l.map((x, k) =>
+                            k === idx ? { ...x, name: e.target.value } : x,
+                          ),
+                        )
+                      }
+                      className="min-w-0 flex-1"
+                    />
+                    <Input
+                      aria-label="Valor do custo (AOA)"
+                      type="number"
+                      min={0}
+                      placeholder="Valor"
+                      value={it.amount}
+                      onChange={(e) =>
+                        setOtherCostItems((l) =>
+                          l.map((x, k) =>
+                            k === idx ? { ...x, amount: e.target.value } : x,
+                          ),
+                        )
+                      }
+                      className="w-40"
+                    />
+                    <IconButton
+                      type="button"
+                      icon={Trash2}
+                      label="Remover custo"
+                      onClick={() =>
+                        setOtherCostItems((l) => l.filter((_, k) => k !== idx))
+                      }
+                    />
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  size="sm"
+                  intent="secondary"
+                  onClick={() =>
+                    setOtherCostItems((l) => [...l, { name: '', amount: '' }])
+                  }
+                >
+                  <Plus size={14} strokeWidth={1.75} /> Adicionar outro custo
+                </Button>
+              </div>
+              {costsAttempted && costsExceedBudget && (
+                <AlertCard
+                  variant="danger"
+                  title="Custos superiores ao orçamento previsto"
+                  message={`A soma dos custos (${costsTotal.toLocaleString('pt-PT')} AOA) excede o orçamento previsto (${budget.toLocaleString('pt-PT')} AOA). Reduza os custos ou aumente o orçamento em Planeamento.`}
+                />
+              )}
               <p className="text-xs text-ink-faint">
                 O custo total é calculado automaticamente (soma dos valores
                 acima) e mostrado na Gestão, junto com o custo por participante.
@@ -1099,17 +1251,26 @@ export function TrainingFormModal({
           >
             Cancelar
           </Button>
-          <Button
-            className="flex-1 justify-center"
-            onClick={handleSubmit}
-            loading={loading}
-          >
-            {loading
-              ? 'A guardar...'
-              : editing
-                ? 'Guardar alterações'
-                : 'Criar Formação'}
-          </Button>
+          {isLastTab ? (
+            <Button
+              className="flex-1 justify-center"
+              onClick={handleSubmit}
+              loading={loading}
+            >
+              {loading
+                ? 'A guardar...'
+                : editing
+                  ? 'Guardar alterações'
+                  : 'Criar Formação'}
+            </Button>
+          ) : (
+            <Button
+              className="flex-1 justify-center"
+              onClick={() => setTab(TAB_ORDER[tabIndex + 1])}
+            >
+              Continuar
+            </Button>
+          )}
         </div>
       </ModalContent>
     </Modal>
