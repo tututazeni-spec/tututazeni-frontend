@@ -103,6 +103,7 @@ export const NAV = [
     icon: ClipboardList,
     label: 'Plano de Formação',
   },
+  { id: 'manage', hint: 'Gerir formações', icon: Settings2, label: 'Gestão' },
   {
     id: 'catalog',
     hint: 'Formações disponíveis',
@@ -121,7 +122,6 @@ export const NAV = [
     icon: GraduationCap,
     label: 'Os meus treinamentos',
   },
-  { id: 'manage', hint: 'Gerir formações', icon: Settings2, label: 'Gestão' },
   {
     id: 'trainers',
     hint: 'Equipa formadora',
