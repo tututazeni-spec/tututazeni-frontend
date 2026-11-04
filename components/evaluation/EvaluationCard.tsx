@@ -138,14 +138,12 @@ export function EvaluationCard({
       <div className="space-y-3 px-5 pt-4">
         <Metric icon={overdue ? AlarmClock : CalendarDays}>
           <span className={cn(overdue && 'text-[#FF9AA8]')}>
-            {r.dueDate
-              ? `Prazo: ${formatDateNumeric(r.dueDate)}`
-              : 'Sem prazo'}
+            {r.dueDate ? `Prazo: ${formatDateNumeric(r.dueDate)}` : 'Sem prazo'}
           </span>
         </Metric>
         <Metric icon={Star}>
           {r.result != null
-            ? `Resultado: ${r.result.toFixed(1)}`
+            ? `Resultado: ${Number(r.result).toFixed(1)}`
             : 'Sem resultado'}
         </Metric>
         <Metric icon={Users}>
