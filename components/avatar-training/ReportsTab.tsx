@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BarChart2, Download } from 'lucide-react';
+import { BarChart2, CalendarDays, Download } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -14,17 +14,18 @@ import { formatDateTime } from '@/lib/format';
 import { downloadFromApi } from '@/lib/download';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
+import {
+  cellLabel,
+  columnLabel,
+  REPORT_TITLE,
+  sourceLabel,
+  textLabel,
+} from './reportLabels';
 import type { Report, ReportCatalogItem } from './types';
-
-function cell(v: unknown): string {
-  if (v === null || v === undefined) return '—';
-  if (typeof v === 'object') return JSON.stringify(v);
-  return String(v);
-}
 
 interface Period {
   from: string;
@@ -49,6 +50,37 @@ async function downloadReport(
     fallbackName: `${type}.${format}`,
     errorMessage: 'Falha ao exportar o relatório',
   });
+}
+
+/** Campo de data no design dos Filtros Underline: ícone + só linha por baixo. */
+function UnderlineDate({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <label className="block min-w-[10rem] font-body text-xs text-brand-muted">
+      {label}
+      <span className="flex min-h-[44px] items-center gap-3 border-b border-brand-line bg-transparent px-1 pb-2.5 pt-3 transition-colors focus-within:border-brand hover:border-brand-muted">
+        <CalendarDays
+          size={20}
+          strokeWidth={1.5}
+          className="shrink-0 text-brand-muted"
+          aria-hidden
+        />
+        <input
+          type="date"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="min-w-0 flex-1 bg-transparent font-body text-sm text-brand outline-none"
+        />
+      </span>
+    </label>
+  );
 }
 
 function ReportView({ type, period }: { type: string; period: Period }) {
@@ -79,11 +111,11 @@ function ReportView({ type, period }: { type: string; period: Period }) {
       ) : (
         <div className="overflow-x-auto rounded-card border border-border bg-surface">
           <table className="w-full text-left font-body text-sm">
-            <thead className="border-b border-border text-xs uppercase tracking-wide text-ink-faint">
+            <thead className="bg-brand text-xs uppercase tracking-wide text-white">
               <tr>
                 {columns.map((c) => (
                   <th key={c} className="px-3 py-2">
-                    {c}
+                    {columnLabel(c)}
                   </th>
                 ))}
               </tr>
@@ -93,7 +125,7 @@ function ReportView({ type, period }: { type: string; period: Period }) {
                 <tr key={i} className="border-b border-border last:border-0">
                   {columns.map((c) => (
                     <td key={c} className="px-3 py-2 text-ink-muted">
-                      {cell(r[c])}
+                      {cellLabel(r[c])}
                     </td>
                   ))}
                 </tr>
@@ -103,7 +135,7 @@ function ReportView({ type, period }: { type: string; period: Period }) {
         </div>
       )}
       <p className="font-body text-xs text-ink-faint">
-        Fonte: {data.source} · {data.formula} · Período{' '}
+        Fonte: {sourceLabel(data.source)} · {textLabel(data.formula)} · Período{' '}
         {formatDateTime(data.period.from)} – {formatDateTime(data.period.to)} ·
         Gerado em {formatDateTime(data.generatedAt)}
         {data.truncated && ' · Resultados truncados'}
@@ -145,62 +177,58 @@ export function ReportsTab() {
           <button
             key={r.type}
             onClick={() => setType(r.type)}
-            className={`rounded-control border px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`rounded-control border px-3 py-1.5 text-xs font-medium transition-colors hover:border-[#0F1F3D] hover:bg-[#0F1F3D] hover:text-white ${
               active === r.type
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-surface text-ink-muted hover:text-ink'
+                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
+                : 'border-border bg-surface text-ink-muted'
             }`}
           >
-            {r.title}
+            {REPORT_TITLE[r.type] ?? r.title}
           </button>
         ))}
       </div>
-      <div className="flex flex-wrap items-end gap-3">
-        <label className="font-body text-xs text-ink-muted">
-          De
-          <Input
-            type="date"
+      <Card>
+        <CardBody className="flex flex-wrap items-end gap-x-8 gap-y-5">
+          <UnderlineDate
+            label="De"
             value={period.from}
-            onChange={(e) => setPeriod((p) => ({ ...p, from: e.target.value }))}
+            onChange={(v) => setPeriod((p) => ({ ...p, from: v }))}
           />
-        </label>
-        <label className="font-body text-xs text-ink-muted">
-          Até
-          <Input
-            type="date"
+          <UnderlineDate
+            label="Até"
             value={period.to}
-            onChange={(e) => setPeriod((p) => ({ ...p, to: e.target.value }))}
+            onChange={(v) => setPeriod((p) => ({ ...p, to: v }))}
           />
-        </label>
-        {(['csv', 'pdf'] as const).map((format) => (
-          <Button
-            key={format}
-            size="sm"
-            intent="secondary"
-            loading={exporting === format}
-            disabled={exporting !== null}
-            onClick={async () => {
-              setExporting(format);
-              try {
-                await downloadReport(active, period, format);
-              } catch (e) {
-                notify({
-                  title: 'Não foi possível exportar',
-                  description: e instanceof Error ? e.message : undefined,
-                  intent: 'danger',
-                });
-              } finally {
-                setExporting(null);
-              }
-            }}
-          >
-            <Download size={14} /> Exportar {format.toUpperCase()}
-          </Button>
-        ))}
-        <span className="font-body text-xs text-ink-faint">
-          Período por omissão: últimos 30 dias
-        </span>
-      </div>
+          {(['csv', 'pdf'] as const).map((format) => (
+            <Button
+              key={format}
+              size="sm"
+              intent="secondary"
+              loading={exporting === format}
+              disabled={exporting !== null}
+              onClick={async () => {
+                setExporting(format);
+                try {
+                  await downloadReport(active, period, format);
+                } catch (e) {
+                  notify({
+                    title: 'Não foi possível exportar',
+                    description: e instanceof Error ? e.message : undefined,
+                    intent: 'danger',
+                  });
+                } finally {
+                  setExporting(null);
+                }
+              }}
+            >
+              <Download size={14} /> Exportar {format.toUpperCase()}
+            </Button>
+          ))}
+          <span className="font-body text-xs text-ink-faint">
+            Período por omissão: últimos 30 dias
+          </span>
+        </CardBody>
+      </Card>
       <ReportView key={active} type={active} period={period} />
     </div>
   );
