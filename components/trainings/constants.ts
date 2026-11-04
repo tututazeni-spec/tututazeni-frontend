@@ -120,7 +120,7 @@ export const NAV = [
     id: 'my-trainings',
     hint: 'O teu percurso',
     icon: GraduationCap,
-    label: 'Os meus treinamentos',
+    label: 'As minhas formações',
   },
   {
     id: 'trainers',
@@ -148,7 +148,7 @@ export type NavId = (typeof NAV)[number]['id'];
 export const TITLES: Record<View, string> = {
   catalog: 'Treinamentos',
   detail: 'Detalhe',
-  'my-trainings': 'Os meus treinamentos',
+  'my-trainings': 'As minhas formações',
   dashboard: 'Visão Geral',
   manage: 'Gestão',
   'manage-detail': 'Gerir formação',
