@@ -150,6 +150,7 @@ export function RoomsView({ canManage }: { canManage: boolean }) {
           <div className="flex flex-col gap-4">
             {rooms.map((r) => (
               <RowCard
+                navy
                 key={r.id}
                 name={r.location ?? 'Sem localização'}
                 icon={Building2}
@@ -216,6 +217,7 @@ export function RoomsView({ canManage }: { canManage: boolean }) {
           <div className="flex flex-col gap-4">
             {virtualRooms.map((v) => (
               <RowCard
+                navy
                 key={v.liveClassId}
                 name={v.instructor?.name ?? 'Sem formador'}
                 icon={Video}
