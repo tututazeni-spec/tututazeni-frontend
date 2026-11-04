@@ -1,12 +1,11 @@
 // components/trainings/plans/PlanActionsMenu.tsx
-// Menu «⋯» do card do plano de formação: Editar, Adicionar formações, Duplicar, Exportar (CSV/PDF),
-// Arquivar e Eliminar. Só decide o que mostrar; a lógica fica no PlansView.
+// Menu «⋯» do card do plano de formação: Editar, Adicionar formações, Eliminar, Exportar (CSV/PDF)
+// e Arquivar. Só decide o que mostrar; a lógica fica no PlansView.
 
 'use client';
 
 import {
   Archive,
-  Copy,
   FileSpreadsheet,
   FileText,
   MoreHorizontal,
@@ -31,7 +30,6 @@ interface PlanActionsMenuProps {
   disabled?: boolean;
   onEdit: () => void;
   onAddTraining: () => void;
-  onDuplicate: () => void;
   onArchive: () => void;
   onDelete: () => void;
 }
@@ -45,7 +43,6 @@ export function PlanActionsMenu({
   disabled,
   onEdit,
   onAddTraining,
-  onDuplicate,
   onArchive,
   onDelete,
 }: PlanActionsMenuProps) {
@@ -82,10 +79,15 @@ export function PlanActionsMenu({
             Adicionar formações
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem className={ITEM} onSelect={onDuplicate}>
-          <Copy size={15} strokeWidth={1.75} />
-          Duplicar
-        </DropdownMenuItem>
+        {canDelete && (
+          <DropdownMenuItem
+            className={`${ITEM} text-danger-ink`}
+            onSelect={onDelete}
+          >
+            <Trash2 size={15} strokeWidth={1.75} />
+            Eliminar
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild>
           <a href={exportUrl} className={ITEM}>
             <FileSpreadsheet size={15} strokeWidth={1.75} />
@@ -98,20 +100,11 @@ export function PlanActionsMenu({
             Exportar PDF
           </a>
         </DropdownMenuItem>
-        {(canArchive || canDelete) && <DropdownMenuSeparator />}
+        {canArchive && <DropdownMenuSeparator />}
         {canArchive && (
           <DropdownMenuItem className={ITEM} onSelect={onArchive}>
             <Archive size={15} strokeWidth={1.75} />
             Arquivar
-          </DropdownMenuItem>
-        )}
-        {canDelete && (
-          <DropdownMenuItem
-            className={`${ITEM} text-danger-ink`}
-            onSelect={onDelete}
-          >
-            <Trash2 size={15} strokeWidth={1.75} />
-            Eliminar
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>
