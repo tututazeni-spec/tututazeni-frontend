@@ -24,10 +24,7 @@ import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { FormField } from '@/components/ui/FormField';
-import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatKz } from '@/lib/format';
 import {
@@ -36,11 +33,12 @@ import {
   PRIORITY_CFG,
   STATUS_CFG,
 } from '../constants';
-import type { Training, TrainingPlan, TrainingPlanExecution } from '../types';
+import type { TrainingPlan, TrainingPlanExecution } from '../types';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { EventBadge } from '@/components/events/EventBadges';
 import { Metric } from '@/components/events/EventListCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { AddTrainingToPlanModal } from './AddTrainingToPlanModal';
 import { NavyPanel } from './NavyPanel';
 import { PLAN_TONE, PRIORITY_TONE } from './planTones';
 import { TONE_COLOR } from '../trainingTones';
@@ -55,7 +53,6 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
   const confirm = useConfirm();
   const toast = useToast();
   const [showAddTraining, setShowAddTraining] = useState(false);
-  const [trainingIdInput, setTrainingIdInput] = useState('');
 
   const { data: plan, isLoading } = useApiQuery<TrainingPlan>(
     queryKeys.trainingPlans.detail(planId),
@@ -67,33 +64,10 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
     `/training-plans/${planId}/execution`,
     { staleTime: STALE_TIME.DYNAMIC },
   );
-  const { data: manageResp } = useApiQuery<{ data: Training[] }>(
-    queryKeys.trainings.manage({ limit: 200 }),
-    '/trainings/manage',
-    {
-      params: { limit: 200 },
-      staleTime: STALE_TIME.DYNAMIC,
-      enabled: showAddTraining,
-    },
-  );
-
   const invalidateKeys = [queryKeys.trainingPlans.all];
   const toastError = (e: Error) =>
     toast({ title: e.message, intent: 'danger' });
 
-  const addTraining = useApiMutation(
-    (trainingId: number) =>
-      apiClient.post(`/training-plans/${planId}/trainings`, { trainingId }),
-    {
-      invalidateKeys,
-      onSuccess: () => {
-        toast({ title: 'Formação associada ao plano.', intent: 'success' });
-        setShowAddTraining(false);
-        setTrainingIdInput('');
-      },
-      onError: toastError,
-    },
-  );
   const removeTraining = useApiMutation(
     (trainingId: number) =>
       apiClient.delete(`/training-plans/${planId}/trainings/${trainingId}`),
@@ -398,43 +372,10 @@ export function PlanDetailView({ planId, onBack }: PlanDetailViewProps) {
       </Card>
 
       {showAddTraining && (
-        <Modal open onOpenChange={(open) => !open && setShowAddTraining(false)}>
-          <ModalContent title="Adicionar formação ao plano">
-            <div className="mt-4 space-y-4">
-              <FormField label="Formação" htmlFor="add-training-id">
-                <Combobox
-                  items={(manageResp?.data ?? [])
-                    .filter((t) => !trainings.some((pt) => pt.id === t.id))
-                    .map((t) => ({ value: String(t.id), label: t.title }))}
-                  value={trainingIdInput || undefined}
-                  onValueChange={setTrainingIdInput}
-                  placeholder="Selecionar formação"
-                  className="w-full"
-                />
-              </FormField>
-              <div className="flex gap-3">
-                <Button
-                  intent="secondary"
-                  className="flex-1 justify-center"
-                  onClick={() => setShowAddTraining(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  className="flex-1 justify-center"
-                  loading={addTraining.isPending}
-                  disabled={!trainingIdInput}
-                  onClick={() => {
-                    const id = Number(trainingIdInput);
-                    if (Number.isFinite(id) && id > 0) addTraining.mutate(id);
-                  }}
-                >
-                  Associar
-                </Button>
-              </div>
-            </div>
-          </ModalContent>
-        </Modal>
+        <AddTrainingToPlanModal
+          planId={planId}
+          onClose={() => setShowAddTraining(false)}
+        />
       )}
     </div>
   );

@@ -37,6 +37,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { PLAN_PERIOD_LABEL, PLAN_STATUS_CFG, PRIORITY_CFG } from '../constants';
 import type { TrainingPlan } from '../types';
 import { INVERT_ON_HOVER } from '../buttonStyles';
+import { AddTrainingToPlanModal } from './AddTrainingToPlanModal';
 import { PlanFormModal } from './PlanFormModal';
 import { PLAN_TONE, PRIORITY_TONE } from './planTones';
 
@@ -56,6 +57,9 @@ export function PlansView({ onOpen }: PlansViewProps) {
   const toast = useToast();
   const [showCreate, setShowCreate] = useState(false);
   const [editPlan, setEditPlan] = useState<TrainingPlan | null>(null);
+  const [addTrainingPlanId, setAddTrainingPlanId] = useState<number | null>(
+    null,
+  );
 
   const { data, isLoading } = useApiQuery<PlansResponse>(
     queryKeys.trainingPlans.list({ limit: 100 }),
@@ -239,6 +243,7 @@ export function PlansView({ onOpen }: PlansViewProps) {
                     status={p.status}
                     disabled={busy}
                     onEdit={() => setEditPlan(p)}
+                    onAddTraining={() => setAddTrainingPlanId(p.id)}
                     onDuplicate={() => duplicate.mutate(p.id)}
                     onArchive={() => onArchive(p)}
                     onDelete={() => onDelete(p)}
@@ -316,6 +321,12 @@ export function PlansView({ onOpen }: PlansViewProps) {
               intent: 'success',
             })
           }
+        />
+      )}
+      {addTrainingPlanId !== null && (
+        <AddTrainingToPlanModal
+          planId={addTrainingPlanId}
+          onClose={() => setAddTrainingPlanId(null)}
         />
       )}
     </div>

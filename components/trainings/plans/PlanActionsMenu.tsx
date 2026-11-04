@@ -1,5 +1,5 @@
 // components/trainings/plans/PlanActionsMenu.tsx
-// Menu «⋯» do card do plano de formação: Editar, Duplicar, Exportar (CSV/PDF),
+// Menu «⋯» do card do plano de formação: Editar, Adicionar formações, Duplicar, Exportar (CSV/PDF),
 // Arquivar e Eliminar. Só decide o que mostrar; a lógica fica no PlansView.
 
 'use client';
@@ -11,6 +11,7 @@ import {
   FileText,
   MoreHorizontal,
   Pencil,
+  Plus,
   Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -29,6 +30,7 @@ interface PlanActionsMenuProps {
   status: TrainingPlanStatus;
   disabled?: boolean;
   onEdit: () => void;
+  onAddTraining: () => void;
   onDuplicate: () => void;
   onArchive: () => void;
   onDelete: () => void;
@@ -42,6 +44,7 @@ export function PlanActionsMenu({
   status,
   disabled,
   onEdit,
+  onAddTraining,
   onDuplicate,
   onArchive,
   onDelete,
@@ -71,6 +74,12 @@ export function PlanActionsMenu({
           <DropdownMenuItem className={ITEM} onSelect={onEdit}>
             <Pencil size={15} strokeWidth={1.75} />
             Editar
+          </DropdownMenuItem>
+        )}
+        {canArchive && (
+          <DropdownMenuItem className={ITEM} onSelect={onAddTraining}>
+            <Plus size={15} strokeWidth={1.75} />
+            Adicionar formações
           </DropdownMenuItem>
         )}
         <DropdownMenuItem className={ITEM} onSelect={onDuplicate}>
