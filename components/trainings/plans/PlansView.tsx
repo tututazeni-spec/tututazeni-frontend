@@ -120,17 +120,9 @@ export function PlansView({ onOpen }: PlansViewProps) {
       onError: toastError,
     },
   );
-  const duplicate = useApiMutation(
-    (id: number) => apiClient.post(`/training-plans/${id}/duplicate`, {}),
-    {
-      invalidateKeys,
-      onSuccess: () => toast({ title: 'Plano duplicado.', intent: 'success' }),
-      onError: toastError,
-    },
-  );
 
   const rowBusy = (id: number) =>
-    [submit, approve, reject, publish, archive, duplicate, remove].some(
+    [submit, approve, reject, publish, archive, remove].some(
       (m) => m.isPending && m.variables === id,
     );
 
@@ -244,7 +236,6 @@ export function PlansView({ onOpen }: PlansViewProps) {
                     disabled={busy}
                     onEdit={() => setEditPlan(p)}
                     onAddTraining={() => setAddTrainingPlanId(p.id)}
-                    onDuplicate={() => duplicate.mutate(p.id)}
                     onArchive={() => onArchive(p)}
                     onDelete={() => onDelete(p)}
                   />
