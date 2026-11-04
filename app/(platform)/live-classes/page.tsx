@@ -77,7 +77,7 @@ export default function LivePage() {
       (n.id !== 'reports' && n.id !== 'evaluations' ? true : canViewReports),
   );
 
-  const [nav, setNav] = useState<NavId>('list');
+  const [nav, setNav] = useState<NavId>('dashboard');
   const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);
   const [search, setSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
