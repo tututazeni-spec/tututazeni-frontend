@@ -161,18 +161,18 @@ export function SessionsTab({ training }: SessionsTabProps) {
             return (
               <div
                 key={s.id}
-                className="flex flex-wrap items-center gap-4 rounded-2xl border border-[#2F6FD6] bg-[#F3F7FE] px-4 py-3"
+                className="flex flex-wrap items-center gap-4 rounded-2xl border border-[#0F1F3D] bg-[#F3F7FE] px-4 py-3"
               >
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#2F7BF5] text-white">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
                   <CalendarClock size={26} strokeWidth={1.75} />
                 </div>
-                <div className="hidden h-14 w-px bg-[#2F6FD6]/40 sm:block" />
+                <div className="hidden h-14 w-px bg-[#0F1F3D]/40 sm:block" />
                 <div className="min-w-0 flex-1 space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-lg font-bold text-[#0F1F3D]">
                       {fmtDate(s.sessionDate)}
                     </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0A66F5] px-3 py-1 text-sm font-semibold text-white">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0F1F3D] px-3 py-1 text-sm font-semibold text-white">
                       <span className="h-2 w-2 rounded-full bg-white" />
                       {MODALITY_LABEL[s.modality] ?? s.modality}
                     </span>
@@ -189,13 +189,13 @@ export function SessionsTab({ training }: SessionsTabProps) {
                       <b>{s.durationMinutes} min</b>
                       <span className="text-[#4B5873]">Duração</span>
                     </span>
-                    <span className="h-4 w-px bg-[#2F6FD6]/40" />
+                    <span className="h-4 w-px bg-[#0F1F3D]/40" />
                     <span className="inline-flex items-center gap-1.5">
                       <MapPin size={16} strokeWidth={1.75} />
                       <b>{s.location ?? '—'}</b>
                       <span className="text-[#4B5873]">Local</span>
                     </span>
-                    <span className="h-4 w-px bg-[#2F6FD6]/40" />
+                    <span className="h-4 w-px bg-[#0F1F3D]/40" />
                     <span className="inline-flex items-center gap-1.5">
                       <Users size={16} strokeWidth={1.75} />
                       <b>
@@ -207,11 +207,11 @@ export function SessionsTab({ training }: SessionsTabProps) {
                     </span>
                   </div>
                 </div>
-                <div className="hidden h-14 w-px bg-[#2F6FD6]/40 sm:block" />
+                <div className="hidden h-14 w-px bg-[#0F1F3D]/40 sm:block" />
                 <div className="flex shrink-0 items-center gap-2">
                   <button
                     type="button"
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0A66F5] text-white transition hover:bg-[#0F1F3D]"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0F1F3D] text-white transition hover:bg-[#1E3A5F]"
                     aria-label={`Editar sessão de ${fmtDate(s.sessionDate)}`}
                     title="Editar"
                     onClick={() => openEdit(s)}
@@ -220,7 +220,7 @@ export function SessionsTab({ training }: SessionsTabProps) {
                   </button>
                   <button
                     type="button"
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0A66F5] text-white transition hover:bg-red-500 disabled:opacity-50"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0F1F3D] text-white transition hover:bg-red-500 disabled:opacity-50"
                     aria-label={`Eliminar sessão de ${fmtDate(s.sessionDate)}`}
                     title="Eliminar"
                     disabled={busy}
