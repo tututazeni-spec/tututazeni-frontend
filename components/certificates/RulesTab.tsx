@@ -387,29 +387,87 @@ function RuleFormModal({
   );
 }
 
-/** Lâmpada sobre livros, como no desenho de referência das regras. */
+/** Lâmpada incandescente realista: vidro com brilho, filamento e casquilho metálico. */
 function RuleIllustration() {
   return (
     <svg
-      viewBox="0 0 120 150"
-      className="h-[70px] w-[52px]"
+      viewBox="0 0 120 160"
+      className="h-[84px] w-[63px]"
       role="presentation"
     >
       <defs>
-        <radialGradient id="rule-bulb" cx="50%" cy="40%" r="60%">
-          <stop offset="0%" stopColor="#FFE680" />
-          <stop offset="100%" stopColor="#F5B800" />
+        <radialGradient id="rule-glow" cx="50%" cy="38%" r="60%">
+          <stop offset="0%" stopColor="#FFF3B0" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="#FFD84D" stopOpacity="0" />
         </radialGradient>
+        <radialGradient id="rule-glass" cx="42%" cy="34%" r="70%">
+          <stop offset="0%" stopColor="#FFFBE0" />
+          <stop offset="45%" stopColor="#FFE680" />
+          <stop offset="100%" stopColor="#F2B705" />
+        </radialGradient>
+        <linearGradient id="rule-metal" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stopColor="#7C8794" />
+          <stop offset="35%" stopColor="#E6EBF0" />
+          <stop offset="65%" stopColor="#B8C1CB" />
+          <stop offset="100%" stopColor="#66707C" />
+        </linearGradient>
       </defs>
-      <g stroke="#F5C542" strokeWidth="3" strokeLinecap="round">
-        <path d="M60 4v10M24 18l7 7M96 18l-7 7M10 50h10M100 50h10" />
-      </g>
-      <circle cx="60" cy="46" r="27" fill="url(#rule-bulb)" />
-      <rect x="50" y="70" width="20" height="14" rx="3" fill="#2F6FDB" />
-      <rect x="6" y="104" width="108" height="16" rx="3" fill="#E8EEF9" />
-      <rect x="6" y="116" width="108" height="14" rx="3" fill="#2F6FDB" />
-      <rect x="16" y="86" width="90" height="16" rx="3" fill="#E8EEF9" />
-      <rect x="16" y="98" width="90" height="12" rx="3" fill="#1F55B8" />
+      <circle cx="60" cy="52" r="52" fill="url(#rule-glow)" />
+      <path
+        d="M60 6C36 6 18 24 18 47c0 14 6 23 14 32 5 6 8 11 8 17v4h40v-4c0-6 3-11 8-17 8-9 14-18 14-32C102 24 84 6 60 6Z"
+        fill="url(#rule-glass)"
+        stroke="#FFFFFF"
+        strokeOpacity="0.55"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M52 100V78c-3-2-6-6-6-10M68 100V78c3-2 6-6 6-10"
+        stroke="#8A6A12"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d="M46 68c3-9 8-9 11 0s8 9 11 0 4-5 6 0"
+        stroke="#FF9F1A"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d="M30 34c4-11 14-19 26-21"
+        stroke="#FFFFFF"
+        strokeOpacity="0.85"
+        strokeWidth="5"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <rect
+        x="39"
+        y="100"
+        width="42"
+        height="9"
+        rx="2"
+        fill="url(#rule-metal)"
+      />
+      <rect
+        x="40"
+        y="109"
+        width="40"
+        height="9"
+        rx="2"
+        fill="url(#rule-metal)"
+      />
+      <rect
+        x="41"
+        y="118"
+        width="38"
+        height="9"
+        rx="2"
+        fill="url(#rule-metal)"
+      />
+      <path d="M48 127h24l-4 11H52Z" fill="#3A424C" />
+      <rect x="53" y="138" width="14" height="6" rx="2" fill="#2A3038" />
     </svg>
   );
 }
@@ -463,7 +521,7 @@ export function RulesTab({ canEdit }: { canEdit: boolean }) {
           {data.map((r) => (
             <article
               key={r.id}
-              className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B1A38] via-[#0F2A5C] to-[#12388A] text-white shadow-md"
+              className="relative overflow-hidden rounded-3xl bg-[var(--color-brand-ink)] text-white shadow-md"
             >
               <svg
                 aria-hidden="true"
@@ -473,7 +531,7 @@ export function RulesTab({ canEdit }: { canEdit: boolean }) {
               >
                 <path
                   d="M400 20 C300 80 220 150 120 200 L400 200 Z"
-                  fill="#1D4FB8"
+                  fill="#1B2F57"
                 />
               </svg>
               <div className="relative flex gap-3 px-4 py-3">
