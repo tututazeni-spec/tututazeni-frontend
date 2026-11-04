@@ -218,5 +218,6 @@ export const PLAN_STATUS_CFG: StatusBadgeMap<TrainingPlanStatus> = {
 export const PLAN_PERIOD_LABEL: Record<string, string> = {
   ANNUAL: 'Anual',
   QUARTERLY: 'Trimestral',
+  SEMIANNUAL: 'Semestral',
   EXTRAORDINARY: 'Extraordinário',
 };

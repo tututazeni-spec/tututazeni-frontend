@@ -17,7 +17,7 @@ export type TrainingLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 export type TrainingStatus =
   'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'CANCELLED' | 'COMPLETED';
 export type TrainingPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-export type TrainingPlanPeriod = 'ANNUAL' | 'QUARTERLY' | 'EXTRAORDINARY';
+export type TrainingPlanPeriod = 'ANNUAL' | 'QUARTERLY' | 'SEMIANNUAL' | 'EXTRAORDINARY';
 export type TrainingPlanStatus =
   'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'PUBLISHED' | 'ARCHIVED';
 export type ParticipantStatus =
