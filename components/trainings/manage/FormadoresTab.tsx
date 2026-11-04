@@ -49,7 +49,7 @@ export function FormadoresTab({ training }: FormadoresTabProps) {
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <h3 className="mb-3 font-display text-xl font-extrabold text-[#0F1F3D]">
           Formador principal
         </h3>
         {principal ? (
@@ -90,7 +90,7 @@ export function FormadoresTab({ training }: FormadoresTabProps) {
       </div>
 
       <div>
-        <h3 className="mb-2 font-body text-xs font-medium uppercase tracking-wide text-ink-faint">
+        <h3 className="mb-3 font-display text-xl font-extrabold text-[#0F1F3D]">
           Formadores adicionais
         </h3>
         {(training.coInstructors ?? []).length === 0 ? (
