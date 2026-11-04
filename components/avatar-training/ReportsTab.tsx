@@ -16,6 +16,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { PeriodPills } from '@/components/ui/Pills';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import {
@@ -172,21 +173,16 @@ export function ReportsTab() {
   const active = type ?? data[0].type;
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        {data.map((r) => (
-          <button
-            key={r.type}
-            onClick={() => setType(r.type)}
-            className={`rounded-control border px-3 py-1.5 text-xs font-medium transition-colors hover:border-[#0F1F3D] hover:bg-[#0F1F3D] hover:text-white ${
-              active === r.type
-                ? 'border-[#0F1F3D] bg-[#0F1F3D] text-white'
-                : 'border-border bg-surface text-ink-muted'
-            }`}
-          >
-            {REPORT_TITLE[r.type] ?? r.title}
-          </button>
-        ))}
-      </div>
+      <PeriodPills
+        label="Relatório"
+        value={active}
+        onChange={setType}
+        options={data.map((r) => ({
+          value: r.type,
+          label: REPORT_TITLE[r.type] ?? r.title,
+        }))}
+        className="grid grid-cols-2 items-stretch gap-1.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:px-2.5 [&>button]:py-1 [&>button]:text-center [&>button]:text-xs [&>button]:leading-tight"
+      />
       <Card>
         <CardBody className="flex flex-wrap items-end gap-x-8 gap-y-5">
           <UnderlineDate
