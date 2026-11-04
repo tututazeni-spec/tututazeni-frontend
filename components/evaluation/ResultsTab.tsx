@@ -208,7 +208,7 @@ export function ResultsTab() {
             {/* Concordance */}
             {result.concordance && (
               <Card className="overflow-hidden">
-                <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+                <div className="px-4 py-3 border-b border-border bg-brand text-xs font-medium text-white uppercase tracking-wide">
                   Matriz de Concordância
                 </div>
                 <CardBody>
@@ -251,7 +251,7 @@ export function ResultsTab() {
           {/* Competency Radar */}
           {Object.keys(result.competencies).length > 0 && (
             <Card className="overflow-hidden">
-              <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+              <div className="px-4 py-3 border-b border-border bg-brand text-xs font-medium text-white uppercase tracking-wide">
                 Mapa de Competências
               </div>
               <CardBody>
@@ -361,7 +361,7 @@ export function ResultsTab() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.comments.manager.length > 0 && (
                   <Card className="overflow-hidden">
-                    <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+                    <div className="px-4 py-3 border-b border-border bg-brand text-xs font-medium text-white uppercase tracking-wide">
                       Comentários do Gestor
                     </div>
                     <CardBody>
@@ -375,7 +375,7 @@ export function ResultsTab() {
                 )}
                 {result.comments.self.length > 0 && (
                   <Card className="overflow-hidden">
-                    <div className="px-4 py-3 border-b border-border bg-brand/60 text-xs font-medium text-white uppercase tracking-wide">
+                    <div className="px-4 py-3 border-b border-border bg-brand text-xs font-medium text-white uppercase tracking-wide">
                       Comentários do Colaborador
                     </div>
                     <CardBody>

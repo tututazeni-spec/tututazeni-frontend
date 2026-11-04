@@ -79,6 +79,14 @@ export function accentForRank(rank: number): PhotoAccent {
   return OTHER_ACCENTS[(rank - 1) % OTHER_ACCENTS.length];
 }
 
+/** Turmas activas: azul marinho da marca (--color-brand-ink, #0F1F3D). */
+export const NAVY_ACCENT: PhotoAccent = {
+  light: '#1E3A5F',
+  base: '#0F1F3D',
+  deep: '#0A1630',
+  circle: '#1E3A5F',
+};
+
 /** rank de cada turma dentro do seu curso (mais antiga = 0), por id crescente. */
 function cohortRanks(
   list: Array<{ id: number; courseId: number }>,
@@ -132,7 +140,7 @@ export function CohortCard({
   return (
     <NavyCard
       variant={open ? 'photo' : 'default'}
-      accent={accentForRank(rank)}
+      accent={c.status === 'ACTIVE' ? NAVY_ACCENT : accentForRank(rank)}
       image={open ? OPEN_COHORT_PHOTO : undefined}
       onClick={onOpen}
       seed={c.id}
