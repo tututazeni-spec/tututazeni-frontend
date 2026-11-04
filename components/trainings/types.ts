@@ -131,6 +131,8 @@ export interface Training {
   targetPositionIds: number[];
   totalCost?: number;
   canManage?: boolean;
+  /** Sessões em que o utilizador autenticado já está inscrito. */
+  mySessionIds?: number[];
   publishedAt: string | null;
   instructor: {
     id: number;
