@@ -1,5 +1,5 @@
 // components/trainings/MyTrainingsView.tsx
-// Separador "Os meus treinamentos" — inscrições filtráveis por
+// Separador "As minhas formações" — inscrições filtráveis por
 // estado. Dados próprios + apresentação. Extraído de
 // app/(platform)/trainings/page.tsx.
 

@@ -51,6 +51,27 @@ interface UserOption {
   fullName: string;
 }
 
+const AVAILABILITY_RE =
+  /^(\d{2})\/(\d{2})\/(\d{4}) a (\d{2})\/(\d{2})\/(\d{4})(?:, (\d{2}:\d{2})[–-](\d{2}:\d{2}))?$/;
+
+/** Texto guardado → campos do formulário (datas em ISO para <input type="date">). */
+function parseAvailability(text: string) {
+  const m = AVAILABILITY_RE.exec(text.trim());
+  if (!m) return { from: '', to: '', timeFrom: '', timeTo: '', legacy: text };
+  return {
+    from: `${m[3]}-${m[2]}-${m[1]}`,
+    to: `${m[6]}-${m[5]}-${m[4]}`,
+    timeFrom: m[7] ?? '',
+    timeTo: m[8] ?? '',
+    legacy: '',
+  };
+}
+
+function brDate(iso: string): string {
+  const [y, mo, d] = iso.split('-');
+  return `${d}/${mo}/${y}`;
+}
+
 function n(value: string): number | undefined {
   if (value.trim() === '') return undefined;
   const parsed = Number(value);
@@ -63,6 +84,7 @@ export function TrainerFormModal({
   onSuccess,
 }: TrainerFormModalProps) {
   const editing = !!trainer;
+  const initialAvail = parseAvailability(trainer?.availability ?? '');
 
   const { data: usersResp } = useApiQuery<{ data: UserOption[] }>(
     ['training-trainers', 'users-picker'],
@@ -93,7 +115,11 @@ export function TrainerFormModal({
       certifications: trainer?.certifications ?? '',
       professionalExperience: trainer?.professionalExperience ?? '',
       trainerExperience: trainer?.trainerExperience ?? '',
-      availability: trainer?.availability ?? '',
+      availability: initialAvail.legacy,
+      availFrom: initialAvail.from,
+      availTo: initialAvail.to,
+      availTimeFrom: initialAvail.timeFrom,
+      availTimeTo: initialAvail.timeTo,
       hourlyCost: trainer?.hourlyCost?.toString() ?? '',
       documentUrl: trainer?.documentUrl ?? '',
       status: trainer?.status ?? 'ACTIVE',
@@ -125,7 +151,15 @@ export function TrainerFormModal({
     str('certifications');
     str('professionalExperience');
     str('trainerExperience');
-    str('availability');
+    if (form.availFrom && form.availTo) {
+      const times =
+        form.availTimeFrom && form.availTimeTo
+          ? `, ${form.availTimeFrom}–${form.availTimeTo}`
+          : '';
+      payload.availability = `${brDate(form.availFrom)} a ${brDate(form.availTo)}${times}`;
+    } else {
+      str('availability');
+    }
     str('documentUrl');
     str('notes');
     if (form.hourlyCost) payload.hourlyCost = n(form.hourlyCost);
@@ -157,6 +191,32 @@ export function TrainerFormModal({
   const loading = mutation.isPending;
   const handleSubmit = withValidation(() => {
     setSubmitError('');
+    if (!!form.availFrom !== !!form.availTo) {
+      setSubmitError(
+        'Indique a data de início e a data de fim da disponibilidade.',
+      );
+      return;
+    }
+    if (form.availFrom && form.availTo < form.availFrom) {
+      setSubmitError(
+        'A data de fim da disponibilidade não pode ser anterior à de início.',
+      );
+      return;
+    }
+    if (!!form.availTimeFrom !== !!form.availTimeTo) {
+      setSubmitError(
+        'Indique a hora de início e a hora de fim da disponibilidade.',
+      );
+      return;
+    }
+    if (
+      form.availTimeFrom &&
+      form.availTimeTo &&
+      form.availTimeTo <= form.availTimeFrom
+    ) {
+      setSubmitError('A hora de fim tem de ser posterior à hora de início.');
+      return;
+    }
     mutation.mutate(undefined);
   });
 
@@ -304,16 +364,67 @@ export function TrainerFormModal({
             />
           </FormField>
 
+          <FormField label="Disponibilidade" htmlFor="tf-availFrom">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div>
+                <span className="mb-1 block text-xs text-muted-foreground">
+                  Data de início
+                </span>
+                <Input
+                  id="tf-availFrom"
+                  type="date"
+                  value={form.availFrom}
+                  onChange={(e) => setField('availFrom', e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <span className="mb-1 block text-xs text-muted-foreground">
+                  Data de fim
+                </span>
+                <Input
+                  id="tf-availTo"
+                  type="date"
+                  min={form.availFrom || undefined}
+                  value={form.availTo}
+                  onChange={(e) => setField('availTo', e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <span className="mb-1 block text-xs text-muted-foreground">
+                  Hora de início
+                </span>
+                <Input
+                  id="tf-availTimeFrom"
+                  type="time"
+                  value={form.availTimeFrom}
+                  onChange={(e) => setField('availTimeFrom', e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <span className="mb-1 block text-xs text-muted-foreground">
+                  Hora de fim
+                </span>
+                <Input
+                  id="tf-availTimeTo"
+                  type="time"
+                  value={form.availTimeTo}
+                  onChange={(e) => setField('availTimeTo', e.target.value)}
+                  className="w-full"
+                />
+              </div>
+            </div>
+            {form.availability && !form.availFrom && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Disponibilidade anterior: {form.availability}. Escolha as datas
+                para a substituir.
+              </p>
+            )}
+          </FormField>
+
           <div className="grid grid-cols-2 gap-3">
-            <FormField label="Disponibilidade" htmlFor="tf-availability">
-              <Input
-                id="tf-availability"
-                value={form.availability}
-                onChange={(e) => setField('availability', e.target.value)}
-                className="w-full"
-                placeholder="Ex: Seg-Sex, 09h-18h"
-              />
-            </FormField>
             <FormField label="Custo/hora (AOA)" htmlFor="tf-hourlyCost">
               <Input
                 id="tf-hourlyCost"

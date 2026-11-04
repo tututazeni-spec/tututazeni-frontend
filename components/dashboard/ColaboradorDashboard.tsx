@@ -179,7 +179,7 @@ function ColaboradorDashboardContent({ data }: { data: MyDashboardData }) {
           href="/trainings?tab=my-trainings"
           icon={Presentation}
           tone="blue"
-          label="Os Meus Treinamentos"
+          label="As Minhas Formações"
           value={data?.overview?.myTrainings ?? 0}
         />
       </div>
