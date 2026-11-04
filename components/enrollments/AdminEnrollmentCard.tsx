@@ -128,7 +128,7 @@ export function AdminEnrollmentCard({
 
       {/* Linha 2: ícone redondo + curso + utilizador */}
       <div className="relative mt-2 flex items-center gap-3 sm:max-w-[68%]">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success text-white">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-ink)] text-white">
           <GraduationCap size={20} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
