@@ -408,7 +408,7 @@ function LinkedInMark() {
 function CertificateIllustration({ className }: { className?: string }) {
   return (
     <svg aria-hidden viewBox="0 0 220 165" fill="none" className={className}>
-      <ellipse cx="108" cy="92" rx="88" ry="66" fill="#EAF1FD" />
+      <ellipse cx="108" cy="92" rx="88" ry="66" fill="#E6EAF2" />
       <g transform="rotate(-7 100 80)">
         <rect x="52" y="22" width="86" height="102" rx="9" fill="#FFFFFF" />
         <rect
@@ -417,16 +417,16 @@ function CertificateIllustration({ className }: { className?: string }) {
           width="86"
           height="102"
           rx="9"
-          stroke="#2F6FDE"
+          stroke="#0F1F3D"
           strokeWidth="5"
         />
-        <rect x="52" y="22" width="86" height="15" rx="7" fill="#3B7BEA" />
-        <rect x="64" y="48" width="56" height="7" rx="3.5" fill="#4C8CF2" />
-        <rect x="64" y="63" width="44" height="7" rx="3.5" fill="#9DBDF6" />
-        <rect x="64" y="78" width="52" height="7" rx="3.5" fill="#9DBDF6" />
+        <rect x="52" y="22" width="86" height="15" rx="7" fill="#0F1F3D" />
+        <rect x="64" y="48" width="56" height="7" rx="3.5" fill="#1B2F57" />
+        <rect x="64" y="63" width="44" height="7" rx="3.5" fill="#8A97B3" />
+        <rect x="64" y="78" width="52" height="7" rx="3.5" fill="#8A97B3" />
         <path
           d="M52 124c10 0 14 8 24 8h62"
-          stroke="#2F6FDE"
+          stroke="#0F1F3D"
           strokeWidth="5"
           strokeLinecap="round"
         />
@@ -448,7 +448,7 @@ function CertificateIllustration({ className }: { className?: string }) {
       />
       <path
         d="M186 22l3 9M198 34l-8 5M176 14l-1 8"
-        stroke="#3B7BEA"
+        stroke="#0F1F3D"
         strokeWidth="3"
         strokeLinecap="round"
       />
