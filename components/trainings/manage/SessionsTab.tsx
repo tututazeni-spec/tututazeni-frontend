@@ -46,6 +46,7 @@ interface SessionsTabProps {
 }
 
 interface SessionFormState {
+  title: string;
   sessionDate: string;
   durationMinutes: string;
   modality: string;
@@ -56,7 +57,29 @@ interface SessionFormState {
   notes: string;
 }
 
+const PLATFORM_ITEMS = [
+  { value: 'ZOOM', label: 'Zoom' },
+  { value: 'TEAMS', label: 'Teams' },
+  { value: 'JITSI', label: 'Jitsi' },
+];
+
+const PLATFORM_HINT: Record<string, string> = {
+  ZOOM: 'https://zoom.us/j/...',
+  TEAMS: 'https://teams.microsoft.com/l/meetup-join/...',
+  JITSI: 'https://meet.jit.si/...',
+};
+
+/** Deduz a plataforma a partir do link guardado (não há campo próprio no backend). */
+function platformFromUrl(url: string): string {
+  const u = url.toLowerCase();
+  if (u.includes('zoom.')) return 'ZOOM';
+  if (u.includes('teams.')) return 'TEAMS';
+  if (u.includes('jit.si') || u.includes('jitsi')) return 'JITSI';
+  return '';
+}
+
 const EMPTY: SessionFormState = {
+  title: '',
   sessionDate: '',
   durationMinutes: '90',
   modality: 'PRESENTIAL',
@@ -72,15 +95,20 @@ export function SessionsTab({ training }: SessionsTabProps) {
   const toast = useToast();
   const [editing, setEditing] = useState<Session | 'new' | null>(null);
   const [form, setForm] = useState<SessionFormState>(EMPTY);
+  const [platform, setPlatform] = useState('');
+
+  const isRemote = form.modality === 'ONLINE' || form.modality === 'HYBRID';
 
   const invalidateKeys = [queryKeys.trainings.detail(training.id)];
 
   const openNew = () => {
     setForm(EMPTY);
+    setPlatform('');
     setEditing('new');
   };
   const openEdit = (s: Session) => {
     setForm({
+      title: s.title ?? '',
       sessionDate: s.sessionDate.slice(0, 16),
       durationMinutes: String(s.durationMinutes),
       modality: s.modality,
@@ -90,6 +118,7 @@ export function SessionsTab({ training }: SessionsTabProps) {
       waitlistEnabled: s.waitlistEnabled,
       notes: '',
     });
+    setPlatform(platformFromUrl(s.meetingUrl ?? ''));
     setEditing(s);
   };
 
@@ -97,11 +126,12 @@ export function SessionsTab({ training }: SessionsTabProps) {
     () => {
       const payload = {
         trainingId: training.id,
+        title: form.title.trim() || undefined,
         sessionDate: new Date(form.sessionDate).toISOString(),
         durationMinutes: Number(form.durationMinutes) || 60,
         modality: form.modality,
         location: form.location || undefined,
-        meetingUrl: form.meetingUrl || undefined,
+        meetingUrl: isRemote ? form.meetingUrl || undefined : undefined,
         maxParticipants: Number(form.maxParticipants) || 0,
         waitlistEnabled: form.waitlistEnabled,
         notes: form.notes || undefined,
@@ -168,6 +198,11 @@ export function SessionsTab({ training }: SessionsTabProps) {
                 </div>
                 <div className="hidden h-14 w-px bg-[#0F1F3D]/40 sm:block" />
                 <div className="min-w-0 flex-1 space-y-2">
+                  {s.title && (
+                    <p className="truncate text-base font-semibold text-[#0F1F3D]">
+                      {s.title}
+                    </p>
+                  )}
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-lg font-bold text-[#0F1F3D]">
                       {fmtDate(s.sessionDate)}
@@ -241,6 +276,17 @@ export function SessionsTab({ training }: SessionsTabProps) {
             title={editing === 'new' ? 'Nova sessão' : 'Editar sessão'}
           >
             <div className="mt-4 space-y-4">
+              <FormField label="Título da sessão" htmlFor="st-title">
+                <Input
+                  id="st-title"
+                  value={form.title}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, title: e.target.value }))
+                  }
+                  maxLength={200}
+                  className="w-full"
+                />
+              </FormField>
               <FormField label="Data e hora" htmlFor="st-date">
                 <Input
                   id="st-date"
@@ -289,19 +335,36 @@ export function SessionsTab({ training }: SessionsTabProps) {
                   className="w-full"
                 />
               </FormField>
-              <FormField
-                label="Link da reunião (online/híbrida)"
-                htmlFor="st-meetingUrl"
-              >
-                <Input
-                  id="st-meetingUrl"
-                  value={form.meetingUrl}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, meetingUrl: e.target.value }))
-                  }
-                  className="w-full"
-                />
-              </FormField>
+              {isRemote && (
+                <>
+                  <FormField
+                    label="Plataforma da reunião"
+                    htmlFor="st-platform"
+                  >
+                    <Select
+                      items={PLATFORM_ITEMS}
+                      value={platform || undefined}
+                      onValueChange={setPlatform}
+                      className="w-full"
+                      placeholder="Selecionar"
+                    />
+                  </FormField>
+                  <FormField
+                    label="Link da reunião (online/híbrida)"
+                    htmlFor="st-meetingUrl"
+                  >
+                    <Input
+                      id="st-meetingUrl"
+                      placeholder={PLATFORM_HINT[platform]}
+                      value={form.meetingUrl}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, meetingUrl: e.target.value }))
+                      }
+                      className="w-full"
+                    />
+                  </FormField>
+                </>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="Capacidade (0 = ilimitado)" htmlFor="st-max">
                   <Input
