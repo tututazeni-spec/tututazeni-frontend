@@ -43,6 +43,7 @@ export const TRAINING_MODALITY_DETAIL_OPTIONS = [
   'Microsoft Teams',
   'Zoom',
   'Google Meet',
+  'Jitsi',
   'Plataforma e-learning da empresa',
   'Sala de formação presencial',
   'Auditório',
