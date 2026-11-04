@@ -41,6 +41,7 @@ export interface PlanFormModalProps {
 
 const PERIOD_ITEMS = [
   { value: 'ANNUAL', label: 'Anual' },
+  { value: 'SEMIANNUAL', label: 'Semestral' },
   { value: 'QUARTERLY', label: 'Trimestral' },
   { value: 'EXTRAORDINARY', label: 'Extraordinário' },
 ];
@@ -65,6 +66,25 @@ interface UserOption {
 interface CompetencyOption {
   id: number;
   name: string;
+}
+
+const PERIOD_MONTHS: Record<string, number> = {
+  ANNUAL: 12,
+  SEMIANNUAL: 6,
+  QUARTERLY: 3,
+};
+
+/** Data de fim = início + duração do período (YYYY-MM-DD, sem fusos). */
+function computeEndDate(start: string, period: string): string {
+  const months = PERIOD_MONTHS[period];
+  if (!months || !/^\d{4}-\d{2}-\d{2}$/.test(start)) return '';
+  const [y, m, d] = start.split('-').map(Number);
+  const total = m - 1 + months;
+  const ty = y + Math.floor(total / 12);
+  const tm = total % 12;
+  const lastDay = new Date(Date.UTC(ty, tm + 1, 0)).getUTCDate();
+  const dd = Math.min(d, lastDay);
+  return `${ty}-${String(tm + 1).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
 }
 
 function n(value: string): number | undefined {
@@ -251,7 +271,11 @@ export function PlanFormModal({
               <Select
                 items={PERIOD_ITEMS}
                 value={form.period || undefined}
-                onValueChange={(v) => setField('period', v)}
+                onValueChange={(v) => {
+                  setField('period', v);
+                  const end = computeEndDate(form.startDate, v);
+                  if (end) setField('endDate', end);
+                }}
                 className="w-full"
                 placeholder="Selecionar"
               />
@@ -443,7 +467,11 @@ export function PlanFormModal({
                 id="pf-startDate"
                 type="date"
                 value={form.startDate}
-                onChange={(e) => setField('startDate', e.target.value)}
+                onChange={(e) => {
+                  setField('startDate', e.target.value);
+                  const end = computeEndDate(e.target.value, form.period);
+                  if (end) setField('endDate', end);
+                }}
                 className="w-full"
               />
             </FormField>
