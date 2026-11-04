@@ -17,7 +17,6 @@ import {
   UserCheck,
   type LucideIcon,
 } from 'lucide-react';
-import { PALETTE } from '@/components/onboarding/TemplateCard';
 import {
   CATEGORY_BTN_GHOST,
   CATEGORY_BTN_PRIMARY,
@@ -43,11 +42,14 @@ function InfoLine({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
 }
 
 const STATUS_PILL: Record<string, string> = {
-  ACTIVE: 'bg-[#2B7FE8] text-white',
+  ACTIVE: 'bg-[#1E3A5F] text-white',
   TESTING: 'bg-[#F5A524] text-white',
   INACTIVE: 'bg-brand-line text-brand-muted',
   ARCHIVED: 'bg-brand-line text-brand-muted',
 };
+
+/** Painel do avatar em azul marinho da marca (#0F1F3D). */
+const NAVY_PANEL = ['#1E3A5F', '#14284A', '#0F1F3D'] as const;
 
 export interface AvatarCardProps {
   avatar: TrainingAvatar;
@@ -61,7 +63,7 @@ export function AvatarCard({
   showAdminInfo,
   actions,
 }: AvatarCardProps) {
-  const palette = PALETTE[Math.abs(a.id) % PALETTE.length];
+  const palette = NAVY_PANEL;
   const language = `${a.language}${a.languageVariant ? ` (${a.languageVariant})` : ''}`;
 
   return (
@@ -90,7 +92,7 @@ export function AvatarCard({
       </div>
 
       <div className="relative flex items-center gap-3 sm:max-w-[68%]">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-success text-white">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
           <Bot size={20} strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
@@ -106,7 +108,7 @@ export function AvatarCard({
       </div>
 
       <div className="relative flex flex-wrap items-center gap-x-5 gap-y-2 sm:max-w-[68%]">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#6366F1] px-3 py-1 text-xs font-semibold text-white">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0F1F3D] px-3 py-1 text-xs font-semibold text-white">
           <Bot size={12} strokeWidth={2} />
           {AVATAR_TYPE_LABEL[a.avatarType]}
         </span>

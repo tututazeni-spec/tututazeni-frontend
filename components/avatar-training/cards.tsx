@@ -22,11 +22,10 @@ import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { formatDate } from '@/lib/format';
 import { PhotoCard } from '@/components/courses/PhotoCard';
-import { accentForRank } from '@/components/courses/TurmasView';
+import { NAVY_ACCENT } from '@/components/courses/TurmasView';
 import {
   NavyBadge,
   NavyCard,
-  PHOTO_ACCENT_DEFAULT,
   type NavyTone,
 } from '@/components/courses/NavyCard';
 import { useSessionList } from './SessionPicker';
@@ -60,6 +59,14 @@ export const ASSIGNMENT_TONE: Record<AssignmentStatus, NavyTone> = {
 };
 
 /** Foto dos cartões de progresso dos formandos (também usada nas sessões das abas de autoria). */
+/** Paleta azul marinho da marca (#0F1F3D) para o PhotoCard. */
+export const NAVY_PALETTE: [string, string, string, string] = [
+  '#1E3A5F',
+  '#14284A',
+  '#0F1F3D',
+  '#0F1F3D',
+];
+
 export const PROGRESS_PHOTO = '/images/progresso dos formandos.jpeg';
 
 /** Classe dos botões de acção sobre os cartões escuros. */
@@ -163,6 +170,7 @@ export function AssignmentPhotoCard({
   return (
     <PhotoCard
       seed={a.sessionId}
+      palette={NAVY_PALETTE}
       kicker={a.session.program.title}
       kickerIcon={Bot}
       title={a.session.title}
@@ -200,7 +208,7 @@ export function AssignmentNavyCard({
       variant="photo"
       image={PROGRESS_PHOTO}
       imagePosition="right center"
-      accent={PHOTO_ACCENT_DEFAULT}
+      accent={NAVY_ACCENT}
       seed={a.sessionId}
       kicker={a.session.program.title}
       kickerIcon={Bot}
@@ -233,15 +241,12 @@ export function AssignmentNavyCard({
 
 export interface SessionNavyCardProps {
   session: SessionListItem;
-  /** Posição da sessão entre as da mesma formação (0 = azul padrão). */
-  rank?: number;
   selected?: boolean;
   onSelect: () => void;
 }
 
 export function SessionNavyCard({
   session: s,
-  rank = 0,
   selected,
   onSelect,
 }: SessionNavyCardProps) {
@@ -262,7 +267,7 @@ export function SessionNavyCard({
         variant="photo"
         image={PROGRESS_PHOTO}
         imagePosition="right center"
-        accent={accentForRank(rank)}
+        accent={NAVY_ACCENT}
         seed={s.id}
         kicker={s.program.title}
         kickerIcon={Bot}
@@ -306,16 +311,6 @@ export function SessionCardPicker({
         Ainda não existem sessões disponíveis.
       </p>
     );
-  // Sessões da mesma formação mudam de cor (a primeira fica no azul padrão).
-  const seen = new Map<number, number>();
-  const ranks = new Map<number, number>();
-  [...data]
-    .sort((a, b) => a.id - b.id)
-    .forEach((x) => {
-      const n = seen.get(x.programId) ?? 0;
-      ranks.set(x.id, n);
-      seen.set(x.programId, n + 1);
-    });
   return (
     <section className="space-y-2" aria-label="Sessões disponíveis">
       <h2 className="font-display text-sm font-semibold text-ink">
@@ -326,7 +321,6 @@ export function SessionCardPicker({
           <SessionNavyCard
             key={s.id}
             session={s}
-            rank={ranks.get(s.id)}
             selected={s.id === value}
             onSelect={() => onChange(s.id)}
           />
