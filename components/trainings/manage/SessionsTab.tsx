@@ -20,11 +20,6 @@ import { queryKeys } from '@/lib/queryKeys';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
-import {
-  NAVY_ACTION,
-  NavyBadge,
-  NavyCard,
-} from '@/components/courses/NavyCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -164,69 +159,77 @@ export function SessionsTab({ training }: SessionsTabProps) {
           {sessions.map((s) => {
             const busy = remove.isPending && remove.variables === s.id;
             return (
-              <NavyCard
+              <div
                 key={s.id}
-                compact
-                seed={training.colorIndex ?? training.id}
-                image={training.thumbnailUrl}
-                kicker="Sessão"
-                kickerIcon={CalendarClock}
-                title={fmtDate(s.sessionDate)}
-                badge={
-                  <>
-                    <NavyBadge tone="info">
+                className="flex flex-wrap items-center gap-4 rounded-2xl border border-[#2F6FD6] bg-[#F3F7FE] px-4 py-3"
+              >
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#2F7BF5] text-white">
+                  <CalendarClock size={26} strokeWidth={1.75} />
+                </div>
+                <div className="hidden h-14 w-px bg-[#2F6FD6]/40 sm:block" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-lg font-bold text-[#0F1F3D]">
+                      {fmtDate(s.sessionDate)}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0A66F5] px-3 py-1 text-sm font-semibold text-white">
+                      <span className="h-2 w-2 rounded-full bg-white" />
                       {MODALITY_LABEL[s.modality] ?? s.modality}
-                    </NavyBadge>
+                    </span>
                     {s.waitlistEnabled && (
-                      <NavyBadge tone="neutral">Lista de espera</NavyBadge>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E3E9F5] px-3 py-1 text-sm font-semibold text-[#0F1F3D]">
+                        <span className="h-2 w-2 rounded-full bg-[#7A869E]" />
+                        Lista de espera
+                      </span>
                     )}
-                  </>
-                }
-                infos={[
-                  {
-                    icon: Clock,
-                    value: `${s.durationMinutes} min`,
-                    label: 'Duração',
-                  },
-                  {
-                    icon: MapPin,
-                    value: s.location ?? '—',
-                    label: 'Local',
-                  },
-                  {
-                    icon: Users,
-                    value:
-                      s.maxParticipants > 0
-                        ? `${s._count.participants}/${s.maxParticipants}`
-                        : String(s._count.participants),
-                    label: 'Inscritos',
-                  },
-                ]}
-                actions={
-                  <>
-                    <Button
-                      type="button"
-                      intent="onDarkGhost"
-                      size="sm"
-                      aria-label={`Editar sessão de ${fmtDate(s.sessionDate)}`}
-                      title="Editar"
-                      onClick={() => openEdit(s)}
-                    >
-                      <Pencil size={15} strokeWidth={1.75} />
-                    </Button>
-                    <button
-                      type="button"
-                      className={`${NAVY_ACTION} hover:!bg-red-500 hover:!text-white`}
-                      aria-label={`Eliminar sessão de ${fmtDate(s.sessionDate)}`}
-                      title="Eliminar"
-                      disabled={busy}
-                      onClick={() => onDelete(s)}
-                    >
-                      <Trash2 size={15} strokeWidth={1.75} />
-                    </button>
-                  </>
-                }
-              />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#0F1F3D]">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock size={16} strokeWidth={1.75} />
+                      <b>{s.durationMinutes} min</b>
+                      <span className="text-[#4B5873]">Duração</span>
+                    </span>
+                    <span className="h-4 w-px bg-[#2F6FD6]/40" />
+                    <span className="inline-flex items-center gap-1.5">
+                      <MapPin size={16} strokeWidth={1.75} />
+                      <b>{s.location ?? '—'}</b>
+                      <span className="text-[#4B5873]">Local</span>
+                    </span>
+                    <span className="h-4 w-px bg-[#2F6FD6]/40" />
+                    <span className="inline-flex items-center gap-1.5">
+                      <Users size={16} strokeWidth={1.75} />
+                      <b>
+                        {s.maxParticipants > 0
+                          ? `${s._count.participants}/${s.maxParticipants}`
+                          : s._count.participants}
+                      </b>
+                      <span className="text-[#4B5873]">inscritos</span>
+                    </span>
+                  </div>
+                </div>
+                <div className="hidden h-14 w-px bg-[#2F6FD6]/40 sm:block" />
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0A66F5] text-white transition hover:bg-[#0F1F3D]"
+                    aria-label={`Editar sessão de ${fmtDate(s.sessionDate)}`}
+                    title="Editar"
+                    onClick={() => openEdit(s)}
+                  >
+                    <Pencil size={18} strokeWidth={1.75} />
+                  </button>
+                  <button
+                    type="button"
+                    className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0A66F5] text-white transition hover:bg-red-500 disabled:opacity-50"
+                    aria-label={`Eliminar sessão de ${fmtDate(s.sessionDate)}`}
+                    title="Eliminar"
+                    disabled={busy}
+                    onClick={() => onDelete(s)}
+                  >
+                    <Trash2 size={18} strokeWidth={1.75} />
+                  </button>
+                </div>
+              </div>
             );
           })}
         </div>
