@@ -2,6 +2,8 @@
 // "Todas as Automações" (docs/modulo_automation.md §3): tabela com os campos
 // do spec, filtros enviados ao backend e acções por linha.
 
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { saveCsvContent, type ExportFormat } from '@/lib/tableExport';
 import { useDeferredValue, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import {
@@ -9,7 +11,6 @@ import {
   ArrowRight,
   Clock,
   Copy,
-  Download,
   Eye,
   History,
   Layers,
@@ -63,7 +64,6 @@ import type {
 const CreateRuleModal = dynamic(() =>
   import('./CreateRuleModal').then((m) => m.CreateRuleModal),
 );
-import { saveBlob } from '@/lib/download';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { formatDateNumeric, formatDateTimeNumeric } from '@/lib/format';
 
@@ -132,11 +132,9 @@ const CATEGORY_ITEMS = [
     .map(([value, label]) => ({ value, label })),
 ];
 
-const fmt = (iso?: string | null) =>
-  iso ? formatDateTimeNumeric(iso) : '–';
+const fmt = (iso?: string | null) => (iso ? formatDateTimeNumeric(iso) : '–');
 
-const fmtDay = (iso?: string | null) =>
-  iso ? formatDateNumeric(iso) : '–';
+const fmtDay = (iso?: string | null) => (iso ? formatDateNumeric(iso) : '–');
 
 export interface RulesTabProps {
   /** Abre o Histórico de Execuções filtrado a uma regra (e, opcionalmente, só falhas). */
@@ -309,17 +307,14 @@ export function RulesTab({
       setRunning(false);
     }
   };
-  const exportCsv = async () => {
+  const exportCsv = async (format: ExportFormat = 'csv') => {
     setExporting(true);
     try {
       const { filename, content } = await apiClient.get<RulesExportResponse>(
         '/automation/rules/export',
         { params },
       );
-      saveBlob(
-        new Blob([content], { type: 'text/csv;charset=utf-8' }),
-        filename,
-      );
+      await saveCsvContent(filename, content, format, 'Regras de automação');
     } catch (e) {
       reportError(e, { source: 'RulesTab.exportCsv' });
       notify({
@@ -339,15 +334,11 @@ export function RulesTab({
           activas
         </span>
         <div className="flex flex-wrap gap-2">
-          <Button
-            size="sm"
-            intent="secondary"
-            onClick={exportCsv}
-            disabled={exporting}
-          >
-            <Download size={14} strokeWidth={1.75} />
-            Exportar
-          </Button>
+          <ExportMenu
+            formats={['csv', 'pdf']}
+            loading={exporting}
+            onExport={exportCsv}
+          />
           <Button
             size="sm"
             intent="secondary"

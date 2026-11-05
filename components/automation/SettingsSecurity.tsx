@@ -4,12 +4,13 @@
 
 'use client';
 
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { saveCsvContent, type ExportFormat } from '@/lib/tableExport';
 import { useState } from 'react';
 import {
   AlertCircle,
   CheckCircle2,
   Database,
-  Download,
   KeyRound,
   ListFilter,
   Plus,
@@ -33,7 +34,6 @@ import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
-import { downloadCsv } from './downloadCsv';
 import type {
   AuditRow,
   AutomationConnection,
@@ -47,8 +47,7 @@ import type {
 } from './types';
 import { formatDateTimeNumeric } from '@/lib/format';
 
-const fmt = (iso?: string | null) =>
-  iso ? formatDateTimeNumeric(iso) : '–';
+const fmt = (iso?: string | null) => (iso ? formatDateTimeNumeric(iso) : '–');
 
 const section =
   'rounded-card border border-border bg-surface p-4 shadow-resting';
@@ -112,12 +111,17 @@ export function DeadLettersPanel() {
     });
     if (ok) act.mutate({ id: d.id, verb: 'discard' });
   };
-  const exportCsv = async () => {
+  const exportCsv = async (format: ExportFormat = 'csv') => {
     try {
-      downloadCsv(
-        await apiClient.get<CsvExport>('/automation/dead-letters/export', {
-          params,
-        }),
+      const r = await apiClient.get<CsvExport>(
+        '/automation/dead-letters/export',
+        { params },
+      );
+      await saveCsvContent(
+        r.filename,
+        r.content,
+        format,
+        'Falhas por resolver',
       );
     } catch (e) {
       reportError(e, { source: 'SettingsSecurity.deadLettersExport' });
@@ -169,15 +173,9 @@ export function DeadLettersPanel() {
           onValueChange={setStatus}
           className="min-w-[180px]"
         />
-        <Button
-          className="ml-auto"
-          size="sm"
-          intent="secondary"
-          onClick={exportCsv}
-        >
-          <Download size={14} strokeWidth={1.75} />
-          Exportar
-        </Button>
+        <div className="ml-auto">
+          <ExportMenu formats={['csv', 'pdf']} onExport={exportCsv} />
+        </div>
       </div>
       {isLoading ? (
         <Skeleton rows={3} />
@@ -715,10 +713,16 @@ function AuditSection() {
   );
   const rows = data?.data ?? [];
 
-  const exportCsv = async () => {
+  const exportCsv = async (format: ExportFormat = 'csv') => {
     try {
-      downloadCsv(
-        await apiClient.get<CsvExport>('/automation/audit/export', { params }),
+      const r = await apiClient.get<CsvExport>('/automation/audit/export', {
+        params,
+      });
+      await saveCsvContent(
+        r.filename,
+        r.content,
+        format,
+        'Auditoria de alterações',
       );
     } catch (e) {
       reportError(e, { source: 'SettingsSecurity.auditExport' });
@@ -749,10 +753,7 @@ function AuditSection() {
           onValueChange={setEntity}
           className="min-w-[200px]"
         />
-        <Button size="sm" intent="secondary" onClick={exportCsv}>
-          <Download size={14} strokeWidth={1.75} />
-          Exportar
-        </Button>
+        <ExportMenu formats={['csv', 'pdf']} onExport={exportCsv} />
       </div>
       {isLoading ? (
         <Skeleton rows={3} />

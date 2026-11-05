@@ -6,6 +6,8 @@
 
 'use client';
 
+import type { ExportFormat } from '@/lib/tableExport';
+import { ExportMenu } from '@/components/ui/ExportMenu';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
@@ -18,7 +20,7 @@ import {
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { useDebounce } from '@/hooks/useDebounce';
 import { apiClient } from '@/lib/apiClient';
-import { downloadFromApi } from '@/lib/download';
+import { downloadCsvAsPdf, downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate } from '@/lib/format';
@@ -229,11 +231,21 @@ export function InstancesView({
     act.mutate({ path: `${row.id}/archive`, ok: 'Processo arquivado' });
   };
 
-  const exportCsv = async () => {
+  const exportCsv = async (format: ExportFormat = 'csv') => {
     setExporting(true);
     try {
+      const params = buildParams({ ...filters, search: debouncedSearch });
+      if (format === 'pdf') {
+        await downloadCsvAsPdf('/processes/instances/export', {
+          params,
+          title: 'Processos',
+          filename: 'processos',
+          errorMessage: 'Falha ao exportar os processos',
+        });
+        return;
+      }
       await downloadFromApi('/processes/instances/export', {
-        params: buildParams({ ...filters, search: debouncedSearch }),
+        params,
         filename: 'processos.csv',
         errorMessage: 'Falha ao exportar os processos',
       });
@@ -339,15 +351,11 @@ export function InstancesView({
             {data?.total ?? 0} processos
           </span>
           {canManage && (
-            <Button
-              intent="secondary"
-              size="sm"
-              onClick={exportCsv}
+            <ExportMenu
+              formats={['csv', 'pdf']}
               loading={exporting}
-            >
-              <Download size={14} strokeWidth={1.75} />
-              Exportar CSV
-            </Button>
+              onExport={exportCsv}
+            />
           )}
         </div>
       </div>

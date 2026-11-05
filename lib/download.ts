@@ -101,3 +101,22 @@ export async function downloadFromApi(
     fallbackName;
   saveBlob(blob, name);
 }
+
+/**
+ * GET `path` (um endpoint que devolve CSV) e descarrega o mesmo conteúdo em
+ * PDF. Reutiliza o CSV do backend, por isso respeita exactamente os mesmos
+ * filtros e permissões da exportação CSV.
+ */
+export async function downloadCsvAsPdf(
+  path: string,
+  {
+    params,
+    title,
+    filename,
+    errorMessage = 'Não foi possível exportar o PDF',
+  }: Omit<DownloadOptions, 'fallbackName'> & { title: string },
+): Promise<void> {
+  const res = await apiClient.getRaw(path, { params, errorMessage });
+  const { csvTextToPdf } = await import('@/lib/tableExport');
+  await csvTextToPdf(await res.text(), title, filename);
+}

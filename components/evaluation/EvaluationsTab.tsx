@@ -6,6 +6,8 @@
 
 'use client';
 
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { exportTable, type ExportFormat } from '@/lib/tableExport';
 import { useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import {
@@ -52,7 +54,6 @@ import { EvaluationDetailModal } from './EvaluationDetailModal';
 import { SubmitEvaluationModal } from './SubmitEvaluationModal';
 import { PURPOSE_LABEL, REQUEST_STATUS_MAP } from './constants';
 import type { Cycle, EvaluationRequestRow } from './types';
-import { saveBlob } from '@/lib/download';
 import { formatDateNumeric } from '@/lib/format';
 
 const NewEvaluationWizard = dynamic(() =>
@@ -281,7 +282,7 @@ export function EvaluationsTab() {
     },
   );
 
-  const exportCsv = () => {
+  const exportRows = (format: ExportFormat) => {
     const rows = data?.data ?? [];
     const header = [
       'Colaborador',
@@ -296,26 +297,25 @@ export function EvaluationsTab() {
       'Resultado',
       'Data de conclusão',
     ];
-    const lines = rows.map((r) =>
-      [
-        r.evaluated.fullName,
-        r.evaluated.employeeNumber ?? '',
-        r.evaluated.department?.name ?? '',
-        r.evaluated.position?.name ?? '',
-        r.evaluator?.fullName ?? '',
-        r.purpose ? PURPOSE_LABEL[r.purpose] : '',
-        r.cycle?.name ?? '',
-        REQUEST_STATUS_MAP[r.status]?.label ?? r.status,
-        r.dueDate ? formatDateNumeric(r.dueDate) : '',
-        r.result != null ? Number(r.result).toFixed(1) : '',
-        r.completedAt ? formatDateNumeric(r.completedAt) : '',
-      ]
-        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
-        .join(','),
-    );
-    const csv = `﻿${[header.join(','), ...lines].join('\r\n')}`;
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    saveBlob(blob, 'avaliacoes.csv');
+    const lines = rows.map((r) => [
+      r.evaluated.fullName,
+      r.evaluated.employeeNumber ?? '',
+      r.evaluated.department?.name ?? '',
+      r.evaluated.position?.name ?? '',
+      r.evaluator?.fullName ?? '',
+      r.purpose ? PURPOSE_LABEL[r.purpose] : '',
+      r.cycle?.name ?? '',
+      REQUEST_STATUS_MAP[r.status]?.label ?? r.status,
+      r.dueDate ? formatDateNumeric(r.dueDate) : '',
+      r.result != null ? Number(r.result).toFixed(1) : '',
+      r.completedAt ? formatDateNumeric(r.completedAt) : '',
+    ]);
+    void exportTable(format, {
+      title: 'Avaliações',
+      filename: 'avaliacoes',
+      headers: header,
+      rows: lines,
+    });
   };
 
   if (!canManage) {
@@ -332,9 +332,7 @@ export function EvaluationsTab() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="font-display font-semibold text-ink">Avaliações</h3>
         <div className="flex items-center gap-2">
-          <Button size="sm" intent="secondary" onClick={exportCsv}>
-            Exportar
-          </Button>
+          <ExportMenu onExport={exportRows} />
           {cycleId !== ALL && (
             <Button
               size="sm"

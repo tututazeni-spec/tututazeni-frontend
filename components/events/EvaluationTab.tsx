@@ -13,6 +13,7 @@
 
 'use client';
 
+import { PdfFromCsvButton } from '@/components/ui/PdfFromCsvButton';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
@@ -194,6 +195,10 @@ export function EvaluationTab() {
           <Download size={14} strokeWidth={1.75} />
           Exportar
         </a>
+        <PdfFromCsvButton
+          path={`/events/evaluations/export?${exportParams}`}
+          title="Avaliações do evento"
+        />
       </div>
 
       {error ? (
