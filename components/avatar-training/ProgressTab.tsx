@@ -5,19 +5,15 @@
 'use client';
 
 import { useState } from 'react';
-import { CalendarDays, Repeat, Star, TrendingUp, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { formatDate } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { QueryError } from '@/components/ui/QueryError';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { NavyBadge, NavyCard } from '@/components/courses/NavyCard';
-import { NAVY_ACCENT } from '@/components/courses/TurmasView';
-import { PROGRESS_PHOTO } from './cards';
-import { ASSIGNMENT_STATUS } from './constants';
+import { ProgressRowCard } from './cards';
 import type { Paginated, ProgressRow } from './types';
 
 const LIMIT = 20;
@@ -52,49 +48,9 @@ export function ProgressTab() {
   const pages = Math.max(1, Math.ceil(data.total / LIMIT));
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+      <div className="space-y-2">
         {data.data.map((r) => (
-          <NavyCard
-            key={r.id}
-            variant="photo"
-            image={PROGRESS_PHOTO}
-            imagePosition="right center"
-            accent={NAVY_ACCENT}
-            seed={r.session?.id ?? r.id}
-            kicker={r.user?.fullName ?? '—'}
-            kickerIcon={Users}
-            title={r.session?.title ?? '—'}
-            badge={
-              <NavyBadge tone="light" large>
-                {ASSIGNMENT_STATUS[r.status].label}
-              </NavyBadge>
-            }
-            infos={[
-              {
-                icon: CalendarDays,
-                value: r.dueDate ? formatDate(r.dueDate) : '—',
-                label: 'Prazo',
-              },
-              {
-                icon: Repeat,
-                value: String(r.attemptsCount),
-                label: 'Tentativas',
-              },
-              {
-                icon: Star,
-                value: String(r.bestScore ?? '—'),
-                label: 'Melhor nota',
-              },
-              {
-                icon: TrendingUp,
-                value:
-                  r.evolution === null
-                    ? '—'
-                    : `${r.evolution > 0 ? '+' : ''}${r.evolution}`,
-                label: 'Evolução',
-              },
-            ]}
-          />
+          <ProgressRowCard key={r.id} row={r} />
         ))}
       </div>
       <div className="flex items-center justify-between font-body text-xs text-ink-muted">
