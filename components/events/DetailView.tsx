@@ -305,7 +305,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
             <span
               aria-hidden
               className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full text-white"
-              style={{ background: palette[3] }}
+              style={{ background: '#0F1F3D' }}
             >
               <TypeIcon size={28} strokeWidth={1.75} />
             </span>

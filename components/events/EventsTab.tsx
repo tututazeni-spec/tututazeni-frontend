@@ -259,6 +259,12 @@ export function EventsTab({ initialStatus }: { initialStatus?: string }) {
                   key={e.id}
                   event={e}
                   onOpen={() => setDetailId(e.id)}
+                  onPublish={
+                    canPublishNow
+                      ? () => publishMutation.mutate(e.id)
+                      : undefined
+                  }
+                  publishing={isPublishing}
                   menu={
                     canPublishNow || canCancelNow || canDeleteNow ? (
                       <>
