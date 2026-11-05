@@ -41,15 +41,26 @@ function formatFileSize(bytes: number | null) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+/** Número estável para a cor do cartão (ids de LibraryItem são texto). */
+function seedOf(id: number | string) {
+  if (typeof id === 'number') return id;
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+interface PickedMaterial {
+  id: number | string;
+  title: string;
+  source: 'DOCUMENT' | 'LIBRARY';
+}
+
 function AddMaterialModal({ onClose }: { onClose: () => void }) {
   const toast = useToast();
   const [liveClassId, setLiveClassId] = useState('');
   const [sessionId, setSessionId] = useState('');
   const [docSearch, setDocSearch] = useState('');
-  const [selectedDoc, setSelectedDoc] = useState<{
-    id: number;
-    title: string;
-  } | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<PickedMaterial | null>(null);
 
   const { data: classesData } = useApiQuery<{ data: LiveClass[] }>(
     queryKeys.liveClasses.list({ limit: 100 }),
@@ -74,26 +85,49 @@ function AddMaterialModal({ onClose }: { onClose: () => void }) {
     })),
   ];
 
+  const term = docSearch.trim();
+  const canSearch = term.length >= 2;
+  // Pesquisa nas duas fontes: Repositório (/documents) e Biblioteca de conteúdos (/library/items).
   const { data: docResults } = useApiQuery<{
     data: { id: number; title: string }[];
-  }>(['documents-picker', docSearch], '/documents', {
-    params: { search: docSearch, limit: 10 },
+  }>(['documents-picker', term], '/documents', {
+    params: { search: term, limit: 10 },
     staleTime: STALE_TIME.DYNAMIC,
-    enabled: docSearch.length >= 2,
+    enabled: canSearch,
   });
+  const { data: libResults } = useApiQuery<{
+    data: { id: string; title: string }[];
+  }>(['library-picker', term], '/library/items', {
+    params: { search: term, limit: 10 },
+    staleTime: STALE_TIME.DYNAMIC,
+    enabled: canSearch,
+  });
+  const results: PickedMaterial[] = [
+    ...(docResults?.data ?? []).map((d) => ({
+      id: d.id,
+      title: d.title,
+      source: 'DOCUMENT' as const,
+    })),
+    ...(libResults?.data ?? []).map((d) => ({
+      id: d.id,
+      title: d.title,
+      source: 'LIBRARY' as const,
+    })),
+  ];
 
   const add = useApiMutation(
-    (doc: { id: number; title: string }) =>
-      sessionId
+    (doc: PickedMaterial) => {
+      const body =
+        doc.source === 'LIBRARY'
+          ? { libraryItemId: String(doc.id) }
+          : { documentId: Number(doc.id) };
+      return sessionId
         ? apiClient.post(
             `/live-classes/${liveClassId}/sessions/${sessionId}/materials`,
-            {
-              documentId: doc.id,
-            },
+            body,
           )
-        : apiClient.post(`/live-classes/${liveClassId}/materials`, {
-            documentId: doc.id,
-          }),
+        : apiClient.post(`/live-classes/${liveClassId}/materials`, body);
+    },
     {
       invalidateKeys: [queryKeys.liveClasses.all],
       onSuccess: () => {
@@ -130,7 +164,10 @@ function AddMaterialModal({ onClose }: { onClose: () => void }) {
               />
             </FormField>
           )}
-          <FormField label="Documento da Biblioteca" htmlFor="mat-doc">
+          <FormField
+            label="Documento do Repositório ou da Biblioteca"
+            htmlFor="mat-doc"
+          >
             <Input
               id="mat-doc"
               placeholder="Pesquisar por título…"
@@ -141,19 +178,22 @@ function AddMaterialModal({ onClose }: { onClose: () => void }) {
               }}
               className="w-full"
             />
-            {!selectedDoc && docSearch.length >= 2 && (
+            {!selectedDoc && canSearch && (
               <div className="mt-1 max-h-40 overflow-y-auto rounded-control border border-border">
-                {(docResults?.data ?? []).length === 0 ? (
+                {results.length === 0 ? (
                   <EmptyState variant="inline" title="Sem resultados" />
                 ) : (
-                  docResults!.data.map((d) => (
+                  results.map((d) => (
                     <button
-                      key={d.id}
+                      key={`${d.source}-${d.id}`}
                       type="button"
                       onClick={() => setSelectedDoc(d)}
-                      className="block w-full px-3 py-2 text-left font-body text-sm text-ink hover:bg-surface-sunken"
+                      className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left font-body text-sm text-ink hover:bg-surface-sunken"
                     >
-                      {d.title}
+                      <span className="truncate">{d.title}</span>
+                      <span className="shrink-0 text-xs text-ink-faint">
+                        {d.source === 'LIBRARY' ? 'Biblioteca' : 'Repositório'}
+                      </span>
                     </button>
                   ))
                 )}
@@ -207,13 +247,16 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
     (ref: {
       liveClassId: number;
       sessionId: number | null;
-      documentId: number;
-    }) =>
-      apiClient.delete(
+      documentId: number | string;
+      source: 'DOCUMENT' | 'LIBRARY';
+    }) => {
+      const seg = ref.source === 'LIBRARY' ? 'library-materials' : 'materials';
+      return apiClient.delete(
         ref.sessionId
-          ? `/live-classes/${ref.liveClassId}/sessions/${ref.sessionId}/materials/${ref.documentId}`
-          : `/live-classes/${ref.liveClassId}/materials/${ref.documentId}`,
-      ),
+          ? `/live-classes/${ref.liveClassId}/sessions/${ref.sessionId}/${seg}/${ref.documentId}`
+          : `/live-classes/${ref.liveClassId}/${seg}/${ref.documentId}`,
+      );
+    },
     {
       invalidateKeys: [queryKeys.liveClasses.all],
       onSuccess: () =>
@@ -236,6 +279,7 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
         liveClassId: ref.liveClassId,
         sessionId: ref.sessionId,
         documentId: row.document.id,
+        source: row.source,
       });
   }
 
@@ -271,8 +315,8 @@ export function MaterialsView({ canManage }: { canManage: boolean }) {
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {rows.map((row) => (
             <NavyCard
-              key={row.document.id}
-              seed={row.document.id}
+              key={`${row.source}-${row.document.id}`}
+              seed={seedOf(row.document.id)}
               kicker={row.document.category}
               kickerIcon={FileText}
               title={row.document.title}
