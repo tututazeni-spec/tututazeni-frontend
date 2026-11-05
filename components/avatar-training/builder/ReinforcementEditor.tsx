@@ -4,6 +4,7 @@
 
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { Filter } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
 import {
@@ -54,6 +55,8 @@ export function ReinforcementEditor({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <FormField label="Etapa anterior a rever" htmlFor={`rf-s-${index}`}>
           <Select
+            variant="underline"
+            icon={Filter}
             value={r.reviewStepKey ?? NEXT}
             onValueChange={(v) =>
               clean({ ...r, reviewStepKey: v === NEXT ? undefined : v })

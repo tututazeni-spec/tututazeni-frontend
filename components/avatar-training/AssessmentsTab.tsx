@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ClipboardCheck, Plus, Trash2 } from 'lucide-react';
+import { ClipboardCheck, Filter, Plus, Trash2 } from 'lucide-react';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { Select } from '@/components/ui/Select';
 import type { FormalEvaluation } from '@/components/evaluation/formalEvaluationTypes';
@@ -45,6 +45,14 @@ function AssessmentForm({ session }: { session: SessionDetail }) {
   const [rubric, setRubric] = useState<RubricCriterion[]>(
     a?.rubricConfig ?? [],
   );
+
+  const formalItems = [
+    { value: NO_FORMAL, label: 'Nenhuma' },
+    ...(formalEvaluations ?? []).map((e) => ({
+      value: String(e.id),
+      label: e.title,
+    })),
+  ];
 
   const total = rubric.reduce((s, c) => s + (Number(c.weight) || 0), 0);
   const rubricOk = rubric.length === 0 || total === 100;
@@ -126,14 +134,14 @@ function AssessmentForm({ session }: { session: SessionDetail }) {
           hint="Opcional (módulo Avaliações)"
         >
           <Select
-            items={[
-              { value: NO_FORMAL, label: 'Nenhuma' },
-              ...(formalEvaluations ?? []).map((e) => ({
-                value: String(e.id),
-                label: e.title,
-              })),
-            ]}
-            value={assessmentId || NO_FORMAL}
+            variant="underline"
+            icon={Filter}
+            items={formalItems}
+            value={
+              formalItems.some((i) => i.value === assessmentId)
+                ? assessmentId
+                : NO_FORMAL
+            }
             onValueChange={(v) => setAssessmentId(v === NO_FORMAL ? '' : v)}
             className="w-full"
           />

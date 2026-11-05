@@ -10,6 +10,7 @@ import {
   Bot,
   History,
   ImageIcon,
+  MoreHorizontal,
   Pencil,
   Plus,
   Trash2,
@@ -23,6 +24,13 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDate } from '@/lib/format';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -581,62 +589,55 @@ export function AvatarsTab() {
               showAdminInfo={isAdmin}
               actions={
                 isAdmin && (
-                  <>
-                    <Button
-                      type="button"
-                      intent="secondary"
-                      size="compact"
-                      onClick={() => setEditing(a)}
-                    >
-                      <Pencil size={14} /> Editar
-                    </Button>
-                    <Button
-                      type="button"
-                      intent="secondary"
-                      size="compact"
-                      onClick={() => setHistoryOf(a)}
-                    >
-                      <History size={14} /> Histórico
-                    </Button>
-                    <Button
-                      type="button"
-                      intent="secondary"
-                      size="compact"
-                      disabled={test.isPending && test.variables === a.id}
-                      onClick={() => test.mutate(a.id)}
-                    >
-                      Testar
-                    </Button>
-                    {a.status !== 'ACTIVE' ? (
-                      <Button
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
                         type="button"
-                        intent="primary"
-                        size="compact"
-                        disabled={!a.lastTestedAt}
-                        title={
-                          a.lastTestedAt
-                            ? undefined
-                            : 'É obrigatório testar o avatar antes de o activar'
-                        }
-                        onClick={() =>
-                          setStatus.mutate({ id: a.id, status: 'ACTIVE' })
-                        }
+                        aria-label={`Acções do avatar ${a.name}`}
+                        className="rounded-full bg-surface p-1.5 text-brand shadow-sm ring-1 ring-brand-line hover:bg-primary-subtle"
                       >
-                        Activar
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        intent="secondary"
-                        size="compact"
-                        onClick={() =>
-                          setStatus.mutate({ id: a.id, status: 'INACTIVE' })
-                        }
+                        <MoreHorizontal size={16} strokeWidth={1.75} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => setEditing(a)}>
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => setHistoryOf(a)}>
+                        Histórico
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        disabled={test.isPending && test.variables === a.id}
+                        onSelect={() => test.mutate(a.id)}
                       >
-                        Desactivar
-                      </Button>
-                    )}
-                  </>
+                        Testar
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {a.status !== 'ACTIVE' ? (
+                        <DropdownMenuItem
+                          disabled={!a.lastTestedAt}
+                          title={
+                            a.lastTestedAt
+                              ? undefined
+                              : 'É obrigatório testar o avatar antes de o activar'
+                          }
+                          onSelect={() =>
+                            setStatus.mutate({ id: a.id, status: 'ACTIVE' })
+                          }
+                        >
+                          Activar
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem
+                          onSelect={() =>
+                            setStatus.mutate({ id: a.id, status: 'INACTIVE' })
+                          }
+                        >
+                          Desactivar
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )
               }
             />
