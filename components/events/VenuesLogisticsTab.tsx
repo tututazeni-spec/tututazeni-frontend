@@ -50,6 +50,9 @@ const MANAGE_ROLES: readonly Role[] = ADMIN_RH_GESTOR_ROLES;
 interface LogisticsFormState {
   equipment: EventEquipmentType[];
   customEquipment: string[];
+  customServices: string[];
+  /** Serviços seleccionados em «Estado e custos»: chave → custo (texto). */
+  serviceCosts: Record<string, string>;
   resourcesNeeded: string;
   suppliers: string;
   catering: string;
@@ -80,9 +83,21 @@ function parseResources(text: string): string[] {
     .filter(Boolean);
 }
 
+// Serviços fixos de «Fornecedores e serviços» (sem «Fornecedores») que se
+// podem seleccionar em «Estado e custos» para lhes indicar o custo.
+const FIXED_SERVICES = [
+  { key: 'catering', label: 'Catering' },
+  { key: 'transport', label: 'Transporte' },
+  { key: 'accommodation', label: 'Alojamento' },
+  { key: 'security', label: 'Segurança' },
+  { key: 'decoration', label: 'Decoração' },
+] as const;
+
 const EMPTY_FORM: LogisticsFormState = {
   equipment: [],
   customEquipment: [],
+  customServices: [],
+  serviceCosts: {},
   resourcesNeeded: '',
   suppliers: '',
   catering: '',
@@ -100,6 +115,13 @@ function toForm(l: EventLogistics | null): LogisticsFormState {
   return {
     equipment: l.equipment,
     customEquipment: l.customEquipment ?? [],
+    customServices: l.customServices ?? [],
+    serviceCosts: Object.fromEntries(
+      Object.entries(l.serviceCosts ?? {}).map(([k, v]) => [
+        k,
+        v === null || v === undefined ? '' : String(v),
+      ]),
+    ),
     resourcesNeeded: l.resourcesNeeded ?? '',
     suppliers: l.suppliers ?? '',
     catering: l.catering ?? '',
@@ -121,6 +143,9 @@ export function VenuesLogisticsTab() {
   const [eventId, setEventId] = useState<number | null>(null);
   const [newEquipment, setNewEquipment] = useState('');
   const [newResource, setNewResource] = useState('');
+  const [newSupplier, setNewSupplier] = useState('');
+  const [newServiceName, setNewServiceName] = useState('');
+  const [newServiceDetail, setNewServiceDetail] = useState('');
   const [responsible, setResponsible] = useState<DirectoryUser | null>(null);
   const [form, setForm] = useState<LogisticsFormState>(EMPTY_FORM);
 
@@ -163,6 +188,13 @@ export function VenuesLogisticsTab() {
         responsibleId: responsible?.id,
         equipment: form.equipment,
         customEquipment: form.customEquipment,
+        customServices: form.customServices,
+        serviceCosts: Object.fromEntries(
+          Object.entries(form.serviceCosts).map(([k, v]) => [
+            k,
+            v.trim() === '' ? null : Number(v),
+          ]),
+        ),
         resourcesNeeded: form.resourcesNeeded || undefined,
         suppliers: form.suppliers || undefined,
         catering: form.catering || undefined,
@@ -202,6 +234,77 @@ export function VenuesLogisticsTab() {
         .join('\n'),
     }));
   }
+
+  const suppliers = parseResources(form.suppliers);
+
+  function addSupplier() {
+    const name = newSupplier.trim();
+    setNewSupplier('');
+    if (!name || suppliers.some((x) => x.toLowerCase() === name.toLowerCase()))
+      return;
+    setForm((f) => ({
+      ...f,
+      suppliers: [...parseResources(f.suppliers), name].join('\n'),
+    }));
+  }
+
+  function removeSupplier(name: string) {
+    setForm((f) => ({
+      ...f,
+      suppliers: parseResources(f.suppliers)
+        .filter((x) => x !== name)
+        .join('\n'),
+    }));
+  }
+
+  function addCustomService() {
+    const name = newServiceName.trim();
+    if (!name) return;
+    const detail = newServiceDetail.trim();
+    const entry = detail ? `${name}: ${detail}` : name;
+    setForm((f) => ({ ...f, customServices: [...f.customServices, entry] }));
+    setNewServiceName('');
+    setNewServiceDetail('');
+  }
+
+  function removeCustomService(entry: string) {
+    setForm((f) => ({
+      ...f,
+      customServices: f.customServices.filter((x) => x !== entry),
+    }));
+  }
+
+  function toggleServiceCost(key: string) {
+    setForm((f) => {
+      const next = { ...f.serviceCosts };
+      if (key in next) delete next[key];
+      else next[key] = '';
+      return { ...f, serviceCosts: next };
+    });
+  }
+
+  function setServiceCost(key: string, value: string) {
+    setForm((f) => ({
+      ...f,
+      serviceCosts: { ...f.serviceCosts, [key]: value },
+    }));
+  }
+
+  const serviceItems = [
+    ...FIXED_SERVICES.map((sv) => ({
+      key: sv.key as string,
+      label: sv.label,
+      detail: form[sv.key],
+    })),
+    ...form.customServices.map((entry) => ({
+      key: `custom:${entry}`,
+      label: entry.split(': ')[0],
+      detail: entry.includes(': ') ? entry.slice(entry.indexOf(': ') + 2) : '',
+    })),
+  ];
+  const servicesTotal = Object.entries(form.serviceCosts)
+    .filter(([key]) => serviceItems.some((i) => i.key === key))
+    .reduce((sum, [, v]) => sum + (Number(v) || 0), 0);
 
   function addCustomEquipment() {
     const name = newEquipment.trim();
@@ -496,18 +599,61 @@ export function VenuesLogisticsTab() {
             </NavyPanel>
             <NavyPanel seed={event?.id ?? 0} title="Fornecedores e serviços">
               <div className="space-y-3">
-                <FormField label="Fornecedores" htmlFor="log-suppliers">
-                  <Textarea
-                    id="log-suppliers"
-                    value={form.suppliers}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, suppliers: e.target.value }))
-                    }
-                    rows={2}
-                    disabled={!canManage}
-                    className="w-full resize-none"
-                  />
-                </FormField>
+                <div>
+                  <div className="mb-1.5 font-body text-xs font-medium text-ink">
+                    Fornecedores
+                  </div>
+                  {suppliers.length > 0 && (
+                    <div className="mb-2 flex flex-wrap gap-2">
+                      {suppliers.map((name) => (
+                        <span
+                          key={name}
+                          className="flex items-center gap-1.5 rounded-full border border-brand bg-brand px-3 py-1 text-xs text-white"
+                        >
+                          {name}
+                          {canManage && (
+                            <button
+                              type="button"
+                              aria-label={`Remover ${name}`}
+                              onClick={() => removeSupplier(name)}
+                              className="rounded-full hover:bg-white/20"
+                            >
+                              <X size={12} strokeWidth={2} />
+                            </button>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {canManage && (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={newSupplier}
+                        onChange={(e) => setNewSupplier(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addSupplier();
+                          }
+                        }}
+                        maxLength={120}
+                        placeholder="Nome do fornecedor…"
+                        aria-label="Adicionar fornecedor"
+                        className="w-full"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        intent="secondary"
+                        onClick={addSupplier}
+                        disabled={!newSupplier.trim()}
+                      >
+                        <Plus size={14} strokeWidth={1.75} />
+                        Adicionar
+                      </Button>
+                    </div>
+                  )}
+                </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <FormField label="Catering" htmlFor="log-catering">
                     <Input
@@ -568,6 +714,75 @@ export function VenuesLogisticsTab() {
                     />
                   </FormField>
                 </div>
+                <div>
+                  <div className="mb-1.5 font-body text-xs font-medium text-ink">
+                    Outros serviços
+                  </div>
+                  {form.customServices.length > 0 && (
+                    <div className="mb-2 flex flex-wrap gap-2">
+                      {form.customServices.map((entry) => (
+                        <span
+                          key={entry}
+                          className="flex items-center gap-1.5 rounded-full border border-brand bg-brand px-3 py-1 text-xs text-white"
+                        >
+                          {entry}
+                          {canManage && (
+                            <button
+                              type="button"
+                              aria-label={`Remover ${entry}`}
+                              onClick={() => removeCustomService(entry)}
+                              className="rounded-full hover:bg-white/20"
+                            >
+                              <X size={12} strokeWidth={2} />
+                            </button>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {canManage && (
+                    <div className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                      <Input
+                        value={newServiceName}
+                        onChange={(e) => setNewServiceName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addCustomService();
+                          }
+                        }}
+                        maxLength={80}
+                        placeholder="Serviço (ex.: Fotografia)…"
+                        aria-label="Nome do serviço"
+                        className="w-full"
+                      />
+                      <Input
+                        value={newServiceDetail}
+                        onChange={(e) => setNewServiceDetail(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addCustomService();
+                          }
+                        }}
+                        maxLength={110}
+                        placeholder="Detalhe (opcional)"
+                        aria-label="Detalhe do serviço"
+                        className="w-full"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        intent="secondary"
+                        onClick={addCustomService}
+                        disabled={!newServiceName.trim()}
+                      >
+                        <Plus size={14} strokeWidth={1.75} />
+                        Adicionar serviço
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </NavyPanel>
             <NavyPanel seed={event?.id ?? 0} title="Estado e custos">
@@ -619,6 +834,58 @@ export function VenuesLogisticsTab() {
                     className="w-full"
                   />
                 </FormField>
+              </div>
+              <div className="space-y-2">
+                <div className="font-body text-xs font-medium text-ink">
+                  Serviços e custos
+                </div>
+                {serviceItems.map((item) => {
+                  const on = item.key in form.serviceCosts;
+                  return (
+                    <div
+                      key={item.key}
+                      className="flex flex-wrap items-center gap-3 rounded-control border border-brand-line bg-surface px-3 py-1.5"
+                    >
+                      <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm text-brand">
+                        <Checkbox
+                          checked={on}
+                          onChange={() => toggleServiceCost(item.key)}
+                          disabled={!canManage}
+                          size="sm"
+                        />
+                        <span className="truncate font-semibold">
+                          {item.label}
+                        </span>
+                        {item.detail && (
+                          <span className="truncate text-xs text-brand-muted">
+                            {item.detail}
+                          </span>
+                        )}
+                      </label>
+                      {on && (
+                        <Input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          value={form.serviceCosts[item.key]}
+                          onChange={(e) =>
+                            setServiceCost(item.key, e.target.value)
+                          }
+                          disabled={!canManage}
+                          placeholder="Custo"
+                          aria-label={`Custo de ${item.label}`}
+                          className="w-36"
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+                {Object.keys(form.serviceCosts).length > 0 && (
+                  <div className="text-right font-body text-xs text-brand-muted">
+                    Total dos serviços seleccionados:{' '}
+                    <b className="text-brand">{servicesTotal.toFixed(2)}</b>
+                  </div>
+                )}
               </div>
               {canManage && (
                 <div className="flex justify-end border-t border-brand-line pt-4">
