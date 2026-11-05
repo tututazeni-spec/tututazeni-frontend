@@ -319,7 +319,7 @@ export interface ProgressRow {
   attemptsCount: number;
   bestScore: number | null;
   evolution: number | null;
-  user?: { id: number; fullName: string };
+  user?: { id: number; fullName: string; avatarUrl?: string | null };
   session?: {
     id: number;
     title: string;
