@@ -23,6 +23,8 @@ interface RowCardProps {
   meta?: RowCardMeta[];
   actions?: ReactNode;
   className?: string;
+  /** Metade da altura: uma só linha, sem círculo grande. */
+  compact?: boolean;
 }
 
 export function RowCard({
@@ -33,26 +35,37 @@ export function RowCard({
   meta = [],
   actions,
   className = '',
+  compact = false,
 }: RowCardProps) {
   return (
     <div
-      className={`flex flex-wrap items-center gap-4 rounded-2xl border border-[#0F1F3D] bg-[#F3F7FE] px-4 py-3 ${className}`}
+      className={`flex flex-wrap items-center rounded-2xl border bg-[#F3F7FE] ${compact ? 'border-[#0F1F3D]/50' : 'border-[#0F1F3D]'} ${compact ? 'gap-3 px-3 py-1' : 'gap-4 px-4 py-3'} ${className}`}
     >
       {leading ?? (
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
-          {Icon && <Icon size={26} strokeWidth={1.75} />}
+        <div
+          className={`flex shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white ${compact ? 'h-8 w-8' : 'h-14 w-14'}`}
+        >
+          {Icon && <Icon size={compact ? 16 : 26} strokeWidth={1.75} />}
         </div>
       )}
-      <div className="hidden h-14 w-px bg-[#0F1F3D]/40 sm:block" />
-      <div className="min-w-0 flex-1 space-y-2">
+      <div
+        className={`hidden w-px bg-[#0F1F3D]/40 sm:block ${compact ? 'h-8' : 'h-14'}`}
+      />
+      <div
+        className={`min-w-0 flex-1 ${compact ? 'flex flex-wrap items-center gap-x-3' : 'space-y-2'}`}
+      >
         <div className="flex flex-wrap items-center gap-2">
-          <span className="min-w-0 truncate text-lg font-bold text-[#0F1F3D]">
+          <span
+            className={`min-w-0 truncate font-bold text-[#0F1F3D] ${compact ? 'text-sm' : 'text-lg'}`}
+          >
             {title}
           </span>
           {badges}
         </div>
         {meta.length > 0 && (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#0F1F3D]">
+          <div
+            className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[#0F1F3D] ${compact ? 'text-xs' : 'text-sm'}`}
+          >
             {meta.map((m, i) => (
               <span key={i} className="inline-flex items-center gap-3">
                 {i > 0 && <span className="h-4 w-px bg-[#0F1F3D]/40" />}
@@ -68,7 +81,9 @@ export function RowCard({
       </div>
       {actions && (
         <>
-          <div className="hidden h-14 w-px bg-[#0F1F3D]/40 sm:block" />
+          <div
+            className={`hidden w-px bg-[#0F1F3D]/40 sm:block ${compact ? 'h-8' : 'h-14'}`}
+          />
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             {actions}
           </div>

@@ -304,20 +304,20 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
           description="Ainda ninguém se inscreveu nesta sessão."
         />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-1.5">
           {participants
             .filter((p) => p.status !== 'PENDING_APPROVAL')
             .map((p) => (
               <RowCard
                 key={p.id}
+                compact
                 leading={
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0F1F3D]">
-                    <Avatar
-                      name={p.user.fullName}
-                      url={p.user.avatarUrl ?? undefined}
-                      size="md"
-                    />
-                  </div>
+                  <Avatar
+                    name={p.user.fullName}
+                    url={p.user.avatarUrl ?? undefined}
+                    size="sm"
+                    className="shrink-0"
+                  />
                 }
                 title={p.user.fullName}
                 badges={<StatusBadge value={p.status} map={PARTICIPANT_CFG} />}
@@ -359,7 +359,7 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
                       onValueChange={(status) =>
                         updateStatus.mutate({ id: p.id, status })
                       }
-                      className="w-40 flex-shrink-0"
+                      className="w-40 flex-shrink-0 !min-h-0 !pb-1 !pt-0"
                     />
                     {otherSessions.length > 0 && (
                       <Button

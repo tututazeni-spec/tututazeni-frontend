@@ -55,13 +55,12 @@ export function FormadoresTab({ training }: FormadoresTabProps) {
         {principal ? (
           <RowCard
             leading={
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0F1F3D]">
-                <Avatar
-                  name={principal.name}
-                  url={principal.avatarUrl ?? undefined}
-                  size="md"
-                />
-              </div>
+              <Avatar
+                name={principal.name}
+                url={principal.avatarUrl ?? undefined}
+                size="lg"
+                className="!h-14 !w-14 shrink-0"
+              />
             }
             title={principal.name}
             badges={
@@ -100,13 +99,12 @@ export function FormadoresTab({ training }: FormadoresTabProps) {
               <RowCard
                 key={c.id}
                 leading={
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0F1F3D]">
-                    <Avatar
-                      name={c.user.fullName}
-                      url={c.user.avatarUrl ?? undefined}
-                      size="md"
-                    />
-                  </div>
+                  <Avatar
+                    name={c.user.fullName}
+                    url={c.user.avatarUrl ?? undefined}
+                    size="lg"
+                    className="!h-14 !w-14 shrink-0"
+                  />
                 }
                 title={c.user.fullName}
                 badges={
