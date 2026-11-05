@@ -2,9 +2,8 @@
 // Criar uma sessão numa formação (apresentação). Dados e pedido:
 // hooks/useNewSession.ts.
 
-import { Plus } from 'lucide-react';
+import { ListFilter, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import type { NewSessionController } from '@/hooks/useNewSession';
@@ -22,22 +21,23 @@ export function NewSessionView({ ctl }: { ctl: NewSessionController }) {
   } = ctl;
 
   return (
-    <div className="flex flex-wrap items-end gap-3 rounded-card border border-border bg-surface p-4">
-      <FormField label="Formação" htmlFor="ns-prog">
-        <Select
-          value={programId}
-          onValueChange={setProgramId}
-          placeholder="Escolha a formação"
-          items={programItems}
-        />
-      </FormField>
-      <FormField label="Título da nova sessão" htmlFor="ns-title">
-        <Input
-          id="ns-title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </FormField>
+    <div className="flex flex-wrap items-end gap-x-8 gap-y-4 rounded-card border border-border bg-surface p-4">
+      <Select
+        variant="underline"
+        icon={ListFilter}
+        value={programId}
+        onValueChange={setProgramId}
+        placeholder="Escolha a formação"
+        items={programItems}
+      />
+      <Input
+        variant="underline"
+        aria-label="Título da nova sessão"
+        placeholder="Título da nova sessão"
+        className="min-w-[220px]"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
       <Button
         size="sm"
         loading={isCreating}

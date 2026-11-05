@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { PeriodPills } from '@/components/ui/Pills';
+import { SearchInput } from '@/components/ui/SearchInput';
 import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -24,28 +26,16 @@ interface ProgramsListViewProps {
 
 function ModeSwitch({ list }: { list: ProgramsListController }) {
   return (
-    <div role="group" aria-label="Vista" className="flex gap-2">
-      {(
-        [
-          ['manage', 'Gestão'],
-          ['catalog', 'Catálogo'],
-          ['recycle', 'Reciclagem'],
-        ] as const
-      ).map(([id, label]) => (
-        <button
-          key={id}
-          aria-pressed={list.mode === id}
-          onClick={() => list.setMode(id)}
-          className={`rounded-control border px-3 py-1.5 text-xs font-medium transition-colors ${
-            list.mode === id
-              ? 'border-primary bg-primary/10 text-primary'
-              : 'border-border bg-surface text-ink-muted hover:text-ink'
-          }`}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
+    <PeriodPills
+      label="Vista"
+      value={list.mode}
+      onChange={list.setMode}
+      options={[
+        { value: 'manage', label: 'Gestão' },
+        { value: 'catalog', label: 'Catálogo' },
+        { value: 'recycle', label: 'Reciclagem' },
+      ]}
+    />
   );
 }
 
@@ -94,22 +84,21 @@ export function ProgramsListView({
       <div className="flex flex-wrap items-end gap-3">
         {isAuthor && <ModeSwitch list={list} />}
         <div className="min-w-[180px] flex-1">
-          <FormField label="Pesquisar" htmlFor="ap-search">
-            <Input
-              id="ap-search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </FormField>
+          <SearchInput
+            variant="underline"
+            placeholder="Pesquisar formações…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
         <div className="min-w-[140px]">
-          <FormField label="Categoria" htmlFor="ap-filter-cat">
-            <Input
-              id="ap-filter-cat"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            />
-          </FormField>
+          <Input
+            variant="underline"
+            aria-label="Categoria"
+            placeholder="Categoria"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          />
         </div>
         {manage && (
           <div className="min-w-[140px]">
@@ -131,7 +120,7 @@ export function ProgramsListView({
           </div>
         )}
         {manage && (
-          <Button size="sm" onClick={onCreate}>
+          <Button size="sm" onClick={onCreate} className="ml-auto">
             <Plus size={14} /> Nova formação
           </Button>
         )}

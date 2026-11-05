@@ -9,11 +9,13 @@
 
 import type { ReactNode } from 'react';
 import {
+  BookOpen,
   Bot,
   CalendarDays,
   Clock,
   Globe,
   GraduationCap,
+  Hash,
   Layers,
   Star,
 } from 'lucide-react';
@@ -33,11 +35,14 @@ import {
   ASSIGNMENT_STATUS,
   DIFFICULTY_LABEL,
   EXPERIENCE_LABEL,
+  KNOWLEDGE_STATUS_LABEL,
   PROGRAM_STATUS,
+  SOURCE_LABEL,
 } from './constants';
 import type {
   AssignmentStatus,
   AvatarProgram,
+  KnowledgeSource,
   MyAssignment,
   ProgramStatus,
   SessionListItem,
@@ -327,5 +332,50 @@ export function SessionCardPicker({
         ))}
       </div>
     </section>
+  );
+}
+
+// ─── Fontes de conhecimento (mesmo desenho das sessões) ─────────────────────
+
+export function KnowledgeSourceCard({
+  source: k,
+  actions,
+}: {
+  source: KnowledgeSource;
+  actions?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[#0F1F3D] bg-[#F3F7FE] px-3 py-1.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0F1F3D] text-white">
+        <BookOpen size={18} strokeWidth={1.75} />
+      </div>
+      <div className="hidden h-8 w-px bg-[#0F1F3D]/40 sm:block" />
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold text-[#0F1F3D]">
+          {k.title ?? `${SOURCE_LABEL[k.sourceType]} ${k.sourceId}`}
+        </p>
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0F1F3D] px-2.5 py-0.5 text-xs font-semibold text-white">
+            <span className="h-1.5 w-1.5 rounded-full bg-white" />
+            {SOURCE_LABEL[k.sourceType]}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E3E9F5] px-2.5 py-0.5 text-xs font-semibold text-[#0F1F3D]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#7A869E]" />
+            {KNOWLEDGE_STATUS_LABEL[k.status] ?? k.status}
+          </span>
+          <span className="inline-flex items-center gap-1 text-xs text-[#0F1F3D]">
+            <Hash size={13} strokeWidth={1.75} />
+            <b>{k.sourceId}</b>
+            <span className="text-[#4B5873]">Referência</span>
+          </span>
+        </div>
+      </div>
+      {actions && (
+        <>
+          <div className="hidden h-8 w-px bg-[#0F1F3D]/40 sm:block" />
+          <div className="flex shrink-0 items-center gap-2">{actions}</div>
+        </>
+      )}
+    </div>
   );
 }
