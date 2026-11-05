@@ -5,6 +5,7 @@
 
 'use client';
 
+import { SlantedCover } from '@/components/ui/SlantedCover';
 import { useState } from 'react';
 import { useToast } from '@/providers/ToastProvider';
 import {
@@ -279,32 +280,16 @@ export function DetailView({ planId, onBack }: DetailViewProps) {
 
       {/* Header — desenho de "workshop de inovação.jpeg": cartão claro com
           etiquetas, ícone + título, dados, gestor e acção; a imagem do PDI
-          num recorte inclinado no canto superior direito. */}
+          a toda a altura, com recorte inclinado. */}
       <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div
-          aria-hidden
-          className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
-          style={{
-            clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
-            background: plan.imageUrl
-              ? undefined
-              : `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
-          }}
-        >
-          {plan.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              decoding="async"
-              src={plan.imageUrl}
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <Target size={48} strokeWidth={1.25} />
-          )}
-        </div>
+        <SlantedCover
+          src={plan.imageUrl}
+          from={palette[0]}
+          to={palette[2]}
+          fallback={<Target size={48} strokeWidth={1.25} />}
+        />
 
-        <div className="relative space-y-5 p-6 sm:pr-[36%]">
+        <div className="relative space-y-5 p-6 sm:min-h-[320px] sm:pr-[44%]">
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge
               value={plan.status}

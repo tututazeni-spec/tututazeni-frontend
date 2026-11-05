@@ -10,6 +10,7 @@
 
 'use client';
 
+import { SlantedCover } from '@/components/ui/SlantedCover';
 import { useState } from 'react';
 import { useToast } from '@/providers/ToastProvider';
 import {
@@ -37,8 +38,16 @@ import { Textarea } from '@/components/ui/Textarea';
 import { LEVEL_CFG, TYPE_CFG } from './constants';
 import { LEVEL_TONE, TONE_COLOR } from './trainingTones';
 import { fmtDate, fmtHours } from './utils';
-import type { Training, TrainingType } from './types';
+import { SessionJoinButton } from './SessionJoinButton';
+import type { ParticipantStatus, Training, TrainingType } from './types';
 import { safeHref } from '@/lib/safeHref';
+
+/** Estados em que a inscrição já dá direito a entrar na sessão. */
+const JOINABLE_STATUSES: ParticipantStatus[] = [
+  'REGISTERED',
+  'ATTENDED',
+  'COMPLETED',
+];
 
 interface DetailViewProps {
   trainingId: number;
@@ -159,32 +168,16 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
 
       {/* Header — desenho de "workshop de inovação.jpeg" (o mesmo do detalhe
           do plano de formação): cartão claro com etiquetas, ícone + título,
-          dados e formador; a imagem da formação num recorte inclinado. */}
+          dados e formador; a imagem da formação a toda a altura, com recorte inclinado. */}
       <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div
-          aria-hidden
-          className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
-          style={{
-            clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
-            background: training.thumbnailUrl
-              ? undefined
-              : `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
-          }}
-        >
-          {training.thumbnailUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              decoding="async"
-              src={training.thumbnailUrl}
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <GraduationCap size={48} strokeWidth={1.25} />
-          )}
-        </div>
+        <SlantedCover
+          src={training.thumbnailUrl}
+          from={palette[0]}
+          to={palette[2]}
+          fallback={<GraduationCap size={48} strokeWidth={1.25} />}
+        />
 
-        <div className="relative space-y-5 p-6 sm:pr-[36%]">
+        <div className="relative space-y-5 p-6 sm:min-h-[320px] sm:pr-[44%]">
           <div className="flex flex-wrap items-center gap-2">
             <EventBadge color={TONE_COLOR[LEVEL_TONE[training.level]]}>
               {LEVEL_CFG[training.level].label}
@@ -273,6 +266,9 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                 ? session.maxParticipants - (session._count.participants ?? 0)
                 : null;
             const isFull = vacancies !== null && vacancies <= 0;
+            const mine = training.myParticipations?.find(
+              (p) => p.sessionId === session.id,
+            );
             return (
               <div
                 key={session.id}
@@ -326,9 +322,24 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                   )}
                 </div>
                 {training.mySessionIds?.includes(session.id) ? (
-                  <span className="flex-shrink-0 rounded-pill bg-brand px-3 py-1 font-body text-xs font-semibold text-white">
-                    Inscrito
-                  </span>
+                  mine && JOINABLE_STATUSES.includes(mine.status) ? (
+                    <SessionJoinButton
+                      trainingId={training.id}
+                      sessionId={session.id}
+                      modality={session.modality}
+                      meetingUrl={session.meetingUrl}
+                      courseId={training.courseId}
+                      status={mine.status}
+                      joinedAt={mine.joinedAt}
+                      opensAt={mine.joinOpensAt}
+                      closesAt={mine.joinClosesAt}
+                      className="flex-shrink-0"
+                    />
+                  ) : (
+                    <span className="flex-shrink-0 rounded-pill bg-brand px-3 py-1 font-body text-xs font-semibold text-white">
+                      Inscrito
+                    </span>
+                  )
                 ) : (
                   <Button
                     size="sm"

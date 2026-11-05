@@ -12,6 +12,7 @@
 
 'use client';
 
+import { SlantedCover } from '@/components/ui/SlantedCover';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { useState, type ComponentType, type ReactNode } from 'react';
 import {
@@ -328,37 +329,40 @@ export function CourseDetailView({
         /* Header do curso (não matriculado) — mesmo desenho do cartão de
            detalhe do evento (workshop de inovação.jpeg): cartão claro com
            etiquetas, ícone + título, dados, formador e botões de acção; a
-           imagem do curso num recorte inclinado no canto superior direito. */
+           imagem do curso a toda a altura, com recorte inclinado. */
         <div className="mb-6 space-y-4">
           <div className="relative overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-            <div
-              aria-hidden
-              className={
-                courseCompleted
-                  ? 'absolute inset-y-0 right-[14%] hidden w-[46%] items-center justify-center text-white/70 sm:flex'
-                  : 'absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex'
-              }
-              style={{
-                clipPath: courseCompleted
-                  ? 'polygon(14% 0, 100% 0, 100% 100%, 0 100%)'
-                  : 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
-                background: course.thumbnailUrl
-                  ? undefined
-                  : `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
-              }}
-            >
-              {course.thumbnailUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  decoding="async"
-                  src={course.thumbnailUrl}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <GraduationCap size={48} strokeWidth={1.25} />
-              )}
-            </div>
+            {courseCompleted ? (
+              <div
+                aria-hidden
+                className="absolute inset-y-0 right-[14%] hidden w-[46%] items-center justify-center text-white/70 sm:flex"
+                style={{
+                  clipPath: 'polygon(14% 0, 100% 0, 100% 100%, 0 100%)',
+                  background: course.thumbnailUrl
+                    ? undefined
+                    : `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
+                }}
+              >
+                {course.thumbnailUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    decoding="async"
+                    src={course.thumbnailUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <GraduationCap size={48} strokeWidth={1.25} />
+                )}
+              </div>
+            ) : (
+              <SlantedCover
+                src={course.thumbnailUrl}
+                from={palette[0]}
+                to={palette[2]}
+                fallback={<GraduationCap size={64} strokeWidth={1.25} />}
+              />
+            )}
 
             {courseCompleted && (
               <div
@@ -393,7 +397,7 @@ export function CourseDetailView({
             )}
 
             <div
-              className={`relative space-y-5 p-6 ${courseCompleted ? 'sm:pr-[58%]' : 'sm:pr-[36%]'}`}
+              className={`relative space-y-5 p-6 ${courseCompleted ? 'sm:pr-[58%]' : 'sm:min-h-[320px] sm:pr-[44%]'}`}
             >
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge value={course.level} map={COURSE_LEVEL_MAP} />

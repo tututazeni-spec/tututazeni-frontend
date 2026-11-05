@@ -7,6 +7,7 @@
 
 'use client';
 
+import { SlantedCover } from '@/components/ui/SlantedCover';
 import { useState } from 'react';
 import { ClipboardCheck, Plus } from 'lucide-react';
 import { useApiQuery, useApiMutation } from '@/hooks/useApiQuery';
@@ -111,18 +112,13 @@ export function EvaluationModelsTab() {
                 key={m.id}
                 className="relative min-w-0 overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]"
               >
-                <div
-                  aria-hidden
-                  className="absolute right-0 top-0 hidden h-[58%] w-[26%] items-center justify-center text-white/70 sm:flex"
-                  style={{
-                    clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
-                    background: `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
-                  }}
-                >
-                  <ClipboardCheck size={44} strokeWidth={1.25} />
-                </div>
+                <SlantedCover
+                  from={palette[0]}
+                  to={palette[2]}
+                  fallback={<ClipboardCheck size={44} strokeWidth={1.25} />}
+                />
 
-                <div className="relative space-y-5 p-6 sm:pr-[28%]">
+                <div className="relative space-y-5 p-6 sm:min-h-[320px] sm:pr-[44%]">
                   <div className="flex flex-wrap items-center gap-2">
                     <EventBadge
                       color={m.status === 'ACTIVO' ? '#16A765' : '#64748B'}
