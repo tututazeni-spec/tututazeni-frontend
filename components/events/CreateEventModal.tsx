@@ -110,6 +110,36 @@ function withCurrent(items: typeof CATEGORY_ITEMS, current: string) {
     : items;
 }
 
+// Plataforma da reunião online: só orienta o preenchimento do link.
+const MEETING_PROVIDERS = [
+  {
+    value: 'TEAMS',
+    label: 'Microsoft Teams',
+    placeholder: 'https://teams.microsoft.com/l/meetup-join/…',
+  },
+  { value: 'ZOOM', label: 'Zoom', placeholder: 'https://zoom.us/j/…' },
+  { value: 'JITSI', label: 'Jitsi', placeholder: 'https://meet.jit.si/…' },
+];
+const MEETING_ITEMS = MEETING_PROVIDERS.map(({ value, label }) => ({
+  value,
+  label,
+}));
+function providerOf(url: string): string {
+  if (/teams\.(microsoft|live)\.com/i.test(url)) return 'TEAMS';
+  if (/zoom\.us/i.test(url)) return 'ZOOM';
+  if (/jit\.si|jitsi/i.test(url)) return 'JITSI';
+  return '';
+}
+function jitsiLink(title: string): string {
+  const slug = title
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '')
+    .slice(0, 30);
+  const rand = Math.random().toString(36).slice(2, 8);
+  return `https://meet.jit.si/Innova${slug}${rand}`;
+}
+
 // Sentinela do Select "Departamento": evento sem departamento dono (todos).
 const ALL_DEPARTMENTS = 'ALL';
 
@@ -220,6 +250,8 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
 
   const [submitError, setSubmitError] = useState('');
   const [objectiveManual, setObjectiveManual] = useState(false);
+  const [meetingProvider, setMeetingProvider] = useState('');
+  const provider = meetingProvider || providerOf(meetingUrl);
 
   const { options: departmentOptions, loading: departmentsLoading } =
     useDepartmentOptions();
@@ -547,14 +579,37 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
             <FormField
               label="Link da reunião"
               htmlFor="ev-meeting"
-              hint="Opcional — Zoom, Teams ou Meet para eventos online."
+              hint="Opcional — escolhe a plataforma e cola o link (Jitsi: o link é gerado)."
             >
-              <Input
-                id="ev-meeting"
-                value={meetingUrl}
-                onChange={(e) => set('meetingUrl', e.target.value)}
-                placeholder="https://…"
+              <Select
+                items={[
+                  { value: '', label: 'Nenhuma (opcional)' },
+                  ...MEETING_ITEMS,
+                ]}
+                value={provider}
+                onValueChange={(v) => {
+                  setMeetingProvider(v);
+                  if (v === 'JITSI') {
+                    if (!meetingUrl || providerOf(meetingUrl) !== 'JITSI')
+                      set('meetingUrl', jitsiLink(title));
+                  } else if (providerOf(meetingUrl) === 'JITSI') {
+                    set('meetingUrl', '');
+                  }
+                }}
+                placeholder="Plataforma…"
               />
+              {provider && (
+                <Input
+                  id="ev-meeting"
+                  className="mt-3"
+                  value={meetingUrl}
+                  onChange={(e) => set('meetingUrl', e.target.value)}
+                  placeholder={
+                    MEETING_PROVIDERS.find((m) => m.value === provider)
+                      ?.placeholder ?? 'https://…'
+                  }
+                />
+              )}
             </FormField>
 
             <FormField label="Capacidade máxima *" htmlFor="ev-capacity">

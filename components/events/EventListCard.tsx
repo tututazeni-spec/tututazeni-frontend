@@ -12,6 +12,7 @@ import {
   ChevronRight,
   MapPin,
   MoreVertical,
+  Send,
   User,
   Users,
   type LucideIcon,
@@ -110,6 +111,9 @@ export interface EventListCardProps {
   menu?: React.ReactNode;
   /** Estado do próprio utilizador no evento (colaborador: catálogo e meus eventos). */
   myStatus?: ParticipantStatus;
+  /** Rascunho: mostra o botão "Publicar" no cartão. */
+  onPublish?: () => void;
+  publishing?: boolean;
 }
 
 export function EventListCard({
@@ -117,6 +121,8 @@ export function EventListCard({
   onOpen,
   menu,
   myStatus,
+  onPublish,
+  publishing,
 }: EventListCardProps) {
   const typeCfg = TYPE_CFG[e.type] ?? TYPE_CFG.CORPORATE;
   const TypeIcon = typeCfg.icon;
@@ -205,7 +211,9 @@ export function EventListCard({
         {place ? <Fact icon={MapPin}>{place}</Fact> : <span />}
       </div>
 
-      <div className="mt-6 flex flex-1 items-center gap-4 px-6 pb-6">
+      <div
+        className={`mt-6 flex flex-1 items-center gap-4 px-6 ${onPublish ? 'pb-4' : 'pb-6'}`}
+      >
         <span
           aria-hidden
           className="h-16 w-1 shrink-0 self-stretch rounded-full"
@@ -227,6 +235,25 @@ export function EventListCard({
           <ChevronRight size={26} strokeWidth={2} />
         </span>
       </div>
+
+      {onPublish && (
+        <div className="px-6 pb-6">
+          <button
+            type="button"
+            disabled={publishing}
+            onClick={(ev) => {
+              ev.stopPropagation();
+              onPublish();
+            }}
+            onKeyDown={(ev) => ev.stopPropagation()}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-3 text-[15px] font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+            style={{ color: NAVY }}
+          >
+            <Send size={18} strokeWidth={1.75} aria-hidden />
+            {publishing ? 'A publicar…' : 'Publicar'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
