@@ -50,6 +50,7 @@ export function MyTrainingsView({ onSelect }: MyTrainingsViewProps) {
               key={s}
               size="sm"
               intent={filter === s ? 'primary' : 'secondary'}
+              className="border-brand"
               onClick={() => setFilter(s)}
             >
               {s === '' ? 'Todos' : PARTICIPANT_CFG[s].label}
