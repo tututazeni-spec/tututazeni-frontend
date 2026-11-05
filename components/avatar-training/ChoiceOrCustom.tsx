@@ -4,6 +4,7 @@
 // abre directamente o campo de texto.
 
 import { useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 
@@ -18,6 +19,9 @@ export interface ChoiceOrCustomProps {
   onChange: (value: string) => void;
   emptyLabel?: string;
   placeholder?: string;
+  /** `underline` = Filtros Underline (linha por baixo) nos dois campos. */
+  variant?: 'box' | 'underline';
+  icon?: LucideIcon;
 }
 
 export function ChoiceOrCustom({
@@ -28,11 +32,15 @@ export function ChoiceOrCustom({
   onChange,
   emptyLabel = 'Sem indicação',
   placeholder = 'Escreve o valor',
+  variant = 'box',
+  icon,
 }: ChoiceOrCustomProps) {
   const [custom, setCustom] = useState(!!value && !options.includes(value));
   return (
     <>
       <Select
+        variant={variant}
+        icon={icon}
         value={custom ? OTHER : value || NONE}
         onValueChange={(v) => {
           setCustom(v === OTHER);
@@ -47,6 +55,7 @@ export function ChoiceOrCustom({
       {custom && (
         <Input
           id={id}
+          variant={variant === 'underline' ? 'underline' : undefined}
           className="mt-2"
           aria-label={label}
           placeholder={placeholder}

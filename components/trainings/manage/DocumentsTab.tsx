@@ -9,7 +9,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Clock, FileText, Plus, Trash2, User } from 'lucide-react';
+import { Clock, FileText, Filter, Plus, Trash2, User } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -22,9 +22,18 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { ChoiceOrCustom } from '@/components/avatar-training/ChoiceOrCustom';
 import { FileOrLinkField } from '../FileOrLinkField';
 import type { Training } from '../types';
 import { RowCard, RowCardIconButton } from './RowCard';
+
+const BASE_CATEGORIES = [
+  'Programa',
+  'Materiais',
+  'Presenças',
+  'Avaliações',
+  'Administrativo',
+];
 
 interface DocumentsTabProps {
   training: Training;
@@ -79,6 +88,13 @@ export function DocumentsTab({ training }: DocumentsTabProps) {
   };
 
   const documents = training.documents ?? [];
+  // Lista base + categorias já usadas nesta formação.
+  const categoryOptions = [
+    ...new Set([
+      ...BASE_CATEGORIES,
+      ...documents.map((d) => d.category).filter((c): c is string => !!c),
+    ]),
+  ];
   const canSubmit = name.trim().length > 0 && fileUrl.trim().length > 0;
 
   return (
@@ -99,6 +115,7 @@ export function DocumentsTab({ training }: DocumentsTabProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ex.: Programa da formação"
+                variant="underline"
                 className="w-full"
               />
             </FormField>
@@ -114,12 +131,16 @@ export function DocumentsTab({ training }: DocumentsTabProps) {
               />
             </FormField>
             <FormField label="Categoria" htmlFor="doc-category">
-              <Input
+              <ChoiceOrCustom
                 id="doc-category"
+                label="Categoria"
+                variant="underline"
+                icon={Filter}
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="Ex.: Programa, Materiais, Presenças"
-                className="w-full"
+                options={categoryOptions}
+                onChange={setCategory}
+                emptyLabel="Sem categoria"
+                placeholder="Escreva a categoria"
               />
             </FormField>
           </div>
