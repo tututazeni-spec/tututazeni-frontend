@@ -14,6 +14,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { PARTICIPANT_CFG } from './constants';
+import { SessionJoinButton } from './SessionJoinButton';
 import { TrainingCard } from './TrainingCard';
 import type { MyTrainingEntry, ParticipantStatus } from './types';
 
@@ -67,6 +68,21 @@ export function MyTrainingsView({ onSelect }: MyTrainingsViewProps) {
               key={entry.id}
               training={training}
               onClick={() => onSelect(training.id)}
+              footer={
+                entry.session && entry.joinOpensAt && entry.joinClosesAt ? (
+                  <SessionJoinButton
+                    trainingId={training.id}
+                    sessionId={entry.session.id}
+                    modality={entry.session.modality}
+                    meetingUrl={entry.session.meetingUrl}
+                    courseId={training.courseId ?? null}
+                    status={entry.status}
+                    joinedAt={entry.joinedAt}
+                    opensAt={entry.joinOpensAt}
+                    closesAt={entry.joinClosesAt}
+                  />
+                ) : undefined
+              }
               mine={{
                 badge: (
                   <StatusBadge value={entry.status} map={PARTICIPANT_CFG} />
