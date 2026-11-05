@@ -149,11 +149,7 @@ export function AvatarCard({
         )}
       </div>
 
-      {actions && (
-        <div className="relative flex flex-wrap items-center justify-end gap-2 border-t border-brand-line pt-3 sm:max-w-[68%]">
-          {actions}
-        </div>
-      )}
+      {actions && <div className="absolute right-3 top-3 z-10">{actions}</div>}
     </div>
   );
 }

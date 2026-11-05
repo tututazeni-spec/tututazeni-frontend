@@ -3,6 +3,7 @@
 
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { Filter } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
 import { useSessionList } from '../SessionPicker';
 import { Textarea } from '@/components/ui/Textarea';
@@ -47,6 +48,8 @@ export function FailRules({
         </FormField>
         <FormField label="Sessão complementar" htmlFor="fr-sess">
           <Select
+            variant="underline"
+            icon={Filter}
             items={[
               { value: NO_SESSION, label: 'Nenhuma' },
               ...(sessions ?? []).map((s) => ({
