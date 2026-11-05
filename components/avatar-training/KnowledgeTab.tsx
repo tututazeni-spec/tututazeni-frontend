@@ -20,7 +20,7 @@ import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
 import { Combobox } from '@/components/ui/Combobox';
 import { useSourceOptions } from '@/hooks/useSourceOptions';
-import { SessionCardPicker } from './cards';
+import { KnowledgeSourceCard, SessionCardPicker } from './cards';
 import { useSessionDetail } from './SessionPicker';
 import { SOURCE_LABEL } from './constants';
 import type { SourceType } from './types';
@@ -75,40 +75,33 @@ export function KnowledgeTab() {
       ) : (
         data && (
           <>
-            <div className="space-y-2">
-              {data.knowledgeSources.length === 0 ? (
-                <EmptyState
-                  variant="inline"
-                  title="Sem fontes aprovadas — o tutor encaminhará as dúvidas para um formador"
-                />
-              ) : (
-                data.knowledgeSources.map((s) => (
-                  <div
+            {data.knowledgeSources.length === 0 ? (
+              <EmptyState
+                variant="inline"
+                title="Sem fontes aprovadas — o tutor encaminhará as dúvidas para um formador"
+              />
+            ) : (
+              <div className="space-y-2">
+                {data.knowledgeSources.map((s) => (
+                  <KnowledgeSourceCard
                     key={s.id}
-                    className="flex items-center justify-between gap-3 rounded-card border border-border bg-surface p-3"
-                  >
-                    <div className="min-w-0">
-                      <div className="truncate font-display text-sm font-semibold text-ink">
-                        {s.title ??
-                          `${SOURCE_LABEL[s.sourceType]} ${s.sourceId}`}
-                      </div>
-                      <div className="font-body text-xs text-ink-muted">
-                        {SOURCE_LABEL[s.sourceType]} #{s.sourceId} · {s.status}
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      intent="ghost"
-                      aria-label="Remover fonte"
-                      loading={remove.isPending && remove.variables === s.id}
-                      onClick={() => remove.mutate(s.id)}
-                    >
-                      <Trash2 size={14} />
-                    </Button>
-                  </div>
-                ))
-              )}
-            </div>
+                    source={s}
+                    actions={
+                      <button
+                        type="button"
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0F1F3D] text-white transition hover:bg-red-500 disabled:opacity-50"
+                        aria-label="Remover fonte"
+                        title="Remover"
+                        disabled={remove.isPending && remove.variables === s.id}
+                        onClick={() => remove.mutate(s.id)}
+                      >
+                        <Trash2 size={15} strokeWidth={1.75} />
+                      </button>
+                    }
+                  />
+                ))}
+              </div>
+            )}
 
             <Card>
               <CardBody className="space-y-5">
