@@ -17,9 +17,15 @@ interface FileOrLinkFieldProps {
   value: string;
   /** `fileName` só vem quando o valor é um ficheiro acabado de carregar. */
   onChange: (value: string, fileName?: string) => void;
+  variant?: 'box' | 'underline';
 }
 
-export function FileOrLinkField({ id, value, onChange }: FileOrLinkFieldProps) {
+export function FileOrLinkField({
+  id,
+  value,
+  onChange,
+  variant,
+}: FileOrLinkFieldProps) {
   const [fileName, setFileName] = useState<string | null>(null);
   const isFile = value.startsWith('data:');
 
@@ -69,6 +75,7 @@ export function FileOrLinkField({ id, value, onChange }: FileOrLinkFieldProps) {
         <Input
           id={id}
           type="url"
+          variant={variant === 'underline' ? 'underline' : undefined}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="https://…"

@@ -32,23 +32,21 @@ interface CostsTabProps {
 
 export function CostsTab({ training }: CostsTabProps) {
   return (
-    <Card className="divide-y divide-border">
+    <Card className="divide-y divide-border overflow-hidden p-0">
       {ROWS.map((r) => (
         <div
           key={r.key}
           className="flex items-center justify-between px-4 py-3"
         >
           <span className="font-body text-sm text-ink-muted">{r.label}</span>
-          <span className="font-mono text-sm text-ink">
+          <span className="min-w-[8rem] text-right font-body text-sm tabular-nums text-ink">
             {kz(training[r.key] as number | null)}
           </span>
         </div>
       ))}
-      <div className="flex items-center justify-between bg-surface-sunken px-4 py-3">
-        <span className="font-body text-sm font-semibold text-ink">
-          Custo total
-        </span>
-        <span className="font-mono text-sm font-semibold text-ink">
+      <div className="flex items-center justify-between bg-[#0F1F3D] px-4 py-4 text-white">
+        <span className="font-body text-sm font-semibold">Custo total</span>
+        <span className="min-w-[8rem] text-right font-body text-sm tabular-nums">
           {kz(training.totalCost ?? training.cost)}
         </span>
       </div>
