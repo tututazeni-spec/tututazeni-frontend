@@ -10,6 +10,7 @@
 
 'use client';
 
+import { SlantedCover } from '@/components/ui/SlantedCover';
 import { useState } from 'react';
 import { useToast } from '@/providers/ToastProvider';
 import {
@@ -167,32 +168,16 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
 
       {/* Header — desenho de "workshop de inovação.jpeg" (o mesmo do detalhe
           do plano de formação): cartão claro com etiquetas, ícone + título,
-          dados e formador; a imagem da formação num recorte inclinado. */}
+          dados e formador; a imagem da formação a toda a altura, com recorte inclinado. */}
       <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div
-          aria-hidden
-          className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
-          style={{
-            clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
-            background: training.thumbnailUrl
-              ? undefined
-              : `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
-          }}
-        >
-          {training.thumbnailUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              decoding="async"
-              src={training.thumbnailUrl}
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <GraduationCap size={48} strokeWidth={1.25} />
-          )}
-        </div>
+        <SlantedCover
+          src={training.thumbnailUrl}
+          from={palette[0]}
+          to={palette[2]}
+          fallback={<GraduationCap size={48} strokeWidth={1.25} />}
+        />
 
-        <div className="relative space-y-5 p-6 sm:pr-[36%]">
+        <div className="relative space-y-5 p-6 sm:min-h-[320px] sm:pr-[44%]">
           <div className="flex flex-wrap items-center gap-2">
             <EventBadge color={TONE_COLOR[LEVEL_TONE[training.level]]}>
               {LEVEL_CFG[training.level].label}

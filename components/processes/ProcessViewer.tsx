@@ -7,6 +7,7 @@
 
 'use client';
 
+import { SlantedCover } from '@/components/ui/SlantedCover';
 import { useState } from 'react';
 import {
   ArrowLeft,
@@ -192,18 +193,13 @@ export function ProcessViewer({
           do evento): cartão claro com etiquetas, ícone + título, dados,
           responsável e botões de acção. */}
       <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div
-          aria-hidden
-          className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
-          style={{
-            clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
-            background: `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
-          }}
-        >
-          <FileStack size={48} strokeWidth={1.25} />
-        </div>
+        <SlantedCover
+          from={palette[0]}
+          to={palette[2]}
+          fallback={<FileStack size={48} strokeWidth={1.25} />}
+        />
 
-        <div className="relative space-y-5 p-6 sm:pr-[36%]">
+        <div className="relative space-y-5 p-6 sm:min-h-[320px] sm:pr-[44%]">
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge
               value={process.status}
@@ -387,7 +383,10 @@ export function ProcessViewer({
         <TabsContent value="flow">
           <div className="space-y-2">
             {process.steps.length === 0 && (
-              <EmptyState variant="inline" title="Sem etapas definidas. Edite o processo para adicionar etapas" />
+              <EmptyState
+                variant="inline"
+                title="Sem etapas definidas. Edite o processo para adicionar etapas"
+              />
             )}
             {process.steps.map((step, idx) => (
               <div key={step.id} className="flex items-start gap-3">
@@ -455,9 +454,7 @@ export function ProcessViewer({
                         )}
                         {step.slaHours && (
                           <div className="min-w-0">
-                            <dt className="text-micro text-brand-muted">
-                              SLA
-                            </dt>
+                            <dt className="text-micro text-brand-muted">SLA</dt>
                             <dd className="truncate text-sm font-semibold text-brand">
                               {step.slaHours}h
                             </dd>
