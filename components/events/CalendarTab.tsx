@@ -30,6 +30,7 @@ import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPic
 import type { DirectoryUser } from '@/components/departments/departmentFormData';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
+import { SearchInput } from '@/components/ui/SearchInput';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -114,6 +115,8 @@ export function CalendarTab() {
   const [unitId, setUnitId] = useState('ALL');
   const [location, setLocation] = useState('');
   const debouncedLocation = useDebounce(location);
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search);
   const [responsible, setResponsible] = useState<DirectoryUser | null>(null);
   const [detailId, setDetailId] = useState<number | null>(null);
 
@@ -141,6 +144,7 @@ export function CalendarTab() {
     unitId: unitId === 'ALL' ? undefined : unitId,
     responsibleId: responsible ? responsible.id : undefined,
     location: debouncedLocation || undefined,
+    search: debouncedSearch || undefined,
   };
 
   const { data, isLoading } = useApiQuery<EventCalendarItem[]>(
@@ -271,10 +275,18 @@ export function CalendarTab() {
           onValueChange={setUnitId}
         />
         <Input
+          variant="underline"
           placeholder="Local…"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          className="w-36"
+          className="w-44"
+        />
+        <SearchInput
+          variant="underline"
+          placeholder="Pesquisar por nome…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-56"
         />
         <div className="w-56">
           <DepartmentUserPicker

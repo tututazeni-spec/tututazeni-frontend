@@ -31,10 +31,7 @@ import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { Button } from '@/components/ui/Button';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
-import {
-  useUnits,
-  type DirectoryUser,
-} from '@/components/departments/departmentFormData';
+import type { DirectoryUser } from '@/components/departments/departmentFormData';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
@@ -45,8 +42,6 @@ import { MODALITY_CFG, TYPE_CFG, VISIBILITY_CFG } from './constants';
 import { useDepartmentOptions } from './eventFormData';
 import type { EventModalidade, EventType, EventVisibility } from './types';
 import { Checkbox } from '@/components/ui/Checkbox';
-import { Skeleton } from '@/components/ui/Skeleton';
-import { EmptyState } from '@/components/ui/EmptyState';
 
 export interface CreateEventModalProps {
   onClose: () => void;
@@ -67,6 +62,54 @@ const VISIBILITY_ITEMS = Object.entries(VISIBILITY_CFG).map(([value, cfg]) => ({
   label: cfg.label,
 }));
 
+// Listas de escolha (campos opcionais): a primeira opção limpa o valor.
+const NONE_ITEM = { value: '', label: 'Nenhum (opcional)' };
+const toItems = (labels: string[]) => [
+  NONE_ITEM,
+  ...labels.map((l) => ({ value: l, label: l })),
+];
+const CATEGORY_ITEMS = toItems([
+  'Cultura organizacional',
+  'Formação e desenvolvimento',
+  'Liderança e gestão',
+  'Segurança e saúde no trabalho',
+  'Tecnologia e inovação',
+  'Comercial e vendas',
+  'Bem-estar e integração',
+  'Conformidade e ética',
+  'Institucional e celebrações',
+]);
+const OTHER_VALUE = '__OTHER__';
+const OBJECTIVE_LABELS = [
+  'Desenvolver competências',
+  'Integrar novos colaboradores',
+  'Reforçar a cultura e os valores',
+  'Partilhar conhecimento',
+  'Cumprir requisitos de conformidade',
+  'Melhorar o desempenho das equipas',
+  'Reconhecer e motivar colaboradores',
+  'Comunicar resultados e estratégia',
+];
+const OBJECTIVE_ITEMS = [
+  ...toItems(OBJECTIVE_LABELS),
+  { value: OTHER_VALUE, label: 'Outro (escrever manualmente)' },
+];
+const AUDIENCE_ITEMS = toItems([
+  'Todos os colaboradores',
+  'Novos colaboradores',
+  'Líderes e gestores',
+  'Equipas comerciais',
+  'Equipas técnicas',
+  'Equipas administrativas',
+  'Direção',
+]);
+// Se o valor atual não estiver na lista (ex.: dados antigos), mantém-no visível.
+function withCurrent(items: typeof CATEGORY_ITEMS, current: string) {
+  return current && !items.some((i) => i.value === current)
+    ? [...items, { value: current, label: current }]
+    : items;
+}
+
 // Sentinela do Select "Departamento": evento sem departamento dono (todos).
 const ALL_DEPARTMENTS = 'ALL';
 
@@ -78,7 +121,6 @@ interface EventForm {
   type: EventType;
   category: string;
   responsible: DirectoryUser | null;
-  unitId: string;
   departmentId: string;
   bannerUrl: string | null;
   startAt: string;
@@ -96,7 +138,6 @@ interface EventForm {
   waitlistEnabled: boolean;
   requiresApproval: boolean;
   targetAudience: string;
-  restrictedDeptIds: string[];
   visibility: EventVisibility;
   allowGuest: boolean;
   certificateEnabled: boolean;
@@ -113,7 +154,6 @@ const INITIAL_FORM: EventForm = {
   type: 'TRAINING',
   category: '',
   responsible: null,
-  unitId: '',
   departmentId: '',
   bannerUrl: null,
   startAt: '',
@@ -131,7 +171,6 @@ const INITIAL_FORM: EventForm = {
   waitlistEnabled: true,
   requiresApproval: false,
   targetAudience: '',
-  restrictedDeptIds: [],
   visibility: 'INTERNAL',
   allowGuest: false,
   certificateEnabled: false,
@@ -154,7 +193,6 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
     type,
     category,
     responsible,
-    unitId,
     departmentId,
     bannerUrl,
     startAt,
@@ -172,7 +210,6 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
     waitlistEnabled,
     requiresApproval,
     targetAudience,
-    restrictedDeptIds,
     visibility,
     allowGuest,
     certificateEnabled,
@@ -182,19 +219,10 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
   } = values;
 
   const [submitError, setSubmitError] = useState('');
+  const [objectiveManual, setObjectiveManual] = useState(false);
 
-  const { units, loading: unitsLoading } = useUnits();
   const { options: departmentOptions, loading: departmentsLoading } =
     useDepartmentOptions();
-  const unitItems = units.map((u) => ({ value: String(u.id), label: u.name }));
-
-  const toggleRestrictedDept = (id: string) =>
-    set(
-      'restrictedDeptIds',
-      restrictedDeptIds.includes(id)
-        ? restrictedDeptIds.filter((d) => d !== id)
-        : [...restrictedDeptIds, id],
-    );
 
   const capacityNum = Number(maxCapacity);
   const datesOk =
@@ -273,14 +301,10 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
       ...(iso(registrationEndAt)
         ? { registrationEndAt: iso(registrationEndAt) }
         : {}),
-      ...(restrictedDeptIds.length
-        ? { restrictedDeptIds: restrictedDeptIds.map(Number) }
-        : {}),
       ...(responsible ? { responsibleId: responsible.id } : {}),
       ...(departmentId && departmentId !== ALL_DEPARTMENTS
         ? { departmentId: Number(departmentId) }
         : {}),
-      ...(unitId ? { unitId: Number(unitId) } : {}),
       ...(bannerUrl ? { bannerUrl } : {}),
     });
   };
@@ -346,11 +370,11 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 htmlFor="ev-category"
                 hint="Opcional."
               >
-                <Input
-                  id="ev-category"
+                <Select
+                  items={withCurrent(CATEGORY_ITEMS, category)}
                   value={category}
-                  onChange={(e) => set('category', e.target.value)}
-                  placeholder="Ex.: Cultura organizacional"
+                  onValueChange={(v) => set('category', v)}
+                  placeholder="Seleciona…"
                 />
               </FormField>
             </div>
@@ -383,19 +407,6 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               </FormField>
             </div>
 
-            <FormField
-              label="Unidade"
-              htmlFor="ev-unit"
-              hint="Opcional — empresa/filial do evento."
-            >
-              <Select
-                items={unitItems}
-                value={unitId}
-                onValueChange={(v) => set('unitId', v)}
-                placeholder={unitsLoading ? 'A carregar…' : 'Seleciona…'}
-              />
-            </FormField>
-
             <DepartmentUserPicker
               label="Responsável"
               htmlFor="ev-responsible"
@@ -404,13 +415,31 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
             />
 
             <FormField label="Objetivo" htmlFor="ev-objective" hint="Opcional.">
-              <Textarea
-                id="ev-objective"
-                rows={2}
-                value={objective}
-                onChange={(e) => set('objective', e.target.value)}
-                placeholder="O que se pretende alcançar com este evento…"
+              <Select
+                items={OBJECTIVE_ITEMS}
+                value={objectiveManual ? OTHER_VALUE : objective}
+                onValueChange={(v) => {
+                  if (v === OTHER_VALUE) {
+                    setObjectiveManual(true);
+                    if (OBJECTIVE_LABELS.includes(objective))
+                      set('objective', '');
+                  } else {
+                    setObjectiveManual(false);
+                    set('objective', v);
+                  }
+                }}
+                placeholder="Seleciona…"
               />
+              {objectiveManual && (
+                <Textarea
+                  id="ev-objective"
+                  rows={2}
+                  className="mt-3"
+                  value={objective}
+                  onChange={(e) => set('objective', e.target.value)}
+                  placeholder="Escreve o objetivo do evento…"
+                />
+              )}
             </FormField>
 
             <FormField
@@ -578,11 +607,11 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               htmlFor="ev-target-audience"
               hint="Opcional."
             >
-              <Input
-                id="ev-target-audience"
+              <Select
+                items={withCurrent(AUDIENCE_ITEMS, targetAudience)}
                 value={targetAudience}
-                onChange={(e) => set('targetAudience', e.target.value)}
-                placeholder="Ex.: Equipas comerciais, novos colaboradores…"
+                onValueChange={(v) => set('targetAudience', v)}
+                placeholder="Seleciona…"
               />
             </FormField>
 
@@ -612,36 +641,6 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
                 Aprovação de inscrição
               </label>
             </div>
-
-            <div>
-              <span className="mb-2 block font-body text-sm font-medium text-ink">
-                Departamentos elegíveis
-              </span>
-              <p className="mb-2 font-body text-xs text-ink-muted">
-                Opcional — vazio significa visível a todos os departamentos.
-              </p>
-              <div className="max-h-40 space-y-1 overflow-y-auto rounded-card border border-border p-2">
-                {departmentsLoading && <Skeleton rows={3} />}
-                {!departmentsLoading && departmentOptions.length === 0 && (
-                  <EmptyState
-                    variant="inline"
-                    title="Nenhum departamento encontrado"
-                  />
-                )}
-                {departmentOptions.map((d) => (
-                  <label
-                    key={d.value}
-                    className="flex items-center gap-2 rounded-control px-1 py-1 font-body text-sm text-ink hover:bg-surface-sunken"
-                  >
-                    <Checkbox
-                      checked={restrictedDeptIds.includes(d.value)}
-                      onChange={() => toggleRestrictedDept(d.value)}
-                    />
-                    {d.label}
-                  </label>
-                ))}
-              </div>
-            </div>
           </section>
 
           {/* Configurações */}
@@ -653,7 +652,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
             <FormField
               label="Visibilidade"
               htmlFor="ev-visibility"
-              hint="Público/interno — restrito usa os departamentos elegíveis acima."
+              hint="Quem pode ver e inscrever-se no evento."
             >
               <Select
                 items={VISIBILITY_ITEMS}
