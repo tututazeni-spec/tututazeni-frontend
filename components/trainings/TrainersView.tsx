@@ -113,13 +113,12 @@ export function TrainersView() {
                 }}
                 className="flex cursor-pointer flex-wrap items-center gap-4 rounded-2xl bg-[var(--color-brand-ink)] px-4 py-3 text-white shadow-sm transition-opacity hover:opacity-95"
               >
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white">
-                  <Avatar
-                    name={t.name}
-                    url={t.user?.avatarUrl ?? undefined}
-                    size="sm"
-                  />
-                </div>
+                <Avatar
+                  name={t.name}
+                  url={t.user?.avatarUrl ?? undefined}
+                  size="lg"
+                  className="shrink-0 !rounded-xl"
+                />
 
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
