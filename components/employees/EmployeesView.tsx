@@ -18,6 +18,8 @@
 // controller). A rota standalone /employees continua a existir.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { exportTable, type ExportFormat } from '@/lib/tableExport';
 import { useCallback, useState } from 'react';
 import { EmptyState } from '@/components/ui/EmptyState';
 import {
@@ -117,7 +119,7 @@ export function EmployeesView() {
       ([k, v]) => k !== 'search' && v !== '' && v !== 'ACTIVE',
     ).length + (filters.status && filters.status !== 'ACTIVE' ? 1 : 0);
 
-  const handleExport = async () => {
+  const handleExport = async (format: ExportFormat = 'csv') => {
     try {
       const result = await apiClient.get<{
         data: Array<Record<string, unknown>>;
@@ -127,6 +129,17 @@ export function EmployeesView() {
         columns.map((c) => c.label),
         result.data.map((row) => columns.map((c) => row[c.key])),
       );
+      if (format === 'pdf') {
+        await exportTable('pdf', {
+          title: 'Colaboradores',
+          filename: 'colaboradores',
+          headers: columns.map((c) => c.label),
+          rows: result.data.map((row) =>
+            columns.map((c) => String(row[c.key] ?? '')),
+          ),
+        });
+        return;
+      }
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
       saveBlob(blob, `colaboradores-${Date.now()}.csv`);
     } catch (e) {
@@ -157,9 +170,7 @@ export function EmployeesView() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button intent="secondary" onClick={handleExport}>
-                <Download size={16} strokeWidth={1.75} /> CSV
-              </Button>
+              <ExportMenu formats={['csv', 'pdf']} onExport={handleExport} />
               <a
                 href="/api/employees/export/xlsx"
                 className={buttonVariants({ intent: 'secondary' })}

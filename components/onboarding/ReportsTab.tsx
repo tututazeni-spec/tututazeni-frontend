@@ -6,6 +6,7 @@
 
 'use client';
 
+import { PdfFromCsvButton } from '@/components/ui/PdfFromCsvButton';
 import { useState } from 'react';
 import {
   AlarmClock,
@@ -147,6 +148,10 @@ export function ReportsTab() {
             <Download size={14} strokeWidth={1.75} />
             Exportar CSV
           </a>
+          <PdfFromCsvButton
+            path={`/onboarding/reports/export.csv${qs}`}
+            title="Relatório de onboarding"
+          />
           <a
             href={`/api/onboarding/reports/export.xlsx${qs}`}
             className={buttonVariants({ intent: 'ghost', size: 'sm' })}

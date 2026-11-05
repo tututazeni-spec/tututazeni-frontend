@@ -7,6 +7,7 @@
 
 'use client';
 
+import { PdfFromCsvButton } from '@/components/ui/PdfFromCsvButton';
 import { useState } from 'react';
 import {
   Ban,
@@ -121,6 +122,10 @@ export function ReportsView() {
           <Download size={14} strokeWidth={1.75} />
           Exportar CSV
         </a>
+        <PdfFromCsvButton
+          path={`/live-classes/reports/export${exportQuery ? `?${exportQuery}` : ''}`}
+          title="Relatório de aulas ao vivo"
+        />
       </div>
 
       {isLoading || !data ? (

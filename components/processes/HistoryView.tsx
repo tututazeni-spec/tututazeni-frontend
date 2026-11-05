@@ -6,11 +6,13 @@
 
 'use client';
 
+import type { ExportFormat } from '@/lib/tableExport';
+import { ExportMenu } from '@/components/ui/ExportMenu';
 import { useMemo, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { Activity, Download, ListFilter, ScrollText, User } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
-import { downloadFromApi } from '@/lib/download';
+import { downloadCsvAsPdf, downloadFromApi } from '@/lib/download';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
@@ -91,6 +93,7 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
   const [openId, setOpenId] = useState<number | null>(null);
   const [exporting, setExporting] = useState(false);
   const [askExport, setAskExport] = useState(false);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>('csv');
   const [attemptKind, setAttemptKind] = useState('ALL');
   const [attemptPage, setAttemptPage] = useState(1);
 
@@ -140,6 +143,16 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
   const doExport = async (reason: string) => {
     setExporting(true);
     try {
+      if (exportFormat === 'pdf') {
+        await downloadCsvAsPdf('/processes/audit/export', {
+          params: { ...baseParams, reason },
+          title: 'Auditoria de processos',
+          filename: 'auditoria-processos',
+          errorMessage: 'Falha ao exportar a auditoria',
+        });
+        setAskExport(false);
+        return;
+      }
       await downloadFromApi('/processes/audit/export', {
         params: { ...baseParams, reason },
         filename: 'auditoria-processos.csv',
@@ -179,15 +192,15 @@ export function HistoryView({ canExport, onOpenInstance }: HistoryViewProps) {
           </button>
         ))}
         {mode === 'timeline' && canExport && (
-          <Button
-            intent="secondary"
-            size="sm"
-            className="ml-auto"
-            onClick={() => setAskExport(true)}
-          >
-            <Download size={14} strokeWidth={1.75} />
-            Exportar CSV
-          </Button>
+          <div className="ml-auto">
+            <ExportMenu
+              formats={['csv', 'pdf']}
+              onExport={(format) => {
+                setExportFormat(format);
+                setAskExport(true);
+              }}
+            />
+          </div>
         )}
       </div>
 

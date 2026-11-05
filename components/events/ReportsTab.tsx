@@ -6,6 +6,7 @@
 
 'use client';
 
+import { PdfFromCsvButton } from '@/components/ui/PdfFromCsvButton';
 import { useState } from 'react';
 import {
   Building2,
@@ -243,6 +244,10 @@ export function ReportsTab() {
           <Download size={14} strokeWidth={1.75} />
           Exportar CSV
         </a>
+        <PdfFromCsvButton
+          path={`/events/reports/export${exportQuery ? `?${exportQuery}` : ''}`}
+          title="Relatório de eventos"
+        />
       </div>
 
       {isLoading || !data ? (

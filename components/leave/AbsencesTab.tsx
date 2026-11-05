@@ -6,11 +6,12 @@
 
 'use client';
 
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { saveCsvContent, type ExportFormat } from '@/lib/tableExport';
 import { useState } from 'react';
 import {
   Building2,
   Compass,
-  Download,
   FileLock2,
   Filter,
   MapPin,
@@ -52,7 +53,6 @@ import {
   JUSTIFICATION_CFG,
   absenceTypeLabel,
 } from './constants';
-import { downloadCsv } from './downloadCsv';
 import type { AbsenceRow, CsvExport } from './types';
 import { EVAL_CREATOR_ROLES } from '@/lib/roles';
 
@@ -106,7 +106,7 @@ export function AbsencesTab() {
   const pick = (v: string) => (v === ALL ? '' : v);
 
   const exportCsv = useApiMutation(
-    () =>
+    (_format: ExportFormat) =>
       apiClient.get<CsvExport>('/leave/absences/export', {
         params: {
           occurrenceType: filters.occurrenceType,
@@ -119,7 +119,10 @@ export function AbsencesTab() {
         },
       }),
     {
-      onSuccess: (r) => downloadCsv(r.filename, r.content),
+      onSuccess: (r, format) =>
+        void saveCsvContent(r.filename, r.content, format, 'Ausências').catch(
+          (e) => notify({ title: e.message, intent: 'danger' }),
+        ),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
@@ -167,13 +170,11 @@ export function AbsencesTab() {
             </Button>
           )}
           {isReviewer && (
-            <Button
-              intent="secondary"
+            <ExportMenu
+              formats={['csv', 'pdf']}
               loading={exportCsv.isPending}
-              onClick={() => exportCsv.mutate(undefined)}
-            >
-              <Download size={15} strokeWidth={1.75} /> Exportar
-            </Button>
+              onExport={(f) => exportCsv.mutate(f)}
+            />
           )}
           <Button onClick={() => setShowRegister(true)}>
             <Plus size={15} strokeWidth={1.75} /> Registar ausência

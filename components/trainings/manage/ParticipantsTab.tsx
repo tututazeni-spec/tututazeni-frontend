@@ -7,6 +7,7 @@
 
 'use client';
 
+import { PdfFromCsvButton } from '@/components/ui/PdfFromCsvButton';
 import { useState } from 'react';
 import { RowCard } from './RowCard';
 import {
@@ -228,6 +229,10 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
             <Download size={14} strokeWidth={1.75} />
             Exportar
           </a>
+          <PdfFromCsvButton
+            path={`/trainings/${training.id}/participants/export`}
+            title="Participantes da formação"
+          />
         </div>
       </div>
 
