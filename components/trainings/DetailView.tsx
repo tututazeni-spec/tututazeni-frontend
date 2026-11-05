@@ -37,8 +37,16 @@ import { Textarea } from '@/components/ui/Textarea';
 import { LEVEL_CFG, TYPE_CFG } from './constants';
 import { LEVEL_TONE, TONE_COLOR } from './trainingTones';
 import { fmtDate, fmtHours } from './utils';
-import type { Training, TrainingType } from './types';
+import { SessionJoinButton } from './SessionJoinButton';
+import type { ParticipantStatus, Training, TrainingType } from './types';
 import { safeHref } from '@/lib/safeHref';
+
+/** Estados em que a inscrição já dá direito a entrar na sessão. */
+const JOINABLE_STATUSES: ParticipantStatus[] = [
+  'REGISTERED',
+  'ATTENDED',
+  'COMPLETED',
+];
 
 interface DetailViewProps {
   trainingId: number;
@@ -273,6 +281,9 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                 ? session.maxParticipants - (session._count.participants ?? 0)
                 : null;
             const isFull = vacancies !== null && vacancies <= 0;
+            const mine = training.myParticipations?.find(
+              (p) => p.sessionId === session.id,
+            );
             return (
               <div
                 key={session.id}
@@ -326,9 +337,24 @@ export function DetailView({ trainingId, onBack }: DetailViewProps) {
                   )}
                 </div>
                 {training.mySessionIds?.includes(session.id) ? (
-                  <span className="flex-shrink-0 rounded-pill bg-brand px-3 py-1 font-body text-xs font-semibold text-white">
-                    Inscrito
-                  </span>
+                  mine && JOINABLE_STATUSES.includes(mine.status) ? (
+                    <SessionJoinButton
+                      trainingId={training.id}
+                      sessionId={session.id}
+                      modality={session.modality}
+                      meetingUrl={session.meetingUrl}
+                      courseId={training.courseId}
+                      status={mine.status}
+                      joinedAt={mine.joinedAt}
+                      opensAt={mine.joinOpensAt}
+                      closesAt={mine.joinClosesAt}
+                      className="flex-shrink-0"
+                    />
+                  ) : (
+                    <span className="flex-shrink-0 rounded-pill bg-brand px-3 py-1 font-body text-xs font-semibold text-white">
+                      Inscrito
+                    </span>
+                  )
                 ) : (
                   <Button
                     size="sm"

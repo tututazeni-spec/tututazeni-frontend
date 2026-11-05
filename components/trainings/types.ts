@@ -133,6 +133,8 @@ export interface Training {
   canManage?: boolean;
   /** Sessões em que o utilizador autenticado já está inscrito. */
   mySessionIds?: number[];
+  /** Participações do utilizador com a janela de entrada calculada no servidor. */
+  myParticipations?: MyParticipation[];
   publishedAt: string | null;
   instructor: {
     id: number;
@@ -187,6 +189,28 @@ export interface Session {
   maxParticipants: number;
   waitlistEnabled: boolean;
   _count: { participants: number };
+}
+
+export interface MyParticipation {
+  sessionId: number;
+  status: ParticipantStatus;
+  joinedAt: string | null;
+  joinOpensAt: string;
+  joinClosesAt: string;
+}
+
+/** Resposta de POST /trainings/sessions/:id/join. */
+export interface JoinSessionResult {
+  sessionId: number;
+  trainingId: number;
+  status: ParticipantStatus;
+  joinedAt: string;
+  late: boolean;
+  destination:
+    | { type: 'MEETING'; url: string }
+    | { type: 'COURSE'; route: string }
+    | { type: 'CHECKIN' };
+  courseRoute?: string;
 }
 
 /** Como a conclusão é decidida para efeitos de certificado. */
@@ -368,6 +392,7 @@ export type TrainingCardData = Pick<
       | 'instructor'
       | 'status'
       | 'colorIndex'
+      | 'courseId'
       | '_count'
       | 'avgRating'
     >
@@ -377,8 +402,14 @@ export interface MyTrainingEntry {
   id: number;
   status: ParticipantStatus;
   finalScore: number | null;
+  joinedAt?: string | null;
+  joinOpensAt?: string | null;
+  joinClosesAt?: string | null;
   session?: {
+    id: number;
     sessionDate: string;
+    modality: string;
+    meetingUrl: string | null;
     training: TrainingCardData;
   } | null;
 }
