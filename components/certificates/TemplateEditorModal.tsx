@@ -261,7 +261,7 @@ function EditorForm({ detail, canEdit, onClose }: EditorFormProps) {
                           fields.current[f.key] = el;
                         }}
                         rows={f.key === 'recognition' ? 2 : 3}
-                        className="w-full rounded-control border border-line bg-surface px-3 py-2 text-sm text-ink"
+                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-ink"
                       />
                     ) : (
                       <Input

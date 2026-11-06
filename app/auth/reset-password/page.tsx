@@ -57,7 +57,7 @@ export default function ResetPasswordPage() {
   }
 
   const input =
-    'w-full rounded-control border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none';
+    'w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20';
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 p-6">

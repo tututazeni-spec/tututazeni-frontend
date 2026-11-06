@@ -113,17 +113,18 @@ export function Combobox({
           className={cn(
             variant === 'underline'
               ? [
-                  'group flex min-h-[44px] w-full items-center gap-3 border-b border-brand-line bg-transparent px-1 pb-2.5 pt-3 text-left font-body text-sm text-brand',
-                  'transition-colors hover:border-brand-muted focus-visible:border-brand focus-visible:outline-none',
+                  'group flex min-h-[40px] w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left font-body text-sm text-brand',
+                  'transition-colors focus-visible:border-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20 data-[state=open]:border-indigo-500',
                   'disabled:cursor-not-allowed disabled:opacity-50',
-                  invalid && 'border-danger',
+                  invalid && 'border-danger focus-visible:border-danger',
                 ]
               : [
-                  'group relative inline-flex min-h-[48px] w-full items-center justify-between gap-2 rounded-control border-[1.5px] border-field',
-                  'bg-surface px-3 pb-[6px] pt-[18px] text-left font-body text-sm text-field-ink',
-                  'focus:bg-field-soft focus:outline-none focus:ring-[3px] focus:ring-field-soft',
+                  'group relative inline-flex min-h-[40px] w-full items-center justify-between gap-2 rounded-lg border border-gray-200',
+                  'bg-white px-3 py-2 text-left font-body text-sm text-field-ink',
+                  'focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 data-[state=open]:border-indigo-500',
                   'disabled:cursor-not-allowed disabled:opacity-50',
-                  invalid && 'border-danger focus:ring-danger-subtle',
+                  invalid &&
+                    'border-danger focus:border-danger focus:ring-danger-subtle',
                 ],
             className,
           )}
@@ -155,25 +156,17 @@ export function Combobox({
             </>
           ) : (
             <>
-              <span
-                aria-hidden
-                className={cn(
-                  'pointer-events-none absolute left-3 origin-left font-body transition-all duration-150',
-                  'top-[6px] text-micro font-medium text-field',
-                  'group-data-[placeholder]:top-1/2 group-data-[placeholder]:-translate-y-1/2 group-data-[placeholder]:text-sm',
-                  'group-data-[placeholder]:font-normal group-data-[placeholder]:text-ink-muted',
-                  'group-focus:top-[6px] group-focus:translate-y-0 group-focus:text-micro group-focus:font-medium group-focus:text-field',
-                )}
-              >
-                {label ?? placeholder}
-              </span>
               <span className="min-w-0 flex-1 truncate">
-                {selected ? selected.label : ' '}
+                {selected ? (
+                  selected.label
+                ) : (
+                  <span className="text-ink-muted">{label ?? placeholder}</span>
+                )}
               </span>
               <ChevronDown
                 size={16}
                 strokeWidth={1.75}
-                className="shrink-0 text-field"
+                className="shrink-0 text-brand-muted"
               />
             </>
           )}
@@ -187,7 +180,7 @@ export function Combobox({
           collisionPadding={8}
           className="z-[700] min-w-[var(--radix-popover-trigger-width)] max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
         >
-          <div className="m-2 flex items-center gap-2 rounded-pill border-[1.5px] border-field bg-surface px-3 py-[7px] focus-within:bg-field-soft">
+          <div className="m-2 flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20">
             <Search
               size={14}
               strokeWidth={1.75}

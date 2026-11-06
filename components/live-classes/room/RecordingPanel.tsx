@@ -279,7 +279,7 @@ export function RecordingPanel({ liveClass, onUrlSaved }: RecordingPanelProps) {
               setUrlSaved(false);
             }}
             placeholder="https://drive.google.com/..."
-            className="flex-1 min-w-0 py-2.5 px-3 rounded-xl border border-slate-300 bg-white text-sm text-slate-900 outline-none focus:border-[#1d5fd6]"
+            className="flex-1 min-w-0 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
           />
           <button
             onClick={() => saveUrl(customUrl)}
