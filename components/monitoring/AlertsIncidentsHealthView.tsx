@@ -60,7 +60,7 @@ const fmtMin = (m: number | null) => {
 };
 
 const selectCls =
-  'w-full rounded-control border-[1.5px] border-border-strong bg-surface px-3 py-[9px] font-body text-sm text-ink';
+  'w-full rounded-lg border border-gray-200 bg-white px-3 py-2 font-body text-sm text-ink focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20';
 
 // ── §7 Alertas ───────────────────────────────────────────────────────────────
 
