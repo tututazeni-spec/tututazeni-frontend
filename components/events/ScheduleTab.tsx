@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
   Building2,
+  CalendarDays,
   Landmark,
   ListOrdered,
   MapPin,
@@ -235,6 +236,8 @@ export function ScheduleTab() {
             className="w-56"
           />
           <Combobox
+            variant="underline"
+            icon={CalendarDays}
             items={[
               { value: 'ALL', label: 'Todos os eventos' },
               ...eventOptions,
