@@ -16,6 +16,7 @@ import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button, IconButton } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Card, CardBody } from '@/components/ui/Card';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { Select } from '@/components/ui/Select';
@@ -83,6 +84,12 @@ export function UserListView({ onSelect }: UserListViewProps) {
     hrStatus: filters.hrStatus,
   };
 
+  // Por omissão a lista não mostra ninguém: só pesquisa quando há filtro.
+  const hasFilter =
+    filters.search.trim() !== '' ||
+    filters.status !== '' ||
+    filters.hrStatus !== '';
+
   const {
     data,
     isLoading: loading,
@@ -91,6 +98,7 @@ export function UserListView({ onSelect }: UserListViewProps) {
     params,
     staleTime: STALE_TIME.DYNAMIC,
     placeholderData: keepPreviousData,
+    enabled: hasFilter,
   });
 
   // Bulk action como mutação: ao concluir, invalida as listas de utilizadores.
@@ -153,7 +161,7 @@ export function UserListView({ onSelect }: UserListViewProps) {
         </CardBody>
       </Card>
       <div className="mb-5 text-sm text-ink-faint">
-        {data?.total ?? 0} utilizadores
+        {hasFilter ? (data?.total ?? 0) : 0} utilizadores
       </div>
 
       {/* Bulk actions */}
@@ -189,19 +197,25 @@ export function UserListView({ onSelect }: UserListViewProps) {
       )}
 
       {/* Tabela */}
-      {loading && (
+      {!hasFilter && (
+        <EmptyState
+          variant="inline"
+          title="Pesquise ou filtre para ver utilizadores"
+        />
+      )}
+      {hasFilter && loading && (
         <Skeleton
           rows={5}
           wrapperClassName="space-y-2"
           itemClassName="h-14 rounded-card bg-surface-sunken"
         />
       )}
-      {error && (
+      {hasFilter && error && (
         <div className="px-4 py-8 text-center text-sm text-danger">
           {error.message}
         </div>
       )}
-      {!loading && (
+      {hasFilter && !loading && (
         <Table>
           <TableHead className="bg-brand/60">
             <TableRow className="hover:bg-transparent">
@@ -296,7 +310,7 @@ export function UserListView({ onSelect }: UserListViewProps) {
       )}
 
       {/* Paginação */}
-      {data && data.totalPages > 1 && (
+      {hasFilter && data && data.totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
           <span className="text-xs text-ink-faint">
             Página {data.page} de {data.totalPages}
