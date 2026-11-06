@@ -122,105 +122,112 @@ export function UserProfileView({
       </Button>
 
       {/* Profile header */}
-      <div className="relative mb-5 overflow-hidden rounded-[24px] border border-brand-line bg-surface p-6 shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
-        <div className="flex items-start gap-5">
+      <div className="relative mb-5 flex items-stretch gap-6 overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        {/* Círculo da foto: ocupa a altura toda do cartão, de ponta a ponta */}
+        <div className="aspect-square min-h-[11rem] shrink-0 self-stretch">
           <Avatar
             name={user.fullName}
             url={user.avatarUrl ?? undefined}
-            size="lg"
+            className="!h-full !w-full !text-5xl"
           />
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-1 flex-wrap">
-              <h2 className="text-xl font-semibold text-brand">
-                {user.fullName}
-              </h2>
-              <StatusBadge
-                value={user.accountStatus}
-                map={ACCOUNT_STATUS_MAP}
-                variant="dot"
-              />
-              <StatusBadge value={user.hrStatus} map={HR_STATUS_MAP} />
-            </div>
-            <div className="text-sm text-brand-muted mb-2">{user.email}</div>
-            <div className="flex flex-wrap gap-4 text-xs text-brand-muted">
-              {user.employeeNumber && (
-                <span className="font-mono">{user.employeeNumber}</span>
-              )}
-              {user.position && <span>{user.position.name}</span>}
-              {user.department && <span>{user.department.name}</span>}
-              {user.city && user.country && (
-                <span>
-                  {user.city}, {user.country}
-                </span>
-              )}
-              {user.hireDate && <span>Admissão: {fmtDate(user.hireDate)}</span>}
-            </div>
-            {user.manager && (
-              <div className="flex items-center gap-2 mt-2">
-                <Avatar
-                  name={user.manager.fullName}
-                  url={user.manager.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <span className="text-xs text-ink-muted">
-                  Gestor: <strong>{user.manager.fullName}</strong>
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Acções */}
-          <div className="flex flex-col gap-2">
-            {user.accountStatus === 'ACTIVE' && (
-              <Button
-                intent="secondary"
-                size="sm"
-                onClick={() => onAction('deactivate')}
-                disabled={actionLoading}
-              >
-                Desactivar
-              </Button>
-            )}
-            {user.accountStatus !== 'ACTIVE' && (
-              <Button
-                intent="success"
-                size="sm"
-                onClick={() => onAction('activate')}
-                disabled={actionLoading}
-              >
-                Activar
-              </Button>
-            )}
-            {user.accountStatus === 'ACTIVE' && (
-              <Button
-                intent="warning"
-                size="sm"
-                onClick={() => onAction('suspend')}
-                disabled={actionLoading}
-              >
-                Suspender
-              </Button>
-            )}
-          </div>
         </div>
+        <div className="min-w-0 flex-1 py-6 pr-6">
+          <div className="flex items-start gap-5">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-1 flex-wrap">
+                <h2 className="text-xl font-semibold text-brand">
+                  {user.fullName}
+                </h2>
+                <StatusBadge
+                  value={user.accountStatus}
+                  map={ACCOUNT_STATUS_MAP}
+                  variant="dot"
+                />
+                <StatusBadge value={user.hrStatus} map={HR_STATUS_MAP} />
+              </div>
+              <div className="text-sm text-brand-muted mb-2">{user.email}</div>
+              <div className="flex flex-wrap gap-4 text-xs text-brand-muted">
+                {user.employeeNumber && (
+                  <span className="font-mono">{user.employeeNumber}</span>
+                )}
+                {user.position && <span>{user.position.name}</span>}
+                {user.department && <span>{user.department.name}</span>}
+                {user.city && user.country && (
+                  <span>
+                    {user.city}, {user.country}
+                  </span>
+                )}
+                {user.hireDate && (
+                  <span>Admissão: {fmtDate(user.hireDate)}</span>
+                )}
+              </div>
+              {user.manager && (
+                <div className="flex items-center gap-2 mt-2">
+                  <Avatar
+                    name={user.manager.fullName}
+                    url={user.manager.avatarUrl ?? undefined}
+                    size="sm"
+                  />
+                  <span className="text-xs text-ink-muted">
+                    Gestor: <strong>{user.manager.fullName}</strong>
+                  </span>
+                </div>
+              )}
+            </div>
 
-        {/* Bio */}
-        {user.profile?.bio && (
-          <div className="mt-4 pt-4 border-t border-border text-sm text-ink-muted">
-            {user.profile.bio}
+            {/* Acções */}
+            <div className="flex flex-col gap-2">
+              {user.accountStatus === 'ACTIVE' && (
+                <Button
+                  intent="secondary"
+                  size="sm"
+                  onClick={() => onAction('deactivate')}
+                  disabled={actionLoading}
+                >
+                  Desactivar
+                </Button>
+              )}
+              {user.accountStatus !== 'ACTIVE' && (
+                <Button
+                  intent="success"
+                  size="sm"
+                  onClick={() => onAction('activate')}
+                  disabled={actionLoading}
+                >
+                  Activar
+                </Button>
+              )}
+              {user.accountStatus === 'ACTIVE' && (
+                <Button
+                  intent="warning"
+                  size="sm"
+                  onClick={() => onAction('suspend')}
+                  disabled={actionLoading}
+                >
+                  Suspender
+                </Button>
+              )}
+            </div>
           </div>
-        )}
 
-        {/* Tags de interesses */}
-        {user.profile?.interests && user.profile.interests.length > 0 && (
-          <div className="flex gap-1.5 mt-3 flex-wrap">
-            {user.profile.interests.map((i, idx) => (
-              <Badge key={idx} intent="info">
-                {i}
-              </Badge>
-            ))}
-          </div>
-        )}
+          {/* Bio */}
+          {user.profile?.bio && (
+            <div className="mt-4 pt-4 border-t border-border text-sm text-ink-muted">
+              {user.profile.bio}
+            </div>
+          )}
+
+          {/* Tags de interesses */}
+          {user.profile?.interests && user.profile.interests.length > 0 && (
+            <div className="flex gap-1.5 mt-3 flex-wrap">
+              {user.profile.interests.map((i, idx) => (
+                <Badge key={idx} intent="info">
+                  {i}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
