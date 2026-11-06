@@ -56,7 +56,16 @@ import {
   TrainingTab,
 } from './ProfileTabs';
 import { QualificationsTab } from './QualificationsTab';
+import { STATUS_CFG } from '@/components/enrollments/constants';
 import { ProfileTabNav } from './ProfileTabNav';
+
+// Estado da matrícula em português (os valores vêm da API em inglês).
+function enrollmentStatusLabel(status: string): string {
+  if (status === 'PENDING_APPROVAL') return 'Aguarda aprovação';
+  return (
+    (STATUS_CFG as Record<string, { label: string }>)[status]?.label ?? status
+  );
+}
 
 export interface UserProfileViewProps {
   userId: number;
@@ -342,7 +351,9 @@ export function UserProfileView({
                   </div>
                   <div className="flex-1">
                     <div className="text-sm text-ink">{e.course?.title}</div>
-                    <div className="text-xs text-ink-faint">{e.status}</div>
+                    <div className="text-xs text-ink-faint">
+                      {enrollmentStatusLabel(e.status)}
+                    </div>
                   </div>
                 </div>
               ))}
