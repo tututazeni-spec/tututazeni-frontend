@@ -520,7 +520,7 @@ export function SubmitEvaluationModal({
           )}
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-3 border-t border-border pt-4">
+        <div className="mt-6 flex flex-wrap justify-end gap-3 border-t border-border pt-4">
           <Button intent="ghost" onClick={onClose}>
             Cancelar
           </Button>
