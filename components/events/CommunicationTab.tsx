@@ -143,7 +143,11 @@ export function CommunicationTab() {
           />
         </div>
         {canManage && (
-          <Button size="sm" onClick={() => setShowNew(true)}>
+          <Button
+            size="sm"
+            className="ml-auto shrink-0"
+            onClick={() => setShowNew(true)}
+          >
             <Plus size={14} strokeWidth={1.75} />
             Nova comunicação
           </Button>

@@ -367,7 +367,7 @@ export function SpeakersGuestsTab() {
           />
         </div>
         {canManage && (
-          <Button size="sm" onClick={openNew}>
+          <Button size="sm" className="ml-auto shrink-0" onClick={openNew}>
             <Plus size={14} strokeWidth={1.75} />
             Novo orador/convidado
           </Button>
