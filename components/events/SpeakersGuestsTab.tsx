@@ -47,6 +47,7 @@ import { formatDate, formatTime } from '@/lib/format';
 import { proximityLevel, relativeLabel } from './proximity';
 import { SPEAKER_STATUS_CFG, SPEAKER_TYPE_CFG } from './constants';
 import { useEventPickerOptions } from './eventFormData';
+import { EventSpeakersDetailModal } from './EventSpeakersDetailModal';
 import type {
   Event,
   EventSession,
@@ -169,6 +170,7 @@ export function SpeakersGuestsTab() {
   const [editing, setEditing] = useState<EventSpeaker | 'new' | null>(null);
   const [form, setForm] = useState<SpeakerFormState>(EMPTY_FORM);
   const [zoomed, setZoomed] = useState<EventSpeaker | null>(null);
+  const [detailSpeaker, setDetailSpeaker] = useState<EventSpeaker | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [photoProcessing, setPhotoProcessing] = useState(false);
 
@@ -367,7 +369,7 @@ export function SpeakersGuestsTab() {
           />
         </div>
         {canManage && (
-          <Button size="sm" onClick={openNew}>
+          <Button size="sm" className="ml-auto shrink-0" onClick={openNew}>
             <Plus size={14} strokeWidth={1.75} />
             Novo orador/convidado
           </Button>
@@ -385,7 +387,7 @@ export function SpeakersGuestsTab() {
           description="Adiciona o primeiro orador, convidado ou moderador deste evento."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="space-y-3">
           {speakers.map((s) => {
             // Data de referência: sessão associada; sem sessão, início do evento.
             const refDate = s.session?.startAt ?? event?.startAt;
@@ -393,13 +395,27 @@ export function SpeakersGuestsTab() {
             return (
               <div
                 key={s.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-surface px-5 py-3 last:border-0"
+                role="button"
+                tabIndex={0}
+                aria-label={`Ver ficha de ${s.name}`}
+                onClick={() => setDetailSpeaker(s)}
+                onKeyDown={(e) => {
+                  if (e.target !== e.currentTarget) return;
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setDetailSpeaker(s);
+                  }
+                }}
+                className="relative flex w-full cursor-pointer flex-wrap items-center gap-3 overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] transition hover:border-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
               >
                 {s.photoUrl ? (
                   <button
                     type="button"
                     aria-label={`Ampliar foto de ${s.name}`}
-                    onClick={() => setZoomed(s)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setZoomed(s);
+                    }}
                     className="shrink-0 cursor-zoom-in rounded-full transition-transform hover:scale-110"
                   >
                     <Avatar name={s.name} url={s.photoUrl} size="sm" />
@@ -450,33 +466,39 @@ export function SpeakersGuestsTab() {
                   variant="dot"
                 />
                 {canManage && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <IconButton
-                        icon={MoreVertical}
-                        label="Acções do orador/convidado"
-                        intent="ghost"
-                        size="compact"
-                        className="shrink-0"
-                        type="button"
-                      />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onSelect={() => openEdit(s)}>
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        disabled={
-                          remove.isPending && remove.variables?.id === s.id
-                        }
-                        onSelect={() => onDelete(s)}
-                      >
-                        {remove.isPending && remove.variables?.id === s.id
-                          ? 'A remover…'
-                          : 'Remover'}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    className="shrink-0"
+                  >
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <IconButton
+                          icon={MoreVertical}
+                          label="Acções do orador/convidado"
+                          intent="ghost"
+                          size="compact"
+                          className="shrink-0"
+                          type="button"
+                        />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => openEdit(s)}>
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={
+                            remove.isPending && remove.variables?.id === s.id
+                          }
+                          onSelect={() => onDelete(s)}
+                        >
+                          {remove.isPending && remove.variables?.id === s.id
+                            ? 'A remover…'
+                            : 'Remover'}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 )}
               </div>
             );
@@ -489,6 +511,14 @@ export function SpeakersGuestsTab() {
           page={data.meta.page}
           totalPages={data.meta.totalPages}
           onPageChange={setPage}
+        />
+      )}
+
+      {detailSpeaker && (
+        <EventSpeakersDetailModal
+          speaker={detailSpeaker}
+          eventTitle={event?.title}
+          onClose={() => setDetailSpeaker(null)}
         />
       )}
 

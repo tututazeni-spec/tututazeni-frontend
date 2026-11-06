@@ -20,12 +20,12 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         variant === 'underline'
           ? 'min-h-[44px] rounded-none border-0 border-b border-brand-line bg-transparent px-1 pb-2.5 pt-3 font-body text-sm text-field-ink placeholder:text-ink-muted transition-colors hover:border-brand-muted focus:border-brand focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:opacity-50'
           : [
-              'rounded-control border-[1.5px] border-field bg-surface px-3 py-[9px] font-body text-sm text-field-ink',
+              'rounded-lg border border-gray-200 bg-white px-3 py-2 font-body text-sm text-field-ink',
               'placeholder:text-ink-muted',
-              'focus:bg-field-soft focus:outline-none focus:ring-[3px] focus:ring-field-soft',
+              'focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20',
               'disabled:cursor-not-allowed disabled:opacity-50',
             ],
-        invalid && 'border-danger focus:ring-danger-subtle',
+        invalid && 'border-danger focus:border-danger focus:ring-danger-subtle',
         className,
       )}
       {...props}

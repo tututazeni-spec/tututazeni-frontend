@@ -27,6 +27,7 @@ import { useToast } from '@/providers/ToastProvider';
 import { apiClient } from '@/lib/apiClient';
 import { reportError } from '@/lib/errorReporting';
 import { queryKeys } from '@/lib/queryKeys';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime as fmtDateTime } from '@/lib/format';
 import { cn } from '@/lib/cn';
@@ -139,6 +140,16 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
     },
   );
   const handleJoin = () => joinMutation.mutate(undefined);
+  // Quem já está inscrito (inclui lista de espera) não vê «Inscrever-me».
+  const { data: me } = useCurrentUser();
+  const alreadyJoined =
+    !!me &&
+    !!event?.participants?.some(
+      (p) =>
+        p.userId === me.id &&
+        p.status !== 'CANCELLED' &&
+        p.status !== 'REJECTED',
+    );
 
   const confirm = useConfirm();
   const handleLeave = async () => {
@@ -354,7 +365,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
               </span>
               {/* CTA */}
               <div className="flex flex-wrap items-center gap-2">
-                {event.status === 'PUBLISHED' && (
+                {event.status === 'PUBLISHED' && !alreadyJoined && (
                   <Button
                     onClick={handleJoin}
                     disabled={joinMutation.isPending}

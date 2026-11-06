@@ -27,11 +27,12 @@ export const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(
         ref={ref}
         aria-invalid={invalid || undefined}
         className={cn(
-          'w-full appearance-none rounded-control border-[1.5px] border-field bg-surface py-[9px] pl-3 pr-9 font-body text-sm text-field-ink',
-          density === 'sm' ? 'min-h-[36px]' : 'min-h-[48px]',
-          'focus:bg-field-soft focus:outline-none focus:ring-[3px] focus:ring-field-soft',
+          'w-full appearance-none rounded-lg border border-gray-200 bg-white py-2 pl-3 pr-9 font-body text-sm text-field-ink',
+          density === 'sm' ? 'min-h-[36px]' : 'min-h-[40px]',
+          'focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          invalid && 'border-danger focus:ring-danger-subtle',
+          invalid &&
+            'border-danger focus:border-danger focus:ring-danger-subtle',
         )}
         {...props}
       >

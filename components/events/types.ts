@@ -250,6 +250,8 @@ export interface EventLogistics {
   responsibleId: number | null;
   equipment: EventEquipmentType[];
   customEquipment?: string[];
+  customServices?: string[];
+  serviceCosts?: Record<string, number | null> | null;
   resourcesNeeded: string | null;
   suppliers: string | null;
   catering: string | null;

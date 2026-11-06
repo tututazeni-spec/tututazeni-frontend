@@ -80,6 +80,10 @@ export default function EventsPage() {
             setListStatus(status);
             setNav({ view: 'events' });
           }}
+          onOpenAll={() => {
+            setListStatus(undefined);
+            setNav({ view: 'events' });
+          }}
         />
       )}
       {nav.view === 'events' && (
