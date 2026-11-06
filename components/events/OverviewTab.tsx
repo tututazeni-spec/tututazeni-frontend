@@ -266,7 +266,11 @@ export function OverviewTab({
           aria-hidden="true"
           className="relative hidden w-56 shrink-0 items-center justify-center bg-gradient-to-br from-info/15 via-surface-sunken to-info/30 md:flex"
         >
-          <CalendarDays size={96} strokeWidth={1.25} className="text-info/70" />
+          <CalendarDays
+            size={96}
+            strokeWidth={1.25}
+            className="text-brand-ink/70"
+          />
           <svg
             viewBox="0 0 24 100"
             preserveAspectRatio="none"
@@ -278,15 +282,19 @@ export function OverviewTab({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-3 border-b border-border px-4 py-3">
-            <CalendarDays size={22} strokeWidth={1.75} className="text-info" />
-            <h3 className="flex-1 font-body text-sm font-semibold uppercase tracking-wide text-ink">
+            <CalendarDays
+              size={22}
+              strokeWidth={1.75}
+              className="text-brand-ink"
+            />
+            <h3 className="flex-1 font-body text-sm font-semibold uppercase tracking-wide text-brand-ink">
               Próximos eventos
             </h3>
             {onOpenAll && (
               <button
                 type="button"
                 onClick={onOpenAll}
-                className="inline-flex items-center gap-1 rounded-full border border-info/30 bg-info/10 px-3 py-1 font-body text-xs font-medium text-info hover:bg-info/20"
+                className="inline-flex items-center gap-1 rounded-full border border-brand-ink/30 bg-brand-soft px-3 py-1 font-body text-xs font-medium text-brand-ink hover:bg-brand-line"
               >
                 Ver todos <ArrowRight size={14} strokeWidth={2} />
               </button>
@@ -312,12 +320,12 @@ export function OverviewTab({
                 >
                   <span
                     title={typeCfg.label}
-                    className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${typeCfg.barCls}`}
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-brand-line bg-brand-soft"
                   >
                     <TypeIcon
                       size={20}
                       strokeWidth={1.75}
-                      className="text-white"
+                      className="text-brand-ink"
                     />
                   </span>
                   <div className="min-w-0 flex-1">
@@ -331,11 +339,19 @@ export function OverviewTab({
                   </div>
                   <div className="hidden shrink-0 space-y-1 border-l border-border pl-3 font-body text-xs text-ink-faint sm:block">
                     <div className="flex items-center gap-1.5">
-                      <Clock size={13} strokeWidth={1.75} />
+                      <Clock
+                        size={13}
+                        strokeWidth={1.75}
+                        className="text-brand-ink"
+                      />
                       {fmtDateTime(e.startAt)}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <Users size={13} strokeWidth={1.75} />
+                      <Users
+                        size={13}
+                        strokeWidth={1.75}
+                        className="text-brand-ink"
+                      />
                       {e._count.participants} insc.
                     </div>
                   </div>
