@@ -33,7 +33,6 @@ import { buttonVariants } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
-import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Pagination } from '@/components/ui/Pagination';
 import { QueryError } from '@/components/ui/QueryError';
 import { Select } from '@/components/ui/Select';
@@ -47,25 +46,13 @@ import {
   useEventPickerOptions,
   useUnitOptions,
 } from './eventFormData';
+import { EventEvaluationDetailModal } from './EventEvaluationDetailModal';
 import type { EventEvaluationRow } from './types';
 
 interface Paginated<T> {
   data: T[];
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
-
-const ASPECTS: Array<{
-  key: keyof NonNullable<EventEvaluationRow['evaluation']>;
-  label: string;
-}> = [
-  { key: 'rating', label: 'Avaliação geral' },
-  { key: 'organizationRating', label: 'Organização' },
-  { key: 'contentRating', label: 'Conteúdo' },
-  { key: 'locationRating', label: 'Local' },
-  { key: 'speakersRating', label: 'Oradores' },
-  { key: 'logisticsRating', label: 'Logística' },
-  { key: 'communicationRating', label: 'Comunicação' },
-];
 
 function Stars({ value, dark }: { value: number | null; dark?: boolean }) {
   if (value == null)
@@ -209,19 +196,26 @@ export function EvaluationTab() {
         <EmptyState
           icon={Star}
           title="Sem avaliações"
-          description="Nenhum participante corresponde aos filtros escolhidos."
+          description="Ainda não há avaliações para os filtros escolhidos."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="space-y-3">
           {rows.map((p) => {
             const level = proximityLevel(p.event.startAt);
             return (
-              <button
+              <div
                 key={p.id}
-                type="button"
-                onClick={() => p.evaluation && setDetailRow(p)}
-                disabled={!p.evaluation}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-surface px-5 py-3 text-left last:border-0 enabled:hover:bg-brand-soft disabled:cursor-default"
+                role="button"
+                tabIndex={0}
+                onClick={() => setDetailRow(p)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setDetailRow(p);
+                  }
+                }}
+                aria-label={`Ver avaliação de ${p.user.fullName}`}
+                className="relative flex w-full cursor-pointer flex-wrap items-center gap-3 overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 text-left shadow-[0_8px_24px_rgba(21,47,89,0.10)] transition hover:border-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
               >
                 <Avatar
                   name={p.user.fullName}
@@ -272,7 +266,7 @@ export function EvaluationTab() {
                     className="shrink-0 text-brand-muted"
                   />
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
@@ -286,55 +280,11 @@ export function EvaluationTab() {
         />
       )}
 
-      {detailRow?.evaluation && (
-        <Modal open onOpenChange={(open) => !open && setDetailRow(null)}>
-          <ModalContent
-            title="Avaliação do evento"
-            description={`${detailRow.user.fullName} — ${detailRow.event.title}`}
-          >
-            <div className="mt-4 space-y-3">
-              {ASPECTS.map(({ key, label }) => (
-                <div
-                  key={key}
-                  className="flex items-center justify-between gap-3"
-                >
-                  <span className="font-body text-sm text-ink-muted">
-                    {label}
-                  </span>
-                  <Stars
-                    value={
-                      (detailRow.evaluation?.[key] as number | null) ?? null
-                    }
-                  />
-                </div>
-              ))}
-              <div className="flex items-center justify-between gap-3 border-t border-border pt-3">
-                <span className="font-body text-sm text-ink-muted">
-                  Recomendaria a um colega (NPS)
-                </span>
-                <span className="font-mono text-sm text-ink">
-                  {detailRow.evaluation.nps}/10
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <span className="font-body text-sm text-ink-muted">
-                  Participaria novamente
-                </span>
-                <Stars value={detailRow.evaluation.wouldAttendAgain} />
-              </div>
-              {detailRow.evaluation.comment && (
-                <div className="border-t border-border pt-3">
-                  <div className="mb-1 font-body text-xs text-ink-faint">
-                    Comentário
-                  </div>
-                  <p className="font-body text-sm text-ink">
-                    {detailRow.evaluation.comment}
-                  </p>
-                </div>
-              )}
-            </div>
-          </ModalContent>
-        </Modal>
+      {detailRow && (
+        <EventEvaluationDetailModal
+          row={detailRow}
+          onClose={() => setDetailRow(null)}
+        />
       )}
     </div>
   );
