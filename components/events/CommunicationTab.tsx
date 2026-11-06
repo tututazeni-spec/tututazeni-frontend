@@ -45,6 +45,7 @@ import {
   PARTICIPANT_STATUS,
 } from './constants';
 import { useEventPickerOptions } from './eventFormData';
+import { EventCommunicationDetailModal } from './EventCommunicationDetailModal';
 import type {
   EventCommunication,
   EventCommunicationChannel,
@@ -84,6 +85,7 @@ export function CommunicationTab() {
   const [channel, setChannel] = useState('ALL');
   const [page, setPage] = useState(1);
   const [showNew, setShowNew] = useState(false);
+  const [detail, setDetail] = useState<EventCommunication | null>(null);
 
   const params = {
     page,
@@ -165,13 +167,23 @@ export function CommunicationTab() {
           description="Envia a primeira comunicação a participantes de um evento."
         />
       ) : (
-        <div className="overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
+        <div className="space-y-3">
           {communications.map((c) => {
             const level = proximityLevel(c.event.startAt);
             return (
               <div
                 key={c.id}
-                className="relative flex w-full flex-wrap items-center gap-3 border-b border-brand-line bg-surface px-5 py-3 last:border-0"
+                role="button"
+                tabIndex={0}
+                aria-label={`Ver comunicação ${c.subject}`}
+                onClick={() => setDetail(c)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setDetail(c);
+                  }
+                }}
+                className="relative flex w-full cursor-pointer flex-wrap items-center gap-3 overflow-hidden rounded-[24px] border border-brand-line bg-surface p-5 shadow-[0_8px_24px_rgba(21,47,89,0.10)] transition hover:border-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand"
               >
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-body text-sm font-semibold text-brand">
@@ -218,6 +230,13 @@ export function CommunicationTab() {
         />
       )}
 
+      {detail && (
+        <EventCommunicationDetailModal
+          communication={detail}
+          onClose={() => setDetail(null)}
+        />
+      )}
+
       {showNew && <NewCommunicationModal onClose={() => setShowNew(false)} />}
     </div>
   );
@@ -247,6 +266,17 @@ const EMPTY_COMM_FORM: CommFormState = {
   participantStatuses: [],
 };
 
+interface CommunicationSendResult {
+  status: 'DRAFT' | 'SENT' | 'FAILED';
+  delivery?: {
+    targeted: number;
+    delivered: number;
+    failed: number;
+    skipped: number;
+    reason?: string;
+  };
+}
+
 function NewCommunicationModal({ onClose }: { onClose: () => void }) {
   const notify = useToast();
   const eventOptions = useEventPickerOptions('communications-new');
@@ -254,19 +284,35 @@ function NewCommunicationModal({ onClose }: { onClose: () => void }) {
 
   const send = useApiMutation(
     () =>
-      apiClient.post(`/events/${form.eventId}/communications`, {
-        type: form.type,
-        subject: form.subject,
-        message: form.message,
-        channel: form.channel,
-        participantStatuses: form.participantStatuses.length
-          ? form.participantStatuses
-          : undefined,
-      }),
+      apiClient.post<CommunicationSendResult>(
+        `/events/${form.eventId}/communications`,
+        {
+          type: form.type,
+          subject: form.subject,
+          message: form.message,
+          channel: form.channel,
+          participantStatuses: form.participantStatuses.length
+            ? form.participantStatuses
+            : undefined,
+        },
+      ),
     {
       invalidateKeys: [queryKeys.events.all],
-      onSuccess: () => {
-        notify({ title: 'Comunicação enviada', intent: 'success' });
+      onSuccess: (res) => {
+        const d = res?.delivery;
+        if (res?.status === 'FAILED') {
+          notify({
+            title: `Comunicação não enviada${d?.reason ? ` — ${d.reason}` : ''}`,
+            intent: 'danger',
+          });
+        } else if (d && d.delivered < d.targeted) {
+          notify({
+            title: `Enviada a ${d.delivered} de ${d.targeted} destinatários`,
+            intent: 'info',
+          });
+        } else {
+          notify({ title: 'Comunicação enviada', intent: 'success' });
+        }
         onClose();
       },
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
