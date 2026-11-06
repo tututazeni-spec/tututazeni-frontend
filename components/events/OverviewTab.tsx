@@ -264,12 +264,13 @@ export function OverviewTab({
         {/* Painel decorativo (calendário) */}
         <div
           aria-hidden="true"
-          className="relative hidden w-56 shrink-0 items-center justify-center bg-gradient-to-br from-info/15 via-surface-sunken to-info/30 md:flex"
+          className="relative hidden w-72 shrink-0 md:block"
         >
-          <CalendarDays
-            size={96}
-            strokeWidth={1.25}
-            className="text-brand-ink/70"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/calendario.jpeg"
+            alt=""
+            className="h-full w-full object-cover object-[35%_center]"
           />
           <svg
             viewBox="0 0 24 100"
@@ -294,7 +295,7 @@ export function OverviewTab({
               <button
                 type="button"
                 onClick={onOpenAll}
-                className="inline-flex items-center gap-1 rounded-full border border-brand-ink/30 bg-brand-soft px-3 py-1 font-body text-xs font-medium text-brand-ink hover:bg-brand-line"
+                className="inline-flex items-center gap-1 rounded-full border border-brand-ink/30 bg-brand-soft px-3 py-1 font-body text-xs font-medium text-brand-ink transition-colors hover:border-brand-ink hover:bg-brand-ink hover:text-white"
               >
                 Ver todos <ArrowRight size={14} strokeWidth={2} />
               </button>
