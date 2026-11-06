@@ -186,6 +186,8 @@ export interface Session {
   meetingUrl: string | null;
   maxParticipants: number;
   waitlistEnabled: boolean;
+  /** false = rascunho: invisível e sem inscrições até ser publicada. */
+  published?: boolean;
   _count: { participants: number };
 }
 
