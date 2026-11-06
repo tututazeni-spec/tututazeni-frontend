@@ -66,3 +66,21 @@ export function RateGauge({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
+
+/** Cartão com a faixa de título do perfil (como Estrutura/Hierarquia) e conteúdo livre. */
+export function SectionCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <Card className="overflow-hidden">
+      <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+        {title}
+      </div>
+      {children}
+    </Card>
+  );
+}

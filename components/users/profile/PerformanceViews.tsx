@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/Table';
 import type { EvalResults } from '@/components/evaluation/types';
 import type { QueryData } from '@/hooks/useUserProfileData';
-import { InfoCard, LoadingRows } from './shared';
+import { InfoCard, LoadingRows, SectionCard } from './shared';
 import { ptLabel } from './labels';
 import {
   careerPlanRows,
@@ -99,37 +99,41 @@ export function EvaluationsView({
     return <EmptyState title="Sem avaliações 360° registadas" />;
 
   return (
-    <Table>
-      <TableHead className="bg-brand/60 [&_th]:text-white">
-        <TableRow>
-          <TableHeaderCell>Ciclo</TableHeaderCell>
-          <TableHeaderCell>Período</TableHeaderCell>
-          <TableHeaderCell>Estado</TableHeaderCell>
-          <TableHeaderCell>Pontuação final</TableHeaderCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {data.map((c) => (
-          <TableRow key={c.cycleId}>
-            <TableCell>
-              <div className="text-sm font-medium text-ink">{c.cycleName}</div>
-              <div className="text-xs text-ink-faint">{c.cycleType}</div>
-            </TableCell>
-            <TableCell className="text-xs text-ink-faint">
-              {fmtDate(c.startDate)} — {fmtDate(c.endDate)}
-            </TableCell>
-            <TableCell>
-              <Badge intent={completedIntent(c.participantStatus)}>
-                {c.participantStatus}
-              </Badge>
-            </TableCell>
-            <TableCell className="text-xs font-mono text-ink-muted">
-              {finalScoreLabel(c.finalScore)}
-            </TableCell>
+    <SectionCard title="Avaliações 360°">
+      <Table>
+        <TableHead className="bg-brand/60 [&_th]:text-white">
+          <TableRow>
+            <TableHeaderCell>Ciclo</TableHeaderCell>
+            <TableHeaderCell>Período</TableHeaderCell>
+            <TableHeaderCell>Estado</TableHeaderCell>
+            <TableHeaderCell>Pontuação final</TableHeaderCell>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHead>
+        <TableBody>
+          {data.map((c) => (
+            <TableRow key={c.cycleId}>
+              <TableCell>
+                <div className="text-sm font-medium text-ink">
+                  {c.cycleName}
+                </div>
+                <div className="text-xs text-ink-faint">{c.cycleType}</div>
+              </TableCell>
+              <TableCell className="text-xs text-ink-faint">
+                {fmtDate(c.startDate)} — {fmtDate(c.endDate)}
+              </TableCell>
+              <TableCell>
+                <Badge intent={completedIntent(c.participantStatus)}>
+                  {c.participantStatus}
+                </Badge>
+              </TableCell>
+              <TableCell className="text-xs font-mono text-ink-muted">
+                {finalScoreLabel(c.finalScore)}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </SectionCard>
   );
 }
 
@@ -142,45 +146,47 @@ export function PdiView({
     return <EmptyState title="Sem PDI registados" />;
 
   return (
-    <Table>
-      <TableHead className="bg-brand/60 [&_th]:text-white">
-        <TableRow>
-          <TableHeaderCell>Plano</TableHeaderCell>
-          <TableHeaderCell>Prioridade</TableHeaderCell>
-          <TableHeaderCell>Progresso</TableHeaderCell>
-          <TableHeaderCell>Período</TableHeaderCell>
-          <TableHeaderCell>Estado</TableHeaderCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {data.data.map((p) => (
-          <TableRow key={p.id}>
-            <TableCell>
-              <div className="text-sm font-medium text-ink">{p.name}</div>
-              <div className="text-xs text-ink-faint">
-                {p.manager?.fullName ?? '—'}
-              </div>
-            </TableCell>
-            <TableCell>
-              <Badge intent={priorityIntent(p.priority)}>
-                {ptLabel(p.priority)}
-              </Badge>
-            </TableCell>
-            <TableCell className="text-xs font-mono text-ink-muted">
-              {p.overallProgress}%
-            </TableCell>
-            <TableCell className="text-xs text-ink-faint">
-              {p.period ?? '—'}
-            </TableCell>
-            <TableCell>
-              <Badge intent={completedIntent(p.status)}>
-                {ptLabel(p.status)}
-              </Badge>
-            </TableCell>
+    <SectionCard title="Planos de desenvolvimento (PDI)">
+      <Table>
+        <TableHead className="bg-brand/60 [&_th]:text-white">
+          <TableRow>
+            <TableHeaderCell>Plano</TableHeaderCell>
+            <TableHeaderCell>Prioridade</TableHeaderCell>
+            <TableHeaderCell>Progresso</TableHeaderCell>
+            <TableHeaderCell>Período</TableHeaderCell>
+            <TableHeaderCell>Estado</TableHeaderCell>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHead>
+        <TableBody>
+          {data.data.map((p) => (
+            <TableRow key={p.id}>
+              <TableCell>
+                <div className="text-sm font-medium text-ink">{p.name}</div>
+                <div className="text-xs text-ink-faint">
+                  {p.manager?.fullName ?? '—'}
+                </div>
+              </TableCell>
+              <TableCell>
+                <Badge intent={priorityIntent(p.priority)}>
+                  {ptLabel(p.priority)}
+                </Badge>
+              </TableCell>
+              <TableCell className="text-xs font-mono text-ink-muted">
+                {p.overallProgress}%
+              </TableCell>
+              <TableCell className="text-xs text-ink-faint">
+                {p.period ?? '—'}
+              </TableCell>
+              <TableCell>
+                <Badge intent={completedIntent(p.status)}>
+                  {ptLabel(p.status)}
+                </Badge>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </SectionCard>
   );
 }
 
