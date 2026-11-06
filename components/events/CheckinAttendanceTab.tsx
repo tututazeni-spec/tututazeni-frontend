@@ -13,6 +13,7 @@
 
 'use client';
 
+import { PdfFromCsvButton } from '@/components/ui/PdfFromCsvButton';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
@@ -238,6 +239,10 @@ export function CheckinAttendanceTab() {
             <Download size={14} strokeWidth={1.75} />
             Exportar
           </a>
+          <PdfFromCsvButton
+            path={`/events/checkins/export?${exportParams}`}
+            title="Check-in e presenças do evento"
+          />
         </div>
       </div>
 

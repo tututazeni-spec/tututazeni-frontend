@@ -5,7 +5,21 @@
 'use client';
 
 import { useState } from 'react';
-import { FileText, Send, Trash2, Unlock, Upload } from 'lucide-react';
+import {
+  CalendarClock,
+  Clock,
+  FileText,
+  Package,
+  Send,
+  Trash2,
+  Unlock,
+  Upload,
+  User,
+  Users,
+} from 'lucide-react';
+import { RowCard, RowCardIconButton } from './RowCard';
+import { FileOrLinkField } from '../FileOrLinkField';
+import { openDataUrl } from '@/lib/openDataUrl';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -22,6 +36,13 @@ import { Textarea } from '@/components/ui/Textarea';
 import { RESOURCE_KIND_LABEL } from '../constants';
 import { fmtDate } from '../utils';
 import type { ResourceBooking, Training, TrainingResourceItem } from '../types';
+
+interface SentCommunication {
+  message: string;
+  sentAt: string;
+  recipients: number;
+  sentBy: string | null;
+}
 
 interface OperationTabProps {
   training: Training;
@@ -50,6 +71,13 @@ export function OperationTab({ training }: OperationTabProps) {
     value: String(r.id),
     label: `${r.name} (${RESOURCE_KIND_LABEL[r.kind]})`,
   }));
+
+  const { data: communications = [], refetch: refetchCommunications } =
+    useApiQuery<SentCommunication[]>(
+      ['trainings', 'communications', training.id],
+      `/trainings/${training.id}/communications`,
+      { staleTime: STALE_TIME.DYNAMIC },
+    );
 
   const { data: bookings = [], refetch: refetchBookings } = useApiQuery<
     ResourceBooking[]
@@ -131,6 +159,7 @@ export function OperationTab({ training }: OperationTabProps) {
           intent: 'success',
         });
         setMessage('');
+        refetchCommunications();
       },
       onError: (e) => toast({ title: e.message, intent: 'danger' }),
     },
@@ -158,16 +187,21 @@ export function OperationTab({ training }: OperationTabProps) {
             title="Nenhum recurso indicado — edita a formação para adicionar"
           />
         ) : (
-          <div className="flex flex-wrap gap-2">
-            {training.requiredResources.map((r) => (
+          <RowCard
+            icon={Package}
+            title={`${training.requiredResources.length} ${
+              training.requiredResources.length === 1 ? 'recurso' : 'recursos'
+            }`}
+            badges={training.requiredResources.map((r) => (
               <span
                 key={r}
-                className="rounded bg-surface-sunken px-2 py-0.5 font-body text-xs text-ink-muted"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#0F1F3D] px-3 py-1 text-sm font-semibold text-white"
               >
+                <span className="h-2 w-2 rounded-full bg-white" />
                 {r}
               </span>
             ))}
-          </div>
+          />
         )}
       </Card>
 
@@ -182,31 +216,39 @@ export function OperationTab({ training }: OperationTabProps) {
             title="Nenhuma sala/recurso reservado para esta turma"
           />
         ) : (
-          <div className="mb-4 space-y-2">
+          <div className="mb-4 space-y-3">
             {bookings.map((b) => (
-              <div
+              <RowCard
                 key={b.id}
-                className="flex items-center justify-between gap-3 rounded-control bg-surface-sunken px-3 py-2"
-              >
-                <span className="text-sm text-ink-muted">
-                  {b.resource?.name} (
-                  {b.resource ? RESOURCE_KIND_LABEL[b.resource.kind] : ''})
-                  <span className="ml-2 text-xs text-ink-faint">
-                    {fmtDate(b.startAt)} – {fmtDate(b.endAt)}
-                  </span>
-                </span>
-                <Button
-                  intent="ghost"
-                  size="sm"
-                  onClick={() => releaseResource.mutate(b.id)}
-                  loading={
-                    releaseResource.isPending &&
-                    releaseResource.variables === b.id
-                  }
-                >
-                  <Unlock size={14} strokeWidth={1.75} />
-                </Button>
-              </div>
+                icon={CalendarClock}
+                title={b.resource?.name ?? '—'}
+                badges={
+                  b.resource && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0F1F3D] px-3 py-1 text-sm font-semibold text-white">
+                      <span className="h-2 w-2 rounded-full bg-white" />
+                      {RESOURCE_KIND_LABEL[b.resource.kind]}
+                    </span>
+                  )
+                }
+                meta={[
+                  {
+                    icon: Clock,
+                    value: `${fmtDate(b.startAt)} – ${fmtDate(b.endAt)}`,
+                    label: 'Período',
+                  },
+                ]}
+                actions={
+                  <RowCardIconButton
+                    icon={Unlock}
+                    label="Libertar recurso"
+                    disabled={
+                      releaseResource.isPending &&
+                      releaseResource.variables === b.id
+                    }
+                    onClick={() => releaseResource.mutate(b.id)}
+                  />
+                }
+              />
             ))}
           </div>
         )}
@@ -214,6 +256,8 @@ export function OperationTab({ training }: OperationTabProps) {
           <div className="flex-1">
             <FormField label="Reservar sala/recurso" htmlFor="op-resource">
               <Combobox
+                variant="underline"
+                icon={Package}
                 items={resourceItems}
                 value={resourceId || undefined}
                 onValueChange={setResourceId}
@@ -244,43 +288,47 @@ export function OperationTab({ training }: OperationTabProps) {
             description="Adiciona o primeiro documento abaixo."
           />
         ) : (
-          <div className="mb-4 space-y-2">
+          <div className="mb-4 space-y-3">
             {(training.documents ?? []).map((d) => (
-              <div
+              <RowCard
                 key={d.id}
-                className="flex items-center justify-between gap-3 rounded-control bg-surface-sunken px-3 py-2"
-              >
-                <a
-                  href={d.fileUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex min-w-0 items-center gap-2 text-sm text-primary hover:underline"
-                >
-                  <FileText
-                    size={14}
-                    strokeWidth={1.75}
-                    className="flex-shrink-0"
+                icon={FileText}
+                title={
+                  <a
+                    href={d.fileUrl}
+                    onClick={(e) => {
+                      if (d.fileUrl.startsWith('data:')) {
+                        e.preventDefault();
+                        void openDataUrl(d.fileUrl);
+                      }
+                    }}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:underline"
+                  >
+                    {d.name}
+                  </a>
+                }
+                actions={
+                  <RowCardIconButton
+                    icon={Trash2}
+                    label={`Eliminar ${d.name}`}
+                    danger
+                    disabled={
+                      removeDocument.isPending &&
+                      removeDocument.variables === d.id
+                    }
+                    onClick={() => onRemoveDocument(d.id, d.name)}
                   />
-                  <span className="truncate">{d.name}</span>
-                </a>
-                <Button
-                  intent="ghost"
-                  size="sm"
-                  onClick={() => onRemoveDocument(d.id, d.name)}
-                  loading={
-                    removeDocument.isPending &&
-                    removeDocument.variables === d.id
-                  }
-                >
-                  <Trash2 size={14} strokeWidth={1.75} />
-                </Button>
-              </div>
+                }
+              />
             ))}
           </div>
         )}
         <div className="grid grid-cols-1 gap-3 border-t border-border pt-3 sm:grid-cols-3">
           <FormField label="Nome" htmlFor="op-doc-name">
             <Input
+              variant="underline"
               id="op-doc-name"
               value={docName}
               onChange={(e) => setDocName(e.target.value)}
@@ -288,17 +336,21 @@ export function OperationTab({ training }: OperationTabProps) {
               placeholder="Ex: Contrato do formador"
             />
           </FormField>
-          <FormField label="URL do ficheiro" htmlFor="op-doc-url">
-            <Input
+          <FormField label="Ficheiro ou link (URL HTTPS)" htmlFor="op-doc-url">
+            <FileOrLinkField
+              variant="underline"
               id="op-doc-url"
               value={docUrl}
-              onChange={(e) => setDocUrl(e.target.value)}
-              className="w-full"
-              placeholder="https://…"
+              onChange={(value, fileName) => {
+                setDocUrl(value);
+                if (fileName)
+                  setDocName((n) => n || fileName.replace(/\.[^.]+$/, ''));
+              }}
             />
           </FormField>
           <FormField label="Categoria" htmlFor="op-doc-category">
             <Input
+              variant="underline"
               id="op-doc-category"
               value={docCategory}
               onChange={(e) => setDocCategory(e.target.value)}
@@ -327,6 +379,7 @@ export function OperationTab({ training }: OperationTabProps) {
           Envia uma mensagem a todos os participantes com inscrição activa.
         </p>
         <Textarea
+          variant="underline"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={3}
@@ -342,6 +395,27 @@ export function OperationTab({ training }: OperationTabProps) {
           <Send size={14} strokeWidth={1.75} />
           Enviar comunicação
         </Button>
+        {communications.length > 0 && (
+          <div className="mt-4 space-y-3 border-t border-border pt-4">
+            <div className="font-body text-sm font-semibold text-ink">
+              Comunicações enviadas
+            </div>
+            {communications.map((c, i) => (
+              <RowCard
+                key={`${c.sentAt}-${i}`}
+                icon={Send}
+                title={<span className="whitespace-normal">{c.message}</span>}
+                meta={[
+                  { icon: Clock, value: fmtDate(c.sentAt), label: 'Enviada' },
+                  { icon: Users, value: c.recipients, label: 'destinatários' },
+                  ...(c.sentBy
+                    ? [{ icon: User, value: c.sentBy, label: 'Por' }]
+                    : []),
+                ]}
+              />
+            ))}
+          </div>
+        )}
       </Card>
     </div>
   );

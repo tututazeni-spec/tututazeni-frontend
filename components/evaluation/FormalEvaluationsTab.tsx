@@ -26,6 +26,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { downloadFromApi } from '@/lib/download';
+import type { ExportFormat } from '@/lib/tableExport';
 import { Skeleton } from '@/components/assessments/Skeleton';
 import { CreateFormalEvaluationModal } from './CreateFormalEvaluationModal';
 import { FormalEvaluationCard } from './FormalEvaluationCard';
@@ -80,6 +83,26 @@ function ManagementView() {
         notify({ title: 'Avaliação eliminada', intent: 'success' }),
     },
   );
+
+  const [exportingId, setExportingId] = useState<number | null>(null);
+  // Resultados desta avaliação (um ficheiro por avaliação) — gerados no backend.
+  const handleExport = async (id: number, format: ExportFormat) => {
+    setExportingId(id);
+    try {
+      await downloadFromApi(`/assessments/${id}/results/export`, {
+        params: { format },
+        fallbackName: `avaliacao-${id}.${format}`,
+        errorMessage: 'Não foi possível exportar os resultados',
+      });
+    } catch (e) {
+      notify({
+        title: e instanceof Error ? e.message : 'Não foi possível exportar',
+        intent: 'danger',
+      });
+    } finally {
+      setExportingId(null);
+    }
+  };
 
   const handleRemove = async (evaluation: FormalEvaluation) => {
     const ok = await confirm({
@@ -165,6 +188,13 @@ function ManagementView() {
                     <BarChart3 size={14} strokeWidth={1.75} />
                     Resultados
                   </Button>
+                )}
+                {e.status !== 'DRAFT' && (
+                  <ExportMenu
+                    intent="onDarkGhost"
+                    loading={exportingId === e.id}
+                    onExport={(format) => handleExport(e.id, format)}
+                  />
                 )}
                 {e.status === 'DRAFT' && (
                   <Button

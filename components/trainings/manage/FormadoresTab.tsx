@@ -8,9 +8,9 @@
 
 'use client';
 
-import { Users } from 'lucide-react';
+import { CalendarClock, Clock, Users } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
-import { Card } from '@/components/ui/Card';
+import { RowCard } from './RowCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { fmtHours } from '../utils';
 import type { Training } from '../types';
@@ -53,33 +53,27 @@ export function FormadoresTab({ training }: FormadoresTabProps) {
           Formador principal
         </h3>
         {principal ? (
-          <Card className="flex items-center gap-3 p-4">
-            <Avatar
-              name={principal.name}
-              url={principal.avatarUrl ?? undefined}
-              size="md"
-            />
-            <div className="flex-1">
-              <div className="font-body text-sm font-medium text-ink">
-                {principal.name}
-              </div>
-              <div className="font-body text-xs text-ink-faint">
+          <RowCard
+            leading={
+              <Avatar
+                name={principal.name}
+                url={principal.avatarUrl ?? undefined}
+                size="lg"
+                className="!h-14 !w-14 shrink-0"
+              />
+            }
+            title={principal.name}
+            badges={
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0F1F3D] px-3 py-1 text-sm font-semibold text-white">
+                <span className="h-2 w-2 rounded-full bg-white" />
                 {principal.sub}
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="font-mono text-sm font-semibold text-ink">
-                {sessionsCount}
-              </div>
-              <div className="font-body text-xs text-ink-faint">sessões</div>
-            </div>
-            <div className="text-right">
-              <div className="font-mono text-sm font-semibold text-ink">
-                {fmtHours(hours)}
-              </div>
-              <div className="font-body text-xs text-ink-faint">horas</div>
-            </div>
-          </Card>
+              </span>
+            }
+            meta={[
+              { icon: CalendarClock, value: sessionsCount, label: 'sessões' },
+              { icon: Clock, value: fmtHours(hours), label: 'horas' },
+            ]}
+          />
         ) : (
           <EmptyState
             icon={Users}
@@ -100,23 +94,28 @@ export function FormadoresTab({ training }: FormadoresTabProps) {
             description="Formadores de apoio associados a esta formação aparecem aqui."
           />
         ) : (
-          <Card className="overflow-hidden p-0">
+          <div className="space-y-3">
             {(training.coInstructors ?? []).map((c) => (
-              <div
+              <RowCard
                 key={c.id}
-                className="flex items-center gap-3 border-b border-border px-4 py-3 last:border-0"
-              >
-                <Avatar
-                  name={c.user.fullName}
-                  url={c.user.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <span className="flex-1 font-body text-sm text-ink">
-                  {c.user.fullName}
-                </span>
-              </div>
+                leading={
+                  <Avatar
+                    name={c.user.fullName}
+                    url={c.user.avatarUrl ?? undefined}
+                    size="lg"
+                    className="!h-14 !w-14 shrink-0"
+                  />
+                }
+                title={c.user.fullName}
+                badges={
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E3E9F5] px-3 py-1 text-sm font-semibold text-[#0F1F3D]">
+                    <span className="h-2 w-2 rounded-full bg-[#7A869E]" />
+                    Apoio
+                  </span>
+                }
+              />
             ))}
-          </Card>
+          </div>
         )}
       </div>
     </div>

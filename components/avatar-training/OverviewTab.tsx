@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   Award,
   BarChart3,
+  CalendarDays,
   CheckCircle2,
   ClipboardCheck,
   Clock,
@@ -34,7 +35,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
 import { DonutStatCard } from '@/components/ui/charts/DonutStatCard';
 import { NavyStatCard, type NavyStatTone } from '@/components/ui/NavyStatCard';
-import { FormField } from '@/components/ui/FormField';
+import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { QueryError } from '@/components/ui/QueryError';
@@ -80,54 +81,74 @@ function OverviewFilters({
     { staleTime: STALE_TIME.DYNAMIC },
   );
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <FormField label="De" htmlFor="ov-from">
-        <Input
-          id="ov-from"
-          type="date"
-          value={from}
-          onChange={(e) => onChange({ from: e.target.value })}
-        />
-      </FormField>
-      <FormField label="Até" htmlFor="ov-to">
-        <Input
-          id="ov-to"
-          type="date"
-          value={to}
-          onChange={(e) => onChange({ to: e.target.value })}
-        />
-      </FormField>
-      <FormField label="Departamento" htmlFor="ov-dept">
+    <Card>
+      <CardBody className="grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="flex items-center gap-3">
+          <CalendarDays
+            aria-hidden
+            size={20}
+            strokeWidth={1.5}
+            className="shrink-0 text-brand-muted"
+          />
+          <span className="font-body text-sm text-brand-muted">De</span>
+          <Input
+            variant="underline"
+            type="date"
+            aria-label="De"
+            className="min-w-0 flex-1"
+            value={from}
+            max={to || undefined}
+            onChange={(e) => onChange({ from: e.target.value })}
+          />
+        </div>
+        <div className="flex items-center gap-3">
+          <CalendarDays
+            aria-hidden
+            size={20}
+            strokeWidth={1.5}
+            className="shrink-0 text-brand-muted"
+          />
+          <span className="font-body text-sm text-brand-muted">Até</span>
+          <Input
+            variant="underline"
+            type="date"
+            aria-label="Até"
+            className="min-w-0 flex-1"
+            value={to}
+            min={from || undefined}
+            onChange={(e) => onChange({ to: e.target.value })}
+          />
+        </div>
         <Select
           variant="underline"
           icon={ListFilter}
+          placeholder="Departamento"
           value={departmentId}
           onValueChange={(v) => onChange({ departmentId: v })}
           items={[
-            { value: ALL, label: 'Todos' },
+            { value: ALL, label: 'Todos os departamentos' },
             ...(depts.data?.data ?? []).map((d) => ({
               value: String(d.id),
               label: d.name,
             })),
           ]}
         />
-      </FormField>
-      <FormField label="Formação" htmlFor="ov-prog">
         <Select
           variant="underline"
           icon={ListFilter}
+          placeholder="Formação"
           value={programId}
           onValueChange={(v) => onChange({ programId: v })}
           items={[
-            { value: ALL, label: 'Todas' },
+            { value: ALL, label: 'Todas as formações' },
             ...(programs.data ?? []).map((p) => ({
               value: String(p.id),
               label: p.title,
             })),
           ]}
         />
-      </FormField>
-    </div>
+      </CardBody>
+    </Card>
   );
 }
 

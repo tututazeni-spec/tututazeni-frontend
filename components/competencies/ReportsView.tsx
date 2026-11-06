@@ -9,6 +9,7 @@
 
 'use client';
 
+import { PdfFromCsvButton } from '@/components/ui/PdfFromCsvButton';
 import { useState } from 'react';
 import {
   AlertTriangle,
@@ -311,6 +312,10 @@ export function ReportsView() {
           <Download size={14} strokeWidth={1.75} />
           Exportar CSV
         </a>
+        <PdfFromCsvButton
+          path={`/competencies/reports/export${exportQuery ? `?${exportQuery}` : ''}`}
+          title="Relatório de competências"
+        />
       </div>
 
       {isLoading || !data ? (

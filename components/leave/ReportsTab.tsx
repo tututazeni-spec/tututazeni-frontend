@@ -6,8 +6,10 @@
 
 'use client';
 
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { saveCsvContent, type ExportFormat } from '@/lib/tableExport';
 import { useState } from 'react';
-import { Building2, Download, Filter, FormInput, Landmark } from 'lucide-react';
+import { Building2, Filter, FormInput, Landmark } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -37,7 +39,6 @@ import { cn } from '@/lib/cn';
 import { formatDate } from '@/lib/format';
 import { useToast } from '@/providers/ToastProvider';
 import { ABSENCE_TYPE_LABELS } from './constants';
-import { downloadCsv } from './downloadCsv';
 import type {
   CsvExport,
   LeaveReportKind,
@@ -95,7 +96,7 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
   const pick = (v: string) => (v === ALL ? '' : v);
 
   const exportCsv = useApiMutation(
-    () =>
+    (_format: ExportFormat) =>
       apiClient.get<CsvExport>(`/leave/reports/${kind}/export`, {
         params: Object.fromEntries(
           Object.entries(effective).filter(
@@ -104,7 +105,13 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
         ),
       }),
     {
-      onSuccess: (r) => downloadCsv(r.filename, r.content),
+      onSuccess: (r, format) =>
+        void saveCsvContent(
+          r.filename,
+          r.content,
+          format,
+          'Relatório de licenças',
+        ).catch((e) => notify({ title: e.message, intent: 'danger' })),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
@@ -280,13 +287,11 @@ export function ReportsTab({ leaveTypes }: ReportsTabProps) {
               </p>
             )}
           </div>
-          <Button
-            intent="secondary"
+          <ExportMenu
+            formats={['csv', 'pdf']}
             loading={exportCsv.isPending}
-            onClick={() => exportCsv.mutate(undefined)}
-          >
-            <Download size={15} strokeWidth={1.75} /> Exportar CSV
-          </Button>
+            onExport={(f) => exportCsv.mutate(f)}
+          />
         </div>
 
         {loading && !data ? (

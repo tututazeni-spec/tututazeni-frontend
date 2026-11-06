@@ -7,13 +7,14 @@
 
 'use client';
 
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { saveCsvContent, type ExportFormat } from '@/lib/tableExport';
 import { useState } from 'react';
 import {
   AlertTriangle,
   Building2,
   ChevronLeft,
   ChevronRight,
-  Download,
   Filter,
   Printer,
   User,
@@ -41,7 +42,6 @@ import {
   todayKey,
   weekDays,
 } from './calendarUtils';
-import { downloadCsv } from './downloadCsv';
 import {
   CAN_PICK_EMPLOYEE_ABSENCE,
   useEmployeeOptions,
@@ -352,12 +352,18 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
   const goTo = (day: string) => set({ view: 'day', date: day });
 
   const exportCsv = useApiMutation(
-    () =>
+    (_format: ExportFormat) =>
       apiClient.get<CsvExport>('/leave/absence-calendar/export', {
         params: { ...filters },
       }),
     {
-      onSuccess: (r) => downloadCsv(r.filename, r.content),
+      onSuccess: (r, format) =>
+        void saveCsvContent(
+          r.filename,
+          r.content,
+          format,
+          'Calendário de ausências',
+        ).catch((e) => notify({ title: e.message, intent: 'danger' })),
       onError: (e) => notify({ title: e.message, intent: 'danger' }),
     },
   );
@@ -383,13 +389,11 @@ export function AbsenceCalendarTab({ leaveTypes }: AbsenceCalendarTabProps) {
             <Printer size={15} strokeWidth={1.75} /> Imprimir
           </Button>
           {(data?.canExport ?? isReviewer) && (
-            <Button
-              intent="secondary"
+            <ExportMenu
+              formats={['csv', 'pdf']}
               loading={exportCsv.isPending}
-              onClick={() => exportCsv.mutate(undefined)}
-            >
-              <Download size={15} strokeWidth={1.75} /> Exportar
-            </Button>
+              onExport={(f) => exportCsv.mutate(f)}
+            />
           )}
         </div>
       </div>

@@ -3,6 +3,8 @@
 // com filtros de período/ano/mês/departamento/estado. Exporta CSV no cliente.
 'use client';
 
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { exportTable, type ExportFormat } from '@/lib/tableExport';
 import { useState } from 'react';
 import {
   AlertTriangle,
@@ -157,7 +159,22 @@ function cell(col: string, v: string | number | null): string {
   return String(v);
 }
 
-function exportCsv(report: ReportResult, columns: string[]) {
+function exportReport(
+  report: ReportResult,
+  columns: string[],
+  format: ExportFormat,
+) {
+  if (format !== 'csv') {
+    void exportTable(format, {
+      title: `Relatório de folha de pagamento — ${report.type}`,
+      filename: `payroll-${report.type}`,
+      headers: columns.map((c) => COLUMN_LABEL[c] ?? c),
+      rows: report.rows.map((r) =>
+        columns.map((c) => (format === 'pdf' ? cell(c, r[c]) : r[c])),
+      ),
+    });
+    return;
+  }
   const csv = buildCsv(
     columns.map((c) => COLUMN_LABEL[c] ?? c),
     report.rows.map((r) => columns.map((c) => r[c])),
@@ -233,13 +250,11 @@ export function ReportsView() {
           className="w-56"
         />
         {data && data.rows.length > 0 && (
-          <Button
-            className="ml-auto"
-            intent="secondary"
-            onClick={() => exportCsv(data, columns)}
-          >
-            Exportar CSV
-          </Button>
+          <div className="ml-auto">
+            <ExportMenu
+              onExport={(format) => exportReport(data, columns, format)}
+            />
+          </div>
         )}
       </div>
 

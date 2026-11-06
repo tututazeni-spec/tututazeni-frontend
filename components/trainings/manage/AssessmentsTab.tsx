@@ -115,6 +115,8 @@ export function AssessmentsTab({ training }: AssessmentsTabProps) {
             ) : (
               <div className="flex flex-1 items-center gap-2">
                 <Combobox
+                  variant="underline"
+                  icon={Link2}
                   items={items}
                   value={picked[r.id]}
                   onValueChange={(v) => setPicked((p) => ({ ...p, [r.id]: v }))}

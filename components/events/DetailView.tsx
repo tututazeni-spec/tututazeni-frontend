@@ -13,7 +13,6 @@ import { useState } from 'react';
 import {
   AlertCircle,
   ArrowLeft,
-  Building2,
   CalendarDays,
   GraduationCap,
   Info,
@@ -33,6 +32,7 @@ import { formatDateTime as fmtDateTime } from '@/lib/format';
 import { cn } from '@/lib/cn';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { SlantedCover } from '@/components/ui/SlantedCover';
 import { Card, CardBody } from '@/components/ui/Card';
 import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { Metric } from './EventListCard';
@@ -213,39 +213,23 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
         Voltar
       </Button>
 
-      {/* Header — desenho de "workshop de inovação.jpeg": cartão claro com
-          etiquetas, ícone + título, dados, organizador e botões; a imagem do
-          evento num recorte inclinado no canto superior direito. */}
+      {/* Header — desenho de "card interno.jpeg": cartão claro com etiquetas,
+          ícone + título, dados, organizador e botões; a imagem do evento a
+          toda a altura à direita, com recorte inclinado e filete azul. */}
       <div
         className={cn(
           'relative mb-5 overflow-hidden rounded-[24px] border bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]',
           isLive ? 'border-danger' : 'border-brand-line',
         )}
       >
-        <div
-          aria-hidden
-          className="absolute right-0 top-0 hidden h-[58%] w-[34%] items-center justify-center text-white/70 sm:flex"
-          style={{
-            clipPath: 'polygon(16% 0, 100% 0, 100% 100%, 0 76%)',
-            background: event.bannerUrl
-              ? undefined
-              : `linear-gradient(160deg, ${palette[0]} 0%, ${palette[2]} 100%)`,
-          }}
-        >
-          {event.bannerUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              decoding="async"
-              src={event.bannerUrl}
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <TypeIcon size={48} strokeWidth={1.25} />
-          )}
-        </div>
+        <SlantedCover
+          src={event.bannerUrl}
+          from={palette[0]}
+          to={palette[2]}
+          fallback={<TypeIcon size={64} strokeWidth={1.25} />}
+        />
 
-        <div className="relative space-y-5 p-6 sm:pr-[36%]">
+        <div className="relative space-y-5 p-6 sm:min-h-[320px] sm:pr-[44%]">
           {isLive && (
             <div
               role="status"
@@ -305,7 +289,7 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
             <span
               aria-hidden
               className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full text-white"
-              style={{ background: palette[3] }}
+              style={{ background: '#0F1F3D' }}
             >
               <TypeIcon size={28} strokeWidth={1.75} />
             </span>
@@ -343,14 +327,9 @@ export function DetailView({ eventId, onBack }: DetailViewProps) {
               </span>
             )}
           </div>
-          {(event.location || event.department?.name) && (
+          {event.location && (
             <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-              {event.location && (
-                <Metric icon={MapPin}>{event.location}</Metric>
-              )}
-              {event.department?.name && (
-                <Metric icon={Building2}>{event.department.name}</Metric>
-              )}
+              <Metric icon={MapPin}>{event.location}</Metric>
             </div>
           )}
 

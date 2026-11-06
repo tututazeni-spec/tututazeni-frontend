@@ -12,6 +12,7 @@ import {
   ChevronRight,
   MapPin,
   MoreVertical,
+  Send,
   User,
   Users,
   type LucideIcon,
@@ -23,9 +24,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/DropdownMenu';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { PALETTE } from '@/components/onboarding/TemplateCard';
 import { PARTICIPANT_STATUS, STATUS_CFG, TYPE_CFG } from './constants';
 import type { Event, ParticipantStatus } from './types';
+
+/** Azul-marinho da marca (--color-brand-ink no tema claro). */
+const NAVY = '#0F1F3D';
 
 export interface MetricProps {
   icon: LucideIcon;
@@ -108,6 +111,9 @@ export interface EventListCardProps {
   menu?: React.ReactNode;
   /** Estado do próprio utilizador no evento (colaborador: catálogo e meus eventos). */
   myStatus?: ParticipantStatus;
+  /** Rascunho: mostra o botão "Publicar" no cartão. */
+  onPublish?: () => void;
+  publishing?: boolean;
 }
 
 export function EventListCard({
@@ -115,8 +121,9 @@ export function EventListCard({
   onOpen,
   menu,
   myStatus,
+  onPublish,
+  publishing,
 }: EventListCardProps) {
-  const palette = PALETTE[Math.abs(e.id) % PALETTE.length];
   const typeCfg = TYPE_CFG[e.type] ?? TYPE_CFG.CORPORATE;
   const TypeIcon = typeCfg.icon;
   const place = e.location ?? (e.modalidade === 'ONLINE' ? 'Online' : null);
@@ -141,9 +148,7 @@ export function EventListCard({
         }
       }}
       className="relative flex cursor-pointer flex-col overflow-hidden rounded-[20px] text-white shadow-[0_4px_14px_rgba(21,47,89,0.25)] transition-all duration-200 ease-out hover:shadow-[0_10px_24px_rgba(21,47,89,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-      style={{
-        background: `linear-gradient(180deg, ${palette[1]} 0%, ${palette[2]} 60%, ${palette[2]} 100%)`,
-      }}
+      style={{ background: NAVY }}
     >
       {/* Topo: imagem do evento a desvanecer para o azul-marinho */}
       <div className="relative h-[230px] shrink-0">
@@ -165,7 +170,7 @@ export function EventListCard({
           aria-hidden
           className="absolute inset-0"
           style={{
-            background: `linear-gradient(180deg, ${palette[2]}00 40%, ${palette[2]}D9 80%, ${palette[1]} 100%)`,
+            background: `linear-gradient(180deg, ${NAVY}00 40%, ${NAVY}D9 80%, ${NAVY} 100%)`,
           }}
         />
         <div className="absolute right-4 top-4 flex items-center gap-2">
@@ -206,11 +211,13 @@ export function EventListCard({
         {place ? <Fact icon={MapPin}>{place}</Fact> : <span />}
       </div>
 
-      <div className="mt-6 flex flex-1 items-center gap-4 px-6 pb-6">
+      <div
+        className={`mt-6 flex flex-1 items-center gap-4 px-6 ${onPublish ? 'pb-4' : 'pb-6'}`}
+      >
         <span
           aria-hidden
           className="h-16 w-1 shrink-0 self-stretch rounded-full"
-          style={{ background: palette[0] }}
+          style={{ background: '#FFFFFF' }}
         />
         <div className="min-w-0 flex-1">
           <h3 className="line-clamp-2 font-display text-[24px] font-semibold leading-tight">
@@ -222,12 +229,31 @@ export function EventListCard({
         </div>
         <span
           aria-hidden
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white"
-          style={{ background: palette[0] }}
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white"
+          style={{ color: NAVY }}
         >
           <ChevronRight size={26} strokeWidth={2} />
         </span>
       </div>
+
+      {onPublish && (
+        <div className="px-6 pb-6">
+          <button
+            type="button"
+            disabled={publishing}
+            onClick={(ev) => {
+              ev.stopPropagation();
+              onPublish();
+            }}
+            onKeyDown={(ev) => ev.stopPropagation()}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-white px-4 py-3 text-[15px] font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+            style={{ color: NAVY }}
+          >
+            <Send size={18} strokeWidth={1.75} aria-hidden />
+            {publishing ? 'A publicar…' : 'Publicar'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

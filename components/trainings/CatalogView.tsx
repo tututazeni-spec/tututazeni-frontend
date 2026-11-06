@@ -103,6 +103,18 @@ export function CatalogView({ onSelect }: CatalogViewProps) {
                 key={t.id}
                 training={t}
                 onClick={() => onSelect(t.id)}
+                footer={
+                  <Button
+                    size="sm"
+                    intent="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelect(t.id);
+                    }}
+                  >
+                    Começar
+                  </Button>
+                }
               />
             ))}
             {data?.data.length === 0 && (

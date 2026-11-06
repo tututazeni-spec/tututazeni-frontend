@@ -4,6 +4,7 @@
 
 'use client';
 
+import { ListFilter } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
@@ -38,6 +39,8 @@ export function SessionPicker({
   if (error) return <QueryError error={error} onRetry={() => refetch()} />;
   return (
     <Select
+      variant="underline"
+      icon={ListFilter}
       className="w-full max-w-md"
       placeholder={data ? 'Escolha uma sessão' : 'A carregar sessões…'}
       value={value === null ? undefined : String(value)}

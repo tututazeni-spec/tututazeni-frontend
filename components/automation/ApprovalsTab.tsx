@@ -5,6 +5,8 @@
 
 'use client';
 
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { saveCsvContent, type ExportFormat } from '@/lib/tableExport';
 import { useDeferredValue, useState } from 'react';
 import {
   AlertCircle,
@@ -12,7 +14,6 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Clock,
-  Download,
   Filter,
   Flag,
   MapPin,
@@ -38,7 +39,6 @@ import { Textarea } from '@/components/ui/Textarea';
 import { UserPicker } from '@/components/processes/UserPicker';
 import { useToast } from '@/providers/ToastProvider';
 import { cn } from '@/lib/cn';
-import { downloadCsv } from './downloadCsv';
 import type {
   AutomationTask,
   AutomationTaskDetail,
@@ -91,8 +91,7 @@ const HISTORY_LABEL: Record<string, string> = {
   CREATED: 'Criada',
 };
 
-const fmt = (iso?: string | null) =>
-  iso ? formatDateTimeNumeric(iso) : '–';
+const fmt = (iso?: string | null) => (iso ? formatDateTimeNumeric(iso) : '–');
 
 export function ApprovalsTab() {
   const notify = useToast();
@@ -127,12 +126,13 @@ export function ApprovalsTab() {
   );
   const rows = data?.data ?? [];
 
-  const exportCsv = async () => {
+  const exportCsv = async (format: ExportFormat = 'csv') => {
     setExporting(true);
     try {
-      downloadCsv(
-        await apiClient.get<CsvExport>('/automation/tasks/export', { params }),
-      );
+      const r = await apiClient.get<CsvExport>('/automation/tasks/export', {
+        params,
+      });
+      await saveCsvContent(r.filename, r.content, format, 'Aprovações');
     } catch (e) {
       reportError(e, { source: 'ApprovalsTab.exportCsv' });
       notify({
@@ -251,16 +251,13 @@ export function ApprovalsTab() {
           />
           Só em atraso
         </label>
-        <Button
-          className="ml-auto"
-          size="sm"
-          intent="secondary"
-          onClick={exportCsv}
-          disabled={exporting}
-        >
-          <Download size={14} strokeWidth={1.75} />
-          Exportar
-        </Button>
+        <div className="ml-auto">
+          <ExportMenu
+            formats={['csv', 'pdf']}
+            loading={exporting}
+            onExport={exportCsv}
+          />
+        </div>
       </div>
 
       {isLoading ? (

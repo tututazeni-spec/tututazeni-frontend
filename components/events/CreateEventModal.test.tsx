@@ -134,6 +134,7 @@ describe('CreateEventModal', () => {
     fireEvent.change(screen.getByLabelText('Local'), {
       target: { value: '  Auditório  ' },
     });
+    fireEvent.click(screen.getByRole('button', { name: 'pick:ZOOM' }));
     fireEvent.change(screen.getByLabelText('Link da reunião'), {
       target: { value: ' https://meet.example/1 ' },
     });

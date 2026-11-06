@@ -18,6 +18,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "isomorphic-dompurify": "^3.17.0",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
     "lucide-react": "^1.7.0",
     "next": "^15.3.6",
     "pdfjs-dist": "^5.4.624",
@@ -27,6 +29,7 @@
     "react-dom": "19.2.3",
     "simli-client": "^3.0.3",
     "tailwind-merge": "^3.6.0",
+    "write-excel-file": "^2.0.8",
     "zustand": "^5.0.11"
   },
   "devDependencies": {

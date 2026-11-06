@@ -6,21 +6,16 @@
 
 'use client';
 
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { saveCsvContent, type ExportFormat } from '@/lib/tableExport';
 import { useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
-import {
-  Building2,
-  Download,
-  Layers,
-  ListFilter,
-  SlidersHorizontal,
-} from 'lucide-react';
+import { Building2, Layers, ListFilter, SlidersHorizontal } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
 import { STALE_TIME } from '@/lib/queryClient';
-import { downloadCsv } from '@/components/leave/downloadCsv';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Pagination } from '@/components/ui/Pagination';
@@ -169,7 +164,7 @@ export function LogsView() {
   ];
 
   // POST /audit/export é só ADMIN e regista a própria exportação como evento.
-  const exportCsv = async () => {
+  const exportCsv = async (format: ExportFormat = 'csv') => {
     setExporting(true);
     try {
       const res = await apiClient.post<{
@@ -193,9 +188,11 @@ export function LogsView() {
         cols.join(';'),
         ...res.data.map((r) => cols.map((c) => esc(r[c])).join(';')),
       ];
-      downloadCsv(
+      await saveCsvContent(
         `auditoria-${new Date().toISOString().slice(0, 10)}.csv`,
         lines.join('\n'),
+        format,
+        'Registos de auditoria',
       );
     } finally {
       setExporting(false);
@@ -301,15 +298,12 @@ export function LogsView() {
           Limpar filtros
         </Button>
         {role === 'ADMIN' && (
-          <Button
-            intent="secondary"
-            size="sm"
+          <ExportMenu
+            formats={['csv', 'pdf']}
+            label={exporting ? 'A exportar…' : 'Exportar relatório'}
             disabled={exporting}
-            onClick={exportCsv}
-          >
-            <Download size={14} className="mr-1" />
-            {exporting ? 'A exportar…' : 'Exportar relatório'}
-          </Button>
+            onExport={exportCsv}
+          />
         )}
       </div>
 

@@ -19,6 +19,9 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { formatDateTime } from '@/lib/format';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { exportLiveParticipants } from './exportParticipants';
+import type { ExportFormat } from '@/lib/tableExport';
 import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
 import { ROW_BTN_OUTLINE, ROW_BTN_PRIMARY, RowCard } from './RowCard';
 import { Combobox } from '@/components/ui/Combobox';
@@ -109,6 +112,23 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
 
   const invalidateKeys = [queryKeys.liveClasses.all];
 
+  const [exporting, setExporting] = useState(false);
+  async function onExport(format: ExportFormat) {
+    setExporting(true);
+    try {
+      const n = await exportLiveParticipants(format, 'attendance', params);
+      if (n === 0)
+        toast({ title: 'Não há registos para exportar.', intent: 'info' });
+    } catch (e) {
+      toast({
+        title: e instanceof Error ? e.message : 'Não foi possível exportar.',
+        intent: 'danger',
+      });
+    } finally {
+      setExporting(false);
+    }
+  }
+
   const register = useApiMutation(
     (p: LiveParticipant) =>
       apiClient.put(`/live-classes/${p.liveClassId}/attendance/${p.id}`, {
@@ -161,6 +181,9 @@ export function AttendanceView({ canManage }: { canManage: boolean }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
+        <div className="ml-auto order-last">
+          <ExportMenu onExport={onExport} loading={exporting} />
+        </div>
         <Combobox
           items={[
             { value: 'ALL', label: 'Todas as aulas' },

@@ -9,7 +9,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FileText, Plus, Trash2 } from 'lucide-react';
+import { Clock, FileText, Filter, Plus, Trash2, User } from 'lucide-react';
 import { useApiMutation } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
 import { queryKeys } from '@/lib/queryKeys';
@@ -22,8 +22,18 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { ChoiceOrCustom } from '@/components/avatar-training/ChoiceOrCustom';
 import { FileOrLinkField } from '../FileOrLinkField';
 import type { Training } from '../types';
+import { RowCard, RowCardIconButton } from './RowCard';
+
+const BASE_CATEGORIES = [
+  'Programa',
+  'Materiais',
+  'Presenças',
+  'Avaliações',
+  'Administrativo',
+];
 
 interface DocumentsTabProps {
   training: Training;
@@ -78,6 +88,13 @@ export function DocumentsTab({ training }: DocumentsTabProps) {
   };
 
   const documents = training.documents ?? [];
+  // Lista base + categorias já usadas nesta formação.
+  const categoryOptions = [
+    ...new Set([
+      ...BASE_CATEGORIES,
+      ...documents.map((d) => d.category).filter((c): c is string => !!c),
+    ]),
+  ];
   const canSubmit = name.trim().length > 0 && fileUrl.trim().length > 0;
 
   return (
@@ -98,6 +115,7 @@ export function DocumentsTab({ training }: DocumentsTabProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ex.: Programa da formação"
+                variant="underline"
                 className="w-full"
               />
             </FormField>
@@ -113,12 +131,16 @@ export function DocumentsTab({ training }: DocumentsTabProps) {
               />
             </FormField>
             <FormField label="Categoria" htmlFor="doc-category">
-              <Input
+              <ChoiceOrCustom
                 id="doc-category"
+                label="Categoria"
+                variant="underline"
+                icon={Filter}
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="Ex.: Programa, Materiais, Presenças"
-                className="w-full"
+                options={categoryOptions}
+                onChange={setCategory}
+                emptyLabel="Sem categoria"
+                placeholder="Escreva a categoria"
               />
             </FormField>
           </div>
@@ -142,18 +164,12 @@ export function DocumentsTab({ training }: DocumentsTabProps) {
           description="Programa, materiais, listas de presenças e outros documentos administrativos da formação."
         />
       ) : (
-        <Card className="overflow-hidden p-0">
+        <div className="space-y-3">
           {documents.map((d) => (
-            <div
+            <RowCard
               key={d.id}
-              className="flex items-center gap-3 border-b border-border px-4 py-3 last:border-0"
-            >
-              <FileText
-                size={16}
-                strokeWidth={1.75}
-                className="shrink-0 text-ink-faint"
-              />
-              <div className="min-w-0 flex-1">
+              icon={FileText}
+              title={
                 <a
                   href={d.fileUrl}
                   target="_blank"
@@ -166,26 +182,39 @@ export function DocumentsTab({ training }: DocumentsTabProps) {
                       void openDataUrl(d.fileUrl);
                     }
                   }}
-                  className="truncate font-body text-sm font-medium text-ink hover:underline"
+                  className="hover:underline"
                 >
                   {d.name}
                 </a>
-                <div className="font-body text-xs text-ink-faint">
-                  {d.category ? `${d.category} · ` : ''}
-                  {d.uploadedBy?.fullName ?? 'Sistema'} ·{' '}
-                  {formatDate(d.createdAt)}
-                </div>
-              </div>
-              <Button
-                intent="ghost"
-                size="sm"
-                onClick={() => handleRemove(d.id, d.name)}
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </Button>
-            </div>
+              }
+              badges={
+                d.category ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0F1F3D] px-3 py-1 text-sm font-semibold text-white">
+                    <span className="h-2 w-2 rounded-full bg-white" />
+                    {d.category}
+                  </span>
+                ) : undefined
+              }
+              meta={[
+                {
+                  icon: User,
+                  value: d.uploadedBy?.fullName ?? 'Sistema',
+                  label: 'Por',
+                },
+                { icon: Clock, value: formatDate(d.createdAt), label: 'Data' },
+              ]}
+              actions={
+                <RowCardIconButton
+                  icon={Trash2}
+                  label={`Eliminar ${d.name}`}
+                  danger
+                  disabled={remove.isPending && remove.variables === d.id}
+                  onClick={() => handleRemove(d.id, d.name)}
+                />
+              }
+            />
           ))}
-        </Card>
+        </div>
       )}
     </div>
   );

@@ -274,7 +274,8 @@ export interface MaterialReference {
 }
 
 export interface MaterialDocument {
-  id: number;
+  /** number = Document (Repositório); string = LibraryItem (Biblioteca de conteúdos). */
+  id: number | string;
   title: string;
   category: string;
   fileUrl: string;
@@ -285,6 +286,7 @@ export interface MaterialDocument {
 }
 
 export interface MaterialRow {
+  source: 'DOCUMENT' | 'LIBRARY';
   document: MaterialDocument;
   referencedBy: MaterialReference[];
 }

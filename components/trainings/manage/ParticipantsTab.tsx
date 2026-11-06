@@ -7,8 +7,19 @@
 
 'use client';
 
+import { PdfFromCsvButton } from '@/components/ui/PdfFromCsvButton';
 import { useState } from 'react';
-import { Award, CheckCircle2, Download, Plus, Users as UsersIcon } from 'lucide-react';
+import { RowCard } from './RowCard';
+import {
+  Award,
+  Building2,
+  CalendarClock,
+  ListChecks,
+  CheckCircle2,
+  Download,
+  Plus,
+  Users as UsersIcon,
+} from 'lucide-react';
 import { usePdfDownload } from '@/hooks/usePdfDownload';
 import { useApiMutation, useApiQuery } from '@/hooks/useApiQuery';
 import { apiClient } from '@/lib/apiClient';
@@ -196,6 +207,8 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Select
+          variant="underline"
+          icon={CalendarClock}
           items={sessions.map((s) => ({
             value: String(s.id),
             label: fmtDate(s.sessionDate),
@@ -216,6 +229,10 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
             <Download size={14} strokeWidth={1.75} />
             Exportar
           </a>
+          <PdfFromCsvButton
+            path={`/trainings/${training.id}/participants/export`}
+            title="Participantes da formação"
+          />
         </div>
       </div>
 
@@ -261,7 +278,6 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
         <Card className="flex flex-wrap items-center justify-between gap-3 p-3">
           <label className="flex items-center gap-2 text-sm text-ink-muted">
             <Checkbox
-              
               checked={allSelected}
               onChange={() =>
                 setSelected(allSelected ? [] : completable.map((p) => p.id))
@@ -288,68 +304,77 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
           description="Ainda ninguém se inscreveu nesta sessão."
         />
       ) : (
-        <Card className="divide-y divide-border">
+        <div className="space-y-1.5">
           {participants
             .filter((p) => p.status !== 'PENDING_APPROVAL')
             .map((p) => (
-              <div
+              <RowCard
                 key={p.id}
-                className="flex flex-wrap items-center gap-3 px-4 py-3"
-              >
-                {training.issueCertificate && (
-                  <Checkbox
-                    
-                    aria-label={`Seleccionar ${p.user.fullName}`}
-                    disabled={!completable.some((c) => c.id === p.id)}
-                    checked={selected.includes(p.id)}
-                    onChange={() => toggleSelected(p.id)}
-                  />
-                )}
-                <Avatar
-                  name={p.user.fullName}
-                  url={p.user.avatarUrl ?? undefined}
-                  size="sm"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-ink">
-                    {p.user.fullName}
-                  </div>
-                  <div className="text-xs text-ink-faint">
-                    {p.user.department?.name ?? '—'}
-                    {p.finalScore != null ? ` · Nota: ${p.finalScore}` : ''}
-                  </div>
-                </div>
-                <StatusBadge value={p.status} map={PARTICIPANT_CFG} />
-                {p.certificate &&
-                  (p.certificate.status === 'ACTIVE' ||
-                    p.certificate.status === 'EXPIRED') && (
-                    <CertificateButton certificateId={p.certificate.id} />
-                  )}
-                {p.certificate?.status === 'PENDING_APPROVAL' && (
-                  <span className="font-body text-xs text-warning-ink">
-                    Certificado a aguardar aprovação
-                  </span>
-                )}
-                <Select
-                  items={STATUS_ITEMS}
-                  value={p.status}
-                  onValueChange={(status) =>
-                    updateStatus.mutate({ id: p.id, status })
-                  }
-                  className="w-40 flex-shrink-0"
-                />
-                {otherSessions.length > 0 && (
-                  <Button
-                    intent="ghost"
+                compact
+                leading={
+                  <Avatar
+                    name={p.user.fullName}
+                    url={p.user.avatarUrl ?? undefined}
                     size="sm"
-                    onClick={() => setTransferring(p)}
-                  >
-                    Transferir
-                  </Button>
-                )}
-              </div>
+                    className="shrink-0"
+                  />
+                }
+                title={p.user.fullName}
+                badges={<StatusBadge value={p.status} map={PARTICIPANT_CFG} />}
+                meta={[
+                  {
+                    icon: Building2,
+                    value: p.user.department?.name ?? '—',
+                    label: 'Departamento',
+                  },
+                  ...(p.finalScore != null
+                    ? [{ icon: Award, value: p.finalScore, label: 'Nota' }]
+                    : []),
+                ]}
+                actions={
+                  <>
+                    {training.issueCertificate && (
+                      <Checkbox
+                        aria-label={`Seleccionar ${p.user.fullName}`}
+                        disabled={!completable.some((c) => c.id === p.id)}
+                        checked={selected.includes(p.id)}
+                        onChange={() => toggleSelected(p.id)}
+                      />
+                    )}
+                    {p.certificate &&
+                      (p.certificate.status === 'ACTIVE' ||
+                        p.certificate.status === 'EXPIRED') && (
+                        <CertificateButton certificateId={p.certificate.id} />
+                      )}
+                    {p.certificate?.status === 'PENDING_APPROVAL' && (
+                      <span className="font-body text-xs text-warning-ink">
+                        Certificado a aguardar aprovação
+                      </span>
+                    )}
+                    <Select
+                      variant="underline"
+                      icon={ListChecks}
+                      items={STATUS_ITEMS}
+                      value={p.status}
+                      onValueChange={(status) =>
+                        updateStatus.mutate({ id: p.id, status })
+                      }
+                      className="w-40 flex-shrink-0 !min-h-0 !pb-1 !pt-0"
+                    />
+                    {otherSessions.length > 0 && (
+                      <Button
+                        intent="ghost"
+                        size="sm"
+                        onClick={() => setTransferring(p)}
+                      >
+                        Transferir
+                      </Button>
+                    )}
+                  </>
+                }
+              />
             ))}
-        </Card>
+        </div>
       )}
 
       {showAdd && (
@@ -376,7 +401,6 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
                     className="flex items-center gap-2 px-2 py-1 text-sm text-ink-muted"
                   >
                     <Checkbox
-                      
                       checked={addUserIds.includes(Number(u.value))}
                       onChange={() =>
                         setAddUserIds((ids) =>
@@ -421,6 +445,8 @@ export function ParticipantsTab({ training }: ParticipantsTabProps) {
           >
             <div className="mt-4 space-y-4">
               <Select
+                variant="underline"
+                icon={CalendarClock}
                 items={otherSessions.map((s) => ({
                   value: String(s.id),
                   label: fmtDate(s.sessionDate),

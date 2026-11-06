@@ -195,6 +195,15 @@ export const AVATAR_TYPE_LABEL: Record<AvatarType, string> = {
   VIDEO: 'Vídeo',
 };
 
+/** Estados das fontes de conhecimento (valor da API → texto em português). */
+export const KNOWLEDGE_STATUS_LABEL: Record<string, string> = {
+  APPROVED: 'Aprovada',
+  PENDING: 'Pendente',
+  REJECTED: 'Rejeitada',
+  DRAFT: 'Rascunho',
+  ARCHIVED: 'Arquivada',
+};
+
 export const SOURCE_LABEL: Record<SourceType, string> = {
   COURSE: 'Curso',
   LESSON: 'Lição',

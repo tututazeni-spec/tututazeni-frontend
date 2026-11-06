@@ -12,6 +12,7 @@
 
 'use client';
 
+import { PdfFromCsvButton } from '@/components/ui/PdfFromCsvButton';
 import { useMemo, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import {
@@ -229,6 +230,10 @@ export function ParticipantsTab() {
             <Download size={14} strokeWidth={1.75} />
             Exportar
           </a>
+          <PdfFromCsvButton
+            path={`/events/${eventId}/participants/export`}
+            title="Participantes do evento"
+          />
         </div>
       </div>
 

@@ -26,6 +26,9 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { useConfirm } from '@/providers/ConfirmProvider';
 import { useToast } from '@/providers/ToastProvider';
 import { Button } from '@/components/ui/Button';
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { exportLiveParticipants } from './exportParticipants';
+import type { ExportFormat } from '@/lib/tableExport';
 import { NavyBadge, type NavyTone } from '@/components/courses/NavyCard';
 import {
   ROW_BTN_ICON,
@@ -144,6 +147,23 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
   const totalPages = data?.meta.totalPages ?? 1;
 
   const invalidateKeys = [queryKeys.liveClasses.all];
+
+  const [exporting, setExporting] = useState(false);
+  async function onExport(format: ExportFormat) {
+    setExporting(true);
+    try {
+      const n = await exportLiveParticipants(format, 'participants', params);
+      if (n === 0)
+        toast({ title: 'Não há registos para exportar.', intent: 'info' });
+    } catch (e) {
+      toast({
+        title: e instanceof Error ? e.message : 'Não foi possível exportar.',
+        intent: 'danger',
+      });
+    } finally {
+      setExporting(false);
+    }
+  }
 
   const add = useApiMutation(
     () =>
@@ -264,12 +284,15 @@ export function ParticipantsView({ canManage }: { canManage: boolean }) {
             className="w-64"
           />
         </div>
-        {canManage && (
-          <Button size="sm" onClick={() => setShowAdd(true)}>
-            <Plus size={14} strokeWidth={1.75} />
-            Adicionar
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <ExportMenu onExport={onExport} loading={exporting} />
+          {canManage && (
+            <Button size="sm" onClick={() => setShowAdd(true)}>
+              <Plus size={14} strokeWidth={1.75} />
+              Adicionar
+            </Button>
+          )}
+        </div>
       </div>
 
       {isLoading ? (

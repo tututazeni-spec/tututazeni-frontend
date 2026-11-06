@@ -84,6 +84,19 @@ export function AnnualView() {
           <Download size={14} strokeWidth={1.75} />
           Exportar CSV
         </Button>
+        <Button
+          intent="secondary"
+          size="sm"
+          onClick={() =>
+            window.open(
+              `${API_BASE}/payslips/my/annual-summary/export?year=${year}${monthParam}&format=pdf`,
+              '_blank',
+            )
+          }
+        >
+          <Download size={14} strokeWidth={1.75} />
+          Exportar PDF
+        </Button>
       </div>
 
       {loading && <Skeleton rows={3} />}
