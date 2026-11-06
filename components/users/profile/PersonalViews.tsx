@@ -67,11 +67,11 @@ export function TeamView({
 
   return (
     <Card className="overflow-hidden">
-      <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+      <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
         Equipa directa
       </div>
       <Table>
-        <TableHead>
+        <TableHead className="bg-brand/60 [&_th]:text-white">
           <TableRow>
             <TableHeaderCell>Colaborador</TableHeaderCell>
             <TableHeaderCell>Concluídos</TableHeaderCell>

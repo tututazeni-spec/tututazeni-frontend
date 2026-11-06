@@ -45,7 +45,7 @@ export function DocumentsView({
 
   return (
     <Table>
-      <TableHead>
+      <TableHead className="bg-brand/60 [&_th]:text-white">
         <TableRow>
           <TableHeaderCell>Documento</TableHeaderCell>
           <TableHeaderCell>Categoria</TableHeaderCell>
@@ -108,7 +108,7 @@ export function LeaveView({
         <EmptyState title="Sem pedidos de férias/licença" />
       ) : (
         <Table>
-          <TableHead>
+          <TableHead className="bg-brand/60 [&_th]:text-white">
             <TableRow>
               <TableHeaderCell>Tipo</TableHeaderCell>
               <TableHeaderCell>Período</TableHeaderCell>
@@ -177,7 +177,7 @@ export function AttendanceView({
         />
       </div>
       <Table>
-        <TableHead>
+        <TableHead className="bg-brand/60 [&_th]:text-white">
           <TableRow>
             <TableHeaderCell>Data</TableHeaderCell>
             <TableHeaderCell>Entrada</TableHeaderCell>

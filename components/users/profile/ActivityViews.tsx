@@ -29,7 +29,7 @@ export function HistoryView({
 
   return (
     <Table>
-      <TableHead>
+      <TableHead className="bg-brand/60 [&_th]:text-white">
         <TableRow>
           <TableHeaderCell>Evento</TableHeaderCell>
           <TableHeaderCell>Módulo</TableHeaderCell>
@@ -94,23 +94,25 @@ export function ActivityView({
           value={data.xpPoints}
         />
       </div>
-      <Card className="p-5">
-        <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
+      <Card className="overflow-hidden">
+        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Actividade por categoria
         </div>
-        {Object.keys(data.byCategory).length === 0 ? (
-          <div className="text-xs text-ink-faint">
-            Sem eventos no último ano
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-1.5">
-            {Object.entries(data.byCategory).map(([cat, count]) => (
-              <Badge key={cat} intent="neutral">
-                {cat}: {count}
-              </Badge>
-            ))}
-          </div>
-        )}
+        <div className="p-5">
+          {Object.keys(data.byCategory).length === 0 ? (
+            <div className="text-xs text-ink-faint">
+              Sem eventos no último ano
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-1.5">
+              {Object.entries(data.byCategory).map(([cat, count]) => (
+                <Badge key={cat} intent="neutral">
+                  {cat}: {count}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
       </Card>
     </div>
   );

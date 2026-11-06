@@ -66,19 +66,21 @@ export function PerformanceView({ data, isLoading }: QueryData<EvalResults>) {
       {data.qualitative && (
         <div className="grid grid-cols-3 gap-3">
           {QUALITATIVE_KEYS.map((key) => (
-            <Card key={key} className="p-4">
-              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-2">
+            <Card key={key} className="overflow-hidden">
+              <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
                 {qualitativeTitle(key)}
               </div>
-              {data.qualitative[key].length === 0 ? (
-                <div className="text-xs text-ink-faint">—</div>
-              ) : (
-                <ul className="text-xs text-ink-muted space-y-1 list-disc list-inside">
-                  {data.qualitative[key].map((t, i) => (
-                    <li key={i}>{t}</li>
-                  ))}
-                </ul>
-              )}
+              <div className="p-4">
+                {data.qualitative[key].length === 0 ? (
+                  <div className="text-xs text-ink-faint">—</div>
+                ) : (
+                  <ul className="text-xs text-ink-muted space-y-1 list-disc list-inside">
+                    {data.qualitative[key].map((t, i) => (
+                      <li key={i}>{t}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </Card>
           ))}
         </div>
@@ -97,7 +99,7 @@ export function EvaluationsView({
 
   return (
     <Table>
-      <TableHead>
+      <TableHead className="bg-brand/60 [&_th]:text-white">
         <TableRow>
           <TableHeaderCell>Ciclo</TableHeaderCell>
           <TableHeaderCell>Período</TableHeaderCell>
@@ -140,7 +142,7 @@ export function PdiView({
 
   return (
     <Table>
-      <TableHead>
+      <TableHead className="bg-brand/60 [&_th]:text-white">
         <TableRow>
           <TableHeaderCell>Plano</TableHeaderCell>
           <TableHeaderCell>Prioridade</TableHeaderCell>
@@ -185,14 +187,14 @@ export function CareerView({ data, isLoading }: QueryData<CareerProfile>) {
     <div className="space-y-4">
       <InfoCard title="Plano de carreira activo" rows={careerPlanRows(data)} />
       <Card className="overflow-hidden">
-        <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           Histórico de cargos
         </div>
         {data.careerHistory.length === 0 ? (
           <EmptyState title="Sem histórico de cargos" />
         ) : (
           <Table>
-            <TableHead>
+            <TableHead className="bg-brand/60 [&_th]:text-white">
               <TableRow>
                 <TableHeaderCell>Cargo</TableHeaderCell>
                 <TableHeaderCell>Início</TableHeaderCell>
