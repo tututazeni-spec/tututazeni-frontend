@@ -124,11 +124,11 @@ export function UserProfileView({
       {/* Profile header */}
       <div className="relative mb-5 flex items-stretch gap-6 overflow-hidden rounded-[24px] border border-brand-line bg-surface shadow-[0_8px_24px_rgba(21,47,89,0.10)]">
         {/* Círculo da foto: ocupa a altura toda do cartão, de ponta a ponta */}
-        <div className="aspect-square min-h-[11rem] shrink-0 self-stretch">
+        <div className="flex aspect-square min-h-[11rem] shrink-0 items-center justify-center self-stretch">
           <Avatar
             name={user.fullName}
             url={user.avatarUrl ?? undefined}
-            className="!h-full !w-full !text-5xl"
+            className="!h-[95%] !w-[95%] !text-5xl"
           />
         </div>
         <div className="min-w-0 flex-1 py-6 pr-6">
