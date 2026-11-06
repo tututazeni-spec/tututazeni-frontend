@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { DataTable, type DataTableColumn } from '@/components/ui/DataTable';
 import { FormField } from '@/components/ui/FormField';
+import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Modal, ModalClose, ModalContent } from '@/components/ui/Modal';
 import { PeriodPills } from '@/components/ui/Pills';
@@ -64,7 +65,9 @@ export function InstructorInvitesView() {
     destructive: boolean,
     run: () => void,
   ) {
-    if (await confirm({ title, message, destructive, confirmLabel: 'Confirmar' })) {
+    if (
+      await confirm({ title, message, destructive, confirmLabel: 'Confirmar' })
+    ) {
       run();
     }
   }
@@ -135,7 +138,9 @@ export function InstructorInvitesView() {
             <Button
               size="sm"
               intent="ghost"
-              onClick={() => extend.mutate({ userId: r.userId, accessDays: 30 })}
+              onClick={() =>
+                extend.mutate({ userId: r.userId, accessDays: 30 })
+              }
             >
               Prolongar 30 dias
             </Button>
@@ -211,14 +216,22 @@ export function InstructorInvitesView() {
         />
       )}
 
-      <DataTable
-        columns={columns}
-        data={rows}
-        rowKey={(r) => r.id}
-        searchKeys={['fullName', 'email']}
-        searchPlaceholder="Pesquisar instrutor ou email"
-        emptyLabel="Ainda não há convites de instrutores externos."
-      />
+      <Card className="overflow-hidden">
+        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          Convites de instrutores externos
+        </div>
+        <div className="p-4">
+          <DataTable
+            columns={columns}
+            data={rows}
+            rowKey={(r) => r.id}
+            searchKeys={['fullName', 'email']}
+            searchPlaceholder="Pesquisar instrutor ou email"
+            emptyLabel="Ainda não há convites de instrutores externos."
+            headerClassName="bg-brand/60 text-white"
+          />
+        </div>
+      </Card>
 
       <NewInviteModal
         open={open}
@@ -259,7 +272,11 @@ function NewInviteModal({
       return;
     }
     try {
-      await onSubmit({ fullName: fullName.trim(), email: email.trim(), accessDays });
+      await onSubmit({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        accessDays,
+      });
       setFullName('');
       setEmail('');
       setDays('30');
