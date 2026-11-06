@@ -92,8 +92,8 @@ export function MultiCombobox({
           aria-label={summary ? `${label}: ${summary}` : label}
           aria-expanded={open}
           className={cn(
-            'group flex min-h-[44px] w-full items-center gap-3 border-b border-brand-line bg-transparent px-1 pb-2.5 pt-3 text-left font-body text-sm text-brand',
-            'transition-colors hover:border-brand-muted focus-visible:border-brand focus-visible:outline-none',
+            'group flex min-h-[40px] w-full items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left font-body text-sm text-brand',
+            'transition-colors focus-visible:border-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20 data-[state=open]:border-indigo-500',
             className,
           )}
         >
@@ -122,7 +122,7 @@ export function MultiCombobox({
           collisionPadding={8}
           className="z-[700] min-w-[var(--radix-popover-trigger-width)] max-w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-card border border-field bg-surface shadow-elevated"
         >
-          <div className="m-2 flex items-center gap-2 rounded-pill border-[1.5px] border-field bg-surface px-3 py-[7px] focus-within:bg-field-soft">
+          <div className="m-2 flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20">
             <Search
               size={14}
               strokeWidth={1.75}

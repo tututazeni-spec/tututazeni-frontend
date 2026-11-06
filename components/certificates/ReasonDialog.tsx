@@ -74,7 +74,7 @@ export function ReasonDialog({
               maxLength={MAX}
               rows={4}
               onChange={(e) => setReason(e.target.value)}
-              className="w-full rounded-control border border-line bg-surface px-3 py-2 text-sm text-ink"
+              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-ink"
             />
           </FormField>
           <div className="flex justify-end gap-2">

@@ -97,26 +97,15 @@ export function Select({
         <RadixSelect.Trigger
           aria-invalid={invalid || undefined}
           className={cn(
-            'group relative inline-flex min-h-[48px] max-w-full items-center justify-between gap-2 rounded-control border-[1.5px] border-field',
-            'bg-surface px-3 pb-[6px] pt-[18px] text-left font-body text-sm text-field-ink',
-            'focus:bg-field-soft focus:outline-none focus:ring-[3px] focus:ring-field-soft',
+            'group relative inline-flex min-h-[40px] max-w-full items-center justify-between gap-2 rounded-lg border border-gray-200',
+            'bg-white px-3 py-2 text-left font-body text-sm text-field-ink',
+            'focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 data-[state=open]:border-indigo-500',
             'disabled:cursor-not-allowed disabled:opacity-50',
-            invalid && 'border-danger focus:ring-danger-subtle',
+            invalid &&
+              'border-danger focus:border-danger focus:ring-danger-subtle',
             className,
           )}
         >
-          <span
-            aria-hidden
-            className={cn(
-              'pointer-events-none absolute left-3 max-w-[calc(100%-2.75rem)] truncate whitespace-nowrap origin-left font-body text-ink-muted transition-all duration-150',
-              'top-[6px] text-micro font-medium text-field',
-              'group-data-[placeholder]:top-1/2 group-data-[placeholder]:-translate-y-1/2 group-data-[placeholder]:text-sm',
-              'group-data-[placeholder]:font-normal group-data-[placeholder]:text-ink-muted',
-              'group-focus:top-[6px] group-focus:translate-y-0 group-focus:text-micro group-focus:font-medium group-focus:text-field',
-            )}
-          >
-            {shownLabel}
-          </span>
           <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)] overflow-hidden">
             {[shownLabel, ...items.map((i) => i.label)].map((t, n) => (
               <span
@@ -128,14 +117,16 @@ export function Select({
               </span>
             ))}
             <span className="col-start-1 row-start-1 min-w-0 truncate whitespace-nowrap">
-              <RadixSelect.Value placeholder={' '} />
+              <span className="group-data-[placeholder]:text-ink-muted">
+                <RadixSelect.Value placeholder={shownLabel} />
+              </span>
             </span>
           </span>
           <RadixSelect.Icon>
             <ChevronDown
               size={16}
               strokeWidth={1.75}
-              className="shrink-0 text-field"
+              className="shrink-0 text-brand-muted"
             />
           </RadixSelect.Icon>
         </RadixSelect.Trigger>

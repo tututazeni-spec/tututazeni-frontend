@@ -120,8 +120,8 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           className={cn(
             variant === 'underline'
               ? 'flex min-h-[44px] items-center gap-3 border-b border-brand-line bg-transparent px-1 pb-2.5 pt-3 transition-colors hover:border-brand-muted focus-within:border-brand'
-              : 'flex items-center gap-2 rounded-pill border-[1.5px] border-field bg-surface px-4 py-[9px] focus-within:bg-field-soft focus-within:ring-[3px] focus-within:ring-field-soft',
-            invalid && 'border-danger',
+              : 'flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20',
+            invalid && 'border-danger focus-within:border-danger',
           )}
         >
           {showIcon && (
