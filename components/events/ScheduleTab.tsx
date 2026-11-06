@@ -30,6 +30,7 @@ import { STALE_TIME } from '@/lib/queryClient';
 import { ADMIN_RH_GESTOR_ROLES, Role } from '@/lib/roles';
 import { formatDate, formatTime } from '@/lib/format';
 import { Button, IconButton } from '@/components/ui/Button';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Combobox } from '@/components/ui/Combobox';
 import { DepartmentUserPicker } from '@/components/departments/DepartmentUserPicker';
 import type { DirectoryUser } from '@/components/departments/departmentFormData';
@@ -45,6 +46,7 @@ import { Input } from '@/components/ui/Input';
 import { Modal, ModalContent } from '@/components/ui/Modal';
 import { Pagination } from '@/components/ui/Pagination';
 import { QueryError } from '@/components/ui/QueryError';
+import { SearchInput } from '@/components/ui/SearchInput';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -104,6 +106,8 @@ export function ScheduleTab() {
   const confirm = useConfirm();
   const eventOptions = useEventPickerOptions('sessions');
 
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search);
   const [eventFilter, setEventFilter] = useState('ALL');
   const [status, setStatus] = useState('ALL');
   const [departmentId, setDepartmentId] = useState('ALL');
@@ -120,6 +124,7 @@ export function ScheduleTab() {
   const params = {
     page,
     limit: 20,
+    search: debouncedSearch || undefined,
     eventId: eventFilter === 'ALL' ? undefined : eventFilter,
     status: status === 'ALL' ? undefined : status,
     departmentId: departmentId === 'ALL' ? undefined : departmentId,
@@ -219,6 +224,16 @@ export function ScheduleTab() {
     <div className="space-y-4">
       <div className="flex items-end justify-between gap-3">
         <div className="flex min-w-0 flex-1 flex-wrap items-end gap-3">
+          <SearchInput
+            variant="underline"
+            placeholder="Pesquisar por nome…"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="w-56"
+          />
           <Combobox
             items={[
               { value: 'ALL', label: 'Todos os eventos' },
