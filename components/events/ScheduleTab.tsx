@@ -217,8 +217,8 @@ export function ScheduleTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-wrap items-end gap-3">
+      <div className="flex items-end justify-between gap-3">
+        <div className="flex min-w-0 flex-1 flex-wrap items-end gap-3">
           <Combobox
             items={[
               { value: 'ALL', label: 'Todos os eventos' },
@@ -283,7 +283,7 @@ export function ScheduleTab() {
           </div>
         </div>
         {canManage && (
-          <Button size="sm" onClick={openNew}>
+          <Button size="sm" className="ml-auto shrink-0" onClick={openNew}>
             <Plus size={14} strokeWidth={1.75} />
             Nova sessão
           </Button>
