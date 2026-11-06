@@ -51,21 +51,34 @@ export function useInstructorInvites() {
         res.emailSent
           ? notify({
               title: 'Convite enviado',
-              description: 'O instrutor recebeu um link de uso único por email.',
+              description:
+                'O instrutor recebeu um link de uso único por email.',
               intent: 'success',
             })
           : notify({
               title: 'Convite criado, mas o email não foi enviado',
-              description: 'Use "Reenviar" na linha do convite para tentar de novo.',
+              description:
+                'Use "Reenviar" na linha do convite para tentar de novo.',
               intent: 'danger',
             }),
     },
   );
   const resend = useApiMutation(
-    (id: string) => apiClient.post(`/instructor-invites/${id}/resend`),
+    (id: string) =>
+      apiClient.post<{ inviteId: string; emailSent: boolean }>(
+        `/instructor-invites/${id}/resend`,
+      ),
     {
       invalidateKeys: [KEY],
-      onSuccess: () => notify({ title: 'Convite reenviado', intent: 'success' }),
+      onSuccess: (res) =>
+        res.emailSent
+          ? notify({ title: 'Convite reenviado', intent: 'success' })
+          : notify({
+              title: 'Novo convite criado, mas o email não foi enviado',
+              description:
+                'O servidor de email não respondeu. Tente "Reenviar" mais tarde.',
+              intent: 'danger',
+            }),
       onError,
     },
   );
@@ -84,7 +97,8 @@ export function useInstructorInvites() {
       }),
     {
       invalidateKeys: [KEY],
-      onSuccess: () => notify({ title: 'Acesso prolongado', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Acesso prolongado', intent: 'success' }),
       onError,
     },
   );
@@ -93,7 +107,8 @@ export function useInstructorInvites() {
       apiClient.post(`/instructor-invites/users/${userId}/deactivate`),
     {
       invalidateKeys: [KEY],
-      onSuccess: () => notify({ title: 'Acesso desativado', intent: 'success' }),
+      onSuccess: () =>
+        notify({ title: 'Acesso desativado', intent: 'success' }),
       onError,
     },
   );
@@ -106,7 +121,8 @@ export function useInstructorInvites() {
       onSuccess: () =>
         notify({
           title: 'Dispositivo reposto',
-          description: 'No próximo acesso o instrutor confirma o dispositivo por código.',
+          description:
+            'No próximo acesso o instrutor confirma o dispositivo por código.',
           intent: 'success',
         }),
       onError,
