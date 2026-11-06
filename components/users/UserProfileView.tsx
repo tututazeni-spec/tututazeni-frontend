@@ -283,51 +283,55 @@ export function UserProfileView({
           )}
 
           <div className="grid grid-cols-2 gap-5">
-            <Card className="p-5">
-              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
+            <Card className="overflow-hidden">
+              <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
                 Dados pessoais
               </div>
-              {[
-                ['Email', user.email],
-                ['Telefone', user.phone ?? '—'],
-                ['País', user.country ?? '—'],
-                ['Cidade', user.city ?? '—'],
-                ['Idioma', user.language ?? '—'],
-              ].map(([l, v]) => (
-                <div
-                  key={l}
-                  className="flex justify-between py-1.5 border-b border-border last:border-0"
-                >
-                  <span className="text-xs text-ink-muted">{l}</span>
-                  <span className="text-xs font-medium text-ink">{v}</span>
-                </div>
-              ))}
+              <div className="p-5">
+                {[
+                  ['Email', user.email],
+                  ['Telefone', user.phone ?? '—'],
+                  ['País', user.country ?? '—'],
+                  ['Cidade', user.city ?? '—'],
+                  ['Idioma', user.language ?? '—'],
+                ].map(([l, v]) => (
+                  <div
+                    key={l}
+                    className="flex justify-between py-1.5 border-b border-border last:border-0"
+                  >
+                    <span className="text-xs text-ink-muted">{l}</span>
+                    <span className="text-xs font-medium text-ink">{v}</span>
+                  </div>
+                ))}
+              </div>
             </Card>
-            <Card className="p-5">
-              <div className="text-xs font-medium text-ink-faint uppercase tracking-wide mb-3">
+            <Card className="overflow-hidden">
+              <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
                 Organização
               </div>
-              {[
-                ['Departamento', user.department?.name ?? '—'],
-                ['Cargo', user.position?.name ?? '—'],
-                ['Unidade', user.unit?.name ?? '—'],
-                ['Admissão', fmtDate(user.hireDate)],
-                ['Role sistema', user.role?.name ?? '—'],
-              ].map(([l, v]) => (
-                <div
-                  key={l}
-                  className="flex justify-between py-1.5 border-b border-border last:border-0"
-                >
-                  <span className="text-xs text-ink-muted">{l}</span>
-                  <span className="text-xs font-medium text-ink">{v}</span>
-                </div>
-              ))}
+              <div className="p-5">
+                {[
+                  ['Departamento', user.department?.name ?? '—'],
+                  ['Cargo', user.position?.name ?? '—'],
+                  ['Unidade', user.unit?.name ?? '—'],
+                  ['Admissão', fmtDate(user.hireDate)],
+                  ['Role sistema', user.role?.name ?? '—'],
+                ].map(([l, v]) => (
+                  <div
+                    key={l}
+                    className="flex justify-between py-1.5 border-b border-border last:border-0"
+                  >
+                    <span className="text-xs text-ink-muted">{l}</span>
+                    <span className="text-xs font-medium text-ink">{v}</span>
+                  </div>
+                ))}
+              </div>
             </Card>
           </div>
 
           {stats.recentActivity.length > 0 && (
             <Card className="overflow-hidden">
-              <div className="px-4 py-3 border-b border-border text-xs font-medium text-ink-faint uppercase tracking-wide">
+              <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
                 Actividade recente
               </div>
               {stats.recentActivity.map((e) => (
