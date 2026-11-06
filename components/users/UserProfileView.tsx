@@ -56,6 +56,7 @@ import {
   TrainingTab,
 } from './ProfileTabs';
 import { QualificationsTab } from './QualificationsTab';
+import { ProfileTabNav } from './ProfileTabNav';
 
 export interface UserProfileViewProps {
   userId: number;
@@ -223,18 +224,12 @@ export function UserProfileView({
       </Card>
 
       {/* Tabs */}
-      <div className="flex w-fit flex-wrap gap-1 mb-5 rounded-control bg-surface-sunken p-1">
-        {TABS.map((t) => (
-          <Button
-            key={t.id}
-            size="sm"
-            intent={tab === t.id ? 'primary' : 'ghost'}
-            onClick={() => onTabChange(t.id)}
-          >
-            {t.label}
-          </Button>
-        ))}
-      </div>
+      <ProfileTabNav
+        className="mb-5"
+        items={TABS}
+        value={tab}
+        onChange={(id) => onTabChange(id as ProfileTab)}
+      />
 
       {/* Resumo */}
       {tab === 'overview' && stats && (
