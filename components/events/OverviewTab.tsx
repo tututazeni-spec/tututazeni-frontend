@@ -10,6 +10,7 @@
 
 import { useState } from 'react';
 import {
+  ArrowRight,
   Ban,
   CalendarCheck,
   CalendarClock,
@@ -17,11 +18,13 @@ import {
   CalendarX,
   ClipboardCheck,
   ClipboardList,
+  Clock,
   FileEdit,
   Hourglass,
   Radio,
   UserCheck,
   UserPlus,
+  Users,
   type LucideIcon,
 } from 'lucide-react';
 import { useApiQuery } from '@/hooks/useApiQuery';
@@ -108,9 +111,12 @@ function RankedList({
 
 export function OverviewTab({
   onOpenStatus,
+  onOpenAll,
 }: {
   /** Abre a lista de eventos já filtrada por este estado. */
   onOpenStatus?: (status: EventStatus) => void;
+  /** Abre a lista completa de eventos (botão "Ver todos"). */
+  onOpenAll?: () => void;
 }) {
   const [detailId, setDetailId] = useState<number | null>(null);
   const { data, isLoading, error, refetch } = useApiQuery<EventDashboard>(
@@ -254,61 +260,95 @@ export function OverviewTab({
       </div>
 
       {/* Próximos eventos */}
-      <div className="overflow-hidden rounded-card border border-border bg-surface">
-        <div className="border-b border-border bg-brand/60 px-4 py-3 font-body text-xs font-medium uppercase tracking-wide text-white">
-          Próximos eventos
+      <div className="flex overflow-hidden rounded-card border border-border bg-surface">
+        {/* Painel decorativo (calendário) */}
+        <div
+          aria-hidden="true"
+          className="relative hidden w-56 shrink-0 items-center justify-center bg-gradient-to-br from-info/15 via-surface-sunken to-info/30 md:flex"
+        >
+          <CalendarDays size={96} strokeWidth={1.25} className="text-info/70" />
+          <svg
+            viewBox="0 0 24 100"
+            preserveAspectRatio="none"
+            className="absolute inset-y-0 -right-px h-full w-6 text-surface"
+          >
+            <path d="M24 0V100H0C14 70 14 30 0 0Z" fill="currentColor" />
+          </svg>
         </div>
-        {data.upcomingEvents.length === 0 ? (
-          <EmptyState
-            icon={CalendarClock}
-            title="Sem eventos agendados"
-            description="Não há eventos publicados com data futura."
-            className="rounded-none border-0"
-          />
-        ) : (
-          data.upcomingEvents.map((e) => {
-            const typeCfg = TYPE_CFG[e.type] ?? TYPE_CFG.CORPORATE;
-            const TypeIcon = typeCfg.icon;
-            return (
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+            <CalendarDays size={22} strokeWidth={1.75} className="text-info" />
+            <h3 className="flex-1 font-body text-sm font-semibold uppercase tracking-wide text-ink">
+              Próximos eventos
+            </h3>
+            {onOpenAll && (
               <button
-                key={e.id}
                 type="button"
-                onClick={() => setDetailId(e.id)}
-                className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
+                onClick={onOpenAll}
+                className="inline-flex items-center gap-1 rounded-full border border-info/30 bg-info/10 px-3 py-1 font-body text-xs font-medium text-info hover:bg-info/20"
               >
-                <span
-                  className={`inline-flex items-center gap-1 rounded px-2 py-0.5 font-body text-xs ${typeCfg.cls} !text-ink`}
-                >
-                  <TypeIcon
-                    size={12}
-                    strokeWidth={1.75}
-                    className="text-ink"
-                  />{' '}
-                  {typeCfg.label}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-body text-sm font-medium text-ink">
-                    {e.title}
-                  </div>
-                  <div className="truncate font-body text-xs text-ink-faint">
-                    {e.location ?? (e.modalidade === 'ONLINE' ? 'Online' : '—')}
-                  </div>
-                </div>
-                <div className="shrink-0 font-body text-xs text-ink-faint">
-                  {fmtDateTime(e.startAt)}
-                </div>
-                <div className="w-16 shrink-0 text-right font-mono text-xs text-ink-faint">
-                  {e._count.participants} insc.
-                </div>
-                <StatusBadge
-                  value={e.status as EventStatus}
-                  map={STATUS_CFG}
-                  className="!text-ink"
-                />
+                Ver todos <ArrowRight size={14} strokeWidth={2} />
               </button>
-            );
-          })
-        )}
+            )}
+          </div>
+          {data.upcomingEvents.length === 0 ? (
+            <EmptyState
+              icon={CalendarClock}
+              title="Sem eventos agendados"
+              description="Não há eventos publicados com data futura."
+              className="rounded-none border-0"
+            />
+          ) : (
+            data.upcomingEvents.map((e) => {
+              const typeCfg = TYPE_CFG[e.type] ?? TYPE_CFG.CORPORATE;
+              const TypeIcon = typeCfg.icon;
+              return (
+                <button
+                  key={e.id}
+                  type="button"
+                  onClick={() => setDetailId(e.id)}
+                  className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left last:border-0 hover:bg-surface-sunken"
+                >
+                  <span
+                    title={typeCfg.label}
+                    className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${typeCfg.barCls}`}
+                  >
+                    <TypeIcon
+                      size={20}
+                      strokeWidth={1.75}
+                      className="text-white"
+                    />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-body text-sm font-semibold text-ink">
+                      {e.title}
+                    </div>
+                    <div className="truncate font-body text-xs text-ink-faint">
+                      {e.location ??
+                        (e.modalidade === 'ONLINE' ? 'Online' : '—')}
+                    </div>
+                  </div>
+                  <div className="hidden shrink-0 space-y-1 border-l border-border pl-3 font-body text-xs text-ink-faint sm:block">
+                    <div className="flex items-center gap-1.5">
+                      <Clock size={13} strokeWidth={1.75} />
+                      {fmtDateTime(e.startAt)}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Users size={13} strokeWidth={1.75} />
+                      {e._count.participants} insc.
+                    </div>
+                  </div>
+                  <StatusBadge
+                    value={e.status as EventStatus}
+                    map={STATUS_CFG}
+                    className="!text-ink"
+                  />
+                </button>
+              );
+            })
+          )}
+        </div>
       </div>
     </div>
   );
