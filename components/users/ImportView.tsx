@@ -199,208 +199,219 @@ export function ImportView() {
 
   return (
     <div className="space-y-6">
-      <Card className="p-5">
-        <div className="mb-4 text-sm font-semibold text-ink">
+      <Card className="overflow-hidden">
+        <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
           1. Carregar ficheiro
         </div>
-        <FormField
-          label="Ficheiro Excel ou CSV"
-          htmlFor="import-file"
-          hint="Cabeçalho + uma linha por utilizador. Aceita Excel (.xlsx, lê a primeira folha) e CSV."
-        >
-          <Input
-            id="import-file"
-            type="file"
-            accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            onChange={(e) => handleFile(e.target.files?.[0])}
-            className="file:mr-3 file:rounded-control file:border-0 file:bg-surface-sunken file:px-3 file:py-1 file:font-body file:text-xs file:text-ink"
-          />
-        </FormField>
+        <div className="p-5">
+          <FormField
+            label="Ficheiro Excel ou CSV"
+            htmlFor="import-file"
+            hint="Cabeçalho + uma linha por utilizador. Aceita Excel (.xlsx, lê a primeira folha) e CSV."
+          >
+            <Input
+              id="import-file"
+              type="file"
+              accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              onChange={(e) => handleFile(e.target.files?.[0])}
+              className="file:mr-3 file:rounded-control file:border-0 file:bg-surface-sunken file:px-3 file:py-1 file:font-body file:text-xs file:text-ink"
+            />
+          </FormField>
 
-        {readError && (
-          <div className="mt-3 flex items-center gap-2 rounded-card bg-danger-subtle p-3 font-body text-sm text-danger-ink">
-            <AlertCircle size={16} strokeWidth={1.75} />
-            {readError}
-          </div>
-        )}
-        {parsed?.error && (
-          <div className="mt-3 flex items-center gap-2 rounded-card bg-danger-subtle p-3 font-body text-sm text-danger-ink">
-            <AlertCircle size={16} strokeWidth={1.75} />
-            {parsed.error}
-          </div>
-        )}
-        {parsed && !parsed.error && (
-          <div className="mt-3 flex items-center gap-2 font-body text-sm text-ink-muted">
-            <FileCheck2 size={16} strokeWidth={1.75} className="text-success" />
-            {fileName} — {parsed.rows.length} linha
-            {parsed.rows.length === 1 ? '' : 's'} de dados,{' '}
-            {parsed.headers.length} coluna
-            {parsed.headers.length === 1 ? '' : 's'}
-          </div>
-        )}
+          {readError && (
+            <div className="mt-3 flex items-center gap-2 rounded-card bg-danger-subtle p-3 font-body text-sm text-danger-ink">
+              <AlertCircle size={16} strokeWidth={1.75} />
+              {readError}
+            </div>
+          )}
+          {parsed?.error && (
+            <div className="mt-3 flex items-center gap-2 rounded-card bg-danger-subtle p-3 font-body text-sm text-danger-ink">
+              <AlertCircle size={16} strokeWidth={1.75} />
+              {parsed.error}
+            </div>
+          )}
+          {parsed && !parsed.error && (
+            <div className="mt-3 flex items-center gap-2 font-body text-sm text-ink-muted">
+              <FileCheck2
+                size={16}
+                strokeWidth={1.75}
+                className="text-success"
+              />
+              {fileName} — {parsed.rows.length} linha
+              {parsed.rows.length === 1 ? '' : 's'} de dados,{' '}
+              {parsed.headers.length} coluna
+              {parsed.headers.length === 1 ? '' : 's'}
+            </div>
+          )}
+        </div>
       </Card>
 
       {(step === 'map' || step === 'result') && parsed && !parsed.error && (
-        <Card className="p-5">
-          <div className="mb-4 text-sm font-semibold text-ink">
+        <Card className="overflow-hidden">
+          <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
             2. Mapear colunas
           </div>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeaderCell>Coluna no ficheiro</TableHeaderCell>
-                <TableHeaderCell>Exemplo</TableHeaderCell>
-                <TableHeaderCell>Campo</TableHeaderCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {parsed.headers.map((header, i) => (
-                <TableRow key={header + i}>
-                  <TableCell className="text-sm font-medium text-ink">
-                    {header}
-                  </TableCell>
-                  <TableCell className="text-xs text-ink-faint">
-                    {parsed.rows[0]?.[i] ?? '—'}
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      items={FIELD_ITEMS}
-                      value={mapping[i] ?? 'ignore'}
-                      onValueChange={(v) =>
-                        setMapping((m) =>
-                          m.map((x, idx) =>
-                            idx === i ? (v as ImportField) : x,
-                          ),
-                        )
-                      }
-                      className="w-52"
-                    />
-                  </TableCell>
+          <div className="p-5">
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableHeaderCell>Coluna no ficheiro</TableHeaderCell>
+                  <TableHeaderCell>Exemplo</TableHeaderCell>
+                  <TableHeaderCell>Campo</TableHeaderCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHead>
+              <TableBody>
+                {parsed.headers.map((header, i) => (
+                  <TableRow key={header + i}>
+                    <TableCell className="text-sm font-medium text-ink">
+                      {header}
+                    </TableCell>
+                    <TableCell className="text-xs text-ink-faint">
+                      {parsed.rows[0]?.[i] ?? '—'}
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        items={FIELD_ITEMS}
+                        value={mapping[i] ?? 'ignore'}
+                        onValueChange={(v) =>
+                          setMapping((m) =>
+                            m.map((x, idx) =>
+                              idx === i ? (v as ImportField) : x,
+                            ),
+                          )
+                        }
+                        className="w-52"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
 
-          {!mappedHasRequiredFields && (
-            <p className="mt-3 font-body text-xs text-danger">
-              Mapeia pelo menos as colunas &ldquo;Email&rdquo; e &ldquo;Nome
-              completo&rdquo; para continuar.
-            </p>
-          )}
+            {!mappedHasRequiredFields && (
+              <p className="mt-3 font-body text-xs text-danger">
+                Mapeia pelo menos as colunas &ldquo;Email&rdquo; e &ldquo;Nome
+                completo&rdquo; para continuar.
+              </p>
+            )}
 
-          <label className="mt-4 flex cursor-pointer items-center gap-2 font-body text-sm text-ink-muted">
-            <Checkbox
-              checked={updateExisting}
-              onChange={(e) => setUpdateExisting(e.target.checked)}
-            />
-            Atualizar utilizadores já existentes (por email) em vez de saltar
-          </label>
+            <label className="mt-4 flex cursor-pointer items-center gap-2 font-body text-sm text-ink-muted">
+              <Checkbox
+                checked={updateExisting}
+                onChange={(e) => setUpdateExisting(e.target.checked)}
+              />
+              Atualizar utilizadores já existentes (por email) em vez de saltar
+            </label>
 
-          <div className="mt-4 flex justify-end">
-            <Button
-              onClick={handlePreview}
-              disabled={!mappedHasRequiredFields || importMutation.isPending}
-            >
-              {importMutation.isPending && step !== 'result'
-                ? 'A pré-visualizar…'
-                : 'Pré-visualizar'}
-            </Button>
+            <div className="mt-4 flex justify-end">
+              <Button
+                onClick={handlePreview}
+                disabled={!mappedHasRequiredFields || importMutation.isPending}
+              >
+                {importMutation.isPending && step !== 'result'
+                  ? 'A pré-visualizar…'
+                  : 'Pré-visualizar'}
+              </Button>
+            </div>
           </div>
         </Card>
       )}
 
       {step === 'result' && report && (
-        <Card className="p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="text-sm font-semibold text-ink">
-              3.{' '}
-              {report.dryRun ? 'Pré-visualização' : 'Relatório de importação'}
-            </div>
-            <div className="flex gap-2">
-              <Badge intent="success">{report.created} a criar</Badge>
-              <Badge intent="info">{report.updated} a atualizar</Badge>
-              <Badge intent="warning">{report.skipped} ignorados</Badge>
-              <Badge intent="danger">{report.errors.length} erros</Badge>
-            </div>
+        <Card className="overflow-hidden">
+          <div className="bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+            3. {report.dryRun ? 'Pré-visualização' : 'Relatório de importação'}
           </div>
+          <div className="p-5">
+            <div className="mb-4 flex items-center justify-end">
+              <div className="flex gap-2">
+                <Badge intent="success">{report.created} a criar</Badge>
+                <Badge intent="info">{report.updated} a atualizar</Badge>
+                <Badge intent="warning">{report.skipped} ignorados</Badge>
+                <Badge intent="danger">{report.errors.length} erros</Badge>
+              </div>
+            </div>
 
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeaderCell>Linha</TableHeaderCell>
-                <TableHeaderCell>Email</TableHeaderCell>
-                <TableHeaderCell>Resultado</TableHeaderCell>
-                <TableHeaderCell>Detalhe</TableHeaderCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {report.rows.map((row) => {
-                const cfg = OUTCOME_BADGE[row.outcome];
-                return (
-                  <TableRow key={row.line}>
-                    <TableCell className="text-xs text-ink-faint">
-                      {row.line}
-                    </TableCell>
-                    <TableCell className="text-sm text-ink">
-                      {row.email}
-                    </TableCell>
-                    <TableCell>
-                      <Badge intent={cfg.intent}>{cfg.label}</Badge>
-                    </TableCell>
-                    <TableCell className="text-xs text-ink-faint">
-                      {row.detail ?? '—'}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableHeaderCell>Linha</TableHeaderCell>
+                  <TableHeaderCell>Email</TableHeaderCell>
+                  <TableHeaderCell>Resultado</TableHeaderCell>
+                  <TableHeaderCell>Detalhe</TableHeaderCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {report.rows.map((row) => {
+                  const cfg = OUTCOME_BADGE[row.outcome];
+                  return (
+                    <TableRow key={row.line}>
+                      <TableCell className="text-xs text-ink-faint">
+                        {row.line}
+                      </TableCell>
+                      <TableCell className="text-sm text-ink">
+                        {row.email}
+                      </TableCell>
+                      <TableCell>
+                        <Badge intent={cfg.intent}>{cfg.label}</Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-ink-faint">
+                        {row.detail ?? '—'}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
 
-          <div className="mt-4 flex justify-end gap-3">
-            <Button intent="ghost" onClick={handleReset}>
-              Nova importação
-            </Button>
-            {report.dryRun && (
-              <Button
-                onClick={handleConfirm}
-                disabled={importMutation.isPending}
-              >
-                {importMutation.isPending
-                  ? 'A importar…'
-                  : 'Confirmar importação'}
+            <div className="mt-4 flex justify-end gap-3">
+              <Button intent="ghost" onClick={handleReset}>
+                Nova importação
               </Button>
-            )}
+              {report.dryRun && (
+                <Button
+                  onClick={handleConfirm}
+                  disabled={importMutation.isPending}
+                >
+                  {importMutation.isPending
+                    ? 'A importar…'
+                    : 'Confirmar importação'}
+                </Button>
+              )}
+            </div>
           </div>
         </Card>
       )}
 
-      <Card className="p-5">
-        <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
-          <Upload size={16} strokeWidth={1.75} />
+      <Card className="overflow-hidden">
+        <div className="flex items-center gap-2 bg-brand/60 px-4 py-3 text-xs font-medium uppercase tracking-wide text-white">
+          <Upload size={14} strokeWidth={1.75} />
           Histórico de importações
         </div>
-        {!history || history.data.length === 0 ? (
-          <EmptyState variant="inline" title="Sem importações registadas" />
-        ) : (
-          <ul className="space-y-2">
-            {history.data.map((log) => (
-              <li
-                key={log.id}
-                className="flex items-center justify-between gap-4 border-b border-border py-2 last:border-0 font-body text-sm"
-              >
-                <span className="text-ink-muted">
-                  {fmtDateTime(log.createdAt)}
-                </span>
-                <span className="text-ink-faint">
-                  {log.performedBy?.fullName ?? auditActionLabel(log.action)}
-                </span>
-                <span className="text-ink">
-                  {describeAuditMeta(log.action, log.meta) ?? '—'}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="p-5">
+          {!history || history.data.length === 0 ? (
+            <EmptyState variant="inline" title="Sem importações registadas" />
+          ) : (
+            <ul className="space-y-2">
+              {history.data.map((log) => (
+                <li
+                  key={log.id}
+                  className="flex items-center justify-between gap-4 border-b border-border py-2 last:border-0 font-body text-sm"
+                >
+                  <span className="text-ink-muted">
+                    {fmtDateTime(log.createdAt)}
+                  </span>
+                  <span className="text-ink-faint">
+                    {log.performedBy?.fullName ?? auditActionLabel(log.action)}
+                  </span>
+                  <span className="text-ink">
+                    {describeAuditMeta(log.action, log.meta) ?? '—'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </Card>
     </div>
   );
